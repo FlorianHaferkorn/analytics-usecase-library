@@ -214,6 +214,32 @@ export function StudioButton({
   );
 }
 
+export function StudioLinkButton({
+  href, children, variant = 'secondary', tone = 'default', className,
+}: {
+  href: string;
+  children: ReactNode;
+  tone?: Tone;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'accent';
+  className?: string;
+}) {
+  const appearanceClass = {
+    primary: styles.buttonPrimary,
+    accent: styles.buttonAccent,
+    secondary: styles.buttonSecondary,
+    ghost: styles.buttonGhost,
+  }[variant];
+  return (
+    <Link
+      href={href}
+      data-tone={tone}
+      className={`studio-button ${styles.button} ${appearanceClass}${className ? ` ${className}` : ''}`}
+    >
+      {children}
+    </Link>
+  );
+}
+
 // ── Segmented control ─────────────────────────────────────────────────────────
 
 export function StudioSegmentedControl<T extends string>({

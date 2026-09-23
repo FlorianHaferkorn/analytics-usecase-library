@@ -7,6 +7,8 @@ export interface NavItem {
   icon: string;
   sidebarIcon: string;
   color: string;
+  /** Numbered only for the primary end-to-end delivery path. */
+  step?: string;
 }
 
 export interface NavGroup {
@@ -21,8 +23,8 @@ export type NavMode = 'forge' | 'registry';
 export const FORGE_NAV: readonly NavItem[] = [
   {
     href: '/overview',
-    label: 'Overview',
-    description: 'Library inventory, quality findings, and suggested next tasks',
+    label: 'Delivery cockpit',
+    description: 'See project state, the delivery model, blockers, and the next accountable action',
     icon: 'O',
     sidebarIcon: 'squares-four',
     color: 'var(--accent)',
@@ -30,10 +32,11 @@ export const FORGE_NAV: readonly NavItem[] = [
   {
     href: '/discover',
     label: 'Discover',
-    description: 'Extract strategy anchors from business reports and research',
+    description: 'Capture source evidence and turn it into reviewed project inputs',
     icon: 'D',
     sidebarIcon: 'magnifying-glass',
     color: 'var(--mint)',
+    step: '01',
   },
   {
     href: '/blueprint',
@@ -53,24 +56,24 @@ export const FORGE_NAV: readonly NavItem[] = [
   },
   {
     href: '/generate',
-    label: 'Generate',
-    description: 'Export to Fabric/Power BI, SQL, or Evidence.dev',
+    label: 'Build outputs',
+    description: 'Generate supported delivery artifacts from an approved, pinned project version',
     icon: 'G',
     sidebarIcon: 'rocket-launch',
     color: 'var(--gold)',
   },
   {
     href: '/package',
-    label: 'Project Package',
-    description: 'Edit, version, compare, export, and restore the governed project authority',
+    label: 'Project record',
+    description: 'Inspect, version, compare, export, and restore the governed project authority',
     icon: 'P',
     sidebarIcon: 'clipboard-text',
     color: 'var(--info)',
   },
   {
     href: '/templates',
-    label: 'Brand & Templates',
-    description: 'Themes, T1–T4 page layouts, and export previews',
+    label: 'Output standards',
+    description: 'Review governed layouts, themes, production sizes, and export previews',
     icon: 'T',
     sidebarIcon: 'paint-brush',
     color: 'var(--gold)',
@@ -89,8 +92,8 @@ export const FORGE_NAV: readonly NavItem[] = [
 export const FORGE_TOOLS_NAV: readonly NavItem[] = [
   {
     href: '/library',
-    label: 'Library',
-    description: 'Browse metrics, dimensions, sources, actions, and use cases',
+    label: 'Reference library',
+    description: 'Find reusable metrics, dimensions, sources, actions, and use cases without treating them as project evidence',
     icon: 'L',
     sidebarIcon: 'clipboard-text',
     color: 'var(--ink-3)',
@@ -159,9 +162,9 @@ export const REGISTRY_NAV: readonly NavItem[] = [
 
 /** Combined list used by legacy code — new code should prefer FORGE_NAV / REGISTRY_NAV. */
 export const DELIVERY_NAV: readonly NavItem[] = [
-  {href:'/engagement',label:'Delivery workspace',description:'Project scope, commercial basis, plan, roles and delivery stages',icon:'E',sidebarIcon:'clipboard-text',color:'var(--info)'},
-  {href:'/architecture',label:'Architecture',description:'Pinned project architecture, contracts, generation outputs and missing inputs',icon:'A',sidebarIcon:'tree-structure',color:'var(--info)'},
-  {href:'/automation',label:'Automation',description:'Project gates, cost and staffing preview, reproducible generation and run evidence',icon:'A',sidebarIcon:'rocket-launch',color:'var(--info)'},
+  {href:'/engagement',label:'Decide & plan',description:'Resolve choices, sequence the project, staff roles, and manage tasks with a Definition of Done',icon:'E',sidebarIcon:'clipboard-text',color:'var(--info)',step:'02'},
+  {href:'/architecture',label:'Design',description:'Inspect the delivery model, architecture, contracts, and the impact of approved decisions',icon:'A',sidebarIcon:'tree-structure',color:'var(--info)',step:'03'},
+  {href:'/automation',label:'Build & release',description:'Run gates, generate reproducibly, and retain release evidence without implying tenant success',icon:'A',sidebarIcon:'rocket-launch',color:'var(--info)',step:'04'},
 ];
 export const NAV_ITEMS: readonly NavItem[] = [...FORGE_NAV, ...FORGE_TOOLS_NAV, ...REGISTRY_NAV, ...DELIVERY_NAV, { ...REGISTRY_NAV[1], href: '/lineage' }] as const;
 
@@ -175,28 +178,18 @@ export const NAV_ITEMS: readonly NavItem[] = [...FORGE_NAV, ...FORGE_TOOLS_NAV, 
  */
 export const STUDIO_NAV_GROUPS: readonly NavGroup[] = [
   {
-    label: 'Project',
-    description: 'Current engagement and next action',
-    items: [FORGE_NAV[0], DELIVERY_NAV[0]],
+    label: 'Delivery flow',
+    description: 'One path from evidence to verified operation',
+    items: [FORGE_NAV[0], FORGE_NAV[1], DELIVERY_NAV[0], DELIVERY_NAV[1], DELIVERY_NAV[2], {...REGISTRY_NAV[3], label:'Verify & operate', description:'Verify implementation evidence, acceptance, drift, and operating readiness', step:'05'}],
   },
   {
-    label: 'Shape',
-    description: 'Evidence, decisions, architecture, and value',
-    items: [FORGE_NAV[1], DELIVERY_NAV[1], FORGE_NAV[2], FORGE_NAV[3]],
+    label: 'Project workspace',
+    description: 'Authoritative package and focused working tools',
+    items: [FORGE_NAV[5], REGISTRY_NAV[4], {...REGISTRY_NAV[1], label:'Domain scope', description:'Inspect recorded domain ownership and use-case boundaries; connectors express scope, not physical lineage'}],
   },
   {
-    label: 'Deliver',
-    description: 'Governed plan, build package, and release',
-    items: [FORGE_NAV[5], FORGE_NAV[4], DELIVERY_NAV[2]],
-  },
-  {
-    label: 'Assure',
-    description: 'Approval, lineage, drift, and health',
-    items: [REGISTRY_NAV[4], REGISTRY_NAV[1], REGISTRY_NAV[2], REGISTRY_NAV[3]],
-  },
-  {
-    label: 'Assets',
-    description: 'Reusable definitions, visuals, and templates',
+    label: 'Reference & standards',
+    description: 'Reusable definitions and governed output patterns; never project evidence',
     items: [FORGE_TOOLS_NAV[0], FORGE_NAV[6]],
   },
   {

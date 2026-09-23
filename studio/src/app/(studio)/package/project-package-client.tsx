@@ -295,7 +295,7 @@ export function ProjectPackageClient() {
           )}
         />
       ) : loadState === 'ready' && snapshot ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 0.32fr) minmax(0, 1fr)', gap: 'var(--gap)', minHeight: 520 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 0.36fr) minmax(0, 1fr)', gap: 'var(--gap)', minHeight: 520 }}>
           <StudioPanel
             title="Complete snapshot"
             description="Select a UTF-8 text file. Binary files remain part of every revision but cannot be edited here."
@@ -310,6 +310,7 @@ export function ProjectPackageClient() {
                   <button
                     key={file.path}
                     type="button"
+                    title={file.path}
                     disabled={!editable}
                     onClick={() => setSelectedPath(file.path)}
                     style={{
@@ -319,7 +320,7 @@ export function ProjectPackageClient() {
                       color: editable ? 'var(--ink)' : 'var(--ink-4)', cursor: editable ? 'pointer' : 'default',
                     }}
                   >
-                    <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 12, overflowWrap: 'anywhere' }}>
+                    <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {changed ? '● ' : ''}{file.path}
                     </span>
                     <span style={{ display: 'block', marginTop: 'var(--space-1)', fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>

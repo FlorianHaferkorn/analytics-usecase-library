@@ -12,9 +12,9 @@ import styles from './studio-header.module.css';
 
 /** Build breadcrumb segments from the current pathname. */
 function useBreadcrumbs(pathname: string): string[] {
-  const match = NAV_ITEMS.find((item) => pathname.startsWith(item.href));
-  if (!match) return ['Studio'];
   const group = getNavGroup(pathname);
+  const match = group?.items.find((item) => pathname.startsWith(item.href)) ?? NAV_ITEMS.find((item) => pathname.startsWith(item.href));
+  if (!match) return ['Studio'];
   return [group?.label ?? 'Studio', match.label];
 }
 

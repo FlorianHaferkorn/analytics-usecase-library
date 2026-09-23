@@ -22,6 +22,14 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 
 ---
 
+## Project Package / Studio tooling
+
+| Symptom / message | Cause | Fix |
+|------------------|--------|-----|
+| `generate-types.mjs` fails with `ENOENT ... tooling/ai/schemas`, or invoking it through a different package manager rewrites the complete Studio dependency tree | The generator still points to a retired schema directory, while the repository declares `tooling/generator/schemas` as schema authority. Running `pnpm run` in an npm-lock repository triggers an implicit install before the script and can replace the validated dependency set. | Do not switch package managers. Execute repository scripts with the lockfile-owning package manager. Fix the generator path in a dedicated change, then regenerate types with collision-safe exports; until then, schema changes that are not consumed as generated Studio types must be validated through JSON Schema and targeted TypeScript checks. |
+
+---
+
 ## TMDL / PBIP
 
 | Symptom / message | Cause | Fix |

@@ -36,7 +36,7 @@ An enabled configuration must supply every field below. This is a neutral templa
 
 ```json
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "enabled": true,
   "state_dir": "C:/PrivateStudio/runner-state",
   "signing_key_env": "STUDIO_RUNNER_SIGNING_KEY",
@@ -62,6 +62,8 @@ An enabled configuration must supply every field below. This is a neutral templa
 }
 ```
 
+Schema `1.0.0` remains accepted for existing client-secret and user-assigned-managed-identity configurations. Workload federation and tenant-setting contracts require `1.1.0`, so an old configuration cannot silently acquire the new behavior.
+
 `principal_id` is the tenant service-principal object ID, not the application/client ID. UUIDs must use canonical lower-case form. Scopes and actors are exact allowlists, with no wildcards. Separate approver and executor lists may contain the same person for a one-person operating model.
 
 The signing reference must contain base64-encoded random key material of at least 32 bytes. The identity secret uses a different reference; neither value belongs in JSON, the package, Studio client state or an export. An operator must provide host ACLs and lifecycle management for the private file, state directory and secrets. The module checks path separation and rejects symlinks/junctions; it does not establish or certify operating-system ACLs.
@@ -72,7 +74,37 @@ For an explicit user-assigned managed identity, replace only `identity`:
 {"kind":"managed_identity","client_id":"33333333-3333-3333-3333-333333333333"}
 ```
 
-The Azure-hosted runtime must actually have that identity assigned. No system-assigned identity fallback, `DefaultAzureCredential`, arbitrary module import, interactive sign-in or CLI login is used. `azure-identity` is an optional host prerequisite and is not installed automatically. `fab` must already be available through the trusted host installation. Only public-cloud Fabric is supported.
+For customer-owned external OIDC federation, use the explicit client-assertion route. `assertion_file_env` names an environment variable whose value is an absolute private file path; neither the path nor file content is returned by status:
+
+```json
+{
+  "kind": "workload_identity_federation",
+  "client_id": "33333333-3333-3333-3333-333333333333",
+  "assertion_file_env": "STUDIO_RUNNER_FEDERATED_ASSERTION_FILE",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:neutral/example:environment:dev",
+  "audience": "api://AzureADTokenExchange"
+}
+```
+
+The assertion file is read only from the Azure Identity callback during token acquisition. The callback requires a compact signed JWT, exact configured `iss`, `sub` and `aud`, a usable `exp`, and an `nbf` that is not materially in the future. These unverified local claims are a fail-closed routing guard; Entra validates the assertion signature and federated-credential relationship. A new file value can therefore be supplied for every short-lived acquisition without changing runner configuration.
+
+An optional read-only tenant-setting contract belongs inside the same exact scope. It uses an exact displayed title first and the opaque `settingName` only as a fallback when exactly one candidate exists:
+
+```json
+"tenant_settings": {
+  "permission_evidence_ref": "Host-reviewed admin read permission record",
+  "desired": [{
+    "title": "Service principals can call Fabric public APIs",
+    "setting_name": "ServicePrincipalAccessPermissionAPIs",
+    "enabled": true,
+    "enabled_security_group_ids": ["44444444-4444-4444-4444-444444444444"],
+    "excluded_security_group_ids": []
+  }]
+}
+```
+
+Desired enabled and excluded group IDs are exact sets. Duplicate titles, setting names or group IDs, overlapping enabled/excluded groups, raw assertions and unsupported fields are refused. The Azure-hosted runtime must actually have its configured identity assigned or federation established. No system-assigned identity fallback, `DefaultAzureCredential`, arbitrary module import, interactive sign-in or CLI login is used. `azure-identity` is an optional host prerequisite and is not installed automatically. `fab` must already be available through the trusted host installation. Only public-cloud Fabric is supported.
 
 ## Request and result contract
 
@@ -86,10 +118,13 @@ All requests include `project_ref`, `revision_hash` and the server-derived `acto
 | `approve` | `plan`, `rationale`, `confirm: true` | Validates the exact current released package and persists its signed 15-minute intent; no tenant calls |
 | `execute` | `approval_id`, `confirm: true` | Uses only the stored signed plan; permanently consumes this attempt before constructing a credential |
 | `outcome` | `approval_id` | Reads signed evidence for the exact project/revision; does not renew or execute an approval |
+| `tenant_settings` | Exact `tenant_id`, `principal_id`, `environment` | Validates the released revision and exact host scope, then performs paginated `GET /v1/admin/tenantsettings`; it never changes a setting and stops at the documented 25-request limit |
 
 Responses are `{ok:true,value:...}` or `{ok:false,error:...,status:409}`. Errors are sanitized; token, secret, subprocess output and raw filesystem diagnostics are not returned. Input size is limited and unknown fields are refused.
 
-Status reports `configuration_checked_only: true` and `identity_verified: false`. `can_approve` and `can_execute` require enabled exact scope, the respective allowed actor, referenced environment names, Azure Identity distribution metadata, a discoverable `fab` executable and a usable configured state path. Studio additionally checks the mutation sign-in window and origin configuration. These checks do not prove that a referenced secret is valid, a tenant is reachable, the installed CLI is compatible or host ACLs are correct. A missing dependency remains a blocker rather than an implicit login fallback.
+Status reports `configuration_checked_only: true` and `identity_verified: false`. `can_approve` and `can_execute` require enabled exact scope, the respective allowed actor, referenced environment names, Azure Identity distribution metadata, a discoverable `fab` executable and a usable configured state path. `can_probe_tenant_settings` additionally requires a tenant-setting contract for every reported project scope. Studio additionally checks the mutation sign-in window and origin configuration. These checks do not read an assertion file and do not prove that a referenced credential is valid, a tenant is reachable, the installed CLI is compatible or host ACLs are correct. A missing dependency remains a blocker rather than an implicit login fallback.
+
+The tenant-setting result reports `CONFORMANT`, `DRIFT`, `AMBIGUOUS` or `MISSING` for each requested setting and for the aggregate. A title match with an unexpected `settingName` is `DRIFT`, not a successful fallback. It returns only the selected settings, never the unrelated tenant inventory. `configuration_readiness: configured`, `permission_proof.state: effective_read_observed`, `permission_proof.assignment_evidence: referenced_not_verified` and `tenant_acceptance: not_recorded` are separate claims. A successful read proves effective read access for that observation; it does not verify the configured role assignment, record customer acceptance, authorize a setting change or make the whole project Apply-ready.
 
 Studio now displays actionable readiness diagnostics and a six-case first-workspace acceptance procedure. See [readiness and acceptance](PROJECT_RUNNER_ACCEPTANCE.md) for the status contract, operator steps, protocol export and reproducible offline checks. Configuration and supporting evidence never automatically become customer acceptance.
 
@@ -106,7 +141,7 @@ An emergency kill switch must not force an operator to re-enable writes to inves
 
 ## Execution and recovery
 
-After the one-shot claim is persisted, the explicit credential requests only `https://api.fabric.microsoft.com/.default`. The existing Fabric client checks token tenant, principal, audience and lifetime before sending it to `fab`; Fabric validates its actual signature and access rights. No token is stored in the runner evidence. Host permission declarations remain evidence-backed prerequisites, not grants or live authorization proof.
+After the one-shot claim is persisted, the explicit credential requests only `https://api.fabric.microsoft.com/.default`. The runner-created Fabric client checks token tenant (`tid`), application (`azp`/`appid`), service-principal object (`oid`), audience and lifetime before sending it to `fab`; Fabric validates its actual signature and access rights. Application and service-principal object IDs are distinct values and are bound independently. No token is stored in the runner evidence. Host permission declarations remain evidence-backed prerequisites, not grants or live authorization proof.
 
 Fresh inventory, current release, exact desired objects and readback are checked by the existing workspace executor. Existing mismatched workspaces are conflicts, not adopted or overwritten. Uncertain creation is not retried. Created resources are preserved for reconciliation.
 
@@ -114,14 +149,16 @@ A Studio timeout or disconnected browser must be treated as uncertain: keep the 
 
 ## Test coverage and remaining evidence
 
-`tooling/tests/test_project_runner_host.py` covers disabled default, read-only status without secret reads, strict host and request contracts, stable actors, unsupported credential selection, missing dependencies, no-op historical reads, tampering, foreign scope, expiry, one-shot execution, interrupted claims, startup failure sanitization, explicit SDK construction and the real subprocess JSON envelope. Fabric clients and credentials are fakes; tests never contact a tenant. Existing protected-runner and deployment-plan suites exercise the signed intent and create/readback mechanics.
+`tooling/tests/test_project_runner_host.py` covers disabled default, read-only status without secret reads, strict host and request contracts, stable actors, unsupported credential selection, missing dependencies, no-op historical reads, tampering, foreign scope, expiry, one-shot execution, interrupted claims, startup failure sanitization, explicit SDK construction and the real subprocess JSON envelope. `tooling/tests/test_project_tenant_settings.py` covers lazy federated-assertion reads, exact issuer/subject/audience and lifetime guards, unsafe path/config rejection, exact-title and unique-name selection, ambiguity, missing settings, enabled/group drift, pagination, scope refusal and sanitized failures. Fabric clients and credentials are fakes; tests never contact a tenant. Existing protected-runner and deployment-plan suites exercise the signed intent and create/readback mechanics.
 
 Before live use, an operator must explicitly establish authenticated Studio hosting, private storage/secrets, the actual identity and permission evidence, the shared execution boundary and recovery responsibility. Then prove one authorized non-production create/readback, repeated no-op plan, interruption and reconciliation. Item definitions/bindings, security, ingestion and CI/CD still require separate adapters and acceptance tests. Workspace verification is not full delivery.
 
 ## Primary references
 
-Checked 8 September 2026; documented interfaces are not tenant evidence:
+Checked 15 September 2026; documented interfaces are not tenant evidence:
 
 - [Azure Identity ClientSecretCredential](https://learn.microsoft.com/en-us/python/api/azure-identity/azure.identity.clientsecretcredential?view=azure-python): explicit tenant/client/secret and token request.
 - [Azure Identity ManagedIdentityCredential](https://learn.microsoft.com/en-us/python/api/azure-identity/azure.identity.managedidentitycredential?view=azure-python): explicit user-assigned client ID selection.
+- [Azure Identity ClientAssertionCredential](https://learn.microsoft.com/en-us/python/api/azure-identity/azure.identity.clientassertioncredential?view=azure-python): explicit tenant/client and lazy signed-assertion callback for external workload federation.
 - [Fabric service-principal token scope](https://learn.microsoft.com/en-us/fabric/data-factory/set-pipeline-owner-tutorial): public Fabric `.default` scope for acquiring an application token; endpoint permissions remain operation-specific.
+- [Fabric List Tenant Settings](https://learn.microsoft.com/en-us/rest/api/fabric/admin/tenants/list-tenant-settings): paginated read-only tenant-setting inventory and enabled/security-group scope fields.

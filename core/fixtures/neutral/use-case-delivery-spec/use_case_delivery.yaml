@@ -1,5 +1,56 @@
 schema_version: 2.0.0
 project_ref: project_demo
+platform_dependencies:
+  gateways:
+    - id: gateway_enterprise_dev
+      purpose: Provide the governed private network bridge for the canonical source.
+      status:
+        state: measured
+        evidence_refs:
+          - evidence/gateway-registration
+        note: Neutral fixture evidence only.
+  connections:
+    - id: connection_enterprise_erp
+      purpose: Authenticate and query the canonical governed source.
+      gateway_ref: gateway_enterprise_dev
+      status:
+        state: measured
+        evidence_refs:
+          - evidence/connection-test
+        note: Neutral fixture evidence only.
+    - id: connection_controlled_extract
+      purpose: Read the temporary development extract without a gateway.
+      gateway_ref: null
+      status:
+        state: measured
+        evidence_refs:
+          - evidence/extract-profile
+        note: Neutral fixture evidence only.
+  workspaces:
+    - id: workspace_commercial_dev
+      purpose: Host the development data products for the commercial domain.
+      status:
+        state: measured
+        evidence_refs:
+          - evidence/workspace-readback
+        note: Neutral fixture evidence only.
+  targets:
+    - id: target_bronze_dev
+      purpose: Persist source-aligned development data.
+      workspace_ref: workspace_commercial_dev
+      status:
+        state: measured
+        evidence_refs:
+          - evidence/bronze-readback
+        note: Neutral fixture evidence only.
+    - id: target_gold_dev
+      purpose: Publish the governed analytical product.
+      workspace_ref: workspace_commercial_dev
+      status:
+        state: measured
+        evidence_refs:
+          - evidence/gold-readback
+        note: Neutral fixture evidence only.
 use_cases:
   - id: uc_revenue_demo
     title: Revenue performance delivery
@@ -9,6 +60,13 @@ use_cases:
     decision_refs:
       - decision_source_boundary
       - decision_environment_model
+    platform_dependency_refs:
+      - gateway_enterprise_dev
+      - connection_enterprise_erp
+      - connection_controlled_extract
+      - workspace_commercial_dev
+      - target_bronze_dev
+      - target_gold_dev
     reference_reports:
       - id: report_revenue_legacy
         name: Legacy revenue report
@@ -37,6 +95,7 @@ use_cases:
             - company_id
             - reporting_month
             - product_id
+          connection_ref: connection_enterprise_erp
           status:
             state: derived
             evidence_refs:
@@ -55,6 +114,7 @@ use_cases:
             - company_id
             - reporting_month
             - product_id
+          connection_ref: connection_controlled_extract
           status:
             state: measured
             evidence_refs:
@@ -87,6 +147,7 @@ use_cases:
         source_refs:
           - source_sales_month
         history: snapshot
+        target_ref: target_bronze_dev
         status:
           state: proposed
           evidence_refs: []
@@ -102,6 +163,7 @@ use_cases:
         source_refs:
           - bronze_sales_month
         history: effective_dated
+        target_ref: target_gold_dev
         status:
           state: proposed
           evidence_refs:
@@ -206,6 +268,192 @@ use_cases:
             state: proposed
             evidence_refs: []
             note: Runtime evidence pending.
+    delivery_assurance:
+      source_behavior:
+        profile_ref: evidence/source-behavior-profile
+        publication_cadence: Daily after source close.
+        freshness_slo_minutes: 180
+        initial_volume_rows: 5000000
+        daily_change_rows: 50000
+        incremental_mode: watermark
+        cursor_field: last_changed_at
+        delete_handling: periodic_compare
+        late_arrival_window: Re-read the previous seven calendar days.
+        reconciliation_cadence: Weekly full key and aggregate reconciliation.
+        status:
+          state: proposed
+          evidence_refs:
+            - evidence/source-behavior-profile
+          note: Neutral example values; a project must replace them with measured evidence.
+      data_quality:
+        rules:
+          - id: dq_source_freshness
+            layer: source
+            dimension: freshness
+            assertion: The newest published source record is within the approved freshness window.
+            severity: block
+            threshold:
+              operator: less_than_or_equal
+              value: 180
+              unit: minutes
+              provenance: proposed
+            owner_ref: role_source_owner
+            remediation: Stop publication, retain the last approved output and contact the source owner.
+            evidence_required:
+              - Source maximum timestamp and pipeline run identifier
+            status:
+              state: proposed
+              evidence_refs: []
+              note: Measure before approval.
+          - id: dq_gold_reconciliation
+            layer: gold
+            dimension: reconciliation
+            assertion: Approved source and Gold totals reconcile within the accepted tolerance.
+            severity: block
+            threshold:
+              operator: equals
+              value: 0
+              unit: unexplained variance
+              provenance: proposed
+            owner_ref: role_data_owner
+            remediation: Assign the difference, correct the transformation or approve a documented exception before republishing.
+            evidence_required:
+              - Source and Gold totals tied to the same snapshot and run identifier
+            status:
+              state: proposed
+              evidence_refs: []
+              note: Tolerance and accountable owner require approval.
+        failed_run_recording: started_and_terminal
+        last_approved_output_retained: true
+        quarantine_target_ref: null
+        status:
+          state: proposed
+          evidence_refs: []
+          note: Negative quality tests are pending.
+      observability:
+        correlation_id_field: run_id
+        stale_after_minutes: 240
+        product_health_components:
+          - source
+          - bronze
+          - gold
+          - semantic
+          - report
+          - capacity
+        signals:
+          - id: signal_job_failure
+            type: job_failure
+            trigger: Any orchestrated step reaches a failed terminal state.
+            threshold: null
+            recipient_ref: role_operations_owner
+            channel: Governed operations channel
+            response_slo: Acknowledge within 30 minutes during the operating window.
+            runbook_ref: runbooks/job-failure.md
+            retention_days: 90
+            test_method: Inject one deterministic step failure and retain notification plus acknowledgement evidence.
+            status:
+              state: proposed
+              evidence_refs: []
+              note: Route and receiver require a live test.
+          - id: signal_quality_failure
+            type: data_quality_failure
+            trigger: A blocking quality rule fails or a run ends without a publishable quality verdict.
+            threshold: null
+            recipient_ref: role_data_owner
+            channel: Governed data-quality channel
+            response_slo: Assign remediation within one business day.
+            runbook_ref: runbooks/data-quality-failure.md
+            retention_days: 365
+            test_method: Inject one failing critical record and prove the last approved output remains published.
+            status:
+              state: proposed
+              evidence_refs: []
+              note: Negative test pending.
+          - id: signal_freshness
+            type: freshness
+            trigger: Source or product age exceeds the approved freshness SLO.
+            threshold:
+              operator: greater_than
+              value: 180
+              unit: minutes
+              provenance: proposed
+            recipient_ref: role_source_owner
+            channel: Governed operations channel
+            response_slo: Acknowledge within 30 minutes during the operating window.
+            runbook_ref: runbooks/source-freshness.md
+            retention_days: 90
+            test_method: Hold one scheduled publication beyond the threshold and prove the alert fires.
+            status:
+              state: proposed
+              evidence_refs: []
+              note: Threshold requires measurement.
+          - id: signal_capacity
+            type: capacity
+            trigger: Representative workload exceeds the accepted capacity utilization threshold.
+            threshold:
+              operator: greater_than_or_equal
+              value: 80
+              unit: percent of approved capacity budget
+              provenance: proposed
+            recipient_ref: role_platform_owner
+            channel: Governed platform operations channel
+            response_slo: Review sequencing or scale action within one business day.
+            runbook_ref: runbooks/capacity-pressure.md
+            retention_days: 90
+            test_method: Execute a representative load and retain capacity metrics plus the resulting decision.
+            status:
+              state: proposed
+              evidence_refs: []
+              note: Threshold is a proposal until a representative workload is measured.
+        status:
+          state: proposed
+          evidence_refs: []
+          note: Product-health and alert-route tests are pending.
+      reliability:
+        concurrency_control: One active product run per environment, enforced by a durable run lock.
+        idempotency_key: project revision plus environment plus scheduled window plus source watermark
+        retry_policy:
+          - failure_class: transient
+            action: retry
+            max_attempts: 3
+            backoff: Exponential backoff capped at the operating-window boundary.
+            jitter: true
+          - failure_class: rate_limit
+            action: retry_after
+            max_attempts: 5
+            backoff: Honor the platform retry-after value and then apply bounded exponential backoff.
+            jitter: true
+          - failure_class: authentication
+            action: stop
+            max_attempts: 0
+            backoff: No retry; correct identity or credential configuration.
+            jitter: false
+          - failure_class: schema
+            action: stop
+            max_attempts: 0
+            backoff: No retry; reconcile the contract and approve the change.
+            jitter: false
+          - failure_class: data_quality
+            action: stop
+            max_attempts: 0
+            backoff: No retry; remediate or approve a documented exception.
+            jitter: false
+          - failure_class: unknown
+            action: reconcile
+            max_attempts: 0
+            backoff: Read back the target before deciding whether another mutation is safe.
+            jitter: false
+        uncertain_mutation_strategy: readback_before_retry
+        rollback_procedure_ref: runbooks/rollback-to-last-approved-output.md
+        bootstrap_procedure_ref: runbooks/environment-bootstrap.md
+        status:
+          state: proposed
+          evidence_refs: []
+          note: Failure injection and environment bootstrap proof are pending.
+      status:
+        state: proposed
+        evidence_refs: []
+        note: Delivery assurance is designed but not yet runtime-verified.
     controls:
       - id: control_row_reconciliation
         area: data_quality

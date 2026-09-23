@@ -36,6 +36,9 @@ PROJECT_SCHEMAS = sorted(SCHEMAS.glob("project_*.schema.json"))
 LEGACY_FIXTURE = REPO / "tooling" / "tests" / "fixtures" / "project_package" / "v1"
 ARTIFACT_FIXTURE = REPO / "core" / "fixtures" / "neutral" / "project-package-artifact-lifecycle"
 USE_CASE_DELIVERY_FIXTURE = REPO / "core" / "fixtures" / "neutral" / "use-case-delivery-spec" / "use_case_delivery.yaml"
+OBSERVED_RUNTIME_FIXTURE = (
+    REPO / "core" / "fixtures" / "neutral" / "use-case-delivery-spec" / "observed_state.dev.json"
+)
 
 
 def _load_schema(name: str) -> dict:
@@ -180,13 +183,107 @@ def _add_use_case_delivery(root: Path, modules: list[dict]) -> dict:
     return document
 
 
+def _replace_observed_state(root: Path, modules: list[dict], document: dict) -> None:
+    module = next(item for item in modules if item["module_type"] == "observed_state")
+    path = root / module["path"]
+    path.write_text(json.dumps(document, indent=2), encoding="utf-8")
+    module["sha256"] = canonical_sha256(document)
+
+
+def _write_delivery(root: Path, modules: list[dict], document: dict) -> None:
+    module = next(item for item in modules if item["module_type"] == "use_case_delivery")
+    _write_yaml(root / module["path"], document)
+    module["sha256"] = canonical_sha256(document)
+
+
+def _manifest(modules: list[dict]) -> dict:
+    return {
+        "schema_version": "2.0.0",
+        "package_id": "package_demo",
+        "project_ref": "project_demo",
+        "revision": 1,
+        "state": "working",
+        "parent_revision_hash": None,
+        "operating_profile_lock": {
+            "id": "aluca_nagarro_consulting",
+            "version": "1.0.0",
+            "sha256": "1" * 64,
+        },
+        "capability_locks": [],
+        "modules": modules,
+    }
+
+
+def _accept_runtime(delivery: dict, proof_ref: str = "runtime_revenue_dev") -> None:
+    use_case = delivery["use_cases"][0]
+    use_case["delivery_state"] = "verified"
+    use_case["open_gates"] = []
+    assurance = use_case["delivery_assurance"]
+    measured_status = {
+        "state": "measured",
+        "evidence_refs": ["evidence/runtime-acceptance"],
+        "note": "Neutral runtime acceptance fixture.",
+    }
+    assurance["source_behavior"]["status"] = dict(measured_status)
+    for rule in assurance["data_quality"]["rules"]:
+        rule["status"] = dict(measured_status)
+        if rule.get("threshold"):
+            rule["threshold"]["provenance"] = "accepted"
+    assurance["data_quality"]["status"] = dict(measured_status)
+    for signal in assurance["observability"]["signals"]:
+        signal["status"] = dict(measured_status)
+        if signal.get("threshold"):
+            signal["threshold"]["provenance"] = "accepted"
+    assurance["observability"]["status"] = dict(measured_status)
+    assurance["reliability"]["status"] = dict(measured_status)
+    assurance["status"] = dict(measured_status)
+    use_case["acceptance"]["runtime_proof_refs"] = [
+        {"environment": "dev", "proof_ref": proof_ref}
+    ]
+    use_case["acceptance"]["status"] = {
+        "state": "measured",
+        "evidence_refs": ["evidence/runtime-acceptance"],
+        "note": "Neutral fixture acceptance only.",
+    }
+
+
 def test_all_project_package_schemas_are_closed_draft_2020_12() -> None:
-    assert len(PROJECT_SCHEMAS) == 13
+    assert len(PROJECT_SCHEMAS) == 16
     for path in PROJECT_SCHEMAS:
         schema = json.loads(path.read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)
         assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
         assert schema["additionalProperties"] is False
+
+
+def test_plan_schema_supports_milestones_staffing_tasks_and_readable_references() -> None:
+    plan = {
+        "schema_version": "2.0.0",
+        "work_packages": [],
+        "dependencies": [],
+        "reference_labels": {"O-1": "Resolve the customer choice"},
+        "milestones": [{
+            "id": "milestone_acceptance", "title": "Acceptance complete", "status": "active",
+            "target_gate": "Release gate", "owner_ref": "role_owner", "work_package_refs": [],
+            "definition_of_done": ["Acceptance evidence is retained."],
+        }],
+        "staffing": {
+            "delivery_model": "Named accountability with explicit availability",
+            "assignments": [{
+                "id": "assignment_owner", "role_ref": "role_owner", "person_ref": "person_owner",
+                "responsibility": "Accept the outcome.", "allocation_percent": None,
+                "state": "required", "basis_ref": "decision_owner",
+            }],
+        },
+        "tasks": [{
+            "id": "task_acceptance", "title": "Collect acceptance evidence",
+            "work_package_ref": "wp_acceptance", "status": "doing", "priority": "high",
+            "owner_ref": "role_owner", "target_gate": "Release gate", "decision_refs": ["O-1"],
+            "definition_of_done": ["Positive and negative tests pass."], "evidence_refs": [],
+        }],
+    }
+    schema = _load_schema("project_plan.schema.json")
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(plan)
 
 
 def test_adapter_declares_every_source_field_exactly_once() -> None:
@@ -232,7 +329,8 @@ def test_domain_fanout_requires_explicit_scope_mapping() -> None:
 
 def test_all_current_meridian_proposals_map_and_validate() -> None:
     proposals = load_emitters()["propose_all"]({})
-    assert len(proposals) == 19
+    # 20 seit Meridian D-533 (DATA-SILVER-LOAD, das Schreibmuster von Silber).
+    assert len(proposals) == 20
     result = adapt_decision_proposals(proposals)
     schema = _load_schema("project_decision_set.schema.json")
     Draft202012Validator(schema, format_checker=FormatChecker()).validate(result)
@@ -335,6 +433,75 @@ def test_use_case_delivery_validates_and_compiles_as_optional_module(tmp_path: P
 
     assert validate_project_package(tmp_path, SCHEMAS) == []
     assert build_compiler_input(tmp_path, SCHEMAS)["modules"]["use_case_delivery"] == delivery
+
+
+def test_platform_runtime_evidence_is_resolved_across_project_modules(tmp_path: Path) -> None:
+    modules = _minimal_modules(tmp_path)
+    observed = json.loads(OBSERVED_RUNTIME_FIXTURE.read_text(encoding="utf-8"))
+    _replace_observed_state(tmp_path, modules, observed)
+    delivery = _add_use_case_delivery(tmp_path, modules)
+    _accept_runtime(delivery)
+    _write_delivery(tmp_path, modules, delivery)
+    _write_yaml(tmp_path / "package.yaml", _manifest(modules))
+
+    assert validate_project_package(tmp_path, SCHEMAS) == []
+    compiler = build_compiler_input(tmp_path, SCHEMAS)
+    assert compiler["modules"]["observed_states"]["dev"]["operational_evidence"] == observed["operational_evidence"]
+
+
+def test_accepted_delivery_rejects_missing_runtime_proof(tmp_path: Path) -> None:
+    modules = _minimal_modules(tmp_path)
+    _replace_observed_state(
+        tmp_path,
+        modules,
+        json.loads(OBSERVED_RUNTIME_FIXTURE.read_text(encoding="utf-8")),
+    )
+    delivery = _add_use_case_delivery(tmp_path, modules)
+    _accept_runtime(delivery)
+    delivery["use_cases"][0]["acceptance"]["runtime_proof_refs"] = []
+    _write_delivery(tmp_path, modules, delivery)
+    _write_yaml(tmp_path / "package.yaml", _manifest(modules))
+
+    errors = validate_project_package(tmp_path, SCHEMAS)
+    assert any("accepted acceptance status requires runtime_proof_refs" in error for error in errors)
+
+
+def test_proposed_runtime_evidence_does_not_satisfy_acceptance(tmp_path: Path) -> None:
+    modules = _minimal_modules(tmp_path)
+    observed = json.loads(OBSERVED_RUNTIME_FIXTURE.read_text(encoding="utf-8"))
+    runtime = observed["operational_evidence"]["runtime_tests"][0]
+    runtime["outcome"] = "not_run"
+    runtime["tested_at"] = None
+    runtime["status"] = {
+        "state": "proposed",
+        "evidence_refs": [],
+        "note": "Planned runtime test only.",
+    }
+    _replace_observed_state(tmp_path, modules, observed)
+    delivery = _add_use_case_delivery(tmp_path, modules)
+    _accept_runtime(delivery)
+    _write_delivery(tmp_path, modules, delivery)
+    _write_yaml(tmp_path / "package.yaml", _manifest(modules))
+
+    errors = validate_project_package(tmp_path, SCHEMAS)
+    assert any("'proposed' evidence and outcome 'not_run'; it does not satisfy acceptance" in error for error in errors)
+
+
+def test_observed_operational_refs_must_resolve_to_declared_platform_dependencies(tmp_path: Path) -> None:
+    modules = _minimal_modules(tmp_path)
+    observed = json.loads(OBSERVED_RUNTIME_FIXTURE.read_text(encoding="utf-8"))
+    observed["operational_evidence"]["runtime_tests"][0]["connection_refs"] = ["connection_missing"]
+    _replace_observed_state(tmp_path, modules, observed)
+    delivery = _add_use_case_delivery(tmp_path, modules)
+    _accept_runtime(delivery)
+    _write_delivery(tmp_path, modules, delivery)
+    _write_yaml(tmp_path / "package.yaml", _manifest(modules))
+
+    errors = validate_project_package(tmp_path, SCHEMAS)
+    assert any(
+        "runtime proof 'runtime_revenue_dev' has unresolved connection_ref 'connection_missing'" in error
+        for error in errors
+    )
 
 
 def test_artifact_lifecycle_rejects_unsupported_status_claims(tmp_path: Path) -> None:

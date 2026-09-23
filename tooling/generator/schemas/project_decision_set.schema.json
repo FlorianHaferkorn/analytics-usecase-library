@@ -121,6 +121,18 @@
           }
         },
         "placeholder_refs": {"type": "array", "items": {"type": "string"}}
+        ,
+        "adr": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["record_id", "context", "decision_drivers", "affected_artifact_refs"],
+          "properties": {
+            "record_id": {"type": "string", "pattern": "^[A-Z]+-[0-9]{4}$"},
+            "context": {"type": "string", "minLength": 1},
+            "decision_drivers": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+            "affected_artifact_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+          }
+        }
       }
     },
     "instance": {
@@ -151,7 +163,10 @@
             "state": {"enum": ["draft", "proposed", "approved", "rejected", "deferred", "superseded"]},
             "proposed_by": {"type": ["string", "null"]},
             "decided_by": {"type": ["string", "null"]},
-            "rationale": {"type": ["string", "null"]}
+            "rationale": {"type": ["string", "null"]},
+            "decided_at": {"type": ["string", "null"], "format": "date-time"},
+            "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+            "approval_flow_ref": {"type": ["string", "null"]}
           }
         },
         "readiness": {

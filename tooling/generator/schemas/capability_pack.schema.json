@@ -235,7 +235,7 @@
         "id": {"$ref": "#/$defs/identifier"},
         "applies_to": {
           "type": "string",
-          "enum": ["domain", "workspace", "capacity", "item", "identity", "naming", "environment", "connection"]
+          "enum": ["domain", "workspace", "capacity", "item", "identity", "naming", "environment", "connection", "data_quality", "monitoring"]
         },
         "rule": {"$ref": "#/$defs/text"},
         "decision_refs": {"$ref": "#/$defs/id_list"}

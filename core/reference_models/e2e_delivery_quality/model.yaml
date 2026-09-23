@@ -1,0 +1,172 @@
+schema_version: 1.0.0
+id: governed_e2e_delivery_quality
+version: 1.1.0
+dimensions:
+  - id: guided_intake
+    title: Guided intake and review
+    intent: Capture structured inputs, show the resulting plan before mutation and keep reusable templates discoverable.
+    controls:
+      - id: governed_capability_intake
+        title: Adaptive capability intake is recorded
+        requirement: The project contains scoped capability facts and answers; applicable blocking questions are resolved before implementation.
+        weight: 8
+        gate: build_ready
+        source:
+          name: Backstage Software Templates
+          url: https://backstage.io/docs/features/software-templates/
+          strength_adopted: Structured forms, review before execution and reusable catalog templates.
+          reviewed_at: '2026-09-22T12:00:00Z'
+          review_interval_days: 90
+        detector:
+          kind: capability_questions_resolved
+  - id: declarative_model
+    title: Declarative, portable intent
+    intent: Separate customer intent from the target-specific platform renderer.
+    controls:
+      - id: versioned_project_package
+        title: Versioned project package is approved
+        requirement: One immutable package version is approved and pinned as compiler input.
+        weight: 10
+        gate: build_ready
+        source:
+          name: Score specification
+          url: https://docs.score.dev/docs/
+          strength_adopted: Environment-neutral workload intent resolved by target-specific implementations.
+          reviewed_at: '2026-09-22T12:00:00Z'
+          review_interval_days: 90
+        detector:
+          kind: package_approved
+      - id: architecture_contract
+        title: Architecture intent is machine-readable
+        requirement: Domain, environment and target architecture are represented as a validated package module.
+        weight: 7
+        gate: build_ready
+        source:
+          name: Humanitec workload profiles
+          url: https://developer.humanitec.com/platform-orchestrator/docs/integration-and-extensions/workload-profiles/overview/
+          strength_adopted: Governed profiles translate developer intent into platform resources.
+          reviewed_at: '2026-09-22T12:00:00Z'
+          review_interval_days: 90
+        detector:
+          kind: module_present
+          module_type: architecture_input
+  - id: platform_delivery
+    title: Platform-native delivery
+    intent: Use supported platform mechanisms and retain explicit exceptions instead of pretending one tool covers everything.
+    controls:
+      - id: delivery_contract
+        title: Target delivery contract is recorded
+        requirement: The package defines executable delivery paths, environments, limitations and evidence gates.
+        weight: 8
+        gate: build_ready
+        source:
+          name: Microsoft Fabric CI/CD
+          url: https://learn.microsoft.com/en-us/fabric/cicd/cicd-overview
+          strength_adopted: Git integration, deployment pipelines, APIs, CLI and infrastructure automation are selected by supported scope.
+          reviewed_at: '2026-09-22T12:00:00Z'
+          review_interval_days: 30
+        detector:
+          kind: module_present
+          module_type: use_case_delivery
+  - id: contracts_quality
+    title: Contracts and data quality
+    intent: Make schemas, quality rules, service levels and failure behavior executable and testable.
+    controls:
+      - id: contract_and_quality_assurance
+        title: Delivery assurance questions are resolved
+        requirement: Source behavior, DQ, monitoring, reliability and serving acceptance are explicitly answered with non-proposal evidence for implementation scope.
+        weight: 10
+        gate: apply_ready
+        source:
+          name: Open Data Contract Standard and Data Contract CLI
+          url: https://bitol-io.github.io/open-data-contract-standard/v3.0.1/home/
+          strength_adopted: Portable contracts combine schema, quality, ownership and service-level expectations with lint and test workflows.
+          reviewed_at: '2026-09-22T12:00:00Z'
+          review_interval_days: 90
+        detector:
+          kind: capability_questions_resolved
+  - id: traceability
+    title: Runtime traceability
+    intent: Link version, run, job, input, output and evidence without treating generated files as runtime proof.
+    controls:
+      - id: observed_runtime_evidence
+        title: Observed evidence is collected
+        requirement: At least one environment contains collected, timestamped and principal-bound execution evidence.
+        weight: 9
+        gate: acceptance_ready
+        source:
+          name: OpenLineage object model
+          url: https://openlineage.io/docs/spec/object-model/
+          strength_adopted: Stable Run, Job and Dataset identities connect execution with inputs, outputs and facets.
+          reviewed_at: '2026-09-22T12:00:00Z'
+          review_interval_days: 90
+        detector:
+          kind: observed_evidence_collected
+  - id: operational_excellence
+    title: Safe operation and continuous learning
+    intent: Require rollback, observability, ownership and evidence-driven improvement as part of delivery.
+    controls:
+      - id: operated_product_assurance
+        title: Operated-product assurance is explicit
+        requirement: Monitoring, recovery, retry, stale-success and capacity questions are resolved for operated scope.
+        weight: 9
+        gate: apply_ready
+        source:
+          name: Azure Well-Architected Operational Excellence
+          url: https://learn.microsoft.com/en-us/azure/well-architected/operational-excellence/principles
+          strength_adopted: Standardized workflows, observability, safe deployment and continuous improvement are design inputs.
+          reviewed_at: '2026-09-22T12:00:00Z'
+          review_interval_days: 90
+        detector:
+          kind: capability_questions_resolved
+  - id: identity_access
+    title: Identity and access readiness
+    intent: State every required account, group, role assignment, owner, environment and evidence expectation without storing credentials.
+    controls:
+      - id: identity_contract
+        title: Identity and access contract is apply-ready
+        requirement: Required accounts and groups are owned; assignments resolve to them; direct human grants are documented exceptions; applied access has evidence.
+        weight: 10
+        gate: apply_ready
+        source:
+          name: Microsoft Fabric adoption roadmap governance
+          url: https://learn.microsoft.com/en-us/power-bi/guidance/fabric-adoption-roadmap-governance
+          strength_adopted: Ownership, least privilege, governance boundaries and operating responsibilities are made explicit.
+          reviewed_at: '2026-09-22T12:00:00Z'
+          review_interval_days: 90
+        detector:
+          kind: identity_contract_ready
+  - id: decisions_approval
+    title: Decisions, ADRs and approval
+    intent: Separate recommendations from accepted decisions and retain the human approval trail.
+    controls:
+      - id: evidenced_adr_flow
+        title: Approved decisions have ADR evidence
+        requirement: Every approved decision has an explicit selection, decider, rationale, decision time and evidence references; unresolved decisions remain visible blockers.
+        weight: 10
+        gate: build_ready
+        source:
+          name: Azure Well-Architected review practice
+          url: https://learn.microsoft.com/en-us/azure/well-architected/
+          strength_adopted: Important design choices remain reviewable, attributable and connected to operational consequences.
+          reviewed_at: '2026-09-22T12:00:00Z'
+          review_interval_days: 90
+        detector:
+          kind: approved_decisions_evidenced
+  - id: architecture_lifecycle
+    title: Architecture lifecycle and drift control
+    intent: Keep current, target and transitional architecture aligned with the implemented estate and reviewed platform capabilities.
+    controls:
+      - id: architecture_maintenance_contract
+        title: Architecture maintenance is owned and current
+        requirement: The project defines review triggers, observed-state reconciliation, remediation SLA, technology watch and evidence-backed retirement criteria for transitional components.
+        weight: 10
+        gate: apply_ready
+        source:
+          name: Argo CD GitOps reconciliation
+          url: https://argo-cd.readthedocs.io/en/stable/user-guide/auto_sync/
+          strength_adopted: Desired and observed state are compared continuously; drift is surfaced and remediation follows an explicit policy.
+          reviewed_at: '2026-09-22T12:00:00Z'
+          review_interval_days: 90
+        detector:
+          kind: architecture_maintenance_ready

@@ -55,6 +55,8 @@ interface Props {
   onNodeEdit?: (id: string) => void;
   emptyMessage?: string;
   initialSelectedId?: string | null;
+  initialMode?: 'graph' | 'list';
+  hint?: string;
 }
 
 function ViewportTools({ layoutKey, focusId }: { layoutKey: string; focusId?: string | null }) {
@@ -80,9 +82,9 @@ function ViewportTools({ layoutKey, focusId }: { layoutKey: string; focusId?: st
   );
 }
 
-function Canvas({ nodes, edges, onNodeOpen, canOpenNode, onNodeEdit, emptyMessage, initialSelectedId }: Props) {
+function Canvas({ nodes, edges, onNodeOpen, canOpenNode, onNodeEdit, emptyMessage, initialSelectedId, initialMode = 'graph', hint }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId ?? null);
-  const [mode, setMode] = useState<'graph' | 'list'>('graph');
+  const [mode, setMode] = useState<'graph' | 'list'>(initialMode);
   const [query, setQuery] = useState('');
   const selected = nodes.find(n => n.id === selectedId);
   const activeId = nodes.some(node => node.id === selectedId) ? selectedId : null;
@@ -154,7 +156,7 @@ function Canvas({ nodes, edges, onNodeOpen, canOpenNode, onNodeEdit, emptyMessag
       </div>
       <div className={styles.footer}>
         {[...new Set(nodes.map(n => n.kind))].map(kind => <span key={kind}><i style={{ background: KINDS[kind]?.accent }} />{KINDS[kind]?.label}</span>)}
-        <span className={styles.hint}>Select a use case to read its flow. Use List for full labels.</span>
+        <span className={styles.hint}>{hint ?? 'Select an element to focus its direct dependencies. Use List for full labels.'}</span>
       </div>
     </div>
   );

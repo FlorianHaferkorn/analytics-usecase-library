@@ -21,6 +21,21 @@ function ContractValue({value}:{value:unknown}) {
 }
 const kinds:Record<string,NodeKind> = {source:'source',data_product:'data_product',transformation:'transformation',reference_report:'reference_report',workspace:'workspace',domain:'domain',native_item:'native_item'};
 type Tab = 'graph'|'contracts'|'decisions'|'outputs';
+type DetailLevel = 'overview'|'full';
+
+const STAGE_ORDER = ['platform', 'source', 'bronze', 'silver', 'gold', 'semantic', 'report', 'other'] as const;
+const STAGE_LABELS: Record<string, string> = {
+  platform: 'Platform', source: 'Sources', bronze: 'Bronze', silver: 'Silver',
+  gold: 'Gold', semantic: 'Semantic model', report: 'Reports', other: 'Other',
+};
+
+function architectureStage(node: ArchitectureView['graph']['nodes'][number]) {
+  if (node.layer && STAGE_ORDER.includes(node.layer as typeof STAGE_ORDER[number])) return node.layer;
+  if (node.kind === 'source') return 'source';
+  if (node.kind === 'reference_report') return 'report';
+  if (node.kind === 'workspace' || node.kind === 'domain' || node.kind === 'native_item') return 'platform';
+  return 'other';
+}
 
 export function ProjectArchitecture() {
   const {projectId,projectName,revision,error:packageError,latest,retry} = usePinnedProject();
@@ -30,6 +45,7 @@ export function ProjectArchitecture() {
   const [useCase,setUseCase] = useState('');
   const [references,setReferences] = useState(false);
   const [lineage,setLineage] = useState(false);
+  const [detailLevel,setDetailLevel] = useState<DetailLevel>('overview');
   const [confirmedIdentity,setConfirmedIdentity] = useState<string|null>(null);
   const [busyIdentity,setBusyIdentity] = useState<string|null>(null);
   const [message,setMessage] = useState<{key:string;text:string}|null>(null);
@@ -40,8 +56,13 @@ export function ProjectArchitecture() {
   const active = useRef(identity);
   useEffect(() => {active.current = identity;return () => {active.current = '';};},[identity]);
   const view = loaded?.key === identity ? loaded.view : undefined;
-  const currentUseCase = view?.use_cases.some(uc => uc.id === useCase) ? useCase : '';
+  const soleUseCase = view?.use_cases.length === 1 ? String(view.use_cases[0].id ?? '') : '';
+  const currentUseCase = view?.use_cases.some(uc => uc.id === useCase) ? useCase : soleUseCase;
   const error = packageError ?? (loaded?.key === identity ? loaded.error : undefined);
+  const visibleElementCount = useMemo(() => (view?.graph.nodes ?? []).filter(node => (
+    (!currentUseCase || node.use_case_ref === currentUseCase || !node.use_case_ref)
+    && (references || (node.kind !== 'reference_report' && node.details.boundary !== 'excluded' && node.details.boundary !== 'fallback'))
+  )).length, [view, currentUseCase, references]);
   useEffect(() => {
     if (!revision) return;
     const controller = new AbortController();
@@ -60,14 +81,57 @@ export function ProjectArchitecture() {
     const ids = new Set(visible.map(n => n.id));
     const hasTransforms = visible.some(n => n.kind === 'transformation');
     const edges = (view?.graph.edges ?? []).filter(e => ids.has(e.source) && ids.has(e.target) && (lineage || !hasTransforms || e.kind !== 'declared_lineage'));
-    const layout = new dagre.graphlib.Graph().setGraph({rankdir:'LR',nodesep:32,ranksep:96,marginx:24,marginy:24});
+    if (detailLevel === 'overview') {
+      const stageByNode = new Map(visible.map(node => [node.id, architectureStage(node)]));
+      const stages = new Map<string, typeof visible>();
+      visible.forEach(node => {
+        const stage = stageByNode.get(node.id) ?? 'other';
+        stages.set(stage, [...(stages.get(stage) ?? []), node]);
+      });
+      const overviewEdges = new Map<string, CanvasEdge>();
+      edges.forEach(edge => {
+        const sourceStage = stageByNode.get(edge.source);
+        const targetStage = stageByNode.get(edge.target);
+        if (!sourceStage || !targetStage || sourceStage === targetStage) return;
+        const key = `${sourceStage}:${targetStage}`;
+        overviewEdges.set(key, { source: `stage:${sourceStage}`, target: `stage:${targetStage}` });
+      });
+      const orderedStages = STAGE_ORDER.filter(stage => stages.has(stage));
+      const layout = new dagre.graphlib.Graph().setGraph({rankdir:'LR',nodesep:20,ranksep:32,marginx:20,marginy:20});
+      layout.setDefaultEdgeLabel(() => ({}));
+      orderedStages.forEach(stage => layout.setNode(`stage:${stage}`, {width:168,height:88}));
+      [...overviewEdges.values()].forEach(edge => layout.setEdge(edge.source, edge.target));
+      dagre.layout(layout);
+      const nodes: CanvasNode[] = orderedStages.map(stage => {
+        const members = stages.get(stage) ?? [];
+        const position = layout.node(`stage:${stage}`);
+        const examples = members.slice(0, 6).map(node => node.label);
+        return {
+          id: `stage:${stage}`,
+          kind: stage === 'source' ? 'source' : 'data_product',
+          label: STAGE_LABELS[stage] ?? title(stage),
+          sub: `${members.length} recorded ${members.length === 1 ? 'element' : 'elements'}`,
+          description: `${examples.join('\n')}${members.length > examples.length ? `\n+ ${members.length - examples.length} more` : ''}`,
+          x: position.x - 84,
+          y: position.y - 44,
+          width: 168,
+          height: 88,
+        };
+      });
+      return {nodes, edges: [...overviewEdges.values()]};
+    }
+    const orderedVisible = [...visible].sort((left, right) => {
+      const stageDelta = STAGE_ORDER.indexOf(architectureStage(left) as typeof STAGE_ORDER[number]) - STAGE_ORDER.indexOf(architectureStage(right) as typeof STAGE_ORDER[number]);
+      return stageDelta || left.label.localeCompare(right.label);
+    });
+    const layout = new dagre.graphlib.Graph().setGraph({rankdir:'LR',nodesep:24,ranksep:72,marginx:24,marginy:24});
     layout.setDefaultEdgeLabel(() => ({}));
-    visible.forEach(n => layout.setNode(n.id,{width:250,height:108}));
+    orderedVisible.forEach(n => layout.setNode(n.id,{width:224,height:92}));
     edges.forEach(e => layout.setEdge(e.source,e.target));
     dagre.layout(layout);
-    const nodes:CanvasNode[] = visible.map(n => {const p = layout.node(n.id);return {id:n.id,kind:kinds[n.kind] ?? 'derived',label:n.label,sub:[typeof n.details.type === 'string' ? n.details.type : undefined,n.layer,n.use_case_ref].filter(Boolean).join(' · '),description:Object.entries(n.details).filter(([,v]) => typeof v === 'string').map(([key,v]) => `${title(key)}: ${v}`).join('\n'),x:p.x-125,y:p.y-54,width:250,height:108};});
+    const nodes:CanvasNode[] = orderedVisible.map(n => {const p = layout.node(n.id);return {id:n.id,kind:kinds[n.kind] ?? 'derived',label:n.label,sub:[typeof n.details.type === 'string' ? n.details.type : undefined,n.layer,n.use_case_ref].filter(Boolean).join(' · '),description:Object.entries(n.details).filter(([,v]) => typeof v === 'string').map(([key,v]) => `${title(key)}: ${v}`).join('\n'),x:p.x-112,y:p.y-46,width:224,height:92};});
     return {nodes,edges:edges.map(e => ({source:e.source,target:e.target,relationship:e.label})) as CanvasEdge[]};
-  },[view,currentUseCase,references,lineage]);
+  },[view,currentUseCase,references,lineage,detailLevel]);
 
   async function generate(target:string) {
     const requested = identity; setBusyIdentity(identity); setMessage(null);
@@ -95,9 +159,14 @@ export function ProjectArchitecture() {
         setConfirmedIdentity(null); setTab('graph');
       }} />}
       {tab === 'graph' && <>
-        <div className={styles.toolbar}><label>Use case <select aria-label="Architecture use case" value={currentUseCase} onChange={e => setUseCase(e.target.value)}><option value="">All recorded use cases</option>{view.use_cases.map(uc => <option key={String(uc.id)} value={String(uc.id)}>{String(uc.name ?? uc.id)}</option>)}</select></label><label><input type="checkbox" checked={references} onChange={e => setReferences(e.target.checked)} /> Reference reports and alternative/excluded sources</label><label><input type="checkbox" checked={lineage} onChange={e => setLineage(e.target.checked)} /> Additional lineage</label></div>
-        <p className={styles.note}>Connectors distinguish declared data relationships, workspace ownership and build dependencies. Only explicit relationships are shown; reference reports remain separate from target reports.</p>
-        {graph.nodes.length ? <div className={styles.canvas}><CustomCanvas nodes={graph.nodes} edges={graph.edges} /></div> : <StudioEmptyState title="No detailed architecture objects recorded" description="Add source, product and transformation contracts in use_case_delivery, or explicit physical_workspaces. Domain scope alone does not define an executable architecture." />}
+        <div className={styles.toolbar}>
+          <StudioSegmentedControl aria-label="Architecture detail" value={detailLevel} onChange={setDetailLevel} options={[{value:'overview',label:'Flow overview'},{value:'full',label:`All elements · ${visibleElementCount}`}]} />
+          <label>Use case <select aria-label="Architecture use case" value={currentUseCase} onChange={e => setUseCase(e.target.value)}><option value="">All recorded use cases</option>{view.use_cases.map(uc => <option key={String(uc.id)} value={String(uc.id)}>{String(uc.title ?? uc.name ?? uc.id)}</option>)}</select></label>
+          <label><input type="checkbox" checked={references} onChange={e => setReferences(e.target.checked)} /> Reference and alternative sources</label>
+          <label><input type="checkbox" checked={lineage} onChange={e => setLineage(e.target.checked)} /> Additional lineage</label>
+        </div>
+        <p className={styles.note}>{detailLevel === 'overview' ? 'Start with the governed end-to-end path. Select a stage to see representative contents; switch to all elements for the complete contract inventory.' : 'The complete contract inventory opens as a searchable list. Switch to Graph when spatial lineage is required.'}</p>
+        {graph.nodes.length ? <div className={styles.canvas}><CustomCanvas key={detailLevel} nodes={graph.nodes} edges={graph.edges} initialMode={detailLevel === 'overview' ? 'graph' : 'list'} hint={detailLevel === 'overview' ? 'Select a stage to focus the path and inspect representative contents.' : 'Search or select an element; Graph remains available for full lineage.'} /></div> : <StudioEmptyState title="No detailed architecture objects recorded" description="Add source, product and transformation contracts in use_case_delivery, or explicit physical_workspaces. Domain scope alone does not define an executable architecture." />}
         <details className={styles.details}><summary>Domain and environment scope</summary><ContractValue value={view.architecture} /></details>
       </>}
       {tab === 'contracts' && <>

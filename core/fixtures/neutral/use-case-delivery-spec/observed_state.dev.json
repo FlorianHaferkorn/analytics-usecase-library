@@ -1,0 +1,87 @@
+{
+  "schema_version": "2.0.0",
+  "environment": "dev",
+  "collection_state": "collected",
+  "captured_at": "2026-09-15T08:30:00Z",
+  "collector": "neutral_fixture_collector",
+  "resources": [
+    {
+      "logical_id": "gateway_enterprise_dev",
+      "resource_type": "gateway",
+      "physical_id": "fixture-gateway",
+      "state_hash": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "logical_id": "connection_enterprise_erp",
+      "resource_type": "connection",
+      "physical_id": "fixture-connection",
+      "state_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "logical_id": "workspace_commercial_dev",
+      "resource_type": "workspace",
+      "physical_id": "fixture-workspace",
+      "state_hash": "3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    {
+      "logical_id": "target_bronze_dev",
+      "resource_type": "lakehouse",
+      "physical_id": "fixture-bronze-target",
+      "state_hash": "4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    {
+      "logical_id": "target_gold_dev",
+      "resource_type": "lakehouse",
+      "physical_id": "fixture-gold-target",
+      "state_hash": "5555555555555555555555555555555555555555555555555555555555555555"
+    }
+  ],
+  "operational_evidence": {
+    "connection_tests": [
+      {
+        "id": "connection_enterprise_erp_dev",
+        "connection_ref": "connection_enterprise_erp",
+        "principal_ref": "role:runtime_identity",
+        "outcome": "passed",
+        "tested_at": "2026-09-15T08:10:00Z",
+        "status": {
+          "state": "measured",
+          "evidence_refs": ["evidence/connection-test"],
+          "note": "Synthetic successful connection test."
+        }
+      }
+    ],
+    "network_tests": [
+      {
+        "id": "network_enterprise_erp_dev",
+        "gateway_ref": "gateway_enterprise_dev",
+        "connection_ref": "connection_enterprise_erp",
+        "protocol": "tcp",
+        "port": 1433,
+        "outcome": "passed",
+        "tested_at": "2026-09-15T08:15:00Z",
+        "status": {
+          "state": "measured",
+          "evidence_refs": ["evidence/network-test"],
+          "note": "Synthetic successful network-path test."
+        }
+      }
+    ],
+    "runtime_tests": [
+      {
+        "id": "runtime_revenue_dev",
+        "use_case_ref": "uc_revenue_demo",
+        "connection_refs": ["connection_enterprise_erp"],
+        "target_refs": ["target_bronze_dev", "target_gold_dev"],
+        "principal_ref": "role:runtime_identity",
+        "outcome": "passed",
+        "tested_at": "2026-09-15T08:20:00Z",
+        "status": {
+          "state": "measured",
+          "evidence_refs": ["evidence/runtime-readback"],
+          "note": "Synthetic end-to-end runtime proof."
+        }
+      }
+    ]
+  }
+}

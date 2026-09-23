@@ -304,8 +304,9 @@ class FabWorkspaceClient:
     Permission evidence is supplied by the runner; list access alone is not proof.
     """
     def __init__(self, tenant_id: str, principal_id: str, token_provider: Callable[[], str],
-                 permission_evidence: dict, *, runner: Callable = subprocess.run):
+                 permission_evidence: dict, *, runner: Callable = subprocess.run, client_id: str | None = None):
         self.tenant_id, self.principal_id = _uuid(tenant_id), _uuid(principal_id)
+        self.client_id = _uuid(client_id) if client_id is not None else None
         self.token_provider, self.permissions, self.runner = token_provider, permission_evidence, runner
 
     def _request(self, path: str, method: str = "get", body: dict | None = None) -> dict:
@@ -313,12 +314,15 @@ class FabWorkspaceClient:
         try:
             segment = token.split(".")[1]
             claims = json.loads(base64.urlsafe_b64decode(segment + "=" * (-len(segment) % 4)))
+            application_ids = [claims[key] for key in ("azp", "appid") if key in claims]
             if (_uuid(claims["tid"]) != self.tenant_id or _uuid(claims["oid"]) != self.principal_id
                     or claims["aud"] not in {"https://api.fabric.microsoft.com", "https://api.fabric.microsoft.com/"}
-                    or claims["exp"] <= _now().timestamp() + 60):
+                    or claims["exp"] <= _now().timestamp() + 60
+                    or (self.client_id is not None and (not application_ids
+                        or any(_uuid(value) != self.client_id for value in application_ids)))):
                 raise ValueError("Token scope mismatch")
         except (KeyError, IndexError, TypeError, ValueError) as error:
-            raise ValueError("Trusted Fabric token has wrong tenant, principal, audience or lifetime") from error
+            raise ValueError("Trusted Fabric token has wrong tenant, application, principal, audience or lifetime") from error
         env = {key: value for key, value in os.environ.items() if not key.upper().startswith("FAB_")}
         env.update({"FAB_TOKEN": token, "FAB_TENANT_ID": self.tenant_id})
         args = ["fab", "api", path, "-A", "fabric", "-X", method,

@@ -257,6 +257,24 @@ def test_fab_refuses_wrong_identity_token_before_request(claim):
         client.get_workspace(WORKSPACE)
 
 
+@pytest.mark.parametrize("claims", [{}, {"azp": TENANT}, {"appid": TENANT},
+    {"azp": WORKSPACE, "appid": TENANT}])
+def test_fab_refuses_missing_or_conflicting_application_identity_before_request(claims):
+    def never(*args, **kwargs): raise AssertionError("must not invoke CLI")
+    client = dp.FabWorkspaceClient(TENANT, PRINCIPAL, lambda: jwt(**claims), observed()["permissions"],
+        runner=never, client_id=WORKSPACE)
+    with pytest.raises(ValueError, match="application"):
+        client.get_workspace(WORKSPACE)
+
+
+@pytest.mark.parametrize("claim_name", ["azp", "appid"])
+def test_fab_accepts_explicit_matching_application_identity(claim_name):
+    client = dp.FabWorkspaceClient(TENANT, PRINCIPAL, lambda: jwt(**{claim_name: WORKSPACE}),
+        observed()["permissions"], client_id=WORKSPACE,
+        runner=lambda *args, **kwargs: SimpleNamespace(stdout=json.dumps(existing())))
+    assert client.get_workspace(WORKSPACE)["id"] == WORKSPACE
+
+
 def test_fab_pagination_and_get_readback(monkeypatch):
     calls = []
     monkeypatch.setattr(dp, "_now", lambda value=None: value or NOW)

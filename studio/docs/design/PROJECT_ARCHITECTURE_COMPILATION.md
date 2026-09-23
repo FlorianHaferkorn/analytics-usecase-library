@@ -11,7 +11,8 @@ The existing general `derive_blueprint` and Fabric architecture adapter were eva
 ## Inputs and views
 
 - `architecture_input` records domain, capacity, environment and contract scope.
-- `use_case_delivery` provides explicit sources, products, transformations, analytical design, controls, orchestration and acceptance gates.
+- `use_case_delivery` provides explicit sources, products, transformations, analytical design, controls, orchestration, logical platform dependencies and acceptance gates.
+- `observed_state` retains physical resource mappings and may carry structured connection, network-path and runtime proof for those logical dependencies.
 - Graph node labels retain authored identifiers. Edges come only from `source_refs`, `input_refs` and `output_refs`.
 - Canonical, fallback and excluded sources retain their boundary status. Reference reports remain reference reports, not assumed target report/semantic-model bindings.
 - Missing contracts are blockers, not generated defaults. No automatic DEV/TEST/PROD replication is inferred from one source-level contract.
@@ -36,7 +37,7 @@ Each workspace must supply its exact name, domain reference, accepted environmen
 
 ## Remaining boundary
 
-Source/product contracts are not complete physical Fabric item definitions. A full tenant compiler still needs explicit item payloads, environments, dependency bindings, identities, policies, CI/CD, idempotent apply/rollback and runtime evidence adapters. `apply_ready` is always false for this increment. E2E delivery remains the product destination; this increment connects the architecture and a bounded native target output without claiming that destination has been reached.
+Source/product contracts are not complete physical Fabric item definitions. Logical dependency and runtime-evidence contracts are now explicit and fail closed, but a full tenant compiler still needs exact item payloads, identities, policies, CI/CD, idempotent apply/rollback and collectors that produce those evidence records. `apply_ready` is always false for this increment. E2E delivery remains the product destination; this increment connects the architecture and a bounded native target output without claiming that destination has been reached.
 
 ## Verification
 

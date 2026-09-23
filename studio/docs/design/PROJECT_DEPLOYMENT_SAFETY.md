@@ -95,8 +95,9 @@ tenant. `whole_project_apply_ready` and `whole_project_verified` remain false.
 `FabWorkspaceClient` invokes the official `fab api` via argument-list subprocess
 calls (`shell=False`) and a closed endpoint set. It does not interpolate a CLI
 command string. It isolates `FAB_TOKEN` and `FAB_TENANT_ID` from ambient `FAB_*`
-authentication variables; the broker's token must match tenant, principal,
-audience and lifetime. These local claim checks do not replace signature validation
+authentication variables; a protected-runner client also binds the configured
+application ID, and the token must match tenant, service-principal object,
+application, audience and lifetime. These local claim checks do not replace signature validation
 by the Fabric service. Tokens never enter generated files or receipt messages.
 
 The existing `fabric_cli_functions.py` adapter was inspected. Its string-command

@@ -43,6 +43,74 @@
           "successor_ref": {"type": "string", "minLength": 1}
         }
       }
+    },
+    "reference_labels": {
+      "description": "Customer-readable labels for internal decision, evidence, and authority references used by this plan.",
+      "type": "object",
+      "propertyNames": {"minLength": 1},
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "milestones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "status", "target_gate", "owner_ref", "work_package_refs", "definition_of_done"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "title": {"type": "string", "minLength": 1},
+          "status": {"enum": ["planned", "ready", "active", "blocked", "complete"]},
+          "target_gate": {"type": "string", "minLength": 1},
+          "owner_ref": {"type": "string", "minLength": 1},
+          "work_package_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+          "definition_of_done": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "staffing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["delivery_model", "assignments"],
+      "properties": {
+        "delivery_model": {"type": "string", "minLength": 1},
+        "assignments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "role_ref", "person_ref", "responsibility", "allocation_percent", "state", "basis_ref"],
+            "properties": {
+              "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+              "role_ref": {"type": "string", "minLength": 1},
+              "person_ref": {"type": "string", "minLength": 1},
+              "responsibility": {"type": "string", "minLength": 1},
+              "allocation_percent": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+              "state": {"enum": ["required", "planned", "confirmed", "unavailable"]},
+              "basis_ref": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "work_package_ref", "status", "priority", "owner_ref", "target_gate", "decision_refs", "definition_of_done", "evidence_refs"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "title": {"type": "string", "minLength": 1},
+          "work_package_ref": {"type": "string", "minLength": 1},
+          "status": {"enum": ["todo", "ready", "doing", "blocked", "done"]},
+          "priority": {"enum": ["critical", "high", "medium", "low"]},
+          "owner_ref": {"type": "string", "minLength": 1},
+          "target_gate": {"type": "string", "minLength": 1},
+          "decision_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+          "definition_of_done": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+        }
+      }
     }
   }
 }

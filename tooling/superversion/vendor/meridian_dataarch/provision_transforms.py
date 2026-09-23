@@ -181,6 +181,36 @@ def _herkunft_je_domaene(blueprint: dict, governed_catalog: dict | None, d: dict
     return {p: qs for p, qs in raus.items() if qs}
 
 
+def silber_tabellen(blueprint: dict, governed_catalog: dict | None = None,
+                    schemas: bool = False) -> list[str]:
+    """Die Silber-Tabellen, die die Emission **wirklich** anlegt — je Herkunftstabelle.
+
+    Oeffentlich, weil sie einen zweiten Leser hat: `provision_lifecycle` pflegte
+    `silver.<domaene>`, und diese Tabelle gibt es seit dem 12.08.2026 nicht mehr. Gemessen
+    am SAP-Szenario unter Spark (18.09.2026): **8 der 21 Kettenbefunde** kamen aus dieser
+    einen Zeile — `ALTER TABLE silver.order_to_cash` und `OPTIMIZE silver.order_to_cash`
+    je Domaene.
+
+    Damit ist es die dritte Fundstelle derselben Klasse (D-501, D-521): eine Entscheidung
+    bindet die Datei, in der sie getroffen wurde. Deshalb steht die Auskunft jetzt **an
+    einer** Stelle und wird gelesen, statt an jeder Stelle neu gebildet (D-505).
+
+    Ohne Aussage des Katalogs zur Herkunft bleibt es beim Zuschnitt je Domaene — derselbe
+    Grund wie im Vollaufbau: ein geratener Zuschnitt waere schlimmer als ein grober.
+    """
+    domains = sorted(blueprint.get("mesh", {}).get("domains", []),
+                     key=lambda d: d.get("name", ""))
+    raus: list[str] = []
+    for d in domains:
+        herkunft = _herkunft_je_domaene(blueprint, governed_catalog, d, domains)
+        if herkunft:
+            raus += [layer_ref("silver", _ident(q), schemas)
+                     for qs in herkunft.values() for q in qs]
+        else:
+            raus.append(layer_ref("silver", _ident(d.get("name", "")), schemas))
+    return sorted(set(raus))
+
+
 def _formgleich(spalten_je_quelle: dict[str, list[str]] | None) -> bool:
     """Haben alle Herkuenfte DIESELBE Spaltenmenge?
 
@@ -647,10 +677,12 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
 _DATA_INC_WERTE = ("watermark", "vollast", "cdc", "partition")
 
 
-def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str, contract_ref: str, dl: dict,
-                                gold_tbl: str = "", star: bool = True,
+def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str], contract_ref: str,
+                                dl: dict, gold_tbl: str = "", star: bool = True,
                                 proposal: dict | None = None,
-                                wahl: str | None = None) -> str:
+                                wahl: str | None = None,
+                                formgleich: bool = True,
+                                table: dict | None = None) -> str:
     """Incremental (upsert) silver→gold as a MERGE scaffold — the delta-load counterpart of the
     full-rebuild ``_silver_to_gold``. Honest by construction: the merge *shape* comes from the IR
     (target gold table, kind), the match key + watermark predicate are domain policy → TODO(contract).
@@ -658,6 +690,28 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str, contract_
     accidentally ships a full re-scan as if it were incremental."""
     c = dl["comment"]
     gold_tbl = gold_tbl or f"gold_{_ident(name)}"
+    # **Das Produkt liest aus SEINEN Herkuenften, nicht aus der Domaenentabelle.** Derselbe Satz
+    # steht seit dem 12.08.2026 in `emit_transforms` -- und band nur dort (dieselbe Klasse wie
+    # D-501). Gemessen am ausgelieferten SAP-Szenario (DuckDB, 18.09.2026): alle 5 Kettenbefunde
+    # der Klasse `incremental` lauteten `Table with name order_to_cash does not exist` bzw.
+    # `procurement_mm` -- der MERGE las die **Domaene** als Tabelle, und die gibt es nie.
+    quellen = [silver_tbl] if isinstance(silver_tbl, str) else list(silver_tbl)
+    # Mehrere Herkuenfte mit verschiedener Form: dann ist offen, ob vereinigt oder verbunden
+    # gehoert. Der Vollaufbau waehlt hier keine der beiden, sondern sagt es (`_ungeklaerte_-
+    # zusammenfuehrung`) -- der MERGE tut dasselbe, statt sich eine Quelle auszusuchen.
+    unklar = len(quellen) > 1 and not formgleich
+    quelle = ("<ZUSAMMENFUEHRUNG NICHT ENTSCHIEDEN: UNION ODER JOIN>" if unklar
+              else _von_klausel(quellen))
+    # **Dieselbe Projektion wie der Vollaufbau.** `SELECT *` aus Silber liefert die Spalten der
+    # Quelltabelle; Gold hat die des governten Katalogs. Gemessen am SAP-Szenario (18.09.2026,
+    # nachdem die Quelle stimmte): `table fact_delivery has 18 columns but 22 values were
+    # supplied` -- fuenf von fuenf MERGEs, die ueberhaupt bis zum Binder kamen. Der Fehler lag
+    # unter dem Tabellennamen und wurde erst sichtbar, als der behoben war.
+    spalten = sorted(set((table or {}).get("columns") or []))
+    auswahl = ("    SELECT *\n" if not spalten else
+               "    SELECT\n"
+               + ",\n".join(f"        {_projektion(sp, table, dl['stack'])}" for sp in spalten)
+               + "\n")
     set_clause = "UPDATE SET *" if star else f"UPDATE SET <cols>  {c} explicit column mapping (non-Delta dialect)"
     ins_clause = "INSERT *" if star else "INSERT (<cols>) VALUES (<cols>)"
     scd = ""
@@ -672,6 +726,12 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str, contract_
     head = (
         f"{c} silver → gold (INCREMENTAL upsert) — build {kind} '{name}'.\n"
         f"{c} Contract: {contract_ref}\n"
+        + (f"{c} Quelle: {', '.join(quellen)}.\n" if len(quellen) > 1 and not unklar else "")
+        + (f"{c} OFFEN: '{name}' entsteht aus {len(quellen)} Herkuenften mit VERSCHIEDENER Form\n"
+           f"{c}   ({', '.join(quellen)}). Ob vereinigt oder verbunden gehoert, entscheidet der\n"
+           f"{c}   Fachbereich -- die Fassungen stehen im Vollaufbau unter `transforms/`.\n"
+           f"{c}   Absichtlich nicht ausfuehrbar: eine gruene Zeile waere hier die teuerste Antwort.\n"
+           if unklar else "")
         + serving
         + scd
     )
@@ -693,8 +753,8 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str, contract_
         body = (
             f"MERGE INTO {gold_tbl} AS t\n"
             f"USING (\n"
-            f"    SELECT *\n"
-            f"    FROM {silver_tbl}\n"
+            f"{auswahl}"
+            f"    FROM {quelle}\n"
             f"    WHERE (SELECT COUNT(*) FROM {gold_tbl}) = 0\n"
             f"       OR {wm} > (SELECT MAX({wm}) FROM {gold_tbl})\n"
             f") AS s\n"
@@ -737,8 +797,8 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str, contract_
     body = (
         f"MERGE INTO {gold_tbl} AS t\n"
         f"USING (\n"
-        f"    SELECT *\n"
-        f"    FROM {silver_tbl}\n"
+        f"{auswahl}"
+        f"    FROM {quelle}\n"
         f"    {c} TODO(contract:{contract_ref}): incremental predicate — only rows changed since last load, e.g.\n"
         f"    {c}   WHERE <watermark_col> > (SELECT COALESCE(MAX(<watermark_col>), DATE'1900-01-01') FROM {gold_tbl})\n"
         f") AS s\n"
@@ -786,6 +846,15 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
     for d in domains:
         ddir = _dirslug(d["name"])
         silver_tbl = layer_ref("silver", _ident(d["name"]), schemas)
+        # Der Datenvertrag der DOMAENE, nicht der des Mandanten. Vier andere Emitter
+        # (`emit_transforms`, Warehouse, DQ, MLV) rufen `_domain_contract` seit dem
+        # 12.08.2026; dieser hier las `medallion.silver.data_contract_ref` einmal fuer alle.
+        # Gemessen am SAP-Szenario: **17 von 17** Dateien nannten
+        # `order-to-cash.silver.odcs.yaml`, 12 davon unter einer fremden Domaene.
+        c_ref = _domain_contract(d, contract_ref)
+        # Herkunft je Produkt, mit demselben Zuschnitt wie im Vollaufbau: Quellen, die laut IR
+        # einer anderen Domaene gehoeren, materialisiert diese hier nicht.
+        herkunft = _herkunft_je_domaene(blueprint, governed_catalog, d, domains)
         # `entscheidungen` ist das Profilfeld aus dem Rueckweg (C-3): `DATA-INC·<domaene>` bei
         # mehreren Domaenen, `DATA-INC` bei einer — dieselbe ID, die der Ledger vergibt.
         wahl = entscheidung_fuer(entscheidungen, "DATA-INC", d["name"])
@@ -801,9 +870,17 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
                 # meldete der Dialekt-Validator als „no executable SQL" — ein Befund ohne
                 # Fehler. Warum die Datei fehlt, sagt die Tabelle in INCREMENTAL_REFRESH.md.
                 continue
+            # Ohne Aussage des Katalogs zur Herkunft bleibt es beim Zuschnitt je Domaene —
+            # derselbe Grund wie im Vollaufbau: ein geratener Zuschnitt waere schlimmer als
+            # ein grober. Mit Aussage liest das Produkt seine eigenen Quellen.
+            eigene = [layer_ref("silver", _ident(q), schemas)
+                      for q in herkunft.get(_ident(product), [])]
+            kat_t = _catalog_table(governed_catalog, _ident(product)) or {}
             out[rel] = _silver_to_gold_incremental(
-                product, kind, silver_tbl, contract_ref, dl, gold_tbl, star,
-                proposal=_incremental_proposal(governed_catalog, product), wahl=wahl)
+                product, kind, eigene or [silver_tbl], c_ref, dl, gold_tbl, star,
+                proposal=_incremental_proposal(governed_catalog, product), wahl=wahl,
+                formgleich=_formgleich(kat_t.get("source_columns") or {}),
+                table=kat_t or None)
 
     doc = [
         "# Incremental / delta-load — where it lives (generated, grounded MS Learn 2026-07)",
@@ -1319,9 +1396,15 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
       as a partition TODO comment (grain is prose, not a column).
     * **TBLPROPERTIES** — deterministic provenance tags (generator/layer/kind), always valid.
 
-    MLV dependency management + refresh is automatic (the engine chains views by their SELECT refs) — so
-    the emitter emits **no** orchestration DAG. Non-SQL logic (ML/Python/API) is out of MLV scope → the
-    doc points at the notebook fallback (``emit_notebooks``). Deterministic; emits only.
+    **Dependency management is automatic, the refresh is not** (D-529). Fabric orders the views by their
+    SELECT refs and picks the refresh *strategy* (skip / incremental / full) — but a refresh only runs
+    when something *triggers* it: a lineage schedule, the job scheduler REST API, a pipeline activity or
+    a manual ``REFRESH … FULL``. Until 23.09.2026 this docstring, the SQL header and the apply plan all
+    said "refresh automatic, no orchestration", and the delivery emitted no trigger: a delivered MLV set
+    would have been built once and never refreshed, without anything failing. The emitter therefore
+    writes ``mlv/refresh_schedule.json`` (request body for the lakehouse's RefreshMaterializedLakeViews
+    schedule) and says in ``_MLV.md`` who triggers what. Non-SQL logic (ML/Python/API) is out of MLV
+    scope → the doc points at the notebook fallback (``emit_notebooks``). Deterministic; emits only.
     """
     med = blueprint.get("medallion", {})
     contract_ref = med.get("silver", {}).get("data_contract_ref", "<silver-contract>")
@@ -1343,8 +1426,9 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
            "> **PREVIEW & SQL-only** (Fabric Materialized Lake Views): region-limited; the grammar may "
            "change before GA (tracked by `make check-upstream` feature-watch → I-20.7). Non-SQL logic "
            "(ML/Python/API/cleansing beyond SQL) is out of scope → use the notebook transforms "
-           "(`--emit-notebooks`) for those hops. MLV **dependency management + refresh is automatic** "
-           "(the engine chains views by their SELECT refs) — no separate orchestration DAG is emitted.",
+           "(`--emit-notebooks`) for those hops. MLV **dependency management** is automatic (the "
+           "engine chains views by their SELECT refs) — **the refresh is not**: it runs only when a "
+           "schedule, an API call or a pipeline activity triggers it. See *Refresh* below.",
            "", f"Silver data contract: `{contract_ref}`  ·  grounded in: **{grounded}**", "",
            "| Domain | MLV | Kind | Cols | DQ constraint | Partition |", "|---|---|---|---|---|---|"]
     for d in sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", "")):
@@ -1375,7 +1459,8 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
 
             preamble = [
                 f"-- silver → gold '{product}' as a Materialized Lake View ({kind}).  PREVIEW / SQL-only.",
-                f"-- Contract: {c_ref}  ·  refresh + dependency mgmt automatic (no orchestration)."]
+                f"-- Contract: {c_ref}  ·  dependency order automatic; the REFRESH runs only when "
+                f"triggered — see mlv/refresh_schedule.json and mlv/_MLV.md (D-529)."]
 
             # --- #1 DQ constraint: active when the key is known, else a valid template comment ----------
             if key_col:
@@ -1430,10 +1515,15 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
             # `fact_strategie`: MLV_RUNTIME_ERROR / DELTA_INVALID_CHARACTERS_IN_COLUMN_NAMES,
             # obwohl die Projektion die Namen korrekt maskiert -- die Maskierung macht den
             # Namen zitierfaehig, nicht die ZIELtabelle aufnahmefaehig. Das sind zwei Dinge.
+            # `delta.enableChangeDataFeed`: Voraussetzung dafuer, dass eine MLV, die auf DIESER
+            # aufsetzt, inkrementell aktualisiert werden kann (MS Learn, *Optimal refresh*,
+            # 23.09.2026: CDF auf **allen** Quellen, und die Quellen append-only im Zyklus).
+            # Hier stand es nirgends in der Lieferung (D-529).
             tblprops = (f"\nTBLPROPERTIES ('generated_by' = 'meridian-dataarch', "
                         f"'medallion_layer' = 'gold', 'mlv_kind' = '{kind}', "
                         f"'delta.columnMapping.mode' = 'name', "
-                        f"'delta.minReaderVersion' = '2', 'delta.minWriterVersion' = '5')")
+                        f"'delta.minReaderVersion' = '2', 'delta.minWriterVersion' = '5', "
+                        f"'delta.enableChangeDataFeed' = 'true')")
 
             sql = ("\n".join(preamble) + "\n"
                    f"CREATE OR REPLACE MATERIALIZED LAKE VIEW {mlv_name}{constraint_block}{partition_clause}\n"
@@ -1443,5 +1533,75 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
             out[f"mlv/{ddir}/{pident}.mlv.sql"] = sql
             doc.append(f"| {d['name']} | `{mlv_name}` | {kind} | {len(columns) or '—'} | "
                        f"{constraint_cell} | {partition_cell} |")
+    doc += _mlv_refresh_doc()
     out["mlv/_MLV.md"] = "\n".join(doc) + "\n"
+    # Der Ausloeser. Dieselbe Zeitplan-Gestalt wie `orchestration/schedule.json` (Werkzeug-
+    # Wiederverwendung), eine Stunde nach dessen Vorgabe: die MLV liest Silber, und Silber
+    # entsteht in der Pipeline. Zeitversatz ist eine Annahme, keine Kopplung — steht im Dokument.
+    from core.dataarch_engine.blueprint.fabric_schedule import emit_schedule
+    out["mlv/refresh_schedule.json"] = emit_schedule(time=MLV_REFRESH_UHRZEIT)
     return out
+
+
+#: Eine Stunde nach der Pipeline-Vorgabe (`fabric_schedule.emit_schedule`: 02:00 UTC).
+MLV_REFRESH_UHRZEIT = "03:00"
+
+
+def _mlv_refresh_doc() -> list[str]:
+    """Wer den MLV-Refresh ausloest — belegt, nicht angenommen (D-529).
+
+    Grundlage: MS Learn, abgerufen 23.09.2026 (*Manage and refresh materialized lake views with
+    APIs*, *Optimal refresh*, *Refresh Materialized Lake View activity*, *notebook utilities*,
+    *Create Refresh Materialized Lake Views Schedule*). Dazu ein Befund aus einem Test-Tenant mit
+    synthetischen Daten, kundenneutral festgehalten.
+    """
+    return [
+        "",
+        "## Refresh — wer löst ihn aus (D-529)",
+        "",
+        "Fabric ordnet die Sichten selbst und wählt bei jedem Lauf die Strategie (überspringen, "
+        "inkrementell, voll). **Einen Lauf startet Fabric nicht von selbst.** Ohne Auslöser "
+        "bleibt eine MLV auf dem Stand ihres `CREATE` — und nichts wird rot.",
+        "",
+        "| Auslöser | Eignung | Grenze |",
+        "|---|---|---|",
+        "| **Zeitplan über die Job-Scheduler-API** (`refresh_schedule.json` → "
+        "`POST …/lakehouses/{lakehouseId}/jobs/refreshMaterializedLakeViews/schedules`) | "
+        "**Vorgabe dieser Lieferung** — unterstützt Service Principal und Managed Identity | "
+        "API im **Preview**; höchstens 20 Zeitpläne je Lakehouse, **ein** aktiver je Lineage |",
+        "| Zeitplan in der Lineage-Ansicht (Portal) | Produktionsweg laut MS Learn | Handarbeit, "
+        "nicht im Deployment reproduzierbar |",
+        "| Pipeline-Aktivität *Refresh Materialized Lake View* | Kopplung an das Laden ohne "
+        "Zeitversatz | **Kein Service Principal, keine Workspace-Identität** — widerspricht der "
+        "nicht-persönlichen Betriebsidentität; aktualisiert immer **alle** MLV des Lakehouse |",
+        "| `REFRESH MATERIALIZED LAKE VIEW … FULL` (Spark SQL) | Einmalig, zur Fehlersuche | "
+        "Erzwingt Vollaufbau |",
+        "| `notebookutils.lakehouse.refreshMlv` | Entwicklung und Test | Laut MS Learn nicht "
+        "für Produktion — und erst ab **Spark 4.0** vorhanden; auf 3.5 fehlt die Funktion |",
+        "",
+        f"**Zeitversatz statt Kopplung.** `refresh_schedule.json` läuft täglich "
+        f"{MLV_REFRESH_UHRZEIT} UTC, eine Stunde nach der Pipeline (`orchestration/schedule.json`, "
+        "02:00 UTC). Dauert die Pipeline länger, liest der Refresh den alten Stand. Die Kopplung "
+        "über die Pipeline-Aktivität gäbe es, aber nur unter einer persönlichen Identität.",
+        "",
+        "**Inkrementell nur unter zwei Bedingungen.** Change Data Feed auf **allen** Quellen "
+        "(`delta.enableChangeDataFeed = true` — die MLV hier setzen es für nachgelagerte Sichten) "
+        "**und** die Quellen sind im Zyklus append-only. Silber entsteht in dieser Lieferung "
+        "per `CREATE OR REPLACE TABLE` (Vollaufbau) — damit ist jeder Zyklus ein Ersetzen, und "
+        "Fabric wählt den **Vollaufbau**. Inkrementell wird es erst mit append-only geladenem "
+        "Silber; das ist eine Ladeentscheidung, keine Einstellung.",
+        "",
+        "**Aus einem Kundenprojekt, gemessen (15.–22.09.2026, D-530).** Der Refresh scheiterte "
+        "zuerst mit `MLV_SCHEMA_NOT_FOUND` — *the default database is not defined* — über die "
+        "Job-Scheduler-API, die Ausführungsdefinition und `REFRESH … FULL`, obwohl dieselbe "
+        "Session das Schema per `SHOW TABLES` sah. **Die Ursache war der fehlende Lakehouse-"
+        "Kontext beim Refresh, nicht die Laufzeit:** mit dem Ziel-Lakehouse als gebundenem "
+        "Kontext (Aufruf je Stufe auf *dem* Lakehouse, das die Sichten trägt) wurden alle "
+        "Sichten auf Spark 3.5 angelegt, abgefragt und voll aktualisiert, in Entwicklung, Test "
+        "und Produktion. Ein Zwischenschluss („geht erst mit Spark 4.0“) war falsch — gezogen "
+        "aus der Voraussetzung eines einzigen Hilfsaufrufs (`refreshMlv`) und auf alle Wege "
+        "verallgemeinert. **Für die Lieferung heißt das:** den Zeitplan auf dem Lakehouse "
+        "anlegen, das die Sichten trägt, einmal auslösen und den Job-Status lesen, nicht die "
+        "Rückgabe `202`. Spaltennamen mit Leerzeichen brauchen eine Delta-taugliche Projektion "
+        "(`columnMapping` + maskierte Namen — hier emittiert).",
+    ]

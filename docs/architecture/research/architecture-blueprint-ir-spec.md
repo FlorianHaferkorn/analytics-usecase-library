@@ -284,7 +284,8 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                 "type": "string"
               },
               "service_identity": {
-                "type": "string"
+                "type": "string",
+                "description": "Legacy Windows service identity reference. Existing blueprints remain valid; new structured gateway contracts use identity_roles.windows_service_identity_ref."
               },
               "requirements": {
                 "type": "array",
@@ -304,8 +305,351 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
               "entscheidung": {
                 "type": "string",
                 "description": "Was zu entscheiden ist und woher die Antwort kommt. Pflicht, sobald `zielbild` gesetzt ist."
+              },
+              "identity_roles": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Identity references for distinct gateway duties. Values are references to groups, managed identities, service accounts or credential records; never secrets or personal names. For an on-premises gateway, declaring this contract requires all six roles. A managed VNet gateway has no customer-managed Windows host, so only the applicable common roles are required. The legacy service_identity field remains valid and denotes the Windows service identity.",
+                "required": [
+                  "gateway_admin_ref",
+                  "source_credential_ref",
+                  "runtime_caller_ref"
+                ],
+                "properties": {
+                  "installer_ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Identity authorized to install the gateway software on the host."
+                  },
+                  "registration_identity_ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Cloud identity that registers or restores the gateway cluster."
+                  },
+                  "gateway_admin_ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Administrative group or role reference that manages the gateway after registration."
+                  },
+                  "windows_service_identity_ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Windows service account reference used by the on-premises gateway service."
+                  },
+                  "source_credential_ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Reference to the governed source-credential record; the credential itself is never stored here."
+                  },
+                  "runtime_caller_ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Reference to the Fabric runtime identity that invokes the bound connection."
+                  }
+                }
+              },
+              "evidence_requirements": {
+                "type": "array",
+                "minItems": 2,
+                "description": "Acceptance evidence for both the configured connection and an actual runtime execution. Object existence alone is not runtime proof.",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "evidence_id",
+                    "scope",
+                    "requirement",
+                    "status"
+                  ],
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "scope": {
+                      "enum": [
+                        "connection",
+                        "runtime"
+                      ],
+                      "description": "Connection proves configuration and reachability; runtime proves execution under the intended caller."
+                    },
+                    "subject_ref": {
+                      "type": "string",
+                      "description": "Connection, item or workload reference to which the requirement applies."
+                    },
+                    "requirement": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "status": {
+                      "enum": [
+                        "pending",
+                        "passed",
+                        "failed",
+                        "not_applicable"
+                      ],
+                      "description": "A passed or failed check must carry evidence_ref; pending is never readiness evidence."
+                    },
+                    "evidence_ref": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Immutable or dated evidence reference. Required for passed and failed results."
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "status": {
+                            "enum": [
+                              "passed",
+                              "failed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "status"
+                        ]
+                      },
+                      "then": {
+                        "required": [
+                          "evidence_ref"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "allOf": [
+                  {
+                    "contains": {
+                      "properties": {
+                        "scope": {
+                          "const": "connection"
+                        }
+                      },
+                      "required": [
+                        "scope"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "scope": {
+                          "const": "runtime"
+                        }
+                      },
+                      "required": [
+                        "scope"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "operating_controls": {
+                "type": "array",
+                "description": "Typed operating limits. Numeric values are delivery inputs with provenance; the schema defines no universal engineering threshold.",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "control_id",
+                    "control_type",
+                    "metric",
+                    "threshold",
+                    "telemetry_state"
+                  ],
+                  "properties": {
+                    "control_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "control_type": {
+                      "enum": [
+                        "host_alert",
+                        "gateway_admission",
+                        "orchestration_concurrency"
+                      ],
+                      "description": "Host alerts observe the machine; gateway admission controls reject or queue work at the gateway; orchestration concurrency limits upstream scheduling."
+                    },
+                    "metric": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "threshold": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "operator",
+                        "value",
+                        "unit",
+                        "provenance"
+                      ],
+                      "properties": {
+                        "operator": {
+                          "enum": [
+                            "greater_than",
+                            "greater_or_equal",
+                            "less_than",
+                            "less_or_equal",
+                            "equals"
+                          ]
+                        },
+                        "value": {
+                          "type": "number"
+                        },
+                        "unit": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "provenance": {
+                          "enum": [
+                            "vendor_default",
+                            "proposed",
+                            "measured",
+                            "accepted"
+                          ],
+                          "description": "vendor_default is documented product behaviour; proposed awaits a decision; measured is an observed baseline; accepted is the active operating decision."
+                        },
+                        "source_ref": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "evidence_ref": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "decision_ref": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "provenance": {
+                                "const": "vendor_default"
+                              }
+                            },
+                            "required": [
+                              "provenance"
+                            ]
+                          },
+                          "then": {
+                            "required": [
+                              "source_ref"
+                            ]
+                          }
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "provenance": {
+                                "const": "measured"
+                              }
+                            },
+                            "required": [
+                              "provenance"
+                            ]
+                          },
+                          "then": {
+                            "required": [
+                              "evidence_ref"
+                            ]
+                          }
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "provenance": {
+                                "const": "accepted"
+                              }
+                            },
+                            "required": [
+                              "provenance"
+                            ]
+                          },
+                          "then": {
+                            "required": [
+                              "decision_ref"
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "telemetry_state": {
+                      "enum": [
+                        "healthy",
+                        "breached",
+                        "telemetry_missing",
+                        "not_applicable"
+                      ],
+                      "description": "telemetry_missing is unknown and must never be interpreted as healthy."
+                    },
+                    "telemetry_evidence_ref": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dated telemetry evidence. Required when health or breach is asserted."
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "telemetry_state": {
+                            "enum": [
+                              "healthy",
+                              "breached"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "telemetry_state"
+                        ]
+                      },
+                      "then": {
+                        "required": [
+                          "telemetry_evidence_ref"
+                        ]
+                      }
+                    }
+                  ]
+                }
               }
-            }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "kind": {
+                      "const": "on_premises"
+                    },
+                    "identity_roles": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "identity_roles"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "identity_roles": {
+                      "required": [
+                        "installer_ref",
+                        "registration_identity_ref",
+                        "gateway_admin_ref",
+                        "windows_service_identity_ref",
+                        "source_credential_ref",
+                        "runtime_caller_ref"
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       }

@@ -16,6 +16,7 @@
       ]
     },
     "collector": {"type": ["string", "null"], "minLength": 1},
+    "operational_evidence": {"$ref": "#/$defs/operational_evidence"},
     "resources": {
       "type": "array",
       "items": {
@@ -28,6 +29,94 @@
           "physical_id": {"type": "string", "minLength": 1},
           "state_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
         }
+      }
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "ref": {"type": "string", "minLength": 1},
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "evidence_refs"],
+      "properties": {
+        "state": {"enum": ["confirmed", "measured", "derived", "proposed", "open", "not_applicable"]},
+        "evidence_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}, "uniqueItems": true},
+        "note": {"type": ["string", "null"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"state": {"enum": ["confirmed", "measured"]}}},
+          "then": {"properties": {"evidence_refs": {"minItems": 1}}}
+        }
+      ]
+    },
+    "connection_test": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "connection_ref", "principal_ref", "outcome", "tested_at", "status"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "connection_ref": {"$ref": "#/$defs/id"},
+        "principal_ref": {"type": ["string", "null"], "minLength": 1},
+        "outcome": {"enum": ["passed", "failed", "not_run"]},
+        "tested_at": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "format": "date-time"}
+          ]
+        },
+        "status": {"$ref": "#/$defs/status"}
+      }
+    },
+    "network_test": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "gateway_ref", "connection_ref", "protocol", "port", "outcome", "tested_at", "status"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "gateway_ref": {"type": ["string", "null"], "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "connection_ref": {"$ref": "#/$defs/id"},
+        "protocol": {"enum": ["tcp", "https", "other"]},
+        "port": {"type": ["integer", "null"], "minimum": 1, "maximum": 65535},
+        "outcome": {"enum": ["passed", "failed", "not_run"]},
+        "tested_at": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "format": "date-time"}
+          ]
+        },
+        "status": {"$ref": "#/$defs/status"}
+      }
+    },
+    "runtime_test": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "use_case_ref", "connection_refs", "target_refs", "principal_ref", "outcome", "tested_at", "status"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "use_case_ref": {"$ref": "#/$defs/id"},
+        "connection_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+        "target_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+        "principal_ref": {"type": ["string", "null"], "minLength": 1},
+        "outcome": {"enum": ["passed", "failed", "not_run"]},
+        "tested_at": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "format": "date-time"}
+          ]
+        },
+        "status": {"$ref": "#/$defs/status"}
+      }
+    },
+    "operational_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["connection_tests", "network_tests", "runtime_tests"],
+      "properties": {
+        "connection_tests": {"type": "array", "items": {"$ref": "#/$defs/connection_test"}},
+        "network_tests": {"type": "array", "items": {"$ref": "#/$defs/network_test"}},
+        "runtime_tests": {"type": "array", "items": {"$ref": "#/$defs/runtime_test"}}
       }
     }
   },
@@ -47,7 +136,15 @@
         "properties": {
           "captured_at": {"type": "null"},
           "collector": {"type": "null"},
-          "resources": {"maxItems": 0}
+          "resources": {"maxItems": 0},
+          "operational_evidence": {
+            "type": "object",
+            "properties": {
+              "connection_tests": {"maxItems": 0},
+              "network_tests": {"maxItems": 0},
+              "runtime_tests": {"maxItems": 0}
+            }
+          }
         }
       }
     }

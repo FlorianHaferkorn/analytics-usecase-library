@@ -302,7 +302,8 @@ def test_sdk_selection_is_explicit_without_default_credential(setup, monkeypatch
         def __init__(self, **kwargs):
             calls.append(kwargs)
     monkeypatch.setitem(sys.modules, "azure", SimpleNamespace())
-    monkeypatch.setitem(sys.modules, "azure.identity", SimpleNamespace(ClientSecretCredential=Credential, ManagedIdentityCredential=Credential))
+    monkeypatch.setitem(sys.modules, "azure.identity", SimpleNamespace(ClientAssertionCredential=Credential,
+        ClientSecretCredential=Credential, ManagedIdentityCredential=Credential))
     config = rh.load_configuration(setup[0], setup[1])
     rh._credential(config.identities[0]["identity"], config.policy.scopes[0], setup[1])
     assert calls[0]["tenant_id"] == TENANT and calls[0]["client_id"] == PRINCIPAL

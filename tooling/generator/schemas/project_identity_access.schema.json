@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/identity-access/1.0.0",
+  "title": "Project identity and access contract",
+  "description": "Secret-free contract for required accounts, groups, role assignments and separation-of-duties controls.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_ref", "accounts", "groups", "role_assignments", "separation_rules"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "project_ref": {"$ref": "#/$defs/id"},
+    "accounts": {"type": "array", "items": {"$ref": "#/$defs/account"}},
+    "groups": {"type": "array", "items": {"$ref": "#/$defs/group"}},
+    "role_assignments": {"type": "array", "items": {"$ref": "#/$defs/assignment"}},
+    "separation_rules": {"type": "array", "items": {"$ref": "#/$defs/separation_rule"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "ref": {"type": "string", "minLength": 1},
+    "refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}, "uniqueItems": true},
+    "environments": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["shared", "dev", "test", "prod"]}
+    },
+    "credential": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authentication", "secret_store_ref", "rotation_days"],
+      "properties": {
+        "authentication": {"enum": ["interactive_mfa", "certificate", "federated_credential", "managed_identity", "secret"]},
+        "secret_store_ref": {"type": ["string", "null"]},
+        "rotation_days": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "account": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "display_name_pattern", "principal_type", "purpose", "owner_ref", "environments", "credential", "lifecycle_state", "evidence_refs"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "display_name_pattern": {"type": "string", "minLength": 1},
+        "principal_type": {"enum": ["human", "service_principal", "managed_identity", "workload_identity", "break_glass"]},
+        "purpose": {"type": "string", "minLength": 1},
+        "owner_ref": {"$ref": "#/$defs/ref"},
+        "environments": {"$ref": "#/$defs/environments"},
+        "credential": {"$ref": "#/$defs/credential"},
+        "lifecycle_state": {"enum": ["required", "requested", "provisioned", "verified", "retired"]},
+        "evidence_refs": {"$ref": "#/$defs/refs"}
+      }
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "display_name_pattern", "group_type", "purpose", "owner_refs", "membership_model", "environments", "lifecycle_state", "evidence_refs"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "display_name_pattern": {"type": "string", "minLength": 1},
+        "group_type": {"enum": ["security", "microsoft_365"]},
+        "purpose": {"type": "string", "minLength": 1},
+        "owner_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/ref"}, "uniqueItems": true},
+        "membership_model": {"enum": ["assigned", "dynamic", "privileged_access"]},
+        "environments": {"$ref": "#/$defs/environments"},
+        "lifecycle_state": {"enum": ["required", "requested", "provisioned", "verified", "retired"]},
+        "evidence_refs": {"$ref": "#/$defs/refs"}
+      }
+    },
+    "assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "subject_ref", "subject_kind", "target_ref", "role", "environments", "assignment_mode", "justification", "state", "approver_ref", "decision_ref", "evidence_refs"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "subject_ref": {"$ref": "#/$defs/id"},
+        "subject_kind": {"enum": ["account", "group"]},
+        "target_ref": {"$ref": "#/$defs/ref"},
+        "role": {"type": "string", "minLength": 1},
+        "environments": {"$ref": "#/$defs/environments"},
+        "assignment_mode": {"enum": ["group_based", "direct_exception", "automation_identity"]},
+        "justification": {"type": "string", "minLength": 1},
+        "state": {"enum": ["planned", "approved", "applied", "verified", "revoked"]},
+        "approver_ref": {"type": ["string", "null"]},
+        "decision_ref": {"type": ["string", "null"]},
+        "evidence_refs": {"$ref": "#/$defs/refs"}
+      }
+    },
+    "separation_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "left_subject_ref", "right_subject_ref", "scope", "state", "evidence_refs"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "left_subject_ref": {"$ref": "#/$defs/id"},
+        "right_subject_ref": {"$ref": "#/$defs/id"},
+        "scope": {"type": "string", "minLength": 1},
+        "state": {"enum": ["required", "enforced", "exception_approved"]},
+        "evidence_refs": {"$ref": "#/$defs/refs"}
+      }
+    }
+  }
+}

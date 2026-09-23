@@ -53,7 +53,7 @@ def _bronze_tbl(source: str, schemas: bool) -> str:
     return layer_ref("bronze", _ident(source), schemas)
 
 
-def _table_maintenance(bp: dict, schemas: bool) -> str:
+def _table_maintenance(bp: dict, schemas: bool, governed_catalog: dict | None = None) -> str:
     """Per-layer maintenance (Spark SQL). Grounded in MS Learn *Cross-workload table maintenance*.
 
     The layers are deliberately **not** treated alike — that was the earlier gap. Plain ``OPTIMIZE``
@@ -112,8 +112,14 @@ def _table_maintenance(bp: dict, schemas: bool) -> str:
         "--   Liquid Clustering: recommended; needs the real filter columns → decided per table, not here.",
         "-- ============================================================================",
     ]
-    for d in _domains(bp):
-        t = _silver_tbl(d.get("name", ""), schemas)
+    # **Die Silber-Tabellen, die die Emission wirklich anlegt** — nicht eine je Domaene.
+    # `silver.<domaene>` gibt es seit dem 12.08.2026 nicht mehr (der Vollaufbau materialisiert
+    # je Herkunftstabelle), und diese Datei pflegte sie trotzdem weiter. Gemessen am
+    # SAP-Szenario unter Spark (18.09.2026): **8 der 21 Kettenbefunde** kamen von hier —
+    # `ALTER TABLE silver.order_to_cash` und `OPTIMIZE silver.order_to_cash`, vier Domaenen.
+    # Die Auskunft steht jetzt an einer Stelle (`silber_tabellen`) und wird gelesen (D-527).
+    from core.dataarch_engine.blueprint.provision_transforms import silber_tabellen
+    for t in silber_tabellen(bp, governed_catalog, schemas):
         lines += [
             f"ALTER TABLE {t} SET TBLPROPERTIES ("
             "'delta.autoOptimize.autoCompact' = 'true', "
@@ -134,18 +140,24 @@ def _table_maintenance(bp: dict, schemas: bool) -> str:
         "--   Target: 400 MB – 1 GB files, 8M+ rows per row group for Direct Lake.",
         "-- ============================================================================",
     ]
-    for d in _domains(bp):
-        for product in sorted(d.get("data_products", [])):
-            t = _gold_tbl(product, schemas)
-            lines += [
-                f"ALTER TABLE {t} SET TBLPROPERTIES ("
-                "'delta.parquet.vorder.enabled' = 'true', "
-                "'delta.autoOptimize.optimizeWrite' = 'true', "
-                "'delta.autoOptimize.autoCompact' = 'true');",
-                f"OPTIMIZE {t} VORDER;",
-                f"VACUUM {t} RETAIN {_VACUUM_DEFAULT_HOURS} HOURS;   -- 7-day floor; raise per time-travel/audit needs",
-                "",
-            ]
+    # **Ein Produkt, ein Pflegeblock.** Ein konformes Gold-Produkt steht in mehreren
+    # Domaenen (`dim_material` in Inventory Mm und Order To Cash) — und bekam seinen
+    # `ALTER`/`OPTIMIZE`/`VACUUM` dadurch zweimal. Der Vollaufbau emittiert es genau einmal
+    # unter `transforms/_conformed/` (12.08.2026); die Pflege muss derselben Zaehlung
+    # folgen, sonst laeuft `VACUUM` auf derselben Tabelle doppelt.
+    produkte = sorted({product for d in _domains(bp)
+                       for product in (d.get("data_products") or [])})
+    for product in produkte:
+        t = _gold_tbl(product, schemas)
+        lines += [
+            f"ALTER TABLE {t} SET TBLPROPERTIES ("
+            "'delta.parquet.vorder.enabled' = 'true', "
+            "'delta.autoOptimize.optimizeWrite' = 'true', "
+            "'delta.autoOptimize.autoCompact' = 'true');",
+            f"OPTIMIZE {t} VORDER;",
+            f"VACUUM {t} RETAIN {_VACUUM_DEFAULT_HOURS} HOURS;   -- 7-day floor; raise per time-travel/audit needs",
+            "",
+        ]
     return "\n".join(lines) + "\n"
 
 
@@ -350,7 +362,8 @@ def _git_blind_spots_lines() -> list[str]:
 
 def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_NAME>",
                    schemas: bool = False, retention: dict | None = None,
-                   lakehouse: str = "analytics_gold") -> dict[str, str]:
+                   lakehouse: str = "analytics_gold",
+                   governed_catalog: dict | None = None) -> dict[str, str]:
     """Return the retention/lifecycle/BCDR artifact set (path → content). Maintenance SQL is emitted for
     Spark stacks (fabric/databricks); the plan, retention config and BCDR runbook are always emitted."""
     retention = retention or {}
@@ -414,7 +427,8 @@ def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_N
         if _note:
             out[_key] = _note
     if stack in ("fabric", "databricks"):
-        out["lifecycle/table_maintenance.sql"] = _table_maintenance(bp, schemas)
+        out["lifecycle/table_maintenance.sql"] = _table_maintenance(bp, schemas,
+                                                                     governed_catalog)
     return out
 
 # --------------------------------------------------------------------------- OneLake storage tiers

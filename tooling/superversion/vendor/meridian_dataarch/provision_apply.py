@@ -176,7 +176,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     ``sql_ddl_layers`` names the SQL-DDL emitters that were run (``"mlv"`` and/or ``"warehouse"``). Those
     emit ``CREATE`` statements that must be **executed against a SQL endpoint** — not imported as items — so
     for each such layer a ``run_sql_ddl`` step is added per gold product (closing the emit→apply gap the
-    generic ``import_item`` step left open). MLV runs once (refresh is automatic thereafter); warehouse DDL
+    generic ``import_item`` step left open). MLV runs once and its refresh is a separate, triggered step (D-529); warehouse DDL
     is re-runnable (``CREATE OR ALTER``-shaped).
 
     ``entscheidungen`` ist das Profilfeld aus dem Rueckweg der Antwortdatei (C-3,
@@ -360,18 +360,32 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     for layer in ("mlv", "warehouse"):
         if layer not in sql_ddl_layers:
             continue
-        once = "once (MLV refresh + dependency mgmt automatic thereafter)" if layer == "mlv" \
-            else "re-runnable (idempotent DDL)"
+        # D-529: der Refresh einer MLV laeuft NICHT von selbst — er braucht einen Ausloeser, und
+        # der ist ein eigener Schritt unten. Und das Ziel ist das **Lakehouse** (Spark SQL):
+        # der SQL-Analyseendpunkt ist nur lesend und kennt `CREATE MATERIALIZED LAKE VIEW` nicht.
+        once = ("once — the refresh runs only when triggered (step schedule_mlv_refresh)"
+                if layer == "mlv" else "re-runnable (idempotent DDL)")
+        ziel = "Lakehouse (Spark SQL)" if layer == "mlv" else "SQL endpoint"
+        werkzeug = "notebook %%sql | fab" if layer == "mlv" else "fab / rest:/sql/query | notebook %%sql"
         for gp in gold_products:
             # match each emitter's on-disk filename exactly: mlv/<dom>/<p>.mlv.sql · warehouse/<dom>/gold_<p>.sql
             fname = f"{_ident(gp)}.mlv.sql" if layer == "mlv" else f"gold_{_ident(gp)}.sql"
             rel = f"{layer}/{dom_of.get(gp, 'gold')}/{fname}"
             ws = ws_of.get(gp, target_ws)
-            add("run_sql_ddl", f"{ws}.Workspace SQL endpoint ← render/{stack}/{rel}",
-                "fab / rest:/sql/query | notebook %%sql", "human",
+            add("run_sql_ddl", f"{ws}.Workspace {ziel} ← render/{stack}/{rel}",
+                werkzeug, "human",
                 f"execute the generated {layer} DDL for '{gp}' against the SQL endpoint — {once}",
                 # der Pfad ist hier deklariert, nicht gesucht: die DDL-Schicht lief in diesem Lauf
                 present(rel) or rel)
+        if layer == "mlv":
+            # Der Ausloeser (D-529). Ohne diesen Schritt steht die MLV auf dem Stand ihres
+            # CREATE, und nichts wird rot.
+            add("schedule_mlv_refresh", f"{target_ws}.Workspace Lakehouse — MLV-Lineage",
+                "rest:/workspaces/{id}/lakehouses/{id}/jobs/refreshMaterializedLakeViews/schedules",
+                "human",
+                "register the MLV refresh schedule (preview API; one active schedule per lineage) "
+                "— then trigger once and read the job status, not the 202",
+                present("mlv/refresh_schedule.json") or "mlv/refresh_schedule.json")
     for d in domains:
         aud = d.get("publishing", {}).get("intended_audience", "internal")
         add("assign_roles", f"{d['name']} workspace roles ({aud})", "rest:/workspaces/{id}/roleAssignments",

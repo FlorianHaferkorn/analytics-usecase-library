@@ -100,6 +100,21 @@ def build_compiler_input(package_root: Path, schema_root: Path) -> dict[str, Any
                 if "batch_ingestion" in singleton_modules
                 else {}
             ),
+            **(
+                {"capability_state": singleton_modules["capability_state"]}
+                if "capability_state" in singleton_modules
+                else {}
+            ),
+            **(
+                {"identity_access": singleton_modules["identity_access"]}
+                if "identity_access" in singleton_modules
+                else {}
+            ),
+            **(
+                {"architecture_maintenance": singleton_modules["architecture_maintenance"]}
+                if "architecture_maintenance" in singleton_modules
+                else {}
+            ),
         },
         "readiness": {
             "decision_ready": decision_ready,

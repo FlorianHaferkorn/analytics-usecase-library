@@ -1,0 +1,1060 @@
+# Customer-neutral assurance pack for governed Fabric data products.
+# It captures the questions and evidence that repeatedly distinguish a diagram
+# from an operable delivery. Project answers belong to the Project Package.
+schema_version: 1.0.0
+capability:
+  id: fabric_data_delivery_assurance
+  version: 1.1.0
+
+  applicability:
+    - id: app_target_is_fabric
+      description: Activate the pack when the engagement delivers a governed data product on Microsoft Fabric.
+      condition:
+        fact: target_platform
+        operator: equals
+        value: microsoft_fabric
+    - id: app_incremental_delivery
+      description: Activate incremental-processing questions when a source is loaded more than once or can change after publication.
+      condition:
+        fact: recurring_data_delivery
+        operator: equals
+        value: true
+    - id: app_operated_product
+      description: Activate operational controls when the product must run without continuous delivery-team supervision.
+      condition:
+        fact: operating_responsibility_required
+        operator: equals
+        value: true
+
+  methodology:
+    - id: m_profile_source_behavior
+      step: 1
+      description: Measure publication cadence, volumes, change and delete behavior before selecting an incremental strategy.
+      produces:
+        - o_source_change_contract
+    - id: m_define_identity_access
+      step: 2
+      description: Define human, deployment, runtime and emergency identities, their security groups, environment-specific role assignments, credential lifecycle and approval separation before provisioning.
+      produces:
+        - o_identity_access_contract
+    - id: m_define_quality_boundary
+      step: 3
+      description: Define critical data elements, executable rules, thresholds, severity and remediation ownership for each governed layer.
+      produces:
+        - o_data_quality_manifest
+    - id: m_define_product_health
+      step: 4
+      description: Connect source freshness, orchestration, quality, serving and capacity into one observable product-health contract.
+      produces:
+        - o_product_health_manifest
+    - id: m_prove_recovery
+      step: 5
+      description: Prove idempotency, classified retry behavior, last-approved-output retention and recovery before production.
+      produces:
+        - o_reliability_test_plan
+    - id: m_prove_cutover_and_retirement
+      step: 6
+      description: Prove downstream rebinding, value reconciliation, security, rendering, rollback and retirement criteria before removing a compatibility path.
+      produces:
+        - o_architecture_transition_contract
+    - id: m_capture_runtime_evidence
+      step: 7
+      description: Execute positive and negative tests and retain revision-bound evidence with expected and actual results.
+      produces:
+        - o_delivery_evidence_bundle
+
+  questions:
+    - id: q_source_publication
+      text: What is the measured source publication cadence, expected completion time, freshness tolerance and initial plus daily data volume?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_source_behavior_profile
+      decision_ref: null
+    - id: q_required_identities
+      text: Which named human roles, deployment identity, runtime identity and break-glass identity are required in each environment, and who owns their lifecycle?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_identity_inventory
+      decision_ref: null
+    - id: q_group_role_model
+      text: Which security group represents each role, which Fabric or Azure scope receives which permission, and where is direct personal access explicitly prohibited or approved as an exception?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_identity_inventory
+        - e_access_assignment_proof
+      decision_ref: null
+    - id: q_credential_lifecycle
+      text: Which authentication method, secret store, rotation interval, expiry monitor and recovery owner apply to every non-human identity?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_identity_inventory
+        - e_access_assignment_proof
+      decision_ref: null
+    - id: q_approval_separation
+      text: Who may request, approve and execute production changes, and which distinct identities and groups prove that approval is separated from execution?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_approval_separation_proof
+      decision_ref: null
+    - id: q_change_semantics
+      text: Which field or feed identifies inserts and updates, how are deletes exposed, and how long can late corrections arrive?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_incremental_delivery
+      evidence_requirement_refs:
+        - e_source_behavior_profile
+        - e_incremental_replay_proof
+      decision_ref: d_incremental_strategy
+    - id: q_reconciliation
+      text: Which periodic full or sampled reconciliation detects changes that the incremental mechanism can miss?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_incremental_delivery
+      evidence_requirement_refs:
+        - e_incremental_replay_proof
+      decision_ref: d_incremental_strategy
+    - id: q_transformation_engine
+      text: Which transformations are deterministic declarative SQL and which require procedural state, custom libraries, multi-output writes or exception handling?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_transformation_fit_proof
+      decision_ref: d_transformation_engine
+    - id: q_quality_rules
+      text: Which critical elements and rules are checked at Bronze, Silver, Gold and serving boundaries, with which threshold, severity and evidence provenance?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_quality_failure_proof
+      decision_ref: d_quality_enforcement
+    - id: q_quality_failure_path
+      text: Which failures block publication, which rows are quarantined, who owns remediation, and how is every failed run persisted?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_quality_failure_proof
+      decision_ref: d_quality_enforcement
+    - id: q_run_audit
+      text: Which correlation identifier and started, completed, failed and published states connect every source, layer, model and report run?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_operated_product
+      evidence_requirement_refs:
+        - e_product_health_proof
+      decision_ref: d_monitoring_scope
+    - id: q_alert_routes
+      text: Which deliverable and supported receiver receives job, data-quality, freshness and capacity alerts, who acknowledges each class, through which channel, with which response time, runbook and retention?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_operated_product
+      evidence_requirement_refs:
+        - e_alert_route_proof
+      decision_ref: d_monitoring_scope
+    - id: q_stale_success
+      text: How is a technically successful run with red quality, stale source data or an unpublished output detected and escalated?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_operated_product
+      evidence_requirement_refs:
+        - e_product_health_proof
+        - e_alert_route_proof
+      decision_ref: d_monitoring_scope
+    - id: q_capacity_budget
+      text: Which representative workload and thresholds establish the capacity budget, sequencing rules and permanent scale-up trigger?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_operated_product
+      evidence_requirement_refs:
+        - e_capacity_baseline
+      decision_ref: null
+    - id: q_retry_and_concurrency
+      text: Which failure classes are retryable, with which backoff, jitter and attempt limit, and how are concurrent or uncertain runs reconciled?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_operated_product
+      evidence_requirement_refs:
+        - e_recovery_proof
+      decision_ref: null
+    - id: q_bootstrap_and_rollback
+      text: Which automated seed run, prerequisites, rollback point and last-approved-output rule make a zero-to-running environment and an interrupted release recoverable without an undocumented manual bootstrap?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_operated_product
+      evidence_requirement_refs:
+        - e_recovery_proof
+      decision_ref: null
+    - id: q_runtime_ownership
+      text: Which non-personal identity owns each schedule, refresh and runtime execution, which identity owns the workspace, and who is accountable when those responsibilities differ?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_operated_product
+      evidence_requirement_refs:
+        - e_runtime_ownership_proof
+      decision_ref: null
+    - id: q_downstream_cutover
+      text: Which current compatibility path feeds each downstream consumer, what is the approved target binding, and which reconciliation, security, render, rollback and retirement proofs permit the old path to be removed?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_cutover_decommission_proof
+      decision_ref: null
+    - id: q_eventual_consistency
+      text: Which platform resources have delayed metadata visibility after creation, what bounded retry and readback policy applies, and which failures must stop instead of being hidden by retries?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_eventual_consistency_proof
+      decision_ref: null
+    - id: q_tenant_guardrails
+      text: Which tenant settings and scoped security groups are prerequisites, and which positive and negative API readbacks prove the exact effective scope without interpreting portal visibility as evidence?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_tenant_guardrail_proof
+      decision_ref: null
+    - id: q_serving_acceptance
+      text: Which model queries, negative security personas, report renders and interactions must pass against the same frozen source snapshot?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_serving_acceptance_proof
+      decision_ref: null
+
+  evidence_requirements:
+    - id: e_identity_inventory
+      claim: Every required human, deployment, runtime and emergency identity has a named owner, environment scope, authentication method, lifecycle state and security-group mapping without embedded credentials.
+      scope: Every platform, deployment and workload identity required by the target design.
+      environment: any_non_production
+      acceptable_sources:
+        - Directory and group inventory export with immutable object identifiers and accountable owners
+        - Approved identity-access contract containing no secret values
+      state: registered
+      expiry_policy: review_on_scope_change
+    - id: e_access_assignment_proof
+      claim: Every declared role assignment was applied to the intended group or workload identity at the exact tenant, capacity, workspace or item scope and verified by positive and negative readback.
+      scope: Every environment-specific role assignment in the identity-access contract.
+      environment: test
+      acceptable_sources:
+        - Platform API or CLI readback with subject object identifier, role, target scope and timestamp
+        - Positive and negative access test executed with the declared personas
+      state: registered
+      expiry_policy: review_on_scope_change
+    - id: e_approval_separation_proof
+      claim: Production approval and execution use distinct accountable subjects, with an auditable exception decision when separation is not possible.
+      scope: Every production deployment and privileged access path.
+      environment: prod
+      acceptable_sources:
+        - Revision-bound approval record plus deployment audit identifying distinct approver and executor
+        - Approved ADR for a time-bounded exception with owner, expiry and compensating control
+      state: registered
+      expiry_policy: fixed_review_interval
+    - id: e_source_behavior_profile
+      claim: Source cadence, completion time, volume, watermark candidates, late changes and delete behavior were measured on representative periods.
+      scope: Every canonical production source.
+      environment: any_non_production
+      acceptable_sources:
+        - Timestamped source queries with object identity, row counts and measurement window
+        - Source-owner publication contract corroborated by an independent data profile
+      state: registered
+      expiry_policy: review_on_scope_change
+    - id: e_incremental_replay_proof
+      claim: Initial load, repeated no-op load, late update, delete or correction, and periodic reconciliation produce the expected target state without duplicates.
+      scope: Every incremental ingestion path and governed target.
+      environment: test
+      acceptable_sources:
+        - Revision-bound pipeline runs with source and target counts and expected versus actual assertions
+        - Target readback showing stable keys and reconciled deletes or corrections
+      state: registered
+      expiry_policy: review_on_tool_change
+    - id: e_transformation_fit_proof
+      claim: Each selected transformation engine executed a representative transformation of the required complexity and was read back from the target.
+      scope: Each transformation family selected by the design.
+      environment: test
+      acceptable_sources:
+        - Executed transformation with input and output hashes and engine metadata
+        - Negative test showing an excluded engine capability is not silently relied on
+      state: registered
+      expiry_policy: review_on_tool_change
+    - id: e_quality_failure_proof
+      claim: Every blocking and quarantine rule was exercised with a deliberate failure and produced the declared publication, audit and remediation behavior.
+      scope: Every critical data-quality rule.
+      environment: test
+      acceptable_sources:
+        - Negative data injection with threshold, expected action and persisted actual result
+        - Quarantine and last-approved-output readback linked to the failed run identifier
+      state: registered
+      expiry_policy: review_on_scope_change
+    - id: e_product_health_proof
+      claim: One correlation identifier connects source freshness, orchestration, layer quality, serving refresh and report binding into a terminal product-health state.
+      scope: Every operated data product.
+      environment: test
+      acceptable_sources:
+        - Product-health record with started and terminal states plus component evidence references
+        - Stale-run test proving that absence of a terminal state becomes unhealthy
+      state: registered
+      expiry_policy: review_on_scope_change
+    - id: e_alert_route_proof
+      claim: Each configured alert class reached a named receiver and the receiver executed or acknowledged the documented reaction path.
+      scope: Job, quality, freshness and capacity alert classes in scope.
+      environment: test
+      acceptable_sources:
+        - Deliberate failure injection with timestamped notification and acknowledgement
+        - Alert-platform readback with rule, receiver, threshold and retained event identifier
+      state: registered
+      expiry_policy: fixed_review_interval
+    - id: e_capacity_baseline
+      claim: Representative concurrent workloads were measured against an explicit capacity threshold and scale-up decision rule.
+      scope: Every capacity carrying an operated product.
+      environment: any_non_production
+      acceptable_sources:
+        - Capacity metrics export tied to the tested workload and time window
+        - Throttling event test with expected sequencing or scale response
+      state: registered
+      expiry_policy: fixed_review_interval
+    - id: e_recovery_proof
+      claim: Transient, non-retryable and uncertain outcomes were classified correctly, and restart or rollback preserved the last approved output without duplication.
+      scope: Every mutating orchestration and deployment path.
+      environment: test
+      acceptable_sources:
+        - Failure-injection runs covering backoff, no-retry, uncertain reconciliation and second-apply no-op
+        - Rollback and bootstrap readback with exact target identifiers and hashes
+      state: registered
+      expiry_policy: review_on_tool_change
+    - id: e_serving_acceptance_proof
+      claim: Model queries, negative access personas and report renders passed against one revision-bound, timestamp-consistent snapshot.
+      scope: Every semantic model and report in acceptance scope.
+      environment: test
+      acceptable_sources:
+        - Query results with tolerances and source-snapshot identity
+        - Browser or desktop render evidence with interaction and negative-access results
+      state: registered
+      expiry_policy: review_on_scope_change
+    - id: e_runtime_ownership_proof
+      claim: Every production schedule, refresh and workload execution resolves to a declared non-personal identity with an accountable owner and no hidden dependency on a delivery-team user.
+      scope: Every scheduled or event-triggered production execution.
+      environment: test
+      acceptable_sources:
+        - Runtime or schedule readback containing exact principal, artifact, environment and timestamp
+        - Negative test proving that removal of an interactive delivery user does not stop the operated workload
+      state: registered
+      expiry_policy: review_on_scope_change
+    - id: e_cutover_decommission_proof
+      claim: Every downstream binding uses the approved target and the compatibility path is retired only after value reconciliation, negative security tests, report rendering and rollback proof pass.
+      scope: Every transitional source, target, semantic model, report and application binding.
+      environment: test
+      acceptable_sources:
+        - Before-and-after binding inventory with immutable artifact identifiers and approved target references
+        - Revision-bound reconciliation, security, render and rollback evidence plus retirement approval
+      state: registered
+      expiry_policy: review_on_scope_change
+    - id: e_eventual_consistency_proof
+      claim: Newly created resources become discoverable within a measured bound; retries are limited to classified visibility delays and never hide authorization, schema or permanent platform failures.
+      scope: Every create-then-read or create-then-bind automation path.
+      environment: test
+      acceptable_sources:
+        - Timestamped create and readback sequence with bounded retry count and elapsed time
+        - Failure injection showing permanent errors stop without exhausting visibility-delay retries
+      state: registered
+      expiry_policy: review_on_tool_change
+    - id: e_tenant_guardrail_proof
+      claim: Required tenant settings are enabled for the exact approved security groups and positive plus negative API probes confirm the effective scope.
+      scope: Every tenant prerequisite used by the delivery or runtime identities.
+      environment: any_non_production
+      acceptable_sources:
+        - Fabric Admin API readback with setting name, enabled state and scoped group object identifiers
+        - Positive probe using an in-scope identity and negative probe using an out-of-scope identity
+      state: registered
+      expiry_policy: review_on_scope_change
+
+  decisions:
+    - id: d_incremental_strategy
+      question_refs:
+        - q_change_semantics
+        - q_reconciliation
+      state: proposed
+      decider_role: data_product_owner
+      impact_dimensions:
+        - architecture
+        - delivery
+        - operations
+        - cost
+      recommendation_option_ref: null
+      options:
+        - id: native_change_feed
+          summary: Consume a proven source change feed or Delta Change Data Feed and retain a periodic reconciliation.
+          applicability:
+            - fact: reliable_change_feed_available
+              operator: equals
+              value: true
+          recommendation_logic: Prefer when inserts, updates and deletes are exposed with a documented retention and restart contract.
+          benefits:
+            - Reads only changed records during normal operation
+            - Delete and update semantics can be explicit
+          limitations:
+            - Change-feed retention creates a hard recovery window
+            - A reset or missed version needs a defined rebaseline path
+          delivery_impact: Implement checkpointing, replay, delete handling and reconciliation tests.
+          operational_impact: Monitor checkpoint lag, retention headroom and reconciliation differences.
+          cost_drivers:
+            - Change volume
+            - Reconciliation frequency
+          scalability_implications: Scales with change volume while the feed and checkpoint contract remain valid.
+          later_change_cost: low
+          evidence_requirement_refs:
+            - e_source_behavior_profile
+            - e_incremental_replay_proof
+          authoritative_source: Vendor documentation for the selected change-feed mechanism and measured source behavior
+        - id: watermark_with_reconciliation
+          summary: Read a measured late-change window by watermark and periodically reconcile against the authoritative source.
+          applicability:
+            - fact: reliable_change_feed_available
+              operator: equals
+              value: false
+          recommendation_logic: Prefer when an update timestamp is trustworthy but deletes or back-dated corrections are not fully exposed.
+          benefits:
+            - Works with common relational sources without a native change feed
+            - Reprocessing window absorbs expected late updates
+          limitations:
+            - Deletes need a separate comparison or tombstone contract
+            - Window size is a measured operational threshold, not a guess
+          delivery_impact: Implement watermark state, overlap, merge, delete policy and periodic reconciliation.
+          operational_impact: Monitor watermark progress, source freshness and reconciliation variance.
+          cost_drivers:
+            - Late-change window size
+            - Source scan and reconciliation volume
+          scalability_implications: Source read cost grows with the overlap and reconciliation scope.
+          later_change_cost: medium
+          evidence_requirement_refs:
+            - e_source_behavior_profile
+            - e_incremental_replay_proof
+          authoritative_source: Measured source behavior and vendor connector semantics
+        - id: full_snapshot_replacement
+          summary: Rebuild the complete governed target from one consistent source snapshot.
+          applicability:
+            - fact: full_snapshot_within_window
+              operator: equals
+              value: true
+          recommendation_logic: Use only when measured volume, source impact and recovery time fit the agreed window.
+          benefits:
+            - Simple state and delete semantics
+            - Deterministic recovery from a complete snapshot
+          limitations:
+            - Source load, compute and duration grow with total history
+            - A failed rebuild must not replace the last approved output
+          delivery_impact: Implement atomic publish or swap and full reconciliation.
+          operational_impact: Monitor snapshot completeness, runtime and retained rollback point.
+          cost_drivers:
+            - Total historical volume
+            - Snapshot frequency
+          scalability_implications: Becomes unsuitable when total history outgrows the source and capacity window.
+          later_change_cost: high
+          evidence_requirement_refs:
+            - e_source_behavior_profile
+            - e_recovery_proof
+          authoritative_source: Measured full-load runtime and source impact
+    - id: d_transformation_engine
+      question_refs:
+        - q_transformation_engine
+      state: proposed
+      decider_role: data_architect
+      impact_dimensions:
+        - architecture
+        - delivery
+        - operations
+      recommendation_option_ref: null
+      options:
+        - id: declarative_sql
+          summary: Use Materialized Lake Views or another declarative SQL target for deterministic relational transformations.
+          applicability:
+            - fact: transformation_requires_procedural_state
+              operator: equals
+              value: false
+          recommendation_logic: Prefer for deterministic selects, joins, filters and aggregations supported by the target engine.
+          benefits:
+            - Transformation and refresh intent stay in one declarative definition
+            - Less custom orchestration code to own
+          limitations:
+            - Engine eligibility, incremental refresh and supported SQL determine fit
+            - DML, custom libraries and complex exception handling need another path
+          delivery_impact: Author SQL definitions, declarative constraints and an exception path for unsupported checks.
+          operational_impact: Monitor definition refresh, eligibility and published DQ results.
+          cost_drivers:
+            - Number and complexity of views
+            - Refresh frequency
+          scalability_implications: Scales well while transformations remain within declarative engine capabilities.
+          later_change_cost: low
+          evidence_requirement_refs:
+            - e_transformation_fit_proof
+          authoritative_source: Vendor documentation and an executed representative definition
+        - id: procedural_notebook
+          summary: Use a notebook for transformations requiring stateful logic, custom libraries, DML, multi-output transactions or complex exception handling.
+          applicability:
+            - fact: transformation_requires_procedural_state
+              operator: equals
+              value: true
+          recommendation_logic: Select only for requirements that cannot be expressed and operated reliably through the declarative engine.
+          benefits:
+            - Supports procedural control and custom code
+            - Can coordinate several outputs and exception paths
+          limitations:
+            - More code, testing, cluster behavior and operational ownership
+            - Idempotency and partial-write recovery must be designed explicitly
+          delivery_impact: Implement modular code, tests, audit writes, retry classification and rollback behavior.
+          operational_impact: Monitor runtime, dependency versions, partial outputs and exception records.
+          cost_drivers:
+            - Compute startup and runtime
+            - Custom-code test and maintenance effort
+          scalability_implications: Scales through explicit partitioning and orchestration, with higher engineering overhead.
+          later_change_cost: medium
+          evidence_requirement_refs:
+            - e_transformation_fit_proof
+            - e_recovery_proof
+          authoritative_source: Vendor runtime documentation and executed representative code
+    - id: d_quality_enforcement
+      question_refs:
+        - q_quality_rules
+        - q_quality_failure_path
+      state: proposed
+      decider_role: data_product_owner
+      impact_dimensions:
+        - operations
+        - delivery
+        - compliance
+      recommendation_option_ref: null
+      options:
+        - id: fail_closed_with_quarantine
+          summary: Blocking rules prevent publication; row-level exceptions are quarantined where the contract allows partial delivery.
+          applicability:
+            - fact: product_requires_trusted_publication
+              operator: equals
+              value: true
+          recommendation_logic: Prefer for governed outputs where a red rule must not be presented as an approved success.
+          benefits:
+            - Last approved output remains trustworthy
+            - Threshold, owner and remediation behavior are explicit
+          limitations:
+            - Overly broad rules can delay publication
+            - Quarantine requires reconciliation and ownership
+          delivery_impact: Implement executable rules, threshold provenance, terminal audit state and negative tests.
+          operational_impact: Operate remediation queues and re-publication after correction.
+          cost_drivers:
+            - Number of critical rules
+            - Exception volume and remediation frequency
+          scalability_implications: Rules remain manageable when assigned to products and critical elements rather than copied globally.
+          later_change_cost: low
+          evidence_requirement_refs:
+            - e_quality_failure_proof
+          authoritative_source: Approved data contract and executed negative tests
+        - id: observe_only
+          summary: Persist quality measurements without preventing publication.
+          applicability:
+            - fact: product_requires_trusted_publication
+              operator: equals
+              value: false
+          recommendation_logic: Use only for discovery or explicitly non-governed observation while thresholds are being measured.
+          benefits:
+            - Reveals baseline behavior without interrupting delivery
+            - Supports threshold calibration
+          limitations:
+            - A red result does not protect consumers
+            - Must not be described as a production quality gate
+          delivery_impact: Implement measurements and a dated decision for promotion to enforcement.
+          operational_impact: Review observations and close or escalate every persistent breach.
+          cost_drivers:
+            - Measurement retention
+            - Review cadence
+          scalability_implications: Observation without owners accumulates unresolved findings and does not scale as a control.
+          later_change_cost: high
+          evidence_requirement_refs:
+            - e_quality_failure_proof
+          authoritative_source: Measured discovery baseline and named owner decision
+    - id: d_monitoring_scope
+      question_refs:
+        - q_run_audit
+        - q_alert_routes
+        - q_stale_success
+      state: proposed
+      decider_role: operations_owner
+      impact_dimensions:
+        - operations
+        - architecture
+        - cost
+      recommendation_option_ref: null
+      options:
+        - id: composite_product_health
+          summary: Correlate job, freshness, quality, serving and capacity signals into one product-health state with tested alert routes.
+          applicability:
+            - fact: operating_responsibility_required
+              operator: equals
+              value: true
+          recommendation_logic: Prefer for every operated product because job success alone cannot detect stale or red published data.
+          benefits:
+            - Distinguishes technical completion from healthy publication
+            - Provides one trace from source to consumer and owner reaction
+          limitations:
+            - Requires correlation IDs and signal integration across item types
+            - Alert routes must be tested, not only configured
+          delivery_impact: Build health aggregation, stale-run detection, four alert classes and evidence retention.
+          operational_impact: Maintain receivers, runbooks, thresholds and periodic alert tests.
+          cost_drivers:
+            - Signal retention
+            - Monitoring workload and alert channels
+          scalability_implications: One product contract can aggregate many item runs without per-item manual surveillance.
+          later_change_cost: low
+          evidence_requirement_refs:
+            - e_product_health_proof
+            - e_alert_route_proof
+            - e_capacity_baseline
+          authoritative_source: Platform monitoring capabilities plus executed failure-injection evidence
+        - id: job_failure_only
+          summary: Notify only when an orchestrated job reports a failed terminal state.
+          applicability:
+            - fact: operating_responsibility_required
+              operator: equals
+              value: false
+          recommendation_logic: Use only for a bounded prototype that is not represented as an operated product.
+          benefits:
+            - Lowest setup effort
+            - Covers explicit job failures
+          limitations:
+            - Misses successful runs with red DQ, stale sources, missing terminal records, serving failures and capacity pressure
+            - Does not establish product health
+          delivery_impact: Configure job notifications and document excluded failure classes.
+          operational_impact: Manual review is required for every excluded signal.
+          cost_drivers:
+            - Number of jobs
+            - Manual review frequency
+          scalability_implications: Does not scale beyond a bounded prototype because silent failure classes accumulate.
+          later_change_cost: structural
+          evidence_requirement_refs:
+            - e_alert_route_proof
+          authoritative_source: Platform job-history and notification documentation
+
+  recommendation_rules:
+    - id: r_native_change_feed
+      decision_ref: d_incremental_strategy
+      when:
+        - fact: reliable_change_feed_available
+          operator: equals
+          value: true
+      recommend_option_ref: native_change_feed
+      rationale: A proven feed gives explicit changes while periodic reconciliation covers retention and upstream defects.
+    - id: r_watermark_fallback
+      decision_ref: d_incremental_strategy
+      when:
+        - fact: reliable_change_feed_available
+          operator: equals
+          value: false
+      recommend_option_ref: watermark_with_reconciliation
+      rationale: A measured overlap and reconciliation is safer than pretending a timestamp exposes every correction or delete.
+    - id: r_declarative_transformation
+      decision_ref: d_transformation_engine
+      when:
+        - fact: transformation_requires_procedural_state
+          operator: equals
+          value: false
+      recommend_option_ref: declarative_sql
+      rationale: Declarative transformations reduce custom-code ownership when the engine supports the required logic.
+    - id: r_procedural_transformation
+      decision_ref: d_transformation_engine
+      when:
+        - fact: transformation_requires_procedural_state
+          operator: equals
+          value: true
+      recommend_option_ref: procedural_notebook
+      rationale: Stateful or multi-output behavior needs explicit procedural control and recovery.
+    - id: r_fail_closed_quality
+      decision_ref: d_quality_enforcement
+      when:
+        - fact: product_requires_trusted_publication
+          operator: equals
+          value: true
+      recommend_option_ref: fail_closed_with_quarantine
+      rationale: A governed product cannot report success while a blocking quality contract is red.
+    - id: r_composite_monitoring
+      decision_ref: d_monitoring_scope
+      when:
+        - fact: operating_responsibility_required
+          operator: equals
+          value: true
+      recommend_option_ref: composite_product_health
+      rationale: Operated products need source-to-consumer health rather than job status alone.
+
+  architecture_rules:
+    - id: ar_incremental_state
+      applies_to: item
+      rule: Every recurring ingestion declares its change cursor, delete behavior, replay boundary and reconciliation path.
+      decision_refs:
+        - d_incremental_strategy
+    - id: ar_declarative_first
+      applies_to: item
+      rule: Use a declarative transformation only for logic the selected engine supports; procedural exceptions remain explicit and tested.
+      decision_refs:
+        - d_transformation_engine
+    - id: ar_quality_before_publish
+      applies_to: data_quality
+      rule: Blocking quality rules complete before publication, and a failed run records a terminal state without replacing the last approved output.
+      decision_refs:
+        - d_quality_enforcement
+    - id: ar_product_health
+      applies_to: monitoring
+      rule: Product health correlates source freshness, run state, layer quality, serving state and capacity through one run identifier.
+      decision_refs:
+        - d_monitoring_scope
+    - id: ar_classified_retries
+      applies_to: item
+      rule: Only transient and rate-limit failures retry; authentication, schema, contract and quality failures stop for correction.
+      decision_refs: []
+
+  work_packages:
+    - id: wp_identity_access_contract
+      name: Identity, access and approval contract
+      description: Define accounts, groups, assignments, credential lifecycle, runtime ownership and production separation before target provisioning.
+      decision_refs: []
+      output_refs:
+        - o_identity_access_contract
+      depends_on: []
+    - id: wp_source_and_incremental_contract
+      name: Source behavior and incremental contract
+      description: Measure the source and define cursor, delete, late-change, replay and reconciliation behavior.
+      decision_refs:
+        - d_incremental_strategy
+      output_refs:
+        - o_source_change_contract
+      depends_on:
+        - wp_identity_access_contract
+    - id: wp_transformation_and_quality_controls
+      name: Transformation and data-quality controls
+      description: Select transformation engines and implement executable layer rules, thresholds, quarantine and publication behavior.
+      decision_refs:
+        - d_transformation_engine
+        - d_quality_enforcement
+      output_refs:
+        - o_data_quality_manifest
+      depends_on:
+        - wp_source_and_incremental_contract
+    - id: wp_monitoring_and_product_health
+      name: Monitoring and product health
+      description: Implement correlated run audit, stale detection, alert routes, capacity signals and operating runbooks.
+      decision_refs:
+        - d_monitoring_scope
+      output_refs:
+        - o_product_health_manifest
+      depends_on:
+        - wp_transformation_and_quality_controls
+    - id: wp_reliability_and_acceptance
+      name: Reliability and acceptance proof
+      description: Exercise retries, no-retry classes, uncertain outcomes, bootstrap, rollback, quality failures and serving acceptance.
+      decision_refs:
+        - d_incremental_strategy
+        - d_quality_enforcement
+        - d_monitoring_scope
+      output_refs:
+        - o_reliability_test_plan
+        - o_delivery_evidence_bundle
+        - o_architecture_transition_contract
+      depends_on:
+        - wp_monitoring_and_product_health
+
+  skill_requirements:
+    - id: sk_data_architect
+      role: data_architect
+      proficiency: expert
+      work_package_refs:
+        - wp_identity_access_contract
+        - wp_source_and_incremental_contract
+        - wp_transformation_and_quality_controls
+    - id: sk_data_engineer
+      role: data_engineer
+      proficiency: advanced
+      work_package_refs:
+        - wp_source_and_incremental_contract
+        - wp_transformation_and_quality_controls
+        - wp_reliability_and_acceptance
+    - id: sk_operations_engineer
+      role: operations_engineer
+      proficiency: advanced
+      work_package_refs:
+        - wp_identity_access_contract
+        - wp_monitoring_and_product_health
+        - wp_reliability_and_acceptance
+
+  estimation_rules:
+    - id: est_identity_access
+      work_package_ref: wp_identity_access_contract
+      driver: Number of environments, identity classes, group mappings and privileged exception paths
+      unit: days
+      low: 1
+      high: 6
+      status: proposed
+    - id: est_source_contract
+      work_package_ref: wp_source_and_incremental_contract
+      driver: Number of sources multiplied by distinct change and delete mechanisms
+      unit: days
+      low: 2
+      high: 8
+      status: proposed
+    - id: est_quality_controls
+      work_package_ref: wp_transformation_and_quality_controls
+      driver: Number of critical rules, layers and exception paths
+      unit: days
+      low: 3
+      high: 12
+      status: proposed
+    - id: est_product_health
+      work_package_ref: wp_monitoring_and_product_health
+      driver: Number of products, signal classes and alert routes
+      unit: days
+      low: 2
+      high: 8
+      status: proposed
+    - id: est_reliability
+      work_package_ref: wp_reliability_and_acceptance
+      driver: Number of mutation paths, failure classes and acceptance personas
+      unit: days
+      low: 3
+      high: 10
+      status: proposed
+
+  tool_dependencies:
+    - id: td_fabric_item_api
+      tool: Microsoft Fabric REST API or Fabric CLI using the supported item API
+      capability_used: Discover, create, update and read back supported items with exact target identifiers.
+      versions:
+        latest_available: null
+        internally_validated: null
+        project_approved: null
+      evidence_requirement_ref: e_recovery_proof
+      review_due: on_vendor_release
+    - id: td_fabric_monitoring
+      tool: Microsoft Fabric workspace monitoring, Monitoring Hub, Activator and Capacity Metrics
+      capability_used: Collect run and capacity signals and route tested operational alerts.
+      versions:
+        latest_available: null
+        internally_validated: null
+        project_approved: null
+      evidence_requirement_ref: e_alert_route_proof
+      review_due: on_vendor_release
+    - id: td_delta_change_feed
+      tool: Delta Change Data Feed where selected by the approved incremental contract
+      capability_used: Expose versioned row changes between governed layers.
+      versions:
+        latest_available: null
+        internally_validated: null
+        project_approved: null
+      evidence_requirement_ref: e_incremental_replay_proof
+      review_due: on_vendor_release
+
+  outputs:
+    - id: o_identity_access_contract
+      name: Identity, access and approval contract
+      kind: contract
+      produced_by_work_package_refs:
+        - wp_identity_access_contract
+      readiness_gate_refs:
+        - g_delivery_discovery_ready
+        - g_delivery_build_ready
+        - g_delivery_apply_ready
+    - id: o_source_change_contract
+      name: Source behavior and change contract
+      kind: contract
+      produced_by_work_package_refs:
+        - wp_source_and_incremental_contract
+      readiness_gate_refs:
+        - g_delivery_discovery_ready
+        - g_delivery_build_ready
+    - id: o_data_quality_manifest
+      name: Executable data-quality and publication manifest
+      kind: manifest
+      produced_by_work_package_refs:
+        - wp_transformation_and_quality_controls
+      readiness_gate_refs:
+        - g_delivery_build_ready
+        - g_delivery_apply_ready
+    - id: o_product_health_manifest
+      name: Product-health, monitoring and alert manifest
+      kind: manifest
+      produced_by_work_package_refs:
+        - wp_monitoring_and_product_health
+      readiness_gate_refs:
+        - g_delivery_apply_ready
+    - id: o_reliability_test_plan
+      name: Reliability, recovery and failure-injection test plan
+      kind: test_plan
+      produced_by_work_package_refs:
+        - wp_reliability_and_acceptance
+      readiness_gate_refs:
+        - g_delivery_apply_ready
+    - id: o_delivery_evidence_bundle
+      name: Revision-bound delivery assurance evidence
+      kind: evidence_bundle
+      produced_by_work_package_refs:
+        - wp_reliability_and_acceptance
+      readiness_gate_refs:
+        - g_delivery_acceptance_ready
+    - id: o_architecture_transition_contract
+      name: Current-to-target architecture transition and retirement contract
+      kind: contract
+      produced_by_work_package_refs:
+        - wp_reliability_and_acceptance
+      readiness_gate_refs:
+        - g_delivery_apply_ready
+        - g_delivery_acceptance_ready
+
+  readiness_gates:
+    - id: g_delivery_discovery_ready
+      gate: discovery_ready
+      minimum_evidence_refs:
+        - e_source_behavior_profile
+      decision_refs: []
+      blocking: true
+    - id: g_delivery_decision_ready
+      gate: decision_ready
+      minimum_evidence_refs:
+        - e_source_behavior_profile
+      decision_refs:
+        - d_incremental_strategy
+        - d_transformation_engine
+        - d_quality_enforcement
+        - d_monitoring_scope
+      blocking: true
+    - id: g_delivery_build_ready
+      gate: build_ready
+      minimum_evidence_refs:
+        - e_source_behavior_profile
+        - e_transformation_fit_proof
+      decision_refs:
+        - d_incremental_strategy
+        - d_transformation_engine
+        - d_quality_enforcement
+      blocking: true
+    - id: g_delivery_apply_ready
+      gate: apply_ready
+      minimum_evidence_refs:
+        - e_incremental_replay_proof
+        - e_quality_failure_proof
+        - e_product_health_proof
+        - e_alert_route_proof
+        - e_capacity_baseline
+        - e_recovery_proof
+        - e_runtime_ownership_proof
+        - e_eventual_consistency_proof
+        - e_tenant_guardrail_proof
+      decision_refs:
+        - d_incremental_strategy
+        - d_transformation_engine
+        - d_quality_enforcement
+        - d_monitoring_scope
+      blocking: true
+    - id: g_delivery_acceptance_ready
+      gate: acceptance_ready
+      minimum_evidence_refs:
+        - e_incremental_replay_proof
+        - e_quality_failure_proof
+        - e_product_health_proof
+        - e_alert_route_proof
+        - e_capacity_baseline
+        - e_recovery_proof
+        - e_serving_acceptance_proof
+        - e_runtime_ownership_proof
+        - e_cutover_decommission_proof
+        - e_eventual_consistency_proof
+        - e_tenant_guardrail_proof
+      decision_refs:
+        - d_incremental_strategy
+        - d_transformation_engine
+        - d_quality_enforcement
+        - d_monitoring_scope
+      blocking: true
+
+  acceptance_tests:
+    - id: at_incremental_replay
+      readiness_gate_ref: g_delivery_apply_ready
+      statement: Initial, repeated, late-update and delete or correction runs execute against the approved incremental contract.
+      expected_result: Target keys remain unique, the second identical run is a no-op, and reconciliation matches the authoritative source within the approved threshold.
+      evidence_requirement_refs:
+        - e_incremental_replay_proof
+    - id: at_quality_blocks_publication
+      readiness_gate_ref: g_delivery_apply_ready
+      statement: A deliberate blocking quality defect is introduced after a previously approved publication.
+      expected_result: The run records started and failed states, the defective output is not published, the last approved output remains available and the exception is assigned.
+      evidence_requirement_refs:
+        - e_quality_failure_proof
+        - e_product_health_proof
+    - id: at_stale_run_detected
+      readiness_gate_ref: g_delivery_apply_ready
+      statement: A run is left without a terminal publication state beyond the approved stale threshold.
+      expected_result: Product health becomes unhealthy and the named receiver is notified through the configured route.
+      evidence_requirement_refs:
+        - e_product_health_proof
+        - e_alert_route_proof
+    - id: at_capacity_threshold
+      readiness_gate_ref: g_delivery_apply_ready
+      statement: The representative workload approaches or exceeds the approved capacity threshold.
+      expected_result: The threshold is measured, the sequencing or scale response is recorded and the alert route is exercised.
+      evidence_requirement_refs:
+        - e_capacity_baseline
+        - e_alert_route_proof
+    - id: at_classified_failures
+      readiness_gate_ref: g_delivery_apply_ready
+      statement: One transient, one authentication or schema, and one uncertain mutation outcome are injected.
+      expected_result: Only the transient case retries with bounded backoff; the non-retryable case stops; the uncertain case reconciles by readback before another mutation.
+      evidence_requirement_refs:
+        - e_recovery_proof
+    - id: at_serving_acceptance
+      readiness_gate_ref: g_delivery_acceptance_ready
+      statement: Model queries, negative access personas and report interactions run against the same frozen snapshot.
+      expected_result: Values meet approved tolerances, denied personas remain denied, and every required report page renders and interacts successfully.
+      evidence_requirement_refs:
+        - e_serving_acceptance_proof
+    - id: at_cutover_and_retirement
+      readiness_gate_ref: g_delivery_acceptance_ready
+      statement: Downstream consumers are rebound from the compatibility path to the approved target before the former writer or serving path is retired.
+      expected_result: Bindings resolve to the target, values reconcile, denied personas remain denied, reports render, rollback succeeds and retirement is backed by an approval record.
+      evidence_requirement_refs:
+        - e_cutover_decommission_proof
+        - e_serving_acceptance_proof
+    - id: at_eventual_consistency_bound
+      readiness_gate_ref: g_delivery_apply_ready
+      statement: A newly created platform resource is read back through the same path used by subsequent binding automation, while one permanent error is injected separately.
+      expected_result: Visibility delay is absorbed within the approved bounded retry window and the permanent error stops immediately with classified evidence.
+      evidence_requirement_refs:
+        - e_eventual_consistency_proof

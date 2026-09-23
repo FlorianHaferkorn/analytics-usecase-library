@@ -28,20 +28,38 @@ Each use-case entry records:
 
 1. identity, domain, delivery state, business-scope reference and decision references;
 2. reference reports, operating modes and measured metadata where available;
-3. canonical, fallback and explicitly excluded source objects;
-4. Bronze, Silver, Gold, semantic and report products with grain, business keys and history;
-5. analytical-model design with reuse boundary, a referenced PK/SK/FK contract, relationship and bridge assessments, fact-filter strategy, double-counting control and glossary references;
-6. every source-to-report transformation with implementation and quality rules;
-7. ordered orchestration, success conditions and failure actions;
-8. security, privacy, data-quality, release, operations, performance and cost controls;
-9. frozen-snapshot and regression acceptance requirements; and
-10. every remaining gate with owner, due point and the lifecycle stage it blocks.
+3. logical gateway, connection, workspace and target dependencies when the platform path is known;
+4. canonical, fallback and explicitly excluded source objects, each wired to its logical connection;
+5. Bronze, Silver, Gold, semantic and report products with grain, business keys, history and logical target;
+6. analytical-model design with reuse boundary, a referenced PK/SK/FK contract, relationship and bridge assessments, fact-filter strategy, double-counting control and glossary references;
+7. every source-to-report transformation with implementation and quality rules;
+8. ordered orchestration, success conditions and failure actions;
+9. delivery assurance covering measured source behavior, incremental and delete semantics, executable DQ rules, product-health signals, alert routes, classified retries, idempotency, bootstrap and rollback;
+10. security, privacy, data-quality, release, operations, performance and cost controls;
+11. frozen-snapshot and regression acceptance requirements with environment-qualified runtime proof references; and
+12. every remaining gate with owner, due point and the lifecycle stage it blocks.
 
 Evidence states are fixed: `confirmed`, `measured`, `derived`, `proposed`, `open`, `not_applicable`. Confirmed and measured claims require at least one evidence reference. A delivery state cannot move past an unresolved gate that blocks that state.
 
+The platform block is optional for older packages. Once present, validation is strict: every logical ID is unique across all four resource kinds; connection-to-gateway and target-to-workspace references resolve to the correct kind; every non-excluded source and every data product is wired; and the use-case dependency list contains exactly that transitive closure. This keeps physical tenant IDs in `observed_state.resources` while the delivery contract uses stable logical IDs.
+
+`observed_state.operational_evidence` is also optional and closed. It separates connection tests, network-path tests and use-case runtime tests. Each proof records its logical references, outcome, timestamp and evidence state. Completed connection and runtime tests also identify the tested principal. A passed or failed test must be confirmed or measured and timestamped; `not_run` cannot carry accepted evidence.
+
+Confirmed or measured acceptance requires environment-qualified runtime proof references. Package validation resolves them against collected observed-state modules and requires passed runtime, connection and—where a gateway is declared—network evidence. The accepted runtime proofs must cover every canonical connection and every target, including corresponding observed resources. A proposed proof remains useful planning information but cannot satisfy acceptance or a `verified` delivery state.
+
+`delivery_assurance` is the project answer to the customer-neutral
+`fabric_data_delivery_assurance` capability pack. It becomes mandatory at
+`design_ready`. `build_ready` additionally requires a selected incremental and delete
+strategy, at least one blocking DQ rule, job/DQ/freshness/capacity signals and a
+classified retry policy. Authentication, schema and DQ defects never retry blindly;
+an unknown mutation outcome must be read back before another write. `verified` requires
+confirmed or measured evidence for every assurance component. This prevents a diagram,
+a successful job status or the presence of generated files from becoming a false-green
+delivery claim.
+
 ## Standard human document
 
-The deterministic renderer emits the same ten-section structure for every use case:
+The deterministic renderer emits the same eleven-section structure for every use case:
 
 1. Purpose and evidence rules
 2. Decision and report scope
@@ -50,9 +68,10 @@ The deterministic renderer emits the same ten-section structure for every use ca
 5. Analytical model design
 6. Transformation design
 7. Orchestration and operations
-8. Security, quality, release and operational controls
-9. Acceptance and regression
-10. Open gates
+8. Delivery assurance
+9. Security, quality, release and operational controls
+10. Acceptance and regression
+11. Open gates
 
 ## Mandatory analytical-design review
 
@@ -85,9 +104,12 @@ Customer branding, wording refinement and DOCX rendering may be applied after ge
 | Asset | Purpose |
 |---|---|
 | `tooling/generator/schemas/project_use_case_delivery.schema.json` | Closed JSON Schema for the module |
+| `core/capabilities/fabric-data-delivery-assurance/capability.yaml` | Adaptive questions, decision options, evidence, work packages and acceptance tests for source behavior, DQ, monitoring and reliability |
+| `tooling/generator/schemas/project_observed_state.schema.json` | Closed physical-resource and operational-evidence schema |
 | `tooling/superversion/project_package/use_case_delivery.py` | Semantic validation and deterministic Markdown rendering |
 | `core/fixtures/neutral/use-case-delivery-spec/use_case_delivery.yaml` | Customer-neutral working example |
-| `tooling/tests/test_use_case_delivery.py` | Schema, renderer, evidence and readiness negative tests |
+| `core/fixtures/neutral/use-case-delivery-spec/observed_state.dev.json` | Customer-neutral connection, network and runtime proof example |
+| `tooling/tests/test_use_case_delivery.py`, `tooling/tests/test_project_package.py` | Schema, renderer, reference, evidence and readiness tests |
 
 Validate and render a project module:
 

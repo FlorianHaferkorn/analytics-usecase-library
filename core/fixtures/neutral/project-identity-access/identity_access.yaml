@@ -1,0 +1,78 @@
+schema_version: 1.0.0
+project_ref: project_demo
+accounts:
+  - id: deployment_identity
+    display_name_pattern: sp_project_delivery
+    principal_type: service_principal
+    purpose: Execute approved platform and item delivery from the protected runner.
+    owner_ref: role_platform_owner
+    environments: [dev, test, prod]
+    credential:
+      authentication: federated_credential
+      secret_store_ref: null
+      rotation_days: null
+    lifecycle_state: provisioned
+    evidence_refs: []
+  - id: runtime_identity
+    display_name_pattern: mi_project_runtime
+    principal_type: managed_identity
+    purpose: Run scheduled data workloads without a personal account.
+    owner_ref: role_data_product_owner
+    environments: [dev, test, prod]
+    credential:
+      authentication: managed_identity
+      secret_store_ref: null
+      rotation_days: null
+    lifecycle_state: provisioned
+    evidence_refs: []
+groups:
+  - id: platform_admins
+    display_name_pattern: sg_project_platform_admin
+    group_type: security
+    purpose: Administer the governed project platform through group-based access.
+    owner_refs: [role_platform_owner]
+    membership_model: assigned
+    environments: [shared, dev, test, prod]
+    lifecycle_state: provisioned
+    evidence_refs: []
+  - id: release_approvers
+    display_name_pattern: sg_project_release_approver
+    group_type: security
+    purpose: Approve production releases independently from the deployment identity.
+    owner_refs: [role_business_owner]
+    membership_model: assigned
+    environments: [prod]
+    lifecycle_state: provisioned
+    evidence_refs: []
+role_assignments:
+  - id: platform_admin_assignment
+    subject_ref: platform_admins
+    subject_kind: group
+    target_ref: scope:project_platform
+    role: administrator
+    environments: [shared, dev, test, prod]
+    assignment_mode: group_based
+    justification: Group-based administration with named ownership.
+    state: approved
+    approver_ref: role_platform_owner
+    decision_ref: null
+    evidence_refs: []
+  - id: deployment_assignment
+    subject_ref: deployment_identity
+    subject_kind: account
+    target_ref: scope:approved_delivery_targets
+    role: deployment_executor
+    environments: [dev, test, prod]
+    assignment_mode: automation_identity
+    justification: Non-personal identity for revision-bound automation.
+    state: approved
+    approver_ref: role_platform_owner
+    decision_ref: null
+    evidence_refs: []
+separation_rules:
+  - id: release_approval_separation
+    left_subject_ref: deployment_identity
+    right_subject_ref: release_approvers
+    scope: Production release approval and execution must use different subjects.
+    state: enforced
+    evidence_refs: [evidence://synthetic/separation-review]

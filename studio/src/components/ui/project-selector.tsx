@@ -12,17 +12,65 @@ interface ProjectItem {
   updated_at: string;
 }
 
+const PROJECT_CONTEXT_KEY = 'aluca-studio-project-context';
+
+interface PersistedProjectContext {
+  id: string;
+  name: string;
+  strategyAnchor: string;
+  revisionHash: string | null;
+  dataScope: 'library' | 'project';
+}
+
 export function ProjectSelector() {
   const projectId = useProjectStore((s) => s.projectId);
   const projectName = useProjectStore((s) => s.projectName);
+  const strategyAnchor = useProjectStore((s) => s.strategyAnchor);
+  const packageRevisionHash = useProjectStore((s) => s.packageRevisionHash);
+  const dataScope = useProjectStore((s) => s.dataScope);
   const setProjectId = useProjectStore((s) => s.setProjectId);
   const setProjectName = useProjectStore((s) => s.setProjectName);
   const setStrategyAnchor = useProjectStore((s) => s.setStrategyAnchor);
+  const setPackageRevisionHash = useProjectStore((s) => s.setPackageRevisionHash);
+  const setDataScope = useProjectStore((s) => s.setDataScope);
 
   const [isOpen, setIsOpen] = useState(false);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
+  const [selectionHydrated, setSelectionHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(PROJECT_CONTEXT_KEY);
+      if (saved) {
+        const context = JSON.parse(saved) as Partial<PersistedProjectContext>;
+        if (typeof context.id === 'string' && context.id.length > 0) {
+          setProjectId(context.id);
+          if (typeof context.name === 'string') setProjectName(context.name);
+          if (typeof context.strategyAnchor === 'string') setStrategyAnchor(context.strategyAnchor);
+          setPackageRevisionHash(typeof context.revisionHash === 'string' ? context.revisionHash : null);
+          setDataScope(context.dataScope === 'library' ? 'library' : 'project');
+        }
+      }
+    } catch {
+      window.localStorage.removeItem(PROJECT_CONTEXT_KEY);
+    } finally {
+      setSelectionHydrated(true);
+    }
+  }, [setDataScope, setPackageRevisionHash, setProjectId, setProjectName, setStrategyAnchor]);
+
+  useEffect(() => {
+    if (!selectionHydrated) return;
+    const context: PersistedProjectContext = {
+      id: projectId,
+      name: projectName,
+      strategyAnchor,
+      revisionHash: packageRevisionHash,
+      dataScope,
+    };
+    window.localStorage.setItem(PROJECT_CONTEXT_KEY, JSON.stringify(context));
+  }, [dataScope, packageRevisionHash, projectId, projectName, selectionHydrated, strategyAnchor]);
 
   const loadProjects = useCallback(async () => {
     const res = await fetch('/api/project/list');
@@ -37,6 +85,14 @@ export function ProjectSelector() {
   }, [isOpen, loadProjects]);
 
   const switchProject = (proj: ProjectItem) => {
+    const context: PersistedProjectContext = {
+      id: proj.id,
+      name: proj.name,
+      strategyAnchor: proj.strategy_anchor,
+      revisionHash: null,
+      dataScope: 'project',
+    };
+    window.localStorage.setItem(PROJECT_CONTEXT_KEY, JSON.stringify(context));
     setProjectId(proj.id);
     setProjectName(proj.name);
     setStrategyAnchor(proj.strategy_anchor);

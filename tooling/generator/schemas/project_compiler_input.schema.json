@@ -36,6 +36,10 @@
         "decision_set": {"type": "object"},
         "artifact_registry": {"type": "object"},
         "use_case_delivery": {"type": "object"},
+        "batch_ingestion": {"type": "object"},
+        "capability_state": {"type": "object"},
+        "identity_access": {"type": "object"},
+        "architecture_maintenance": {"type": "object"},
         "observed_states": {
           "type": "object",
           "additionalProperties": {"type": "object"}

@@ -1,0 +1,61 @@
+schema_version: 1.0.0
+project_ref: project_demo
+state: active
+review:
+  owner_ref: role_architecture_owner
+  cadence_days: 90
+  last_reviewed_at: '2026-09-22T12:00:00Z'
+  triggers:
+    - platform_release
+    - source_contract_change
+    - security_change
+    - volume_threshold
+    - incident
+    - decision_superseded
+  evidence_refs:
+    - evidence://architecture/review/2026-09-22
+reconciliation:
+  owner_ref: role_platform_operator
+  environments:
+    - dev
+  cadence_hours: 168
+  observed_state_max_age_hours: 720
+  remediation_sla_hours: 72
+  unmanaged_resource_policy: quarantine_for_review
+  drift_action: block_release
+  last_reconciled_at: '2026-09-22T12:00:00Z'
+  last_result: conformant
+  drift_refs: []
+  evidence_refs:
+    - evidence://architecture/reconciliation-policy
+technology_watch:
+  - id: microsoft_fabric
+    name: Microsoft Fabric
+    authoritative_source: https://learn.microsoft.com/en-us/fabric/
+    current_baseline: Supported Fabric capabilities reviewed for the approved design.
+    owner_ref: role_platform_architect
+    reviewed_at: '2026-09-22T12:00:00Z'
+    review_interval_days: 30
+    change_policy: evaluate_then_adopt
+  - id: fabric_automation_toolchain
+    name: Fabric automation toolchain
+    authoritative_source: https://learn.microsoft.com/en-us/fabric/cicd/cicd-overview
+    current_baseline: Git integration, deployment pipelines, REST APIs, Fabric CLI, Terraform and fabric-cicd are selected by supported scope.
+    owner_ref: role_delivery_lead
+    reviewed_at: '2026-09-22T12:00:00Z'
+    review_interval_days: 30
+    change_policy: pin_until_approved
+transitions:
+  - id: compatibility_to_governed_serving
+    current_ref: architecture://current/compatibility-serving
+    target_ref: architecture://target/governed-serving
+    state: planned
+    owner_ref: role_data_product_owner
+    rollback_ref: runbook://serving/rollback
+    retirement_criteria:
+      - Downstream bindings resolve to the approved target.
+      - Business reconciliation and positive plus negative security tests pass.
+      - Report render and interaction checks pass.
+      - The rollback point and last-approved output are retained.
+    evidence_refs: []
+exception_decision_ref: null

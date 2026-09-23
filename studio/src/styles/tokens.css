@@ -60,6 +60,23 @@
   --data-7: oklch(0.65 0.17 58.5);   /* Coral — formerly #EF6950 */
   --data-8: oklch(0.82 0.34 104.1);  /* Gold — formerly #FFB900 */
 
+  /* Delivery model surface — intentionally dark in both themes so maturity
+     and status volumes retain one visual meaning across customer themes. */
+  --delivery-model-bg-start: #08111D;
+  --delivery-model-bg-end: #132437;
+  --delivery-model-card-start: #182431;
+  --delivery-model-card-end: #0F1822;
+  --delivery-model-depth: #8DB6FF;
+  --delivery-model-height: #F1B55C;
+  --delivery-model-neutral: #6F8295;
+  --delivery-model-complete: #50C79B;
+  --delivery-model-active: #66A8FF;
+  --delivery-model-blocked: #EF7B76;
+  --delivery-model-recorded: #BAA06B;
+  --delivery-model-shadow-base: #07101A;
+  --delivery-model-shadow-soft: rgba(0, 0, 0, 0.2);
+  --delivery-model-shadow-strong: rgba(0, 0, 0, 0.3);
+
   /* ========== Density Tokens ========== */
   --spacing-density-airy: 1.25;
   --spacing-density-balanced: 1.0;

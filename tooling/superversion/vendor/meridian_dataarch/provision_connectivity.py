@@ -375,7 +375,9 @@ def _gateway_section(bp: dict) -> list[str]:
     `service-gateway-update`, `service-gateway-monthly-updates`, `service-gateway-migrate`,
     `service-gateway-onprem-faq`, `powershell/module/datagateway`.
     """
-    if not _private_sources(bp):
+    gateways = [g for g in ((bp.get("platform") or {}).get("gateways") or [])
+                if isinstance(g, dict) and g.get("kind") != "vnet"]
+    if not _private_sources(bp) and not gateways:
         return []
     return [
         "## The gateway is a cluster, or it is a single point of failure", "",
@@ -426,7 +428,111 @@ def _gateway_section(bp: dict) -> list[str]:
         "start during it are likely to fail.", "",
         "> Dataflow Gen2 keeps one dependency on the primary member: creating or editing connections "
         "needs it up. The cluster removes the single point of failure for queries, not for that.", "",
+        *_gateway_contract_section(gateways),
     ]
+
+
+_IDENTITY_FIELDS = (
+    ("installer_ref", "Installer"),
+    ("registration_identity_ref", "Registration identity"),
+    ("gateway_admin_ref", "Gateway admin"),
+    ("windows_service_identity_ref", "Windows service"),
+    ("source_credential_ref", "Source credential"),
+    ("runtime_caller_ref", "Runtime caller"),
+)
+
+_CONTROL_KIND = {
+    "host_alert": "Host alert",
+    "gateway_admission": "Gateway admission",
+    "orchestration_concurrency": "Orchestration concurrency",
+}
+
+_PROVENANCE_USE = {
+    "vendor_default": "vendor behaviour",
+    "proposed": "decision pending",
+    "measured": "observed baseline only",
+    "accepted": "active threshold",
+}
+
+_TELEMETRY_STATE = {
+    "healthy": "HEALTHY",
+    "breached": "BREACHED",
+    "telemetry_missing": "UNKNOWN (telemetry missing)",
+    "not_applicable": "NOT APPLICABLE",
+}
+
+
+def _gateway_contract_section(gateways: list[dict]) -> list[str]:
+    """Render only what the structured gateway contract says.
+
+    There are deliberately no numeric defaults here. A threshold is an input carrying its own
+    provenance. ``proposed`` therefore stays a pending decision, and missing telemetry remains
+    unknown instead of becoming a healthy status by omission.
+    """
+    lines = ["### Gateway identity, evidence and operating contract", ""]
+    if not gateways:
+        return [
+            *lines,
+            "No structured `platform.gateways[]` contract is declared. Identity separation, "
+            "connection evidence, runtime evidence and operating thresholds are therefore "
+            "**unassessed** in this document.", "",
+        ]
+
+    for gateway in gateways:
+        name = str(gateway.get("name") or "unnamed gateway")
+        roles = gateway.get("identity_roles") or {}
+        # ``service_identity`` is the pre-contract field. It remains readable as the Windows
+        # service identity so existing blueprints keep their meaning while new ones use the
+        # unambiguous role name.
+        if gateway.get("service_identity") and not roles.get("windows_service_identity_ref"):
+            roles = {**roles, "windows_service_identity_ref": gateway["service_identity"]}
+
+        lines += [f"#### {name}", "", "**Identity roles**", "",
+                  "| Role | Identity reference |", "|---|---|"]
+        for field, label in _IDENTITY_FIELDS:
+            lines.append(f"| {label} | `{roles.get(field) or 'UNSPECIFIED'}` |")
+
+        lines += ["", "**Connection and runtime evidence**", "",
+                  "| Scope | Requirement | Status | Evidence |", "|---|---|---|---|"]
+        evidence = gateway.get("evidence_requirements") or []
+        if evidence:
+            for item in evidence:
+                lines.append(
+                    f"| {str(item.get('scope') or '').replace('_', ' ').title()} | "
+                    f"{item.get('requirement') or '—'} | "
+                    f"`{str(item.get('status') or 'pending').upper()}` | "
+                    f"`{item.get('evidence_ref') or 'not recorded'}` |")
+        else:
+            lines.append("| Connection + runtime | no requirements declared | `UNASSESSED` | "
+                         "`not recorded` |")
+
+        lines += ["", "**Typed operating controls**", "",
+                  "| Control | Metric | Threshold | Provenance / use | Telemetry |",
+                  "|---|---|---|---|---|"]
+        controls = gateway.get("operating_controls") or []
+        if controls:
+            for control in controls:
+                threshold = control.get("threshold") or {}
+                value = threshold.get("value")
+                rendered_value = "—" if value is None else str(value)
+                provenance = str(threshold.get("provenance") or "")
+                telemetry = str(control.get("telemetry_state") or "telemetry_missing")
+                lines.append(
+                    f"| {_CONTROL_KIND.get(str(control.get('control_type')), str(control.get('control_type')))} "
+                    f"· `{control.get('control_id') or 'unnamed'}` | {control.get('metric') or '—'} | "
+                    f"`{threshold.get('operator') or '—'} {rendered_value} {threshold.get('unit') or ''}` | "
+                    f"`{provenance or 'unknown'}` · {_PROVENANCE_USE.get(provenance, 'not classified')} | "
+                    f"**{_TELEMETRY_STATE.get(telemetry, 'UNKNOWN')}** |")
+        else:
+            lines.append("| — | no controls declared | — | — | **UNASSESSED** |")
+        lines.append("")
+
+    lines += [
+        "`vendor_default`, `proposed`, `measured` and `accepted` are different claims. Only an "
+        "`accepted` threshold is an active operating decision. `telemetry_missing` is an unknown "
+        "state and must never be reported as healthy.", "",
+    ]
+    return lines
 
 
 def _gateway_ops_ps1() -> str:
@@ -544,10 +650,14 @@ def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<worksp
         # Unabhaengig von privaten Quellen: OAP schuetzt den Workspace, nicht die Quelle. Eine
         # Lieferung ganz ohne private Quelle braucht ihn genauso — sie hat nur keine MPEs.
         out[OAP_POLICY_PATH] = _oap_policy_json()
-        # Anders als OAP haengt das Gateway an einer Bedingung der Lieferung: ohne Quelle
-        # hinter der Firewall gibt es kein Gateway zu betreiben. Ein Betriebsskript fuer ein
-        # Geraet, das niemand hat, ist eine Anweisung ins Leere.
-        if _private_sources(bp):
+        # Anders als OAP haengt das Gateway an einer Bedingung der Lieferung: einer erkannten
+        # privaten Quelle oder einem ausdruecklich deklarierten On-Premises-Gateway. Ein
+        # Betriebsskript fuer ein Geraet, das weder gebraucht noch deklariert ist, waere eine
+        # Anweisung ins Leere.
+        _on_premises_gateway_declared = any(
+            isinstance(g, dict) and g.get("kind") != "vnet"
+            for g in ((bp.get("platform") or {}).get("gateways") or []))
+        if _private_sources(bp) or _on_premises_gateway_declared:
             out[GATEWAY_OPS_PATH] = _gateway_ops_ps1()
     if stack == "fabric" and specs:
         # `_note` statt eines `//`-Kopfes: mit dem Kopf war diese Datei kein JSON, und weil sie nur

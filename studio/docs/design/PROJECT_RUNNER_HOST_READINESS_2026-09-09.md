@@ -55,17 +55,17 @@ The real constraints are narrower and sharper:
 | The domain principals `svc_fabric_provisioning_<domain>` and `svc_fabric_cicd_{domain}` are prepared but created only after the final Blueprint approval | K-121, K-115, ADR-0004 | They do not exist yet and are gated behind O-73 |
 | Permanent automation uses customer-owned workload identity federation and **no client secret is distributed to Nagarro**; a guest cannot impersonate the application | K-118 action B02 | There is no secret to configure, by design |
 
-The last row is the hard technical blocker, and it is a property of this runner, not of the customer. `_credential` in `runner_host.py` constructs exactly two credential types, `ClientSecretCredential` and `ManagedIdentityCredential`. **Workload identity federation is not implemented.** Even with every permission in place, the runner cannot authenticate the way this customer requires.
+At the time of this 9 September measurement, the last row was a hard technical blocker in the runner. The product implementation changed on 15 September: `runner_host.py` now has an offline-tested `ClientAssertionCredential` route with a lazy assertion-file callback and exact issuer, subject, audience, tenant, application client, service-principal object, project and environment binding. This removes the product capability gap; it does not configure the customer runner, issue an assertion or provide live tenant evidence.
 
-Three ways forward, and only one of them is available today:
+Three operating routes remain; the target route is now implemented but not operationally accepted:
 
 1. **A separate non-production tenant.** The gate runs entirely inside our own boundary, where a client secret or a user-assigned managed identity is ours to create. No customer decision, no exception to K-121, no product change.
-2. **Add federated credentials to the runner.** The right answer for the target architecture, because the customer's stated model is federation. This is product development, not a Gate 1 run, and it needs its own decision.
+2. **Configure customer-owned federation on the protected runner.** This matches the target architecture. The code path exists, but the customer must bind the exact issuer, subject and audience to the application and provide the short-lived assertion through the protected host path before a Gate 1 run.
 3. **Ask the customer for an exception.** Either a secret for the central principal, which contradicts K-118 directly, or early creation of `svc_fabric_provisioning_<domain>` ahead of O-73, which contradicts K-121. Both trade governance for a product gate.
 
 ## Remaining steps once that decision exists
 
-1. **Execution identity.** A dedicated client identity (`client_secret`) or an explicit user-assigned managed identity, with a canonical UUID client ID. The ambient `az login` session is deliberately unusable: `_credential` refuses `DefaultAzureCredential` and CLI fallbacks. Creating this identity and its secret is a host or customer administrator action.
+1. **Execution identity.** Configure the customer-owned workload federation contract with canonical client ID, exact issuer, subject and audience, plus the environment reference to an absolute private short-lived assertion file. Client-secret and explicit user-assigned managed-identity routes remain available for other controlled hosts. The ambient `az login` session is deliberately unusable: `_credential` refuses `DefaultAzureCredential` and CLI fallbacks.
 2. **Signing key.** At least 32 bytes, cryptographically generated, base64-encoded, exposed through its own environment reference. It must differ from the identity secret reference; the loader rejects a shared reference.
 3. **Private state directory.** An absolute path outside the project package repository, with restricted host ACLs. The loader rejects a state path inside or containing the repository root.
 4. **Host configuration file.** The template in [`PROJECT_RUNNER_HOST.md`](PROJECT_RUNNER_HOST.md) filled with the values from 1 to 3 plus the actor and tenant above, stored at a private absolute path and referenced by `STUDIO_RUNNER_CONFIG`. It carries the trusted permission evidence reference for `create_workspaces`.

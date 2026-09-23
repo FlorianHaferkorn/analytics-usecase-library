@@ -7,6 +7,7 @@ import { STUDIO_NAV_GROUPS } from '@/lib/navigation';
 import { useDomainFilter } from '@/lib/hooks/use-domain-filter';
 import { PhIcon, type PhIconName } from './ph-icon';
 import { KbdShortcut } from './kbd-shortcut';
+import { useProjectStore } from '@/lib/store/project-store';
 import styles from './studio-sidebar.module.css';
 
 export interface DomainStat {
@@ -21,6 +22,8 @@ interface SidebarProps {
 
 export function StudioSidebar({ domains = [] }: SidebarProps) {
   const pathname = usePathname();
+  const dataScope = useProjectStore(state => state.dataScope);
+  const projectName = useProjectStore(state => state.projectName);
   const { domainFilter, toggleDomainFilter, isPending } = useDomainFilter();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -64,20 +67,23 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
       <div className={styles.scroller}>
 
       <div className={styles.quickActions}>
-        <button
+        {dataScope === 'project' ? <Link href="/discover" className={styles.newButton} aria-label="Add project evidence">
+          <PhIcon name="plus" size={14} />
+          {!collapsed && <span>Add evidence</span>}
+        </Link> : <button
           onClick={() => window.dispatchEvent(new CustomEvent('studio:open-wizard'))}
           type="button"
-          aria-label="New element"
+          aria-label="New library definition"
           className={styles.newButton}
         >
           <PhIcon name="plus" size={14} />
-          {!collapsed && <><span>New element</span><span style={{ marginLeft: 'auto' }}><KbdShortcut k="N" meta={false} style={{ background: 'transparent', borderColor: 'transparent', color: 'currentColor', opacity: 0.6 }} /></span></>}
-        </button>
+          {!collapsed && <><span>New definition</span><span style={{ marginLeft: 'auto' }}><KbdShortcut k="N" meta={false} style={{ background: 'transparent', borderColor: 'transparent', color: 'currentColor', opacity: 0.6 }} /></span></>}
+        </button>}
       </div>
 
       {/* One workflow-oriented navigation. Routes keep their technical ownership. */}
       <nav className={styles.nav} aria-label="Studio workflow">
-        {STUDIO_NAV_GROUPS.map((group) => (
+        {STUDIO_NAV_GROUPS.filter(group => dataScope === 'project' ? group.label !== 'Administration' : ['Reference & standards', 'Administration'].includes(group.label)).map((group) => (
           <div className={styles.navGroup} key={group.label}>
             {!collapsed && (
               <div className={styles.navLabel} title={group.description}>
@@ -96,7 +102,7 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
                   className={styles.navLink}
                   data-active={isActive}
                 >
-                  <PhIcon name={item.sidebarIcon as PhIconName} size={16} />
+                  {item.step ? <span className={styles.phaseNumber} aria-hidden="true">{item.step}</span> : <PhIcon name={item.sidebarIcon as PhIconName} size={16} />}
                   {!collapsed && <span className={styles.navLinkLabel}>{item.label}</span>}
                 </Link>
               );
@@ -162,8 +168,8 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
         {!collapsed && (
           <>
             <div className={styles.footerCopy}>
-              <div className={styles.footerTitle}>Project context</div>
-              <div className={styles.footerMeta}>Select in the header</div>
+              <div className={styles.footerTitle}>{dataScope === 'project' ? projectName : 'Reference library'}</div>
+              <div className={styles.footerMeta}>{dataScope === 'project' ? 'Pinned project context' : 'Reusable content only'}</div>
             </div>
             <button
               onClick={toggle}

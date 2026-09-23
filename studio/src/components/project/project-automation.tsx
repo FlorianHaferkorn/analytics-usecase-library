@@ -2,7 +2,7 @@
 
 import {useEffect, useState} from 'react';
 import Link from 'next/link';
-import {StudioButton, StudioEmptyState, StudioPageHeader, StudioPanel, StudioSegmentedControl} from '@/components/ui/studio-page';
+import {StudioButton, StudioEmptyState, StudioLinkButton, StudioPageHeader, StudioPanel, StudioSegmentedControl} from '@/components/ui/studio-page';
 import type {ProjectAutomation as Automation, AutomationOutput, AutomationTarget} from '@/lib/bridge/project-automation';
 import {useProjectStore} from '@/lib/store/project-store';
 import {projectOutputZip} from '@/lib/delivery/project-output';
@@ -123,9 +123,7 @@ function AutomationWorkspace({projectId,revision}: {projectId:string;revision:st
 export function ProjectAutomationPage() {
   const {projectId,projectName,revision,value,error,retry,latest} = usePinnedProject();
   return <div className={styles.page}>
-    <StudioPageHeader compact title="Delivery automation" description={`${projectName} · controlled inputs, reproducible outputs and explicit release gates.`} actions={<StudioButton onClick={latest}>Load latest version</StudioButton>} />
-    <Link href="/automation/reference">Open local reference lab · synthetic inputs, no tenant required</Link>
-    <Link href="/automation/ingestion">Configure batch ingestion · versioned project capability</Link>
+    <StudioPageHeader compact title="Delivery automation" description={`${projectName} · controlled inputs, reproducible outputs and explicit release gates.`} actions={<><StudioLinkButton href="/automation/reference" variant="ghost">Reference lab</StudioLinkButton><StudioLinkButton href="/automation/ingestion" variant="ghost">Batch ingestion</StudioLinkButton><StudioButton onClick={latest}>Load latest version</StudioButton></>} />
     {value && revision ? <AutomationWorkspace key={`${projectId}:${revision}`} projectId={projectId} revision={revision} /> : <StudioPanel title={error ? 'Project version unavailable' : 'Loading project version'}><p>{error ?? 'Reading the selected Project Package.'}</p>{error && <StudioButton onClick={retry}>Try again</StudioButton>}<Link href="/package">Open Project Package</Link></StudioPanel>}
   </div>;
 }

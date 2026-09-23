@@ -386,6 +386,16 @@ _ERMITTLUNGSWEGE: dict[str, dict[str, str]] = {
                        "benannt ist. Folge: längere Ladezeiten und höherer Verbrauch, aber "
                        "kein falscher Datenstand. Der umgekehrte Fehler ist teurer.",
     },
+    "DATA-SILVER-LOAD": {
+        "wo": "Die Datenmengen je Quelltabelle und das Ladefenster: wie viele Zeilen kommen je "
+              "Lauf hinzu, wie viele werden geändert oder gelöscht? Die Antwort steht in den "
+              "Protokollen des bestehenden Ladeprozesses, nicht im Gespräch.",
+        "wen": "Data Engineering Lead gemeinsam mit dem Betrieb der Quelle — wer weiß, ob "
+               "Datensätze nachträglich korrigiert werden.",
+        "wenn_unklar": "Vollaufbau beibehalten. Er ist korrekt und idempotent; jede Sicht "
+                       "rechnet dann bei jedem Lauf voll. Umgestellt wird, sobald die "
+                       "Laufzeit es verlangt — gemessen, nicht geschätzt.",
+    },
     "DATA-CONTRACT": {
         "wo": "Bestehende Schnittstellenbeschreibungen und Uebergabevereinbarungen zwischen "
               "IT und Fachbereich. Wo es keine gibt, sagt das Fehlen selbst etwas über den "
@@ -463,6 +473,15 @@ _KUNDENFASSUNG: dict[str, dict[str, str]] = {
         "warum": "Ein inkrementeller Lauf braucht ein Feld, an dem er Änderungen erkennt: ein "
                  "Änderungsdatum, eine Versionsnummer, ein Löschkennzeichen. Fehlt es, bleibt "
                  "nur der Komplettabzug.",
+    },
+    "DATA-SILVER-LOAD": {
+        "frage": "Werden Ihre Daten bei jedem Lauf komplett neu aufgebaut, oder nur um das "
+                 "ergänzt, was neu hinzugekommen ist?",
+        "folge": "Wir bauen die bereinigte Stufe bei jedem Lauf komplett neu auf. Das ist "
+                 "korrekt. Die Auswertungsstufe rechnet dann jedes Mal vollständig nach.",
+        "warum": "Nur wenn die bereinigte Stufe ausschließlich ergänzt wird, kann die "
+                 "Auswertungsstufe nur die Änderungen nachrechnen. Ein vollständiger Neuaufbau "
+                 "ist aus Sicht der Plattform eine Änderung an allem.",
     },
     "DATA-CONTRACT": {
         "frage": "Nach welchen Schlüsseln lassen sich Ihre Quellsysteme zusammenführen?",
@@ -593,6 +612,9 @@ _KUNDENFASSUNG: dict[str, dict[str, str]] = {
 #: Test — `test_die_faelligkeitsstufen_sind_die_des_ledgers`.
 _FAELLIGKEIT: dict[str, str] = {
     "DATA-INC": "blockiert den Aufbau",
+    # D-533: laut Ledger eines Kundenprojekts gehoert die Frage "vor den ersten produktiven
+    # Gold-Lauf, nicht danach" -- der Wechsel des Schreibmusters fasst Bronze und Silber an.
+    "DATA-SILVER-LOAD": "vor Produktivsetzung",
     "DATA-CONTRACT": "blockiert den Aufbau",
     "NET-OUTBOUND": "blockiert den Aufbau",
     "SEC-RLS": "vor Produktivsetzung",
@@ -1185,10 +1207,40 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
                             "quelle": "MS Learn: fabric/data-warehouse/data-warehousing"}],
          "implikation": "PLAT-TRANSFORM wird zu T-SQL-Pipelines für Gold."},
     ],
+    "DATA-SILVER-LOAD": [
+        {"wert": "vollaufbau", "empfohlen": True,
+         "text": "Vollaufbau: Silber je Lauf vollständig per CREATE OR REPLACE",
+         "vorteile": ["Idempotent: ein wiederholter Lauf ergibt dasselbe Ergebnis",
+                      "Korrekturen und Löschungen in der Quelle kommen ohne Zusatzlogik an",
+                      "Das, was die Lieferung heute emittiert"],
+         "nachteile": ["Jede nachgelagerte MLV rechnet bei jedem Lauf voll",
+                       "Laufzeit und CU-Verbrauch wachsen mit dem Bestand"],
+         "limitierungen": [{"text": "Ein Überschreiben der Quelle gilt für die Aktualisierung der Sichten als Änderung an allen Zeilen. Inkrementell wird nie gewählt",
+                            "quelle": "MS Learn: fabric/data-engineering/materialized-lake-views/refresh-materialized-lake-view"}],
+         "implikation": "Change Data Feed auf Silber bringt nichts; die MLV-Aktualisierung ist immer voll."},
+        {"wert": "append",
+         "text": "Append-only: je Lauf nur hinzugekommene Zeilen anfügen, Change Data Feed an",
+         "vorteile": ["Nachgelagerte MLV können inkrementell aktualisiert werden",
+                      "Kosten wachsen mit den neuen Zeilen, nicht mit dem Bestand"],
+         "nachteile": ["Korrekturen und Löschungen der Quelle kommen nicht an",
+                       "Braucht eine verlässliche Watermark je Quelle (DATA-INC)"],
+         "limitierungen": [{"text": "Inkrementell nur, wenn CDF auf allen Quellen aktiv ist und der Zyklus append-only war",
+                            "quelle": "MS Learn: fabric/data-engineering/materialized-lake-views/refresh-materialized-lake-view"}],
+         "implikation": "Die Emission muss Silber per INSERT statt CREATE OR REPLACE schreiben — das tut sie heute nicht."},
+        {"wert": "merge",
+         "text": "MERGE mit Change Data Feed: Änderungen und Löschungen einarbeiten",
+         "vorteile": ["Korrekturen der Quelle kommen an",
+                      "Laufzeit wächst mit den Änderungen"],
+         "nachteile": ["Ein Zyklus mit Änderung oder Löschung lässt die MLV voll rechnen",
+                       "Braucht Match-Key und Löschkennzeichen je Quelle"],
+         "limitierungen": [{"text": "Updates oder Deletes im Zyklus erzwingen den Vollaufbau der MLV, auch mit CDF",
+                            "quelle": "MS Learn: fabric/data-engineering/materialized-lake-views/refresh-materialized-lake-view"}],
+         "implikation": "Die Emission muss Silber per MERGE schreiben — das tut sie heute nicht."},
+    ],
     "PLAT-TRANSFORM": [
         {"wert": "mlv_standard", "empfohlen": True,
          "text": "MLV als Standard, Pipeline dort, wo MLV es nachweislich nicht kann",
-         "vorteile": ["Orchestrierung, Refresh-Entscheidung, Lineage und DQ-Regeln kommen mit", "Direct Lake über Views nur mit MLV ohne Import"],
+         "vorteile": ["Abhängigkeitsreihenfolge, Refresh-Strategie, Lineage und DQ-Regeln kommen mit — ausgelöst werden muss der Refresh trotzdem (Zeitplan, D-529)", "Direct Lake über Views nur mit MLV ohne Import"],
          "nachteile": ["Zwei Mechanismen nebeneinander"],
          "limitierungen": [{"text": "MLV kennt kein DML, keine UDFs, kein Time Travel, keine temporären Views; Session-Properties greifen im geplanten Refresh nicht",
                             "quelle": "MS Learn: fabric/data-engineering/materialized-lake-views/overview"},
@@ -1661,9 +1713,10 @@ def propose_transform_engine(bp: dict) -> dict:
         "Werden die Schicht-Übergänge als Materialized Lake Views deklariert oder als gebaute "
         "Pipelines/Notebooks orchestriert?",
         ("**Vorbelegt: MLV als Standard, Pipeline dort, wo MLV es nachweislich nicht kann.** MLVs "
-         "nehmen einem die Orchestrierung ab: Abhängigkeitsreihenfolge, Refresh-Entscheidung "
-         "(inkrementell/voll/keine), Lineage und Datenqualitätsregeln kommen mit. Was man selbst "
-         "baut, muss man selbst betreiben.\n\n"
+         "bringen Abhängigkeitsreihenfolge, Refresh-Strategie (inkrementell/voll/keine), Lineage "
+         "und Datenqualitätsregeln mit. **Den Lauf selbst starten sie nicht** — dafür braucht es "
+         "einen Zeitplan (`mlv/refresh_schedule.json`, D-529). Was man selbst baut, muss man "
+         "selbst betreiben.\n\n"
          "**Die harte Grenze ist dokumentiert, nicht Geschmack:** eine MLV kennt **kein DML** — kein "
          "`INSERT`, `UPDATE`, `DELETE`. Ihre Daten entstehen ausschließlich aus dem `SELECT` der "
          "Definition. Alles, was ein *Zusammenführen mit dem Bestand* braucht, fällt damit raus:\n"
@@ -1694,6 +1747,43 @@ def propose_transform_engine(bp: dict) -> dict:
         "Data Engineering Lead (verbindlich), Data Platform Lead (Betriebsmodell)",
         "Beide Emissionen bleiben nebeneinander stehen (`--emit-mlv`, `--emit-transforms`) — der "
         "Betrieb entscheidet dann ungeplant, welche der beiden tatsächlich läuft",
+        status="vorbelegt")
+
+
+def propose_silver_load(bp: dict) -> dict:
+    """Silber als Vollaufbau, append-only oder MERGE? (D-533, OQ-43)
+
+    Die Frage stand nirgends, und sie entscheidet, ob eine Materialized Lake View je
+    inkrementell aktualisiert werden kann: laut MS Learn nur mit Change Data Feed auf **allen**
+    Quellen **und** append-only im Zyklus. Die Lieferung schreibt Silber per
+    `CREATE OR REPLACE` -- jeder Lauf ist fuer die Plattform eine Aenderung an allem.
+    `DATA-INC` beantwortet eine andere Frage (wie Gold nachlaedt), deshalb eine eigene.
+
+    Vorbelegt mit dem, was die Emission heute tut. Eine Vorbelegung, die die Emission nicht
+    einhaelt, waere dieselbe Behauptung wie der "automatische" Refresh aus D-529.
+    """
+    return _rec(
+        "DATA-SILVER-LOAD", "Schreibmuster der Silber-Schicht (Vollaufbau, append-only, MERGE)",
+        "Wird Silber bei jedem Lauf neu aufgebaut, nur ergänzt, oder per MERGE nachgeführt?",
+        ("**Vorbelegt: Vollaufbau** — das, was die Lieferung heute schreibt (`CREATE OR "
+         "REPLACE TABLE silver.<herkunft>`). Korrekt und idempotent; Korrekturen und Löschungen "
+         "der Quelle kommen ohne Zusatzlogik an.\n\n"
+         "**Der Preis, den diese Wahl hat:** jede Materialized Lake View darüber rechnet bei "
+         "jedem Lauf voll. Inkrementell aktualisiert Fabric nur, wenn Change Data Feed auf "
+         "**allen** Quellen aktiv ist **und** der Zyklus append-only war; ein Überschreiben ist "
+         "eine Änderung an allem, ein MERGE mit Änderung oder Löschung ebenso.\n\n"
+         "**Wann umstellen:** wenn die gemessene Laufzeit der vollen Aktualisierung das "
+         "Ladefenster sprengt — nicht vorher. `append` und `merge` verlangen, dass die Emission "
+         "Silber anders schreibt; das tut sie heute nicht, und eine Antwort `append` steht bis "
+         "dahin als Befund im Ledger, nicht als erledigt."),
+        "MS Learn (*Optimal refresh for materialized lake views*, abgerufen 23.09.2026: CDF auf "
+        "allen Quellen, append-only im Zyklus) + Schreibmuster des Transform-Emitters",
+        "mittel",
+        ["append — nur neue Zeilen, CDF an; Korrekturen der Quelle kommen nicht an",
+         "merge — Änderungen einarbeiten; ein Zyklus mit Update/Delete rechnet die MLV voll"],
+        "Data Engineering Lead (verbindlich), Data Platform Lead (Kosten und Ladefenster)",
+        "Vollaufbau bleibt stehen, ohne dass jemand ihn gewählt hat — und die Zusage "
+        "„inkrementell mit Change Data Feed“ steht im Angebot, ohne dass die Lieferung sie trägt",
         status="vorbelegt")
 
 
@@ -2197,10 +2287,30 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
     if len(domains) > 1 and gc.get("tables"):
         for d in domains:
             dgc = _domain_catalog(gc, d)
-            if not dgc.get("tables"):
-                continue
             slug = domain_slug(d.get("name") or "")
             dq = _quell_schnitt(bp, source_schema, d)
+            if not dgc.get("tables"):
+                # **Der Riss aus OQ-39, geschlossen** (D-516). Hier stand `continue`: eine
+                # Domaene, zu der der governte Katalog keine Tabelle fuehrt, bekam keine
+                # einzige modellgetriebene Entscheidung. **Die Emission schreibt fuer sie
+                # aber trotzdem `silver_to_gold`-SQL mit `<business_key>` und
+                # `<watermark_col>`** — gemessen am Commercial-Fixture: `finance` trug
+                # Platzhalter und hatte keine Frage.
+                #
+                # Aufgefaechert wird deshalb `DATA-INC` **auch ohne Katalogtabelle**, und
+                # zwar in seiner Fassung „kein Vorschlag": die Frage steht, der Vorschlag
+                # fehlt, und das ist die Wahrheit. Ein Platzhalter erzeugt seine Frage.
+                #
+                # **Nur `DATA-INC`, nicht alle fuenf.** Ob RLS, CLS, Silber-Vertrag und
+                # Pruefgrundlage ohne Katalog ebenfalls Artefakte mit Platzhaltern
+                # erzeugen, ist **nicht gemessen** — und eine Faecherung auf Verdacht
+                # waere dieselbe Behauptung mit anderem Vorzeichen (OQ-39 bleibt dafuer
+                # offen).
+                r = propose_incremental(dgc, dq)
+                r["id"] = f"{r['id']}{FANOUT_TRENNER}{slug}"
+                r["topic"] = f"{r['topic']} — {d.get('name')}"
+                out.append(r)
+                continue
             for fn in per_domain:
                 r = fn(dgc, dq) if fn in mit_quelle else fn(dgc)
                 r["id"] = f"{r['id']}{FANOUT_TRENNER}{slug}"
@@ -2218,7 +2328,7 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
                 propose_sharing_policy(bp),
                 propose_user_data_visibility(bp),
                 propose_lakehouse_schemas(bp), propose_lakehouse_topology(bp),
-                propose_transform_engine(bp)])
+                propose_transform_engine(bp), propose_silver_load(bp)])
     _tier = propose_platform_tier(bp)      # nur auf Stacks mit Stufen-Achse und nur solange offen
     if _tier:
         out.append(_tier)

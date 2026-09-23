@@ -84,6 +84,15 @@ jobs:
             --output internal/reviews/upstream_sources_report.md \
             --summary
 
+      - name: Check delivery reference-source review dates
+        id: delivery_reference_review
+        continue-on-error: true
+        run: |
+          python -m tooling.quality.check_delivery_reference_sources \
+            --model core/reference_models/e2e_delivery_quality/model.yaml \
+            --schema tooling/generator/schemas/delivery_quality_model.schema.json \
+            --output internal/reviews/delivery_reference_review.json
+
       - name: Upload discovery reports
         uses: actions/upload-artifact@v4
         with:
@@ -91,7 +100,14 @@ jobs:
           path: |
             internal/reviews/schema_update_report.md
             internal/reviews/upstream_sources_report.md
+            internal/reviews/delivery_reference_review.json
           retention-days: 30
+
+      - name: Enforce current delivery reference sources
+        if: steps.delivery_reference_review.outcome == 'failure'
+        run: |
+          cat internal/reviews/delivery_reference_review.json
+          exit 1
 
       - name: Open PR if registry drift detected and update requested
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.update_registry == 'true'

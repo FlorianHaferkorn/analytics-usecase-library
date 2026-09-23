@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/architecture-maintenance/1.0.0",
+  "title": "Project architecture maintenance contract",
+  "description": "Governed review, reconciliation, technology-watch and transition contract for keeping the approved architecture aligned with the implemented estate.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_ref", "state", "review", "reconciliation", "technology_watch", "transitions", "exception_decision_ref"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "project_ref": {"$ref": "#/$defs/id"},
+    "state": {"enum": ["active", "review_due", "under_review", "exception"]},
+    "review": {"$ref": "#/$defs/review"},
+    "reconciliation": {"$ref": "#/$defs/reconciliation"},
+    "technology_watch": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/technology"}},
+    "transitions": {"type": "array", "items": {"$ref": "#/$defs/transition"}},
+    "exception_decision_ref": {"type": ["string", "null"]}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "ref": {"type": "string", "minLength": 1},
+    "refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}, "uniqueItems": true},
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner_ref", "cadence_days", "last_reviewed_at", "triggers", "evidence_refs"],
+      "properties": {
+        "owner_ref": {"$ref": "#/$defs/ref"},
+        "cadence_days": {"type": "integer", "minimum": 1, "maximum": 365},
+        "last_reviewed_at": {"type": "string", "format": "date-time"},
+        "triggers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["platform_release", "source_contract_change", "security_change", "volume_threshold", "incident", "decision_superseded", "operating_model_change"]}
+        },
+        "evidence_refs": {"allOf": [{"$ref": "#/$defs/refs"}, {"minItems": 1}]}
+      }
+    },
+    "reconciliation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner_ref", "environments", "cadence_hours", "observed_state_max_age_hours", "remediation_sla_hours", "unmanaged_resource_policy", "drift_action", "last_reconciled_at", "last_result", "drift_refs", "evidence_refs"],
+      "properties": {
+        "owner_ref": {"$ref": "#/$defs/ref"},
+        "environments": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["dev", "test", "prod"]}},
+        "cadence_hours": {"type": "integer", "minimum": 1, "maximum": 8760},
+        "observed_state_max_age_hours": {"type": "integer", "minimum": 1, "maximum": 8760},
+        "remediation_sla_hours": {"type": "integer", "minimum": 1, "maximum": 8760},
+        "unmanaged_resource_policy": {"enum": ["report", "block_release", "quarantine_for_review"]},
+        "drift_action": {"enum": ["report_only", "open_change", "block_release"]},
+        "last_reconciled_at": {"type": "string", "format": "date-time"},
+        "last_result": {"enum": ["conformant", "drift", "approved_exception"]},
+        "drift_refs": {"$ref": "#/$defs/refs"},
+        "evidence_refs": {"allOf": [{"$ref": "#/$defs/refs"}, {"minItems": 1}]}
+      }
+    },
+    "technology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "authoritative_source", "current_baseline", "owner_ref", "reviewed_at", "review_interval_days", "change_policy"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"type": "string", "minLength": 1},
+        "authoritative_source": {"type": "string", "format": "uri", "pattern": "^https://"},
+        "current_baseline": {"type": "string", "minLength": 1},
+        "owner_ref": {"$ref": "#/$defs/ref"},
+        "reviewed_at": {"type": "string", "format": "date-time"},
+        "review_interval_days": {"type": "integer", "minimum": 1, "maximum": 365},
+        "change_policy": {"enum": ["evaluate_then_adopt", "pin_until_approved", "security_patch_fast_track"]}
+      }
+    },
+    "transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "current_ref", "target_ref", "state", "owner_ref", "rollback_ref", "retirement_criteria", "evidence_refs"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "current_ref": {"$ref": "#/$defs/ref"},
+        "target_ref": {"$ref": "#/$defs/ref"},
+        "state": {"enum": ["planned", "cutover_ready", "cutover_verified", "retired"]},
+        "owner_ref": {"$ref": "#/$defs/ref"},
+        "rollback_ref": {"$ref": "#/$defs/ref"},
+        "retirement_criteria": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "evidence_refs": {"$ref": "#/$defs/refs"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"state": {"const": "exception"}}},
+      "then": {"properties": {"exception_decision_ref": {"type": "string", "minLength": 1}}}
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import { projectSurface } from '@/lib/project-package/view-policy';
 import styles from './project-scope.module.css';
 import { CustomCanvas } from '@/components/canvas/custom-canvas';
 import type { CanvasNode, CanvasEdge } from '@/components/canvas/canvas-types';
+import { DeliveryModel3D, type DeliveryStage } from './delivery-model-3d';
 
 type Row = Record<string, unknown>;
 function obj(value: unknown): Row { return value && typeof value === 'object' && !Array.isArray(value) ? value as Row : {}; }
@@ -62,6 +63,19 @@ export function ProjectRevisionView({ pathname }: { pathname: string }) {
   const unresolved = instances.filter(item => ['draft', 'proposed', 'rejected', 'deferred'].includes(String(obj(item.approval).state)));
   const architecture = getModule('architecture_input');
   const opportunity = getModule('opportunity');
+  const tasks = rows(plan.tasks);
+  const milestones = rows(plan.milestones);
+  const hasModule = (type: string) => value.modules.some(module => module.type === type);
+  const hasObservedEvidence = value.modules.some(module => module.type === 'observed_state');
+  const blockedTasks = tasks.filter(task => task.status === 'blocked');
+  const activeTasks = tasks.filter(task => ['doing', 'ready'].includes(String(task.status)));
+  const deliveryStages: DeliveryStage[] = [
+    { step: '01', title: 'Discover', outcome: 'Scope and evidence', href: '/discover', state: hasModule('opportunity') ? 'recorded' : 'not_recorded', definition: hasModule('opportunity'), delivery: hasModule('artifact_registry'), evidence: hasModule('artifact_registry') },
+    { step: '02', title: 'Decide & plan', outcome: 'Choices, plan and staffing', href: '/engagement', state: unresolved.length ? 'blocked' : hasModule('decision_set') && hasModule('plan') ? 'active' : 'not_recorded', definition: hasModule('decision_set'), delivery: hasModule('plan'), evidence: milestones.length > 0 },
+    { step: '03', title: 'Design', outcome: 'Architecture and contracts', href: '/architecture', state: hasModule('architecture_input') ? 'recorded' : 'not_recorded', definition: hasModule('architecture_input'), delivery: hasModule('use_case_delivery'), evidence: hasModule('architecture_maintenance') },
+    { step: '04', title: 'Build & release', outcome: 'Gated implementation', href: '/automation', state: blockedTasks.length ? 'blocked' : activeTasks.length ? 'active' : work.length > 0 && work.every(item => item.status === 'complete') ? 'complete' : 'recorded', definition: work.length > 0, delivery: work.some(item => ['active', 'complete'].includes(String(item.status))), evidence: hasObservedEvidence },
+    { step: '05', title: 'Verify & operate', outcome: 'Acceptance and assurance', href: '/health', state: hasObservedEvidence ? 'active' : 'not_recorded', definition: hasModule('delivery_quality'), delivery: hasObservedEvidence, evidence: hasModule('artifact_registry') },
+  ];
   const scopeNodes: CanvasNode[] = [];
   const scopeEdges: CanvasEdge[] = [];
   let scopeRow = 0;
@@ -77,17 +91,26 @@ export function ProjectRevisionView({ pathname }: { pathname: string }) {
     scopeRow += Math.max(uses.length,1);
   }
   const mode = projectSurface(pathname);
-  const titles = { overview: 'Project overview', architecture: 'Project architecture', decisions: 'Project decisions', assurance: 'Project evidence', unsupported: 'Project view not available' };
+  const titles = { overview: 'Delivery cockpit', architecture: 'Project architecture', decisions: 'Project decisions', assurance: 'Project evidence', unsupported: 'Project view not available' };
   return <div className={styles.page}>
     <StudioPageHeader compact title={titles[mode]} description={`${projectName} · Saved version ${value.revision.revision} · ${text(value.state)}. Changes and approvals are managed in Project Package.`}
       actions={<StudioButton onClick={() => { setLoaded(null); setHash(null); setRetry(n => n + 1); }}>Load latest version</StudioButton>} />
     <div className={styles.summary}><span>Version fingerprint<strong title={hash ?? ''}>{hash?.slice(0, 12)}</strong></span><span>Unresolved decisions<strong>{unresolved.length}</strong></span><span>Work completed<strong>{work.filter(w => w.status === 'complete').length} / {work.length}</strong></span></div>
 
     {mode === 'overview' && <>
-      <div className={styles.scope}><Link href="/engagement">Open the end-to-end Delivery workspace</Link><Link href="/architecture">Open compiled project Architecture</Link></div>
-      <StudioPanel title="Next step"><p>{unresolved.length ? `Resolve ${unresolved.length} recorded decision${unresolved.length === 1 ? '' : 's'} before release.` : value.state !== 'approved' ? 'Review this package and record approval before release.' : 'Review release eligibility and evidence before downloading the pinned package.'}</p><Link href={unresolved.length ? '/approvals' : '/package'}>{unresolved.length ? 'Review project decisions' : 'Open Project Package'}</Link></StudioPanel>
-      <StudioPanel title="Scope and objectives"><p>Scope: {text(opportunity.scope_status)}</p><ul>{(Array.isArray(opportunity.objectives) ? opportunity.objectives : []).map((item, i) => <li key={i}>{String(item)}</li>)}</ul></StudioPanel>
-      <StudioPanel title="Delivery plan"><div className={styles.tableWrap}><table className={styles.table}><thead><tr><th scope="col">Work package</th><th scope="col">Status</th><th scope="col">Effort and basis</th></tr></thead><tbody>{work.map((item, i) => <tr key={i}><td>{text(item.title)}</td><td>{text(item.status)}</td><td>{text(obj(item.effort).value)} {text(obj(item.effort).unit, '')} · {text(obj(item.effort).provenance)}</td></tr>)}</tbody></table></div>{!work.length && <p>No work packages recorded.</p>}<Detail title="Dependencies and full plan" value={plan} /></StudioPanel>
+      <DeliveryModel3D stages={deliveryStages} />
+      <div className={styles.cockpitGrid}>
+        <StudioPanel title="Next accountable action" description={blockedTasks.length ? `${blockedTasks.length} blocked task${blockedTasks.length === 1 ? '' : 's'} require resolution.` : unresolved.length ? `${unresolved.length} decision${unresolved.length === 1 ? '' : 's'} require resolution.` : 'Continue the next active delivery task.'}>
+          {blockedTasks.length ? <><h3>{text(blockedTasks[0].title)}</h3><p>{text(blockedTasks[0].target_gate)}</p><Link href="/engagement">Open plan and Definition of Done</Link></> : unresolved.length ? <Link href="/approvals">Review project decisions</Link> : <Link href="/automation">Review build and release readiness</Link>}
+        </StudioPanel>
+        <StudioPanel title="Project control" description="Current package content; no approval or tenant state is inferred.">
+          <dl className={styles.controlFacts}><dt>Milestones</dt><dd>{milestones.filter(item => item.status === 'complete').length} / {milestones.length || 'not recorded'} complete</dd><dt>Tasks</dt><dd>{tasks.filter(item => item.status === 'done').length} / {tasks.length || 'not recorded'} done</dd><dt>Work packages</dt><dd>{work.filter(item => item.status === 'complete').length} / {work.length} complete</dd></dl>
+        </StudioPanel>
+        <StudioPanel title="Scope outcome" description={`Scope status: ${text(opportunity.scope_status)}`}>
+          <ul className={styles.compactList}>{(Array.isArray(opportunity.objectives) ? opportunity.objectives : []).slice(0, 3).map((item, i) => <li key={i}>{String(item)}</li>)}</ul>
+          <Link href="/engagement">Review scope, decisions and staffing</Link>
+        </StudioPanel>
+      </div>
     </>}
 
     {mode === 'architecture' && <>
