@@ -78,6 +78,15 @@ class ConfigLoader:
         self._kpi_id_to_measure_name: Optional[Dict[str, str]] = None
         self._kpi_id_to_calc_type: Optional[Dict[str, str]] = None
 
+    def _band_delta(self, bracket: Dict[str, Any]):
+        """(Delta-Measure, kpi_id) fuer das KPI-Band oder None (R6.1c), aus comparison_measures."""
+        from tooling.codegen.comparison_measures import band_delta
+        d = self._target_model_dir(bracket)
+        if d is None:
+            return None
+        return band_delta(bracket, self.measure_map_for_model(d),
+                          set(self._model_symbols_for_dir(d).measure_names))
+
     def _comparison_refs(self, bracket: Dict[str, Any]) -> Dict[str, str]:
         """`<kpi_id>|<art>` -> Referenz-Measure im gebundenen Modell (R6.1).
 
@@ -1058,6 +1067,7 @@ class ConfigLoader:
                 "kpi_id_to_measure_name": kpi_to_measure,
                 "kpi_good_is": self.load_kpi_good_is(),
                 "comparison_refs": self._comparison_refs(bracket),
+                "kpi_band_delta": self._band_delta(bracket),
                 "intent_rules_version": intent_rules_version,
                 "big_idea_text": big_idea_text,
                 "assert_statement_titles": assert_statement_titles,
@@ -1243,6 +1253,7 @@ class ConfigLoader:
                 "kpi_id_to_measure_name": kpi_to_measure,
                 "kpi_good_is": self.load_kpi_good_is(),
                 "comparison_refs": self._comparison_refs(bracket),
+                "kpi_band_delta": self._band_delta(bracket),
                 "detail_matrix_columns": detail_matrix_columns,
                 "detail_matrix_measures": detail_matrix_measures,
                 "smart_narrative_text": smart_narrative_text,

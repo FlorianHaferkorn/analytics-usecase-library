@@ -41,6 +41,9 @@ BRACKETS = REPO / "core" / "usecases" / "core"
 KPIS = REPO / "core" / "kpi_catalog" / "kpis"
 
 TABELLE = "fact_target"
+# Gold-Ordner der Zieltabelle. Beim Kunden per ALUCA_GOLD_FACTS auf dessen Gold-Layer zeigen.
+import os as _os
+GOLD_ZIEL = Path(_os.environ.get("ALUCA_GOLD_FACTS", REPO / "showcases" / "aurora_group" / "data" / "gold" / "facts")) / TABELLE
 ORDNER = "8_Comparison"
 MARKE = "ALUCA_Generated"                    # Annotation, an der der Generator seine Measures erkennt
 SUMME = {"amount", "count", "sum", "quantity"}
@@ -177,6 +180,43 @@ def referenzen_fuer_bracket(bracket: dict, namen: dict[str, str], definiert: set
     return out
 
 
+def abweichung_name(measure: str, art: str) -> str:
+    return {"vs_target": f"{measure} vs Target", "vs_plan": f"{measure} vs Plan (Target Table)",
+            "vs_py": f"{measure} vs PY"}[art]
+
+
+def ziel_vorhanden(kpi_id: str, szenario: str, gold: Path = GOLD_ZIEL) -> bool:
+    """Fuehrt fact_target Werte fuer diese KPI? Ohne Werte zeigte eine Delta-Karte "(Blank)"."""
+    import pyarrow.parquet as pq
+    for f in sorted(Path(gold).glob("*.parquet")):
+        t = pq.read_table(f, columns=["kpi_id", "scenario"]).to_pydict()
+        if any(k == kpi_id and s == szenario for k, s in zip(t["kpi_id"], t["scenario"])):
+            return True
+    return False
+
+
+def band_delta(bracket: dict, namen: dict[str, str], definiert: set[str],
+               gold: Path = GOLD_ZIEL) -> tuple[str, str] | None:
+    """(Delta-Measure, kpi_id) fuer das KPI-Band, wenn component_3s einen Vergleich deklariert
+    und dieser Vergleich Daten hat: Vorjahr immer (rechnet aus der Historie), Ziel und Plan aus
+    fact_target nur, wenn der Kunde Werte geliefert hat."""
+    p1 = (bracket.get("ux_layout_rules") or {}).get("page_1_summary") or {}
+    c3 = p1.get("component_3s")
+    if not isinstance(c3, dict):
+        return None
+    art, kid = c3.get("comparison"), c3.get("kpi_id")
+    if art not in ("vs_target", "vs_plan", "vs_py") or kid not in namen:
+        return None
+    if art == "vs_plan" and plan_kpi(kid, _katalog()) and namen.get(plan_kpi(kid, _katalog())) in definiert:
+        return None                              # governter Plan: seine Abweichung steht im Band
+    d = abweichung_name(namen[kid], art)
+    if d not in definiert:
+        return None
+    if art != "vs_py" and not ziel_vorhanden(kid, "target" if art == "vs_target" else "plan", gold):
+        return None
+    return d, kid
+
+
 def measures_fuer(v: Vergleich, calc_type: str, fmt: str | None) -> list[str]:
     agg = "SUM" if calc_type in SUMME else "AVERAGE"
     basis = f"[{v.measure}]"
@@ -189,11 +229,11 @@ def measures_fuer(v: Vergleich, calc_type: str, fmt: str | None) -> list[str]:
                                f"Vorjahreswert von {v.measure} (comparison: vs_py): die ausgewaehlten Monate um "
                                "zwoelf verschoben, Monatsindex-Muster wie 'CCC Days PM' (dim_date ist keine "
                                "markierte Datumstabelle, SAMEPERIODLASTYEAR liefe neben einem Monats-Slicer leer).")
-        abw = f"{v.measure} vs PY"
+        abw = abweichung_name(v.measure, "vs_py")
     else:
         szenario = "target" if v.art == "vs_target" else "plan"
         ref = referenz_name(v.measure, v.art)
-        abw = f"{v.measure} vs Target" if v.art == "vs_target" else f"{v.measure} vs Plan (Target Table)"
+        abw = abweichung_name(v.measure, v.art)
         ref_dax = (f"CALCULATE ( {agg} ( {TABELLE}[Target Value] ), "
                    f"{TABELLE}[kpi_id] = \"{v.kpi_id}\", {TABELLE}[scenario] = \"{szenario}\" )")
         zweck = (f"{'Ziel' if szenario == 'target' else 'Plan'}wert von {v.measure} aus {TABELLE} "
@@ -301,7 +341,6 @@ def pruefe(schreiben: bool = False) -> tuple[list[str], list[str]]:
 # --- Onboarding: Vorlage fuer den Kunden und Import in fact_target (R6.1b) ---------------
 
 VORLAGE_SPALTEN = ["kpi_id", "scenario", "measure", "angabe_als", "gilt_ab", "gilt_bis", "wert"]
-GOLD_ZIEL = REPO / "showcases" / "aurora_group" / "data" / "gold" / "facts" / TABELLE
 
 
 def _angabe_als(kid: str, katalog: dict) -> str:

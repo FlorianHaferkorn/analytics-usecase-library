@@ -139,3 +139,30 @@ def test_unknown_kpi_and_double_months_are_rejected(tmp_path):
         cm.lade_vorlage(vorlage, tmp_path / "fact_target")
     assert "wird von keinem Report verglichen" in str(exc.value)
     assert "Monat 20260228 doppelt belegt" in str(exc.value)
+
+
+# --- Delta-Karte im KPI-Band nur mit Daten (R6.1c, 23.09.2026) --------------------------
+
+def _band(uc, gold):
+    loader = cm._loader()
+    b = loader.load_use_case_bracket(uc)
+    d = loader._target_model_dir(b)
+    return cm.band_delta(b, loader.measure_map_for_model(d),
+                         set(loader._model_symbols_for_dir(d).measure_names), gold)
+
+
+def test_a_target_delta_card_appears_only_once_the_customer_delivered_targets(tmp_path):
+    assert _band("OPS-001", tmp_path / "leer") is None                 # keine Werte, keine "(Blank)"-Karte
+    vorlage = tmp_path / "ziele.csv"
+    _ausfuellen(vorlage, {("ops.oee.pct", "target"): {"gilt_ab": "2026-01", "gilt_bis": "2026-01", "wert": "0.85"}})
+    cm.lade_vorlage(vorlage, tmp_path / "fact_target")
+    assert _band("OPS-001", tmp_path / "fact_target") == (
+        "Overall Equipment Effectiveness (OEE) % vs Target", "ops.oee.pct")
+
+
+def test_a_py_delta_needs_no_customer_data(tmp_path):
+    assert _band("COM-003", tmp_path / "leer") == ("CLV (Customer Lifetime Value) vs PY", "crm.clv.amount")
+    kpi = json.loads((cm.DIST / "COM-003_Customer_Value.Report/definition/pages/Page_COM003_Overview/"
+                      "visuals/KPI_Delta/visual.json").read_text(encoding="utf-8"))
+    ys = kpi["visual"]["query"]["queryState"]["Data"]["projections"]
+    assert ys[0]["field"]["Measure"]["Property"] == "CLV (Customer Lifetime Value) vs PY"

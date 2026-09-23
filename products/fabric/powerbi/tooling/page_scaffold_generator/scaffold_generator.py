@@ -171,6 +171,7 @@ class PageScaffoldGenerator:
             model_columns=self.page_config.get("model_columns"),
             kpi_good_is=self.page_config.get("kpi_good_is") or {},
             comparison_refs=self.page_config.get("comparison_refs") or {},
+            kpi_band_delta=self.page_config.get("kpi_band_delta") if self.page_name == "overview" else None,
         )
 
         self._add_last_refresh(page_structure["visuals"])

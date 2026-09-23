@@ -103,6 +103,7 @@ class PageBuilder:
         model_columns: Optional[set] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
         comparison_refs: Optional[Dict[str, str]] = None,
+        kpi_band_delta: Optional[Any] = None,
     ) -> Dict[str, Any]:
         """Build page structure from grid blueprint (Master Grid 12×12). All visuals aligned to grid."""
         canvas = grid_blueprint.get("canvas") or {}
@@ -348,9 +349,18 @@ class PageBuilder:
                         if isinstance(_kid, str) and (".vs_plan." in _kid or ".delta_pct." in _kid):
                             _var_idx = _j
                             break
+                _delta_kid = None
                 if _var_idx is not None and _var_idx < len(card_measure_names):
                     _delta_measure = card_measure_names[_var_idx]
                     _level_measures = [m for _k, m in enumerate(card_measure_names) if _k != _var_idx]
+                    _delta_kid = card_kpi_ids[_var_idx]
+                elif kpi_band_delta:
+                    # R6.1c: der in component_3s deklarierte Vergleich, sobald er Daten hat
+                    # (Vorjahr immer, Ziel/Plan erst mit Kundenwerten). Die Kennzahlen bleiben
+                    # vollstaendig im Band, die Abweichung kommt als eigene Karte daneben.
+                    _delta_measure, _delta_kid = kpi_band_delta
+                    _level_measures = list(card_measure_names or [])
+                if _delta_kid is not None:
                     _gap, _delta_w = 16, 452
                     _levels_w = max(1, position.width - _delta_w - _gap)
                     _levels_pos = Position(x=position.x, y=position.y, width=_levels_w, height=position.height)
@@ -363,7 +373,7 @@ class PageBuilder:
                     visuals.append(_levels)
                     vis = self.visual_builder.build_kpi_delta_card(
                         _delta_pos, _delta_measure, name="KPI_Delta", label=_delta_measure,
-                        higher_is_better=(kpi_good_is or {}).get(card_kpi_ids[_var_idx]) != "lower",
+                        higher_is_better=(kpi_good_is or {}).get(_delta_kid) != "lower",
                     )
                 else:
                     vis = self.visual_builder.build_kpi_cards_multi(
@@ -529,6 +539,7 @@ class PageBuilder:
         model_columns: Optional[set] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
         comparison_refs: Optional[Dict[str, str]] = None,
+        kpi_band_delta: Optional[Any] = None,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -593,6 +604,7 @@ class PageBuilder:
                 model_columns=model_columns,
                 kpi_good_is=kpi_good_is,
                 comparison_refs=comparison_refs,
+                kpi_band_delta=kpi_band_delta,
             )
 
         # Determine slicer placement (default: top)
