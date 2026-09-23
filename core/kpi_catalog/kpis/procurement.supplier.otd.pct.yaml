@@ -11,6 +11,7 @@ use_case_ref:
 - SCM-002
 action_code_ref: []
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures inbound supplier on-time delivery (goods received on/before promise).
   definition: On-Time Inbound Receipts / Total Inbound Receipts.

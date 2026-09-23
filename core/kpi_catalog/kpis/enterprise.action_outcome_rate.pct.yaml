@@ -10,6 +10,7 @@ use_case_ref:
 - XD-004
 action_code_ref: []
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures share of actions that achieved the intended outcome.
   definition: Rows in fact_action_outcome with outcome_status = "achieved" divided by all rows in fact_action_outcome.

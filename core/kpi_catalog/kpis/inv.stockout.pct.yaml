@@ -19,6 +19,7 @@ action_code_ref:
 - S-I1.3
 - S-I1.5
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures how often inventory is unavailable when demanded.
   definition: Stockout Events / Total Demand Events.

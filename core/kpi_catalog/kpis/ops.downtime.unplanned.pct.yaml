@@ -18,6 +18,7 @@ action_code_ref:
 - O-A2.1
 - O-A2.2
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures unplanned downtime share of planned time.
   definition: Unplanned Downtime Minutes / Planned Time Minutes.

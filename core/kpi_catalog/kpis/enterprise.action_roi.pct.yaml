@@ -9,6 +9,7 @@ use_case_ref:
 - XD-004
 action_code_ref: []
 calc_type: percentage
+good_is: higher
 business:
   purpose: Measures the financial return on ActionReady recommendation investments.
   definition: Total impact value of executed actions / total execution cost - 1.

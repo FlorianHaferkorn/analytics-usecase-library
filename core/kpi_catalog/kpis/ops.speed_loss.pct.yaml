@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - O-O1.2
 calc_type: rate
+good_is: lower
 business:
   purpose: Isolates chronic speed reduction from intermittent minor stops.
   definition: Speed Loss = (1 - Performance Rate) adjusted to exclude minor stop events. Corresponds to Six Big

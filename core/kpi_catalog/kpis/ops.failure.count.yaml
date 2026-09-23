@@ -13,6 +13,7 @@ action_code_ref:
 - O-A2.3
 - O-A2.5
 calc_type: count
+good_is: lower
 business:
   purpose: Counts equipment or process failures in the period.
   definition: Count of recorded failure events.

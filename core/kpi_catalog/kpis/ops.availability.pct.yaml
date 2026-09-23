@@ -21,6 +21,7 @@ action_code_ref:
 - O-A2.3
 - O-O1.1
 calc_type: rate
+good_is: higher
 business:
   purpose: Uptime share relative to planned production time.
   definition: Available time / Planned time

@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - O-Q3.2
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures defect count per 1,000 units produced.
   definition: (Defect Count / Total Units) * 1,000.

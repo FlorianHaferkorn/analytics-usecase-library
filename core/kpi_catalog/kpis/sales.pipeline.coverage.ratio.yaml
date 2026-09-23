@@ -11,6 +11,7 @@ use_case_ref:
 - XD-003
 action_code_ref: []
 calc_type: ratio
+good_is: higher
 business:
   purpose: Measures open qualified pipeline against the remaining sales target.
   definition: Open Qualified Pipeline Value / Remaining Period Target.

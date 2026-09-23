@@ -16,6 +16,7 @@ use_case_ref:
 action_code_ref:
 - F-C1.1
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures deviation of cash balance versus plan.
   definition: (Cash Balance - Cash Plan) / Cash Plan.

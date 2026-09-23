@@ -32,7 +32,7 @@ why the `validate_measure_metadata` hook accepts any `///` doc line.
 | `formula` | Measure dict `expression.logical` | ✅ | correct DAX without re-derivation |
 | `grain` | Measure dict notes / data contract `grain` | ✅ | prevents aggregation errors |
 | `unit` | Measure dict notes / `calc_type` | ✅ | prevents format errors (%, EUR, days) |
-| `good_is` | KPI catalog `good_is` (`higher`/`lower`) | ⭐ | variance interpretation, RAG status |
+| `good_is` | KPI catalog `good_is` (`higher`/`lower`/`band`/`zero`) | ⭐ | variance interpretation, RAG status, worst-first sort |
 | `drivers` | KPI catalog `causal_links` (id + direction) | ⭐ | "why did it move" narratives |
 | `owner` / `status` | Measure dict `governance` | ✅ | trust, routing, attribution |
 | `action_codes` | KPI catalog `action_code_ref` | ⭐ | strategy-to-action linkage |
@@ -42,7 +42,10 @@ why the `validate_measure_metadata` hook accepts any `///` doc line.
 ✅ = required for the depth bar · ⭐ = high-ROI, recommended. `good_is`,
 `synonyms` and `example_question` are optional catalog fields (the schema allows
 additional properties); the renderer omits any field that is absent — it never
-guesses.
+guesses. `good_is` is set for 105 of 140 KPIs (23.09.2026): from the action-code comparators
+where one triggers on the KPI, else from an explicit "higher/lower is better" in
+`business.interpretation`. Base and input quantities carry no `good_is` on purpose.
+`band` renders as `within_target_band`, `zero` as `closer_to_zero_is_better`.
 
 ---
 

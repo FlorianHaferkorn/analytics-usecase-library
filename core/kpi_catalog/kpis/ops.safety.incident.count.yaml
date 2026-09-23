@@ -10,6 +10,7 @@ use_case_ref:
 - OPS-002
 action_code_ref: []
 calc_type: count
+good_is: lower
 business:
   purpose: Counts safety incidents recorded in the period.
   definition: Count of recorded safety incidents.

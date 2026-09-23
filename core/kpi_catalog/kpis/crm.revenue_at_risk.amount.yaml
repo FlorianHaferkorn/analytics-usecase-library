@@ -12,6 +12,7 @@ use_case_ref:
 action_code_ref:
 - C-C3.1
 calc_type: amount
+good_is: lower
 business:
   purpose: Quantify revenue exposure proportional to the customer attrition rate.
   definition: Net Sales Amount × (Churned Customers / Active Customers).

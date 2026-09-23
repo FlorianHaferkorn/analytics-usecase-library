@@ -22,6 +22,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - C-C3.1
   calc_type: amount
+  good_is: higher
   business:
     purpose: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
     definition: Sum of expected future gross margin per customer discounted over the chosen time horizon.
@@ -72,6 +73,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - C-C3.1
   calc_type: amount
+  good_is: lower
   business:
     purpose: Quantify revenue exposure proportional to the customer attrition rate.
     definition: Net Sales Amount × (Churned Customers / Active Customers).
@@ -140,6 +142,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - C-C3.2
   calc_type: count
+  good_is: lower
   business:
     purpose: Provide the absolute number of logged complaints.
     definition: Count of complaint records in the complaint/service system.
@@ -186,6 +189,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - C-C3.1
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
     definition: (Active Customers at end of period) / (Active Customers at start of period).
@@ -257,6 +261,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - C-C3.2
   - X-S1.3
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures customer advocacy and likelihood to recommend.
     definition: (%Promoters - %Detractors) from survey responses in the period.
@@ -324,6 +329,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-003
   action_code_ref: []
   calc_type: count
+  good_is: lower
   business:
     purpose: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
     definition: Distinct customers with no qualifying transactions in the current period but active in the look-back window.
@@ -477,6 +483,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - O-O1.2
   calc_type: rate
+  good_is: higher
   business:
     purpose: Throughput speed versus theoretical maximum.
     definition: Actual output / Theoretical maximum output
@@ -546,6 +553,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-O1.3
   - F-K2.2
   calc_type: rate
+  good_is: higher
   business:
     purpose: Yield of conforming units relative to total units produced.
     definition: Good units / Total units
@@ -598,6 +606,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - F-K2.3
   calc_type: rate
+  good_is: higher
   business:
     purpose: Shows output efficiency relative to labor input.
     definition: Output Units or Net Sales divided by Labor Hours (normalized to % baseline).
@@ -658,6 +667,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-A2.2
   - O-A2.4
   calc_type: amount
+  good_is: higher
   business:
     purpose: Measures average operating time between failures.
     definition: Operating Time Hours / Number of Failures.
@@ -722,6 +732,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-A2.3
   - O-A2.5
   calc_type: amount
+  good_is: lower
   business:
     purpose: Measures average repair time after failures.
     definition: Total Repair Time Hours / Number of Failures.
@@ -774,6 +785,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - O-A2.4
   calc_type: rate
+  good_is: higher
   business:
     purpose: Tracks adherence to preventive maintenance plan.
     definition: Completed PM Orders / Planned PM Orders.
@@ -838,6 +850,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - O-A2.5
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures stockout frequency for critical spare parts.
     definition: Stockout Events / Total Parts Requests.
@@ -890,6 +903,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-O1.4
   - F-K2.3
   calc_type: count
+  good_is: higher
   business:
     purpose: Measures total output volume in units.
     definition: Sum of produced units in the period.
@@ -945,6 +959,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-Q3.1
   - O-Q3.2
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures share of units produced without rework or scrap.
     definition: Good Units / Total Units.
@@ -1012,6 +1027,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-Q3.3
   - O-Q3.4
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures share of units scrapped in production.
     definition: Scrap Units / Total Units.
@@ -1066,6 +1082,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-Q3.1
   - O-Q3.3
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures share of units requiring rework.
     definition: Reworked Units / Total Units.
@@ -1120,6 +1137,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-Q3.4
   - O-Q3.5
   calc_type: amount
+  good_is: lower
   business:
     purpose: Captures financial impact of scrap, rework, and warranty/complaints.
     definition: Sum of cost impacts for quality failures in period.
@@ -1167,6 +1185,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - O-Q3.5
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures customer complaints relative to shipped units.
     definition: Complaint Count / Units Shipped.
@@ -1222,6 +1241,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - O-Q3.2
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures defect count per 1,000 units produced.
     definition: (Defect Count / Total Units) * 1,000.
@@ -1284,6 +1304,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-I1.4
   - S-I1.5
   calc_type: amount
+  good_is: lower
   business:
     purpose: Measures inventory holding period in days.
     definition: Average Inventory / (COGS / 365).
@@ -1348,6 +1369,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-I1.3
   - S-I1.5
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures how often inventory is unavailable when demanded.
     definition: Stockout Events / Total Demand Events.
@@ -1399,6 +1421,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-I1.1
   - S-I1.4
   calc_type: amount
+  good_is: lower
   business:
     purpose: Measures the value of inventory exceeding forward demand cover.
     definition: Inventory value exceeding X months of forward demand (typically > 6 months of projected consumption). Primary working capital lock-up driver when DIO is high.
@@ -1455,6 +1478,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - S-I1.4
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures share of inventory considered obsolete.
     definition: Obsolete Inventory Value / Total Inventory Value.
@@ -1517,6 +1541,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-F3.4
   - S-I1.5
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures how close forecasted demand is to actual demand.
     definition: 1 - |Forecast - Actual| / Actual.
@@ -1582,6 +1607,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-F3.1
   - S-F3.2
   calc_type: rate
+  good_is: zero
   business:
     purpose: Measures systematic over- or under-forecasting.
     definition: (Forecast - Actual) / Actual.
@@ -1656,6 +1682,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-R2.5
   - F-K2.4
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures share of orders delivered on time and in full.
     definition: OTIF Orders / Total Orders.
@@ -1715,6 +1742,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-R2.1
   - S-R2.2
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures share of deliveries arriving on time.
     definition: On-Time Deliveries / Total Deliveries.
@@ -1764,6 +1792,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - S-R2.3
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures lost demand share due to stockouts.
     definition: Lost Demand Qty / Total Demand Qty.
@@ -1816,6 +1845,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-R2.4
   - S-R2.5
   calc_type: amount
+  good_is: lower
   business:
     purpose: Captures additional cost for expedited shipments.
     definition: Sum of expedite fees and premium freight charges.
@@ -1864,6 +1894,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - S-R2.4
   calc_type: amount
+  good_is: lower
   business:
     purpose: Captures penalties for service level breaches.
     definition: Sum of penalty charges incurred in the period.
@@ -1911,6 +1942,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - S-F3.3
   calc_type: rate
+  good_is: lower
   business:
     purpose: Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage (units-based demand forecast).
     definition: Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not revenue.
@@ -1974,6 +2006,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-O1.3
   - O-O1.4
   calc_type: ratio
+  good_is: higher
   business:
     purpose: Measures manufacturing performance combining availability, performance, and quality.
     definition: Availability % * Performance % * Quality %
@@ -2034,6 +2067,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-A2.3
   - O-A2.5
   calc_type: count
+  good_is: lower
   business:
     purpose: Counts equipment or process failures in the period.
     definition: Count of recorded failure events.
@@ -2176,6 +2210,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - FIN-002
   action_code_ref: []
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures share of defective units in production.
     definition: Defective Units / Total Produced Units.
@@ -2226,6 +2261,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - OPS-002
   action_code_ref: []
   calc_type: count
+  good_is: lower
   business:
     purpose: Counts safety incidents recorded in the period.
     definition: Count of recorded safety incidents.
@@ -2323,6 +2359,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-F3.1
   - S-F3.2
   calc_type: count
+  good_is: lower
   business:
     purpose: Counts planning cycles or plan versions in the period.
     definition: Count of plan records or plan versions.
@@ -2426,6 +2463,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-A2.3
   - O-O1.1
   calc_type: rate
+  good_is: higher
   business:
     purpose: Uptime share relative to planned production time.
     definition: Available time / Planned time
@@ -2477,6 +2515,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - XD-003
   action_code_ref: []
   calc_type: amount
+  good_is: lower
   business:
     purpose: Combines receivables, inventory, and payables days to show cash efficiency.
     definition: DSO + DIO - DPO, where DSO/DIO/DPO are proxy days computed from Net Sales/COGS Amount (Net Sales * 12% * 365 / Net Sales; COGS * 15% * 365 / COGS; COGS * 8% * 365 / COGS) — a fixed-ratio proxy used in Experience-domain executive reporting where the real receivables/inventory/payables fact tables (used by Finance's wc.ccc.days) are not available.
@@ -2565,6 +2604,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - OPS-001
   action_code_ref: []
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures share of planned production time lost to downtime.
     definition: Downtime Minutes / Planned Time Minutes.
@@ -2624,6 +2664,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - O-A2.1
   - O-A2.2
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures unplanned downtime share of planned time.
     definition: Unplanned Downtime Minutes / Planned Time Minutes.
@@ -2676,6 +2717,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - O-O1.2
   calc_type: rate
+  good_is: lower
   business:
     purpose: Isolates chronic speed reduction from intermittent minor stops.
     definition: Speed Loss = (1 - Performance Rate) adjusted to exclude minor stop events. Corresponds to Six Big Losses Category 4 (Reduced Speed).
@@ -2728,6 +2770,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - O-O1.3
   calc_type: duration
+  good_is: lower
   business:
     purpose: Measures time lost to product or format changeovers.
     definition: Average minutes from last good piece of previous run to first good piece of next run, including mechanical setup, parameter adjustment, and trial run waste. Directly drives Six Big Losses Category 2 (Setup & Adjustment).
@@ -2784,6 +2827,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - S-I1.2
   calc_type: ratio
+  good_is: higher
   business:
     purpose: Measures how often inventory is sold and replaced.
     definition: COGS / Average Inventory.
@@ -2844,6 +2888,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - S-F3.2
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures mean absolute percentage error in forecast.
     definition: Mean(|Forecast - Actual| / Actual).
@@ -2914,6 +2959,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-R2.1
   - S-R2.3
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures share of deliveries with complete quantities.
     definition: In-Full Deliveries / Total Deliveries.
@@ -2962,6 +3008,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - XD-004
   action_code_ref: []
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures share of actions that achieved the intended outcome.
     definition: Rows in fact_action_outcome with outcome_status = "achieved" divided by all rows in fact_action_outcome.
@@ -3018,6 +3065,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - XD-004
   action_code_ref: []
   calc_type: amount
+  good_is: higher
   business:
     purpose: Average EUR impact per achieved action execution — realized KPI delta per code.
     definition: Average impact_value across achieved rows in fact_action_outcome.
@@ -3208,6 +3256,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - C-M2.1
   calc_type: rate
+  good_is: higher
   business:
     purpose: Shows how much of list price is realized after discounts.
     definition: Net Price Amount / List Price Amount.
@@ -3264,6 +3313,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - C-M2.2
   calc_type: amount
+  good_is: higher
   business:
     purpose: Captures the residual effect from changes in product, channel, or region mix.
     definition: Total variance - Price Effect - Volume Effect.
@@ -3458,6 +3508,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - XD-003
   action_code_ref: []
   calc_type: rate
+  good_is: higher
   business:
     purpose: Relative variance of Net Sales vs Last Year.
     definition: (Net Sales - LY) / LY
@@ -3514,6 +3565,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - C-S1.2
   calc_type: rate
+  good_is: higher
   business:
     purpose: Relative variance of Net Sales vs Plan.
     definition: (Net Sales Amount - Plan Sales Amount) / Plan Sales Amount
@@ -3565,6 +3617,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - C-S1.1
   calc_type: amount
+  good_is: higher
   business:
     purpose: Quantifies the pure price impact in the PVM bridge.
     definition: (Actual Price - Plan Price) x Actual Quantity.
@@ -3616,6 +3669,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-001
   action_code_ref: []
   calc_type: amount
+  good_is: higher
   business:
     purpose: Measures the variance caused purely by quantity changes at plan price.
     definition: (Actual Quantity - Plan Quantity) x Plan Price.
@@ -3719,6 +3773,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - XD-003
   action_code_ref: []
   calc_type: ratio
+  good_is: higher
   business:
     purpose: Measure how much of all eligible process transactions are executed via digital tools instead of manual channels.
     definition: Digital Transactions Count / Total Transactions Count for eligible processes.
@@ -3764,6 +3819,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - XD-003
   action_code_ref: []
   calc_type: rate
+  good_is: lower
   business:
     purpose: Monitor risk of employee attrition across key roles and segments.
     definition: Probability of attrition for the selected population in the period.
@@ -3819,6 +3875,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - F-C1.2
   calc_type: amount
+  good_is: lower
   business:
     purpose: Measures days sales outstanding for receivables.
     definition: Receivables / (Net Sales / 365).
@@ -3888,6 +3945,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - O-A2.5
   calc_type: amount
+  good_is: lower
   business:
     purpose: Provide closing inventory value for working capital and liquidity metrics.
     definition: Inventory value at period end at reporting valuation (e.g., standard or average cost).
@@ -4043,6 +4101,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - S-I1.2
   calc_type: amount
+  good_is: lower
   business:
     purpose: Measures days inventory outstanding.
     definition: Inventory / (COGS / 365).
@@ -4118,6 +4177,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - F-C1.4
   calc_type: amount
+  good_is: higher
   business:
     purpose: Measures days payables outstanding.
     definition: Payables / (COGS / 365).
@@ -4193,6 +4253,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - F-C1.1
   calc_type: amount
+  good_is: lower
   business:
     purpose: Measures cash conversion cycle length.
     definition: DSO + DIO - DPO.
@@ -4263,6 +4324,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - F-C1.1
   - F-C1.2
   calc_type: amount
+  good_is: higher
   business:
     purpose: Tracks cash and cash equivalents at period end.
     definition: Cash and cash equivalents balance.
@@ -4320,6 +4382,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - F-C1.2
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures the proportion of accounts receivable past due date.
     definition: Overdue AR (past due date) / Total AR × 100. Customer-level overdue analysis enables targeted collection.
@@ -4381,6 +4444,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-I1.2
   - F-C1.4
   calc_type: amount
+  good_is: higher
   business:
     purpose: Measures cash generated by operating activities.
     definition: Net cash flows from operations for the period.
@@ -4436,6 +4500,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - F-C1.1
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures deviation of cash balance versus plan.
     definition: (Cash Balance - Cash Plan) / Cash Plan.
@@ -4912,6 +4977,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - C-P4.1
   calc_type: ratio
+  good_is: higher
   business:
     purpose: Measures profitability of promotions relative to spend.
     definition: Incremental GM Amount / Promo Cost Amount
@@ -5017,6 +5083,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-002
   action_code_ref: []
   calc_type: ratio
+  good_is: lower
   business:
     purpose: Shows unit cost level relative to sold volume.
     definition: COGS Amount / Units Sold.
@@ -5067,6 +5134,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-004
   action_code_ref: []
   calc_type: amount
+  good_is: lower
   business:
     purpose: Sales lost on non-promoted items versus baseline (cannibalization in value).
     definition: 'Proxy: 15% of Baseline Sales Amount, pending real non-promo-segment actuals (target formula: MAX(0, Baseline Non-Promo Sales - Actual Non-Promo Sales) once that segmentation is available).'
@@ -5114,6 +5182,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-004
   action_code_ref: []
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures share of promo uplift offset by decline in non-promoted sales.
     definition: Cannibalized Sales / Promo Uplift Sales.
@@ -5174,6 +5243,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - F-K2.2
   calc_type: rate
+  good_is: lower
   business:
     purpose: Shows material cost share of net sales.
     definition: Material Cost Amount / Net Sales Amount.
@@ -5232,6 +5302,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - F-K2.4
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures OpEx variance versus plan.
     definition: (OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.
@@ -5293,6 +5364,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - F-K2.3
   - F-K2.4
   calc_type: ratio
+  good_is: lower
   business:
     purpose: Measures total cost per unit produced or sold.
     definition: Total Cost Amount / Units Produced or Sold.
@@ -5523,6 +5595,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - F-K2.1
   calc_type: rate
+  good_is: lower
   business:
     purpose: Shows cost share relative to net sales.
     definition: COGS Amount / Net Sales Amount.
@@ -5574,6 +5647,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-002
   action_code_ref: []
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures gross margin rate variance versus plan.
     definition: (Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.
@@ -5629,6 +5703,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   use_case_ref: []
   action_code_ref: []
   calc_type: ratio
+  good_is: higher
   business:
     purpose: EBITDA profitability relative to net sales for P&L reporting.
     definition: EBITDA Amount / Net Sales Amount
@@ -5779,6 +5854,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - X-E3.2
   calc_type: ratio
+  good_is: lower
   business:
     purpose: Aggregates downside risk across domains into a single index.
     definition: 'Average of three risk shares, scaled to 0-100: (1) Revenue-at-Risk Share = (Net Sales * average(1-OTIF failure, 1-First-Pass-Yield failure)) / Net Sales, (2) Delivery Risk = 1 - OTIF %, (3) Quality Risk = 1 - In-Full %.'
@@ -5883,6 +5959,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - FIN-001
   action_code_ref: []
   calc_type: ratio
+  good_is: lower
   business:
     purpose: Rates suppliers based on risk indicators.
     definition: Composite risk score derived from supplier risk factors.
@@ -5940,6 +6017,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - X-S1.2
   - X-S1.4
   calc_type: ratio
+  good_is: higher
   business:
     purpose: Measures how many cases meet the committed SLA.
     definition: Cases with SLA Met Flag = 1 divided by total cases in period.
@@ -5994,6 +6072,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - X-S1.3
   calc_type: ratio
+  good_is: higher
   business:
     purpose: Shows the share of cases solved on first contact.
     definition: Cases with FCR Flag = 1 divided by total cases.
@@ -6046,6 +6125,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - X-S1.4
   calc_type: ratio
+  good_is: lower
   business:
     purpose: Measures average time to handle a contact.
     definition: Total handle time divided by number of cases/contacts.
@@ -6106,6 +6186,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - X-S1.1
   - X-S1.2
   calc_type: count
+  good_is: lower
   business:
     purpose: Quantifies unresolved work in queue.
     definition: Count of open cases at period end.
@@ -6164,6 +6245,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - X-S1.1
   - X-S1.3
   calc_type: ratio
+  good_is: lower
   business:
     purpose: Measures frequency of escalated cases.
     definition: Escalated cases divided by total cases.
@@ -6215,6 +6297,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - X-R2.3
   - X-R2.4
   calc_type: ratio
+  good_is: band
   business:
     purpose: Measures productive time versus paid time for agents.
     definition: Productive time divided by paid time.
@@ -6268,6 +6351,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - X-R2.1
   - X-R2.2
   calc_type: ratio
+  good_is: band
   business:
     purpose: Measures active vs idle share of time.
     definition: (Talk + Wrap) / (Talk + Wrap + Idle).
@@ -6330,6 +6414,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - X-R2.1
   - X-R2.4
   calc_type: ratio
+  good_is: lower
   business:
     purpose: Shows overtime share of total hours.
     definition: Overtime hours divided by total hours.
@@ -6381,6 +6466,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - X-R2.3
   calc_type: ratio
+  good_is: lower
   business:
     purpose: Measures non-productive share of paid time.
     definition: Non-productive time divided by paid time.
@@ -6578,6 +6664,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - XD-004
   action_code_ref: []
   calc_type: quantity
+  good_is: lower
   business:
     purpose: Measures how quickly ActionReady recommendations convert to confirmed outcomes.
     definition: Average of days_to_outcome across all executed action rows.
@@ -6622,6 +6709,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - XD-004
   action_code_ref: []
   calc_type: percentage
+  good_is: higher
   business:
     purpose: Measures the financial return on ActionReady recommendation investments.
     definition: Total impact value of executed actions / total execution cost - 1.
@@ -6677,6 +6765,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - C-M3.1
   calc_type: rate
+  good_is: higher
   business:
     purpose: Share of transactions that contain items from two or more distinct product categories.
     definition: Transactions with >=2 distinct categories divided by total transactions in scope.
@@ -6725,6 +6814,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-IND-R001
   action_code_ref: []
   calc_type: ratio
+  good_is: higher
   business:
     purpose: Average number of distinct line items per completed transaction.
     definition: Total line items divided by total transactions in scope.
@@ -6929,6 +7019,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - XD-003
   action_code_ref: []
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures realised voluntary employee turnover in the period.
     definition: Voluntary Leavers / Average Headcount (annualised).
@@ -6978,6 +7069,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - HR-001
   action_code_ref: []
   calc_type: avg
+  good_is: higher
   business:
     purpose: Measures employee engagement / eNPS from periodic surveys.
     definition: Mean engagement score (or eNPS) for the population in the period.
@@ -7022,6 +7114,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - HR-001
   action_code_ref: []
   calc_type: ratio
+  good_is: lower
   business:
     purpose: Measures average calendar days to fill an open vacancy.
     definition: Mean(Filled Date - Requisition Open Date) over positions filled in the period.
@@ -7066,6 +7159,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - HR-001
   action_code_ref: []
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures unplanned absence as a share of scheduled working time.
     definition: Absence Days / Scheduled Working Days.
@@ -7208,6 +7302,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - XD-003
   action_code_ref: []
   calc_type: ratio
+  good_is: higher
   business:
     purpose: Measures open qualified pipeline against the remaining sales target.
     definition: Open Qualified Pipeline Value / Remaining Period Target.
@@ -7257,6 +7352,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-005
   action_code_ref: []
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures share of decided opportunities won.
     definition: Opportunities Won / (Opportunities Won + Opportunities Lost).
@@ -7306,6 +7402,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-005
   action_code_ref: []
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures conversion between funnel stages (lead → opportunity → won).
     definition: Records advancing to the next stage / Records entering the stage.
@@ -7354,6 +7451,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-005
   action_code_ref: []
   calc_type: ratio
+  good_is: lower
   business:
     purpose: Measures average calendar days from opportunity creation to close.
     definition: Mean(Close Date - Create Date) over opportunities closed in the period.
@@ -7399,6 +7497,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-005
   action_code_ref: []
   calc_type: sum
+  good_is: higher
   business:
     purpose: Measures revenue generation rate through the pipeline.
     definition: (Open Opportunities x Avg Deal Value x Win Rate) / Sales Cycle Length.
@@ -7537,6 +7636,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - FIN-003
   action_code_ref: []
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures the EBITDA-margin gap versus plan.
     definition: EBITDA Margin % (Actual) - EBITDA Margin % (Plan), in percentage points.
@@ -7599,6 +7699,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - FIN-002
   action_code_ref: []
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures procurement savings realised against the savings target.
     definition: Realised Savings / Savings Target.
@@ -7648,6 +7749,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - SCM-004
   action_code_ref: []
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures share of spend routed through negotiated contracts (inverse of maverick buying).
     definition: On-Contract Spend / Total Addressable Spend.
@@ -7697,6 +7799,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - SCM-004
   action_code_ref: []
   calc_type: rate
+  good_is: lower
   business:
     purpose: Measures purchase price variance against baseline/standard price.
     definition: (Actual Price - Baseline Price) / Baseline Price.
@@ -7747,6 +7850,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - SCM-002
   action_code_ref: []
   calc_type: rate
+  good_is: higher
   business:
     purpose: Measures inbound supplier on-time delivery (goods received on/before promise).
     definition: On-Time Inbound Receipts / Total Inbound Receipts.

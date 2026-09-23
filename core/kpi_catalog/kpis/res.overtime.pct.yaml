@@ -12,6 +12,7 @@ action_code_ref:
 - X-R2.1
 - X-R2.4
 calc_type: ratio
+good_is: lower
 business:
   purpose: Shows overtime share of total hours.
   definition: Overtime hours divided by total hours.

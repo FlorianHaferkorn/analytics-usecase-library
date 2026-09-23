@@ -10,6 +10,7 @@ use_case_ref:
 - XD-003
 action_code_ref: []
 calc_type: ratio
+good_is: higher
 business:
   purpose: Measure how much of all eligible process transactions are executed via digital tools instead of manual
     channels.

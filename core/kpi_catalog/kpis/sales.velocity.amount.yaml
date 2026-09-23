@@ -10,6 +10,7 @@ use_case_ref:
 - COM-005
 action_code_ref: []
 calc_type: sum
+good_is: higher
 business:
   purpose: Measures revenue generation rate through the pipeline.
   definition: (Open Opportunities x Avg Deal Value x Win Rate) / Sales Cycle Length.

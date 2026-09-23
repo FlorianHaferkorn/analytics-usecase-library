@@ -16,6 +16,7 @@ use_case_ref:
 action_code_ref:
 - F-K2.4
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures OpEx variance versus plan.
   definition: (OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.

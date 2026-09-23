@@ -15,6 +15,7 @@ action_code_ref:
 - S-F3.1
 - S-F3.2
 calc_type: count
+good_is: lower
 business:
   purpose: Counts planning cycles or plan versions in the period.
   definition: Count of plan records or plan versions.

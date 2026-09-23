@@ -10,6 +10,7 @@ use_case_ref:
 - COM-005
 action_code_ref: []
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures share of decided opportunities won.
   definition: Opportunities Won / (Opportunities Won + Opportunities Lost).

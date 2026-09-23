@@ -12,6 +12,7 @@ action_code_ref:
 - S-R2.4
 - S-R2.5
 calc_type: amount
+good_is: lower
 business:
   purpose: Captures additional cost for expedited shipments.
   definition: Sum of expedite fees and premium freight charges.

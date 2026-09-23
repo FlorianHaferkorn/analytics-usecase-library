@@ -10,6 +10,7 @@ use_case_ref:
 action_code_ref:
 - S-F3.3
 calc_type: rate
+good_is: lower
 business:
   purpose: Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage
     (units-based demand forecast).

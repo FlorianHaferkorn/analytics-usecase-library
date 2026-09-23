@@ -13,6 +13,7 @@ action_code_ref:
 - S-I1.1
 - S-I1.4
 calc_type: amount
+good_is: lower
 business:
   purpose: Measures the value of inventory exceeding forward demand cover.
   definition: Inventory value exceeding X months of forward demand (typically > 6 months of projected consumption).

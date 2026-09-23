@@ -10,6 +10,7 @@ use_case_ref:
 action_code_ref:
 - C-C3.1
 calc_type: rate
+good_is: higher
 business:
   purpose: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
   definition: (Active Customers at end of period) / (Active Customers at start of period).

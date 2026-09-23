@@ -9,6 +9,7 @@ use_case_ref:
 - FIN-003
 action_code_ref: []
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures the EBITDA-margin gap versus plan.
   definition: EBITDA Margin % (Actual) - EBITDA Margin % (Plan), in percentage points.

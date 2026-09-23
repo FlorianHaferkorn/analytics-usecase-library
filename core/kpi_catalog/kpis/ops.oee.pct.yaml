@@ -20,6 +20,7 @@ action_code_ref:
 - O-O1.3
 - O-O1.4
 calc_type: ratio
+good_is: higher
 business:
   purpose: Measures manufacturing performance combining availability, performance, and quality.
   definition: Availability % * Performance % * Quality %

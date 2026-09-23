@@ -17,6 +17,7 @@ use_case_ref:
 action_code_ref:
 - F-K2.2
 calc_type: rate
+good_is: lower
 business:
   purpose: Shows material cost share of net sales.
   definition: Material Cost Amount / Net Sales Amount.

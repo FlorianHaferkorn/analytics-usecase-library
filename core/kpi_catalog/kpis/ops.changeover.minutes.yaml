@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - O-O1.3
 calc_type: duration
+good_is: lower
 business:
   purpose: Measures time lost to product or format changeovers.
   definition: Average minutes from last good piece of previous run to first good piece of next run, including mechanical

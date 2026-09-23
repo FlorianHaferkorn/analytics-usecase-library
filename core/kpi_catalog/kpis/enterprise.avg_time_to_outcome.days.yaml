@@ -9,6 +9,7 @@ use_case_ref:
 - XD-004
 action_code_ref: []
 calc_type: quantity
+good_is: lower
 business:
   purpose: Measures how quickly ActionReady recommendations convert to confirmed outcomes.
   definition: Average of days_to_outcome across all executed action rows.
