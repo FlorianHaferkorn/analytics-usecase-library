@@ -10,28 +10,10 @@
     "tabOrder": 3005
   },
   "visual": {
-    "visualType": "lineChart",
+    "visualType": "clusteredBarChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
-        "Category": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "CalendarYearMonth"
-                }
-              },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
-            }
-          ]
-        },
         "Y": {
           "projections": [
             {
@@ -47,6 +29,24 @@
               },
               "queryRef": "_Measures.OpEx vs Plan %",
               "nativeQueryRef": "OpEx vs Plan %"
+            }
+          ]
+        },
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "Entity"
+                }
+              },
+              "queryRef": "dim_org.Entity",
+              "nativeQueryRef": "Entity"
             }
           ]
         }

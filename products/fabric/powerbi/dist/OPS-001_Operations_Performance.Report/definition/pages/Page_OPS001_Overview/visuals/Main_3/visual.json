@@ -10,30 +10,26 @@
     "tabOrder": 3006
   },
   "visual": {
-    "visualType": "lineChart",
+    "visualType": "tableEx",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
-        "Category": {
+        "Values": {
           "projections": [
             {
               "field": {
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_date"
+                      "Entity": "dim_asset"
                     }
                   },
-                  "Property": "CalendarYearMonth"
+                  "Property": "AssetName"
                 }
               },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
-            }
-          ]
-        },
-        "Y": {
-          "projections": [
+              "queryRef": "dim_asset.AssetName",
+              "nativeQueryRef": "AssetName"
+            },
             {
               "field": {
                 "Measure": {
@@ -69,6 +65,42 @@
         ],
         "isDefaultSort": true
       }
+    },
+    "objects": {
+      "grid": [
+        {
+          "properties": {
+            "gridVertical": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "gridHorizontal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "gridHorizontalWeight": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
+            },
+            "rowPadding": {
+              "expr": {
+                "Literal": {
+                  "Value": "8L"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "visualContainerObjects": {
       "title": [

@@ -98,3 +98,46 @@ def test_a_tall_enough_slicer_is_left_alone():
     s = _slicer(200, 80)
     assert not enforce_slicer_floor([s], page_bottom=1048)
     assert s["position"]["height"] == 80
+
+
+# --- Visualtypen ueber die governte Rollentabelle (Q-2, 23.09.2026) -------------------
+
+from page_scaffold_generator.layout_calculator import Position  # noqa: E402
+from page_scaffold_generator.visual_builder import VisualBuilder  # noqa: E402
+
+_VB_PATH = REPO / "products" / "fabric" / "powerbi" / "tooling"
+if str(_VB_PATH) not in sys.path:
+    sys.path.insert(0, str(_VB_PATH))
+import validate_bindings  # noqa: E402
+
+
+def _pos():
+    return Position(x=0, y=0, width=400, height=300)
+
+
+@pytest.mark.parametrize("ux, erwartet", [
+    ("variance_bar", "clusteredBarChart"),     # vorher still: lineChart
+    ("exception_table", "tableEx"),            # vorher still: lineChart
+    ("bar_chart_vertical", "clusteredColumnChart"),   # vorher: lineChart
+    ("scatter_plot", "scatterChart"),
+])
+def test_declared_types_render_as_declared(ux, erwartet):
+    v = VisualBuilder().build_by_ux_visual_type(ux, _pos(), name="Main_2", measures=["A", "B"],
+                                                category_entity="dim_org", category_property="OrgName")
+    assert v["visual"]["visualType"] == erwartet
+
+
+def test_exception_table_is_sorted_worst_first():
+    v = VisualBuilder().build_by_ux_visual_type("exception_table", _pos(), name="Main_3", measures=["Downtime %"])
+    assert v["visual"]["query"]["sortDefinition"]["isDefaultSort"] is True
+
+
+def test_an_unknown_type_is_an_error_not_a_line():
+    with pytest.raises(ValueError, match="kein Visual ist besser als ein falsches"):
+        VisualBuilder().build_by_ux_visual_type("gauge_of_doom", _pos(), name="Main_1", measures=["A"])
+
+
+def test_bindings_allow_a_table_only_where_the_bracket_declares_one():
+    assert validate_bindings._registry_table_allowed("OPS-001_Operations_Performance", "Main_3")
+    assert not validate_bindings._registry_table_allowed("OPS-001_Operations_Performance", "Main_1")
+    assert not validate_bindings._registry_table_allowed("COM-003_Customer_Value", "Main_2")
