@@ -59,7 +59,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Customer lifetime revenue is eroding, with the mid-tier segment driving the decline'"
+                  "Value": "'Is customer lifetime value growing or eroding, and where?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Customer lifetime revenue is eroding, with the mid-tier segment driving the decline'"
                 }
               }
             },

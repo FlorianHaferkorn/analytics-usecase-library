@@ -1010,12 +1010,19 @@ class ConfigLoader:
             # brackets keep their current (Header-less) output unchanged.
             intent_rules_version = ux.get("intent_rules_version")
             big_idea_text = p1.get("big_idea") if intent_rules_version == 2 else None
-            # title_policy per-bracket opt-in. Default True preserves every existing report's
-            # statement-title output. A bracket that declares its exhibit statements are NOT
-            # value-verified (title_statements_verified: false) renders honest, question-first
-            # headers with the message as a framed "Expected finding —" subtitle, so a static
-            # generated title can never contradict the data on refresh (see title_policy.py).
-            assert_statement_titles = bool(ux.get("title_statements_verified", True))
+            # title_policy: nur wer seine Aussagen wertgeprueft hat, bekommt sie als Titel
+            # (`title_statements_verified: true`). Bis 23.09.2026 war das der Standard -- 15 von
+            # 20 Brackets behaupteten damit eine Pruefung, die nie stattfand, und 22 von 38
+            # Charttiteln stellten einen Befund fest, der an keinen Daten hing (R6.2). Jetzt
+            # fuehrt die Frage, die Aussage steht als "Expected finding --" darunter.
+            assert_statement_titles = bool(ux.get("title_statements_verified", False))
+            # Kopfzeile nach derselben Regel (R6.2): ungeprueft fuehrt die Frage der Seite,
+            # die Big Idea folgt als Erwartung. design_rules BIG_IDEA_HEADER_ZONE prueft, dass
+            # sie woertlich enthalten bleibt.
+            _frage = (p1.get("decision_question") or "").strip()
+            if big_idea_text and not assert_statement_titles and _frage:
+                from .title_policy import EXPECTED_PREFIX
+                big_idea_text = f"{_frage}  \u00b7  {EXPECTED_PREFIX}{big_idea_text}"
             # Gap A opt-in: split the vs-plan variance into its own sign-coloured KPI card.
             # Default False so only opted-in reports (COM-002 reference) change; the rest keep
             # their single KPI band until deliberately migrated.
@@ -1232,7 +1239,7 @@ class ConfigLoader:
                 "detail_matrix_top_n": detail_matrix_top_n,
                 "detail_matrix_highlight_rule": detail_matrix_highlight_rule,
                 "detail_matrix_topn_field": detail_matrix_topn_field,
-                "assert_statement_titles": bool(ux.get("title_statements_verified", True)),
+                "assert_statement_titles": bool(ux.get("title_statements_verified", False)),
             }
 
         raise ValueError(f"Page {page_name} not supported (expected 'overview' or 'detail')")

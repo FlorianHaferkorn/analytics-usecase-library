@@ -112,7 +112,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'First-contact resolution, handle time, and escalation — the three service-quality signals.'"
+                  "Value": "'Which service-quality signals explain the backlog?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — First-contact resolution, handle time, and escalation — the three service-quality signals.'"
                 }
               }
             },

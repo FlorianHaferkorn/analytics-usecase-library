@@ -177,3 +177,25 @@ def test_an_evidence_table_sorts_by_its_first_measure():
                          ["supply.in_full.pct", "supply.stockout_impact.pct"], {"supply.in_full.pct": "higher"})
     assert sd["sort"][0]["field"]["Measure"]["Property"] == "In-Full %"
     assert sd["sort"][0]["direction"] == "Ascending"
+
+
+# --- Kopfzeile und Charttitel ohne ungepruefte Behauptung (R6.2, 23.09.2026) ------------
+
+import copy  # noqa: E402
+
+from page_scaffold_generator.title_policy import EXPECTED_PREFIX  # noqa: E402
+
+
+def test_an_unverified_header_leads_with_the_question_and_keeps_the_big_idea(loader):
+    b = loader.load_use_case_bracket("COM-003")
+    p1 = b["ux_layout_rules"]["page_1_summary"]
+    kopf = loader.get_page_config("COM-003", "overview")["big_idea_text"]
+    assert kopf.startswith(p1["decision_question"])
+    assert kopf.endswith(EXPECTED_PREFIX + p1["big_idea"])      # woertlich enthalten
+
+
+def test_statement_titles_are_opt_in_not_default(loader):
+    """Bis 23.09.2026 galt `title_statements_verified` als wahr, wenn es fehlte."""
+    b = loader.load_use_case_bracket("COM-003")
+    assert "title_statements_verified" not in b["ux_layout_rules"]
+    assert loader.get_page_config("COM-003", "overview")["assert_statement_titles"] is False

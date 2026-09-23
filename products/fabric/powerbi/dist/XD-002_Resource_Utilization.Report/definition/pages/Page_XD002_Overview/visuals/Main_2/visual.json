@@ -137,7 +137,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'SLA attainment, overtime, and shrinkage — utilization''s three quality trade-offs.'"
+                  "Value": "'What are utilization''s quality trade-offs?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — SLA attainment, overtime, and shrinkage — utilization''s three quality trade-offs.'"
                 }
               }
             },

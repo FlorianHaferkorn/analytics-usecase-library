@@ -59,7 +59,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'On-time delivery is the component dragging OTIF below target, not in-full'"
+                  "Value": "'Which OTIF component is dragging reliability — on-time or in-full?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — On-time delivery is the component dragging OTIF below target, not in-full'"
                 }
               }
             },

@@ -18,7 +18,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Promotion ROI is below threshold — cannibalization and insufficient incremental lift signal that promotional mechanics need redesign before next campaign cycle.'"
+                  "Value": "'Are our promotions generating profitable incremental volume?  ·  Expected finding — Promotion ROI is below threshold — cannibalization and insufficient incremental lift signal that promotional mechanics need redesign before next campaign cycle.'"
                 }
               }
             }

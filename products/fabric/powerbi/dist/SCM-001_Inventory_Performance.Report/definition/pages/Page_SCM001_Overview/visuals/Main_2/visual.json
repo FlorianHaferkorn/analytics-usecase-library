@@ -137,7 +137,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Stockout, OTIF, and obsolescence risk — the three inventory health signals.'"
+                  "Value": "'What are the inventory-health signals telling us?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Stockout, OTIF, and obsolescence risk — the three inventory health signals.'"
                 }
               }
             },

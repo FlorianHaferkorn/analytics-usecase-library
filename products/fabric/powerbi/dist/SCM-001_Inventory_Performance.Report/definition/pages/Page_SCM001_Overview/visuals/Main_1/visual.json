@@ -59,7 +59,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Inventory turnover is falling, tying up working capital in slow-moving stock'"
+                  "Value": "'Is inventory turning efficiently, or tying up working capital?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Inventory turnover is falling, tying up working capital in slow-moving stock'"
                 }
               }
             },

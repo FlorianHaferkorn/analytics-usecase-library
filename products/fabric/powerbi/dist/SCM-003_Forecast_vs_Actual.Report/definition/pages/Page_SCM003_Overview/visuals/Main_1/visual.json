@@ -59,7 +59,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Forecast error is a systematic bias, not random noise'"
+                  "Value": "'Is forecast error random noise or a systematic bias?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Forecast error is a systematic bias, not random noise'"
                 }
               }
             },

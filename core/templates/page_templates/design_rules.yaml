@@ -106,9 +106,12 @@ rules:
     severity: critical
     check: header_text_equals_big_idea
     description: >
-      The Header (Zone 0, above the KPI band) textbox must render
-      page_1_summary.big_idea verbatim -- the conclusion, not the
-      decision_question.
+      The Header (Zone 0, above the KPI band) textbox must contain
+      page_1_summary.big_idea verbatim. Unless the bracket declares its
+      statements value-verified (title_statements_verified: true), the
+      decision_question leads and the Big Idea follows as "Expected
+      finding --" (title_policy; R6.2, decided 2026-09-23): a static header
+      must not assert a finding the next refresh can contradict.
     source: >
       Storytelling_Principles.md §2 "Where the Big Idea Lives" ("The Header
       states the Big Idea itself, verbatim from UseCase_Bracket.yaml").

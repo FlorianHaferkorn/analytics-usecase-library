@@ -59,7 +59,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Case backlog is building unchecked toward SLA breaches next cycle'"
+                  "Value": "'Is the service org keeping pace, or is backlog building toward SLA breaches?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Case backlog is building unchecked toward SLA breaches next cycle'"
                 }
               }
             },

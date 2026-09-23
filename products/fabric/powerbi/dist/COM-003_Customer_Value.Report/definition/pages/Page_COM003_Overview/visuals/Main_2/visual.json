@@ -112,7 +112,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Retention is slipping unevenly across segments, concentrating the CLV risk'"
+                  "Value": "'Is retention holding evenly across segments?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Retention is slipping unevenly across segments, concentrating the CLV risk'"
                 }
               }
             },

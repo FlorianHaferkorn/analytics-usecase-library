@@ -112,7 +112,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Thin promo margins are being eroded by cannibalization, pulling ROI below target'"
+                  "Value": "'Why is promo ROI missing target?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Thin promo margins are being eroded by cannibalization, pulling ROI below target'"
                 }
               }
             },

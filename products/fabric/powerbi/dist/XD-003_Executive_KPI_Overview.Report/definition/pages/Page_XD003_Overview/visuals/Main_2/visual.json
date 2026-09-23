@@ -112,7 +112,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'OTIF is uneven across the portfolio, flagging where delivery risk concentrates'"
+                  "Value": "'Where does enterprise delivery risk concentrate across the portfolio?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — OTIF is uneven across the portfolio, flagging where delivery risk concentrates'"
                 }
               }
             },

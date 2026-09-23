@@ -18,7 +18,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Recover OEE by isolating asset-level availability losses and routing the right maintenance response.'"
+                  "Value": "'Is OEE on target and which losses are biggest this week?  ·  Expected finding — Recover OEE by isolating asset-level availability losses and routing the right maintenance response.'"
                 }
               }
             }

@@ -59,7 +59,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Resource occupancy is running at sustained overload in a few teams'"
+                  "Value": "'Is resource utilization sustainable, or are teams overloaded?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Resource occupancy is running at sustained overload in a few teams'"
                 }
               }
             },

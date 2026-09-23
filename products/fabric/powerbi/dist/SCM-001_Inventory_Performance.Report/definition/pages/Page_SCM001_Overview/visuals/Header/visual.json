@@ -18,7 +18,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Inventory turnover is deteriorating — dead stock in three SKU clusters is tying up working capital and masking the true demand signal for replenishment planning.'"
+                  "Value": "'Is inventory turning efficiently without stockout or obsolescence risk?  ·  Expected finding — Inventory turnover is deteriorating — dead stock in three SKU clusters is tying up working capital and masking the true demand signal for replenishment planning.'"
                 }
               }
             }

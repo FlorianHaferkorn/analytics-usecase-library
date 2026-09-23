@@ -59,7 +59,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Forecast accuracy below target is the root cause behind the stockout-and-obsolescence swing'"
+                  "Value": "'Is poor forecasting the root cause behind the inventory swings?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Forecast accuracy below target is the root cause behind the stockout-and-obsolescence swing'"
                 }
               }
             },

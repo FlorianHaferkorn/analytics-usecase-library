@@ -18,7 +18,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Resource utilization is above sustainable threshold — occupancy peaks in two teams are creating burnout risk and reducing service quality consistency.'"
+                  "Value": "'Is resource utilization sustainable without degrading service quality?  ·  Expected finding — Resource utilization is above sustainable threshold — occupancy peaks in two teams are creating burnout risk and reducing service quality consistency.'"
                 }
               }
             }

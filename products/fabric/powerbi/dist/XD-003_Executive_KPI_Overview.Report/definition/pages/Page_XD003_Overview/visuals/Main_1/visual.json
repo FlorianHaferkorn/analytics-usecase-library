@@ -59,7 +59,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Net sales growth versus last year is softening quarter to quarter'"
+                  "Value": "'Are we on track across the strategic KPIs — and is growth holding?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Net sales growth versus last year is softening quarter to quarter'"
                 }
               }
             },

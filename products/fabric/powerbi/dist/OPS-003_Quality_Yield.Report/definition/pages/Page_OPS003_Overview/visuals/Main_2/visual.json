@@ -146,7 +146,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Rework and complaint rates — the two downstream quality-cost signals.'"
+                  "Value": "'What are the downstream quality-cost signals?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Rework and complaint rates — the two downstream quality-cost signals.'"
                 }
               }
             },

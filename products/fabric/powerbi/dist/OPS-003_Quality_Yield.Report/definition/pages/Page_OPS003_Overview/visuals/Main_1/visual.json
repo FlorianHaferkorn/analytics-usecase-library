@@ -59,7 +59,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Rising scrap is concentrated on a couple of lines, not plant-wide'"
+                  "Value": "'Is quality loss plant-wide or concentrated on a few lines?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Rising scrap is concentrated on a couple of lines, not plant-wide'"
                 }
               }
             },

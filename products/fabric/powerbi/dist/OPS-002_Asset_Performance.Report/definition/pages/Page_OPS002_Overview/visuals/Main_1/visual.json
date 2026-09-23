@@ -59,7 +59,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Asset availability is trending toward the threshold needed to hold the production plan'"
+                  "Value": "'Is asset availability sufficient to hold the production plan?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Asset availability is trending toward the threshold needed to hold the production plan'"
                 }
               }
             },

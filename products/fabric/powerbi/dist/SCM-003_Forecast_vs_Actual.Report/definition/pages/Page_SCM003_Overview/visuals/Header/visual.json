@@ -18,7 +18,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Forecast error is above threshold — systematic bias in the mid-range SKU cluster is driving overstock in two regions and requires model recalibration.'"
+                  "Value": "'Is forecast accuracy sufficient to support production and inventory planning?  ·  Expected finding — Forecast error is above threshold — systematic bias in the mid-range SKU cluster is driving overstock in two regions and requires model recalibration.'"
                 }
               }
             }

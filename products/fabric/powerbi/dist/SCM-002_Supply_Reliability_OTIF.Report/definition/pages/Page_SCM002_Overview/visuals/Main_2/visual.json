@@ -123,7 +123,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'In-full rate and stockout impact — the two OTIF components beyond timeliness.'"
+                  "Value": "'What''s behind the OTIF shortfall beyond timeliness?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — In-full rate and stockout impact — the two OTIF components beyond timeliness.'"
                 }
               }
             },

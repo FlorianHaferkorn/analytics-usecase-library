@@ -112,7 +112,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Revenue at risk is concentrated in a few customer segments'"
+                  "Value": "'Where is revenue-at-risk concentrated?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Revenue at risk is concentrated in a few customer segments'"
                 }
               }
             },
