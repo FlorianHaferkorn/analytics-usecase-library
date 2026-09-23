@@ -52,20 +52,20 @@ def test_o_o1_4_triggers_on_throughput_as_governed_not_on_oee(ergebnisse):
 
 def test_relative_threshold_is_measured_against_the_rolling_baseline(ergebnisse):
     dax = _neu(ergebnisse, "S-I1.1")               # DIO +10 / +25 / +40 %, P90D
-    assert "_v0 > _b0 * 1.1," in dax and "_v0 > _b0 * 1.4," in dax
+    assert "_v0 > _b0 * 1.1 )" in dax and "_v0 > _b0 * 1.4 )" in dax
     assert "'dim_date'[Date] >= _ref - 90" in dax
     assert "> 55" not in dax                       # die frueher geratene Basis
 
 
 def test_absolute_deviation_is_added_to_the_baseline(ergebnisse):
     dax = _neu(ergebnisse, "F-C1.2")               # DSO +3 / +7 / +12 Tage
-    assert "_v0 > _b0 + 3," in dax and "_v0 > _b0 + 12," in dax
+    assert "_v0 > _b0 + 3 )" in dax and "_v0 > _b0 + 12 )" in dax
     assert "> 33" not in dax
 
 
 def test_percent_thresholds_become_fractions_for_the_measure(ergebnisse):
-    assert "_v0 < 0.97," in _neu(ergebnisse, "C-C3.1")       # YAML 97.0 %
-    assert "_v0 > 0.003," in _neu(ergebnisse, "O-Q3.5")      # YAML 0.3 %, Beschwerdequote
+    assert "_v0 < 0.97 )" in _neu(ergebnisse, "C-C3.1")       # YAML 97.0 %
+    assert "_v0 > 0.003 )" in _neu(ergebnisse, "O-Q3.5")      # YAML 0.3 %, Beschwerdequote
 
 
 def test_owner_text_and_annotation_come_from_the_same_field():
@@ -114,7 +114,7 @@ def test_a_changed_threshold_changes_the_expression():
     b_ac = _code(basis="absolute", unit="days")
     b_ac["trigger"]["levels"]["L3"]["condition"]["threshold"]["value"] = 9
     b, _ = atd.dax_fuer(b_ac, {"k": "K"}, {"k": "days_0"})
-    assert a != b and "_v0 > 9," in b
+    assert a != b and "_v0 > 9 )" in b
 
 
 def test_a_kpi_missing_in_the_model_is_an_error_not_a_guess():
@@ -134,4 +134,31 @@ def test_band_and_abs_comparators():
     for L in ("L1", "L2", "L3"):
         ac["trigger"]["levels"][L]["condition"]["comparator"] = "abs_gt"
     dax, _ = atd.dax_fuer(ac, {"k": "K"}, {"k": "percent_1"})
-    assert "ABS ( _v0 ) > 0.03," in dax
+    assert "ABS ( _v0 ) > 0.03 )" in dax
+
+
+# --- Persistenz und Mengen-Guardrail (R6.4b, 23.09.2026) ------------------------------
+
+def test_monthly_persistence_requires_the_prior_month_too(ergebnisse):
+    dax = _neu(ergebnisse, "S-I1.1")             # sku_location_month, min_consecutive_periods 2
+    assert "VAR _idx = MAX ( 'dim_date'[Year] ) * 12 + MAX ( 'dim_date'[MonthNumber] )" in dax
+    assert "= _idx - 1 ) )" in dax and "= _idx - 2" not in dax
+    assert "DATEADD" not in dax                   # neben einem Monats-Slicer leer, siehe Modul
+
+
+def test_volume_guardrail_blocks_below_the_minimum(ergebnisse):
+    assert "[Sales Units] >= 5000" in _neu(ergebnisse, "S-I1.1")
+
+
+def test_weekly_persistence_is_reported_not_faked(ergebnisse):
+    e = next(e for (m, c), e in ergebnisse.items() if c == "S-I1.3" and e.neu)   # sku_location_week
+    assert "_idx" not in e.neu and "persistence" in e.nicht_ausgewertet
+
+
+def test_persistence_changes_the_expression_gegenprobe():
+    ac = _code(basis="absolute", unit="days")
+    ac["trigger"]["evaluation"] = {"grain": "month", "persistence": {"required": True, "min_consecutive_periods": 3}}
+    dax, offen = atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})
+    assert "= _idx - 1 )" in dax and "= _idx - 2 )" in dax and "persistence" not in offen
+    ac["trigger"]["evaluation"]["persistence"]["required"] = False
+    assert "_idx" not in atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})[0]

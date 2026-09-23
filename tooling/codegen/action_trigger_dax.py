@@ -19,8 +19,12 @@ Lesart der Schwelle (Entscheidung Flo, 23.09.2026):
   ersten Tag der Auswahl. Ohne Basis-Daten feuert die Stufe nicht.
 - `unit: '%' | pp | pct` heisst: der Wert steht in Prozent (92.0 = 92 %).
 
-Nicht ausgewertet und deshalb im Bericht benannt: `persistence`, `volume_guardrail`,
-`gating_rules`. Sie stehen im YAML, eine DAX-Karte kann sie nicht ehrlich abbilden.
+Ausgewertet seit 23.09.2026 (R6.4b): `persistence` bei Monats-Granularitaet (die Bedingung
+gilt auch in den n-1 Monaten vor dem letzten ausgewaehlten, per Monatsindex-Shift wie
+'CCC Days PM', mit verschobener Basis) und
+`volume_guardrail`, wo die Guardrail-KPI im Modell existiert. Nicht ausgewertet und im
+Bericht benannt: Persistenz bei Wochen-/Tages-Granularitaet, Guardrails ohne Measure im
+Modell, `gating_rules` (Prosa, keine Bedingung).
 
 CLI:
     python -m tooling.codegen.action_trigger_dax            # Abweichungen melden (rc 1)
@@ -212,19 +216,55 @@ def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
             teile.append(schritte)
         return (" & " + NL + " & ").join(teile)
 
+    ev = ((ac.get("trigger") or {}).get("evaluation")) or {}
+    offen = []
+
+    # Persistenz: die Stufe gilt nur, wenn ihre Bedingung auch in den n-1 Vormonaten galt.
+    # Umsetzbar nur fuer Monats-Granularitaet -- der Report filtert monatlich; eine Woche
+    # um sieben Tage zu verschieben, waehrend ein Monat ausgewaehlt ist, prueft etwas anderes.
+    pers = ev.get("persistence") or {}
+    n = int(pers.get("min_consecutive_periods") or 1) if pers.get("required") else 1
+    g = str(ev.get("grain") or "")
+    monatlich = g == "month" or g.endswith("_month")
+    if n > 1 and not monatlich:
+        offen.append("persistence")
+        n = 1
+
+    def vormonate(cond: dict, kid: str, fmt: str) -> str:
+        if n <= 1:
+            return ""
+        ref = refs[kid]
+        b = f"( {_basis_ausdruck(ref, _tage(fenster))} )" if kid in basis else "BLANK ()"
+        innen = _bedingung(cond, ref, b, fmt)
+        # Monatsindex-Shift statt DATEADD, dasselbe Muster wie 'CCC Days PM' im Finance-Modell:
+        # dim_date ist nicht als Datumstabelle markiert, ein Slicer auf CalendarYearMonth
+        # bliebe neben DATEADD stehen und die Schnittmenge waere leer.
+        return "".join(
+            f" && CALCULATE ( {innen}, REMOVEFILTERS ( 'dim_date' ), FILTER ( ALL ( 'dim_date' ), "
+            f"'dim_date'[Year] * 12 + 'dim_date'[MonthNumber] = _idx - {k} ) )"
+            for k in range(1, n))
+
+    # Mengen-Guardrail: unter der Mindestmenge ist die Abweichung Rauschen, keine Aktion.
+    vg = (ev.get("minimum_data") or {}).get("volume_guardrail") or {}
+    schutz = ""
+    if vg.get("enabled"):
+        gk = vg.get("metric_kpi_id")
+        op = {"gte": ">=", "gt": ">", "lte": "<=", "lt": "<"}.get(vg.get("comparator"))
+        if gk in measure_name and (definiert is None or measure_name[gk] in definiert) and op:
+            schutz = f" && [{measure_name[gk]}] {op} {_zahl(float(vg['value']))}"
+        else:
+            offen.append("volume_guardrail")
+
+    if n > 1:
+        vars_.append("VAR _idx = MAX ( 'dim_date'[Year] ) * 12 + MAX ( 'dim_date'[MonthNumber] )")
     ausdruck = "BLANK ()"
     for L in ("L1", "L2", "L3"):              # von innen nach aussen: L3 wird zuerst geprueft
         cond = levels[L].get("condition") or {}
         kid = cond["metric_kpi_id"]
         fmt = formate.get(kid, "")
         bed = _bedingung(cond, f"_v{idx[kid]}", basis.get(kid, "BLANK ()"), fmt)
+        bed = f"( {bed} ){vormonate(cond, kid, fmt)}{schutz}"
         ausdruck = f"IF ( {bed}, {text(L, kid)}, {ausdruck} )"
-    ev = ((ac.get("trigger") or {}).get("evaluation")) or {}
-    offen = []
-    if (ev.get("persistence") or {}).get("required"):
-        offen.append("persistence")
-    if ((ev.get("minimum_data") or {}).get("volume_guardrail") or {}).get("enabled"):
-        offen.append("volume_guardrail")
     if (ac.get("trigger") or {}).get("gating_rules"):
         offen.append("gating_rules")
     return " ".join(vars_) + " RETURN " + ausdruck, offen

@@ -13,7 +13,7 @@ Dieses Modul erzeugt je Modell:
   `<M> Target` / `<M> vs Target` aus `fact_target` (scenario = target),
   `<M> Plan` / `<M> vs Plan` aus `fact_target` (scenario = plan) -- nur wenn das Modell keine
   governte Plan-KPI fuehrt; sonst wird die governte genommen und nichts erzeugt,
-  `<M> PY` / `<M> vs PY` per Zeitintelligenz (`SAMEPERIODLASTYEAR`), ohne neue Daten.
+  `<M> PY` / `<M> vs PY` per Monatsindex-Shift um zwoelf Monate, ohne neue Daten.
 
 Zielwerte stehen in der Skala der Measure (Prozent als Anteil, 0,85 = 85 %). Aggregation
 ueber Monate: Summe fuer Betraege und Zaehler, sonst Durchschnitt (aus `calc_type`).
@@ -180,8 +180,13 @@ def measures_fuer(v: Vergleich, calc_type: str, fmt: str | None) -> list[str]:
     basis = f"[{v.measure}]"
     if v.art == "vs_py":
         ref, ref_dax, zweck = (f"{v.measure} PY",
-                               f"CALCULATE ( {basis}, SAMEPERIODLASTYEAR ( 'dim_date'[Date] ) )",
-                               f"Vorjahreswert von {v.measure} (comparison: vs_py), per Zeitintelligenz.")
+                               "VAR _idx = SELECTCOLUMNS ( SUMMARIZE ( 'dim_date', 'dim_date'[Year], "
+                               "'dim_date'[MonthNumber] ), \"i\", 'dim_date'[Year] * 12 + 'dim_date'[MonthNumber] - 12 ) "
+                               f"RETURN CALCULATE ( {basis}, REMOVEFILTERS ( 'dim_date' ), FILTER ( ALL ( 'dim_date' ), "
+                               "'dim_date'[Year] * 12 + 'dim_date'[MonthNumber] IN _idx ) )",
+                               f"Vorjahreswert von {v.measure} (comparison: vs_py): die ausgewaehlten Monate um "
+                               "zwoelf verschoben, Monatsindex-Muster wie 'CCC Days PM' (dim_date ist keine "
+                               "markierte Datumstabelle, SAMEPERIODLASTYEAR liefe neben einem Monats-Slicer leer).")
         abw = f"{v.measure} vs PY"
     else:
         szenario = "target" if v.art == "vs_target" else "plan"
