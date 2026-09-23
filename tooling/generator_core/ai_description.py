@@ -70,7 +70,7 @@ def load_measure_dictionary(domains_dir: Path) -> Dict[str, List[dict]]:
     by_name: Dict[str, List[dict]] = {}
     if not domains_dir.is_dir():
         return by_name
-    for md in domains_dir.rglob("Measure_Dictionary_*.md"):
+    for md in sorted(domains_dir.rglob("Measure_Dictionary_*.md")):
         fence = _FENCE_RE.search(md.read_text(encoding="utf-8"))
         if not fence:
             continue
@@ -202,7 +202,12 @@ def build_description(kpi_id: str, repo_root: Path) -> Optional[AIDescription]:
 
     by_name = load_measure_dictionary(repo_root / "core" / "semantic_models" / "domains")
     entries = by_name.get(name, [])
-    measure = next((e for e in entries if e.get("_domain") == domain), entries[0] if entries else {})
+    # Alle domain_tag der Reihe nach, erst dann der erste Eintrag. Bis 23.09.2026 zaehlte nur
+    # der erste Tag; margin.gm.pct fuehrt [Finance, Commercial], Finance hat kein Dictionary-
+    # Eintrag, und der Rueckfall entries[0] hing an der rglob-Reihenfolge. Auf dem Runner kam
+    # CustomerValue (ohne Einheit) zuerst -- derselbe Test war lokal gruen und in der CI rot.
+    measure = next((e for d in domains for e in entries if e.get("_domain") == d),
+                   entries[0] if entries else {})
 
     doc = (measure.get("documentation") or {}) if measure else {}
     notes = doc.get("notes", "")
