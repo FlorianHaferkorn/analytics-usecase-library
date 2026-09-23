@@ -252,6 +252,16 @@ def vendor_upstream_drift(pin: dict, meridian_blueprint: Path) -> list[str]:
             out.append(f"  {name}: Meridian moved on — re-mirror (--write)")
     for name in sorted(set(pinned) - set(MIRRORED_FILES)):
         out.append(f"  {name}: mirrored but no longer declared in MIRRORED_FILES")
+    # Meridian deklariert dieselbe Menge (`aluca_spiegelmenge.json`, Meridian D-545) und prueft
+    # dort, dass jedes gespiegelte Modul nur Gespiegeltes importiert. Die Pruefung traegt nur,
+    # wenn beide Listen gleich sind — sonst prueft Meridian eine Menge, die hier niemand spiegelt.
+    menge = meridian_blueprint / "aluca_spiegelmenge.json"
+    if menge.is_file():
+        deklariert = set(json.loads(menge.read_text(encoding="utf-8")).get("dateien") or [])
+        for name in sorted(set(MIRRORED_FILES) - deklariert):
+            out.append(f"  {name}: hier gespiegelt, in Meridians aluca_spiegelmenge.json nicht deklariert")
+        for name in sorted(deklariert - set(MIRRORED_FILES)):
+            out.append(f"  {name}: in Meridians aluca_spiegelmenge.json deklariert, hier nicht gespiegelt")
     return out
 
 

@@ -1207,6 +1207,30 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
                             "quelle": "MS Learn: fabric/data-warehouse/data-warehousing"}],
          "implikation": "PLAT-TRANSFORM wird zu T-SQL-Pipelines für Gold."},
     ],
+    "DATA-TEXTSPRACHE": [
+        {"wert": "E", "empfohlen": True,
+         "text": "Englisch zuerst (SAP-Kennzeichen E), sonst die nächste vorhandene Sprache",
+         "vorteile": ["SAP liefert Standardtexte mindestens englisch",
+                      "Kein Stammsatz verliert seinen Text, solange irgendeine Sprache gepflegt ist"],
+         "nachteile": ["Deutschsprachige Fachbereiche sehen englische Bezeichnungen, wo beide gepflegt sind"],
+         "limitierungen": [{"text": "Texttabellen wie MAKT und SKAT führen je Sprache eine Zeile; ohne Rangfolge vervielfacht der Verbund jede Kopfzeile",
+                            "quelle": "SAP DDIC (se80.co.uk): Schlüssel MAKT = MANDT, MATNR, SPRAS; SKAT = SPRAS, KTOPL, SAKNR"}],
+         "implikation": "Gold trägt einen Text je Schlüssel; die Spalte SPRAS zeigt, aus welcher Sprache er stammt."},
+        {"wert": "D",
+         "text": "Deutsch zuerst (SAP-Kennzeichen D), sonst die nächste vorhandene Sprache",
+         "vorteile": ["Bezeichnungen in der Sprache, in der die meisten Stammdaten im Mittelstand gepflegt werden"],
+         "nachteile": ["Wo nur englische Standardtexte existieren, erscheinen sie trotzdem — die Sprache mischt sich"],
+         "limitierungen": [{"text": "Die Rangfolge wählt je Schlüssel; eine einheitliche Sprache ist nur so gut wie die Pflege der Texte",
+                            "quelle": "SAP DDIC (se80.co.uk): MAKT/SKAT als Texttabellen mit Sprachschlüssel"}],
+         "implikation": "Gleicher Verbund, andere Rangfolge; ändert keine Tabelle und keinen Schlüssel."},
+        {"wert": "je_sprache",
+         "text": "Alle Sprachen in Gold, Sprache als Teil des Schlüssels",
+         "vorteile": ["Mehrsprachige Berichte über Übersetzungen des Semantikmodells"],
+         "nachteile": ["Ändert das deklarierte Grain; jede Beziehung auf die Dimension braucht die Sprache mit"],
+         "limitierungen": [{"text": "Das Paket deklariert das Grain je Stammsatz, nicht je Sprache",
+                            "quelle": "SAP-Standardpaket: grain \"one row per material (client level)\""}],
+         "implikation": "Die Emission baut das heute nicht; eine solche Antwort ändert das Modell, nicht nur die Rangfolge."},
+    ],
     "DATA-SILVER-LOAD": [
         {"wert": "vollaufbau", "empfohlen": True,
          "text": "Vollaufbau: Silber je Lauf vollständig per CREATE OR REPLACE",
@@ -1788,6 +1812,35 @@ def propose_silver_load(bp: dict) -> dict:
         status="vorbelegt")
 
 
+def propose_text_language(gc: dict) -> dict | None:
+    """In welcher Sprache stehen Stammdatentexte in Gold? (D-542) — nur, wenn es Texttabellen gibt.
+
+    Seit D-542 loest die Emission die Zusammenfuehrung aus Kopf und Texttabelle selbst auf,
+    weil das Standardpaket sie erklaert (`gold.role = text-attribute`). Offen bleibt genau eine
+    Frage: welcher Text zuerst, wenn mehrere Sprachen gepflegt sind. Ohne Texttabelle im
+    Katalog gibt es diese Frage nicht — dann steht sie auch nicht im Bogen.
+    """
+    betroffen = sorted(t["name"] for t in gc.get("tables") or []
+                       if (t.get("zusammenfuehrung") or {}).get("art") == "text_verbund")
+    if not betroffen:
+        return None
+    return _rec(
+        "DATA-TEXTSPRACHE", "Sprache der Stammdatentexte in Gold",
+        "Welcher Text steht in Gold, wenn eine Bezeichnung in mehreren Sprachen gepflegt ist?",
+        (f"**Vorbelegt: `E` zuerst, sonst die nächste vorhandene Sprache.** Betrifft "
+         f"{', '.join(f'`{b}`' for b in betroffen)}. Die Emission verbindet Kopf- und Texttabelle "
+         "mit einem LEFT JOIN und nimmt je Schlüssel **einen** Text: die gewählte Sprache "
+         "zuerst. Kein Stammsatz verschwindet, weil ein Text fehlt, und keiner verdoppelt sich, "
+         "weil zwei gepflegt sind — das deklarierte Grain bleibt."),
+        "SAP-Standardpaket (`gold.role = text-attribute`, Schlüssel der Texttabelle = Kopf + "
+        "Sprache) + Emission D-542",
+        "hoch",
+        ["D — Deutsch zuerst", "je_sprache — alle Sprachen, Sprache im Schlüssel (ändert das Grain)"],
+        "Fachbereich Berichtswesen (verbindlich), Data Engineering Lead (Umsetzung)",
+        "Englische Bezeichnungen dort, wo beide Sprachen gepflegt sind — sichtbar in jedem Bericht",
+        status="vorbelegt")
+
+
 def propose_lakehouse_schemas(bp: dict) -> dict:
     """Schema-enabled lakehouse — the one layout choice that cannot be undone later."""
     external = bool(bp.get("sharing"))
@@ -2336,6 +2389,9 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
     _cluster = propose_clustering_columns(bp, gc)
     if _cluster:
         out.append(_cluster)
+    _sprache = propose_text_language(gc)
+    if _sprache:
+        out.append(_sprache)
     return out
 
 

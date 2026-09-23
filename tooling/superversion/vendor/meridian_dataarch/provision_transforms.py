@@ -403,6 +403,8 @@ def _silber_watermark(governed_catalog: dict | None, quelle: str) -> str | None:
     eintrag = _quelltabelle(governed_catalog, quelle)
     if eintrag.get("watermark"):
         return eintrag["watermark"]
+    if eintrag.get("watermark_keine"):
+        return None                     # kuratiert: keine — die Heuristik fragt nicht nach
     from core.dataarch_engine.blueprint.decision_proposals import _WATERMARK_HINTS, _rank
     wm = sorted(((_rank(c, _WATERMARK_HINTS), c) for c in quellspalten(governed_catalog, quelle)),
                 key=lambda x: (-x[0], x[1]))
@@ -446,6 +448,15 @@ def kuratiere_quelltabellen(governed_catalog: dict, kuratiert: dict) -> dict:
         if angabe.get("watermark"):
             e.update(watermark=str(angabe["watermark"]), watermark_herkunft="kuratiert",
                      watermark_von=wer)
+        elif "watermark" in angabe:
+            # Ausdruecklich **keine** Aenderungsspalte (D-544): die Tabelle hat keine verlaessliche
+            # (EKKO-AEDAT ist laut DDIC ein Anlagedatum). Das ist eine Angabe, keine Luecke —
+            # sie verdraengt auch die Heuristik, die sonst genau diese Falle wieder faende.
+            e.pop("watermark", None)
+            e.update(watermark_herkunft="kuratiert", watermark_von=wer, watermark_keine=True)
+        for feld in ("hinweis", "beleg"):
+            if angabe.get(feld):
+                e[f"watermark_{feld}"] = str(angabe[feld])
         bekannt = set(e.get("columns") or [])
         fremd = sorted({*(angabe.get("key") or []), *([angabe["watermark"]] if angabe.get("watermark")
                                                         else [])} - bekannt)
@@ -535,7 +546,9 @@ def _bronze_to_silver(d: dict, src: str, silver_tbl: str, contract_ref: str, dl:
     if wm:
         kopf += (f"{c}   Watermark : {wm} > (SELECT MAX({wm}) FROM {silver_tbl}); "
                  f"leeres Silber laedt alles.\n"
-                 f"{c}   Herkunft der Watermark{_herkunft_zeile(governed_catalog, src, 'watermark')}\n")
+                 f"{c}   Herkunft der Watermark{_herkunft_zeile(governed_catalog, src, 'watermark')}\n"
+                 + (f"{c}   {_quelltabelle(governed_catalog, src)['watermark_hinweis']}\n"
+                    if _quelltabelle(governed_catalog, src).get("watermark_hinweis") else ""))
         if wahl == "merge" and any(h in wm.lower() for h in _ANLAGE_HINWEISE):
             kopf += (f"{c}   BEFUND: {wm} ist ein Anlagedatum. Eine spaetere Aenderung an einer "
                      f"alten Zeile traegt ein\n"
@@ -548,6 +561,14 @@ def _bronze_to_silver(d: dict, src: str, silver_tbl: str, contract_ref: str, dl:
                      f"mit einem Zeitstempel.\n")
         filter_ = (f"WHERE (SELECT COUNT(*) FROM {silver_tbl}) = 0\n"
                    f"   OR {wm} > (SELECT MAX({wm}) FROM {silver_tbl})\n")
+    elif _quelltabelle(governed_catalog, src).get("watermark_keine"):
+        e = _quelltabelle(governed_catalog, src)
+        kopf += (f"{c}   Kuratiert: '{src}' hat keine verlaessliche Aenderungsspalte"
+                 f"{' (' + e['watermark_von'] + ')' if e.get('watermark_von') else ''}.\n"
+                 + (f"{c}   {e['watermark_hinweis']}\n" if e.get("watermark_hinweis") else "")
+                 + f"{c}   Der Platzhalter unten bleibt — Delta nur ueber Aenderungsbelege oder "
+                 f"einen Delta-Extraktor.\n")
+        filter_ = f"WHERE <watermark_col> > (SELECT MAX(<watermark_col>) FROM {silver_tbl})\n"
     else:
         kopf += (f"{c}   Der Katalog nennt fuer '{src}' keine Aenderungs- oder Anlagespalte; "
                  f"der Platzhalter\n"
@@ -574,7 +595,7 @@ def _bronze_to_silver(d: dict, src: str, silver_tbl: str, contract_ref: str, dl:
                  f"    SELECT *\n"
                  f"    FROM {bronze_tbl}\n"
                  + "".join(f"    {z}\n" for z in filter_.rstrip("\n").split("\n"))
-                 + f") AS s\n"
+                 + ") AS s\n"
                  + on_klausel
                  + f"WHEN MATCHED THEN {set_clause}\n"
                  f"WHEN NOT MATCHED THEN {ins_clause}\n"
@@ -661,7 +682,8 @@ def _projektion(spalte: str, table: dict | None, stack: str) -> str:
 
 
 def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_ref: str,
-                    dl: dict, gold_tbl: str = "", table: dict | None = None) -> str:
+                    dl: dict, gold_tbl: str = "", table: dict | None = None,
+                    kopf_extra: list[str] | None = None) -> str:
     c = dl["comment"]
     gold_tbl = gold_tbl or f"gold_{_ident(name)}"
     # `silver_tbl` darf eine Liste sein: dann entsteht ein Produkt aus mehreren Herkuenften
@@ -675,6 +697,7 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
                f"{c} UNION ALL, nicht UNION — ob zwei gleiche Zeilen aus verschiedenen Quellen\n"
                f"{c} eine Dublette oder zwei Vorgaenge sind, entscheidet der Fachbereich.\n"
                if len(quellen) > 1 else "")
+            + "".join(f"{c} {z}\n" for z in (kopf_extra or []))
             + f"{dl['ctas']} {gold_tbl}{dl['using']}{dl.get('tblprops', '')} AS\n")
 
     # Mit governtem Katalog steht hier die ECHTE Projektion. Bis 31.07.2026 lieferte dieser
@@ -728,9 +751,73 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
 _ZUSAMMENFUEHRUNG_OFFEN = "<ZUSAMMENFUEHRUNG NICHT ENTSCHIEDEN: UNION ODER JOIN>"
 
 
+#: Vorbelegung von `DATA-TEXTSPRACHE` (D-542): SAP-internes Sprachkennzeichen `E`. Die Wahl
+#: bestimmt nur, welcher Text **zuerst** genommen wird — fehlt er in dieser Sprache, greift der
+#: Rueckfall auf die naechste vorhandene. Kein Schluessel verliert dadurch seine Zeile.
+TEXTSPRACHE_VORGABE = "E"
+
+
+def _text_verbund_sql(governed_catalog: dict | None, product: str, herkunft: list[str],
+                      schemas: bool, stack: str, sprache: str) -> tuple[str, list[str]] | None:
+    """Die FROM-Quelle eines Gold-Produkts aus Kopf und Texttabelle(n) — oder ``None``.
+
+    Greift nur, wenn der Katalog die Zusammenfuehrung **erklaert** (`zusammenfuehrung`,
+    `text_verbund`, Herkunft `paket`) und genau diese Herkuenfte der Domaene gehoeren.
+
+    Die Form ist ein LEFT JOIN je Texttabelle mit **einem** Text je Kopfschluessel: die
+    gewaehlte Sprache zuerst, sonst die naechste vorhandene (``row_number() … = 1``). Ein
+    INNER JOIN liesse Stammsaetze ohne Text verschwinden; ein Filter nur auf die Sprache
+    liesse sie ohne Text stehen, obwohl einer da ist; ein Verbund ohne Rangfolge
+    vervielfachte jede Zeile um die Zahl der Sprachen und braeche das deklarierte Grain.
+    """
+    kat_t = _catalog_table(governed_catalog, _ident(product)) or {}
+    zf = kat_t.get("zusammenfuehrung") or {}
+    if zf.get("art") != "text_verbund":
+        return None
+    beteiligt = {zf.get("kopf"), *(x.get("quelle") for x in zf.get("texte") or [])}
+    if beteiligt != set(herkunft):
+        return None
+    je_quelle = kat_t.get("source_columns") or {}
+    z = lambda s: zitiere(s, stack)  # noqa: E731
+    befund = []
+    if not re.fullmatch(r"[A-Za-z0-9]{1,2}", sprache or ""):
+        # `je_sprache` aendert das Grain und ist nicht gebaut; alles andere ist kein SAP-
+        # Sprachkennzeichen. Beides still in ein `CASE WHEN SPRAS = 'je_sprache'` zu schreiben,
+        # ergaebe eine Rangfolge, die nie greift — und nichts wuerde rot.
+        befund = [f"BEFUND: DATA-TEXTSPRACHE = {sprache!r} ist nicht gebaut bzw. kein "
+                  f"Sprachkennzeichen; es gilt die Vorgabe '{TEXTSPRACHE_VORGABE}'."]
+        sprache = TEXTSPRACHE_VORGABE
+    wort = sprache.replace("'", "''")
+    spalten = ["k.*"]
+    joins = []
+    for i, tx in enumerate(zf["texte"], 1):
+        eigen = je_quelle.get(tx["quelle"])
+        if eigen is None:
+            return None
+        spalten += [f"t{i}.{z(c)}" for c in eigen if c not in tx["auf"]]
+        auf = " AND ".join(f"t{i}.{z(c)} = k.{z(c)}" for c in tx["auf"])
+        joins.append(
+            f"    LEFT JOIN (\n"
+            f"        SELECT *, row_number() OVER (PARTITION BY {', '.join(z(c) for c in tx['auf'])}\n"
+            f"            ORDER BY CASE WHEN {z(tx['sprache'])} = '{wort}' THEN 0 ELSE 1 END, "
+            f"{z(tx['sprache'])}) AS _rang\n"
+            f"        FROM {layer_ref('silver', _ident(tx['quelle']), schemas)}\n"
+            f"    ) AS t{i} ON {auf} AND t{i}._rang = 1")
+    sql = (f"(\n    SELECT {', '.join(spalten)}\n"
+           f"    FROM {layer_ref('silver', _ident(zf['kopf']), schemas)} AS k\n"
+           + "\n".join(joins) + "\n)")
+    texte = ", ".join(tx["quelle"] for tx in zf["texte"])
+    kopf = [f"Zusammenfuehrung erklaert im Standardpaket (D-542): Kopf {zf['kopf']}, "
+            f"Text {texte} — Verbund, keine Vereinigung.",
+            f"Ein Text je Schluessel: Sprache '{sprache}' zuerst (DATA-TEXTSPRACHE), sonst die "
+            f"naechste vorhandene. LEFT JOIN — ein Stammsatz ohne Text bleibt stehen."]
+    return sql, kopf + befund
+
+
 def _konforme_quellen(blueprint: dict, governed_catalog: dict | None, product: str,
                       contributing: list[str], domains: list[dict],
-                      schemas: bool) -> list[tuple[str, str, list[str] | None]]:
+                      schemas: bool, stack: str = "fabric",
+                      sprache: str = TEXTSPRACHE_VORGABE) -> list[tuple[str, str, list[str] | None]]:
     """Je speisender Domaene: ``(domaene, FROM-Quelle, eigene Spalten oder None)``.
 
     **Eine** Aufloesung fuer den Vollaufbau und den MERGE eines konformen Ziels (D-536) —
@@ -749,6 +836,22 @@ def _konforme_quellen(blueprint: dict, governed_catalog: dict | None, product: s
     """
     kat_t = _catalog_table(governed_catalog, _ident(product)) or {}
     je_quelle = kat_t.get("source_columns") or {}
+    # Erklaert der Katalog das Ziel als Kopf + Texttabelle (D-542), wird es **einmal** aus
+    # diesen Quellen gebaut — gleich, welche Domaene sie aufnimmt. Wer Kopf und Text laedt, ist
+    # eine Frage der Aufnahme (D-538, D-543); wie sie zusammengehoeren, sagt das Paket. Ohne
+    # diese Regel zerfiele der Verbund, sobald Kopf und Text verschiedene Eigentuemer haben:
+    # je Domaene ein Block, und die UNION stapelte Textzeilen unter Kopfzeilen.
+    zf = kat_t.get("zusammenfuehrung") or {}
+    if zf.get("art") == "text_verbund":
+        beteiligt = [zf.get("kopf"), *(x.get("quelle") for x in zf.get("texte") or [])]
+        verbund = _text_verbund_sql(governed_catalog, product, beteiligt, schemas, stack, sprache)
+        if verbund and set(beteiligt) == set(kat_t.get("sources") or []):
+            # Der Block steht bei der Domaene, die den Kopf aufnimmt; die anderen lesen mit.
+            traeger = next((dom for dom in contributing
+                            if zf.get("kopf") in _sources_for_domain(blueprint, _ident(dom))),
+                           contributing[0])
+            return [(dom, verbund[0], None, verbund[1]) if dom == traeger else (dom, None, None)
+                    for dom in contributing]
     raus: list[tuple[str, str, list[str] | None]] = []
     for dom in contributing:
         d_dom = next((x for x in domains if x.get("name") == dom), {})
@@ -760,6 +863,10 @@ def _konforme_quellen(blueprint: dict, governed_catalog: dict | None, product: s
         elif eigene:
             tabellen = [layer_ref("silver", _ident(q), schemas) for q in eigene]
             formen = {q: je_quelle[q] for q in eigene if q in je_quelle}
+            verbund = _text_verbund_sql(governed_catalog, product, eigene, schemas, stack, sprache)
+            if verbund:
+                raus.append((dom, verbund[0], None, verbund[1]))
+                continue
             von = _von_klausel(tabellen) if _formgleich(formen) else _ZUSAMMENFUEHRUNG_OFFEN
             raus.append((dom, von, None))
         elif _silber_herkunft(governed_catalog, d_dom).get(_ident(product)):
@@ -830,6 +937,8 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple],
         kopf.append(f"{c} TODO(contract:{contract_ref}): kein Katalogeintrag — Projektion ergaenzen.")
     blocks = [f"SELECT\n    {_konforme_projektion(spalten, q[2] if len(q) > 2 else None, table, dl['stack'])}"
               f"\nFROM {q[1]}" for q in sources if q[1]]
+    for q in sources:
+        kopf += [f"{c} {z}" for z in (q[3] if len(q) > 3 else [])]
     mitgelesen = [q[0] for q in sources if not q[1]]
     if mitgelesen:
         kopf.append(f"{c} Ohne eigenen Block: {', '.join(mitgelesen)} — liest die Aufnahme einer "
@@ -904,6 +1013,8 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
         # welchem Produkt gehoert, und ein geratener Zuschnitt waere schlimmer als ein grober.
         herkunft = _herkunft_je_domaene(blueprint, governed_catalog, d, domains)
         silber_wahl = entscheidung_fuer(entscheidungen, "DATA-SILVER-LOAD", d["name"])
+        text_sprache = (entscheidung_fuer(entscheidungen, "DATA-TEXTSPRACHE", d["name"])
+                        or TEXTSPRACHE_VORGABE)
         if bronze_enabled:
             flow.append(f"Ladeform Bronze → Silber: **{silber_wahl or 'vollaufbau'}** "
                         f"(`DATA-SILVER-LOAD`{'' if silber_wahl else ', Vorbelegung'})")
@@ -962,6 +1073,16 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
             # verbunden gehoert -- und die Datei sagt das, statt eine der beiden zu waehlen.
             kat_t = _catalog_table(governed_catalog, _ident(product)) or {}
             je_quelle = kat_t.get("source_columns") or {}
+            verbund = _text_verbund_sql(governed_catalog, product,
+                                        herkunft.get(_ident(product), []), schemas, stack,
+                                        text_sprache) if len(von) > 1 else None
+            if verbund:
+                out[rel] = _silver_to_gold(product, kind, verbund[0], c_ref, dl,
+                                           gold_tbl=gold_tbl, table=kat_t or None,
+                                           kopf_extra=verbund[1])
+                flow.append(f"- Verbund {' + '.join(f'`{q}`' for q in von)} → {gold_tbl} "
+                            f"({kind})  ·  `{rel}`")
+                continue
             if len(von) > 1 and not _formgleich(je_quelle):
                 out[rel] = _ungeklaerte_zusammenfuehrung(product, kind, gold_tbl, dl, von,
                                                          je_quelle, c_ref)
@@ -992,7 +1113,9 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
         # Mehrere Herkuenfte je Domaene bleiben beim Domaenenverweis: ob vereinigt oder
         # verbunden gehoert, ist dieselbe offene Fachfrage wie oben.
         sources = _konforme_quellen(blueprint, governed_catalog, product, contributing,
-                                    domains, schemas)
+                                    domains, schemas, stack,
+                                    entscheidung_fuer(entscheidungen, "DATA-TEXTSPRACHE", "")
+                                    or TEXTSPRACHE_VORGABE)
         out[rel] = _silver_to_gold_conformed(
             product, kind, sources, contract_ref, dl, gold_tbl=gold_tbl,
             table=_catalog_table(governed_catalog, _ident(product)))
@@ -1000,6 +1123,17 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
     if _conformed:
         flow.append("")
 
+    geteilt = {q: e for q, e in ((governed_catalog or {}).get("source_tables") or {}).items()
+               if e.get("eigentuemer_regel")}
+    if geteilt:
+        flow += ["## Gemeinsam genutzte Quelltabellen — eine Aufnahme (D-538, D-543)", "",
+                 "| Quelltabelle | Aufgenommen als | Regel | Mitgelesen von |", "|---|---|---|---|"]
+        for q, e in sorted(geteilt.items()):
+            regel = ("ausdrücklich festgelegt" if e["eigentuemer_regel"] == "vorgabe" else
+                     "⚠️ Paketreihenfolge (Annahme) — festlegen mit `--sap-quell-eigentuemer`")
+            flow.append(f"| `{e.get('sap_tabelle', '')}` | `{q}` | {regel} | "
+                        f"{', '.join(e.get('mitgelesen_von') or []) or '—'} |")
+        flow.append("")
     doppelt = doppelt_geladene_quellen(blueprint)
     if doppelt:
         flow += ["## Befund: dieselbe Quelltabelle wird mehrfach geladen (OQ-42)", "",
@@ -1252,11 +1386,17 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
             eigene = [layer_ref("silver", _ident(q), schemas)
                       for q in herkunft.get(_ident(product), [])]
             kat_t = _catalog_table(governed_catalog, _ident(product)) or {}
+            verbund = _text_verbund_sql(
+                governed_catalog, product, herkunft.get(_ident(product), []), schemas, stack,
+                entscheidung_fuer(entscheidungen, "DATA-TEXTSPRACHE", d["name"])
+                or TEXTSPRACHE_VORGABE) if len(eigene) > 1 else None
             out[rel] = _silver_to_gold_incremental(
-                product, kind, eigene or [silver_tbl], c_ref, dl, gold_tbl, star,
+                product, kind, [verbund[0]] if verbund else (eigene or [silver_tbl]), c_ref, dl,
+                gold_tbl, star,
                 proposal=_incremental_proposal(governed_catalog, product), wahl=wahl,
-                formgleich=_formgleich(kat_t.get("source_columns") or {}),
-                table=kat_t or None)
+                formgleich=True if verbund else _formgleich(kat_t.get("source_columns") or {}),
+                table=kat_t or None,
+                zusatz_kopf="".join(f"{dl['comment']} {z}\n" for z in (verbund[1] if verbund else [])))
 
     konforme_zeilen: list[str] = []
     for product, contributing in sorted(_conformed.items()):
@@ -1273,7 +1413,9 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
         # Dieselbe Herkunftsaufloesung wie im Vollaufbau (`emit_transforms`), damit beide
         # Ladeformen dieselben Tabellen lesen.
         sources = _konforme_quellen(blueprint, governed_catalog, product, contributing,
-                                    domains, schemas)
+                                    domains, schemas, stack,
+                                    entscheidung_fuer(entscheidungen, "DATA-TEXTSPRACHE", "")
+                                    or TEXTSPRACHE_VORGABE)
         c = dl["comment"]
         zusatz = (f"{c} Konformes Ziel, gespeist von {len(contributing)} Domaenen: "
                   f"{', '.join(contributing)}.\n"
