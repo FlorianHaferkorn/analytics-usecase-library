@@ -10,11 +10,11 @@
     "tabOrder": 3005
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "tableEx",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
-        "Category": {
+        "Values": {
           "projections": [
             {
               "field": {
@@ -29,11 +29,7 @@
               },
               "queryRef": "dim_org.OrgName",
               "nativeQueryRef": "OrgName"
-            }
-          ]
-        },
-        "Y": {
-          "projections": [
+            },
             {
               "field": {
                 "Measure": {
@@ -64,56 +60,55 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "In-Full %"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
     "objects": {
-      "categoryAxis": [
+      "grid": [
         {
           "properties": {
-            "innerPadding": {
+            "gridVertical": {
               "expr": {
                 "Literal": {
-                  "Value": "30L"
+                  "Value": "false"
                 }
               }
-            }
-          }
-        }
-      ],
-      "labels": [
-        {
-          "properties": {
-            "show": {
+            },
+            "gridHorizontal": {
               "expr": {
                 "Literal": {
                   "Value": "true"
                 }
               }
             },
-            "labelPosition": {
+            "gridHorizontalWeight": {
               "expr": {
                 "Literal": {
-                  "Value": "'OutsideEnd'"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "layout": [
-        {
-          "properties": {
-            "clusteredGapSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "10L"
+                  "Value": "1L"
                 }
               }
             },
-            "clusteredGapOverlaps": {
+            "rowPadding": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "8L"
                 }
               }
             }

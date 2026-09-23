@@ -325,7 +325,7 @@
     - answer: Inventory turnover is falling, tying up working capital in slow-moving stock
     - so what → Falling turnover ties up working capital that could fund faster-moving SKUs.
 - **[30s Q2]** What are the inventory-health signals telling us?
-    - visual: `horizontal_bar_chart` · `None`
+    - visual: `exception_table` · `None`
     - answer: Stockout, OTIF, and obsolescence risk — the three inventory health signals.
     - so what → Stockouts and obsolescence rising together point to a demand-signal problem, not a capacity one.
 - **[30s Q3]** Is poor forecasting the root cause behind the inventory swings?
@@ -354,7 +354,7 @@
     - answer: On-time delivery is the component dragging OTIF below target, not in-full
     - so what → Because on-time performance is dragging OTIF down, carrier and lane-level fixes matter more than in-full stock buffers.
 - **[30s Q2]** What's behind the OTIF shortfall beyond timeliness?
-    - visual: `horizontal_bar_chart` · `None`
+    - visual: `exception_table` · `None`
     - answer: In-full rate and stockout impact — the two OTIF components beyond timeliness.
     - so what → Ranking penalty cost by supplier focuses the reliability push where the money actually leaks.
 
@@ -378,7 +378,7 @@
     - answer: Forecast error is a systematic bias, not random noise
     - so what → A systematic bias, not random noise, means model recalibration fixes more of the gap than manual overrides.
 - **[30s Q2]** What are the forecast-quality signals, and where do they hurt service?
-    - visual: `horizontal_bar_chart` · `None`
+    - visual: `exception_table` · `None`
     - answer: Forecast bias and downstream service impact — the two forecast-quality signals.
     - so what → Ranking bias by SKU cluster isolates where a model recalibration removes most of the replanning load.
 
@@ -451,7 +451,7 @@
     - answer: Resource occupancy is running at sustained overload in a few teams
     - so what → Sustained overload in those teams threatens the service-quality consistency the SLA depends on.
 - **[30s Q2]** What are utilization's quality trade-offs?
-    - visual: `horizontal_bar_chart` · `None`
+    - visual: `exception_table` · `None`
     - answer: SLA attainment, overtime, and shrinkage — utilization's three quality trade-offs.
     - so what → Overtime absorbing the gap today is not sustainable — it is the early signal of the capacity shortfall to come.
 

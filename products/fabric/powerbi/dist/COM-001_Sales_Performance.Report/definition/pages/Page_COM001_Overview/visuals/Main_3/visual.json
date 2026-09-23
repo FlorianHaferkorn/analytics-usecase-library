@@ -64,7 +64,7 @@
                 "Property": "Net Sales % vs Plan"
               }
             },
-            "direction": "Descending"
+            "direction": "Ascending"
           }
         ],
         "isDefaultSort": true

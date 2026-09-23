@@ -65,3 +65,16 @@ def test_a_kpi_an_action_triggers_on_always_carries_a_direction():
     kat = _katalog()
     ohne = sorted(k for k in _aus_action_codes() if k in kat and "good_is" not in kat[k])
     assert ohne == []
+
+
+def test_benchmark_direction_agrees_with_good_is():
+    """Das Benchmark-Register fuehrt eine eigene `direction` -- eine dritte Quelle derselben Aussage."""
+    doc = yaml.safe_load((REPO / "core/kpi_catalog/benchmarks.yaml").read_text(encoding="utf-8")) or {}
+    bm = doc.get("benchmarks", []) if isinstance(doc, dict) else doc
+    assert len(bm) >= 10                     # sonst prueft der Test ins Leere
+    kurz = {"higher_is_better": "higher", "lower_is_better": "lower"}
+    kat = _katalog()
+    widerspruch = [(b["kpi_id"], b.get("direction"), kat.get(b["kpi_id"], {}).get("good_is"))
+                   for b in bm if b.get("direction") in kurz
+                   and kat.get(b["kpi_id"], {}).get("good_is") != kurz[b["direction"]]]
+    assert widerspruch == []

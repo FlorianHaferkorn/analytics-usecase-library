@@ -199,7 +199,7 @@
           },
           {
             "visual_id": "Main_2",
-            "visual_type": "horizontal_bar_chart",
+            "visual_type": "exception_table",
             "x": 656.0,
             "y": 290.0,
             "width": 608.0,
@@ -214,7 +214,9 @@
               "In-Full %",
               "Stockout Impact %"
             ],
-            "rows": [],
+            "rows": [
+              "dim_org.OrgName"
+            ],
             "columns": [],
             "slicer_field": ""
           },

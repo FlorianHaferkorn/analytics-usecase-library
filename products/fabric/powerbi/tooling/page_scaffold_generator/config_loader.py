@@ -78,6 +78,24 @@ class ConfigLoader:
         self._kpi_id_to_measure_name: Optional[Dict[str, str]] = None
         self._kpi_id_to_calc_type: Optional[Dict[str, str]] = None
 
+    def load_kpi_good_is(self) -> Dict[str, str]:
+        """KPI-ID -> `good_is` (higher/lower/band/zero) aus den Katalogdateien.
+
+        KPIs ohne Richtung fehlen im Ergebnis: der Katalog behauptet dort keine (R6.3).
+        """
+        if "_good_is" in self.__dict__:
+            return self._good_is
+        out: Dict[str, str] = {}
+        for f in sorted((self.repo_root / "core" / "kpi_catalog" / "kpis").glob("*.yaml")):
+            try:
+                d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+            except yaml.YAMLError:
+                continue
+            if isinstance(d, dict) and d.get("kpi_id") and d.get("good_is"):
+                out[str(d["kpi_id"])] = str(d["good_is"])
+        self._good_is = out
+        return out
+
     def load_kpi_id_to_measure_name_map(self) -> Dict[str, str]:
         """
         Load KPI catalog and return mapping kpi_id -> measure name (as in semantic model).
@@ -1018,6 +1036,7 @@ class ConfigLoader:
                 "card_kpi_ids": card_kpi_ids,
                 "card_measure_names": card_measure_names,
                 "kpi_id_to_measure_name": kpi_to_measure,
+                "kpi_good_is": self.load_kpi_good_is(),
                 "intent_rules_version": intent_rules_version,
                 "big_idea_text": big_idea_text,
                 "assert_statement_titles": assert_statement_titles,
@@ -1201,6 +1220,7 @@ class ConfigLoader:
                 "card_kpi_ids": card_kpi_ids,
                 "card_measure_names": card_measure_names,
                 "kpi_id_to_measure_name": kpi_to_measure,
+                "kpi_good_is": self.load_kpi_good_is(),
                 "detail_matrix_columns": detail_matrix_columns,
                 "detail_matrix_measures": detail_matrix_measures,
                 "smart_narrative_text": smart_narrative_text,

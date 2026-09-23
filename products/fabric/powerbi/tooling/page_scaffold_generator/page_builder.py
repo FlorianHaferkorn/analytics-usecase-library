@@ -17,6 +17,43 @@ from products.fabric.powerbi.tooling.schema_registry import PAGE_SCHEMA as _PAGE
 logger = logging.getLogger(__name__)
 
 
+
+_RANG_TYPEN = {"clusteredBarChart", "clusteredColumnChart", "barChart", "columnChart"}
+_EVIDENZ_TYPEN = {"tableEx", "matrix", "pivotTable"}
+
+
+def _sort_rangfolge(vis: Dict[str, Any], measures: List[str], kpi_ids: List[str],
+                    good_is: Dict[str, str], ranking_slot: bool = False) -> Optional[Dict[str, Any]]:
+    """sortDefinition fuer ein Rangdiagramm oder eine Evidenztabelle, sonst None.
+
+    Rangfolge heisst: Balken/Saeulen mit Kategorie oder eine Evidenztabelle. Sortiert wird
+    nach der ersten Kennzahl. `good_is: higher` aufsteigend (schlechtester zuerst), alles
+    andere absteigend -- bei `lower` ist das der schlechteste, ohne Richtung der groesste
+    Wert. Linien und Flaechen sortieren nie nach Wert: ihre Achse ist die Zeit. Die
+    fruehere Main_3-Regel tat genau das (SCM-001 Main_3, Forecast Accuracy ueber Monate).
+    `ranking_slot` bleibt als Parameter fuer Aufrufer, aendert aber nichts am Typ-Test.
+    """
+    v = vis.get("visual") or {}
+    qs = ((v.get("query") or {}).get("queryState")) or {}
+    vt = v.get("visualType")
+    if not measures:
+        return None
+    if vt in _EVIDENZ_TYPEN:
+        pass
+    elif vt in _RANG_TYPEN and (qs.get("Category") or {}).get("projections"):
+        pass
+    else:
+        return None
+    richtung = good_is.get(kpi_ids[0]) if kpi_ids else None
+    return {
+        "sort": [{
+            "field": {"Measure": {"Expression": {"SourceRef": {"Entity": "_Measures"}},
+                                  "Property": measures[0]}},
+            "direction": "Ascending" if richtung == "higher" else "Descending",
+        }],
+        "isDefaultSort": True,
+    }
+
 class PageBuilder:
     """Builds page JSON structures for PBIP format."""
 
@@ -63,6 +100,7 @@ class PageBuilder:
         active_actions_measure_name: Optional[str] = None,
         semantic_delta_cards: bool = False,
         model_columns: Optional[set] = None,
+        kpi_good_is: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """Build page structure from grid blueprint (Master Grid 12×12). All visuals aligned to grid."""
         canvas = grid_blueprint.get("canvas") or {}
@@ -113,6 +151,7 @@ class PageBuilder:
             _main_slot_binding[_slot_name] = {
                 "visual_type": _vt,
                 "measures": _measures,
+                "kpi_ids": [k for k in _kids if isinstance(k, str) and k.strip()],
                 "category_entity": _cat_entity,
                 "category_property": _cat_prop,
                 # BC-NARR-01 (K2): the governed exhibit statement + the question it answers.
@@ -257,26 +296,15 @@ class PageBuilder:
                     statement_title=_hdr, subtitle=_sub,
                     category_entity=_cat_entity, category_property=_cat_prop,
                 )
-                # R2.3: Main_3 is canonically the Ranking slot (Design_Spec_3_30_300.md
-                # §5.3) -- a single-measure ranking visual is meaningless unsorted, so
-                # apply descending sort by its own measure automatically. This is a
-                # structural default (implied by the slot's canonical purpose), not a
-                # per-report Bracket declaration -- component_30s has no sort_by field.
-                if slot_id == "Main_3" and len(_measures) == 1:
-                    vis.setdefault("visual", {}).setdefault("query", {})["sortDefinition"] = {
-                        "sort": [
-                            {
-                                "field": {
-                                    "Measure": {
-                                        "Expression": {"SourceRef": {"Entity": "_Measures"}},
-                                        "Property": _measures[0],
-                                    }
-                                },
-                                "direction": "Descending",
-                            }
-                        ],
-                        "isDefaultSort": True,
-                    }
+                # Rangfolge: schlechtester Wert zuerst (visual_library/bar_ranking.yaml,
+                # `order: worst_first`); ohne governte Richtung nach Groesse (bar_absolute.yaml,
+                # `order: descending`). Bis 23.09.2026 sortierte nur Main_3 und immer absteigend
+                # -- bei "Which assets have the weakest availability?" (OPS-001 Main_2) standen
+                # die staerksten oben, und 13 Balkendiagramme auf Main_2 waren gar nicht sortiert.
+                _rang = _sort_rangfolge(vis, _measures, _binding.get("kpi_ids") or [],
+                                        kpi_good_is or {}, ranking_slot=(slot_id == "Main_3"))
+                if _rang:
+                    vis.setdefault("visual", {}).setdefault("query", {})["sortDefinition"] = _rang
             elif slot_id in _MAIN_SLOTS_ORDER:
                 # Ungebundener Main-Slot -> KEIN Visual. Bis 01.08.2026 stand hier ein
                 # Fallback, der die ersten vier KPI-Card-Measures auf eine Balkenachse
@@ -326,7 +354,7 @@ class PageBuilder:
                     visuals.append(_levels)
                     vis = self.visual_builder.build_kpi_delta_card(
                         _delta_pos, _delta_measure, name="KPI_Delta", label=_delta_measure,
-                        higher_is_better=True,
+                        higher_is_better=(kpi_good_is or {}).get(card_kpi_ids[_var_idx]) != "lower",
                     )
                 else:
                     vis = self.visual_builder.build_kpi_cards_multi(
@@ -490,6 +518,7 @@ class PageBuilder:
         active_actions_measure_name: Optional[str] = None,
         semantic_delta_cards: bool = False,
         model_columns: Optional[set] = None,
+        kpi_good_is: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -552,6 +581,7 @@ class PageBuilder:
                 active_actions_measure_name=active_actions_measure_name,
                 semantic_delta_cards=semantic_delta_cards,
                 model_columns=model_columns,
+                kpi_good_is=kpi_good_is,
             )
 
         # Determine slicer placement (default: top)

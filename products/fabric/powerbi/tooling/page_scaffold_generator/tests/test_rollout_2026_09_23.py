@@ -141,3 +141,39 @@ def test_bindings_allow_a_table_only_where_the_bracket_declares_one():
     assert validate_bindings._registry_table_allowed("OPS-001_Operations_Performance", "Main_3")
     assert not validate_bindings._registry_table_allowed("OPS-001_Operations_Performance", "Main_1")
     assert not validate_bindings._registry_table_allowed("COM-003_Customer_Value", "Main_2")
+
+
+# --- Rangfolge nach governter Richtung (R6.3, 23.09.2026) ------------------------------
+
+from page_scaffold_generator.page_builder import _sort_rangfolge  # noqa: E402
+
+
+def _vis(vt, category=True):
+    qs = {"Y": {"projections": []}}
+    if category:
+        qs["Category"] = {"projections": [{"field": {"Column": {"Property": "OrgName"}}}]}
+    return {"visual": {"visualType": vt, "query": {"queryState": qs}}}
+
+
+@pytest.mark.parametrize("good_is, erwartet", [
+    ("higher", "Ascending"),      # schlechtester (niedrigster) zuerst
+    ("lower", "Descending"),      # schlechtester (hoechster) zuerst
+    (None, "Descending"),         # ohne Richtung: groesster zuerst
+])
+def test_ranking_sorts_worst_first_by_the_governed_direction(good_is, erwartet):
+    richtung = {"k": good_is} if good_is else {}
+    sd = _sort_rangfolge(_vis("clusteredBarChart"), ["Availability %"], ["k"], richtung)
+    assert sd["sort"][0]["direction"] == erwartet
+
+
+def test_a_time_axis_is_never_sorted_by_value():
+    """SCM-001 Main_3 (Forecast Accuracy ueber Monate) wurde bis 23.09.2026 nach Wert sortiert."""
+    assert _sort_rangfolge(_vis("lineChart"), ["Forecast Accuracy %"], ["k"], {"k": "higher"},
+                           ranking_slot=True) is None
+
+
+def test_an_evidence_table_sorts_by_its_first_measure():
+    sd = _sort_rangfolge(_vis("tableEx", category=False), ["In-Full %", "Stockout Impact %"],
+                         ["supply.in_full.pct", "supply.stockout_impact.pct"], {"supply.in_full.pct": "higher"})
+    assert sd["sort"][0]["field"]["Measure"]["Property"] == "In-Full %"
+    assert sd["sort"][0]["direction"] == "Ascending"

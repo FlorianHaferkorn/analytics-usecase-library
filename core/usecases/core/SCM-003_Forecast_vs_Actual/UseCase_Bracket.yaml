@@ -61,7 +61,10 @@ ux_layout_rules:
       kpi_ids:
       - plan.forecast.bias.pct
       - plan.forecast.service_impact.pct
-      visual_type: horizontal_bar_chart
+      # R6.3 (23.09.2026): Kennzahlen gegensaetzlicher Richtung auf einer Balkenachse
+      # (Knock-out mixed-polarity). Je Einheit eine Zeile, je Signal eine Spalte.
+      visual_type: exception_table
+      category_field: dim_org.OrgName
       question: "What are the forecast-quality signals, and where do they hurt service?"
       message: Forecast bias and downstream service impact — the two forecast-quality signals.
       so_what: "Ranking bias by SKU cluster isolates where a model recalibration removes most of the replanning load."
