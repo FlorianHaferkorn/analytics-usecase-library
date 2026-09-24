@@ -85,7 +85,7 @@ def _dialect(stack: str) -> dict:
     """
     if stack == "snowflake":
         return {"ctas": "CREATE OR REPLACE TABLE", "using": "", "comment": "--", "stack": stack,
-                "tblprops": ""}
+                "tblprops": "", "hash64": "HASH", "heute": "CURRENT_DATE()"}
     # fabric + databricks: Spark SQL over Delta
     #
     # `columnMapping` gehoert an JEDE Delta-Tabelle, die aus einer fremden Projektion entsteht.
@@ -97,7 +97,7 @@ def _dialect(stack: str) -> dict:
     # DELTA_INVALID_CHARACTERS_IN_COLUMN_NAMES ab. Die QUELLE hatte die Eigenschaft, das mit
     # `SELECT *` erzeugte Ziel nicht -- der Emitter vererbte sie nicht mit.
     return {"ctas": "CREATE OR REPLACE TABLE", "using": "\nUSING DELTA", "comment": "--",
-            "stack": stack,
+            "stack": stack, "hash64": "xxhash64", "heute": "current_date()",
             "tblprops": ("\nTBLPROPERTIES ('delta.columnMapping.mode' = 'name',"
                          " 'delta.minReaderVersion' = '2', 'delta.minWriterVersion' = '5')")}
 
@@ -475,7 +475,97 @@ def kuratiere_quelltabellen(governed_catalog: dict, kuratiert: dict) -> dict:
         if fremd:
             e["nicht_im_katalog"] = fremd
         vorhanden[quelle] = e
-    return {**governed_catalog, "source_tables": dict(sorted(vorhanden.items()))}
+    tabellen = _kuratiere_gold(governed_catalog, kuratiert.get("gold") or {})
+    return {**governed_catalog, "tables": tabellen,
+            "source_tables": dict(sorted(vorhanden.items()))}
+
+
+#: Die drei Formen, in denen Gold Geschichte haelt, die die Quelle nicht haelt (D-551..D-553).
+GOLD_HISTORIENFORMEN = ("scd", "stichtag", "periode")
+#: Technische Spalten der Typ-2-Historie. Deutsch wie der Rest der Lieferung.
+SCD_SPALTEN = ("gueltig_ab", "gueltig_bis", "ist_aktuell")
+STICHTAG_SPALTE = "stichtag"
+
+
+def _kuratiere_gold(governed_catalog: dict, gold: dict) -> list[dict]:
+    """Der `gold`-Block der kuratierten Metadaten: wie ein Gold-Produkt Geschichte haelt.
+
+    Drei Formen, je Produkt hoechstens eine (D-551..D-553):
+
+    - ``scd``: Dimension mit Typ-2-Historie. ``typ2`` nennt die Attribute, deren Aenderung eine
+      neue Version erzeugt, ``typ1`` die, die ueberschrieben werden; ``befund`` haelt Attribute
+      fest, die weder das eine noch das andere sein sollten (MEINS: eine geaenderte
+      Basismengeneinheit ist ein Datenfehler, keine Geschichte).
+    - ``stichtag``: Faktum, dessen Quelle nur den aktuellen Stand kennt (offene Posten). Jeder
+      Lauf legt den Stand mit dem Tagesdatum ab.
+    - ``periode``: Faktum mit Periodenspalten; nur die juengste geladene und neuere Perioden
+      werden neu geschrieben, aeltere bleiben.
+
+    Geprueft beim Schreiben, wie die Quellangaben: das Produkt muss im Katalog stehen, die Form
+    muss zur Art passen, jede genannte Spalte muss eine Spalte des Produkts sein. Ein Tippfehler
+    hier waere eine Historisierung, die nie greift — und die fehlende Geschichte faellt erst auf,
+    wenn jemand nach ihr fragt.
+    """
+    tabellen = [dict(t) for t in (governed_catalog or {}).get("tables") or []]
+    je_name = {t.get("name"): t for t in tabellen}
+    unbekannt = sorted(set(gold) - set(je_name))
+    if unbekannt:
+        raise ValueError(f"Quellmetadaten (gold): unbekannte Produkte {', '.join(unbekannt)}")
+    for name, angabe in sorted(gold.items()):
+        t = je_name[name]
+        formen = [f for f in GOLD_HISTORIENFORMEN if f in (angabe or {})]
+        if len(formen) != 1:
+            raise ValueError(f"Quellmetadaten (gold) {name}: genau eine von "
+                             f"{', '.join(GOLD_HISTORIENFORMEN)} angeben (gefunden: "
+                             f"{', '.join(formen) or 'keine'})")
+        form, spec = formen[0], dict(angabe[formen[0]] or {})
+        spalten = set(t.get("columns") or [])
+        schluessel = [k for k in (t.get("key") or []) if k in spalten]
+        wer = ", ".join(x for x in (angabe.get("von"), angabe.get("am")) if x)
+        if form == "scd":
+            if t.get("kind") != "dimension":
+                raise ValueError(f"Quellmetadaten (gold) {name}: scd nur fuer Dimensionen")
+            if not schluessel:
+                raise ValueError(f"Quellmetadaten (gold) {name}: scd braucht einen Schluessel "
+                                 f"im Katalog")
+            typ2 = list(spec.get("typ2") or [])
+            typ1 = list(spec.get("typ1") or [])
+            befund = dict(spec.get("befund") or {})
+            fremd = sorted((set(typ2) | set(typ1) | set(befund)) - spalten)
+            if fremd:
+                raise ValueError(f"Quellmetadaten (gold) {name}: Spalten nicht im Produkt: "
+                                 f"{', '.join(fremd)}")
+            if not typ2:
+                raise ValueError(f"Quellmetadaten (gold) {name}: scd ohne typ2-Attribut ist Typ 1")
+            doppelt = sorted(set(typ2) & set(typ1))
+            if doppelt or set(schluessel) & (set(typ2) | set(typ1)):
+                raise ValueError(f"Quellmetadaten (gold) {name}: ein Attribut ist Typ 1 und "
+                                 f"Typ 2 zugleich oder Schluessel: "
+                                 f"{', '.join(doppelt or sorted(set(schluessel) & (set(typ2) | set(typ1))))}")
+            # Nicht genannte Nicht-Schluessel-Spalten sind Typ 1 — ausdruecklich vermerkt, damit
+            # die Vorgabe sichtbar bleibt statt stillschweigend zu gelten.
+            rest = sorted(spalten - set(schluessel) - set(typ2) - set(typ1))
+            t["historisierung"] = {"form": "scd", "typ2": sorted(typ2),
+                                   "typ1": sorted(set(typ1) | set(rest)),
+                                   "typ1_vorgabe": rest, "befund": befund,
+                                   "sk": f"{_ident(name)}_sk", "grund": spec.get("grund", ""),
+                                   "von": wer}
+        elif form == "stichtag":
+            if t.get("kind") != "fact":
+                raise ValueError(f"Quellmetadaten (gold) {name}: stichtag nur fuer Fakten")
+            t["historisierung"] = {"form": "stichtag", "grund": spec.get("grund", ""),
+                                   "von": wer}
+        else:
+            per = list(spec.get("spalten") or [])
+            if len(per) != 2 or set(per) - spalten:
+                raise ValueError(f"Quellmetadaten (gold) {name}: periode braucht genau zwei "
+                                 f"Spalten des Produkts (Jahr, Monat), gefunden: {per}")
+            if not schluessel or not set(per) <= set(schluessel):
+                raise ValueError(f"Quellmetadaten (gold) {name}: die Periodenspalten muessen "
+                                 f"Teil des Schluessels sein")
+            t["historisierung"] = {"form": "periode", "spalten": per,
+                                   "grund": spec.get("grund", ""), "von": wer}
+    return tabellen
 
 
 def _herkunft_zeile(governed_catalog: dict | None, quelle: str, feld: str) -> str:
@@ -731,7 +821,7 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
                 f"Grain: {grain or 'nicht deklariert'}."]
         if schluessel:
             kopf.append(f"{c} Deklarierter Schluessel: {', '.join(schluessel)}.")
-        if kind == "dimension":
+        if kind == "dimension" and ((table or {}).get("historisierung") or {}).get("form") != "scd":
             kopf.append(f"{c} TODO(contract:{contract_ref}): Ersatzschluessel und SCD-Behandlung "
                         f"ergaenzen, z. B. row_number() OVER (ORDER BY "
                         f"{', '.join(schluessel) or '<business_key>'}) AS {name}_sk.")
@@ -742,7 +832,11 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
                         f"technisch, fuer das inkrementelle Laden (D-549).")
             auswahl += (f",\n    {zitiere(wasserzeichen['spalte'], dl['stack'])} AS "
                         f"{WASSERZEICHEN_SPALTE}")
-        return head + "\n".join(kopf) + "\nSELECT\n" + auswahl + f"\nFROM {silver_tbl}\n;\n"
+        quell_sql = "SELECT\n" + auswahl + f"\nFROM {silver_tbl}"
+        kopf_h, ctas, anhang = _historie_anhang(name, gold_tbl, quell_sql, table, dl, wasserzeichen)
+        if ctas != dl["ctas"]:
+            head = head.replace(f"{dl['ctas']} {gold_tbl}", f"{ctas} {gold_tbl}", 1)
+        return (head + "\n".join(kopf + kopf_h) + "\n" + quell_sql + "\n;\n" + anhang)
 
     # honest, runnable-shaped skeleton: the modeled projection lives in a TODO *comment* (with a concrete
     # example), the executable statement stays valid SQL (`SELECT *`) — never an un-parseable placeholder.
@@ -768,6 +862,157 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
             "    *\n"
             f"FROM {silver_tbl}\n;\n")
     return head + body
+
+
+def _einruecken(sql: str, n: int) -> str:
+    return "\n".join((" " * n + z) if z else z for z in sql.splitlines())
+
+
+def _historie_anhang(name: str, gold_tbl: str, quell_sql: str, table: dict | None, dl: dict,
+                     wasserzeichen: dict | None) -> tuple[list[str], str, str]:
+    """Gold als Historienhalter (D-551..D-553): was die Quelle nicht aufhebt, hebt Gold auf.
+
+    Rueckgabe ``(kopfzeilen, ctas, anhang)``: Kommentarzeilen fuer den Dateikopf, das
+    Schluesselwort des Hauptstatements (bei ``periode`` wird aus dem Neuaufbau eine
+    Erstbefuellung) und die Statements, die hinter dem Hauptstatement laufen.
+
+    Alle drei Formen sind **wiederholbar**: ein zweiter Lauf mit derselben Quelle aendert
+    nichts. Das ist die Bedingung dafuer, dass sie im Vollaufbau stehen duerfen — der laeuft
+    bei jeder Ladeform, auch wenn DATA-INC `watermark` sagt (der MERGE unter `incremental/`
+    ist die Alternative fuer die Typ-1-Tabelle, nicht fuer die Historie).
+    Und keine der drei ist ``CREATE OR REPLACE``: Historie, die ein Neuaufbau loescht, ist
+    keine.
+    """
+    hist = (table or {}).get("historisierung") or {}
+    form = hist.get("form")
+    if not form:
+        return [], dl["ctas"], ""
+    c, st = dl["comment"], dl["stack"]
+    z = lambda s: zitiere(s, st)                                        # noqa: E731
+    spalten = sorted(set((table or {}).get("columns") or []))
+    schluessel = [k for k in ((table or {}).get("key") or []) if k in spalten]
+    mit_wz = bool(wasserzeichen and wasserzeichen.get("spalte"))
+    props = f"{dl['using']}{dl.get('tblprops', '')}"
+    neu = "CREATE TABLE IF NOT EXISTS"
+    wer = f", {hist['von']};" if hist.get("von") else ""
+
+    if form == "stichtag":
+        ziel = f"{gold_tbl}_{STICHTAG_SPALTE}"
+        liste = ", ".join(z(s) for s in spalten)
+        kopf = [f"{c}",
+                f"{c} STICHTAGSABLAGE (kuratiert{wer}, D-552): {ziel} haelt je Lauf den Stand",
+                f"{c}   dieser Tabelle mit {STICHTAG_SPALTE} = Tagesdatum. Die Quelle kennt nur den "
+                f"aktuellen Stand —",
+                f"{c}   ein ausgeglichener Posten ist dort weg; hier bleibt er im Stand seines "
+                f"letzten Tages.",
+                *([f"{c}   Grund: {hist['grund']}"] if hist.get("grund") else []),
+                f"{c}   Wiederholbar: ein zweiter Lauf am selben Tag ersetzt den Tagesstand.",
+                f"{c}   Das Semantikmodell liest die Ablage noch nicht (OQ-45) — sie haelt die "
+                f"Geschichte ab Inbetriebnahme fest."]
+        anhang = (f"{neu} {ziel}{props} AS\n"
+                  f"SELECT {dl['heute']} AS {STICHTAG_SPALTE}, {liste}\n"
+                  f"FROM {gold_tbl}\nWHERE 1 = 0\n;\n"
+                  f"DELETE FROM {ziel} WHERE {STICHTAG_SPALTE} = {dl['heute']}\n;\n"
+                  f"INSERT INTO {ziel} ({STICHTAG_SPALTE}, {liste})\n"
+                  f"SELECT {dl['heute']}, {liste}\nFROM {gold_tbl}\n;\n")
+        return kopf, dl["ctas"], anhang
+
+    if form == "periode":
+        jahr, monat = hist["spalten"]
+        per = f"CAST({{p}}{z(jahr)} AS INT) * 100 + CAST({{p}}{z(monat)} AS INT)"
+        ziel_spalten = spalten + ([WASSERZEICHEN_SPALTE] if mit_wz else [])
+        on = " AND ".join(f"t.{z(k)} IS NOT DISTINCT FROM s.{z(k)}" for k in schluessel)
+        kopf = [f"{c}",
+                f"{c} PERIODENLADUNG (kuratiert{wer}, D-553): erster Lauf befuellt die Tabelle "
+                f"ganz; danach",
+                f"{c}   schreibt jeder Lauf nur die juengste geladene Periode ({jahr}/{monat}) und "
+                f"neuere.",
+                f"{c}   Aeltere Perioden bleiben stehen — auch wenn die Quelle sie nicht mehr "
+                f"liefert. Das ist",
+                f"{c}   die Voraussetzung, um die Aufnahme spaeter auf die letzten Perioden zu "
+                f"begrenzen.",
+                *([f"{c}   Grund: {hist['grund']}"] if hist.get("grund") else []),
+                f"{c}   Gilt vor DATA-INC der Domaene: die Angabe ist je Tabelle kuratiert.",
+                f"{c}   Neuaufbau nur bewusst: DROP TABLE {gold_tbl}, dann laufen lassen."]
+        anhang = (f"MERGE INTO {gold_tbl} AS t\nUSING (\n    SELECT q.*\n    FROM (\n"
+                  f"{_einruecken(quell_sql, 8)}\n    ) AS q\n"
+                  f"    WHERE (SELECT COUNT(*) FROM {gold_tbl}) = 0\n"
+                  f"       OR {per.format(p='q.')} >= (SELECT MAX({per.format(p='')}) "
+                  f"FROM {gold_tbl})\n) AS s\n"
+                  f"ON {on}\n"
+                  f"WHEN MATCHED THEN UPDATE SET "
+                  + ", ".join(f"{z(s)} = s.{z(s)}" for s in ziel_spalten if s not in schluessel)
+                  + f"\nWHEN NOT MATCHED THEN INSERT ({', '.join(z(s) for s in ziel_spalten)})\n"
+                  f"    VALUES ({', '.join('s.' + z(s) for s in ziel_spalten)})\n;\n")
+        return kopf, neu, anhang
+
+    # form == "scd": Typ-2-Historie neben der Typ-1-Dimension.
+    ziel = f"{gold_tbl}_historie"
+    typ2, typ1, sk = hist["typ2"], hist["typ1"], hist["sk"]
+    ab, bis, akt = SCD_SPALTEN
+    gab = f"q.{WASSERZEICHEN_SPALTE}" if mit_wz else dl["heute"]
+    quelle = (f"(\n    SELECT q.*, {gab} AS _gueltig_ab\n    FROM (\n"
+              f"{_einruecken(quell_sql, 8)}\n    ) AS q\n)")
+    mk = {k: f"_mk_{_ident(k)}" for k in schluessel}
+    leer = "CASE WHEN false THEN s._gueltig_ab END"
+    anders = lambda a, b: " OR ".join(f"{a}.{z(x)} IS DISTINCT FROM {b}.{z(x)}"  # noqa: E731
+                                      for x in typ2)
+    hash_ = lambda ab_: f"{dl['hash64']}({', '.join('s.' + z(k) for k in schluessel)}, {ab_})"  # noqa: E731
+    erster = mk[schluessel[0]]
+    neu_ab = f"CASE WHEN s.{erster} IS NULL THEN s._gueltig_ab END"
+    kopf = [f"{c}",
+            f"{c} TYP-2-HISTORIE (kuratiert{wer}, D-551): {ziel} fuehrt je Schluessel "
+            f"({', '.join(schluessel)}) Versionen.",
+            f"{c}   Neue Version bei Aenderung von: {', '.join(typ2)}.",
+            f"{c}   Ueberschrieben in allen Versionen (Typ 1): {', '.join(typ1) or '—'}"
+            + (f" (nicht genannt, Vorgabe Typ 1: {', '.join(hist['typ1_vorgabe'])})"
+               if hist.get("typ1_vorgabe") else "") + ".",
+            *[f"{c}   BEFUND {sp}: {txt}" for sp, txt in sorted((hist.get("befund") or {}).items())],
+            *([f"{c}   Grund: {hist['grund']}"] if hist.get("grund") else []),
+            f"{c}   {ab} = "
+            + (f"{wasserzeichen['spalte']} aus {wasserzeichen['quelle']} (Aenderungsdatum der "
+               f"Quelle)" if mit_wz else
+               "Tagesdatum des Laufs (die Quelle hat keine Aenderungsspalte — Fabric stempelt "
+               "den Erkennungstag)") + ";",
+            f"{c}   halboffen [{ab}, {bis}); leer heisst offen. Erste Version eines Schluessels: "
+            f"{ab} leer.",
+            f"{c}   {sk} = {dl['hash64']}(Schluessel, {ab}) — stabil ueber Laeufe, ohne Sequenz.",
+            f"{c}   Voraussetzung: die Aenderungsspalte ist bei jeder Aenderung gesetzt; ein "
+            f"Schluessel, der",
+            f"{c}   aus der Quelle verschwindet, bleibt aktuell (keine Loescherkennung).",
+            f"{c}   Die Typ-1-Tabelle {gold_tbl} bleibt das, was das Semantikmodell liest; "
+            f"Fakten mit {sk}",
+            f"{c}   zum Belegdatum und die Umstellung der Beziehungen sind OQ-45."]
+    auswahl = ",\n    ".join(f"s.{z(s)}" for s in spalten)
+    anhang = (
+        f"{neu} {ziel}{props} AS\n"
+        f"SELECT\n    {hash_(leer)} AS {sk},\n    {auswahl},\n"
+        f"    {leer} AS {ab},\n    {leer} AS {bis},\n    true AS {akt}\n"
+        f"FROM {quelle} AS s\n;\n"
+        f"MERGE INTO {ziel} AS t\nUSING (\n"
+        f"    SELECT {', '.join(f's.{z(k)} AS {mk[k]}' for k in schluessel)}, s.*\n"
+        f"    FROM {_einruecken(quelle, 4).lstrip()} AS s\n"
+        f"    UNION ALL\n"
+        f"    SELECT {', '.join(f'NULL AS {mk[k]}' for k in schluessel)}, s.*\n"
+        f"    FROM {_einruecken(quelle, 4).lstrip()} AS s\n"
+        f"    JOIN {ziel} AS h ON "
+        + " AND ".join(f"h.{z(k)} = s.{z(k)}" for k in schluessel) + f" AND h.{akt}\n"
+        f"    WHERE {anders('h', 's')}\n"
+        f") AS s\n"
+        f"ON " + " AND ".join(f"t.{z(k)} = s.{mk[k]}" for k in schluessel) + f" AND t.{akt}\n"
+        f"WHEN MATCHED AND ({anders('t', 's')}) THEN\n"
+        f"    UPDATE SET {bis} = s._gueltig_ab, {akt} = false\n"
+        f"WHEN NOT MATCHED THEN INSERT ({sk}, {', '.join(z(s) for s in spalten)}, {ab}, {bis}, {akt})\n"
+        f"    VALUES ({hash_(neu_ab)}, {', '.join('s.' + z(s) for s in spalten)}, {neu_ab}, "
+        f"NULL, true)\n;\n")
+    if typ1:
+        anhang += (
+            f"MERGE INTO {ziel} AS t\nUSING {quelle} AS s\n"
+            f"ON " + " AND ".join(f"t.{z(k)} = s.{z(k)}" for k in schluessel)
+            + " AND (" + " OR ".join(f"t.{z(x)} IS DISTINCT FROM s.{z(x)}" for x in typ1) + ")\n"
+            "WHEN MATCHED THEN UPDATE SET "
+            + ", ".join(f"{z(x)} = s.{z(x)}" for x in typ1) + "\n;\n")
+    return kopf, dl["ctas"], anhang
 
 
 #: Der Platzhalter fuer eine offene n:1-Zusammenfuehrung — eine Stelle statt drei getippter.
@@ -990,7 +1235,8 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple],
         kopf.append(f"{c} TODO(contract:{contract_ref}): Vorrang festlegen, falls dieselbe "
                     f"Schluesselzeile je Domaene verschiedene Attribute traegt — UNION "
                     f"entfernt nur EXAKTE Dubletten.")
-    if kind == "dimension" and schluessel:
+    if kind == "dimension" and schluessel and \
+            ((table or {}).get("historisierung") or {}).get("form") != "scd":
         kopf.append(f"{c} TODO(contract:{contract_ref}): Ersatzschluessel und SCD-Behandlung "
                     f"ergaenzen, z. B. row_number() OVER (ORDER BY {', '.join(schluessel)}) "
                     f"AS {_ident(name)}_sk.")
@@ -1011,8 +1257,11 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple],
     if mitgelesen:
         kopf.append(f"{c} Ohne eigenen Block: {', '.join(mitgelesen)} — liest die Aufnahme einer "
                     f"anderen Domaene mit (eine Tabelle, eine Aufnahme).")
-    return (f"{chr(10).join(kopf)}\n{dl['ctas']} {gold_tbl}{dl['using']} AS\n"
-            + "\nUNION\n".join(blocks) + "\n;\n")
+    quell_sql = "\nUNION\n".join(blocks)
+    kopf_h, ctas, anhang = (_historie_anhang(name, gold_tbl, quell_sql, table, dl, wasserzeichen)
+                            if spalten and blocks else ([], dl["ctas"], ""))
+    return (f"{chr(10).join(kopf + kopf_h)}\n{ctas} {gold_tbl}{dl['using']} AS\n"
+            + quell_sql + "\n;\n" + anhang)
 
 
 def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = False,
@@ -1281,6 +1530,12 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
             "        SELECT\n        "
             + _konforme_projektion(spalten, q[2] if len(q) > 2 else None, table,
                                    dl["stack"]).replace("\n    ", "\n        ")
+            # Die Aenderungsspalte muss IM Block stehen, sonst kennt die aeussere Auswahl
+            # `_wasserzeichen` nicht. Gemessen 24.09.2026 (Spark): der erste ausfuehrbare
+            # konforme MERGE (`dim_material`, D-554) brach mit UNRESOLVED_COLUMN ab — solange
+            # er Platzhalter war, fiel das nicht auf.
+            + (f",\n        {zitiere(wasserzeichen['spalte'], dl['stack'])} AS {WASSERZEICHEN_SPALTE}"
+               if wasserzeichen and wasserzeichen.get("spalte") else "")
             + f"\n        FROM {q[1]}" for q in konform if q[1])
             + "\n    )")
         auswahl = ("    SELECT *\n" if not spalten else
@@ -1289,7 +1544,13 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
     set_clause = "UPDATE SET *" if star else f"UPDATE SET <cols>  {c} explicit column mapping (non-Delta dialect)"
     ins_clause = "INSERT *" if star else "INSERT (<cols>) VALUES (<cols>)"
     scd = ""
-    if kind == "dimension":
+    hist = (table or {}).get("historisierung") or {}
+    if kind == "dimension" and hist.get("form") == "scd":
+        scd = (f"{c} SCD: dieser MERGE haelt die Typ-1-Tabelle aktuell. Die Typ-2-Historie "
+               f"({gold_tbl}_historie, D-551)\n"
+               f"{c}   pflegt der Vollaufbau dieses Produkts (`transforms/<domaene>/`) — "
+               f"wiederholbar, ohne Neuaufbau.\n")
+    elif kind == "dimension":
         scd = (f"{c} SCD: this MERGE is Type-1 (overwrite). For Type-2 history, instead close the current\n"
                f"{c}   version (set <valid_to>) and INSERT a new row — TODO(contract:{contract_ref}).\n")
     # Direct Lake ist ein Fabric-Serving-Konzept. Auf anderen Stacks wäre der Hinweis eine
@@ -1351,6 +1612,29 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
             f"leeres Gold laedt alles.\n"
             f"{c}   Loeschungen in der Quelle kommen ohne Loeschkennzeichen nicht an (Katalog-Option).\n"
         )
+        if "OVER (" in quelle:
+            # Gemessen 24.09.2026 (Spark 3.5.1 + Delta 3.2.0, `dim_material`): steht eine
+            # Fensterfunktion in der Quelle (Textverbund, D-542), materialisiert Delta die
+            # MERGE-Quelle — und eine Unterabfrage auf das ZIEL darin bricht mit „Table does
+            # not support reads“. Ohne Fensterfunktion (alle anderen MERGEs) tritt es nicht auf.
+            # Dann steht der Vergleich zeilenweise in der Klausel statt als Filter der Quelle:
+            # die Quelle wird ganz gelesen, geschrieben wird nur, was neuer ist.
+            head += (f"{c}   Vergleich zeilenweise in der WHEN-Klausel: die Quelle enthaelt eine "
+                     f"Fensterfunktion, und Delta\n"
+                     f"{c}   liest das Ziel in einer materialisierten Quelle nicht (gemessen, "
+                     f"D-554).\n")
+            body = (
+                f"MERGE INTO {gold_tbl} AS t\n"
+                f"USING (\n"
+                f"{auswahl}"
+                f"    FROM {quelle}\n"
+                f") AS s\n"
+                f"ON {on}\n"
+                f"WHEN MATCHED AND (t.{wm} IS NULL OR s.{wm} > t.{wm}) THEN {set_clause}\n"
+                f"WHEN NOT MATCHED THEN {ins_clause}\n"
+                f";\n"
+            )
+            return head + body
         body = (
             f"MERGE INTO {gold_tbl} AS t\n"
             f"USING (\n"
@@ -1454,6 +1738,7 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
 
     out: dict[str, str] = {}
     entschieden: list[tuple[str, str]] = []
+    tabellenform: list[tuple[str, str, str]] = []
     wahl_je_domaene: dict[str, str | None] = {}
     for d in domains:
         ddir = _dirslug(d["name"])
@@ -1479,6 +1764,15 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
             kind = kinds.get(product, "fact")
             gold_tbl = layer_ref("gold", _ident(product), schemas)
             rel = f"transforms/incremental/{ddir}/silver_to_gold__{_ident(product)}.sql"
+            form = ((_catalog_table(governed_catalog, _ident(product)) or {})
+                    .get("historisierung") or {}).get("form")
+            if form in ("stichtag", "periode"):
+                # D-552/D-553: die Ladeform steht je Tabelle kuratiert im Vollaufbau
+                # (Tagesstand bzw. Periodenladung) — ein MERGE daneben waere eine zweite
+                # Ladelogik fuer dieselbe Tabelle. Vorher stand hier fuer `fact_ar_open_item`
+                # ein Platzhalter-MERGE auf eine Aenderungsspalte, die BSID nicht hat.
+                tabellenform.append((product, d["name"], form))
+                continue
             if wahl == "vollast":
                 # Kein MERGE-Artefakt: bei Vollast ist der Vollaufbau `transforms/<domaene>/`
                 # die einzige Ladeform. Gemessen 02.09.2026: eine Verweisdatei aus Kommentaren
@@ -1530,8 +1824,29 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
                   f"mit zwei Ladelogiken\n"
                   f"{c} beschrieben, und welche gewinnt, haengt an der Reihenfolge (OQ-40).\n")
         eindeutig = len(werte) == 1
+        # D-554: laden die Domaenen verschieden und liest nur EINE einen eigenen Block (die
+        # anderen lesen deren Aufnahme mit, D-538/D-543), dann gehoert die Ladeform der
+        # aufnehmenden Domaene — sie besitzt die Quelle, also auch deren Aenderungsspalte.
+        # Gemessen 24.09.2026 an `dim_material`: Order-to-Cash nimmt MARA auf (watermark),
+        # Inventory liest mit (vollast); der MERGE blieb Platzhalter, obwohl nur eine Seite
+        # ueberhaupt liest.
+        _blockdomaenen = [q[0] for q in sources if q[1]]
+        kopf_eigner = (_blockdomaenen[0] if not eindeutig and len(_blockdomaenen) == 1
+                       and wahlen.get(_blockdomaenen[0]) else None)
         if eindeutig:
             wahl = next(iter(werte))
+        elif kopf_eigner and wahlen[kopf_eigner] == "vollast":
+            konforme_zeilen.append(f"| `{product}` | {', '.join(contributing)} | `vollast` "
+                                   f"(aufnehmende Domäne {kopf_eigner}, D-554) "
+                                   f"| kein MERGE — Vollaufbau unter `transforms/_conformed/` |")
+            continue
+        elif kopf_eigner:
+            wahl = wahlen[kopf_eigner]
+            je = ", ".join(f"{dom} = {w or 'offen'}" for dom, w in sorted(wahlen.items()))
+            zusatz += (f"{c} ENTSCHIEDEN ueber die Aufnahme (D-554): die Domaenen antworten "
+                       f"verschieden ({je}),\n"
+                       f"{c}   aber nur {kopf_eigner} nimmt die Quelle auf — deren Antwort "
+                       f"'{wahl}' gilt fuer '{product}'.\n")
         else:
             wahl = None
             je = ", ".join(f"{dom} = {w or 'offen'}" for dom, w in sorted(wahlen.items()))
@@ -1553,6 +1868,8 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
             wasserzeichen=gold_wasserzeichen(governed_catalog, product, [])
             if len([q for q in sources if q[1]]) == 1 else None)
         wirkung = (f"ein MERGE, `{wahl}`" if eindeutig and wahl else
+                   f"ein MERGE, `{wahl}` — Antwort der aufnehmenden Domäne {kopf_eigner} (D-554)"
+                   if kopf_eigner else
                    "ein MERGE, Platzhalter" + ("" if eindeutig else " — Antworten widersprechen sich"))
         je_dom = ", ".join(f"{dom}: `{w or 'offen'}`" for dom, w in sorted(wahlen.items()))
         konforme_zeilen.append(f"| `{product}` | {', '.join(contributing)} | {je_dom} | {wirkung} |")
@@ -1613,14 +1930,29 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
         }
         doc += [f"| {name} | `{wahl}` | {wirkung.get(wahl, 'unbekannter Wert, wie nicht entschieden')} |"
                 for name, wahl in entschieden]
+    if tabellenform:
+        _wort = {"stichtag": "Vollersatz der aktuellen Tabelle + Tagesstand in `<ziel>_stichtag` (D-552)",
+                 "periode": "Erstbefüllung, danach jüngste Periode und neuere per MERGE (D-553)"}
+        doc += [
+            "",
+            "## Ladeform je Tabelle kuratiert (kein MERGE in diesem Ordner)",
+            "",
+            "Diese Tabellen laden im Vollaufbau (`transforms/<domäne>/`) in einer eigenen, wiederholbaren Form — "
+            "sie gilt vor der DATA-INC-Antwort der Domäne, weil sie je Tabelle kuratiert ist.",
+            "",
+            "| Ziel | Domäne | Form | Wirkung |",
+            "|---|---|---|---|",
+            *[f"| `{p}` | {dom} | `{f}` | {_wort[f]} |" for p, dom, f in tabellenform],
+        ]
     if konforme_zeilen:
         doc += [
             "",
             "## Konforme Ziele (`_conformed/`, OQ-40)",
             "",
             "Ein Gold-Produkt, das mehrere Domänen speisen, hat **einen** MERGE mit den "
-            "Herkünften aller Domänen — wie der Vollaufbau. Laden die Domänen verschieden, "
-            "bleibt der MERGE Platzhalter, bis für das Ziel eine Ladelogik feststeht.",
+            "Herkünften aller Domänen — wie der Vollaufbau. Laden die Domänen verschieden, gilt "
+            "die Antwort der Domäne, die die Quelle aufnimmt (D-554); lesen mehrere eigene "
+            "Blöcke, bleibt der MERGE Platzhalter, bis für das Ziel eine Ladelogik feststeht.",
             "",
             "| Ziel | Domänen | DATA-INC | Wirkung |",
             "|---|---|---|---|",
@@ -2150,6 +2482,15 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
                 f"-- silver → gold '{product}' as a Materialized Lake View ({kind}).  PREVIEW / SQL-only.",
                 f"-- Contract: {c_ref}  ·  dependency order automatic; the REFRESH runs only when "
                 f"triggered — see mlv/refresh_schedule.json and mlv/_MLV.md (D-529)."]
+            _hform = ((kat or {}).get("historisierung") or {}).get("form")
+            if _hform:
+                # D-551..D-553: eine MLV ist eine Sicht auf den aktuellen Stand; Geschichte, die
+                # die Quelle nicht haelt, kann sie nicht halten. Der Transform-Pfad tut es.
+                preamble.append(
+                    f"-- BEFUND (D-551..D-553): '{product}' haelt kuratiert Geschichte "
+                    f"(`{_hform}`). Eine MLV kann das nicht — sie zeigt den aktuellen Stand. "
+                    f"Die Historie entsteht nur im Transform-Pfad "
+                    f"(`transforms/…/silver_to_gold__{pident}.sql`).")
 
             # --- #1 DQ constraint: active when the key is known, else a valid template comment ----------
             if key_col:
