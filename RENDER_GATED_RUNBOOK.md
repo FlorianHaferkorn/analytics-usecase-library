@@ -9,6 +9,9 @@
 > re-runnable, and every one degrades gracefully (skip / advisory) if a tool is missing.
 >
 > **All commands run from the repo root.**
+>
+> **24.09.2026:** planned successor as a staged, deterministic pipeline that renders in the
+> Power BI Service instead of Desktop: [`UMSETZUNGSPLAN_AGENTIC_LOOP.md`](UMSETZUNGSPLAN_AGENTIC_LOOP.md).
 
 ## 0 · Prerequisites (once per machine)
 
