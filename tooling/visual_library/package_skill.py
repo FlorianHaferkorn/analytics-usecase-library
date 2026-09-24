@@ -17,6 +17,7 @@ from inside the bundle) so a broken export fails loudly.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -85,8 +86,11 @@ def smoke(out_dir: Path) -> str:
     tools = out_dir / "tooling" / "visual_library"
 
     def _run(script, *args):
+        # Das Kind schreibt, was der Aufrufer liest: UTF-8. Unter Windows waere es sonst cp1252,
+        # und print("→") bricht dort mit UnicodeEncodeError ab (24.09.2026).
         return subprocess.run([sys.executable, str(tools / script), *args],
-                              capture_output=True, text=True, timeout=60, encoding="utf-8", errors="replace")
+                              capture_output=True, text=True, timeout=60, encoding="utf-8", errors="replace",
+                              env={**os.environ, "PYTHONIOENCODING": "utf-8"})
 
     r = _run("resolve.py", "purpose", "compare_categories")
     if r.returncode != 0 or "bar_ranking" not in r.stdout:

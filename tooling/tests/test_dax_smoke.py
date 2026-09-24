@@ -112,6 +112,7 @@ def test_budget_stops_querying():
 
 def test_run_without_token_is_not_checkable(monkeypatch):
     env = {k: v for k, v in __import__("os").environ.items() if k != "POWERBI_ACCESS_TOKEN"}
+    env["PYTHONIOENCODING"] = "utf-8"  # der Test liest UTF-8; unter Windows schriebe das Kind cp1252
     r = subprocess.run([sys.executable, "-m", "tooling.codegen.dax_smoke", "run", "--model", "Operations",
                         "--out", "/dev/null"], cwd=REPO, env=env, capture_output=True, text=True, encoding="utf-8")
     assert r.returncode == 2 and "nicht prüfbar" in r.stderr

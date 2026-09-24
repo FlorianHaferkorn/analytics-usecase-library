@@ -301,6 +301,7 @@ import subprocess  # noqa: E402
 
 def _git(repo: Path, *args: str) -> str:
     return subprocess.run(("git", "-c", "user.name=t", "-c", "user.email=t@t", "-c", "init.defaultBranch=main",
+                           "-c", "core.autocrlf=false",
                            *args), cwd=repo, check=True, capture_output=True, text=True,
                           encoding="utf-8").stdout.strip()
 
@@ -310,7 +311,7 @@ def meridian(tmp_path):
     repo = tmp_path / "mer"
     repo.mkdir()
     _git(repo, "init", "-q")
-    (repo / "m.py").write_text("v1\n", encoding="utf-8")
+    (repo / "m.py").write_bytes(b"v1\n")  # Bytes: write_text schriebe unter Windows CRLF
     _git(repo, "add", "m.py")
     _git(repo, "commit", "-q", "-m", "v1")
     return repo
@@ -318,7 +319,7 @@ def meridian(tmp_path):
 
 def _vendored(tmp_path, text):
     f = tmp_path / "vendored_m.py"
-    f.write_text(text, encoding="utf-8")
+    f.write_bytes(text.encode("utf-8"))
     return f
 
 
@@ -327,7 +328,7 @@ def test_blob_id_matches_git(meridian):
 
 
 def test_head_past_the_pin_says_re_mirror(meridian, tmp_path):
-    (meridian / "m.py").write_text("v2\n", encoding="utf-8")
+    (meridian / "m.py").write_bytes(b"v2\n")
     _git(meridian, "commit", "-q", "-am", "v2")
     line = sensor.pin_direction(meridian, "m.py", _vendored(tmp_path, "v1\n"))
     assert "moved on" in line and sensor.NICHT_SCHREIBEN not in line
@@ -335,7 +336,7 @@ def test_head_past_the_pin_says_re_mirror(meridian, tmp_path):
 
 def test_pin_only_on_another_branch_forbids_the_write(meridian, tmp_path):
     _git(meridian, "checkout", "-q", "-b", "wip/feature")
-    (meridian / "m.py").write_text("v2\n", encoding="utf-8")
+    (meridian / "m.py").write_bytes(b"v2\n")
     _git(meridian, "commit", "-q", "-am", "v2 on wip")
     _git(meridian, "checkout", "-q", "main")
     line = sensor.pin_direction(meridian, "m.py", _vendored(tmp_path, "v2\n"))
@@ -350,6 +351,6 @@ def test_pin_unknown_to_the_checkout_forbids_the_write(meridian, tmp_path):
 def test_no_git_history_is_not_read_as_a_direction(tmp_path):
     plain = tmp_path / "plain"
     plain.mkdir()
-    (plain / "m.py").write_text("v2\n", encoding="utf-8")
+    (plain / "m.py").write_bytes(b"v2\n")
     line = sensor.pin_direction(plain, "m.py", _vendored(tmp_path, "v1\n"))
     assert "not measurable" in line and "moved on" not in line

@@ -103,7 +103,12 @@ def test_ein_leeres_verzeichnis_ist_nicht_bestanden(tmp_path, monkeypatch):
 def test_die_cli_meldet_den_dritten_ausgang_auch_als_prozess(tmp_path):
     r = subprocess.run([sys.executable, "tooling/superversion/preis_kanon_mandant.py", "check"],
                        capture_output=True, text=True, encoding="utf-8", cwd=REPO_ROOT,
-                       env={"PATH": "/usr/bin:/bin", "PREIS_KANON_MANDANTEN_DIR": str(tmp_path)})
+                       env={"PATH": "/usr/bin:/bin", "PREIS_KANON_MANDANTEN_DIR": str(tmp_path),
+                            # Windows: ohne SYSTEMROOT startet Python nicht sauber, und das Kind
+                            # schriebe cp1252, wo der Test UTF-8 liest.
+                            "PYTHONIOENCODING": "utf-8",
+                            **{k: v for k, v in __import__("os").environ.items()
+                               if k.upper() == "SYSTEMROOT"}})
     assert r.returncode == pkm.EXIT_UNGEPRUEFT
     assert "KONNTE NICHT PRUEFEN" in r.stdout
 
