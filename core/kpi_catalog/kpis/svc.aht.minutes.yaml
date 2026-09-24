@@ -16,6 +16,7 @@ use_case_ref:
 action_code_ref:
 - X-S1.4
 calc_type: ratio
+good_is: lower
 business:
   purpose: Measures average time to handle a contact.
   definition: Total handle time divided by number of cases/contacts.

@@ -21,6 +21,7 @@ action_code_ref:
 - X-S1.2
 - X-S1.4
 calc_type: ratio
+good_is: higher
 business:
   purpose: Measures how many cases meet the committed SLA.
   definition: Cases with SLA Met Flag = 1 divided by total cases in period.

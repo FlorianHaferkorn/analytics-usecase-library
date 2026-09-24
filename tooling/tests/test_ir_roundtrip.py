@@ -185,7 +185,7 @@ class TestPBIPAdapterRender:
 
     def test_measures_tmdl_is_write_only_if_missing(self):
         """_Measures.tmdl is OWNED by the measure generator (measures_from_ir.py, real DAX)
-        + upgrade_measures.py enrichment; the report compile emits only KPI-name stubs.
+        + action_trigger_dax.py enrichment; the report compile emits only KPI-name stubs.
         So whenever it is emitted it MUST be in no_overwrite_paths — else re-compiling a
         real dist clobbers the DAX/enrichment layer (the measure-layer regress,
         KNOWN_ERRORS 2026-07-13)."""

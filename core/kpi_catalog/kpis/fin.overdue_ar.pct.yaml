@@ -17,6 +17,7 @@ use_case_ref:
 action_code_ref:
 - F-C1.2
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures the proportion of accounts receivable past due date.
   definition: Overdue AR (past due date) / Total AR × 100. Customer-level overdue analysis enables targeted collection.

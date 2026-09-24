@@ -1155,11 +1155,10 @@ class VisualBuilder:
                 category_property=category_property or "OrgName",
             )
         if normalized_type == "bar_chart_vertical":
-            return self.build_line_chart(
-                position, measures=measures, name=name, title=title,
-                category_entity=category_entity or "dim_org",
-                category_property=category_property or "OrgName",
-            )
+            # War bis 23.09.2026 build_line_chart -- ein Saeulendiagramm als Linie.
+            from tooling.superversion.targets.pbir import plan_for
+            return self.build_from_plan(plan_for("column_chart"), position, measures=measures, name=name,
+                                        category_entity=category_entity, category_property=category_property)
         if normalized_type == "waterfall":
             # R2.3-Fund follow-up: category_entity/category_property were silently
             # dropped here (never forwarded to build_waterfall), so a Bracket's
@@ -1176,5 +1175,41 @@ class VisualBuilder:
             return self.build_stacked_bar(position, measures=measures, name=name)
         if normalized_type == "funnel":
             return self.build_funnel(position, name=name)
-        logger.warning("Unknown ux_visual_type %r; defaulting to lineChart (trend)", ux_visual_type)
-        return self.build_line_chart(position, measures=measures, name=name, title=title)
+        # Alles Uebrige ueber die governte Rollentabelle (tooling/superversion/targets/pbir.py).
+        # Bis 23.09.2026 stand hier ein Rueckfall auf lineChart mit einer Log-Warnung. Gemessen
+        # beim Ausrollen: FIN-002 Main_2 (`variance_bar`, eine Abweichungsbruecke) und OPS-001
+        # Main_3 (`exception_table`, die Ausnahmeliste) erschienen als Liniendiagramm, und kein
+        # Tor meldete es. Ein unbekannter Typ ist jetzt ein Fehler, kein anderes Visual.
+        from tooling.superversion.targets.pbir import plan_for
+        plan = plan_for(ux_visual_type) or plan_for(normalized_type)
+        if plan is None or plan.visual_type == "cardVisual":
+            raise ValueError(
+                f"ux_visual_type {ux_visual_type!r}: weder hier noch in der governten "
+                f"Rollentabelle (pbir._PLANS) bekannt -- kein Visual ist besser als ein falsches.")
+        return self.build_from_plan(plan, position, measures=measures, name=name,
+                                    category_entity=category_entity,
+                                    category_property=category_property)
+
+    def build_from_plan(self, plan, position: Position, measures: Optional[list] = None,
+                        name: Optional[str] = None, category_entity: Optional[str] = None,
+                        category_property: Optional[str] = None) -> Dict[str, Any]:
+        """Ein Visual nach der governten Rollentabelle: Typ, Messrolle(n), Gruppierrolle.
+
+        Tabellen (`tableEx`) laufen ueber build_table, damit sie eine Standardsortierung
+        tragen -- eine Evidenztabelle ohne Sortierung ist ein Scorecard-Knock-out.
+        """
+        measures = measures or []
+        cat = (category_entity or "dim_org", category_property or "OrgName")
+        if plan.visual_type == "tableEx":
+            return self.build_table(
+                position, columns=[cat], measures=measures, name=name,
+                sort_by={"measure": measures[0], "direction": "descending"} if measures else None)
+        visual = self._build_base_visual(plan.visual_type, position, name=name)
+        primaer = measures if plan.primary_max is None else measures[:plan.primary_max]
+        state: Dict[str, Any] = {plan.primary_role: {"projections": [self._measure_projection(m) for m in primaer]}}
+        if plan.secondary_role and len(measures) > len(primaer):
+            state[plan.secondary_role] = {"projections": [self._measure_projection(measures[len(primaer)])]}
+        if plan.dim_roles:
+            state[plan.dim_roles[0]] = {"projections": [self._column_projection(*cat)]}
+        visual["visual"]["query"] = {"queryState": state}
+        return visual

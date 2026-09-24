@@ -10,6 +10,7 @@ use_case_ref:
 - SCM-004
 action_code_ref: []
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures share of spend routed through negotiated contracts (inverse of maverick buying).
   definition: On-Contract Spend / Total Addressable Spend.

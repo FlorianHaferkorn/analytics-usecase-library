@@ -299,10 +299,52 @@ def vendor_upstream_drift(pin: dict, meridian_root: Path) -> list[str]:
             out.append(f"  {name}: declared as mirrored but not mirrored yet — --write")
             continue
         if _sha256(src) != pinned[name]:
-            out.append(f"  {name}: Meridian moved on — re-mirror (--write)")
+            out.append(f"  {name}: " + pin_direction(meridian_root, quelle,
+                                                     REPO_ROOT / _VENDOR_REL / name))
     for name in sorted(set(pinned) - set(ziele)):
         out.append(f"  {name}: mirrored but no longer declared in MIRRORED_FILES")
     return out
+
+
+NICHT_SCHREIBEN = "do NOT --write"
+
+
+def _git_blob_id(path: Path) -> str:
+    """The id git gives this content (``git hash-object``), computed without calling git."""
+    data = path.read_bytes()
+    return hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+
+
+def pin_direction(meridian_root: Path, quelle: str, vendored: Path) -> str:
+    """Which side moved, measured in Meridian's history instead of assumed.
+
+    "Meridian differs from the PIN" has two opposite causes, and the old advice fitted only one.
+    Measured 24.09.2026: ALUCA mirrored ``governance_strategy.py`` with
+    ``workspace_layer_labels`` on 09.09. from a Meridian working tree whose change later lived only
+    on ``wip/2026-09-03-dataarch-delivery``, never on ``main``. The sensor said "Meridian moved on —
+    re-mirror (--write)"; the write would have deleted the feature here. A STALE signal says the
+    two sides differ, never which one is right (CLAUDE.md, 15.08.2026).
+
+    Reads local git only (no network). The pinned blob in HEAD's history of that file means HEAD
+    moved past it; only on other refs means HEAD is behind the mirror; nowhere means this
+    checkout never saw it.
+    """
+    if not vendored.is_file():
+        return "Meridian differs from the PIN; the mirrored copy is missing — --write"
+    blob = _git_blob_id(vendored)
+    auf_head = _git(meridian_root, "log", "HEAD", "--format=%h", f"--find-object={blob}", "--", quelle)
+    if auf_head is None:
+        return "Meridian differs from the PIN; direction not measurable (no git history) — --write only after reading the diff"
+    if auf_head:
+        return "Meridian moved on — re-mirror (--write)"
+    sonst = _git(meridian_root, "log", "--all", "--reverse", "--format=%h", f"--find-object={blob}", "--", quelle)
+    if sonst:
+        refs = _git(meridian_root, "branch", "-a", "--format=%(refname:short)", "--contains", sonst.split()[0]) or ""
+        wo = ", ".join(sorted(r for r in refs.split() if r and not r.endswith("/HEAD"))[:3]) or "an unnamed ref"
+        return (f"Meridian HEAD is BEHIND the mirror — the pinned state exists only on {wo} "
+                f"({NICHT_SCHREIBEN}: it would drop that change here; land it in Meridian first)")
+    return (f"the pinned state is unknown to this Meridian checkout (uncommitted there, or never "
+            f"fetched) — {NICHT_SCHREIBEN} before `--fetch` and a second measurement")
 
 
 def write_vendor(meridian_root: Path, pin: dict | None = None) -> dict:
@@ -539,6 +581,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[check-dataarch-mirror] DIFFERENCE vs Meridian ({mer}) — do NOT re-mirror yet, "
               f"the counterpart checkout is of uncertain freshness (see above); refresh it and "
               f"measure again:")
+    elif any(NICHT_SCHREIBEN in line for line in drift):
+        print(f"[check-dataarch-mirror] DRIFT vs Meridian ({mer}) — do NOT re-mirror blindly, "
+              f"at least one side is behind the mirror (see below):")
     else:
         print(f"[check-dataarch-mirror] DRIFT vs Meridian ({mer}) — re-mirror:")
     for line in drift:

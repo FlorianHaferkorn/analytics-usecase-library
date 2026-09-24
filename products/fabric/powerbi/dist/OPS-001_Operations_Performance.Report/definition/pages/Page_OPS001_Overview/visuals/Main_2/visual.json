@@ -3,14 +3,14 @@
   "name": "Main_2",
   "position": {
     "x": 656,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3003
+    "tabOrder": 3005
   },
   "visual": {
-    "visualType": "lineChart",
+    "visualType": "clusteredBarChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -21,14 +21,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_date"
+                      "Entity": "dim_asset"
                     }
                   },
-                  "Property": "CalendarYearMonth"
+                  "Property": "AssetName"
                 }
               },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
+              "queryRef": "dim_asset.AssetName",
+              "nativeQueryRef": "AssetName"
             }
           ]
         },
@@ -42,56 +42,32 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "OEE %"
-                }
-              },
-              "queryRef": "_Measures.OEE %",
-              "nativeQueryRef": "OEE %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
                   "Property": "Availability %"
                 }
               },
               "queryRef": "_Measures.Availability %",
               "nativeQueryRef": "Availability %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Performance %"
-                }
-              },
-              "queryRef": "_Measures.Performance %",
-              "nativeQueryRef": "Performance %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Quality %"
-                }
-              },
-              "queryRef": "_Measures.Quality %",
-              "nativeQueryRef": "Quality %"
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "Availability %"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
     "objects": {
@@ -102,6 +78,68 @@
               "expr": {
                 "Literal": {
                   "Value": "30L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "labelPosition": {
+              "expr": {
+                "Literal": {
+                  "Value": "'OutsideEnd'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Which assets have the weakest availability?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Asset availability ranking concentrates attention on the lines with the greatest recoverable OEE loss.'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }

@@ -18,6 +18,7 @@ action_code_ref:
 - S-R2.1
 - S-R2.3
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures share of deliveries with complete quantities.
   definition: In-Full Deliveries / Total Deliveries.

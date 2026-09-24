@@ -3,9 +3,9 @@
   "name": "KPI_Cards",
   "position": {
     "x": 32,
-    "y": 32,
+    "y": 104,
     "z": 10000,
-    "height": 156,
+    "height": 144,
     "width": 1856,
     "tabOrder": 3000
   },
@@ -20,6 +20,19 @@
               "expr": {
                 "Literal": {
                   "Value": "4L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "calloutValue": [
+        {
+          "properties": {
+            "displayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "0L"
                 }
               }
             }

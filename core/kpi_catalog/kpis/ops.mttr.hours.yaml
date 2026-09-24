@@ -18,6 +18,7 @@ action_code_ref:
 - O-A2.3
 - O-A2.5
 calc_type: amount
+good_is: lower
 business:
   purpose: Measures average repair time after failures.
   definition: Total Repair Time Hours / Number of Failures.

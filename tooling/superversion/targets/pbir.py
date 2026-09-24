@@ -153,6 +153,16 @@ _PLANS: dict[str, _TypePlan] = {
 _FALLBACK = _TypePlan("cardVisual", "Data", "Measure", None, ())
 
 
+def plan_for(visual_type: str) -> "_TypePlan | None":
+    """Die governte Rollen-Zuordnung fuer einen ALUCA-visual_type, oder None.
+
+    Oeffentlich, damit der Scaffold-Generator (products/fabric/powerbi/tooling/
+    page_scaffold_generator) dieselbe Tabelle liest, statt eine zweite zu fuehren
+    (23.09.2026: dort wurden `variance_bar` und `exception_table` still zu Linien).
+    """
+    return _PLANS.get((visual_type or "").strip().lower())
+
+
 def _measure_field(entity: str, prop: str) -> dict:
     return {
         "field": {"Measure": {"Expression": {"SourceRef": {"Entity": entity}}, "Property": prop}},

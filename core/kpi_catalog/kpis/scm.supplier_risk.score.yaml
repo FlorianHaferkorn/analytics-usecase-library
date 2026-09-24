@@ -15,6 +15,7 @@ use_case_ref:
 - FIN-001
 action_code_ref: []
 calc_type: ratio
+good_is: lower
 business:
   purpose: Rates suppliers based on risk indicators.
   definition: Composite risk score derived from supplier risk factors.

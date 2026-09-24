@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - S-R2.4
 calc_type: amount
+good_is: lower
 business:
   purpose: Captures penalties for service level breaches.
   definition: Sum of penalty charges incurred in the period.

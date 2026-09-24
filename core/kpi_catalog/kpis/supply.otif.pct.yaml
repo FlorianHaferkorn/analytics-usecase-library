@@ -28,6 +28,7 @@ action_code_ref:
 - S-R2.5
 - F-K2.4
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures share of orders delivered on time and in full.
   definition: OTIF Orders / Total Orders.

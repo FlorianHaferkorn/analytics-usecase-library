@@ -12,6 +12,7 @@ action_code_ref:
 - O-Q3.4
 - O-Q3.5
 calc_type: amount
+good_is: lower
 business:
   purpose: Captures financial impact of scrap, rework, and warranty/complaints.
   definition: Sum of cost impacts for quality failures in period.

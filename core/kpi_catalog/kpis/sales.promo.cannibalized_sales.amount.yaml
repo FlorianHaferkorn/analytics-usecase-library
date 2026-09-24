@@ -9,6 +9,7 @@ use_case_ref:
 - COM-004
 action_code_ref: []
 calc_type: amount
+good_is: lower
 business:
   purpose: Sales lost on non-promoted items versus baseline (cannibalization in value).
   definition: 'Proxy: 15% of Baseline Sales Amount, pending real non-promo-segment actuals (target formula: MAX(0,

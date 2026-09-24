@@ -3,9 +3,9 @@
   "name": "Slicer_Product",
   "position": {
     "x": 1280,
-    "y": 204,
+    "y": 264,
     "z": 5000,
-    "height": 80,
+    "height": 76,
     "width": 608,
     "tabOrder": 3003
   },

@@ -3,35 +3,17 @@
   "name": "Main_2",
   "position": {
     "x": 656,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3003
+    "tabOrder": 3005
   },
   "visual": {
     "visualType": "clusteredBarChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
-        "Category": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "CalendarYearMonth"
-                }
-              },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
-            }
-          ]
-        },
         "Y": {
           "projections": [
             {
@@ -47,47 +29,82 @@
               },
               "queryRef": "_Measures.OpEx vs Plan %",
               "nativeQueryRef": "OpEx vs Plan %"
-            },
+            }
+          ]
+        },
+        "Category": {
+          "projections": [
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "Material Cost %"
+                  "Property": "Entity"
                 }
               },
-              "queryRef": "_Measures.Material Cost %",
-              "nativeQueryRef": "Material Cost %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Labor Productivity %"
-                }
-              },
-              "queryRef": "_Measures.Labor Productivity %",
-              "nativeQueryRef": "Labor Productivity %"
+              "queryRef": "dim_org.Entity",
+              "nativeQueryRef": "Entity"
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "OpEx vs Plan %"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
-    "objects": {
-      "categoryAxis": [
+    "visualContainerObjects": {
+      "title": [
         {
           "properties": {
-            "innerPadding": {
+            "text": {
               "expr": {
                 "Literal": {
-                  "Value": "30L"
+                  "Value": "'Which entities have the largest unfavorable OpEx variance?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — OpEx variance ranking isolates where controllable cost pressure is concentrated.'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }

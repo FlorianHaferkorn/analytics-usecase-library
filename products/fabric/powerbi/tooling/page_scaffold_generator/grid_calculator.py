@@ -19,6 +19,64 @@ class GridPosition:
     z: int = 10000
 
 
+# Zone 0: der Big-Idea-Header ueber dem Raster (Layout_Grid_System.md, Zeile 0).
+# Hoehe nach R1.1-Praezedenz auf dem Produktionsraster. Beide Positionierer -- der
+# Seitenbauer beim Erzeugen und apply_page_layout beim Nachziehen -- lesen diese eine
+# Stelle; zwei Kopien derselben Regel haetten sich beim naechsten Lauf gegenseitig
+# ueberschrieben, und genau das war am 23.09.2026 der Fall.
+ZONE0_HEADER_HEIGHT = 56
+
+
+def zone0_offset(has_header: bool, gutter: float) -> int:
+    """Wie weit das Raster unter den Header rutscht: Headerhoehe plus ein Gutter."""
+    return int(ZONE0_HEADER_HEIGHT + gutter) if has_header else 0
+
+
+# Mindesthoehe eines Dropdown-Slicers, laut offiziellem Validator (powerbi-report-author
+# 0.1.1, PBIR_SLICER_HEIGHT_BELOW_FLOOR): Kopf 28 + Auswahl 32 + Innenabstand 8/8. Eine
+# Rasterzeile ergibt auf dem Produktionsraster 70 px, unter einem Big-Idea-Header 64 --
+# darunter schneidet Power BI Kopf oder Auswahl ab.
+SLICER_DROPDOWN_FLOOR = 76
+
+
+def _is_dropdown_slicer(visual: dict) -> bool:
+    v = visual.get("visual") or {}
+    if v.get("visualType") != "slicer":
+        return False
+    return "Dropdown" in str((v.get("objects") or {}).get("data", ""))
+
+
+def enforce_slicer_floor(visuals: list, page_bottom: float) -> bool:
+    """Hebt Dropdown-Slicer auf SLICER_DROPDOWN_FLOOR und schiebt, was darunter liegt, nach.
+
+    Je Slicer-Zeile waechst die Zeile um die Differenz; jedes Visual, das unterhalb der
+    alten Zeilenkante beginnt, rutscht um diese Differenz nach unten und wird um sie
+    kuerzer, sobald es sonst ueber die untere Kante ragt. Beide Positionierer rufen diese
+    Funktion auf -- dieselbe Regel an zwei Stellen waere die Dublette, die hier am
+    23.09.2026 schon einmal den Header unter das KPI-Band geschoben hat.
+    """
+    zu_klein = [v for v in visuals
+                if _is_dropdown_slicer(v) and v["position"]["height"] < SLICER_DROPDOWN_FLOOR]
+    geaendert = False
+    for oben in sorted({v["position"]["y"] for v in zu_klein}):
+        zeile = [v for v in zu_klein if v["position"]["y"] == oben]
+        alt = max(v["position"]["height"] for v in zeile)
+        delta = SLICER_DROPDOWN_FLOOR - alt
+        kante = oben + alt
+        for v in zeile:
+            v["position"]["height"] = SLICER_DROPDOWN_FLOOR
+        for v in visuals:
+            if any(v is z for z in zeile):
+                continue
+            pos = v["position"]
+            if pos["y"] >= kante:
+                pos["y"] += delta
+                if pos["y"] + pos["height"] > page_bottom:
+                    pos["height"] -= delta
+        geaendert = True
+    return geaendert
+
+
 class GridCalculator:
     """
     12×12 Master Grid. Content area = canvas minus 2× outer_margin;

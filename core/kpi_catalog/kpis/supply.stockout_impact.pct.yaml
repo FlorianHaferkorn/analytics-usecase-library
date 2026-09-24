@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - S-R2.3
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures lost demand share due to stockouts.
   definition: Lost Demand Qty / Total Demand Qty.

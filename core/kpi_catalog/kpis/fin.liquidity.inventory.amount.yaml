@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - O-A2.5
 calc_type: amount
+good_is: lower
 business:
   purpose: Provide closing inventory value for working capital and liquidity metrics.
   definition: Inventory value at period end at reporting valuation (e.g., standard or average cost).

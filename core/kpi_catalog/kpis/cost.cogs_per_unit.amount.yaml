@@ -10,6 +10,7 @@ use_case_ref:
 - COM-002
 action_code_ref: []
 calc_type: ratio
+good_is: lower
 business:
   purpose: Shows unit cost level relative to sold volume.
   definition: COGS Amount / Units Sold.

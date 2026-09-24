@@ -21,6 +21,20 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
+                      "Entity": "dim_asset"
+                    }
+                  },
+                  "Property": "AssetName"
+                }
+              },
+              "queryRef": "dim_asset.AssetName",
+              "nativeQueryRef": "AssetName"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
                       "Entity": "dim_product"
                     }
                   },
@@ -32,45 +46,31 @@
             },
             {
               "field": {
-                "Column": {
+                "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_org"
+                      "Entity": "_Measures"
                     }
                   },
-                  "Property": "Plant"
+                  "Property": "Overall Equipment Effectiveness (OEE) %"
                 }
               },
-              "queryRef": "dim_org.Plant",
-              "nativeQueryRef": "Plant"
+              "queryRef": "_Measures.Overall Equipment Effectiveness (OEE) %",
+              "nativeQueryRef": "Overall Equipment Effectiveness (OEE) %"
             },
             {
               "field": {
-                "Column": {
+                "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_org"
+                      "Entity": "_Measures"
                     }
                   },
-                  "Property": "Line"
+                  "Property": "Unplanned Downtime %"
                 }
               },
-              "queryRef": "dim_org.Line",
-              "nativeQueryRef": "Line"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_org"
-                    }
-                  },
-                  "Property": "Shift"
-                }
-              },
-              "queryRef": "dim_org.Shift",
-              "nativeQueryRef": "Shift"
+              "queryRef": "_Measures.Unplanned Downtime %",
+              "nativeQueryRef": "Unplanned Downtime %"
             },
             {
               "field": {
@@ -122,56 +122,32 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Throughput Units"
+                  "Property": "Scrap Rate %"
                 }
               },
-              "queryRef": "_Measures.Throughput Units",
-              "nativeQueryRef": "Throughput Units"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Downtime %"
-                }
-              },
-              "queryRef": "_Measures.Downtime %",
-              "nativeQueryRef": "Downtime %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Planned Output Units"
-                }
-              },
-              "queryRef": "_Measures.Planned Output Units",
-              "nativeQueryRef": "Planned Output Units"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Overall Equipment Effectiveness (OEE) %"
-                }
-              },
-              "queryRef": "_Measures.Overall Equipment Effectiveness (OEE) %",
-              "nativeQueryRef": "Overall Equipment Effectiveness (OEE) %"
+              "queryRef": "_Measures.Scrap Rate %",
+              "nativeQueryRef": "Scrap Rate %"
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "Unplanned Downtime %"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
     "objects": {
@@ -208,7 +184,182 @@
             }
           }
         }
+      ],
+      "columnFormatting": [
+        {
+          "properties": {
+            "dataBars": {
+              "positiveColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "ThemeDataColor": {
+                        "ColorId": 0,
+                        "Percent": 0
+                      }
+                    }
+                  }
+                }
+              },
+              "negativeColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "ThemeDataColor": {
+                        "ColorId": 3,
+                        "Percent": 0
+                      }
+                    }
+                  }
+                }
+              },
+              "axisColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "ThemeDataColor": {
+                        "ColorId": 0,
+                        "Percent": 0.7
+                      }
+                    }
+                  }
+                }
+              },
+              "reverseDirection": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "hideText": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "totalMatchingOption": {
+                "expr": {
+                  "Literal": {
+                    "Value": "1L"
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Unplanned Downtime %"
+          }
+        }
       ]
     }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "TopN_UnplannedDowntime_Detail_Matrix",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_product"
+              }
+            },
+            "Property": "Category"
+          }
+        },
+        "type": "TopN",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "subquery",
+              "Expression": {
+                "Subquery": {
+                  "Query": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "p",
+                        "Entity": "dim_product",
+                        "Type": 0
+                      },
+                      {
+                        "Name": "m",
+                        "Entity": "_Measures",
+                        "Type": 0
+                      }
+                    ],
+                    "Select": [
+                      {
+                        "Column": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Source": "p"
+                            }
+                          },
+                          "Property": "Category"
+                        },
+                        "Name": "field"
+                      }
+                    ],
+                    "OrderBy": [
+                      {
+                        "Direction": 2,
+                        "Expression": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Source": "m"
+                              }
+                            },
+                            "Property": "Unplanned Downtime %"
+                          }
+                        }
+                      }
+                    ],
+                    "Top": 20
+                  }
+                }
+              },
+              "Type": 2
+            },
+            {
+              "Name": "p",
+              "Entity": "dim_product",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "p"
+                          }
+                        },
+                        "Property": "Category"
+                      }
+                    }
+                  ],
+                  "Table": {
+                    "SourceRef": {
+                      "Source": "subquery"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User",
+        "isHiddenInViewMode": true
+      }
+    ]
   }
 }

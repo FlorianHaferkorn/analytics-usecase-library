@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - C-M3.1
 calc_type: rate
+good_is: higher
 business:
   purpose: Share of transactions that contain items from two or more distinct product categories.
   definition: Transactions with >=2 distinct categories divided by total transactions in scope.

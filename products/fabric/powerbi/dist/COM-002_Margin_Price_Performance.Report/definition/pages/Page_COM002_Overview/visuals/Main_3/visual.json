@@ -3,11 +3,11 @@
   "name": "Main_3",
   "position": {
     "x": 1280,
-    "y": 362,
+    "y": 356,
     "z": 10000,
-    "height": 686,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3004
+    "tabOrder": 3006
   },
   "visual": {
     "visualType": "clusteredBarChart",
@@ -64,7 +64,7 @@
                 "Property": "Gross Margin %"
               }
             },
-            "direction": "Descending"
+            "direction": "Ascending"
           }
         ],
         "isDefaultSort": true

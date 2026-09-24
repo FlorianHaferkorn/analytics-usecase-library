@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - O-A2.5
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures stockout frequency for critical spare parts.
   definition: Stockout Events / Total Parts Requests.

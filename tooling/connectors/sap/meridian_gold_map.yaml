@@ -1,0 +1,111 @@
+# Meridians SAP-Gold -> Aurora-Data-Contract (die Spalten, die ALUCA-Use-Cases lesen)
+#
+# Warum diese Datei existiert (23.09.2026): Meridians SAP-Kette (Szenario sap_mittelstand,
+# Freelancing core/dataarch_engine) liefert einen eigenen Gold-Stern (fact_billing_item,
+# dim_material, ...). ALUCAs Use-Case-Reports lesen die Aurora-Form (fact_sales, dim_org,
+# ...). Der vorhandene Konnektor tooling/connectors/sap/schema_map.py bildet SAP ueber einen
+# eigenen OData-Dienst direkt auf Aurora ab -- fuer Meridians Gold gab es keine Bruecke.
+#
+# Die Seitendoktrin ist Klasse B (SHARED_SUBSTANCE.md §2.2) und wird nie nach Meridian
+# portiert. Die Bruecke laeuft deshalb in diese Richtung: ALUCA liest Meridians Gold.
+#
+# Jede Spalte traegt genau einen Status. Nichts wird still weggelassen:
+#   abgebildet            im SAP-Gold vorhanden -- gemessen am Lauf von sap_mittelstand
+#                         (23.09.2026, 24 Tabellen, 7603 Zeilen), Spalten aus dem TMDL.
+#   ableitbar             aus abgebildeten Spalten mit der genannten Regel.
+#   fehlt_im_paket        im S/4-Standard vorhanden, von Meridians SAP-Paket nicht geladen.
+#                         HERGELEITET aus SAP-Standardwissen, nicht gegen ein System gemessen.
+#   nicht_in_sap_belegen  kein SAP-Beleg traegt das (Plan, Forecast, Ziele) -- kommt aus
+#                         SAC/BPC/IBP oder einer Kundenvorgabe.
+#
+# Ein Tabellen-Blocker gilt fuer jede Spalte der Tabelle: eine Spalte ist nutzbar, erst
+# wenn auch ihre Tabelle nutzbar ist.
+
+schema: aluca/sap-meridian-gold-map/v1
+quelle: "Meridian sap_mittelstand, Gold-Stern (render/fabric/tmdl)"
+gemessen_am: "2026-09-23"
+
+tabellen:
+  fact_sales:
+    blocker:
+      status: fehlt_im_paket
+      grund: >-
+        fact_billing_item (VBRP) traegt kein Fakturadatum und keinen Kunden. Beides steht
+        in VBRK (FKDAT, KUNAG), und VBRK gehoert nicht zu den 24 geladenen Tabellen.
+        Gemessen: VBRP-Felder im Paket = VBELN POSNR FKIMG NETWR WAVWR MATNR. Ohne Datum
+        gibt es keinen Umsatz ueber die Zeit, also keine Trend-, Plan- oder Vorjahresfrage.
+      loesung: "VBRK in das Order-to-Cash-Paket aufnehmen (FKDAT, KUNAG, VKORG, FKART)."
+  fact_accounts_payable:
+    blocker:
+      status: fehlt_im_paket
+      grund: "Offene Kreditorenposten stehen in BSIK; das Paket laedt nur BSID (Debitoren)."
+      loesung: "BSIK (bzw. ACDOCA mit Kreditorenkonten) aufnehmen."
+  fact_forecast:
+    blocker:
+      status: nicht_in_sap_belegen
+      grund: "Absatzprognosen entstehen in IBP/APO oder ausserhalb von SAP."
+  fact_stockout:
+    blocker:
+      status: nicht_in_sap_belegen
+      grund: "Nachfrage- und Fehlmengen sind Analyse-Konstrukte, kein Beleg."
+  fact_output:
+    blocker:
+      status: fehlt_im_paket
+      grund: "Fertigungsrueckmeldungen (PP, AFRU/AFKO) sind nicht Teil des Pakets."
+
+spalten:
+  # --- Umsatz (COM-*, FIN-002/003, XD-*) ----------------------------------------------
+  fact_sales.Net Sales Amount:            {status: abgebildet, quelle: fact_billing_item.net_sales_amount, sap: VBRP.NETWR}
+  fact_sales.Cost of Goods Sold Amount:   {status: abgebildet, quelle: fact_billing_item.cogs_value, sap: VBRP.WAVWR}
+  fact_sales.Quantity:                    {status: abgebildet, quelle: fact_billing_item.billed_quantity, sap: VBRP.FKIMG}
+  fact_sales.Sales Units:                 {status: abgebildet, quelle: fact_billing_item.billed_quantity, sap: VBRP.FKIMG}
+  fact_sales.Last Year Sales Amount:      {status: ableitbar, regel: "Net Sales Amount, um 12 Monate versetzt"}
+  fact_sales.CustomerKey:                 {status: fehlt_im_paket, grund: "VBRK.KUNAG"}
+  fact_sales.List Price Amount:           {status: fehlt_im_paket, grund: "Preiskonditionen (PRCD_ELEMENTS) nicht geladen"}
+  fact_sales.Net Price Amount:            {status: ableitbar, regel: "NETWR / FKIMG je Position"}
+  fact_sales.Promo Flag:                  {status: fehlt_im_paket, grund: "Aktions-/Konditionsbezug nicht geladen"}
+  fact_sales.Plan Sales Amount:           {status: nicht_in_sap_belegen, grund: "Planversion aus SAC/BPC oder CO-PA-Plan"}
+  fact_sales.Plan Quantity:               {status: nicht_in_sap_belegen, grund: "Planversion"}
+  fact_sales.Plan COGS Amount:            {status: nicht_in_sap_belegen, grund: "Planversion"}
+
+  # --- Finanzen (FIN-*) -----------------------------------------------------------------
+  fact_cash_position.Cash Balance Amount: {status: abgebildet, quelle: fact_gl_line.cash_balance, sap: "ACDOCA.HSL auf Geldkonten"}
+  fact_cash_position.Plan Cash Amount:    {status: nicht_in_sap_belegen, grund: "Liquiditaetsplan"}
+  fact_accounts_receivable.AR Amount:     {status: abgebildet, quelle: fact_ar_open_item.receivables, sap: BSID.DMBTR}
+  fact_accounts_receivable.Revenue Amount: {status: ableitbar, regel: "ACDOCA.HSL auf Erloeskonten (Kontenzuordnung des Kunden)"}
+  fact_accounts_payable.AP Amount:        {status: fehlt_im_paket, grund: "BSIK"}
+  fact_accounts_payable.COGS Amount:      {status: ableitbar, regel: "ACDOCA.HSL auf Wareneinsatzkonten"}
+  fact_finance.Net Sales Amount:          {status: ableitbar, regel: "ACDOCA.HSL auf Erloeskonten"}
+  fact_finance.COGS Amount:               {status: ableitbar, regel: "ACDOCA.HSL auf Wareneinsatzkonten"}
+  fact_finance.Material Cost Amount:      {status: ableitbar, regel: "ACDOCA.HSL auf Materialaufwandskonten"}
+  fact_finance.OpEx Amount:               {status: ableitbar, regel: "ACDOCA.HSL auf Betriebsaufwandskonten"}
+  fact_finance.EBITDA Amount:             {status: ableitbar, regel: "Erloese - Wareneinsatz - Betriebsaufwand, vor Abschreibung"}
+  fact_finance.Plan Net Sales Amount:     {status: nicht_in_sap_belegen, grund: "Planversion"}
+  fact_finance.Plan OpEx Amount:          {status: nicht_in_sap_belegen, grund: "Planversion"}
+  fact_finance.Plan EBITDA Amount:        {status: nicht_in_sap_belegen, grund: "Planversion"}
+  dim_date.Date:                          {status: abgebildet, quelle: dim_date.Date}
+  dim_date.CalendarYearMonth:             {status: abgebildet, quelle: dim_date.YearMonth}
+
+  # --- Bestand und Lieferung (SCM-*, XD-003/004) --------------------------------------
+  fact_inventory.Average Inventory Amount: {status: abgebildet, quelle: fact_inventory_history.inventory_value_history, sap: "MBEWH.SALK3 je LFGJA/LFMON"}
+  fact_inventory.Obsolete Inventory Amount: {status: ableitbar, regel: "Bestandswert ohne Warenbewegung (MSEG) in den letzten N Monaten; N ist eine Kundenvorgabe"}
+  fact_fulfillment.On-Time Flag:          {status: ableitbar, regel: "LIKP.WADAT_IST <= LIKP.WADAT (geplanter Warenausgang)"}
+  fact_fulfillment.In-Full Flag:          {status: fehlt_im_paket, grund: "LIPS ohne Auftragsbezug (VGBEL/VGPOS); Liefer- gegen Auftragsmenge nicht zuordenbar"}
+  fact_fulfillment.OTIF Flag:             {status: fehlt_im_paket, grund: "braucht In-Full"}
+  fact_fulfillment.Expedite Cost:         {status: nicht_in_sap_belegen, grund: "keine Standardgroesse"}
+  fact_fulfillment.Penalty Amount:        {status: nicht_in_sap_belegen, grund: "keine Standardgroesse"}
+  fact_stockout.Demand Units:             {status: nicht_in_sap_belegen, grund: "Analyse-Konstrukt"}
+  fact_stockout.Lost Demand Units:        {status: nicht_in_sap_belegen, grund: "Analyse-Konstrukt"}
+  fact_stockout.Stockout Flag:            {status: nicht_in_sap_belegen, grund: "Analyse-Konstrukt"}
+  fact_forecast.Forecast Units:           {status: nicht_in_sap_belegen, grund: "IBP/APO"}
+  fact_forecast.Forecast Version:         {status: nicht_in_sap_belegen, grund: "IBP/APO"}
+  fact_forecast.ProductKey:               {status: nicht_in_sap_belegen, grund: "IBP/APO"}
+  fact_output.Output Units:               {status: fehlt_im_paket, grund: "PP nicht im Paket"}
+
+  # --- Einkauf (SCM-004, bisher ohne Report) ------------------------------------------
+  fact_procurement.On-Contract Amount:    {status: ableitbar, regel: "purchase_net_value, wo EKPO.KONNR gesetzt ist"}
+  fact_procurement.PPV Amount:            {status: ableitbar, regel: "(EKPO.NETPR / PEINH - MBEW.STPRS / PEINH) * Menge"}
+  fact_procurement.Addressable Amount:    {status: nicht_in_sap_belegen, grund: "Einkaufssteuerung, Kundenvorgabe"}
+  fact_procurement.Baseline Spend Amount: {status: nicht_in_sap_belegen, grund: "Einkaufssteuerung, Kundenvorgabe"}
+  fact_procurement.Savings Amount:        {status: nicht_in_sap_belegen, grund: "Einkaufssteuerung, Kundenvorgabe"}
+  fact_procurement.Savings Target Amount: {status: nicht_in_sap_belegen, grund: "Einkaufssteuerung, Kundenvorgabe"}

@@ -10,6 +10,7 @@ use_case_ref:
 - COM-IND-R001
 action_code_ref: []
 calc_type: ratio
+good_is: higher
 business:
   purpose: Average number of distinct line items per completed transaction.
   definition: Total line items divided by total transactions in scope.

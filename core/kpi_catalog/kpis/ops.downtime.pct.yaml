@@ -10,6 +10,7 @@ use_case_ref:
 - OPS-001
 action_code_ref: []
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures share of planned production time lost to downtime.
   definition: Downtime Minutes / Planned Time Minutes.

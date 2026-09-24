@@ -10,6 +10,7 @@ use_case_ref:
 action_code_ref:
 - C-P4.1
 calc_type: ratio
+good_is: higher
 business:
   purpose: Measures profitability of promotions relative to spend.
   definition: Incremental GM Amount / Promo Cost Amount

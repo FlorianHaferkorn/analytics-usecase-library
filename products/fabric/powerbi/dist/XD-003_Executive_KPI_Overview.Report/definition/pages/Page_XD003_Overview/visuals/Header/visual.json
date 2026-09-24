@@ -1,0 +1,30 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "Header",
+  "position": {
+    "x": 32,
+    "y": 32,
+    "z": 10000,
+    "height": 56,
+    "width": 1856,
+    "tabOrder": 2999
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "text": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Are we on track across all strategic KPIs this quarter?  ·  Expected finding — Revenue growth is on track but GM% compression and OTIF decline signal execution risk that requires executive intervention.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

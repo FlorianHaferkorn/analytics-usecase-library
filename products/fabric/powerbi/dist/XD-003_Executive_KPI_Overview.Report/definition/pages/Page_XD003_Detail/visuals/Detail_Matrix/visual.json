@@ -69,7 +69,7 @@
                   "Property": "Gross Margin % (XD)"
                 }
               },
-              "queryRef": "_Measures.Gross Margin %",
+              "queryRef": "_Measures.Gross Margin % (XD)",
               "nativeQueryRef": "Gross Margin % (XD)"
             },
             {
@@ -83,7 +83,7 @@
                   "Property": "Delta% Net Sales (XD)"
                 }
               },
-              "queryRef": "_Measures.Delta% Net Sales",
+              "queryRef": "_Measures.Delta% Net Sales (XD)",
               "nativeQueryRef": "Delta% Net Sales (XD)"
             },
             {
@@ -97,8 +97,36 @@
                   "Property": "OTIF % (XD)"
                 }
               },
-              "queryRef": "_Measures.OTIF %",
+              "queryRef": "_Measures.OTIF % (XD)",
               "nativeQueryRef": "OTIF % (XD)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "CLV (Customer Lifetime Value)"
+                }
+              },
+              "queryRef": "_Measures.CLV (Customer Lifetime Value)",
+              "nativeQueryRef": "CLV (Customer Lifetime Value)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "SLA Attainment %"
+                }
+              },
+              "queryRef": "_Measures.SLA Attainment %",
+              "nativeQueryRef": "SLA Attainment %"
             }
           ]
         }
@@ -156,7 +184,182 @@
             }
           }
         }
+      ],
+      "columnFormatting": [
+        {
+          "properties": {
+            "dataBars": {
+              "positiveColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "ThemeDataColor": {
+                        "ColorId": 0,
+                        "Percent": 0
+                      }
+                    }
+                  }
+                }
+              },
+              "negativeColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "ThemeDataColor": {
+                        "ColorId": 3,
+                        "Percent": 0
+                      }
+                    }
+                  }
+                }
+              },
+              "axisColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "ThemeDataColor": {
+                        "ColorId": 0,
+                        "Percent": 0.7
+                      }
+                    }
+                  }
+                }
+              },
+              "reverseDirection": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "hideText": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "totalMatchingOption": {
+                "expr": {
+                  "Literal": {
+                    "Value": "1L"
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Enterprise Value-at-Risk Index"
+          }
+        }
       ]
     }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "TopN_EnterpriseValueatRis_Detail_Matrix",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_date"
+              }
+            },
+            "Property": "Date"
+          }
+        },
+        "type": "TopN",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "subquery",
+              "Expression": {
+                "Subquery": {
+                  "Query": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "p",
+                        "Entity": "dim_date",
+                        "Type": 0
+                      },
+                      {
+                        "Name": "m",
+                        "Entity": "_Measures",
+                        "Type": 0
+                      }
+                    ],
+                    "Select": [
+                      {
+                        "Column": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Source": "p"
+                            }
+                          },
+                          "Property": "Date"
+                        },
+                        "Name": "field"
+                      }
+                    ],
+                    "OrderBy": [
+                      {
+                        "Direction": 2,
+                        "Expression": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Source": "m"
+                              }
+                            },
+                            "Property": "Enterprise Value-at-Risk Index"
+                          }
+                        }
+                      }
+                    ],
+                    "Top": 20
+                  }
+                }
+              },
+              "Type": 2
+            },
+            {
+              "Name": "p",
+              "Entity": "dim_date",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "p"
+                          }
+                        },
+                        "Property": "Date"
+                      }
+                    }
+                  ],
+                  "Table": {
+                    "SourceRef": {
+                      "Source": "subquery"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User",
+        "isHiddenInViewMode": true
+      }
+    ]
   }
 }

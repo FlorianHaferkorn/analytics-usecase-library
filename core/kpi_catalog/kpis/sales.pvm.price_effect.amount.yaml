@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - C-S1.1
 calc_type: amount
+good_is: higher
 business:
   purpose: Quantifies the pure price impact in the PVM bridge.
   definition: (Actual Price - Plan Price) x Actual Quantity.

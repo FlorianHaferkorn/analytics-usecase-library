@@ -12,6 +12,7 @@ use_case_ref:
 action_code_ref:
 - X-E3.2
 calc_type: ratio
+good_is: lower
 business:
   purpose: Aggregates downside risk across domains into a single index.
   definition: 'Average of three risk shares, scaled to 0-100: (1) Revenue-at-Risk Share = (Net Sales * average(1-OTIF

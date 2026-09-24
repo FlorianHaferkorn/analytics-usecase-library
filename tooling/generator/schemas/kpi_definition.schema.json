@@ -56,6 +56,16 @@
       "type": "string",
       "minLength": 1
     },
+    "good_is": {
+      "type": "string",
+      "enum": [
+        "higher",
+        "lower",
+        "band",
+        "zero"
+      ],
+      "description": "Richtung, in der die KPI besser wird: higher/lower; band = innerhalb eines Zielbands; zero = je naeher an null, desto besser (z. B. Forecast Bias). Fehlt das Feld, behauptet der Katalog keine Richtung (Basis- und Eingangsgroessen). Steuert Sortierung (schlechteste zuerst), Delta-Farbe und den Knock-out ALUCA_MIXED_POLARITY. Muss zu den Vergleichsoperatoren der Action-Codes passen (tooling/tests/test_kpi_good_is.py)."
+    },
     "business": {
       "type": "object",
       "additionalProperties": true

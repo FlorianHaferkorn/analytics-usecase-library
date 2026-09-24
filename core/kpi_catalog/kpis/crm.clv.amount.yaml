@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - C-C3.1
 calc_type: amount
+good_is: higher
 business:
   purpose: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
   definition: Sum of expected future gross margin per customer discounted over the chosen time horizon.

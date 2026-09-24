@@ -13,6 +13,7 @@ use_case_ref:
 action_code_ref:
 - C-S1.2
 calc_type: rate
+good_is: higher
 business:
   purpose: Relative variance of Net Sales vs Plan.
   definition: (Net Sales Amount - Plan Sales Amount) / Plan Sales Amount

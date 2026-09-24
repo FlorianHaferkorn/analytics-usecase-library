@@ -121,6 +121,16 @@ fact:
       - {name: Outcome Status, type: text, allowed_values: [Successful, Routed, No Change, Failed]}
       - {name: Action Effectiveness Delta Amount, type: currency, agg: sum, nullable: true}
 
+  - name: fact_target
+    description: "Ziel- und Planwerte je KPI und Monat, vom Kunden beim Onboarding geliefert (R6.1)."
+    purpose: "Referenz fuer comparison: vs_target / vs_plan, wo kein governter Plan existiert. Leer = keine Ziellinie."
+    grain: kpi_month
+    columns:
+      - {name: kpi_id, type: text, description: "KPI-ID aus core/kpi_catalog/kpis."}
+      - {name: scenario, type: text, allowed_values: [target, plan]}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: Target Value, type: decimal, description: "In der Skala der Measure; Prozent als Anteil (0.85 = 85 %)."}
+
   - name: fact_action_governance
     grain: action_instance
     columns:

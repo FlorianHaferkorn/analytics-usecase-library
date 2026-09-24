@@ -64,7 +64,10 @@ ux_layout_rules:
       - svc.sla.attainment.pct
       - res.overtime.pct
       - res.shrinkage.pct
-      visual_type: horizontal_bar_chart
+      # R6.3 (23.09.2026): Kennzahlen gegensaetzlicher Richtung auf einer Balkenachse
+      # (Knock-out mixed-polarity). Je Einheit eine Zeile, je Signal eine Spalte.
+      visual_type: exception_table
+      category_field: dim_org.OrgName
       question: "What are utilization's quality trade-offs?"
       message: SLA attainment, overtime, and shrinkage — utilization's three quality trade-offs.
       so_what: "Overtime absorbing the gap today is not sustainable — it is the early signal of the capacity shortfall to come."

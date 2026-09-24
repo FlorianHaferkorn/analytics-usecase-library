@@ -9,6 +9,7 @@ use_case_ref:
 - COM-004
 action_code_ref: []
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures share of promo uplift offset by decline in non-promoted sales.
   definition: Cannibalized Sales / Promo Uplift Sales.

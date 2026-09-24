@@ -17,6 +17,7 @@ use_case_ref:
 action_code_ref:
 - S-I1.2
 calc_type: ratio
+good_is: higher
 business:
   purpose: Measures how often inventory is sold and replaced.
   definition: COGS / Average Inventory.

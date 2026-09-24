@@ -288,3 +288,68 @@ def test_an_uncertain_finding_stays_advisory_without_strict(monkeypatch, capsys)
     monkeypatch.setattr(sensor, "_diff", lambda a, b: ["  concepts.py: test finding"])
     monkeypatch.setattr(sensor, "freshness_findings", lambda f, m=None: ["  test freshness"])
     assert sensor.main([]) == 0
+
+
+# -- which side moved (24.09.2026) --------------------------------------------------
+#
+# "Meridian differs from the PIN" has two opposite causes. The old line advised `--write` for
+# both; for governance_strategy.py (workspace_layer_labels, pinned from a Meridian WIP branch)
+# the write would have deleted the feature here. The direction is read from Meridian's history.
+
+import subprocess  # noqa: E402
+
+
+def _git(repo: Path, *args: str) -> str:
+    return subprocess.run(("git", "-c", "user.name=t", "-c", "user.email=t@t", "-c", "init.defaultBranch=main",
+                           *args), cwd=repo, check=True, capture_output=True, text=True,
+                          encoding="utf-8").stdout.strip()
+
+
+@pytest.fixture()
+def meridian(tmp_path):
+    repo = tmp_path / "mer"
+    repo.mkdir()
+    _git(repo, "init", "-q")
+    (repo / "m.py").write_text("v1\n", encoding="utf-8")
+    _git(repo, "add", "m.py")
+    _git(repo, "commit", "-q", "-m", "v1")
+    return repo
+
+
+def _vendored(tmp_path, text):
+    f = tmp_path / "vendored_m.py"
+    f.write_text(text, encoding="utf-8")
+    return f
+
+
+def test_blob_id_matches_git(meridian):
+    assert sensor._git_blob_id(meridian / "m.py") == _git(meridian, "hash-object", "m.py")
+
+
+def test_head_past_the_pin_says_re_mirror(meridian, tmp_path):
+    (meridian / "m.py").write_text("v2\n", encoding="utf-8")
+    _git(meridian, "commit", "-q", "-am", "v2")
+    line = sensor.pin_direction(meridian, "m.py", _vendored(tmp_path, "v1\n"))
+    assert "moved on" in line and sensor.NICHT_SCHREIBEN not in line
+
+
+def test_pin_only_on_another_branch_forbids_the_write(meridian, tmp_path):
+    _git(meridian, "checkout", "-q", "-b", "wip/feature")
+    (meridian / "m.py").write_text("v2\n", encoding="utf-8")
+    _git(meridian, "commit", "-q", "-am", "v2 on wip")
+    _git(meridian, "checkout", "-q", "main")
+    line = sensor.pin_direction(meridian, "m.py", _vendored(tmp_path, "v2\n"))
+    assert "BEHIND" in line and "wip/feature" in line and sensor.NICHT_SCHREIBEN in line
+
+
+def test_pin_unknown_to_the_checkout_forbids_the_write(meridian, tmp_path):
+    line = sensor.pin_direction(meridian, "m.py", _vendored(tmp_path, "only here\n"))
+    assert "unknown" in line and sensor.NICHT_SCHREIBEN in line
+
+
+def test_no_git_history_is_not_read_as_a_direction(tmp_path):
+    plain = tmp_path / "plain"
+    plain.mkdir()
+    (plain / "m.py").write_text("v2\n", encoding="utf-8")
+    line = sensor.pin_direction(plain, "m.py", _vendored(tmp_path, "v1\n"))
+    assert "not measurable" in line and "moved on" not in line

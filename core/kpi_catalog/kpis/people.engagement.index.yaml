@@ -9,6 +9,7 @@ use_case_ref:
 - HR-001
 action_code_ref: []
 calc_type: avg
+good_is: higher
 business:
   purpose: Measures employee engagement / eNPS from periodic surveys.
   definition: Mean engagement score (or eNPS) for the population in the period.

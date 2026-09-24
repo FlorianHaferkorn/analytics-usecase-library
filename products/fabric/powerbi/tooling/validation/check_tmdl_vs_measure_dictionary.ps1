@@ -80,7 +80,10 @@ $missingInTmdl = $dictMeasures | Where-Object { $_ -notin $tmdlMeasures } | Sort
 # These are not in domain measure dictionaries by design.
 $tmdlMeasuresRequiringDict = $tmdlMeasures | Where-Object {
   $_ -notmatch '^Action_[A-Z0-9.\-]+_Text$' -and
-  $_ -notmatch '^(Active Actions Text|Last Refresh|Narrative Text)\b'
+  $_ -notmatch '^(Active Actions Text|Last Refresh|Narrative Text)\b' -and
+  # Vergleichs-Measures aus tooling/codegen/comparison_measures.py (R6.1): vollstaendig aus einer
+  # Katalog-Measure abgeleitet, Muster dort als ABGELEITET gefuehrt.
+  $_ -notmatch ' (Target|vs Target|Plan \(Target Table\)|vs Plan \(Target Table\)|PY|vs PY)$'
 }
 $missingInDict = $tmdlMeasuresRequiringDict | Where-Object { $_ -notin $dictMeasures } | Sort-Object
 

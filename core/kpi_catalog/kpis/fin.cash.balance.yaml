@@ -18,6 +18,7 @@ action_code_ref:
 - F-C1.1
 - F-C1.2
 calc_type: amount
+good_is: higher
 business:
   purpose: Tracks cash and cash equivalents at period end.
   definition: Cash and cash equivalents balance.

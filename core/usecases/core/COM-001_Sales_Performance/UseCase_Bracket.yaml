@@ -87,12 +87,14 @@ ux_layout_rules:
       message: "Price, volume, and mix reconcile the movement from Plan to Actual Net Sales."
       so_what: "The dominant bridge component determines whether pricing, demand, or portfolio mix needs intervention."
       comparison: vs_plan
-      kpi_ids:
-        - sales.net_sales.plan.amount   # → Plan Sales Amount
-        - sales.pvm.price_effect.amount
-        - sales.pvm.volume_effect.amount
-        - sales.pvm.mix_effect.amount
-        - sales.net_sales.amount
+      # Ein Wasserfall traegt genau ein Measure auf Y; die Balken kommen aus der Kategorie
+      # (maxPerRole.Y = 1, belegt in R1.6/COM-002). `PVM Bridge Value` liest ueber
+      # dim_pvm_driver die drei Effekte sales.pvm.{price,volume,mix}_effect.amount.
+      # Bis 23.09.2026 stand hier eine Liste aus Plan, drei Effekten und Ist; der Generator
+      # nahm daraus die erste KPI und haette je Treiber denselben Planwert gezeichnet.
+      # Das ausgelieferte dist/ war von Hand auf PVM Bridge Value gesetzt -- jetzt steht es
+      # im Bracket, wo der naechste Lauf es findet.
+      kpi_id: PVM Bridge Value
       category_field: dim_pvm_driver.Driver
       action_code_id: C-M2.1
       unit: amount

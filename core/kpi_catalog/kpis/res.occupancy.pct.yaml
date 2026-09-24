@@ -12,6 +12,7 @@ action_code_ref:
 - X-R2.1
 - X-R2.2
 calc_type: ratio
+good_is: band
 business:
   purpose: Measures active vs idle share of time.
   definition: (Talk + Wrap) / (Talk + Wrap + Idle).

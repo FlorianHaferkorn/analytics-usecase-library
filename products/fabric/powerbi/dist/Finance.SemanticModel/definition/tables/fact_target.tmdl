@@ -1,0 +1,42 @@
+/// Purpose: Ziel- und Planwerte je KPI und Monat, vom Kunden beim Onboarding geliefert (R6.1).
+/// Leer, solange keine Werte vorliegen: dann zeigt der Report keine Ziellinie statt einer erfundenen.
+/// Werte in der Skala der Measure (Prozent als Anteil). Erzeugt von tooling/codegen/comparison_measures.py.
+table fact_target
+	lineageTag: a1222c2f-1143-5826-9ece-9607d3feaf2b
+
+	column kpi_id
+		dataType: string
+		isHidden
+		lineageTag: 10524db0-016a-51ea-a21c-4e085c513342
+		summarizeBy: none
+		sourceColumn: kpi_id
+
+	column scenario
+		dataType: string
+		isHidden
+		lineageTag: d5cab629-b6ac-5d31-9668-febe3123b01d
+		summarizeBy: none
+		sourceColumn: scenario
+
+	column DateKey
+		dataType: int64
+		isHidden
+		lineageTag: e05eca9b-c408-5476-b4b4-52ac965c31f9
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column 'Target Value'
+		dataType: double
+		isHidden
+		lineageTag: b51bad1a-46f7-58f2-a6c1-4ca8ae1f558b
+		summarizeBy: none
+		sourceColumn: Target Value
+
+	partition fact_target = m
+		mode: import
+		source =
+				let
+					ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/facts/fact_target"),
+					ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
+				in
+					ParquetData
