@@ -10,6 +10,7 @@ use_case_ref:
 - COM-005
 action_code_ref: []
 calc_type: ratio
+good_is: lower
 business:
   purpose: Measures average calendar days from opportunity creation to close.
   definition: Mean(Close Date - Create Date) over opportunities closed in the period.

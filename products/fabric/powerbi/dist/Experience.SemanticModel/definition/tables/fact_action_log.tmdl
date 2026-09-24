@@ -17,7 +17,7 @@ table fact_action_log
 		summarizeBy: none
 	column 'Outcome Status'
 		dataType: String
-		sourceColumn: Outcome Status
+		sourceColumn: Action Outcome
 		summarizeBy: none
 	column 'Responsible Role'
 		dataType: String

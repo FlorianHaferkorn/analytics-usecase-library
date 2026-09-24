@@ -20,6 +20,7 @@ anti_patterns:
   - pie_for_comparison
   - broken_baseline_on_absolute_bar
   - color_to_separate_equal_categories
+  - mixed_polarity_on_one_axis        # R6.3: ein Richtungssinn je Achse
 
 params:
   category: {role: axis, type: category, required: true}
@@ -65,9 +66,9 @@ realizations:
         "visualType": "clusteredBarChart",
         "query": { "queryState": {
           "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
-          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] },
-          "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "direction": "Ascending" } ], "isDefaultSort": true }
-        } },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+        },
+        "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "direction": "Ascending" } ], "isDefaultSort": true } },
         "objects": {
           "valueAxis": [ { "properties": { "start": { "expr": { "Literal": { "Value": "0D" } } } } } ],
           "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ]

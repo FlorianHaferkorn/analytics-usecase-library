@@ -41,6 +41,34 @@ def count_projections(query_state: dict) -> int:
     )
 
 
+def _registry_table_allowed(report_name: str, slot_id: str) -> bool:
+    """Deklariert das Bracket in diesem Slot einen Typ, den die Registry als tableEx fuehrt?
+
+    Gelesen per Pfad (nicht per Paket-Import), wie in check_page_template_compliance:
+    `products/` bleibt standalone importierbar.
+    """
+    import yaml
+
+    root = Path(__file__).resolve().parents[4]
+    bracket = root / "core" / "usecases" / "core" / report_name / "UseCase_Bracket.yaml"
+    registry = root / "core" / "templates" / "page_templates" / "visual_registry.yaml"
+    if not bracket.exists() or not registry.exists():
+        return False
+    b = yaml.safe_load(bracket.read_text(encoding="utf-8")) or {}
+    p1 = ((b.get("ux_layout_rules") or {}).get("page_1_summary") or {})
+    deklariert = next((c.get("visual_type") for c in p1.get("component_30s") or []
+                       if isinstance(c, dict) and c.get("slot_id") == slot_id), None)
+    if not deklariert:
+        return False
+    reg = yaml.safe_load(registry.read_text(encoding="utf-8")) or {}
+    for block in reg.get("information_blocks") or []:
+        for v in block.get("allowed_visuals") or []:
+            pbip = (v.get("targets") or {}).get("powerbi") or v.get("pbip_type")
+            if v.get("visual_id") == deklariert and pbip == "tableEx":
+                return True
+    return False
+
+
 def validate_report(report_dir: Path, strict: bool = False) -> list[str]:
     """Validate a single .Report folder. Returns list of error strings."""
     errors = []
@@ -94,8 +122,13 @@ def validate_report(report_dir: Path, strict: bool = False) -> list[str]:
                     f"visualType={vtype} has 0 projections — visual will render empty"
                 )
 
-            # Type sanity: chart slots should not be tableEx (except Detail_Matrix)
-            if vd.name in ("Main_1", "Main_2", "Main_3") and vtype == "tableEx":
+            # Type sanity: chart slots should not be tableEx (except Detail_Matrix) -- es sei
+            # denn, das Bracket deklariert dort einen Typ, den die Registry als Tabelle fuehrt
+            # (T3_ProcessControl Main_3 = Block exception_list -> `exception_table`). Bis
+            # 23.09.2026 kannte diese Regel die Registry nicht und verlangte eine Linie, wo die
+            # Vorlage eine Ausnahmeliste vorsieht.
+            if (vd.name in ("Main_1", "Main_2", "Main_3") and vtype == "tableEx"
+                    and not _registry_table_allowed(report_name, vd.name)):
                 errors.append(
                     f"[ERROR] {report_name}/{page_id}/{vd.name}: "
                     f"chart slot has visualType=tableEx — should be lineChart/barChart"

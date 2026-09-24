@@ -2,7 +2,7 @@
 """repo_kit_init — Detection-/Scaffold-Engine für das Claude Repo Kit.
 
 Mechanische Schwerarbeit, deterministisch + idempotent. Wird von install.sh UND
-vom /repo-kit-init-Skill genutzt; die *Urteils*-Arbeit (gute Beschreibungen,
+vom /repo-kit:repo-kit-init-Skill genutzt; die *Urteils*-Arbeit (gute Beschreibungen,
 echte Projektregeln, „lies-wenn"-Routing) macht danach der Mensch/Claude.
 
 Subcommands (Ziel-Repo = $2 oder cwd):
@@ -435,9 +435,24 @@ def wire_gate(root: Path, apply: bool) -> None:
     if apply and (root / ".git").is_dir():
         existing = hook.read_text(encoding="utf-8") if hook.exists() else "#!/usr/bin/env sh\n"
         if "check_index.py" not in existing:
-            hook.write_text(existing.rstrip() + "\n" + hook_body, encoding="utf-8", newline="\n")
-            hook.chmod(0o755)
-            print(f"\n✓ pre-commit-Hook verdrahtet ({hook.relative_to(root)}) — strict, portabel (python3/python).")
+            # R2/D10: `.git` ist ein Protected Path — in einer Claude-Code-Session läuft dieser
+            # Write über Prompt/Classifier, im `dontAsk`-Modus (CI/headless) wird er HART
+            # verweigert. Auch eine aktive Bash-Sandbox sperrt `.git/hooks`. Ein nackter
+            # OSError wäre hier irreführend ("Kit kaputt"), obwohl alles wie vorgesehen wirkt.
+            try:
+                hook.write_text(existing.rstrip() + "\n" + hook_body, encoding="utf-8", newline="\n")
+                hook.chmod(0o755)
+            except OSError as e:
+                print(f"\n⚠ pre-commit-Hook NICHT verdrahtet: {hook} nicht schreibbar ({e.__class__.__name__}: {e}).\n"
+                      "  Häufigster Grund ist kein Defekt, sondern Absicht: `.git` ist ein Protected Path.\n"
+                      "  In einer Claude-Code-Session muss der Write bestätigt werden, im `dontAsk`-Modus\n"
+                      "  (CI/headless) und unter aktiver Bash-Sandbox ist er gesperrt.\n"
+                      "  → Gate-Wiring gehört nicht in einen headless Lauf; einmal manuell im Terminal:\n"
+                      f"    printf '%s' '{cmd} || exit 1' >> .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit\n"
+                      "  Das Gate AUSFÜHREN ist davon unberührt: `python3 scripts/check_index.py --strict`.\n"
+                      "  Hintergrund: docs/GATE_HOOKS.md")
+            else:
+                print(f"\n✓ pre-commit-Hook verdrahtet ({hook.relative_to(root)}) — strict, portabel (python3/python).")
         else:
             print("\n= pre-commit-Hook ruft check_index.py bereits auf.")
     else:

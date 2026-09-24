@@ -134,5 +134,16 @@ def test_a_neutral_pack_note_stays_clean():
 
 
 def test_the_cli_reports_the_core_packs_as_green():
+    """Der Vollauf der CLI, und er schliesst die Neutralitaetspruefung mit ein.
+
+    Deshalb braucht er die Sperrliste. Sie traegt echte Kundenkennungen und ist bewusst
+    nicht eingecheckt; fehlt sie, beendet `validator.main` den Prozess, und das ist dort
+    richtig. Hier waere ein Fehlschlag die falsche Auskunft: nicht die Paketpruefung ist
+    rot, sondern die Voraussetzung fehlt. Der Test sagt das benannt, statt zu bestehen
+    oder zu fallen. Die uebrigen Faelle dieser Datei halten es seit dem 04.09.2026 schon so
+    (`_forbidden`, Zeile 47).
+    """
     pytest.importorskip("jsonschema")
+    if not (REPO / ".kundendaten-sperrliste.json").exists():
+        pytest.skip("blocklist missing — the CLI run was NOT measured")
     assert validator.main(["--root", str(REPO)]) == 0

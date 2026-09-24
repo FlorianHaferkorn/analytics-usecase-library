@@ -4,7 +4,8 @@ Two independent mechanisms, combined per report:
   - Weighted points: every Tier 0 Violation (structural/content/dax-reference)
     deducts points by severity; score = max(0, 100 - deductions).
   - Knock-outs: Mixed-Scale (percent measures mixed with amount measures on
-    one chart axis) and Unsorted Evidence (an evidence table with no default
+    one chart axis), Mixed-Polarity (higher-is-better next to lower-is-better
+    on one axis, R6.3) and Unsorted Evidence (an evidence table with no default
     sort) fail the report regardless of point score -- IBCS "instant red".
 
 A report PASSes when score >= THRESHOLD_PCT AND there are zero knock-outs.
@@ -32,7 +33,8 @@ POINT_WEIGHTS: dict[Severity, int] = {"critical": 15, "warning": 5, "info": 1}
 
 KNOCKOUT_MIXED_SCALE = "scorecard:knockout-mixed-scale"
 KNOCKOUT_UNSORTED_EVIDENCE = "scorecard:knockout-unsorted-evidence"
-KNOCKOUT_CHECKS = {KNOCKOUT_MIXED_SCALE, KNOCKOUT_UNSORTED_EVIDENCE}
+KNOCKOUT_MIXED_POLARITY = "scorecard:knockout-mixed-polarity"
+KNOCKOUT_CHECKS = {KNOCKOUT_MIXED_SCALE, KNOCKOUT_UNSORTED_EVIDENCE, KNOCKOUT_MIXED_POLARITY}
 
 EVIDENCE_VISUAL_TYPES = {"tableEx", "matrix", "pivotTable"}
 
@@ -40,7 +42,10 @@ EVIDENCE_VISUAL_TYPES = {"tableEx", "matrix", "pivotTable"}
 # failing score/knock-out should actually fail CI. Everything else is scored
 # and printed for visibility (DoD: "Score je Report im CI-Log") but does not
 # gate the build yet -- 17/17 is R5.1's job (generator rollout), not R3.3's.
-DEFAULT_ENFORCED_REPORTS = ["COM-002"]
+# 23.09.2026 (R5.1): seit dem Rollout bestehen alle 17 Reports (vorher 7, 11 Knock-outs).
+# Ein Tor, das nur einen Report erzwingt, laesst die anderen 16 still zurueckfallen --
+# `.Report` trifft jeden Reportnamen.
+DEFAULT_ENFORCED_REPORTS = [".Report"]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Treue-Dimension je Ziel-Werkzeug (Task L11)
@@ -233,6 +238,80 @@ def detect_mixed_scale(report: ParsedReport, measure_formats: dict[str, str]) ->
     return violations
 
 
+_DOMAIN_SUFFIX_RE = re.compile(r" \([A-Z]{2,4}\)$")
+
+
+def load_measure_good_is(repo_root: Path | None = None) -> dict[str, str]:
+    """Measure-Name -> `good_is` aus dem KPI-Katalog und dem Measure-Dictionary.
+
+    Direkt aus den YAML-Dateien gelesen, nicht ueber ein anderes Paket: report_quality muss
+    standalone importierbar bleiben (siehe structural_validator._canvas).
+    """
+    import yaml
+
+    root = repo_root or Path(__file__).resolve().parents[2]
+    by_kpi: dict[str, str] = {}
+    out: dict[str, str] = {}
+    for f in sorted((root / "core/kpi_catalog/kpis").glob("*.yaml")):
+        d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        if isinstance(d, dict) and d.get("kpi_id") and d.get("good_is"):
+            by_kpi[d["kpi_id"]] = d["good_is"]
+            for name in (d.get("kpi_key"), (d.get("technical") or {}).get("measure_name")):
+                if name:
+                    out.setdefault(str(name), d["good_is"])
+    for f in sorted((root / "core/semantic_models/domains").glob("*/measures/*.yaml")):
+        d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        if isinstance(d, dict) and d.get("kpi_id_ref") in by_kpi and d.get("measure_name"):
+            out.setdefault(str(d["measure_name"]), by_kpi[d["kpi_id_ref"]])
+    return out
+
+
+def _good_is_of(name: str, measure_good_is: dict[str, str]) -> str | None:
+    # Domaenen-Variante `OTIF % (XD)` traegt die Richtung von `OTIF %`.
+    return measure_good_is.get(name) or measure_good_is.get(_DOMAIN_SUFFIX_RE.sub("", name))
+
+
+def detect_mixed_polarity(report: ParsedReport, measure_good_is: dict[str, str]) -> list[Violation]:
+    """Knock-out: zwei oder mehr Kennzahlen gegensaetzlicher Richtung auf einer Achse.
+
+    Gemessen 23.09.2026: SCM-001 Main_2 legte Stockout % (lower), OTIF % (higher) und
+    Obsolete % (lower) auf eine Achse. Alle drei sind Prozent, der Skalen-Knock-out sah
+    nichts; der Leser muss je Balken umdenken, ob lang gut oder schlecht ist.
+    Kennzahlen ohne governte Richtung zaehlen nicht mit.
+    """
+    violations: list[Violation] = []
+    for page in report.pages.values():
+        for visual_name, visual in page.visuals.items():
+            visual_root = visual.get("visual", {})
+            visual_type = visual_root.get("visualType")
+            if not visual_type:
+                continue
+            query_state = (visual_root.get("query", {}) or {}).get("queryState", {}) or {}
+            for role_name in _value_role_names(visual_type):
+                role = query_state.get(role_name)
+                if not isinstance(role, dict):
+                    continue
+                names = [((p.get("field") or {}).get("Measure") or {}).get("Property")
+                         for p in role.get("projections", []) or []]
+                names = [n for n in names if isinstance(n, str)]
+                richtungen = {n: _good_is_of(n, measure_good_is) for n in names}
+                bekannt = {r for r in richtungen.values() if r}
+                if len(names) >= 2 and len(bekannt) > 1:
+                    violations.append(
+                        Violation(
+                            KNOCKOUT_MIXED_POLARITY,
+                            "critical",
+                            visual_pointer(
+                                report.report_dir, page, visual_name, f"visual/query/queryState/{role_name}"
+                            ),
+                            f"Mixed polarity on role '{role_name}': {sorted(bekannt)}",
+                            expected="one direction of 'better' per axis",
+                            actual=richtungen,
+                        )
+                    )
+    return violations
+
+
 def detect_unsorted_evidence(report: ParsedReport) -> list[Violation]:
     """Knock-out: an evidence table (tableEx/matrix/pivotTable) with no default sort."""
 
@@ -278,7 +357,8 @@ class ScorecardResult:
     point_violations: list[Violation] = field(default_factory=list)
 
 
-def compute_scorecard(report_dir: Path, measure_formats: dict[str, str]) -> ScorecardResult:
+def compute_scorecard(report_dir: Path, measure_formats: dict[str, str],
+                      measure_good_is: dict[str, str] | None = None) -> ScorecardResult:
     report = parse_report(report_dir)
 
     point_violations: list[Violation] = []
@@ -289,6 +369,8 @@ def compute_scorecard(report_dir: Path, measure_formats: dict[str, str]) -> Scor
     knockouts: list[Violation] = []
     knockouts.extend(detect_mixed_scale(report, measure_formats))
     knockouts.extend(detect_unsorted_evidence(report))
+    knockouts.extend(detect_mixed_polarity(
+        report, measure_good_is if measure_good_is is not None else load_measure_good_is()))
 
     score = score_from_violations(point_violations)
     return ScorecardResult(

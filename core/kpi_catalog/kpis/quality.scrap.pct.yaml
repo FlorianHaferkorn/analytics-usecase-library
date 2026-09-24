@@ -20,6 +20,7 @@ action_code_ref:
 - O-Q3.3
 - O-Q3.4
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures share of units scrapped in production.
   definition: Scrap Units / Total Units.

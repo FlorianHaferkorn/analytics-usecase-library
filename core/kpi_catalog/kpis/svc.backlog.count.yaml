@@ -19,6 +19,7 @@ action_code_ref:
 - X-S1.1
 - X-S1.2
 calc_type: count
+good_is: lower
 business:
   purpose: Quantifies unresolved work in queue.
   definition: Count of open cases at period end.

@@ -18,11 +18,11 @@ table fact_inventory_snapshot
 		summarizeBy: none
 	column 'On-Hand Units'
 		dataType: Decimal
-		sourceColumn: On-Hand Units
+		sourceColumn: Stock Qty
 		summarizeBy: none
 	column 'Inventory Value'
 		dataType: Decimal
-		sourceColumn: Inventory Value
+		sourceColumn: Stock Value Amount
 		summarizeBy: none
 	column 'Reorder Flag'
 		dataType: Boolean

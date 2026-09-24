@@ -17,6 +17,7 @@ use_case_ref:
 action_code_ref:
 - F-C1.1
 calc_type: amount
+good_is: lower
 business:
   purpose: Measures cash conversion cycle length.
   definition: DSO + DIO - DPO.

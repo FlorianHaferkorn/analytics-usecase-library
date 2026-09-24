@@ -42,11 +42,15 @@ It is **not** a title. It is the conclusion that the reader should leave the pag
 
 ### Where the Big Idea Lives
 
-- The **Header** (Zone 0, above the KPI band — Layout_Grid_System.md) states the Big Idea itself,
-  verbatim from `UseCase_Bracket.yaml` → `ux_layout_rules.page_1_summary.big_idea`. It is the
-  conclusion, not the question — see "What the Big Idea Is" above.
-- `page_1_summary.decision_question` is the governed question the Big Idea answers; it grounds
-  authoring and evidence-table framing but is not separately rendered as its own banner.
+- The **Header** (Zone 0, above the KPI band — Layout_Grid_System.md) carries the Big Idea
+  verbatim from `UseCase_Bracket.yaml` → `ux_layout_rules.page_1_summary.big_idea`. A generated
+  report does not know the data at generation time, so unless the bracket declares its
+  statements value-verified (`title_statements_verified: true`), the header leads with
+  `page_1_summary.decision_question` and the Big Idea follows as "Expected finding — …"
+  (`tooling/reporting/title_policy.py`; decided 2026-09-23, R6.2). A static header must not
+  assert a finding that the next refresh can contradict.
+- `page_1_summary.decision_question` is the governed question the Big Idea answers; it leads the
+  header in the unverified case and grounds authoring and evidence-table framing.
 - The **Smart Narrative** on the Detail page restates the Big Idea's answer in the current filter
   context (chart-grounded, bound to the use case's governed narrative measure — never left as
   generic auto-text).

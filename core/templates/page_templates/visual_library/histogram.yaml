@@ -46,7 +46,7 @@ preview_svg: |
 realizations:
   powerbi_native:
     applicable: false
-    reason: "Power BI has no auto-bin mark"
+    reason: "kein Visualtyp traegt die Form, und keine Klassenbildung im Visual (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026: `columnChart` hat kein Objekt mit 'bin' im Namen). Klassen entstehen in Power BI modellseitig als Gruppierung, nicht als Visual-Eigenschaft — das Idiom beschreibt aber die Darstellung, nicht die Vorbereitung"
     use: "create a bin group on the field, then a columnChart of the count (or use Deneb)"
 
   powerbi_svg_dax:

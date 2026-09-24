@@ -77,20 +77,58 @@ def _private_sources(bp: dict) -> list[dict]:
                   key=lambda e: str(e.get("source")))
 
 
+def _mpe_gruppen(bp: dict) -> list[tuple[str, list[dict]]]:
+    """Private Quellen, gruppiert nach dem QUELLSYSTEM — (Gruppenschluessel, Quellen).
+
+    Ein Managed Private Endpoint zeigt auf einen `privateLinkServices`-Eintrag und eine
+    Liste von FQDNs. Beides sind Eigenschaften eines HOSTS, nicht einer Tabelle. Bis
+    08.09.2026 entstand hier ein Endpunkt je Quelle; gemessen am SAP-Szenario waren das
+    **24 Endpunkte fuer ein einziges S/4HANA-System** — 24 Azure-Genehmigungen und 24 Mal
+    dieselbe FQDN-Frage im Ledger (offene Punkte 9 -> 34). Sichtbar wurde es erst, als die
+    Datasphere-Bruecke den Zugriffsmodus auf `mirror` stellte und damit ueberhaupt private
+    Konnektivitaet verlangte.
+
+    Ohne deklariertes `source_system` bleibt die Quelle ihre eigene Gruppe — das ist der
+    bisherige Stand und die sichere Richtung: lieber ein Endpunkt zu viel als zwei Systeme
+    still zusammengelegt.
+    """
+    gruppen: dict[str, list[dict]] = {}
+    for e in _private_sources(bp):
+        schluessel = str(e.get("source_system") or "").strip() or f"__quelle__{e.get('source', '')}"
+        gruppen.setdefault(schluessel, []).append(e)
+    return sorted(gruppen.items(), key=lambda kv: str(kv[1][0].get("source")))
+
+
 def _mpe_specs(bp: dict) -> list[dict]:
     specs = []
-    for e in _private_sources(bp):
-        src = e.get("source", "")
-        sub, port = _subresource(e.get("source_system", ""))
+    for schluessel, quellen in _mpe_gruppen(bp):
+        erste = quellen[0]
+        system = str(erste.get("source_system") or "")
+        # Der Name traegt die erste Quelle der Gruppe, damit bestehende Lieferungen mit je
+        # einer Quelle je System denselben Namen behalten wie vorher.
+        namensgeber = str(erste.get("source", ""))
+        sub, port = _subresource(system)
+        wofuer = (f"{system} ({len(quellen)} Quellen)" if system and len(quellen) > 1
+                  else system or namensgeber)
+        # Der FQDN-Platzhalter traegt den QUELLNAMEN und nicht den Systemnamen. Er wird zu
+        # einem offenen Punkt, und dessen Schluessel landet als Etikett in einem
+        # kommagetrennten Feld (Azure DevOps `System.Tags`). Ein Systemname wie
+        # „SAP ECC (on-prem, via gateway)" bringt ein Komma mit und zerlegt das Etikett —
+        # gemessen 08.09.2026 an `test_jeder_eintrag_traegt_unseren_schluessel_als_etikett`.
+        # Das gemeinsame System steht deshalb in `requestMessage` und in der Tabelle, wo es
+        # kein Schluessel ist.
+        geteilt = f" (+{len(quellen) - 1} weitere Quellen am selben System)" if len(quellen) > 1 else ""
         specs.append({
-            "name": f"mpe-{_slug(src)}"[:64],
+            "name": f"mpe-{_slug(namensgeber)}"[:64],
             "targetPrivateLinkResourceId":
                 "<VERIFY: /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Network/privateLinkServices/<pls>>",
             "targetSubresourceType": sub,
-            "targetFQDNs": [f"<VERIFY: FQDN of {src} (e.g. {_ident(src)}.corp.example.com)>"],
-            "requestMessage": f"Fabric private connection to {src}"[:140],
+            "targetFQDNs": [f"<VERIFY: FQDN of {namensgeber}{geteilt} "
+                            f"(e.g. {_ident(namensgeber)}.corp.example.com)>"],
+            "requestMessage": f"Fabric private connection to {wofuer}"[:140],
             "_port": port,
-            "_source_system": e.get("source_system", ""),
+            "_source_system": system,
+            "_quellen": [str(q.get("source", "")) for q in quellen],
         })
     return specs
 
@@ -122,13 +160,19 @@ def _create_script(specs: list[dict], workspace: str) -> str:
 def _plan(bp: dict, specs: list[dict]) -> str:
     lines = [
         "# Secure connectivity for private sources (generated — grounded MS Learn 2026-07)", "",
-        f"Private sources detected: **{len(specs)}** (mirror / on-prem / flagged private).", "",
-        "| Source | System | Path | Subresource · port |", "|---|---|---|---|",
+        f"Private sources detected: **{len(_private_sources(bp))}** (mirror / on-prem / flagged "
+        f"private) over **{len(specs)}** managed private endpoint(s) — one per source system.", "",
+        "| Source | System | Path | Endpoint | Subresource · port |", "|---|---|---|---|---|",
     ]
-    priv = _private_sources(bp)
-    for e, s in zip(priv, specs):
-        lines.append(f"| {e.get('source')} | {e.get('source_system') or '—'} | Managed Private Endpoint | "
-                     f"`{s['targetSubresourceType']}` · {s['_port'] or '<VERIFY>'} |")
+    # JEDE private Quelle bekommt eine Zeile, auch wenn sich mehrere einen Endpunkt teilen.
+    # Vorher stand hier `zip(priv, specs)`; sobald die Endpunkte nach Quellsystem gruppiert
+    # sind, ist das eine Kuerzung auf die kuerzere Liste — 23 von 24 Quellen waeren aus der
+    # Tabelle gefallen, ohne dass irgendetwas rot geworden waere.
+    for s in specs:
+        for src in s.get("_quellen") or []:
+            system = s["_source_system"] or "—"
+            lines.append(f"| {src} | {system} | Managed Private Endpoint | `{s['name']}` | "
+                         f"`{s['targetSubresourceType']}` · {s['_port'] or '<VERIFY>'} |")
     if not specs:
         lines.append("| — | — | (no private sources; all reach public endpoints) | — |")
     lines += [

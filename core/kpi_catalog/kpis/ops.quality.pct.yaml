@@ -21,6 +21,7 @@ action_code_ref:
 - O-O1.3
 - F-K2.2
 calc_type: rate
+good_is: higher
 business:
   purpose: Yield of conforming units relative to total units produced.
   definition: Good units / Total units

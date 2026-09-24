@@ -59,7 +59,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyyaml pytest python-docx
+          # jsonschema: `tooling/superversion/project_package/validator.py` importiert es
+          # ungeschuetzt, und `project_package/__init__.py` zieht den Validator beim Import
+          # nach. Ohne das Paket bricht schon das Einsammeln ab (`2 errors during collection`,
+          # gemessen 04.09.2026 in Lauf 33930671538) — der Job konnte seit `aa8e5cd4` nie
+          # gruen werden. Dieselbe Klasse wie pyarrow/pandas in stage1.yml: wo die CI weniger
+          # installiert, prueft sie etwas anderes.
+          pip install pyyaml jsonschema pytest python-docx
 
       - name: Run superversion adapter tests
         run: python -m pytest tooling/superversion/ -q

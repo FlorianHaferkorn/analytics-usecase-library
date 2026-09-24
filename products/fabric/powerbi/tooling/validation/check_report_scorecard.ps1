@@ -24,7 +24,7 @@
 #>
 Param(
     [string]$DistRoot = "",
-    [string[]]$Enforce = @("COM-002"),
+    [string[]]$Enforce = @(".Report"),   # alle Reports seit R5.1 (23.09.2026)
     [string]$WriteResults = "internal/metrics/runs/report_scorecard/latest_results.json"
 )
 

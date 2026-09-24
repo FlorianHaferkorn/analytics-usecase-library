@@ -10,6 +10,7 @@ use_case_ref:
 action_code_ref:
 - C-C3.2
 calc_type: count
+good_is: lower
 business:
   purpose: Provide the absolute number of logged complaints.
   definition: Count of complaint records in the complaint/service system.

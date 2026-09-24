@@ -17,6 +17,7 @@ use_case_ref:
 action_code_ref:
 - S-F3.2
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures mean absolute percentage error in forecast.
   definition: Mean(|Forecast - Actual| / Actual).

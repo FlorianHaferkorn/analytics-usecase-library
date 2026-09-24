@@ -75,7 +75,8 @@ Run all scripts from the **repository root**.
 |---|---|---|
 | Indentation | Tabs only | Spaces |
 | DAX assignment | `=` | `:=` |
-| Measure docs | `/// Purpose: ...` comment above | `description:` property |
+| Measure docs | `/// Purpose: ...` comment above **and** `description:` property | comment only (invisible to Copilot) |
+| Description length | <= 200 chars (Copilot truncates) | longer prose |
 | Numeric columns | Always include `summarizeBy: none` | Omit summarizeBy |
 | Measure formatting | Always include `formatString` | Omit formatString |
 
@@ -197,6 +198,7 @@ Source: `docs/agent/skills/` · Condensed rules: `docs/agent/rules/`
 | [`generate-and-validate-pbi-report`](docs/agent/skills/generate-and-validate-pbi-report.md) | Generate Power BI reports with iterative validation |
 | [`fix-pbi-report-errors`](docs/agent/skills/fix-pbi-report-errors.md) | Diagnose and fix Power BI report / semantic model errors |
 | [`fabric-powerbi-validation`](docs/agent/skills/fabric-powerbi-validation.md) | Validate Fabric output (TMDL, DAX, measures) |
+| [`run-agentic-loop`](docs/agent/skills/run-agentic-loop.md) | Run the agentic loop S0–S7 end to end (dry run by default) |
 
 ### OSS stack skills
 

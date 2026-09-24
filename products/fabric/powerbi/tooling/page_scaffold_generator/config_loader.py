@@ -78,6 +78,46 @@ class ConfigLoader:
         self._kpi_id_to_measure_name: Optional[Dict[str, str]] = None
         self._kpi_id_to_calc_type: Optional[Dict[str, str]] = None
 
+    def _band_delta(self, bracket: Dict[str, Any]):
+        """(Delta-Measure, kpi_id) fuer das KPI-Band oder None (R6.1c), aus comparison_measures."""
+        from tooling.codegen.comparison_measures import band_delta
+        d = self._target_model_dir(bracket)
+        if d is None:
+            return None
+        return band_delta(bracket, self.measure_map_for_model(d),
+                          set(self._model_symbols_for_dir(d).measure_names))
+
+    def _comparison_refs(self, bracket: Dict[str, Any]) -> Dict[str, str]:
+        """`<kpi_id>|<art>` -> Referenz-Measure im gebundenen Modell (R6.1).
+
+        Namen und Existenzpruefung kommen aus tooling/codegen/comparison_measures.py, demselben
+        Modul, das die Measures erzeugt -- zwei Stellen, die Namen bilden, waeren zwei Meinungen.
+        """
+        from tooling.codegen.comparison_measures import referenzen_fuer_bracket
+        d = self._target_model_dir(bracket)
+        if d is None:
+            return {}
+        return referenzen_fuer_bracket(bracket, self.measure_map_for_model(d),
+                                       set(self._model_symbols_for_dir(d).measure_names))
+
+    def load_kpi_good_is(self) -> Dict[str, str]:
+        """KPI-ID -> `good_is` (higher/lower/band/zero) aus den Katalogdateien.
+
+        KPIs ohne Richtung fehlen im Ergebnis: der Katalog behauptet dort keine (R6.3).
+        """
+        if "_good_is" in self.__dict__:
+            return self._good_is
+        out: Dict[str, str] = {}
+        for f in sorted((self.repo_root / "core" / "kpi_catalog" / "kpis").glob("*.yaml")):
+            try:
+                d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+            except yaml.YAMLError:
+                continue
+            if isinstance(d, dict) and d.get("kpi_id") and d.get("good_is"):
+                out[str(d["kpi_id"])] = str(d["good_is"])
+        self._good_is = out
+        return out
+
     def load_kpi_id_to_measure_name_map(self) -> Dict[str, str]:
         """
         Load KPI catalog and return mapping kpi_id -> measure name (as in semantic model).
@@ -116,6 +156,163 @@ class ConfigLoader:
         except Exception as exc:
             logger.warning("Failed to parse KPI catalog at %s: %s", self.kpi_catalog_path, exc)
         return result
+
+    # --- Measure-Namen gegen das Zielmodell, nicht gegen den Katalog (23.09.2026) -------
+    #
+    # Der Katalog fuehrt den fachlichen Namen (`kpi_key`), das Modell den technischen, und
+    # beide sind nicht immer gleich. Gemessen 23.09.2026 beim Neuerzeugen aller Reports:
+    #
+    #   * 5 der 109 KPIs mit Dictionary-Eintrag loesten auf einen Namen auf, den KEIN
+    #     Modell definiert (`Plan Net Sales Amount` statt `Plan Sales Amount`).
+    #   * 6 Bindungen zeigten auf ein Measure, das es nur in einem FREMDEN Modell gibt:
+    #     FIN-001 bekam `OTIF %`, sein Finance-Modell fuehrt `OTIF % (FIN)`.
+    #
+    # Die zweite Sorte sieht der Referenz-Validator nicht, weil er die Measures aller
+    # Modelle zusammenlegt. Im ausgelieferten dist/ fehlte beides nur, weil es von Hand
+    # nachgezogen war -- beim naechsten Lauf des Generators waere es zurueckgekommen.
+    #
+    # Die Bindung KPI -> Measure steht im Measure-Dictionary (`kpi_id_ref`). Aufgeloest
+    # wird gegen das Modell, an das der Report bindet (`../<domain>.SemanticModel`).
+    # Korrigiert wird nur, was dort nachweislich fehlt, und nur, wenn genau ein
+    # Dictionary-Name dort existiert. Mehr als ein Treffer bleibt stehen und faellt im
+    # Validator auf: eine Wahl zwischen zwei Namen ist keine Korrektur, sondern ein Raten.
+
+    def _target_model_dir(self, bracket: Dict[str, Any]) -> Optional[Path]:
+        """Das Modell, an das der Report bindet.
+
+        Erste Quelle ist die `definition.pbir` des Reports: sie sagt, woran er tatsaechlich
+        haengt. `domain` taugt dafuer nur ersatzweise -- gemessen 23.09.2026 tragen Brackets
+        dort Werte wie `Experience / Service` oder `Executive / Cross-Functional`, und XD-003
+        (`Executive`) bindet an das Experience-Modell. Ein Pfad aus `domain` haette in
+        diesen Faellen still ins Leere gegriffen.
+        """
+        dist = self.repo_root / "products" / "fabric" / "powerbi" / "dist"
+        uc_id = (bracket or {}).get("id")
+        uc_dir = self._resolve_use_case_dir(uc_id) if uc_id else None
+        if uc_dir is not None:
+            pbir = dist / f"{uc_dir.name}.Report" / "definition.pbir"
+            if pbir.exists():
+                ref = ((json.loads(pbir.read_text(encoding="utf-8")).get("datasetReference") or {})
+                       .get("byPath") or {}).get("path")
+                if ref:
+                    d = (pbir.parent / ref).resolve()
+                    if d.exists():
+                        return d
+        domain = str((bracket or {}).get("domain") or "").split("/")[0].strip()
+        d = dist / f"{domain}.SemanticModel"
+        return d if domain and d.exists() else None
+
+    def _model_symbols_for(self, bracket: Dict[str, Any]):
+        return self._model_symbols_for_dir(self._target_model_dir(bracket))
+
+    def _model_symbols_for_dir(self, d: Optional[Path]):
+        from tooling.report_quality.dax_reference_validator import ModelSymbols, TableSymbols, parse_tmdl_table
+        cache = self.__dict__.setdefault("_symbols_cache", {})
+        if d in cache:
+            return cache[d]
+        sym = ModelSymbols()
+        if d is not None:
+            for t in sorted((d / "definition" / "tables").glob("*.tmdl")):
+                tab = parse_tmdl_table(t)
+                if tab:
+                    sym.tables.setdefault(tab.name, TableSymbols(tab.name))
+                    sym.tables[tab.name].columns |= tab.columns
+                    sym.tables[tab.name].measures.update(tab.measures)
+        cache[d] = sym
+        return sym
+
+    def _dictionary_measure_names(self) -> Dict[str, set]:
+        if "_dict_names" in self.__dict__:
+            return self._dict_names
+        out: Dict[str, set] = {}
+        for f in sorted((self.repo_root / "core" / "semantic_models" / "domains").glob(
+                "*/measures/*.yaml")):
+            try:
+                d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+            except yaml.YAMLError:
+                continue
+            if isinstance(d, dict) and d.get("kpi_id_ref") and d.get("measure_name"):
+                out.setdefault(str(d["kpi_id_ref"]), set()).add(str(d["measure_name"]))
+        self._dict_names = out
+        return out
+
+    def measure_map_for(self, bracket: Dict[str, Any]) -> Dict[str, str]:
+        """KPI-ID -> Measure-Name, wie das Zielmodell dieses Brackets ihn fuehrt."""
+        return self.measure_map_for_model(self._target_model_dir(bracket))
+
+    def measure_map_for_model(self, model_dir: Optional[Path]) -> Dict[str, str]:
+        """KPI-ID -> Measure-Name, wie das Modell unter `model_dir` ihn fuehrt.
+
+        Dieselbe Aufloesung fuer Report-Visuals und fuer die Action-Trigger
+        (`tooling/codegen/action_trigger_dax.py`); zwei Aufloesungen waeren zwei Meinungen.
+        """
+        result = dict(self.load_kpi_id_to_measure_name_map())
+        definiert = self._model_symbols_for_dir(model_dir).measure_names
+        if not definiert:
+            return result                  # kein Modell zur Hand: nichts behaupten
+        dictionary = self._dictionary_measure_names()
+        for kpi_id in sorted(set(result) | set(dictionary)):
+            if result.get(kpi_id) in definiert:
+                continue
+            basis = set(dictionary.get(kpi_id, ())) | ({result[kpi_id]} if kpi_id in result else set())
+            treffer = sorted(n for n in basis if n in definiert)
+            if not treffer:
+                # Domaenen-Variante: `DSO Days` heisst im Finance-Modell `DSO Days (FIN)`.
+                # Die Konvention steht in .claude/rules/connect-pbid.md; hier gilt sie nur,
+                # wenn das Modell genau EINEN solchen Namen fuehrt.
+                treffer = sorted(n for n in definiert
+                                 if any(n.startswith(b + " (") and n.endswith(")") for b in basis))
+            if len(treffer) == 1:
+                result[kpi_id] = treffer[0]
+        return result
+
+    def _model_columns(self, bracket: Dict[str, Any]) -> Optional[set]:
+        """Alle `tabelle.Spalte` des Zielmodells; None, wenn kein Modell zur Hand ist."""
+        sym = self._model_symbols_for(bracket)
+        if not sym.tables:
+            return None
+        return {f"{t}.{c}" for t, tab in sym.tables.items() for c in tab.columns}
+
+    def _pick_column(self, token: str, eintrag: tuple, bracket: Dict[str, Any]) -> tuple:
+        """Den ersten Kandidaten, den das Zielmodell fuehrt.
+
+        Ein Eintrag ist entweder ein Paar (tabelle, spalte) oder eine geordnete Liste
+        solcher Paare. Bis 23.09.2026 galt ein Paar fuer alle fuenf Modelle; SCM-002
+        bekam so `dim_customer.CustomerName`, das SupplyChain-Modell kennt nur
+        `dim_org.Customer`. Fuehrt das Modell keinen Kandidaten, bricht der Lauf ab --
+        eine Spalte ins Leere ist derselbe Fehler wie eine Measure ins Leere.
+        """
+        kandidaten = eintrag if isinstance(eintrag[0], tuple) else (eintrag,)
+        spalten = self._model_columns(bracket)
+        if spalten is None:
+            return kandidaten[0]
+        for t, c in kandidaten:
+            if f"{t}.{c}" in spalten:
+                return (t, c)
+        raise ValueError(
+            f"evidence_columns: Token {token!r} -- keiner der Kandidaten "
+            f"{[f'{t}.{c}' for t, c in kandidaten]} existiert im Zielmodell "
+            f"{self._target_model_dir(bracket)}.")
+
+    def _table_column(self, ref: str, bracket: Dict[str, Any]) -> Optional[tuple]:
+        """`tabelle.Spalte` -> (tabelle, Spalte), wenn das Zielmodell die Spalte fuehrt.
+
+        None, wenn der Teil vor dem Punkt keine Tabelle dieses Modells ist (dann ist es
+        etwa eine KPI-Kennung oder ein roher Measure-Name). Kennt das Modell die Tabelle,
+        aber nicht die Spalte, bricht der Lauf ab: das ist ein Tippfehler, und still daraus
+        eine Measure zu machen ist genau der Fehler, den dieser Zweig schliesst.
+        """
+        if "." not in ref:
+            return None
+        tabelle, spalte = ref.split(".", 1)
+        sym = self._model_symbols_for(bracket)
+        if tabelle not in sym.table_names:
+            return None
+        if not sym.has_column(tabelle, spalte):
+            raise ValueError(
+                f"evidence_columns: {ref!r} -- Tabelle {tabelle!r} existiert, die Spalte "
+                f"{spalte!r} nicht. Vorhanden: {sorted(sym.tables[tabelle].columns)}")
+        return (tabelle, spalte)
 
     def load_kpi_id_to_calc_type_map(self) -> Dict[str, str]:
         """
@@ -187,7 +384,20 @@ class ConfigLoader:
         callers fall back to the synthesized-text path rather than guess)."""
         ref = (bracket.get("overrides") or {}).get("data_contract_ref") or ""
         filename = ref.rsplit("/", 1)[-1]
-        return self._DATA_CONTRACT_TO_DOMAIN_SUFFIX.get(filename)
+        suffix = self._DATA_CONTRACT_TO_DOMAIN_SUFFIX.get(filename)
+        if suffix:
+            return suffix
+        # Rueckfall, seit 23.09.2026 gemessen statt geraten: das Modell, an das der Report
+        # bindet, fuehrt genau EINE `Narrative Text (<SUFFIX>)`-Measure. Fuer XD-004
+        # (governance.yaml, bisher ohne Zuordnung) ist das `XD` im Experience-Modell --
+        # genau die Bindung, die dist/ von Hand trug. Mehr oder weniger als ein Treffer:
+        # kein Suffix, der Aufrufer faellt wie bisher auf den Text zurueck.
+        kandidaten = sorted({
+            m[len("Narrative Text ("):-1]
+            for m in self._model_symbols_for(bracket).measure_names
+            if m.startswith("Narrative Text (") and m.endswith(")")
+        })
+        return kandidaten[0] if len(kandidaten) == 1 else None
 
     def _format_smart_narrative(self, bracket: Dict[str, Any], use_case_id: str) -> str:
         """Build a one-line Smart Narrative context text for the 300s detail page."""
@@ -199,7 +409,7 @@ class ConfigLoader:
         p2 = ux.get("page_2_execution") or {}
         c300 = p2.get("component_300s") or {}
         grain = c300.get("evidence_grain") or "transaction"
-        kpi_to_measure = self.load_kpi_id_to_measure_name_map()
+        kpi_to_measure = self.measure_map_for(bracket)
         kpi_name = kpi_to_measure.get(strategic_kpi_id, strategic_kpi_id)
         domain_prefix = f"[{domain}] " if domain else ""
         text = f"{domain_prefix}{title}\nEvidence grain: {grain} | Strategic KPI: {kpi_name}"
@@ -776,7 +986,7 @@ class ConfigLoader:
             c30s = p1.get("component_30s")
             # Card KPI IDs: component_3s lead + influencing (deduped, max 4)
             card_kpi_ids = self._card_kpi_ids(bracket)
-            kpi_to_measure = self.load_kpi_id_to_measure_name_map()
+            kpi_to_measure = self.measure_map_for(bracket)
             card_measure_names = [kpi_to_measure.get(k, k) for k in card_kpi_ids]
             template_id = ux.get("page_template") or p1.get("template_id")
             layout_source = ux.get("layout_source")  # Figma URI: "figma://FILE_ID/NODE_ID" or Penpot URI: "penpot://FILE_ID/PAGE_ID/FRAME_ID"
@@ -822,18 +1032,26 @@ class ConfigLoader:
             # brackets keep their current (Header-less) output unchanged.
             intent_rules_version = ux.get("intent_rules_version")
             big_idea_text = p1.get("big_idea") if intent_rules_version == 2 else None
-            # title_policy per-bracket opt-in. Default True preserves every existing report's
-            # statement-title output. A bracket that declares its exhibit statements are NOT
-            # value-verified (title_statements_verified: false) renders honest, question-first
-            # headers with the message as a framed "Expected finding —" subtitle, so a static
-            # generated title can never contradict the data on refresh (see title_policy.py).
-            assert_statement_titles = bool(ux.get("title_statements_verified", True))
+            # title_policy: nur wer seine Aussagen wertgeprueft hat, bekommt sie als Titel
+            # (`title_statements_verified: true`). Bis 23.09.2026 war das der Standard -- 15 von
+            # 20 Brackets behaupteten damit eine Pruefung, die nie stattfand, und 22 von 38
+            # Charttiteln stellten einen Befund fest, der an keinen Daten hing (R6.2). Jetzt
+            # fuehrt die Frage, die Aussage steht als "Expected finding --" darunter.
+            assert_statement_titles = bool(ux.get("title_statements_verified", False))
+            # Kopfzeile nach derselben Regel (R6.2): ungeprueft fuehrt die Frage der Seite,
+            # die Big Idea folgt als Erwartung. design_rules BIG_IDEA_HEADER_ZONE prueft, dass
+            # sie woertlich enthalten bleibt.
+            _frage = (p1.get("decision_question") or "").strip()
+            if big_idea_text and not assert_statement_titles and _frage:
+                from .title_policy import EXPECTED_PREFIX
+                big_idea_text = f"{_frage}  \u00b7  {EXPECTED_PREFIX}{big_idea_text}"
             # Gap A opt-in: split the vs-plan variance into its own sign-coloured KPI card.
             # Default False so only opted-in reports (COM-002 reference) change; the rest keep
             # their single KPI band until deliberately migrated.
             semantic_delta_cards = bool(ux.get("semantic_delta_cards", False))
             return {
                 "name": "overview",
+                "model_columns": self._model_columns(bracket),
                 "layer": [3, 30],
                 "template": template,
                 "template_id": template_id,
@@ -847,6 +1065,9 @@ class ConfigLoader:
                 "card_kpi_ids": card_kpi_ids,
                 "card_measure_names": card_measure_names,
                 "kpi_id_to_measure_name": kpi_to_measure,
+                "kpi_good_is": self.load_kpi_good_is(),
+                "comparison_refs": self._comparison_refs(bracket),
+                "kpi_band_delta": self._band_delta(bracket),
                 "intent_rules_version": intent_rules_version,
                 "big_idea_text": big_idea_text,
                 "assert_statement_titles": assert_statement_titles,
@@ -868,7 +1089,7 @@ class ConfigLoader:
             slots["needs_prescriptive"] = has_action_panel
             # Use same KPI cards as overview (strategic + influencing) so detail cards have measure bindings
             card_kpi_ids = self._card_kpi_ids(bracket)
-            kpi_to_measure = self.load_kpi_id_to_measure_name_map()
+            kpi_to_measure = self.measure_map_for(bracket)
             card_measure_names = [kpi_to_measure.get(k, k) for k in card_kpi_ids]
             template_id = ux.get("page_template") or p2.get("template_id")
             grid_blueprint = None
@@ -885,7 +1106,9 @@ class ConfigLoader:
             EVIDENCE_DIM_TOKENS: Dict[str, tuple] = {
                 "entity":            ("dim_org", "OrgName"),
                 "period":            ("dim_date", "Date"),
-                "customer":          ("dim_customer", "CustomerName"),
+                # Zwei Modelle, zwei Orte: Commercial fuehrt dim_customer, SupplyChain den
+                # Kunden als dim_org.Customer. Aufgeloest wird unten gegen das Zielmodell.
+                "customer":          (("dim_customer", "CustomerName"), ("dim_org", "Customer")),
                 "product":           ("dim_product", "ProductName"),
                 "channel":           ("dim_org", "Channel"),
                 "region":            ("dim_org", "Region"),
@@ -942,9 +1165,16 @@ class ConfigLoader:
                         continue
                     token = col.strip().lower()
                     if token in EVIDENCE_DIM_TOKENS:
-                        resolved_dim_cols.append(EVIDENCE_DIM_TOKENS[token])
+                        resolved_dim_cols.append(self._pick_column(token, EVIDENCE_DIM_TOKENS[token], bracket))
                     elif col in kpi_to_measure:
                         resolved_measures.append(kpi_to_measure[col])
+                    elif self._table_column(col, bracket) is not None:
+                        # `dim_org.Region`: eine Spalte, ausdruecklich benannt. Bis zum
+                        # 23.09.2026 fiel diese Form in den Measure-Zweig darunter und wurde
+                        # zu `_Measures.'dim_org.Region'` -- gemessen an COM-001 (2 Spalten)
+                        # und XD-004 (6). Aufgeloest wird nur gegen eine Spalte, die das
+                        # Modell tatsaechlich fuehrt.
+                        resolved_dim_cols.append(self._table_column(col, bracket))
                     elif _DIM_LIKE_TOKEN.match(token):
                         unresolved_dim_like_tokens.append(col)
                     else:
@@ -978,6 +1208,8 @@ class ConfigLoader:
             _domain_suffix = self._domain_measure_suffix(bracket)
             narrative_measure_name = f"Narrative Text ({_domain_suffix})" if _domain_suffix else None
             active_actions_measure_name = f"Active Actions Text ({_domain_suffix})" if _domain_suffix else None
+            _lr = f"Last Refresh ({_domain_suffix})" if _domain_suffix else None
+            last_refresh_measure_name = _lr if _lr in self._model_symbols_for(bracket).measure_names else None
 
             # R2.3: sort_by/top_n/highlight_rule (R2.1 fields) -> generated Detail_Matrix
             # sortDefinition/TopN filter/data-bar formatting, gated the same way as the
@@ -1008,6 +1240,7 @@ class ConfigLoader:
 
             return {
                 "name": "detail",
+                "model_columns": self._model_columns(bracket),
                 "layer": [300],
                 "template": template,
                 "template_id": template_id,
@@ -1018,17 +1251,21 @@ class ConfigLoader:
                 "card_kpi_ids": card_kpi_ids,
                 "card_measure_names": card_measure_names,
                 "kpi_id_to_measure_name": kpi_to_measure,
+                "kpi_good_is": self.load_kpi_good_is(),
+                "comparison_refs": self._comparison_refs(bracket),
+                "kpi_band_delta": self._band_delta(bracket),
                 "detail_matrix_columns": detail_matrix_columns,
                 "detail_matrix_measures": detail_matrix_measures,
                 "smart_narrative_text": smart_narrative_text,
                 "narrative_measure_name": narrative_measure_name,
                 "active_actions_measure_name": active_actions_measure_name,
+                "last_refresh_measure_name": last_refresh_measure_name,
                 "intent_rules_version": intent_rules_version,
                 "detail_matrix_sort_by": detail_matrix_sort_by,
                 "detail_matrix_top_n": detail_matrix_top_n,
                 "detail_matrix_highlight_rule": detail_matrix_highlight_rule,
                 "detail_matrix_topn_field": detail_matrix_topn_field,
-                "assert_statement_titles": bool(ux.get("title_statements_verified", True)),
+                "assert_statement_titles": bool(ux.get("title_statements_verified", False)),
             }
 
         raise ValueError(f"Page {page_name} not supported (expected 'overview' or 'detail')")

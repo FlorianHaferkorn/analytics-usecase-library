@@ -59,7 +59,7 @@ preview_svg: |
 realizations:
   powerbi_native:
     applicable: false
-    reason: "Power BI has no native dumbbell base visual"
+    reason: "kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026). Zwei Punkte auf einer Zeile mit verbundener Strecke ist keine Rolle, die ein Kernvisual kennt; `scatterChart` setzt Punkte, verbindet sie aber nicht paarweise"
     use: "SVG-DAX (a dumbbell cell in a matrix) or Deneb (layered rule + two points)"
 
   powerbi_svg_dax:

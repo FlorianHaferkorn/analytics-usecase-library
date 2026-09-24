@@ -3,14 +3,14 @@
   "name": "Main_2",
   "position": {
     "x": 656,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3003
+    "tabOrder": 3005
   },
   "visual": {
-    "visualType": "waterfallChart",
+    "visualType": "clusteredBarChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -42,14 +42,32 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "CLV (Customer Lifetime Value)"
+                  "Property": "Customer Retention %"
                 }
               },
-              "queryRef": "_Measures.CLV (Customer Lifetime Value)",
-              "nativeQueryRef": "CLV (Customer Lifetime Value)"
+              "queryRef": "_Measures.Customer Retention %",
+              "nativeQueryRef": "Customer Retention %"
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "Customer Retention %"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
     "objects": {
@@ -60,6 +78,68 @@
               "expr": {
                 "Literal": {
                   "Value": "30L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "labelPosition": {
+              "expr": {
+                "Literal": {
+                  "Value": "'OutsideEnd'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Is retention holding evenly across segments?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Retention is slipping unevenly across segments, concentrating the CLV risk'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }

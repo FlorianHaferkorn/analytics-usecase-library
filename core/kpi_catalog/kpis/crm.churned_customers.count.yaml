@@ -9,6 +9,7 @@ use_case_ref:
 - COM-003
 action_code_ref: []
 calc_type: count
+good_is: lower
 business:
   purpose: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
   definition: Distinct customers with no qualifying transactions in the current period but active in the look-back

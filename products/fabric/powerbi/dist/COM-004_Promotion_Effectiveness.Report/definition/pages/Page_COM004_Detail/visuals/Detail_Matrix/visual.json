@@ -21,48 +21,6 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_org"
-                    }
-                  },
-                  "Property": "Region"
-                }
-              },
-              "queryRef": "dim_org.Region",
-              "nativeQueryRef": "Region"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_org"
-                    }
-                  },
-                  "Property": "Channel"
-                }
-              },
-              "queryRef": "dim_org.Channel",
-              "nativeQueryRef": "Channel"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_product"
-                    }
-                  },
-                  "Property": "Category"
-                }
-              },
-              "queryRef": "dim_product.Category",
-              "nativeQueryRef": "Category"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
                       "Entity": "dim_promo"
                     }
                   },
@@ -77,14 +35,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_promo"
+                      "Entity": "dim_product"
                     }
                   },
-                  "Property": "Promo Type"
+                  "Property": "Category"
                 }
               },
-              "queryRef": "dim_promo.Promo Type",
-              "nativeQueryRef": "Promo Type"
+              "queryRef": "dim_product.Category",
+              "nativeQueryRef": "Category"
             },
             {
               "field": {
@@ -122,39 +80,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Promo Cost"
+                  "Property": "Promo ROI %"
                 }
               },
-              "queryRef": "_Measures.Promo Cost",
-              "nativeQueryRef": "Promo Cost"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Incremental Gross Margin Amount"
-                }
-              },
-              "queryRef": "_Measures.Incremental Gross Margin Amount",
-              "nativeQueryRef": "Incremental Gross Margin Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Cannibalization %"
-                }
-              },
-              "queryRef": "_Measures.Cannibalization %",
-              "nativeQueryRef": "Cannibalization %"
+              "queryRef": "_Measures.Promo ROI %",
+              "nativeQueryRef": "Promo ROI %"
             },
             {
               "field": {
@@ -178,11 +108,25 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Promo ROI %"
+                  "Property": "Cannibalization %"
                 }
               },
-              "queryRef": "_Measures.Promo ROI %",
-              "nativeQueryRef": "Promo ROI %"
+              "queryRef": "_Measures.Cannibalization %",
+              "nativeQueryRef": "Cannibalization %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Incremental Gross Margin Amount"
+                }
+              },
+              "queryRef": "_Measures.Incremental Gross Margin Amount",
+              "nativeQueryRef": "Incremental Gross Margin Amount"
             }
           ]
         }
@@ -240,7 +184,182 @@
             }
           }
         }
+      ],
+      "columnFormatting": [
+        {
+          "properties": {
+            "dataBars": {
+              "positiveColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "ThemeDataColor": {
+                        "ColorId": 0,
+                        "Percent": 0
+                      }
+                    }
+                  }
+                }
+              },
+              "negativeColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "ThemeDataColor": {
+                        "ColorId": 3,
+                        "Percent": 0
+                      }
+                    }
+                  }
+                }
+              },
+              "axisColor": {
+                "solid": {
+                  "color": {
+                    "expr": {
+                      "ThemeDataColor": {
+                        "ColorId": 0,
+                        "Percent": 0.7
+                      }
+                    }
+                  }
+                }
+              },
+              "reverseDirection": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "hideText": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "totalMatchingOption": {
+                "expr": {
+                  "Literal": {
+                    "Value": "1L"
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Promo ROI %"
+          }
+        }
       ]
     }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "TopN_PromoROI_Detail_Matrix",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_promo"
+              }
+            },
+            "Property": "Promo Mechanic"
+          }
+        },
+        "type": "TopN",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "subquery",
+              "Expression": {
+                "Subquery": {
+                  "Query": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "p",
+                        "Entity": "dim_promo",
+                        "Type": 0
+                      },
+                      {
+                        "Name": "m",
+                        "Entity": "_Measures",
+                        "Type": 0
+                      }
+                    ],
+                    "Select": [
+                      {
+                        "Column": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Source": "p"
+                            }
+                          },
+                          "Property": "Promo Mechanic"
+                        },
+                        "Name": "field"
+                      }
+                    ],
+                    "OrderBy": [
+                      {
+                        "Direction": 1,
+                        "Expression": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Source": "m"
+                              }
+                            },
+                            "Property": "Promo ROI %"
+                          }
+                        }
+                      }
+                    ],
+                    "Top": 20
+                  }
+                }
+              },
+              "Type": 2
+            },
+            {
+              "Name": "p",
+              "Entity": "dim_promo",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "p"
+                          }
+                        },
+                        "Property": "Promo Mechanic"
+                      }
+                    }
+                  ],
+                  "Table": {
+                    "SourceRef": {
+                      "Source": "subquery"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User",
+        "isHiddenInViewMode": true
+      }
+    ]
   }
 }

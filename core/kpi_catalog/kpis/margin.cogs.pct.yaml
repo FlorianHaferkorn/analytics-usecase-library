@@ -17,6 +17,7 @@ use_case_ref:
 action_code_ref:
 - F-K2.1
 calc_type: rate
+good_is: lower
 business:
   purpose: Shows cost share relative to net sales.
   definition: COGS Amount / Net Sales Amount.

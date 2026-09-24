@@ -20,6 +20,7 @@ action_code_ref:
 - F-K2.3
 - F-K2.4
 calc_type: ratio
+good_is: lower
 business:
   purpose: Measures total cost per unit produced or sold.
   definition: Total Cost Amount / Units Produced or Sold.

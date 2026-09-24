@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "Smart_Narrative",
+  "position": {
+    "x": 344,
+    "y": 32,
+    "z": 10000,
+    "height": 70,
+    "width": 1232,
+    "tabOrder": 3002
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Narrative Text (OPS)"
+                }
+              },
+              "queryRef": "_Measures.Narrative Text (OPS)",
+              "nativeQueryRef": "Narrative Text (OPS)"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

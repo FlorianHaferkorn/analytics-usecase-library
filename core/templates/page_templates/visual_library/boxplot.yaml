@@ -57,7 +57,7 @@ preview_svg: |
 realizations:
   powerbi_native:
     applicable: false
-    reason: "Power BI has no native box-plot base visual"
+    reason: "kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026: 59 Typen durchgesehen, keiner mit Box-Plot-Rollen oder -Objekt; `textbox` ist der einzige Namenstreffer auf 'box' und ein Textfeld). Median, Quartile und Whisker sind vier Marken auf einer Achse — das drueckt kein Kernvisual aus"
     use: "deneb_vegalite (boxplot mark), or a box-plot custom visual"
 
   powerbi_svg_dax:

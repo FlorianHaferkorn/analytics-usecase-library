@@ -113,9 +113,6 @@ ux_layout_rules:
   report_structure: 2-Page-Lead
   intent_rules_version: 2
   title_statements_verified: false
-  report_canvas:
-    width: 1280
-    height: 720
   page_1_summary:
     title: Executive Action Governance — Overview
     page_type: T1_Strategic_Overview
@@ -141,7 +138,8 @@ ux_layout_rules:
       - slot_id: Main_2
         kpi_id: enterprise.action_effectiveness_delta.amount
         visual_type: horizontal_bar_chart
-        question: "Which domains convert actions into the strongest verified impact?"
+        # Wortlaut 23.09.2026 an so_what und Sortierung (schwaechste zuerst) angeglichen (Entscheidung Flo).
+        question: "Which domains fail to convert actions into verified impact?"
         message: "Domain-level effectiveness ranks where governed actions deliver or fail to deliver verified value."
         so_what: "Executive attention should first address domains combining weak outcomes with material impact exposure."
         category_field: fact_action_outcome.domain
@@ -156,20 +154,25 @@ ux_layout_rules:
     component_300s:
       evidence_grain: action_outcome
       slicer_field: fact_action_outcome.domain
+      # 23.09.2026: die Tabelle zeigt Action-Codes mit governten Measures statt roher
+      # Faktenzeilen. Vorher standen hier sechs Spalten von fact_action_outcome, sortiert
+      # nach der Spalte `days_to_outcome` -- der Generator band sie als Measure, die es in
+      # keinem Modell gibt, und die Top-N-Auswahl griff auf `cost_to_execute` als Entitaet.
+      # Die Entitaet steht jetzt zuletzt (Top-N-Feld, wie ProductCode bei COM-002).
       evidence_columns:
-        - fact_action_outcome.action_code_id
         - fact_action_outcome.domain
         - fact_action_outcome.outcome_status
-        - fact_action_outcome.days_to_outcome
-        - fact_action_outcome.impact_value
-        - fact_action_outcome.cost_to_execute
+        - fact_action_outcome.action_code_id
+        - enterprise.avg_time_to_outcome.days
+        - enterprise.action_effectiveness_delta.amount
+        - enterprise.action_roi.pct
       # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N (R2.1 sort_by/top_n).
       sort_by:
-        measure: days_to_outcome
+        measure: enterprise.avg_time_to_outcome.days
         direction: descending
       top_n: 20
       highlight_rule:
-        column: days_to_outcome
+        column: enterprise.avg_time_to_outcome.days
         type: data_bar
       action_panel: true
       payload_mode: minimal

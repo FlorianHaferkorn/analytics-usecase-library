@@ -5,9 +5,9 @@
       { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_product" } }, "Property": "Category" } }, "queryRef": "dim_product.Category" },
       { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin Amount" } }, "queryRef": "_Measures.Gross Margin Amount" },
       { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin % vs Plan" } }, "queryRef": "_Measures.Gross Margin % vs Plan" }
-    ] },
-    "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin % vs Plan" } }, "direction": "Ascending" } ], "isDefaultSort": true }
-  } },
+    ] }
+  },
+  "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin % vs Plan" } }, "direction": "Ascending" } ], "isDefaultSort": true } },
   "objects": { "columnFormatting": [ { "properties": { "dataBars": {
     "positiveColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#0F2430'" } } } } },
     "negativeColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#A4262C'" } } } } }

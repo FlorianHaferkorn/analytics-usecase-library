@@ -9,6 +9,7 @@ use_case_ref:
 - HR-001
 action_code_ref: []
 calc_type: ratio
+good_is: lower
 business:
   purpose: Measures average calendar days to fill an open vacancy.
   definition: Mean(Filled Date - Requisition Open Date) over positions filled in the period.

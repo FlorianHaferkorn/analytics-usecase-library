@@ -11,7 +11,7 @@
 Global Operating Instructions (Stil, Workflow, Recherche, Sicherheit). Gilt
 projektübergreifend; bei Konflikt gewinnen die projektspezifischen Regeln hier.
 
-## Navigations-Prinzip (Token-Disziplin — KRITISCH)
+## Navigations-Prinzip (Token-Disziplin)
 
 Nicht ganze Ordnerbäume scannen — gezielt routen.
 
@@ -183,7 +183,7 @@ statt sich auf die lokal ohnehin installierten Pakete zu verlassen:
 
 ```bash
 python3 -m venv /tmp/civenv
-/tmp/civenv/bin/pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow pandas
+/tmp/civenv/bin/pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow
 /tmp/civenv/bin/python -m pytest --tb=short -q      # exakt der CI-Aufruf
 ```
 

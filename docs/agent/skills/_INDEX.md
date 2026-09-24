@@ -20,6 +20,7 @@ shelf-life-days: 90
 | `generate-and-validate-pbi-report.md` | Iterativer, fehlerfreier PBI-Report-Workflow |
 | `recommend-fabric-capacity.md` | Kapazität empfehlen: SKU-Floor, Reserved/PAYG, Region, Zuschnitt |
 | `fabric-powerbi-validation.md` | Fabric/PBI-Output validieren (TMDL/DAX/Measures) |
+| `run-agentic-loop.md` | Agentische Schleife S0–S7: ein Kommando, Trockenlauf als Standard |
 | `fix-pbi-report-errors.md` | PBI-Report-/Modell-Fehler diagnostizieren + fixen |
 | `generate-oss-dashboard.md` | Evidence.dev-Pages aus IR/Bracket generieren |
 | `oss-stack-validation.md` | OSS-Stack-Artefakte validieren |

@@ -3,50 +3,32 @@
   "name": "Main_2",
   "position": {
     "x": 656,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3003
+    "tabOrder": 3005
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "tableEx",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
-        "Category": {
+        "Values": {
           "projections": [
             {
               "field": {
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_date"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "CalendarYearMonth"
+                  "Property": "OrgName"
                 }
               },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
-            }
-          ]
-        },
-        "Y": {
-          "projections": [
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Utilization %"
-                }
-              },
-              "queryRef": "_Measures.Utilization %",
-              "nativeQueryRef": "Utilization %"
+              "queryRef": "dim_org.OrgName",
+              "nativeQueryRef": "OrgName"
             },
             {
               "field": {
@@ -56,11 +38,25 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Occupancy %"
+                  "Property": "SLA Attainment %"
                 }
               },
-              "queryRef": "_Measures.Occupancy %",
-              "nativeQueryRef": "Occupancy %"
+              "queryRef": "_Measures.SLA Attainment %",
+              "nativeQueryRef": "SLA Attainment %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Overtime %"
+                }
+              },
+              "queryRef": "_Measures.Overtime %",
+              "nativeQueryRef": "Overtime %"
             },
             {
               "field": {
@@ -78,16 +74,97 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "SLA Attainment %"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
     "objects": {
-      "categoryAxis": [
+      "grid": [
         {
           "properties": {
-            "innerPadding": {
+            "gridVertical": {
               "expr": {
                 "Literal": {
-                  "Value": "30L"
+                  "Value": "false"
+                }
+              }
+            },
+            "gridHorizontal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "gridHorizontalWeight": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
+            },
+            "rowPadding": {
+              "expr": {
+                "Literal": {
+                  "Value": "8L"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'What are utilization''s quality trade-offs?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — SLA attainment, overtime, and shrinkage — utilization''s three quality trade-offs.'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }

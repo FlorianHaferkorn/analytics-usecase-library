@@ -13,6 +13,7 @@ use_case_ref:
 action_code_ref:
 - C-M2.2
 calc_type: amount
+good_is: higher
 business:
   purpose: Captures the residual effect from changes in product, channel, or region mix.
   definition: Total variance - Price Effect - Volume Effect.

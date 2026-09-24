@@ -3,11 +3,11 @@
   "name": "Main_2",
   "position": {
     "x": 656,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3003
+    "tabOrder": 3005
   },
   "visual": {
     "visualType": "clusteredBarChart",
@@ -21,14 +21,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_date"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "CalendarYearMonth"
+                  "Property": "OrgName"
                 }
               },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
+              "queryRef": "dim_org.OrgName",
+              "nativeQueryRef": "OrgName"
             }
           ]
         },
@@ -42,42 +42,32 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "SLA Attainment %"
-                }
-              },
-              "queryRef": "_Measures.SLA Attainment %",
-              "nativeQueryRef": "SLA Attainment %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
                   "Property": "First Contact Resolution %"
                 }
               },
               "queryRef": "_Measures.First Contact Resolution %",
               "nativeQueryRef": "First Contact Resolution %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Escalation %"
-                }
-              },
-              "queryRef": "_Measures.Escalation %",
-              "nativeQueryRef": "Escalation %"
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "First Contact Resolution %"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
     "objects": {
@@ -88,6 +78,68 @@
               "expr": {
                 "Literal": {
                   "Value": "30L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "labelPosition": {
+              "expr": {
+                "Literal": {
+                  "Value": "'OutsideEnd'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Which service-quality signals explain the backlog?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — First-contact resolution, handle time, and escalation — the three service-quality signals.'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }

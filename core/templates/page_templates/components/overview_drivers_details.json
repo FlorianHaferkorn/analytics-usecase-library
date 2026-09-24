@@ -1,12 +1,12 @@
 {
   "name": "overview_drivers_details",
-  "version": 1,
+  "version": 2,
   "layout": {
     "sections": [
-      { "id": "header",  "visuals": ["kpi_cards"] },
-      { "id": "trend",   "visuals": ["trend_main"] },
-      { "id": "drivers", "visuals": ["decomposition_or_bridge"] },
-      { "id": "details", "visuals": ["ranking_table"] }
+      { "id": "header",  "blocks": ["status_signal"] },
+      { "id": "trend",   "blocks": ["time_trend"] },
+      { "id": "drivers", "blocks": ["variance_explanation"] },
+      { "id": "details", "blocks": ["entity_ranking"] }
     ],
     "slicers_from_segments": true
   },
@@ -15,6 +15,5 @@
     "segments": "@segments",
     "filters": "@filters_default"
   },
-  "notes": "Template intentionally abstract. Agent binds visuals to measures based on required_kpi_ids; slicers created from segments."
+  "notes": "Version 2 (08.09.2026): die Abschnitte nennen Informationsbloecke aus visual_registry.yaml statt frei gewaehlter Visual-Woerter. Vorher standen hier kpi_cards, trend_main, decomposition_or_bridge und ranking_table — vier Namen, die kein Register kannte und die deshalb nichts binden konnten. Welches Visual einen Block zeichnet, entscheidet allowed_visuals des Blocks, nicht diese Datei; das ist der Unterschied zwischen 'welche Information steht hier' und 'wie wird sie gezeichnet'. Der Agent bindet die Measures aus required_kpi_ids, Slicer entstehen aus segments."
 }
-

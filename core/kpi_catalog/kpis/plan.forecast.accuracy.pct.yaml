@@ -21,6 +21,7 @@ action_code_ref:
 - S-F3.4
 - S-I1.5
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures how close forecasted demand is to actual demand.
   definition: 1 - |Forecast - Actual| / Actual.

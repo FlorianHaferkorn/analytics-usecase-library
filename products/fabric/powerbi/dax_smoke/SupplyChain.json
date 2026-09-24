@@ -1,0 +1,483 @@
+{
+  "modell": "SupplyChain.SemanticModel",
+  "quelle_sha256": "3309c0acba4439c7c82dff5466262d7814ae2995f6843b746e3ca67bcf861a64",
+  "messungen": [
+    {
+      "measure": "Action Effectiveness Delta",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action Effectiveness Delta])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action Effectiveness Delta])"
+      }
+    },
+    {
+      "measure": "Action Outcome Rate % (XD)",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action Outcome Rate % (XD)])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action Outcome Rate % (XD)])"
+      }
+    },
+    {
+      "measure": "Action ROI % (XD)",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action ROI % (XD)])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action ROI % (XD)])"
+      }
+    },
+    {
+      "measure": "Action_S-F3.1_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-F3.1_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-F3.1_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-F3.2_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-F3.2_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-F3.2_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-F3.3_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-F3.3_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-F3.3_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-F3.4_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-F3.4_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-F3.4_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-I1.1_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-I1.1_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-I1.1_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-I1.2_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-I1.2_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-I1.2_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-I1.3_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-I1.3_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-I1.3_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-I1.4_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-I1.4_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-I1.4_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-I1.5_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-I1.5_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-I1.5_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-R2.1_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-R2.1_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-R2.1_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-R2.2_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-R2.2_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-R2.2_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-R2.3_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-R2.3_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-R2.3_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-R2.4_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-R2.4_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-R2.4_Text])"
+      }
+    },
+    {
+      "measure": "Action_S-R2.5_Text",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Action_S-R2.5_Text])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Action_S-R2.5_Text])"
+      }
+    },
+    {
+      "measure": "Actions Executed Count (XD)",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Actions Executed Count (XD)])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Actions Executed Count (XD)])"
+      }
+    },
+    {
+      "measure": "Active Actions Text (SCM)",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Active Actions Text (SCM)])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Active Actions Text (SCM)])"
+      }
+    },
+    {
+      "measure": "Avg Time-to-Outcome Days (XD)",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Avg Time-to-Outcome Days (XD)])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Avg Time-to-Outcome Days (XD)])"
+      }
+    },
+    {
+      "measure": "Days in Inventory",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Days in Inventory])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Days in Inventory])"
+      }
+    },
+    {
+      "measure": "Days in Inventory Target",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Days in Inventory Target])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Days in Inventory Target])"
+      }
+    },
+    {
+      "measure": "Days in Inventory vs Target",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Days in Inventory vs Target])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Days in Inventory vs Target])"
+      }
+    },
+    {
+      "measure": "Expedite Cost Amount",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Expedite Cost Amount])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Expedite Cost Amount])"
+      }
+    },
+    {
+      "measure": "Forecast Accuracy %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Forecast Accuracy %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Forecast Accuracy %])"
+      }
+    },
+    {
+      "measure": "Forecast Accuracy % Target",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Forecast Accuracy % Target])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Forecast Accuracy % Target])"
+      }
+    },
+    {
+      "measure": "Forecast Accuracy % vs Target",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Forecast Accuracy % vs Target])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Forecast Accuracy % vs Target])"
+      }
+    },
+    {
+      "measure": "Forecast Bias %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Forecast Bias %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Forecast Bias %])"
+      }
+    },
+    {
+      "measure": "Forecast MAPE %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Forecast MAPE %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Forecast MAPE %])"
+      }
+    },
+    {
+      "measure": "In-Full %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [In-Full %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [In-Full %])"
+      }
+    },
+    {
+      "measure": "Inventory Turnover",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Inventory Turnover])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Inventory Turnover])"
+      }
+    },
+    {
+      "measure": "Last Refresh (SCM)",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Last Refresh (SCM)])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Last Refresh (SCM)])"
+      }
+    },
+    {
+      "measure": "Narrative Text (SCM)",
+      "tabelle": "_Measures",
+      "klasse": "text",
+      "grund": "Textmeasure; leer erlaubt, wenn nichts auslöst",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Narrative Text (SCM)])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Narrative Text (SCM)])"
+      }
+    },
+    {
+      "measure": "OTIF %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [OTIF %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [OTIF %])"
+      }
+    },
+    {
+      "measure": "OTIF % Target",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [OTIF % Target])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [OTIF % Target])"
+      }
+    },
+    {
+      "measure": "OTIF % vs Target",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [OTIF % vs Target])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [OTIF % vs Target])"
+      }
+    },
+    {
+      "measure": "Obsolete Inventory %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Obsolete Inventory %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Obsolete Inventory %])"
+      }
+    },
+    {
+      "measure": "On-Time %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [On-Time %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [On-Time %])"
+      }
+    },
+    {
+      "measure": "Order Lines Count",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Order Lines Count])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Order Lines Count])"
+      }
+    },
+    {
+      "measure": "Penalty Amount",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Penalty Amount])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Penalty Amount])"
+      }
+    },
+    {
+      "measure": "Plans Count",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Plans Count])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Plans Count])"
+      }
+    },
+    {
+      "measure": "Sales Units",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Sales Units])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Sales Units])"
+      }
+    },
+    {
+      "measure": "Service Impact %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Service Impact %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Service Impact %])"
+      }
+    },
+    {
+      "measure": "Shipments Count",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Shipments Count])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Shipments Count])"
+      }
+    },
+    {
+      "measure": "Stockout Impact %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Stockout Impact %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Stockout Impact %])"
+      }
+    },
+    {
+      "measure": "Stockout Rate %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Stockout Rate %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Stockout Rate %])"
+      }
+    }
+  ],
+  "gegenproben": [
+    {
+      "measure": "Expedite Cost Amount",
+      "ordner": "facts/fact_fulfillment",
+      "spalte": "Expedite Cost"
+    },
+    {
+      "measure": "Penalty Amount",
+      "ordner": "facts/fact_fulfillment",
+      "spalte": "Penalty Amount"
+    },
+    {
+      "measure": "Sales Units",
+      "ordner": "facts/fact_sales",
+      "spalte": "Quantity"
+    }
+  ]
+}

@@ -9,6 +9,7 @@ use_case_ref:
 - COM-001
 action_code_ref: []
 calc_type: amount
+good_is: higher
 business:
   purpose: Measures the variance caused purely by quantity changes at plan price.
   definition: (Actual Quantity - Plan Quantity) x Plan Price.

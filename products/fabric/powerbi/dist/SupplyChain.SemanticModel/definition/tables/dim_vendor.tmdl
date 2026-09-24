@@ -1,0 +1,29 @@
+/// Procurement vendor (region, tier) keyed by VendorKey for the Aurora procurement gold.
+table dim_vendor
+	lineageTag: c283b32a-807f-5b97-8a40-bb707c6d81cc
+	column VendorKey
+		dataType: Int64
+		sourceColumn: VendorKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column Vendor
+		dataType: String
+		sourceColumn: Vendor
+		summarizeBy: none
+	column Region
+		dataType: String
+		sourceColumn: Region
+		summarizeBy: none
+	column Tier
+		dataType: String
+		sourceColumn: Tier
+		summarizeBy: none
+	partition dim_vendor = m
+		mode: import
+		source =
+			let
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/dimensions/dim_vendor"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
+			in
+				ParquetData

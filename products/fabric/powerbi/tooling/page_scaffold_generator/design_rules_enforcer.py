@@ -170,7 +170,12 @@ def check_header_text_equals_big_idea(
     big_idea: Optional[str],
     generated_visuals: List[Dict[str, Any]],
 ) -> List[str]:
-    """BIG_IDEA_HEADER_ZONE: the Header textbox must render big_idea verbatim.
+    """BIG_IDEA_HEADER_ZONE: the Header textbox must contain big_idea verbatim.
+
+    Seit 23.09.2026 (R6.2, Entscheidung Flo) *enthaelt* die Kopfzeile die Big Idea statt
+    ihr zu gleichen: ohne wertgepruefte Aussage fuehrt die decision_question, die Big Idea
+    steht dahinter als "Expected finding --" (title_policy). Wortlaut und Quelle bleiben
+    dieselben, geprueft wird weiter woertlich.
 
     `page_1_summary.big_idea` is the single rendered source of truth for this text. It is either
     hand-authored (the D4 fallback floor) or produced by the ADR-0017 Stage-2 generator
@@ -190,8 +195,8 @@ def check_header_text_equals_big_idea(
     rendered = text_objs[0].get("properties", {}).get("text", {}).get("expr", {}).get("Literal", {}).get("Value", "")
     # Rendered literal is a single-quoted PBIR string with '' as the escaped quote.
     rendered_unquoted = rendered[1:-1].replace("''", "'") if rendered.startswith("'") and rendered.endswith("'") else rendered
-    if rendered_unquoted != big_idea:
-        return [f"{rule['id']}: Header text does not match page_1_summary.big_idea verbatim"]
+    if big_idea not in rendered_unquoted:
+        return [f"{rule['id']}: Header text does not contain page_1_summary.big_idea verbatim"]
     return []
 
 

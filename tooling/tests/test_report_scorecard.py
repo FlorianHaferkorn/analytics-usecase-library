@@ -291,3 +291,49 @@ def test_compute_scorecard_fails_on_knockout_even_with_perfect_content(tmp_path:
     result = compute_scorecard(report_dir, measure_formats={})
     assert result.passed is False
     assert any(k.check == KNOCKOUT_UNSORTED_EVIDENCE for k in result.knockouts)
+
+
+# ---------------------------------------------------------------------------
+# Mixed polarity (R6.3, 23.09.2026)
+# ---------------------------------------------------------------------------
+
+from report_quality.report_scorecard import (  # noqa: E402
+    KNOCKOUT_MIXED_POLARITY,
+    detect_mixed_polarity,
+    load_measure_good_is,
+)
+
+
+def _bar(*measures: str) -> dict:
+    return {
+        "name": "Main_2",
+        "position": {"x": 0, "y": 0, "width": 100, "height": 80},
+        "visual": {
+            "visualType": "clusteredBarChart",
+            "query": {"queryState": {"Y": {"projections": [_measure_projection(m) for m in measures]}}},
+        },
+    }
+
+
+def test_mixed_polarity_flags_higher_next_to_lower_on_one_axis(tmp_path: Path):
+    report = parse_report(_write_minimal_report(tmp_path, visuals={"Main_2": _bar("OTIF %", "Stockout Rate %")}))
+    got = detect_mixed_polarity(report, {"OTIF %": "higher", "Stockout Rate %": "lower"})
+    assert [v.check for v in got] == [KNOCKOUT_MIXED_POLARITY]
+
+
+def test_same_direction_or_unknown_direction_is_not_a_knockout(tmp_path: Path):
+    report = parse_report(_write_minimal_report(
+        tmp_path, visuals={"Main_2": _bar("Unplanned Downtime %", "Spare Parts Stockout %", "Headcount")}))
+    richtung = {"Unplanned Downtime %": "lower", "Spare Parts Stockout %": "lower"}
+    assert detect_mixed_polarity(report, richtung) == []
+
+
+def test_domain_suffix_variant_inherits_the_direction(tmp_path: Path):
+    report = parse_report(_write_minimal_report(tmp_path, visuals={"Main_2": _bar("OTIF % (XD)", "Overtime %")}))
+    assert detect_mixed_polarity(report, {"OTIF %": "higher", "Overtime %": "lower"})
+
+
+def test_measure_directions_come_from_the_catalog():
+    g = load_measure_good_is()
+    assert g["OTIF %"] == "higher" and g["Stockout Rate %"] == "lower"
+    assert "Net Sales Amount" not in g        # Basisgroesse: bewusst ohne Richtung

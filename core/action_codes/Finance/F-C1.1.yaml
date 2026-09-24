@@ -68,6 +68,7 @@ trigger:
         comparator: gt
         threshold:
           basis: absolute
+          reference: baseline
           value: 5
           unit: days
         filters: []
@@ -78,6 +79,7 @@ trigger:
         comparator: gt
         threshold:
           basis: absolute
+          reference: baseline
           value: 10
           unit: days
         filters: []

@@ -3,11 +3,11 @@
   "name": "Main_1",
   "position": {
     "x": 32,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3002
+    "tabOrder": 3004
   },
   "visual": {
     "visualType": "lineChart",
@@ -24,11 +24,11 @@
                       "Entity": "dim_date"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth"
             }
           ]
         },
@@ -45,12 +45,54 @@
                   "Property": "Delta% Net Sales (XD)"
                 }
               },
-              "queryRef": "_Measures.Delta% Net Sales",
+              "queryRef": "_Measures.Delta% Net Sales (XD)",
               "nativeQueryRef": "Delta% Net Sales (XD)"
             }
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Are we on track across the strategic KPIs — and is growth holding?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Net sales growth versus last year is softening quarter to quarter'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -29,7 +29,23 @@ import pytest
 _ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_ROOT / "tooling" / "validation"))
 
-from check_kundendaten import regeln_bauen, sperrliste_laden  # noqa: E402
+from check_kundendaten import SPERRLISTE, regeln_bauen, sperrliste_laden  # noqa: E402
+
+# Die Sperrliste traegt echte Kundenkennungen und ist deshalb bewusst nicht eingecheckt
+# (`.gitignore`). Fehlt sie, kann dieser Test nichts pruefen — und ein Test, der nichts
+# prueft, meldet keinen Erfolg. Er sagt hier, dass er nicht gelaufen ist, statt zu bestehen.
+#
+# Der Grund fuer die Form: `sperrliste_laden` beendet den Prozess (`sys.exit`), und das ist
+# fuer das Skript richtig. Der Aufruf steht hier aber in einem `parametrize`, also im
+# Einsammeln — gemessen am 04.09.2026 gegen `origin/main` mit der CI-Zeile
+# `python -m pytest --tb=short -q`: `INTERNALERROR ... SystemExit`, **no tests ran**. Nicht
+# dieser eine Test fiel aus, sondern die gesamte Suite des Repos.
+if not (_ROOT / SPERRLISTE).exists():
+    pytest.skip(
+        f"Sperrliste {SPERRLISTE} fehlt — dieser Test prueft ohne sie nichts und besteht "
+        "deshalb nicht. Vorlage: scripts/kundendaten-sperrliste.beispiel.json",
+        allow_module_level=True,
+    )
 
 
 def _kundennamen() -> list[str]:
@@ -259,3 +275,15 @@ def test_ein_unverfaenglicher_baum_bleibt_still(tmp_path) -> None:
 
     repo = _repo_mit(tmp_path, ["nichts hier", "auch nichts"])
     assert mod.pruefen(repo, False, {"begriffe": {"kunde": ["zzeinfach"]}}) == []
+
+
+def test_viele_gestagte_pfade_gehen_in_portionen():
+    """24.09.2026: 521 gestagte Pfade in einer Kommandozeile -> WinError 206 unter Windows."""
+    from tooling.validation.check_kundendaten import pfad_portionen
+    pfade = [f"tooling/superversion/vendor/modul_{i:04d}_mit_langem_namen.py" for i in range(600)]
+    portionen = pfad_portionen(pfade)
+    assert len(portionen) > 1
+    assert [p for t in portionen for p in t] == pfade           # nichts verloren, Reihenfolge gleich
+    assert all(sum(len(p) + 3 for p in t) <= 8000 for t in portionen)
+    assert pfad_portionen([]) == []
+    assert pfad_portionen(["x" * 9000]) == [["x" * 9000]]

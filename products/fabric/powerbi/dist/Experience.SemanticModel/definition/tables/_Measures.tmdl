@@ -36,7 +36,7 @@ table _Measures
 
 
 	/// ActionReady Logic: X-S1.1 - Service Level Orchestration
-	measure 'Action_X-S1.1_Text' = IF ( [SLA Attainment %] < 0.88, "🔴 L3 — X-S1.1 — Service Level Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [SLA Attainment %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify SLA-breaching queues — Redeploy to breaching teams — Review SLA daily", IF ( [SLA Attainment %] < 0.92, "🟠 L2 — X-S1.1 — Service Level Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [SLA Attainment %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify SLA-breaching queues — Redeploy to breaching teams — Review SLA daily", IF ( [SLA Attainment %] < 0.95, "🟡 L1 — X-S1.1 — Service Level Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [SLA Attainment %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify SLA-breaching queues — Redeploy to breaching teams — Review SLA daily", BLANK () ) ) )
+	measure 'Action_X-S1.1_Text' = VAR _v0 = [SLA Attainment %] RETURN IF ( ( _v0 < 0.88 ) && [Tickets Created Count] >= 100, "🔴 L3 — X-S1.1 — Service Level Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ DETECT sustained SLA deterioration for this queue" & UNICHAR ( 10 ) & "→ DIAGNOSE the dominant service constraint for this queue" & UNICHAR ( 10 ) & "→ ACTIVATE the corresponding execution Action Code for this queue" & UNICHAR ( 10 ) & "→ REVIEW SLA recovery for this queue daily", IF ( ( _v0 < 0.92 ) && [Tickets Created Count] >= 100, "🟠 L2 — X-S1.1 — Service Level Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ DETECT sustained SLA deterioration for this queue" & UNICHAR ( 10 ) & "→ DIAGNOSE the dominant service constraint for this queue" & UNICHAR ( 10 ) & "→ ACTIVATE the corresponding execution Action Code for this queue" & UNICHAR ( 10 ) & "→ REVIEW SLA recovery for this queue daily", IF ( ( _v0 < 0.95 ) && [Tickets Created Count] >= 100, "🟡 L1 — X-S1.1 — Service Level Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ DETECT sustained SLA deterioration for this queue" & UNICHAR ( 10 ) & "→ DIAGNOSE the dominant service constraint for this queue" & UNICHAR ( 10 ) & "→ ACTIVATE the corresponding execution Action Code for this queue" & UNICHAR ( 10 ) & "→ REVIEW SLA recovery for this queue daily", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: 9_ActionReady_Logic
@@ -45,7 +45,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "X-S1.1"
 
 	/// ActionReady Logic: X-S1.3 - FCR Improvement Programme
-	measure 'Action_X-S1.3_Text' = IF ( [First Contact Resolution %] < 0.55, "🔴 L3 — X-S1.3 — FCR Improvement Programme" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [First Contact Resolution %], "0.0%" ) & UNICHAR ( 10 ) & "→ Analyse repeat-contact causes — Implement agent coaching — Review FCR weekly", IF ( [First Contact Resolution %] < 0.65, "🟠 L2 — X-S1.3 — FCR Improvement Programme" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [First Contact Resolution %], "0.0%" ) & UNICHAR ( 10 ) & "→ Analyse repeat-contact causes — Implement agent coaching — Review FCR weekly", IF ( [First Contact Resolution %] < 0.75, "🟡 L1 — X-S1.3 — FCR Improvement Programme" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [First Contact Resolution %], "0.0%" ) & UNICHAR ( 10 ) & "→ Analyse repeat-contact causes — Implement agent coaching — Review FCR weekly", BLANK () ) ) )
+	measure 'Action_X-S1.3_Text' = VAR _v0 = [First Contact Resolution %] RETURN IF ( ( _v0 < 0.55 ) && [Tickets Closed Count] >= 200, "🔴 L3 — X-S1.3 — Quality & First-Contact Resolution Uplift" & UNICHAR ( 10 ) & "Owner: quality_and_training_lead | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY cases with low first-contact resolution by queue/agent group" & UNICHAR ( 10 ) & "→ DIAGNOSE top repeat-contact drivers for this case type" & UNICHAR ( 10 ) & "→ DEPLOY targeted coaching, scripts, or knowledge updates for this case type" & UNICHAR ( 10 ) & "→ REVIEW FCR and escalations for this case type bi-weekly", IF ( ( _v0 < 0.65 ) && [Tickets Closed Count] >= 200, "🟠 L2 — X-S1.3 — Quality & First-Contact Resolution Uplift" & UNICHAR ( 10 ) & "Owner: quality_and_training_lead | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY cases with low first-contact resolution by queue/agent group" & UNICHAR ( 10 ) & "→ DIAGNOSE top repeat-contact drivers for this case type" & UNICHAR ( 10 ) & "→ DEPLOY targeted coaching, scripts, or knowledge updates for this case type" & UNICHAR ( 10 ) & "→ REVIEW FCR and escalations for this case type bi-weekly", IF ( ( _v0 < 0.75 ) && [Tickets Closed Count] >= 200, "🟡 L1 — X-S1.3 — Quality & First-Contact Resolution Uplift" & UNICHAR ( 10 ) & "Owner: quality_and_training_lead | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY cases with low first-contact resolution by queue/agent group" & UNICHAR ( 10 ) & "→ DIAGNOSE top repeat-contact drivers for this case type" & UNICHAR ( 10 ) & "→ DEPLOY targeted coaching, scripts, or knowledge updates for this case type" & UNICHAR ( 10 ) & "→ REVIEW FCR and escalations for this case type bi-weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: 9_ActionReady_Logic
@@ -80,6 +80,71 @@ table _Measures
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
+
+	/// Purpose: Zielwert von Action Outcome Rate % (XD Log) aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Action Outcome Rate % (XD Log) Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "enterprise.action_outcome_rate.pct", fact_target[scenario] = "target" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 4dab9c41-1a23-5c7d-b1a7-2a47164b1864
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Action Outcome Rate % (XD Log) gegen Action Outcome Rate % (XD Log) Target; leer ohne Referenzwert.
+	measure 'Action Outcome Rate % (XD Log) vs Target' = VAR _r = [Action Outcome Rate % (XD Log) Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [Action Outcome Rate % (XD Log)] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: e1e0bc8a-8f95-5d3c-9179-11d1ebb8dc40
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Zielwert von Enterprise Value-at-Risk Index aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Enterprise Value-at-Risk Index Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "enterprise.value_at_risk.index", fact_target[scenario] = "target" )
+		formatString: "0"
+		displayFolder: 8_Comparison
+		lineageTag: 650da056-a5a5-5c60-b8ad-73ccb6c79219
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Enterprise Value-at-Risk Index gegen Enterprise Value-at-Risk Index Target; leer ohne Referenzwert.
+	measure 'Enterprise Value-at-Risk Index vs Target' = VAR _r = [Enterprise Value-at-Risk Index Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [Enterprise Value-at-Risk Index] - _r )
+		formatString: "0"
+		displayFolder: 8_Comparison
+		lineageTag: b283a9fa-d4f0-53a2-b66c-1cdf584c8b73
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Zielwert von SLA Attainment % aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'SLA Attainment % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "svc.sla.attainment.pct", fact_target[scenario] = "target" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 951b6dba-279f-5a42-a41c-ef112b772337
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung SLA Attainment % gegen SLA Attainment % Target; leer ohne Referenzwert.
+	measure 'SLA Attainment % vs Target' = VAR _r = [SLA Attainment % Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [SLA Attainment %] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 76d2c389-79dc-550a-8b83-99d7da030a57
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Planwert von Utilization % aus fact_target (comparison: vs_plan); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Utilization % Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "res.utilization.pct", fact_target[scenario] = "plan" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 7ba5ce95-54f7-5a00-9125-23a892b7fbd3
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Utilization % gegen Utilization % Plan (Target Table); leer ohne Referenzwert.
+	measure 'Utilization % vs Plan (Target Table)' = VAR _r = [Utilization % Plan (Target Table)] RETURN IF ( ISBLANK ( _r ), BLANK (), [Utilization %] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: ae9f26dc-0a28-5a2e-ada8-3fe7f6eb4229
+
+		annotation ALUCA_Generated = "comparison_measures"
+
 
 	column Column1
 		dataType: string
@@ -464,7 +529,7 @@ table _Measures
 
 	/// ActionReady Logic
 	/// ActionReady Logic: X-R2.1
-	measure 'Action_X-R2.1_Text' = IF ( [Utilization %] < 0.55 || [Utilization %] > 0.95, "🔴 L3 — X-R2.1 — Resource Utilization Rebalancing" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Utilization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify over/under-utilized teams — Rebalance scheduling — Review weekly", IF ( [Utilization %] < 0.6 || [Utilization %] > 0.92, "🟠 L2 — X-R2.1 — Resource Utilization Rebalancing" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Utilization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify over/under-utilized teams — Rebalance scheduling — Review weekly", IF ( [Utilization %] < 0.65 || [Utilization %] > 0.9, "🟡 L1 — X-R2.1 — Resource Utilization Rebalancing" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Utilization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify over/under-utilized teams — Rebalance scheduling — Review weekly", BLANK () ) ) )
+	measure 'Action_X-R2.1_Text' = VAR _v0 = [Utilization %] RETURN IF ( ( _v0 < 0.6 || _v0 > 0.95 ) && [Tickets Created Count] >= 200, "🔴 L3 — X-R2.1 — Resource Utilization Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ DETECT sustained utilization band violations for this queue" & UNICHAR ( 10 ) & "→ DIAGNOSE the dominant utilization driver for this queue" & UNICHAR ( 10 ) & "→ ACTIVATE the corresponding execution Action Code for this queue" & UNICHAR ( 10 ) & "→ REVIEW utilization for this queue weekly", IF ( ( _v0 < 0.65 || _v0 > 0.9 ) && [Tickets Created Count] >= 200, "🟠 L2 — X-R2.1 — Resource Utilization Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ DETECT sustained utilization band violations for this queue" & UNICHAR ( 10 ) & "→ DIAGNOSE the dominant utilization driver for this queue" & UNICHAR ( 10 ) & "→ ACTIVATE the corresponding execution Action Code for this queue" & UNICHAR ( 10 ) & "→ REVIEW utilization for this queue weekly", IF ( ( _v0 < 0.7 || _v0 > 0.85 ) && [Tickets Created Count] >= 200, "🟡 L1 — X-R2.1 — Resource Utilization Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ DETECT sustained utilization band violations for this queue" & UNICHAR ( 10 ) & "→ DIAGNOSE the dominant utilization driver for this queue" & UNICHAR ( 10 ) & "→ ACTIVATE the corresponding execution Action Code for this queue" & UNICHAR ( 10 ) & "→ REVIEW utilization for this queue weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -472,7 +537,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "X-R2.1"
 
 	/// ActionReady Logic: X-R2.2
-	measure 'Action_X-R2.2_Text' = IF ( [Occupancy %] < 0.55 || [Occupancy %] > 0.95, "🔴 L3 — X-R2.2 — Occupancy Optimisation" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Occupancy %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify occupancy outliers — Adjust staffing plan — Monitor daily", IF ( [Occupancy %] < 0.6 || [Occupancy %] > 0.92, "🟠 L2 — X-R2.2 — Occupancy Optimisation" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Occupancy %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify occupancy outliers — Adjust staffing plan — Monitor daily", IF ( [Occupancy %] < 0.65 || [Occupancy %] > 0.9, "🟡 L1 — X-R2.2 — Occupancy Optimisation" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Occupancy %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify occupancy outliers — Adjust staffing plan — Monitor daily", BLANK () ) ) )
+	measure 'Action_X-R2.2_Text' = VAR _v0 = [Utilization %] RETURN IF ( ( _v0 < 0.63 || _v0 > 0.95 ) && [Tickets Created Count] >= 150, "🔴 L3 — X-R2.2 — Capacity Reallocation & Load Balancing" & UNICHAR ( 10 ) & "Owner: workforce_management_lead | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY queues with sustained utilization imbalance" & UNICHAR ( 10 ) & "→ REALLOCATE capacity across queues or channels for this queue cluster" & UNICHAR ( 10 ) & "→ VALIDATE SLA and backlog impact for this queue daily", IF ( ( _v0 < 0.68 || _v0 > 0.9 ) && [Tickets Created Count] >= 150, "🟠 L2 — X-R2.2 — Capacity Reallocation & Load Balancing" & UNICHAR ( 10 ) & "Owner: workforce_management_lead | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY queues with sustained utilization imbalance" & UNICHAR ( 10 ) & "→ REALLOCATE capacity across queues or channels for this queue cluster" & UNICHAR ( 10 ) & "→ VALIDATE SLA and backlog impact for this queue daily", IF ( ( _v0 < 0.72 || _v0 > 0.85 ) && [Tickets Created Count] >= 150, "🟡 L1 — X-R2.2 — Capacity Reallocation & Load Balancing" & UNICHAR ( 10 ) & "Owner: workforce_management_lead | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY queues with sustained utilization imbalance" & UNICHAR ( 10 ) & "→ REALLOCATE capacity across queues or channels for this queue cluster" & UNICHAR ( 10 ) & "→ VALIDATE SLA and backlog impact for this queue daily", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -480,7 +545,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "X-R2.2"
 
 	/// ActionReady Logic: X-R2.3
-	measure 'Action_X-R2.3_Text' = IF ( [Shrinkage %] > 0.35, "🔴 L3 — X-R2.3 — Shrinkage Reduction" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Shrinkage %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify shrinkage categories — Address scheduling and absence — Review monthly", IF ( [Shrinkage %] > 0.3, "🟠 L2 — X-R2.3 — Shrinkage Reduction" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Shrinkage %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify shrinkage categories — Address scheduling and absence — Review monthly", IF ( [Shrinkage %] > 0.25, "🟡 L1 — X-R2.3 — Shrinkage Reduction" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Shrinkage %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify shrinkage categories — Address scheduling and absence — Review monthly", BLANK () ) ) )
+	measure 'Action_X-R2.3_Text' = VAR _v0 = [Shrinkage %] RETURN IF ( ( _v0 > 0.35 ) && [Tickets Created Count] >= 200, "🔴 L3 — X-R2.3 — Shrinkage & Productive Time Control" & UNICHAR ( 10 ) & "Owner: service_operations_manager | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY queues or agent groups with elevated shrinkage" & UNICHAR ( 10 ) & "→ ANALYSE dominant shrinkage categories for this queue or agent group" & UNICHAR ( 10 ) & "→ ADJUST planning, adherence, or scheduling practices for this queue or agent group" & UNICHAR ( 10 ) & "→ MONITOR shrinkage and utilization for this queue or agent group weekly", IF ( ( _v0 > 0.3 ) && [Tickets Created Count] >= 200, "🟠 L2 — X-R2.3 — Shrinkage & Productive Time Control" & UNICHAR ( 10 ) & "Owner: service_operations_manager | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY queues or agent groups with elevated shrinkage" & UNICHAR ( 10 ) & "→ ANALYSE dominant shrinkage categories for this queue or agent group" & UNICHAR ( 10 ) & "→ ADJUST planning, adherence, or scheduling practices for this queue or agent group" & UNICHAR ( 10 ) & "→ MONITOR shrinkage and utilization for this queue or agent group weekly", IF ( ( _v0 > 0.25 ) && [Tickets Created Count] >= 200, "🟡 L1 — X-R2.3 — Shrinkage & Productive Time Control" & UNICHAR ( 10 ) & "Owner: service_operations_manager | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY queues or agent groups with elevated shrinkage" & UNICHAR ( 10 ) & "→ ANALYSE dominant shrinkage categories for this queue or agent group" & UNICHAR ( 10 ) & "→ ADJUST planning, adherence, or scheduling practices for this queue or agent group" & UNICHAR ( 10 ) & "→ MONITOR shrinkage and utilization for this queue or agent group weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -488,7 +553,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "X-R2.3"
 
 	/// ActionReady Logic: X-R2.4
-	measure 'Action_X-R2.4_Text' = IF ( [Overtime %] > 0.18, "🔴 L3 — X-R2.4 — Overtime Containment" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Overtime %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify overtime drivers — Adjust headcount or schedule — Review weekly", IF ( [Overtime %] > 0.12, "🟠 L2 — X-R2.4 — Overtime Containment" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Overtime %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify overtime drivers — Adjust headcount or schedule — Review weekly", IF ( [Overtime %] > 0.08, "🟡 L1 — X-R2.4 — Overtime Containment" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Overtime %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify overtime drivers — Adjust headcount or schedule — Review weekly", BLANK () ) ) )
+	measure 'Action_X-R2.4_Text' = VAR _v0 = [Overtime %] VAR _idx = MAX ( 'dim_date'[Year] ) * 12 + MAX ( 'dim_date'[MonthNumber] ) RETURN IF ( ( _v0 > 0.18 ) && CALCULATE ( [Overtime %] > 0.18, REMOVEFILTERS ( 'dim_date' ), FILTER ( ALL ( 'dim_date' ), 'dim_date'[Year] * 12 + 'dim_date'[MonthNumber] = _idx - 1 ) ) && [Tickets Created Count] >= 500, "🔴 L3 — X-R2.4 — Overtime & Fatigue Containment" & UNICHAR ( 10 ) & "Owner: service_operations_manager | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY queues with recurring overtime" & UNICHAR ( 10 ) & "→ ANALYSE root causes (demand spikes, misallocation, shrinkage) for this queue" & UNICHAR ( 10 ) & "→ ADJUST schedules, REALLOCATE capacity, or CORRECT planning gaps for this queue" & UNICHAR ( 10 ) & "→ REVIEW overtime and SLA for this queue monthly", IF ( ( _v0 > 0.12 ) && CALCULATE ( [Overtime %] > 0.12, REMOVEFILTERS ( 'dim_date' ), FILTER ( ALL ( 'dim_date' ), 'dim_date'[Year] * 12 + 'dim_date'[MonthNumber] = _idx - 1 ) ) && [Tickets Created Count] >= 500, "🟠 L2 — X-R2.4 — Overtime & Fatigue Containment" & UNICHAR ( 10 ) & "Owner: service_operations_manager | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY queues with recurring overtime" & UNICHAR ( 10 ) & "→ ANALYSE root causes (demand spikes, misallocation, shrinkage) for this queue" & UNICHAR ( 10 ) & "→ ADJUST schedules, REALLOCATE capacity, or CORRECT planning gaps for this queue" & UNICHAR ( 10 ) & "→ REVIEW overtime and SLA for this queue monthly", IF ( ( _v0 > 0.08 ) && CALCULATE ( [Overtime %] > 0.08, REMOVEFILTERS ( 'dim_date' ), FILTER ( ALL ( 'dim_date' ), 'dim_date'[Year] * 12 + 'dim_date'[MonthNumber] = _idx - 1 ) ) && [Tickets Created Count] >= 500, "🟡 L1 — X-R2.4 — Overtime & Fatigue Containment" & UNICHAR ( 10 ) & "Owner: service_operations_manager | " & FORMAT ( _v0, "0.0%" ) & UNICHAR ( 10 ) & "→ IDENTIFY queues with recurring overtime" & UNICHAR ( 10 ) & "→ ANALYSE root causes (demand spikes, misallocation, shrinkage) for this queue" & UNICHAR ( 10 ) & "→ ADJUST schedules, REALLOCATE capacity, or CORRECT planning gaps for this queue" & UNICHAR ( 10 ) & "→ REVIEW overtime and SLA for this queue monthly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"

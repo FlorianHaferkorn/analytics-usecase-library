@@ -9,6 +9,7 @@ use_case_ref:
 - XD-003
 action_code_ref: []
 calc_type: rate
+good_is: lower
 business:
   purpose: Monitor risk of employee attrition across key roles and segments.
   definition: Probability of attrition for the selected population in the period.

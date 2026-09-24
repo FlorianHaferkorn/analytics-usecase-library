@@ -8,6 +8,7 @@ domain_tag:
 use_case_ref: []
 action_code_ref: []
 calc_type: ratio
+good_is: higher
 business:
   purpose: EBITDA profitability relative to net sales for P&L reporting.
   definition: EBITDA Amount / Net Sales Amount

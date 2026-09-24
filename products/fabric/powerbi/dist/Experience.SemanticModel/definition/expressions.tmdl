@@ -1,7 +1,15 @@
 expression fn_DeltaCurrentFiles =
 	(TableFolderPath as text) as table =>
 	let
-		AllFiles = Folder.Files(TableFolderPath),
+		AllFiles =
+			if GoldSourceKind = "onelake" then
+				let
+					Prefix = Text.Replace(TableFolderPath, "\", "/") & "/",
+					Listed = AzureStorage.DataLake(GoldContainerUrl)
+				in
+					Table.SelectRows(Listed, each Text.StartsWith(Text.Replace([Folder Path], "\", "/"), Prefix))
+			else
+				Folder.Files(TableFolderPath),
 		DataFiles = Table.SelectRows(AllFiles, each Text.EndsWith([Name], ".parquet") and not Text.Contains(Text.Replace([Folder Path], "\", "/"), "_delta_log")),
 		LogFiles = Table.SelectRows(AllFiles, each Text.EndsWith([Name], ".json") and Text.Contains(Text.Replace([Folder Path], "\", "/"), "_delta_log")),
 		HasLog = Table.RowCount(LogFiles) > 0,
@@ -41,3 +49,12 @@ expression GoldDataPath = "C:/Users/florianhaferkorn/VSCode/analytics-usecase-li
 	annotation PBI_NavigationStepName = GoldDataPath
 	annotation PBI_ResultType = Text
 
+expression GoldSourceKind = "folder" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 97c52a7a-819d-5bc0-a6bc-cfe5f02ba51b
+	annotation PBI_NavigationStepName = GoldSourceKind
+	annotation PBI_ResultType = Text
+
+expression GoldContainerUrl = "" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+	lineageTag: a3c1fa4f-415d-5782-b19b-8f8f9cca5563
+	annotation PBI_NavigationStepName = GoldContainerUrl
+	annotation PBI_ResultType = Text

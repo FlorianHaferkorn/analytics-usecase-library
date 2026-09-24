@@ -12,6 +12,7 @@ use_case_ref:
 action_code_ref:
 - C-M2.1
 calc_type: rate
+good_is: higher
 business:
   purpose: Shows how much of list price is realized after discounts.
   definition: Net Price Amount / List Price Amount.

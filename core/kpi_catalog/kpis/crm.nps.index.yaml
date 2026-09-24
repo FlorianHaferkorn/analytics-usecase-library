@@ -18,6 +18,7 @@ action_code_ref:
 - C-C3.2
 - X-S1.3
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures customer advocacy and likelihood to recommend.
   definition: (%Promoters - %Detractors) from survey responses in the period.

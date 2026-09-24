@@ -35,7 +35,7 @@ def test_inspect_model_lists_measures_and_columns():
     model = inspect_model(_COM_MODEL)
     assert "Net Sales Amount" in model["measures"]
     assert "Gross Margin %" in model["measures"]
-    assert model["relationship_count"] == 21
+    assert model["relationship_count"] == 22   # +dim_date_fact_target (R6.1, 23.09.2026)
     dim_org = next(t for t in model["tables"] if t["name"] == "dim_org")
     # OrgKey is a hidden surrogate key (Epic C)
     org_key = next(c for c in dim_org["columns"] if c["name"] == "OrgKey")

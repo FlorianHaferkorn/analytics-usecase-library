@@ -17,6 +17,7 @@ use_case_ref:
 action_code_ref:
 - S-I1.4
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures share of inventory considered obsolete.
   definition: Obsolete Inventory Value / Total Inventory Value.

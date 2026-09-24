@@ -10,6 +10,7 @@ use_case_ref:
 - COM-005
 action_code_ref: []
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures conversion between funnel stages (lead → opportunity → won).
   definition: Records advancing to the next stage / Records entering the stage.

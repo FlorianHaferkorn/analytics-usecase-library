@@ -1418,6 +1418,16 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple],
     entscheiden, welche Seite recht hat, wenn dieselbe Schluesselzeile verschiedene
     Attribute traegt — das ist eine Vorrangfrage und steht als TODO drin, statt hier
     geraten zu werden.
+
+    ``sources`` kommt aus `_konforme_quellen`: je Domaene ``(name, block, eigene_spalten,
+    kopfzeilen)``, ``block`` leer, wenn die Domaene die Aufnahme einer anderen mitliest.
+
+    Derselbe Befund wurde zweimal geloest (Merge 24.09.2026): main setzte am 07.09.2026 fuer
+    eine Domaene mit mehreren Herkuenften einen Platzhalter statt des erfundenen
+    ``silver.order_to_cash``; wip liest seit D-536/D-542 die Herkuenfte selbst und fuehrt
+    einen erklaerten Textverbund (MARA + MAKT) als EINEN Block. Behalten ist die wip-Fassung;
+    der Platzhalter bleibt dort, wo die Zusammenfuehrung wirklich offen ist
+    (`_ungeklaerte_zusammenfuehrung`).
     """
     c = dl["comment"]
     gold_tbl = gold_tbl or f"gold_{_ident(name)}"

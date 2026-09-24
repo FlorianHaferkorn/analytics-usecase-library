@@ -1,0 +1,25 @@
+/// Procurement spend category (direct merchandise vs indirect) for spend/contract analysis.
+table dim_category
+	lineageTag: 16280a37-316b-5b7a-a53e-86810962c2f1
+	column CategoryKey
+		dataType: Int64
+		sourceColumn: CategoryKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column Category
+		dataType: String
+		sourceColumn: Category
+		summarizeBy: none
+	column 'Category Group'
+		dataType: String
+		sourceColumn: Category Group
+		summarizeBy: none
+	partition dim_category = m
+		mode: import
+		source =
+			let
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/dimensions/dim_category"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
+			in
+				ParquetData

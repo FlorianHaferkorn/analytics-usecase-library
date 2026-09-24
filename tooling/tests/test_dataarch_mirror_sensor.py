@@ -81,7 +81,29 @@ def test_sql_type_map_survives_a_table_without_entries():
 def test_mirrored_files_matches_the_pin():
     pin = sensor.vendor_pin()
     assert pin is not None
-    assert [e["path"] for e in pin["files"]] == list(sensor.MIRRORED_FILES)
+    assert [e["path"] for e in pin["files"]] == [z for _, z in sensor.mirror_quellen()]
+
+
+def test_a_file_outside_the_blueprint_dir_names_its_source(tmp_path: Path):
+    """Seit 03.09.2026 liest der Spiegel aus zwei Meridian-Verzeichnissen (ADR-0019 N-3).
+
+    Der Vorgabepfad ``source_path`` bleibt eine echte Aussage: wer davon abweicht, traegt
+    sein ``source`` selbst. Ein PIN, in dem beides fehlt, koennte nicht sagen, woher eine
+    Datei kam — und genau das war der Grund, die Liste ueberhaupt anzufassen.
+    """
+    pin = sensor.vendor_pin()
+    nach_pfad = {e["path"]: e for e in pin["files"]}
+    assert nach_pfad["preis_kanon.py"]["source"] == "core/preis_kanon.py"
+    ohne_source = [e for e in pin["files"] if "source" not in e]
+    assert ohne_source, "der Vorgabepfad traegt weiterhin die Mehrheit"
+    for e in ohne_source:
+        assert (sensor.REPO_ROOT / sensor._VENDOR_REL / e["path"]).is_file()
+
+
+def test_the_price_kernel_is_declared_with_its_path():
+    quellen = dict((z, q) for q, z in sensor.mirror_quellen())
+    assert quellen["preis_kanon.py"] == "core/preis_kanon.py"
+    assert quellen["naming.py"] == f"{sensor._MER_REL}/naming.py"
 
 
 def test_declared_but_unmirrored_file_is_reported(tmp_path: Path, monkeypatch):
@@ -89,7 +111,11 @@ def test_declared_but_unmirrored_file_is_reported(tmp_path: Path, monkeypatch):
     otherwise the declaration would be decorative."""
     monkeypatch.setattr(sensor, "MIRRORED_FILES",
                         sensor.MIRRORED_FILES + ("brand_new_module.py",))
-    (tmp_path / "brand_new_module.py").write_text("x = 1\n", encoding="utf-8")
+    # `tmp_path` ist jetzt die Meridian-**Wurzel**, nicht mehr der Blueprint-Ordner: der
+    # Spiegel liest aus zwei Verzeichnissen, ein fester Quellordner reicht nicht mehr.
+    quelle = tmp_path / sensor._MER_REL
+    quelle.mkdir(parents=True, exist_ok=True)
+    (quelle / "brand_new_module.py").write_text("x = 1\n", encoding="utf-8")
     pin = sensor.vendor_pin()
     findings = sensor.vendor_upstream_drift(pin, tmp_path)
     assert any("brand_new_module.py" in f and "not mirrored yet" in f for f in findings)
@@ -262,3 +288,68 @@ def test_an_uncertain_finding_stays_advisory_without_strict(monkeypatch, capsys)
     monkeypatch.setattr(sensor, "_diff", lambda a, b: ["  concepts.py: test finding"])
     monkeypatch.setattr(sensor, "freshness_findings", lambda f, m=None: ["  test freshness"])
     assert sensor.main([]) == 0
+
+
+# -- which side moved (24.09.2026) --------------------------------------------------
+#
+# "Meridian differs from the PIN" has two opposite causes. The old line advised `--write` for
+# both; for governance_strategy.py (workspace_layer_labels, pinned from a Meridian WIP branch)
+# the write would have deleted the feature here. The direction is read from Meridian's history.
+
+import subprocess  # noqa: E402
+
+
+def _git(repo: Path, *args: str) -> str:
+    return subprocess.run(("git", "-c", "user.name=t", "-c", "user.email=t@t", "-c", "init.defaultBranch=main",
+                           *args), cwd=repo, check=True, capture_output=True, text=True,
+                          encoding="utf-8").stdout.strip()
+
+
+@pytest.fixture()
+def meridian(tmp_path):
+    repo = tmp_path / "mer"
+    repo.mkdir()
+    _git(repo, "init", "-q")
+    (repo / "m.py").write_text("v1\n", encoding="utf-8")
+    _git(repo, "add", "m.py")
+    _git(repo, "commit", "-q", "-m", "v1")
+    return repo
+
+
+def _vendored(tmp_path, text):
+    f = tmp_path / "vendored_m.py"
+    f.write_text(text, encoding="utf-8")
+    return f
+
+
+def test_blob_id_matches_git(meridian):
+    assert sensor._git_blob_id(meridian / "m.py") == _git(meridian, "hash-object", "m.py")
+
+
+def test_head_past_the_pin_says_re_mirror(meridian, tmp_path):
+    (meridian / "m.py").write_text("v2\n", encoding="utf-8")
+    _git(meridian, "commit", "-q", "-am", "v2")
+    line = sensor.pin_direction(meridian, "m.py", _vendored(tmp_path, "v1\n"))
+    assert "moved on" in line and sensor.NICHT_SCHREIBEN not in line
+
+
+def test_pin_only_on_another_branch_forbids_the_write(meridian, tmp_path):
+    _git(meridian, "checkout", "-q", "-b", "wip/feature")
+    (meridian / "m.py").write_text("v2\n", encoding="utf-8")
+    _git(meridian, "commit", "-q", "-am", "v2 on wip")
+    _git(meridian, "checkout", "-q", "main")
+    line = sensor.pin_direction(meridian, "m.py", _vendored(tmp_path, "v2\n"))
+    assert "BEHIND" in line and "wip/feature" in line and sensor.NICHT_SCHREIBEN in line
+
+
+def test_pin_unknown_to_the_checkout_forbids_the_write(meridian, tmp_path):
+    line = sensor.pin_direction(meridian, "m.py", _vendored(tmp_path, "only here\n"))
+    assert "unknown" in line and sensor.NICHT_SCHREIBEN in line
+
+
+def test_no_git_history_is_not_read_as_a_direction(tmp_path):
+    plain = tmp_path / "plain"
+    plain.mkdir()
+    (plain / "m.py").write_text("v2\n", encoding="utf-8")
+    line = sensor.pin_direction(plain, "m.py", _vendored(tmp_path, "v1\n"))
+    assert "not measurable" in line and "moved on" not in line

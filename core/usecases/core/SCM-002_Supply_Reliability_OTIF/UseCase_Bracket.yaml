@@ -63,7 +63,10 @@ ux_layout_rules:
       kpi_ids:
       - supply.in_full.pct
       - supply.stockout_impact.pct
-      visual_type: horizontal_bar_chart
+      # R6.3 (23.09.2026): Kennzahlen gegensaetzlicher Richtung auf einer Balkenachse
+      # (Knock-out mixed-polarity). Je Einheit eine Zeile, je Signal eine Spalte.
+      visual_type: exception_table
+      category_field: dim_org.OrgName
       question: "What's behind the OTIF shortfall beyond timeliness?"
       message: In-full rate and stockout impact — the two OTIF components beyond timeliness.
       so_what: "Ranking penalty cost by supplier focuses the reliability push where the money actually leaks."

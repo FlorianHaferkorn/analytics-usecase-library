@@ -58,7 +58,7 @@ trigger:
         comparator: lt
         threshold:
           basis: relative
-          value: 0.1
+          value: 10.0
           unit: '%'
         filters: []
     L2:
@@ -68,7 +68,7 @@ trigger:
         comparator: lt
         threshold:
           basis: relative
-          value: 0.2
+          value: 20.0
           unit: '%'
         filters: []
     L3:
@@ -78,7 +78,7 @@ trigger:
         comparator: lt
         threshold:
           basis: relative
-          value: 0.3
+          value: 30.0
           unit: '%'
         filters: []
   gating_rules:

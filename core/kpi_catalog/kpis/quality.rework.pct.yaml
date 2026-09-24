@@ -12,6 +12,7 @@ action_code_ref:
 - O-Q3.1
 - O-Q3.3
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures share of units requiring rework.
   definition: Reworked Units / Total Units.

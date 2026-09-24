@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - X-R2.3
 calc_type: ratio
+good_is: lower
 business:
   purpose: Measures non-productive share of paid time.
   definition: Non-productive time divided by paid time.

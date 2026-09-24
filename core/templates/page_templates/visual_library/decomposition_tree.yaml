@@ -56,8 +56,8 @@ realizations:
       {
         "visualType": "decompositionTreeVisual",
         "query": { "queryState": {
-          "Analysis": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] },
-          "Explain By": { "projections": [
+          "Analyze": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] },
+          "ExplainBy": { "projections": [
             { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{explain_entity}}" } }, "Property": "{{explain_prop}}" } }, "queryRef": "{{explain_entity}}.{{explain_prop}}" },
             { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{explain_entity2}}" } }, "Property": "{{explain_prop2}}" } }, "queryRef": "{{explain_entity2}}.{{explain_prop2}}" }
           ] }

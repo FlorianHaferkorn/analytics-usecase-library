@@ -57,6 +57,7 @@ trigger:
         comparator: lt
         threshold:
           basis: absolute
+          reference: baseline
           value: -3.0
           unit: pp
         filters: []
@@ -67,6 +68,7 @@ trigger:
         comparator: lt
         threshold:
           basis: absolute
+          reference: baseline
           value: -6.0
           unit: pp
         filters: []
@@ -77,6 +79,7 @@ trigger:
         comparator: lt
         threshold:
           basis: absolute
+          reference: baseline
           value: -10.0
           unit: pp
         filters: []

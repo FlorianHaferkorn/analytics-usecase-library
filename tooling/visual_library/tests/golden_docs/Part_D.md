@@ -47,16 +47,16 @@
 | `lollipop` | — | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
 | `histogram` | — | — | rendered ✓ 5/5 | rendered ✓ |
 | `boxplot` | — | — | rendered ✓ 5/5 | — |
-| `small_multiples` | — | — | rendered ✓ 5/5 | — |
+| `small_multiples` | structural · gated | — | rendered ✓ 5/5 | — |
 | `sankey` | — | — | — | rendered ✓ |
 | `decomposition_tree` | structural · gated | — | — | — |
 | `bar_absolute` | structural · gated | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
 | `waterfall_buildup` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
 | `waterfall_variance` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
-| `kpi_card_spark` | — | rendered ✓ | — | — |
+| `kpi_card_spark` | structural · gated | rendered ✓ | — | — |
 | `kpi_card_bullet` | — | rendered ✓ | — | — |
 | `kpi_card_sparkbar` | — | rendered ✓ | — | — |
-| `matrix_sparkline` | — | rendered ✓ | — | — |
+| `matrix_sparkline` | structural · gated | rendered ✓ | — | — |
 | `matrix_bullet` | — | rendered ✓ | — | — |
 | `matrix_delta_pill` | — | rendered ✓ | — | — |
 | `column_time` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
@@ -83,7 +83,7 @@
 
 #### `bar_ranking` — Bar ranking
 - **Purpose:** compare_categories · **zone:** analysis · **best form for:** `compare_categories` · **min size:** 4×4 grid (395×208px @1280, 592×312px @1920)
-- **Avoid:** unsorted_bars, pie_for_comparison, broken_baseline_on_absolute_bar, color_to_separate_equal_categories
+- **Avoid:** unsorted_bars, pie_for_comparison, broken_baseline_on_absolute_bar, color_to_separate_equal_categories, mixed_polarity_on_one_axis
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/bar_ranking.yaml` (+ `golden/bar_ranking.*`)
@@ -128,7 +128,7 @@
 #### `bullet` — Bullet graph
 - **Purpose:** deviation_from_target · **zone:** pulse / analysis · **min size:** 3×2 grid (292×96px @1280, 438×144px @1920)
 - **Avoid:** gauge_instead, colour_bands_instead_of_greys
-- **Tools:** Power BI · native n/a (Power BI has no native bullet base visual → deneb_vegalite, or the xViz/Inforiver IBCS bullet custom visual) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Tools:** Power BI · native n/a (kein Visualtyp traegt die lineare Form. Geprueft wurde ausdruecklich `gauge` (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026): es fuehrt dieselben Datenrollen (Y, MinValue, MaxValue, TargetValue) und ein `target`-Objekt, zeichnet sie aber radial. Die lineare Spur mit qualitativen Baendern IST das Idiom; ein Halbkreis mit denselben Zahlen ist eine andere Aussage → deneb_vegalite, or the xViz/Inforiver IBCS bullet custom visual) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/bullet.yaml` (+ `golden/bullet.*`)
 
@@ -147,31 +147,31 @@
 #### `lollipop` — Lollipop
 - **Purpose:** compare_categories · **zone:** analysis · **min size:** 4×4 grid (395×208px @1280, 592×312px @1920)
 - **Avoid:** lollipop_for_many_dense_categories, hidden_zoomed_axis
-- **Tools:** Power BI · native n/a (Power BI has no native lollipop base visual → SVG-DAX (a lollipop cell in a matrix) or Deneb) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Tools:** Power BI · native n/a (kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026). Stiel plus Kopf ist Balken plus Punktmarke auf derselben Achse; kein Kernvisual kombiniert beides in einer Serie → SVG-DAX (a lollipop cell in a matrix) or Deneb) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/lollipop.yaml` (+ `golden/lollipop.*`)
 
 #### `histogram` — Histogram
 - **Purpose:** distribution · **zone:** analysis · **best form for:** `distribution` · **min size:** 4×4 grid (395×208px @1280, 592×312px @1920)
 - **Avoid:** bars_with_gaps_imply_categories, too_few_or_too_many_bins
-- **Tools:** Power BI · native n/a (Power BI has no auto-bin mark → create a bin group on the field, then a columnChart of the count (or use Deneb)) · Power BI · SVG-DAX n/a (a full distribution is not a single-cell micro-chart → deneb_vegalite, or the DaxLib.SVG histogram helper) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Tools:** Power BI · native n/a (kein Visualtyp traegt die Form, und keine Klassenbildung im Visual (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026: `columnChart` hat kein Objekt mit 'bin' im Namen). Klassen entstehen in Power BI modellseitig als Gruppierung, nicht als Visual-Eigenschaft — das Idiom beschreibt aber die Darstellung, nicht die Vorbereitung → create a bin group on the field, then a columnChart of the count (or use Deneb)) · Power BI · SVG-DAX n/a (a full distribution is not a single-cell micro-chart → deneb_vegalite, or the DaxLib.SVG histogram helper) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/histogram.yaml` (+ `golden/histogram.*`)
 
 #### `boxplot` — Box plot
 - **Purpose:** distribution · **zone:** analysis · **min size:** 3×4 grid (292×208px @1280, 438×312px @1920)
 - **Avoid:** boxplot_without_labelled_quartiles_in_a_brief, too_many_groups
-- **Tools:** Power BI · native n/a (Power BI has no native box-plot base visual → deneb_vegalite (boxplot mark), or a box-plot custom visual) · Power BI · SVG-DAX n/a (requires five quartile measures + an axis; not a simple substitution template → the DaxLib.SVG boxplot helper (daxlib.org) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (Recharts has no box-plot primitive → a custom SVG/D3 box-plot, or a charting lib with box-plot support (ECharts, Plotly))
+- **Tools:** Power BI · native n/a (kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026: 59 Typen durchgesehen, keiner mit Box-Plot-Rollen oder -Objekt; `textbox` ist der einzige Namenstreffer auf 'box' und ein Textfeld). Median, Quartile und Whisker sind vier Marken auf einer Achse — das drueckt kein Kernvisual aus → deneb_vegalite (boxplot mark), or a box-plot custom visual) · Power BI · SVG-DAX n/a (requires five quartile measures + an axis; not a simple substitution template → the DaxLib.SVG boxplot helper (daxlib.org) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (Recharts has no box-plot primitive → a custom SVG/D3 box-plot, or a charting lib with box-plot support (ECharts, Plotly))
 - **Code:** `visual_library/boxplot.yaml` (+ `golden/boxplot.*`)
 
 #### `small_multiples` — Small multiples
 - **Purpose:** time_comparison · **zone:** analysis · **min size:** 5×6 grid (497×320px @1280, 746×480px @1920)
 - **Avoid:** independent_y_scales_per_panel, too_many_panels
-- **Tools:** Power BI · native n/a (small multiples is a field-well option, not a distinct visual JSON idiom → a lineChart with the field placed in the Small multiples well (shared Y scale)) · Power BI · SVG-DAX n/a (a grid of panels is not a single-cell micro-chart → deneb_vegalite (facet) or the native Small multiples well) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (no single small-multiples component → map the series to a CSS grid of <LineChart> with a shared YAxis domain)
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a grid of panels is not a single-cell micro-chart → deneb_vegalite (facet) or the native Small multiples well) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (no single small-multiples component → map the series to a CSS grid of <LineChart> with a shared YAxis domain)
 - **Code:** `visual_library/small_multiples.yaml` (+ `golden/small_multiples.*`)
 
 #### `sankey` — Sankey
 - **Purpose:** flow_between_stages · **zone:** detail · **best form for:** `flow_between_stages` · **min size:** 5×6 grid (497×320px @1280, 746×480px @1920)
 - **Avoid:** sankey_for_precise_comparison, spaghetti_too_many_crossings
-- **Tools:** Power BI · native n/a (Power BI has no native Sankey base visual → the Microsoft/PowerViz Sankey custom visual (AppSource)) · Power BI · SVG-DAX n/a (curved multi-node flows are impractical as a cell SVG measure → the Sankey custom visual, or Deneb (full Vega)) · Deneb / Vega-Lite n/a (Vega-Lite has no sankey mark → a full Vega spec in Deneb (sankey via linkpath transform), or the native custom visual) · Web · Recharts ✓
+- **Tools:** Power BI · native n/a (kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026). `funnel`, `treemap` und `ribbonChart` zeigen Anteile bzw. Rangwechsel, aber keine Fluesse zwischen benannten Knoten mit erhaltener Breite → the Microsoft/PowerViz Sankey custom visual (AppSource)) · Power BI · SVG-DAX n/a (curved multi-node flows are impractical as a cell SVG measure → the Sankey custom visual, or Deneb (full Vega)) · Deneb / Vega-Lite n/a (Vega-Lite has no sankey mark → a full Vega spec in Deneb (sankey via linkpath transform), or the native custom visual) · Web · Recharts ✓
 - **Code:** `visual_library/sankey.yaml` (+ `golden/sankey.*`)
 
 #### `decomposition_tree` — Decomposition tree
@@ -203,37 +203,37 @@
 #### `kpi_card_spark` — KPI card · value + spark + delta
 - **Purpose:** value_verdict · **zone:** pulse · **best form for:** `value_verdict` · **min size:** 3×3 grid (292×152px @1280, 438×228px @1920)
 - **Avoid:** number_without_context, color_of_number_for_magnitude, decorative_sparkline_no_axis_meaning
-- **Tools:** Power BI · native n/a (the modern cardVisual shows a value + reference-label delta, but has no embedded sparkline — the value+spark+delta composite is a single SVG → powerbi_svg_dax (cardVisual callout.imageFX); a native cardVisual can do value + delta reference label only) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a KPI card composite (headline value + trailing spark + delta chip) is a card LAYOUT, not one Vega-Lite view; Deneb draws the spark, the value/delta are card chrome → powerbi_svg_dax for the whole card; or `line` in Deneb for just the spark inside a card) · Web · Recharts n/a (a KPI card is HTML (the value + delta) with a chart inside — a React component, not a single Recharts chart → compose in React: value/delta as HTML + a small Recharts `line` sparkline)
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a KPI card composite (headline value + trailing spark + delta chip) is a card LAYOUT, not one Vega-Lite view; Deneb draws the spark, the value/delta are card chrome → powerbi_svg_dax for the whole card; or `line` in Deneb for just the spark inside a card) · Web · Recharts n/a (a KPI card is HTML (the value + delta) with a chart inside — a React component, not a single Recharts chart → compose in React: value/delta as HTML + a small Recharts `line` sparkline)
 - **Code:** `visual_library/kpi_card_spark.yaml` (+ `golden/kpi_card_spark.*`)
 
 #### `kpi_card_bullet` — KPI card · value + bullet
 - **Purpose:** value_verdict · **zone:** pulse · **min size:** 3×3 grid (292×152px @1280, 438×228px @1920)
 - **Avoid:** gauge_instead, number_without_context, color_of_number_for_magnitude
-- **Tools:** Power BI · native n/a (no native bullet, and the cardVisual has no embedded bullet track — the value+bullet+delta composite is a single SVG → powerbi_svg_dax (cardVisual callout.imageFX)) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (the value + delta chip are card chrome; Deneb draws the bullet only, not the headline layout → powerbi_svg_dax for the whole card; or `bullet` in Deneb for just the attainment track) · Web · Recharts n/a (a KPI card is HTML (value + delta) with a chart inside — a React component, not a single Recharts chart → compose in React: value/delta as HTML + a Recharts `bullet`)
+- **Tools:** Power BI · native n/a (kein Kartentyp traegt einen Balken mit Zielmarke. Gemessen 07.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `cardVisual` fuehrt 33 Objekte, darunter `referenceLabel`/`referenceLabelValue`/`referenceLabelDetail` — der Zielwert erscheint dort als TEXT neben der Zahl. `kpi` fuehrt sechs Objekte (general, goals, indicator, lastDate, status, trendline); `goals` zeigt Ziel und Abstand ebenfalls als Zahl. Beide koennen den Zielwert, keiner die Erreichung als Laenge. Genau das ist aber `encoding.attainment: bullet_bar_vs_tick` und der einzige Unterschied dieser Karte zu kpi_card_spark — eine native Spur haette den Rang-2-Kanal weggelassen und waere die Schwesterkarte mit anderem Namen. Dasselbe Ergebnis wie beim Idiom `bullet` selbst, dort am `gauge` gemessen → powerbi_svg_dax (cardVisual callout.imageFX)) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (the value + delta chip are card chrome; Deneb draws the bullet only, not the headline layout → powerbi_svg_dax for the whole card; or `bullet` in Deneb for just the attainment track) · Web · Recharts n/a (a KPI card is HTML (value + delta) with a chart inside — a React component, not a single Recharts chart → compose in React: value/delta as HTML + a Recharts `bullet`)
 - **Code:** `visual_library/kpi_card_bullet.yaml` (+ `golden/kpi_card_bullet.*`)
 
 #### `kpi_card_sparkbar` — KPI card · value + column trend
 - **Purpose:** value_verdict · **zone:** pulse · **min size:** 3×3 grid (292×152px @1280, 438×228px @1920)
 - **Avoid:** number_without_context, color_of_number_for_magnitude, line_when_periods_are_discrete
-- **Tools:** Power BI · native n/a (the cardVisual has no embedded column-trend track — the value+trend+delta composite is a single SVG → powerbi_svg_dax (cardVisual callout.imageFX)) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (the value + delta chip are card chrome; Deneb draws the column trend only, not the headline layout → powerbi_svg_dax for the whole card; or `column_time` in Deneb for just the trend) · Web · Recharts n/a (a KPI card is HTML (value + delta) with a chart inside — a React component, not a single Recharts chart → compose in React: value/delta as HTML + a small Recharts `column_time` bar trend)
+- **Tools:** Power BI · native n/a (die native Trendspur ist eine Linie und laesst sich nicht in Saeulen umschalten. Gemessen 07.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `kpi.objects.trendline` fuehrt genau zwei Eigenschaften, `show` und `transparency` — keine Form, keine Marker, keine Wahl zwischen Linie und Saeule. `cardVisual` traegt ueberhaupt keine eingebettete Trendspur (33 Objekte, keines davon ein Diagramm). Eine native Spur zeichnete hier also die Linie, die `anti_patterns` dieses Idioms unter `line_when_periods_are_discrete` ausdruecklich verbietet: dann waere es kpi_card_spark. Die Saeulenform gibt es nativ nur als eigenstaendiges Visual — siehe Idiom `column_time`, dort `clusteredColumnChart` — nicht innerhalb einer Karte → powerbi_svg_dax (cardVisual callout.imageFX); die Saeulen allein nativ als `column_time`) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (the value + delta chip are card chrome; Deneb draws the column trend only, not the headline layout → powerbi_svg_dax for the whole card; or `column_time` in Deneb for just the trend) · Web · Recharts n/a (a KPI card is HTML (value + delta) with a chart inside — a React component, not a single Recharts chart → compose in React: value/delta as HTML + a small Recharts `column_time` bar trend)
 - **Code:** `visual_library/kpi_card_sparkbar.yaml` (+ `golden/kpi_card_sparkbar.*`)
 
 #### `matrix_sparkline` — Matrix column · sparkline
 - **Purpose:** evidence_detail · **zone:** detail · **min size:** 5×4 grid (497×208px @1280, 746×312px @1920)
 - **Avoid:** axis_labels_in_a_sparkline, line_when_periods_are_discrete
-- **Tools:** Power BI · native n/a (this is an in-cell column MEASURE (ImageUrl), not a standalone visual — the table that hosts it is matrix_evidence (tableEx) → matrix_evidence (tableEx) + this SVG-DAX column, image height ~24px) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell chart inside a table is not a Vega-Lite view → the whole trend as a standalone chart is `line` in Deneb; the cell column is SVG-DAX) · Web · Recharts n/a (Recharts has no table cell primitive → an HTML <table> with a small Recharts `line` per row)
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell chart inside a table is not a Vega-Lite view → the whole trend as a standalone chart is `line` in Deneb; the cell column is SVG-DAX) · Web · Recharts n/a (Recharts has no table cell primitive → an HTML <table> with a small Recharts `line` per row)
 - **Code:** `visual_library/matrix_sparkline.yaml` (+ `golden/matrix_sparkline.*`)
 
 #### `matrix_bullet` — Matrix column · bullet
 - **Purpose:** evidence_detail · **zone:** detail · **min size:** 5×4 grid (497×208px @1280, 746×312px @1920)
 - **Avoid:** colour_bands_in_a_cell, gauge_instead
-- **Tools:** Power BI · native n/a (an in-cell column MEASURE (ImageUrl), not a standalone visual — the host table is matrix_evidence (tableEx) → matrix_evidence (tableEx) + this SVG-DAX column, image height ~20px) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell chart inside a table is not a Vega-Lite view → the standalone attainment chart is `bullet` in Deneb; the cell column is SVG-DAX) · Web · Recharts n/a (Recharts has no table cell primitive → an HTML <table> with a small Recharts `bullet` per row)
+- **Tools:** Power BI · native n/a (eine Spalten-Measure in der Zelle (ImageUrl), kein eigenstaendiges Visual — die Wirtstabelle ist matrix_evidence (tableEx). Nativ geprueft (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026): `tableEx.columnFormatting` fuehrt `dataBars`, genau die Eigenschaft, die matrix_evidence schon benutzt — aber als proportionalen Balken ohne Referenzmarke. Der Zielstrich ist das, was `encoding.attainment: bullet_bar_vs_tick` ausmacht → matrix_evidence (tableEx) + this SVG-DAX column, image height ~20px) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell chart inside a table is not a Vega-Lite view → the standalone attainment chart is `bullet` in Deneb; the cell column is SVG-DAX) · Web · Recharts n/a (Recharts has no table cell primitive → an HTML <table> with a small Recharts `bullet` per row)
 - **Code:** `visual_library/matrix_bullet.yaml` (+ `golden/matrix_bullet.*`)
 
 #### `matrix_delta_pill` — Matrix column · delta pill
 - **Purpose:** evidence_detail · **zone:** detail · **min size:** 5×4 grid (497×208px @1280, 746×312px @1920)
 - **Avoid:** pill_without_the_number, tint_not_from_severity_tints, color_as_decoration
-- **Tools:** Power BI · native n/a (an in-cell column MEASURE (ImageUrl), not a standalone visual — the host table is matrix_evidence (tableEx). Native conditional 'icon + font colour' is a partial form → matrix_evidence (tableEx) + this SVG-DAX column; or native conditional font colour + KPI icon) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell pill inside a table is not a Vega-Lite view → SVG-DAX column; or a Deneb text mark with a conditional fill for a standalone board) · Web · Recharts n/a (Recharts is a charting library, not for text/pill table cells → an HTML <table> cell: a span with severity-tint background + the signed value)
+- **Tools:** Power BI · native n/a (eine Spalten-Measure in der Zelle (ImageUrl), kein eigenstaendiges Visual — die Wirtstabelle ist matrix_evidence (tableEx). Nativ geprueft (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026): `columnFormatting` fuehrt `fontColor` und `backColor`, also die Pillenfarbe, aber KEINE Icon-Eigenschaft — die neun Eigenschaften sind labelDisplayUnits, labelPrecision, fontColor, backColor, alignment, styleHeader, styleValues, styleTotal, dataBars. Der Richtungspfeil aus `encoding.direction` hat damit keinen nativen Traeger. KORREKTUR: die fruehere Begruendung nannte 'icon + font colour' als native Teilform; die Schriftfarbe stimmt, das Icon steht in diesem Katalogstand nicht → matrix_evidence (tableEx) + this SVG-DAX column; or native conditional font colour + KPI icon) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell pill inside a table is not a Vega-Lite view → SVG-DAX column; or a Deneb text mark with a conditional fill for a standalone board) · Web · Recharts n/a (Recharts is a charting library, not for text/pill table cells → an HTML <table> cell: a span with severity-tint background + the signed value)
 - **Code:** `visual_library/matrix_delta_pill.yaml` (+ `golden/matrix_delta_pill.*`)
 
 #### `column_time` — Column chart over time
@@ -246,7 +246,7 @@
 #### `dumbbell` — Dumbbell (before / after)
 - **Purpose:** compare_categories · **zone:** analysis · **min size:** 4×4 grid (395×208px @1280, 592×312px @1920)
 - **Avoid:** dumbbell_for_one_value, too_many_categories
-- **Tools:** Power BI · native n/a (Power BI has no native dumbbell base visual → SVG-DAX (a dumbbell cell in a matrix) or Deneb (layered rule + two points)) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts n/a (a dumbbell needs a custom connector shape between two series — not a stock Recharts primitive → SVG-DAX cell, Deneb, or a Recharts ScatterChart with a custom <Line> segment layer)
+- **Tools:** Power BI · native n/a (kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026). Zwei Punkte auf einer Zeile mit verbundener Strecke ist keine Rolle, die ein Kernvisual kennt; `scatterChart` setzt Punkte, verbindet sie aber nicht paarweise → SVG-DAX (a dumbbell cell in a matrix) or Deneb (layered rule + two points)) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts n/a (a dumbbell needs a custom connector shape between two series — not a stock Recharts primitive → SVG-DAX cell, Deneb, or a Recharts ScatterChart with a custom <Line> segment layer)
 - **Code:** `visual_library/dumbbell.yaml` (+ `golden/dumbbell.*`)
 
 #### `bar_stacked` — Stacked bar (absolute)

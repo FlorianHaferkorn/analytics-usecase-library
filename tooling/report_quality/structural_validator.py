@@ -244,6 +244,51 @@ class VisualWithinPage:
         return violations
 
 
+@dataclass
+class VisualsDoNotOverlap:
+    """Zwei inhaltstragende Visuals teilen sich keine Flaeche.
+
+    Gemessen 23.09.2026: der Big-Idea-Header lag in COM-002 seit R1.1 (03.07.2026) auf den
+    oberen 56 px des KPI-Bandes, beide auf z 10000, und beim Ausrollen des Generators waere
+    dasselbe in 16 Reports entstanden. `visual:bounds` prueft nur den Seitenrand, eine
+    Flaeche, die zwei Visuals beanspruchen, sah keine Regel. Die visuelle Abnahme, die es
+    gezeigt haette (R1.6), fand nie statt -- eine Regel, die man sich merken muss, ist keine.
+
+    Ausgenommen sind dekorative Typen (Form, Bild, Button): sie liegen legitim unter
+    oder ueber Inhalt, etwa als Hintergrundflaeche.
+    """
+
+    severity: Severity = "critical"
+    name: str = "visual:overlap"
+    decorative: frozenset = frozenset({"shape", "basicShape", "image", "actionButton"})
+
+    def check(self, report: ParsedReport, page: ParsedPage) -> list[Violation]:
+        boxes = []
+        for visual_name, visual in page.visuals.items():
+            vt = (visual.get("visual") or {}).get("visualType")
+            pos = visual.get("position") or {}
+            if vt in self.decorative or not all(
+                    isinstance(pos.get(k), (int, float)) for k in ("x", "y", "width", "height")):
+                continue
+            boxes.append((visual_name, pos))
+        violations: list[Violation] = []
+        for i, (a, p) in enumerate(boxes):
+            for b, q in boxes[i + 1:]:
+                if (p["x"] < q["x"] + q["width"] and q["x"] < p["x"] + p["width"]
+                        and p["y"] < q["y"] + q["height"] and q["y"] < p["y"] + p["height"]):
+                    violations.append(
+                        Violation(
+                            self.name,
+                            self.severity,
+                            visual_pointer(report.report_dir, page, a, "position"),
+                            f"Visual overlaps '{b}'",
+                            expected="no shared area between content visuals",
+                            actual={a: p, b: q},
+                        )
+                    )
+        return violations
+
+
 def default_spec() -> ReportSpec:
     """Die Invarianten, die **ohne Zusatzwissen** entscheidbar sind.
 
@@ -252,7 +297,7 @@ def default_spec() -> ReportSpec:
     die dem Manifest widersprachen. Ein Wachhund, den man ohne sein Wissen bauen kann,
     prueft nicht die Sache, sondern die Vermutung.
     """
-    return ReportSpec(invariants=[PageSize(), ForbiddenVisualTypes(), VisualWithinPage()])
+    return ReportSpec(invariants=[PageSize(), ForbiddenVisualTypes(), VisualWithinPage(), VisualsDoNotOverlap()])
 
 
 def check_report(report_dir: Path, spec: ReportSpec | None = None) -> list[Violation]:

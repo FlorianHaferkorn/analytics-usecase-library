@@ -3,11 +3,11 @@
   "name": "Main_1",
   "position": {
     "x": 32,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3002
+    "tabOrder": 3004
   },
   "visual": {
     "visualType": "lineChart",
@@ -24,11 +24,11 @@
                       "Entity": "dim_date"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth"
             }
           ]
         },
@@ -51,6 +51,48 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Are promotions generating enough incremental lift to justify the spend?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Incremental promo lift is running too low to justify the spend behind it'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

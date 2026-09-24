@@ -18,6 +18,7 @@ action_code_ref:
 - X-S1.1
 - X-S1.3
 calc_type: ratio
+good_is: lower
 business:
   purpose: Measures frequency of escalated cases.
   definition: Escalated cases divided by total cases.

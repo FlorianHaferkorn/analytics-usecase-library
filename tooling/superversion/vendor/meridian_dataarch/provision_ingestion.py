@@ -26,9 +26,9 @@ Plattform-Faehigkeit — deshalb wird keine emittiert.
 **Faehigkeiten kommen aus der Matrix, nicht aus dem Namen.** `jobMode` und ob ueberhaupt
 ein Item entsteht, entscheidet `_CAPABILITIES` — abgeschrieben aus „Connectors for Copy
 Job". Das ist keine Formalie: der Emitter setzte anfangs `jobMode: "CDC"`, weil der
-IR-Konnektor `sap-cdc` heisst. In der CDC-Tabelle steht aber kein einziger SAP-Konnektor,
-und SAP ODP kommt in der Quellen-Tabelle gar nicht vor — der erzeugte Copy job war
-syntaktisch gueltig und praktisch nicht ausfuehrbar.
+IR-Konnektor `sap-cdc` heisst. SAP ODP kommt aber in keiner der beiden Tabellen vor,
+weder als Quelle noch als CDC-Quelle — der erzeugte Copy job war syntaktisch gueltig und
+praktisch nicht ausfuehrbar.
 
 **Honest by construction.** Verbindungs-, Workspace- und Lakehouse-GUIDs sind Tenant-Fakten,
 keine Blueprint-Fakten. Sie kommen aus der `--connections`-Map, wenn eine da ist; ohne sie
@@ -76,10 +76,19 @@ _UNVERIFIED = "VERIFY-CONNECTOR-TYPE"
 #   * „Copy job sources and destinations" -> Full load / Incremental load (WATERMARK)
 #   * „CDC Replication (Preview)"         -> jobMode CDC
 #
-# In der CDC-Tabelle steht **kein einziger SAP-Konnektor**. `jobMode: "CDC"` fuer eine
+# Kein Konnektor des IR-VOKABULARS steht in der CDC-Tabelle. `jobMode: "CDC"` fuer eine
 # SAP-Quelle erzeugt also einen Copy job, den die Plattform nicht ausfuehren kann —
 # der Emitter tat das bis zu dieser Messung, weil `connector: sap-cdc` nach CDC klingt.
 # Der Name einer Deklaration ist keine Faehigkeitszusage.
+#
+# KORREKTUR 09.09.2026, benannt statt geglaettet (Belegpflicht R5): hier stand „in der
+# CDC-Tabelle steht kein einziger SAP-Konnektor". Das war zu breit — und der Kommentar im
+# Kopf von `_CAPABILITIES`, zehn Zeilen tiefer, sagte es die ganze Zeit richtig („… und
+# SAP Datasphere Outbound"). Zwei Saetze ueber dieselbe Tabelle in derselben Datei, einer
+# davon falsch. Gemessen am 09.09.2026 fuehrt die CDC-Tabelle drei SAP-Zeilen, alle als
+# CDC-QUELLE und keine als Ziel: `SAP Datasphere Outbound for ADLS Gen2`, `… for AWS S3`,
+# `… for Google CloudStorage`. Die Aussage, auf die sich dieser Code stuetzt, ist die
+# engere: keiner der Konnektoren, die unser IR deklarieren kann, steht dort.
 #
 # `copy_job_source=False` heisst: die Quelle taucht in der Quellen-Tabelle GAR NICHT auf.
 # Dafuer wird kein Item emittiert — ein syntaktisch gueltiger Copy job fuer einen
@@ -87,10 +96,20 @@ _UNVERIFIED = "VERIFY-CONNECTOR-TYPE"
 _CAPABILITIES: dict[str, dict[str, object]] = {
     # Kein Konnektor des IR-VOKABULARS ist CDC-faehig — die CDC-Tabelle fuehrt nur
     # SQL-Familie, Oracle, Snowflake, BigQuery, Fabric-Lakehouse und SAP Datasphere
-    # Outbound. Erreichbar wird CDC deshalb nur ueber ein `source_type` in der
-    # Connections-Map, die den konkreten Store benennt (z. B. `azure-sql`). Das ist
-    # kein Schoenheitsfehler, sondern eine Aussage ueber das IR: es kann heute keine
-    # CDC-faehige Quelle deklarieren.
+    # Outbound (dieses in drei Speicher-Varianten: ADLS Gen2, AWS S3, Google Cloud
+    # Storage, alle als Quelle, keine als Ziel). Erreichbar wird CDC deshalb nur ueber
+    # ein `source_type` in der Connections-Map, die den konkreten Store benennt
+    # (z. B. `azure-sql`). Das ist kein Schoenheitsfehler, sondern eine Aussage ueber
+    # das IR: es kann heute keine CDC-faehige Quelle deklarieren.
+    #
+    # Was die Quellen-Tabelle am 09.09.2026 an SAP fuehrt und wir NICHT abbilden:
+    # `SAP BW Open Hub` (Full load) und neu `SAP Table (ABAP Add-On)` (Full UND
+    # Incremental per Watermark) — ein Fabric-nativer Copy job direkt an SAP, ohne
+    # Datasphere. Das Handover-Enum kennt beide nicht; ob es sie bekommen soll, ist
+    # eine offene Entscheidung und steht als `fabric-copy-job-sap-abap-addon` im
+    # feature_watch von `research/upstream_pins.yaml`. Hier nichts zu raten ist
+    # Absicht: ein Konnektorname, den das IR nicht deklarieren kann, waere ein
+    # Eintrag ohne Aufrufer.
     "azure-sql":   {"copy_job_source": True,  "incremental": True,  "cdc": True,
                     "doc": "Azure SQL DB"},
     "hana":        {"copy_job_source": True,  "incremental": True,  "cdc": False,

@@ -9,6 +9,7 @@ use_case_ref:
 - HR-001
 action_code_ref: []
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures unplanned absence as a share of scheduled working time.
   definition: Absence Days / Scheduled Working Days.

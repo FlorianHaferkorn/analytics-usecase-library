@@ -18,6 +18,7 @@ action_code_ref:
 - O-Q3.1
 - O-Q3.2
 calc_type: rate
+good_is: higher
 business:
   purpose: Measures share of units produced without rework or scrap.
   definition: Good Units / Total Units.

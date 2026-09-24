@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - O-A2.4
 calc_type: rate
+good_is: higher
 business:
   purpose: Tracks adherence to preventive maintenance plan.
   definition: Completed PM Orders / Planned PM Orders.

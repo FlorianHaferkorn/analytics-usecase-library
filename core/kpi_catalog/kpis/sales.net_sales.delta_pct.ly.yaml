@@ -10,6 +10,7 @@ use_case_ref:
 - XD-003
 action_code_ref: []
 calc_type: rate
+good_is: higher
 business:
   purpose: Relative variance of Net Sales vs Last Year.
   definition: (Net Sales - LY) / LY

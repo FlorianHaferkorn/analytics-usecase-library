@@ -11,6 +11,7 @@ use_case_ref:
 action_code_ref:
 - O-Q3.5
 calc_type: rate
+good_is: lower
 business:
   purpose: Measures customer complaints relative to shipped units.
   definition: Complaint Count / Units Shipped.

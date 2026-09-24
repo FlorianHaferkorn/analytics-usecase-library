@@ -37,7 +37,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from pathlib import Path
+from pathlib import Path, PurePath, PureWindowsPath
 from typing import Optional
 
 from tooling.superversion.canonical_contract import CanonicalModel
@@ -103,7 +103,17 @@ def _executable_command(executable: str, *args: str) -> list[str]:
     cannot be launched directly by ``CreateProcess``; use the platform command
     processor explicitly while keeping POSIX executables direct.
     """
-    if os.name == "nt" and Path(executable).suffix.lower() in {".cmd", ".bat"}:
+    # `PurePath`, nicht `Path`: hier wird ein NAME untersucht, kein Dateisystem
+    # angefasst. Der Unterschied ist nicht kosmetisch — `Path()` waehlt seine Klasse
+    # nach `os.name` und wirft auf Linux `NotImplementedError: cannot instantiate
+    # 'WindowsPath'`, sobald jemand den Windows-Zweig prueft. Genau daran ist
+    # `test_executable_command_wraps_windows_npm_cmd_shim` gestorben, und weil der
+    # Fehler beim FORMATIEREN des Fehlerberichts erneut auftrat, endete pytest mit
+    # INTERNALERROR statt mit einem lesbaren Fehlschlag — zwei rote Jobs, kein
+    # Testname. Gemessen 08.09.2026 auf `main` (Lauf 34187665754) und hier.
+    # `PureWindowsPath` ist auf jeder Plattform instanziierbar; die Aussage bleibt
+    # dieselbe, sie ist nur nicht mehr an das laufende Betriebssystem gebunden.
+    if os.name == "nt" and PurePath(executable).suffix.lower() in {".cmd", ".bat"}:
         return [os.environ.get("ComSpec", "cmd.exe"), "/d", "/s", "/c", executable, *args]
     return [executable, *args]
 
@@ -122,12 +132,26 @@ def _is_wsl_launcher(path: str) -> bool:
     as ``SystemRoot`` — a hard-coded ``C:\Windows`` is wrong on a machine that
     installed Windows elsewhere.
     """
-    parent = Path(path).parent
-    if parent.name.lower() not in _WINDOWS_SYSTEM_DIRS:
+    # Zuerst lexikalisch, mit `PureWindowsPath`: der Vergleich braucht kein Windows.
+    # `Path(...).resolve()` loest gegen das laufende Dateisystem auf, und auf Linux wird
+    # `C:\\Windows\\System32\\bash.exe` dabei zu EINEM Namen relativ zum
+    # Arbeitsverzeichnis. Dann ist der Verzeichnisname leer und der Starter kommt durch.
+    # Gemessen am 08.09.2026 und erneut am 23.09.2026 beim Zusammenfuehren mit main:
+    # `test_resolve_bash_rejects_wsl_launcher_without_distribution` faellt ohne diesen
+    # Zweig auf jedem Linux-Runner. Auf main sah das niemand, weil dort seit dem 09.09.
+    # kein Test mehr gesammelt wurde.
+    lexisch = PureWindowsPath(path)
+    if lexisch.parent.name.lower() not in _WINDOWS_SYSTEM_DIRS:
         return False
     root = os.environ.get("SystemRoot") or os.environ.get("windir")
     if not root:
         return True
+    if PureWindowsPath(root) in lexisch.parents:     # Vergleich ohne Gross/Klein
+        return True
+    if os.name != "nt":
+        return False        # ausserhalb von Windows gibt es den Starter nicht
+    # Der zweite Vergleich bleibt, weil er etwas kann, was der erste nicht kann: auf
+    # Windows folgt `resolve()` einer Verknuepfung.
     try:
         return Path(root).resolve() in Path(path).resolve().parents
     except OSError:                      # resolve() can raise on odd mounts
@@ -165,7 +189,10 @@ def resolve_bash() -> Optional[str]:
         # False, weil der Laufwerksbuchstabe fehlt -- und `resolve()` machte
         # daraus `C:\\usr\\bin\\bash`.
         from pathlib import PurePosixPath as _PPP
-        if not (os.path.isabs(on_path) or _PPP(on_path).is_absolute()):
+        # Und ein Laufwerkspfad ist auch auf Linux absolut; sonst haengt `resolve()`
+        # ihn an das Arbeitsverzeichnis, bevor die lexikalische Pruefung ihn sieht.
+        if not (os.path.isabs(on_path) or _PPP(on_path).is_absolute()
+                or PureWindowsPath(on_path).is_absolute()):
             try:
                 on_path = str(Path(on_path).resolve())
             except OSError:

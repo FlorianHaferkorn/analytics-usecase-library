@@ -1,0 +1,30 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "Header",
+  "position": {
+    "x": 32,
+    "y": 32,
+    "z": 10000,
+    "height": 56,
+    "width": 1856,
+    "tabOrder": 2999
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "text": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Is resource utilization sustainable without degrading service quality?  ·  Expected finding — Resource utilization is above sustainable threshold — occupancy peaks in two teams are creating burnout risk and reducing service quality consistency.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

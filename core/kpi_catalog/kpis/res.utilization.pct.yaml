@@ -14,6 +14,7 @@ action_code_ref:
 - X-R2.3
 - X-R2.4
 calc_type: ratio
+good_is: band
 business:
   purpose: Measures productive time versus paid time for agents.
   definition: Productive time divided by paid time.

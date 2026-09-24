@@ -563,7 +563,7 @@ class PBIPAdapter(GeneratorAdapter):
 
             if spec.measures:
                 # _Measures.tmdl is OWNED by the measure generator (measures_from_ir.py,
-                # real DAX) + upgrade_measures.py (Narrative/Active-Actions enrichment).
+                # real DAX) + tooling/codegen/action_trigger_dax.py (Action-Trigger).
                 # The report compile only knows KPI-name stubs, so — like model.tmdl above —
                 # write it only if missing; never clobber an existing measure layer.
                 measures_key = f"{spec.semantic_model}/definition/tables/_Measures.tmdl"

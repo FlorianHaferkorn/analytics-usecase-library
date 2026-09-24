@@ -11,11 +11,6 @@ table fact_nps
 		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
-	column QueueKey
-		dataType: Int64
-		isHidden
-		sourceColumn: QueueKey
-		summarizeBy: none
 	column 'NPS Score'
 		dataType: Int64
 		sourceColumn: NPS Score

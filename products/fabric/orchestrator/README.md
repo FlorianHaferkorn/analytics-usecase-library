@@ -235,6 +235,25 @@ python orchestrator.py destroy-feature --domain Sales --feature-name jira-123
 
 ---
 
+## Sandbox je Lauf (`sandbox.py`, AP-2)
+
+Ein Workspace je Tenant-Lauf der agentischen Schleife (`UMSETZUNGSPLAN_AGENTIC_LOOP.md`),
+angelegt, bespielt und wieder gelöscht. `sandbox.py` nutzt `AuthProvider`,
+`FabricApiClient` und `WorkspaceManager` aus diesem Modul und `release_to_workspace` aus
+`products/fabric/powerbi/deployment/scripts/fabric_release.py`; eigene Fabric-Aufrufe hat es
+nicht.
+
+```bash
+python products/fabric/orchestrator/sandbox.py up     --manifest run.json --run-id run-0001 --capacity-id <id> --apply
+python products/fabric/orchestrator/sandbox.py deploy --manifest run.json --pbip-dir <PBIP-Ordner> --apply
+python products/fabric/orchestrator/sandbox.py down   --manifest run.json --apply
+```
+
+Ohne `--apply` ist jeder Befehl ein Trockenlauf. Der Workspace heißt `zz-aluca-sandbox-<run-id>`,
+seine ID steht im Manifest. Vor jeder Schreibung wird er zurückgelesen; weichen ID oder Name ab,
+bricht der Befehl ab. `down` gilt erst mit anschließendem 404 als erledigt. Ein gelöschter
+Workspace bleibt für die Aufbewahrungsfrist durch Admins wiederherstellbar.
+
 ## Authentifizierung
 
 Das Tool verwendet ausschließlich **Service Principal (SPN) Authentication** via `msal`.

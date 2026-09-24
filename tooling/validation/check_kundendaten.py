@@ -183,6 +183,26 @@ def dateien(wurzel: Path, nur_staged: bool) -> list[str]:
     return [z for z in r.stdout.splitlines() if z.strip()]
 
 
+def pfad_portionen(pfade: list[str], grenze: int = 8000) -> list[list[str]]:
+    """Teilt Pfade in Portionen, deren Laenge zusammen unter `grenze` Zeichen bleibt.
+
+    Die Grenze liegt weit unter Windows' 32767, weil Befehl, Musterdatei und Anfuehrungszeichen
+    mitzaehlen. Ein einzelner Pfad ueber der Grenze bekommt eine eigene Portion.
+    """
+    raus: list[list[str]] = []
+    jetzt: list[str] = []
+    laenge = 0
+    for pfad in pfade:
+        if jetzt and laenge + len(pfad) + 3 > grenze:
+            raus.append(jetzt)
+            jetzt, laenge = [], 0
+        jetzt.append(pfad)
+        laenge += len(pfad) + 3
+    if jetzt:
+        raus.append(jetzt)
+    return raus
+
+
 def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> list[dict]:
     """Sucht ueber `git grep`.
 
@@ -202,12 +222,15 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
         geaendert = dateien(wurzel, True)
         if not geaendert:
             return []
-        ausschluss = ["--"] + geaendert
+        # Portionen statt einer Kommandozeile: Windows begrenzt sie auf 32767 Zeichen, und
+        # ein Merge mit 521 gestagten Pfaden brach am 24.09.2026 mit WinError 206 ab —
+        # der Hook hielt den Commit an, ohne eine Datei geprueft zu haben.
+        portionen = [["--"] + t for t in pfad_portionen(geaendert)]
     else:
-        ausschluss = ["--", ".",
+        portionen = [["--", ".",
                       ":(exclude)node_modules/**", ":(exclude).venv/**",
                       ":(exclude)**/node_modules/**", ":(exclude)**/*.lock",
-                      ":(exclude)package-lock.json", ":(exclude)**/dist/**"]
+                      ":(exclude)package-lock.json", ":(exclude)**/dist/**"]]
 
     rohzeilen: list[str] = []
 
@@ -220,7 +243,8 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
             if nur_staged:
                 cmd.append("--cached")
             with musterdatei(begriffe) as datei:
-                rohzeilen += _git_grep(cmd + ["-f", datei] + ausschluss)
+                for ausschluss in portionen:
+                    rohzeilen += _git_grep(cmd + ["-f", datei] + ausschluss)
 
     if teil in ("alle", "muster"):
         muster = [m for gruppe in (daten.get("muster") or {}).values() for m in gruppe if m]
@@ -232,7 +256,8 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
             # Bedeutung (git verodert sie), aber ohne die verschachtelten Gruppen
             # -- und ohne die Muster in der Prozessliste.
             with musterdatei(muster) as datei:
-                rohzeilen += _git_grep(cmd + ["-f", datei] + ausschluss)
+                for ausschluss in portionen:
+                    rohzeilen += _git_grep(cmd + ["-f", datei] + ausschluss)
 
     if teil in ("alle", "kennungen"):
         # Nur Kandidaten einsammeln. Ob eine GUID eine Mandantenkennung IST,
@@ -243,8 +268,8 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
         if nur_staged:
             cmd.append("--cached")
         cmd += ["-e", GUID_ROH]
-        rohzeilen += _git_grep(cmd + (ausschluss if nur_staged
-                                      else ["--", *GUID_DATEIEN]))
+        for ausschluss in (portionen if nur_staged else [["--", *GUID_DATEIEN]]):
+            rohzeilen += _git_grep(cmd + ausschluss)
 
     befunde: list[dict] = []
     gesehen: set[tuple] = set()

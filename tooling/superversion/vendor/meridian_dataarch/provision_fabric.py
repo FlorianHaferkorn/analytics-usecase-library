@@ -35,6 +35,74 @@ def _shortcut_cmd(target_lh: str, src: str, cfg: dict) -> str:
     return f'fab ls "{item}" >/dev/null 2>&1 || fab ln "{item}" --type {typ} -i {inp}'
 
 
+def _sap_datasphere_quellen(ingestion: list[dict]) -> dict[str, list[dict]]:
+    """SAP-Quellen, die ueber Datasphere gespiegelt werden — gruppiert nach Quellsystem.
+
+    Der Unterscheider ist der `connector`, nicht der `access_mode`: `mirroring` UND
+    `open-mirroring` tragen beide `mirror`, aber nur `mirroring` bezeichnet den Weg ueber
+    Datasphere; `open-mirroring` heisst, dass ein zertifizierter Partner selbst in ein
+    Mirrored-Database-Item schreibt (`sap_handover_gate`, Fahrplan Kap. 2).
+
+    ABWEICHUNG 09.09.2026, benannt statt geglaettet (Belegpflicht R5): hier stand
+    `mirroring` UND `sap-cdc` als das Paar mit gleichem `access_mode`. Seit der
+    Korrektur von `_CONNECTOR_ACCESS` traegt `sap-cdc` `copy`, faellt also schon am
+    Zugriffsmodus aus dieser Gruppe. Das Beispiel wandert damit auf `open-mirroring`,
+    die Aussage bleibt: ein Test auf den Zugriffsmodus allein sieht den Unterschied nicht.
+
+    Gruppiert wird nach System, weil ein Mirrored-SAP-Item **alles unter seinem
+    Shortcut-Pfad** abdeckt (MS Learn, `fabric/mirroring/sap-limitations`, gemessen
+    08.09.2026): „Mirroring for SAP replicates all the data under the lakehouse shortcut
+    path configured in the mirrored database." Ein Item je SAP-Tabelle waere dieselbe
+    Kardinalitaets-Verwechslung wie ein Private Endpoint je Tabelle.
+    """
+    gruppen: dict[str, list[dict]] = {}
+    for e in ingestion:
+        if e.get("connector") != "mirroring":
+            continue
+        schluessel = str(e.get("source_system") or "").strip() or f"__quelle__{e.get('source', '')}"
+        gruppen.setdefault(schluessel, []).append(e)
+    return dict(sorted(gruppen.items()))
+
+
+def _sap_mirror_block(system: str, quellen: list[dict], ws: str, lakehouse: str) -> list[str]:
+    """Die dokumentierte Schrittfolge fuer ein Mirrored-SAP-Item — mit VERIFY statt Erfindung.
+
+    Belegt gegen MS Learn `fabric/mirroring/sap-datasphere-tutorial` (gemessen 08.09.2026).
+    Bis heute stand hier je Quelle ein `fab mkdir <src>.MirroredDatabase -P
+    connectionId=…,database=…,defaultSchema=…`. Das ist die Form des DATENBANK-Mirrorings
+    (Azure SQL und Verwandte) und fuer SAP in drei Punkten falsch: es waeren 24 Items statt
+    einem, die Parameter sind andere (Lakehouse + Shortcut-Pfad), und die zwei
+    Voraussetzungsschritte fehlten ganz.
+
+    Der Item-Aufruf selbst bleibt ein VERIFY: das Portal legt „Mirrored SAP" ueber einen
+    Dialog an, und ein `fab`- oder REST-Aequivalent ist uns NICHT belegt. Dasselbe Muster
+    wie bei `shortcut_transform` oben — ein wohlgeformter erfundener Befehl waere schlimmer
+    als ein Marker, der laut nach der Messung verlangt.
+    """
+    namen = [str(q.get("source", "")) for q in quellen]
+    kurz = f"{len(namen)} Quellen" if len(namen) > 1 else namen[0]
+    return [
+        f"# --- SAP ueber Datasphere spiegeln: {system or namen[0]} ({kurz}) ---",
+        "#   Belegt: learn.microsoft.com/fabric/mirroring/sap-datasphere-tutorial",
+        "#   Voraussetzung SAP-Seite (Datasphere, NICHT durch dieses Skript herstellbar):",
+        "#     - Datasphere-Umgebung mit Premium Outbound Integration (kostenpflichtig)",
+        "#     - Replication Flow: Ziel ADLS Gen2, `Group Delta` = None, `File Type` = Parquet",
+        "#     - Load Type: `Initial and Delta` oder `Initial Only`",
+        f"#   Schritt 1 — Lakehouse (wird unten als '{lakehouse}' angelegt, falls noch nicht da).",
+        "#   Schritt 2 — ADLS-Gen2-Shortcut auf den GANZEN Container, in den Datasphere schreibt:",
+        f'#     fab ln "{ws}.Workspace/{lakehouse}.Lakehouse/Files/<datasphere>.Shortcut" '
+        "--type adlsGen2 -i <datasphere_connection.json>",
+        "#   Schritt 3 — VERIFY: Item 'Gespiegelte Datenbank SAP' / 'Mirrored SAP' im Portal anlegen:",
+        f"#     Neues Element -> Mirrored SAP -> Lakehouse '{lakehouse}' -> Wurzelordner der",
+        "#     replizierten Daten waehlen -> Namen vergeben -> Anlegen.",
+        "#     EIN Item deckt alle Objekte unter diesem Pfad ab; Objekte aendert man im",
+        "#     Replication Flow, nicht durch weitere Items.",
+        "#     Ein `fab`-/REST-Aequivalent ist hier NICHT belegt — im Tenant messen und",
+        "#     diese Zeile dann durch den gemessenen Aufruf ersetzen.",
+        f"#   Betroffene Quellen: {', '.join(namen)}",
+    ]
+
+
 def emit_fab_commands(blueprint: dict, capacity: str = "<CAPACITY_NAME>",
                       lakehouse: str = GOLD_LAKEHOUSE,
                       connections: dict | None = None, schemas: bool = False,
@@ -109,7 +177,20 @@ def emit_fab_commands(blueprint: dict, capacity: str = "<CAPACITY_NAME>",
     lines.append("# 3. Ingestion (access unification) — real fab commands where a connection is given, else templates")
     lines.append("#    connections map (--connections): {source: {kind: mirror|shortcut, connectionId/database/…}}")
     lines.append("#    --type: adlsGen2 | amazonS3 | googleCloudStorage | s3Compatible | dataverse | oneLake")
+
+    # SAP ueber Datasphere zuerst und je SYSTEM einmal — nicht je Quelle in der Schleife unten.
+    # Ein Mirrored-SAP-Item deckt alles unter seinem Shortcut-Pfad ab; die Quellen darunter
+    # sind Objekte des Replication Flows, keine eigenen Fabric-Items.
+    sap_gruppen = _sap_datasphere_quellen(ingestion)
+    sap_quellen = {str(q.get("source", "")) for qs in sap_gruppen.values() for q in qs}
+    for system, quellen in sap_gruppen.items():
+        lines += _sap_mirror_block(system if not system.startswith("__quelle__") else "",
+                                   quellen, ws0, lakehouse)
+        lines.append("")
+
     for e in ingestion:
+        if e.get("source") in sap_quellen:
+            continue        # oben als eine Gruppe behandelt
         mode = e.get("access_mode")
         sys_ = e.get("source_system", "")
         src = e["source"]

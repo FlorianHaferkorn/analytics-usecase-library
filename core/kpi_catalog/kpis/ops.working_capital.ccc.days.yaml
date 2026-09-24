@@ -10,6 +10,7 @@ use_case_ref:
 - XD-003
 action_code_ref: []
 calc_type: amount
+good_is: lower
 business:
   purpose: Combines receivables, inventory, and payables days to show cash efficiency.
   definition: DSO + DIO - DPO, where DSO/DIO/DPO are proxy days computed from Net Sales/COGS Amount (Net Sales *

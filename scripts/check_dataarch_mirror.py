@@ -68,7 +68,9 @@ _VENDOR_REL = "tooling/superversion/vendor/meridian_dataarch"
 # Integritäts-Manifest (Hashes), diese Liste ist die Entscheidung. Andersherum wäre die
 # Aufnahme eines neuen Moduls unmöglich: sie verlangte eine PIN-Änderung, und eine
 # PIN-Änderung von Hand ist genau der Doktrin-Bruch, den das Integritäts-Gate abfängt.
-# Gleiche Form wie Meridians `MIRRORED_FILES` im Gegenstück-Sensor.
+# Form wie Meridians `MIRRORED_FILES` im Gegenstück-Sensor, um ein Paar erweitert: ein
+# blosser Name ist blueprint-relativ, ein `(Quellpfad, Zielname)`-Paar nennt seinen Ort
+# selbst (`mirror_quellen()`).
 MIRRORED_FILES = (
     "admin_settings.py",
     "capacity_recommend.py",
@@ -109,8 +111,10 @@ MIRRORED_FILES = (
     # `architecture_blueprint.py` zu geben, also genau das Doppel-Silo, gegen das die
     # Doktrin geschrieben ist.
     "direct_lake_guardrails.py",
-    # Transitive dependency of provision_governance. Keep it in the governed
-    # Class-A mirror so the copied emitter remains import-complete in ALUCA.
+    # External Data Share per REST. Am 04.09.2026 wieder entfernt, weil Meridians `main` das
+    # Modul nicht fuehrte (Klasse-A-Datei ohne Heimat). Seit dem Merge von Meridian #425
+    # (24.09.2026, WIP-Zweig 2026-09-03) liegt es dort, und `provision_governance.py` importiert
+    # es in `emit_sharing`. Ohne diesen Eintrag braeche der gespiegelte Import beim ersten Aufruf.
     "provision_external_sharing.py",
     # Gezogen von `provision_apply` wegen `LIFECYCLE_STAGES`. Byte-identisch gespiegelt
     # statt die drei Stufen hier nachzutippen: eine Kopie, die „nur eine Konstante" teilt,
@@ -139,7 +143,46 @@ MIRRORED_FILES = (
     # nur die eigenen Regeln. Mitgespiegelt, damit die Zusage identisch ist, sobald die
     # Abhängigkeit da ist — nicht, damit sie hier heute etwas beweist.
     "sql_validate.py",
+
+    # -- Der Preis-Rechenkern (03.09.2026, ADR-0019 N-3) ---------------------------------
+    #
+    # **Abweichung zu ADR-0019 §2.4/§5 N-3, benannt statt geglaettet (Belegpflicht R5).**
+    # Das ADR nennt `staffing.py` als den zu spiegelnden Rechenkern. Meridians Umsetzung
+    # (D-2) hat den Kern woanders abgelegt, und das ist gemessen, nicht vermutet: der Weg,
+    # den `write_vendor` faehrt — Datei kopieren, unter Meridians Modulnamen laden —
+    # endet bei `products/sales_proposal/staffing.py` mit
+    # `ImportError: cannot import name 'preis_kanon' from 'core'`, bei
+    # `core/preis_kanon.py` dagegen sauber. `staffing.py` ist die Engagement-Schicht und
+    # zieht `core.preis_kanon` sowie `products.governance_framework.delivery` nach; beide
+    # Pakete gibt es hier nicht, und der Spiegel schreibt Importe nicht um (das waere das
+    # Ende der Byte-Identitaet). Meridian sagt es in derselben Datei selbst:
+    # „gespiegelt nach ALUCA wird der Kern (F-3), diese Schicht bleibt das Angebotsprodukt
+    # dieses Repos."
+    #
+    # Die Entscheidung aus §2.4 bleibt damit unangetastet — ein Rechenkern, nicht zwei.
+    # Nur die Datei heisst anders. Der Kern ist mandantenunabhaengig: `kostensatz(m, k)`,
+    # `selbstkosten`, `preis_kalkuliert`, `festpreis`, `lieferzeit_band` nehmen den
+    # Mandanten als Parameter, und `satzklassen` traegt hier Rolle × Standort statt einer
+    # Person (ADR-0019 §2.2).
+    ("core/preis_kanon.py", "preis_kanon.py"),
 )
+
+
+def mirror_quellen() -> tuple[tuple[str, str], ...]:
+    """Je Eintrag: (Quellpfad relativ zur Meridian-Wurzel, Zielname im flachen Spiegel).
+
+    Ein blosser Dateiname bleibt blueprint-relativ — so stand die Liste bis zum 03.09.2026
+    und so bleibt sie fuer 33 der 34 Dateien lesbar. Ein Paar nennt seinen Quellpfad selbst;
+    ohne das koennte der Spiegel nur aus **einem** Meridian-Verzeichnis lesen, und der
+    Preis-Rechenkern liegt in `core/`.
+    """
+    out: list[tuple[str, str]] = []
+    for eintrag in MIRRORED_FILES:
+        if isinstance(eintrag, tuple):
+            out.append(eintrag)
+        else:
+            out.append((f"{_MER_REL}/{eintrag}", eintrag))
+    return tuple(out)
 
 
 def _meridian_root() -> Path | None:
@@ -233,12 +276,18 @@ def vendor_integrity(pin: dict) -> list[str]:
     return out
 
 
-def vendor_upstream_drift(pin: dict, meridian_blueprint: Path) -> list[str]:
-    """Meridian-side changes the mirror has not picked up yet. Pure."""
+def vendor_upstream_drift(pin: dict, meridian_root: Path) -> list[str]:
+    """Meridian-side changes the mirror has not picked up yet. Pure.
+
+    Takes the Meridian **repo root**, not the blueprint directory: since 03.09.2026 the
+    mirror reads from two directories (see ``mirror_quellen``), so one fixed source dir is
+    no longer enough to resolve an entry.
+    """
     pinned = {e["path"]: e["sha256"] for e in pin.get("files", [])}
+    ziele = [z for _, z in mirror_quellen()]
     out: list[str] = []
-    for name in MIRRORED_FILES:
-        src = meridian_blueprint / name
+    for quelle, name in mirror_quellen():
+        src = meridian_root / quelle
         if not src.is_file():
             if name in pinned:
                 out.append(f"  {name}: removed in Meridian, still mirrored here")
@@ -249,23 +298,69 @@ def vendor_upstream_drift(pin: dict, meridian_blueprint: Path) -> list[str]:
             out.append(f"  {name}: declared as mirrored but not mirrored yet — --write")
             continue
         if _sha256(src) != pinned[name]:
-            out.append(f"  {name}: Meridian moved on — re-mirror (--write)")
-    for name in sorted(set(pinned) - set(MIRRORED_FILES)):
+            out.append(f"  {name}: " + pin_direction(meridian_root, quelle,
+                                                     REPO_ROOT / _VENDOR_REL / name))
+    for name in sorted(set(pinned) - set(ziele)):
         out.append(f"  {name}: mirrored but no longer declared in MIRRORED_FILES")
     # Meridian deklariert dieselbe Menge (`aluca_spiegelmenge.json`, Meridian D-545) und prueft
     # dort, dass jedes gespiegelte Modul nur Gespiegeltes importiert. Die Pruefung traegt nur,
     # wenn beide Listen gleich sind — sonst prueft Meridian eine Menge, die hier niemand spiegelt.
-    menge = meridian_blueprint / "aluca_spiegelmenge.json"
+    # Merge mit main (24.09.2026): die Funktion nimmt seit main die Repo-Wurzel, und
+    # MIRRORED_FILES fuehrt auch Paare (Quellpfad, Zielname) - verglichen werden die Zielnamen.
+    menge = meridian_root / "core" / "dataarch_engine" / "blueprint" / "aluca_spiegelmenge.json"
     if menge.is_file():
-        deklariert = set(json.loads(menge.read_text(encoding="utf-8")).get("dateien") or [])
-        for name in sorted(set(MIRRORED_FILES) - deklariert):
+        _m = json.loads(menge.read_text(encoding="utf-8"))
+        # Meridian D-562: Paare (Dateien ausserhalb des Blueprints, etwa preis_kanon) zaehlen mit.
+        deklariert = set(_m.get("dateien") or []) | set(_m.get("paare") or {})
+        for name in sorted(set(ziele) - deklariert):
             out.append(f"  {name}: hier gespiegelt, in Meridians aluca_spiegelmenge.json nicht deklariert")
-        for name in sorted(deklariert - set(MIRRORED_FILES)):
+        for name in sorted(deklariert - set(ziele)):
             out.append(f"  {name}: in Meridians aluca_spiegelmenge.json deklariert, hier nicht gespiegelt")
     return out
 
 
-def write_vendor(meridian_blueprint: Path, pin: dict | None = None) -> dict:
+NICHT_SCHREIBEN = "do NOT --write"
+
+
+def _git_blob_id(path: Path) -> str:
+    """The id git gives this content (``git hash-object``), computed without calling git."""
+    data = path.read_bytes()
+    return hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+
+
+def pin_direction(meridian_root: Path, quelle: str, vendored: Path) -> str:
+    """Which side moved, measured in Meridian's history instead of assumed.
+
+    "Meridian differs from the PIN" has two opposite causes, and the old advice fitted only one.
+    Measured 24.09.2026: ALUCA mirrored ``governance_strategy.py`` with
+    ``workspace_layer_labels`` on 09.09. from a Meridian working tree whose change later lived only
+    on ``wip/2026-09-03-dataarch-delivery``, never on ``main``. The sensor said "Meridian moved on —
+    re-mirror (--write)"; the write would have deleted the feature here. A STALE signal says the
+    two sides differ, never which one is right (CLAUDE.md, 15.08.2026).
+
+    Reads local git only (no network). The pinned blob in HEAD's history of that file means HEAD
+    moved past it; only on other refs means HEAD is behind the mirror; nowhere means this
+    checkout never saw it.
+    """
+    if not vendored.is_file():
+        return "Meridian differs from the PIN; the mirrored copy is missing — --write"
+    blob = _git_blob_id(vendored)
+    auf_head = _git(meridian_root, "log", "HEAD", "--format=%h", f"--find-object={blob}", "--", quelle)
+    if auf_head is None:
+        return "Meridian differs from the PIN; direction not measurable (no git history) — --write only after reading the diff"
+    if auf_head:
+        return "Meridian moved on — re-mirror (--write)"
+    sonst = _git(meridian_root, "log", "--all", "--reverse", "--format=%h", f"--find-object={blob}", "--", quelle)
+    if sonst:
+        refs = _git(meridian_root, "branch", "-a", "--format=%(refname:short)", "--contains", sonst.split()[0]) or ""
+        wo = ", ".join(sorted(r for r in refs.split() if r and not r.endswith("/HEAD"))[:3]) or "an unnamed ref"
+        return (f"Meridian HEAD is BEHIND the mirror — the pinned state exists only on {wo} "
+                f"({NICHT_SCHREIBEN}: it would drop that change here; land it in Meridian first)")
+    return (f"the pinned state is unknown to this Meridian checkout (uncommitted there, or never "
+            f"fetched) — {NICHT_SCHREIBEN} before `--fetch` and a second measurement")
+
+
+def write_vendor(meridian_root: Path, pin: dict | None = None) -> dict:
     """Re-copy the mirrored files and rewrite PIN.json. Deliberately manual, never in CI.
 
     The file list comes from ``MIRRORED_FILES``, never from the existing PIN — otherwise a
@@ -275,14 +370,24 @@ def write_vendor(meridian_blueprint: Path, pin: dict | None = None) -> dict:
     root = REPO_ROOT / _VENDOR_REL
     root.mkdir(parents=True, exist_ok=True)
     pin = pin or {}
-    for name in MIRRORED_FILES:
-        shutil.copyfile(meridian_blueprint / name, root / name)
+    quellen = mirror_quellen()
+    for quelle, name in quellen:
+        shutil.copyfile(meridian_root / quelle, root / name)
+
+    def _eintrag(quelle: str, name: str) -> dict:
+        e = {"path": name, "sha256": _sha256(root / name)}
+        # `source` steht nur dort, wo die Datei **nicht** aus `source_path` kommt. So bleibt
+        # der Vorgabepfad oben eine echte Aussage und der PIN-Diff auf die Ausnahme begrenzt.
+        if quelle != f"{_MER_REL}/{name}":
+            e["source"] = quelle
+        return e
+
     fresh = {
         "source_repo": pin.get("source_repo", "Freelancing"),
         "source_path": pin.get("source_path", _MER_REL),
         "doctrine": pin.get("doctrine",
                             "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors."),
-        "files": [{"path": n, "sha256": _sha256(root / n)} for n in MIRRORED_FILES],
+        "files": [_eintrag(q, n) for q, n in quellen],
     }
     (root / "PIN.json").write_text(json.dumps(fresh, indent=2, ensure_ascii=False) + "\n",
     encoding="utf-8", newline="\n")
@@ -411,7 +516,7 @@ def main(argv: list[str] | None = None) -> int:
             print("[check-dataarch-mirror] --write needs a Meridian checkout "
                   "($MERIDIAN_ROOT or ../Freelancing)")
             return 1
-        fresh = write_vendor(mer / _MER_REL, pin)
+        fresh = write_vendor(mer, pin)
         print(f"[check-dataarch-mirror] re-mirrored {len(fresh['files'])} file(s) from {mer}")
         return 0
 
@@ -463,7 +568,7 @@ def main(argv: list[str] | None = None) -> int:
 
     drift = _diff(meridian, aluca)
     if pin is not None:
-        drift += vendor_upstream_drift(pin, mer / _MER_REL)
+        drift += vendor_upstream_drift(pin, mer)
 
     if not drift:
         vendored = len(pin["files"]) if pin else 0
@@ -489,6 +594,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[check-dataarch-mirror] DIFFERENCE vs Meridian ({mer}) — do NOT re-mirror yet, "
               f"the counterpart checkout is of uncertain freshness (see above); refresh it and "
               f"measure again:")
+    elif any(NICHT_SCHREIBEN in line for line in drift):
+        print(f"[check-dataarch-mirror] DRIFT vs Meridian ({mer}) — do NOT re-mirror blindly, "
+              f"at least one side is behind the mirror (see below):")
     else:
         print(f"[check-dataarch-mirror] DRIFT vs Meridian ({mer}) — re-mirror:")
     for line in drift:

@@ -83,6 +83,10 @@ patterns:
   hidden_base_period:
     message: "Indexed lines with an unmarked base period hide where '100' comes from."
     fix: "Mark and label the base period (=100)."
+  mixed_polarity_on_one_axis:
+    message: "Bars whose 'better' points in opposite directions (OTIF up, stockout down) share one axis — the reader must re-decide per bar whether long is good."
+    fix: "One direction per axis: move the signals to matrix_evidence (one column per KPI, semantic formatting per column) or split into aligned panels."
+    source: "IBCS SAY/UNIFY; knock-out scorecard:knockout-mixed-polarity (R6.3)"
   mixing_indexed_and_absolute_axes:
     message: "Mixing indexed and absolute series on one axis makes both unreadable."
     fix: "Keep indexed series on their own indexed_line; absolutes on a separate chart."

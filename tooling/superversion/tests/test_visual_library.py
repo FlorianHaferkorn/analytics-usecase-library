@@ -34,7 +34,11 @@ def test_block_describe_and_default():
     assert b.default_visual().pbip_type == "cardVisual"
     assert "cardVisual" in b.allowed_pbip_types()
     # status_signal forbids gauge/pie/radar (evidence-based)
-    assert {"gaugeVisual", "pieChart"} <= b.forbidden_pbip_types()
+    # `gauge`, nicht `gaugeVisual`: der offizielle Katalog fuehrt den Typ so
+    # (gemessen 08.09.2026 gegen @microsoft/powerbi-core-visual-schema 0.1.1).
+    # Ein Verbot auf einen Namen, den kein Visual traegt, greift nie — die
+    # Registry ist am 08.09. korrigiert worden, dieser Test zog nach.
+    assert {"gauge", "pieChart"} <= b.forbidden_pbip_types()
 
 
 def test_resolve_slot_to_block():
@@ -285,6 +289,27 @@ def test_native_idioms_are_reachable_via_plans_or_explicitly_tracked():
     assert {"line", "bar_ranking", "column_time", "waterfall_pvm", "matrix_evidence"} <= reachable
 
 
+def test_opt_in_only_idioms_are_emittable_but_not_reachable_through_the_purpose_seam():
+    """Erreichbar zu machen heisst, ueber JEDEN Eingang erreichbar zu machen (09.09.2026).
+
+    Als `kpi_card_spark` in _PLANS wanderte, kippte `visual_type_for_purpose('value_verdict')`
+    ohne eigene Aenderung von None auf `kpi_card_native` — und haette damit jedem Bracket, das
+    einen Zweck statt eines visual_type nennt, die native KPI-Karte gegeben. Die Karte verlangt
+    eine Ziel-Measure, die im Bestand fuer 0 von 21 Karten existiert.
+    """
+    for idiom in vi.OPT_IN_ONLY:
+        assert idiom not in vi.PLANS_UNREACHABLE, (
+            f"{idiom} kann nicht gleichzeitig unerreichbar und opt-in-erreichbar sein")
+        aluca = [vt for vt, i in vi.ALUCA_VISUAL_IDIOM.items() if i == idiom]
+        assert aluca, f"{idiom} ist opt-in, hat aber keinen visual_type zum Nennen"
+        for vt in aluca:
+            assert vt in pbir._PLANS, f"{vt} ist opt-in, aber nicht emittierbar"
+
+    # und der Zweck-Umweg liefert ihn NICHT
+    assert vi.best_idiom_for_purpose("value_verdict") == "kpi_card_spark"   # Praemisse
+    assert vi.visual_type_for_purpose("value_verdict") is None              # Folge
+
+
 def test_min_slot_and_purpose_helpers():
     """The generator seam can consult the grid floor and resolve a purpose to its best idiom."""
     cols, rows = vi.min_slot("bar_ranking")
@@ -330,3 +355,44 @@ def test_visual_type_for_purpose_resolves_best_native_idiom():
         assert got in pbir._PLANS, f"{purpose} resolved to non-emittable {got}"
     assert vi.visual_type_for_purpose("value_verdict") is None   # best = kpi_card_spark (non-native)
     assert vi.visual_type_for_purpose("does_not_exist") is None
+
+
+def test_registry_und_idiom_bibliothek_widersprechen_sich_nicht_beim_nativen_typ():
+    """Die fehlende Kante zwischen den zwei Registern — gemessen, nicht vermutet.
+
+    Die Bruecke oben prueft: was der Generator emittiert, entspricht dem nativen Typ des
+    Idioms. Sie prueft NICHT die andere Richtung: ob dieser native Typ auch das ist, was
+    `visual_registry.yaml` fuer dieselbe `visual_id` sagt. Beide Register nennen dieselbe
+    Sache, keins las das andere.
+
+    Was das gekostet hat, gemessen 07.09.2026: die Registry fuehrt seit ADR-0018
+    (Accepted 02.08.2026) `small_multiples` mit `pbip_type: lineChart` und dem Zusatz
+    `small_multiples: true` — sie wusste also fuenf Wochen lang, dass es ein natives
+    lineChart mit Flag ist. Die Idiom-Bibliothek fuehrte dasselbe Idiom bis heute als
+    `deneb_vegalite`-only mit `powerbi_native: applicable: false`. Ein Register hatte
+    recht, das andere nicht, und nichts stellte sie gegeneinander.
+
+    Die Schnittmenge ist heute klein (2 von 25 bzw. 30), weil die beiden Register
+    verschiedene Dinge benennen: die Registry eine erlaubte MENGE je Informationsblock,
+    die Bibliothek einen erzeugten PUNKT je Idiom. Wo sich die Namen aber treffen, muessen
+    sie dasselbe sagen — und die Schnittmenge waechst, sobald IDs angeglichen werden.
+    """
+    import yaml
+    repo = Path(__file__).resolve().parents[3]
+    reg = yaml.safe_load(
+        (repo / "core/templates/page_templates/visual_registry.yaml").read_text(encoding="utf-8"))
+    erlaubt: dict[str, set] = {}
+    for block in reg["information_blocks"]:
+        for v in (block.get("allowed_visuals") or []):
+            if v.get("pbip_type"):
+                erlaubt.setdefault(v["visual_id"], set()).add(v["pbip_type"])
+
+    nativ = vi.idiom_native_types()
+    gemeinsam = sorted(set(erlaubt) & set(nativ))
+    assert gemeinsam, ("kein gemeinsamer Name mehr — dann prueft dieser Test nichts. "
+                       "Entweder wurde eine ID umbenannt oder ein Register geleert.")
+    widerspruch = {k: (sorted(erlaubt[k]), nativ[k]) for k in gemeinsam
+                   if nativ[k] not in erlaubt[k]}
+    assert not widerspruch, (
+        "Registry und Idiom-Bibliothek nennen fuer dieselbe visual_id verschiedene native "
+        f"Typen (registry, idiom): {widerspruch}")

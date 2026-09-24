@@ -17,6 +17,7 @@ use_case_ref:
 action_code_ref:
 - F-C1.4
 calc_type: amount
+good_is: higher
 business:
   purpose: Measures days payables outstanding.
   definition: Payables / (COGS / 365).

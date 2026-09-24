@@ -25,6 +25,13 @@ _KPI_SPLIT_RE = re.compile(r"(?m)^(?=- kpi_id:)")
 _GRAIN_RE = re.compile(r"Grain:\s*([^.\n]+)", re.IGNORECASE)
 _UNIT_RE = re.compile(r"Unit:\s*([^.\n]+)", re.IGNORECASE)
 
+# `good_is` kennt seit 23.09.2026 auch band und zero (R6.3). "band is better" waere Unsinn,
+# deshalb traegt jeder Wert seinen Wortlaut.
+_GOOD_META = {"higher": "higher_is_better", "lower": "lower_is_better",
+              "band": "within_target_band", "zero": "closer_to_zero_is_better"}
+_GOOD_TEXT = {"higher": "higher is better", "lower": "lower is better",
+              "band": "within the target band is better", "zero": "closer to zero is better"}
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Source loaders (best-effort)
@@ -70,7 +77,7 @@ def load_measure_dictionary(domains_dir: Path) -> Dict[str, List[dict]]:
     by_name: Dict[str, List[dict]] = {}
     if not domains_dir.is_dir():
         return by_name
-    for md in domains_dir.rglob("Measure_Dictionary_*.md"):
+    for md in sorted(domains_dir.rglob("Measure_Dictionary_*.md")):
         fence = _FENCE_RE.search(md.read_text(encoding="utf-8"))
         if not fence:
             continue
@@ -118,7 +125,7 @@ class AIDescription:
     formula: str = ""
     grain: str = ""
     unit: str = ""
-    good_is: str = ""          # optional KPI field: "higher" | "lower"
+    good_is: str = ""          # optional KPI field: "higher" | "lower" | "band" | "zero"
     impact_dimension: str = ""
     drivers: List[Tuple[str, str]] = field(default_factory=list)  # (name, direction)
     owner: str = ""
@@ -141,7 +148,7 @@ class AIDescription:
         if self.unit:
             meta.append(f"Unit: {self.unit}")
         if self.good_is:
-            meta.append(f"Good: {self.good_is}_is_better")
+            meta.append(f"Good: {_GOOD_META.get(self.good_is, self.good_is + '_is_better')}")
         if meta:
             lines.append("/// " + " · ".join(meta))
         if self.drivers:
@@ -171,7 +178,7 @@ class AIDescription:
         if self.unit:
             qualifiers.append(self.unit)
         if self.good_is:
-            qualifiers.append(f"{self.good_is} is better")
+            qualifiers.append(_GOOD_TEXT.get(self.good_is, f"{self.good_is} is better"))
         if qualifiers:
             parts[-1] = f"{parts[-1] or self.name} ({', '.join(qualifiers)})"
         if self.drivers:
@@ -202,7 +209,12 @@ def build_description(kpi_id: str, repo_root: Path) -> Optional[AIDescription]:
 
     by_name = load_measure_dictionary(repo_root / "core" / "semantic_models" / "domains")
     entries = by_name.get(name, [])
-    measure = next((e for e in entries if e.get("_domain") == domain), entries[0] if entries else {})
+    # Alle domain_tag der Reihe nach, erst dann der erste Eintrag. Bis 23.09.2026 zaehlte nur
+    # der erste Tag; margin.gm.pct fuehrt [Finance, Commercial], Finance hat kein Dictionary-
+    # Eintrag, und der Rueckfall entries[0] hing an der rglob-Reihenfolge. Auf dem Runner kam
+    # CustomerValue (ohne Einheit) zuerst -- derselbe Test war lokal gruen und in der CI rot.
+    measure = next((e for d in domains for e in entries if e.get("_domain") == d),
+                   entries[0] if entries else {})
 
     doc = (measure.get("documentation") or {}) if measure else {}
     notes = doc.get("notes", "")

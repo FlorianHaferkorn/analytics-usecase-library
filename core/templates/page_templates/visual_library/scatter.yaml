@@ -56,7 +56,7 @@ realizations:
         "query": { "queryState": {
           "X": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure_x}}" } }, "queryRef": "{{entity}}.{{measure_x}}" } ] },
           "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure_y}}" } }, "queryRef": "{{entity}}.{{measure_y}}" } ] },
-          "Details": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] }
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] }
         } }
       }
 

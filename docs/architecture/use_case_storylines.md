@@ -14,7 +14,7 @@
     - answer: Net Sales compared with Plan and prior year reveals whether commercial performance is sustained.
     - so what → A deteriorating trajectory moves the decision from monitoring to targeted commercial recovery.
 - **[30s Q2]** What's driving the gap between Plan and Actual — price, volume, or mix?
-    - visual: `waterfall_chart` · `None`
+    - visual: `waterfall_chart` · `PVM Bridge Value`
     - answer: Price, volume, and mix reconcile the movement from Plan to Actual Net Sales.
     - so what → The dominant bridge component determines whether pricing, demand, or portfolio mix needs intervention.
 - **[30s Q3]** Is the Plan gap broad-based or concentrated in a few regions?
@@ -325,7 +325,7 @@
     - answer: Inventory turnover is falling, tying up working capital in slow-moving stock
     - so what → Falling turnover ties up working capital that could fund faster-moving SKUs.
 - **[30s Q2]** What are the inventory-health signals telling us?
-    - visual: `horizontal_bar_chart` · `None`
+    - visual: `exception_table` · `None`
     - answer: Stockout, OTIF, and obsolescence risk — the three inventory health signals.
     - so what → Stockouts and obsolescence rising together point to a demand-signal problem, not a capacity one.
 - **[30s Q3]** Is poor forecasting the root cause behind the inventory swings?
@@ -354,7 +354,7 @@
     - answer: On-time delivery is the component dragging OTIF below target, not in-full
     - so what → Because on-time performance is dragging OTIF down, carrier and lane-level fixes matter more than in-full stock buffers.
 - **[30s Q2]** What's behind the OTIF shortfall beyond timeliness?
-    - visual: `horizontal_bar_chart` · `None`
+    - visual: `exception_table` · `None`
     - answer: In-full rate and stockout impact — the two OTIF components beyond timeliness.
     - so what → Ranking penalty cost by supplier focuses the reliability push where the money actually leaks.
 
@@ -378,7 +378,7 @@
     - answer: Forecast error is a systematic bias, not random noise
     - so what → A systematic bias, not random noise, means model recalibration fixes more of the gap than manual overrides.
 - **[30s Q2]** What are the forecast-quality signals, and where do they hurt service?
-    - visual: `horizontal_bar_chart` · `None`
+    - visual: `exception_table` · `None`
     - answer: Forecast bias and downstream service impact — the two forecast-quality signals.
     - so what → Ranking bias by SKU cluster isolates where a model recalibration removes most of the replanning load.
 
@@ -451,7 +451,7 @@
     - answer: Resource occupancy is running at sustained overload in a few teams
     - so what → Sustained overload in those teams threatens the service-quality consistency the SLA depends on.
 - **[30s Q2]** What are utilization's quality trade-offs?
-    - visual: `horizontal_bar_chart` · `None`
+    - visual: `exception_table` · `None`
     - answer: SLA attainment, overtime, and shrinkage — utilization's three quality trade-offs.
     - so what → Overtime absorbing the gap today is not sustainable — it is the early signal of the capacity shortfall to come.
 
@@ -500,7 +500,7 @@
     - visual: `line_chart` · `enterprise.action_outcome_rate.pct`
     - answer: Outcome-rate trend separates verified business impact from administrative action closure.
     - so what → A weak or deteriorating outcome rate triggers governance intervention before more activity is mistaken for progress.
-- **[30s Q2]** Which domains convert actions into the strongest verified impact?
+- **[30s Q2]** Which domains fail to convert actions into verified impact?
     - visual: `horizontal_bar_chart` · `enterprise.action_effectiveness_delta.amount`
     - answer: Domain-level effectiveness ranks where governed actions deliver or fail to deliver verified value.
     - so what → Executive attention should first address domains combining weak outcomes with material impact exposure.
@@ -509,7 +509,7 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which action domains need governance intervention to convert into verified outcomes?
-- **[300s evidence]** grain `action_outcome`, worst-first by `days_to_outcome` (descending), Top-20 · action panel
+- **[300s evidence]** grain `action_outcome`, worst-first by `enterprise.avg_time_to_outcome.days` (descending), Top-20 · action panel
 **Decision payoff (actions):** C-M2.1, C-M2.2, C-S1.1, C-S1.2, C-C3.1, F-C1.1, F-C1.2, F-K2.1, O-A2.1, O-O1.1, O-O1.2, O-O1.3, O-Q3.1, S-I1.1, S-R2.1, X-E3.3
 **Cross-domain pull:** Operations (15: `ops.downtime.unplanned.pct`, `ops.failure.count`, `ops.labor.productivity.pct` +12); Supply Chain (11: `inv.obsolete.pct`, `inv.stockout.pct`, `inv.turnover` +8); Commercial (11: `sales.net_sales.amount`, `sales.net_sales.delta_pct.ly`, `sales.price.list.amount` +8); Finance (8: `cost.material.pct`, `cost.opex.vs_plan.pct`, `fin.liquidity.inventory.amount` +5); Customer & Market (7: `crm.churned_customers.count`, `crm.lifetime_revenue.amount`, `crm.active_customers.count` +4); Service & Experience (7: `svc.aht.minutes`, `svc.backlog.count`, `svc.escalation.pct` +4); Enterprise & Governance (3: `enterprise.action_outcome_rate.pct`, `enterprise.action_effectiveness_delta.amount`, `enterprise.value_at_risk.index`); ActionReady (3: `enterprise.actions_executed.count`, `enterprise.avg_time_to_outcome.days`, `enterprise.action_roi.pct`); People & Culture (2: `people.attrition_risk.pct`, `people.digital_adoption.pct`)
 **Connects to use cases:** COM-001, COM-002, COM-003, COM-004, FIN-001, FIN-002, OPS-001, OPS-002, OPS-003, SCM-001, SCM-002, SCM-003, XD-001, XD-002, XD-003

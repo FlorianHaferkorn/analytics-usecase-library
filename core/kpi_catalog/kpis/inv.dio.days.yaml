@@ -20,6 +20,7 @@ action_code_ref:
 - S-I1.4
 - S-I1.5
 calc_type: amount
+good_is: lower
 business:
   purpose: Measures inventory holding period in days.
   definition: Average Inventory / (COGS / 365).

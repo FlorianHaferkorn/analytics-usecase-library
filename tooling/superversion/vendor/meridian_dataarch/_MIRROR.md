@@ -21,6 +21,7 @@ spiegelt.
 | `provision_monitoring.py` | Workspace-Failure-KQL, Kapazitäts-Throttling-Alert, Pipeline-Benachrichtigungen |
 | `provision_lifecycle.py` | `OPTIMIZE`/`VACUUM RETAIN`, Retention-Policy, BCDR-Runbook |
 | `provision_connectivity.py` | Managed Private Endpoints |
+| `provision_external_sharing.py` | External Data Share per Fabric-REST (Anlage, Einladung, Annahme), gesperrter Vertrag bis `status=approved` (seit 24.09.2026, Meridian #425) |
 | `provision_operability.py` | Metadaten-Vollständigkeit als Funktionsbedingung, Betriebs-Runbook |
 | `capacity_recommend.py` | SKU-Guardrails inkl. Direct Lake |
 | `admin_settings.py` | Tenant-Settings-Vorbedingungen |
@@ -130,6 +131,39 @@ bedingungslos durch, und `arch_targets.render` weist eine Option zurück, die ei
 annimmt — zu Recht, denn sie stillschweigend fallen zu lassen sähe aus wie erfüllt. Behoben
 in `architecture_blueprint_cli.run`; die 16 bzw. 4 Artefakte oben sind die erste Messung
 überhaupt.
+
+### Preis — dazugekommen am 03.09.2026 (ADR-0019 N-3)
+
+| Modul | Was es kodiert |
+|---|---|
+| `preis_kanon.py` | Rechenkern des Preis-Kanons: Stunden je Satzklasse, Selbstkosten, Preis = Selbstkosten × (1 + r) × (1 + m), Rundung, Festpreis, Lieferzeit-Band (Meridian D-356) |
+
+Der Kern ist die einzige Datei dieses Spiegels, die **nicht** aus `core/dataarch_engine/blueprint`
+kommt — sie liegt in Meridian unter `core/preis_kanon.py`. Seit dieser Aufnahme darf ein Eintrag
+in `MIRRORED_FILES` deshalb seinen Quellpfad selbst nennen; der PIN trägt für solche Dateien ein
+`source`-Feld, alle anderen bleiben am Vorgabepfad `source_path`.
+
+**Abweichung zu ADR-0019, benannt statt geglättet (Belegpflicht R5).** Das ADR nennt in §2.4 und
+§5 N-3 `staffing.py` als den zu spiegelnden Rechenkern. Gemessen am 03.09.2026 auf genau dem Weg,
+den `write_vendor` fährt — Datei kopieren, unter Meridians Modulnamen laden:
+
+```
+products/sales_proposal/staffing.py: ImportError: cannot import name 'preis_kanon' from 'core'
+core/preis_kanon.py:                 lädt
+```
+
+`staffing.py` ist die Engagement-Schicht und zieht `core.preis_kanon` sowie
+`products.governance_framework.delivery` nach; beide Pakete gibt es hier nicht, und ein Spiegel,
+der Importe umschreibt, ist kein byte-identischer Spiegel mehr. Meridian sagt es in derselben
+Datei selbst: „gespiegelt nach ALUCA wird der Kern, diese Schicht bleibt das Angebotsprodukt
+dieses Repos." Die Entscheidung aus §2.4 — ein Rechenkern, nicht zwei — bleibt unberührt; nur die
+Datei heißt anders.
+
+Was ALUCA daraus **nicht** nutzt und warum, steht in `_dataarch_vendor.PUBLIC_API`: `pruefe_kanon`
+erzwingt den Mandanten `freelancing` (dortiges D-357) und wäre hier per Konstruktion rot; die
+MD-Renderer hängen an einem Repo-Pfad, der im Spiegel ins Leere zeigt. ALUCAs eigene Regeln und
+das Laden aus `$PREIS_KANON_MANDANTEN_DIR` stehen in
+[`../../preis_kanon_mandant.py`](../../preis_kanon_mandant.py).
 
 ## Änderungen
 

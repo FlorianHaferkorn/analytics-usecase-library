@@ -1,0 +1,3 @@
+relationship dim_category_fact_procurement
+	fromColumn: fact_procurement.CategoryKey
+	toColumn: dim_category.CategoryKey

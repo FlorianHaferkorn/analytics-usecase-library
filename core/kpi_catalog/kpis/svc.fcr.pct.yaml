@@ -17,6 +17,7 @@ use_case_ref:
 action_code_ref:
 - X-S1.3
 calc_type: ratio
+good_is: higher
 business:
   purpose: Shows the share of cases solved on first contact.
   definition: Cases with FCR Flag = 1 divided by total cases.
