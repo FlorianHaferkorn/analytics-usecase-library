@@ -129,7 +129,7 @@
     },
     {
       "path": "provision_transforms.py",
-      "sha256": "152bc4f58072787e5d8ed467805574fdb6ff4b2ace0a334045f23a8e931ec3b0"
+      "sha256": "dccaa262fbb0d6e188629c5a2959f588e0ab8a2c4c3c094751e5fadf68047d1b"
     },
     {
       "path": "provision_translations.py",

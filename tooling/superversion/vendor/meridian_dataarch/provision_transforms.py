@@ -404,7 +404,9 @@ def _silber_watermark(governed_catalog: dict | None, quelle: str) -> str | None:
     if eintrag.get("watermark"):
         return eintrag["watermark"]
     if eintrag.get("watermark_keine"):
-        return None                     # kuratiert: keine — die Heuristik fragt nicht nach
+        # Kuratiert: keine Aenderungsspalte. Ist die Tabelle unveraenderlich, traegt die
+        # Anlagespalte (D-547) — sonst nichts, und die Heuristik fragt nicht nach.
+        return eintrag.get("anlage") if eintrag.get("unveraenderlich") else None
     from core.dataarch_engine.blueprint.decision_proposals import _WATERMARK_HINTS, _rank
     wm = sorted(((_rank(c, _WATERMARK_HINTS), c) for c in quellspalten(governed_catalog, quelle)),
                 key=lambda x: (-x[0], x[1]))
@@ -457,9 +459,19 @@ def kuratiere_quelltabellen(governed_catalog: dict, kuratiert: dict) -> dict:
         for feld in ("hinweis", "beleg"):
             if angabe.get(feld):
                 e[f"watermark_{feld}"] = str(angabe[feld])
+        # D-547: eine **unveraenderliche** Tabelle (Buchungszeilen, Warenbewegungen, Historie)
+        # braucht keine Aenderungsspalte — neue Zeilen erkennt man an der Anlage. Beides wird
+        # ausdruecklich gesagt, nicht aus dem Namen geschlossen.
+        if "unveraenderlich" in angabe:
+            if not isinstance(angabe["unveraenderlich"], bool):
+                raise ValueError(f"Quellmetadaten {quelle}: unveraenderlich muss true/false sein")
+            e["unveraenderlich"] = angabe["unveraenderlich"]
+        if angabe.get("anlage"):
+            e.update(anlage=str(angabe["anlage"]), anlage_von=wer)
         bekannt = set(e.get("columns") or [])
-        fremd = sorted({*(angabe.get("key") or []), *([angabe["watermark"]] if angabe.get("watermark")
-                                                        else [])} - bekannt)
+        fremd = sorted({*(angabe.get("key") or []),
+                        *([angabe["watermark"]] if angabe.get("watermark") else []),
+                        *([angabe["anlage"]] if angabe.get("anlage") else [])} - bekannt)
         if fremd:
             e["nicht_im_katalog"] = fremd
         vorhanden[quelle] = e
@@ -549,7 +561,11 @@ def _bronze_to_silver(d: dict, src: str, silver_tbl: str, contract_ref: str, dl:
                  f"{c}   Herkunft der Watermark{_herkunft_zeile(governed_catalog, src, 'watermark')}\n"
                  + (f"{c}   {_quelltabelle(governed_catalog, src)['watermark_hinweis']}\n"
                     if _quelltabelle(governed_catalog, src).get("watermark_hinweis") else ""))
-        if wahl == "merge" and any(h in wm.lower() for h in _ANLAGE_HINWEISE):
+        _q = _quelltabelle(governed_catalog, src)
+        if _q.get("unveraenderlich") and wm == _q.get("anlage"):
+            kopf += (f"{c}   Kuratiert unveraenderlich: Zeilen werden angelegt, nicht geaendert — "
+                     f"neue erkennt man an {wm}.\n")
+        elif wahl == "merge" and any(h in wm.lower() for h in _ANLAGE_HINWEISE):
             kopf += (f"{c}   BEFUND: {wm} ist ein Anlagedatum. Eine spaetere Aenderung an einer "
                      f"alten Zeile traegt ein\n"
                      f"{c}   altes Anlagedatum und kommt mit diesem MERGE nie an — fuer `merge` "
@@ -683,7 +699,8 @@ def _projektion(spalte: str, table: dict | None, stack: str) -> str:
 
 def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_ref: str,
                     dl: dict, gold_tbl: str = "", table: dict | None = None,
-                    kopf_extra: list[str] | None = None) -> str:
+                    kopf_extra: list[str] | None = None,
+                    wasserzeichen: dict | None = None) -> str:
     c = dl["comment"]
     gold_tbl = gold_tbl or f"gold_{_ident(name)}"
     # `silver_tbl` darf eine Liste sein: dann entsteht ein Produkt aus mehreren Herkuenften
@@ -719,6 +736,12 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
                         f"ergaenzen, z. B. row_number() OVER (ORDER BY "
                         f"{', '.join(schluessel) or '<business_key>'}) AS {name}_sk.")
         auswahl = ",\n".join(f"    {_projektion(s, table, dl['stack'])}" for s in spalten)
+        if wasserzeichen and wasserzeichen.get("spalte"):
+            kopf.append(f"{c} {WASSERZEICHEN_SPALTE} = {wasserzeichen['spalte']} aus "
+                        f"{wasserzeichen['quelle']} ({wasserzeichen['art']}, kuratiert) — "
+                        f"technisch, fuer das inkrementelle Laden (D-549).")
+            auswahl += (f",\n    {zitiere(wasserzeichen['spalte'], dl['stack'])} AS "
+                        f"{WASSERZEICHEN_SPALTE}")
         return head + "\n".join(kopf) + "\nSELECT\n" + auswahl + f"\nFROM {silver_tbl}\n;\n"
 
     # honest, runnable-shaped skeleton: the modeled projection lives in a TODO *comment* (with a concrete
@@ -880,6 +903,44 @@ def _konforme_quellen(blueprint: dict, governed_catalog: dict | None, product: s
     return raus
 
 
+#: Die technische Spalte, die Gold fuer das inkrementelle Laden traegt (D-549): der Wert der
+#: kuratierten Aenderungs- bzw. Anlagespalte der Kopfquelle. Sie steht im Vollaufbau UND im MERGE
+#: — sonst bricht `UPDATE SET *` / `INSERT *` an einer Spalte, die das Ziel nicht kennt.
+WASSERZEICHEN_SPALTE = "_wasserzeichen"
+
+
+def gold_wasserzeichen(governed_catalog: dict | None, product: str,
+                       herkunft: list[str]) -> dict | None:
+    """Woran Gold neue und geaenderte Zeilen erkennt — aus den **kuratierten** Quellmetadaten.
+
+    Gemessen 23.09.2026 (D-544): die Gold-Heuristik waehlte fuer `dim_purchasing_document`
+    `AEDAT` aus EKKO — laut DDIC ein Anlagedatum — und fuer drei weitere Produkte `ERDAT`. Ein
+    MERGE darauf erkennt Aenderungen an alten Belegen nie. Die Aenderungsspalte steht aber nicht
+    in der Gold-Projektion, sondern in der Quelle; sie reist deshalb als technische Spalte mit.
+
+    Kopfquelle ist die einzige Herkunft, bei einem erklaerten Verbund der Kopf (D-542). Gelesen
+    werden nur kuratierte Angaben: eine Heuristik bleibt der bisherige Vorschlag im Kommentar.
+
+    Rueckgabe ``{"spalte", "art", "quelle"}``, ``{"keine": True, …}`` oder ``None``.
+    """
+    kat_t = _catalog_table(governed_catalog, _ident(product)) or {}
+    zf = kat_t.get("zusammenfuehrung") or {}
+    kopf = zf.get("kopf") if zf.get("art") == "text_verbund" else (
+        herkunft[0] if len(herkunft) == 1 else None)
+    if not kopf:
+        return None
+    e = _quelltabelle(governed_catalog, kopf)
+    if e.get("watermark") and e.get("watermark_herkunft") == "kuratiert":
+        return {"spalte": e["watermark"], "art": "Aenderung", "quelle": kopf,
+                "von": e.get("watermark_von", "")}
+    if e.get("watermark_keine") and e.get("unveraenderlich") and e.get("anlage"):
+        return {"spalte": e["anlage"], "art": "Anlage, Tabelle unveraenderlich", "quelle": kopf,
+                "von": e.get("anlage_von", "")}
+    if e.get("watermark_keine"):
+        return {"keine": True, "quelle": kopf, "hinweis": e.get("watermark_hinweis", "")}
+    return None
+
+
 def _konforme_projektion(spalten: list[str], eigene: list[str] | None, table: dict | None,
                          stack: str) -> str:
     """Die Projektion eines Blocks: fehlende Zielspalten einer Herkunft als ``NULL``.
@@ -897,7 +958,8 @@ def _konforme_projektion(spalten: list[str], eigene: list[str] | None, table: di
 
 def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple],
                               contract_ref: str, dl: dict, gold_tbl: str = "",
-                              table: dict | None = None) -> str:
+                              table: dict | None = None,
+                              wasserzeichen: dict | None = None) -> str:
     """Ein Gold-Ziel, das mehrere Domaenen speisen — als EIN Transform.
 
     ``UNION`` (nicht ``UNION ALL``): dieselbe Quelltabelle, die in zwei Domaenen landet,
@@ -935,8 +997,14 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple],
 
     if not spalten:
         kopf.append(f"{c} TODO(contract:{contract_ref}): kein Katalogeintrag — Projektion ergaenzen.")
+    wz = (f",\n    {zitiere(wasserzeichen['spalte'], dl['stack'])} AS {WASSERZEICHEN_SPALTE}"
+          if wasserzeichen and wasserzeichen.get("spalte") else "")
+    if wz:
+        kopf.append(f"{c} {WASSERZEICHEN_SPALTE} = {wasserzeichen['spalte']} aus "
+                    f"{wasserzeichen['quelle']} ({wasserzeichen['art']}, kuratiert) — technisch, "
+                    f"fuer das inkrementelle Laden (D-549).")
     blocks = [f"SELECT\n    {_konforme_projektion(spalten, q[2] if len(q) > 2 else None, table, dl['stack'])}"
-              f"\nFROM {q[1]}" for q in sources if q[1]]
+              f"{wz}\nFROM {q[1]}" for q in sources if q[1]]
     for q in sources:
         kopf += [f"{c} {z}" for z in (q[3] if len(q) > 3 else [])]
     mitgelesen = [q[0] for q in sources if not q[1]]
@@ -1079,7 +1147,10 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
             if verbund:
                 out[rel] = _silver_to_gold(product, kind, verbund[0], c_ref, dl,
                                            gold_tbl=gold_tbl, table=kat_t or None,
-                                           kopf_extra=verbund[1])
+                                           kopf_extra=verbund[1],
+                                           wasserzeichen=gold_wasserzeichen(
+                                               governed_catalog, product,
+                                               herkunft.get(_ident(product), [])))
                 flow.append(f"- Verbund {' + '.join(f'`{q}`' for q in von)} → {gold_tbl} "
                             f"({kind})  ·  `{rel}`")
                 continue
@@ -1090,7 +1161,10 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
                 continue
             out[rel] = _silver_to_gold(product, kind, von[0] if len(von) == 1 else von, c_ref, dl,
                                        gold_tbl=gold_tbl,
-                                       table=_catalog_table(governed_catalog, _ident(product)))
+                                       table=_catalog_table(governed_catalog, _ident(product)),
+                                       wasserzeichen=gold_wasserzeichen(
+                                           governed_catalog, product,
+                                           herkunft.get(_ident(product), [])))
             flow.append(f"- {' + '.join(f'`{q}`' for q in von)} → {gold_tbl} ({kind})  ·  `{rel}`")
         flow.append("")
 
@@ -1116,9 +1190,14 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
                                     domains, schemas, stack,
                                     entscheidung_fuer(entscheidungen, "DATA-TEXTSPRACHE", "")
                                     or TEXTSPRACHE_VORGABE)
+        _echte = [q for q in sources if q[1]]
         out[rel] = _silver_to_gold_conformed(
             product, kind, sources, contract_ref, dl, gold_tbl=gold_tbl,
-            table=_catalog_table(governed_catalog, _ident(product)))
+            table=_catalog_table(governed_catalog, _ident(product)),
+            # Nur bei EINEM Block (erklaerter Verbund): mehrere Herkuenfte tragen nicht
+            # dieselbe Aenderungsspalte, und eine halbe waere schlimmer als keine.
+            wasserzeichen=gold_wasserzeichen(governed_catalog, product, [])
+            if len(_echte) == 1 else None)
         flow.append(f"- {' + '.join(q[1] for q in sources if q[1])} → {gold_tbl} ({kind})  ·  `{rel}`")
     if _conformed:
         flow.append("")
@@ -1163,7 +1242,8 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
                                 formgleich: bool = True,
                                 table: dict | None = None,
                                 konform: list[tuple] | None = None,
-                                zusatz_kopf: str = "") -> str:
+                                zusatz_kopf: str = "",
+                                wasserzeichen: dict | None = None) -> str:
     """Incremental (upsert) silver→gold as a MERGE scaffold — the delta-load counterpart of the
     full-rebuild ``_silver_to_gold``. Honest by construction: the merge *shape* comes from the IR
     (target gold table, kind), the match key + watermark predicate are domain policy → TODO(contract).
@@ -1232,6 +1312,30 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
         + scd
     )
     keys, wm = (proposal or {}).get("keys") or [], (proposal or {}).get("watermark")
+    # D-549: kuratierte Quellmetadaten gehen der Gold-Heuristik vor. Die Aenderungs- bzw.
+    # Anlagespalte der Kopfquelle reist als `_wasserzeichen` nach Gold; das Praedikat liest sie
+    # in der Quelle und vergleicht mit dem Stand in Gold.
+    wz_praedikat = ""
+    if wasserzeichen and wasserzeichen.get("spalte"):
+        w = zitiere(wasserzeichen["spalte"], dl["stack"])
+        quellspalte = WASSERZEICHEN_SPALTE if konform else w
+        auswahl = auswahl.rstrip("\n") + (
+            f",\n        {WASSERZEICHEN_SPALTE}\n" if konform
+            else f",\n        {w} AS {WASSERZEICHEN_SPALTE}\n")
+        wm = WASSERZEICHEN_SPALTE
+        wz_praedikat = f"{quellspalte} > (SELECT MAX({WASSERZEICHEN_SPALTE}) FROM {gold_tbl})"
+        head += (f"{c}\n{c} WASSERZEICHEN (kuratiert, D-549): {wasserzeichen['spalte']} aus "
+                 f"{wasserzeichen['quelle']} — {wasserzeichen['art']}"
+                 f"{' (' + wasserzeichen['von'] + ')' if wasserzeichen.get('von') else ''}.\n"
+                 f"{c}   Gold traegt sie als {WASSERZEICHEN_SPALTE}; der Vollaufbau schreibt dieselbe "
+                 f"Spalte.\n")
+    elif wasserzeichen and wasserzeichen.get("keine"):
+        wm = None
+        head += (f"{c}\n{c} KURATIERT (D-549): {wasserzeichen['quelle']} hat keine verlaessliche "
+                 f"Aenderungsspalte und ist veraenderlich.\n"
+                 + (f"{c}   {wasserzeichen['hinweis']}\n" if wasserzeichen.get("hinweis") else "")
+                 + f"{c}   Ein Watermark-MERGE traegt hier nicht — DATA-INC = vollast oder "
+                 f"Aenderungsbelege.\n")
     # Die Bestaetigung, auf die der Kommentar unten wartet (C-3, 02.09.2026): traegt das Profil
     # `entscheidungen.DATA-INC[·<domaene>] = watermark` und nennt der Katalog Schluessel und
     # Aenderungsspalte, wird der Vorschlag zur ausfuehrbaren Anweisung. Genau das ist der
@@ -1243,7 +1347,8 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
             f"{c}\n"
             f"{c} ENTSCHIEDEN: DATA-INC = watermark (Antwortdatei → Profil `entscheidungen`).\n"
             f"{c}   Match-Key : {' + '.join(keys)}\n"
-            f"{c}   Watermark : {wm} > (SELECT MAX({wm}) FROM {gold_tbl}); leeres Gold laedt alles.\n"
+            f"{c}   Watermark : {wz_praedikat or f'{wm} > (SELECT MAX({wm}) FROM {gold_tbl})'}; "
+            f"leeres Gold laedt alles.\n"
             f"{c}   Loeschungen in der Quelle kommen ohne Loeschkennzeichen nicht an (Katalog-Option).\n"
         )
         body = (
@@ -1252,7 +1357,7 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
             f"{auswahl}"
             f"    FROM {quelle}\n"
             f"    WHERE (SELECT COUNT(*) FROM {gold_tbl}) = 0\n"
-            f"       OR {wm} > (SELECT MAX({wm}) FROM {gold_tbl})\n"
+            f"       OR {wz_praedikat or f'{wm} > (SELECT MAX({wm}) FROM {gold_tbl})'}\n"
             f") AS s\n"
             f"ON {on}\n"
             f"WHEN MATCHED THEN {set_clause}\n"
@@ -1396,7 +1501,9 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
                 proposal=_incremental_proposal(governed_catalog, product), wahl=wahl,
                 formgleich=True if verbund else _formgleich(kat_t.get("source_columns") or {}),
                 table=kat_t or None,
-                zusatz_kopf="".join(f"{dl['comment']} {z}\n" for z in (verbund[1] if verbund else [])))
+                zusatz_kopf="".join(f"{dl['comment']} {z}\n" for z in (verbund[1] if verbund else [])),
+                wasserzeichen=gold_wasserzeichen(governed_catalog, product,
+                                                 herkunft.get(_ident(product), [])))
 
     konforme_zeilen: list[str] = []
     for product, contributing in sorted(_conformed.items()):
@@ -1442,7 +1549,9 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
         out[rel] = _silver_to_gold_incremental(
             product, kind, [q[1] for q in sources if q[1]], contract_ref, dl, gold_tbl, star,
             proposal=_incremental_proposal(governed_catalog, product), wahl=wahl,
-            table=kat_t or None, konform=sources, zusatz_kopf=zusatz)
+            table=kat_t or None, konform=sources, zusatz_kopf=zusatz,
+            wasserzeichen=gold_wasserzeichen(governed_catalog, product, [])
+            if len([q for q in sources if q[1]]) == 1 else None)
         wirkung = (f"ein MERGE, `{wahl}`" if eindeutig and wahl else
                    "ein MERGE, Platzhalter" + ("" if eindeutig else " — Antworten widersprechen sich"))
         je_dom = ", ".join(f"{dom}: `{w or 'offen'}`" for dom, w in sorted(wahlen.items()))
