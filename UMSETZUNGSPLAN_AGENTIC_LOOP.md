@@ -1,6 +1,6 @@
 # Umsetzungsplan — Agentische Report-Entwicklung als deterministische Schleife
 
-**Stand 24.09.2026 · Status: in Arbeit (AP-3, AP-4 ohne Tenant umgesetzt; AP-11 im Freelancing-Repo) · Übergabe an Cowork (Flos Rechner)**
+**Stand 24.09.2026 · Status: in Arbeit (AP-2, AP-3, AP-4, AP-11 ohne Tenant umgesetzt, AP-8 gesichtet) · Übergabe an Cowork (Flos Rechner)**
 
 Anlass: Flo hat am 24.09.2026 eine Zusammenfassung des Videos „Agentic development of Power BI
 reports and semantic models" (https://youtu.be/zalHX6SLp6w) eingebracht. Das Video selbst wurde
@@ -126,6 +126,22 @@ Desktop, Pakete mit ☁ einen Tenant.
   abdecken (falsche ID → Abbruch, fehlendes `--apply` → keine Schreibung) und ein echter Lauf
   up → deploy → down ohne Rest endet.
 
+- **Stand 24.09.2026, ohne Tenant umgesetzt** (Meridian, Commit „AP-2: Sandbox-Lebenszyklus“):
+  `products/pbi_visual_regression/sandbox.py` mit `sandbox-up`, `sandbox-deploy`,
+  `sandbox-down`. Vor jeder Schreibung wird der Workspace zurückgelesen; weichen ID oder Name
+  vom Manifest ab, bricht der Befehl ab, bevor etwas gesendet wird. 11 Tests gegen eine
+  gefälschte Fabric-API. Gegenprobe: ID- bzw. 404-Prüfung abgeschaltet → je der zuständige
+  Test rot.
+  - **Befund für E3 (Microsoft Learn, gelesen 24.09.2026):** ein Bericht über die rohe
+    Items-API braucht eine `byConnection`-Referenz, unsere PBIPs tragen `byPath`.
+    `fabric-cicd` deployt PBIP (Modell vor Bericht) ohne diese Umschreibung. Deshalb ist es
+    die Vorgabe im Code, aber austauschbar; E3 bleibt Flos Entscheidung.
+  - **Befund zu „ohne Rest“:** ein gelöschter Workspace bleibt für die Aufbewahrungsfrist
+    (Vorgabe 7 Tage) durch Admins wiederherstellbar. `sandbox-down` belegt per 404 „weg aus der
+    API“, nicht „endgültig gelöscht“. Dass die API 404 liefert, ist **ANNAHME, ungeprüft** bis
+    zum ersten Lauf.
+  - Offen: echter Lauf up → deploy → down.
+
 ### AP-3 · Datenanbindung für den Service ☁
 - Befund: die Modelle lesen über `fn_DeltaCurrentFiles` mit `Folder.Files` einen lokalen Pfad.
   Im Service geht das nur mit Gateway.
@@ -213,6 +229,31 @@ Desktop, Pakete mit ☁ einen Tenant.
 - **Fertig, wenn** jede neue Regel einen Test mit Gegenprobe hat und in
   `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` steht.
 
+- **Bestandsprüfung 24.09.2026** (gezählt, nicht geschätzt; Gegenprobe der tragenden Zahlen
+  im selben Arbeitsschritt):
+  - **Drei Formatierungsebenen: teilweise, nur dokumentiert.** Die Vorrangregel steht in
+    `products/fabric/powerbi/docs/references/pbir-theme.md` („Three-Level Inheritance“), und
+    `KNOWN_ERRORS_AND_FIXES.md` hält fest, dass Visual-Objekte property-weise mit dem Theme
+    verschmelzen. Kein Code unterscheidet Dopplung von Widerspruch:
+    `check_report_theme_compliance.py` zählt Überschreibungen nach fester Liste, liest das
+    Theme aber nicht. Nächster Schritt: dort das aktive Theme auflösen und jede Überschreibung
+    als doppelt, widersprechend oder neu einstufen, erst beratend.
+  - **Alltagssprache → Property: Maschine da, Tabelle fehlt.** `tooling/visual_library/`
+    friert Property-Namen des offiziellen Katalogs ein (12 Visual-Typen), ohne Anzeigenamen. Der
+    Katalog selbst trägt sie: 560 von 629 Objekten und 7006 von 7455 Properties haben einen
+    `displayName` (gemessen gegen `capabilities.json`, Pin 0.1.1, 60 Einträge). Beispiel
+    `clusteredBarChart`: `dataPoint` = „Data colors“, `fill` = „Color“. Grenzen: nur Englisch,
+    „Color“ ist ohne Objektpfad mehrdeutig, und `categoryAxis` heißt beim Balken „Y axis“, bei
+    der Säule „X axis“. Nächster Schritt: `catalog_facts.py` friert die Anzeigenamen mit ein;
+    eine dünne Synonymschicht in der Visual Library, deren jeder Eintrag im Test gegen
+    `catalog_facts.json` aufgelöst wird.
+  - **Bedingte Formatierung auf Achsenbeschriftungen: keine Regel, und eine Doku sagt das
+    Gegenteil.** `docs/references/pbir-conditional-formatting.md` führt `labelColor` als
+    unterstützt. Im Bestand kommt der Fall nicht vor: 0 datengebundene Achsen in 231
+    `visual.json` des `dist/`. Ein Guard hätte heute nichts zu fangen. Deshalb erst in AP-5
+    rendern, dann Regel, Gegenbeispiel-Fixture und Doku-Korrektur in einem Schritt.
+  - Spaltenfärbung und Referenzlinie bleiben unverändert zurückgestellt (R6.1/R6.3).
+
 ### AP-9 · Ein Einstieg für die ganze Schleife
 - Ein Kommando über S0 bis S7 mit `--stages`, Trockenlauf als Standard, `--apply` für den Tenant,
   Exit 0/1/2, Befund-JSON und Manifest als Ergebnis. Heimat nach E4.
@@ -260,6 +301,15 @@ vor. Kostenersparnis für ihn, Datenresidenz und planbare Kosten für Kunden.
   Kundendaten tragen (prüfbar gegen die Kundendaten-Sperrliste).
 - **Fertig, wenn** die Tabelle für mindestens drei Aufgabenklassen gemessen ist und das Studio
   mit einem lokalen Profil eine Assist-Aufgabe ohne Abfluss erledigt (Residenz-Gate grün).
+
+- **Stand 24.09.2026, ohne Modell-Lauf umgesetzt** (Meridian D-459): Lücke 1 geschlossen.
+  `studio/src/ai/OpenAICompatProvider.js` (Chat-Completions, Streaming, `response_format`),
+  `bootstrap.js` verdrahtet `local` (nie mit gespeichertem Key) und `openai`. Dabei gefunden
+  und behoben: das Residenz-Gate glaubte dem Wort `local`; ein `local`-Profil mit
+  `https://openrouter.ai` galt als abflussfrei, in Python und JS. Jetzt prüfen beide den Host
+  gegen dieselbe Fallliste (19 Fälle). Lücke 2 als Gerüst: `meridian/ais/task_eval.py` zählt
+  Tor-Quoten je Aufgabenklasse und Profil. Gemessen ist damit noch nichts; die Tabelle braucht
+  echte Läufe.
 
 ## 7 · Offene Entscheidungen (Flo)
 
