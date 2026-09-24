@@ -85,7 +85,11 @@ jobs:
           # eingefrorene Matrix seit dem 07.09. still veraltet war. Das ist dieselbe Klasse
           # wie ein Tor, dessen Werkzeug nicht startet: `n/a` und `nicht gelaufen` sehen von
           # aussen gleich aus. Mit beiden Paketen lokal gemessen: 78 passed, 1 skipped.
-          pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow pandas vl-convert-python altair
+          # Nachtrag 24.09.2026: die Tests oben liefen hier trotzdem nie. `pytest` ohne Pfad
+          # sammelt nur die `testpaths` der pyproject.toml, und `tooling/visual_library/tests`
+          # stand dort seit dem 10.08. nicht drin (gemessen: 0 gesammelt, danach 105).
+          # pillow: sechs visreg-Tests haengen daran; ohne es uebersprungen, mit es 6 passed.
+          pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow
 
       - name: Run tests
         run: python -m pytest --tb=short -q

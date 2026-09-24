@@ -81,6 +81,28 @@ def _min_size(entry: dict) -> dict:
             "px_design_base": [bw, bh], "px_production": [pw, ph]}
 
 
+def load_format_synonyms() -> list:
+    """Alltagsbegriff → Formatierungseigenschaft (AP-8), siehe `_format_synonyme.yaml`."""
+    return yaml.safe_load((LIB / "_format_synonyme.yaml").read_text(encoding="utf-8")).get("eintraege", [])
+
+
+def format_begriff(begriff: str, visual_type: str) -> "dict | None":
+    """Loest einen Alltagsbegriff fuer einen Visualtyp auf: objekt, property und der Pfad im
+    Format-Bereich laut offiziellem Katalog. None, wenn der Begriff fuer den Typ nicht gilt."""
+    import catalog_facts  # noqa: E402 -- Geschwistermodul wie `render`
+
+    gesucht = begriff.strip().lower()
+    for e in load_format_synonyms():
+        if gesucht not in e["begriffe"]:
+            continue
+        if e["visuals"] != "alle" and visual_type not in e["visuals"]:
+            continue
+        return {"objekt": e["objekt"], "property": e["property"],
+                "pfad": catalog_facts.format_pfad(visual_type, e["objekt"], e["property"]),
+                "hinweis": e.get("hinweis")}
+    return None
+
+
 def load_anti_patterns() -> dict:
     """The anti-pattern catalog: id -> {message, fix, source, fit}."""
     return yaml.safe_load((LIB / "_anti_patterns.yaml").read_text(encoding="utf-8")).get("patterns", {})

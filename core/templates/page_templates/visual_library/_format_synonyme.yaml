@@ -1,0 +1,135 @@
+# Visual Library — Alltagssprache → PBIR-Formatierungseigenschaft (AP-8, 24.09.2026)
+# ---------------------------------------------------------------------------
+# Wer „mach die Balken grau" oder „Achsenbeschriftung kleiner" sagt, meint eine
+# bestimmte Eigenschaft in visual.json. Diese Tabelle haelt die Zuordnung fest,
+# damit ein Agent sie nachschlaegt statt sie zu raten.
+#
+# Die Namen der rechten Seite und die Pfade im Format-Bereich sind NICHT von Hand
+# gepflegt: sie kommen aus dem offiziellen Katalog (`catalog_facts.json`, Pin 0.1.1,
+# `anzeige` / `vco_anzeige`). Handgepflegt ist nur die linke Seite, die Begriffe.
+# `tooling/visual_library/tests/test_format_synonyme.py` loest jeden Eintrag fuer
+# jeden genannten Visualtyp gegen den Auszug auf; ein Tippfehler wird rot.
+#
+# Eintraege:
+#   begriffe   (Pflicht)  Alltagsbegriffe, deutsch und englisch, klein geschrieben
+#   objekt     (Pflicht)  Formatierungsobjekt (visual.objects bzw. Container-Objekt)
+#   property   (Pflicht)  Eigenschaft im Objekt
+#   visuals    (Pflicht)  Visualtypen, fuer die der Eintrag gilt; `alle` bei
+#                         Container-Objekten (Titel, Hintergrund, Rahmen)
+#   hinweis    (optional) was man wissen muss, bevor man die Eigenschaft setzt
+#
+# Der Anzeigename haengt am Visualtyp: `categoryAxis` heisst beim Balken „Y axis",
+# bei der Saeule „X axis". Deshalb loest man immer mit Visualtyp auf, nie nur mit
+# dem Begriff.
+
+schema_version: 1
+
+eintraege:
+  - begriffe: [balkenfarbe, saeulenfarbe, datenfarbe, bar colour, bar color, data colour]
+    objekt: dataPoint
+    property: fill
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+    hinweis: >-
+      Farbe nur mit Aussage (Farb-Einsatz-Prinzip). Fuer gut/schlecht die bedingte
+      Formatierung ueber fillRule bzw. eine Farb-Measure, keine Einzelfarben je Kategorie.
+
+  - begriffe: [datenbeschriftung, werte anzeigen, data labels]
+    objekt: labels
+    property: show
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+
+  - begriffe: [schriftgroesse datenbeschriftung, data label size]
+    objekt: labels
+    property: fontSize
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+
+  - begriffe: [einheit datenbeschriftung, tausender, millionen, display units]
+    objekt: labels
+    property: labelDisplayUnits
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+
+  - begriffe: [kategorieachse ausblenden, kategorieachse anzeigen, category axis]
+    objekt: categoryAxis
+    property: show
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+
+  - begriffe: [schriftgroesse achsenbeschriftung, achsenbeschriftung kleiner, axis label size]
+    objekt: categoryAxis
+    property: fontSize
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+
+  - begriffe: [farbe achsenbeschriftung, axis label colour]
+    objekt: categoryAxis
+    property: labelColor
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+    hinweis: >-
+      Nur als feste Farbe setzen. Ob bedingte Formatierung auf Kategorie-
+      Achsenbeschriftungen rendert, ist ANNAHME, ungeprueft (AP-8, Klaerung in AP-5).
+
+  - begriffe: [wertachse bei null beginnen, achse ab null, value axis start]
+    objekt: valueAxis
+    property: start
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+    hinweis: >-
+      Bei Balken und Saeulen ist ein Start ungleich null ein Knock-out (Laenge
+      codiert den Wert). Bei Linien darf die Achse frei beginnen.
+
+  - begriffe: [gitternetzlinien, gridlines]
+    objekt: valueAxis
+    property: gridlineShow
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+
+  - begriffe: [achsentitel, axis title]
+    objekt: valueAxis
+    property: showAxisTitle
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+
+  - begriffe: [legende, legend]
+    objekt: legend
+    property: show
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+
+  - begriffe: [legendenposition, legend position]
+    objekt: legend
+    property: position
+    visuals: [clusteredBarChart, clusteredColumnChart, lineChart]
+
+  - begriffe: [linienstaerke, line width]
+    objekt: lineStyles
+    property: strokeWidth
+    visuals: [lineChart]
+
+  - begriffe: [datenpunkte, marker, markers]
+    objekt: lineStyles
+    property: showMarker
+    visuals: [lineChart]
+
+  - begriffe: [visual-titel, titel anzeigen, visual title]
+    objekt: title
+    property: show
+    visuals: alle
+
+  - begriffe: [titeltext, title text]
+    objekt: title
+    property: text
+    visuals: alle
+
+  - begriffe: [schriftgroesse titel, title size]
+    objekt: title
+    property: fontSize
+    visuals: alle
+
+  - begriffe: [hintergrund, background]
+    objekt: background
+    property: show
+    visuals: alle
+
+  - begriffe: [rahmen, border]
+    objekt: border
+    property: show
+    visuals: alle
+
+  - begriffe: [schatten, shadow]
+    objekt: dropShadow
+    property: show
+    visuals: alle

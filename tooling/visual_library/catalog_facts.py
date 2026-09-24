@@ -11,7 +11,15 @@ gelaufen" nicht unterscheiden kann (dieselbe Klasse wie `tabular-bpa.yml`,
 
 Stattdessen liegt der Auszug eingecheckt daneben: `catalog_facts.json` traegt
 je Visualtyp, den die Bibliothek emittiert, die Datenrollen und die
-Eigenschaftsnamen der benutzten Formatierungsobjekte. Der Test laeuft damit
+Eigenschaftsnamen der benutzten Formatierungsobjekte.
+
+Seit AP-8 (24.09.2026) traegt er auch die **Anzeigenamen** des Format-Bereichs
+(`anzeige`, `vco_anzeige`): je Visualtyp fuer die benutzten Objekte plus die
+alltaeglichen (`ALLTAG_OBJEKTE`), dazu die Container-Objekte (Titel, Hintergrund,
+Rahmen ...). Daraus loest `format_pfad` einen Eintrag der Synonymtabelle
+`visual_library/_format_synonyme.yaml` in den Pfad auf, den ein Mensch im
+Format-Bereich sieht. Der Anzeigename haengt am Visualtyp: `categoryAxis` heisst
+beim `clusteredBarChart` „Y axis", beim `clusteredColumnChart` „X axis". Der Test laeuft damit
 ueberall und hart. Der Auszug steigt nur ueber `write` und nur mit dem
 Katalog in Reichweite — genau wie ein Pin: gemessen wird Drift, gebumpt wird
 von Hand (D-238).
@@ -38,6 +46,8 @@ HIER = Path(__file__).resolve().parent
 FACTS = HIER / "catalog_facts.json"
 LIB = HIER.parent.parent / "core" / "templates" / "page_templates" / "visual_library"
 PIN = "0.1.1"
+# Objekte, nach denen Menschen fragen, auch wenn die Bibliothek sie heute nicht setzt.
+ALLTAG_OBJEKTE = ("dataPoint", "categoryAxis", "valueAxis", "labels", "legend", "lineStyles")
 QUELLE = "@microsoft/powerbi-core-visual-schema"
 
 
@@ -74,7 +84,37 @@ def _aus_katalog(data_dir: Path, gebraucht: dict[str, set[str]]) -> dict:
                 for o in sorted(gebraucht[vt])
             },
         }
-    return {"quelle": QUELLE, "pin": PIN, "visuals": visuals}
+    anzeige: dict[str, dict] = {}
+    for vt in sorted(gebraucht):
+        objekte = (caps.get(vt) or {}).get("objects", {})
+        for o in sorted(set(gebraucht[vt]) | {x for x in ALLTAG_OBJEKTE if x in objekte}):
+            od = objekte.get(o)
+            if od is None:
+                continue
+            anzeige.setdefault(vt, {})[o] = {
+                "_": od.get("displayName"),
+                **{pn: pd.get("displayName") for pn, pd in sorted(od.get("properties", {}).items())},
+            }
+    vco = json.loads((data_dir / "vco-capabilities.json").read_text(encoding="utf-8"))
+    vco_anzeige = {
+        o: {"_": od.get("displayName"),
+            **{pn: pd.get("displayName") for pn, pd in sorted(od.get("properties", {}).items())}}
+        for o, od in sorted(vco.items()) if not o.startswith("_")
+    }
+    return {"quelle": QUELLE, "pin": PIN, "visuals": visuals,
+            "anzeige": anzeige, "vco_anzeige": vco_anzeige}
+
+
+def format_pfad(visual_type: str, objekt: str, prop: str, facts: dict | None = None) -> str:
+    """Der Pfad im Format-Bereich, z. B. `Data colors › Color`. KeyError, wenn unbekannt.
+
+    Container-Objekte (Titel, Hintergrund ...) gelten fuer jeden Visualtyp und werden
+    zuerst dort gesucht, wo sie hingehoeren: in `vco_anzeige`.
+    """
+    facts = facts or lade()
+    quelle = facts["vco_anzeige"].get(objekt) or facts["anzeige"][visual_type][objekt]
+    obj_name, prop_name = quelle["_"], quelle[prop]
+    return f"{obj_name or objekt} › {prop_name or prop}"
 
 
 def main(argv: list[str] | None = None) -> int:
