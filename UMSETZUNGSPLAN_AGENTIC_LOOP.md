@@ -1,6 +1,6 @@
 # Umsetzungsplan — Agentische Report-Entwicklung als deterministische Schleife
 
-**Stand 24.09.2026 · Status: geplant, nicht begonnen · Übergabe an Cowork (Flos Rechner)**
+**Stand 24.09.2026 · Status: in Arbeit (AP-3, AP-4 ohne Tenant umgesetzt; AP-11 im Freelancing-Repo) · Übergabe an Cowork (Flos Rechner)**
 
 Anlass: Flo hat am 24.09.2026 eine Zusammenfassung des Videos „Agentic development of Power BI
 reports and semantic models" (https://youtu.be/zalHX6SLp6w) eingebracht. Das Video selbst wurde
@@ -137,6 +137,21 @@ Desktop, Pakete mit ☁ einen Tenant.
 - **Fertig, wenn** dieselbe PBIP-Quelle lokal und im Sandbox-Workspace lädt und die Scheibe zweimal
   hintereinander byte-gleich entsteht.
 
+- **Stand 24.09.2026, ohne Tenant umgesetzt:**
+  - Quelle als Parameter: `tooling/codegen/gold_source.py` (`--check`/`--write`, idempotent)
+    schreibt in alle fünf Modelle `GoldSourceKind` (Vorgabe `folder`, lokal unverändert) und
+    `GoldContainerUrl`. Bei `onelake` listet `AzureStorage.DataLake` den Workspace-Container
+    und filtert auf den Tabellenordner, weil Microsoft Learn Unterordner-URLs für den
+    ADLS-Konnektor in Desktop und Power Query Online als nicht unterstützt nennt. **ANNAHME,
+    ungeprüft:** gleiche Spalten wie `Folder.Files`; belegt erst im ersten Sandbox-Lauf.
+  - Datenscheibe: `showcases/aurora_group/data/scripts/slice_gold.py`. Gemessen 24.09.2026
+    gegen die echte Gold-Schicht: 65 Tabellen, 26,3 MB (Deckel 50 MB), 13 s, sieben Fakten
+    ausgedünnt (`fact_sales` 9,35 Mio. aktive Zeilen → 142.000, jede 17.), zwei Läufe in
+    getrennten Prozessen byte-gleich. Fenster je Tabelle, weil ein globales Fenster
+    `fact_customer_value` leer ließ (endet 11/2020, COM-003). Alle 43 Tabellen, die die Modelle
+    lesen, sind enthalten.
+  - Offen für den Tenant: Scheibe in ein Lakehouse laden, Parameter setzen, einmal laden.
+
 ### AP-4 · DAX-Laufzeitprüfung (S4) ☁
 - Deterministisch aus den Generatoren ableiten: je erzeugter Measure (`action_trigger_dax`,
   `comparison_measures`, Katalog-Measures) eine `EVALUATE`-Abfrage je Monat.
@@ -148,6 +163,17 @@ Desktop, Pakete mit ☁ einen Tenant.
   Measures in einer `SUMMARIZECOLUMNS`, `FILTER(<ganze Tabelle>)` in `CALCULATE`).
 - **Fertig, wenn** der offene Punkt „DAX-Laufzeit der neuen Measures" in R6.1 mit Zahl und
   Methode abgehakt werden kann.
+
+- **Stand 24.09.2026, ohne Tenant umgesetzt:** `tooling/codegen/dax_smoke.py`. `plan` schreibt
+  für alle 278 Measures je zwei Abfragen und eine Erwartungsklasse nach
+  `products/fabric/powerbi/dax_smoke/` (`--check` idempotent): 180 `zahl`, 70 `text`,
+  28 `leer_begruendet` (alle an `fact_target`, auch über andere Measures). `gegenprobe` rechnet 23
+  Summen aus der Datenscheibe mit pandas, `run` fragt über die Execute-Queries-REST-API ab
+  (Token nur aus `POWERBI_ACCESS_TOKEN`, Budget), `bewerten` stellt beides nebeneinander.
+  **Erster Befund schon ohne Tenant:** die Gegenprobe fand `fact_sales[Sales Units]` im
+  SupplyChain-Modell ohne Quellspalte; die Prüfung aller 486 Quellspalten ergab 20 solche Lücken
+  in vier Modellen (`KNOWN_ERRORS_AND_FIXES.md`). Sie sind als Sperrklinke festgehalten; die
+  Zuordnung (umbenennen oder im Gold ergänzen) ist eine Entscheidung (E8).
 
 ### AP-5 · Rendern über die Service-Engine (S5) ☁ (⊞ optional)
 - `fabric_export.py` für die in AP-2 veröffentlichten Berichte nutzen; Seitenliste aus `pages.json`.
@@ -245,6 +271,7 @@ vor. Kostenersparnis für ihn, Datenresidenz und planbare Kosten für Kunden.
 | E4 | Heimat der Schleife | Meridian `products/pbi_visual_regression/` · ALUCA `tooling/` | Meridian; die Schleife nimmt einen PBIP-Pfad, ALUCA ruft sie mit seinem `dist/` auf, kein Import über Repo-Grenzen |
 | E5 | Darf der Judge blockieren? | beratend · blockierend ab gemessener Übereinstimmung | beratend, bis AP-7 die Übereinstimmung gemessen hat |
 | E6 | Microsofts Agentic-Bundle adoptieren? | ja (Official-First) · nur MCP · nein | ja; Tabular Editor 3 nicht |
+| E8 | 20 Modellspalten ohne Gold-Quelle (AP-4-Befund) | je Lücke: Vertrag benennt um (`source_column`) · Gold-Generator ergänzt die Spalte · Spalte aus dem Modell | je Fall; die Liste steht im Test und in `KNOWN_ERRORS_AND_FIXES.md`. Offensichtlich scheint nur `Sales Units` → `Quantity`, auch das ist zu bestätigen |
 | E7 | Welches Modell je Aufgabe? | Frontier-Modell über API · lokales Open-Weight-Modell · je Aufgabe geroutet | je Aufgabe routen, und zwar nach gemessener Gate-Quote aus AP-11, nicht nach Eindruck |
 
 ## 8 · Bewusst nicht übernommen
