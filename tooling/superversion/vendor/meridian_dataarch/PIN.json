@@ -29,7 +29,7 @@
     },
     {
       "path": "provision_governance.py",
-      "sha256": "7b298821bc8f76fe336cbf285a9548229c9c6239942544a5cc58d52f5f63982c"
+      "sha256": "12a43f720ad9964bd9ba2b2c6cc57ae3a775ced0ce997f46bc662ca15d9822cb"
     },
     {
       "path": "provision_lifecycle.py",
@@ -58,6 +58,10 @@
     {
       "path": "direct_lake_guardrails.py",
       "sha256": "34e786c1f75c477680ae2d8d033f380b815fe106bba0d686e9a838918d2d23d8"
+    },
+    {
+      "path": "provision_external_sharing.py",
+      "sha256": "e2c5688019e8f72450996f751287e9f711d432b264b9d0c0c5a26339e38a841e"
     },
     {
       "path": "governance_strategy.py",
@@ -141,7 +145,7 @@
     },
     {
       "path": "preis_kanon.py",
-      "sha256": "468f9a416808f43a344a3a367b9ba00829be798f4a8be6f97eff1def2faf360a",
+      "sha256": "bbcccf9ad49ced1460b07bbd118a78e0eccf32636c49ea27253cb9d3037771af",
       "source": "core/preis_kanon.py"
     }
   ]

@@ -140,6 +140,24 @@ tables:
         - Destination
         - Mode
 
+    # E8 (24.09.2026): Gold fuehrt Beschaffung auf Kategorie x Lieferant (Vertrag supply_chain.yaml).
+    - table_name: dim_category
+      description: "Procurement spend category (direct merchandise vs indirect)"
+      source_contract: data_contracts/domains/supply_chain.yaml
+      key_columns: [CategoryKey]
+      attributes:
+        - Category
+        - Category Group
+
+    - table_name: dim_vendor
+      description: "Procurement vendor (region, tier)"
+      source_contract: data_contracts/domains/supply_chain.yaml
+      key_columns: [VendorKey]
+      attributes:
+        - Vendor
+        - Region
+        - Tier
+
   facts:
     - table_name: fact_inventory
       description: "Inventory snapshot (average/obsolete) at location-SKU-month grain"
@@ -205,7 +223,7 @@ tables:
       description: "Purchase order line facts (amount, quantity, contracted vs actual)"
       source_contract: data_contracts/domains/supply_chain.yaml
       grain: purchase_order_line
-      foreign_keys: [DateKey, OrgKey, ProductKey]
+      foreign_keys: [DateKey, OrgKey, CategoryKey, VendorKey]   # E8: kein ProductKey in Gold
       measures:
         - Purchase Amount
         - Contracted Amount
@@ -366,10 +384,18 @@ relationships:
     cardinality: one-to-many
     cross_filter: single
 
-  - from_table: dim_product
-    from_column: ProductKey
+  # E8 (24.09.2026): Beschaffung haengt an Kategorie und Lieferant, nicht am Produkt.
+  - from_table: dim_category
+    from_column: CategoryKey
     to_table: fact_procurement
-    to_column: ProductKey
+    to_column: CategoryKey
+    cardinality: one-to-many
+    cross_filter: single
+
+  - from_table: dim_vendor
+    from_column: VendorKey
+    to_table: fact_procurement
+    to_column: VendorKey
     cardinality: one-to-many
     cross_filter: single
 

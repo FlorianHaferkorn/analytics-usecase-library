@@ -1,6 +1,6 @@
 # Umsetzungsplan — Agentische Report-Entwicklung als deterministische Schleife
 
-**Stand 24.09.2026 · Status: geplant, nicht begonnen · Übergabe an Cowork (Flos Rechner)**
+**Stand 24.09.2026 · Status: in Arbeit (AP-2, AP-3, AP-4, AP-11 ohne Tenant umgesetzt, AP-8 gesichtet) · Übergabe an Cowork (Flos Rechner)**
 
 Anlass: Flo hat am 24.09.2026 eine Zusammenfassung des Videos „Agentic development of Power BI
 reports and semantic models" (https://youtu.be/zalHX6SLp6w) eingebracht. Das Video selbst wurde
@@ -117,14 +117,41 @@ Desktop, Pakete mit ☁ einen Tenant.
   Tabellen und Measures auflistet, und `make check-upstream` die neuen Pins kennt.
 
 ### AP-2 · Sandbox-Lebenszyklus als Kommando ☁
-- Heimat: Meridian `products/pbi_visual_regression/` (dort liegen Auth, Export, Bootstrap).
-- Neue CLI-Befehle `sandbox-up`, `sandbox-deploy`, `sandbox-down`. Werkzeug nach E3.
+- Heimat: ALUCA `products/fabric/orchestrator/` (E4, 24.09.2026), Spiegel nach Meridian.
+- Befehle `up`, `deploy`, `down` in `sandbox.py`. Deploy über `fabric_release.py` (E3).
 - Lauf-Manifest (JSON): Lauf-ID, Workspace-ID, Eingabe-Hashes, Werkzeug-Pins, Zeiten.
 - `sandbox-down` löscht nur die Workspace-ID aus dem Manifest und belegt die Löschung durch
   einen anschließenden Lesefehler (404).
 - **Fertig, wenn** Unit-Tests mit gemocktem HTTP alle drei Befehle und die Leitplanken aus §5
   abdecken (falsche ID → Abbruch, fehlendes `--apply` → keine Schreibung) und ein echter Lauf
   up → deploy → down ohne Rest endet.
+
+- **Stand 24.09.2026, ohne Tenant umgesetzt:** `products/fabric/orchestrator/sandbox.py` trägt
+  nur die Leitplanken (Manifest, Präfix, Rücklese-Guard, 404-Nachweis, Budget). Token,
+  REST-Aufrufe mit Retry und Workspace-Anlage und -Löschung kommen aus `orchestrator.py`, der
+  Deploy aus `fabric_release.py`. Vor jeder Schreibung wird der Workspace zurückgelesen; weichen
+  ID oder Name vom Manifest ab, bricht der Befehl ab, bevor etwas gesendet wird.
+  - Tests: 14 gegen gefälschte Orchestrator-Bausteine, laufen ohne `msal` auch in der CI. Ein
+    AST-Test hält fest, dass `orchestrator.py` und `fabric_release.py` die genutzten Methoden
+    weiter anbieten. Ein fünfzehnter fährt den echten `FabricApiClient` mit ersetztem
+    `requests.request` (Kette POST, GET, DELETE, GET mit echtem 404); er braucht `msal` und
+    wird in der CI sichtbar übersprungen. Gegenprobe: Rücklese-Guard, 404-Prüfung oder
+    „jeder Fehler gilt als weg“ mutiert → je der zuständige Test rot.
+  - **Korrektur zum ersten Stand:** die erste Fassung lag in Meridian und baute Token,
+    REST-Client, Workspace-Anlage und `fabric-cicd`-Deploy ein zweites Mal. Gefunden über die
+    Klasse-A-Tabelle in `SHARED_SUBSTANCE.md`, die `orchestrator.py` und `fabric_release.py`
+    als ALUCA-Bestand führt. Tool-Reuse-Befund, vor dem Bau übersehen; daraus E4 neu.
+  - Spiegel nach Meridian (`core/dataarch_engine/vendor/aluca`) folgt, sobald die Datei auf
+    `main` liegt. Dort liegt `orchestrator.py` im selben Ordner, `fabric_release.py` nicht:
+    der gespiegelte Deploy-Schritt ist in Meridian bis dahin nicht lauffähig.
+  - **Befund für E3 (Microsoft Learn, gelesen 24.09.2026):** ein Bericht über die rohe
+    Items-API braucht eine `byConnection`-Referenz, unsere PBIPs tragen `byPath`.
+    `fabric-cicd` deployt PBIP (Modell vor Bericht) ohne diese Umschreibung. Entschieden in E3.
+  - **Befund zu „ohne Rest“:** ein gelöschter Workspace bleibt für die Aufbewahrungsfrist
+    (Vorgabe 7 Tage) durch Admins wiederherstellbar. `sandbox-down` belegt per 404 „weg aus der
+    API“, nicht „endgültig gelöscht“. Dass die API 404 liefert, ist **ANNAHME, ungeprüft** bis
+    zum ersten Lauf.
+  - Offen: echter Lauf up → deploy → down.
 
 ### AP-3 · Datenanbindung für den Service ☁
 - Befund: die Modelle lesen über `fn_DeltaCurrentFiles` mit `Folder.Files` einen lokalen Pfad.
@@ -137,6 +164,21 @@ Desktop, Pakete mit ☁ einen Tenant.
 - **Fertig, wenn** dieselbe PBIP-Quelle lokal und im Sandbox-Workspace lädt und die Scheibe zweimal
   hintereinander byte-gleich entsteht.
 
+- **Stand 24.09.2026, ohne Tenant umgesetzt:**
+  - Quelle als Parameter: `tooling/codegen/gold_source.py` (`--check`/`--write`, idempotent)
+    schreibt in alle fünf Modelle `GoldSourceKind` (Vorgabe `folder`, lokal unverändert) und
+    `GoldContainerUrl`. Bei `onelake` listet `AzureStorage.DataLake` den Workspace-Container
+    und filtert auf den Tabellenordner, weil Microsoft Learn Unterordner-URLs für den
+    ADLS-Konnektor in Desktop und Power Query Online als nicht unterstützt nennt. **ANNAHME,
+    ungeprüft:** gleiche Spalten wie `Folder.Files`; belegt erst im ersten Sandbox-Lauf.
+  - Datenscheibe: `showcases/aurora_group/data/scripts/slice_gold.py`. Gemessen 24.09.2026
+    gegen die echte Gold-Schicht: 65 Tabellen, 26,3 MB (Deckel 50 MB), 13 s, sieben Fakten
+    ausgedünnt (`fact_sales` 9,35 Mio. aktive Zeilen → 142.000, jede 17.), zwei Läufe in
+    getrennten Prozessen byte-gleich. Fenster je Tabelle, weil ein globales Fenster
+    `fact_customer_value` leer ließ (endet 11/2020, COM-003). Alle 43 Tabellen, die die Modelle
+    lesen, sind enthalten.
+  - Offen für den Tenant: Scheibe in ein Lakehouse laden, Parameter setzen, einmal laden.
+
 ### AP-4 · DAX-Laufzeitprüfung (S4) ☁
 - Deterministisch aus den Generatoren ableiten: je erzeugter Measure (`action_trigger_dax`,
   `comparison_measures`, Katalog-Measures) eine `EVALUATE`-Abfrage je Monat.
@@ -148,6 +190,17 @@ Desktop, Pakete mit ☁ einen Tenant.
   Measures in einer `SUMMARIZECOLUMNS`, `FILTER(<ganze Tabelle>)` in `CALCULATE`).
 - **Fertig, wenn** der offene Punkt „DAX-Laufzeit der neuen Measures" in R6.1 mit Zahl und
   Methode abgehakt werden kann.
+
+- **Stand 24.09.2026, ohne Tenant umgesetzt:** `tooling/codegen/dax_smoke.py`. `plan` schreibt
+  für alle 278 Measures je zwei Abfragen und eine Erwartungsklasse nach
+  `products/fabric/powerbi/dax_smoke/` (`--check` idempotent): 180 `zahl`, 70 `text`,
+  28 `leer_begruendet` (alle an `fact_target`, auch über andere Measures). `gegenprobe` rechnet 23
+  Summen aus der Datenscheibe mit pandas, `run` fragt über die Execute-Queries-REST-API ab
+  (Token nur aus `POWERBI_ACCESS_TOKEN`, Budget), `bewerten` stellt beides nebeneinander.
+  **Erster Befund schon ohne Tenant:** die Gegenprobe fand `fact_sales[Sales Units]` im
+  SupplyChain-Modell ohne Quellspalte; die Prüfung aller 486 Quellspalten ergab 20 solche Lücken
+  in vier Modellen (`KNOWN_ERRORS_AND_FIXES.md`). Sie sind als Sperrklinke festgehalten; die
+  Zuordnung (umbenennen oder im Gold ergänzen) ist eine Entscheidung (E8).
 
 ### AP-5 · Rendern über die Service-Engine (S5) ☁ (⊞ optional)
 - `fabric_export.py` für die in AP-2 veröffentlichten Berichte nutzen; Seitenliste aus `pages.json`.
@@ -165,6 +218,13 @@ Desktop, Pakete mit ☁ einen Tenant.
   (Band der oberen 56 px, R6.2).
 - **Fertig, wenn** jede neue Prüfung einen Gegenfall hat, der sie rot macht (erst den Fehler
   nachweisen, dann das Urteil).
+
+- **Stand 24.09.2026, ohne Tenant umgesetzt** (Meridian, `products/pbi_visual_regression/image_checks.py`,
+  CLI `check-image`): leere Datenvisuals, Kopfzeilentext am Rand (unten oder rechts), Fehlerzustand
+  per Referenzausschnitt; ohne Ausschnitt „nicht prüfbar“. 7 Tests, je Prüfung Fall und Gegenfall;
+  Gegenprobe über entschärfte Schwellen je rot. Die Fehlalarm-Rate an echten Seiten ist **ANNAHME,
+  ungeprüft**: im Bestand liegt kein Service-Export, und die Baselines des hauseigenen Renderers
+  sind scrollende HTML-Layouts (1920×2064), keine 1:1-Seiten. Messung und Referenzausschnitt in AP-5.
 
 ### AP-7 · LLM-Judge über echte Bilder (S6, zweiter Teil)
 - Prompt `llm_judge_prompt_v1.md` unverändert, Modell per Umgebungsvariable.
@@ -187,6 +247,48 @@ Desktop, Pakete mit ☁ einen Tenant.
 - **Fertig, wenn** jede neue Regel einen Test mit Gegenprobe hat und in
   `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` steht.
 
+- **Bestandsprüfung 24.09.2026** (gezählt, nicht geschätzt; Gegenprobe der tragenden Zahlen
+  im selben Arbeitsschritt):
+  - **Drei Formatierungsebenen: teilweise, nur dokumentiert.** Die Vorrangregel steht in
+    `products/fabric/powerbi/docs/references/pbir-theme.md` („Three-Level Inheritance“), und
+    `KNOWN_ERRORS_AND_FIXES.md` hält fest, dass Visual-Objekte property-weise mit dem Theme
+    verschmelzen. Kein Code unterscheidet Dopplung von Widerspruch:
+    `check_report_theme_compliance.py` zählt Überschreibungen nach fester Liste, liest das
+    Theme aber nicht. Nächster Schritt: dort das aktive Theme auflösen und jede Überschreibung
+    als doppelt, widersprechend oder neu einstufen, erst beratend.
+  - **Alltagssprache → Property: Maschine da, Tabelle fehlt.** `tooling/visual_library/`
+    friert Property-Namen des offiziellen Katalogs ein (12 Visual-Typen), ohne Anzeigenamen. Der
+    Katalog selbst trägt sie: 560 von 629 Objekten und 7006 von 7455 Properties haben einen
+    `displayName` (gemessen gegen `capabilities.json`, Pin 0.1.1, 60 Einträge). Beispiel
+    `clusteredBarChart`: `dataPoint` = „Data colors“, `fill` = „Color“. Grenzen: nur Englisch,
+    „Color“ ist ohne Objektpfad mehrdeutig, und `categoryAxis` heißt beim Balken „Y axis“, bei
+    der Säule „X axis“. Nächster Schritt: `catalog_facts.py` friert die Anzeigenamen mit ein;
+    eine dünne Synonymschicht in der Visual Library, deren jeder Eintrag im Test gegen
+    `catalog_facts.json` aufgelöst wird.
+  - **Bedingte Formatierung auf Achsenbeschriftungen: keine Regel, und eine Doku sagt das
+    Gegenteil.** `docs/references/pbir-conditional-formatting.md` führt `labelColor` als
+    unterstützt. Im Bestand kommt der Fall nicht vor: 0 datengebundene Achsen in 231
+    `visual.json` des `dist/`. Ein Guard hätte heute nichts zu fangen. Deshalb erst in AP-5
+    rendern, dann Regel, Gegenbeispiel-Fixture und Doku-Korrektur in einem Schritt.
+  - Spaltenfärbung und Referenzlinie bleiben unverändert zurückgestellt (R6.1/R6.3).
+- **Stand 24.09.2026, Alltagssprache → Property umgesetzt:** `catalog_facts.py` friert jetzt auch
+  die Anzeigenamen des offiziellen Katalogs ein (`anzeige` je Visualtyp für die genutzten und die
+  alltäglichen Objekte, `vco_anzeige` für Titel, Hintergrund, Rahmen ...), rein additiv.
+  `visual_library/_format_synonyme.yaml` hält 20 Einträge (Begriffe deutsch und englisch →
+  Objekt und Eigenschaft); `resolve.format_begriff(begriff, visual_type)` liefert Objekt,
+  Eigenschaft und den Pfad im Format-Bereich, z. B. „achsenbeschriftung kleiner“ beim Balken →
+  `categoryAxis.fontSize` → „Y axis › Text size“, bei der Säule „X axis › Text size“.
+  `test_format_synonyme.py` löst jeden Eintrag gegen den Auszug auf. Dabei gefunden: die
+  Visual-Library-Tests liefen in der CI nie (0 gesammelt, `KNOWN_ERRORS_AND_FIXES.md`).
+- **Stand 24.09.2026, Formatierungsebenen umgesetzt (beratend):** `check_report_theme_compliance.py`
+  stuft jede Überschreibung mit festem Wert gegen das aktive Theme ein (Vorrang visual.json vor
+  Visualtyp-Ebene vor Wildcard; das aktive Theme löst `check_palette_monochrome.aktives_theme`
+  auf). Gemessen über die 17 Berichte in `dist/`: 199 doppelt (entfernbar), 15 widersprechend,
+  276 neu, 1 datengebunden, 32 je Serie gezielt. Stichprobe von Hand: COM-001 `Main_3`
+  `labels.labelPosition` `OutsideEnd` gegen Theme `Auto` (widersprechend), `Main_1`
+  `title.show` `true` wie Theme (doppelt). Die 199 Dopplungen aus dem Generator zu entfernen ist
+  ein eigener Schritt; der Checker bleibt ohne `--strict-warnings` beratend.
+
 ### AP-9 · Ein Einstieg für die ganze Schleife
 - Ein Kommando über S0 bis S7 mit `--stages`, Trockenlauf als Standard, `--apply` für den Tenant,
   Exit 0/1/2, Befund-JSON und Manifest als Ergebnis. Heimat nach E4.
@@ -195,6 +297,17 @@ Desktop, Pakete mit ☁ einen Tenant.
   `dist/` nie direkt ändert.
 - **Fertig, wenn** ein Lauf für OPS-001 von der Spezifikation bis zum Abräumen ohne Handgriff
   durchläuft und das Manifest alle Eingaben und Pins nennt.
+
+- **Stand 24.09.2026, ohne Tenant umgesetzt:** `python -m tooling.agentic_loop.schleife --use-case
+  <UC> --run-id <id> [--stages …] [--apply]` in ALUCA. Die Schleife ruft nur vorhandene Werkzeuge
+  auf (S0 Drift-Gate und Use-Case-Qualität, S1 die fünf Codegen-Prüfungen, S2 `report_quality`,
+  S3 Bereitstellung plus `sandbox.py`, S6 Meridians `check-image` als eigener Prozess, S7
+  `sandbox.py down`). Tenant-Schritte laufen nur mit `--apply` und gesetzten Zugangsdaten.
+  Was noch nicht gebaut ist, meldet sich als „nicht prüfbar“ mit Grund: Datenscheibe laden (AP-3),
+  Datensatz-ID für S4 und Bericht-ID für S5 aus dem Deploy (AP-2/AP-4/AP-5). Gemessen im
+  Trockenlauf für OPS-001: S0 bis S3-Bereitstellung `ok`, 7 Schritte „nicht prüfbar“, Exit 2.
+  Skill `docs/agent/skills/run-agentic-loop.md`. 9 Tests; Gegenprobe: Trockenlauf-Sperre bzw.
+  Exit-Vorrang mutiert → je der zuständige Test rot.
 
 ### AP-10 · CI
 - `visual-fabric.yml` (Meridian) um den Schleifenlauf erweitern: `workflow_dispatch`, optional
@@ -235,17 +348,27 @@ vor. Kostenersparnis für ihn, Datenresidenz und planbare Kosten für Kunden.
 - **Fertig, wenn** die Tabelle für mindestens drei Aufgabenklassen gemessen ist und das Studio
   mit einem lokalen Profil eine Assist-Aufgabe ohne Abfluss erledigt (Residenz-Gate grün).
 
+- **Stand 24.09.2026, ohne Modell-Lauf umgesetzt** (Meridian D-459): Lücke 1 geschlossen.
+  `studio/src/ai/OpenAICompatProvider.js` (Chat-Completions, Streaming, `response_format`),
+  `bootstrap.js` verdrahtet `local` (nie mit gespeichertem Key) und `openai`. Dabei gefunden
+  und behoben: das Residenz-Gate glaubte dem Wort `local`; ein `local`-Profil mit
+  `https://openrouter.ai` galt als abflussfrei, in Python und JS. Jetzt prüfen beide den Host
+  gegen dieselbe Fallliste (19 Fälle). Lücke 2 als Gerüst: `meridian/ais/task_eval.py` zählt
+  Tor-Quoten je Aufgabenklasse und Profil. Gemessen ist damit noch nichts; die Tabelle braucht
+  echte Läufe.
+
 ## 7 · Offene Entscheidungen (Flo)
 
 | # | Frage | Optionen | Empfehlung |
 |---|---|---|---|
 | E1 | Welcher Tenant? | HTF-Sandbox (Nagarro-Kunde) · eigener Trial/Dev-Tenant | **Entschieden 24.09.2026 (Flo): eigener Tenant**, wird neu aufgesetzt. HTF wird nicht genutzt |
 | E2 | Datenanbindung im Sandbox | Lakehouse + Import · Lakehouse + Direct Lake · Tabellen im Modell eingebettet | nach dem AP-3-Versuch entscheiden; Deckel 50 MB als Startwert |
-| E3 | Deploy-Werkzeug | `fab` CLI (in Meridian schon genutzt) · `fabric-cicd` (Microsoft-Bibliothek) · Fabric-REST direkt | das offizielle Werkzeug, das Semantikmodell **und** PBIR-Bericht ohne Nacharbeit deployt; vorher gegen die Doku prüfen |
-| E4 | Heimat der Schleife | Meridian `products/pbi_visual_regression/` · ALUCA `tooling/` | Meridian; die Schleife nimmt einen PBIP-Pfad, ALUCA ruft sie mit seinem `dist/` auf, kein Import über Repo-Grenzen |
-| E5 | Darf der Judge blockieren? | beratend · blockierend ab gemessener Übereinstimmung | beratend, bis AP-7 die Übereinstimmung gemessen hat |
-| E6 | Microsofts Agentic-Bundle adoptieren? | ja (Official-First) · nur MCP · nein | ja; Tabular Editor 3 nicht |
-| E7 | Welches Modell je Aufgabe? | Frontier-Modell über API · lokales Open-Weight-Modell · je Aufgabe geroutet | je Aufgabe routen, und zwar nach gemessener Gate-Quote aus AP-11, nicht nach Eindruck |
+| E3 | Deploy-Werkzeug | `fab` CLI (in Meridian schon genutzt) · `fabric-cicd` (Microsoft-Bibliothek) · Fabric-REST direkt | **Entschieden 24.09.2026 (Flo): `fabric-cicd`**, über das vorhandene `fabric_release.py`. Beleg: MS Learn, Items-API verlangt `byConnection`, `fabric-cicd` deployt `byPath`-PBIP |
+| E4 | Heimat der Schleife | Meridian `products/pbi_visual_regression/` · ALUCA `tooling/` | **Entschieden 24.09.2026 (Flo): Klasse A nach `SHARED_SUBSTANCE.md`, eine Heimat plus Spiegel.** Sandbox-Lebenszyklus: Heimat ALUCA neben `orchestrator.py` und `fabric_release.py`. Rendern und Prüfen (`pbi_visual_regression`): Heimat Meridian. Gespiegelt wird erst ab `main` der Heimat |
+| E5 | Darf der Judge blockieren? | beratend · blockierend ab gemessener Übereinstimmung | **Entschieden 24.09.2026 (Flo): beratend.** Blockierend nur als eigene spätere Entscheidung nach gemessener Übereinstimmung (AP-7) |
+| E6 | Microsofts Agentic-Bundle adoptieren? | ja (Official-First) · nur MCP · nein | **Entschieden 24.09.2026 (Flo): ja, ohne Tabular Editor 3.** Ob der Modeling-MCP unter Linux einen PBIP öffnet, wird vor dem Einbinden gemessen (AP-1) |
+| E8 | 20 Modellspalten ohne Gold-Quelle (AP-4-Befund) | je Lücke: Vertrag benennt um (`source_column`) · Gold-Generator ergänzt die Spalte · Spalte aus dem Modell | **Entschieden 24.09.2026 (Flo), in vier Gruppen nach gezählten Belegen:** (1) 8 Umbenennungen auf die Gold-Spalte (`Sales Units`→`Quantity`, `Purchase Amount`→`Procurement Amount`, `Actual Unit Price`→`Actual Unit Price Amount`, `Contracted Amount`→`On-Contract Amount`, `Purchase Quantity`→`Quantity`, `Inventory Value`→`Stock Value Amount`, `On-Hand Units`→`Stock Qty`, `Outcome Status`→`Action Outcome`); Spaltennamen im Modell bleiben. (2) Modell folgt der Gold-Körnung: SupplyChain bekommt `dim_category`/`dim_vendor`, `fact_procurement` hängt an `CategoryKey`/`VendorKey` statt an `ProductKey`; Experience verliert `fact_nps.QueueKey` samt Beziehung zu `dim_case_queue`. (3) Gold-Generator ergänzt `Region` (dim_customer) und `ABC_Class`/`XYZ_Class` (dim_product, aus Umsatz und Nachfrageschwankung; Schwellen werden vorgelegt). (4) Gold-Generator ergänzt die 7 ungenutzten Spalten. Umsetzung über Blueprints bzw. `generate_aurora_gold.py`, nie in `dist/` oder Gold von Hand. **Stand 24.09.2026:** Gruppen 1 und 2 umgesetzt (`tooling/codegen/model_alignment.py`, Blueprints SupplyChain/Experience), Sperrklinke 20 → 10; Gruppen 3 und 4 offen (Gold-Parquets, Größe vorher messen; ABC/XYZ-Schwellen vorlegen) |
+| E7 | Welches Modell je Aufgabe? | Frontier-Modell über API · lokales Open-Weight-Modell · je Aufgabe geroutet | **Entschieden 24.09.2026 (Flo): nach gemessener Tor-Quote aus AP-11 (`task_eval.py`) routen.** Bis zur Messung bleibt alles auf dem Frontier-Modell |
 
 ## 8 · Bewusst nicht übernommen
 
@@ -259,7 +382,7 @@ vor. Kostenersparnis für ihn, Datenresidenz und planbare Kosten für Kunden.
 ## 9 · Einstieg für die Cowork-Sitzung
 
 1. `CLAUDE.md` und `AGENTS.md` beider Repos lesen, dann dieses Dokument.
-2. E2 bis E7 mit Flo klären, bevor ☁-Pakete beginnen (E1 ist entschieden: eigener Tenant). AP-1, AP-3 (Datenscheibe und Parameter,
+2. E2 und E8 mit Flo klären, bevor ☁-Pakete beginnen (E1 und E3 bis E7 sind entschieden). AP-1, AP-3 (Datenscheibe und Parameter,
    ohne Tenant) und AP-8 (Bestandsprüfung) gehen ohne Tenant.
 3. Arbeitsstand in der Statuszeile R7 von `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` abhaken, mit
    Datum und Messung, nicht hier im Fließtext.

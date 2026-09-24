@@ -111,12 +111,11 @@ MIRRORED_FILES = (
     # `architecture_blueprint.py` zu geben, also genau das Doppel-Silo, gegen das die
     # Doktrin geschrieben ist.
     "direct_lake_guardrails.py",
-    # 04.09.2026 wieder entfernt. Der Eintrag kam am selben Tag mit `22b6fd7d` und begruendete
-    # sich als „transitive dependency of provision_governance" — das galt aber nur fuer die
-    # **hier** editierte Fassung von `provision_governance.py`. Gemessen: Meridian hat kein
-    # `provision_external_sharing.py`, in keinem Zweig und in keiner Revision. Eine Klasse-A-
-    # Datei ohne Heimat ist keine Spiegelung, sondern eine Erfindung im Spiegel. Inhalt bleibt
-    # in der Historie (`git show 22b6fd7d`), falls der Weg in Meridian gebaut werden soll.
+    # External Data Share per REST. Am 04.09.2026 wieder entfernt, weil Meridians `main` das
+    # Modul nicht fuehrte (Klasse-A-Datei ohne Heimat). Seit dem Merge von Meridian #425
+    # (24.09.2026, WIP-Zweig 2026-09-03) liegt es dort, und `provision_governance.py` importiert
+    # es in `emit_sharing`. Ohne diesen Eintrag braeche der gespiegelte Import beim ersten Aufruf.
+    "provision_external_sharing.py",
     # Gezogen von `provision_apply` wegen `LIFECYCLE_STAGES`. Byte-identisch gespiegelt
     # statt die drei Stufen hier nachzutippen: eine Kopie, die „nur eine Konstante" teilt,
     # driftet als nächstes im Inhalt.

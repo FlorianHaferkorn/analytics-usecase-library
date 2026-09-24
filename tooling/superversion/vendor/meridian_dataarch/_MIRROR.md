@@ -21,6 +21,7 @@ spiegelt.
 | `provision_monitoring.py` | Workspace-Failure-KQL, Kapazitäts-Throttling-Alert, Pipeline-Benachrichtigungen |
 | `provision_lifecycle.py` | `OPTIMIZE`/`VACUUM RETAIN`, Retention-Policy, BCDR-Runbook |
 | `provision_connectivity.py` | Managed Private Endpoints |
+| `provision_external_sharing.py` | External Data Share per Fabric-REST (Anlage, Einladung, Annahme), gesperrter Vertrag bis `status=approved` (seit 24.09.2026, Meridian #425) |
 | `provision_operability.py` | Metadaten-Vollständigkeit als Funktionsbedingung, Betriebs-Runbook |
 | `capacity_recommend.py` | SKU-Guardrails inkl. Direct Lake |
 | `admin_settings.py` | Tenant-Settings-Vorbedingungen |

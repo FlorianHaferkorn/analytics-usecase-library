@@ -67,6 +67,7 @@ Erhoben durch Datei-für-Datei-Vergleich beider Repos (nicht aus READMEs).
 | `architecture_blueprint.schema.json` + IR-Spec | beide (bereits gespiegelt) | eigenes Schema, aber Feld-für-Feld gegen offizielle Constraints belegt |
 | `products/fabric/orchestrator/orchestrator.py` — MSAL + Fabric REST, idempotent, dry-run | ALUCA | Fabric-REST-v1-Referenz; MSAL Client-Credentials |
 | `deployment/scripts/fabric_release.py` u. a. — fabric-cicd-Vollzug | ALUCA | `fabric-cicd`-Bibliothek (offiziell, Microsoft) |
+| `products/fabric/orchestrator/sandbox.py` — Sandbox-Lebenszyklus je Lauf (Workspace anlegen, deployen, löschen mit Rücklese-Guard und 404-Nachweis) | ALUCA (E4, 24.09.2026) | `POST`/`GET`/`DELETE /v1/workspaces`; Deploy über `fabric_release.py` (`fabric-cicd`). Baut auf `orchestrator.py` statt einen zweiten Fabric-Client zu führen |
 | Sensitivity-Label-/Endorsement-Vollzug | ALUCA (heute defekt, s. §4) | Power-BI-Admin-API `informationprotection/setLabels`; Endorsement hat **keine** dokumentierte Write-API |
 
 **Kern der Klasse A in einem Satz:** Meridian *kompiliert* die Architektur, ALUCA

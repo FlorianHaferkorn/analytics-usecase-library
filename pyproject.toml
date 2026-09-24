@@ -22,7 +22,7 @@ aluca = "aluca:main"
 py-modules = ["aluca"]
 
 [tool.pytest.ini_options]
-testpaths = ["tooling/tests", "tooling/generator_core/tests", "tooling/superversion/tests", "products"]
+testpaths = ["tooling/tests", "tooling/generator_core/tests", "tooling/superversion/tests", "tooling/visual_library/tests", "products"]
 pythonpath = [".", "tooling", "tooling/ontology"]
 norecursedirs = ["products/fabric/powerbi/deployment/scripts/modules/tests"]
 

@@ -83,7 +83,7 @@
 
 #### `bar_ranking` — Bar ranking
 - **Purpose:** compare_categories · **zone:** analysis · **best form for:** `compare_categories` · **min size:** 4×4 grid (395×208px @1280, 592×312px @1920)
-- **Avoid:** unsorted_bars, pie_for_comparison, broken_baseline_on_absolute_bar, color_to_separate_equal_categories
+- **Avoid:** unsorted_bars, pie_for_comparison, broken_baseline_on_absolute_bar, color_to_separate_equal_categories, mixed_polarity_on_one_axis
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/bar_ranking.yaml` (+ `golden/bar_ranking.*`)

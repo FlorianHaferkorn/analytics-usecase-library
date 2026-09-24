@@ -10,6 +10,8 @@ ref table dim_date
 ref table dim_org
 ref table dim_product
 ref table dim_lane
+ref table dim_vendor
+ref table dim_category
 ref table fact_inventory
 ref table fact_cogs
 ref table fact_fulfillment

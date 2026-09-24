@@ -1,0 +1,3 @@
+relationship dim_vendor_fact_procurement
+	fromColumn: fact_procurement.VendorKey
+	toColumn: dim_vendor.VendorKey

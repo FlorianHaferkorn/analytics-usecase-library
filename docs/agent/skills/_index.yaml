@@ -29,6 +29,11 @@ skills:
     version: "1.0.0"
     description: "Edit UseCase_Bracket.yaml (SSOT) without breaking orchestration or governance (Lean 2.0). Use when editing brackets, orchestration config, governance roles, or action_code_ids."
 
+  run-agentic-loop:
+    name: run-agentic-loop
+    version: "1.0.0"
+    description: "Run the agentic loop S0-S7 (spec, model, report, sandbox, DAX runtime, render, image checks, teardown) through one command. Use when validating a use case end to end or preparing a tenant run."
+
   fabric-powerbi-validation:
     name: fabric-powerbi-validation
     version: "1.0.0"

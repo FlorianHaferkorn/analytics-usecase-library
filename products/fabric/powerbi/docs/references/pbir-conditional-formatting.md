@@ -72,7 +72,7 @@ Uses a DAX measure (or extension measure) that returns a color value (hex string
 - `background` — cell background color
 - `dataBarFormatting` — data bar color
 - `iconSet` — icon color/type
-- `labelColor` — axis label color
+- `labelColor` — axis label color (**ANNAHME, ungeprüft**: eine Quelle vom 24.09.2026 sagt, bedingte Formatierung auf Kategorie-Achsenbeschriftungen rendert nicht; Klärung im gerenderten Nachweis, `UMSETZUNGSPLAN_AGENTIC_LOOP.md` AP-8)
 
 ---
 

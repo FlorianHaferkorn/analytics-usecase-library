@@ -20,6 +20,7 @@ anti_patterns:
   - pie_for_comparison
   - broken_baseline_on_absolute_bar
   - color_to_separate_equal_categories
+  - mixed_polarity_on_one_axis        # R6.3: ein Richtungssinn je Achse
 
 params:
   category: {role: axis, type: category, required: true}
