@@ -446,7 +446,7 @@ def write_md(kanon: dict | None = None, md_pfad: Path | None = None) -> None:
     alt = _block_im_md(text)
     if alt is None:
         raise SystemExit(f"Marker {MARKER_START!r} fehlt in {md_pfad}")
-    md_pfad.write_text(text.replace(alt, block), encoding="utf-8")
+    md_pfad.write_text(text.replace(alt, block), encoding="utf-8", newline="\n")
 
 
 def check_md(kanon: dict | None = None, md_pfad: Path | None = None) -> list[str]:
