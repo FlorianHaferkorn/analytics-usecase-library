@@ -264,6 +264,23 @@ Desktop, Pakete mit ☁ einen Tenant.
     `visual.json` des `dist/`. Ein Guard hätte heute nichts zu fangen. Deshalb erst in AP-5
     rendern, dann Regel, Gegenbeispiel-Fixture und Doku-Korrektur in einem Schritt.
   - Spaltenfärbung und Referenzlinie bleiben unverändert zurückgestellt (R6.1/R6.3).
+- **Stand 24.09.2026, Alltagssprache → Property umgesetzt:** `catalog_facts.py` friert jetzt auch
+  die Anzeigenamen des offiziellen Katalogs ein (`anzeige` je Visualtyp für die genutzten und die
+  alltäglichen Objekte, `vco_anzeige` für Titel, Hintergrund, Rahmen ...), rein additiv.
+  `visual_library/_format_synonyme.yaml` hält 20 Einträge (Begriffe deutsch und englisch →
+  Objekt und Eigenschaft); `resolve.format_begriff(begriff, visual_type)` liefert Objekt,
+  Eigenschaft und den Pfad im Format-Bereich, z. B. „achsenbeschriftung kleiner“ beim Balken →
+  `categoryAxis.fontSize` → „Y axis › Text size“, bei der Säule „X axis › Text size“.
+  `test_format_synonyme.py` löst jeden Eintrag gegen den Auszug auf. Dabei gefunden: die
+  Visual-Library-Tests liefen in der CI nie (0 gesammelt, `KNOWN_ERRORS_AND_FIXES.md`).
+- **Stand 24.09.2026, Formatierungsebenen umgesetzt (beratend):** `check_report_theme_compliance.py`
+  stuft jede Überschreibung mit festem Wert gegen das aktive Theme ein (Vorrang visual.json vor
+  Visualtyp-Ebene vor Wildcard; das aktive Theme löst `check_palette_monochrome.aktives_theme`
+  auf). Gemessen über die 17 Berichte in `dist/`: 199 doppelt (entfernbar), 15 widersprechend,
+  276 neu, 1 datengebunden, 32 je Serie gezielt. Stichprobe von Hand: COM-001 `Main_3`
+  `labels.labelPosition` `OutsideEnd` gegen Theme `Auto` (widersprechend), `Main_1`
+  `title.show` `true` wie Theme (doppelt). Die 199 Dopplungen aus dem Generator zu entfernen ist
+  ein eigener Schritt; der Checker bleibt ohne `--strict-warnings` beratend.
 
 ### AP-9 · Ein Einstieg für die ganze Schleife
 - Ein Kommando über S0 bis S7 mit `--stages`, Trockenlauf als Standard, `--apply` für den Tenant,

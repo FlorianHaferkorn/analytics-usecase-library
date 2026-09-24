@@ -12,6 +12,14 @@ Blocking failures:
 Non-blocking warnings:
 - hardcoded hex colors in visual.json files
 - visual-level formatting override usage via objects / visualContainerObjects
+- per override with a literal value, its relation to the active theme (AP-8, 24.09.2026):
+  `doppelt` (same value as the theme would apply — removable), `widersprechend` (theme sets
+  another value — the visual wins, the theme is bypassed), `neu` (theme sets nothing there).
+  Resolution order as Power BI documents it (pbir-theme.md, "Three-Level Inheritance"):
+  visual.json > visualStyles[<visualType>]["*"] > visualStyles["*"]["*"]. Visual objects merge
+  with the theme property by property (KNOWN_ERRORS_AND_FIXES.md), so each property is judged
+  on its own. Data-bound expressions and per-series instances (with `selector`) are counted
+  apart, not judged: the theme cannot express them.
 """
 
 from __future__ import annotations
@@ -99,6 +107,75 @@ def iter_theme_override_paths(visual_root: dict) -> list[str]:
     return flagged_paths
 
 
+_FEHLT = object()
+_GEBUNDEN = object()
+_ZAHL_RE = re.compile(r"^-?\d+(?:\.\d+)?[DLM]?$")
+
+
+def _norm(wert):
+    """One comparable form for theme JSON and PBIR literals: floats, bools, upper-case hex."""
+    if isinstance(wert, dict) and "solid" in wert:
+        wert = (wert.get("solid") or {}).get("color")
+    if isinstance(wert, bool):
+        return wert
+    if isinstance(wert, (int, float)):
+        return float(wert)
+    if isinstance(wert, str):
+        return wert.upper() if HEX_COLOR_RE.fullmatch(wert) else wert
+    return wert
+
+
+def literal_wert(prop_wert):
+    """Value of a PBIR property if it is a plain literal, else `_GEBUNDEN` (measure, rule ...)."""
+    if isinstance(prop_wert, dict) and "solid" in prop_wert:
+        prop_wert = (prop_wert.get("solid") or {}).get("color")
+    lit = ((prop_wert or {}).get("expr") or {}).get("Literal") if isinstance(prop_wert, dict) else None
+    if not isinstance(lit, dict) or "Value" not in lit:
+        return _GEBUNDEN
+    s = str(lit["Value"])
+    if s in ("true", "false"):
+        return s == "true"
+    if len(s) >= 2 and s[0] == s[-1] == "'":
+        return _norm(s[1:-1])
+    if _ZAHL_RE.match(s):
+        return float(s.rstrip("DLM"))
+    return s
+
+
+def theme_wert(theme: dict, visual_type: str, objekt: str, prop: str):
+    """What the theme applies to `visual_type.objekt.prop`, or `_FEHLT`."""
+    styles = theme.get("visualStyles") or {}
+    for ebene in (styles.get(visual_type) or {}, styles.get("*") or {}):
+        instanzen = (ebene.get("*") or {}).get(objekt)
+        if isinstance(instanzen, list) and instanzen and isinstance(instanzen[0], dict) and prop in instanzen[0]:
+            return _norm(instanzen[0][prop])
+    return _FEHLT
+
+
+def klassifiziere_ueberschreibungen(visual_root: dict, theme: dict) -> dict[str, list[str]]:
+    """{doppelt|widersprechend|neu|gebunden|gezielt: ['objekt.prop', ...]} for one visual."""
+    out: dict[str, list[str]] = {k: [] for k in ("doppelt", "widersprechend", "neu", "gebunden", "gezielt")}
+    vt = visual_root.get("visualType") or ""
+    for schluessel in ("objects", "visualContainerObjects"):
+        for objekt, instanzen in (visual_root.get(schluessel) or {}).items():
+            for inst in instanzen if isinstance(instanzen, list) else []:
+                if not isinstance(inst, dict):
+                    continue
+                for prop, roh in (inst.get("properties") or {}).items():
+                    pfad = f"{objekt}.{prop}"
+                    if inst.get("selector"):
+                        out["gezielt"].append(pfad)
+                        continue
+                    v = literal_wert(roh)
+                    if v is _GEBUNDEN:
+                        out["gebunden"].append(pfad)
+                        continue
+                    t = theme_wert(theme, vt, objekt, prop)
+                    klasse = "neu" if t is _FEHLT else ("doppelt" if t == v else "widersprechend")
+                    out[klasse].append(pfad)
+    return out
+
+
 def get_package_item(package: dict, item_type: str, item_name: str) -> dict | None:
     for item in package.get("items", []):
         if item.get("type") == item_type and item.get("name") == item_name:
@@ -111,6 +188,16 @@ def find_package(report_json: dict, package_type: str) -> dict | None:
         if package.get("type") == package_type:
             return package
     return None
+
+
+def _aktives_theme(report_dir: Path) -> Path | None:
+    # Reuse, not rebuild: the active-theme resolution lives in check_palette_monochrome (R6.x).
+    vpath = str(_REPO_ROOT / "tooling" / "validation")
+    if vpath not in sys.path:
+        sys.path.insert(0, vpath)
+    import check_palette_monochrome
+
+    return check_palette_monochrome.aktives_theme(report_dir)
 
 
 def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
@@ -208,6 +295,10 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
                         )
 
     visual_paths = sorted(report_dir.glob("definition/pages/**/visual.json"))
+    aktiv = _aktives_theme(report_dir)
+    theme_json = load_json(aktiv) if aktiv else None
+    ebenen: Counter[str] = Counter()
+    ebenen_beispiele: dict[str, list[str]] = {}
     visuals_with_theme_objects = 0
     visuals_with_container_objects = 0
     hardcoded_color_hits: Counter[str] = Counter()
@@ -222,6 +313,12 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
             continue
 
         visual_root = visual_json.get("visual") or {}
+        if theme_json is not None:
+            for klasse, pfade in klassifiziere_ueberschreibungen(visual_root, theme_json).items():
+                ebenen[klasse] += len(pfade)
+                for pfad in pfade[:1]:
+                    ebenen_beispiele.setdefault(klasse, []).append(
+                        f"{visual_path.parent.name} {visual_root.get('visualType')}.{pfad}")
         theme_override_paths = iter_theme_override_paths(visual_root)
         if theme_override_paths:
             visuals_with_theme_objects += 1
@@ -235,6 +332,12 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
             hardcoded_color_hits.update(colors)
             visuals_with_hardcoded_colors.append(visual_path.relative_to(report_dir).as_posix())
 
+    if sum(ebenen.values()):
+        teile = ", ".join(f"{k} {ebenen[k]}" for k in ("doppelt", "widersprechend", "neu", "gebunden", "gezielt"))
+        warnings.append(f"{report_dir.name}: overrides vs active theme: {teile}")
+        for klasse in ("widersprechend", "doppelt"):
+            if ebenen_beispiele.get(klasse):
+                warnings.append(f"{report_dir.name}: {klasse} e.g. {', '.join(ebenen_beispiele[klasse][:3])}")
     if visuals_with_theme_objects > 0:
         warnings.append(
             f"{report_dir.name}: {visuals_with_theme_objects} visual(s) use style-relevant visual.objects overrides; review whether formatting should come from theme defaults"
