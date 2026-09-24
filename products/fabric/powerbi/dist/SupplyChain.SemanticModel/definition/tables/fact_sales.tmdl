@@ -18,7 +18,7 @@ table fact_sales
 		summarizeBy: none
 	column 'Sales Units'
 		dataType: Decimal
-		sourceColumn: Sales Units
+		sourceColumn: Quantity
 		summarizeBy: none
 	partition fact_sales = m
 		mode: import

@@ -83,30 +83,23 @@ def test_every_table_a_model_reads_exists_in_gold():
 # Keine Partition benennt um oder ergaenzt; die Spalten fehlen also wirklich. Dass ein Refresh
 # daran scheitert, ist **ANNAHME, ungeprueft** bis zum ersten Lauf im Tenant.
 #
+# E8 (24.09.2026): 10 der 20 behoben durch `tooling/codegen/model_alignment.py` (Umbenennen auf die
+# Gold-Spalte, Modell folgt der Gold-Koernung). Die uebrigen 10 ergaenzt der Gold-Generator (Gruppen 3, 4).
+#
 # Die Liste ist eine Sperrklinke: sie darf nur schrumpfen. Eine neue Luecke macht den Test rot,
 # ebenso eine behobene, die noch hier steht. Die Zuordnung ist Flos Entscheidung (Umbenennung im
 # Vertrag oder Spalte im Gold-Generator ergaenzen), nicht geraten.
 BEKANNTE_LUECKEN = {
     ("Experience", "fact_action_log", "Action Code"),
-    ("Experience", "fact_action_log", "Outcome Status"),
     ("Experience", "fact_action_log", "Responsible Role"),
-    ("Experience", "fact_nps", "QueueKey"),
     ("Finance", "dim_customer", "Region"),
     ("Finance", "fact_cost", "Material Cost Amount"),
     ("Finance", "fact_cost", "Overhead Amount"),
     ("Finance", "fact_inventory", "COGS Amount"),
-    ("Operations", "fact_inventory_snapshot", "On-Hand Units"),
-    ("Operations", "fact_inventory_snapshot", "Inventory Value"),
     ("Operations", "fact_inventory_snapshot", "Reorder Flag"),
     ("SupplyChain", "dim_product", "ABC_Class"),
     ("SupplyChain", "dim_product", "XYZ_Class"),
-    ("SupplyChain", "fact_procurement", "ProductKey"),
-    ("SupplyChain", "fact_procurement", "Purchase Amount"),
-    ("SupplyChain", "fact_procurement", "Contracted Amount"),
-    ("SupplyChain", "fact_procurement", "Actual Unit Price"),
     ("SupplyChain", "fact_procurement", "Contract Unit Price"),
-    ("SupplyChain", "fact_procurement", "Purchase Quantity"),
-    ("SupplyChain", "fact_sales", "Sales Units"),
 }
 
 

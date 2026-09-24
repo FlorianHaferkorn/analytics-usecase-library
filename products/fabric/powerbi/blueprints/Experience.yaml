@@ -164,7 +164,7 @@ tables:
       description: "NPS survey facts (score per survey response)"
       source_contract: data_contracts/domains/experience.yaml
       grain: survey
-      foreign_keys: [DateKey, OrgKey, QueueKey]
+      foreign_keys: [DateKey, OrgKey]   # E8 (24.09.2026): Gold-NPS hat keine Queue
       measures:
         - NPS Score
 
@@ -237,12 +237,7 @@ relationships:
     cardinality: one-to-many
     cross_filter: single
 
-  - from_table: dim_case_queue
-    from_column: QueueKey
-    to_table: fact_nps
-    to_column: QueueKey
-    cardinality: one-to-many
-    cross_filter: single
+  # E8 (24.09.2026): dim_case_queue -> fact_nps entfaellt, Gold-NPS hat keine Queue.
 
   # dim_issue_type → fact_support_cases
   - from_table: dim_issue_type

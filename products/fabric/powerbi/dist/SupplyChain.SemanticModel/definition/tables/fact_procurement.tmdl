@@ -11,22 +11,27 @@ table fact_procurement
 		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
-	column ProductKey
+	column VendorKey
 		dataType: Int64
 		isHidden
-		sourceColumn: ProductKey
+		sourceColumn: VendorKey
+		summarizeBy: none
+	column CategoryKey
+		dataType: Int64
+		isHidden
+		sourceColumn: CategoryKey
 		summarizeBy: none
 	column 'Purchase Amount'
 		dataType: Decimal
-		sourceColumn: Purchase Amount
+		sourceColumn: Procurement Amount
 		summarizeBy: none
 	column 'Contracted Amount'
 		dataType: Decimal
-		sourceColumn: Contracted Amount
+		sourceColumn: On-Contract Amount
 		summarizeBy: none
 	column 'Actual Unit Price'
 		dataType: Decimal
-		sourceColumn: Actual Unit Price
+		sourceColumn: Actual Unit Price Amount
 		summarizeBy: none
 	column 'Contract Unit Price'
 		dataType: Decimal
@@ -34,7 +39,7 @@ table fact_procurement
 		summarizeBy: none
 	column 'Purchase Quantity'
 		dataType: Decimal
-		sourceColumn: Purchase Quantity
+		sourceColumn: Quantity
 		summarizeBy: none
 	partition fact_procurement = m
 		mode: import

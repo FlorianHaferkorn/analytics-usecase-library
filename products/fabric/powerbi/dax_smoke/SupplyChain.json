@@ -477,7 +477,7 @@
     {
       "measure": "Sales Units",
       "ordner": "facts/fact_sales",
-      "spalte": "Sales Units"
+      "spalte": "Quantity"
     }
   ]
 }
