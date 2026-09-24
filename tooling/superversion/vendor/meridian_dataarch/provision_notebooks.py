@@ -207,6 +207,73 @@ def _framing_cell(model_name: str) -> list[str]:
     ]
 
 
+def silver_notebook_name(source: str) -> str:
+    """Der Name des Notebooks, das eine Quelle von Bronze nach Silber bringt (D-556).
+
+    Derselbe Name, den `provision_orchestration` seit jeher fuer die Aktivitaet bildet — nur gab
+    es bis 24.09.2026 kein Item dazu: 23 Aktivitaeten des SAP-Szenarios zeigten ins Leere.
+    """
+    return f"nb_bronze_to_silver__{_ident(source)}"
+
+
+def fenster_notebook_name(source: str) -> str:
+    """Notebook, das das Periodenfenster fuer die Aufnahme einer Quelle liefert (D-557)."""
+    return f"nb_periodenfenster__{_ident(source)}"
+
+
+def produkt_domaene(bp: dict, product: str) -> str | None:
+    """Die Domaene, deren Workspace ein Gold-Notebook traegt — die erste in IR-Reihenfolge.
+
+    Eine Stelle fuer Notebook-Emitter UND Pipeline: ein konformes Ziel (mehrere Domaenen) liegt
+    sonst im einen Workspace und wird aus dem anderen aufgerufen.
+    """
+    for d in bp.get("mesh", {}).get("domains", []) or []:
+        if product in (d.get("data_products") or []):
+            return d.get("name", "")
+    return None
+
+
+def transform_notebooks(transform_rels) -> dict[str, str]:
+    """Notebook-Name → Transform-Datei (relativ zu `render/<stack>/`), fuer den Vollaufbau.
+
+    Bronze → Silber je Quelle, Silber → Gold je Produkt (Domaene oder `_conformed/`). Der
+    inkrementelle Pfad ist die Alternative fuer die Typ-1-Tabellen und bekommt kein eigenes
+    Notebook — das Vollaufbau-Notebook traegt auch die Historie (D-551..D-553).
+    """
+    out: dict[str, str] = {}
+    for rel in sorted(transform_rels or []):
+        rel = rel.split("render/", 1)[-1].split("/", 1)[-1] if rel.startswith("render/") else rel
+        if not rel.startswith("transforms/") or rel.startswith("transforms/incremental/") \
+                or not rel.endswith(".sql"):
+            continue
+        name = rel.rsplit("/", 1)[1][:-4]
+        if name.startswith("bronze_to_silver__"):
+            out[silver_notebook_name(name.split("__", 1)[1])] = rel
+        elif name.startswith("silver_to_gold__"):
+            out[gold_notebook_name(name.split("__", 1)[1])] = rel
+    return out
+
+
+def _transform_cell(sql: str, rel: str, schema: str = "", zeige: str = "") -> list[str]:
+    """Die Anweisungen einer Transform-Datei als `spark.sql`-Aufrufe, in Dateireihenfolge.
+
+    Zerlegt mit `sql_anweisungen` — derselben Funktion, mit der der Spark-Nachweis die Datei
+    faehrt. Eine zweite Zerlegung hier waere ein Weg, etwas anderes auszufuehren, als bewiesen
+    wurde.
+    """
+    from core.dataarch_engine.blueprint.provision_transforms import sql_anweisungen
+    lines = [f"# Quelle: {rel} (generiert — nicht hier aendern, sondern neu emittieren)"]
+    if schema:
+        lines.append(f'spark.sql("""CREATE SCHEMA IF NOT EXISTS {schema}""")')
+    for st in sql_anweisungen(sql):
+        # Kommentarzeilen sind beim Zerlegen weggefallen; ihre Leerzeilen auch.
+        st = "\n".join(z for z in st.splitlines() if z.strip())
+        lines.append(f'spark.sql("""\n{st}\n""")')
+    if zeige:
+        lines.append(f'display(spark.table("{zeige}"))')
+    return lines
+
+
 def gold_notebook_name(product: str) -> str:
     """Der Name des Notebooks, das ein Gold-Produkt materialisiert — **die** Quelle dieser Wahrheit.
 
@@ -282,7 +349,8 @@ def _databricks_notebook(cell_lines: list[str]) -> str:
 def emit_notebooks(bp: dict, architecture: dict | None = None, stack: str = "fabric",
                    governed_catalog: dict | None = None,
                    lakehouse: str = "analytics_gold", workspace: str = PLACEHOLDER_WORKSPACE,
-                   sample_rows: bool = False, schemas: bool = False) -> dict[str, str]:
+                   sample_rows: bool = False, schemas: bool = False,
+                   transforms: dict[str, str] | None = None) -> dict[str, str]:
     """Return the gold-table materialisation as ``path → content``, stack-aware:
 
     - **fabric** → ``notebooks/<nb>.Notebook/`` (fab-importable ipynb + .platform),
@@ -291,19 +359,20 @@ def emit_notebooks(bp: dict, architecture: dict | None = None, stack: str = "fab
 
     ``schemas`` targets schema-enabled tables (``gold.<name>``) instead of ``gold_<name>`` in a
     default namespace. Real columns come from the architecture; without them a TODO is emitted.
+
+    ``transforms`` (Pfad → SQL, wie `emit_transforms` es liefert): dann **faehrt** das Notebook
+    die Transformation, statt nur die leere Tabelle anzulegen (D-556), und je Bronze → Silber
+    entsteht ein eigenes Notebook. Bis 24.09.2026 legten die Gold-Notebooks nur die Struktur an,
+    und die Pipeline rief sie jeden Tag auf — gruen, ohne eine Zeile zu laden.
     """
     dialect = _DIALECTS.get(stack)
     if dialect is None:
         return {}
     architecture = architecture or {}
     gold = sorted(p["name"] for p in bp.get("medallion", {}).get("gold", {}).get("data_products", []))
-    # Gold-Produkt → Name seiner Domäne (für den Workspace, in den sein Notebook gehört)
-    _domain_of: dict[str, str] = {}
-    for _d in bp.get("mesh", {}).get("domains", []) or []:
-        for _pn in _d.get("data_products", []) or []:
-            _domain_of.setdefault(_pn, _d.get("name", ""))
     out: dict[str, str] = {}
     rows: list[str] = []
+    je_notebook = transform_notebooks(transforms or {})
     for name in gold:
         cols = _columns_for_gold(architecture, name, governed_catalog)
         table = layer_ref("gold", _ident(name), schemas)
@@ -320,8 +389,12 @@ def emit_notebooks(bp: dict, architecture: dict | None = None, stack: str = "fab
                 f"-- gold materialisation for {table} (generated — ADR-0015)\n{body}")
             rows.append(f"| `{table}` | `sql/{_ident(name)}.sql` | {mapping} |")
         else:
-            cell = _spark_cell(stmts, table, todo)
             nb = gold_notebook_name(name)
+            rel = je_notebook.get(nb)
+            cell = (_transform_cell(transforms[rel], rel, "gold" if schemas else "", table)
+                    if rel else _spark_cell(stmts, table, todo))
+            if rel:
+                mapping = f"faehrt `{rel}`"
             if stack == "databricks":
                 out[f"notebooks/{nb}.py"] = _databricks_notebook(cell)
                 rows.append(f"| `{table}` | `notebooks/{nb}.py` | {mapping} |")
@@ -329,12 +402,63 @@ def emit_notebooks(bp: dict, architecture: dict | None = None, stack: str = "fab
                 # Der Workspace SEINER Domäne — nicht ein globaler. Ein Notebook, das ein
                 # Gold-Produkt materialisiert, gehört dorthin, wo das Produkt liegt.
                 ws = effective_workspace(bp, workspace if workspace != PLACEHOLDER_WORKSPACE
-                                         else gold_workspace_of(bp, _domain_of.get(name),
+                                         else gold_workspace_of(bp, produkt_domaene(bp, name),
                                                                 fallback=PLACEHOLDER_WORKSPACE))
                 out[f"notebooks/{nb}.Notebook/notebook-content.ipynb"] = _notebook_content_ipynb(
                     cell, lakehouse, ws)
                 out[f"notebooks/{nb}.Notebook/.platform"] = _platform(nb)
                 rows.append(f"| `{table}` | `notebooks/{nb}.Notebook` | {mapping} |")
+
+    # Bronze → Silber: ein Notebook je Transform-Datei, im Gold-Workspace ihrer Domaene (die
+    # Domaene fuehrt Bronze, Silber und Gold in einem Lakehouse mit Schemas).
+    if stack != "snowflake":
+        from core.dataarch_engine.blueprint.provision_transforms import _dirslug
+        je_ordner = {_dirslug(d.get("name", "")): d.get("name", "")
+                     for d in bp.get("mesh", {}).get("domains", []) or []}
+        for nb, rel in sorted(je_notebook.items()):
+            if not nb.startswith("nb_bronze_to_silver__"):
+                continue
+            ziel = layer_ref("silver", nb.split("__", 1)[1], schemas)
+            cell = _transform_cell(transforms[rel], rel, "silver" if schemas else "", ziel)
+            if stack == "databricks":
+                out[f"notebooks/{nb}.py"] = _databricks_notebook(cell)
+                rows.append(f"| `{ziel}` | `notebooks/{nb}.py` | faehrt `{rel}` |")
+                continue
+            dom = je_ordner.get(rel.split("/")[1])
+            ws = effective_workspace(bp, workspace if workspace != PLACEHOLDER_WORKSPACE
+                                     else gold_workspace_of(bp, dom, fallback=PLACEHOLDER_WORKSPACE))
+            out[f"notebooks/{nb}.Notebook/notebook-content.ipynb"] = _notebook_content_ipynb(
+                cell, lakehouse, ws)
+            out[f"notebooks/{nb}.Notebook/.platform"] = _platform(nb)
+            rows.append(f"| `{ziel}` | `notebooks/{nb}.Notebook` | faehrt `{rel}` |")
+
+    # D-557: Periodenfenster. Ein kleines Notebook liest das juengste Jahr aus Gold und gibt es
+    # an die Pipeline zurueck; die Kopie zieht dann nur die Jahre ab dort. Leeres Gold → „0000“,
+    # also alles: die Erstbefuellung braucht keinen Handgriff.
+    if stack == "fabric":
+        from core.dataarch_engine.blueprint.provision_transforms import perioden_quellen
+        for quelle, f in sorted(perioden_quellen(governed_catalog, schemas).items()):
+            nb = fenster_notebook_name(quelle)
+            cell = [
+                f"# Periodenfenster fuer die Aufnahme von {quelle} (D-557): juengstes Jahr in "
+                f"{f['gold']}.",
+                "# exit() steht bewusst NICHT in try/except — dort kaeme der Wert nicht an "
+                "(MS Learn, NotebookUtils).",
+                'ab = "0000"',
+                f'if spark.catalog.tableExists("{f["gold"]}"):',
+                f'    wert = spark.sql("SELECT MAX(CAST({f["jahr"]} AS INT)) FROM {f["gold"]}")'
+                ".collect()[0][0]",
+                '    ab = str(wert or 0).zfill(4)',
+                "notebookutils.notebook.exit(ab)",
+            ]
+            ws = effective_workspace(bp, workspace if workspace != PLACEHOLDER_WORKSPACE
+                                     else gold_workspace_of(bp, produkt_domaene(bp, f["produkt"]),
+                                                            fallback=PLACEHOLDER_WORKSPACE))
+            out[f"notebooks/{nb}.Notebook/notebook-content.ipynb"] = _notebook_content_ipynb(
+                cell, lakehouse, ws)
+            out[f"notebooks/{nb}.Notebook/.platform"] = _platform(nb)
+            rows.append(f"| _(Periodenfenster `{quelle}`)_ | `notebooks/{nb}.Notebook` | "
+                        f"juengstes {f['jahr']} aus `{f['gold']}` |")
 
     # Abschluss-Notebook: rahmt das Semantikmodell. Nur wenn der Bauplan eines nennt — ohne Modell
     # gibt es nichts zu rahmen, und ein Notebook, das auf ein erfundenes Modell zeigt, ist
@@ -359,6 +483,6 @@ def emit_notebooks(bp: dict, architecture: dict | None = None, stack: str = "fab
     index = [f"# Gold materialisation — {stack} (generated — ADR-0015)", "",
              f"Run: {how}", "",
              f"Sample rows: **{sample_rows}** (structure-only by default; --sample-rows adds demo data).", "",
-             "| Gold table | Artifact | Column mapping |", "|---|---|---|", *rows]
+             "| Tabelle | Artifact | Column mapping / Inhalt |", "|---|---|---|", *rows]
     out[f"{root}/_MATERIALIZE.md"] = "\n".join(index) + "\n"
     return out

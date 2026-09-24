@@ -330,6 +330,23 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
         add("import_item", f"{ws}.Workspace/{gp}", "core-mcp:create-item | fab import", "human",
             "import generated item definition (transform notebook / pipeline / semantic model / report)",
             _first_present(_artifact_candidates(gp, dom_of.get(gp, "gold"), stack), emitted))
+    # D-556: Bronze → Silber hat seit 24.09.2026 eigene Notebooks — ohne Importschritt kaemen
+    # sie nie im Mandanten an, und die Pipeline riefe wieder Items auf, die es nicht gibt.
+    # Ein Schritt je Domaene (ihr Gold-Workspace traegt das Lakehouse mit Bronze und Silber).
+    _b2s: dict[str, list[str]] = {}
+    for e in ingestion:
+        # D-557: das Periodenfenster einer Quelle gehoert zu ihrer Aufnahme und kommt mit.
+        for praefix in ("nb_bronze_to_silver__", "nb_periodenfenster__"):
+            nb = f"notebooks/{praefix}{_ident(e.get('source', ''))}.Notebook"
+            if emitted is not None and any(x.startswith(nb + "/") for x in emitted):
+                _b2s.setdefault(e.get("domain") or "", []).append(nb)
+    for dom, nbs in sorted(_b2s.items()):
+        ws = gold_workspace_of(bp, dom or None, fallback=target_ws)
+        add("import_item", f"{ws}.Workspace/{len(nbs)} Aufnahme-Notebook(s) (Bronze→Silber)",
+            "core-mcp:create-item | fab import", "human",
+            "import the bronze→silver transform notebooks (one per source; the pipeline calls "
+            "them) and any period-window notebook of the ingestion",
+            sorted(nbs)[0])
     # B3: die Notebooks tragen ihre Vorgabe-Lakehouse-Bindung als Platzhalter
     # (`<ws-…/lh_…-lakehouse-id>`), weil die GUID erst im Mandanten entsteht. Gemessen 15.08.2026
     # an einem vollen Lauf: 7 Notebooks mit unaufgeloestem Token, kein Schritt, der ihn aufloest.

@@ -76,6 +76,38 @@ def zitiere(spalte: str, stack: str = "fabric") -> str:
     return "`" + s.replace("`", "``") + "`"      # fabric/databricks: Spark SQL
 
 
+def sql_anweisungen(text: str) -> list[str]:
+    """Anweisungen einer Datei: Zeilenkommentare weg, auf `;` trennen -- ausser in Zeichenketten.
+
+    Das `;` in `COMMENT 'Anzahl verletzender Zeilen; NULL wenn ...'` ist keine Trennung.
+    Gemessen 02.09.2026: ohne diese Ruecksicht zerfiel `dq_historie.sql` in drei Teile,
+    von denen zwei Syntaxfehler waren, die es in der Datei nicht gibt."""
+    zeilen = []
+    for ln in text.splitlines():
+        out, q, i = [], False, 0
+        while i < len(ln):
+            c = ln[i]
+            if c == "'":
+                q = not q
+            if not q and ln.startswith("--", i):
+                break
+            out.append(c)
+            i += 1
+        zeilen.append("".join(out))
+    body = "\n".join(zeilen)
+    teile, cur, q = [], [], False
+    for c in body:
+        if c == "'":
+            q = not q
+        if c == ";" and not q:
+            teile.append("".join(cur))
+            cur = []
+        else:
+            cur.append(c)
+    teile.append("".join(cur))
+    return [s.strip() for s in teile if s.strip()]
+
+
 def _dialect(stack: str) -> dict:
     """Minimal per-stack SQL dialect knobs (fabric/databricks = Spark; snowflake = SF).
 
@@ -85,7 +117,8 @@ def _dialect(stack: str) -> dict:
     """
     if stack == "snowflake":
         return {"ctas": "CREATE OR REPLACE TABLE", "using": "", "comment": "--", "stack": stack,
-                "tblprops": "", "hash64": "HASH", "heute": "CURRENT_DATE()"}
+                "tblprops": "", "hash64": "HASH", "heute": "CURRENT_DATE()",
+                "jetzt": "CURRENT_TIMESTAMP()"}
     # fabric + databricks: Spark SQL over Delta
     #
     # `columnMapping` gehoert an JEDE Delta-Tabelle, die aus einer fremden Projektion entsteht.
@@ -98,6 +131,7 @@ def _dialect(stack: str) -> dict:
     # `SELECT *` erzeugte Ziel nicht -- der Emitter vererbte sie nicht mit.
     return {"ctas": "CREATE OR REPLACE TABLE", "using": "\nUSING DELTA", "comment": "--",
             "stack": stack, "hash64": "xxhash64", "heute": "current_date()",
+            "jetzt": "current_timestamp()",
             "tblprops": ("\nTBLPROPERTIES ('delta.columnMapping.mode' = 'name',"
                          " 'delta.minReaderVersion' = '2', 'delta.minWriterVersion' = '5')")}
 
@@ -418,6 +452,10 @@ def _silber_watermark(governed_catalog: dict | None, quelle: str) -> str | None:
 _ANLAGE_HINWEISE = ("erdat", "ersda", "created", "erstellt", "anlage")
 
 QUELLMETADATEN_SCHEMA = "meridian/quellmetadaten/v1"
+#: Silber-Ladeform je Quelltabelle, kuratiert (D-558): Hashvergleich mit Fabric-Stempel.
+SILBER_HASHVERGLEICH = "hashvergleich"
+#: Die Spalte, die Fabric bei jeder erkannten Aenderung in Silber setzt (D-558).
+FABRIC_STEMPEL = "_geaendert_am"
 
 
 def kuratiere_quelltabellen(governed_catalog: dict, kuratiert: dict) -> dict:
@@ -468,6 +506,17 @@ def kuratiere_quelltabellen(governed_catalog: dict, kuratiert: dict) -> dict:
             e["unveraenderlich"] = angabe["unveraenderlich"]
         if angabe.get("anlage"):
             e.update(anlage=str(angabe["anlage"]), anlage_von=wer)
+        if "silber" in angabe:
+            # D-558: Silber per Hashvergleich — Fabric stempelt die Aenderung selbst. Braucht den
+            # Schluessel der Quelltabelle (ohne ihn gibt es kein „dieselbe Zeile“) und einen
+            # Vollauszug in Bronze (sonst waere jede fehlende Zeile eine Loeschung).
+            if angabe["silber"] != SILBER_HASHVERGLEICH:
+                raise ValueError(f"Quellmetadaten {quelle}: silber kennt nur "
+                                 f"{SILBER_HASHVERGLEICH!r}, nicht {angabe['silber']!r}")
+            if not (e.get("key") or []):
+                raise ValueError(f"Quellmetadaten {quelle}: silber = {SILBER_HASHVERGLEICH} "
+                                 f"braucht den Schluessel der Quelltabelle")
+            e.update(silber=SILBER_HASHVERGLEICH, silber_von=wer)
         bekannt = set(e.get("columns") or [])
         fremd = sorted({*(angabe.get("key") or []),
                         *([angabe["watermark"]] if angabe.get("watermark") else []),
@@ -485,6 +534,94 @@ GOLD_HISTORIENFORMEN = ("scd", "stichtag", "periode")
 #: Technische Spalten der Typ-2-Historie. Deutsch wie der Rest der Lieferung.
 SCD_SPALTEN = ("gueltig_ab", "gueltig_bis", "ist_aktuell")
 STICHTAG_SPALTE = "stichtag"
+
+
+def scd_bezuege(governed_catalog: dict | None, product: str,
+                schemas: bool = True) -> list[dict]:
+    """Die Fremdschluessel eines Faktums, die auf eine Dimension mit Typ-2-Historie zeigen (D-559).
+
+    Je Bezug: Fremdschluesselspalte, Dimension, deren Schluesselspalte, der Ersatzschluessel der
+    Historie, die neue Faktenspalte (`<fk>_sk`) und das Belegdatum — die Spalte, ueber die das
+    Faktum an der Zeitachse haengt. Ohne Zeitachse gilt die aktuelle Version.
+    """
+    gc = governed_catalog or {}
+    tabs = {t.get("name"): t for t in gc.get("tables") or []}
+    # Die Zeitachse erkennt der Katalog an `generated` (eine erzeugte Datumsdimension, D-347) —
+    # nicht am Namen: `provision_transforms` wird nach ALUCA gespiegelt, `sap_calendar` nicht.
+    achsen = {n for n, t in tabs.items() if t.get("generated") and t.get("kind") == "dimension"}
+    datum = next((r["from_column"] for r in gc.get("relationships") or []
+                  if r.get("from_table") == product and r.get("to_table") in achsen), None)
+    out = []
+    for k in gc.get("fremdschluessel") or []:
+        if k.get("from_table") != product:
+            continue
+        h = (tabs.get(k.get("to_table")) or {}).get("historisierung") or {}
+        if h.get("form") != "scd":
+            continue
+        out.append({"fk": k["from_column"], "dim": k["to_table"], "dim_spalte": k["to_column"],
+                    "sk": h["sk"], "spalte": f"{k['from_column']}_sk", "aktiv": k.get("aktiv", True),
+                    "historie": layer_ref("gold", _ident(k["to_table"]) + "_historie", schemas),
+                    "datum": datum})
+    return sorted(out, key=lambda b: b["spalte"])
+
+
+def _mit_ersatzschluesseln(select_sql: str, bezuege: list[dict], dl: dict) -> str:
+    """Haengt je Bezug den Ersatzschluessel der zum Belegdatum gueltigen Version an (D-559).
+
+    Halboffen wie die Historie: `gueltig_ab <= Beleg < gueltig_bis`, leer heisst offen. LEFT
+    JOIN — ein Beleg ohne passende Version bleibt stehen, mit leerem Schluessel, statt zu
+    verschwinden. Belegdatum und `gueltig_ab` muessen dieselbe Darstellung haben (SAP: DATS).
+    """
+    z = lambda x: zitiere(x, dl["stack"])                                   # noqa: E731
+    spalten, joins = [], []
+    for i, b in enumerate(bezuege, 1):
+        h = f"h{i}"
+        bed = [f"{h}.{z(b['dim_spalte'])} = f.{z(b['fk'])}"]
+        if b.get("datum"):
+            d = f"f.{z(b['datum'])}"
+            bed += [f"({h}.gueltig_ab IS NULL OR {d} >= {h}.gueltig_ab)",
+                    f"({h}.gueltig_bis IS NULL OR {d} < {h}.gueltig_bis)"]
+        else:
+            bed.append(f"{h}.ist_aktuell")
+        joins.append(f"LEFT JOIN {b['historie']} AS {h}\n    ON " + "\n   AND ".join(bed))
+        spalten.append(f"{h}.{b['sk']} AS {z(b['spalte'])}")
+    return (f"SELECT f.*, {', '.join(spalten)}\nFROM (\n{_einruecken(select_sql, 4)}\n) AS f\n"
+            + "\n".join(joins))
+
+
+def _bezugs_kopf(bezuege: list[dict], c: str) -> list[str]:
+    if not bezuege:
+        return []
+    return ([f"{c}", f"{c} ERSATZSCHLUESSEL ZUM BELEGDATUM (D-559): je Bezug die Version der "
+                     f"Dimension, die am Belegdatum galt."]
+            + [f"{c}   {b['spalte']} → {b['historie']}.{b['sk']} ueber {b['fk']}"
+               + (f", Belegdatum {b['datum']}" if b.get("datum") else
+                  ", keine Zeitachse — aktuelle Version")
+               + ("" if b.get("aktiv", True) else " (inaktive Beziehung im Modell)")
+               for b in bezuege]
+            + [f"{c}   Ein spaeter erkannter Wechsel aendert bereits geladene Zeilen erst mit dem "
+               f"naechsten Vollaufbau."])
+
+
+def perioden_quellen(governed_catalog: dict | None, schemas: bool = True) -> dict[str, dict]:
+    """Quellen, deren Aufnahme sich auf ein Periodenfenster begrenzen laesst (D-557).
+
+    Voraussetzung ist D-553: das Gold-Produkt haelt seine Perioden selbst (`periode`) und liest
+    genau **eine** Quelle. Dann braucht die Aufnahme nur die Jahre ab dem juengsten in Gold —
+    aeltere Perioden schreibt der MERGE ohnehin nicht mehr. Rueckgabe je Quelle: Gold-Tabelle,
+    Jahres- und Monatsspalte, SAP-Tabellenname (falls der Katalog ihn fuehrt).
+    """
+    out: dict[str, dict] = {}
+    for t in (governed_catalog or {}).get("tables") or []:
+        h = t.get("historisierung") or {}
+        quellen = list(t.get("sources") or [])
+        if h.get("form") != "periode" or len(quellen) != 1:
+            continue
+        e = _quelltabelle(governed_catalog, quellen[0])
+        out[quellen[0]] = {"gold": layer_ref("gold", _ident(t["name"]), schemas),
+                           "produkt": t["name"], "jahr": h["spalten"][0],
+                           "monat": h["spalten"][1], "sap_tabelle": e.get("sap_tabelle") or ""}
+    return out
 
 
 def _kuratiere_gold(governed_catalog: dict, gold: dict) -> list[dict]:
@@ -581,6 +718,54 @@ def _herkunft_zeile(governed_catalog: dict | None, quelle: str, feld: str) -> st
             f"{'; nicht im Katalog: ' + ', '.join(fremd) if fremd else ''})")
 
 
+def _silber_hashvergleich(src: str, silver_tbl: str, bronze_tbl: str, e: dict, dl: dict,
+                         wahl: str | None) -> str:
+    """Silber per Hashvergleich: Fabric erkennt die Aenderung und setzt das Datum (D-558).
+
+    Die Antwort auf Flos Frage vom 24.09.2026 fuer Tabellen **ohne** Aenderungsspalte: Bronze
+    ist ein Vollauszug, Silber haelt den letzten Stand samt `_zeilenhash`. Je Lauf vergleicht
+    der MERGE die Hashes je Schluessel; nur eine geaenderte oder neue Zeile bekommt
+    `_geaendert_am = current_timestamp()`, eine verschwundene wird geloescht. Ab hier traegt die
+    Kette eine Aenderungsspalte, die die Quelle nie hatte — Gold laedt darauf inkrementell.
+
+    Preis: ein voller Vergleich je Lauf. Voraussetzungen: Bronze ist ein **Vollauszug** (sonst
+    waere jede fehlende Zeile eine Loeschung) und traegt keine Lade-Metadaten, die sich je Lauf
+    aendern (sonst waere jede Zeile geaendert). Ein **leerer** Auszug haelt vor dem MERGE an —
+    `NOT MATCHED BY SOURCE` wuerde Silber sonst leeren (gemessen: Delta erlaubt die Pruefung
+    nicht in der Klausel, deshalb als eigene Anweisung).
+    """
+    c, st = dl["comment"], dl["stack"]
+    schluessel = list(e.get("key") or [])
+    on = " AND ".join(f"t.{zitiere(k, st)} IS NOT DISTINCT FROM s.{zitiere(k, st)}"
+                      for k in schluessel)
+    quelle = (f"SELECT *, {dl['hash64']}(*) AS _zeilenhash, {dl['jetzt']}"
+              f" AS {FABRIC_STEMPEL}\n    FROM {bronze_tbl}")
+    kopf = (f"{c}\n{c} SILBER PER HASHVERGLEICH (kuratiert"
+            f"{', ' + e['silber_von'] if e.get('silber_von') else ''}; D-558): '{src}' hat keine "
+            f"verlaessliche\n"
+            f"{c}   Aenderungsspalte — Fabric erkennt Aenderungen am Zeilenhash und stempelt "
+            f"{FABRIC_STEMPEL}.\n"
+            f"{c}   Schluessel: {' + '.join(schluessel)}. Neue und geaenderte Zeilen bekommen den "
+            f"Stempel des Laufs,\n"
+            f"{c}   verschwundene werden geloescht (Bronze ist ein Vollauszug). Unveraenderte "
+            f"bleiben unberuehrt.\n"
+            f"{c}   Gilt vor DATA-SILVER-LOAD{' = ' + wahl if wahl else ''} der Domaene: die "
+            f"Angabe ist je Tabelle kuratiert.\n"
+            f"{c}   Ein leerer Auszug haelt an, bevor der MERGE Silber leeren koennte.\n")
+    return (kopf
+            + f"CREATE TABLE IF NOT EXISTS {silver_tbl}{dl['using']}"
+            f"{_mit_cdf(dl.get('tblprops', ''))} AS\n"
+            f"{quelle.replace(chr(10) + '    ', chr(10))}\nWHERE 1 = 0\n;\n"
+            f"SELECT assert_true((SELECT COUNT(*) FROM {bronze_tbl}) > 0,\n"
+            f"    'Bronze {bronze_tbl} ist leer — der Hashvergleich wuerde Silber leeren')\n;\n"
+            f"MERGE INTO {silver_tbl} AS t\n"
+            f"USING (\n    {quelle}\n) AS s\n"
+            f"ON {on}\n"
+            f"WHEN MATCHED AND t._zeilenhash <> s._zeilenhash THEN UPDATE SET *\n"
+            f"WHEN NOT MATCHED THEN INSERT *\n"
+            f"WHEN NOT MATCHED BY SOURCE THEN DELETE\n;\n")
+
+
 def _bronze_to_silver(d: dict, src: str, silver_tbl: str, contract_ref: str, dl: dict,
                       bronze_tbl: str = "", wahl: str | None = None,
                       governed_catalog: dict | None = None) -> str:
@@ -606,6 +791,9 @@ def _bronze_to_silver(d: dict, src: str, silver_tbl: str, contract_ref: str, dl:
     bronze_tbl = bronze_tbl or f"bronze_{_ident(src)}"
     kopf = (f"{c} bronze → silver — conform + cleanse '{src}' for domain '{d['name']}'.\n"
             f"{c} Contract: {contract_ref}\n")
+    _q = _quelltabelle(governed_catalog, src)
+    if _q.get("silber") == SILBER_HASHVERGLEICH and dl.get("stack") != "snowflake":
+        return kopf + _silber_hashvergleich(src, silver_tbl, bronze_tbl, _q, dl, wahl)
     mapping = (f"    {c} TODO(contract:{contract_ref}): map raw columns → conformed silver schema,\n"
                f"    {c} apply types, dedup, null/quality rules, business keys.\n")
     if wahl and wahl not in _DATA_SILVER_LOAD_WERTE:
@@ -790,7 +978,8 @@ def _projektion(spalte: str, table: dict | None, stack: str) -> str:
 def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_ref: str,
                     dl: dict, gold_tbl: str = "", table: dict | None = None,
                     kopf_extra: list[str] | None = None,
-                    wasserzeichen: dict | None = None) -> str:
+                    wasserzeichen: dict | None = None,
+                    bezuege: list[dict] | None = None) -> str:
     c = dl["comment"]
     gold_tbl = gold_tbl or f"gold_{_ident(name)}"
     # `silver_tbl` darf eine Liste sein: dann entsteht ein Produkt aus mehreren Herkuenften
@@ -832,8 +1021,14 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
                         f"technisch, fuer das inkrementelle Laden (D-549).")
             auswahl += (f",\n    {zitiere(wasserzeichen['spalte'], dl['stack'])} AS "
                         f"{WASSERZEICHEN_SPALTE}")
-        quell_sql = "SELECT\n" + auswahl + f"\nFROM {silver_tbl}"
-        kopf_h, ctas, anhang = _historie_anhang(name, gold_tbl, quell_sql, table, dl, wasserzeichen)
+        roh_sql = "SELECT\n" + auswahl + f"\nFROM {silver_tbl}"
+        quell_sql = roh_sql
+        if bezuege:
+            quell_sql = _mit_ersatzschluesseln(roh_sql, bezuege, dl)
+            kopf += _bezugs_kopf(bezuege, c)
+        kopf_h, ctas, anhang = _historie_anhang(name, gold_tbl, quell_sql, table, dl, wasserzeichen,
+                                                [b["spalte"] for b in bezuege or []],
+                                                roh_sql=roh_sql, bezuege=bezuege)
         if ctas != dl["ctas"]:
             head = head.replace(f"{dl['ctas']} {gold_tbl}", f"{ctas} {gold_tbl}", 1)
         return (head + "\n".join(kopf + kopf_h) + "\n" + quell_sql + "\n;\n" + anhang)
@@ -869,7 +1064,9 @@ def _einruecken(sql: str, n: int) -> str:
 
 
 def _historie_anhang(name: str, gold_tbl: str, quell_sql: str, table: dict | None, dl: dict,
-                     wasserzeichen: dict | None) -> tuple[list[str], str, str]:
+                     wasserzeichen: dict | None,
+                     zusatz: list[str] | None = None, roh_sql: str = "",
+                     bezuege: list[dict] | None = None) -> tuple[list[str], str, str]:
     """Gold als Historienhalter (D-551..D-553): was die Quelle nicht aufhebt, hebt Gold auf.
 
     Rueckgabe ``(kopfzeilen, ctas, anhang)``: Kommentarzeilen fuer den Dateikopf, das
@@ -898,7 +1095,7 @@ def _historie_anhang(name: str, gold_tbl: str, quell_sql: str, table: dict | Non
 
     if form == "stichtag":
         ziel = f"{gold_tbl}_{STICHTAG_SPALTE}"
-        liste = ", ".join(z(s) for s in spalten)
+        liste = ", ".join(z(s) for s in spalten + list(zusatz or []))
         kopf = [f"{c}",
                 f"{c} STICHTAGSABLAGE (kuratiert{wer}, D-552): {ziel} haelt je Lauf den Stand",
                 f"{c}   dieser Tabelle mit {STICHTAG_SPALTE} = Tagesdatum. Die Quelle kennt nur den "
@@ -920,7 +1117,7 @@ def _historie_anhang(name: str, gold_tbl: str, quell_sql: str, table: dict | Non
     if form == "periode":
         jahr, monat = hist["spalten"]
         per = f"CAST({{p}}{z(jahr)} AS INT) * 100 + CAST({{p}}{z(monat)} AS INT)"
-        ziel_spalten = spalten + ([WASSERZEICHEN_SPALTE] if mit_wz else [])
+        ziel_spalten = spalten + ([WASSERZEICHEN_SPALTE] if mit_wz else []) + list(zusatz or [])
         on = " AND ".join(f"t.{z(k)} IS NOT DISTINCT FROM s.{z(k)}" for k in schluessel)
         kopf = [f"{c}",
                 f"{c} PERIODENLADUNG (kuratiert{wer}, D-553): erster Lauf befuellt die Tabelle "
@@ -934,11 +1131,16 @@ def _historie_anhang(name: str, gold_tbl: str, quell_sql: str, table: dict | Non
                 *([f"{c}   Grund: {hist['grund']}"] if hist.get("grund") else []),
                 f"{c}   Gilt vor DATA-INC der Domaene: die Angabe ist je Tabelle kuratiert.",
                 f"{c}   Neuaufbau nur bewusst: DROP TABLE {gold_tbl}, dann laufen lassen."]
-        anhang = (f"MERGE INTO {gold_tbl} AS t\nUSING (\n    SELECT q.*\n    FROM (\n"
-                  f"{_einruecken(quell_sql, 8)}\n    ) AS q\n"
-                  f"    WHERE (SELECT COUNT(*) FROM {gold_tbl}) = 0\n"
-                  f"       OR {per.format(p='q.')} >= (SELECT MAX({per.format(p='')}) "
-                  f"FROM {gold_tbl})\n) AS s\n"
+        # Der Periodenfilter steht VOR dem Verbund mit der Historie (D-559). Dahinter las Delta
+        # das Ziel in einer materialisierten Quelle und brach ab („Table does not support
+        # reads“, gemessen 24.09.2026 an `fact_inventory_history`); davor laeuft es.
+        gefiltert = (f"SELECT q.*\nFROM (\n{_einruecken(roh_sql or quell_sql, 4)}\n) AS q\n"
+                     f"WHERE (SELECT COUNT(*) FROM {gold_tbl}) = 0\n"
+                     f"   OR {per.format(p='q.')} >= (SELECT MAX({per.format(p='')}) "
+                     f"FROM {gold_tbl})")
+        if bezuege and roh_sql:
+            gefiltert = _mit_ersatzschluesseln(gefiltert, bezuege, dl)
+        anhang = (f"MERGE INTO {gold_tbl} AS t\nUSING (\n{_einruecken(gefiltert, 4)}\n) AS s\n"
                   f"ON {on}\n"
                   f"WHEN MATCHED THEN UPDATE SET "
                   + ", ".join(f"{z(s)} = s.{z(s)}" for s in ziel_spalten if s not in schluessel)
@@ -1178,6 +1380,10 @@ def gold_wasserzeichen(governed_catalog: dict | None, product: str,
     if e.get("watermark") and e.get("watermark_herkunft") == "kuratiert":
         return {"spalte": e["watermark"], "art": "Aenderung", "quelle": kopf,
                 "von": e.get("watermark_von", "")}
+    if e.get("silber") == SILBER_HASHVERGLEICH:
+        # D-558: die Quelle hat keine Aenderungsspalte, Silber stempelt sie per Hashvergleich.
+        return {"spalte": FABRIC_STEMPEL, "art": "Aenderungsstempel von Fabric (Hashvergleich "
+                "in Silber, D-558)", "quelle": kopf, "von": e.get("silber_von", "")}
     if e.get("watermark_keine") and e.get("unveraenderlich") and e.get("anlage"):
         return {"spalte": e["anlage"], "art": "Anlage, Tabelle unveraenderlich", "quelle": kopf,
                 "von": e.get("anlage_von", "")}
@@ -1399,7 +1605,8 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
                                            kopf_extra=verbund[1],
                                            wasserzeichen=gold_wasserzeichen(
                                                governed_catalog, product,
-                                               herkunft.get(_ident(product), [])))
+                                               herkunft.get(_ident(product), [])),
+                                           bezuege=scd_bezuege(governed_catalog, product, schemas))
                 flow.append(f"- Verbund {' + '.join(f'`{q}`' for q in von)} → {gold_tbl} "
                             f"({kind})  ·  `{rel}`")
                 continue
@@ -1413,7 +1620,8 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
                                        table=_catalog_table(governed_catalog, _ident(product)),
                                        wasserzeichen=gold_wasserzeichen(
                                            governed_catalog, product,
-                                           herkunft.get(_ident(product), [])))
+                                           herkunft.get(_ident(product), [])),
+                                       bezuege=scd_bezuege(governed_catalog, product, schemas))
             flow.append(f"- {' + '.join(f'`{q}`' for q in von)} → {gold_tbl} ({kind})  ·  `{rel}`")
         flow.append("")
 
@@ -1492,7 +1700,8 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
                                 table: dict | None = None,
                                 konform: list[tuple] | None = None,
                                 zusatz_kopf: str = "",
-                                wasserzeichen: dict | None = None) -> str:
+                                wasserzeichen: dict | None = None,
+                                bezuege: list[dict] | None = None) -> str:
     """Incremental (upsert) silver→gold as a MERGE scaffold — the delta-load counterpart of the
     full-rebuild ``_silver_to_gold``. Honest by construction: the merge *shape* comes from the IR
     (target gold table, kind), the match key + watermark predicate are domain policy → TODO(contract).
@@ -1500,6 +1709,14 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
     accidentally ships a full re-scan as if it were incremental."""
     c = dl["comment"]
     gold_tbl = gold_tbl or f"gold_{_ident(name)}"
+
+    def _using(inner: str) -> str:
+        # D-559: dieselben Ersatzschluessel wie im Vollaufbau — sonst fehlten dem MERGE die
+        # Spalten, die der Vollaufbau in Gold angelegt hat, und `INSERT *` braeche ab.
+        if not bezuege:
+            return inner
+        return _einruecken(_mit_ersatzschluesseln(inner.rstrip("\n"), bezuege, dl), 4) + "\n"
+
     # **Das Produkt liest aus SEINEN Herkuenften, nicht aus der Domaenentabelle.** Derselbe Satz
     # steht seit dem 12.08.2026 in `emit_transforms` -- und band nur dort (dieselbe Klasse wie
     # D-501). Gemessen am ausgelieferten SAP-Szenario (DuckDB, 18.09.2026): alle 5 Kettenbefunde
@@ -1571,6 +1788,7 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
            if unklar else "")
         + serving
         + scd
+        + "".join(z + "\n" for z in _bezugs_kopf(bezuege or [], c))
     )
     keys, wm = (proposal or {}).get("keys") or [], (proposal or {}).get("watermark")
     # D-549: kuratierte Quellmetadaten gehen der Gold-Heuristik vor. Die Aenderungs- bzw.
@@ -1626,9 +1844,8 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
             body = (
                 f"MERGE INTO {gold_tbl} AS t\n"
                 f"USING (\n"
-                f"{auswahl}"
-                f"    FROM {quelle}\n"
-                f") AS s\n"
+                + _using(f"{auswahl}    FROM {quelle}\n")
+                + f") AS s\n"
                 f"ON {on}\n"
                 f"WHEN MATCHED AND (t.{wm} IS NULL OR s.{wm} > t.{wm}) THEN {set_clause}\n"
                 f"WHEN NOT MATCHED THEN {ins_clause}\n"
@@ -1638,11 +1855,10 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
         body = (
             f"MERGE INTO {gold_tbl} AS t\n"
             f"USING (\n"
-            f"{auswahl}"
-            f"    FROM {quelle}\n"
-            f"    WHERE (SELECT COUNT(*) FROM {gold_tbl}) = 0\n"
-            f"       OR {wz_praedikat or f'{wm} > (SELECT MAX({wm}) FROM {gold_tbl})'}\n"
-            f") AS s\n"
+            + _using(f"{auswahl}    FROM {quelle}\n"
+                     f"    WHERE (SELECT COUNT(*) FROM {gold_tbl}) = 0\n"
+                     f"       OR {wz_praedikat or f'{wm} > (SELECT MAX({wm}) FROM {gold_tbl})'}\n")
+            + f") AS s\n"
             f"ON {on}\n"
             f"WHEN MATCHED THEN {set_clause}\n"
             f"WHEN NOT MATCHED THEN {ins_clause}\n"
@@ -1682,11 +1898,10 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
     body = (
         f"MERGE INTO {gold_tbl} AS t\n"
         f"USING (\n"
-        f"{auswahl}"
-        f"    FROM {quelle}\n"
-        f"    {c} TODO(contract:{contract_ref}): incremental predicate — only rows changed since last load, e.g.\n"
-        f"    {c}   WHERE <watermark_col> > (SELECT COALESCE(MAX(<watermark_col>), DATE'1900-01-01') FROM {gold_tbl})\n"
-        f") AS s\n"
+        + _using(f"{auswahl}    FROM {quelle}\n"
+                 f"    {c} TODO(contract:{contract_ref}): incremental predicate — only rows changed since last load, e.g.\n"
+                 f"    {c}   WHERE <watermark_col> > (SELECT COALESCE(MAX(<watermark_col>), DATE'1900-01-01') FROM {gold_tbl})\n")
+        + f") AS s\n"
         f"ON t.<business_key> = s.<business_key>   {c} TODO(contract:{contract_ref}): match key(s)\n"
         f"WHEN MATCHED THEN {set_clause}\n"
         f"WHEN NOT MATCHED THEN {ins_clause}\n"
@@ -1797,7 +2012,8 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
                 table=kat_t or None,
                 zusatz_kopf="".join(f"{dl['comment']} {z}\n" for z in (verbund[1] if verbund else [])),
                 wasserzeichen=gold_wasserzeichen(governed_catalog, product,
-                                                 herkunft.get(_ident(product), [])))
+                                                 herkunft.get(_ident(product), [])),
+                bezuege=scd_bezuege(governed_catalog, product, schemas))
 
     konforme_zeilen: list[str] = []
     for product, contributing in sorted(_conformed.items()):
@@ -2482,6 +2698,13 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
                 f"-- silver → gold '{product}' as a Materialized Lake View ({kind}).  PREVIEW / SQL-only.",
                 f"-- Contract: {c_ref}  ·  dependency order automatic; the REFRESH runs only when "
                 f"triggered — see mlv/refresh_schedule.json and mlv/_MLV.md (D-529)."]
+            _bez = scd_bezuege(governed_catalog, product, schemas)
+            if _bez:
+                preamble.append(
+                    f"-- BEFUND (D-559): '{product}' traegt im Transform-Pfad "
+                    f"{', '.join(b['spalte'] for b in _bez)} (Version der Dimension zum "
+                    f"Belegdatum); das Semantikmodell bezieht sich darauf. Diese Sicht fuehrt die "
+                    f"Spalten nicht — als Gold-Pfad passt sie nicht zum Modell.")
             _hform = ((kat or {}).get("historisierung") or {}).get("form")
             if _hform:
                 # D-551..D-553: eine MLV ist eine Sicht auf den aktuellen Stand; Geschichte, die

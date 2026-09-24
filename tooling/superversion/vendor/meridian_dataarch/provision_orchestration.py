@@ -34,10 +34,14 @@ from core.dataarch_engine.blueprint.fabric_schedule import JOB_TYPE_PIPELINE, em
 from core.dataarch_engine.blueprint.provision_apply import (
     PLACEHOLDER_WORKSPACE,
     effective_workspace as workspace_of,
+    gold_workspace_of,
 )
 from core.dataarch_engine.blueprint.provision_notebooks import (
     FRAMING_NOTEBOOK,
+    fenster_notebook_name,
     gold_notebook_name,
+    produkt_domaene,
+    silver_notebook_name,
 )
 from core.dataarch_engine.blueprint.provision_translations import model_name_of
 
@@ -113,16 +117,26 @@ def _copy_source_type(e: dict) -> str:
     return "<SourceType>"
 
 
-def build_activity_graph(bp: dict) -> list[dict]:
+def build_activity_graph(bp: dict, transform_notebooks: dict[str, str] | None = None,
+                         fenster: dict[str, dict] | None = None) -> list[dict]:
     """Return the stack-agnostic activity list (name, kind, notebook/source, depends_on).
 
     ``kind`` is 'copy' (data-movement) or 'notebook' (a transform). ``depends_on`` lists
     activity names. Order: copy ingestion → bronze→silver (if materialised) → silver→gold.
+
+    ``transform_notebooks`` (Notebook-Name → Transform-Datei, `provision_notebooks.
+    transform_notebooks`) sagt, welche Notebooks die Lieferung wirklich mit SQL fuellt (D-556).
+    Gold laeuft seitdem in drei Stufen: **Dimensionen vor Fakten vor Aggregaten** — ein Faktum,
+    das den Ersatzschluessel einer Dimension zum Belegdatum sucht, braucht die Dimension fertig.
+    Und jedes Gold-Produkt ist **eine** Aktivitaet, auch wenn mehrere Domaenen es speisen: vorher
+    stand `nb__silver_to_gold__dim_material` zweimal in derselben Pipeline.
     """
     bronze = _bronze_enabled(bp)
     kinds = _gold_kinds(bp)
+    emittiert = set(transform_notebooks or {})
     domains = sorted(bp.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
     acts: list[dict] = []
+    upstream_je_produkt: dict[str, set[str]] = {}
 
     for d in domains:
         dident = _ident(d["name"])
@@ -132,38 +146,56 @@ def build_activity_graph(bp: dict) -> list[dict]:
         for e in srcs:
             if e.get("access_mode") == "copy":
                 nm = f"copy__{_ident(e['source'])}"
-                acts.append({"name": nm, "kind": "copy", "source": e["source"], "depends_on": [],
+                f = (fenster or {}).get(e["source"])
+                vorher: list[str] = []
+                if f:
+                    # D-557: erst das Fenster aus Gold lesen, dann nur die Jahre ab dort kopieren.
+                    fnm = f"nb__periodenfenster__{_ident(e['source'])}"
+                    acts.append({"name": fnm, "kind": "fenster",
+                                 "notebook": fenster_notebook_name(e["source"]),
+                                 "domain": produkt_domaene(bp, f["produkt"]) or d.get("name", ""),
+                                 "depends_on": []})
+                    vorher = [fnm]
+                acts.append({"name": nm, "kind": "copy", "source": e["source"], "depends_on": vorher,
                              "source_type": _copy_source_type(e),
                              "source_system": e.get("source_system", ""),
                              "connector": e.get("connector", ""),
-                             "assumed": bool(e.get("access_mode_assumed"))})
+                             "assumed": bool(e.get("access_mode_assumed")),
+                             **({"fenster": {**f, "aktivitaet": vorher[0]}} if f else {})})
                 copy_acts.append(nm)
         # bronze→silver notebooks (only if bronze materialised); depend on copy of that source.
         silver_upstream: list[str] = list(copy_acts)
         if bronze:
             for e in srcs:
                 nm = f"nb__bronze_to_silver__{_ident(e['source'])}"
+                nb = silver_notebook_name(e["source"])
                 dep = [f"copy__{_ident(e['source'])}"] if e.get("access_mode") == "copy" else []
-                acts.append({"name": nm, "kind": "notebook",
-                             "notebook": f"nb_bronze_to_silver__{_ident(e['source'])}",
-                             # Für diesen Schritt gibt es KEINEN Emitter — `provision_notebooks`
-                             # schreibt nur Gold-Notebooks. Der DAG-Schritt ist trotzdem richtig
-                             # (bronze→silver gehört in die Kette), aber das Item muss jemand
-                             # selbst bauen. Das steht ab jetzt in der Aktivität, statt dass die
-                             # Pipeline stillschweigend auf ein Item zeigt, das niemand liefert.
-                             "not_emitted": True,
+                acts.append({"name": nm, "kind": "notebook", "notebook": nb,
+                             "domain": d.get("name", ""),
+                             # Ohne Transform-Notebooks bleibt der alte, ehrliche Hinweis: der
+                             # Schritt gehoert in die Kette, das Item baut diese Lieferung nicht.
+                             "not_emitted": nb not in emittiert,
                              "depends_on": dep})
                 silver_upstream.append(nm)
-        # silver→gold notebooks; depend on this domain's bronze→silver (or copy ingestion).
-        for product in sorted(d.get("data_products", [])):
-            nm = f"nb__silver_to_gold__{_ident(product)}"
-            acts.append({"name": nm, "kind": "notebook",
+        for product in d.get("data_products", []) or []:
+            upstream_je_produkt.setdefault(product, set()).update(silver_upstream)
+
+    stufe = {"dimension": 0, "fact": 1, "aggregate": 2}
+    gold_nach_stufe: dict[int, list[str]] = {}
+    for product in sorted(upstream_je_produkt):
+        gold_nach_stufe.setdefault(stufe.get(kinds.get(product, "fact"), 1), []).append(product)
+    for rang in sorted(gold_nach_stufe):
+        frueher = sorted(f"nb__silver_to_gold__{_ident(p)}" for r, ps in gold_nach_stufe.items()
+                         if r < rang for p in ps)
+        for product in gold_nach_stufe[rang]:
+            nb = gold_notebook_name(product)
+            acts.append({"name": f"nb__silver_to_gold__{_ident(product)}", "kind": "notebook",
                          # Der Name kommt aus dem Emitter, der das Notebook wirklich schreibt.
-                         # Hier selbst gebildet, lautete er `nb_silver_to_gold__<produkt>` und
-                         # zeigte damit auf ein Item, das es nirgends gab.
-                         "notebook": gold_notebook_name(product),
+                         "notebook": nb,
+                         "domain": produkt_domaene(bp, product) or "",
                          "kind_gold": kinds.get(product, "fact"),
-                         "depends_on": sorted(silver_upstream)})
+                         "fills": nb in emittiert,
+                         "depends_on": sorted(upstream_je_produkt[product] | set(frueher))})
 
     # Abschluss: das Semantikmodell rahmen (framing), nachdem alle Gold-Tabellen geschrieben sind.
     modell = model_name_of(bp, fallback="")
@@ -230,8 +262,37 @@ def _framing_activity(a: dict, ws_token: str, depends: list[dict], refresh_path:
     }
 
 
+def _copy_source(a: dict, typ: str) -> dict:
+    """Die Quelle der Kopie — mit Periodenfenster als Abfrage, sonst nur der Typ (D-557).
+
+    Die Abfrage ist ein Pipeline-Ausdruck: der Exit-Wert des Fenster-Notebooks wird zur
+    Untergrenze des Jahres. `query` ist die dokumentierte Eigenschaft der SAP-HANA-Quelle
+    (MS Learn, *Configure SAP HANA in a copy activity*, geprueft 24.09.2026). Das Schema der
+    SAP-Datenbank ist Mandantenwissen und bleibt Platzhalter.
+    """
+    f = a.get("fenster")
+    if not f:
+        return {"type": typ}
+    q = "'"
+    tab = f.get("sap_tabelle") or "<sap-tabelle>"
+    sql = f'SELECT * FROM "<sap-schema>"."{tab}" WHERE "{f["jahr"]}" >= '
+    ausdruck = (f"@concat({q}{sql}{q}{q}{q}, activity({q}{f['aktivitaet']}{q})"
+                f".output.result.exitValue, {q}{q}{q}{q})")
+    return {"type": typ, "query": {"value": ausdruck, "type": "Expression"}}
+
+
+def _fenster_satz(a: dict) -> str:
+    f = a.get("fenster")
+    if not f:
+        return ""
+    return (f"PERIODENFENSTER (D-557): nur {f['jahr']} ab dem juengsten Jahr in {f['gold']} — "
+            f"aeltere Perioden haelt Gold selbst (D-553). VERIFY: der Ausdruckspfad "
+            f"`output.result.exitValue` und `<sap-schema>`. ")
+
+
 def _fabric_activity(a: dict, workspace: str = PLACEHOLDER_WORKSPACE,
-                     refresh_path: str = "notebook") -> dict:
+                     refresh_path: str = "notebook", bp: dict | None = None,
+                     explizit: bool = False) -> dict:
     """Map a graph node to a Fabric DataPipeline activity (schema-shaped).
 
     ``workspace`` qualifiziert die Workspace-GUID: ``<ws-order-to-cash-gold-workspace-id>`` statt
@@ -248,21 +309,43 @@ def _fabric_activity(a: dict, workspace: str = PLACEHOLDER_WORKSPACE,
             # Der Quelltyp kommt aus Konnektor und Quellsystem des IR statt aus einem Platzhalter.
             # Verbindung und Datensatz bleiben eine Bereitstellungsentscheidung — sie haengen am
             # Mandanten und stehen nicht im Architekturplan.
-            "typeProperties": {"source": {"type": typ}, "sink": {"type": "LakehouseTableSink"}},
-            "description": (f"VERIFY: bind connection + dataset for '{a['source']}' "
+            # D-557: `OverwriteSchema` — Bronze ist der letzte Auszug, nicht die Summe aller.
+            # Ohne Angabe haengt die Kopie an (Tabellenaktion „Append“, MS Learn: Lakehouse
+            # in a copy activity); ein taeglicher Vollauszug vervielfachte Bronze je Lauf, und
+            # der Silber-Vollaufbau aus Bronze truege jede Zeile n-fach.
+            "typeProperties": {"source": _copy_source(a, typ),
+                               "sink": {"type": "LakehouseTableSink",
+                                        "tableActionOption": "OverwriteSchema"}},
+            "description": (_fenster_satz(a)
+                            + f"VERIFY: bind connection + dataset for '{a['source']}' "
                             f"({a.get('source_system') or 'source system unknown'})"
                             + (" — access mode was ASSUMED, confirm it is really a copy"
                                if a.get("assumed") else "")),
         }
+    # D-556: das Notebook liegt im Gold-Workspace SEINER Domaene (`provision_notebooks`), also
+    # zeigt die Aktivitaet dorthin. Vorher trugen alle 46 Notebook-Aktivitaeten des SAP-
+    # Szenarios den Workspace von Finance. Ein ausdruecklich uebergebener Workspace gewinnt.
+    if bp is not None and not explizit and a.get("domain"):
+        workspace = gold_workspace_of(bp, a["domain"], fallback=workspace)
     ws_token = ("<workspace-id>" if workspace == PLACEHOLDER_WORKSPACE
                 else f"<{workspace}-workspace-id>")
     if a["kind"] == "framing":
         return _framing_activity(a, ws_token, depends, refresh_path)
+    if a["kind"] == "fenster":
+        return {"name": a["name"], "type": "TridentNotebook", "dependsOn": depends,
+                "typeProperties": {"notebookId": f"<{a['notebook']}-id>", "workspaceId": ws_token},
+                "description": ("Liest das juengste Jahr aus Gold und gibt es als Exit-Wert "
+                                "zurueck; die folgende Kopie zieht nur die Jahre ab dort (D-557). "
+                                "Leeres Gold ergibt '0000', also alles.")}
     act = {
         "name": a["name"], "type": "TridentNotebook", "dependsOn": depends,
         # VERIFY: bind notebookId (the notebook wrapping this transform's SQL) + workspaceId.
         "typeProperties": {"notebookId": f"<{a['notebook']}-id>", "workspaceId": ws_token},
     }
+    if a.get("kind_gold") and a.get("fills") is False:
+        act["description"] = (f"ACHTUNG: '{a['notebook']}' legt in diesem Lauf nur die Tabelle an — "
+                              "es gibt keine Transform-Datei dazu (`--emit-transforms`). Die "
+                              "Aktivitaet laeuft gruen und laedt nichts.")
     if a.get("not_emitted"):
         act["description"] = (f"ACHTUNG: '{a['notebook']}' wird von diesem Lauf NICHT emittiert — "
                               "es gibt keinen bronze→silver-Notebook-Emitter. Der Schritt gehört in "
@@ -273,12 +356,16 @@ def _fabric_activity(a: dict, workspace: str = PLACEHOLDER_WORKSPACE,
 
 def emit_pipeline_definition(bp: dict, pipeline_name: str = "medallion_orchestration",
                              workspace: str = PLACEHOLDER_WORKSPACE,
-                             refresh_path: str = "notebook") -> str:
+                             refresh_path: str = "notebook",
+                             transform_notebooks: dict[str, str] | None = None,
+                             fenster: dict[str, dict] | None = None) -> str:
     """Return ``pipeline-content.json`` — a real Fabric DataPipeline definition (deterministic)."""
     if refresh_path not in REFRESH_PATHS:
         raise ValueError(f"refresh_path must be one of {REFRESH_PATHS}, got {refresh_path!r}")
     ws = workspace_of(bp, workspace)
-    activities = [_fabric_activity(a, ws, refresh_path) for a in build_activity_graph(bp)]
+    explizit = bool(workspace and workspace != PLACEHOLDER_WORKSPACE)
+    activities = [_fabric_activity(a, ws, refresh_path, bp=bp, explizit=explizit)
+                  for a in build_activity_graph(bp, transform_notebooks, fenster)]
     content = {"properties": {"description": f"Medallion orchestration ({pipeline_name}) — "
                                              "ingestion → silver → gold (ADR-0015).",
                               "activities": activities}}
@@ -322,7 +409,9 @@ def emit_orchestration_deploy(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
 def emit_orchestration(bp: dict, stack: str = "fabric", workspace: str = PLACEHOLDER_WORKSPACE,
                        pipeline_name: str = "medallion_orchestration",
                        frequency: str = "Daily",
-                       refresh_path: str = "notebook") -> dict[str, str]:
+                       refresh_path: str = "notebook",
+                       transform_notebooks: dict[str, str] | None = None,
+                       fenster: dict[str, dict] | None = None) -> dict[str, str]:
     """Return the orchestration artifact set (path → content), like ``emit_grounding``.
 
     ``_ORCHESTRATION.md`` (stack-agnostic DAG) is always emitted; the Fabric
@@ -332,14 +421,25 @@ def emit_orchestration(bp: dict, stack: str = "fabric", workspace: str = PLACEHO
     Mandanten angenommene Weg) oder ``pipeline_activity`` (Opt-in, dokumentiert und sauberer,
     braucht aber eine Power-BI-Verbindung). Siehe ``_framing_activity``.
     """
-    graph = build_activity_graph(bp)
+    graph = build_activity_graph(bp, transform_notebooks, fenster)
     doc = ["# Orchestration DAG (generated — ADR-0015)", "",
            f"Stack: **{stack}**  ·  Schedule: **{frequency}**  ·  Activities: **{len(graph)}**",
            "",
            "Chains ingestion → silver → gold in medallion order. Copy-mode sources run first; "
            "mirror/shortcut sources are passive (managed, no activity).", "",
-           "| Activity | Type | Depends on |", "|---|---|---|"]
-    _typ = {"copy": "Copy",
+           "Gold läuft in Stufen: **Dimensionen vor Fakten vor Aggregaten** (D-556), jedes "
+           "Produkt als eine Aktivität — auch ein konformes, das mehrere Domänen speisen. Jede "
+           "Notebook-Aktivität zeigt in den Gold-Workspace der Domäne, in der ihr Notebook liegt.",
+           ""]
+    leer = [a["notebook"] for a in graph
+            if a.get("not_emitted") or (a.get("kind_gold") and a.get("fills") is False)]
+    if leer:
+        doc += [f"**ACHTUNG:** {len(leer)} Notebook-Aktivität(en) führen in diesem Lauf keine "
+                "Transformation aus — ohne `--emit-transforms` und `--emit-notebooks` gibt es kein "
+                "Notebook mit SQL dafür (Bronze → Silber) bzw. nur eines, das die leere Tabelle "
+                "anlegt (Gold). Die Pipeline liefe grün und lüde nichts.", ""]
+    doc += ["| Activity | Type | Depends on |", "|---|---|---|"]
+    _typ = {"copy": "Copy", "fenster": "Notebook (Periodenfenster)",
             "framing": "PBISemanticModelRefresh" if refresh_path == "pipeline_activity"
             else "Notebook (framing)"}
     for a in graph:
@@ -366,9 +466,8 @@ def emit_orchestration(bp: dict, stack: str = "fabric", workspace: str = PLACEHO
 
     out = {"orchestration/_ORCHESTRATION.md": "\n".join(doc) + "\n"}
     if stack == "fabric":
-        out["orchestration/pipeline-content.json"] = emit_pipeline_definition(bp, pipeline_name,
-                                                                              workspace,
-                                                                              refresh_path)
+        out["orchestration/pipeline-content.json"] = emit_pipeline_definition(
+            bp, pipeline_name, workspace, refresh_path, transform_notebooks, fenster)
         out["orchestration/schedule.json"] = emit_schedule(frequency)
         out["orchestration/deploy.sh"] = emit_orchestration_deploy(bp, workspace, pipeline_name)
     return out
