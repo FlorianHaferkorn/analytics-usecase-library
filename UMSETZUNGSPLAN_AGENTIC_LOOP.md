@@ -202,16 +202,50 @@ Desktop, Pakete mit ☁ einen Tenant.
 - Vorher `bootstrap-fabric` einmal grün, damit die 30 roten Läufe erklärt sind.
 - **Fertig, wenn** ein Lauf mit echtem Runner grün ist und die PNGs als Artefakt anhängen.
 
+### AP-11 · Lokales Modell: messen, dann routen
+Anlass: Flo, 24.09.2026, schlägt ein lokales Modell (genannt: Qwen 3.8 27B, Apache 2.0, seit
+August 2026, bildfähig, Tool-Calling, rund 17 GB) für Studio-Aufgaben, DAX und Berichtsarbeit
+vor. Kostenersparnis für ihn, Datenresidenz und planbare Kosten für Kunden.
+
+- **Das Fundament steht schon in Meridian** (`docs/plans/ROADMAP_Meridian_LLM_Agnostik_und_Authoring.md`):
+  lokaler OpenAI-kompatibler Adapter (M1), Capability-Gate (M2), Residenz-Gate (M3),
+  Agent-Runtime (M4), zitierpflichtiges Web-Authoring (M5), Profile und Eval-Gates (M6).
+  Hier wird erweitert, kein zweiter Weg gebaut.
+- **Lücke 1, Studio:** `studio/src/ai/` baut nur den Anthropic-Provider; jeder andere wirft
+  `NotImplementedError`. Ein OpenAI-kompatibler Provider (Spiegel von
+  `meridian/ais/adapters/openai_compat.py`) macht das Studio lokal lauffähig.
+- **Lücke 2, Eval je Aufgabenklasse:** Unsere Tore sind die Messung. Dieselben Aufgaben laufen
+  gegen beide Modelle, gezählt wird, wie oft das Ergebnis das zuständige Tor besteht:
+  Bracket-Entwurf → Schema und Golden Thread; DAX-Entwurf → AP-4-Laufzeitprüfung;
+  Measure-Beschreibung → `ai_description`-Regeln; Judge → Übereinstimmung aus AP-7;
+  Web-Authoring → Zitat-Abdeckung und Verify-Pass aus M5. Ergebnis: eine Tabelle
+  Aufgabe × Modell × Quote × Kosten × Zeit. Erst danach wird geroutet (E7).
+- **Erst gehostet messen, dann Hardware kaufen.** Das Modell ist bei Hostern über eine
+  OpenAI-kompatible Schnittstelle erreichbar; derselbe Adapter misst es ohne eigene GPU. Ob
+  eine lokale Maschine sich rechnet, hängt an Flos heutigem API-Verbrauch, der hier nicht
+  gemessen ist (**ANNAHME, ungeprüft**).
+- **Denkbudget je Aufgabe festlegen.** Frühe Berichte nennen, dass das Modell ohne Vorgabe
+  sehr lange nachdenkt. Das Profil bekommt je Aufgabe Modus und Tokenbudget.
+- **Websuche:** Die Qualität à la Perplexity entsteht im Abruf (Suchindex, Nachladen,
+  Umsortieren, Zitieren), nicht im Modell. Suchquelle ist eine Entscheidung (selbst gehostete
+  Metasuche wie SearXNG oder eine Such-API). Unsere Zitierpflicht aus M5 bleibt das Tor.
+  **Residenz:** eine Suchanfrage verlässt das Netz immer. Das Residenz-Gate muss deshalb
+  zwischen Anfrage-Abfluss und Daten-Abfluss unterscheiden, und eine Anfrage darf keine
+  Kundendaten tragen (prüfbar gegen die Kundendaten-Sperrliste).
+- **Fertig, wenn** die Tabelle für mindestens drei Aufgabenklassen gemessen ist und das Studio
+  mit einem lokalen Profil eine Assist-Aufgabe ohne Abfluss erledigt (Residenz-Gate grün).
+
 ## 7 · Offene Entscheidungen (Flo)
 
 | # | Frage | Optionen | Empfehlung |
 |---|---|---|---|
-| E1 | Welcher Tenant? | HTF-Sandbox (Nagarro-Kunde) · eigener Trial/Dev-Tenant | eigener Tenant; HTF nur mit ausdrücklicher Freigabe im Engagement, weil unser Produktmaterial dort in Kundenkapazität läuft |
+| E1 | Welcher Tenant? | HTF-Sandbox (Nagarro-Kunde) · eigener Trial/Dev-Tenant | **Entschieden 24.09.2026 (Flo): eigener Tenant**, wird neu aufgesetzt. HTF wird nicht genutzt |
 | E2 | Datenanbindung im Sandbox | Lakehouse + Import · Lakehouse + Direct Lake · Tabellen im Modell eingebettet | nach dem AP-3-Versuch entscheiden; Deckel 50 MB als Startwert |
 | E3 | Deploy-Werkzeug | `fab` CLI (in Meridian schon genutzt) · `fabric-cicd` (Microsoft-Bibliothek) · Fabric-REST direkt | das offizielle Werkzeug, das Semantikmodell **und** PBIR-Bericht ohne Nacharbeit deployt; vorher gegen die Doku prüfen |
 | E4 | Heimat der Schleife | Meridian `products/pbi_visual_regression/` · ALUCA `tooling/` | Meridian; die Schleife nimmt einen PBIP-Pfad, ALUCA ruft sie mit seinem `dist/` auf, kein Import über Repo-Grenzen |
 | E5 | Darf der Judge blockieren? | beratend · blockierend ab gemessener Übereinstimmung | beratend, bis AP-7 die Übereinstimmung gemessen hat |
 | E6 | Microsofts Agentic-Bundle adoptieren? | ja (Official-First) · nur MCP · nein | ja; Tabular Editor 3 nicht |
+| E7 | Welches Modell je Aufgabe? | Frontier-Modell über API · lokales Open-Weight-Modell · je Aufgabe geroutet | je Aufgabe routen, und zwar nach gemessener Gate-Quote aus AP-11, nicht nach Eindruck |
 
 ## 8 · Bewusst nicht übernommen
 
@@ -225,7 +259,7 @@ Desktop, Pakete mit ☁ einen Tenant.
 ## 9 · Einstieg für die Cowork-Sitzung
 
 1. `CLAUDE.md` und `AGENTS.md` beider Repos lesen, dann dieses Dokument.
-2. E1 bis E6 mit Flo klären, bevor ☁-Pakete beginnen. AP-1, AP-3 (Datenscheibe und Parameter,
+2. E2 bis E7 mit Flo klären, bevor ☁-Pakete beginnen (E1 ist entschieden: eigener Tenant). AP-1, AP-3 (Datenscheibe und Parameter,
    ohne Tenant) und AP-8 (Bestandsprüfung) gehen ohne Tenant.
 3. Arbeitsstand in der Statuszeile R7 von `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` abhaken, mit
    Datum und Messung, nicht hier im Fließtext.
