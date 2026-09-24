@@ -219,6 +219,13 @@ Desktop, Pakete mit ☁ einen Tenant.
 - **Fertig, wenn** jede neue Prüfung einen Gegenfall hat, der sie rot macht (erst den Fehler
   nachweisen, dann das Urteil).
 
+- **Stand 24.09.2026, ohne Tenant umgesetzt** (Meridian, `products/pbi_visual_regression/image_checks.py`,
+  CLI `check-image`): leere Datenvisuals, Kopfzeilentext am Rand (unten oder rechts), Fehlerzustand
+  per Referenzausschnitt; ohne Ausschnitt „nicht prüfbar“. 7 Tests, je Prüfung Fall und Gegenfall;
+  Gegenprobe über entschärfte Schwellen je rot. Die Fehlalarm-Rate an echten Seiten ist **ANNAHME,
+  ungeprüft**: im Bestand liegt kein Service-Export, und die Baselines des hauseigenen Renderers
+  sind scrollende HTML-Layouts (1920×2064), keine 1:1-Seiten. Messung und Referenzausschnitt in AP-5.
+
 ### AP-7 · LLM-Judge über echte Bilder (S6, zweiter Teil)
 - Prompt `llm_judge_prompt_v1.md` unverändert, Modell per Umgebungsvariable.
 - Ausgabe strukturiert (JSON je Seite: Regel, Befund, Sicherheit).
@@ -290,6 +297,17 @@ Desktop, Pakete mit ☁ einen Tenant.
   `dist/` nie direkt ändert.
 - **Fertig, wenn** ein Lauf für OPS-001 von der Spezifikation bis zum Abräumen ohne Handgriff
   durchläuft und das Manifest alle Eingaben und Pins nennt.
+
+- **Stand 24.09.2026, ohne Tenant umgesetzt:** `python -m tooling.agentic_loop.schleife --use-case
+  <UC> --run-id <id> [--stages …] [--apply]` in ALUCA. Die Schleife ruft nur vorhandene Werkzeuge
+  auf (S0 Drift-Gate und Use-Case-Qualität, S1 die fünf Codegen-Prüfungen, S2 `report_quality`,
+  S3 Bereitstellung plus `sandbox.py`, S6 Meridians `check-image` als eigener Prozess, S7
+  `sandbox.py down`). Tenant-Schritte laufen nur mit `--apply` und gesetzten Zugangsdaten.
+  Was noch nicht gebaut ist, meldet sich als „nicht prüfbar“ mit Grund: Datenscheibe laden (AP-3),
+  Datensatz-ID für S4 und Bericht-ID für S5 aus dem Deploy (AP-2/AP-4/AP-5). Gemessen im
+  Trockenlauf für OPS-001: S0 bis S3-Bereitstellung `ok`, 7 Schritte „nicht prüfbar“, Exit 2.
+  Skill `docs/agent/skills/run-agentic-loop.md`. 9 Tests; Gegenprobe: Trockenlauf-Sperre bzw.
+  Exit-Vorrang mutiert → je der zuständige Test rot.
 
 ### AP-10 · CI
 - `visual-fabric.yml` (Meridian) um den Schleifenlauf erweitern: `workflow_dispatch`, optional

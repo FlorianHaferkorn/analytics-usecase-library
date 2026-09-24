@@ -157,3 +157,7 @@ KPI_Framework_Discovery_*.xlsx
 .codex/
 Claude outputs/
 studio/.e2e/
+
+# Arbeitsordner der agentischen Schleife (AP-9): Manifest, PBIP-Kopien, Seitenbilder, befunde.json.
+# Ins Repo kommt davon nur, was bewusst uebernommen wird (Plan §5), nie der ganze Lauf.
+/out/agentic_loop/
