@@ -117,8 +117,8 @@ Desktop, Pakete mit ☁ einen Tenant.
   Tabellen und Measures auflistet, und `make check-upstream` die neuen Pins kennt.
 
 ### AP-2 · Sandbox-Lebenszyklus als Kommando ☁
-- Heimat: Meridian `products/pbi_visual_regression/` (dort liegen Auth, Export, Bootstrap).
-- Neue CLI-Befehle `sandbox-up`, `sandbox-deploy`, `sandbox-down`. Werkzeug nach E3.
+- Heimat: ALUCA `products/fabric/orchestrator/` (E4, 24.09.2026), Spiegel nach Meridian.
+- Befehle `up`, `deploy`, `down` in `sandbox.py`. Deploy über `fabric_release.py` (E3).
 - Lauf-Manifest (JSON): Lauf-ID, Workspace-ID, Eingabe-Hashes, Werkzeug-Pins, Zeiten.
 - `sandbox-down` löscht nur die Workspace-ID aus dem Manifest und belegt die Löschung durch
   einen anschließenden Lesefehler (404).
@@ -126,16 +126,27 @@ Desktop, Pakete mit ☁ einen Tenant.
   abdecken (falsche ID → Abbruch, fehlendes `--apply` → keine Schreibung) und ein echter Lauf
   up → deploy → down ohne Rest endet.
 
-- **Stand 24.09.2026, ohne Tenant umgesetzt** (Meridian, Commit „AP-2: Sandbox-Lebenszyklus“):
-  `products/pbi_visual_regression/sandbox.py` mit `sandbox-up`, `sandbox-deploy`,
-  `sandbox-down`. Vor jeder Schreibung wird der Workspace zurückgelesen; weichen ID oder Name
-  vom Manifest ab, bricht der Befehl ab, bevor etwas gesendet wird. 11 Tests gegen eine
-  gefälschte Fabric-API. Gegenprobe: ID- bzw. 404-Prüfung abgeschaltet → je der zuständige
-  Test rot.
+- **Stand 24.09.2026, ohne Tenant umgesetzt:** `products/fabric/orchestrator/sandbox.py` trägt
+  nur die Leitplanken (Manifest, Präfix, Rücklese-Guard, 404-Nachweis, Budget). Token,
+  REST-Aufrufe mit Retry und Workspace-Anlage und -Löschung kommen aus `orchestrator.py`, der
+  Deploy aus `fabric_release.py`. Vor jeder Schreibung wird der Workspace zurückgelesen; weichen
+  ID oder Name vom Manifest ab, bricht der Befehl ab, bevor etwas gesendet wird.
+  - Tests: 14 gegen gefälschte Orchestrator-Bausteine, laufen ohne `msal` auch in der CI. Ein
+    AST-Test hält fest, dass `orchestrator.py` und `fabric_release.py` die genutzten Methoden
+    weiter anbieten. Ein fünfzehnter fährt den echten `FabricApiClient` mit ersetztem
+    `requests.request` (Kette POST, GET, DELETE, GET mit echtem 404); er braucht `msal` und
+    wird in der CI sichtbar übersprungen. Gegenprobe: Rücklese-Guard, 404-Prüfung oder
+    „jeder Fehler gilt als weg“ mutiert → je der zuständige Test rot.
+  - **Korrektur zum ersten Stand:** die erste Fassung lag in Meridian und baute Token,
+    REST-Client, Workspace-Anlage und `fabric-cicd`-Deploy ein zweites Mal. Gefunden über die
+    Klasse-A-Tabelle in `SHARED_SUBSTANCE.md`, die `orchestrator.py` und `fabric_release.py`
+    als ALUCA-Bestand führt. Tool-Reuse-Befund, vor dem Bau übersehen; daraus E4 neu.
+  - Spiegel nach Meridian (`core/dataarch_engine/vendor/aluca`) folgt, sobald die Datei auf
+    `main` liegt. Dort liegt `orchestrator.py` im selben Ordner, `fabric_release.py` nicht:
+    der gespiegelte Deploy-Schritt ist in Meridian bis dahin nicht lauffähig.
   - **Befund für E3 (Microsoft Learn, gelesen 24.09.2026):** ein Bericht über die rohe
     Items-API braucht eine `byConnection`-Referenz, unsere PBIPs tragen `byPath`.
-    `fabric-cicd` deployt PBIP (Modell vor Bericht) ohne diese Umschreibung. Deshalb ist es
-    die Vorgabe im Code, aber austauschbar; E3 bleibt Flos Entscheidung.
+    `fabric-cicd` deployt PBIP (Modell vor Bericht) ohne diese Umschreibung. Entschieden in E3.
   - **Befund zu „ohne Rest“:** ein gelöschter Workspace bleibt für die Aufbewahrungsfrist
     (Vorgabe 7 Tage) durch Admins wiederherstellbar. `sandbox-down` belegt per 404 „weg aus der
     API“, nicht „endgültig gelöscht“. Dass die API 404 liefert, ist **ANNAHME, ungeprüft** bis
@@ -317,12 +328,12 @@ vor. Kostenersparnis für ihn, Datenresidenz und planbare Kosten für Kunden.
 |---|---|---|---|
 | E1 | Welcher Tenant? | HTF-Sandbox (Nagarro-Kunde) · eigener Trial/Dev-Tenant | **Entschieden 24.09.2026 (Flo): eigener Tenant**, wird neu aufgesetzt. HTF wird nicht genutzt |
 | E2 | Datenanbindung im Sandbox | Lakehouse + Import · Lakehouse + Direct Lake · Tabellen im Modell eingebettet | nach dem AP-3-Versuch entscheiden; Deckel 50 MB als Startwert |
-| E3 | Deploy-Werkzeug | `fab` CLI (in Meridian schon genutzt) · `fabric-cicd` (Microsoft-Bibliothek) · Fabric-REST direkt | das offizielle Werkzeug, das Semantikmodell **und** PBIR-Bericht ohne Nacharbeit deployt; vorher gegen die Doku prüfen |
-| E4 | Heimat der Schleife | Meridian `products/pbi_visual_regression/` · ALUCA `tooling/` | Meridian; die Schleife nimmt einen PBIP-Pfad, ALUCA ruft sie mit seinem `dist/` auf, kein Import über Repo-Grenzen |
-| E5 | Darf der Judge blockieren? | beratend · blockierend ab gemessener Übereinstimmung | beratend, bis AP-7 die Übereinstimmung gemessen hat |
-| E6 | Microsofts Agentic-Bundle adoptieren? | ja (Official-First) · nur MCP · nein | ja; Tabular Editor 3 nicht |
+| E3 | Deploy-Werkzeug | `fab` CLI (in Meridian schon genutzt) · `fabric-cicd` (Microsoft-Bibliothek) · Fabric-REST direkt | **Entschieden 24.09.2026 (Flo): `fabric-cicd`**, über das vorhandene `fabric_release.py`. Beleg: MS Learn, Items-API verlangt `byConnection`, `fabric-cicd` deployt `byPath`-PBIP |
+| E4 | Heimat der Schleife | Meridian `products/pbi_visual_regression/` · ALUCA `tooling/` | **Entschieden 24.09.2026 (Flo): Klasse A nach `SHARED_SUBSTANCE.md`, eine Heimat plus Spiegel.** Sandbox-Lebenszyklus: Heimat ALUCA neben `orchestrator.py` und `fabric_release.py`. Rendern und Prüfen (`pbi_visual_regression`): Heimat Meridian. Gespiegelt wird erst ab `main` der Heimat |
+| E5 | Darf der Judge blockieren? | beratend · blockierend ab gemessener Übereinstimmung | **Entschieden 24.09.2026 (Flo): beratend.** Blockierend nur als eigene spätere Entscheidung nach gemessener Übereinstimmung (AP-7) |
+| E6 | Microsofts Agentic-Bundle adoptieren? | ja (Official-First) · nur MCP · nein | **Entschieden 24.09.2026 (Flo): ja, ohne Tabular Editor 3.** Ob der Modeling-MCP unter Linux einen PBIP öffnet, wird vor dem Einbinden gemessen (AP-1) |
 | E8 | 20 Modellspalten ohne Gold-Quelle (AP-4-Befund) | je Lücke: Vertrag benennt um (`source_column`) · Gold-Generator ergänzt die Spalte · Spalte aus dem Modell | je Fall; die Liste steht im Test und in `KNOWN_ERRORS_AND_FIXES.md`. Offensichtlich scheint nur `Sales Units` → `Quantity`, auch das ist zu bestätigen |
-| E7 | Welches Modell je Aufgabe? | Frontier-Modell über API · lokales Open-Weight-Modell · je Aufgabe geroutet | je Aufgabe routen, und zwar nach gemessener Gate-Quote aus AP-11, nicht nach Eindruck |
+| E7 | Welches Modell je Aufgabe? | Frontier-Modell über API · lokales Open-Weight-Modell · je Aufgabe geroutet | **Entschieden 24.09.2026 (Flo): nach gemessener Tor-Quote aus AP-11 (`task_eval.py`) routen.** Bis zur Messung bleibt alles auf dem Frontier-Modell |
 
 ## 8 · Bewusst nicht übernommen
 
@@ -336,7 +347,7 @@ vor. Kostenersparnis für ihn, Datenresidenz und planbare Kosten für Kunden.
 ## 9 · Einstieg für die Cowork-Sitzung
 
 1. `CLAUDE.md` und `AGENTS.md` beider Repos lesen, dann dieses Dokument.
-2. E2 bis E7 mit Flo klären, bevor ☁-Pakete beginnen (E1 ist entschieden: eigener Tenant). AP-1, AP-3 (Datenscheibe und Parameter,
+2. E2 und E8 mit Flo klären, bevor ☁-Pakete beginnen (E1 und E3 bis E7 sind entschieden). AP-1, AP-3 (Datenscheibe und Parameter,
    ohne Tenant) und AP-8 (Bestandsprüfung) gehen ohne Tenant.
 3. Arbeitsstand in der Statuszeile R7 von `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` abhaken, mit
    Datum und Messung, nicht hier im Fließtext.
