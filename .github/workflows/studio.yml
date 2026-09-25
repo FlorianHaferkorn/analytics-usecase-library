@@ -10,6 +10,8 @@ name: Studio
 
 on:
   pull_request:
+    # Meridian D-572: Entwurfs-PRs laufen nicht; `ready_for_review` startet den vollen Lauf.
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [main]
     paths:
       - "studio/**"
@@ -26,6 +28,7 @@ concurrency:
 
 jobs:
   typecheck-and-unit:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     name: Studio (typecheck + vitest)
     runs-on: ubuntu-latest
     defaults:
@@ -57,6 +60,7 @@ jobs:
         run: npm test
 
   e2e:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     name: Studio (Playwright e2e)
     runs-on: ubuntu-latest
     defaults:

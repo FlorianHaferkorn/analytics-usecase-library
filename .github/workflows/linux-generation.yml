@@ -12,6 +12,8 @@ name: Linux generation (capability)
 
 on:
   pull_request:
+    # Meridian D-572: Entwurfs-PRs laufen nicht; `ready_for_review` startet den vollen Lauf.
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "tooling/generator/**"
       - "core/kpi_catalog/**"
@@ -25,6 +27,7 @@ concurrency:
 
 jobs:
   linux-generate:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     name: Generate measures on Linux (pwsh)
     runs-on: ubuntu-latest
     steps:
