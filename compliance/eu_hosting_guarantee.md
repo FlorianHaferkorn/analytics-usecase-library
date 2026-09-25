@@ -1,10 +1,11 @@
 # EU Hosting Guarantee and Subprocessor Data Localization Policy
 
-**Regulation:** DSGVO Articles 44–49 (International Data Transfers); Art. 28(4) (Subprocessor approval)  
+**Regulation:** DSGVO Articles 44–49 (International Data Transfers); Art. 28(2) (Genehmigung von Unterauftragsverarbeitern) und Art. 28(4) (Weitergabe der Pflichten) – korrigiert 2026-09-25[^1]  
 **Document Type:** Data Localization Policy  
 **Version:** 1.0  
 **Effective Date:** (to be completed by legal team)  
-**Last Updated:** 2026-04-22
+**Last Updated:** 2026-04-22  
+**Inhaltliche Durchsicht (ohne Legal-Sign-off):** 2026-09-25 – siehe Abschnitt 13
 
 ---
 
@@ -34,7 +35,7 @@ This policy covers:
 |---|---|---|---|---|
 | **AWS** | EC2, RDS, S3, Lambda, Glue | EU (Frankfurt) | `eu-central-1` | Germany; no egress to US |
 | **AWS** | EC2, RDS, S3, Lambda | EU (Ireland) | `eu-west-1` | Ireland; GDPR-compliant data center |
-| **Azure** | Virtual Machines, SQL Database, Storage | West Europe (Netherlands) | `westeurope` | Amsterdam; Microsoft committed to EU data residency |
+| **Azure** | Virtual Machines, SQL Database, Storage | West Europe (Netherlands) | `westeurope` | Amsterdam; Microsoft EU Data Boundary: laut Microsoft seit Februar 2025 abgeschlossen (Phase 3). Gilt für regionale Azure-Dienste in EU-Regionen, für nicht-regionale nur nach Konfiguration; begrenzte Übermittlungen in Sicherheitsfällen bleiben möglich[^2] |
 | **Azure** | Database, Compute | North Europe (Ireland) | `northeurope` | Dublin; backup region for redundancy |
 | **Google Cloud** | Compute Engine, BigQuery, Cloud Storage | EU (Belgium) | `europe-west1` | Brussels; EU data center |
 | **Google Cloud** | Compute Engine, Cloud Storage | EU (Netherlands) | `europe-west4` | Eemshaven; backup region for redundancy |
@@ -46,11 +47,11 @@ This policy covers:
 
 | Provider | Region | Reason |
 |---|---|---|
-| AWS | us-east-1, us-west-1, us-west-2 | United States; Schrems II decision (July 2020) invalidated Privacy Shield; transfers require SCCs + supplementary measures |
+| AWS | us-east-1, us-west-1, us-west-2 | United States – interne Policy-Entscheidung (EU-only). Rechtsstand korrigiert 2026-09-25: Schrems II (Juli 2020) hob den Privacy Shield auf. Seit dem Angemessenheitsbeschluss (EU) 2023/1795 vom 10.07.2023 (EU-US Data Privacy Framework) sind Übermittlungen an **DPF-zertifizierte** US-Organisationen ohne SCC zulässig; für nicht zertifizierte Empfänger gelten weiter Art. 46 (SCC + Transfer Impact Assessment)[^3] |
 | AWS | ap-southeast-1, ap-east-1, ap-northeast-1 | Singapore, Hong Kong, Tokyo; outside EU; transfers require SCCs |
 | Azure | eastus, westus, centralus | United States; restricted per Schrems II ruling |
 | Google Cloud | us-central1, us-east1, us-west1 | United States; restricted per Schrems II ruling |
-| Any provider | Any region outside EU/EEA (unless SCC approved) | Schrems II compliance; Art. 44–49 DSGVO |
+| Any provider | Any region outside EU/EEA (unless approved exception) | Art. 44–49 DSGVO |
 
 ### 2.3 Terraform Infrastructure-as-Code Enforcement
 
@@ -101,6 +102,8 @@ resource "aws_s3_bucket_replication_configuration" "deny_us_replication" {
 }
 ```
 
+⚠️ Stand 2026-09-25: Im Repo gibt es keinen Terraform-Code; unter `products/open_source_stack/deploy/terraform/{aws,azure,gcp}/` liegen nur `.gitkeep`-Platzhalter. Das unten genannte Skript `tooling/ci/enforce_eu_only_regions.sh` existiert nicht. Das Beispiel oben vermischt außerdem AWS- und Azure-Regionsnamen in einer AWS-Variable. Die jq-Allowlist unten lässt `northeurope` und die GCP-Regionen aus 2.1 nicht zu. Beides ist Soll-Beschreibung, keine Kontrolle (C-08, C-14).
+
 **CI/CD enforcement:** Every Terraform apply is validated by a linter that rejects non-EU region provisioning. Example:
 
 ```bash
@@ -127,6 +130,8 @@ echo "✓ All resources in EU regions"
 
 All third-party vendors (SaaS, APIs, cloud services) must be reviewed and approved before use. Current approved list:
 
+⚠️ UNKLAR (2026-09-25): Die Audit-Daten (Januar/Februar 2026) liegen vor der Erstellung dieses Pakets (2026-04-22). Für „DPA signed“ bzw. „DPO Approved: Yes“ (Abschnitt 10) gibt es im Repo keine Nachweise, und kein DSB ist benannt. Google Cloud steht in Abschnitt 10, fehlt aber hier. Es fehlen die LLM-Anbieter der Studio-KI-Funktionen sowie Microsoft Power BI/Fabric (C-01, C-06, C-09).
+
 | Subprocessor | Service | Data Processed | Location | SCC/DPA Status | Audit Date |
 |---|---|---|---|---|---|
 | **Amazon Web Services (AWS)** | Cloud infrastructure (EC2, RDS, S3, KMS, Lambda, Glue, CloudTrail, CloudWatch) | All personal data at rest and in transit (encrypted) | Frankfurt (eu-central-1), Dublin (eu-west-1) | DPA: Data Processing Addendum signed | 2026-01-15 |
@@ -138,6 +143,8 @@ All third-party vendors (SaaS, APIs, cloud services) must be reviewed and approv
 ### 3.2 Prohibited Subprocessors (Non-EU)
 
 ⚠️ **DO NOT USE** the following services without explicit legal approval and SCC amendment:
+
+⚠️ UNKLAR (2026-09-25): Die Anbieterangaben in dieser Tabelle (Serverstandorte, fehlende SCC, EU-Optionen) wurden nicht geprüft. Seit dem 10.07.2023 kann zudem eine DPF-Zertifizierung des US-Anbieters die Übermittlungsgrundlage sein[^3].
 
 | Service | Reason | Alternative (EU) |
 |---|---|---|
@@ -175,16 +182,17 @@ All third-party vendors (SaaS, APIs, cloud services) must be reviewed and approv
 
 Personal data may be transferred outside the EU only if:
 
-1. **Adequacy decision exists** (Art. 45 DSGVO) – RARE; currently applies to only a few countries (Japan, South Korea, etc.)
+1. **Adequacy decision exists** (Art. 45 DSGVO) – laut EU-Kommission derzeit u. a. Andorra, Argentinien, Färöer, Guernsey, Isle of Man, Israel, Japan, Jersey, Kanada (kommerzielle Organisationen), Neuseeland, Republik Korea, Schweiz, Uruguay, Europäische Patentorganisation sowie die **USA für DPF-zertifizierte Organisationen** (Beschluss (EU) 2023/1795)[^4]. ⚠️ UNKLAR: Der Stand der Verlängerung für das Vereinigte Königreich und des Beschlussentwurfs für Brasilien ist auf der Kommissionsseite nicht eindeutig (korrigiert 2026-09-25; vorher „RARE … only a few countries“).
+   - **EU-US Data Privacy Framework, Stand 25.09.2026:** Das EuG hat die Nichtigkeitsklage T-553/23 *Latombe* am 03.09.2025 abgewiesen[^5]. Rechtsmittel C-703/25 P, eingelegt am 31.10.2025[^6]. ⚠️ UNKLAR: Der aktuelle Stand beim EuGH wurde nicht an einer Primärquelle geprüft. Beim Rückgriff auf das DPF sollten Fallback-Klauseln (SCC) vorgehalten werden – Entscheidung Legal (C-20).
 2. **Standard Contractual Clauses (SCCs)** are in place (Art. 46(2)(c) DSGVO) – COMMON
-3. **Binding Corporate Rules (BCRs)** are in place (Art. 46(4) DSGVO) – applies to multinational groups
+3. **Binding Corporate Rules (BCRs)** are in place (Art. 46(2)(b) i. V. m. Art. 47 DSGVO; korrigiert 2026-09-25, vorher „Art. 46(4)“)[^1] – applies to multinational groups
 4. **Codes of Conduct or Certification** (Art. 46(2)(e)/(f)) – RARE
 
 **Default rule:** NO transfers outside EU. Any exception requires written legal approval.
 
 ### 4.2 SCC Types
 
-There are two main SCC modules:
+Die SCC nach Durchführungsbeschluss (EU) 2021/914 haben vier Module (korrigiert 2026-09-25, vorher „two main SCC modules“)[^7]:
 
 | Module | Use Case | Example |
 |---|---|---|
@@ -198,7 +206,7 @@ There are two main SCC modules:
 - [ ] **Importer obligations** (e.g., "You may not share data with US government without seeking legal remedy first")
 - [ ] **Supplementary measures** (encryption, pseudonymization, access restrictions)
 - [ ] **Right to object** if importer believes local law prevents DSGVO compliance
-- [ ] **Competent Supervisory Authority** contact (for binding decisions under Art. 46(3)(b) DSGVO)
+- [ ] **Competent Supervisory Authority** contact — ⚠️ korrigiert 2026-09-25: Der frühere Verweis auf Art. 46(3)(b) DSGVO war falsch; dieser betrifft Verwaltungsvereinbarungen zwischen Behörden[^1]. Die maßgebliche Klausel in den SCC 2021/914 bestimmt Legal.
 
 ### 4.3 Schrems II Supplementary Measures Checklist
 
@@ -228,10 +236,10 @@ Every subprocessor contract (SaaS, cloud provider, API vendor) must include or r
 | Contractual Element | Section in AVV_Template.md | Responsibility |
 |---|---|---|
 | **Data Processing Agreement (DPA)** | Section 2–9 | Vendor signs or references their standard DPA |
-| **EU/EEA Data Localization** | Section 4 (Subprocessor location) | Vendor commits to EU-only storage and processing |
+| **EU/EEA Data Localization** | Section 5.1 (Subprocessor location; Verweis korrigiert 2026-09-25) | Vendor commits to EU-only storage and processing |
 | **Data Sub-processing Restrictions** | Section 5 (Sub-processors of sub-processors) | Vendor may not sub-process without written approval |
-| **Standard Contractual Clauses (SCCs)** | Section 5.2 (if transfer outside EU) | Vendor provides SCC documentation or certifies EU-only processing |
-| **Data Breach Notification** | Section 6.2 (incident response) | Vendor commits to 72-hour breach notification (Art. 33) |
+| **Standard Contractual Clauses (SCCs)** | ⚠️ im AVV_Template.md nicht geregelt (5.2 ist Change Control) – C-13 | Vendor provides SCC documentation or certifies EU-only processing |
+| **Data Breach Notification** | Section 6.3 (incident response) | Vendor (als Auftragsverarbeiter) meldet dem Verantwortlichen unverzüglich (Art. 33 Abs. 2); die 72 Stunden betreffen die Meldung des Verantwortlichen an die Aufsichtsbehörde (Art. 33 Abs. 1)[^1] |
 | **Data Subject Rights Assistance** | Section 7 | Vendor assists with data access, deletion, portability requests (Art. 12–22) |
 | **Audit Rights** | Section 8 | Organization may audit vendor SOC 2 / ISO 27001 compliance |
 | **Data Deletion/Return** | Section 9 | Upon termination, vendor deletes or returns all personal data |
@@ -366,7 +374,7 @@ Before engaging any new subprocessor (cloud provider, SaaS vendor, API), complet
 
 ### 7.2 Change Notification (Art. 28(2) DSGVO)
 
-When a subprocessor change occurs (new, replacement, or removed), notify all customers within 30 days:
+Before a subprocessor change takes effect (new or replacement), notify all customers in advance so they can object. Art. 28 Abs. 2 DSGVO verlangt die Information über **beabsichtigte** Änderungen[^1]. Die Vorlaufzeit (AVV_Template.md 5.2: ≥ 30 Tage) ist vertraglich. (Korrigiert 2026-09-25; vorher „When a change occurs … notify within 30 days“, im Widerspruch zu AVV 5.2.)
 
 **Email template:**
 
@@ -420,7 +428,7 @@ If a critical clause is missing, DO NOT sign. Negotiate amendment or select alte
 - [ ] **DPA amendments negotiated:** Section 5.2 data localization clause is in all vendor contracts
 - [ ] **Quarterly review scheduled:** Compliance team has calendar reminder to audit subprocessors Q1–Q4
 - [ ] **Incident procedure defined:** Clear escalation path if data found outside EU
-- [ ] **Customer notification process:** Subprocessor changes communicated within 30 days
+- [ ] **Customer notification process:** Subprocessor changes communicated in advance (≥ 30 days per AVV 5.2)
 - [ ] **Terraform CI/CD enforced:** Region validation is automated in every deployment pipeline
 - [ ] **No prohibited vendors:** Section 3.2 prohibited services are not used without formal exception and SCC
 - [ ] **Audit documentation maintained:** SOC 2 / ISO 27001 reports from all subprocessors are retained for 3 years
@@ -444,17 +452,18 @@ If a critical clause is missing, DO NOT sign. Negotiate amendment or select alte
 
 ### 11.1 Related Documents
 
-- [DPIA.md](./DPIA.md) – Data Protection Impact Assessment (Section 5.2 covers transfer risk)
+- [DPIA.md](./DPIA.md) – Data Protection Impact Assessment (Section 5 risk table „Unauthorized international transfer“, Section 7.2 – Verweis korrigiert 2026-09-25)
 - [AVV_Template.md](./AVV_Template.md) – Data Processing Agreement (Section 5 covers sub-processors)
 - [data_processing_record.md](./data_processing_record.md) – Processing activity register (each activity specifies location)
-- [core/config/retention_policy.yaml](../../core/config/retention_policy.yaml) – Technical configuration (backup location, region enforcement)
+- core/config/retention_policy.yaml – Technical configuration (backup location, region enforcement) — ⚠️ existiert im Repo nicht (C-08)
 
 ### 11.2 External References
 
-- **DSGVO Art. 44–49** (International Transfers): https://www.bfdi.bund.de
+- **DSGVO Art. 44–49** (International Transfers): https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu
 - **EDPB Guidance on SCCs**: https://edpb.ec.europa.eu/our-work-tools/publications_en
 - **Schrems II Decision (C-311/18)**: https://curia.europa.eu/juris/document/document.jsf?text=&docid=228677&pageIndex=0&doclang=EN
-- **Standard Contractual Clauses (v.2021)**: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32021D0915
+- **Standard Contractual Clauses für Drittlandübermittlungen (2021/914)**: https://eur-lex.europa.eu/eli/dec_impl/2021/914/oj/eng — korrigiert 2026-09-25: Der frühere Link führte auf 2021/915, die SCC zwischen Verantwortlichem und Auftragsverarbeiter nach Art. 28 Abs. 7 (kein Transferinstrument): https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32021D0915
+- **EU-US Data Privacy Framework** – Angemessenheitsbeschlüsse der Kommission: https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/adequacy-decisions_en
 - **Terraform AWS region validation example**: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/guides/regions-and-azs
 
 ### 11.3 Glossary
@@ -462,7 +471,8 @@ If a critical clause is missing, DO NOT sign. Negotiate amendment or select alte
 - **Data Localization:** Requirement to keep data within a specific geographic region (EU)
 - **Adequacy Decision (Art. 45):** EU determination that a third country has adequate data protection laws (rare)
 - **Standard Contractual Clauses (SCCs):** Pre-approved contract language (by EU Commission) authorizing transfers to countries without adequacy decisions
-- **Schrems II:** 2020 Court of Justice ruling that invalidated Privacy Shield; tightened requirements for US transfers (now SCCs + supplementary measures required)
+- **Schrems II:** 2020 Court of Justice ruling that invalidated Privacy Shield; tightened requirements for US transfers. Seit 10.07.2023 gibt es für DPF-zertifizierte US-Empfänger einen Angemessenheitsbeschluss; sonst gelten SCC + Zusatzmaßnahmen (aktualisiert 2026-09-25)
+- **EU-US Data Privacy Framework (DPF):** Angemessenheitsbeschluss (EU) 2023/1795 vom 10.07.2023; gilt nur für zertifizierte US-Organisationen
 - **Supplementary Measures:** Additional technical/organizational steps (encryption, pseudonymization, access restrictions) required for transfers to high-surveillance countries like the US
 - **Subprocessor:** A third party (vendor, cloud provider) who processes data on behalf of the original processor (under a contract with the processor)
 - **Binding Corporate Rules (BCRs):** Internal transfer mechanism for multinational companies (alternative to SCCs)
@@ -474,11 +484,26 @@ If a critical clause is missing, DO NOT sign. Negotiate amendment or select alte
 | Version | Date | Author | Change |
 |---|---|---|---|
 | 1.0 | 2026-04-22 | Analytics & Legal Teams | Initial EU hosting guarantee skeleton; 6 approved regions, 5 prohibited services, SCC framework, quarterly audit process |
+| 1.1 | 2026-09-25 | Inhaltliche Durchsicht (kein Legal-Sign-off) | DPF ergänzt, SCC-/BCR-/Art.-46-Fehlzitate korrigiert, EU Data Boundary präzisiert, unbelegte Angaben und nicht existente Pfade markiert |
 
 **Last reviewed by:** (to be completed by DPO)  
-**Next review date:** (to be completed by DPO – Q2 2026)
+**Next review date:** (to be completed by DPO – Q2 2026) — ⚠️ Stand 2026-09-25: überfällig (C-19)
 
 ---
 
 **Document maintained by:** Data Protection Officer / Compliance Team  
 **Confidentiality:** Internal – shared with procurement and technical teams for vendor selection decisions
+
+---
+
+## 13. Offene Punkte (Durchsicht 2026-09-25)
+
+IDs = Ledger in `_INDEX.md`. C-01 (LLM-Anbieter der Studio-KI: Standort, Transfergrundlage, ggf. DPF-Zertifizierung), C-06 (Power BI/Fabric: Region des Kunden-Tenants und EU Data Boundary – ⚠️ UNKLAR: Power BI und Fabric werden auf der EUDB-Übersichtsseite nicht ausdrücklich genannt[^2]), C-08 (Terraform/CI nicht implementiert), C-09 (unbelegte Freigaben), C-14 (Regionsangaben inkonsistent), C-20 (DPF-Rechtsmittel). Abhängigkeit: „AI data handling policy“ (andere Sitzung, nicht committet).
+
+[^1]: DSGVO (EUR-Lex): https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu — Wortlaut Art. 28, 33, 46, 47 abgeglichen über https://dsgvo-gesetz.de/art-46-dsgvo/ u. a.
+[^2]: Microsoft, 26.02.2025: https://blogs.microsoft.com/on-the-issues/2025/02/26/microsoft-completes-landmark-eu-data-boundary-offering-enhanced-data-residency-and-transparency/ ; Microsoft Learn: https://learn.microsoft.com/en-us/privacy/eudb/eu-data-boundary-learn
+[^3]: EU-Kommission, Angemessenheitsbeschlüsse (inkl. USA/DPF): https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/adequacy-decisions_en
+[^4]: wie [^3]
+[^5]: EuGH-Pressemitteilung 106/25: https://curia.europa.eu/site/upload/docs/application/pdf/2025-09/cp250106en.pdf
+[^6]: Sekundärquelle: https://digitalpolicyalert.org/event/35459-latombe-filed-appeal-against-general-court-dismissal-of-challenge-to-european-unionunited-states-data-protection-framework-adequacy-decision-in-latombe-v-commission
+[^7]: Durchführungsbeschluss (EU) 2021/914: https://eur-lex.europa.eu/eli/dec_impl/2021/914/oj/eng ; SCC-Q&A der Kommission: https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/new-standard-contractual-clauses-questions-and-answers-overview_en
