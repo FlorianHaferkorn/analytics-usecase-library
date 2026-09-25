@@ -67,6 +67,27 @@ def _git_ignored_prefixes(root: Path) -> "set[Path]":
     return {(root / p).resolve() for p in out.split("\0") if p}
 
 
+def _git_submodule_prefixes(root: Path) -> "set[Path]":
+    """Absolute paths of git submodules (gitlinks, mode 160000).
+
+    A submodule is a separate repository: its files exist only after
+    ``git submodule update --init`` and are versioned elsewhere. The index must not
+    depend on them - otherwise a fresh checkout (CI, worktree) fails on paths that
+    the maintainer's initialised checkout happens to have."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "-s", "-z"],
+            capture_output=True, text=True, timeout=30, check=True,
+            encoding="utf-8", errors="replace").stdout
+    except Exception:
+        return set()
+    prefixes = set()
+    for entry in out.split("\0"):
+        if entry.startswith("160000 ") and "\t" in entry:
+            prefixes.add((root / entry.split("\t", 1)[1]).resolve())
+    return prefixes
+
+
 def _under_ignored(p: Path) -> bool:
     rp = p.resolve()
     return any(rp == ig or ig in rp.parents for ig in _IGNORED)
@@ -502,7 +523,7 @@ def main(argv: list[str]) -> int:
     pos = [a for a in argv[1:] if not a.startswith("--")]
     root = (REPO_ROOT / pos[0]) if pos else REPO_ROOT
     global _IGNORED
-    _IGNORED = _git_ignored_prefixes(REPO_ROOT)
+    _IGNORED = _git_ignored_prefixes(REPO_ROOT) | _git_submodule_prefixes(REPO_ROOT)
     indexes = find_indexes(root)
     errors: list[str] = []
     warnings: list[str] = []
