@@ -437,7 +437,7 @@ def emit_notebooks(bp: dict, architecture: dict | None = None, stack: str = "fab
     # also alles: die Erstbefuellung braucht keinen Handgriff.
     if stack == "fabric":
         from core.dataarch_engine.blueprint.provision_transforms import perioden_quellen
-        for quelle, f in sorted(perioden_quellen(governed_catalog, schemas).items()):
+        for quelle, f in sorted(perioden_quellen(governed_catalog, schemas, bp).items()):
             nb = fenster_notebook_name(quelle)
             cell = [
                 f"# Periodenfenster fuer die Aufnahme von {quelle} (D-557): juengstes Jahr in "

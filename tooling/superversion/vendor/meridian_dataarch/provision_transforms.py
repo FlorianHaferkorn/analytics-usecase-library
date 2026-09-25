@@ -603,19 +603,30 @@ def _bezugs_kopf(bezuege: list[dict], c: str) -> list[str]:
                f"naechsten Vollaufbau."])
 
 
-def perioden_quellen(governed_catalog: dict | None, schemas: bool = True) -> dict[str, dict]:
+def perioden_quellen(governed_catalog: dict | None, schemas: bool = True,
+                     bp: dict | None = None) -> dict[str, dict]:
     """Quellen, deren Aufnahme sich auf ein Periodenfenster begrenzen laesst (D-557).
 
     Voraussetzung ist D-553: das Gold-Produkt haelt seine Perioden selbst (`periode`) und liest
     genau **eine** Quelle. Dann braucht die Aufnahme nur die Jahre ab dem juengsten in Gold —
     aeltere Perioden schreibt der MERGE ohnehin nicht mehr. Rueckgabe je Quelle: Gold-Tabelle,
     Jahres- und Monatsspalte, SAP-Tabellenname (falls der Katalog ihn fuehrt).
+
+    Mit ``bp`` nur Quellen, die per **Kopie** aufgenommen werden (D-565): das Fenster ist eine
+    Abfrage der Kopieraktivitaet. Bei Mirroring oder Shortcut gibt es keine, und ein Fenster-
+    Notebook ohne Verbraucher waere ein ausgeliefertes Artefakt, das nie laeuft.
     """
+    kopie = None
+    if bp is not None:
+        kopie = {e.get("source") for e in bp.get("ingestion") or []
+                 if e.get("access_mode") == "copy"}
     out: dict[str, dict] = {}
     for t in (governed_catalog or {}).get("tables") or []:
         h = t.get("historisierung") or {}
         quellen = list(t.get("sources") or [])
         if h.get("form") != "periode" or len(quellen) != 1:
+            continue
+        if kopie is not None and quellen[0] not in kopie:
             continue
         e = _quelltabelle(governed_catalog, quellen[0])
         out[quellen[0]] = {"gold": layer_ref("gold", _ident(t["name"]), schemas),
