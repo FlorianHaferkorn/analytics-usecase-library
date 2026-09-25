@@ -16,10 +16,22 @@ async function confirm() {
   fireEvent.click(screen.getByRole('checkbox'));
 }
 describe('Architecture decision review', () => {
+  it('shows plan role and effort effects in the same review without implying staffing approval', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(reply({ ...view(), changes: [
+      ...view().changes,
+      { rule_id: 'rename', decision_ref: 'naming', target: { collection: 'plan_work_packages', entity_id: 'rename', field: 'role_refs' }, before: ['fabric_engineer'], after: ['fabric_engineer', 'test_lead'], rationale: 'Validate dependent definitions.' },
+      { rule_id: 'rename', decision_ref: 'naming', target: { collection: 'plan_work_packages', entity_id: 'rename', field: 'effort' }, before: { value: 2, unit: 'person_days', provenance: 'assumption' }, after: { value: 3, unit: 'person_days', provenance: 'assumption' }, rationale: 'Review effort.' },
+    ] }));
+    render(<ProjectDecisionReview projectId="alpha" revisionHash={hash} onApplied={vi.fn()} />);
+    await screen.findByText('3 fields to review');
+    expect(screen.getByText('fabric_engineer · test_lead')).toBeTruthy();
+    expect(screen.getByText('3 person-days · assumption')).toBeTruthy();
+    expect(screen.getByText(/not named staffing or approved cost/)).toBeTruthy();
+  });
   it('shows before/after and requires rationale plus exact confirmation', async () => {
     const applied = vi.fn();
     render(<ProjectDecisionReview projectId="alpha" revisionHash={hash} onApplied={applied} />);
-    const button = await screen.findByRole('button', { name: 'Update architecture draft' });
+    const button = await screen.findByRole('button', { name: 'Update project draft' });
     expect((button as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByText('bronze-new')).toBeTruthy();
     await confirm();
@@ -39,7 +51,7 @@ describe('Architecture decision review', () => {
     vi.mocked(fetch).mockResolvedValueOnce(reply({ ...view(), can_apply: false, blockers: ['Conflicting active rules'] }));
     render(<ProjectDecisionReview projectId="alpha" revisionHash={hash} onApplied={vi.fn()} />);
     await screen.findByText('Conflicting active rules');
-    expect(screen.queryByRole('button', { name: 'Update architecture draft' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Update project draft' })).toBeNull();
   });
   it('rejects a foreign response', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(reply({ ...view(), project_ref: 'beta' }));
@@ -51,7 +63,7 @@ describe('Architecture decision review', () => {
     render(<ProjectDecisionReview projectId="alpha" revisionHash={hash} onApplied={vi.fn()} />);
     await confirm();
     vi.mocked(fetch).mockResolvedValueOnce(reply({ error: 'HEAD changed' }, false));
-    fireEvent.click(screen.getByRole('button', { name: 'Update architecture draft' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Update project draft' }));
     await screen.findByText('HEAD changed');
     expect(screen.queryByRole('checkbox')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Reload decision review' }));
@@ -64,7 +76,7 @@ describe('Architecture decision review', () => {
     const { rerender } = render(<ProjectDecisionReview projectId="alpha" revisionHash={hash} onApplied={applied} />);
     await confirm();
     vi.mocked(fetch).mockImplementationOnce(() => new Promise(resolveResponse => { resolve = resolveResponse; }));
-    fireEvent.click(screen.getByRole('button', { name: 'Update architecture draft' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Update project draft' }));
     vi.mocked(fetch).mockResolvedValueOnce(reply({ ...view(), project_ref: 'beta' }));
     rerender(<ProjectDecisionReview projectId="beta" revisionHash={hash} onApplied={applied} />);
     await act(async () => resolve(reply(application)));

@@ -27,45 +27,68 @@ FIELDS = {
     "physical_workspaces": {"name", "description", "capacity_id", "domain_id"},
     "physical_items": {"name", "description"},
     "environments": {"recommended", "accepted"},
+    "plan_work_packages": {"role_refs", "effort"},
+    "plan_tasks": {"definition_of_done"},
 }
+
+ENVIRONMENT_PLAN_FIELDS = {
+    ("plan_work_packages", "role_refs"),
+    ("plan_work_packages", "effort"),
+    ("plan_tasks", "definition_of_done"),
+}
+
+
+def _missing_stage_workspaces(architecture: dict, stages: list[str]) -> list[str]:
+    """Require authored topology, never infer Fabric workspaces from a stage label."""
+    declared = {(row["domain_ref"], row["environment"]) for row in architecture.get("physical_workspaces", [])}
+    return [f"{domain['id']}/{stage}" for domain in architecture.get("domains", [])
+            if domain["delivery_scope"] == "detailed" for stage in stages
+            if (domain["id"], stage) not in declared]
 
 
 def _same(left: Any, right: Any) -> bool:
     return canonical_sha256(left) == canonical_sha256(right)
 
 
-def _target(architecture: dict, target: dict) -> dict:
+def _target(modules: dict, target: dict) -> dict:
     collection, identity, field = target["collection"], target["entity_id"], target["field"]
     if field not in FIELDS.get(collection, set()):
         raise ValueError("Target field is not supported by the bounded derivation contract")
+    if collection.startswith("plan_") and not isinstance(modules.get("plan"), dict):
+        raise ValueError("Delivery plan module is missing")
+    owner = modules["plan"] if collection.startswith("plan_") else modules["architecture_input"]
+    rows = collection.removeprefix("plan_") if collection.startswith("plan_") else collection
     if collection == "environments":
         if identity is not None:
             raise ValueError("Environment target requires entity_id null")
-        entity = architecture.get(collection)
+        entity = owner.get(rows)
     else:
-        matches = [row for row in architecture.get(collection, []) if row.get("id") == identity]
+        matches = [row for row in owner.get(rows, []) if row.get("id") == identity]
         if not identity or len(matches) != 1:
-            raise ValueError("Target identity must match exactly one existing architecture element")
+            raise ValueError("Target identity must match exactly one existing element")
         entity = matches[0]
     if not isinstance(entity, dict) or field not in entity:
         raise ValueError("Target field must already exist; adding or deleting elements is unsupported")
     return entity
 
 
-def _schema_errors(architecture: dict, schema_root: Path) -> list[str]:
-    schema = json.loads((schema_root / "project_architecture_input.schema.json").read_text(encoding="utf-8"))
-    return [error.message for error in Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(architecture)]
+def _schema_errors(document: dict, schema_root: Path, name: str) -> list[str]:
+    schema = json.loads((schema_root / f"project_{name}.schema.json").read_text(encoding="utf-8"))
+    return [error.message for error in Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(document)]
 
 
 def compile_derivation(compiler: dict, revision_hash: str, schema_root: Path) -> dict:
     """Pure preview. Pending and other-option rules are visible but not applicable."""
-    architecture = compiler["modules"].get("architecture_input")
-    projected = copy.deepcopy(architecture)
+    modules = compiler["modules"]
+    architecture = modules.get("architecture_input")
+    projected = {"architecture_input": copy.deepcopy(architecture)}
+    if "plan" in modules:
+        projected["plan"] = copy.deepcopy(modules["plan"])
     rules, changes, blockers = [], [], []
     decisions = compiler["modules"]["decision_set"]
     authored = architecture.get("decision_rules", []) if architecture else []
     if architecture:
-        errors = _schema_errors(architecture, schema_root)
+        errors = _schema_errors(architecture, schema_root, "architecture_input")
         if errors:
             raise ValueError("Invalid architecture rule schema: " + "; ".join(errors))
     seen, affected = set(), {}
@@ -91,7 +114,7 @@ def compile_derivation(compiler: dict, revision_hash: str, schema_root: Path) ->
             elif selection["option_ref"] != rule["option_ref"]:
                 row.update(status="not_selected", reason="A different option was approved")
             else:
-                entity = _target(architecture, rule["target"])
+                entity = _target(modules, rule["target"])
                 before = copy.deepcopy(entity[rule["target"]["field"]])
                 row.update(before=before, after=rule["value"])
                 if decision["revision"] != rule["decision_revision"]:
@@ -108,24 +131,69 @@ def compile_derivation(compiler: dict, revision_hash: str, schema_root: Path) ->
                 scope = decision["scope_refs"]
                 if scope and target["entity_id"] not in scope:
                     raise ValueError("Rule target is outside the approved decision scope")
-                key = (target["collection"], target["entity_id"], target["field"])
-                if key in affected:
-                    raise ValueError(f"Conflicting active rule also targets this field: {affected[key]}")
-                affected[key] = rule["id"]
-                if _same(before, rule["value"]):
-                    row.update(status="unchanged", reason="Architecture already contains the approved value")
-                elif not _same(before, rule["expected_value"]):
-                    raise ValueError("Current value differs from the rule precondition; review required")
-                else:
-                    row.update(status="ready", reason="Explicit approved mapping; review before creating a working revision")
-                    _target(projected, target)[target["field"]] = copy.deepcopy(rule["value"])
-                    changes.append({**row, "rule_id": rule["id"], "decision_revision": decision["revision"], "decision_sha256": canonical_sha256(decision)})
+                effects = [{"target": target, "expected_value": rule["expected_value"], "value": rule["value"]}, *rule.get("plan_effects", [])]
+                if target == {"collection": "environments", "entity_id": None, "field": "recommended"}:
+                    covered = {(effect["target"]["collection"], effect["target"]["field"]) for effect in rule.get("plan_effects", [])}
+                    missing = ENVIRONMENT_PLAN_FIELDS - covered
+                    if missing:
+                        raise ValueError("Environment stage change requires explicit plan role, effort and task acceptance effects: " + str(sorted(missing)))
+                    absent = _missing_stage_workspaces(architecture, rule["value"])
+                    if absent:
+                        raise ValueError("Environment stage change requires explicitly authored workspace topology for: " + ", ".join(absent))
+                    for effect in rule["plan_effects"]:
+                        field = effect["target"]["field"]
+                        if field == "role_refs" and (not isinstance(effect["value"], list) or not effect["value"]):
+                            raise ValueError("Environment stage change requires nonempty role demand")
+                        if field == "effort" and (not isinstance(effect["value"], dict) or effect["value"].get("value") is None
+                                                  or effect["value"].get("provenance") == "unknown"):
+                            raise ValueError("Environment stage change requires an explicit effort value and provenance")
+                        if field == "definition_of_done" and (not isinstance(effect["value"], list) or not effect["value"]):
+                            raise ValueError("Environment stage change requires a nonempty task acceptance criterion")
+                plan_work_package_ids = set()
+                plan_task_ids = set()
+                changed = False
+                for effect in effects:
+                    effect_target = effect["target"]
+                    effect_entity = _target(modules, effect_target)
+                    if effect_target["collection"].startswith("plan_"):
+                        if rule["decision_ref"] not in effect_entity["decision_refs"]:
+                            raise ValueError("Plan element does not reference this approved decision")
+                        if effect_target["collection"] == "plan_work_packages":
+                            plan_work_package_ids.add(effect_target["entity_id"])
+                        else:
+                            plan_task_ids.add(effect_entity["work_package_ref"])
+                    effect_before = copy.deepcopy(effect_entity[effect_target["field"]])
+                    if (effect_target["collection"] == "plan_tasks" and effect_target["field"] == "definition_of_done"
+                            and not _same(effect_before, effect["value"])
+                            and (effect_entity["status"] == "done" or effect_entity["evidence_refs"])):
+                        raise ValueError("Changed task acceptance criteria require a task without completion status or retained evidence; review and reopen the task separately")
+                    key = (effect_target["collection"], effect_target["entity_id"], effect_target["field"])
+                    if key in affected:
+                        raise ValueError(f"Conflicting active rule also targets this field: {affected[key]}")
+                    affected[key] = rule["id"]
+                    if _same(effect_before, effect["value"]):
+                        continue
+                    if not _same(effect_before, effect["expected_value"]):
+                        raise ValueError("Current value differs from the rule precondition; review required")
+                    changed = True
+                    _target(projected, effect_target)[effect_target["field"]] = copy.deepcopy(effect["value"])
+                    changes.append({**row, "before": effect_before, "after": effect["value"], "target": effect_target,
+                                    "rule_id": rule["id"], "decision_revision": decision["revision"],
+                                    "decision_sha256": canonical_sha256(decision)})
+                if plan_task_ids - plan_work_package_ids:
+                    raise ValueError("Plan acceptance task must belong to a work package impacted by the same decision")
+                row.update(status="ready" if changed else "unchanged",
+                           reason="Explicit approved architecture and plan mapping; review before creating a working revision" if changed else "Architecture and plan already contain the approved values")
         except ValueError as error:
             row.update(status="blocked", reason=str(error))
             blockers.append(f"{rule['id']}: {error}")
         rules.append(row)
     if changes:
-        blockers.extend("Derived architecture schema: " + error for error in _schema_errors(projected, schema_root))
+        for name in ("architecture_input", "plan"):
+            if name not in projected:
+                blockers.append(f"Derived {name} module is missing")
+            else:
+                blockers.extend(f"Derived {name} schema: " + error for error in _schema_errors(projected[name], schema_root, name))
     result = {"schema_version": "1.0.0", "project_ref": compiler["package"]["project_ref"],
               "revision_hash": revision_hash, "rules": rules, "changes": changes, "blockers": blockers,
               "can_apply": bool(changes) and not blockers, "state_after_apply": "working", "release_required": True,
@@ -159,21 +227,29 @@ def apply_derivation(repository: ProjectPackageRevisionRepository, payload: dict
         root = repository.checkout(Path(temporary) / "package", payload["revision_hash"])
         manifest_path = root / "package.yaml"
         manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
-        module = next(item for item in manifest["modules"] if item["module_type"] == "architecture_input")
-        path = root / module["path"]
-        architecture = yaml.safe_load(path.read_text(encoding="utf-8"))
+        edited = {}
+        for kind in ("architecture_input", "plan"):
+            module = next(item for item in manifest["modules"] if item["module_type"] == kind)
+            path = root / module["path"]
+            edited[kind] = json.loads(path.read_text(encoding="utf-8")) if path.suffix.lower() == ".json" else yaml.safe_load(path.read_text(encoding="utf-8"))
         for change in preview["changes"]:
             target = change["target"]
-            _target(architecture, target)[target["field"]] = copy.deepcopy(change["after"])
-        path.write_text(json.dumps(architecture, ensure_ascii=False, indent=2) if path.suffix.lower() == ".json" else yaml.safe_dump(architecture, sort_keys=False, allow_unicode=True), encoding="utf-8", newline="\n")
+            _target(edited, target)[target["field"]] = copy.deepcopy(change["after"])
+        changed_kinds = {"plan" if change["target"]["collection"].startswith("plan_") else "architecture_input"
+                         for change in preview["changes"]}
+        for kind in changed_kinds:
+            document = edited[kind]
+            module = next(item for item in manifest["modules"] if item["module_type"] == kind)
+            path = root / module["path"]
+            path.write_text(json.dumps(document, ensure_ascii=False, indent=2) if path.suffix.lower() == ".json" else yaml.safe_dump(document, sort_keys=False, allow_unicode=True), encoding="utf-8", newline="\n")
         audit_ref = f"architecture/derivations/{preview['preview_sha256']}.json"
         audit_path = root / audit_ref
         if audit_path.exists():
             raise ValueError("This exact derivation review was already recorded")
         audit_path.parent.mkdir(parents=True, exist_ok=True)
-        audit = {**preview, "record_type": "reviewed_architecture_derivation", "reviewed_by": payload["actor"],
+        audit = {**preview, "record_type": "reviewed_architecture_and_plan_derivation", "reviewed_by": payload["actor"],
                  "reviewed_at": datetime.now(timezone.utc).isoformat(), "review_rationale": payload["rationale"].strip(),
-                 "authority": "Applies explicit existing approved decisions to draft architecture only. Not package approval, release or tenant authorization."}
+                 "authority": "Applies explicit existing approved decisions to existing architecture and plan fields only. Not package approval, release or tenant authorization."}
         audit_path.write_text(json.dumps(audit, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
         manifest["state"] = "working"
         manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n")

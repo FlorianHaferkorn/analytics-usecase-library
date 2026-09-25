@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 import subprocess
 import sys
@@ -8,6 +9,7 @@ import pytest
 import yaml
 
 from tooling.superversion.project_package.decision_derivation import apply_derivation, compile_derivation, preview_derivation
+from tooling.superversion.project_package.architecture_compile import build_architecture_output
 from tooling.superversion.project_package.hashes import canonical_sha256
 from tooling.superversion.project_package.migrations import migrate_project_package
 from tooling.superversion.project_package.repository import ProjectPackageRevisionRepository, StaleProjectPackageDraftError
@@ -20,6 +22,16 @@ SCHEMAS = ROOT / "tooling/generator/schemas"
 
 def data():
     value = compiler()
+    value["modules"]["plan"] = {
+        "schema_version": "2.0.0", "dependencies": [],
+        "work_packages": [{"id": "wp_environment", "title": "Environment delivery", "status": "planned",
+                           "decision_refs": ["decision_environment_model"], "role_refs": ["fabric_engineer"],
+                           "effort": {"value": 2, "unit": "person_days", "provenance": "assumption"}}],
+        "tasks": [{"id": "task_environment_acceptance", "title": "Validate environment path", "work_package_ref": "wp_environment",
+                   "status": "todo", "priority": "high", "owner_ref": "fabric_engineer", "target_gate": "before_build",
+                   "decision_refs": ["decision_environment_model"], "definition_of_done": ["DEV and PROD validated"],
+                   "evidence_refs": []}],
+    }
     value["modules"]["decision_set"] = {
         "schema_version": "2.0.0", "definitions": [{
             "id": "definition_environment", "source": {"adapter": "engagement_ledger_package_1_0", "raw_id": "E-1", "source_ref": "fixture://decision", "source_hash": "c" * 64},
@@ -36,9 +48,22 @@ def data():
                        "readiness": {"state": "ready_for_decision"}, "delivery": {"state": "not_compiled"}}]}
     architecture = value["modules"]["architecture_input"]
     architecture["environments"]["recommended"] = ["dev", "prod"]
+    for stage in ("test", "prod"):
+        workspace = copy.deepcopy(architecture["physical_workspaces"][0])
+        workspace.update(id=f"workspace_gold_{stage}", name=f"acme_commercial_gold_{stage}", environment=stage)
+        architecture["physical_workspaces"].append(workspace)
     architecture["decision_rules"] = [{"id": "environment_lanes", "decision_ref": "decision_environment_model", "decision_revision": 1, "option_ref": "three",
         "target": {"collection": "environments", "entity_id": None, "field": "recommended"}, "expected_value": ["dev", "prod"], "value": ["dev", "test", "prod"],
-        "rationale": "Show the three explicitly approved isolation stages in the architecture."}]
+        "rationale": "Show the three explicitly approved isolation stages in the architecture.",
+        "plan_effects": [
+            {"target": {"collection": "plan_work_packages", "entity_id": "wp_environment", "field": "role_refs"},
+             "expected_value": ["fabric_engineer"], "value": ["fabric_engineer", "test_lead"]},
+            {"target": {"collection": "plan_work_packages", "entity_id": "wp_environment", "field": "effort"},
+             "expected_value": {"value": 2, "unit": "person_days", "provenance": "assumption"},
+             "value": {"value": 3, "unit": "person_days", "provenance": "assumption"}},
+            {"target": {"collection": "plan_tasks", "entity_id": "task_environment_acceptance", "field": "definition_of_done"},
+             "expected_value": ["DEV and PROD validated"], "value": ["DEV, TEST and PROD validated"]},
+        ]}]
     return value
 
 
@@ -50,7 +75,7 @@ def setup(tmp_path):
     package = migrate_project_package(ROOT / "tooling/tests/fixtures/project_package/v1", tmp_path / "package", SCHEMAS)
     manifest = yaml.safe_load((package / "package.yaml").read_text(encoding="utf-8"))
     modules = data()["modules"]
-    for kind in ["decision_set", "architecture_input"]:
+    for kind in ["decision_set", "architecture_input", "plan"]:
         document = modules[kind]
         row = next((item for item in manifest["modules"] if item["module_type"] == kind), None)
         if row is None:
@@ -79,10 +104,11 @@ def test_preview_is_deterministic_exact_and_readonly():
     assert result["can_apply"]
     assert result["changes"][0]["before"] == ["dev", "prod"]
     assert result["changes"][0]["after"] == ["dev", "test", "prod"]
+    assert {change["target"]["collection"] for change in result["changes"]} == {"environments", "plan_work_packages", "plan_tasks"}
     assert not result["tenant_actions_performed"]
 
 
-@pytest.mark.parametrize("mutation", ["revision", "custom", "option", "decider", "rationale", "scope", "identity", "field", "precondition", "schema", "collision", "duplicate"])
+@pytest.mark.parametrize("mutation", ["revision", "custom", "option", "decider", "rationale", "scope", "identity", "field", "precondition", "schema", "collision", "duplicate", "missing_plan", "plan_precondition", "plan_decision_ref", "empty_roles", "unknown_effort", "empty_acceptance"])
 def test_bad_mapping_fails_closed(mutation):
     value = data()
     rule = value["modules"]["architecture_input"]["decision_rules"][0]
@@ -97,6 +123,12 @@ def test_bad_mapping_fails_closed(mutation):
     if mutation == "field": rule["target"]["field"] = "decision_ref"
     if mutation == "precondition": rule["expected_value"] = ["sandbox"]
     if mutation == "schema": rule["value"] = ["invalid stage"]
+    if mutation == "missing_plan": rule.pop("plan_effects")
+    if mutation == "plan_precondition": rule["plan_effects"][0]["expected_value"] = ["wrong"]
+    if mutation == "plan_decision_ref": value["modules"]["plan"]["work_packages"][0]["decision_refs"] = []
+    if mutation == "empty_roles": rule["plan_effects"][0]["value"] = []
+    if mutation == "unknown_effort": rule["plan_effects"][1]["value"] = {"value": None, "unit": "person_days", "provenance": "unknown"}
+    if mutation == "empty_acceptance": rule["plan_effects"][2]["value"] = []
     if mutation in ["collision", "duplicate"]:
         other = copy.deepcopy(rule)
         if mutation == "collision": other["id"] = "second_mapping"
@@ -104,6 +136,29 @@ def test_bad_mapping_fails_closed(mutation):
     result = preview(value)
     assert not result["can_apply"]
     assert result["blockers"]
+
+
+@pytest.mark.parametrize("missing_stage", ["dev", "test", "prod"])
+def test_environment_rule_requires_authored_workspace_for_every_stage(missing_stage):
+    value = data()
+    architecture = value["modules"]["architecture_input"]
+    architecture["physical_workspaces"] = [row for row in architecture["physical_workspaces"]
+                                           if row["environment"] != missing_stage]
+    result = preview(value)
+    assert not result["can_apply"]
+    assert f"domain_commercial/{missing_stage}" in result["blockers"][0]
+
+
+@pytest.mark.parametrize("state,evidence", [("done", []), ("todo", ["old_acceptance_evidence"]),
+                                           ("done", ["old_acceptance_evidence"])])
+def test_changed_acceptance_does_not_reuse_completion_or_evidence(state, evidence):
+    value = data()
+    task = value["modules"]["plan"]["tasks"][0]
+    task["status"] = state
+    task["evidence_refs"] = evidence
+    result = preview(value)
+    assert not result["can_apply"]
+    assert "review and reopen the task separately" in result["blockers"][0]
 
 
 @pytest.mark.parametrize("state", ["draft", "proposed", "deferred", "rejected", "superseded"])
@@ -183,9 +238,14 @@ def test_apply_real_package_preserves_decisions_history_and_requires_new_release
     manifest = yaml.safe_load((second.package_root / "package.yaml").read_text(encoding="utf-8"))
     assert manifest["state"] == "working"
     for module in manifest["modules"]:
-        if module["module_type"] != "architecture_input":
+        if module["module_type"] not in {"architecture_input", "plan"}:
             assert (first.package_root / module["path"]).read_bytes() == (second.package_root / module["path"]).read_bytes()
+    plan = yaml.safe_load((second.package_root / "plan/plan.yaml").read_text(encoding="utf-8"))
+    assert plan["work_packages"][0]["role_refs"] == ["fabric_engineer", "test_lead"]
+    assert plan["work_packages"][0]["effort"]["provenance"] == "assumption"
+    assert plan["tasks"][0]["definition_of_done"] == ["DEV, TEST and PROD validated"]
     audit = json.loads((second.package_root / result["audit_ref"]).read_text(encoding="utf-8"))
+    assert audit["record_type"] == "reviewed_architecture_and_plan_derivation"
     assert audit["reviewed_by"] == payload["actor"]
     assert audit["preview_sha256"] == payload["preview_sha256"]
     assert audit["changes"][0]["decision_sha256"] == canonical_sha256(data()["modules"]["decision_set"]["instances"][0])
@@ -230,6 +290,68 @@ def test_derived_architecture_releases_only_after_explicit_package_approval(tmp_
     released = release_input(repo, "project_demo", approved.revision_hash, actor="owner", rationale="Reviewed and approved the explicitly derived architecture.")
     assert released["release"]["revision_hash"] == approved.revision_hash
     assert released["compiler_input"]["modules"]["architecture_input"]["environments"]["recommended"] == ["dev", "test", "prod"]
+    output = build_architecture_output(repo, "project_demo", approved.revision_hash, "architecture_bundle")
+    assert output["manifest"]["decision_impact_rule_ids"] == ["environment_lanes"]
+    files = {item["path"]: item["content"] for item in output["files"]}
+    impact = json.loads(files["delivery/decision-impact-checks.json"])
+    assert impact["revision_hash"] == approved.revision_hash
+    assert next(item["sha256"] for item in output["manifest"]["files"] if item["path"] == "delivery/decision-impact-checks.json") == hashlib.sha256(files["delivery/decision-impact-checks.json"].encode()).hexdigest()
+    assert {check["target"]["field"] for check in impact["checks"][0]["plan_contract_checks"]} == {"role_refs", "effort", "definition_of_done"}
+    assert all(check["result"] == "passed_in_released_input" for check in impact["checks"][0]["plan_contract_checks"])
+    assert impact["checks"][0]["derivation_approves_named_staffing_or_cost"] is False
+
+
+def test_stale_plan_cannot_reuse_reviewed_architecture_for_release(tmp_path):
+    repo, first = setup(tmp_path)
+    applied = apply_derivation(repo, request(repo, first))
+    draft = repo.checkout(tmp_path / "stale_plan", applied["revision_hash"])
+    path = draft / "plan/plan.yaml"
+    plan = yaml.safe_load(path.read_text(encoding="utf-8"))
+    plan["work_packages"][0]["role_refs"] = ["fabric_engineer"]
+    path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+    manifest_path = draft / "package.yaml"
+    manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    manifest["state"] = "approved"
+    manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+    stale = repo.commit_draft(draft, expected_head_hash=applied["revision_hash"])
+    with pytest.raises(ValueError, match="decision effects"):
+        release_input(repo, "project_demo", stale.revision_hash, actor="owner", rationale="An old plan cannot pass the decision impact gate.")
+    assert not (repo.root.parent / "release-attestations" / repo.root.name / f"{stale.revision_hash}.json").exists()
+
+
+def test_released_stage_decision_cannot_omit_declared_test_workspace(tmp_path):
+    repo, first = setup(tmp_path)
+    applied = apply_derivation(repo, request(repo, first))
+    draft = repo.checkout(tmp_path / "missing_test", applied["revision_hash"])
+    path = draft / "architecture.yaml"
+    architecture = yaml.safe_load(path.read_text(encoding="utf-8"))
+    architecture["physical_workspaces"] = [row for row in architecture["physical_workspaces"]
+                                           if row["environment"] != "test"]
+    path.write_text(yaml.safe_dump(architecture, sort_keys=False), encoding="utf-8")
+    manifest_path = draft / "package.yaml"
+    manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    manifest["state"] = "approved"
+    manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+    incomplete = repo.commit_draft(draft, expected_head_hash=applied["revision_hash"])
+    with pytest.raises(ValueError, match="domain_commercial/test"):
+        release_input(repo, "project_demo", incomplete.revision_hash, actor="owner",
+                      rationale="A stage decision cannot release without the matching physical workspace.")
+    assert not (repo.root.parent / "release-attestations" / repo.root.name / f"{incomplete.revision_hash}.json").exists()
+
+
+def test_legacy_environment_rule_without_plan_contract_cannot_release(tmp_path):
+    repo, first = setup(tmp_path)
+    draft = repo.checkout(tmp_path / "legacy_rule", first.revision_hash)
+    path = draft / "architecture.yaml"
+    architecture = yaml.safe_load(path.read_text(encoding="utf-8"))
+    architecture["environments"]["recommended"] = ["dev", "test", "prod"]
+    architecture["decision_rules"][0].pop("plan_effects")
+    path.write_text(yaml.safe_dump(architecture, sort_keys=False), encoding="utf-8")
+    legacy = repo.commit_draft(draft, expected_head_hash=first.revision_hash)
+    result = preview_derivation(repo, "project_demo", legacy.revision_hash)
+    assert not result["can_apply"] and "requires explicit plan" in result["blockers"][0]
+    with pytest.raises(ValueError, match="decision effects"):
+        release_input(repo, "project_demo", legacy.revision_hash, actor="owner", rationale="Architecture alone cannot satisfy this stage decision.")
 
 
 def test_existing_legacy_attestation_cannot_bypass_decision_effect_gate(tmp_path):

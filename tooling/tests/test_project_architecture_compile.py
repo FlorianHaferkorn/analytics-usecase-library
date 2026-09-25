@@ -2,6 +2,7 @@ import copy
 import hashlib
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 import yaml
@@ -82,14 +83,15 @@ def test_workspace_schema_rejects_guessed_ids():
 def test_released_outputs_exact_native_payload_and_hashes(monkeypatch):
     data=compiler()
     monkeypatch.setattr('tooling.superversion.project_package.architecture_compile.release_input',lambda *args: {'compiler_input':data,'release':{'record_sha256':'b'*64}})
-    output=build_architecture_output(None,'project_demo','a'*64,'fabric_workspace_requests')
+    repository=SimpleNamespace(schema_root=SCHEMAS)
+    output=build_architecture_output(repository,'project_demo','a'*64,'fabric_workspace_requests')
     files={file['path']:file['content'] for file in output['files']}
     request=json.loads(files['fabric/workspaces/workspace_gold_dev.request.json'])
     assert request=={'displayName':'acme_commercial_gold_dev','capacityId':'11111111-1111-4111-8111-111111111111','domainId':'22222222-2222-4222-8222-222222222222'}
     assert not any(path.endswith(('.ps1','.sh')) for path in files)
     for item in output['manifest']['files']:
         assert hashlib.sha256(files[item['path']].encode()).hexdigest()==item['sha256']
-    docs=build_architecture_output(None,'project_demo','a'*64,'architecture_bundle')
+    docs=build_architecture_output(repository,'project_demo','a'*64,'architecture_bundle')
     assert any(file['path'].endswith('Use_Case_and_Data_Architecture.md') for file in docs['files'])
 
 

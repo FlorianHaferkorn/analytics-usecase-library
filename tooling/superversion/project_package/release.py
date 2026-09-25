@@ -48,7 +48,7 @@ def release_input(repository: ProjectPackageRevisionRepository, project_ref: str
             if unresolved or derivation["blockers"]:
                 details = [f"{rule['id']}: {rule['status']}" for rule in unresolved]
                 details.extend(derivation["blockers"])
-                raise ValueError("Release blocked: architecture decision effects require review and application: " + "; ".join(details))
+                raise ValueError("Release blocked: architecture and plan decision effects require review and application: " + "; ".join(details))
         input_hash = canonical_sha256(compiler_input)
         release_root = repository.root.parent / "release-attestations" / repository.root.name
         if release_root.is_symlink() or release_root.parent.is_symlink():

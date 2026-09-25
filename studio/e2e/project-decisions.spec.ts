@@ -22,21 +22,27 @@ test('reviewed decision updates the pinned architecture and clears release confi
     const id = new URL(route.request().url()).pathname.split('/')[3];
     if (route.request().method() === 'POST') return route.fulfill({ json: { project_ref: id, revision_hash: updated, parent_revision_hash: hash, state: 'working', release_required: true, audit_ref: 'architecture/derivations/fixture.json' } });
     return route.fulfill({ json: { project_ref: id, revision_hash: hash, preview_sha256: preview, can_apply: true, blockers: [],
-      changes: [{ rule_id: 'workspace_name', decision_ref: 'approved_naming', target: { collection: 'physical_workspaces', entity_id: 'bronze', field: 'name' }, before: 'bronze-old', after: 'bronze-new', rationale: 'Apply the approved snake-case workspace name.' }],
+      changes: [
+        { rule_id: 'workspace_name', decision_ref: 'approved_naming', target: { collection: 'physical_workspaces', entity_id: 'bronze', field: 'name' }, before: 'bronze-old', after: 'bronze-new', rationale: 'Apply the approved snake-case workspace name.' },
+        { rule_id: 'workspace_name', decision_ref: 'approved_naming', target: { collection: 'plan_work_packages', entity_id: 'workspace_rename', field: 'role_refs' }, before: ['fabric_engineer'], after: ['fabric_engineer', 'test_lead'], rationale: 'Validate dependent definitions after the workspace rename.' },
+        { rule_id: 'workspace_name', decision_ref: 'approved_naming', target: { collection: 'plan_work_packages', entity_id: 'workspace_rename', field: 'effort' }, before: { value: 2, unit: 'person_days', provenance: 'assumption' }, after: { value: 3, unit: 'person_days', provenance: 'assumption' }, rationale: 'Review the explicitly assumed rename and regression effort.' },
+        { rule_id: 'workspace_name', decision_ref: 'approved_naming', target: { collection: 'plan_tasks', entity_id: 'rename_acceptance', field: 'definition_of_done' }, before: ['Workspace renamed'], after: ['Workspace and dependent definitions verified'], rationale: 'Review the acceptance contract.' },
+      ],
       rules: [{ id: 'workspace_name', status: 'ready', reason: 'Explicit approved mapping.' }],
     } });
   });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/architecture');
-  await expect(page.locator('.react-flow__node').filter({ hasText: 'bronze-old' })).toBeVisible();
+  await page.getByRole('button', { name: /All elements/ }).click();
+  await expect(page.getByRole('button', { name: /bronze-old/ })).toBeVisible();
   await page.getByRole('button', { name: 'Build outputs', exact: true }).click();
   await page.getByRole('checkbox').check();
   await expect(page.getByRole('button', { name: 'Generate architecture bundle' })).toBeEnabled();
   await page.getByRole('button', { name: 'Decision effects', exact: true }).click();
-  await expect(page.getByRole('region', { name: 'Proposed architecture changes' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Proposed decision impacts' })).toBeVisible();
   await expect(page.getByText('bronze-old', { exact: true })).toBeVisible();
   await expect(page.getByText('bronze-new', { exact: true })).toBeVisible();
-  const submit = page.getByRole('button', { name: 'Update architecture draft', exact: true });
+  const submit = page.getByRole('button', { name: 'Update project draft', exact: true });
   await expect(submit).toBeDisabled();
   await page.getByRole('textbox', { name: 'Review rationale' }).fill('Reviewed the explicit approved naming against the workspace contract.');
   await page.getByRole('checkbox').check();
@@ -49,7 +55,7 @@ test('reviewed decision updates the pinned architecture and clears release confi
   const request = page.waitForRequest(r => r.url().includes('/architecture/decisions') && r.method() === 'POST');
   await submit.click();
   expect((await request).postDataJSON()).toEqual({ revisionHash: hash, previewHash: preview, rationale: 'Reviewed the explicit approved naming against the workspace contract.', confirmed: true });
-  await expect(page.locator('.react-flow__node').filter({ hasText: 'bronze-new' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /bronze-new/ })).toBeVisible();
   await expect(page.getByRole('status')).toContainText('new Working version');
   await page.getByRole('button', { name: 'Build outputs', exact: true }).click();
   await expect(page.getByRole('checkbox')).not.toBeChecked();

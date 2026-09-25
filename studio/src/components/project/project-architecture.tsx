@@ -154,7 +154,7 @@ export function ProjectArchitecture() {
       {tab === 'decisions' && revision && <ProjectDecisionReview key={identity} projectId={projectId} revisionHash={revision} onApplied={result => {
         const selected = useProjectStore.getState();
         if (active.current !== identity || selected.projectId !== projectId || selected.packageRevisionHash !== revision) return;
-        setMessage({key:`${projectId}:${result.revision_hash}`,text:'Architecture updated in a new Working version. Review the updated graph and contracts, then approve and release the new input version. Nothing was deployed.'});
+        setMessage({key:`${projectId}:${result.revision_hash}`,text:'Architecture and delivery plan updated in a new Working version. Review both contracts, then approve and release the new input version. Nothing was deployed.'});
         useProjectStore.getState().setPackageRevisionHash(result.revision_hash);
         setConfirmedIdentity(null); setTab('graph');
       }} />}

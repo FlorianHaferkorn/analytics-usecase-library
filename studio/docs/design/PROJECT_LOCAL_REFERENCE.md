@@ -21,9 +21,9 @@ The selected customer project is not read or changed by the lab. The surrounding
 | Step | Actual local implementation | Evidence boundary |
 | --- | --- | --- |
 | Input | Versioned synthetic brief and three invented sales rows | Fixed fixture, not arbitrary document discovery or customer evidence |
-| Decision | Explicit environment option, real before/after derivation and a new immutable Working revision | Targets are declared in the fixture for each option; no general topology inference or automatic environment cloning |
+| Decision | Explicit environment option, real before/after derivation of architecture, role demand, assumed effort and task acceptance, then a new immutable Working revision | Targets are declared in the fixture for each option; no general topology inference, automatic environment cloning, named staffing or approved cost |
 | Fixture release | Local fixture approval followed by the existing release machinery | Tests approval mechanics; not a customer approval, tenant permission or reusable host authorization |
-| Architecture and plan | Existing architecture, workspace and native-item compilers, all pinned to the same final revision | Existing graph projection, not a new alternative diagram model |
+| Architecture and plan | Existing architecture, workspace and native-item compilers plus static decision-impact checks, all pinned to the same final revision | Existing graph projection and package-contract assertions, not a new alternative diagram model or tenant test |
 | Documentation | Existing generated delivery documents plus source, derivation evidence, file hashes and test records | Describes this synthetic package, not an implementation-complete Fabric deployment |
 | Data assertion | Python Decimal arithmetic: hardware 30.00 + services 7.50 = 37.50 | Does not execute Spark, SQL, DAX, Direct Lake or the generated Notebook/Pipeline |
 | Workspace adapter | Existing planner and create-only executor called with an in-memory client | Create, exact repeat/no-op, conflict, interrupted outcome and readback recovery are simulations |
