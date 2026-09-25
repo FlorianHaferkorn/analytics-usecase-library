@@ -4,7 +4,8 @@
 **Document Type:** DPA / Processor Agreement  
 **Version:** 1.0  
 **Effective Date:** (to be completed by legal team)  
-**Last Updated:** 2026-04-22
+**Last Updated:** 2026-04-22  
+**Inhaltliche Durchsicht (ohne Legal-Sign-off):** 2026-09-25 – siehe Abschnitt 14
 
 ---
 
@@ -110,7 +111,7 @@ Under DSGVO Article 28, any entity processing personal data on behalf of a contr
 
 ---
 
-## 5. Sub-Processors (Unterfertiger)
+## 5. Sub-Processors (Unterauftragsverarbeiter)
 
 ### 5.1 Initial List of Sub-Processors
 
@@ -118,9 +119,10 @@ Under DSGVO Article 28, any entity processing personal data on behalf of a contr
 
 | Sub-Processor Name | Service/Role | Location | Data Categories | Contract Status |
 |---|---|---|---|---|
-| Amazon Web Services (AWS) | Cloud infrastructure | EU (westeurope, eu-central-1) | All | DPA in place |
+| Amazon Web Services (AWS) | Cloud infrastructure | EU (eu-central-1; ⚠️ UNKLAR: „westeurope“ ist ein Azure-Regionsname – AWS-Region bestätigen, C-14) | All | DPA in place |
 | Microsoft Azure | (if applicable) | EU regions only | (to be completed by legal team) | (to be completed by legal team) |
 | (Third-party API vendor) | (to be completed by legal team) | (to be completed by legal team) | (to be completed by legal team) | (to be completed by legal team) |
+| ⚠️ Offen: LLM-Anbieter der Studio-KI-Funktionen | (not documented – C-01) | (not documented) | (not documented) | (not documented) |
 
 ### 5.2 Sub-Processor Change Control
 
@@ -172,7 +174,7 @@ The Processor must log all instructions. Instructions contrary to DSGVO shall no
 | **Personnel Training** | Annual DSGVO + data protection training; training records maintained |
 | **Confidentiality Agreements** | All employees sign NDA before data access |
 | **Access Authorization** | Granted only to identified, trained personnel; revoked immediately on termination |
-| **Incident Response** | Written procedure; breach notification within 72 hours (Art. 33) |
+| **Incident Response** | Written procedure; der Auftragsverarbeiter meldet Verletzungen dem Verantwortlichen **unverzüglich** (Art. 33 Abs. 2 DSGVO). Die 72-Stunden-Frist (Art. 33 Abs. 1) gilt für die Meldung des Verantwortlichen an die Aufsichtsbehörde[^1]. Eine vertragliche Stundenfrist legt Legal fest. (Korrigiert 2026-09-25) |
 | **Data Subject Rights** | Procedures to assist with access, deletion, portability (Art. 12–22); 10-day SLA |
 | **Subprocessor Management** | Sub-processor agreements reviewed annually; changes tracked |
 | **Physical Security** | Access to facilities restricted; visitor logs; CCTV (if applicable) |
@@ -202,7 +204,7 @@ The Processor shall:
 1. Designate a DPA contact for DSAR requests
 2. Log all requests with timestamp, subject, data categories, resolution
 3. Notify Controller immediately upon request receipt
-4. Assist Controller in responding within statutory timeline (30 days per Art. 12)
+4. Assist Controller in responding within statutory timeline (ein Monat, um weitere zwei Monate verlängerbar – Art. 12 Abs. 3 DSGVO[^1]; korrigiert 2026-09-25, vorher „30 days“)
 5. Cooperate in supervisory authority investigations
 
 ⚠️ TO BE COMPLETED BY LEGAL: Define escalation procedure if Processor receives direct data subject requests.
@@ -216,7 +218,7 @@ The Processor shall:
 The Controller (or independent auditor on controller's behalf) has the right to:
 
 - Audit Processor compliance with this DPA and DSGVO at least annually
-- Conduct unannounced inspections (≥2 weeks' notice)
+- Conduct unannounced inspections (≥2 weeks' notice) — ⚠️ UNKLAR: widersprüchlich („unangekündigt“ vs. „≥ 2 Wochen Vorlauf“); Legal entscheidet (C-13)
 - Review TOMs, personnel training records, sub-processor contracts
 - Obtain SOC 2 Type II or ISO 27001 certification reports (annually)
 
@@ -251,7 +253,7 @@ This DPA terminates upon:
 - **Expiration of the term** (Section 3.2) without renewal
 - **Mutual written agreement**
 - **Termination for cause** (material breach not cured within 15 days)
-- **Termination for convenience** (30/60/90 days' notice)
+- **Termination for convenience** (30/60/90 days' notice) — ⚠️ abweichend von 3.2 („typically 60–90 days“); Legal vereinheitlicht (C-13)
 
 ### 9.2 Data Handling Upon Termination
 
@@ -323,6 +325,20 @@ Amendments require written consent from both parties per the Sub-Processor chang
 - [ ] **Termination procedure:** Data deletion/return option specified; timeline defined
 - [ ] **Liability allocation:** Insurance requirements and damage caps specified
 - [ ] **Signatures obtained:** Both Controller and Processor have signed and dated
+
+---
+
+## 14. Offene Punkte (Durchsicht 2026-09-25)
+
+Die Vorlage bleibt eine Vorlage; Platzhalter wurden nicht gefüllt. Befunde (IDs = Ledger in `_INDEX.md`):
+
+- **C-13 Art. 28 Abs. 3 DSGVO:** Nach Art. 28 Abs. 3 lit. a verarbeitet der Auftragsverarbeiter Daten nur auf dokumentierte Weisung, „auch in Bezug auf die Übermittlung personenbezogener Daten an ein Drittland“. Nach lit. f unterstützt er den Verantwortlichen bei den Pflichten aus Art. 32–36[^1]. Beides ist in der Vorlage nicht ausdrücklich geregelt. Optional kann Legal die Standardvertragsklauseln nach Art. 28 Abs. 7 (Durchführungsbeschluss (EU) 2021/915)[^2] als Basis nutzen.
+- **C-13 Abschnitt 4.1:** Die Auswahl der Rechtsgrundlage nach Art. 6 ist Sache des Verantwortlichen und kein Pflichtinhalt nach Art. 28 Abs. 3. Legal entscheidet, ob der Abschnitt bleibt.
+- **C-01 / C-06:** In 5.1 fehlen die LLM-Anbieter (Studio) und Microsoft Power BI/Fabric. Abhängigkeit: „AI data handling policy“ (andere Sitzung, nicht committet).
+- **C-07:** Unklar ist, in welcher Rolle ALUCA diese Vorlage nutzt: als Auftragsverarbeiter gegenüber Kunden oder als Verantwortlicher gegenüber Vendoren.
+
+[^1]: DSGVO (EUR-Lex): https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu — Wortlaut abgeglichen über https://dsgvo-gesetz.de/art-28-dsgvo/, https://dsgvo-gesetz.de/art-12-dsgvo/, https://dsgvo-gesetz.de/art-33-dsgvo/
+[^2]: Durchführungsbeschluss (EU) 2021/915: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32021D0915
 
 ---
 

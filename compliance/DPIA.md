@@ -3,6 +3,7 @@
 **Regulation:** DSGVO Article 35  
 **Document Version:** 1.0  
 **Last Updated:** 2026-04-22  
+**Inhaltliche Durchsicht (ohne Legal-Sign-off):** 2026-09-25 – siehe Abschnitt 10  
 **Next Review:** (to be completed by legal team)
 
 ---
@@ -109,8 +110,8 @@ If ANY special categories are present, Art. 9 restrictions apply (explicit conse
 | **Unauthorized re-identification:** Malicious actor links IDs to real identities | Medium | High | Encryption keys (HSM); RBAC; key separation | Medium |
 | **Cross-dataset inference:** Re-identification via aggregated cohort data | Low–Med | Medium | Differential privacy; minimum n-size (n≥5) | Low |
 | **Accidental data export:** Unmasked PII in exports | Low | High | PII detection; export governance; DLP | Low |
-| **Retention violation:** Data not deleted after expiry | Medium | Medium | Automated prune job; audit trail | Medium |
-| **Unauthorized international transfer:** Data moved to non-EU region | Low (with constraints) | Critical | Terraform enforcement; subprocessor audit | Low |
+| **Retention violation:** Data not deleted after expiry | Medium | Medium | Automated prune job; audit trail — ⚠️ Prune-Job existiert im Repo nicht (C-08) | Medium |
+| **Unauthorized international transfer:** Data moved to non-EU region | Low (with constraints) | Critical | Terraform enforcement; subprocessor audit | Low — ⚠️ UNKLAR: Terraform-Enforcement ist im Repo nicht implementiert (nur Platzhalter-Ordner, Stand 2026-09-25); Bewertung „Low“ derzeit nicht belegt (C-08) |
 
 ---
 
@@ -127,7 +128,7 @@ If ANY special categories are present, Art. 9 restrictions apply (explicit conse
 | **Data minimization** | Only necessary fields exposed; row-level security (RLS) |
 | **Audit logging** | Immutable log of all data access/modifications; 1-year retention |
 | **Network isolation** | Private subnets; API gateway for external access |
-| **Automated deletion** | Nightly prune job: `tooling/generator/maintenance/prune_expired_rows.py` |
+| **Automated deletion** | Nightly prune job: `tooling/generator/maintenance/prune_expired_rows.py` — ⚠️ Datei existiert im Repo nicht (Stand 2026-09-25, C-08) |
 
 ### 6.2 Organizational Measures
 
@@ -135,7 +136,7 @@ If ANY special categories are present, Art. 9 restrictions apply (explicit conse
 |---|---|
 | **DPA (Data Processing Agreement)** | Art. 28 DSGVO compliant with all processors |
 | **Data protection training** | Annual DSGVO training for all data-access personnel |
-| **Incident response plan** | Breach detection, reporting, remediation within 72 hours (Art. 33) |
+| **Incident response plan** | Breach detection and reporting: Meldung durch den Verantwortlichen an die Aufsichtsbehörde unverzüglich und möglichst binnen 72 Stunden (Art. 33 Abs. 1); ein Auftragsverarbeiter meldet dem Verantwortlichen unverzüglich (Art. 33 Abs. 2)[^1]. Die 72-Stunden-Frist betrifft die Meldung, nicht die Behebung. (Korrigiert 2026-09-25) |
 | **Data subject access requests (DSARs)** | Process for data export, deletion, rectification (Art. 12–22) |
 | **Privacy by design** | DPIA review before rollout of new use cases |
 | **Third-party audits** | Annual SOC 2 or ISO 27001 audit |
@@ -185,7 +186,7 @@ After implementing the measures above, the following residual risks remain:
 
 - [ ] DPO has reviewed and confirms alignment with DSGVO Art. 5 (lawfulness, fairness, transparency, purpose limitation, data minimization, accuracy, integrity/confidentiality, accountability)
 - [ ] DPO confirms all identified risks have been assessed and controls are proportionate
-- [ ] DPO confirms supervisory authority consultation is NOT required under Art. 36(4) DSGVO
+- [ ] DPO confirms supervisory authority consultation is NOT required under Art. 36(1) DSGVO (korrigiert 2026-09-25: Art. 36 Abs. 4 betrifft die Konsultation durch Mitgliedstaaten bei Gesetzgebungsvorhaben)[^1]
 - [ ] DPO has confirmed retention policy complies with Art. 5(1)(e) (storage limitation)
 
 | Field | Value |
@@ -208,6 +209,20 @@ After implementing the measures above, the following residual risks remain:
 - [ ] **Residual risks accepted:** DPO and business stakeholders agree remaining risks are acceptable
 - [ ] **DPO sign-off obtained:** DPO signature and approval date recorded
 - [ ] **DPIA outcome communicated:** Outcome shared with controllers/processors and relevant stakeholders
+
+---
+
+## 10. Offene Punkte (Durchsicht 2026-09-25)
+
+Diese DSFA deckt nur die Verarbeitungen 4.1–4.3 ab. Die folgenden Verarbeitungen im heutigen Repo sind **nicht** bewertet. Sie werden hier nicht ergänzt, sondern als Lücke geführt (IDs = Ledger in `_INDEX.md`):
+
+- **C-01 Studio-KI / LLM-Anbieter:** Die KI-Routen in Studio (Discovery-Chat, KI-Chat, Wizard, Factsheet-Entwurf) übermitteln Eingaben und Projektkontext an LLM-Anbieter. Nicht dokumentiert sind: Datenkategorien, Anbieter, Region, Transfergrundlage und Speicherdauer. Die DSK-Muss-Liste nach Art. 35 Abs. 4 DSGVO nennt unter Nr. 11 den „Einsatz von künstlicher Intelligenz zur Verarbeitung personenbezogener Daten zur Steuerung der Interaktion mit den Betroffenen oder zur Bewertung persönlicher Aspekte“[^2]. Ob dieser Tatbestand erfüllt ist, entscheidet Legal/DSB (C-12). Abhängigkeit: „AI data handling policy“ (andere Sitzung, noch nicht committet).
+- **C-02 LLM-Telemetrie**, **C-03 Studio-Benutzer-/Org-/Audit-Daten**, **C-04 SAP-Konnektor**, **C-05 Project Runner / agentic loop**, **C-06 Fabric-Export/Tenant-Settings:** nicht in Scope, Datenkategorien und Risiken nicht bewertet.
+- **C-07 Rolle:** Abschnitt 2 ist offen (Verantwortlicher oder Auftragsverarbeiter). Davon hängt ab, wer die DSFA für Kundendaten schuldet.
+- **C-11 EU AI Act:** Die Transparenzpflichten nach Art. 50 VO (EU) 2024/1689 gelten seit 02.08.2026. Art. 4 wurde durch VO (EU) 2026/1744 geändert. Eine Einordnung der Studio-KI fehlt; Quellen siehe README.md, „Rechtsstand-Abgleich“.
+
+[^1]: DSGVO (EUR-Lex): https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu — Wortlaut Art. 33 und 36 abgeglichen über https://dsgvo-gesetz.de/art-33-dsgvo/ und https://dsgvo-gesetz.de/art-36-dsgvo/
+[^2]: DSK, Liste der Verarbeitungstätigkeiten, für die eine DSFA durchzuführen ist, Version 1.1 vom 17.10.2018: https://www.datenschutzkonferenz-online.de/media/ah/20181017_ah_DSK_DSFA_Muss-Liste_Version_1.1_Deutsch.pdf
 
 ---
 

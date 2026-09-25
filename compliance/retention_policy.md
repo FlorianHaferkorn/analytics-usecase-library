@@ -62,11 +62,11 @@ This retention policy defines:
 |---|---|
 | **Tier ID** | `7y` |
 | **Retention Period** | 7 calendar years from creation date |
-| **Business Justification** | ⚠️ TO BE COMPLETED BY LEGAL: Compliance and audit trail requirements. Germany's Grundsatz der Geschäftsmäßigkeit (principle of proper conduct of business) often requires 7-year retention of transaction-related records (HGB § 257). Action audit logs and compliance records must be retained for regulatory inspections and legal disputes. |
+| **Business Justification** | ⚠️ TO BE COMPLETED BY LEGAL: Compliance and audit trail requirements. Korrigiert 2026-09-25: § 257 Abs. 4 HGB schreibt **10 Jahre** (Handelsbücher, Inventare, Abschlüsse, Lageberichte u. a.), **8 Jahre** (Buchungsbelege) und **6 Jahre** (empfangene/abgesandte Handelsbriefe) vor. Die Frist beginnt mit dem Schluss des Kalenderjahres (Abs. 5)[^1]. Eine 7-Jahres-Frist ergibt sich aus § 257 HGB nicht. ⚠️ UNKLAR: Der zuvor genannte „Grundsatz der Geschäftsmäßigkeit“ ist nicht belegt; § 257 Abs. 3 HGB verweist auf die „Grundsätze ordnungsmäßiger Buchführung“. Ob Analytics-/Audit-Daten überhaupt unter § 257 HGB fallen, entscheidet Legal (C-10). Action audit logs and compliance records must be retained for regulatory inspections and legal disputes. |
 | **Data Categories** | Action code execution audit trail, compliance-related events, employee approval logs, legal hold records, transaction ledgers |
 | **Example Tables / Fields** | `fact_action_outcome` (with actor names), `audit_log.action_execution`, `compliance_events`, `transaction_ledger` |
 | **Deletion Method** | Automated nightly prune job with legal hold verification (Section 5); manual legal approval required before deletion |
-| **Legal Basis** | Art. 5(1)(e) DSGVO + Art. 6(1)(c) DSGVO (legal obligation – HGB tax/accounting records); necessary for tax, legal, and regulatory compliance |
+| **Legal Basis** | Art. 5(1)(e) DSGVO + Art. 6(1)(c) DSGVO (legal obligation – HGB tax/accounting records, soweit einschlägig; Fristen siehe oben); necessary for tax, legal, and regulatory compliance |
 | **Exceptions** | Active litigation, regulatory investigation, or legal hold: retain indefinitely until legal team approves deletion |
 | **Responsible Team** | Compliance / Legal team; DPO oversight; quarterly legal hold review |
 | **Review Frequency** | Annually; legal team confirms 7-year period is still required by law |
@@ -181,6 +181,8 @@ CREATE TABLE fact_action_outcome (
 
 ⚠️ TO BE COMPLETED BY TECH: The nightly prune job (`tooling/generator/maintenance/prune_expired_rows.py`) is responsible for identifying and deleting expired personal data.
 
+⚠️ Stand 2026-09-25: Weder das Skript noch die Konfiguration `core/config/retention_policy.yaml` existieren im Repo (git ls-files). Abschnitt 5 beschreibt ein **Soll**, keinen Ist-Zustand (C-08).
+
 | Aspect | Specification |
 |---|---|
 | **Script location** | `tooling/generator/maintenance/prune_expired_rows.py` |
@@ -279,12 +281,12 @@ When a data subject requests deletion ("right to be forgotten"), follow this pro
 
 | Step | Owner | Timeline | Action |
 |---|---|---|---|
-| 1 | Customer service / Legal | Upon request receipt | Log DSAR in DSAR tracking system (Section 4, data_processing_record.md) |
+| 1 | Customer service / Legal | Upon request receipt | Log DSAR in DSAR tracking system (Section 2.4 / ACT-004, data_processing_record.md; Verweis korrigiert 2026-09-25) |
 | 2 | Data engineering | Within 5 business days | Identify all tables containing personal data for this subject; prepare deletion plan |
 | 3 | Legal team | Within 10 business days | Review deletion plan; confirm no legal hold applies; approve deletion |
 | 4 | Data engineering | Within 5 days of approval | Execute deletion (hard delete or cryptographic erasure); log to deletion_audit_log |
 | 5 | Data engineering | Same day | Verify deletion with SELECT COUNT(*) query; provide deletion certificate to legal team |
-| 6 | Legal team | Within 30 days total | Respond to data subject with confirmation of deletion; include deletion certificate if requested |
+| 6 | Legal team | Within one month total (Art. 12 Abs. 3 DSGVO; verlängerbar um zwei Monate mit Begründung)[^2] | Respond to data subject with confirmation of deletion; include deletion certificate if requested |
 
 ⚠️ TO BE COMPLETED BY LEGAL: Document exceptions (e.g., "We cannot delete X table because legal hold LH-2026-001 applies").
 
@@ -317,7 +319,7 @@ Every quarter, the compliance team shall:
 
 ### 7.2 Audit Trail Integrity
 
-The deletion_audit_log itself must be retained indefinitely (as it is the evidence of DSGVO compliance) and protected from tampering:
+The deletion_audit_log itself must be retained indefinitely (as it is the evidence of DSGVO compliance) and protected from tampering: ⚠️ UNKLAR (2026-09-25): widerspricht dem Punkt „archived copy retained for 7 years“ unten. Außerdem enthält das Log Operator-Namen (personenbezogen), sodass eine unbefristete Aufbewahrung zu Art. 5 Abs. 1 lit. e passen muss; Legal klärt (C-15).
 
 - [ ] Append-only table (no UPDATE or DELETE allowed on existing rows)
 - [ ] Encrypted at rest (AES-256)
@@ -337,7 +339,7 @@ If a deletion is executed by mistake (e.g., wrong date range, wrong table):
 2. **Alert DPO and legal team** within 1 hour (critical incident)
 3. **Restore from backup** (preferably within 4 hours; RTO = 4 hours, RPO = 24 hours)
 4. **Audit the deletion:** Determine root cause (operator error, bug in prune logic, etc.)
-5. **File incident report** (Section 5.2, DPIA.md); notify supervisory authority if data loss is material and cannot be recovered
+5. **File incident report** (Section 6.2 „Incident response plan“, DPIA.md; Verweis korrigiert 2026-09-25); notify supervisory authority if data loss is material and cannot be recovered
 6. **Implement corrective action:** Update prune job logic, add additional verification, or retrain operator
 
 ### 8.2 Retention Extension (Business Request)
@@ -371,10 +373,10 @@ If a deletion is executed by mistake (e.g., wrong date range, wrong table):
 
 ### 10.1 Related Documents
 
-- [DPIA.md](./DPIA.md) – Data Protection Impact Assessment (Section 5.2 on residual risks includes data retention)
+- [DPIA.md](./DPIA.md) – Data Protection Impact Assessment (Section 5 risk table „Retention violation“; Section 7 residual risks – Verweis korrigiert 2026-09-25, vorher „Section 5.2“)
 - [AVV_Template.md](./AVV_Template.md) – Data Processing Agreement (Section 9 covers data deletion upon termination)
 - [data_processing_record.md](./data_processing_record.md) – Processing activity register (each activity specifies retention)
-- [core/config/retention_policy.yaml](../../core/config/retention_policy.yaml) – Technical configuration file (to be created by tech team)
+- core/config/retention_policy.yaml – Technical configuration file (to be created by tech team) — ⚠️ existiert nicht; der frühere Link `../../core/…` zeigte zudem aus `compliance/` heraus über die Repo-Wurzel hinaus (C-08)
 
 ### 10.2 Glossary
 
@@ -388,9 +390,9 @@ If a deletion is executed by mistake (e.g., wrong date range, wrong table):
 
 ### 10.3 External References
 
-- DSGVO Art. 5(1)(e) – Storage Limitation: https://www.bfdi.bund.de (German regulatory authority)
-- EDPB Guidelines 05/2020 – Data Protection Impact Assessment: https://edpb.ec.europa.eu/our-work-tools/publications_en
-- Handelsgesetzbuch (HGB) § 257 – German commercial record retention (7 years): https://www.gesetze-im-internet.de/hgb/
+- DSGVO Art. 5(1)(e) – Storage Limitation: https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu (Primärquelle; vorher nur BfDI-Startseite)
+- ~~EDPB Guidelines 05/2020 – Data Protection Impact Assessment~~ — korrigiert 2026-09-25: Die EDPB-Leitlinien 05/2020 betreffen die **Einwilligung**, nicht die DSFA (https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-052020-consent-under-regulation-2016679_en). Für die DSFA in DE: DSK-Muss-Liste nach Art. 35 Abs. 4, Version 1.1 vom 17.10.2018 (https://www.datenschutzkonferenz-online.de/media/ah/20181017_ah_DSK_DSFA_Muss-Liste_Version_1.1_Deutsch.pdf). ⚠️ UNKLAR: Die passende EDPB/WP29-DSFA-Leitlinie (vermutlich WP 248 rev.01) wurde nicht an der Primärquelle geprüft.
+- Handelsgesetzbuch (HGB) § 257 – German commercial record retention (10/8/6 Jahre, nicht 7; korrigiert 2026-09-25): https://www.gesetze-im-internet.de/hgb/__257.html
 
 ---
 
@@ -399,11 +401,17 @@ If a deletion is executed by mistake (e.g., wrong date range, wrong table):
 | Version | Date | Author | Change |
 |---|---|---|---|
 | 1.0 | 2026-04-22 | Analytics & Legal Teams | Initial retention policy skeleton; 4 tiers defined; prune job framework documented |
+| 1.1 | 2026-09-25 | Inhaltliche Durchsicht (kein Legal-Sign-off) | HGB-§-257-Fristen korrigiert, EDPB-Fehlreferenz ersetzt, Querverweise repariert, nicht existente Pfade markiert |
 
 **Last reviewed by:** (to be completed by DPO)  
-**Next review date:** (to be completed by DPO – typically Q2 2026)
+**Next review date:** (to be completed by DPO – typically Q2 2026) — ⚠️ Stand 2026-09-25: überfällig (C-19)
 
 ---
 
 **Document maintained by:** Data Protection Officer / Compliance Team  
 **Confidentiality:** Internal – shared with business owners for tier assignment decisions
+
+**Offene Punkte:** Studio-KI-Daten, LLM-Telemetrie und Studio-Nutzerdaten haben keinen Tier und keine Löschregel (C-01 bis C-03, siehe `_INDEX.md`). Abhängigkeit: „AI data handling policy“ (in Arbeit).
+
+[^1]: § 257 HGB: https://www.gesetze-im-internet.de/hgb/__257.html
+[^2]: DSGVO (EUR-Lex): https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu — Wortlaut Art. 12 Abs. 3 abgeglichen über https://dsgvo-gesetz.de/art-12-dsgvo/

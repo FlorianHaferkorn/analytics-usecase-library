@@ -26,7 +26,8 @@ This record is:
 - **Kept on file** for supervisory authority inspection (Art. 30(1) DSGVO)
 - **Updated quarterly** or when new processing activities commence
 - **Reviewed annually** by the DPO/legal team
-- **Made available to data subjects** upon request (transparency, Art. 14 DSGVO)
+- **Made available to the supervisory authority** upon request (Art. 30 Abs. 4 DSGVO). Betroffene erhalten **nicht** das Verzeichnis, sondern Informationen nach Art. 13/14 DSGVO (siehe Abschnitt 5)[^1]. (Korrigiert 2026-09-25; vorher „Made available to data subjects … Art. 14“.)
+- Hinweis Art. 30 Abs. 5 DSGVO: Die Ausnahme für Unternehmen unter 250 Beschäftigten greift nicht, wenn die Verarbeitung ein Risiko birgt, nicht nur gelegentlich erfolgt oder Art.-9/10-Daten betrifft[^1]. Ob sie anwendbar ist, entscheidet Legal.
 
 ⚠️ TO BE COMPLETED BY LEGAL: Confirm the DPO responsible and quarterly update process.
 
@@ -47,9 +48,9 @@ This record is:
 | **Types of Personal Data** | User IDs (pseudonymized), action outcomes, timestamps, cohort segments, IP addresses (aggregated) |
 | **Legal Basis (Art. 6)** | ⚠️ TO BE COMPLETED BY LEGAL: (a) Consent / (b) Contract / (c) Legal obligation / (d) Vital interests / (e) Public task / (f) Legitimate interests |
 | **Special Categories (Art. 9)** | ⚠️ TO BE COMPLETED BY LEGAL: None / Health / Ethnic / Political / Biometric / Genetic / Religious / Other |
-| **Data Storage Location(s)** | AWS eu-central-1, AWS westeurope (EU only); no transfers outside EU/EEA without SCCs |
+| **Data Storage Location(s)** | AWS eu-central-1; ⚠️ UNKLAR: zweite Region – der ursprüngliche Eintrag „AWS westeurope“ ist ein Azure-Regionsname (AWS-Pendant laut eu_hosting_guarantee.md: eu-west-1); tatsächliche Region bestätigen (C-14). No transfers outside EU/EEA without a transfer mechanism (Art. 45/46 DSGVO) |
 | **Retention Period** | 3 years (standard tier); 7 years (extended tier) |
-| **Deletion Mechanism** | Automated nightly prune job: `tooling/generator/maintenance/prune_expired_rows.py` |
+| **Deletion Mechanism** | Automated nightly prune job: `tooling/generator/maintenance/prune_expired_rows.py` — ⚠️ Datei existiert im Repo nicht (Stand 2026-09-25, C-08) |
 | **Recipient(s)** | Business analysts, product managers, executives (row-level security applied) |
 | **Sub-processors** | AWS S3, AWS KMS, internal data pipeline |
 | **DPA in Place?** | Yes – AWS Data Processing Addendum (DPA) executed |
@@ -161,11 +162,28 @@ This record is:
 
 ---
 
+### 2.6 Nicht erfasste Verarbeitungen (Lücken, Stand 2026-09-25)
+
+Der Repo-Stand vom 2026-09-25 enthält Verarbeitungen ohne Eintrag in diesem Verzeichnis. Sie werden **nicht** als ACT-Einträge erfunden. Sie sind hier als Lücke benannt und im Ledger in `_INDEX.md` geführt:
+
+| Ledger-ID | Komponente (Repo) | Warum VVT-relevant (zu prüfen) |
+|---|---|---|
+| C-01 | Studio-KI-Routen (`studio/src/app/api/ai/`, Discovery-Chat unter `studio/src/app/api/projects/…/discovery/`) | Eingaben und Projektkontext gehen an LLM-Anbieter. Nicht dokumentiert: Empfänger, Drittlandübermittlung, Löschfristen. Abhängigkeit: „AI data handling policy“ (in Arbeit, nicht committet). |
+| C-02 | LLM-Telemetrie (`studio/src/lib/db/llm-events-repo.ts`) | Inhalt der Ereignisse (Prompts? Nutzerbezug?) und Speicherdauer unbekannt |
+| C-03 | Studio-Benutzer, Organisationen, RBAC, Audit-Kette, Benachrichtigungen (`studio/src/lib/db/`, Auth-Route) | Beschäftigten- bzw. Nutzerdaten von Kunden und Betreiber |
+| C-04 | SAP-Konnektor (`tooling/connectors/sap/`, `studio/plugins/sap-connector/`) | Import von Kundendaten aus ERP; Verhältnis zu ACT-005 ungeklärt |
+| C-05 | Project Runner / agentic loop (`tooling/agentic_loop/`, `tooling/superversion/project_package/`) | Ob personenbezogene Daten verarbeitet oder an LLMs gesendet werden: ⚠️ UNKLAR |
+| C-06 | Fabric-/Power-BI-Export, Tenant-Settings | Microsoft (Power BI/Fabric) fehlt als Empfänger/Unterauftragsverarbeiter; Rollen im Kundentenant ungeklärt |
+| C-07 | Rolle insgesamt | Alle „Controller“-Felder sind leer. Handelt ALUCA als Auftragsverarbeiter, ist zusätzlich ein Verzeichnis nach Art. 30 Abs. 2 DSGVO nötig; dieses Dokument folgt dem Aufbau nach Abs. 1. |
+
+---
+
 ## 3. Amendment Tracking
 
 | Date | Activity ID | Change Description | Trigger | Approved By |
 |---|---|---|---|---|
 | 2026-04-22 | ACT-001 to ACT-005 | Initial processing record created | Compliance requirement | (to be completed by legal team) |
+| 2026-09-25 | ACT-001, Abschnitt 1, 2.6 | Durchsicht: Art.-30-Bezüge korrigiert, Regionsangabe als unklar markiert, Lücken 2.6 ergänzt (keine neuen ACT-Einträge) | Inhaltliche Durchsicht | (to be completed by legal team) |
 | (to be completed by legal team) | (to be completed by legal team) | (to be completed by legal team) | (to be completed by legal team) | (to be completed by legal team) |
 
 ---
@@ -218,12 +236,15 @@ Example template:
 | Version | Date | Author | Change |
 |---|---|---|---|
 | 1.0 | 2026-04-22 | Analytics & Legal Teams | Initial processing record skeleton; 5 key activities documented with templates |
+| 1.1 | 2026-09-25 | Inhaltliche Durchsicht (kein Legal-Sign-off) | Art.-30-Bezüge korrigiert; Lückenliste 2.6 |
 
 **Last reviewed by:** (to be completed by DPO)  
-**Next review date:** (to be completed by DPO – typically Q2 2026)  
+**Next review date:** (to be completed by DPO – typically Q2 2026) — ⚠️ Stand 2026-09-25: überfällig (C-19)  
 **Review frequency:** Quarterly or upon material processing activity change
 
 ---
 
 **Document maintained by:** Data Protection Officer / Compliance Team  
-**Confidentiality:** Internal – restricted access (supervisory authorities may request at any time per Art. 30(2) DSGVO)
+**Confidentiality:** Internal – restricted access (supervisory authorities may request it per Art. 30(4) DSGVO; korrigiert 2026-09-25, vorher „Art. 30(2)“)
+
+[^1]: DSGVO (EUR-Lex): https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu — Wortlaut Art. 30 abgeglichen über https://dsgvo-gesetz.de/art-30-dsgvo/
