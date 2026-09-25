@@ -18,6 +18,8 @@ name: Superversion
 
 on:
   pull_request:
+    # Meridian D-572: Entwurfs-PRs laufen nicht; `ready_for_review` startet den vollen Lauf.
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [main]
     paths:
       - "tooling/superversion/**"
@@ -42,6 +44,7 @@ concurrency:
 
 jobs:
   superversion:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     name: superversion (adapter tests + drift-gate)
     runs-on: ubuntu-latest
     steps:
