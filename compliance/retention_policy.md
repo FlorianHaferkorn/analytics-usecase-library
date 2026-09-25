@@ -411,7 +411,7 @@ If a deletion is executed by mistake (e.g., wrong date range, wrong table):
 **Document maintained by:** Data Protection Officer / Compliance Team  
 **Confidentiality:** Internal – shared with business owners for tier assignment decisions
 
-**Offene Punkte:** Studio-KI-Daten, LLM-Telemetrie und Studio-Nutzerdaten haben keinen Tier und keine Löschregel (C-01 bis C-03, siehe `_INDEX.md`). Abhängigkeit: „AI data handling policy“ (in Arbeit).
+**Offene Punkte:** Studio-KI-Daten, LLM-Telemetrie und Studio-Nutzerdaten haben keinen Tier und keine Löschregel (C-01 bis C-03, siehe `_INDEX.md`). Stand 2026-09-25 (Code PR #478): Prompts und Antworten der Studio-KI werden im Studio nicht gespeichert. Die KI-Egress-Nachweise und AI-Policy-Reviews (mit Nutzer-E-Mail und Begründung) haben keine Löschfunktion im Code (C-22). Die Frist der LLM-Telemetrie ist weiter unklar (C-02). Details: `DPIA.md` 11.5, VVT ACT-007.
 
 [^1]: § 257 HGB: https://www.gesetze-im-internet.de/hgb/__257.html
 [^2]: DSGVO (EUR-Lex): https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu — Wortlaut Art. 12 Abs. 3 abgeglichen über https://dsgvo-gesetz.de/art-12-dsgvo/

@@ -130,7 +130,7 @@ echo "✓ All resources in EU regions"
 
 All third-party vendors (SaaS, APIs, cloud services) must be reviewed and approved before use. Current approved list:
 
-⚠️ UNKLAR (2026-09-25): Die Audit-Daten (Januar/Februar 2026) liegen vor der Erstellung dieses Pakets (2026-04-22). Für „DPA signed“ bzw. „DPO Approved: Yes“ (Abschnitt 10) gibt es im Repo keine Nachweise, und kein DSB ist benannt. Google Cloud steht in Abschnitt 10, fehlt aber hier. Es fehlen die LLM-Anbieter der Studio-KI-Funktionen sowie Microsoft Power BI/Fabric (C-01, C-06, C-09).
+⚠️ UNKLAR (2026-09-25): Die Audit-Daten (Januar/Februar 2026) liegen vor der Erstellung dieses Pakets (2026-04-22). Für „DPA signed“ bzw. „DPO Approved: Yes“ (Abschnitt 10) gibt es im Repo keine Nachweise, und kein DSB ist benannt. Google Cloud steht in Abschnitt 10, fehlt aber hier. Microsoft Power BI/Fabric fehlt (C-06, C-09). Die LLM-Anbieter der Studio-KI stehen seit 2026-09-25 als eigene Kategorie in Abschnitt 3.4 (C-01, teilweise).
 
 | Subprocessor | Service | Data Processed | Location | SCC/DPA Status | Audit Date |
 |---|---|---|---|---|---|
@@ -173,6 +173,24 @@ All third-party vendors (SaaS, APIs, cloud services) must be reviewed and approv
 | (to be completed by legal) | (to be completed by legal) | (to be completed by legal) | (to be completed by legal) | (to be completed by legal) | (to be completed by legal) | (to be completed by legal) |
 
 **Important:** Every exception carries residual risk (see DPIA.md Section 7.2) and must be reviewed quarterly by the DPO.
+
+### 3.4 LLM-Anbieter der Studio-KI (Kategorie; ergänzt 2026-09-25)
+
+Abgeleitet aus dem Code-Stand PR #478 („Govern AI data handling and contain model egress“, noch nicht gemergt); Details in `DPIA.md` Abschnitt 11. **Status: nicht freigegeben. Die Übermittlung ist im Code gesperrt** (`studio/src/lib/ai/egress-gate.ts`: jede KI-Route endet vor der Modellauflösung mit 403 bzw. deterministischem Ersatz).
+
+| Anbieter (Code-Kennung) | Einbindung | Residenz laut Code | Region / Standort | Transfergrundlage | DPF-Status | Freigabe |
+|---|---|---|---|---|---|---|
+| Anthropic (`anthropic`) | `@ai-sdk/anthropic`, SDK-Standard-Endpunkt | `any` (keine EU-Zusicherung) | [**REGION**] ⚠️ UNKLAR | [**DPF / SCC 2021/914 MODUL …**] | [**NACHWEIS**] (C-20) | ⛔ nicht freigegeben |
+| Google (`google`, Gemini API) | `@ai-sdk/google` (`createGoogleGenerativeAI`), SDK-Standard-Endpunkt | `any` | [**REGION**] ⚠️ UNKLAR. Die Freigabe für Google Cloud in 2.1/10 gilt **nicht** automatisch für die Gemini API | [**DPF / SCC …**] | [**NACHWEIS**] | ⛔ nicht freigegeben |
+| OpenAI (`openai`) | `@ai-sdk/openai`, SDK-Standard-Endpunkt | `any` | [**REGION**] ⚠️ UNKLAR | [**DPF / SCC …**] | [**NACHWEIS**] | ⛔ nicht freigegeben |
+
+Technische Durchsetzung (im Code belegt):
+
+- **Residenzfilter:** Setzt ein Kunde `dataResidency: 'eu-only'` (L1/L2-Konfiguration), wählt `studio/src/lib/ai/config/route-model.ts` keinen Anbieter. Grund: `PROVIDER_RESIDENCY` enthält für keinen Anbieter `eu-only`. Die KI bleibt dann aus (Fail-closed). Ein EU-Betrieb ist im Code damit **nicht vorgesehen, aber sicher abgeschaltet**.
+- **Projektroute:** `tooling/generator/schemas/project_ai_data_handling.schema.json` verlangt pro Route `provider_region` und `provider_geography` (`eu`/`us`/`local`/`other`) sowie Nachweise zu den Anbieterbedingungen. Laut `studio/docs/design/AI_POLICY_REVIEW.md` sind das Angaben im Paket, **kein Laufzeitnachweis** für Standort, Aufbewahrung oder Training.
+- **Nicht im Code:** eine Zuordnung von EU-Endpunkten, eine Prüfung der Region zur Laufzeit, eine Prüfung der DPF-Zertifizierung (C-21).
+
+⚠️ TO BE COMPLETED BY LEGAL: Vor einer Öffnung ist je Anbieter ein Eintrag in 3.3 (Ausnahme mit Transfergrundlage) oder 3.1 (EU-Verarbeitung mit Nachweis) nötig.
 
 ---
 
@@ -444,6 +462,7 @@ If a critical clause is missing, DO NOT sign. Negotiate amendment or select alte
 | Google Cloud | Data analytics | europe-west1, europe-west4 | ✓ Approved (DPA in place) | Yes |
 | Snowflake | Data warehouse | EU-hosted (on AWS) | ✓ Approved (DPA + SCC Addendum A) | Yes |
 | (Matomo or Plausible) | Web analytics | Self-hosted EU | ✓ Approved (no vendor involved) | Yes |
+| LLM-Anbieter Studio-KI (Anthropic / Google Gemini API / OpenAI) – ergänzt 2026-09-25 | Sprachmodell-Inferenz | [**REGION**] – Code: `any` | ⛔ Nicht freigegeben; Egress im Code gesperrt (Abschnitt 3.4) | (to be completed by legal) |
 | (To be added) | (to be completed by legal) | EU | ⏳ Pending | (to be completed by legal) |
 
 ---
@@ -485,6 +504,7 @@ If a critical clause is missing, DO NOT sign. Negotiate amendment or select alte
 |---|---|---|---|
 | 1.0 | 2026-04-22 | Analytics & Legal Teams | Initial EU hosting guarantee skeleton; 6 approved regions, 5 prohibited services, SCC framework, quarterly audit process |
 | 1.1 | 2026-09-25 | Inhaltliche Durchsicht (kein Legal-Sign-off) | DPF ergänzt, SCC-/BCR-/Art.-46-Fehlzitate korrigiert, EU Data Boundary präzisiert, unbelegte Angaben und nicht existente Pfade markiert |
+| 1.2 | 2026-09-25 | Inhaltliche Durchsicht (kein Legal-Sign-off) | Abschnitt 3.4 LLM-Anbieter der Studio-KI (aus Code-Stand PR #478; nicht freigegeben) und Zeile in Abschnitt 10 |
 
 **Last reviewed by:** (to be completed by DPO)  
 **Next review date:** (to be completed by DPO – Q2 2026) — ⚠️ Stand 2026-09-25: überfällig (C-19)
@@ -498,7 +518,7 @@ If a critical clause is missing, DO NOT sign. Negotiate amendment or select alte
 
 ## 13. Offene Punkte (Durchsicht 2026-09-25)
 
-IDs = Ledger in `_INDEX.md`. C-01 (LLM-Anbieter der Studio-KI: Standort, Transfergrundlage, ggf. DPF-Zertifizierung), C-06 (Power BI/Fabric: Region des Kunden-Tenants und EU Data Boundary – ⚠️ UNKLAR: Power BI und Fabric werden auf der EUDB-Übersichtsseite nicht ausdrücklich genannt[^2]), C-08 (Terraform/CI nicht implementiert), C-09 (unbelegte Freigaben), C-14 (Regionsangaben inkonsistent), C-20 (DPF-Rechtsmittel). Abhängigkeit: „AI data handling policy“ (andere Sitzung, nicht committet).
+IDs = Ledger in `_INDEX.md`. C-01 (LLM-Anbieter der Studio-KI: am 2026-09-25 als Kategorie in 3.4 erfasst; Standort, Transfergrundlage und DPF-Nachweis offen → C-21), C-06 (Power BI/Fabric: Region des Kunden-Tenants und EU Data Boundary – ⚠️ UNKLAR: Power BI und Fabric werden auf der EUDB-Übersichtsseite nicht ausdrücklich genannt[^2]), C-08 (Terraform/CI nicht implementiert), C-09 (unbelegte Freigaben), C-14 (Regionsangaben inkonsistent), C-20 (DPF-Rechtsmittel). Die „AI data handling policy“ liegt im Code-Stand PR #478 vor (nicht gemergt); sie ist in 3.4 berücksichtigt.
 
 [^1]: DSGVO (EUR-Lex): https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu — Wortlaut Art. 28, 33, 46, 47 abgeglichen über https://dsgvo-gesetz.de/art-46-dsgvo/ u. a.
 [^2]: Microsoft, 26.02.2025: https://blogs.microsoft.com/on-the-issues/2025/02/26/microsoft-completes-landmark-eu-data-boundary-offering-enhanced-data-residency-and-transparency/ ; Microsoft Learn: https://learn.microsoft.com/en-us/privacy/eudb/eu-data-boundary-learn

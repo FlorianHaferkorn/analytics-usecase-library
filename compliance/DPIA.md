@@ -3,7 +3,7 @@
 **Regulation:** DSGVO Article 35  
 **Document Version:** 1.0  
 **Last Updated:** 2026-04-22  
-**Inhaltliche Durchsicht (ohne Legal-Sign-off):** 2026-09-25 – siehe Abschnitt 10  
+**Inhaltliche Durchsicht (ohne Legal-Sign-off):** 2026-09-25 – siehe Abschnitt 10; Studio-KI ergänzt in Abschnitt 11 (2026-09-25, Code-Stand PR #478)  
 **Next Review:** (to be completed by legal team)
 
 ---
@@ -112,6 +112,7 @@ If ANY special categories are present, Art. 9 restrictions apply (explicit conse
 | **Accidental data export:** Unmasked PII in exports | Low | High | PII detection; export governance; DLP | Low |
 | **Retention violation:** Data not deleted after expiry | Medium | Medium | Automated prune job; audit trail — ⚠️ Prune-Job existiert im Repo nicht (C-08) | Medium |
 | **Unauthorized international transfer:** Data moved to non-EU region | Low (with constraints) | Critical | Terraform enforcement; subprocessor audit | Low — ⚠️ UNKLAR: Terraform-Enforcement ist im Repo nicht implementiert (nur Platzhalter-Ordner, Stand 2026-09-25); Bewertung „Low“ derzeit nicht belegt (C-08) |
+| **Studio-KI: Übermittlung an LLM-Anbieter** (ergänzt 2026-09-25) | im Code-Stand PR #478 sehr gering (Egress technisch gesperrt) | High | Default-deny-Egress-Gate, Payload-Scanner, Datenklassen-Policy, Vier-Augen-Review – Details und Pfade in Abschnitt 11.4 | Low, solange der Egress gesperrt bleibt; nach einer Öffnung offen (R-KI-2 bis R-KI-6 in Abschnitt 11.7; C-21 bis C-23) |
 
 ---
 
@@ -214,15 +215,116 @@ After implementing the measures above, the following residual risks remain:
 
 ## 10. Offene Punkte (Durchsicht 2026-09-25)
 
-Diese DSFA deckt nur die Verarbeitungen 4.1–4.3 ab. Die folgenden Verarbeitungen im heutigen Repo sind **nicht** bewertet. Sie werden hier nicht ergänzt, sondern als Lücke geführt (IDs = Ledger in `_INDEX.md`):
+Diese DSFA deckt die Verarbeitungen 4.1–4.3 ab, seit 2026-09-25 außerdem die Studio-KI in Abschnitt 11 (teilweise, ohne Legal-Sign-off). Die folgenden Verarbeitungen im heutigen Repo sind **nicht** bewertet. Sie werden hier nicht ergänzt, sondern als Lücke geführt (IDs = Ledger in `_INDEX.md`):
 
-- **C-01 Studio-KI / LLM-Anbieter:** Die KI-Routen in Studio (Discovery-Chat, KI-Chat, Wizard, Factsheet-Entwurf) übermitteln Eingaben und Projektkontext an LLM-Anbieter. Nicht dokumentiert sind: Datenkategorien, Anbieter, Region, Transfergrundlage und Speicherdauer. Die DSK-Muss-Liste nach Art. 35 Abs. 4 DSGVO nennt unter Nr. 11 den „Einsatz von künstlicher Intelligenz zur Verarbeitung personenbezogener Daten zur Steuerung der Interaktion mit den Betroffenen oder zur Bewertung persönlicher Aspekte“[^2]. Ob dieser Tatbestand erfüllt ist, entscheidet Legal/DSB (C-12). Abhängigkeit: „AI data handling policy“ (andere Sitzung, noch nicht committet).
-- **C-02 LLM-Telemetrie**, **C-03 Studio-Benutzer-/Org-/Audit-Daten**, **C-04 SAP-Konnektor**, **C-05 Project Runner / agentic loop**, **C-06 Fabric-Export/Tenant-Settings:** nicht in Scope, Datenkategorien und Risiken nicht bewertet.
+- **C-01 Studio-KI / LLM-Anbieter:** Am 2026-09-25 teilweise bearbeitet, siehe **Abschnitt 11** (Datenfluss, Empfänger, Kontrollen, Risiken; Code-Stand PR #478). Offen sind weiterhin Rechtsgrundlage, konkrete Anbieter- und Regionswahl, Transfergrundlage und Löschfristen (C-21, C-22, C-23). Die DSK-Muss-Liste nach Art. 35 Abs. 4 DSGVO nennt unter Nr. 11 den „Einsatz von künstlicher Intelligenz zur Verarbeitung personenbezogener Daten zur Steuerung der Interaktion mit den Betroffenen oder zur Bewertung persönlicher Aspekte“[^2]. Ob dieser Tatbestand erfüllt ist, entscheidet Legal/DSB (C-12). Die Fakten dazu stehen in Abschnitt 11.6.
+- **C-02 LLM-Telemetrie:** Der Inhalt ist teilweise geklärt (Abschnitt 11.5), die Löschfrist ist offen.
+- **C-03 Studio-Benutzer-/Org-/Audit-Daten**, **C-04 SAP-Konnektor**, **C-05 Project Runner / agentic loop**, **C-06 Fabric-Export/Tenant-Settings:** nicht in Scope; Datenkategorien und Risiken sind nicht bewertet.
 - **C-07 Rolle:** Abschnitt 2 ist offen (Verantwortlicher oder Auftragsverarbeiter). Davon hängt ab, wer die DSFA für Kundendaten schuldet.
-- **C-11 EU AI Act:** Die Transparenzpflichten nach Art. 50 VO (EU) 2024/1689 gelten seit 02.08.2026. Art. 4 wurde durch VO (EU) 2026/1744 geändert. Eine Einordnung der Studio-KI fehlt; Quellen siehe README.md, „Rechtsstand-Abgleich“.
+- **C-11 EU AI Act:** Die Transparenzpflichten nach Art. 50 VO (EU) 2024/1689 gelten seit 02.08.2026. Art. 4 wurde durch VO (EU) 2026/1744 geändert. Die Einordnung der Studio-KI ist nicht vorgenommen; die Fakten aus dem Code stehen in Abschnitt 11.8. Quellen siehe README.md, „Rechtsstand-Abgleich“.
 
 [^1]: DSGVO (EUR-Lex): https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu — Wortlaut Art. 33 und 36 abgeglichen über https://dsgvo-gesetz.de/art-33-dsgvo/ und https://dsgvo-gesetz.de/art-36-dsgvo/
 [^2]: DSK, Liste der Verarbeitungstätigkeiten, für die eine DSFA durchzuführen ist, Version 1.1 vom 17.10.2018: https://www.datenschutzkonferenz-online.de/media/ah/20181017_ah_DSK_DSFA_Muss-Liste_Version_1.1_Deutsch.pdf
+
+---
+
+## 11. Studio-KI: Übermittlung an LLM-Anbieter (C-01, C-02, C-11, C-12; Stand 2026-09-25)
+
+Dieser Abschnitt beschreibt die Verarbeitung systematisch (Art. 35 Abs. 7 lit. a DSGVO). Er ist aus dem Code abgeleitet, nicht aus Anbieterverträgen, und ersetzt keine Bewertung durch Legal/DSB. Die zugehörigen Einträge im VVT sind ACT-006 und ACT-007 (`data_processing_record.md`, Abschnitte 2.7 und 2.8).
+
+### 11.1 Geltung und Legende
+
+- **Code-Stand:** PR #478 „Govern AI data handling and contain model egress“, **noch nicht gemergt**. Alle Aussagen gelten nur für diesen Stand. Wird ein anderer Stand ausgeliefert, ist dieser Abschnitt neu zu prüfen.
+- **[Code]** = im Code erzwungen · **[Konfig]** = konfigurierbar (Kunde/Projekt/Admin) · **[Doku]** = nur dokumentiert oder deklariert, technisch nicht erzwungen · **⚠️ UNKLAR** = aus dem Code nicht belegbar.
+- **Kernbefund [Code]:** In diesem Stand verlässt **keine** Anfrage der Studio-KI den Server in Richtung eines LLM-Anbieters. Alle fünf Aufrufstellen rufen zuerst `requireApprovedAiEgress` auf (`studio/src/lib/ai/egress-gate.ts`), also bevor ein Modell aufgelöst oder ein API-Schlüssel gelesen wird. Das Gate übergibt immer `approvalGranted: false`, deshalb endet jede Anfrage mit `block`. Die Antwort ist HTTP 403 `AI_EGRESS_NOT_APPROVED`; nur der Factsheet-Entwurf liefert stattdessen ein deterministisches Ersatzergebnis (`engine: 'deterministic'`, `aiStatus: 'not-approved'`). Weder ein Konfigurationsschalter noch ein Freigabeweg ändert das. Eine Öffnung setzt eine Code-Änderung voraus.
+
+### 11.2 Übermittlungsstellen und Eingaben
+
+Die folgenden Daten würden nach einer Öffnung an den Anbieter gehen. Heute werden sie nur serverseitig gescannt und gehasht (siehe 11.4).
+
+| Funktion | Route (Datei) | Zugriff [Code] | Inhalt des Modell-Payloads | Mögliche personenbezogene Daten |
+|---|---|---|---|---|
+| KI-Chat (Discovery, projektlos) | `studio/src/app/api/ai/chat/route.ts`, Task-Rolle `source-discovery` | angemeldeter Nutzer (`requireAuth`) | System-Prompt; Chat-Nachrichten (Freitext); optional ein vom Client übergebener `context`-String („Source Context“); optional Entity-Kontext aus Core-Artefakten (`studio/src/lib/ai/context-builder.ts`: KPI-ID, Name, Zweck, Definition, Grain, Einheit, DAX-Ausdruck gekürzt auf 200 Zeichen, Factsheet-Zweck, Business Questions); Tools (`studio/src/lib/ai/tools/discovery-tools.ts`), deren Ergebnisse an das Modell zurückgingen (KPI-Katalog inkl. DAX, Bracket- und Action-Code-Metadaten) | Freitext der Studio-Nutzer; Inhalt des `context`-Strings. Ob Core-Artefakte personenbezogene Daten enthalten: ⚠️ UNKLAR (im Code nur Rollenbezeichnungen, keine Personen) |
+| Wizard (KPI, Bracket, Action, Source) | `studio/src/app/api/ai/wizard/route.ts`, Task-Rollen `kpi-draft`, `bracket-synthesis`, `action-draft`, `source-discovery` | angemeldeter Nutzer | System-Prompt und Freitext-Prompt; max. 512 Ausgabe-Tokens | Freitext der Studio-Nutzer |
+| Factsheet-Entwurf | `studio/src/app/api/ai/factsheet-draft/route.ts`, Task-Rolle `documentation` | angemeldeter Nutzer | System-Prompt und Freitext-Prompt | Freitext der Studio-Nutzer |
+| Abgleich Factsheet/Bracket (`mode: reconcile`) | dieselbe Datei, Task-Rolle `bracket-synthesis` | angemeldeter Nutzer | Factsheet-Prosa und Bracket-YAML (je die ersten 4000 Zeichen), Längen, Änderungshinweis, deterministische Hinweise | Inhalt von Factsheets; ob personenbezogen: ⚠️ UNKLAR |
+| Discovery-Chat (projektgebunden) | `studio/src/app/api/projects/[projectId]/discovery/chat/route.ts`, Task-Rolle `source-discovery` | Projektrolle `editor` (`requireRole`); Anfragen über 12 MiB werden abgewiesen (413) | System-Prompt mit dem **vollständigen Inhalt aller übergebenen Quellen** (ID, Name, Inhalt) sowie die Chat-Nachrichten | Inhalt eingebrachter Projektdokumente („Source evidence“). Er kann beliebige personenbezogene Daten Dritter enthalten, z. B. Namen oder Kontaktdaten in Protokollen und Konzepten. Welche Dokumente Kunden einbringen: ⚠️ UNKLAR |
+
+- Die Identität des Nutzers (E-Mail) ist **nicht** Teil des Modell-Payloads [Code]. Sie wird nur als `actor` im Audit-Nachweis gespeichert (11.5).
+- `studio/src/app/api/ai/wizard/save/route.ts` ruft kein Modell auf. Die Route speichert nur einen vom Nutzer bestätigten Entwurf.
+- Weitere Aufrufer von `resolveServerModel`, `generateText` oder `streamText` gibt es in `studio/src/` nicht (Codesuche 2026-09-25). Für KI-Nutzung außerhalb von Studio siehe C-05.
+
+### 11.3 Empfänger: Anbieter, Modelle, Endpunkte, Region
+
+| Merkmal | Befund | Art |
+|---|---|---|
+| Mögliche Anbieter | `anthropic`, `google`, `openai`; angebunden über `@ai-sdk/anthropic`, `@ai-sdk/google` (`createGoogleGenerativeAI`) und `@ai-sdk/openai` in `studio/src/lib/ai/orchestrator.ts` | [Code] |
+| Auswahl | Gewählt wird der erste Anbieter in `preferenceOrder` (L0: anthropic → google → openai), der erlaubt ist, die Residenzvorgabe erfüllt **und** einen API-Schlüssel hat (`ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`/`GEMINI_API_KEY`, `OPENAI_API_KEY`); siehe `studio/src/lib/ai/config/route-model.ts` | [Code] Logik, [Konfig] Schlüssel |
+| Modelle (L0) | `claude-haiku-4-5-20251001`, `claude-sonnet-4-6`, `claude-opus-4-8`; `gemini-2.0-flash`; `gpt-4o-mini`, `gpt-4o`. Die Zuordnung erfolgt nach Fähigkeitsrolle (`studio/src/lib/ai/config/defaults.ts`). Die Google- und OpenAI-IDs sind laut Code-Kommentar nicht verifiziert | [Code] |
+| Endpunkt | Kein `baseURL` gesetzt, es gelten die Standard-Endpunkte der SDKs. Welche Hosts und Rechenzentren das sind: ⚠️ UNKLAR (steht nicht im Code) | [Code] |
+| Region/Residenz | `PROVIDER_RESIDENCY` ist für alle drei Anbieter `['any']`, der Code sichert also **keine** EU-Verarbeitung zu. Setzt ein Kunde über L1/L2 `dataResidency: 'eu-only'`, erfüllt kein Anbieter die Vorgabe: `chooseModel` liefert `null`, und die KI bleibt aus (Fail-closed) | [Code] |
+| Kundenschichten L1/L2 | Freigegebene Kunden- und Domänenschichten können L0 nur verschärfen (`allowedProviders` als Schnittmenge, `dataResidency` clamp-strict; `studio/src/lib/ai/config/resolve.ts`). Freigeben kann nur die Admin-Rolle (`studio/src/lib/ai/config/governance-types.ts`) | [Konfig] |
+| Projektgebundene Route | Das Project-Package-Modul `ai_data_handling` (`tooling/generator/schemas/project_ai_data_handling.schema.json`) verlangt je Route `provider_region`, `provider_geography` (`eu`/`us`/`local`/`other`), `credential_ref` (`secret://…`), `provider_terms_evidence_refs` und `expires_at` | [Konfig], nur Entscheidungsgrundlage, keine Freigabe |
+| Speicherung und Training beim Anbieter | Die Policy verlangt `provider_training_allowed: false` und einen expliziten Wert für `prompt_retention_days` (`studio/src/lib/ai/data-handling-policy.ts`). Beides sind **deklarierte** Bedingungen. Ob der Anbieter sie vertraglich und tatsächlich einhält, prüft der Code nicht | [Doku] |
+| Lokales Modell | Die Policy kennt die Grenze `local` mit internem Endpunkt, der Orchestrator unterstützt aber nur `anthropic`, `google` und `openai`. Ein lokales Modell ist in diesem Stand nicht nutzbar | [Code] |
+
+### 11.4 Kontrollen (Maßnahmen nach Art. 25, 32 DSGVO)
+
+| Kontrolle | Wirkung | Art | Fundstelle |
+|---|---|---|---|
+| Default-deny-Egress-Gate | Jede KI-Route wird vor der Modellauflösung blockiert (403 oder deterministischer Ersatz); `approvalGranted` ist fest `false` | [Code] | `studio/src/lib/ai/egress-gate.ts` |
+| Fail-closed bei Nachweis-Fehler | Lässt sich der Audit-Nachweis nicht speichern, antwortet die Route mit 503 `AI_EGRESS_AUDIT_FAILED`; es wird nichts verarbeitet | [Code] | `studio/src/lib/ai/egress-gate.ts` |
+| Datenklassen-Policy | `unknown`, `restricted` und `secret` erreichen nie ein Modell. `customer_confidential` geht nie an `external_cloud`. Nicht-öffentliche Daten gehen nur als `redacted: true` an `external_cloud`. `customer_managed_cloud` braucht einen Nachweis-Verweis. `local` ist nur mit Provider `local`/`mock` und internem Endpunkt zulässig (RFC 1918, Loopback, `.internal` u. a.). Training muss ausgeschlossen, Aufbewahrung und Redaktionspflicht müssen explizit gesetzt sein | [Code] (Evaluator) | `studio/src/lib/ai/data-handling-policy.ts`; Testvektoren `core/fixtures/neutral/ai-data-handling-policy/` |
+| Wirksamer Policy-Kontext heute | Keine Route übergibt `profile` oder `context`. Das Gate nutzt daher sein Default-Profil (Provider `unresolved`, Klasse `unknown`), sodass zusätzlich zur fehlenden Freigabe auch die Policy blockiert | [Code] | `studio/src/lib/ai/egress-gate.ts` |
+| Payload-Scanner (Preflight) | Erkennt Secrets (Private Key, Bearer, JWT, Zuweisungen wie `api_key=`), E-Mail, Telefonnummer, IBAN (mit Prüfsumme), UUID, Home-Verzeichnispfade und kundenspezifische Sperrbegriffe. Blockiert bei jedem Secret, bei **jedem** Fund an `external_cloud` und ab 1 MiB Payload (Standard). Die Allowlist maskiert nur Nicht-Secrets. Der Scanner **erkennt und blockiert, redigiert aber nicht** | [Code]; Sperrbegriffe, Allowlist und Größenlimit [Konfig] (`scan_policy`) | `studio/src/lib/ai/egress-preflight.ts`; Testvektoren `core/fixtures/neutral/ai-egress-preflight/` |
+| Inhaltsfreier Nachweis | Gespeichert werden SHA-256 und Größe des Payloads, Klasse, Form, Zweck, Grenze, Provider, Modell, Fundzahlen je Kategorie, Regel-IDs und Blockgründe. Nachweise mit den Feldern `payload`, `prompt`, `system`, `user`, `matches` oder `redacted_text` werden abgewiesen | [Code] | `studio/src/lib/ai/egress-preflight.ts` (`persistAiEgressEvidence`) |
+| Manipulationsnachweis | Audit-Ereignisse werden verkettet (`chainEvent`). Laut Design-Doku ist das lokale Manipulationsevidenz, kein externes WORM-Log | [Code] / [Doku] | `studio/src/lib/db/audit-repo.ts`; `studio/docs/design/AI_POLICY_REVIEW.md` |
+| AI-Policy-Review (Vier-Augen) | Einreichen mit Rolle `editor`, Entscheidung mit Rolle `admin`; wer einreicht, darf nicht freigeben. Gebunden an Paket-Revision und Routen-Hash; geprüft werden Ablaufdatum, Provider-Region/-Geografie und Nachweise; Begründung 20–2000 Zeichen. Die Antwort enthält immer `egressEnabled: false`, **eine Freigabe öffnet keinen Egress** | [Code] | `studio/src/lib/ai/policy-review.ts`, `studio/src/lib/db/ai-policy-review-repo.ts`, `studio/src/app/api/projects/[projectId]/ai-policy-reviews/route.ts` |
+| Menschliche Prüfung der Ausgaben | Die System-Prompts verlangen Entwürfe („Do not claim approval or create or change governed definitions“, „Never auto-merge silently — patch must be reviewable“). Gespeichert wird nur über die separate Route `wizard/save` | [Doku] (Prompt) / [Code] (separate Route) | Routen in 11.2 |
+| Prüfung von Ausgaben und Tool-Ergebnissen, Redaktion | **Nicht vorhanden.** Gestreamte Modellausgaben und Tool-Ergebnisse durchlaufen keinen Scanner; im Preflight-Payload des KI-Chats stehen nur die Tool-**Namen**. Die Design-Doku führt das als Voraussetzung vor jeder Öffnung | — | `studio/docs/design/AI_POLICY_REVIEW.md` („Explicit non-claims“) → C-23 |
+
+### 11.5 Protokollierung und Aufbewahrung
+
+| Speicher | Inhalt (personenbezogene Daten **fett**) | Wann geschrieben | Löschung/Aufbewahrung |
+|---|---|---|---|
+| `audit_events`, `entity_type = 'ai_egress'` | Nachweis wie in 11.4 (ohne Inhalt), **`actor` = E-Mail des Nutzers**, `project_id` (bei projektlosen Routen `default`), Zeitstempel | bei **jedem** KI-Aufruf, auch bei Blockierung | Der Code hat keine Löschfunktion (`studio/src/lib/db/audit-repo.ts`: nur Insert und Select), und die Verkettung spricht gegen Einzellöschung. Frist: ⚠️ UNKLAR / keine (C-22, vgl. C-15) |
+| `ai_policy_reviews` sowie `audit_events` (`ai_policy_review`) | Revision, Routen-Hash, Status, **`submitted_by` und `reviewed_by` (E-Mail)**, Zeitstempel, **Begründung (Freitext)** | beim Einreichen und bei der Entscheidung | Keine Löschfunktion im Code. Frist: ⚠️ UNKLAR (C-22) |
+| `llm_step_events` (LLM-Telemetrie, C-02) | Laut `studio/src/lib/ai/telemetry.ts`: Projekt-, Use-Case- und Domänen-ID, Task-/Fähigkeitsrolle, Provider, Modell, Token-Zahlen, Latenz, Erfolg, **Fehlertext** (nur der Wizard übergibt die SDK-Fehlermeldung), Kosten, Preistabellenversion, rohes Usage-Objekt. **Kein** Prompt- oder Antwortinhalt, kein Nutzerfeld | nur **nach** einem Modellaufruf, in diesem Stand also nie | Tabellenschema und Frist liegen in `studio/src/lib/db/llm-events-repo.ts`, das im geprüften Teilabbild fehlt → ⚠️ UNKLAR. `telemetry.redactPII` und `sampleRate` (L0) werden in `telemetry.ts` nicht ausgewertet; ob das Repository sie auswertet: ⚠️ UNKLAR |
+| Beim LLM-Anbieter | Prompt und Antwort | erst nach einer Öffnung | Nur deklariert (`prompt_retention_days`). Die tatsächliche Frist hängt vom Anbietervertrag ab → ⚠️ UNKLAR (C-21) |
+
+- `payload_sha256` ist ein Hash des Inhalts. Bei kurzen, erratbaren Eingaben ließe sich damit ein vermuteter Inhalt bestätigen. Er ist daher als pseudonymes, nicht als anonymes Datum zu behandeln (Einschätzung; Bewertung durch Legal).
+
+### 11.6 Schwellwertanalyse zur DSFA-Pflicht (C-12): Fakten aus dem Code
+
+- **Zweck:** Hilfe beim Erstellen von Analytics-Definitionen (KPI, Bracket, Action Code, Factsheet) und beim Auswerten von Projektdokumenten. Der Code enthält keine Bewertung von Personen, kein Scoring, kein Profiling und keine automatisierte Entscheidung mit Wirkung für Betroffene. Die Ausgaben sind Entwürfe, die ein Mensch übernimmt.
+- **Personenbezug:** nicht Ziel der Verarbeitung, aber möglich, etwa im Freitext der Nutzer und vor allem in Quelldokumenten im Discovery-Chat. Art und Umfang hängen vom Kunden ab (⚠️ UNKLAR). Art.-9-Daten sind technisch nicht ausgeschlossen, weil der Scanner nur die Muster aus 11.4 erkennt.
+- **Interaktion:** KI-Chat und Discovery-Chat interagieren mit Studio-Nutzern, also mit Beschäftigten von Kunde oder Betreiber.
+- **Neue Technologie und Drittlandbezug:** Es kommen externe Sprachmodelle von US-Anbietern ohne zugesicherte EU-Residenz in Betracht (11.3).
+- **Einordnung:** Ob DSK-Muss-Liste Nr. 11 oder Art. 35 Abs. 1/3 greift, entscheidet Legal/DSB. Vorsorglich ist die Verarbeitung in diesem Abschnitt bereits nach Art. 35 Abs. 7 beschrieben.
+
+### 11.7 Risiken und Restrisiko (Vorschlag; Bewertung durch Legal/DSB)
+
+| Risiko | Eintritt | Schwere | Maßnahme (Code) | Restrisiko |
+|---|---|---|---|---|
+| **R-KI-1** Personenbezogene oder vertrauliche Daten gehen ungewollt an einen LLM-Anbieter | im Code-Stand PR #478: sehr gering | Hoch | Default-deny-Gate, Fail-closed, Policy-Evaluator (11.4) | **Niedrig**, solange PR #478 unverändert ausgeliefert wird. Eine Code-Änderung kann das Gate entfernen, und davor schützt nur das Change-Control (⚠️ ein Pflicht-Review für diese Dateien ist im Repo nicht belegt) |
+| **R-KI-2** Drittlandübermittlung (USA) nach einer Öffnung | nach Öffnung: hoch | Hoch | `eu-only` führt zu „kein Anbieter“ (Fail-closed); eine Project-Package-Route verlangt `provider_region`/`provider_geography` | **Offen, hoch:** kein EU-Endpunkt im Code; Transfergrundlage (DPF/SCC) fehlt (C-20, C-21) |
+| **R-KI-3** Scanner übersieht personenbezogene Daten (Namen, Anschriften, Freitext, Art.-9-Angaben) | nach Öffnung: mittel | Mittel bis hoch | Scanner (nur Muster), Sperrbegriffe [Konfig], Policy „nicht-öffentlich nur redigiert“ | **Mittel:** keine Redaktion, keine Namenserkennung; `redacted` setzt heute keine Route (C-23) |
+| **R-KI-4** Tool-Ergebnisse und Modellausgaben bleiben ungeprüft | nach Öffnung: mittel | Mittel | keine | **Offen** (C-23) |
+| **R-KI-5** Anbieter speichert Prompts oder trainiert damit | nach Öffnung: unbekannt | Hoch | nur deklariert (`provider_training_allowed: false`, `prompt_retention_days`) | **Offen:** hängt von Anbietervertrag und Nachweisen ab (C-21) |
+| **R-KI-6** Nachweis- und Review-Protokolle (E-Mail, Begründung) werden unbefristet gespeichert | sicher (bei jedem Aufruf) | Niedrig bis mittel | Nachweis ohne Inhalt (Inhaltsfelder werden abgewiesen) | **Mittel:** keine Löschregel (C-22) |
+| **R-KI-7** Freigabe durch eine Einzelperson oder ohne Nachweis | gering | Mittel | Vier-Augen-Prinzip, Rollenprüfung, Bindung an Revision und Hash, Ablaufdatum; eine Freigabe öffnet keinen Egress | **Niedrig** (Härtung von Identität und Session laut Design-Doku separat, vgl. C-16) |
+
+⚠️ TO BE COMPLETED BY LEGAL: Rechtsgrundlage (Art. 6) für ACT-006, Rollenverteilung (C-07) und Tragbarkeit der Restrisiken R-KI-2 bis R-KI-6. Das muss **vor** einer Öffnung des Egress geklärt sein.
+
+### 11.8 EU AI Act (C-11): Fakten aus dem Code
+
+Die rechtliche Einordnung (Anbieter oder Betreiber, Risikoklasse, Transparenzpflichten) nimmt Legal vor. Der Code liefert dafür:
+
+- **Modelle:** Allzweckmodelle Dritter (Anthropic Claude, Google Gemini, OpenAI GPT; 11.3), per API eingebunden. In den geprüften Dateien gibt es keinen Trainings- oder Fine-Tuning-Code.
+- **Funktion:** Textgenerierung von Entwürfen (KPI, Bracket, Action, Source, Factsheet, Abgleichs-Patch) und Chat mit Studio-Nutzern. Das ist relevant für Art. 50 Abs. 1 (Interaktion mit natürlichen Personen) und Art. 50 Abs. 2 (synthetische Textausgaben).
+- **Kennzeichnung:** Die Factsheet-Route liefert `engine: 'ai' | 'deterministic'`. Ob die Oberfläche KI-Ausgaben für Nutzer kennzeichnet: ⚠️ UNKLAR (UI-Komponenten nicht geprüft).
+- **Hochrisiko-Bezug:** Im Code gibt es keinen Hinweis auf Zwecke nach Anhang III (z. B. Beschäftigung, Kreditwürdigkeit). Das ist eine Beobachtung, keine Einordnung.
+- **Betriebszustand:** In diesem Code-Stand ist jede Modellübermittlung gesperrt (11.1). Ob das für das „Inverkehrbringen/Inbetriebnehmen“ eine Rolle spielt, bewertet Legal.
 
 ---
 

@@ -56,6 +56,8 @@ Under DSGVO Article 28, any entity processing personal data on behalf of a contr
 | Analytics reporting and KPI calculation | Business intelligence and decision-making | 3–7 years (per retention tier) |
 | Action code execution and audit logging | Execute business rules; maintain audit trail | 7 years (compliance standard) |
 | Platform maintenance and security monitoring | Detect abuse, prevent unauthorized access | 30 days (raw logs); 1 year (aggregated) |
+| Studio-KI-Assistenz (VVT ACT-006; ergänzt 2026-09-25) | Entwürfe für KPI-, Bracket-, Action- und Factsheet-Definitionen; Vorschläge aus Projektdokumenten mit externem Sprachmodell. Im Code-Stand PR #478 technisch gesperrt, siehe `DPIA.md` 11.1 | Anbieterseitige Speicherung: [**FRIST LAUT LLM-ANBIETERVERTRAG**] – ⚠️ TO BE COMPLETED BY LEGAL |
+| Nachweis- und Freigabeprotokolle der Studio-KI (VVT ACT-007) | Nachweis jeder KI-Egress-Entscheidung, Vier-Augen-Review | ⚠️ UNKLAR – im Code keine Löschfrist (C-22) |
 | (Additional activities) | (to be completed by legal team) | (to be completed by legal team) |
 
 ### 3.2 Duration of Agreement
@@ -108,6 +110,8 @@ Under DSGVO Article 28, any entity processing personal data on behalf of a contr
 | Action outcome, cohort segment | `fact_action_outcome.*` | 3–7y | Medium |
 | Timestamps | All fact tables | 3–7y | Low |
 | Technical metadata | audit logs | 30d–1y | Low–Medium |
+| KI-Eingaben: Freitext, Chat-Nachrichten, Inhalte von Quelldokumenten (ergänzt 2026-09-25) | Modell-Payload der Studio-KI-Routen (`DPIA.md` 11.2); im Studio nicht gespeichert | – (beim Anbieter: [**FRIST**]) | ⚠️ kundenabhängig; kann Daten Dritter enthalten |
+| Nutzer-E-Mail in KI-Nachweisen und Reviews | `audit_events` (`ai_egress`, `ai_policy_review`), `ai_policy_reviews` | ⚠️ kein Tier (C-22) | Low–Medium |
 
 ---
 
@@ -122,7 +126,7 @@ Under DSGVO Article 28, any entity processing personal data on behalf of a contr
 | Amazon Web Services (AWS) | Cloud infrastructure | EU (eu-central-1; ⚠️ UNKLAR: „westeurope“ ist ein Azure-Regionsname – AWS-Region bestätigen, C-14) | All | DPA in place |
 | Microsoft Azure | (if applicable) | EU regions only | (to be completed by legal team) | (to be completed by legal team) |
 | (Third-party API vendor) | (to be completed by legal team) | (to be completed by legal team) | (to be completed by legal team) | (to be completed by legal team) |
-| ⚠️ Offen: LLM-Anbieter der Studio-KI-Funktionen | (not documented – C-01) | (not documented) | (not documented) | (not documented) |
+| **Kategorie LLM-Anbieter (Studio-KI)** – [**ANBIETERNAME**] (laut Code einer von: Anthropic, Google, OpenAI; siehe 5.3) | Inferenz externer Sprachmodelle für Studio-KI (ACT-006) | [**REGION / GEOGRAFIE**] – ⚠️ Code sichert keine EU-Residenz zu | KI-Eingaben (4.3); keine Nutzer-E-Mail | [**AVV/DPA-STATUS**]; Drittland: [**DPF / SCC 2021/914 MODUL …**] – ⚠️ TO BE COMPLETED BY LEGAL. Nicht aktiv: Egress im Code-Stand PR #478 gesperrt |
 
 ### 5.2 Sub-Processor Change Control
 
@@ -138,6 +142,23 @@ Under DSGVO Article 28, any entity processing personal data on behalf of a contr
 - Controller may object to new sub-processors within 15–30 days of notification
 - If parties cannot agree, Controller may terminate this DPA with 30 days' notice without penalty
 - If Processor cannot remove the sub-processor, Controller may terminate immediately
+
+### 5.3 Unterauftragsverarbeiter-Kategorie „LLM-Anbieter“ (Studio-KI; ergänzt 2026-09-25)
+
+Die Tabelle leitet sich aus dem Code ab (Stand PR #478, nicht gemergt; Details in `DPIA.md` Abschnitt 11). Sie ist **keine** Freigabe. Kundenspezifische Werte sind Platzhalter.
+
+| Merkmal | Aus dem Code belegt | Vom Vertrag/Legal auszufüllen |
+|---|---|---|
+| Anbieter | `anthropic`, `google` (Gemini API über `@ai-sdk/google`), `openai`; Auswahlreihenfolge L0: anthropic → google → openai; aktiv ist nur ein Anbieter mit hinterlegtem API-Schlüssel (Kunde bringt den Schlüssel selbst mit) | [**VERTRAGSPARTNER, JURISTISCHE PERSON, SITZ**] |
+| Modelle | Zuordnung in `studio/src/lib/ai/config/defaults.ts` (z. B. `claude-sonnet-4-6`, `gemini-2.0-flash`, `gpt-4o`) | – |
+| Endpunkt / Region | SDK-Standard-Endpunkte (kein `baseURL`). `PROVIDER_RESIDENCY` = `any` → **keine** EU-Zusicherung im Code; `eu-only` sperrt die KI (Fail-closed) | [**REGION, RECHENZENTRUMSSTANDORT, NACHWEIS**] |
+| Rechtsgrundlage Drittlandübermittlung | – | [**DPF-ZERTIFIZIERUNG (Nachweis) ODER SCC 2021/914 MODUL 2/3 + TIA**] (C-20) |
+| Training mit Kundendaten | Policy verlangt `provider_training_allowed: false` (nur deklariert) | [**VERTRAGLICHER AUSSCHLUSS + FUNDSTELLE**] |
+| Aufbewahrung der Prompts beim Anbieter | Policy verlangt einen expliziten Wert für `prompt_retention_days` (nur deklariert) | [**FRIST LAUT ANBIETERBEDINGUNGEN**] |
+| Weitere Unterauftragsverarbeiter des Anbieters | – | [**LISTE / LINK**] |
+| Freigabe im Projekt | Project-Package-Route mit `provider_region`, `provider_geography`, `provider_terms_evidence_refs`, `expires_at`; Vier-Augen-Review. Öffnet den Egress **nicht** | Verweis auf die Freigabeentscheidung [**DECISION-REF**] |
+
+⚠️ TO BE COMPLETED BY LEGAL: Nach Art. 28 Abs. 2/4 DSGVO darf ein LLM-Anbieter erst eingesetzt werden, wenn er vorher genehmigt wurde und die Pflichten vertraglich weitergegeben sind. Im Code ist der Egress gesperrt; vor einer Öffnung müssen C-21 und C-23 erledigt sein.
 
 ---
 
@@ -166,6 +187,7 @@ The Processor must log all instructions. Instructions contrary to DSGVO shall no
 | **Logging & Monitoring** | Immutable audit logs of all access/modifications; 1-year retention |
 | **Network Security** | Private subnets; API gateway for external access; IDS/IPS |
 | **Backup & Recovery** | Encrypted backups; tested restoration (RTO = 4 hours) |
+| **KI-Egress-Kontrolle (Studio; ergänzt 2026-09-25)** | Default-deny-Gate mit Fail-closed, Datenklassen-Policy, Payload-Scanner (blockiert Secrets und Fundstellen personenbezogener Muster), inhaltsfreier Nachweis je Aufruf, Vier-Augen-Review. Im Code belegt, Pfade in `DPIA.md` 11.4. Nicht vorhanden: Redaktion sowie Prüfung von Ausgaben und Tool-Ergebnissen (C-23) |
 
 ### 6.3 Organizational Measures
 
@@ -334,7 +356,8 @@ Die Vorlage bleibt eine Vorlage; Platzhalter wurden nicht gefüllt. Befunde (IDs
 
 - **C-13 Art. 28 Abs. 3 DSGVO:** Nach Art. 28 Abs. 3 lit. a verarbeitet der Auftragsverarbeiter Daten nur auf dokumentierte Weisung, „auch in Bezug auf die Übermittlung personenbezogener Daten an ein Drittland“. Nach lit. f unterstützt er den Verantwortlichen bei den Pflichten aus Art. 32–36[^1]. Beides ist in der Vorlage nicht ausdrücklich geregelt. Optional kann Legal die Standardvertragsklauseln nach Art. 28 Abs. 7 (Durchführungsbeschluss (EU) 2021/915)[^2] als Basis nutzen.
 - **C-13 Abschnitt 4.1:** Die Auswahl der Rechtsgrundlage nach Art. 6 ist Sache des Verantwortlichen und kein Pflichtinhalt nach Art. 28 Abs. 3. Legal entscheidet, ob der Abschnitt bleibt.
-- **C-01 / C-06:** In 5.1 fehlen die LLM-Anbieter (Studio) und Microsoft Power BI/Fabric. Abhängigkeit: „AI data handling policy“ (andere Sitzung, nicht committet).
+- **C-01 (teilweise, 2026-09-25):** Die LLM-Anbieter stehen jetzt als Kategorie mit Platzhaltern in 5.1 und 5.3, abgeleitet aus dem Code-Stand PR #478. Offen sind Vertragspartner, Region und Transfergrundlage (C-21).
+- **C-06:** In 5.1 fehlt Microsoft Power BI/Fabric.
 - **C-07:** Unklar ist, in welcher Rolle ALUCA diese Vorlage nutzt: als Auftragsverarbeiter gegenüber Kunden oder als Verantwortlicher gegenüber Vendoren.
 
 [^1]: DSGVO (EUR-Lex): https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu — Wortlaut abgeglichen über https://dsgvo-gesetz.de/art-28-dsgvo/, https://dsgvo-gesetz.de/art-12-dsgvo/, https://dsgvo-gesetz.de/art-33-dsgvo/

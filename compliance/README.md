@@ -102,6 +102,8 @@ compliance/
 
 Das Paket (Stand 2026-04-22) beschreibt eine generische Analytics-Plattform (Fakt-/Dimensionstabellen, Action Codes, Security-Logs). Der Repo-Stand vom 2026-09-25 enthält zusätzlich Komponenten, die im Paket **nicht** abgedeckt sind – u. a. die Studio-App mit KI-Routen (Discovery-Chat, KI-Chat, Wizard, Factsheet-Entwurf), LLM-Telemetrie, Benutzer-/Organisations-/Audit-Verwaltung, Project Runner / agentic loop, Fabric-Export und Tenant-Settings sowie den SAP-Konnektor. Welche personenbezogenen Daten dabei an welche Anbieter (insbesondere LLM-Anbieter) gehen, ist im Paket nicht dokumentiert. Diese Lücken sind **nicht** ergänzt, sondern als offene Punkte im Ledger in [_INDEX.md](./_INDEX.md) erfasst (C-01 bis C-06). Abhängigkeit: Eine „AI data handling policy“ wird in einer anderen Arbeitssitzung erstellt (noch nicht committet); VVT, DSFA und AVV sind danach nachzuziehen.
 
+**Nachtrag 2026-09-25 (Studio-KI):** Die AI data handling policy liegt im Code-Stand PR #478 vor („Govern AI data handling and contain model egress“, noch nicht gemergt). Daraus ist die Studio-KI jetzt dokumentiert: DSFA-Abschnitt 11 (Datenfluss, Kontrollen, Risiken, Fakten zum AI Act), VVT ACT-006/ACT-007, AVV 5.3 und Hosting 3.4. Kernbefund: In diesem Stand ist jede Übermittlung an LLM-Anbieter im Code gesperrt. Anbieter, Region und Transfergrundlage bleiben Platzhalter. Ledger: C-01, C-02, C-11 und C-12 teilweise erledigt; neu hinzugekommen sind C-21 bis C-23.
+
 ## Rechtsstand-Abgleich (Durchsicht 2026-09-25)
 
 Geprüft am 25.09.2026 an den angegebenen Quellen. Dies ist eine Dokumentationsprüfung, **keine Rechtsberatung**; die Bewertung obliegt Legal/DSB.
@@ -135,6 +137,7 @@ For technical questions about data flows, schema, or infrastructure, contact the
 |---|---|---|---|
 | 1.0 | 2026-04-22 | Analytics Team | Initial compliance skeleton; templates created for legal team |
 | 1.1 | 2026-09-25 | Inhaltliche Durchsicht (Agent, kein Legal-Sign-off) | Rechtsstand-Abgleich, Repo-Abgleich, Fehlzitate/Querverweise korrigiert; offene Punkte → _INDEX.md-Ledger |
+| 1.2 | 2026-09-25 | Inhaltliche Durchsicht (Agent, kein Legal-Sign-off) | Studio-KI aus Code-Stand PR #478 eingearbeitet (DSFA 11, VVT ACT-006/007, AVV 5.3, Hosting 3.4); Ledger C-01/02/11/12 teilweise, neu C-21 bis C-23 |
 
 ---
 

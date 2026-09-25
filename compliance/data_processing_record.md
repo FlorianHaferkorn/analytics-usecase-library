@@ -168,13 +168,69 @@ Der Repo-Stand vom 2026-09-25 enthält Verarbeitungen ohne Eintrag in diesem Ver
 
 | Ledger-ID | Komponente (Repo) | Warum VVT-relevant (zu prüfen) |
 |---|---|---|
-| C-01 | Studio-KI-Routen (`studio/src/app/api/ai/`, Discovery-Chat unter `studio/src/app/api/projects/…/discovery/`) | Eingaben und Projektkontext gehen an LLM-Anbieter. Nicht dokumentiert: Empfänger, Drittlandübermittlung, Löschfristen. Abhängigkeit: „AI data handling policy“ (in Arbeit, nicht committet). |
-| C-02 | LLM-Telemetrie (`studio/src/lib/db/llm-events-repo.ts`) | Inhalt der Ereignisse (Prompts? Nutzerbezug?) und Speicherdauer unbekannt |
+| C-01 | Studio-KI-Routen (`studio/src/app/api/ai/`, Discovery-Chat unter `studio/src/app/api/projects/…/discovery/`) | **Teilweise erfasst am 2026-09-25 → ACT-006 (2.7) und ACT-007 (2.8).** Offen: Rechtsgrundlage, konkreter Anbieter, Region und Transfergrundlage (C-21), Löschfristen (C-22). Code-Stand PR #478: Egress technisch gesperrt. |
+| C-02 | LLM-Telemetrie (`studio/src/lib/db/llm-events-repo.ts`) | **Teilweise erfasst am 2026-09-25 → ACT-007 (2.8):** Laut `studio/src/lib/ai/telemetry.ts` keine Prompts und kein Nutzerfeld. Speicherdauer weiterhin unbekannt |
 | C-03 | Studio-Benutzer, Organisationen, RBAC, Audit-Kette, Benachrichtigungen (`studio/src/lib/db/`, Auth-Route) | Beschäftigten- bzw. Nutzerdaten von Kunden und Betreiber |
 | C-04 | SAP-Konnektor (`tooling/connectors/sap/`, `studio/plugins/sap-connector/`) | Import von Kundendaten aus ERP; Verhältnis zu ACT-005 ungeklärt |
 | C-05 | Project Runner / agentic loop (`tooling/agentic_loop/`, `tooling/superversion/project_package/`) | Ob personenbezogene Daten verarbeitet oder an LLMs gesendet werden: ⚠️ UNKLAR |
 | C-06 | Fabric-/Power-BI-Export, Tenant-Settings | Microsoft (Power BI/Fabric) fehlt als Empfänger/Unterauftragsverarbeiter; Rollen im Kundentenant ungeklärt |
 | C-07 | Rolle insgesamt | Alle „Controller“-Felder sind leer. Handelt ALUCA als Auftragsverarbeiter, ist zusätzlich ein Verzeichnis nach Art. 30 Abs. 2 DSGVO nötig; dieses Dokument folgt dem Aufbau nach Abs. 1. |
+
+---
+
+### 2.7 Studio-KI-Assistenz mit externen Sprachmodellen (ergänzt 2026-09-25)
+
+> Code-Stand: PR #478, noch nicht gemergt. Alle technischen Angaben stammen aus dem Code; Details und Dateipfade stehen in `DPIA.md`, Abschnitt 11. **In diesem Stand ist die Übermittlung an LLM-Anbieter im Code gesperrt** (Default-deny-Gate, siehe `DPIA.md` 11.1). Der Eintrag beschreibt die Verarbeitung, wie sie der Code vorsieht, und die Bedingungen für eine Öffnung.
+
+| Field | Value |
+|---|---|
+| **Activity ID** | ACT-006 |
+| **Activity Name** | Studio-KI-Assistenz (KI-Chat, Discovery-Chat, Wizard, Factsheet-Entwurf und -Abgleich) |
+| **Description** | Studio-Nutzer lassen Entwürfe für KPI-, Bracket-, Action- und Source-Definitionen sowie Factsheets erzeugen und Vorschläge aus Projektdokumenten ableiten. Dafür würden Prompt, Kontext und gegebenenfalls Quelldokumente an ein externes Sprachmodell gesendet (`DPIA.md` 11.2). Zuvor prüft der Server jeden Aufruf mit Policy und Payload-Scanner und protokolliert ihn ohne Inhalt (ACT-007) |
+| **Status (Code)** | Egress gesperrt: `requireApprovedAiEgress` blockiert jede Route vor der Modellauflösung. Ein Freigabeweg per Konfiguration existiert nicht; auch ein genehmigter AI-Policy-Review öffnet den Egress nicht |
+| **Controller** | (to be completed by legal team) – Rolle Kunde/ALUCA ungeklärt (C-07) |
+| **Processor(s)** | ALUCA-Studio-Betrieb (⚠️ Hosting der Studio-Instanz: UNKLAR); nach einer Öffnung zusätzlich der LLM-Anbieter als (Unter-)Auftragsverarbeiter: [**LLM-ANBIETER**] (Kandidaten laut Code: Anthropic, Google, OpenAI) |
+| **Categories of Data Subjects** | Studio-Nutzer (Beschäftigte von Kunde oder Betreiber); Dritte, die in eingebrachten Projektdokumenten vorkommen (⚠️ UNKLAR, kundenabhängig) |
+| **Types of Personal Data** | Freitext-Eingaben und Chat-Nachrichten; Inhalte von Quelldokumenten (Discovery-Chat, vollständig im System-Prompt); Factsheet-Prosa und Bracket-YAML (je bis 4000 Zeichen); Core-Artefakt-Metadaten (KPI-Definitionen, DAX). **Nicht** im Modell-Payload: Nutzer-E-Mail und Nutzerkennung |
+| **Datenklassen (Policy)** | Nie an ein Modell: `unknown`, `restricted`, `secret`. `customer_confidential` nie an `external_cloud`. Nicht-öffentliche Daten an `external_cloud` nur redigiert [Code, `studio/src/lib/ai/data-handling-policy.ts`]. Welche Klassen je Projekt erlaubt sind: [Konfig], Project-Package-Modul `ai_data_handling` → [**KUNDENSPEZIFISCH**] |
+| **Legal Basis (Art. 6)** | ⚠️ TO BE COMPLETED BY LEGAL |
+| **Special Categories (Art. 9)** | ⚠️ TO BE COMPLETED BY LEGAL. Technisch nicht ausgeschlossen: Der Scanner erkennt nur Secrets, E-Mail, Telefon, IBAN, UUID, Home-Pfade und Sperrbegriffe |
+| **Data Storage Location(s)** | Studio-Server: ⚠️ UNKLAR. Beim LLM-Anbieter: [**REGION**]. Der Code sichert keine EU-Residenz zu (`PROVIDER_RESIDENCY` = `any` für alle Anbieter); `eu-only` führt zu „kein Anbieter“ |
+| **Drittlandübermittlung** | Nach einer Öffnung wahrscheinlich (US-Anbieter, SDK-Standard-Endpunkte) → [**TRANSFERGRUNDLAGE: DPF-Zertifizierung / SCC 2021/914 Modul …**] ⚠️ TO BE COMPLETED BY LEGAL (C-20, C-21) |
+| **Retention Period** | Studio: Prompts und Antworten werden in den geprüften Routen nicht gespeichert (Ausnahme Discovery-Persistenz, siehe C-03; ⚠️ nicht geprüft). Anbieter: [**PROMPT-AUFBEWAHRUNG LAUT VERTRAG**]; im Code nur als `prompt_retention_days` deklariert, nicht überprüft (C-21) |
+| **Deletion Mechanism** | Beim Anbieter: vertraglich (⚠️ UNKLAR). Im Studio: nicht zutreffend (keine Speicherung des Payloads) |
+| **Recipient(s)** | Anfragender Studio-Nutzer; nach einer Öffnung: [**LLM-ANBIETER**] |
+| **Sub-processors** | [**LLM-ANBIETER**], siehe `AVV_Template.md` 5.3 und `eu_hosting_guarantee.md` 3.4 |
+| **DPA in Place?** | ⚠️ TO BE COMPLETED BY LEGAL. Ohne AVV bzw. Anbieterbedingungen mit Nachweis darf der Egress nicht geöffnet werden |
+| **Technical Measures** | Default-deny-Egress-Gate mit Fail-closed (`studio/src/lib/ai/egress-gate.ts`); Datenklassen-Policy (`studio/src/lib/ai/data-handling-policy.ts`); Payload-Scanner mit Blockierung (`studio/src/lib/ai/egress-preflight.ts`); Residenz-/Anbieterfilter (`studio/src/lib/ai/config/route-model.ts`); Rollenprüfung pro Route; inhaltsfreier, verketteter Nachweis (ACT-007). **Fehlt:** Redaktion, Prüfung von Ausgaben und Tool-Ergebnissen (C-23) |
+| **Organizational Measures** | AI-Policy-Review im Vier-Augen-Prinzip (Editor reicht ein, ein anderer Admin entscheidet, Begründung ist Pflicht; `studio/docs/design/AI_POLICY_REVIEW.md`); Freigabe der Kunden-KI-Konfiguration L1/L2 nur durch Admin |
+| **DPIA** | `DPIA.md` Abschnitt 11 (vorsorglich; Pflicht nach C-12 von Legal zu entscheiden) |
+| **DPO Assessment** | (to be completed by DPO) |
+| **DPO Sign-Off Date** | (to be completed by DPO) |
+
+---
+
+### 2.8 Nachweis-, Freigabe- und Telemetrieprotokolle der Studio-KI (ergänzt 2026-09-25)
+
+| Field | Value |
+|---|---|
+| **Activity ID** | ACT-007 |
+| **Activity Name** | Protokollierung von KI-Egress-Entscheidungen, AI-Policy-Reviews und LLM-Telemetrie |
+| **Description** | Zu jedem KI-Aufruf wird ein inhaltsfreier Nachweis gespeichert, auch wenn der Aufruf blockiert wird. Einreichungen und Entscheidungen zu AI-Policy-Reviews werden mit Begründung protokolliert. Nach einem Modellaufruf werden Nutzung und Kosten erfasst (in diesem Stand nie erreicht) |
+| **Controller** | (to be completed by legal team) (C-07) |
+| **Processor(s)** | ALUCA-Studio-Betrieb (SQLite-Datenbank der Studio-Instanz; ⚠️ Hosting UNKLAR) |
+| **Categories of Data Subjects** | Studio-Nutzer (Beschäftigte von Kunde oder Betreiber) |
+| **Types of Personal Data** | Egress-Nachweis (`audit_events`, `ai_egress`): `actor` = Nutzer-E-Mail, Projekt-ID, Zeitstempel, Payload-Hash (SHA-256) und -Größe, Klasse, Zweck, Provider, Modell, Fundzahlen, Regel-IDs, Blockgründe; **kein Inhalt** (Inhaltsfelder werden abgewiesen). Reviews (`ai_policy_reviews`): Einreicher- und Prüfer-E-Mail, Zeitstempel, Begründung (Freitext, 20–2000 Zeichen), Revision, Routen-Hash. Telemetrie (`llm_step_events`): Rollen, Provider, Modell, Token-Zahlen, Latenz, Erfolg, Fehlertext, Kosten; kein Nutzerfeld, kein Prompt (laut `studio/src/lib/ai/telemetry.ts`) |
+| **Legal Basis (Art. 6)** | ⚠️ TO BE COMPLETED BY LEGAL (z. B. Nachweis- und Rechenschaftspflicht, Art. 5 Abs. 2 / Art. 24, 32 – Einordnung Legal) |
+| **Data Storage Location(s)** | Studio-Datenbank (SQLite); Standort: ⚠️ UNKLAR |
+| **Retention Period** | ⚠️ UNKLAR / nicht geregelt. `studio/src/lib/db/audit-repo.ts` und `studio/src/lib/db/ai-policy-review-repo.ts` enthalten keine Lösch- oder Ablauffunktion; die Hash-Kette der Audit-Ereignisse spricht gegen Einzellöschung. Die Frist für `llm_step_events` lässt sich nicht prüfen (`llm-events-repo.ts` fehlt im Teilabbild). Kein Tier in `retention_policy.md` (C-02, C-22) |
+| **Deletion Mechanism** | Keiner im Code (C-22) |
+| **Recipient(s)** | Projekt-Viewer (Review-Liste über `GET …/ai-policy-reviews`), Projekt-Admins, Betrieb |
+| **Sub-processors** | keine eigenen; Hosting der Studio-Instanz ⚠️ UNKLAR |
+| **Technical Measures** | Inhaltsfreier Nachweis (`persistAiEgressEvidence` weist die Felder `payload`, `prompt`, `system`, `user`, `matches`, `redacted_text` ab); Verkettung zur Manipulationserkennung (`chainEvent`); rollenbasierter Zugriff |
+| **Organizational Measures** | Vier-Augen-Prinzip beim Review; Löschkonzept fehlt (C-22) |
+| **DPO Assessment** | (to be completed by DPO) |
+| **DPO Sign-Off Date** | (to be completed by DPO) |
 
 ---
 
@@ -184,6 +240,7 @@ Der Repo-Stand vom 2026-09-25 enthält Verarbeitungen ohne Eintrag in diesem Ver
 |---|---|---|---|---|
 | 2026-04-22 | ACT-001 to ACT-005 | Initial processing record created | Compliance requirement | (to be completed by legal team) |
 | 2026-09-25 | ACT-001, Abschnitt 1, 2.6 | Durchsicht: Art.-30-Bezüge korrigiert, Regionsangabe als unklar markiert, Lücken 2.6 ergänzt (keine neuen ACT-Einträge) | Inhaltliche Durchsicht | (to be completed by legal team) |
+| 2026-09-25 | ACT-006, ACT-007 (neu); 2.6 | Studio-KI und KI-Protokolle aus dem Code-Stand PR #478 abgeleitet (Ledger C-01, C-02); Platzhalter für kundenspezifische Werte | Ledger C-01/C-02 | (to be completed by legal team) |
 | (to be completed by legal team) | (to be completed by legal team) | (to be completed by legal team) | (to be completed by legal team) | (to be completed by legal team) |
 
 ---
@@ -211,6 +268,7 @@ Example template:
 > 1. **Analytics (Activity ACT-001):** User IDs, action outcomes, timestamps, cohort segments. Retained for 3–7 years. Protected by encryption and access controls.
 > 2. **Action audit logs (Activity ACT-002):** User ID, action performer name, outcome, timestamp. Retained for 7 years.
 > 3. **Security monitoring (Activity ACT-003):** IP addresses, session IDs, device fingerprints. Logs retained for 30 days (raw) or 1 year (aggregated).
+> 4. **KI-Assistenz im Studio (Activity ACT-006, ergänzt 2026-09-25):** Ihre Eingaben und von Ihnen eingebrachte Dokumente können an [**LLM-ANBIETER**] in [**REGION**] übermittelt werden, sobald die Funktion freigegeben ist. Grundlage der Übermittlung: [**TRANSFERGRUNDLAGE**]; Speicherdauer beim Anbieter: [**FRIST**]. ⚠️ TO BE COMPLETED BY LEGAL (inkl. KI-Transparenzhinweis, vgl. C-11)
 > 
 > **Your rights:** Access, rectification, deletion, restriction, portability, objection. Contact [DPO email].
 
@@ -237,6 +295,7 @@ Example template:
 |---|---|---|---|
 | 1.0 | 2026-04-22 | Analytics & Legal Teams | Initial processing record skeleton; 5 key activities documented with templates |
 | 1.1 | 2026-09-25 | Inhaltliche Durchsicht (kein Legal-Sign-off) | Art.-30-Bezüge korrigiert; Lückenliste 2.6 |
+| 1.2 | 2026-09-25 | Inhaltliche Durchsicht (kein Legal-Sign-off) | ACT-006 (Studio-KI) und ACT-007 (KI-Protokolle) aus Code-Stand PR #478 ergänzt; C-01/C-02 teilweise |
 
 **Last reviewed by:** (to be completed by DPO)  
 **Next review date:** (to be completed by DPO – typically Q2 2026) — ⚠️ Stand 2026-09-25: überfällig (C-19)  
