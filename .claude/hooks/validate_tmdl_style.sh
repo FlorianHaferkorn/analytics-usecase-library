@@ -5,7 +5,7 @@
 # Enforces framework TMDL conventions:
 #   1. Indentation must use TABS only (spaces cause parser errors)
 #   2. No := operator (use = only)
-#   3. `description:` must be <= 200 chars (Copilot truncates beyond that)
+#   3. No `description:` key — descriptions are a `///` block above the object
 #
 # Exit codes:
 #   0 = pass or not applicable
@@ -68,19 +68,16 @@ if grep -n ":=" "$FILE_PATH" > /dev/null 2>&1; then
   ERRORS+=("TMDL DAX error: ':=' operator is forbidden in TMDL. Use '=' instead. Line: $FIRST_LINE")
 fi
 
-# --- Check 3: description length (Copilot truncates after 200 chars) ---
-# `description:` is MANDATORY per core/.../TMDL_Allowed_Subset.md (Copilot-readiness).
-# A /// comment is source documentation only and never reaches the model metadata.
-while IFS= read -r LINE; do
-  [ -z "$LINE" ] && continue
-  LINENO_D="${LINE%%:*}"
-  TEXT="${LINE#*:}"
-  TEXT="${TEXT#*description:}"
-  LEN=${#TEXT}
-  if [ "$LEN" -gt 200 ]; then
-    ERRORS+=("TMDL description too long ($LEN chars, max 200 - Copilot truncates). Line: $LINENO_D")
-  fi
-done < <(grep -n "^[[:space:]]*description:" "$FILE_PATH" 2>/dev/null)
+# --- Check 3: No `description:` key ---
+# In TMDL the TOM Description property is written as a `///` block directly above the
+# object declaration (learn.microsoft.com/analysis-services/tmdl/tmdl-overview#descriptions).
+# That block IS what report authors and Copilot see (Copilot reads the first 200 chars).
+# A `description:` key is not TMDL's description syntax; the generator and
+# check_tmdl_syntax.ps1 reject it as well.
+if grep -n "^[[:space:]]*description:" "$FILE_PATH" > /dev/null 2>&1; then
+  FIRST_LINE=$(grep -n "^[[:space:]]*description:" "$FILE_PATH" | head -1)
+  ERRORS+=("TMDL description error: write the description as a '///' block above the object, not as a 'description:' key. Line: $FIRST_LINE")
+fi
 
 # --- Report results ---
 if [ ${#ERRORS[@]} -gt 0 ]; then
