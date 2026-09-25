@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-06-16
+last-reviewed: 2026-09-25
 shelf-life-days: 90
 ---
 # Agent — Zentraler Anlaufpunkt (_INDEX)
@@ -11,7 +11,7 @@ shelf-life-days: 90
 
 | Feld | Wert |
 |---|---|
-| Stand | 2026-06-16 |
+| Stand | 2026-09-25 |
 | Rolle | L0-Navigation der Agent-Ebene |
 | Verlinkt von | `CLAUDE.md` (Bereichs-Landkarte) |
 
