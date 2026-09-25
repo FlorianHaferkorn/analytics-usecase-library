@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import ipaddress
+from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 import yaml
 from jsonschema import Draft202012Validator, FormatChecker
@@ -26,6 +29,7 @@ SCHEMA_BY_MODULE = {
     "capability_state": "project_capability_state.schema.json",
     "identity_access": "project_identity_access.schema.json",
     "architecture_maintenance": "project_architecture_maintenance.schema.json",
+    "ai_data_handling": "project_ai_data_handling.schema.json",
 }
 
 
@@ -260,6 +264,105 @@ def _validate_capability_state(document: dict[str, Any], label: str) -> list[str
             if answer["state"] in {"open", "deferred"} and answer["owner_ref"] is None:
                 errors.append(f"{label}: unresolved question {answer['question_ref']!r} requires owner_ref")
     return errors
+
+
+def _validate_ai_data_handling(
+    document: dict[str, Any], decision_instances: dict[str, dict[str, Any]],
+    decision_definitions: dict[str, dict[str, Any]], label: str,
+) -> list[str]:
+    """Bind each AI policy to the existing decision set without granting egress."""
+    errors: list[str] = []
+    routes = document["routes"]
+    route_ids = [route["id"] for route in routes]
+    if len(set(route_ids)) != len(route_ids):
+        errors.append(f"{label}: duplicate AI route id")
+    for route in routes:
+        route_label = f"{label}: AI route {route['id']!r}"
+        decision = decision_instances.get(route["decision_ref"])
+        definition = decision_definitions.get(decision["definition_ref"]) if decision else None
+        if decision is None:
+            errors.append(f"{route_label} has unresolved decision_ref {route['decision_ref']!r}")
+        elif route["id"] not in decision["scope_refs"] or not definition or route["id"] not in (definition.get("adr") or {}).get("affected_artifact_refs", []):
+            errors.append(f"{route_label} decision scope and ADR must name this AI route")
+        policy = route["profile"]["data_handling"]
+        boundary = policy["processing_boundary"]
+        provider = route["profile"]["provider"].strip().lower()
+        if not provider:
+            errors.append(f"{route_label} requires a provider name")
+        if boundary == "local" and provider not in {"local", "mock"}:
+            errors.append(f"{route_label} cannot label an external provider as local")
+        if boundary == "local" and provider == "local" and route["profile"].get("base_url") and not _plausible_local_ai_endpoint(route["profile"]["base_url"]):
+            errors.append(f"{route_label} local base_url is not a local endpoint candidate")
+        if boundary == "local" and provider == "mock" and route["profile"].get("base_url"):
+            errors.append(f"{route_label} mock provider cannot carry a base_url")
+        if boundary == "external_cloud" and "customer_confidential" in policy["allowed_classifications"]:
+            errors.append(f"{route_label} cannot permit customer-confidential data in external cloud")
+        if boundary == "external_cloud" and "internal_generic" in policy["allowed_classifications"] and policy["require_redaction_for_egress"] is not True:
+            errors.append(f"{route_label} cannot waive redaction for non-public external-cloud input")
+        for allowed in route["allowed_inputs"]:
+            for field, policy_field in (
+                ("classification", "allowed_classifications"),
+                ("data_form", "allowed_data_forms"),
+                ("purpose", "allowed_purposes"),
+            ):
+                if allowed[field] not in policy[policy_field]:
+                    errors.append(f"{route_label} {field} {allowed[field]!r} is outside its profile")
+        if decision is not None and decision["approval"]["state"] == "superseded":
+            errors.append(f"{route_label} references a superseded decision")
+        if decision is None or decision["approval"]["state"] != "approved":
+            continue
+        approval = decision["approval"]
+        selection = decision["selection"]
+        policy_hash = canonical_sha256({key: value for key, value in route.items() if key != "decision_ref"})
+        if selection["state"] != "confirmed" or selection["custom_value"] != f"sha256:{policy_hash}":
+            errors.append(f"{route_label} approved decision is not bound to this exact policy hash")
+        if not approval.get("decided_at") or not approval.get("evidence_refs"):
+            errors.append(f"{route_label} approved decision requires date and evidence")
+        geography = route["provider_geography"]
+        if not route["provider_region"] or not geography or not route["provider_terms_evidence_refs"] or not route["expires_at"]:
+            errors.append(f"{route_label} approved policy requires region, geography, provider terms evidence and expiry")
+        residency = route["profile"].get("data_residency")
+        expected_geography = {"eu-only": "eu", "us-only": "us", "local": "local"}.get(residency)
+        if expected_geography and geography != expected_geography:
+            errors.append(f"{route_label} provider geography contradicts declared residency")
+        if (boundary == "local" and geography != "local") or (boundary != "local" and geography == "local"):
+            errors.append(f"{route_label} provider geography contradicts processing boundary")
+        if boundary == "local" and provider == "local" and (not route["profile"].get("base_url") or not policy.get("boundary_evidence_ref")):
+            errors.append(f"{route_label} approved local route requires endpoint and boundary evidence")
+        if approval.get("decided_at") and route["expires_at"]:
+            decided = datetime.fromisoformat(approval["decided_at"].replace("Z", "+00:00"))
+            expires = datetime.fromisoformat(route["expires_at"].replace("Z", "+00:00"))
+            if expires <= decided:
+                errors.append(f"{route_label} expiry must be after its decision date")
+        if any(not allowed["source_refs"] or any(not ref.strip() for ref in allowed["source_refs"]) for allowed in route["allowed_inputs"]):
+            errors.append(f"{route_label} approved policy requires source refs for every allowed input")
+    return errors
+
+
+def _plausible_local_ai_endpoint(value: str) -> bool:
+    """Reject obvious public URLs; DNS names still require separate runtime proof."""
+    try:
+        url = urlsplit(value)
+        if url.scheme not in {"http", "https"} or not url.hostname or url.username or url.password:
+            return False
+        host = url.hostname.rstrip(".").lower()
+        if host == "localhost":
+            return True
+        try:
+            address = ipaddress.ip_address(host)
+        except ValueError:
+            return bool(host) and ("." not in host or host.endswith((".local", ".lan", ".internal", ".intranet", ".home.arpa", ".corp")))
+        ranges = (
+            ipaddress.ip_network("10.0.0.0/8"),
+            ipaddress.ip_network("127.0.0.0/8"),
+            ipaddress.ip_network("172.16.0.0/12"),
+            ipaddress.ip_network("192.168.0.0/16"),
+            ipaddress.ip_network("fc00::/7"),
+            ipaddress.ip_network("::1/128"),
+        )
+        return any(address in network for network in ranges if address.version == network.version)
+    except ValueError:
+        return False
 
 
 def _validate_identity_access(document: dict[str, Any], label: str) -> list[str]:
@@ -568,13 +671,16 @@ def validate_project_package(package_root: Path, schema_root: Path) -> list[str]
     required = {"opportunity", "commercial", "plan", "decision_set"}
     present: set[str] = set()
     decision_ids: set[str] = set()
+    decision_instances: dict[str, dict[str, Any]] = {}
+    decision_definitions: dict[str, dict[str, Any]] = {}
+    ai_data_handling: dict[str, Any] | None = None
     artifact_registry: dict[str, Any] | None = None
     delivery_document: dict[str, Any] | None = None
     observed_states: dict[str, dict[str, Any]] = {}
     for module in manifest.get("modules", []) if isinstance(manifest, dict) else []:
         module_type = module.get("module_type")
         environment = module.get("environment")
-        if module_type in {"batch_ingestion", "capability_state", "identity_access", "architecture_maintenance"} and environment is not None:
+        if module_type in {"batch_ingestion", "capability_state", "identity_access", "architecture_maintenance", "ai_data_handling"} and environment is not None:
             errors.append(f"package.yaml: {module_type} is a singleton and cannot have an environment key")
         key = (module_type, environment)
         if key in seen:
@@ -606,9 +712,11 @@ def validate_project_package(package_root: Path, schema_root: Path) -> list[str]
                 errors.extend(f"{relative.as_posix()}: {error}" for error in delivery_errors)
                 if not delivery_errors:
                     delivery_document = document
-        if module_type == "decision_set" and isinstance(document, dict):
+        if module_type == "decision_set" and isinstance(document, dict) and not module_schema_errors:
             errors.extend(_validate_decision_references(document, relative.as_posix()))
             decision_ids = {item.get("id") for item in document.get("instances", [])}
+            decision_instances = {item.get("id"): item for item in document.get("instances", [])}
+            decision_definitions = {item.get("id"): item for item in document.get("definitions", [])}
         if module_type == "artifact_registry" and isinstance(document, dict):
             errors.extend(_validate_artifact_lifecycle(document, relative.as_posix()))
             artifact_registry = document
@@ -631,6 +739,10 @@ def validate_project_package(package_root: Path, schema_root: Path) -> list[str]
             errors.extend(_validate_architecture_maintenance(document, relative.as_posix()))
             if document["project_ref"] != manifest.get("project_ref"):
                 errors.append(f"{relative.as_posix()}: project_ref does not match package.yaml")
+        if module_type == "ai_data_handling" and isinstance(document, dict) and not module_schema_errors:
+            ai_data_handling = document
+            if document["project_ref"] != manifest.get("project_ref"):
+                errors.append(f"{relative.as_posix()}: project_ref does not match package.yaml")
 
     missing = sorted(required - present)
     if missing:
@@ -645,6 +757,8 @@ def validate_project_package(package_root: Path, schema_root: Path) -> list[str]
                         "artifacts/index.yaml: artifact "
                         f"{artifact.get('id')!r} has unresolved decision_ref {decision_ref!r}"
                     )
+    if ai_data_handling is not None:
+        errors.extend(_validate_ai_data_handling(ai_data_handling, decision_instances, decision_definitions, "ai_data_handling"))
     if delivery_document is not None:
         errors.extend(_validate_delivery_observations(delivery_document, observed_states))
     elif any(

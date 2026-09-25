@@ -40,6 +40,7 @@
         "capability_state": {"type": "object"},
         "identity_access": {"type": "object"},
         "architecture_maintenance": {"type": "object"},
+        "ai_data_handling": {"type": "object"},
         "observed_states": {
           "type": "object",
           "additionalProperties": {"type": "object"}

@@ -1,0 +1,8 @@
+{
+  "contract_version": "ai-data-handling-policy/1.0.0",
+  "source_repo": "Freelancing",
+  "source_path": "meridian/tests/fixtures/data_handling_cases.json",
+  "sha256": "eb134087e4f32957760a6bd281ee2f043f154a8d6684a8715c3e982d0a79cca4",
+  "shared_executable_runtime": false,
+  "note": "AUL owns its evaluator and runtime gate. This fixture is a pinned neutral test-vector mirror; changes require review and a new pin."
+}

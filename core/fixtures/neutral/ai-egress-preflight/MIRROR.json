@@ -1,0 +1,8 @@
+{
+  "contract_version": "ai-egress-preflight/1.0.0",
+  "source_repo": "Freelancing",
+  "source_path": "meridian/tests/fixtures/egress_preflight_cases.json",
+  "sha256": "a5c83a3525a6315b82db0b0dcfb9347d8b1e6a38d91e3d010feccf594e09d207",
+  "shared_executable_runtime": false,
+  "note": "AUL owns its scanner, audit store and gate. This is a pinned neutral test-vector mirror, not shared runtime code."
+}

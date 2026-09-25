@@ -19,6 +19,7 @@ import type {
 import type { PackageFile } from '@/lib/project-package/package-files';
 import { useProjectStore } from '@/lib/store/project-store';
 import { ProjectReleasePanel } from '@/components/delivery/project-release-panel';
+import { AiPolicyReviewPanel } from '@/components/delivery/ai-policy-review-panel';
 import { ExternalHandoffPanel } from '@/components/delivery/external-handoff-panel';
 
 type LoadState = 'loading' | 'ready' | 'missing' | 'error';
@@ -378,6 +379,7 @@ export function ProjectPackageClient() {
         </div>
       )}
 
+      {ready && <AiPolicyReviewPanel key={`ai:${projectId}:${snapshot.revision.revision_hash}`} projectId={projectId} snapshot={snapshot} dirty={dirtyPaths.length > 0} />}
       {ready && <ProjectReleasePanel key={`${projectId}:${snapshot.revision.revision_hash}`} projectId={projectId} revisionHash={snapshot.revision.revision_hash} dirty={dirtyPaths.length > 0} />}
       {(loadState === 'ready' || loadState === 'missing') && <div role="status" aria-live="polite" style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>{message}</div>}
     </StudioPage>

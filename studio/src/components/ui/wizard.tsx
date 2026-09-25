@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { AiField } from '@/components/ai/ai-field';
+import { StudioFormField, StudioInput } from '@/components/ui/studio-data';
 
 type ElementKind = 'kpi' | 'bracket' | 'action' | 'source';
 
@@ -45,11 +46,12 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
   const [draftName, setDraftName] = useState('');
   const [draftDescription, setDraftDescription] = useState('');
   const [genError, setGenError] = useState<string | null>(null);
+  const [manualDraft, setManualDraft] = useState(false);
 
   useEffect(() => {
     if (!open) {
       setStep(0); setKind('kpi'); setPrompt(''); setDraft(null); setGenError(null);
-      setDraftName(''); setDraftDescription(''); setIsLoadingDraft(false);
+      setDraftName(''); setDraftDescription(''); setIsLoadingDraft(false); setManualDraft(false);
     }
   }, [open]);
 
@@ -99,7 +101,19 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kind, prompt }),
       });
-      const json = await res.json() as { draft?: DraftResult; error?: string };
+      const json = await res.json() as { draft?: DraftResult; error?: string; code?: string };
+      if (res.status === 403 && json.code === 'AI_EGRESS_NOT_APPROVED') {
+        const localDraft: DraftResult = {
+          name: preName, description: preDescription || prompt,
+          ref: '', domain: '', type: '', grain: '', unit: '',
+        };
+        setDraft(localDraft);
+        setDraftName(localDraft.name);
+        setDraftDescription(localDraft.description);
+        setManualDraft(true);
+        setStep(2);
+        return;
+      }
       if (!res.ok || json.error) {
         setGenError(json.error ?? `HTTP ${res.status}`);
         return;
@@ -113,6 +127,7 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
         setDraft(merged);
         setDraftName(merged.name);
         setDraftDescription(merged.description);
+        setManualDraft(false);
         setStep(2);
       }
     } catch (err) {
@@ -260,13 +275,11 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
 
           {step === 2 && draft && (
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'oklch(0.52 0.14 150)', fontSize: '0.75rem', marginBottom: 8 }}>
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M8 2v3M8 11v3M2 8h3M11 8h3M4 4l2 2M10 10l2 2M12 4l-2 2M4 12l2-2" />
-                </svg>
-                Draft ready — review and edit before saving.
+              <div role="status" style={{ color: manualDraft ? 'var(--ink-2)' : 'var(--accent)', fontSize: 'var(--text-sm)', marginBottom: 12, lineHeight: 1.5 }}>
+                {manualDraft
+                  ? 'Manual draft: AI processing is not approved. No content was sent to a model. Complete the fields below before saving.'
+                  : 'Draft ready — review and edit before saving.'}
               </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--ink-4)', marginBottom: 4 }}>{draft.ref}</div>
               <div style={{ marginBottom: 10 }}>
                 <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Name</div>
                 <AiField
@@ -295,21 +308,20 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
                   placeholder="1-2 sentences describing the use case."
                 />
               </div>
-              {(draft.domain ?? draft.type ?? draft.grain) && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 18 }}>
-                  {[
-                    ['Domain', draft.domain ?? '—'],
-                    ['Type', draft.type ?? '—'],
-                    ['Grain', draft.grain ?? '—'],
-                    ['Unit', draft.unit ?? '—'],
-                  ].map(([k, v]) => (
-                    <div key={k} style={{ padding: 10, border: '1px solid var(--line)', borderRadius: 8, background: 'var(--bg-2)' }}>
-                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{k}</div>
-                      <div style={{ fontSize: '0.8125rem', fontWeight: 500, marginTop: 2 }}>{v}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, marginBottom: 18 }}>
+                {([
+                  ['ref', 'Reference'], ['domain', 'Domain'], ['type', 'Type'], ['grain', 'Grain'], ['unit', 'Unit'],
+                ] as const).map(([key, label]) => (
+                  <StudioFormField key={key} label={label}>
+                    <StudioInput
+                      aria-label={label}
+                      value={draft[key] ?? ''}
+                      onChange={(event) => setDraft((current) => current ? { ...current, [key]: event.target.value } : current)}
+                      required={key !== 'unit'}
+                    />
+                  </StudioFormField>
+                ))}
+              </div>
               {draft.sql && (
                 <>
                   <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>SQL</div>
@@ -344,8 +356,8 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
           {step === 2 && draft && (
             <button
               onClick={() => void onSave?.(kind, draft)}
-              disabled={saving}
-              style={{ ...primaryBtn, opacity: saving ? 0.7 : 1 }}
+              disabled={saving || !draft.name.trim() || !draft.description.trim() || !draft.ref.trim() || !draft.domain.trim() || !draft.type.trim() || !draft.grain.trim()}
+              style={{ ...primaryBtn, opacity: (saving || !draft.name.trim() || !draft.description.trim() || !draft.ref.trim() || !draft.domain.trim() || !draft.type.trim() || !draft.grain.trim()) ? 0.7 : 1 }}
             >
               {saving ? 'Saving…' : '✓ Save to framework'}
             </button>

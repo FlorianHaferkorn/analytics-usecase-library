@@ -115,6 +115,11 @@ def build_compiler_input(package_root: Path, schema_root: Path) -> dict[str, Any
                 if "architecture_maintenance" in singleton_modules
                 else {}
             ),
+            **(
+                {"ai_data_handling": singleton_modules["ai_data_handling"]}
+                if "ai_data_handling" in singleton_modules
+                else {}
+            ),
         },
         "readiness": {
             "decision_ready": decision_ready,

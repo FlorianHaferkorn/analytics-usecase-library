@@ -22,9 +22,11 @@ export type AuditEntityType =
   | 'refinement'
   | 'org'
   | 'org_member'
-  | 'project_member';
+  | 'project_member'
+  | 'ai_egress'
+  | 'ai_policy_review';
 
-export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit' | 'deprecate' | 'reopen' | 'add_member' | 'remove_member' | 'update_business_role' | 'break_glass_override' | 'break_glass_revert';
+export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit' | 'deprecate' | 'reopen' | 'add_member' | 'remove_member' | 'update_business_role' | 'break_glass_override' | 'break_glass_revert' | 'allow' | 'block';
 
 export interface AuditEvent {
   id: string;

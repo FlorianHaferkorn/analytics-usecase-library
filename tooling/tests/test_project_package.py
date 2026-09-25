@@ -184,6 +184,62 @@ def _add_use_case_delivery(root: Path, modules: list[dict]) -> dict:
     return document
 
 
+def _ai_policy_document(decision_ref: str) -> dict:
+    return {
+        "schema_version": "1.0.0",
+        "contract_version": "ai-data-handling-policy/1.0.0",
+        "project_ref": "project_demo",
+        "routes": [{
+            "id": "discovery_public",
+            "task_role": "source-discovery",
+            "decision_ref": decision_ref,
+            "profile": {"provider": "anthropic", "data_handling": {
+                "processing_boundary": "external_cloud",
+                "allowed_classifications": ["public"],
+                "allowed_data_forms": ["metadata"],
+                "allowed_purposes": ["studio_authoring"],
+                "provider_training_allowed": False,
+                "prompt_retention_days": 0,
+                "require_redaction_for_egress": True,
+            }},
+            "allowed_inputs": [{"classification": "public", "data_form": "metadata",
+                                "purpose": "studio_authoring", "source_refs": ["fixture://public-source"]}],
+            "provider_region": "eu-west",
+            "provider_geography": "eu",
+            "credential_ref": "secret://studio/anthropic",
+            "provider_terms_evidence_refs": ["fixture://provider-terms"],
+            "expires_at": "2030-01-01T00:00:00Z",
+        }],
+    }
+
+
+def _add_ai_policy(root: Path, modules: list[dict], document: dict) -> None:
+    relative = "governance/ai_data_handling.yaml"
+    _write_yaml(root / relative, document)
+    modules.append({
+        "module_type": "ai_data_handling",
+        "path": relative,
+        "schema_id": _load_schema("project_ai_data_handling.schema.json")["$id"],
+        "sha256": canonical_sha256(document),
+    })
+
+
+def _scope_ai_decision(root: Path, modules: list[dict]) -> dict:
+    path = root / "discovery/decision_set.yaml"
+    decisions = yaml.safe_load(path.read_text(encoding="utf-8"))
+    definition = decisions["definitions"][0]
+    definition["title"] = "AI data handling for Discovery"
+    definition["source"] = {"adapter": "project_ai_policy", "raw_id": "ai_policy",
+                            "source_ref": "fixture://ai-policy", "source_hash": "a" * 64}
+    definition["adr"] = {"record_id": "ADR-9001", "context": "Discovery AI data boundary",
+                         "decision_drivers": ["Customer content protection"],
+                         "affected_artifact_refs": ["discovery_public"]}
+    decisions["instances"][0]["scope_refs"] = ["discovery_public"]
+    _write_yaml(path, decisions)
+    next(item for item in modules if item["module_type"] == "decision_set")["sha256"] = canonical_sha256(decisions)
+    return decisions
+
+
 def _replace_observed_state(root: Path, modules: list[dict], document: dict) -> None:
     module = next(item for item in modules if item["module_type"] == "observed_state")
     path = root / module["path"]
@@ -249,7 +305,7 @@ def _accept_runtime(delivery: dict, proof_ref: str = "runtime_revenue_dev") -> N
 
 
 def test_all_project_package_schemas_are_closed_draft_2020_12() -> None:
-    assert len(PROJECT_SCHEMAS) == 16
+    assert len(PROJECT_SCHEMAS) == 17
     for path in PROJECT_SCHEMAS:
         schema = json.loads(path.read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)
@@ -361,6 +417,119 @@ def test_project_package_validates_hashes_references_and_revision(tmp_path: Path
     errors = validate_project_package(tmp_path, SCHEMAS)
     assert "package.yaml: revision > 1 requires parent_revision_hash" in errors
     assert any("hash drift" in error for error in errors)
+
+
+def test_ai_policy_module_is_project_bound_and_compiles_without_authorizing_egress(tmp_path: Path) -> None:
+    neutral = _load_schema("ai_data_handling_policy.schema.json")
+    project_schema = _load_schema("project_ai_data_handling.schema.json")
+    assert project_schema["$defs"]["policy"] == neutral["definitions"]["policy"]
+    project_profile = json.loads(json.dumps(project_schema["$defs"]["profile"]))
+    project_profile["properties"]["data_handling"]["$ref"] = "#/definitions/policy"
+    assert project_profile == neutral["definitions"]["profile"]
+
+    modules = _minimal_modules(tmp_path)
+    decisions = _scope_ai_decision(tmp_path, modules)
+    policy = _ai_policy_document(decisions["instances"][0]["id"])
+    _add_ai_policy(tmp_path, modules, policy)
+    _write_yaml(tmp_path / "package.yaml", _manifest(modules))
+
+    assert validate_project_package(tmp_path, SCHEMAS) == []
+    compiler = build_compiler_input(tmp_path, SCHEMAS)
+    assert compiler["modules"]["ai_data_handling"] == policy
+    assert compiler["readiness"]["build_ready"] is False
+
+    policy["project_ref"] = "another_project"
+    _add_ai_policy_update(tmp_path, modules, policy)
+    assert any("project_ref does not match" in error for error in validate_project_package(tmp_path, SCHEMAS))
+    policy["project_ref"] = "project_demo"
+    policy["routes"][0]["decision_ref"] = "unknown_decision"
+    _add_ai_policy_update(tmp_path, modules, policy)
+    assert any("unresolved decision_ref" in error for error in validate_project_package(tmp_path, SCHEMAS))
+    policy["routes"][0]["decision_ref"] = decisions["instances"][0]["id"]
+    policy["routes"][0]["profile"]["data_handling"]["processing_boundary"] = "local"
+    _add_ai_policy_update(tmp_path, modules, policy)
+    assert any("external provider as local" in error for error in validate_project_package(tmp_path, SCHEMAS))
+    policy["routes"][0]["profile"]["provider"] = "local"
+    policy["routes"][0]["profile"]["base_url"] = "https://localhost@public.example/v1"
+    _add_ai_policy_update(tmp_path, modules, policy)
+    assert any("not a local endpoint candidate" in error for error in validate_project_package(tmp_path, SCHEMAS))
+    policy["routes"][0]["profile"].pop("base_url")
+    policy["routes"][0]["profile"]["provider"] = "anthropic"
+    policy["routes"][0]["profile"]["data_handling"]["processing_boundary"] = "external_cloud"
+    policy["routes"][0]["profile"]["data_handling"]["allowed_classifications"] = ["public", "customer_confidential"]
+    _add_ai_policy_update(tmp_path, modules, policy)
+    assert any("customer-confidential data in external cloud" in error for error in validate_project_package(tmp_path, SCHEMAS))
+
+
+def _add_ai_policy_update(root: Path, modules: list[dict], document: dict) -> None:
+    module = next(item for item in modules if item["module_type"] == "ai_data_handling")
+    _write_yaml(root / module["path"], document)
+    module["sha256"] = canonical_sha256(document)
+    _write_yaml(root / "package.yaml", _manifest(modules))
+
+
+def test_approved_ai_decision_must_bind_exact_policy_and_evidence(tmp_path: Path) -> None:
+    modules = _minimal_modules(tmp_path)
+    decision_path = tmp_path / "discovery/decision_set.yaml"
+    decisions = _scope_ai_decision(tmp_path, modules)
+    decision = decisions["instances"][0]
+    policy = _ai_policy_document(decision["id"])
+    route = policy["routes"][0]
+    policy_hash = canonical_sha256({key: value for key, value in route.items() if key != "decision_ref"})
+    decision["selection"] = {"state": "confirmed", "option_ref": decisions["definitions"][0]["options"][0]["id"],
+                             "custom_value": f"sha256:{policy_hash}"}
+    decision["approval"] = {"state": "approved", "proposed_by": "consultant", "decided_by": "customer_owner",
+                            "rationale": "Public metadata only", "decided_at": "2026-09-25T10:00:00Z",
+                            "evidence_refs": ["fixture://customer-decision"]}
+    _write_yaml(decision_path, decisions)
+    next(item for item in modules if item["module_type"] == "decision_set")["sha256"] = canonical_sha256(decisions)
+    _add_ai_policy(tmp_path, modules, policy)
+    _write_yaml(tmp_path / "package.yaml", _manifest(modules))
+    assert validate_project_package(tmp_path, SCHEMAS) == []
+
+    def validate_current() -> list[str]:
+        decision["selection"]["custom_value"] = "sha256:" + canonical_sha256(
+            {key: value for key, value in route.items() if key != "decision_ref"}
+        )
+        _write_yaml(decision_path, decisions)
+        next(item for item in modules if item["module_type"] == "decision_set")["sha256"] = canonical_sha256(decisions)
+        _add_ai_policy_update(tmp_path, modules, policy)
+        return validate_project_package(tmp_path, SCHEMAS)
+
+    route["provider_region"] = "us-east"
+    _add_ai_policy_update(tmp_path, modules, policy)
+    assert any("exact policy hash" in error for error in validate_project_package(tmp_path, SCHEMAS))
+    route["provider_terms_evidence_refs"] = []
+    assert any("provider terms evidence" in error for error in validate_current())
+    route["provider_terms_evidence_refs"] = ["fixture://provider-terms"]
+    route["profile"]["data_handling"]["allowed_classifications"] = ["public", "internal_generic"]
+    route["profile"]["data_handling"]["require_redaction_for_egress"] = False
+    assert any("waive redaction" in error for error in validate_current())
+    route["profile"]["data_handling"]["allowed_classifications"] = ["public"]
+    route["profile"]["data_handling"]["require_redaction_for_egress"] = True
+    route["profile"]["data_residency"] = "eu-only"
+    route["provider_geography"] = "us"
+    assert any("contradicts declared residency" in error for error in validate_current())
+    route["provider_geography"] = "eu"
+    route["expires_at"] = "2025-01-01T00:00:00Z"
+    assert any("expiry must be after" in error for error in validate_current())
+    route["expires_at"] = "2030-01-01T00:00:00Z"
+    route["profile"]["data_residency"] = "local"
+    route["profile"]["provider"] = "local"
+    route["profile"]["data_handling"]["processing_boundary"] = "local"
+    route["provider_region"] = "local"
+    route["provider_geography"] = "local"
+    assert any("requires endpoint and boundary evidence" in error for error in validate_current())
+    route["profile"]["base_url"] = "http://llm.internal:11434"
+    route["profile"]["data_handling"]["boundary_evidence_ref"] = "fixture://internal-endpoint"
+    assert validate_current() == []
+    decision["scope_refs"] = []
+    assert any("decision scope and ADR" in error for error in validate_current())
+    decision.pop("approval")
+    _write_yaml(decision_path, decisions)
+    next(item for item in modules if item["module_type"] == "decision_set")["sha256"] = canonical_sha256(decisions)
+    _write_yaml(tmp_path / "package.yaml", _manifest(modules))
+    assert any("approval" in error for error in validate_project_package(tmp_path, SCHEMAS))
 
 
 def test_project_package_rejects_unresolved_decision_references(tmp_path: Path) -> None:

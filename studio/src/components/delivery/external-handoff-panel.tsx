@@ -19,7 +19,7 @@ interface ExternalHandoff {
   customer_accepted: false;
 }
 
-function useCaseLabel(reference: string): string {
+function formatUseCaseLabel(reference: string): string {
   const match = /^uc(\d+)(?:_(.+))?$/.exec(reference);
   if (!match) return reference.replaceAll('_', ' ');
   const suffix = (match[2] ?? '').split('_').filter(Boolean).map((part) =>
@@ -65,7 +65,7 @@ export function ExternalHandoffPanel({ snapshot }: { snapshot: PackageSnapshot }
         return (
           <StudioPanel
             key={handoff.use_case_ref}
-            title={`External delivery handoff · ${useCaseLabel(handoff.use_case_ref)}`}
+            title={`External delivery handoff · ${formatUseCaseLabel(handoff.use_case_ref)}`}
             description="A pinned metadata view of an external handoff. The source ledger and contracts remain authoritative; this is not tenant, Apply, or customer-acceptance evidence."
             compactHeader
           >

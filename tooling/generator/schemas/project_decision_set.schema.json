@@ -17,7 +17,7 @@
       "required": ["adapter", "raw_id", "source_ref", "source_hash"],
       "properties": {
         "adapter": {
-          "enum": ["meridian_decision_proposals", "engagement_ledger_package_1_0"]
+          "enum": ["meridian_decision_proposals", "engagement_ledger_package_1_0", "project_ai_policy"]
         },
         "raw_id": {"type": "string", "minLength": 1},
         "source_ref": {"type": "string", "minLength": 1},
