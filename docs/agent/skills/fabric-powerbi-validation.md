@@ -32,7 +32,7 @@ Run Fabric-specific checks for TMDL syntax, DAX best practices, measure dictiona
 - **Indentation**: Use **TABS only** (spaces cause parser errors).
 - **Levels**: Table properties = 1 tab; column/measure properties = 2 tabs; nested = 3 tabs.
 - **Numeric columns**: Must have `summarizeBy: none` (prevents unintentional aggregation).
-- **Measures**: Use `formatString`, `displayFolder`, `lineageTag`, `isHidden`; do NOT use `description` (use `///` comments instead).
+- **Measures**: Use `formatString`, `displayFolder`, `lineageTag`, `isHidden`; describe with a `///` block above the measure (TMDL's description syntax, read by Copilot, essentials in the first 200 chars) — never a `description:` key.
 - **DAX**: No `:=` operator (DAX uses `=` only).
 
 ## Diagram layout (spaghetti principle)

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-06-16
+last-reviewed: 2026-09-25
 shelf-life-days: 90
 ---
 # Agent-Skills — Register (_INDEX)

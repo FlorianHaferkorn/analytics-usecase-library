@@ -37,12 +37,11 @@ Use cases and reports **reference** governed definitions — they do not define 
 
 ## Scripts and CI
 
-> **⚠️ GitHub Actions is quota-blocked until 2026-07-01.** Until then, every CI run on this
-> repo fails instantly at the runner level (jobs complete in ~1s with no logs / HTTP 404) —
-> regardless of the code. This affects `main` and every branch equally. **Treat all GitHub
-> Actions failures before that date as infrastructure, not code defects, and do not re-run or
-> "fix" them.** The authoritative gate is the **local** test suite: `python3 -m pytest -q`
-> (must be green before commit). Re-validate via CI only after the quota window reopens.
+> **GitHub Actions:** a red run whose jobs end after ~2 s without a runner (`runner_id: 0`,
+> logs 404) means the account's Actions minutes are exhausted — infrastructure, not a code
+> defect; do not re-run or "fix" it. Draft PRs do not trigger CI (`gh pr ready` does). The
+> authoritative gate is the **local** test suite: `python3 -m pytest -q` (must be green before
+> commit). History and commands: `docs/agent/ci-usage-limit.md`.
 
 Run all scripts from the **repository root**.
 
@@ -75,8 +74,8 @@ Run all scripts from the **repository root**.
 |---|---|---|
 | Indentation | Tabs only | Spaces |
 | DAX assignment | `=` | `:=` |
-| Measure docs | `/// Purpose: ...` comment above **and** `description:` property | comment only (invisible to Copilot) |
-| Description length | <= 200 chars (Copilot truncates) | longer prose |
+| Descriptions (tables, columns, measures) | `/// Purpose: ...` block directly above the object — in TMDL this **is** the TOM `Description` property Copilot reads | a `description:` key (not TMDL syntax; generator and `check_tmdl_syntax.ps1` reject it) |
+| Description content | Essentials in the first 200 chars (Copilot reads only those) | key facts buried at the end |
 | Numeric columns | Always include `summarizeBy: none` | Omit summarizeBy |
 | Measure formatting | Always include `formatString` | Omit formatString |
 
@@ -233,5 +232,3 @@ Never mark a task done until validation passes with no errors.
 | VS Code Copilot | `.github/copilot-instructions.md` |
 | Canonical rule source | `docs/agent/rules/` |
 | Canonical skill source | `docs/agent/skills/` |
-
-## Imported Claude Cowork project instructions

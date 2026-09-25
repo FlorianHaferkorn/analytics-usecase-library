@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-06-16
+last-reviewed: 2026-09-25
 shelf-life-days: 90
 ---
 # Agent — Zentraler Anlaufpunkt (_INDEX)
@@ -11,7 +11,7 @@ shelf-life-days: 90
 
 | Feld | Wert |
 |---|---|
-| Stand | 2026-06-16 |
+| Stand | 2026-09-25 |
 | Rolle | L0-Navigation der Agent-Ebene |
 | Verlinkt von | `CLAUDE.md` (Bereichs-Landkarte) |
 
@@ -31,6 +31,7 @@ shelf-life-days: 90
 | `guided-agent-development-workflow.md` | GADW: stage-gated Loop (offizielle Skills + ALUCA-Gates) | Agent-Integration |
 | `capability-manifest.md` | `aluca.capabilities.yaml`-Spec (Allowlist, default-off extern) | Aktivierung |
 | `studio-activation-ux.md` | Studio als Aktivierungs-Control-Panel (Toggles → Manifest) | Aktivierungs-UX |
+| `ci-usage-limit.md` | GitHub-Actions-CI: Usage-Limit, rote Läufe unterscheiden, Umgebungsgleichheit (aus `CLAUDE.md` ausgelagert) | CI rot / lokale CI-Nachstellung |
 
 Sub-Bereiche mit eigenem Index: `rules/_INDEX.md`, `skills/_INDEX.md`.
 <!-- README.md exempt; rules/ + skills/ navigieren über eigenen _INDEX. -->

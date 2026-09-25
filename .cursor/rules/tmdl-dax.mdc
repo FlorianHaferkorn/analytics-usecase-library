@@ -1,4 +1,4 @@
-<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/generator/generate_tool_configs.py -->
 
 ---
 description: Enforce TMDL/DAX style. Use when: writing or editing .tmdl files or DAX expressions. Triggers: "tmdl", "dax", ".tmdl", "measure syntax", "tab indentation"
@@ -13,9 +13,10 @@ alwaysApply: false
 
 - **Indentation:** Use **TABS only**. Spaces for indentation cause parser errors.
 - **Levels:** Table-level properties = 1 tab; column/measure properties = 2 tabs; nested (annotations, alternateOf, M `let`/`in`) = 3 tabs.
-- **Measures:** Supported properties include `formatString`, `displayFolder`, `lineageTag`, `isHidden`. Do **not** use `description` on measures; use `///` comments for documentation.
+- **Measures:** Supported properties include `formatString`, `displayFolder`, `lineageTag`, `isHidden`.
+- **Descriptions:** Every table, column and measure gets a `///` block directly above its declaration (no blank line in between). In TMDL, `///` **is** the TOM `Description` property — what report authors and Copilot see. Never write a `description:` key; it is not TMDL syntax and the generator/`check_tmdl_syntax.ps1` reject it. Put the essentials in the first 200 characters: Copilot reads only those.
 - **Numeric columns:** All columns with `dataType: int64`, `int32`, `double`, or `decimal` must have `summarizeBy: none` to prevent unintentional summarization. Create measures for aggregation instead.
-- **Allowed subset:** Follow `docs/operating_model/reference/TMDL_Allowed_Subset.md` and implementation notes in `core/implementation_guides/tmdl_best_practices.md`.
+- **Allowed subset:** Follow `core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md` and implementation notes in `products/fabric/powerbi/docs/tmdl_best_practices.md`.
 - **Validation:** BPA rules in `tooling/linters/powerbi/` (e.g. `bpa-rules-tmdl.json`); run via `tooling/linters/run_bpa.ps1` where applicable.
 
 ## DAX
