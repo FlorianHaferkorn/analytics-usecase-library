@@ -55,7 +55,7 @@ Version 4 · Stand 20.07.2026 — Kern (jede Session geladen). Details: `GOI_REF
 
 - **Python** (Generatoren/Validierung/Tests): Type-Hints überall; reine Funktionen, klare I/O-Grenzen; PEP8 + `ruff`/`ruff-format`; Pfade über `pathlib`; keine Seiteneffekte beim Import; `pytest` mit Golden-Fixtures — neue Logik immer mit Test.
 - **PowerShell** (Stage-1, Quality-Gate, Fabric-Orchestrierung): `Set-StrictMode -Version Latest`; `$ErrorActionPreference = "Stop"`; Approved Verbs; typisierte Parameter; idempotent + re-runnable.
-- **TMDL/PBIR** (Hard-Rules, vom PostToolUse-Hook erzwungen): keine Tabs (nur Spaces), kein `:=` (nur `=`), kein `description:` in TMDL; `.json`/`.pbir` in PBIP-Ordnern syntaktisch valide. Verstoß = sofortiger Block.
+- **TMDL/PBIR** (Hard-Rules, vom PostToolUse-Hook erzwungen): Einrückung nur mit Tabs (keine Spaces), kein `:=` (nur `=`), Beschreibung als `///`-Block statt `description:`-Schlüssel; `.json`/`.pbir` in PBIP-Ordnern syntaktisch valide. Verstoß = sofortiger Block.
 - **YAML-Artefakte** (`UseCase_Bracket.yaml`, Action Codes, Data Contracts, KPI-Katalog): schema-validiert; SSOT-Disziplin — KPIs/Action Codes **referenzieren**, nie neu definieren (Golden Thread).
 - **Generated vs. source** strikt trennen: `dist/`/generierte Artefakte nie von Hand editieren — Quelle ändern + neu generieren.
 - **Definition of Done je Change**: Stage-1 + Quality-Gate grün, `check_index.py` grün, betroffene Tests grün — vor „fertig" prüfen, nicht produzieren.

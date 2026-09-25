@@ -74,8 +74,8 @@ Run all scripts from the **repository root**.
 |---|---|---|
 | Indentation | Tabs only | Spaces |
 | DAX assignment | `=` | `:=` |
-| Measure docs | `/// Purpose: ...` comment above **and** `description:` property | comment only (invisible to Copilot) |
-| Description length | <= 200 chars (Copilot truncates) | longer prose |
+| Descriptions (tables, columns, measures) | `/// Purpose: ...` block directly above the object — in TMDL this **is** the TOM `Description` property Copilot reads | a `description:` key (not TMDL syntax; generator and `check_tmdl_syntax.ps1` reject it) |
+| Description content | Essentials in the first 200 chars (Copilot reads only those) | key facts buried at the end |
 | Numeric columns | Always include `summarizeBy: none` | Omit summarizeBy |
 | Measure formatting | Always include `formatString` | Omit formatString |
 

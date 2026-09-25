@@ -67,7 +67,7 @@ KPIs and the decision logic, so the plan is *accountable to the use case*.
 | | |
 |---|---|
 | **Skill (mechanics)** | `semantic-model-authoring` + Power BI Modeling MCP |
-| **ALUCA gate** | TMDL hard-rules hook (`.claude/hooks/validate_tmdl_style.sh`: no tabs, no `:=`, no `description:`) + catalog↔TMDL drift check |
+| **ALUCA gate** | TMDL hard-rules hook (`.claude/hooks/validate_tmdl_style.sh`: tabs only, no `:=`; descriptions as `///`) + catalog↔TMDL drift check |
 | **Exit criterion** | Model builds; every catalog KPI has a corresponding measure; drift check clean |
 
 ALUCA does **not** re-teach the agent how to write TMDL/DAX — the vendor skill

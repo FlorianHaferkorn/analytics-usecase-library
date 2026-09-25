@@ -73,14 +73,14 @@ alle maschinenlesbare Config gehört in `UseCase_Bracket.yaml`.
 
 ### PostToolUse-Hooks (automatisch, nicht umgehbar)
 Zwei Hooks (in `.claude/settings.json`) feuern nach jedem Write/Edit:
-- **`validate_tmdl_style.sh`** — blockt in `.tmdl` bei Leerzeichen-Einrückung, `:=` und
-  `description:` über 200 Zeichen.
+- **`validate_tmdl_style.sh`** — blockt in `.tmdl` bei Leerzeichen-Einrückung und `:=`.
 - **`validate_pbir_structure.sh`** — blockt bei JSON-Syntaxfehlern in `.json`/`.pbir`
   innerhalb von PBIP-Verzeichnissen.
 
 Blockt ein Hook → Verstoß **fixen und neu versuchen**, nie umgehen. Die TMDL-Hardrules
-(Tabs, `=` statt `:=`, `/// Purpose:`-Kommentar **und** `description:` ≤ 200 Zeichen,
-`summarizeBy`/`formatString` setzen) stehen in AGENTS.md und werden so erzwungen.
+(Tabs, `=` statt `:=`, Beschreibung als `///`-Block über dem Objekt, `summarizeBy`/
+`formatString` setzen) stehen in AGENTS.md. `///` **ist** in TMDL die Description-Eigenschaft,
+die Copilot liest (erste 200 Zeichen); ein `description:`-Schlüssel ist keine TMDL-Syntax.
 
 ### Fab CLI — non-interaktiv schalten
 Vor jedem nicht-interaktiven `fab`-Aufruf in einer Claude-Session erst:
