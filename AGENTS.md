@@ -1,7 +1,7 @@
 # Agent Instructions — ALUCA (Analytics Library of Use Cases)
 
-> **Universal entry point for all AI agents** (Claude, Cursor, Copilot, Codex, Aider, …).
-> Tool-specific overrides live alongside their tool's config: Claude → `CLAUDE.md`, Cursor → `.cursor/rules/`.
+> **Universal entry point for all AI agents** (Claude, Codex, Copilot, Aider, …).
+> Tool-specific overrides live alongside their tool's config: Claude → `CLAUDE.md`, Copilot → `.github/copilot-instructions.md` (generated).
 
 ---
 
@@ -220,6 +220,8 @@ When validation fails:
 
 Never mark a task done until validation passes with no errors.
 
+Where each kind of learning is stored (KNOWN_ERRORS vs. `core/kpi_catalog/planned.yaml` vs. generator fix + regression test): [`docs/agent/rules/learning-routing.md`](docs/agent/rules/learning-routing.md).
+
 ---
 
 ## Where the rules live
@@ -228,7 +230,6 @@ Never mark a task done until validation passes with no errors.
 |---|---|
 | This file (all agents) | `AGENTS.md` ← you are here |
 | Claude-specific overrides | `CLAUDE.md` |
-| Cursor rules (auto-loaded) | `.cursor/rules/*.mdc` |
 | VS Code Copilot | `.github/copilot-instructions.md` |
 | Canonical rule source | `docs/agent/rules/` |
 | Canonical skill source | `docs/agent/skills/` |

@@ -268,7 +268,7 @@ Pick the option that fits your role:
 | What is deferred or not yet implemented? | [`KNOWN_GAPS.md`](internal/project_mgmt/KNOWN_GAPS.md) |
 | How does the Fabric/Power BI pipeline work? | [`products/fabric/powerbi/README.md`](products/fabric/powerbi/README.md) |
 | How does the Evidence/OSS stack work? | [`products/open_source_stack/README.md`](products/open_source_stack/README.md) |
-| How do AI agents (Cursor, Claude, Copilot) work here? | [`AGENTS.md`](AGENTS.md) |
+| How do AI agents (Claude, Codex, Copilot) work here? | [`AGENTS.md`](AGENTS.md) |
 | What changed recently? | [`CHANGELOG.md`](CHANGELOG.md) |
 | Full folder map and architecture diagrams | [`docs/architecture/README.md`](docs/architecture/README.md) |
 
@@ -280,7 +280,7 @@ These are real and useful — but do not need them yet:
 
 - `internal/` — maintainer strategy and audit notes.
 - `showcases/aurora_group/` — large generated demo dataset used for reference.
-- `.cursor/`, `.github/copilot-instructions.md` — generated agent configs; do not edit by hand.
+- `.github/copilot-instructions.md`, `skills/` — generated from `docs/agent/`; do not edit by hand.
 - `products/fabric/powerbi/dist/` — generated TMDL and PBIR output; read but never edit directly.
 - `products/oss_adapters/` — adapter stubs for Grafana, Metabase, Superset; mostly placeholders.
 - `studio/` — useful once you need to work on the UI editor.

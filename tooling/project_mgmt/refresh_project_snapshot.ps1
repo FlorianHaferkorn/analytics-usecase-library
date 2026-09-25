@@ -104,8 +104,8 @@ if ($candidates.Count -eq 0) {
     $first = $candidates[0]
     $expert = "Implementer (general)"
     $expertRulePath = ""
-    if ($first.area -eq "FabricPowerBI" -or $first.area -eq "Aurora") { $expert = "Fabric-Expert"; $expertRulePath = ".cursor/rules/fabric-expert.mdc" }
-    elseif ($first.area -eq "Framework") { $expert = "Framework-Expert"; $expertRulePath = ".cursor/rules/framework-expert.mdc" }
+    if ($first.area -eq "FabricPowerBI" -or $first.area -eq "Aurora") { $expert = "Fabric-Expert"; $expertRulePath = "docs/agent/rules/fabric-expert.md" }
+    elseif ($first.area -eq "Framework") { $expert = "Framework-Expert"; $expertRulePath = "docs/agent/rules/framework-expert.md" }
     $lines += ""
     $lines += "| # | Title | Priority | Area | Expert |"
     $lines += "|---|-------|----------|------|--------|"

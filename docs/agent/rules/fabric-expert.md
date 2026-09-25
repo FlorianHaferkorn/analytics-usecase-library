@@ -8,24 +8,24 @@ When editing under `products/fabric/powerbi/` or Fabric TMDL/DAX artifacts, you 
 
 ## PBI error knowledge base (MCP / agent)
 
-When diagnosing or fixing PBI/PBIP errors (from `.cursor/pbi_errors.log`, `build_errors.json`, or MCP operations):
+When diagnosing or fixing PBI/PBIP errors (from `.local/pbi_errors.log`, `build_errors.json`, or MCP operations):
 
 - **Read first:** [internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md](../../../internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) — single source for known errors and solutions (Symptom | Cause | Fix).
 - **After fixing a new error class:** Add a row to the appropriate table in that file so the solution is stored and the MCP workflow can reuse it.
 
 ## Power BI Modeling MCP (development)
 
-Use the **Power BI Modeling MCP** registered in Cursor (`.cursor/mcp.json`, server: `powerbi-modeling-mcp`) for semantic model work.
+Use the **Power BI Modeling MCP** (server id `powerbi-modeling-mcp`; setup: [products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md](products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md)) for semantic model work.
 
 **Nach Abschluss einer Implementierung (MCP oder manuell):** Als nächsten Schritt immer die Post-Implementation-Validierung ausführen (Abschnitt „Post-Implementation“ unten). Implementierung erst als fertig betrachten, wenn Validierung bestanden oder nach max. Iterationen abgebrochen.
 
 - **Connect to PBIP:** Before model/measure/table operations, connect to the repo’s dist output via `connection_operations` with `operation: "ConnectFolder"` and `folderPath` = path to the **definition** folder (e.g. `products/fabric/powerbi/dist/Commercial.SemanticModel/definition` or absolute path).
-- **Tools:** Prefer MCP where applicable: `model_operations` (Get, ExportTMDL), `measure_operations` (List, Create, Update, ExportTMDL), `table_operations`, `relationship_operations`, `connection_operations` (ConnectFolder, ListConnections). Always read the tool schema in `mcps/<server>/tools/<name>.json` before calling `call_mcp_tool`.
-- **Ref:** [.cursor/MCP_SETUP.md](.cursor/MCP_SETUP.md), [products/fabric/powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md](products/fabric/powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md).
+- **Tools:** Prefer MCP where applicable: `model_operations` (Get, ExportTMDL), `measure_operations` (List, Create, Update, ExportTMDL), `table_operations`, `relationship_operations`, `connection_operations` (ConnectFolder, ListConnections). Always read the tool's input schema (as exposed by your MCP client) before calling it.
+- **Ref:** [products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md](products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md), [products/fabric/powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md](products/fabric/powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md).
 
 ## Rules and skills
 
-- **TMDL and DAX:** Follow [tmdl-dax.mdc](.cursor/rules/tmdl-dax.mdc) (tabs only, measure syntax, diagram layout).
+- **TMDL and DAX:** Follow [tmdl-dax.md](docs/agent/rules/tmdl-dax.md) (tabs only, measure syntax, diagram layout).
 - **Skill:** fabric-powerbi-validation — use when changing measures, TMDL, or report layout.
 
 ## Post-Implementation: Validierung, Loop, Learning
@@ -36,13 +36,13 @@ Use the **Power BI Modeling MCP** registered in Cursor (`.cursor/mcp.json`, serv
 
 1. **Validierung ausführen und auf Ergebnis warten:**
    ```powershell
-   .\tooling\pbi_validate_after_impl.ps1 -IncludeDesktopLogMinutes 10 -ResultFile .cursor/pbi_validate_result.json
+   .\products\fabric\powerbi\tooling\run_fabric_checks.ps1
    ```
-   Das Skript liefert JSON (stdout + optional ResultFile): `success`, `errors[]`, `sources[]`. Exit-Code 0 = keine Fehler, 1 = Fehler.
+   Exit-Code 0 = keine Fehler, 1 = Fehler. Wenn auch Core/Querverweise betroffen sind: `.\tooling\quality\run_quality_gate.ps1`. Lokale Ergebnisse und Logs liegen unter `.local/` (siehe [products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md](products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md)).
 
 2. **Auswertung:**
-   - **success === true:** Entwicklung beenden; Nutzer kurz informieren („Validierung bestanden, Implementierung abgeschlossen“). Optional hinweisen: Report in Power BI Desktop öffnen zur finalen Prüfung.
-   - **success === false:** Fehler aus `errors` auswerten; mit MCP und/oder Datei-Edits beheben. **Learning Loop:** Jede neue Fehlerklasse als Zeile (Symptom | Cause | Fix) in [KNOWN_ERRORS_AND_FIXES.md](../../../internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) in der passenden Sektion eintragen. Anschließend Schritt 1 erneut ausführen (Validierung). Wiederholen bis `success === true` oder maximale Iterationen (z. B. 5); bei Abbruch Nutzer informieren und offene Fehler nennen.
+   - **Bestanden:** Entwicklung beenden; Nutzer kurz informieren („Validierung bestanden, Implementierung abgeschlossen“). Optional hinweisen: Report in Power BI Desktop öffnen zur finalen Prüfung.
+   - **Fehlgeschlagen:** gemeldete Fehler auswerten; mit MCP und/oder Datei-Edits beheben. **Learning Loop:** Jede neue Fehlerklasse als Zeile (Symptom | Cause | Fix) in [KNOWN_ERRORS_AND_FIXES.md](../../../internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) in der passenden Sektion eintragen. Anschließend Schritt 1 erneut ausführen (Validierung). Wiederholen bis bestanden oder maximale Iterationen (z. B. 5); bei Abbruch Nutzer informieren und offene Fehler nennen.
 
 3. **Nicht überspringen:** Diese Validierung und die Entscheidung (Loop vs. Ende) sind Teil des Implementierungsabschlusses; nicht „nur“ Fabric-Checks manuell laufen lassen, sondern das Ergebnis explizit auswerten und ggf. nachfixen.
 
@@ -59,4 +59,4 @@ Stage 1 (`. \tooling\run_stage1_checks.ps1`) still applies for any changes that 
 ## Scope
 
 - `products/fabric/powerbi/` — tooling, dist, reports, semantic models.
-- Future tool adapters (e.g. Tableau, Looker) get their own expert rules under `.cursor/rules/<tool>-expert.mdc`.
+- Future tool adapters (e.g. Tableau, Looker) get their own expert rules under `docs/agent/rules/<tool>-expert.md`.

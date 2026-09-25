@@ -272,7 +272,7 @@ A phased plan to create this architecture from scratch, adjust it to your org, a
 ## 8. References
 
 - **This implementation:** `products/fabric/powerbi/docs/fabric/powerbi.md`, `tmdl_best_practices.md`, `deployment/README.md`.
-- **Framework:** `core/strategy_operating_model/`, `AGENTS.md`, `.cursor/rules/stage1-awareness.mdc`.
+- **Framework:** `core/strategy_operating_model/`, `AGENTS.md`, `docs/agent/rules/stage1-awareness.md`.
 - **Validation:** `tooling/run_stage1_checks.ps1`, `products/fabric/powerbi/tooling/run_fabric_checks.ps1`.
 - **Microsoft Learn — Best practices for lifecycle management:** [Best practices for lifecycle management in Fabric](https://learn.microsoft.com/en-us/fabric/cicd/best-practices-cicd) (content preparation, dev/test/prod, permissions, parameters, deployment rules, app update).
 - **Microsoft Learn — Fabric deployment patterns:** [Microsoft Fabric deployment patterns](https://learn.microsoft.com/en-us/azure/architecture/analytics/architecture/fabric-deployment-patterns) (tenant/capacity/workspace/item; monolithic vs multiple workspaces vs multiple tenants; domains, OneLake data hub).

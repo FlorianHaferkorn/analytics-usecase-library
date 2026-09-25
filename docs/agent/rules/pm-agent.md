@@ -23,6 +23,7 @@ When the user says **"assign next task"**, **"start next task"**, **"Naechste Au
 1. Run from repo root: `./tooling/project_mgmt/start_next_task.ps1`
 2. Parse output for issue number and expert.
 3. Reply with exactly one instruction to start implementation.
+4. If the output names a recommended expert, add one line with its rule: Fabric-Expert → `docs/agent/rules/fabric-expert.md`, Framework-Expert → `docs/agent/rules/framework-expert.md`. For "Implementer (general)" write: *"Keine spezifische Expert-Rule nötig."*
 
 ## 2. Intake for new requirements
 

@@ -9,9 +9,9 @@ Start a session with this rule when the user says e.g. **"Review PR #N"** or **"
 ## Checklist (assess each item)
 
 1. **Rules and skills**
-   - Changes align with [.cursor/rules/agent-workflow.mdc](.cursor/rules/agent-workflow.mdc), [.cursor/rules/framework-conventions.mdc](.cursor/rules/framework-conventions.mdc), [.cursor/rules/stage1-awareness.mdc](.cursor/rules/stage1-awareness.mdc).
-   - If use case/factsheet/bracket/KPI/action code touched: relevant skill applied (e.g. edit-factsheet-safely, edit-usecase-bracket-safely, add-kpi-reference-safely, add-action-code-and-wire-up). See [.cursor/rules/agent-workflow.mdc](.cursor/rules/agent-workflow.mdc) "Before starting" for skill list.
-   - If Fabric/TMDL/DAX touched: [.cursor/rules/fabric-expert.mdc](.cursor/rules/fabric-expert.mdc) and fabric-powerbi-validation apply.
+   - Changes align with [docs/agent/rules/agent-workflow.md](docs/agent/rules/agent-workflow.md), [docs/agent/rules/framework-conventions.md](docs/agent/rules/framework-conventions.md), [docs/agent/rules/stage1-awareness.md](docs/agent/rules/stage1-awareness.md).
+   - If use case/factsheet/bracket/KPI/action code touched: relevant skill applied (e.g. edit-factsheet-safely, edit-usecase-bracket-safely, add-kpi-reference-safely, add-action-code-and-wire-up). See [docs/agent/rules/agent-workflow.md](docs/agent/rules/agent-workflow.md) "Before starting" for skill list.
+   - If Fabric/TMDL/DAX touched: [docs/agent/rules/fabric-expert.md](docs/agent/rules/fabric-expert.md) and fabric-powerbi-validation apply.
 
 2. **Stage 1 compliance**
    - No change to governed artifacts that would break Stage 1 (schemas, KPI catalog, action codes, factsheets, brackets, data contracts, registry). If unsure, recommend: *"Run `.\tooling\run_stage1_checks.ps1` from repo root and fix any failures before merge."*

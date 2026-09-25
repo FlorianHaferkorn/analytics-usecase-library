@@ -13,7 +13,7 @@
     "!products/fabric/powerbi/dist/**",
     "!internal/archive/**",
     "!CHANGELOG.md",
-    "!.cursor/**",
+    "!.local/**",
     "!.claude/**",
     "!studio/playwright-report/**",
     "!studio/test-results/**",

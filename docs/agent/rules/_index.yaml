@@ -98,6 +98,14 @@ rules:
     alwaysApply: true
     globs: null
 
+  learning-routing:
+    description: >
+      Route learnings. Use when: fixing any validation, build, drift or Desktop error — decides where the fix is persisted
+      (KNOWN_ERRORS_AND_FIXES.md vs core/kpi_catalog/planned.yaml vs generator + regression test).
+      Triggers: always active
+    alwaysApply: true
+    globs: null
+
   tmdl-dax:
     description: >
       Enforce TMDL/DAX style. Use when: writing or editing .tmdl files or DAX expressions.

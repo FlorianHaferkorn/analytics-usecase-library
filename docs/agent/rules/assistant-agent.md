@@ -21,6 +21,7 @@ When the user says **"Start next task"**, **"Naechste Aufgabe"**, or similar and
 1. Run from the repo root: `./tooling/project_mgmt/start_next_task.ps1`
 2. Parse the output for issue number and recommended expert (if present).
 3. Reply with exactly one instruction, e.g. *"Issue #<N> ist jetzt In progress. Oeffne eine Implementer-Session und sage: Implement issue #<N>."*
+4. If the output names a recommended expert, add one line with its rule: Fabric-Expert → `docs/agent/rules/fabric-expert.md`, Framework-Expert → `docs/agent/rules/framework-expert.md`. For "Implementer (general)" write: *"Keine spezifische Expert-Rule nötig."*
 
 ## Daily briefing
 

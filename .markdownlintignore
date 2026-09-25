@@ -7,6 +7,6 @@ tooling/visual_library/tests/golden_docs/Part_D.md
 # Historical / archive
 internal/archive/**
 CHANGELOG.md
-# Cursor/IDE config files — tool-specific format, not authored docs
-.cursor/**
+# Local-only tool outputs (git-ignored)
+.local/**
 .claude/**

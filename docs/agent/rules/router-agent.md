@@ -10,11 +10,11 @@ Start a session with this rule when the user says **"Route issue #N"**, **"Which
 
 | Task type | Expert | Rule |
 |---|---|---|
-| **Framework core** — core/, tooling/ir/, data_contracts/, tooling/validation/, ontology, docs (framework topics) | Framework-Expert | `.cursor/rules/framework-expert.mdc` |
-| **KPI / Action code authoring** — create or change KPI definitions, action codes, taxonomy | Framework-Expert | `.cursor/rules/framework-expert.mdc` |
-| **Fabric / TMDL / DAX / PBIP authoring** — tables, measures, relationships, reports, PBIP deployment | Fabric-Expert | `.cursor/rules/fabric-expert.mdc` |
-| **Aurora showcase** (structure only, no TMDL/DAX) | Framework-Expert | `.cursor/rules/framework-expert.mdc` |
-| **Tooling / scripts / CI / general** | Implementer (general) | `.cursor/rules/agent-workflow.mdc` |
+| **Framework core** — core/, tooling/ir/, data_contracts/, tooling/validation/, ontology, docs (framework topics) | Framework-Expert | `docs/agent/rules/framework-expert.md` |
+| **KPI / Action code authoring** — create or change KPI definitions, action codes, taxonomy | Framework-Expert | `docs/agent/rules/framework-expert.md` |
+| **Fabric / TMDL / DAX / PBIP authoring** — tables, measures, relationships, reports, PBIP deployment | Fabric-Expert | `docs/agent/rules/fabric-expert.md` |
+| **Aurora showcase** (structure only, no TMDL/DAX) | Framework-Expert | `docs/agent/rules/framework-expert.md` |
+| **Tooling / scripts / CI / general** | Implementer (general) | `docs/agent/rules/agent-workflow.md` |
 
 ## Delegation rules — task → specialist
 

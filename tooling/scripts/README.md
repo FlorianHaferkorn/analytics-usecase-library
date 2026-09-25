@@ -16,4 +16,4 @@ python tooling/scripts/hub_sync.py --dry-run    # list paths only
 python tooling/scripts/hub_sync.py --out docs/catalog   # custom output dir
 ```
 
-Run after Core logic changes so the living Hub reflects current definitions. See [.cursor/rules/framework-architect.mdc](../../.cursor/rules/framework-architect.mdc).
+Run after Core logic changes so the living Hub reflects current definitions. See [framework-architect.md](../../docs/agent/rules/framework-architect.md).

@@ -2,7 +2,7 @@
 .SYNOPSIS
   Export a customer-safe package from the monorepo.
 .DESCRIPTION
-  Produces a curated output that excludes maintainer-only areas (`tooling/`, `internal/`, `.cursor/`).
+  Produces a curated output that excludes maintainer-only areas (`tooling/`, `internal/`, `.local/`).
   Intended for maintainers/delivery teams. Run from repository root.
 #>
 Param(
@@ -48,7 +48,7 @@ if ($IncludeShowcases) {
 }
 
 # Hard exclusions (defense-in-depth): remove maintainer-only folders if copied by accident
-$exclude = @("tooling", "internal", ".cursor", ".git", ".github")
+$exclude = @("tooling", "internal", ".local", ".git", ".github")
 foreach ($e in $exclude) {
   $path = Join-Path $pkgDir $e
   if (Test-Path $path) { Remove-Item -Recurse -Force $path }

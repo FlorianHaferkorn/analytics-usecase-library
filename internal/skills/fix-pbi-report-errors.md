@@ -2,7 +2,7 @@
 
 Diagnose- und Reparatur-Workflow für Fehler in Power BI Reports und Semantic Models. Jeder Fix wird in der Knowledge Base dokumentiert, damit sich Fehler nicht wiederholen.
 
-Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Code, Cursor, Copilot, etc.) und von Menschen gleichermaßen verwendet werden.
+Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Code, Codex, Copilot, etc.) und von Menschen gleichermaßen verwendet werden.
 
 ## Wann verwenden
 
@@ -11,7 +11,7 @@ Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Cod
 - TMDL-Validierung schlägt fehl
 - Measures fehlen oder DAX-Fehler
 - Pipeline/Orchestrator meldet Fehler
-- `.cursor/pbi_errors.log` enthält neue Einträge
+- `.local/pbi_errors.log` enthält neue Einträge
 
 ## Workflow
 
@@ -21,11 +21,11 @@ Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Cod
 
 | Quelle | Pfad |
 |--------|------|
-| Power BI Desktop (live) | `.cursor/pbi_errors.log` (via `watch_pbi.ps1`) |
+| Power BI Desktop (live) | `.local/pbi_errors.log` (via `watch_pbi.ps1`) |
 | Pipeline | `products/fabric/powerbi/orchestrator/last_run_state.json` |
 | Build Errors | `products/fabric/powerbi/orchestrator/out/build_errors.json` |
 | Quality Checks | `internal/reviews/run_all_checks_failures.json` |
-| Post-Impl Validation | `.cursor/pbi_validate_result.json` |
+| Post-Impl Validation | `.local/pbi_validate_result.json` |
 
 ### 2. Knowledge Base prüfen
 
@@ -114,7 +114,7 @@ Wenn der Fehler nicht in den generierten Dateien liegt, sondern im Generator-Cod
 
 ```bash
 # Report-Validierung
-.\tooling\pbi_validate_after_impl.ps1 -ResultFile .cursor/pbi_validate_result.json
+.\tooling\pbi_validate_after_impl.ps1 -ResultFile .local/pbi_validate_result.json
 
 # Fabric Checks (TMDL, DAX, Measures)
 .\products\fabric\powerbi\tooling\run_fabric_checks.ps1
@@ -185,5 +185,5 @@ table 'fact_sales'                          ← 0 Tabs
 | PBIP Fix Script | `products/fabric/powerbi/tooling/ensure_pbip_desktop_ready.ps1` |
 | Fabric Checks | `products/fabric/powerbi/tooling/run_fabric_checks.ps1` |
 | BPA Rules | `tooling/linters/powerbi/bpa-rules-report.json`, `bpa-rules-tmdl.json`, `bpa-rules-dax.json` |
-| Error Log (Desktop) | `.cursor/pbi_errors.log` |
+| Error Log (Desktop) | `.local/pbi_errors.log` |
 | Error Watcher | `watch_pbi.ps1` |

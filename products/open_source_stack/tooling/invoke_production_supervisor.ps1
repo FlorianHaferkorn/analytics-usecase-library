@@ -10,7 +10,7 @@
 param(
   [string] $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path,
   [string] $PolicyPath = "products/open_source_stack/tooling/production_quality.standard.json",
-  [string] $ResultFile = ".cursor/oss_supervisor_result.json",
+  [string] $ResultFile = ".local/oss_supervisor_result.json",
   [string[]] $UseCase,
   [switch] $All,
   [switch] $SkipBuild,

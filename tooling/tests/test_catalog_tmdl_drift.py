@@ -312,7 +312,7 @@ def test_action_outcome_rate_not_duplicated():
     pattern = str(_REPO_ROOT / "products" / "**" / "_Measures.tmdl")
     tmdl_files = [
         p for p in glob.glob(pattern, recursive=True)
-        if ".cursor" not in p and "publish_staging" not in p
+        if ".local" not in p and "publish_staging" not in p
     ]
 
     unsuffixed_files = []

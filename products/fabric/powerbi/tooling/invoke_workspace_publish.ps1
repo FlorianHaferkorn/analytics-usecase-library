@@ -6,8 +6,8 @@
 param(
   [string] $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..\..")).Path,
   [string] $Environment = "tst",
-  [string] $ResultFile = ".cursor/pbi_publish_result.json",
-  [string] $StagingRoot = ".cursor/publish_staging",
+  [string] $ResultFile = ".local/pbi_publish_result.json",
+  [string] $StagingRoot = ".local/publish_staging",
   [string] $UseCase = "",
   [string] $Domain = "",
   [switch] $All,

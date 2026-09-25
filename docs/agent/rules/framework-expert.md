@@ -4,9 +4,9 @@ When editing under `core/`, `tooling/ir/`, `data_contracts/`, `tooling/validatio
 
 ## Scope
 
-- **Use cases:** Business Factsheets, UseCase_Bracket.yaml — [artifacts-factsheets.mdc](.cursor/rules/artifacts-factsheets.mdc).
+- **Use cases:** Business Factsheets, UseCase_Bracket.yaml — [artifacts-factsheets.md](docs/agent/rules/artifacts-factsheets.md).
 - **KPI catalog:** core/kpi_catalog/ — governed definitions only.
-- **Action codes:** core/action_codes/ — YAML per [artifacts-yaml.mdc](.cursor/rules/artifacts-yaml.mdc).
+- **Action codes:** core/action_codes/ — YAML per [artifacts-yaml.md](docs/agent/rules/artifacts-yaml.md).
 - **Data contracts:** data_contracts/domains/, data_contracts/sources/.
 - **IR (Intermediate Representation):** tooling/ir/ — adapter ABI; no tool-specific fields.
 - **Validation / ontology:** tooling/validation/, tooling/ontology/ — scripts and schema-driven checks.
@@ -23,4 +23,4 @@ When editing under `core/`, `tooling/ir/`, `data_contracts/`, `tooling/validatio
 - assess-change-impact (for renames/removals)
 - stage1-pre-commit, fix-stage1-failure
 
-Follow [framework-conventions.mdc](.cursor/rules/framework-conventions.mdc) and [stage1-awareness.mdc](.cursor/rules/stage1-awareness.mdc). Run Stage 1 before committing.
+Follow [framework-conventions.md](docs/agent/rules/framework-conventions.md) and [stage1-awareness.md](docs/agent/rules/stage1-awareness.md). Run Stage 1 before committing.

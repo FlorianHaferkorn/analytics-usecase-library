@@ -50,7 +50,6 @@ generate:                          # which agent configs the generator emits
   - AGENTS.md
   - CLAUDE.md
   - .github/copilot-instructions.md
-  - .cursor/rules
   - .claude
 ```
 
@@ -62,7 +61,7 @@ aluca.capabilities.yaml
         ▼
 docs/agent/ SSOT  ─►  generate_tool_configs.py (manifest-aware)
         │                       │
-        │                       ├─► AGENTS.md / CLAUDE.md / .cursor / .github / .claude   (allowed skills+rules only)
+        │                       ├─► AGENTS.md / CLAUDE.md / .github / .claude             (allowed skills+rules only)
         │                       └─► MCP registration                                       (only enabled tools)
         ▼
    `aluca doctor` reflects the resulting active tier/state
@@ -77,7 +76,7 @@ Rules the generator enforces:
 - **Only listed skills/tools are wired.** Adding a capability is an explicit edit;
   removing it and regenerating makes it disappear from every agent at once.
 - **Cross-tool from one source:** the same manifest drives Claude Code, Copilot,
-  Cursor, etc. — no per-agent drift.
+  Codex, etc. — no per-agent drift.
 
 ## Why one file
 

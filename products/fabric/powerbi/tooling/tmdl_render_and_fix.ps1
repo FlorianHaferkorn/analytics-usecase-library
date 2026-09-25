@@ -5,7 +5,7 @@
 
 .DESCRIPTION
   1) Führt TMDL-Validierung aus (check_tmdl_syntax, check_tmdl_pbip_readiness; optional pbi-tools compile).
-  2) Bei Fehlern: schreibt in .cursor/tmdl_errors.log, wendet bekannte Auto-Fixes an (z. B. Spaces→Tabs, description entfernen), wiederholt.
+  2) Bei Fehlern: schreibt in .local/tmdl_errors.log, wendet bekannte Auto-Fixes an (z. B. Spaces→Tabs, description entfernen), wiederholt.
   3) Nach erfolgreicher Validierung, wenn in dieser Runde ein Fix angewendet wurde: fügt eine Zeile (Symptom | Cause | Fix) in internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md unter "TMDL / PBIP" ein.
 
 .PARAMETER DistRoot
@@ -18,7 +18,7 @@
   Maximale Validierungs-/Fix-Runden (Standard: 5).
 
 .PARAMETER ErrorLogPath
-  Datei für TMDL-Fehler (Standard: .cursor/tmdl_errors.log).
+  Datei für TMDL-Fehler (Standard: .local/tmdl_errors.log).
 
 .PARAMETER UpdateKnowledgeBase
   Bei Erfolg nach Fix eine Zeile in KNOWN_ERRORS_AND_FIXES eintragen (Standard: true).
@@ -35,7 +35,7 @@ param(
   [string] $DistRoot = "products/fabric/powerbi/dist",
   [string] $RepoRoot = $null,
   [int]    $MaxIterations = 5,
-  [string] $ErrorLogPath = ".cursor/tmdl_errors.log",
+  [string] $ErrorLogPath = ".local/tmdl_errors.log",
   [bool]   $UpdateKnowledgeBase = $true,
   [bool]   $TryPbiToolsCompile = $false
 )
@@ -55,8 +55,8 @@ $checkReadiness = Join-Path $scriptDir "validation\check_tmdl_pbip_readiness.ps1
 function Write-TmdlLog {
   param([string]$Message, [string]$Level = "ERROR")
   $line = "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [$Level] $Message"
-  $cursorDir = Split-Path $errorLogResolved -Parent
-  if (-not (Test-Path $cursorDir)) { New-Item -ItemType Directory -Path $cursorDir -Force | Out-Null }
+  $logDir = Split-Path $errorLogResolved -Parent
+  if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir -Force | Out-Null }
   $line | Out-File -FilePath $errorLogResolved -Append -Encoding utf8
   Write-Host $line
 }

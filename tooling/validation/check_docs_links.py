@@ -89,7 +89,7 @@ EXCLUDE_DIRS: set[str] = {
     "studio/.next",
     "tooling/ontology/out",
     "tooling/.venv",
-    ".cursor",
+    ".local",
 }
 
 
@@ -147,8 +147,6 @@ _TEMPLATE_RE = re.compile(r'^\{\{.*\}\}$')
 REPO_ROOT_LINK_DIRS: set[str] = {
     "docs/agent/rules",
     "docs/agent/skills",
-    ".cursor/rules",
-    ".cursor/skills",
 }
 
 
