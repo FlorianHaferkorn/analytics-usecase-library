@@ -354,3 +354,12 @@ def test_no_git_history_is_not_read_as_a_direction(tmp_path):
     (plain / "m.py").write_bytes(b"v2\n")
     line = sensor.pin_direction(plain, "m.py", _vendored(tmp_path, "v1\n"))
     assert "not measurable" in line and "moved on" not in line
+
+
+def test_quelle_aus_dem_commit_ignoriert_zeilenenden_der_platte(meridian):
+    """Meridian D-567: der Spiegel liest den Blob, nicht die Platte. Auf Windows lag dieselbe
+    Quelle als CRLF auf der Platte und als LF im Index — zwei PINs fuer einen Inhalt."""
+    (meridian / "m.py").write_bytes(b"v1\r\n")
+    assert sensor._quelle_bytes(meridian, "m.py") == b"v1\r\n"          # Arbeitsbaum
+    assert sensor._quelle_bytes(meridian, "m.py", "HEAD") == b"v1\n"     # Commit
+    assert sensor._quelle_bytes(meridian, "fehlt.py", "HEAD") is None

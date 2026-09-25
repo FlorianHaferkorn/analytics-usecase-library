@@ -276,7 +276,27 @@ def vendor_integrity(pin: dict) -> list[str]:
     return out
 
 
-def vendor_upstream_drift(pin: dict, meridian_root: Path) -> list[str]:
+def _quelle_bytes(meridian_root: Path, quelle: str, ref: str | None = None) -> bytes | None:
+    """Inhalt einer Spiegelquelle: ohne ``ref`` aus dem Arbeitsbaum, mit ``ref`` aus dem Commit.
+
+    Warum der Commit (25.09.2026, Meridian D-567): der Arbeitsbaum ist nicht der Stand, den
+    jemand beschlossen hat. Gemessen am 24.09.2026: 24 Quellen trugen auf einem Windows-Rechner
+    CRLF auf der Platte und LF im Index; ``--write`` pinnte die CRLF-Hashes, ``main`` die
+    LF-Hashes — derselbe Inhalt, zwei PINs. ``git show <ref>:<pfad>`` liefert den Blob, wie er
+    im Repository steht, unabhaengig von Zeilenenden und uncommitteter Arbeit.
+    """
+    if ref is None:
+        p = meridian_root / quelle
+        return p.read_bytes() if p.is_file() else None
+    try:
+        proc = subprocess.run(("git", "show", f"{ref}:{quelle}"), cwd=str(meridian_root),
+                              capture_output=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return proc.stdout if proc.returncode == 0 else None
+
+
+def vendor_upstream_drift(pin: dict, meridian_root: Path, ref: str | None = None) -> list[str]:
     """Meridian-side changes the mirror has not picked up yet. Pure.
 
     Takes the Meridian **repo root**, not the blueprint directory: since 03.09.2026 the
@@ -287,8 +307,8 @@ def vendor_upstream_drift(pin: dict, meridian_root: Path) -> list[str]:
     ziele = [z for _, z in mirror_quellen()]
     out: list[str] = []
     for quelle, name in mirror_quellen():
-        src = meridian_root / quelle
-        if not src.is_file():
+        inhalt = _quelle_bytes(meridian_root, quelle, ref)
+        if inhalt is None:
             if name in pinned:
                 out.append(f"  {name}: removed in Meridian, still mirrored here")
             else:
@@ -297,7 +317,7 @@ def vendor_upstream_drift(pin: dict, meridian_root: Path) -> list[str]:
         if name not in pinned:
             out.append(f"  {name}: declared as mirrored but not mirrored yet — --write")
             continue
-        if _sha256(src) != pinned[name]:
+        if hashlib.sha256(inhalt).hexdigest() != pinned[name]:
             out.append(f"  {name}: " + pin_direction(meridian_root, quelle,
                                                      REPO_ROOT / _VENDOR_REL / name))
     for name in sorted(set(pinned) - set(ziele)):
@@ -360,8 +380,12 @@ def pin_direction(meridian_root: Path, quelle: str, vendored: Path) -> str:
             f"fetched) — {NICHT_SCHREIBEN} before `--fetch` and a second measurement")
 
 
-def write_vendor(meridian_root: Path, pin: dict | None = None) -> dict:
+def write_vendor(meridian_root: Path, pin: dict | None = None, ref: str = "HEAD") -> dict:
     """Re-copy the mirrored files and rewrite PIN.json. Deliberately manual, never in CI.
+
+    Seit Meridian D-567 aus dem Commit ``ref`` (Vorgabe HEAD), nicht aus dem Arbeitsbaum; der
+    PIN nennt den Commit (``source_commit``). Uncommittete Arbeit in Meridian wird damit nicht
+    mehr still gespiegelt — erst committen, dann spiegeln.
 
     The file list comes from ``MIRRORED_FILES``, never from the existing PIN — otherwise a
     module could only ever be *added* by hand-editing the PIN, which the integrity gate
@@ -371,8 +395,19 @@ def write_vendor(meridian_root: Path, pin: dict | None = None) -> dict:
     root.mkdir(parents=True, exist_ok=True)
     pin = pin or {}
     quellen = mirror_quellen()
+    commit = _git(meridian_root, "rev-parse", ref)
+    if not commit:
+        raise SystemExit(f"[check-dataarch-mirror] --write: {ref} ist in {meridian_root} kein Commit")
+    fehlend = []
     for quelle, name in quellen:
-        shutil.copyfile(meridian_root / quelle, root / name)
+        inhalt = _quelle_bytes(meridian_root, quelle, commit)
+        if inhalt is None:
+            fehlend.append(quelle)
+            continue
+        (root / name).write_bytes(inhalt)
+    if fehlend:
+        raise SystemExit("[check-dataarch-mirror] --write: nicht im Commit " + commit[:8]
+                         + " (uncommittet?): " + ", ".join(fehlend))
 
     def _eintrag(quelle: str, name: str) -> dict:
         e = {"path": name, "sha256": _sha256(root / name)}
@@ -385,6 +420,7 @@ def write_vendor(meridian_root: Path, pin: dict | None = None) -> dict:
     fresh = {
         "source_repo": pin.get("source_repo", "Freelancing"),
         "source_path": pin.get("source_path", _MER_REL),
+        "source_commit": commit,
         "doctrine": pin.get("doctrine",
                             "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors."),
         "files": [_eintrag(q, n) for q, n in quellen],
@@ -516,8 +552,14 @@ def main(argv: list[str] | None = None) -> int:
             print("[check-dataarch-mirror] --write needs a Meridian checkout "
                   "($MERIDIAN_ROOT or ../Freelancing)")
             return 1
-        fresh = write_vendor(mer, pin)
-        print(f"[check-dataarch-mirror] re-mirrored {len(fresh['files'])} file(s) from {mer}")
+        ref = "HEAD"
+        if "--ref" in argv:
+            i = argv.index("--ref") + 1
+            if i < len(argv):
+                ref = argv[i]
+        fresh = write_vendor(mer, pin, ref)
+        print(f"[check-dataarch-mirror] re-mirrored {len(fresh['files'])} file(s) from {mer} "
+              f"at {fresh['source_commit'][:8]}")
         return 0
 
     # The vendored subtree's integrity does not need Meridian — check it always.
@@ -568,7 +610,9 @@ def main(argv: list[str] | None = None) -> int:
 
     drift = _diff(meridian, aluca)
     if pin is not None:
-        drift += vendor_upstream_drift(pin, mer)
+        # Gegen den Commit, ausser Meridian selbst ruft (--skip-freshness): dort ist der
+        # uncommittete Stand der Gegenstand der Pruefung (siehe oben).
+        drift += vendor_upstream_drift(pin, mer, None if skip_freshness else "HEAD")
 
     if not drift:
         vendored = len(pin["files"]) if pin else 0
