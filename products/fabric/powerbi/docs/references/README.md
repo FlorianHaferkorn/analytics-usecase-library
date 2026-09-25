@@ -24,6 +24,7 @@ Quick index — open the relevant doc for the task at hand.
 | Doc | Use When |
 |---|---|
 | [`tmdl-tom-object-types.md`](tmdl-tom-object-types.md) | Programmatic model edits via PowerShell TOM — tables, columns, measures, relationships, hierarchies, RLS roles; refresh requirements per object type |
+| [`powerbi-modeling-mcp-setup.md`](powerbi-modeling-mcp-setup.md) | Installing and registering the Power BI Modeling MCP server, connecting it to PBIP `definition` folders or Desktop, and the post-implementation validate → fix → learn loop |
 
 ## Validation & Visual QA
 

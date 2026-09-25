@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "powerbi-modeling-mcp": {
-      "command": "C:\\MCPServers\\PowerBIModelingMCP\\analysis-services.powerbi-modeling-mcp-0.1.9@win32-x64\\extension\\server\\powerbi-modeling-mcp.exe",
-      "args": ["--start"],
-      "env": {}
-    }
-  }
-}

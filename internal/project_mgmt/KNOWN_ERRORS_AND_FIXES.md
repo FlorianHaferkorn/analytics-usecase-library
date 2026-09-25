@@ -4,13 +4,13 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 
 **Pflicht (Agent only):** Nach **jedem** behobenen Fehler (aus Pipeline, Desktop, Nutzerbericht oder eigener Analyse) **muss** eine neue Zeile in die passende Tabelle unten eingetragen werden, sofern diese Fehlerklasse noch nicht dokumentiert ist. So werden Lösungen wiederverwendbar und derselbe Fehler nicht mehrfach gemacht. Bei Generatoren: Fix im Generator umsetzen **und** hier dokumentieren.
 
-## Closed-loop (Power BI Desktop + Cursor)
+## Closed-loop (Power BI Desktop + Agent)
 
-- **Live Desktop errors:** Errors from Power BI Desktop appear in `.cursor/pbi_errors.log` (bridge file for Cursor). Use `fab` CLI or the MCP `execute_dax` tool for live DAX validation instead of the removed `watch_pbi.ps1` watcher.
-- **This file is the Wissensdatenbank:** Errors **and** solutions live in the tables below. When the agent fixes an error from `.cursor/pbi_errors.log` or from pipeline logs, it must **add a new row** to the appropriate section if this error class is not yet documented (so the solution is stored and reusable).
+- **Live Desktop errors:** Errors from Power BI Desktop appear in `.local/pbi_errors.log` (local bridge file, git-ignored). Use `fab` CLI or the MCP `execute_dax` tool for live DAX validation instead of the removed `watch_pbi.ps1` watcher.
+- **This file is the Wissensdatenbank:** Errors **and** solutions live in the tables below. When the agent fixes an error from `.local/pbi_errors.log` or from pipeline logs, it must **add a new row** to the appropriate section if this error class is not yet documented (so the solution is stored and reusable).
 - **MCP workflow:** When using the Power BI Modeling MCP to diagnose or fix model/report issues, the agent should **read this file first** for known patterns and **update this file** after applying a fix for a new error (add Symptom | Cause | Fix).
-- **Automatischer Fix (Daemon):** Wenn gewünscht, läuft im Hintergrund `.\tooling\pbi_auto_fix_daemon.ps1`. Er überwacht `.cursor/pbi_errors.log`; bei neuem Eintrag wird nach Debounce eine LLM-API (Azure OpenAI oder OpenAI) aufgerufen und die zurückgegebene Korrektur (file_edits + optional neue Zeile hier) angewendet. Voraussetzung: `AZURE_OPENAI_*` oder `OPENAI_API_KEY` gesetzt; siehe Skript-Kommentar.
-- **Post-Implementation (Agent):** Nach Abschluss einer MCP- oder manuellen Implementierung führt der Agent `.\tooling\pbi_validate_after_impl.ps1` aus, wartet auf das JSON-Ergebnis, behebt bei Fehlern (und trägt neue Lösungen hier ein), und wiederholt bis `success` oder max. Iterationen. Siehe `.cursor/rules/fabric-expert.mdc` (Post-Implementation).
+- **Automatischer Fix (Daemon):** Wenn gewünscht, läuft im Hintergrund `.\tooling\pbi_auto_fix_daemon.ps1`. Er überwacht `.local/pbi_errors.log`; bei neuem Eintrag wird nach Debounce eine LLM-API (Azure OpenAI oder OpenAI) aufgerufen und die zurückgegebene Korrektur (file_edits + optional neue Zeile hier) angewendet. Voraussetzung: `AZURE_OPENAI_*` oder `OPENAI_API_KEY` gesetzt; siehe Skript-Kommentar.
+- **Post-Implementation (Agent):** Nach Abschluss einer MCP- oder manuellen Implementierung führt der Agent `.\tooling\pbi_validate_after_impl.ps1` aus, wartet auf das JSON-Ergebnis, behebt bei Fehlern (und trägt neue Lösungen hier ein), und wiederholt bis `success` oder max. Iterationen. Siehe `docs/agent/rules/fabric-expert.md` (Post-Implementation).
 
 **Error log locations:**
 
@@ -18,7 +18,7 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 |--------|------|
 | Pipeline (orchestrator) | `products/fabric_powerbi/orchestrator/last_run_state.json` (`validateErrors`), `products/fabric_powerbi/orchestrator/out/build_errors.json` |
 | Quality Checks failures | `internal/reviews/run_all_checks_failures.json` |
-| Power BI Desktop (live) | `.cursor/pbi_errors.log` |
+| Power BI Desktop (live) | `.local/pbi_errors.log` |
 
 ---
 
@@ -57,7 +57,7 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 || Schema URL mismatch in generated files; `check_schema_versions.py` fails | Generator or adapter used a hardcoded schema URL instead of importing from `schema_registry.py`, or registry was updated without regenerating reports. | 1. Verify `schema_registry.py` has correct pinned version. 2. Regenerate reports. 3. Re-run `check_schema_versions.py`. Never hardcode `developer.microsoft.com/json-schemas/fabric` URLs in code. |
 || Cached schema `$id` version mismatch; validator silently checks against wrong rules | `tooling/schemas/pbir/*.schema.json` had an old `$id` version while generators emitted a newer version. | Update `$id` in the cached `.schema.json` to match the version constant in `schema_registry.py`, then run `update_schema_manifest.py`. |
 | Semantic model / Report „öffnet mit Fehlern“ oder Schema-Fehler beim Öffnen in Desktop | Fehlendes `$schema` in .pbip (z. B. SemanticModel.pbip nur mit version/artifacts), oder fehlende definition.pbism/pbir. | **Sofort:** Von Repo-Root `.\products\fabric_powerbi\tooling\ensure_pbip_desktop_ready.ps1` ausführen – ergänzt fehlende definition.pbism/pbir und `$schema` in allen .pbip. **Dauerhaft:** Orchestrator schreibt SemanticModel.pbip mit `$schema`; Post-Implementation-Validierung (`pbi_validate_after_impl.ps1`) ruft ensure_pbip_desktop_ready vor den Fabric-Checks auf. |
-| TMDL-Validierung schlägt fehl (Syntax/Readiness) | Spaces statt Tabs, description:-Property, oder PBIP-Readiness-Regeln. | **TMDL Script Renderer:** `.\products\fabric_powerbi\tooling\tmdl_render_and_fix.ps1` ausführen. Er prüft TMDL, schreibt Fehler nach `.cursor/tmdl_errors.log`, wendet Auto-Fixes an (Spaces→Tabs, description entfernen) und trägt nach erfolgreichem Fix die Lösung in diese Tabelle ein (Learning Loop). Optional in Pipeline/Validierung einbinden. |
+| TMDL-Validierung schlägt fehl (Syntax/Readiness) | Spaces statt Tabs, description:-Property, oder PBIP-Readiness-Regeln. | **TMDL Script Renderer:** `.\products\fabric_powerbi\tooling\tmdl_render_and_fix.ps1` ausführen. Er prüft TMDL, schreibt Fehler nach `.local/tmdl_errors.log`, wendet Auto-Fixes an (Spaces→Tabs, description entfernen) und trägt nach erfolgreichem Fix die Lösung in diese Tabelle ein (Learning Loop). Optional in Pipeline/Validierung einbinden. |
 | TMDL "ungültiger Einzug" bei formatString/displayFolder (Desktop Feb 2026, Zeile 21 _Measures) | Measure-Properties (formatString, displayFolder) mit nur **einem Tab** (t1) – Desktop erwartet **zwei Tabs** (t2), also eine Ebene tiefer als die measure-Zeile. | **Generator:** In `Build-MeasureBlock` und `Build-ActionTextMeasureBlock` alle Measure-Properties (formatString, displayFolder, isHidden, annotations) mit **t2** ausgeben. Dann `generate_tmdl_measures.ps1 -OverwriteExisting` und **vor Test** `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1` bzw. `tmdl_render_and_fix.ps1` ausführen. |
 | Mixed Tab/Space Indentation in Tabellen-TMDL (dim_*, fact_*); Desktop meldet „ungültiger Einzug" | `table_ops.ps1` oder manuelle Edits fügten Spaces statt Tabs bei Column-Properties ein (z.B. `\t lineageTag:` statt `\t\tlineageTag:`). | **Fix:** Python-Script ersetzt `\t` (Tab+Space) durch korrekte Tab-Indentation in allen 12 Tabellen-TMDL unter `dist/Commercial.SemanticModel/definition/tables/`. **Dauerhaft:** In `table_ops.ps1` nur Tabs verwenden (`$t1 = "\t"`, `$t2 = "\t\t"`). |
 | `Gross Margin % vs Plan` DAX-Fehler: Spalte `fact_sales[Plan COGS Amount]` existiert nicht | DAX-Expression referenzierte `fact_sales[Plan COGS Amount]`; diese Spalte existiert nur in `fact_plan_sales` als `Plan Cost of Goods Sold Amount`. | **Fix:** DAX korrigiert: `fact_plan_sales[Plan Cost of Goods Sold Amount]` und `fact_plan_sales[Plan Net Sales Amount]` verwenden. |
@@ -308,5 +308,5 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 Konkret:
 
 1. Nach jedem Fix: Eintrag in die passende Tabelle (oder neue Sektion) mit **Symptom / Meldung | Ursache | Fix**.
-2. Fehler aus `last_run_state.json`, `build_errors.json`, `.cursor/pbi_errors.log` oder Nutzerfeedback: gleiche Regel.
+2. Fehler aus `last_run_state.json`, `build_errors.json`, `.local/pbi_errors.log` oder Nutzerfeedback: gleiche Regel.
 3. Wenn der Fehler durch eine Regel/Check abfangbar ist: Check in `run_fabric_checks.ps1` oder Validierungs-Skripten ergänzen/aktualisieren, damit der nächste Lauf früh mit klarer Meldung abbricht.

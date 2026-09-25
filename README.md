@@ -35,7 +35,7 @@ This framework explicitly connects **strategy → KPIs → use cases → semanti
 Read [`AGENTS.md`](AGENTS.md) — it contains the complete, universal operating rules:
 Golden Thread principle, use case and KPI conventions, CI gates (Stage 1), TMDL/DAX hard rules, Power BI / PBIP development, and the full skill index.
 
-Tool-specific overrides: Claude → [`CLAUDE.md`](CLAUDE.md) · Cursor → `.cursor/rules/` (auto-loaded) · Copilot → `.github/copilot-instructions.md`
+Tool-specific overrides: Claude → [`CLAUDE.md`](CLAUDE.md) · Copilot → `.github/copilot-instructions.md` (generated from `docs/agent/`)
 
 ---
 

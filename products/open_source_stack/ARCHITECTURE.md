@@ -166,7 +166,7 @@ Every Fabric component has an OSS counterpart:
 | TMDL Measure Generator | `tooling/generation/generate_tmdl_measures.ps1` | **dbt Metric Generator** | `…/tooling/metric_generator/` |
 | Fabric Orchestrator | `products/fabric/orchestrator/` | **Infra Provisioner** (Terraform) | `…/deploy/terraform/` |
 | Fabric Validation Checks | `tooling/validation/validate_tmdl.ps1` etc. | **OSS Validation Checks** | `…/tooling/validate_oss.py` |
-| Agent Skills (PBI) | `.cursor/skills/fabric-powerbi-validation/` | **Agent Skills (OSS)** | `.cursor/skills/oss-stack-validation/` |
+| Agent Skills (PBI) | `docs/agent/skills/fabric-powerbi-validation.md` | **Agent Skills (OSS)** | `docs/agent/skills/oss-stack-validation.md` |
 | Deployment Scripts | `…/deployment/scripts/fabric_*.py` | **Deploy CLI** | `…/deploy/deploy_cli.py` |
 
 ---

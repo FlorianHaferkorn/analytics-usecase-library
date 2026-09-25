@@ -20,11 +20,11 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
 
 1. Read the assigned GitHub Issue / task description fully (if you ran start_next_task.ps1, you already have the issue number and title; you may still fetch the full description from the issue).
 2. Identify which artifacts are affected (use case, action code, KPI, tooling, docs) and which expert context applies:
-   - **Framework / Docs (framework topics):** Use Framework-Expert context (`.cursor/rules/framework-expert.mdc`): core/, tooling/ir/, data_contracts/, tooling/validation/, tooling/ontology/. No tool-specific syntax.
-   - **FabricPowerBI / products/fabric/powerbi/:** Use Fabric-Expert context (`.cursor/rules/fabric-expert.mdc`): TMDL, DAX, run_fabric_checks. Use the **Power BI Modeling MCP** (server `powerbi-modeling-mcp`) for semantic model operations; see fabric-expert.mdc and `.cursor/MCP_SETUP.md`.
+   - **Framework / Docs (framework topics):** Use Framework-Expert context (`docs/agent/rules/framework-expert.md`): core/, tooling/ir/, data_contracts/, tooling/validation/, tooling/ontology/. No tool-specific syntax.
+   - **FabricPowerBI / products/fabric/powerbi/:** Use Fabric-Expert context (`docs/agent/rules/fabric-expert.md`): TMDL, DAX, run_fabric_checks. Use the **Power BI Modeling MCP** (server `powerbi-modeling-mcp`) for semantic model operations; see `fabric-expert.md` and `products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md`.
    - **Aurora (showcases/aurora_group):** Aurora is the showcase for every tool (Fabric first, others later). If the task involves Fabric implementation (DAX, TMDL, Measure_Dictionary, reports) → use Fabric-Expert. If the task is showcase structure only (YAML in showcases/aurora_group/models/, model definition, no tool syntax) → use Framework-Expert.
    - **Other areas:** Apply the skill that matches the artifact type below.
-3. Read the relevant skill from `.cursor/skills/` for the artifact type before editing:
+3. Read the relevant skill from `docs/agent/skills/` for the artifact type before editing:
    - Factsheet edit → `edit-factsheet-safely`
    - Bracket edit → `edit-usecase-bracket-safely`
    - New use case → `add-usecase-scaffold` (**read Research-to-Core Standard first: `docs/process/research-to-core-standard.md`**)
@@ -45,10 +45,10 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
    - `git pull origin main`
    - `git checkout -b agent/<issue-id>-<short-name>`
    Use the issue number you have (e.g. `16`). For `<short-name>`, derive a short kebab-case slug from the issue title (e.g. "Document automated reasoning scope" → `automated-reasoning-scope`), max ~40 characters. Example: `agent/16-automated-reasoning-scope`.
-2. **Set project Status to In progress** for this issue so the board stays correct. From the **repo root** (PowerShell): `.\tooling\project_mgmt\set_issue_status.ps1 -Issue <N> -Status "In progress"` (use the issue number from step 5).
+2. **Set project Status to In progress** for this issue so the board stays correct. From the **repo root** (PowerShell): `.\tooling\project_mgmt\set_issue_status.ps1 -Issue <N> -Status "In progress"` (use the issue number from `start_next_task.ps1` or the assigned issue).
 3. Make small, focused changes. One PR per Issue.
 4. **If you recognize that this task requires a skill or tool we don't yet have** (e.g. new artifact type, new domain): mention this need in the PR body so it can be prioritized.
-5. Follow all rules in `.cursor/rules/` — especially `framework-conventions.mdc` and `stage1-awareness.mdc`.
+5. Follow all rules in `docs/agent/rules/` — especially `framework-conventions.md`, `stage1-awareness.md` and `learning-routing.md`.
 
 ## SSOT audit findings (insertable remediation)
 

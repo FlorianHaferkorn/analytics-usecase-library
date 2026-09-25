@@ -24,11 +24,11 @@ validation failures. Mirrors the Fabric `fix-pbi-report-errors` skill.
 1. **Run the validator and capture output:**
 
    ```powershell
-   python products/open_source_stack/tooling/validate_oss.py --root . --json | Out-File -Encoding utf8 .cursor/oss_results.json
+   python products/open_source_stack/tooling/validate_oss.py --root . --json | Out-File -Encoding utf8 .local/oss_results.json
    ```
 
    ```bash
-   python products/open_source_stack/tooling/validate_oss.py --root . --json > .cursor/oss_results.json
+   python products/open_source_stack/tooling/validate_oss.py --root . --json > .local/oss_results.json
    ```
 
 2. **Read the results** — each error has a check name, file, and message.

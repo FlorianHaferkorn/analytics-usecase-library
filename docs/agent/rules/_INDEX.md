@@ -7,7 +7,7 @@ shelf-life-days: 90
 > Navigations-Index der Agent-**Rules** (Verhaltens-/Zuständigkeitsregeln). Diese
 > `*.md` sind die **Regel-Inhalte**; die Metadaten (description, globs, alwaysApply)
 > liegen in `_index.yaml` und steuern die Generierung tool-spezifischer Configs
-> (z. B. `.cursor/rules/*`). Inhalt = diese Dateien, Metadaten = `_index.yaml`.
+> (`.github/copilot-instructions.md`). Inhalt = diese Dateien, Metadaten = `_index.yaml`.
 > Generierungs-Mechanismus: `../README.md`.
 
 ## 1. „Lies-wenn"-Routing
@@ -15,6 +15,7 @@ shelf-life-days: 90
 | Deine Aufgabe ist … | Lies | NICHT nötig |
 |---|---|---|
 | Issue/PR-Aufgabe ausführen (immer) | `agent-workflow.md`, `framework-conventions.md`, `stage1-awareness.md` | Rollen-Rules |
+| Validierungs-, Build-, Drift- oder Desktop-Fehler beheben (immer) | `learning-routing.md` | Rollen-Rules |
 | `.tmdl` oder DAX schreiben | `tmdl-dax.md`, `fabric-expert.md` | `oss-stack-expert.md` |
 | Factsheet oder `UseCase_Bracket.yaml` ändern | `artifacts-factsheets.md` | `tmdl-dax.md` |
 | Action Code, Data Contract, KPI-YAML ändern | `artifacts-yaml.md`, `framework-expert.md` | `tmdl-dax.md` |
@@ -32,6 +33,7 @@ shelf-life-days: 90
 | `agent-workflow.md` | ja | Ausführungs-Workflow für zugewiesene Issues/PRs |
 | `framework-conventions.md` | ja | Golden-Thread-/SSOT-Konventionen bei `core/`-Edits |
 | `stage1-awareness.md` | ja | Stage-1-Gate-Bewusstsein (Edits Stage-1-grün halten) |
+| `learning-routing.md` | ja | Gelerntes ins richtige SSOT routen (`KNOWN_ERRORS_AND_FIXES.md`, `planned.yaml` oder Generator plus Regressionstest) |
 | `artifacts-factsheets.md` | nein | Business Factsheets / `UseCase_Bracket.yaml` governen |
 | `artifacts-yaml.md` | nein | YAML-Artefakte (Action Codes, Data Contracts, KPI-YAML) |
 | `framework-expert.md` | nein | `core/`, `tooling/ir`, `data_contracts`, Validation (tool-agnostisch) |

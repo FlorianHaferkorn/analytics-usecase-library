@@ -1,4 +1,4 @@
-<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/generator/generate_tool_configs.py -->
 
 # Copilot Instructions
 
@@ -24,14 +24,15 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
 
 1. Read the assigned GitHub Issue / task description fully (if you ran start_next_task.ps1, you already have the issue number and title; you may still fetch the full description from the issue).
 2. Identify which artifacts are affected (use case, action code, KPI, tooling, docs) and which expert context applies:
-   - **Framework / Docs (framework topics):** Use Framework-Expert context (`.cursor/rules/framework-expert.mdc`): core/, tooling/ir/, data_contracts/, tooling/validation/, tooling/ontology/. No tool-specific syntax.
-   - **FabricPowerBI / products/fabric/powerbi/:** Use Fabric-Expert context (`.cursor/rules/fabric-expert.mdc`): TMDL, DAX, run_fabric_checks. Use the **Power BI Modeling MCP** (server `powerbi-modeling-mcp`) for semantic model operations; see fabric-expert.mdc and `.cursor/MCP_SETUP.md`.
+   - **Framework / Docs (framework topics):** Use Framework-Expert context (`docs/agent/rules/framework-expert.md`): core/, tooling/ir/, data_contracts/, tooling/validation/, tooling/ontology/. No tool-specific syntax.
+   - **FabricPowerBI / products/fabric/powerbi/:** Use Fabric-Expert context (`docs/agent/rules/fabric-expert.md`): TMDL, DAX, run_fabric_checks. Use the **Power BI Modeling MCP** (server `powerbi-modeling-mcp`) for semantic model operations; see `fabric-expert.md` and `products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md`.
    - **Aurora (showcases/aurora_group):** Aurora is the showcase for every tool (Fabric first, others later). If the task involves Fabric implementation (DAX, TMDL, Measure_Dictionary, reports) → use Fabric-Expert. If the task is showcase structure only (YAML in showcases/aurora_group/models/, model definition, no tool syntax) → use Framework-Expert.
    - **Other areas:** Apply the skill that matches the artifact type below.
-3. Read the relevant skill from `.cursor/skills/` for the artifact type before editing:
+3. Read the relevant skill from `docs/agent/skills/` for the artifact type before editing:
    - Factsheet edit → `edit-factsheet-safely`
    - Bracket edit → `edit-usecase-bracket-safely`
-   - New use case → `add-usecase-scaffold`
+   - New use case → `add-usecase-scaffold` (**read Research-to-Core Standard first: `docs/process/research-to-core-standard.md`**)
+   - Domain evidence review → `docs/process/research-to-core-checklist.md`
    - KPI reference → `add-kpi-reference-safely`
    - Action code create/update → `add-action-code-and-wire-up`
    - Fabric/TMDL/DAX → `fabric-powerbi-validation`
@@ -48,10 +49,10 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
    - `git pull origin main`
    - `git checkout -b agent/<issue-id>-<short-name>`
    Use the issue number you have (e.g. `16`). For `<short-name>`, derive a short kebab-case slug from the issue title (e.g. "Document automated reasoning scope" → `automated-reasoning-scope`), max ~40 characters. Example: `agent/16-automated-reasoning-scope`.
-2. **Set project Status to In progress** for this issue so the board stays correct. From the **repo root** (PowerShell): `.\tooling\project_mgmt\set_issue_status.ps1 -Issue <N> -Status "In progress"` (use the issue number from step 5).
+2. **Set project Status to In progress** for this issue so the board stays correct. From the **repo root** (PowerShell): `.\tooling\project_mgmt\set_issue_status.ps1 -Issue <N> -Status "In progress"` (use the issue number from `start_next_task.ps1` or the assigned issue).
 3. Make small, focused changes. One PR per Issue.
 4. **If you recognize that this task requires a skill or tool we don't yet have** (e.g. new artifact type, new domain): mention this need in the PR body so it can be prioritized.
-5. Follow all rules in `.cursor/rules/` — especially `framework-conventions.mdc` and `stage1-awareness.mdc`.
+5. Follow all rules in `docs/agent/rules/` — especially `framework-conventions.md`, `stage1-awareness.md` and `learning-routing.md`.
 
 ## SSOT audit findings (insertable remediation)
 
@@ -59,8 +60,9 @@ When an audit reports missing or inconsistent SSOT content (e.g. `audit_ssot_con
 
 ## Before committing
 
-1. Run Stage 1 from repo root: `.\tooling\run_stage1_checks.ps1`
-2. If Fabric/Power BI artifacts changed: `.\products\fabric/powerbi\tooling\run_fabric_checks.ps1`
+1. Run the quality gate from repo root: `.\tooling\quality\run_quality_gate.ps1`
+   (runs Stage 1 + Fabric checks in one pass; equivalent to running both separately)
+2. If only core/governance changed (no Fabric artifacts): `.\tooling\run_stage1_checks.ps1` is sufficient.
 3. Fix any failures before committing. Use the `fix-stage1-failure` skill if needed.
 4. **After fixing any build, validation, or Desktop error:** If that error class is not yet in [internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md](internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md), add one row (Symptom | Cause | Fix) to the appropriate section so the same mistake is not repeated. See that file’s “Updating this list” section.
 
@@ -103,7 +105,7 @@ When changes affect TMDL or reports (measures, tables, .pbip): **validate TMDL f
 - **Data contracts:** `core/data_contracts/domains/`, `core/data_contracts/sources/` — domain and source-level contracts.
 - **Semantic models:** `core/semantic_models/domains/` — measure dictionaries (tool-agnostic); conceptual design in `core/strategy_operating_model/operating_model/semantic_layer.md`. TMDL/PBIP output lives under `products/fabric/powerbi/dist/`. (Legacy core_action_ready and showcase semantic_models archived.)
 - **Docs:** `docs/company/`, `docs/operating_model/` — strategy and operating model; authority for structure and naming.
-- **Internal:** `tooling/` — validation, generation, maintenance, Power BI MCP; `tooling/ai/schemas/` — JSON schemas for factsheets, action codes, data contracts, layout_330300.
+- **Internal:** `tooling/` — validation, generation, maintenance, Power BI MCP; `tooling/generator/schemas/` — JSON schemas for factsheets, action codes, data contracts, layout_330300.
 
 ## Naming and IDs
 
@@ -131,7 +133,7 @@ Stage 1 is the mandatory CI gate. All checks must pass before merge. When sugges
 
 ## Checks run (in order)
 
-1. **check_schema_validation.ps1** — Validates artifacts (action codes, UseCase_Bracket, org_roles) against JSON schemas in `tooling/validation/` and `tooling/ai/schemas/`.
+1. **check_schema_validation.ps1** — Validates artifacts (action codes, UseCase_Bracket, org_roles) against JSON schemas in `tooling/validation/` and `tooling/generator/schemas/`.
 2. **validate_factsheets.ps1** — Business factsheets structure; verifies `UseCase_Bracket.yaml` exists for each use case.
 3. **check_factsheet_vs_kpi.ps1** — Every KPI referenced in Business factsheets/brackets exists in KPI catalog.
 4. **validate_kpi_catalog.ps1** — KPI catalog structure and rules.
@@ -167,6 +169,57 @@ npm ci
 - Business factsheet edits → human-readable only; no YAML blocks. All machine-readable config in `UseCase_Bracket.yaml`.
 - Bracket edits → preserve required keys per `usecase_bracket.schema.json`; governance roles must exist in `core/organization/org_roles.yaml` (or Aurora showcase path; see core/organization/README.md).
 - Before committing, run Stage 1 from repo root to confirm no regressions.
+
+---
+
+# Learning Routing (where to store fixes)
+
+Goal: the same error must not recur in a new session. Every learned fix is routed to its
+single source of truth (SSOT), and the relevant validation is re-run. This refines the
+generic "Learning Loop" in `AGENTS.md`.
+
+## 1. Read early (before starting implementation)
+
+- `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` — error symptom → root cause → fix recipes.
+- `core/kpi_catalog/planned.yaml` — catalog KPIs whose measure is not yet implemented in TMDL;
+  the catalog↔TMDL drift check (`tooling/validation/check_catalog_tmdl_drift.py`) reports them
+  as warnings, not errors.
+
+## 2. Route new learning by error type
+
+- **Catalog↔TMDL drift fails (strict) because a catalog measure is missing in `_Measures.tmdl`
+  and is intentionally not implemented yet:**
+  - Add or update the entry in `core/kpi_catalog/planned.yaml` with `kpi_id`, `owner`,
+    `eta_date` (YYYY-MM-DD) and `reason` (one line). Schema:
+    `tooling/generator/schemas/planned_kpi.schema.json`; the `kpi_id` must exist in
+    `core/kpi_catalog/KPI_Catalog.md`.
+  - Do not add this to `KNOWN_ERRORS_AND_FIXES.md` unless the drift-check logic itself is broken.
+
+- **PBIR/visual binding failure — a measure `Property` in a `visual.json` is not found in the
+  domain `_Measures.tmdl`:**
+  - Fix the generator/orchestrator so it binds to the correct measure **display name**
+    (do not only patch the generated `visual.json`).
+  - Add a regression test, or update the existing measure-binding test expectations.
+  - If this is a new error class or pattern: add a row to `KNOWN_ERRORS_AND_FIXES.md`.
+
+- **TMDL/DAX/semantic-model structural issues** (`formatString`/`displayFolder` indentation,
+  blank stubs, invalid naming):
+  - Fix the generator output at its source.
+  - If the same structural violation appears again: add a row to `KNOWN_ERRORS_AND_FIXES.md`.
+
+- **Any other recurring failure** (schema state inconsistencies, empty decision fields,
+  missing artifacts):
+  - Add symptom → root cause → fix steps as a row to `KNOWN_ERRORS_AND_FIXES.md`
+    (appropriate section).
+
+## 3. Verify after edits
+
+Always run the most relevant validation after substantive changes (from repo root):
+
+- Core / cross-references: `.\tooling\run_stage1_checks.ps1`
+- Fabric / PBIP artifacts: `.\products\fabric\powerbi\tooling\run_fabric_checks.ps1`
+  (or `.\tooling\quality\run_quality_gate.ps1` for Stage 1 + Fabric in one pass)
+- Catalog↔TMDL drift: `python tooling/validation/check_catalog_tmdl_drift.py --repo-root . --strict`
 
 ---
 

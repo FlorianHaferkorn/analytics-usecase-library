@@ -2,7 +2,7 @@
 
 Iterativer, lernender Workflow für die fehlerfreie Erstellung von Power BI Reports und Semantic Models. Jeder generierte Report wird vor dem Schreiben automatisch validiert. Neue Fehlerklassen werden persistent dokumentiert, damit sie sich nicht wiederholen.
 
-Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Code, Cursor, Copilot, etc.) und von Menschen gleichermaßen verwendet werden.
+Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Code, Codex, Copilot, etc.) und von Menschen gleichermaßen verwendet werden.
 
 ## Wann verwenden
 
@@ -82,7 +82,7 @@ py -3 products/fabric/powerbi/tooling/validation/check_schema_versions.py --expl
 
 # Optional: Desktop-Validierung
 .\tooling\pbi_validate_after_impl.ps1 -IncludeDesktopLogMinutes 10 \
-  -ResultFile .cursor/pbi_validate_result.json
+  -ResultFile .local/pbi_validate_result.json
 ```
 
 Ergebnis auswerten:

@@ -15,7 +15,7 @@
 param(
   [string] $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..\..")).Path,
   [string] $PolicyPath = "products/fabric/powerbi/tooling/production_quality.standard.json",
-  [string] $ResultFile = ".cursor/pbi_supervisor_result.json",
+  [string] $ResultFile = ".local/pbi_supervisor_result.json",
   [string] $UseCase = "",
   [string] $Domain = "",
   [switch] $All,
@@ -354,7 +354,7 @@ $knowledgePreview
 
 function Invoke-WorkspacePublishPhase {
   param()
-  $publishResultPath = Resolve-PathFromRepo -Path ".cursor/pbi_publish_result.json"
+  $publishResultPath = Resolve-PathFromRepo -Path ".local/pbi_publish_result.json"
   $publishArgs = @("-RepoRoot", $RepoRoot, "-Environment", $effectivePublishEnvironment, "-ResultFile", $publishResultPath)
   if ($UseCase) {
     $publishArgs += @("-UseCase", $UseCase)
@@ -527,7 +527,7 @@ for ($iteration = 1; $iteration -le $maxIterations; $iteration++) {
     $iterationState.build = @{ passed = $true; exitCode = 0; output = @("Build skipped by caller.") }
   }
 
-  $validationResultPath = Resolve-PathFromRepo -Path ".cursor/pbi_validate_result.json"
+  $validationResultPath = Resolve-PathFromRepo -Path ".local/pbi_validate_result.json"
   try {
     $validation = Get-ValidationResult -ValidationResultPath $validationResultPath
     $iterationState.validation = $validation
