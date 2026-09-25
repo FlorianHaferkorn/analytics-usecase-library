@@ -102,8 +102,8 @@ def _validate_delivery_assurance(use_case: dict[str, Any]) -> list[str]:
     rule_ids = [rule["id"] for rule in rules]
     if len(rule_ids) != len(set(rule_ids)):
         errors.append(f"{label}: duplicate delivery-assurance quality-rule id")
-    if any(rule["severity"] == "block" for rule in rules) and not quality["last_approved_output_retained"]:
-        errors.append(f"{label}: blocking quality rules require last_approved_output_retained")
+    if any(rule["severity"] == "block" for rule in rules) and not quality["last_approved_output_retained"] and state != "contract_pending":
+        errors.append(f"{label}: blocking quality rules require last_approved_output_retained before design_ready")
     for rule in rules:
         if rule["threshold"]["provenance"] == "accepted" and rule["status"]["state"] not in ACCEPTED_EVIDENCE_STATES:
             errors.append(f"{label}: quality rule {rule['id']!r} has an accepted threshold without accepted evidence")
@@ -126,6 +126,18 @@ def _validate_delivery_assurance(use_case: dict[str, Any]) -> list[str]:
 
     mature_states = {"build_ready", "apply_ready", "verified"}
     if state in mature_states:
+        if observability["stale_after_minutes"] is None:
+            errors.append(f"{label}: {state} requires a measured or approved stale-after threshold")
+        for signal in signals:
+            missing_route = [
+                field for field in (
+                    "recipient_ref", "channel", "response_slo", "runbook_ref", "retention_days", "test_method"
+                ) if signal[field] is None
+            ]
+            if missing_route:
+                errors.append(
+                    f"{label}: {state} monitoring signal {signal['id']!r} has unresolved operating fields {missing_route}"
+                )
         if incremental_mode == "open" or source["delete_handling"] == "open":
             errors.append(f"{label}: {state} requires selected incremental and delete-handling strategies")
         if not any(rule["severity"] == "block" for rule in rules):
@@ -553,7 +565,7 @@ def render_use_case(use_case: dict[str, Any], project_ref: str) -> str:
                 "### Product health and alert routes",
                 "",
                 f"**Correlation ID:** `{assurance['observability']['correlation_id_field']}`  ",
-                f"**Stale after:** {assurance['observability']['stale_after_minutes']} minutes  ",
+                f"**Stale after:** {assurance['observability']['stale_after_minutes'] or 'open'} minutes  ",
                 f"**Health components:** {_list(assurance['observability']['product_health_components'])}",
                 "",
                 "| Signal | Type | Trigger | Threshold | Recipient | Channel | Response | Runbook | Retention | Test | Status |",
@@ -563,8 +575,8 @@ def render_use_case(use_case: dict[str, Any], project_ref: str) -> str:
         for signal in assurance["observability"]["signals"]:
             lines.append(
                 f"| `{signal['id']}` | {signal['type']} | {signal['trigger']} | {_threshold(signal.get('threshold'))} | "
-                f"{signal['recipient_ref']} | {signal['channel']} | {signal['response_slo']} | {signal['runbook_ref']} | "
-                f"{signal['retention_days']} days | {signal['test_method']} | {_status(signal['status'])} |"
+                f"{signal['recipient_ref'] or 'open'} | {signal['channel'] or 'open'} | {signal['response_slo'] or 'open'} | {signal['runbook_ref'] or 'open'} | "
+                f"{str(signal['retention_days']) + ' days' if signal['retention_days'] is not None else 'open'} | {signal['test_method'] or 'open'} | {_status(signal['status'])} |"
             )
         reliability = assurance["reliability"]
         lines.extend(

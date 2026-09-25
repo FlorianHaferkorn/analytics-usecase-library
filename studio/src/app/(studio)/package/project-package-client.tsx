@@ -19,6 +19,7 @@ import type {
 import type { PackageFile } from '@/lib/project-package/package-files';
 import { useProjectStore } from '@/lib/store/project-store';
 import { ProjectReleasePanel } from '@/components/delivery/project-release-panel';
+import { ExternalHandoffPanel } from '@/components/delivery/external-handoff-panel';
 
 type LoadState = 'loading' | 'ready' | 'missing' | 'error';
 
@@ -126,6 +127,7 @@ export function ProjectPackageClient() {
     setPackageRevisionHash(value.revision.revision_hash);
     const textFiles = Object.fromEntries(
       value.files.flatMap((file) => {
+        if (/^handoff\/[a-z][a-z0-9_]{0,63}\.json$/.test(file.path)) return [];
         const text = decodeText(file);
         return text === null ? [] : [[file.path, text]];
       }),
@@ -273,6 +275,8 @@ export function ProjectPackageClient() {
         <StudioMetric label="Package files" value={ready ? snapshot.files.length : '—'} meta={ready ? `${(totalBytes / 1024).toFixed(1)} KiB total` : 'Not loaded'} />
         <StudioMetric label="Unsaved changes" value={ready ? dirtyPaths.length : '—'} meta={ready ? dirtyPaths.length ? 'edited text files' : 'Matches saved version' : 'Not checked'} tone={ready ? dirtyPaths.length ? 'warning' : 'success' : 'default'} />
       </StudioMetricBar>
+
+      {ready && <ExternalHandoffPanel snapshot={snapshot} />}
 
       {loadState === 'missing' ? (
         <StudioEmptyState

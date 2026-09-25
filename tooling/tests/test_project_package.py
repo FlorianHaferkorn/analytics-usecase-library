@@ -27,6 +27,7 @@ from tooling.superversion.project_package.migrations import (
     ProjectPackageMigrationError,
     migrate_project_package,
 )
+from tooling.superversion.project_package.use_case_delivery import validate_delivery_document, render_use_case
 from tooling.superversion.project_package.validator import validate_project_package
 
 
@@ -433,6 +434,27 @@ def test_use_case_delivery_validates_and_compiles_as_optional_module(tmp_path: P
 
     assert validate_project_package(tmp_path, SCHEMAS) == []
     assert build_compiler_input(tmp_path, SCHEMAS)["modules"]["use_case_delivery"] == delivery
+
+
+def test_pending_monitoring_contract_can_be_honest_but_cannot_be_build_ready() -> None:
+    delivery = yaml.safe_load(USE_CASE_DELIVERY_FIXTURE.read_text(encoding="utf-8"))
+    use_case = delivery["use_cases"][0]
+    observability = use_case["delivery_assurance"]["observability"]
+    observability["stale_after_minutes"] = None
+    signal = observability["signals"][0]
+    for field in ("recipient_ref", "channel", "response_slo", "runbook_ref", "retention_days", "test_method"):
+        signal[field] = None
+    schema = _load_schema("project_use_case_delivery.schema.json")
+
+    assert validate_delivery_document(delivery, schema) == []
+    rendered = render_use_case(use_case, delivery["project_ref"])
+    assert "**Stale after:** open minutes" in rendered
+    assert "| open | open | open | open | open | open |" in rendered
+
+    use_case["delivery_state"] = "build_ready"
+    errors = validate_delivery_document(delivery, schema)
+    assert any("requires a measured or approved stale-after threshold" in error for error in errors)
+    assert any("has unresolved operating fields" in error for error in errors)
 
 
 def test_platform_runtime_evidence_is_resolved_across_project_modules(tmp_path: Path) -> None:
