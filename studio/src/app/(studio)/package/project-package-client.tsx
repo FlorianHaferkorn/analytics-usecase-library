@@ -19,6 +19,8 @@ import type {
 import type { PackageFile } from '@/lib/project-package/package-files';
 import { useProjectStore } from '@/lib/store/project-store';
 import { ProjectReleasePanel } from '@/components/delivery/project-release-panel';
+import { AiPolicyReviewPanel } from '@/components/delivery/ai-policy-review-panel';
+import { ExternalHandoffPanel } from '@/components/delivery/external-handoff-panel';
 
 type LoadState = 'loading' | 'ready' | 'missing' | 'error';
 
@@ -126,6 +128,7 @@ export function ProjectPackageClient() {
     setPackageRevisionHash(value.revision.revision_hash);
     const textFiles = Object.fromEntries(
       value.files.flatMap((file) => {
+        if (/^handoff\/[a-z][a-z0-9_]{0,63}\.json$/.test(file.path)) return [];
         const text = decodeText(file);
         return text === null ? [] : [[file.path, text]];
       }),
@@ -274,6 +277,8 @@ export function ProjectPackageClient() {
         <StudioMetric label="Unsaved changes" value={ready ? dirtyPaths.length : '—'} meta={ready ? dirtyPaths.length ? 'edited text files' : 'Matches saved version' : 'Not checked'} tone={ready ? dirtyPaths.length ? 'warning' : 'success' : 'default'} />
       </StudioMetricBar>
 
+      {ready && <ExternalHandoffPanel snapshot={snapshot} />}
+
       {loadState === 'missing' ? (
         <StudioEmptyState
           title="No package history"
@@ -374,6 +379,7 @@ export function ProjectPackageClient() {
         </div>
       )}
 
+      {ready && <AiPolicyReviewPanel key={`ai:${projectId}:${snapshot.revision.revision_hash}`} projectId={projectId} snapshot={snapshot} dirty={dirtyPaths.length > 0} />}
       {ready && <ProjectReleasePanel key={`${projectId}:${snapshot.revision.revision_hash}`} projectId={projectId} revisionHash={snapshot.revision.revision_hash} dirty={dirtyPaths.length > 0} />}
       {(loadState === 'ready' || loadState === 'missing') && <div role="status" aria-live="polite" style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>{message}</div>}
     </StudioPage>

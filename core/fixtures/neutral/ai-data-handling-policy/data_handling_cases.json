@@ -1,0 +1,284 @@
+{
+  "contract_version": "ai-data-handling-policy/1.0.0",
+  "cases": [
+    {
+      "id": "public-external",
+      "profile": {
+        "provider": "anthropic",
+        "data_handling": {
+          "processing_boundary": "external_cloud",
+          "allowed_classifications": ["public", "internal_generic"],
+          "allowed_data_forms": ["document_excerpt"],
+          "allowed_purposes": ["studio_authoring"],
+          "provider_training_allowed": false,
+          "prompt_retention_days": 0,
+          "require_redaction_for_egress": true
+        }
+      },
+      "context": {
+        "classification": "public",
+        "data_form": "document_excerpt",
+        "purpose": "studio_authoring",
+        "redacted": false
+      },
+      "allowed": true
+    },
+    {
+      "id": "internal-external-redacted",
+      "profile": {
+        "provider": "anthropic",
+        "data_handling": {
+          "processing_boundary": "external_cloud",
+          "allowed_classifications": ["internal_generic"],
+          "allowed_data_forms": ["metadata"],
+          "allowed_purposes": ["studio_authoring"],
+          "provider_training_allowed": false,
+          "prompt_retention_days": 0,
+          "require_redaction_for_egress": true
+        }
+      },
+      "context": {
+        "classification": "internal_generic",
+        "data_form": "metadata",
+        "purpose": "studio_authoring",
+        "redacted": true
+      },
+      "allowed": true
+    },
+    {
+      "id": "internal-external-not-redacted",
+      "profile": {
+        "provider": "anthropic",
+        "data_handling": {
+          "processing_boundary": "external_cloud",
+          "allowed_classifications": ["internal_generic"],
+          "allowed_data_forms": ["metadata"],
+          "allowed_purposes": ["studio_authoring"],
+          "provider_training_allowed": false,
+          "prompt_retention_days": 0,
+          "require_redaction_for_egress": true
+        }
+      },
+      "context": {
+        "classification": "internal_generic",
+        "data_form": "metadata",
+        "purpose": "studio_authoring",
+        "redacted": false
+      },
+      "allowed": false
+    },
+    {
+      "id": "customer-external",
+      "profile": {
+        "provider": "anthropic",
+        "data_handling": {
+          "processing_boundary": "external_cloud",
+          "allowed_classifications": ["customer_confidential"],
+          "allowed_data_forms": ["aggregates"],
+          "allowed_purposes": ["enduser_question"],
+          "provider_training_allowed": false,
+          "prompt_retention_days": 0,
+          "require_redaction_for_egress": true
+        }
+      },
+      "context": {
+        "classification": "customer_confidential",
+        "data_form": "aggregates",
+        "purpose": "enduser_question",
+        "redacted": true
+      },
+      "allowed": false
+    },
+    {
+      "id": "customer-local",
+      "profile": {
+        "provider": "local",
+        "data_handling": {
+          "processing_boundary": "local",
+          "allowed_classifications": ["customer_confidential"],
+          "allowed_data_forms": ["aggregates"],
+          "allowed_purposes": ["analytics_reasoning"],
+          "provider_training_allowed": false,
+          "prompt_retention_days": 0,
+          "require_redaction_for_egress": true
+        }
+      },
+      "context": {
+        "classification": "customer_confidential",
+        "data_form": "aggregates",
+        "purpose": "analytics_reasoning",
+        "redacted": false
+      },
+      "allowed": true
+    },
+    {
+      "id": "customer-managed-with-evidence",
+      "profile": {
+        "provider": "azure_openai",
+        "data_handling": {
+          "processing_boundary": "customer_managed_cloud",
+          "boundary_evidence_ref": "customer://approved-ai-boundary/42",
+          "allowed_classifications": ["customer_confidential"],
+          "allowed_data_forms": ["aggregates"],
+          "allowed_purposes": ["analytics_advisory"],
+          "provider_training_allowed": false,
+          "prompt_retention_days": 0,
+          "require_redaction_for_egress": true
+        }
+      },
+      "context": {
+        "classification": "customer_confidential",
+        "data_form": "aggregates",
+        "purpose": "analytics_advisory",
+        "redacted": false
+      },
+      "allowed": true
+    },
+    {
+      "id": "customer-managed-without-evidence",
+      "profile": {
+        "provider": "azure_openai",
+        "data_handling": {
+          "processing_boundary": "customer_managed_cloud",
+          "allowed_classifications": ["customer_confidential"],
+          "allowed_data_forms": ["aggregates"],
+          "allowed_purposes": ["analytics_advisory"],
+          "provider_training_allowed": false,
+          "prompt_retention_days": 0,
+          "require_redaction_for_egress": true
+        }
+      },
+      "context": {
+        "classification": "customer_confidential",
+        "data_form": "aggregates",
+        "purpose": "analytics_advisory",
+        "redacted": false
+      },
+      "allowed": false
+    },
+    {
+      "id": "external-provider-mislabeled-local",
+      "profile": {
+        "provider": "anthropic",
+        "data_residency": "any",
+        "data_handling": {
+          "processing_boundary": "local",
+          "allowed_classifications": ["customer_confidential"],
+          "allowed_data_forms": ["aggregates"],
+          "allowed_purposes": ["analytics_reasoning"],
+          "provider_training_allowed": false,
+          "prompt_retention_days": 0,
+          "require_redaction_for_egress": true
+        }
+      },
+      "context": {
+        "classification": "customer_confidential",
+        "data_form": "aggregates",
+        "purpose": "analytics_reasoning",
+        "redacted": false
+      },
+      "allowed": false
+    },
+    {
+      "id": "local-provider-public-endpoint-mislabeled-local",
+      "profile": {
+        "provider": "local",
+        "base_url": "https://openrouter.ai/api/v1",
+        "data_residency": "any",
+        "data_handling": {
+          "processing_boundary": "local",
+          "allowed_classifications": ["customer_confidential"],
+          "allowed_data_forms": ["aggregates"],
+          "allowed_purposes": ["analytics_reasoning"],
+          "provider_training_allowed": false,
+          "prompt_retention_days": 0,
+          "require_redaction_for_egress": true
+        }
+      },
+      "context": {
+        "classification": "customer_confidential",
+        "data_form": "aggregates",
+        "purpose": "analytics_reasoning",
+        "redacted": false
+      },
+      "allowed": false
+    },
+    {
+      "id": "public-provider-training-waiver-blocked",
+      "profile": {
+        "provider": "anthropic",
+        "data_handling": {
+          "processing_boundary": "external_cloud",
+          "allowed_classifications": ["public"],
+          "allowed_data_forms": ["document_excerpt"],
+          "allowed_purposes": ["studio_authoring"],
+          "provider_training_allowed": true,
+          "prompt_retention_days": 0,
+          "require_redaction_for_egress": false
+        }
+      },
+      "context": {
+        "classification": "public",
+        "data_form": "document_excerpt",
+        "purpose": "studio_authoring",
+        "redacted": false
+      },
+      "allowed": false
+    },
+    {
+      "id": "internal-external-redaction-waiver-blocked",
+      "profile": {
+        "provider": "anthropic",
+        "data_handling": {
+          "processing_boundary": "external_cloud",
+          "allowed_classifications": ["internal_generic"],
+          "allowed_data_forms": ["schema"],
+          "allowed_purposes": ["analytics_reasoning"],
+          "provider_training_allowed": false,
+          "prompt_retention_days": 0,
+          "require_redaction_for_egress": false
+        }
+      },
+      "context": {
+        "classification": "internal_generic",
+        "data_form": "schema",
+        "purpose": "analytics_reasoning",
+        "redacted": false
+      },
+      "allowed": false
+    },
+    {
+      "id": "restricted-local",
+      "profile": { "provider": "local" },
+      "context": {
+        "classification": "restricted",
+        "data_form": "metadata",
+        "purpose": "studio_authoring",
+        "redacted": false
+      },
+      "allowed": false
+    },
+    {
+      "id": "secret-local",
+      "profile": { "provider": "local" },
+      "context": {
+        "classification": "secret",
+        "data_form": "code",
+        "purpose": "studio_authoring",
+        "redacted": false
+      },
+      "allowed": false
+    },
+    {
+      "id": "unknown-local",
+      "profile": { "provider": "local" },
+      "context": {
+        "classification": "unknown",
+        "data_form": "metadata",
+        "purpose": "studio_authoring",
+        "redacted": false
+      },
+      "allowed": false
+    }
+  ]
+}

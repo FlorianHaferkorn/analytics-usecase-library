@@ -2,6 +2,7 @@ import { generateText } from 'ai';
 import { resolveServerModel } from '@/lib/ai/orchestrator';
 import { extractUsage, safeRecordAiStep } from '@/lib/ai/telemetry';
 import { requireAuth } from '@/lib/auth/session';
+import { requireApprovedAiEgress } from '@/lib/ai/egress-gate';
 import {
   reconcileDeterministic,
   type ReconcileEditedSource,
@@ -44,7 +45,7 @@ function fallbackFromPrompt(prompt: string): FactsheetDraft {
 }
 
 export async function POST(request: Request) {
-  const [, authError] = await requireAuth();
+  const [user, authError] = await requireAuth();
   if (authError) return authError;
 
   const body = (await request.json()) as {
@@ -74,7 +75,20 @@ export async function POST(request: Request) {
       changeHint: body.change_hint,
     });
 
-    const resolved = await resolveServerModel('bracket-synthesis');
+    const aiPrompt = JSON.stringify({
+      editedSource,
+      change_hint: body.change_hint ?? 'user save',
+      prose_length: prose.length,
+      bracket_length: bracketYaml.length,
+      prose_preview: prose.slice(0, 4000),
+      bracket_preview: bracketYaml.slice(0, 4000),
+      deterministic_hints: deterministic?.hints ?? [],
+    });
+    const egressDenied = requireApprovedAiEgress({
+      actor: user!.email, taskRole: 'bracket-synthesis',
+      payload: { system: RECONCILE_SYSTEM_PROMPT, prompt: aiPrompt, maxOutputTokens: 4096 },
+    });
+    const resolved = egressDenied ? null : await resolveServerModel('bracket-synthesis');
     if (resolved) {
       const { model, choice } = resolved;
       const startedAt = Date.now();
@@ -82,15 +96,7 @@ export async function POST(request: Request) {
         const result = await generateText({
           model,
           system: RECONCILE_SYSTEM_PROMPT,
-          prompt: JSON.stringify({
-            editedSource,
-            change_hint: body.change_hint ?? 'user save',
-            prose_length: prose.length,
-            bracket_length: bracketYaml.length,
-            prose_preview: prose.slice(0, 4000),
-            bracket_preview: bracketYaml.slice(0, 4000),
-            deterministic_hints: deterministic?.hints ?? [],
-          }),
+          prompt: aiPrompt,
           maxOutputTokens: 4096,
         });
         safeRecordAiStep({
@@ -130,9 +136,14 @@ export async function POST(request: Request) {
   }
 
   const { prompt = '' } = body;
-  const resolved = await resolveServerModel('documentation');
+  const modelPrompt = prompt || 'A general business analytics use case.';
+  const egressDenied = requireApprovedAiEgress({
+    actor: user!.email, taskRole: 'documentation',
+    payload: { system: DRAFT_SYSTEM_PROMPT, prompt: modelPrompt, maxOutputTokens: 256 },
+  });
+  const resolved = egressDenied ? null : await resolveServerModel('documentation');
   if (!resolved) {
-    return Response.json(fallbackFromPrompt(prompt));
+    return Response.json({ ...fallbackFromPrompt(prompt), engine: 'deterministic', aiStatus: egressDenied ? 'not-approved' : 'provider-unavailable' });
   }
   const { model, choice } = resolved;
   const startedAt = Date.now();
@@ -141,7 +152,7 @@ export async function POST(request: Request) {
     const result = await generateText({
       model,
       system: DRAFT_SYSTEM_PROMPT,
-      prompt: prompt || 'A general business analytics use case.',
+      prompt: modelPrompt,
       maxOutputTokens: 256,
     });
 

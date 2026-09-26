@@ -64,7 +64,7 @@
           "enum": [
             "opportunity", "commercial", "plan", "observed_state", "decision_set",
             "architecture_input", "artifact_registry", "use_case_delivery", "batch_ingestion", "capability_state",
-            "identity_access", "architecture_maintenance"
+            "identity_access", "architecture_maintenance", "ai_data_handling"
           ]
         },
         "environment": {

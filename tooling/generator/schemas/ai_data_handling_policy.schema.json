@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aluca.dev/schemas/ai-data-handling-policy/1.0.0/ai_data_handling_policy.schema.json",
+  "title": "Neutral AI data-handling evaluation input",
+  "description": "Customer-neutral exchange contract. It does not itself grant project approval or authorize model egress.",
+  "type": "object",
+  "required": ["contract_version", "profile", "context"],
+  "properties": {
+    "contract_version": { "const": "ai-data-handling-policy/1.0.0" },
+    "profile": { "$ref": "#/definitions/profile" },
+    "context": { "$ref": "#/definitions/context" }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "profile": {
+      "type": "object",
+      "required": ["provider", "data_handling"],
+      "properties": {
+        "provider": { "type": "string", "minLength": 1 },
+        "base_url": { "type": "string", "minLength": 1 },
+        "data_residency": { "type": "string", "enum": ["any", "local", "eu-only", "us-only"] },
+        "data_handling": { "$ref": "#/definitions/policy" }
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": ["processing_boundary", "allowed_classifications", "allowed_data_forms", "allowed_purposes", "provider_training_allowed", "prompt_retention_days", "require_redaction_for_egress"],
+      "properties": {
+        "processing_boundary": { "type": "string", "enum": ["local", "customer_managed_cloud", "external_cloud"] },
+        "boundary_evidence_ref": { "type": "string", "minLength": 1 },
+        "allowed_classifications": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "type": "string", "enum": ["public", "internal_generic", "customer_confidential"] }
+        },
+        "allowed_data_forms": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "type": "string", "enum": ["metadata", "aggregates", "schema", "code", "document_excerpt", "raw_rows", "synthetic"] }
+        },
+        "allowed_purposes": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "type": "string", "enum": ["studio_authoring", "enduser_question", "analytics_reasoning", "analytics_advisory"] }
+        },
+        "provider_training_allowed": { "const": false },
+        "prompt_retention_days": { "type": "integer", "minimum": 0 },
+        "require_redaction_for_egress": { "type": "boolean" },
+        "scan_policy": {
+          "type": "object",
+          "properties": {
+            "max_payload_bytes": { "type": "integer", "minimum": 1, "maximum": 10485760 },
+            "blocked_terms": { "type": "array", "maxItems": 100, "uniqueItems": true, "items": { "type": "string", "minLength": 2, "maxLength": 200 } },
+            "allowlist": { "type": "array", "maxItems": 100, "uniqueItems": true, "items": { "type": "string", "minLength": 2, "maxLength": 200 } }
+          },
+          "additionalProperties": false
+        }
+      },
+      "allOf": [{
+        "if": { "properties": { "processing_boundary": { "const": "customer_managed_cloud" } }, "required": ["processing_boundary"] },
+        "then": { "required": ["boundary_evidence_ref"] }
+      }],
+      "additionalProperties": false
+    },
+    "context": {
+      "type": "object",
+      "required": ["classification", "data_form", "purpose", "redacted"],
+      "properties": {
+        "classification": { "type": "string", "enum": ["public", "internal_generic", "customer_confidential", "restricted", "secret", "unknown"] },
+        "data_form": { "type": "string", "enum": ["metadata", "aggregates", "schema", "code", "document_excerpt", "raw_rows", "synthetic"] },
+        "purpose": { "type": "string", "enum": ["studio_authoring", "enduser_question", "analytics_reasoning", "analytics_advisory"] },
+        "redacted": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

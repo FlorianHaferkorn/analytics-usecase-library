@@ -6,9 +6,10 @@ import { discoveryTools } from '@/lib/ai/tools/discovery-tools';
 import { requireAuth } from '@/lib/auth/session';
 import { buildEntityContext } from '@/lib/ai/context-builder';
 import type { EntityContext } from '@/lib/ai/context-builder';
+import { requireApprovedAiEgress } from '@/lib/ai/egress-gate';
 
 export async function POST(request: Request) {
-  const [, authError] = await requireAuth();
+  const [user, authError] = await requireAuth();
   if (authError) return authError;
 
   const body = await request.json();
@@ -17,16 +18,6 @@ export async function POST(request: Request) {
     context?: string;
     entityContext?: EntityContext;
   };
-
-  const resolved = await resolveServerModel('source-discovery');
-  if (!resolved) {
-    return new Response(
-      JSON.stringify({ error: 'No LLM provider configured. Set GOOGLE_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY in .env.' }),
-      { status: 503, headers: { 'Content-Type': 'application/json' } },
-    );
-  }
-  const { model, choice } = resolved;
-  const startedAt = Date.now();
 
   let systemPrompt = DISCOVERY_SYSTEM_PROMPT;
 
@@ -46,6 +37,21 @@ export async function POST(request: Request) {
   if (context) {
     systemPrompt = `${systemPrompt}\n\n## Source Context\n\n${context}`;
   }
+
+  const egressDenied = requireApprovedAiEgress({
+    actor: user!.email, taskRole: 'source-discovery',
+    payload: { system: systemPrompt, messages, tools: Object.keys(discoveryTools).sort() },
+  });
+  if (egressDenied) return egressDenied;
+  const resolved = await resolveServerModel('source-discovery');
+  if (!resolved) {
+    return new Response(
+      JSON.stringify({ error: 'No LLM provider configured. Set GOOGLE_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY in .env.' }),
+      { status: 503, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+  const { model, choice } = resolved;
+  const startedAt = Date.now();
 
   try {
     const result = streamText({

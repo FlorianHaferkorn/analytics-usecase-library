@@ -97,9 +97,9 @@ export function ProjectArchitecture() {
         overviewEdges.set(key, { source: `stage:${sourceStage}`, target: `stage:${targetStage}` });
       });
       const orderedStages = STAGE_ORDER.filter(stage => stages.has(stage));
-      const layout = new dagre.graphlib.Graph().setGraph({rankdir:'LR',nodesep:20,ranksep:32,marginx:20,marginy:20});
+      const layout = new dagre.graphlib.Graph().setGraph({rankdir:'LR',nodesep:16,ranksep:18,marginx:16,marginy:16});
       layout.setDefaultEdgeLabel(() => ({}));
-      orderedStages.forEach(stage => layout.setNode(`stage:${stage}`, {width:168,height:88}));
+      orderedStages.forEach(stage => layout.setNode(`stage:${stage}`, {width:140,height:80}));
       [...overviewEdges.values()].forEach(edge => layout.setEdge(edge.source, edge.target));
       dagre.layout(layout);
       const nodes: CanvasNode[] = orderedStages.map(stage => {
@@ -110,12 +110,12 @@ export function ProjectArchitecture() {
           id: `stage:${stage}`,
           kind: stage === 'source' ? 'source' : 'data_product',
           label: STAGE_LABELS[stage] ?? title(stage),
-          sub: `${members.length} recorded ${members.length === 1 ? 'element' : 'elements'}`,
+          sub: `${members.length} ${members.length === 1 ? 'element' : 'elements'}`,
           description: `${examples.join('\n')}${members.length > examples.length ? `\n+ ${members.length - examples.length} more` : ''}`,
-          x: position.x - 84,
-          y: position.y - 44,
-          width: 168,
-          height: 88,
+          x: position.x - 70,
+          y: position.y - 40,
+          width: 140,
+          height: 80,
         };
       });
       return {nodes, edges: [...overviewEdges.values()]};
@@ -166,12 +166,12 @@ export function ProjectArchitecture() {
           <label><input type="checkbox" checked={lineage} onChange={e => setLineage(e.target.checked)} /> Additional lineage</label>
         </div>
         <p className={styles.note}>{detailLevel === 'overview' ? 'Start with the governed end-to-end path. Select a stage to see representative contents; switch to all elements for the complete contract inventory.' : 'The complete contract inventory opens as a searchable list. Switch to Graph when spatial lineage is required.'}</p>
-        {graph.nodes.length ? <div className={styles.canvas}><CustomCanvas key={detailLevel} nodes={graph.nodes} edges={graph.edges} initialMode={detailLevel === 'overview' ? 'graph' : 'list'} hint={detailLevel === 'overview' ? 'Select a stage to focus the path and inspect representative contents.' : 'Search or select an element; Graph remains available for full lineage.'} /></div> : <StudioEmptyState title="No detailed architecture objects recorded" description="Add source, product and transformation contracts in use_case_delivery, or explicit physical_workspaces. Domain scope alone does not define an executable architecture." />}
+        {graph.nodes.length ? <div className={`${styles.canvas} ${detailLevel === 'overview' ? styles.overviewCanvas : ''}`}><CustomCanvas key={detailLevel} nodes={graph.nodes} edges={graph.edges} initialMode={detailLevel === 'overview' ? 'graph' : 'list'} hint={detailLevel === 'overview' ? 'Select a stage to focus the path and inspect representative contents.' : 'Search or select an element; Graph remains available for full lineage.'} /></div> : <StudioEmptyState title="No detailed architecture objects recorded" description="Add source, product and transformation contracts in use_case_delivery, or explicit physical_workspaces. Domain scope alone does not define an executable architecture." />}
         <details className={styles.details}><summary>Domain and environment scope</summary><ContractValue value={view.architecture} /></details>
       </>}
       {tab === 'contracts' && <>
         <p className={styles.note}>Review the source boundary, data products, transformation choices, semantic design and evidence gates. These are recorded contracts, not proof of deployed behavior.</p>
-        {view.use_cases.map(uc => <details className={styles.details} key={String(uc.id)}><summary>{String(uc.name ?? uc.id)}</summary><ContractValue value={uc} /></details>)}
+        {view.use_cases.map(uc => <details className={styles.details} key={String(uc.id)}><summary>{String(uc.title ?? uc.name ?? title(String(uc.id)))}</summary><ContractValue value={uc} /></details>)}
         {!view.use_cases.length && <StudioEmptyState title="No detailed use-case contracts recorded" description="Capture the design and rationale in the Project Package; this view will not substitute a library example." />}
       </>}
       {tab === 'outputs' && <>

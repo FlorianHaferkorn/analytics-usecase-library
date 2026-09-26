@@ -4,6 +4,7 @@
 .toolbar select { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: var(--space-2); font: inherit; max-width: 100%; }
 .note { color: var(--ink-3); font-size: var(--text-sm); margin: 0; line-height: 1.5; }
 .canvas { height: max(460px, calc(100dvh - 280px)); min-width: 0; }
+.overviewCanvas { height: clamp(280px, 38dvh, 400px); }
 .details { border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-3); overflow-wrap: anywhere; }
 .details summary { font-weight: 600; cursor: pointer; }
 .facts { display: grid; gap: var(--space-3); }

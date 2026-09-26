@@ -30,4 +30,16 @@ describe('Architecture generation confirmation',() => {
     await waitFor(() => expect(screen.getByText('Architecture project or revision mismatch')).toBeTruthy());
     expect(screen.queryByRole('button',{name:'Build outputs'})).toBeNull();
   });
+
+  it('uses the recorded use-case title in the contract navigation',async () => {
+    vi.mocked(fetch).mockResolvedValue({ok:true,json:async () => ({
+      project_ref:'alpha',revision_hash:state.revision,graph:{nodes:[],edges:[]},architecture:null,
+      use_cases:[{id:'uc2_esg',title:'UC2 ESG Questionnaire'}],
+      readiness:{release_ready:false,blockers:[],apply_ready:false},outputs:[],
+    })} as Response);
+    render(<ProjectArchitecture />);
+    fireEvent.click(await screen.findByRole('button',{name:'Contracts & rationale'}));
+    expect(screen.getByText('UC2 ESG Questionnaire',{selector:'summary'})).toBeTruthy();
+    expect(screen.queryByText('uc2_esg',{selector:'summary'})).toBeNull();
+  });
 });

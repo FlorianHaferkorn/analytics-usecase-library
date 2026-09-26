@@ -8,6 +8,7 @@ import {
   SOURCE_SYSTEM_PROMPT,
 } from '@/lib/ai/prompts/wizard';
 import { requireAuth } from '@/lib/auth/session';
+import { requireApprovedAiEgress } from '@/lib/ai/egress-gate';
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   kpi: KPI_SYSTEM_PROMPT,
@@ -25,7 +26,7 @@ const KIND_TASK_ROLE: Record<string, string> = {
 };
 
 export async function POST(request: Request) {
-  const [, authError] = await requireAuth();
+  const [user, authError] = await requireAuth();
   if (authError) return authError;
 
   const body = await request.json() as { kind?: string; prompt?: string };
@@ -37,6 +38,13 @@ export async function POST(request: Request) {
   }
 
   const taskRole = KIND_TASK_ROLE[kind] ?? 'default';
+  const modelPrompt = prompt || `Create a ${kind} for general business use.`;
+  const egressDenied = requireApprovedAiEgress({
+    actor: user!.email, taskRole,
+    payload: { system: systemPrompt, prompt: modelPrompt, maxOutputTokens: 512 },
+  });
+  if (egressDenied) return egressDenied;
+
   const resolved = await resolveServerModel(taskRole);
   if (!resolved) {
     return Response.json(
@@ -51,7 +59,7 @@ export async function POST(request: Request) {
     const result = await generateText({
       model,
       system: systemPrompt,
-      prompt: prompt || `Create a ${kind} for general business use.`,
+      prompt: modelPrompt,
       maxOutputTokens: 512,
     });
 

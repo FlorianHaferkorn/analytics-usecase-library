@@ -158,6 +158,17 @@ def test_incremental_mode_requires_cursor_and_reconciliation() -> None:
     assert any("requires reconciliation_cadence" in error for error in errors)
 
 
+def test_unproven_last_approved_retention_is_allowed_only_while_contract_pending() -> None:
+    document = deepcopy(_fixture())
+    use_case = document["use_cases"][0]
+    use_case["delivery_state"] = "contract_pending"
+    use_case["delivery_assurance"]["data_quality"]["last_approved_output_retained"] = False
+    assert not any("last_approved_output_retained" in error for error in validate_delivery_document(document, _schema()))
+    use_case["delivery_state"] = "design_ready"
+    assert any("blocking quality rules require last_approved_output_retained" in error
+               for error in validate_delivery_document(document, _schema()))
+
+
 def test_build_ready_rejects_false_green_assurance() -> None:
     document = deepcopy(_fixture())
     use_case = document["use_cases"][0]

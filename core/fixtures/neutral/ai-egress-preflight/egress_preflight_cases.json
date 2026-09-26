@@ -1,0 +1,86 @@
+{
+  "contract_version": "ai-egress-preflight/1.0.0",
+  "cases": [
+    {
+      "id": "clean-public-external",
+      "profile": {"provider": "anthropic", "model": "test", "data_handling": {"processing_boundary": "external_cloud", "allowed_classifications": ["public"], "allowed_data_forms": ["document_excerpt"], "allowed_purposes": ["studio_authoring"], "provider_training_allowed": false, "prompt_retention_days": 0, "require_redaction_for_egress": true}},
+      "context": {"classification": "public", "data_form": "document_excerpt", "purpose": "studio_authoring", "redacted": false},
+      "payload": {"system": "Summarise public documentation.", "user": "Microsoft Fabric documentation."},
+      "allowed": true,
+      "rule_ids": [],
+      "payload_sha256": "79af782ad01c96e854f4abee6e745f706cfe09fc1250e12596a3c6c415e0fd6e"
+    },
+    {
+      "id": "email-external",
+      "profile": {"provider": "anthropic", "model": "test", "data_handling": {"processing_boundary": "external_cloud", "allowed_classifications": ["public"], "allowed_data_forms": ["document_excerpt"], "allowed_purposes": ["studio_authoring"], "provider_training_allowed": false, "prompt_retention_days": 0, "require_redaction_for_egress": true}},
+      "context": {"classification": "public", "data_form": "document_excerpt", "purpose": "studio_authoring", "redacted": false},
+      "payload": {"system": "Summarise.", "user": "Contact jane.doe@example.com"},
+      "allowed": false,
+      "rule_ids": ["pii.email"],
+      "payload_sha256": "e118b8f85328a25f388dc1b6bee885c053933fd806047d14a5d3571830928f12"
+    },
+    {
+      "id": "allowlisted-email-external",
+      "profile": {"provider": "anthropic", "model": "test", "data_handling": {"processing_boundary": "external_cloud", "allowed_classifications": ["public"], "allowed_data_forms": ["document_excerpt"], "allowed_purposes": ["studio_authoring"], "provider_training_allowed": false, "prompt_retention_days": 0, "require_redaction_for_egress": true, "scan_policy": {"allowlist": ["docs@example.com"]}}},
+      "context": {"classification": "public", "data_form": "document_excerpt", "purpose": "studio_authoring", "redacted": false},
+      "payload": {"system": "Summarise.", "user": "Public documentation contact docs@example.com"},
+      "allowed": true,
+      "rule_ids": [],
+      "payload_sha256": "a5df2c59b6f67b13ce91d3d9e6ac6f047c32a1584236d7202eef007454965053"
+    },
+    {
+      "id": "blocked-customer-term-external",
+      "profile": {"provider": "anthropic", "model": "test", "data_handling": {"processing_boundary": "external_cloud", "allowed_classifications": ["public"], "allowed_data_forms": ["document_excerpt"], "allowed_purposes": ["studio_authoring"], "provider_training_allowed": false, "prompt_retention_days": 0, "require_redaction_for_egress": true, "scan_policy": {"blocked_terms": ["Project Cedar"]}}},
+      "context": {"classification": "public", "data_form": "document_excerpt", "purpose": "studio_authoring", "redacted": false},
+      "payload": {"system": "Summarise.", "user": "Project Cedar delivery status"},
+      "allowed": false,
+      "rule_ids": ["customer.blocked_term"],
+      "payload_sha256": "91f9555ec457505b555b5bba5fbf0a3df84b068cbad3f2c3add5240873a8f1d7"
+    },
+    {
+      "id": "private-key-local",
+      "profile": {"provider": "local", "model": "test", "base_url": "http://localhost:11434/v1", "data_handling": {"processing_boundary": "local", "allowed_classifications": ["customer_confidential"], "allowed_data_forms": ["code"], "allowed_purposes": ["analytics_reasoning"], "provider_training_allowed": false, "prompt_retention_days": 0, "require_redaction_for_egress": true}},
+      "context": {"classification": "customer_confidential", "data_form": "code", "purpose": "analytics_reasoning", "redacted": false},
+      "payload": {"system": "Review.", "user": "-----BEGIN PRIVATE KEY-----"},
+      "allowed": false,
+      "rule_ids": ["secret.private_key"],
+      "payload_sha256": "464e30b7355f10d098ac366c700ab875aa3426c915b1366c868f6271d53819cb"
+    },
+    {
+      "id": "allowlisted-secret-still-blocked",
+      "profile": {"provider": "local", "model": "test", "base_url": "http://localhost:11434/v1", "data_handling": {"processing_boundary": "local", "allowed_classifications": ["customer_confidential"], "allowed_data_forms": ["code"], "allowed_purposes": ["analytics_reasoning"], "provider_training_allowed": false, "prompt_retention_days": 0, "require_redaction_for_egress": true, "scan_policy": {"allowlist": ["-----BEGIN PRIVATE KEY-----"]}}},
+      "context": {"classification": "customer_confidential", "data_form": "code", "purpose": "analytics_reasoning", "redacted": false},
+      "payload": {"system": "Review.", "user": "-----BEGIN PRIVATE KEY-----"},
+      "allowed": false,
+      "rule_ids": ["secret.private_key"],
+      "payload_sha256": "464e30b7355f10d098ac366c700ab875aa3426c915b1366c868f6271d53819cb"
+    },
+    {
+      "id": "valid-iban-external",
+      "profile": {"provider": "anthropic", "model": "test", "data_handling": {"processing_boundary": "external_cloud", "allowed_classifications": ["public"], "allowed_data_forms": ["document_excerpt"], "allowed_purposes": ["studio_authoring"], "provider_training_allowed": false, "prompt_retention_days": 0, "require_redaction_for_egress": true}},
+      "context": {"classification": "public", "data_form": "document_excerpt", "purpose": "studio_authoring", "redacted": false},
+      "payload": {"system": "Summarise.", "user": "Account DE89370400440532013000"},
+      "allowed": false,
+      "rule_ids": ["pii.iban"],
+      "payload_sha256": "5940d0f7201ec752eb9f88b6ae739fa00a0a24c6022a1488cbb342ad7f725933"
+    },
+    {
+      "id": "uuid-external",
+      "profile": {"provider": "anthropic", "model": "test", "data_handling": {"processing_boundary": "external_cloud", "allowed_classifications": ["public"], "allowed_data_forms": ["metadata"], "allowed_purposes": ["analytics_advisory"], "provider_training_allowed": false, "prompt_retention_days": 0, "require_redaction_for_egress": true}},
+      "context": {"classification": "public", "data_form": "metadata", "purpose": "analytics_advisory", "redacted": false},
+      "payload": {"system": "Describe.", "user": "Object 550e8400-e29b-41d4-a716-446655440000"},
+      "allowed": false,
+      "rule_ids": ["identifier.uuid"],
+      "payload_sha256": "f626d5eac4f1518d537467e4f342906375a67ae92bcdc70d30f90a8b95d99268"
+    },
+    {
+      "id": "customer-data-external-policy-block",
+      "profile": {"provider": "anthropic", "model": "test", "data_handling": {"processing_boundary": "external_cloud", "allowed_classifications": ["public", "internal_generic"], "allowed_data_forms": ["aggregates"], "allowed_purposes": ["analytics_advisory"], "provider_training_allowed": false, "prompt_retention_days": 0, "require_redaction_for_egress": true}},
+      "context": {"classification": "customer_confidential", "data_form": "aggregates", "purpose": "analytics_advisory", "redacted": false},
+      "payload": {"system": "Analyse.", "user": "Revenue is 42."},
+      "allowed": false,
+      "rule_ids": [],
+      "payload_sha256": "80cbabba5c6233044ad4530a85ca220c99e2778d467a2072c64d9c6d0d8f9711"
+    }
+  ]
+}
