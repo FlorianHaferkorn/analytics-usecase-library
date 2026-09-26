@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "source_ref": "synthetic://alternative_impact_reference/package.json",
+  "package_id": "package_alternative_impact_reference",
+  "project_ref": "alternative_impact_reference",
+  "revision": 1,
+  "state": "working",
+  "parent_revision_hash": null,
+  "operating_profile_lock": {
+    "id": "synthetic_alternative_impact_profile",
+    "version": "1.0.0",
+    "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "capability_locks": [
+    {
+      "id": "fabric_platform_foundation",
+      "version": "1.0.0",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+    }
+  ],
+  "external_refs": [
+    "synthetic://alternative_impact_reference/brief.md"
+  ],
+  "opportunity": {
+    "schema_version": "1.0.0",
+    "opportunity_id": "opp_alternative_impact_reference",
+    "customer_ref": "synthetic_fixture_not_a_customer",
+    "objectives": [
+      "Show how a draft alternative changes architecture, plan, role demand, manifests and tests without changing the accepted baseline"
+    ],
+    "scope_status": "qualified",
+    "constraints": [],
+    "source_refs": [
+      "synthetic://alternative_impact_reference/brief.md"
+    ]
+  },
+  "commercial": {
+    "schema_version": "1.0.0",
+    "status": "assumption",
+    "authority_ref": "env:PREIS_KANON_MANDANTEN_DIR/preis_kanon.yaml",
+    "currency": "EUR",
+    "estimate": {
+      "value": null,
+      "basis_refs": []
+    },
+    "price_values_embedded": false
+  },
+  "plan": {
+    "schema_version": "1.0.0",
+    "work_packages": [],
+    "dependencies": []
+  },
+  "observed_states": [
+    {
+      "schema_version": "1.0.0",
+      "environment": "dev",
+      "collection_state": "not_collected",
+      "captured_at": null,
+      "collector": null,
+      "resources": []
+    }
+  ],
+  "decision_set": {
+    "schema_version": "1.0.0",
+    "definitions": [],
+    "instances": []
+  }
+}
