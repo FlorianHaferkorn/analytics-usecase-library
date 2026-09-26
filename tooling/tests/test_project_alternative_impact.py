@@ -28,7 +28,7 @@ def no_side_channels():
 
 
 def _tree(path: Path) -> dict:
-    return {str(item.relative_to(path)): item.read_bytes() for item in sorted(path.rglob("*")) if item.is_file()}
+    return {item.relative_to(path).as_posix(): item.read_bytes() for item in sorted(path.rglob("*")) if item.is_file()}
 
 
 def _baseline(tmp_path, **options):
@@ -155,7 +155,7 @@ def test_fixture_is_synthetic_and_names_no_real_organisation():
 
 def test_cli_runs_the_synthetic_reference():
     completed = subprocess.run([sys.executable, "-m", "tooling.superversion.project_package.alternative_impact",
-                                "--schemas", str(SCHEMAS)], cwd=ROOT, capture_output=True, text=True, timeout=300, check=False)
+                                "--schemas", str(SCHEMAS)], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", timeout=300, check=False)
     assert completed.returncode == 0, completed.stdout + completed.stderr
     value = json.loads(completed.stdout)["value"]
     assert value["status"] == "impact_ready" and value["baseline_unchanged"]
