@@ -92,7 +92,7 @@ References: [Product workbench plan](../../../docs/architecture/research/discove
 
 A draft alternative can now be compared against the released baseline without changing it. The engine evaluates the authored decision rules with the alternative selected, reports architecture, plan, role demand, effort, topology, manifest and test deltas plus the obligations before a release, and verifies that repository history, HEAD and release records are byte-identical afterwards. The reference is a synthetic, customer-neutral manufacturer package (sales and finance, SAP S/4HANA declared as source by table label only) with an accepted DEV / TEST / PROD baseline and a DEV / PROD alternative.
 
-This closes the WB-008 proof at engine level. The Studio comparison view is not built yet; named staffing and commercials remain WB-009; tenant behavior remains a separate, isolated test-tenant proof. Details: [Alternative impact](PROJECT_ALTERNATIVE_IMPACT.md).
+Studio shows the comparison under Architecture → Decision effects → Compare an alternative, as a bill of materials: stages, role demand, effort, parts, test obligations and the ordered steps before a release. Named staffing and commercials remain WB-009 ([plan](PROJECT_COMMERCIAL_IMPACT_PLAN.md)); tenant behavior remains a separate, isolated test-tenant proof. Details: [Alternative impact](PROJECT_ALTERNATIVE_IMPACT.md).
 
 ## Reviewed decisions and protected execution increment — 8 September
 

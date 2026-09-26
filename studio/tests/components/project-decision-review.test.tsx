@@ -82,6 +82,13 @@ describe('Architecture decision review', () => {
     await act(async () => resolve(reply(application)));
     expect(applied).not.toHaveBeenCalled();
   });
+  it('offers a read-only comparison for mapped options that were not selected', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(reply({ ...view(), rules: [...view().rules, { id: 'lanes_two', status: 'not_selected', reason: 'A different option was approved', decision_ref: 'decision_environment_model', option_ref: 'dev_prod' }] }));
+    render(<ProjectDecisionReview projectId="alpha" revisionHash={hash} onApplied={vi.fn()} />);
+    await screen.findByText('Compare an alternative');
+    expect(screen.getByRole('button', { name: 'decision environment model → dev prod' })).toBeTruthy();
+    expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1);
+  });
   it('explains missing rules without inventing a suggestion or action', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(reply({ ...view(), can_apply: false, changes: [], rules: [] }));
     render(<ProjectDecisionReview projectId="alpha" revisionHash={hash} onApplied={vi.fn()} />);

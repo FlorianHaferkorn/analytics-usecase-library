@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 import type { DecisionApplication, DecisionPreview } from '@/lib/bridge/project-decisions';
+import { ProjectAlternativeImpact } from './project-alternative-impact';
 import styles from './project-decision-review.module.css';
 
 function Value({ value }: { value: unknown }) {
@@ -34,6 +35,8 @@ export function ProjectDecisionReview({ projectId, revisionHash, onApplied }: {
   useEffect(() => { current.current = identity; return () => { current.current = ''; }; }, [identity]);
   const view = preview?.project_ref === projectId && preview.revision_hash === revisionHash ? preview : null;
   const confirmed = Boolean(view && confirmedHash === view.preview_sha256);
+  const alternatives = (view?.rules ?? []).flatMap(rule => rule.status === 'not_selected' && rule.decision_ref && rule.option_ref
+    ? [{ decision_ref: rule.decision_ref, option_ref: rule.option_ref, rule_id: rule.id }] : []);
 
   useEffect(() => {
     const abort = new AbortController();
@@ -91,6 +94,9 @@ export function ProjectDecisionReview({ projectId, revisionHash, onApplied }: {
       </article>)}
     </section>}
     {!!view.rules.length && <details className={styles.details}><summary>Rule evaluation · {view.rules.length} recorded</summary><ul className={styles.list}>{view.rules.map(rule => <li key={rule.id}><strong>{rule.id}</strong><span>{rule.status.replaceAll('_', ' ')} · {rule.reason}</span></li>)}</ul></details>}
+    {alternatives.length > 0 && <StudioPanel title="Compare an alternative" description="Read-only: shows what a declared, not selected option would change against the released baseline.">
+      <ProjectAlternativeImpact projectId={projectId} revisionHash={revisionHash} options={alternatives} />
+    </StudioPanel>}
     {view.can_apply && <StudioPanel title="Review and update" description="This review records the implementation rationale. It does not approve a decision on the customer's behalf.">
       <div className={styles.stack}>
         <label className={styles.field}>Review rationale<textarea value={rationale} onChange={event => { setRationale(event.target.value); setConfirmedHash(null); }} maxLength={4000} rows={3} disabled={busy} placeholder="Explain why these recorded decision effects should be applied." /></label>
