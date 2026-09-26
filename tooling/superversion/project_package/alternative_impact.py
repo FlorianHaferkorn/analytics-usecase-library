@@ -125,9 +125,13 @@ def _map_delta(before: dict, after: dict) -> dict:
             "changed": sorted(key for key in set(before) & set(after) if before[key] != after[key])}
 
 
-def compare_alternative(repository: ProjectPackageRevisionRepository, project_ref: str, baseline_revision: str,
-                        decision_ref: str, option_ref: str) -> dict:
-    """Compare a released baseline with one declared alternative option. Read-only."""
+def evaluate_alternative(repository: ProjectPackageRevisionRepository, project_ref: str, baseline_revision: str,
+                         decision_ref: str, option_ref: str) -> dict:
+    """Released baseline modules plus the in-memory projection for one alternative. Read-only.
+
+    Shared by the WB-008 comparison and the WB-009 commercial comparison, so both evaluate
+    exactly the same hypothetical selection.
+    """
     before_fingerprint = _fingerprint(repository)
     released = release_input(repository, project_ref, baseline_revision)  # verification only; actor absent
     compiler = copy.deepcopy(released["compiler_input"])
@@ -160,6 +164,17 @@ def compare_alternative(repository: ProjectPackageRevisionRepository, project_re
                  "plan": copy.deepcopy(hypothetical["modules"].get("plan"))}
     for change in derivation["changes"]:
         _target(projected, change["target"])[change["target"]["field"]] = copy.deepcopy(change["after"])
+
+    return {"before_fingerprint": before_fingerprint, "released": released, "compiler": compiler, "decisions": decisions,
+            "hypothetical": hypothetical, "derivation": derivation, "blockers": blockers, "projected": projected}
+
+
+def compare_alternative(repository: ProjectPackageRevisionRepository, project_ref: str, baseline_revision: str,
+                        decision_ref: str, option_ref: str) -> dict:
+    """Compare a released baseline with one declared alternative option. Read-only."""
+    state = evaluate_alternative(repository, project_ref, baseline_revision, decision_ref, option_ref)
+    before_fingerprint, released, compiler, decisions = state["before_fingerprint"], state["released"], state["compiler"], state["decisions"]
+    hypothetical, derivation, blockers, projected = state["hypothetical"], state["derivation"], state["blockers"], state["projected"]
 
     base = _view(compiler["modules"], decisions, decision_ref)
     intended = next((rule["value"] for rule in projected["architecture_input"].get("decision_rules", [])
@@ -263,9 +278,12 @@ def _reference_architecture(baseline: str, stages: list[str], with_alternative_r
             "physical_workspaces": workspaces, "physical_items": items, "decision_rules": rules}
 
 
-def _reference_plan(baseline: str, task_done: bool) -> dict:
+CANON_ROLE_MAP = {"fabric_engineer": "engineer", "test_lead": "tester", "data_engineer": "engineer"}
+
+
+def _reference_plan(baseline: str, task_done: bool, canon: bool = False) -> dict:
     values = PLAN_VALUES[baseline]
-    return {"schema_version": "2.0.0", "dependencies": [],
+    plan = {"schema_version": "2.0.0", "dependencies": [],
             "work_packages": [
                 {"id": "wp_environment_lanes", "title": "Environment lanes for sales and finance", "status": "planned",
                  "decision_refs": [REFERENCE_DECISION], "role_refs": values["role_refs"],
@@ -276,25 +294,45 @@ def _reference_plan(baseline: str, task_done: bool) -> dict:
                        "status": "done" if task_done else "todo", "priority": "high", "owner_ref": "fabric_engineer", "target_gate": "before_build",
                        "decision_refs": [REFERENCE_DECISION], "definition_of_done": values["definition_of_done"],
                        "evidence_refs": ["synthetic://alternative_impact_reference/lane_evidence"] if task_done else []}]}
+    if canon:
+        # Rate-free canon links for WB-009; package IDs resolve only in a tenant file outside the repository.
+        packages = {"wp_environment_lanes": {"package_ref": "REF_LANES", "quantities": {
+                        "umgebungen": {"derived_from": "selected_stage_count"},
+                        "domaenen": {"value": 2, "provenance": "assumption"}}},
+                    "wp_source_contracts": {"package_ref": "REF_SOURCES", "quantities": {
+                        "quellobjekte": {"value": 9, "provenance": "assumption"}}}}
+        for row in plan["work_packages"]:
+            row["canon"] = packages[row["id"]]
+        plan["canon_role_map"] = dict(CANON_ROLE_MAP)
+    return plan
 
 
 def build_reference_baseline(root: Path, schemas: Path, *, baseline: str = "dev_test_prod", stages: list[str] | None = None,
-                             with_alternative_rule: bool = True, task_done: bool = False) -> tuple[ProjectPackageRevisionRepository, str]:
-    """Build and release the synthetic baseline in an empty trusted directory. Test and reference use only."""
+                             with_alternative_rule: bool = True, task_done: bool = False, project_ref: str = REFERENCE_PROJECT,
+                             repository_root: Path | None = None, canon: bool = False) -> tuple[ProjectPackageRevisionRepository, str]:
+    """Build and release the synthetic baseline in an empty trusted directory. Test and reference use only.
+
+    ``project_ref`` and ``repository_root`` let a local browser test place the synthetic package under a
+    Studio project it created itself; the content stays the synthetic reference.
+    """
     root, schemas = Path(root), Path(schemas)
     if baseline not in OPTIONS:
         raise ValueError("Unknown baseline option")
+    if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}", project_ref):
+        raise ValueError("Invalid project reference")
     source = root / "source"
     source.mkdir(parents=True)
-    source.joinpath("package.yaml").write_text((FIXTURE / "package.json").read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
+    legacy = json.loads((FIXTURE / "package.json").read_text(encoding="utf-8"))
+    legacy["project_ref"] = project_ref
+    source.joinpath("package.yaml").write_text(json.dumps(legacy, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
     package = migrate_project_package(source, root / "package", schemas)
     manifest = yaml.safe_load((package / "package.yaml").read_text(encoding="utf-8"))
     decision = json.loads((FIXTURE / "decision_set.json").read_text(encoding="utf-8"))
     decision["definitions"][0]["source"]["source_hash"] = hashlib.sha256((FIXTURE / "brief.md").read_bytes()).hexdigest()
     decision["instances"][0]["selection"]["option_ref"] = baseline
-    modules = (("decision_set", decision), ("plan", _reference_plan(baseline, task_done)),
+    modules = (("decision_set", decision), ("plan", _reference_plan(baseline, task_done, canon)),
                ("architecture_input", _reference_architecture(baseline, stages or OPTIONS[baseline], with_alternative_rule)),
-               ("use_case_delivery", json.loads((FIXTURE / "use_case_delivery.json").read_text(encoding="utf-8"))))
+               ("use_case_delivery", {**json.loads((FIXTURE / "use_case_delivery.json").read_text(encoding="utf-8")), "project_ref": project_ref}))
     for kind, document in modules:
         row = next((row for row in manifest["modules"] if row["module_type"] == kind), None)
         if row is None:
@@ -303,18 +341,18 @@ def build_reference_baseline(root: Path, schemas: Path, *, baseline: str = "dev_
         (package / row["path"]).write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8", newline="\n")
         row["sha256"] = canonical_sha256(document)
         row["schema_id"] = json.loads((schemas / f"project_{kind}.schema.json").read_text(encoding="utf-8"))["$id"]
-    (package / "SYNTHETIC_ONLY.json").write_text(_json({"source_kind": "synthetic", "project_ref": REFERENCE_PROJECT,
+    (package / "SYNTHETIC_ONLY.json").write_text(_json({"source_kind": "synthetic", "project_ref": project_ref,
                                                        "tenant_actions_performed": False, "live_apply_allowed": False}), encoding="utf-8", newline="\n")
     (package / "brief.md").write_bytes((FIXTURE / "brief.md").read_bytes())
     (package / "package.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n")
-    repository = ProjectPackageRevisionRepository(root / "repositories" / REFERENCE_PROJECT, schemas)
+    repository = ProjectPackageRevisionRepository(Path(repository_root) if repository_root else root / "repositories" / project_ref, schemas)
     first = repository.commit(package)
     draft = repository.checkout(root / "approval", first.revision_hash)
     manifest = yaml.safe_load((draft / "package.yaml").read_text(encoding="utf-8"))
     manifest["state"] = "approved"
     (draft / "package.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n")
     final = repository.commit_draft(draft, expected_head_hash=first.revision_hash)
-    release_input(repository, REFERENCE_PROJECT, final.revision_hash, actor=REFERENCE_ACTOR,
+    release_input(repository, project_ref, final.revision_hash, actor=REFERENCE_ACTOR,
                   rationale="Synthetic accepted baseline for the alternative-impact reference; never customer or tenant approval.")
     return repository, final.revision_hash
 
@@ -332,9 +370,19 @@ def main() -> int:
     parser.add_argument("--schemas", required=True, type=Path)
     parser.add_argument("--repository", type=Path, help="Trusted repository path; omit to run the synthetic reference")
     parser.add_argument("--option", default="dev_prod")
+    parser.add_argument("--build-reference", type=Path, help="Empty trusted directory: build and release the synthetic baseline there (local tests only)")
+    parser.add_argument("--project-ref", default=REFERENCE_PROJECT)
+    parser.add_argument("--canon", action="store_true", help="With --build-reference: add rate-free price-canon links to the plan")
     args = parser.parse_args()
     try:
-        if args.repository is None:
+        if args.build_reference is not None:
+            target = args.build_reference
+            if not target.is_absolute() or (target.exists() and any(target.iterdir())):
+                raise ValueError("Reference target must be an absolute, empty or new directory")
+            with tempfile.TemporaryDirectory(prefix="alternative-impact-build-") as temporary:
+                repository, revision = build_reference_baseline(Path(temporary), args.schemas, project_ref=args.project_ref, repository_root=target, canon=args.canon)
+            value = {"project_ref": args.project_ref, "revision_hash": revision, "repository": str(repository.root), "source_kind": "synthetic"}
+        elif args.repository is None:
             value = run_reference(args.schemas, args.option)
         else:
             payload = json.loads(sys.stdin.read(100_001))

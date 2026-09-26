@@ -7,7 +7,7 @@ import type { AutomationTarget } from '@/lib/bridge/project-automation';
 
 type Context = {params: Promise<{projectId: string}>};
 const HASH = /^[a-f0-9]{64}$/;
-const TARGETS = new Set(['architecture_bundle', 'fabric_workspace_requests', 'fabric_item_requests']);
+const TARGETS = new Set(['architecture_bundle', 'fabric_workspace_requests', 'fabric_item_requests', 'proposal_assumptions']);
 
 export async function GET(request: Request, {params}: Context) {
   const {projectId} = await params;

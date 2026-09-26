@@ -1,6 +1,6 @@
 # Draft alternative impact against a released baseline
 
-Status: implemented in the decision engine (WB-008 engine proof). Studio surface not yet built. No tenant execution, no approval, no release.
+Status: implemented in the decision engine and in Studio (WB-008). No tenant execution, no approval, no release.
 
 ## Purpose
 
@@ -46,9 +46,26 @@ Without `--repository` the synthetic reference is built in a fresh temporary dir
 
 `tooling/tests/test_project_alternative_impact.py`: byte-identical repository and release records after comparison, all impact classes, determinism, blocked expansion without topology, expansion with authored topology, missing alternative mapping, completed task with evidence, invalid options, unreleased or non-HEAD baseline, unknown decision, foreign project, fixture neutrality and the CLI. Network and process creation are forbidden during the comparison.
 
+## Studio
+
+**Architecture → Decision effects → Compare an alternative.** The panel appears when the decision review lists a rule with status `not_selected`, i.e. an authored mapping for an option that is not the accepted one. Selecting it calls `GET /api/projects/{id}/architecture/alternatives?revision=&decision=&option=` (viewer role, `private, no-store`). The route accepts only a pinned revision hash and two identifiers; it rejects any result whose project, revision, decision or option differ from the request, or that claims approval, release, tenant action or a changed baseline.
+
+The view follows a bill-of-materials reading order: summary tiles (stages, role demand, effort, parts, test obligations), a parts list of the workspaces and native items that are added or removed, the delivery-plan changes, the test obligations, and the ordered steps before the alternative could be released. An unreleased or non-HEAD revision shows the engine's refusal instead of a comparison.
+
+Files: `studio/src/lib/bridge/project-alternatives.ts`, `studio/src/app/api/projects/[projectId]/architecture/alternatives/route.ts`, `studio/src/components/project/project-alternative-impact.tsx` (+ module CSS, governed by the design-token gate). Tests: `studio/tests/api/project-alternatives.test.ts`, `studio/tests/components/project-alternative-impact.test.tsx`, one case in `project-decision-review.test.tsx`.
+
 ## Remaining scope
 
-- Studio surface: a comparison view next to the decision review, fed by this engine through the existing bridge pattern.
+- Browser workflow against the real engine is recorded as an opt-in test, not part of the standard suite: `studio/e2e/alternative-impact.spec.ts` with `playwright.alternative-impact.config.ts`. It signs in with the demo login, creates a Studio project, builds the synthetic reference under that project (`alternative_impact --build-reference <dir> --project-ref <id>`), and checks through real routes and the real Python engine: the comparison response, tiles, all six parts, the topology step, no write request, no runner or deployment request, no page error, and no horizontal overflow at 768 px. Passed on 26.09.2026 in 25.9 s; desktop and narrow screenshots inspected.
+
+  ```powershell
+  # server (separate shell): fresh data root, dedicated .e2e database
+  $env:STUDIO_PACKAGE_DATA_ROOT = '<new empty temp dir>'; $env:STUDIO_DB_PATH = '.e2e/alternative-impact.db'
+  node scripts/reset-studio-db.mjs; npx next dev -p 3107
+  # test
+  $env:STUDIO_ALTERNATIVE_IMPACT_E2E = '1'; $env:STUDIO_E2E_PORT = '3107'; $env:STUDIO_PACKAGE_DATA_ROOT = '<same dir>'
+  npx playwright test --config=playwright.alternative-impact.config.ts
+  ```
 - Named staffing, proposal assumptions, duration and cost drivers belong to WB-009.
 - Fabric runtime behavior is proven separately in an isolated test tenant with synthetic data and its own identities. The comparison never contacts a tenant.
 - The rule engine still cannot add or remove topology elements. The comparison reports these as obligations instead of generating them.

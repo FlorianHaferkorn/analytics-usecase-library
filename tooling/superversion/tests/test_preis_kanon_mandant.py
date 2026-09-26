@@ -183,7 +183,7 @@ _MANDANT = {
 
 @pytest.fixture()
 def mandant(tmp_path, monkeypatch):
-    (tmp_path / "nagarro.yaml").write_text(yaml.safe_dump(_MANDANT, allow_unicode=True),
+    (tmp_path / pkm.DATEINAME).write_text(yaml.safe_dump(_MANDANT, allow_unicode=True),
                                            encoding="utf-8")
     monkeypatch.setenv(pkm.ENV_DIR, str(tmp_path))
     return pkm.lade_mandant()
@@ -307,3 +307,30 @@ def test_eine_rolle_ohne_verfuegbarkeit_ist_nicht_pruefbar_statt_gruen(mandant):
     engineer = next(z for z in p["rollen"] if z["rolle"] == "engineer")
     assert engineer["passt"] is None
     assert "nicht pruefbar" in engineer["vermerk"]
+
+
+# -- 4. Der Weg fuer Nagarro: Vorlage an der Ablage (ADR-0020) ----------------------
+
+
+def test_der_dateiname_folgt_adr_0020():
+    assert pkm.DATEINAME == "preis_kanon.yaml"
+    profil = (REPO_ROOT / "core/engagement_profiles/nagarro_consulting.yaml").read_text(encoding="utf-8")
+    assert f"env:{pkm.ENV_DIR}/{pkm.DATEINAME}" in profil
+
+
+def test_vorlage_landet_ausserhalb_des_repos_und_rechnet_nicht(tmp_path, monkeypatch):
+    ablage = tmp_path / "nagarro-ablage"
+    f = pkm.vorlage(ablage)
+    assert f == ablage.resolve() / pkm.DATEINAME
+    monkeypatch.setenv(pkm.ENV_DIR, str(ablage))
+    m = pkm.lade_mandant()
+    assert any("Platzhalter" in b for b in pkm.pruefe_mandant(m))
+    assert pkm._cmd_check() == pkm.EXIT_BEFUND
+
+
+def test_vorlage_ueberschreibt_nichts_und_nie_im_repo(tmp_path):
+    pkm.vorlage(tmp_path)
+    with pytest.raises(FileExistsError):
+        pkm.vorlage(tmp_path)
+    with pytest.raises(ValueError, match="Repository"):
+        pkm.vorlage(REPO_ROOT / ".local" / "tenant")

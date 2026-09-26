@@ -8,7 +8,7 @@ Was hier passiert und was ausdruecklich nicht:
   Hier steht das Laden, das Pruefen und die Weigerung — kein zweiter Kalkulator
   (Tool-Reuse-Pflicht).
 * **Werte liegen nie im Repo.** `preis_kanon_schema.yaml` traegt die Form mit Platzhaltern
-  `<...>`; die Zahlen kommen aus `$PREIS_KANON_MANDANTEN_DIR/nagarro.yaml` an der
+  `<...>`; die Zahlen kommen aus `$PREIS_KANON_MANDANTEN_DIR/preis_kanon.yaml` an der
   Nagarro-Ablage (ADR-0019 §2.3, dieselbe Regel wie fuer Kundenmaterial).
 * **Ohne Verzeichnis wird nicht gerechnet, sondern gemeldet.** Ein Preis aus Platzhaltern
   waere eine Zahl ohne Herkunft; genau davor steht `MandantenwerteFehlen`.
@@ -20,7 +20,7 @@ beides als Erfolg.
 ===  ==========================================================================
 0    geprueft: Werte geladen, alle Regeln erfuellt
 1    Befund: Werte geladen, aber eine Regel verletzt (Platzhalter, fehlender Beleg, ...)
-2    konnte nicht pruefen: kein `PREIS_KANON_MANDANTEN_DIR`, kein `nagarro.yaml`
+2    konnte nicht pruefen: kein `PREIS_KANON_MANDANTEN_DIR`, kein `preis_kanon.yaml`
 ===  ==========================================================================
 
 CLI::
@@ -28,6 +28,7 @@ CLI::
     python3 tooling/superversion/preis_kanon_mandant.py schema     # Platzhalter-Pfade
     python3 tooling/superversion/preis_kanon_mandant.py check      # Werte pruefen
     python3 tooling/superversion/preis_kanon_mandant.py preis A1 report=23
+    python3 tooling/superversion/preis_kanon_mandant.py vorlage [--ziel DIR]  # Vorlage ausserhalb des Repos
 """
 from __future__ import annotations
 
@@ -46,7 +47,10 @@ if str(REPO_ROOT) not in sys.path:
 SCHEMA_PFAD = Path(__file__).resolve().parent / "preis_kanon_schema.yaml"
 ENV_DIR = "PREIS_KANON_MANDANTEN_DIR"
 MANDANT = "nagarro"
-DATEINAME = f"{MANDANT}.yaml"
+#: Der Dateiname folgt ADR-0020 (`commercial.authority_path`). Der Mandant steht im Inhalt
+#: (`mandanten.nagarro`), nicht im Namen: ein Repo, ein Mandant (ADR-0019). Meridians
+#: `core/preis_kanon.yaml` bleibt der Freelancing-Mandant; dies ist der Weg fuer Nagarro.
+DATEINAME = "preis_kanon.yaml"
 ANNAHME = "ANNAHME, ungeprueft"
 
 #: Ein Platzhalter ist ein String in spitzen Klammern. Bewusst eng: ein Wert wie
@@ -380,6 +384,32 @@ def kapazitaetspruefung(m: dict, pakete: list[tuple[str, dict | None]]) -> dict:
     }
 
 
+# ── Vorlage fuer die Nagarro-Ablage ─────────────────────────────────────────────────────
+
+
+def vorlage(ziel: Path | None = None) -> Path:
+    """Schreibt das Schema mit Platzhaltern als `preis_kanon.yaml` in die Mandantenablage.
+
+    Der Weg fuer Nagarro: Verzeichnis anlegen, Vorlage erzeugen, Platzhalter an der
+    Nagarro-Ablage befuellen, `check` laufen lassen. Nie ins Repo, nie ueberschreiben.
+    """
+    roh = ziel if ziel is not None else os.environ.get(ENV_DIR)
+    if not roh:
+        raise MandantenwerteFehlen(f"Kein Ziel: --ziel angeben oder ${ENV_DIR} setzen.")
+    d = Path(roh).expanduser().resolve()
+    repo = REPO_ROOT.resolve()
+    if d == repo or repo in d.parents:
+        raise ValueError(f"{d} liegt im Repository; Mandantenwerte gehoeren an die Nagarro-Ablage (ADR-0019 §2.3).")
+    d.mkdir(parents=True, exist_ok=True)
+    f = d / DATEINAME
+    if f.exists():
+        raise FileExistsError(f"{f} existiert bereits; eine Vorlage ueberschreibt keine Werte.")
+    kopf = ("# Preis-Kanon Mandant nagarro (ADR-0019/0020). Vorlage aus tooling/superversion/"
+            "preis_kanon_schema.yaml.\n# Platzhalter <...> ersetzen; danach: preis_kanon_mandant.py check\n")
+    f.write_text(kopf + SCHEMA_PFAD.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
+    return f
+
+
 # ── CLI ─────────────────────────────────────────────────────────────────────────────────
 
 
@@ -439,9 +469,18 @@ def main(argv: list[str] | None = None) -> int:
     pr = sub.add_parser("preis", help="Kalkulationsblatt eines Pakets")
     pr.add_argument("paket")
     pr.add_argument("mengen", nargs="*")
+    vo = sub.add_parser("vorlage", help="Vorlage mit Platzhaltern in die Mandantenablage schreiben")
+    vo.add_argument("--ziel", type=Path)
     a = ap.parse_args(sys.argv[1:] if argv is None else argv)
     if a.cmd == "schema":
         return _cmd_schema()
+    if a.cmd == "vorlage":
+        try:
+            print(f"[preis-kanon-mandant] Vorlage geschrieben: {vorlage(a.ziel)}")
+            return EXIT_OK
+        except (MandantenwerteFehlen, ValueError, FileExistsError) as e:
+            print(f"[preis-kanon-mandant] {e}")
+            return EXIT_UNGEPRUEFT
     if a.cmd == "check":
         return _cmd_check()
     return _cmd_preis(a.paket, a.mengen)

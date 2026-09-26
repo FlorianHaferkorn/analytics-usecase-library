@@ -24,7 +24,7 @@ export interface DecisionPreview {
     rationale: string;
   }>;
   blockers: string[];
-  rules: Array<{ id: string; status: string; reason: string }>;
+  rules: Array<{ id: string; status: string; reason: string; decision_ref?: string; option_ref?: string }>;
 }
 
 export interface DecisionApplication {

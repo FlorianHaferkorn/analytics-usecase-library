@@ -98,7 +98,7 @@ function AutomationWorkspace({projectId,revision}: {projectId:string;revision:st
           <StudioPanel title="Generate selected outputs" description="This action creates local files and an auditable run record, not tenant resources.">
             <fieldset className={styles.targets} disabled={busy}><legend>Output scope</legend>{value.targets.map(target => <label key={target.id} className={styles.target}>
               <input type="checkbox" checked={targets.includes(target.id)} disabled={target.status !== 'ready'} onChange={e => {setTargets(current => e.target.checked ? [...current,target.id] : current.filter(t => t !== target.id));setConfirmed(false);}} />
-              <span><strong>{target.label}</strong><span>{target.reason}</span></span>
+              <span><strong>{target.label}</strong>{target.id === 'proposal_assumptions' && <span className={styles.optIn}>Opt-in · reads the price canon on this host · no rates or prices in the output</span>}<span>{target.reason}</span></span>
             </label>)}</fieldset>
             <label className={styles.confirm}><input type="checkbox" checked={confirmed} disabled={busy || !selectedReady} onChange={e => setConfirmed(e.target.checked)} /><span>Generate only these outputs from version {revision.slice(0,12)}. This does not approve deployment.</span></label>
             <StudioButton disabled={busy || !confirmed || !selectedReady} onClick={run}>{busy ? 'Generating outputs…' : 'Run selected generation'}</StudioButton>

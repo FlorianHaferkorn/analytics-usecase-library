@@ -6,7 +6,7 @@ const state=vi.hoisted(()=>({revision:'a'.repeat(64)}));
 vi.mock('@/components/project/use-pinned-project',()=>({usePinnedProject:()=>({projectId:'alpha',projectName:'Alpha',revision:state.revision,value:{},latest:vi.fn(),retry:vi.fn()})}));
 vi.mock('@/components/project/project-estimation',()=>({ProjectEstimation:()=> <div>Estimate fixture</div>}));
 vi.mock('@/components/project/project-deployment',()=>({ProjectDeployment:()=> <div>Deployment fixture</div>}));
-const status=()=>({project_ref:'alpha',revision_hash:state.revision,generation_allowed:true,stages:[],automation_gaps:['Security adapter required'],targets:[{id:'architecture_bundle',label:'Architecture bundle',status:'ready',reason:'Recorded definitions'},{id:'fabric_workspace_requests',label:'Workspaces',status:'blocked',reason:'Missing workspace contract'}],latest_run:null});
+const status=()=>({project_ref:'alpha',revision_hash:state.revision,generation_allowed:true,stages:[],automation_gaps:['Security adapter required'],targets:[{id:'architecture_bundle',label:'Architecture bundle',status:'ready',reason:'Recorded definitions'},{id:'fabric_workspace_requests',label:'Workspaces',status:'blocked',reason:'Missing workspace contract'},{id:'proposal_assumptions',label:'Proposal assumptions (rate-free)',status:'ready',reason:'Rate-free assumptions from the price canon'}],latest_run:null});
 beforeEach(()=>{state.revision='a'.repeat(64);useProjectStore.setState({projectId:'alpha',packageRevisionHash:state.revision});vi.stubGlobal('fetch',vi.fn(async()=>({ok:true,json:async()=>status()})));});
 afterEach(()=>{cleanup();vi.unstubAllGlobals();});
 describe('Automation project boundaries and explicit scope',()=>{
@@ -40,5 +40,17 @@ describe('Automation project boundaries and explicit scope',()=>{
     const [,init]=vi.mocked(fetch).mock.calls.find(([,init])=>init?.method==='POST')!;
     expect(JSON.parse(init!.body as string)).toEqual({revisionHash:state.revision,targets:['architecture_bundle'],confirmGeneration:true});
     expect(screen.queryByRole('button',{name:/apply|deploy now/i})).toBeNull();
+  });
+  it('offers proposal assumptions only as an explicit, unselected opt-in',async()=>{
+    render(<ProjectAutomationPage />);await screen.findByRole('button',{name:'Run selected generation'});
+    const option=screen.getByRole('checkbox',{name:/Proposal assumptions/}) as HTMLInputElement;
+    expect(option.checked).toBe(false);
+    expect(screen.getByText(/no rates or prices in the output/)).toBeTruthy();
+    fireEvent.click(option);fireEvent.click(screen.getByRole('checkbox',{name:/Generate only these outputs/}));
+    vi.mocked(fetch).mockResolvedValueOnce({ok:false,json:async()=>({error:{message:'Price canon not configured on this host'}})} as Response);
+    fireEvent.click(screen.getByRole('button',{name:'Run selected generation'}));
+    await waitFor(()=>expect(screen.getByRole('status').textContent).toBe('Price canon not configured on this host'));
+    const [,init]=vi.mocked(fetch).mock.calls.find(([,init])=>init?.method==='POST')!;
+    expect(JSON.parse(init!.body as string).targets).toEqual(['proposal_assumptions']);
   });
 });
