@@ -56,7 +56,16 @@ Files: `studio/src/lib/bridge/project-alternatives.ts`, `studio/src/app/api/proj
 
 ## Remaining scope
 
-- Browser workflow against the real engine (Playwright, local reference) is not yet recorded.
+- Browser workflow against the real engine is recorded as an opt-in test, not part of the standard suite: `studio/e2e/alternative-impact.spec.ts` with `playwright.alternative-impact.config.ts`. It signs in with the demo login, creates a Studio project, builds the synthetic reference under that project (`alternative_impact --build-reference <dir> --project-ref <id>`), and checks through real routes and the real Python engine: the comparison response, tiles, all six parts, the topology step, no write request, no runner or deployment request, no page error, and no horizontal overflow at 768 px. Passed on 26.09.2026 in 25.9 s; desktop and narrow screenshots inspected.
+
+  ```powershell
+  # server (separate shell): fresh data root, dedicated .e2e database
+  $env:STUDIO_PACKAGE_DATA_ROOT = '<new empty temp dir>'; $env:STUDIO_DB_PATH = '.e2e/alternative-impact.db'
+  node scripts/reset-studio-db.mjs; npx next dev -p 3107
+  # test
+  $env:STUDIO_ALTERNATIVE_IMPACT_E2E = '1'; $env:STUDIO_E2E_PORT = '3107'; $env:STUDIO_PACKAGE_DATA_ROOT = '<same dir>'
+  npx playwright test --config=playwright.alternative-impact.config.ts
+  ```
 - Named staffing, proposal assumptions, duration and cost drivers belong to WB-009.
 - Fabric runtime behavior is proven separately in an isolated test tenant with synthetic data and its own identities. The comparison never contacts a tenant.
 - The rule engine still cannot add or remove topology elements. The comparison reports these as obligations instead of generating them.

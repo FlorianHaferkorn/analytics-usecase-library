@@ -159,3 +159,13 @@ def test_cli_runs_the_synthetic_reference():
     assert completed.returncode == 0, completed.stdout + completed.stderr
     value = json.loads(completed.stdout)["value"]
     assert value["status"] == "impact_ready" and value["baseline_unchanged"]
+
+
+def test_reference_can_be_placed_under_a_studio_project_id(tmp_path):
+    target = tmp_path / "data" / "repositories" / "proj_0123456789abcdef0123456789abcdef"
+    repository, revision = impact.build_reference_baseline(tmp_path / "work", SCHEMAS, project_ref=target.name, repository_root=target)
+    assert repository.root == target and repository.head().project_ref == target.name
+    report = impact.compare_alternative(repository, target.name, revision, DECISION, "dev_prod")
+    assert report["status"] == "impact_ready" and report["project_ref"] == target.name
+    with pytest.raises(ValueError, match="Invalid project reference"):
+        impact.build_reference_baseline(tmp_path / "bad", SCHEMAS, project_ref="../escape")

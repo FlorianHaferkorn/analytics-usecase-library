@@ -279,14 +279,23 @@ def _reference_plan(baseline: str, task_done: bool) -> dict:
 
 
 def build_reference_baseline(root: Path, schemas: Path, *, baseline: str = "dev_test_prod", stages: list[str] | None = None,
-                             with_alternative_rule: bool = True, task_done: bool = False) -> tuple[ProjectPackageRevisionRepository, str]:
-    """Build and release the synthetic baseline in an empty trusted directory. Test and reference use only."""
+                             with_alternative_rule: bool = True, task_done: bool = False, project_ref: str = REFERENCE_PROJECT,
+                             repository_root: Path | None = None) -> tuple[ProjectPackageRevisionRepository, str]:
+    """Build and release the synthetic baseline in an empty trusted directory. Test and reference use only.
+
+    ``project_ref`` and ``repository_root`` let a local browser test place the synthetic package under a
+    Studio project it created itself; the content stays the synthetic reference.
+    """
     root, schemas = Path(root), Path(schemas)
     if baseline not in OPTIONS:
         raise ValueError("Unknown baseline option")
+    if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}", project_ref):
+        raise ValueError("Invalid project reference")
     source = root / "source"
     source.mkdir(parents=True)
-    source.joinpath("package.yaml").write_text((FIXTURE / "package.json").read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
+    legacy = json.loads((FIXTURE / "package.json").read_text(encoding="utf-8"))
+    legacy["project_ref"] = project_ref
+    source.joinpath("package.yaml").write_text(json.dumps(legacy, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
     package = migrate_project_package(source, root / "package", schemas)
     manifest = yaml.safe_load((package / "package.yaml").read_text(encoding="utf-8"))
     decision = json.loads((FIXTURE / "decision_set.json").read_text(encoding="utf-8"))
@@ -294,7 +303,7 @@ def build_reference_baseline(root: Path, schemas: Path, *, baseline: str = "dev_
     decision["instances"][0]["selection"]["option_ref"] = baseline
     modules = (("decision_set", decision), ("plan", _reference_plan(baseline, task_done)),
                ("architecture_input", _reference_architecture(baseline, stages or OPTIONS[baseline], with_alternative_rule)),
-               ("use_case_delivery", json.loads((FIXTURE / "use_case_delivery.json").read_text(encoding="utf-8"))))
+               ("use_case_delivery", {**json.loads((FIXTURE / "use_case_delivery.json").read_text(encoding="utf-8")), "project_ref": project_ref}))
     for kind, document in modules:
         row = next((row for row in manifest["modules"] if row["module_type"] == kind), None)
         if row is None:
@@ -303,18 +312,18 @@ def build_reference_baseline(root: Path, schemas: Path, *, baseline: str = "dev_
         (package / row["path"]).write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8", newline="\n")
         row["sha256"] = canonical_sha256(document)
         row["schema_id"] = json.loads((schemas / f"project_{kind}.schema.json").read_text(encoding="utf-8"))["$id"]
-    (package / "SYNTHETIC_ONLY.json").write_text(_json({"source_kind": "synthetic", "project_ref": REFERENCE_PROJECT,
+    (package / "SYNTHETIC_ONLY.json").write_text(_json({"source_kind": "synthetic", "project_ref": project_ref,
                                                        "tenant_actions_performed": False, "live_apply_allowed": False}), encoding="utf-8", newline="\n")
     (package / "brief.md").write_bytes((FIXTURE / "brief.md").read_bytes())
     (package / "package.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n")
-    repository = ProjectPackageRevisionRepository(root / "repositories" / REFERENCE_PROJECT, schemas)
+    repository = ProjectPackageRevisionRepository(Path(repository_root) if repository_root else root / "repositories" / project_ref, schemas)
     first = repository.commit(package)
     draft = repository.checkout(root / "approval", first.revision_hash)
     manifest = yaml.safe_load((draft / "package.yaml").read_text(encoding="utf-8"))
     manifest["state"] = "approved"
     (draft / "package.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n")
     final = repository.commit_draft(draft, expected_head_hash=first.revision_hash)
-    release_input(repository, REFERENCE_PROJECT, final.revision_hash, actor=REFERENCE_ACTOR,
+    release_input(repository, project_ref, final.revision_hash, actor=REFERENCE_ACTOR,
                   rationale="Synthetic accepted baseline for the alternative-impact reference; never customer or tenant approval.")
     return repository, final.revision_hash
 
@@ -332,9 +341,18 @@ def main() -> int:
     parser.add_argument("--schemas", required=True, type=Path)
     parser.add_argument("--repository", type=Path, help="Trusted repository path; omit to run the synthetic reference")
     parser.add_argument("--option", default="dev_prod")
+    parser.add_argument("--build-reference", type=Path, help="Empty trusted directory: build and release the synthetic baseline there (local tests only)")
+    parser.add_argument("--project-ref", default=REFERENCE_PROJECT)
     args = parser.parse_args()
     try:
-        if args.repository is None:
+        if args.build_reference is not None:
+            target = args.build_reference
+            if not target.is_absolute() or (target.exists() and any(target.iterdir())):
+                raise ValueError("Reference target must be an absolute, empty or new directory")
+            with tempfile.TemporaryDirectory(prefix="alternative-impact-build-") as temporary:
+                repository, revision = build_reference_baseline(Path(temporary), args.schemas, project_ref=args.project_ref, repository_root=target)
+            value = {"project_ref": args.project_ref, "revision_hash": revision, "repository": str(repository.root), "source_kind": "synthetic"}
+        elif args.repository is None:
             value = run_reference(args.schemas, args.option)
         else:
             payload = json.loads(sys.stdin.read(100_001))
