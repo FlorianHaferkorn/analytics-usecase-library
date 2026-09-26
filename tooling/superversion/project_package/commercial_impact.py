@@ -9,6 +9,7 @@ tenant file outside the repository (ADR-0019, ADR-0020). Nothing is written.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -18,10 +19,12 @@ from typing import Any
 from tooling.superversion import preis_kanon_mandant as pkm
 
 from .alternative_impact import _fingerprint, evaluate_alternative
+from .release import release_input
 from .hashes import canonical_sha256
 from .repository import ProjectPackageRevisionRepository
 
 VERSION = "1.0.0"
+TARGET = "proposal_assumptions"
 #: Keys that would carry money or rate content. The output is checked against them before
 #: it is returned, so a future change cannot leak a price by adding a field.
 FORBIDDEN_KEYS = re.compile(r"(kostensatz|verkaufssatz|satz_eur|preis|price|rate|marge|margin|risiko|risk|eur\b|_eur|festpreis|selbstkosten|cost_value)", re.I)
@@ -50,7 +53,7 @@ def _quantities(canon: dict, architecture: dict) -> tuple[dict[str, float], dict
     return values, provenance
 
 
-def _side(tenant: dict, plan: dict, architecture: dict, decision_ref: str) -> dict:
+def _side(tenant: dict, plan: dict, architecture: dict, decision_ref: str | None) -> dict:
     """One package state through the core. Hours and bands only; no money."""
     core = pkm.rechenkern()
     role_map = plan.get("canon_role_map") or {}
@@ -61,7 +64,7 @@ def _side(tenant: dict, plan: dict, architecture: dict, decision_ref: str) -> di
     for row in plan.get("work_packages", []):
         canon = row.get("canon")
         if canon is None:
-            if decision_ref in row["decision_refs"]:
+            if decision_ref is None or decision_ref in row["decision_refs"]:
                 gaps.append({"id": f"unmapped_work_package:{row['id']}", "detail": "Work package linked to the decision has no canon package; its hours are not evaluated."})
             continue
         try:
@@ -164,43 +167,77 @@ def _number(value: float) -> str:
     return f"{value:g}"
 
 
-def render_proposal_assumptions(result: dict, side: str = "alternative") -> str:
-    """Rate-free proposal-assumptions section for one side of an evaluated comparison.
-
-    It lists what the offer rests on: canon packages, quantities with provenance, delivery
-    bands, role participation and the open points. Hours per class, rates and prices stay out
-    by construction: the renderer reads only these fields.
-    """
-    if result.get("status") != "evaluated":
-        raise ValueError("Proposal assumptions need an evaluated comparison, not " + str(result.get("status")))
-    if side not in {"baseline", "alternative"}:
-        raise ValueError("Side must be baseline or alternative")
-    data = result[side]
-    option = result["alternative_option_ref"] if side == "alternative" else "accepted baseline"
-    lines = [f"## Proposal assumptions ({option.replace('_', ' ')})", "",
-             f"Basis: decision `{result['decision_ref']}`, package revision `{result['baseline_revision_hash'][:12]}`"
-             f"{', hypothetical alternative' if side == 'alternative' else ''}. Values are assumptions until confirmed; "
-             "no rate, price or named person is part of this section.", ""]
+def render_side_assumptions(data: dict, title: str, basis: str) -> str:
+    """Rate-free Markdown for one evaluated side. Reads only the fields listed here."""
+    lines = [f"## {title}", "", basis, ""]
     for row in data["packages"]:
         low, high = row["delivery_band_workdays"]
-        lines.append(f"### {row['work_package_ref'].replace('_', ' ')}")
-        lines.append("")
-        lines.append(f"- Canon package: `{row['package_ref']}`")
+        lines += [f"### {row['work_package_ref'].replace('_', ' ')}", "", f"- Canon package: `{row['package_ref']}`"]
         for name, value in sorted(row["quantities"].items()):
-            source = row["quantity_provenance"][name]
-            lines.append(f"- Quantity {name.replace('_', ' ')}: {_number(value)} ({source})")
+            lines.append(f"- Quantity {name.replace('_', ' ')}: {_number(value)} ({row['quantity_provenance'][name]})")
         lines.append(f"- Delivery band: {_number(low)}–{_number(high)} workdays ({row['band_status']})")
         roles = ", ".join(f"{item['rolle']} {_number(item['beteiligung_pct'])} %" for item in row["person_days_by_role"])
         if roles:
             lines.append(f"- Role participation: {roles}")
         lines.append("")
     window = data["window_workdays"]
-    lines += [f"Delivery window if packages run in parallel: {_number(window['parallel'])} workdays; in sequence: {_number(window['serial'])} workdays.", ""]
+    lines += [f"Delivery window if packages run in parallel: {_number(window['parallel'])} workdays; in sequence: {_number(window['serial'])} workdays.", "",
+              "### Open points before the offer", ""]
     open_points = [gap["detail"] for gap in data["gaps"]] + list(data["capacity_notes"])
-    lines.append("### Open points before the offer")
-    lines.append("")
     lines += [f"- {item}" for item in open_points] or ["- None recorded."]
     return "\n".join(lines).rstrip() + "\n"
+
+
+def render_proposal_assumptions(result: dict, side: str = "alternative") -> str:
+    """Rate-free proposal-assumptions section for one side of an evaluated comparison."""
+    if result.get("status") != "evaluated":
+        raise ValueError("Proposal assumptions need an evaluated comparison, not " + str(result.get("status")))
+    if side not in {"baseline", "alternative"}:
+        raise ValueError("Side must be baseline or alternative")
+    option = result["alternative_option_ref"] if side == "alternative" else "accepted baseline"
+    basis = (f"Basis: decision `{result['decision_ref']}`, package revision `{result['baseline_revision_hash'][:12]}`"
+             f"{', hypothetical alternative' if side == 'alternative' else ''}. Values are assumptions until confirmed; "
+             "no rate, price or named person is part of this section.")
+    return render_side_assumptions(result[side], f"Proposal assumptions ({option.replace('_', ' ')})", basis)
+
+
+def commercial_target(compiler_input: dict) -> dict:
+    """Generation target: ready when the released plan links at least one canon package."""
+    plan = compiler_input["modules"].get("plan") or {}
+    linked = [row for row in plan.get("work_packages", []) if row.get("canon")]
+    return {"id": TARGET, "label": "Proposal assumptions (rate-free)", "status": "ready" if linked else "blocked",
+            "reason": ("Rate-free assumptions from the price canon on this host; requires PREIS_KANON_MANDANTEN_DIR at generation time."
+                       if linked else "No work package links a price-canon package.")}
+
+
+def build_proposal_output(repository: ProjectPackageRevisionRepository, project_ref: str, revision: str,
+                          *, tenant: dict | None = None) -> dict:
+    """Proposal-assumptions document for a released revision. Refuses instead of writing zeros."""
+    released = release_input(repository, project_ref, revision)
+    compiler = released["compiler_input"]
+    if commercial_target(compiler)["status"] != "ready":
+        raise ValueError("Target blocked: " + commercial_target(compiler)["reason"])
+    try:
+        tenant = tenant if tenant is not None else pkm.lade_mandant()
+    except pkm.MandantenwerteFehlen as error:
+        raise ValueError("Price canon not configured on this host: " + str(error)) from error
+    findings = pkm.pruefe_mandant(tenant)
+    if findings:
+        raise ValueError("Price canon has findings: " + "; ".join(findings[:5]))
+    side = _side(tenant, compiler["modules"]["plan"], compiler["modules"]["architecture_input"], None)
+    assert_rate_free(side)
+    basis = (f"Basis: released package revision `{revision[:12]}` of project `{project_ref}`. Values are assumptions until confirmed; "
+             "no rate, price or named person is part of this section.")
+    document = render_side_assumptions(side, "Proposal assumptions", basis)
+    files = {"proposal-assumptions.md": document}
+    manifest = {"schema_version": VERSION, "project_ref": project_ref, "revision_hash": revision, "target": TARGET,
+                "release_record_sha256": released["release"]["record_sha256"], "tenant_fingerprint_sha256": canonical_sha256(tenant),
+                "price_values_embedded": False, "apply_ready": False,
+                "files": [{"path": path, "sha256": hashlib.sha256(content.encode("utf-8")).hexdigest()} for path, content in sorted(files.items())]}
+    assert_rate_free(manifest)
+    files["output-manifest.json"] = json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+    return {"output_type": TARGET, "manifest": manifest, "files": [{"path": path, "content": content} for path, content in sorted(files.items())],
+            "limitations": ["Rate-free assumptions from the tenant price canon; not a price, offer or customer approval."]}
 
 
 def main() -> int:

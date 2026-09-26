@@ -174,3 +174,36 @@ def test_proposal_assumptions_are_rate_free_and_name_the_open_points(tmp_path, t
 def test_proposal_assumptions_need_an_evaluated_result():
     with pytest.raises(ValueError, match="evaluated"):
         commercial.render_proposal_assumptions({"status": "not_checked"})
+
+
+def test_released_revision_gets_a_rate_free_proposal_document(tmp_path, tenant_dir):
+    repository, revision = _baseline(tmp_path)
+    output = commercial.build_proposal_output(repository, PROJECT, revision)
+    files = {row["path"]: row["content"] for row in output["files"]}
+    assert set(files) == {"proposal-assumptions.md", "output-manifest.json"}
+    assert "- Quantity umgebungen: 3 (derived: selected_stage_count)" in files["proposal-assumptions.md"]
+    manifest = json.loads(files["output-manifest.json"])
+    assert manifest["price_values_embedded"] is False and manifest["revision_hash"] == revision
+    for value in ("123.45", "67.89", "54.32", "4321", "8765", "kostensatz"):
+        assert value not in json.dumps(files)
+
+
+def test_generation_runner_offers_the_document_only_on_request(tmp_path, tenant_dir):
+    from tooling.superversion.project_package.automation import run_automation, read_automation
+    repository, revision = _baseline(tmp_path)
+    targets = {row["id"]: row for row in read_automation(repository, PROJECT, revision)["targets"]}
+    assert targets["proposal_assumptions"]["status"] == "ready"
+    run = run_automation(repository, PROJECT, revision, actor="synthetic_fixture_not_a_customer", confirm_generation=True,
+                         targets=["proposal_assumptions"])
+    assert run["report"]["targets"] == ["proposal_assumptions"]
+    assert "proposal_assumptions/proposal-assumptions.md" in {row["path"] for row in run["files"]}
+
+
+def test_proposal_document_refuses_without_canon_or_links(tmp_path, monkeypatch):
+    monkeypatch.delenv(pkm.ENV_DIR, raising=False)
+    repository, revision = _baseline(tmp_path)
+    with pytest.raises(ValueError, match="not configured"):
+        commercial.build_proposal_output(repository, PROJECT, revision)
+    plain, plain_revision = impact.build_reference_baseline(tmp_path / "plain", SCHEMAS)
+    with pytest.raises(ValueError, match="No work package links"):
+        commercial.build_proposal_output(plain, PROJECT, plain_revision)

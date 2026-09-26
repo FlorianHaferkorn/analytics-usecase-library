@@ -372,6 +372,7 @@ def main() -> int:
     parser.add_argument("--option", default="dev_prod")
     parser.add_argument("--build-reference", type=Path, help="Empty trusted directory: build and release the synthetic baseline there (local tests only)")
     parser.add_argument("--project-ref", default=REFERENCE_PROJECT)
+    parser.add_argument("--canon", action="store_true", help="With --build-reference: add rate-free price-canon links to the plan")
     args = parser.parse_args()
     try:
         if args.build_reference is not None:
@@ -379,7 +380,7 @@ def main() -> int:
             if not target.is_absolute() or (target.exists() and any(target.iterdir())):
                 raise ValueError("Reference target must be an absolute, empty or new directory")
             with tempfile.TemporaryDirectory(prefix="alternative-impact-build-") as temporary:
-                repository, revision = build_reference_baseline(Path(temporary), args.schemas, project_ref=args.project_ref, repository_root=target)
+                repository, revision = build_reference_baseline(Path(temporary), args.schemas, project_ref=args.project_ref, repository_root=target, canon=args.canon)
             value = {"project_ref": args.project_ref, "revision_hash": revision, "repository": str(repository.root), "source_kind": "synthetic"}
         elif args.repository is None:
             value = run_reference(args.schemas, args.option)
