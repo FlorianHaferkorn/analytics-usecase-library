@@ -154,3 +154,23 @@ def test_plan_schema_accepts_rate_free_canon_links_only():
         broken = copy.deepcopy(plan)
         broken["work_packages"][0]["canon"]["quantities"]["umgebungen"] = mutation
         assert list(Draft202012Validator(schema).iter_errors(broken)), mutation
+
+
+def test_proposal_assumptions_are_rate_free_and_name_the_open_points(tmp_path, tenant_dir):
+    repository, revision = _baseline(tmp_path)
+    result = commercial.compare_commercial(repository, PROJECT, revision, DECISION, "dev_prod")
+    text = commercial.render_proposal_assumptions(result, "alternative")
+    assert text == commercial.render_proposal_assumptions(result, "alternative")
+    assert "## Proposal assumptions (dev prod)" in text
+    assert "- Quantity umgebungen: 2 (derived: selected_stage_count)" in text
+    assert "- Delivery band: 5–7 workdays" in text
+    assert "tester" in text and "no plan role that maps to it is demanded" in text
+    for value in ("123.45", "67.89", "54.32", "4321", "8765", "engineer_nearshore", "kostensatz", "marge"):
+        assert value not in text
+    baseline = commercial.render_proposal_assumptions(result, "baseline")
+    assert "- Quantity umgebungen: 3 (derived: selected_stage_count)" in baseline and "accepted baseline" in baseline
+
+
+def test_proposal_assumptions_need_an_evaluated_result():
+    with pytest.raises(ValueError, match="evaluated"):
+        commercial.render_proposal_assumptions({"status": "not_checked"})

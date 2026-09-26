@@ -160,10 +160,55 @@ def compare_commercial(repository: ProjectPackageRevisionRepository, project_ref
     return {**result, "commercial_impact_sha256": canonical_sha256(result)}
 
 
+def _number(value: float) -> str:
+    return f"{value:g}"
+
+
+def render_proposal_assumptions(result: dict, side: str = "alternative") -> str:
+    """Rate-free proposal-assumptions section for one side of an evaluated comparison.
+
+    It lists what the offer rests on: canon packages, quantities with provenance, delivery
+    bands, role participation and the open points. Hours per class, rates and prices stay out
+    by construction: the renderer reads only these fields.
+    """
+    if result.get("status") != "evaluated":
+        raise ValueError("Proposal assumptions need an evaluated comparison, not " + str(result.get("status")))
+    if side not in {"baseline", "alternative"}:
+        raise ValueError("Side must be baseline or alternative")
+    data = result[side]
+    option = result["alternative_option_ref"] if side == "alternative" else "accepted baseline"
+    lines = [f"## Proposal assumptions ({option.replace('_', ' ')})", "",
+             f"Basis: decision `{result['decision_ref']}`, package revision `{result['baseline_revision_hash'][:12]}`"
+             f"{', hypothetical alternative' if side == 'alternative' else ''}. Values are assumptions until confirmed; "
+             "no rate, price or named person is part of this section.", ""]
+    for row in data["packages"]:
+        low, high = row["delivery_band_workdays"]
+        lines.append(f"### {row['work_package_ref'].replace('_', ' ')}")
+        lines.append("")
+        lines.append(f"- Canon package: `{row['package_ref']}`")
+        for name, value in sorted(row["quantities"].items()):
+            source = row["quantity_provenance"][name]
+            lines.append(f"- Quantity {name.replace('_', ' ')}: {_number(value)} ({source})")
+        lines.append(f"- Delivery band: {_number(low)}–{_number(high)} workdays ({row['band_status']})")
+        roles = ", ".join(f"{item['rolle']} {_number(item['beteiligung_pct'])} %" for item in row["person_days_by_role"])
+        if roles:
+            lines.append(f"- Role participation: {roles}")
+        lines.append("")
+    window = data["window_workdays"]
+    lines += [f"Delivery window if packages run in parallel: {_number(window['parallel'])} workdays; in sequence: {_number(window['serial'])} workdays.", ""]
+    open_points = [gap["detail"] for gap in data["gaps"]] + list(data["capacity_notes"])
+    lines.append("### Open points before the offer")
+    lines.append("")
+    lines += [f"- {item}" for item in open_points] or ["- None recorded."]
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--repository", required=True, type=Path)
     parser.add_argument("--schemas", required=True, type=Path)
+    parser.add_argument("--assumptions", choices=("baseline", "alternative"),
+                        help="Also return the rate-free proposal-assumptions section for this side as Markdown")
     args = parser.parse_args()
     try:
         payload = json.loads(sys.stdin.read(100_001))
@@ -173,6 +218,8 @@ def main() -> int:
             raise ValueError("Invalid request revision")
         value = compare_commercial(ProjectPackageRevisionRepository(args.repository, args.schemas), payload["project_ref"],
                                    payload["revision_hash"], payload["decision_ref"], payload["option_ref"])
+        if args.assumptions:
+            value = {**value, "proposal_assumptions_markdown": render_proposal_assumptions(value, args.assumptions)}
         print(json.dumps({"ok": True, "value": value}, ensure_ascii=True))
         return 0
     except (ValueError, OSError) as error:

@@ -76,5 +76,5 @@ Tests: `tooling/tests/test_project_commercial_impact.py` (8).
 ## Next increments
 
 1. Studio: commercial panel next to the alternative comparison, behind an explicit tenant-directory check.
-2. Proposal assumptions: generate the rate-free assumption list (quantities, provenance, gaps) as a document section.
+2. ~~Proposal assumptions~~ **Done 26.09.2026:** `render_proposal_assumptions(result, side)` renders a rate-free Markdown section (canon packages, quantities with provenance, delivery bands, role participation, window, open points); CLI `--assumptions baseline|alternative`. It reads only those fields, so class hours, rates and prices cannot appear. Not yet wired into a generated proposal document.
 3. Private price delta: `kalkulation` result returned `no-store` to an authorised caller only, never written.
