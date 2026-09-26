@@ -125,9 +125,13 @@ def _map_delta(before: dict, after: dict) -> dict:
             "changed": sorted(key for key in set(before) & set(after) if before[key] != after[key])}
 
 
-def compare_alternative(repository: ProjectPackageRevisionRepository, project_ref: str, baseline_revision: str,
-                        decision_ref: str, option_ref: str) -> dict:
-    """Compare a released baseline with one declared alternative option. Read-only."""
+def evaluate_alternative(repository: ProjectPackageRevisionRepository, project_ref: str, baseline_revision: str,
+                         decision_ref: str, option_ref: str) -> dict:
+    """Released baseline modules plus the in-memory projection for one alternative. Read-only.
+
+    Shared by the WB-008 comparison and the WB-009 commercial comparison, so both evaluate
+    exactly the same hypothetical selection.
+    """
     before_fingerprint = _fingerprint(repository)
     released = release_input(repository, project_ref, baseline_revision)  # verification only; actor absent
     compiler = copy.deepcopy(released["compiler_input"])
@@ -160,6 +164,17 @@ def compare_alternative(repository: ProjectPackageRevisionRepository, project_re
                  "plan": copy.deepcopy(hypothetical["modules"].get("plan"))}
     for change in derivation["changes"]:
         _target(projected, change["target"])[change["target"]["field"]] = copy.deepcopy(change["after"])
+
+    return {"before_fingerprint": before_fingerprint, "released": released, "compiler": compiler, "decisions": decisions,
+            "hypothetical": hypothetical, "derivation": derivation, "blockers": blockers, "projected": projected}
+
+
+def compare_alternative(repository: ProjectPackageRevisionRepository, project_ref: str, baseline_revision: str,
+                        decision_ref: str, option_ref: str) -> dict:
+    """Compare a released baseline with one declared alternative option. Read-only."""
+    state = evaluate_alternative(repository, project_ref, baseline_revision, decision_ref, option_ref)
+    before_fingerprint, released, compiler, decisions = state["before_fingerprint"], state["released"], state["compiler"], state["decisions"]
+    hypothetical, derivation, blockers, projected = state["hypothetical"], state["derivation"], state["blockers"], state["projected"]
 
     base = _view(compiler["modules"], decisions, decision_ref)
     intended = next((rule["value"] for rule in projected["architecture_input"].get("decision_rules", [])
@@ -263,9 +278,12 @@ def _reference_architecture(baseline: str, stages: list[str], with_alternative_r
             "physical_workspaces": workspaces, "physical_items": items, "decision_rules": rules}
 
 
-def _reference_plan(baseline: str, task_done: bool) -> dict:
+CANON_ROLE_MAP = {"fabric_engineer": "engineer", "test_lead": "tester", "data_engineer": "engineer"}
+
+
+def _reference_plan(baseline: str, task_done: bool, canon: bool = False) -> dict:
     values = PLAN_VALUES[baseline]
-    return {"schema_version": "2.0.0", "dependencies": [],
+    plan = {"schema_version": "2.0.0", "dependencies": [],
             "work_packages": [
                 {"id": "wp_environment_lanes", "title": "Environment lanes for sales and finance", "status": "planned",
                  "decision_refs": [REFERENCE_DECISION], "role_refs": values["role_refs"],
@@ -276,11 +294,22 @@ def _reference_plan(baseline: str, task_done: bool) -> dict:
                        "status": "done" if task_done else "todo", "priority": "high", "owner_ref": "fabric_engineer", "target_gate": "before_build",
                        "decision_refs": [REFERENCE_DECISION], "definition_of_done": values["definition_of_done"],
                        "evidence_refs": ["synthetic://alternative_impact_reference/lane_evidence"] if task_done else []}]}
+    if canon:
+        # Rate-free canon links for WB-009; package IDs resolve only in a tenant file outside the repository.
+        packages = {"wp_environment_lanes": {"package_ref": "REF_LANES", "quantities": {
+                        "umgebungen": {"derived_from": "selected_stage_count"},
+                        "domaenen": {"value": 2, "provenance": "assumption"}}},
+                    "wp_source_contracts": {"package_ref": "REF_SOURCES", "quantities": {
+                        "quellobjekte": {"value": 9, "provenance": "assumption"}}}}
+        for row in plan["work_packages"]:
+            row["canon"] = packages[row["id"]]
+        plan["canon_role_map"] = dict(CANON_ROLE_MAP)
+    return plan
 
 
 def build_reference_baseline(root: Path, schemas: Path, *, baseline: str = "dev_test_prod", stages: list[str] | None = None,
                              with_alternative_rule: bool = True, task_done: bool = False, project_ref: str = REFERENCE_PROJECT,
-                             repository_root: Path | None = None) -> tuple[ProjectPackageRevisionRepository, str]:
+                             repository_root: Path | None = None, canon: bool = False) -> tuple[ProjectPackageRevisionRepository, str]:
     """Build and release the synthetic baseline in an empty trusted directory. Test and reference use only.
 
     ``project_ref`` and ``repository_root`` let a local browser test place the synthetic package under a
@@ -301,7 +330,7 @@ def build_reference_baseline(root: Path, schemas: Path, *, baseline: str = "dev_
     decision = json.loads((FIXTURE / "decision_set.json").read_text(encoding="utf-8"))
     decision["definitions"][0]["source"]["source_hash"] = hashlib.sha256((FIXTURE / "brief.md").read_bytes()).hexdigest()
     decision["instances"][0]["selection"]["option_ref"] = baseline
-    modules = (("decision_set", decision), ("plan", _reference_plan(baseline, task_done)),
+    modules = (("decision_set", decision), ("plan", _reference_plan(baseline, task_done, canon)),
                ("architecture_input", _reference_architecture(baseline, stages or OPTIONS[baseline], with_alternative_rule)),
                ("use_case_delivery", {**json.loads((FIXTURE / "use_case_delivery.json").read_text(encoding="utf-8")), "project_ref": project_ref}))
     for kind, document in modules:

@@ -1,6 +1,6 @@
 # WB-009 plan: commercial and staffing impact of a decision delta
 
-Status: plan, not implemented. Prepared 26.09.2026 after the WB-008 alternative comparison ([PROJECT_ALTERNATIVE_IMPACT.md](PROJECT_ALTERNATIVE_IMPACT.md)).
+Status: first increment implemented 26.09.2026 (`tooling/superversion/project_package/commercial_impact.py`); Studio surface, proposal assumptions and named staffing open. Builds on the WB-008 alternative comparison ([PROJECT_ALTERNATIVE_IMPACT.md](PROJECT_ALTERNATIVE_IMPACT.md)).
 
 ## Goal and proof
 
@@ -37,7 +37,7 @@ The Meridian engagement layer (`staffing.py`: positions, quantity provenance, un
 - **Private output, never written:** cost and price delta from `kalkulation`, returned only to an authorised caller with `no-store`.
 - **Never in the repository or package:** tenant file content, cost or sell rates, margin, risk, rounding, availability, cost or price results, blended rates.
 
-## First increment, tests first
+## First increment plan (tests first)
 
 Extend `core/fixtures/neutral/alternative-impact-reference/` with the rate-free mappings; build a synthetic tenant in `tmp_path` (pattern in `tooling/superversion/tests/test_preis_kanon_mandant.py`). New `tooling/tests/test_project_commercial_impact.py`:
 
@@ -47,14 +47,34 @@ Extend `core/fixtures/neutral/alternative-impact-reference/` with the rate-free 
 - Serialised persistable output contains no rate or price field; repository fingerprint and `commercial.estimate.value` unchanged.
 - Authority path file name matches the loader.
 
-## Decisions needed before implementation
+## First increment (implemented)
 
-| # | Question | Recommendation |
+`compare_commercial(repository, project_ref, baseline_revision, decision_ref, option_ref)` evaluates the same hypothetical selection as `compare_alternative` (shared `evaluate_alternative`) and runs baseline and alternative through the mirrored core:
+
+- **Plan links, rate-free:** optional `work_packages[].canon` (`package_ref`, `quantities`) and plan-level `canon_role_map`. A quantity is either fixed (`value`, `provenance`) or derived from the selected architecture (`selected_stage_count`, `selected_workspace_count`, `selected_item_count`). A decision therefore changes canon quantities through the architecture, not through a second mapping; decision rules cannot edit the links.
+- **Core calls only:** `paket`, `stunden`, `lieferzeit_band`, `lieferzeit_status` from the mirror; `stunden_je_rolle`, `personentage`, `kapazitaetspruefung`, `pruefe_mandant`, `lade_mandant` from the tenant loader. No rate arithmetic, no `kalkulation`, no price.
+- **Output:** hours per canon role and per canon class, delivery band per package, person-day bands per role with provenance, parallel and serial window, capacity notes, and gaps (unmapped work package, unknown canon package, unmapped plan role, canon role without plan demand), each for baseline and alternative plus a delta.
+- **Refusals:** blocked alternative raises; no tenant directory returns `not_checked` without numbers; placeholder or rule findings in the tenant file return `tenant_findings` without numbers.
+- **Leak guard:** every output key is checked against rate and price terms before return; `price_values_embedded` must be `false`.
+
+Reference result (synthetic tenant in the test, DEV/TEST/PROD → DEV/PROD): engineer 30 → 26 h, tester 9 → 6 h, window 8 → 7 workdays; new gap: the canon lanes package still needs tester hours after the alternative drops `test_lead` from the plan. That gap is the kind of inconsistency WB-009 exists to show.
+
+Tests: `tooling/tests/test_project_commercial_impact.py` (8).
+
+## Decisions
+
+| # | Question | State 26.09.2026 |
 |---|---|---|
-| 1 | Authority file name: `preis_kanon.yaml` or `nagarro.yaml` | Align the profile to the loader, one name |
-| 2 | Future of `estimation.py` | Keep as private scenario, label as non-canon; do not extend |
-| 3 | Where the package and role mappings live | New optional plan fields in a schema minor version; decision rules may not change them |
-| 4 | May canon-derived hours and person-days be persisted | Yes as bands with provenance; they contain no rates |
-| 5 | Engagement layer | Thin adapter here first; refactor Meridian's layer for mirroring only if a second consumer appears |
-| 6 | `commercial.estimate.value` | Stays null; only `basis_refs` point to the private result |
-| 7 | Dates and named staffing | Out of scope for the first increment; bands only |
+| 1 | Authority file name: `preis_kanon.yaml` or `nagarro.yaml` | **Open.** ADR-0020 (Accepted) names `preis_kanon.yaml`; the loader reads `nagarro.yaml`. The recommendation "align the profile to the loader" would contradict the ADR, so nothing was changed. The adapter reads through the loader and is not blocked. |
+| 2 | Future of `estimation.py` | Applied: unchanged, not extended, not used by the adapter |
+| 3 | Where the package and role mappings live | Applied with a deviation: additive optional plan fields within schema 2.0.0 instead of a version bump, because existing packages stay valid; decision rules cannot edit them |
+| 4 | May canon-derived hours and person-days be persisted | Not exercised: the first increment persists nothing |
+| 5 | Engagement layer | Applied: thin adapter here, Meridian's layer untouched |
+| 6 | `commercial.estimate.value` | Applied: untouched, stays null |
+| 7 | Dates and named staffing | Applied: bands only |
+
+## Next increments
+
+1. Studio: commercial panel next to the alternative comparison, behind an explicit tenant-directory check.
+2. Proposal assumptions: generate the rate-free assumption list (quantities, provenance, gaps) as a document section.
+3. Private price delta: `kalkulation` result returned `no-store` to an authorised caller only, never written.

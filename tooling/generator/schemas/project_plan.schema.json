@@ -28,9 +28,36 @@
               "unit": {"enum": ["hours", "person_days"]},
               "provenance": {"enum": ["measured", "calculated", "assumption", "unknown"]}
             }
+          },
+          "canon": {
+            "description": "Optional, rate-free link to a package of the tenant price canon (ADR-0019/0020). Quantities are fixed with provenance or derived from the selected architecture. Rates, prices and hours are never stored here.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["package_ref", "quantities"],
+            "properties": {
+              "package_ref": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$"},
+              "quantities": {
+                "type": "object",
+                "propertyNames": {"pattern": "^[a-z][a-z0-9_]{0,63}$"},
+                "additionalProperties": {
+                  "oneOf": [
+                    {"type": "object", "additionalProperties": false, "required": ["value", "provenance"],
+                     "properties": {"value": {"type": "number", "minimum": 0}, "provenance": {"enum": ["measured", "calculated", "assumption"]}}},
+                    {"type": "object", "additionalProperties": false, "required": ["derived_from"],
+                     "properties": {"derived_from": {"enum": ["selected_stage_count", "selected_workspace_count", "selected_item_count"]}}}
+                  ]
+                }
+              }
+            }
           }
         }
       }
+    },
+    "canon_role_map": {
+      "description": "Optional mapping from plan role references to roles of the tenant price canon. Role names only; no rates.",
+      "type": "object",
+      "propertyNames": {"minLength": 1},
+      "additionalProperties": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"}
     },
     "dependencies": {
       "type": "array",
