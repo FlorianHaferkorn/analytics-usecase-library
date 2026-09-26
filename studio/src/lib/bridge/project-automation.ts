@@ -3,7 +3,7 @@ import { execFile } from 'node:child_process';
 import { isAbsolute, join, resolve } from 'node:path';
 import type { PackageRepositoryResult } from './project-package-repository';
 import type { ArchitectureTarget } from './project-architecture';
-export type AutomationTarget = ArchitectureTarget | 'fabric_item_requests';
+export type AutomationTarget = ArchitectureTarget | 'fabric_item_requests' | 'proposal_assumptions';
 
 export interface AutomationRun {
   run_id: string; created_at: string; actor: string; project_ref: string; revision_hash: string;

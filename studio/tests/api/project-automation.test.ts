@@ -34,6 +34,9 @@ describe('Project automation API',()=>{
     const response=await POST(post({revisionHash:hash,targets:['architecture_bundle'],confirmGeneration:true}),context);
     expect(fake.role).toHaveBeenCalledWith('editor','alpha');
     expect(fake.run).toHaveBeenCalledWith('alpha',hash,{actor:'operator@example.test',targets:['architecture_bundle']});
+    const second=await POST(post({revisionHash:hash,targets:['proposal_assumptions'],confirmGeneration:true}),context);
+    expect(fake.run).toHaveBeenLastCalledWith('alpha',hash,{actor:'operator@example.test',targets:['proposal_assumptions']});
+    expect(second.status).not.toBe(422);
     expect(response.headers.get('x-package-revision')).toBe(hash);
   });
   it('reads a stored run under viewer authorization without generating again',async()=>{
