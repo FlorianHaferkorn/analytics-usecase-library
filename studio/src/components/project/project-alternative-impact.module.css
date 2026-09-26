@@ -16,3 +16,4 @@
 .list { margin: var(--space-3) 0 0; padding-left: var(--space-4); display: grid; gap: var(--space-3); overflow-wrap: anywhere; }
 .list li span { display: block; font-size: var(--text-sm); color: var(--ink-3); line-height: 1.5; }
 @media (max-width: 640px) { .parts th:nth-child(2), .parts td:nth-child(2) { display: none; } }
+.markdown { font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; margin: var(--space-3) 0 0; }

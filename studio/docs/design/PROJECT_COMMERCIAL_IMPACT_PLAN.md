@@ -1,6 +1,6 @@
 # WB-009 plan: commercial and staffing impact of a decision delta
 
-Status: first increment implemented 26.09.2026 (`tooling/superversion/project_package/commercial_impact.py`); Studio surface, proposal assumptions and named staffing open. Builds on the WB-008 alternative comparison ([PROJECT_ALTERNATIVE_IMPACT.md](PROJECT_ALTERNATIVE_IMPACT.md)).
+Status: engine, proposal assumptions and Studio panel implemented 26.09.2026; private price delta, proposal document and named staffing open. Builds on the WB-008 alternative comparison ([PROJECT_ALTERNATIVE_IMPACT.md](PROJECT_ALTERNATIVE_IMPACT.md)).
 
 ## Goal and proof
 
@@ -22,7 +22,7 @@ The Meridian engagement layer (`staffing.py`: positions, quantity provenance, un
 1. Plan work packages carry no canon package reference and no quantity drivers.
 2. Plan `role_refs` have no mapping to canon roles or rate classes.
 3. No engagement layer in this repository that turns packages into proposal positions.
-4. The engagement profile names `preis_kanon.yaml` as authority path; the loader reads `nagarro.yaml`.
+4. ~~The engagement profile names `preis_kanon.yaml` as authority path; the loader reads `nagarro.yaml`.~~ Resolved 26.09.2026: the loader reads `preis_kanon.yaml` (decision 1).
 5. Duration exists only as a workday band; the calendar is not mirrored.
 6. `project_package/estimation.py` computes with caller-supplied hourly rates, which overlaps with the core (see ADR-0019).
 7. The commercial module has no field for proposal assumptions or cost drivers; writing a canon-derived amount to `estimate.value` would place a Nagarro-derived price in the package.
@@ -65,7 +65,7 @@ Tests: `tooling/tests/test_project_commercial_impact.py` (8).
 
 | # | Question | State 26.09.2026 |
 |---|---|---|
-| 1 | Authority file name: `preis_kanon.yaml` or `nagarro.yaml` | **Open.** ADR-0020 (Accepted) names `preis_kanon.yaml`; the loader reads `nagarro.yaml`. The recommendation "align the profile to the loader" would contradict the ADR, so nothing was changed. The adapter reads through the loader and is not blocked. |
+| 1 | Authority file name: `preis_kanon.yaml` or `nagarro.yaml` | **Decided 26.09.2026 (Florian Haferkorn): `preis_kanon.yaml`, as in ADR-0020.** The loader follows the ADR; the tenant is named inside the file (`mandanten.nagarro`). Meridian's `core/preis_kanon.yaml` stays the Freelancing tenant. The Nagarro path in ALUCA: `preis_kanon_mandant.py vorlage --ziel <Nagarro store>` writes the placeholder template outside the repository (refuses repo paths and overwrites), values are filled at the Nagarro store, `check` validates, `PREIS_KANON_MANDANTEN_DIR` points Studio and CLI at it. |
 | 2 | Future of `estimation.py` | Applied: unchanged, not extended, not used by the adapter |
 | 3 | Where the package and role mappings live | Applied with a deviation: additive optional plan fields within schema 2.0.0 instead of a version bump, because existing packages stay valid; decision rules cannot edit them |
 | 4 | May canon-derived hours and person-days be persisted | Not exercised: the first increment persists nothing |
@@ -75,6 +75,6 @@ Tests: `tooling/tests/test_project_commercial_impact.py` (8).
 
 ## Next increments
 
-1. Studio: commercial panel next to the alternative comparison, behind an explicit tenant-directory check.
+1. ~~Studio panel~~ **Done 26.09.2026:** Architecture → Decision effects → Compare an alternative → Commercial impact. Fetches only on request; `GET /api/projects/{id}/architecture/commercial` requires the editor role, is `private, no-store`, and withholds any result carrying a rate or price key (second check at the seam, same terms as the Python guard). Shows hours per canon role, window, open points and the rate-free proposal assumptions; an unconfigured canon shows how to set it up instead of zeros.
 2. ~~Proposal assumptions~~ **Done 26.09.2026:** `render_proposal_assumptions(result, side)` renders a rate-free Markdown section (canon packages, quantities with provenance, delivery bands, role participation, window, open points); CLI `--assumptions baseline|alternative`. It reads only those fields, so class hours, rates and prices cannot appear. Not yet wired into a generated proposal document.
 3. Private price delta: `kalkulation` result returned `no-store` to an authorised caller only, never written.

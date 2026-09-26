@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 import type { AlternativeImpact } from '@/lib/bridge/project-alternatives';
+import { ProjectCommercialImpact } from './project-commercial-impact';
 import styles from './project-alternative-impact.module.css';
 
 export interface AlternativeOption { decision_ref: string; option_ref: string; rule_id: string }
@@ -92,6 +93,9 @@ export function ProjectAlternativeImpact({ projectId, revisionHash, options }: {
       <StudioPanel title="Before this alternative could be released">
         <ol className={styles.list}>{view.obligations.map(item => <li key={item.id}><strong>{label(item.id.split(':')[0])}{item.id.includes(':') ? ` · ${item.id.split(':').slice(1).join(':')}` : ''}</strong><span>{item.detail}</span></li>)}</ol>
       </StudioPanel>
+      {view.status === 'impact_ready' && selected && <StudioPanel title="Commercial impact" description="Rate-free: hours, window and open points from the price canon.">
+        <ProjectCommercialImpact key={`${selected.decision_ref}:${selected.option_ref}`} projectId={projectId} revisionHash={revisionHash} decisionRef={selected.decision_ref} optionRef={selected.option_ref} />
+      </StudioPanel>}
       <details className={styles.details}><summary>Limitations</summary><ul className={styles.list}>{view.limitations.map(item => <li key={item}>{item}</li>)}</ul></details>
     </>}
   </section>;

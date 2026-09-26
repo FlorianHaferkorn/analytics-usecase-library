@@ -24,6 +24,7 @@ export const GOVERNED_FILES = new Set([
   'src/components/project/project-decision-review.module.css',
   'src/components/project/project-alternative-impact.tsx',
   'src/components/project/project-alternative-impact.module.css',
+  'src/components/project/project-commercial-impact.tsx',
   'src/components/project/project-automation.tsx',
   'src/components/project/project-deployment.tsx',
   'src/components/project/project-automation.module.css',

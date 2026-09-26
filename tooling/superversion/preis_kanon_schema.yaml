@@ -20,7 +20,7 @@
 # steht als Prozentwert am Paket und verteilt die Paketstunden auf die Satzklassen.
 
 _schema: preis_kanon/mandant/v1
-_werte: "keine — Platzhalter <...>; die Werte kommen aus $PREIS_KANON_MANDANTEN_DIR/nagarro.yaml"
+_werte: "keine — Platzhalter <...>; die Werte kommen aus $PREIS_KANON_MANDANTEN_DIR/preis_kanon.yaml"
 _gate: "tooling/superversion/tests/test_preis_kanon_mandant.py (N-4): kein Satz als Zahl in dieser Datei"
 
 mandanten:
