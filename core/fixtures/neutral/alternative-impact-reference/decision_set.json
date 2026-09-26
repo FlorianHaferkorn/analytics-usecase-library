@@ -1,0 +1,83 @@
+{
+  "schema_version": "2.0.0",
+  "definitions": [
+    {
+      "id": "definition_environment",
+      "source": {
+        "adapter": "engagement_ledger_package_1_0",
+        "raw_id": "ALT-ENV",
+        "source_ref": "synthetic://alternative_impact_reference/brief.md",
+        "source_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "title": "Environment isolation",
+      "question": {
+        "technical_text": "Which isolated environments should the synthetic manufacturer platform contain?"
+      },
+      "recommendation": {
+        "text": "DEV, TEST and PROD",
+        "basis": "Separate acceptance lane for sales and finance releases in the synthetic reference.",
+        "confidence_raw": "high",
+        "confidence": "high"
+      },
+      "options": [
+        {
+          "id": "dev_test_prod",
+          "label": "DEV / TEST / PROD",
+          "kind": "proposal"
+        },
+        {
+          "id": "dev_prod",
+          "label": "DEV / PROD",
+          "kind": "alternative"
+        }
+      ],
+      "option_details": [],
+      "decider": {
+        "text": "Synthetic fixture actor",
+        "role_ref": null
+      },
+      "consequence_if_unresolved": "Do not derive or release the synthetic reference.",
+      "resolution_method": {
+        "where_to_look": "Versioned synthetic brief",
+        "who_knows": "Fixture maintainer",
+        "if_unclear": "Block"
+      },
+      "customer_copy": {
+        "question": "Is a separate acceptance environment needed?",
+        "consequence": "Additional isolation and an extra promotion stage.",
+        "why": "Separate acceptance checks from development."
+      },
+      "due": {
+        "raw": "Before reference compilation",
+        "gate": "before_build"
+      },
+      "placeholder_refs": []
+    }
+  ],
+  "instances": [
+    {
+      "id": "decision_environment_model",
+      "definition_ref": "definition_environment",
+      "scope_refs": [],
+      "revision": 1,
+      "initialization": "imported",
+      "selection": {
+        "state": "confirmed",
+        "option_ref": "dev_test_prod",
+        "custom_value": null
+      },
+      "approval": {
+        "state": "approved",
+        "proposed_by": "synthetic_fixture",
+        "decided_by": "synthetic_fixture",
+        "rationale": "Accepted synthetic baseline for the reference; no real customer approval."
+      },
+      "readiness": {
+        "state": "ready_for_decision"
+      },
+      "delivery": {
+        "state": "not_compiled"
+      }
+    }
+  ]
+}

@@ -88,6 +88,12 @@ This is one bounded WB-008 slice, not WB-008 completion. It does not create miss
 
 References: [Product workbench plan](../../../docs/architecture/research/discovery-to-deployment-workbench.md), [Project authority](PROJECT_AUTHORITY_AND_VIEWS.md), [Discovery transfer](DISCOVERY_PACKAGE_TRANSFER.md), [Architecture compilation](PROJECT_ARCHITECTURE_COMPILATION.md), [Input release](PROJECT_INPUT_RELEASE.md).
 
+### Alternative impact increment
+
+A draft alternative can now be compared against the released baseline without changing it. The engine evaluates the authored decision rules with the alternative selected, reports architecture, plan, role demand, effort, topology, manifest and test deltas plus the obligations before a release, and verifies that repository history, HEAD and release records are byte-identical afterwards. The reference is a synthetic, customer-neutral manufacturer package (sales and finance, SAP S/4HANA declared as source by table label only) with an accepted DEV / TEST / PROD baseline and a DEV / PROD alternative.
+
+This closes the WB-008 proof at engine level. The Studio comparison view is not built yet; named staffing and commercials remain WB-009; tenant behavior remains a separate, isolated test-tenant proof. Details: [Alternative impact](PROJECT_ALTERNATIVE_IMPACT.md).
+
 ## Reviewed decisions and protected execution increment — 8 September
 
 **Definition of done for this increment:** an explicit approved decision can be reviewed as a deterministic before/after change, transferred to an auditable Working revision, displayed in the selected architecture and prevented from bypassing a fresh release. Execution intent can be stored and consumed safely by a protected host library without enabling a live tenant connection.

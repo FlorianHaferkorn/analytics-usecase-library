@@ -1,0 +1,622 @@
+{
+  "schema_version": "2.0.0",
+  "project_ref": "alternative_impact_reference",
+  "use_cases": [
+    {
+      "id": "uc_order_to_cash",
+      "title": "Order to cash (synthetic SAP SD)",
+      "domain_ref": "domain_sales",
+      "delivery_state": "contract_pending",
+      "business_scope_ref": "synthetic://alternative_impact_reference/brief.md",
+      "decision_refs": [
+        "decision_environment_model"
+      ],
+      "reference_reports": [],
+      "source_contract": {
+        "canonical": [
+          {
+            "id": "source_vbak",
+            "source_system": "sap_s4hana_synthetic",
+            "source_object": "VBAK",
+            "purpose": "Sales document header",
+            "availability": "extract",
+            "required_for": [
+              "bronze_order_to_cash"
+            ],
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          },
+          {
+            "id": "source_vbap",
+            "source_system": "sap_s4hana_synthetic",
+            "source_object": "VBAP",
+            "purpose": "Sales document item",
+            "availability": "extract",
+            "required_for": [
+              "bronze_order_to_cash"
+            ],
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          },
+          {
+            "id": "source_likp",
+            "source_system": "sap_s4hana_synthetic",
+            "source_object": "LIKP",
+            "purpose": "Delivery header",
+            "availability": "extract",
+            "required_for": [
+              "bronze_order_to_cash"
+            ],
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          },
+          {
+            "id": "source_lips",
+            "source_system": "sap_s4hana_synthetic",
+            "source_object": "LIPS",
+            "purpose": "Delivery item",
+            "availability": "extract",
+            "required_for": [
+              "bronze_order_to_cash"
+            ],
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          },
+          {
+            "id": "source_vbrk",
+            "source_system": "sap_s4hana_synthetic",
+            "source_object": "VBRK",
+            "purpose": "Billing document header",
+            "availability": "extract",
+            "required_for": [
+              "bronze_order_to_cash"
+            ],
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          },
+          {
+            "id": "source_vbrp",
+            "source_system": "sap_s4hana_synthetic",
+            "source_object": "VBRP",
+            "purpose": "Billing document item",
+            "availability": "extract",
+            "required_for": [
+              "bronze_order_to_cash"
+            ],
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          }
+        ],
+        "fallback": [],
+        "excluded": []
+      },
+      "data_products": [
+        {
+          "id": "bronze_order_to_cash",
+          "layer": "bronze",
+          "name": "bronze_order_to_cash",
+          "grain": "one source row per extracted SAP record",
+          "business_keys": [
+            "billing_document",
+            "billing_item"
+          ],
+          "source_refs": [
+            "source_vbak",
+            "source_vbap",
+            "source_likp",
+            "source_lips",
+            "source_vbrk",
+            "source_vbrp"
+          ],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        },
+        {
+          "id": "gold_uc_order_to_cash",
+          "layer": "gold",
+          "name": "fact_billing_item",
+          "grain": "one billing document item",
+          "business_keys": [
+            "billing_document",
+            "billing_item"
+          ],
+          "source_refs": [],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        },
+        {
+          "id": "semantic_uc_order_to_cash",
+          "layer": "semantic",
+          "name": "sm_order_to_cash",
+          "grain": "one billing document item",
+          "business_keys": [
+            "billing_document",
+            "billing_item"
+          ],
+          "source_refs": [
+            "gold_uc_order_to_cash"
+          ],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        },
+        {
+          "id": "report_uc_order_to_cash",
+          "layer": "report",
+          "name": "rpt_order_to_cash",
+          "grain": "one billing document item",
+          "business_keys": [],
+          "source_refs": [
+            "semantic_uc_order_to_cash"
+          ],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        }
+      ],
+      "analytical_design": {
+        "reuse_scope": {
+          "target": "use_case",
+          "rationale": "Bounded synthetic reference per domain."
+        },
+        "key_contract": {
+          "contract_ref": "synthetic://alternative_impact_reference/keys",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        },
+        "relationship_assessments": [
+          {
+            "id": "relationship_uc_order_to_cash",
+            "subject_refs": [
+              "gold_uc_order_to_cash",
+              "semantic_uc_order_to_cash"
+            ],
+            "business_cardinality": "one_to_one",
+            "time_behavior": "current",
+            "carries_weight": false,
+            "bridge_decision": "not_required",
+            "fact_filter_strategy": "direct_foreign_key",
+            "double_counting_control": "One row per declared gold grain.",
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          }
+        ],
+        "glossary": {
+          "business_metric_catalog_ref": "synthetic://alternative_impact_reference/brief.md",
+          "measure_dictionary_ref": "synthetic://alternative_impact_reference/measures",
+          "technical_data_dictionary_ref": "synthetic://alternative_impact_reference/data_dictionary",
+          "definition_authority": "business_metric_catalog",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        },
+        "status": {
+          "state": "proposed",
+          "evidence_refs": [
+            "synthetic://alternative_impact_reference/brief.md"
+          ],
+          "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+        }
+      },
+      "transformations": [
+        {
+          "id": "transform_uc_order_to_cash",
+          "from_layer": "bronze",
+          "to_layer": "gold",
+          "input_refs": [
+            "bronze_order_to_cash"
+          ],
+          "output_refs": [
+            "gold_uc_order_to_cash"
+          ],
+          "logic": "Join billing items to their billing header, delivery and sales order references; keep one row per billing item.",
+          "implementation": "external",
+          "quality_rules": [
+            "unique billing_document and billing_item",
+            "every billing item has a billing header"
+          ],
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        }
+      ],
+      "orchestration": {
+        "trigger": "Explicit local reference run",
+        "cadence": "On demand",
+        "incremental_strategy": "Not simulated; contract-level reference only.",
+        "steps": [
+          {
+            "sequence": 1,
+            "id": "load_uc_order_to_cash",
+            "name": "Load synthetic SAP extract",
+            "implementation": "Not executed locally",
+            "success_condition": "Declared quality rules pass",
+            "failure_action": "Stop the run",
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          }
+        ]
+      },
+      "controls": [],
+      "acceptance": {
+        "snapshot_rule": "Versioned synthetic reference revision",
+        "regression_scope": [
+          "architecture",
+          "plan",
+          "manifests",
+          "tests"
+        ],
+        "evidence_required": [
+          "Alternative impact report with hashes"
+        ],
+        "status": {
+          "state": "proposed",
+          "evidence_refs": [
+            "synthetic://alternative_impact_reference/brief.md"
+          ],
+          "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+        }
+      },
+      "open_gates": []
+    },
+    {
+      "id": "uc_general_ledger",
+      "title": "General ledger (synthetic SAP FI)",
+      "domain_ref": "domain_finance",
+      "delivery_state": "contract_pending",
+      "business_scope_ref": "synthetic://alternative_impact_reference/brief.md",
+      "decision_refs": [
+        "decision_environment_model"
+      ],
+      "reference_reports": [],
+      "source_contract": {
+        "canonical": [
+          {
+            "id": "source_acdoca",
+            "source_system": "sap_s4hana_synthetic",
+            "source_object": "ACDOCA",
+            "purpose": "Universal journal line item",
+            "availability": "extract",
+            "required_for": [
+              "bronze_general_ledger"
+            ],
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          },
+          {
+            "id": "source_bkpf",
+            "source_system": "sap_s4hana_synthetic",
+            "source_object": "BKPF",
+            "purpose": "Accounting document header",
+            "availability": "extract",
+            "required_for": [
+              "bronze_general_ledger"
+            ],
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          },
+          {
+            "id": "source_ska1",
+            "source_system": "sap_s4hana_synthetic",
+            "source_object": "SKA1",
+            "purpose": "G/L account master",
+            "availability": "extract",
+            "required_for": [
+              "bronze_general_ledger"
+            ],
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          }
+        ],
+        "fallback": [],
+        "excluded": []
+      },
+      "data_products": [
+        {
+          "id": "bronze_general_ledger",
+          "layer": "bronze",
+          "name": "bronze_general_ledger",
+          "grain": "one source row per extracted SAP record",
+          "business_keys": [
+            "company_code",
+            "fiscal_year",
+            "document_number",
+            "line_item"
+          ],
+          "source_refs": [
+            "source_acdoca",
+            "source_bkpf",
+            "source_ska1"
+          ],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        },
+        {
+          "id": "gold_uc_general_ledger",
+          "layer": "gold",
+          "name": "fact_journal_line",
+          "grain": "one journal line item",
+          "business_keys": [
+            "company_code",
+            "fiscal_year",
+            "document_number",
+            "line_item"
+          ],
+          "source_refs": [],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        },
+        {
+          "id": "semantic_uc_general_ledger",
+          "layer": "semantic",
+          "name": "sm_general_ledger",
+          "grain": "one journal line item",
+          "business_keys": [
+            "company_code",
+            "fiscal_year",
+            "document_number",
+            "line_item"
+          ],
+          "source_refs": [
+            "gold_uc_general_ledger"
+          ],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        },
+        {
+          "id": "report_uc_general_ledger",
+          "layer": "report",
+          "name": "rpt_general_ledger",
+          "grain": "one journal line item",
+          "business_keys": [],
+          "source_refs": [
+            "semantic_uc_general_ledger"
+          ],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        }
+      ],
+      "analytical_design": {
+        "reuse_scope": {
+          "target": "use_case",
+          "rationale": "Bounded synthetic reference per domain."
+        },
+        "key_contract": {
+          "contract_ref": "synthetic://alternative_impact_reference/keys",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        },
+        "relationship_assessments": [
+          {
+            "id": "relationship_uc_general_ledger",
+            "subject_refs": [
+              "gold_uc_general_ledger",
+              "semantic_uc_general_ledger"
+            ],
+            "business_cardinality": "one_to_one",
+            "time_behavior": "current",
+            "carries_weight": false,
+            "bridge_decision": "not_required",
+            "fact_filter_strategy": "direct_foreign_key",
+            "double_counting_control": "One row per declared gold grain.",
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          }
+        ],
+        "glossary": {
+          "business_metric_catalog_ref": "synthetic://alternative_impact_reference/brief.md",
+          "measure_dictionary_ref": "synthetic://alternative_impact_reference/measures",
+          "technical_data_dictionary_ref": "synthetic://alternative_impact_reference/data_dictionary",
+          "definition_authority": "business_metric_catalog",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        },
+        "status": {
+          "state": "proposed",
+          "evidence_refs": [
+            "synthetic://alternative_impact_reference/brief.md"
+          ],
+          "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+        }
+      },
+      "transformations": [
+        {
+          "id": "transform_uc_general_ledger",
+          "from_layer": "bronze",
+          "to_layer": "gold",
+          "input_refs": [
+            "bronze_general_ledger"
+          ],
+          "output_refs": [
+            "gold_uc_general_ledger"
+          ],
+          "logic": "Validate the journal line key, join account master data and keep one row per journal line.",
+          "implementation": "external",
+          "quality_rules": [
+            "unique journal line key",
+            "debits equal credits per document"
+          ],
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://alternative_impact_reference/brief.md"
+            ],
+            "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+          }
+        }
+      ],
+      "orchestration": {
+        "trigger": "Explicit local reference run",
+        "cadence": "On demand",
+        "incremental_strategy": "Not simulated; contract-level reference only.",
+        "steps": [
+          {
+            "sequence": 1,
+            "id": "load_uc_general_ledger",
+            "name": "Load synthetic SAP extract",
+            "implementation": "Not executed locally",
+            "success_condition": "Declared quality rules pass",
+            "failure_action": "Stop the run",
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://alternative_impact_reference/brief.md"
+              ],
+              "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+            }
+          }
+        ]
+      },
+      "controls": [],
+      "acceptance": {
+        "snapshot_rule": "Versioned synthetic reference revision",
+        "regression_scope": [
+          "architecture",
+          "plan",
+          "manifests",
+          "tests"
+        ],
+        "evidence_required": [
+          "Alternative impact report with hashes"
+        ],
+        "status": {
+          "state": "proposed",
+          "evidence_refs": [
+            "synthetic://alternative_impact_reference/brief.md"
+          ],
+          "note": "Synthetic, customer-neutral reference only; not customer approval, SAP system evidence or tenant evidence."
+        }
+      },
+      "open_gates": []
+    }
+  ]
+}
