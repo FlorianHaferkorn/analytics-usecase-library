@@ -27,6 +27,11 @@ function chromiumExecutable(): string | undefined {
   return existsSync(symlink) ? symlink : undefined;
 }
 
+const requestedPort = process.env.STUDIO_E2E_PORT || '3000';
+if (!/^\d{4,5}$/.test(requestedPort) || Number(requestedPort) < 1024 || Number(requestedPort) > 65535) {
+  throw new Error('STUDIO_E2E_PORT must be a valid non-privileged TCP port');
+}
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -36,7 +41,7 @@ export default defineConfig({
   reporter: 'html',
 
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: `http://localhost:${requestedPort}`,
     screenshot: 'only-on-failure',
     trace: 'on-first-retry',
     launchOptions: { executablePath: chromiumExecutable() },
@@ -47,8 +52,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'node scripts/reset-studio-db.mjs && npm run dev',
-    url: 'http://localhost:3000',
+    command: `node scripts/reset-studio-db.mjs && npm run dev -- -p ${requestedPort}`,
+    url: `http://localhost:${requestedPort}`,
     env: {
       ...process.env,
       STUDIO_DB_PATH: join(process.cwd(), '.e2e', 'studio.db'),

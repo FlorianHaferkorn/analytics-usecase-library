@@ -80,6 +80,12 @@ These are implementation tests, not customer acceptance, actual tenant permissio
 4. Connect commercial authority and staffing availability, implement dependency-aware planning and generated offer/delivery documents without leaking private rates into customer exports.
 5. Prove one complete approved project from reviewed evidence through deployment, data/security tests, acceptance and drift detection before claiming end-to-end automation. Framework completeness across arbitrary tools and requirements is not established by this implementation.
 
+### Decision-to-plan impact increment
+
+An approved environment-stage mapping now requires explicit effects on plan role demand, effort with provenance, and a task Definition of Done. Studio previews architecture and plan changes together; a reviewer commits both in one Working revision. Input release rejects missing, stale or unapplied effects, including when an old release attestation exists. Generated architecture outputs include a revision-bound, hash-checked static decision-impact record. This prevents a three-stage architecture choice from silently retaining a two-stage delivery plan.
+
+This is one bounded WB-008 slice, not WB-008 completion. It does not create missing TEST workspaces/items, assign available people, calculate private rates or duration, execute deployment, or verify tenant tests. The neutral fixture demonstrates the contract; no customer baseline was edited. Remaining WB-008 acceptance requires a released synthetic, customer-neutral reference fixture and explicit topology, manifest, and execution-test obligations across the selected tools. WB-008 is closed without a customer tenant and without customer data; Fabric runtime behavior is proven separately in an isolated test tenant with synthetic data and its own identities.
+
 References: [Product workbench plan](../../../docs/architecture/research/discovery-to-deployment-workbench.md), [Project authority](PROJECT_AUTHORITY_AND_VIEWS.md), [Discovery transfer](DISCOVERY_PACKAGE_TRANSFER.md), [Architecture compilation](PROJECT_ARCHITECTURE_COMPILATION.md), [Input release](PROJECT_INPUT_RELEASE.md).
 
 ## Reviewed decisions and protected execution increment — 8 September

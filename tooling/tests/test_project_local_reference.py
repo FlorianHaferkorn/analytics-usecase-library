@@ -64,6 +64,10 @@ def test_explicit_variant_derives_architecture_and_declared_targets(completed):
     assert decision["before_revision_hash"] != decision["derived_revision_hash"] != decision["revision_hash"]
     assert decision["preview"]["changes"][0]["before"] == ["dev"]
     assert decision["preview"]["changes"][0]["after"] == local.VARIANTS[report["variant"]]
+    assert {change["target"]["field"] for change in decision["preview"]["changes"][1:]} == {"effort", "definition_of_done"} | ({"role_refs"} if report["variant"] == "dev_test_prod" else set())
+    impact = json.loads(next(row["content"] for row in report["files"] if row["path"].endswith("delivery/decision-impact-checks.json")))
+    assert impact["revision_hash"] == report["revision_hash"]
+    assert {check["target"]["field"] for check in impact["checks"][0]["plan_contract_checks"]} == {"role_refs", "effort", "definition_of_done"}
     workspace_nodes = [node for node in report["graph"]["nodes"] if node["kind"] == "workspace"]
     assert sorted(node["details"]["environment"] for node in workspace_nodes) == sorted(local.VARIANTS[report["variant"]])
     native_nodes = [node for node in report["graph"]["nodes"] if node["kind"] == "native_item"]

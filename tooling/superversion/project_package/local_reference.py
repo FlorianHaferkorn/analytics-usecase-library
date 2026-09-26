@@ -68,8 +68,21 @@ def _targets(environments):
     return workspaces, items
 
 
+def _plan():
+    return {"schema_version": "2.0.0", "dependencies": [],
+            "work_packages": [{"id": "wp_environment", "title": "Synthetic environment delivery", "status": "planned",
+                               "decision_refs": ["decision_environment_model"], "role_refs": ["fabric_engineer"],
+                               "effort": {"value": 1, "unit": "person_days", "provenance": "assumption"}}],
+            "tasks": [{"id": "task_environment_acceptance", "title": "Validate selected environment lanes",
+                       "work_package_ref": "wp_environment", "status": "todo", "priority": "high", "owner_ref": "fabric_engineer",
+                       "target_gate": "before_build", "decision_refs": ["decision_environment_model"],
+                       "definition_of_done": ["DEV lane checked"], "evidence_refs": []}]}
+
+
 def _architecture(variant):
     selected_workspaces, selected_items = _targets(VARIANTS[variant])
+    role_demand = ["fabric_engineer", "test_lead"] if variant == "dev_test_prod" else ["fabric_engineer"]
+    selected_effort = 3 if variant == "dev_test_prod" else 2
     value = {"schema_version": "2.0.0", "stack": "fabric", "reference_date": "2026-09-08", "tenant": "Synthetic tenant (not connected)", "region": "West Europe",
              "ledger_ref": "synthetic://local_reference/decision_set.json", "model_ref": "synthetic://local_reference/architecture", "blueprint_ref": "synthetic://local_reference/outputs", "mapping_ref": "synthetic://local_reference/bindings",
              "domains": [{"id": "domain_local", "key": "local", "capacity": "fbsynthetic01", "delivery_scope": "detailed", "use_case_refs": ["uc_local_sales"]}],
@@ -79,7 +92,17 @@ def _architecture(variant):
              "physical_workspaces": selected_workspaces, "physical_items": selected_items,
              "decision_rules": [{"id": "environment_lanes", "decision_ref": "decision_environment_model", "decision_revision": 1, "option_ref": variant,
                  "target": {"collection": "environments", "entity_id": None, "field": "recommended"}, "expected_value": ["dev"], "value": VARIANTS[variant],
-                 "rationale": "Apply the explicit synthetic choice to the supported environment lanes; fixture targets are declared for that same choice."}]}
+                 "rationale": "Apply the explicit synthetic choice to the supported environment lanes; fixture targets are declared for that same choice.",
+                 "plan_effects": [
+                     {"target": {"collection": "plan_work_packages", "entity_id": "wp_environment", "field": "role_refs"},
+                      "expected_value": ["fabric_engineer"], "value": role_demand},
+                     {"target": {"collection": "plan_work_packages", "entity_id": "wp_environment", "field": "effort"},
+                      "expected_value": {"value": 1, "unit": "person_days", "provenance": "assumption"},
+                      "value": {"value": selected_effort, "unit": "person_days", "provenance": "assumption"}},
+                     {"target": {"collection": "plan_tasks", "entity_id": "task_environment_acceptance", "field": "definition_of_done"},
+                      "expected_value": ["DEV lane checked"],
+                      "value": [" / ".join(stage.upper() for stage in VARIANTS[variant]) + " lanes checked"]},
+                 ]}]}
     return value
 
 
@@ -102,7 +125,7 @@ def _build_repository(root, schemas, variant):
     decision = json.loads((FIXTURE / "decision_set.json").read_text(encoding="utf-8"))
     decision["definitions"][0]["source"]["source_hash"] = hashlib.sha256((FIXTURE / "brief.md").read_bytes()).hexdigest()
     decision["instances"][0]["selection"]["option_ref"] = variant
-    for kind, document in (("decision_set", decision), ("architecture_input", _architecture(variant)),
+    for kind, document in (("decision_set", decision), ("plan", _plan()), ("architecture_input", _architecture(variant)),
                            ("use_case_delivery", json.loads((FIXTURE / "use_case_delivery.json").read_text(encoding="utf-8")))):
         _module(package, manifest, kind, document)
         next(row for row in manifest["modules"] if row["module_type"] == kind)["schema_id"] = json.loads((schemas / f"project_{kind}.schema.json").read_text(encoding="utf-8"))["$id"]

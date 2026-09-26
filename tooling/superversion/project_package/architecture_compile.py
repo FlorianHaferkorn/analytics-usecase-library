@@ -180,12 +180,37 @@ def build_architecture_output(repository: ProjectPackageRevisionRepository, proj
         raise ValueError("Unsupported project architecture target")
     released = release_input(repository, project_ref, revision)
     compiler = released["compiler_input"]
+    from .decision_derivation import compile_derivation
+
+    review = compile_derivation(compiler, revision, repository.schema_root)
+    decision_impacts = []
+    for evaluated in review["rules"]:
+        if evaluated["status"] != "unchanged":
+            continue  # A selected, unresolved rule cannot cross the release gate.
+        authored = next(rule for rule in compiler["modules"]["architecture_input"]["decision_rules"] if rule["id"] == evaluated["id"])
+        if not authored.get("plan_effects"):
+            continue
+        decision_impacts.append({
+            "decision_ref": authored["decision_ref"], "decision_revision": authored["decision_revision"],
+            "rule_id": authored["id"], "review_state": "reflected_in_released_input",
+            "architecture_target": authored["target"],
+            "plan_contract_checks": [{"target": effect["target"], "expected_value_sha256": canonical_sha256(effect["value"]),
+                                      "result": "passed_in_released_input"} for effect in authored["plan_effects"]],
+            "derivation_approves_named_staffing_or_cost": False,
+            "test_scope": "static_package_contract_only_not_tenant_or_customer_acceptance",
+        })
     view = compile_architecture(compiler, revision)
     view["readiness"]["release_ready"] = True
     selected = next(item for item in view["outputs"] if item["id"] == target)
     if selected["status"] != "ready":
         raise ValueError("Target blocked: " + selected["reason"])
     files = {"architecture.json": _json(view)}
+    if decision_impacts:
+        files["delivery/decision-impact-checks.json"] = _json({
+            "schema_version": VERSION, "project_ref": project_ref, "revision_hash": revision,
+            "compiler_input_sha256": view["compiler_input_sha256"],
+            "checks": sorted(decision_impacts, key=lambda item: item["rule_id"]),
+        })
     if target == "architecture_bundle":
         delivery = compiler["modules"].get("use_case_delivery")
         if delivery:
@@ -205,6 +230,7 @@ def build_architecture_output(repository: ProjectPackageRevisionRepository, proj
             "unimplemented": ["No executor, retry/LRO handler or idempotent reconciliation is included", "No item definitions, data, security, identity, CI/CD or acceptance tests"]})
     manifest = {"schema_version": VERSION, "project_ref": project_ref, "revision_hash": revision, "target": target,
                 "release_record_sha256": released["release"]["record_sha256"], "compiler_input_sha256": view["compiler_input_sha256"],
+                "decision_impact_rule_ids": sorted(item["rule_id"] for item in decision_impacts),
                 "apply_ready": False, "files": [{"path": path, "sha256": hashlib.sha256(content.encode()).hexdigest()}
                                                for path, content in sorted(files.items())]}
     files["output-manifest.json"] = _json(manifest)
