@@ -17,6 +17,8 @@ export interface RunnerStatus {
   can_execute: boolean;
   identity_broker_available: boolean;
   environments: string[];
+  actor?: string;
+  independent_execution_environments?: string[];
   limitations: string[];
   checks?: RunnerCheck[];
   checked_at?: string;
@@ -29,6 +31,7 @@ export interface RunnerApproval {
   revision_hash: string;
   plan_sha256: string;
   expires_at: string;
+  approved_by?: string;
   status?: 'approved_not_executed';
 }
 export interface RunnerResult {

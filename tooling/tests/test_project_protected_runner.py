@@ -63,6 +63,39 @@ def test_policy_requires_explicit_immutable_authority(kwargs):
         RunnerPolicy(**kwargs)
 
 
+def test_team_policy_requires_a_second_operator_for_same_approval(tmp_path, released):
+    second_actor = "reviewer@example.test"
+    policy = replace(POLICY, executors=frozenset({ACTOR, second_actor}),
+        independent_execution_environments=frozenset({"dev"}))
+    client = FakeClient()
+    host = ProtectedWorkspaceRunner(None, state_dir=tmp_path / "private-runner", policy=policy,
+        signing_key=KEY, client_factory=lambda scope: client, clock=lambda: NOW)
+    receipt = approve(host)
+
+    with pytest.raises(ValueError, match="independent operator"):
+        execute(host, receipt)
+    assert not (host.state_dir / "consumed").exists()
+    assert client.observations == 0
+
+    result = execute(host, receipt, actor=second_actor)
+    assert result["outcome"]["status"] == "workspace_verified"
+    assert result["actor"] == second_actor
+    assert receipt["approved_by"] == ACTOR
+    assert host.read_outcome(receipt["approval_id"], actor=second_actor,
+        project_ref="project_demo", revision_hash="a" * 64)["receipt"]["approved_by"] == ACTOR
+
+
+@pytest.mark.parametrize("value", [set(["dev"]), frozenset({"unknown"}), frozenset({1})])
+def test_team_separation_policy_must_be_explicit_and_valid(value):
+    with pytest.raises(ValueError, match="environments"):
+        replace(POLICY, independent_execution_environments=value)
+
+
+def test_team_separation_requires_two_distinct_configured_operators():
+    with pytest.raises(ValueError, match="two distinct operators"):
+        replace(POLICY, independent_execution_environments=frozenset({"prod"}))
+
+
 def test_no_key_no_short_key(tmp_path):
     with pytest.raises(ValueError, match="signing key"):
         ProtectedWorkspaceRunner(None, state_dir=tmp_path, policy=POLICY)
@@ -165,6 +198,15 @@ def test_policy_or_key_rotation_invalidates_previous_approval(tmp_path, released
         execute(host, receipt)
     host.policy, host.key = POLICY, b"other-test-signing-key-000000000000000000"
     with pytest.raises(ValueError, match="integrity"):
+        execute(host, receipt)
+
+
+def test_team_separation_change_invalidates_pending_approval(tmp_path, released):
+    host = runner(tmp_path, FakeClient())
+    receipt = approve(host)
+    host.policy = replace(POLICY, executors=frozenset({ACTOR, "second@example.test"}),
+        independent_execution_environments=frozenset({"dev"}))
+    with pytest.raises(ValueError, match="policy changed"):
         execute(host, receipt)
 
 

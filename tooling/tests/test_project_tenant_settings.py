@@ -100,6 +100,19 @@ def test_wif_status_checks_reference_only_and_never_reads_path_or_assertion(tmp_
     assert ASSERTION_REF not in json.dumps(result)
 
 
+def test_team_policy_schema_retains_wif_and_tenant_setting_contract(tmp_path, monkeypatch):
+    repository, environment, path, _ = load(tmp_path, monkeypatch)
+    document = json.loads(path.read_text(encoding="utf-8"))
+    document["schema_version"] = "1.2.0"
+    document["executors"].append("github:654321")
+    document["independent_execution_environments"] = ["dev", "prod"]
+    path.write_text(json.dumps(document), encoding="utf-8")
+    configuration = rh.load_configuration(repository, environment)
+    assert configuration.policy.independent_execution_environments == frozenset({"dev", "prod"})
+    assert configuration.identities[0]["identity"]["kind"] == "workload_identity_federation"
+    assert configuration.identities[0]["tenant_settings"] is not None
+
+
 def test_wif_assertion_file_is_read_by_sdk_callback_only(tmp_path, monkeypatch):
     repository, environment, _, assertion_path = load(tmp_path, monkeypatch)
     configuration = rh.load_configuration(repository, environment)

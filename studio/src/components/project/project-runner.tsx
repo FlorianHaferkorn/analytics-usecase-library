@@ -74,11 +74,14 @@ export function ProjectRunner({ projectId, revision, plan, children }: { project
 
   const matches = Boolean(approval && plan && approval.plan_sha256 === plan.plan_sha256 && approval.project_ref === projectId && approval.revision_hash === revision);
   const expired = Boolean(approval && (!Number.isFinite(Date.parse(approval.expires_at)) || Date.parse(approval.expires_at) <= now));
+  const independentExecution = Boolean(plan && status?.independent_execution_environments?.includes(plan.environment));
+  const sameOperator = Boolean(independentExecution && approval && status?.actor && approval.approved_by === status.actor);
+  const independentExecutorReady = !independentExecution || Boolean(approval?.approved_by && status?.actor && !sameOperator);
   // Approval and execution have separate actor allowlists. A missing permission
   // for the other role must not override the server's action-specific decision.
   const prerequisitesMet = !checking;
   const canApprove = prerequisitesMet && status?.enabled && status.can_approve && plan?.workspace_apply_ready && plan.principal_id && confirmed && rationale.trim().length >= 20 && !busy;
-  const canExecute = prerequisitesMet && status?.enabled && status.can_execute && status.identity_broker_available && matches && !expired && !attempted && executeConfirmed && !busy;
+  const canExecute = prerequisitesMet && status?.enabled && status.can_execute && status.identity_broker_available && matches && !expired && !attempted && independentExecutorReady && executeConfirmed && !busy;
 
   async function approve() {
     if (!canApprove || !current()) return;
@@ -141,6 +144,7 @@ export function ProjectRunner({ projectId, revision, plan, children }: { project
     </>}
     {approval && <>
       <p className={styles.note}>Approval {approval.approval_id} · Expires {new Date(approval.expires_at).toLocaleString()} · {expired ? 'Expired' : 'Time-limited'}</p>
+      {independentExecution && <p className={styles.note}>This environment requires a different authorized operator to execute the approved plan.{sameOperator ? ' Your approval cannot be executed from this account.' : !independentExecutorReady ? ' The operator identities are not available for verification.' : ''}</p>}
       {!matches && <p className={styles.note}>Build and review the matching workspace plan before execution. Saved approval evidence alone does not enable execution.</p>}
       <div className={styles.actions}><StudioButton onClick={download}>Download approval and evidence</StudioButton></div>
       {matches && !attempted && <><label className={styles.confirm}><input type="checkbox" disabled={busy || expired} checked={executeConfirmed} onChange={event => setExecuteConfirmed(event.target.checked)} /> Create the listed workspaces in the approved tenant now. Partial failure can leave created resources; do not retry automatically.</label><div className={styles.actions}><StudioButton variant="primary" disabled={!canExecute} onClick={() => void execute()}>Execute approved workspace plan</StudioButton></div></>}
