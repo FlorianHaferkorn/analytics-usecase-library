@@ -128,8 +128,11 @@ Runner = Callable[[list[str], Path], tuple[int, str]]
 
 
 def subprocess_runner(argv: list[str], cwd: Path) -> tuple[int, str]:
-    r = subprocess.run(argv, cwd=cwd, capture_output=True, text=True, encoding="utf-8")
-    return r.returncode, (r.stdout + r.stderr)[-2000:]
+    # External tools on Windows may emit bytes in the active console code page.
+    # Preserve the step result and exit code even when that output is not UTF-8.
+    r = subprocess.run(argv, cwd=cwd, capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
+    return r.returncode, ((r.stdout or "") + (r.stderr or ""))[-2000:]
 
 
 def _bereitstellen(bericht: Path, modell: Path, ziel: Path) -> tuple[int, str]:
