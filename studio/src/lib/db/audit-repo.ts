@@ -24,9 +24,10 @@ export type AuditEntityType =
   | 'org_member'
   | 'project_member'
   | 'ai_egress'
-  | 'ai_policy_review';
+  | 'ai_policy_review'
+  | 'audit_retention';
 
-export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit' | 'deprecate' | 'reopen' | 'add_member' | 'remove_member' | 'update_business_role' | 'break_glass_override' | 'break_glass_revert' | 'allow' | 'block';
+export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit' | 'deprecate' | 'reopen' | 'add_member' | 'remove_member' | 'update_business_role' | 'break_glass_override' | 'break_glass_revert' | 'allow' | 'block' | 'expire';
 
 export interface AuditEvent {
   id: string;

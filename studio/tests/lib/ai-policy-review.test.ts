@@ -58,7 +58,8 @@ beforeEach(() => {
   db.exec(`CREATE TABLE ai_policy_reviews (
     id TEXT PRIMARY KEY, project_id TEXT NOT NULL, revision_hash TEXT NOT NULL, route_id TEXT NOT NULL,
     route_hash TEXT NOT NULL, decision_ref TEXT NOT NULL, status TEXT NOT NULL, submitted_by TEXT NOT NULL,
-    submitted_at TEXT NOT NULL DEFAULT (datetime('now')), reviewed_by TEXT, reviewed_at TEXT, rationale TEXT
+    submitted_at TEXT NOT NULL DEFAULT (datetime('now')), reviewed_by TEXT, reviewed_at TEXT, rationale TEXT,
+    route_expires_at TEXT
   )`);
 });
 
