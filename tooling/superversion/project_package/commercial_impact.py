@@ -27,7 +27,7 @@ VERSION = "1.0.0"
 TARGET = "proposal_assumptions"
 #: Keys that would carry money or rate content. The output is checked against them before
 #: it is returned, so a future change cannot leak a price by adding a field.
-FORBIDDEN_KEYS = re.compile(r"(kostensatz|verkaufssatz|satz_eur|preis|price|rate|marge|margin|risiko|risk|eur\b|_eur|festpreis|selbstkosten|cost_value)", re.I)
+FORBIDDEN_KEYS = re.compile(r"(^|_)(rate|rates|preis|price|prices|marge|margin|risiko|risk|eur|festpreis|selbstkosten|kostensatz|verkaufssatz|kostenband|satz)(_|$)|^cost_value$", re.I)
 
 
 def _derived(name: str, architecture: dict) -> float:
@@ -259,8 +259,11 @@ def main() -> int:
             value = {**value, "proposal_assumptions_markdown": render_proposal_assumptions(value, args.assumptions)}
         print(json.dumps({"ok": True, "value": value}, ensure_ascii=True))
         return 0
-    except (ValueError, OSError) as error:
+    except (ValueError, OSError, RuntimeError, KeyError) as error:
         print(json.dumps({"ok": False, "error": str(error), "status": 409}))
+        return 1
+    except Exception as error:  # noqa: BLE001 - the bridge needs JSON, never a bare traceback
+        print(json.dumps({"ok": False, "error": f"Comparison failed: {type(error).__name__}", "status": 500}))
         return 1
 
 

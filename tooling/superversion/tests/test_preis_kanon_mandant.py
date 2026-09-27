@@ -334,3 +334,10 @@ def test_vorlage_ueberschreibt_nichts_und_nie_im_repo(tmp_path):
         pkm.vorlage(tmp_path)
     with pytest.raises(ValueError, match="Repository"):
         pkm.vorlage(REPO_ROOT / ".local" / "tenant")
+
+
+def test_der_alte_dateiname_wird_benannt(tmp_path, monkeypatch):
+    (tmp_path / "nagarro.yaml").write_text("mandanten: {}\n", encoding="utf-8")
+    monkeypatch.setenv(pkm.ENV_DIR, str(tmp_path))
+    with pytest.raises(pkm.MandantenwerteFehlen, match="preis_kanon.yaml"):
+        pkm.lade_mandant()

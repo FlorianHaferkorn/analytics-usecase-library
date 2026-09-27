@@ -19,6 +19,12 @@ export async function GET(request: Request, {params}: Context) {
   if (runId && !HASH.test(runId)) return apiError(ErrorCode.VALIDATION_ERROR, 'Invalid run fingerprint', 422);
   const result = runId ? await projectAutomation<AutomationOutput>(projectId, revision, undefined, runId) : await projectAutomation(projectId, revision);
   if (!result.ok || !result.value) return packageRepositoryError(result);
+  // Canon hours and bands are internal planning data: same role as /architecture/commercial.
+  const runTargets = (result.value as {report?: {targets?: unknown}}).report?.targets;
+  if (runId && Array.isArray(runTargets) && runTargets.includes('proposal_assumptions')) {
+    const [, restricted] = await requireRole('editor', projectId);
+    if (restricted) return restricted;
+  }
   const response = apiSuccess(result.value);
   response.headers.set('Cache-Control', 'private, no-store');
   return response;

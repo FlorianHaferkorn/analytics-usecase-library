@@ -9,6 +9,16 @@ const post=(value:unknown)=>new Request('http://x/automation',{method:'POST',bod
 beforeEach(()=>{vi.clearAllMocks();fake.role.mockResolvedValue([{email:'operator@example.test'},null]);fake.run.mockResolvedValue({available:true,ok:true,value:{project_ref:'alpha',revision_hash:hash,generation_allowed:true}});fake.deploy.mockResolvedValue({available:true,ok:true,value:{plan_sha256:hash}});});
 
 describe('Project automation API',()=>{
+  it('returns a run with proposal assumptions to editors only',async()=>{
+    const {GET}=await import('@/app/api/projects/[projectId]/automation/route');
+    fake.run.mockResolvedValue({available:true,ok:true,value:{report:{targets:['proposal_assumptions']},files:[]}});
+    fake.role.mockResolvedValueOnce([{email:'viewer@example.test'},null]).mockResolvedValueOnce([null,new Response('denied',{status:403})]);
+    expect((await GET(new Request(`http://x/automation?revision=${hash}&run=${hash}`),context)).status).toBe(403);
+    expect(fake.role).toHaveBeenLastCalledWith('editor','alpha');
+    fake.run.mockResolvedValue({available:true,ok:true,value:{report:{targets:['architecture_bundle']},files:[]}});
+    fake.role.mockResolvedValue([{email:'viewer@example.test'},null]);
+    expect((await GET(new Request(`http://x/automation?revision=${hash}&run=${hash}`),context)).status).toBe(200);
+  });
   it('authorizes before any project access',async()=>{
     fake.role.mockResolvedValue([null,new Response('denied',{status:403})]);
     const {GET,POST}=await import('@/app/api/projects/[projectId]/automation/route');

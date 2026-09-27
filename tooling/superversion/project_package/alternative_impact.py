@@ -394,8 +394,11 @@ def main() -> int:
                                         payload["revision_hash"], payload["decision_ref"], payload["option_ref"])
         print(json.dumps({"ok": True, "value": value}, ensure_ascii=True))
         return 0
-    except (ValueError, OSError) as error:
+    except (ValueError, OSError, RuntimeError, KeyError) as error:
         print(json.dumps({"ok": False, "error": str(error), "status": 409}))
+        return 1
+    except Exception as error:  # noqa: BLE001 - the bridge needs JSON, never a bare traceback
+        print(json.dumps({"ok": False, "error": f"Comparison failed: {type(error).__name__}", "status": 500}))
         return 1
 
 

@@ -30,7 +30,7 @@ export interface CommercialImpact {
 }
 
 /** Same terms as the Python guard. A second check at the seam, not a replacement. */
-const FORBIDDEN = /(kostensatz|verkaufssatz|satz_eur|preis|price|rate|marge|margin|risiko|risk|eur\b|_eur|festpreis|selbstkosten|cost_value)/i;
+const FORBIDDEN = /(^|_)(rate|rates|preis|price|prices|marge|margin|risiko|risk|eur|festpreis|selbstkosten|kostensatz|verkaufssatz|kostenband|satz)(_|$)|^cost_value$/i;
 export function findRateField(value: unknown, path = ''): string | null {
   if (Array.isArray(value)) {
     for (const [index, item] of value.entries()) { const hit = findRateField(item, `${path}${index}.`); if (hit) return hit; }
