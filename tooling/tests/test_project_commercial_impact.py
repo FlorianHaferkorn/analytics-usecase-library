@@ -207,3 +207,24 @@ def test_proposal_document_refuses_without_canon_or_links(tmp_path, monkeypatch)
     plain, plain_revision = impact.build_reference_baseline(tmp_path / "plain", SCHEMAS)
     with pytest.raises(ValueError, match="No work package links"):
         commercial.build_proposal_output(plain, PROJECT, plain_revision)
+
+
+def test_guard_matches_whole_key_segments_only():
+    for fine in ({"generated_reports": 1}, {"migrated_tables": 1}, {"separate_models": 1}, {"berater": 1}, {"hours_by_canon_class": {}}):
+        commercial.assert_rate_free(fine)
+    for bad in ({"rate": 1}, {"day_rate": 1}, {"sell_price_eur": 1}, {"kostensatz_eur_h": 1}, {"margin": 0.2}, {"cost_value": 1}):
+        with pytest.raises(ValueError):
+            commercial.assert_rate_free(bad)
+
+
+def test_cli_turns_runtime_errors_into_json(monkeypatch, capsys):
+    import sys as _sys
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("Baseline repository changed during a read-only comparison")
+    monkeypatch.setattr(commercial, "compare_commercial", boom)
+    monkeypatch.setattr(_sys, "argv", ["x", "--repository", "r", "--schemas", "s"])
+    monkeypatch.setattr(_sys, "stdin", __import__("io").StringIO(json.dumps({"project_ref": "p", "revision_hash": "a" * 64, "decision_ref": "d", "option_ref": "o"})))
+    assert commercial.main() == 1
+    out = json.loads(capsys.readouterr().out)
+    assert out == {"ok": False, "error": "Baseline repository changed during a read-only comparison", "status": 409}

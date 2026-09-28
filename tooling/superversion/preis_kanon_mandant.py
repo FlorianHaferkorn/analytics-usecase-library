@@ -128,6 +128,11 @@ def lade_mandant(datei: Path | None = None) -> dict:
     """Der Mandantenblock `nagarro`. Wirft `MandantenwerteFehlen`, wenn nichts da ist."""
     f = datei or mandanten_datei()
     if f is None:
+        alt = mandanten_dir() / "nagarro.yaml" if mandanten_dir() else None
+        if alt is not None and alt.is_file():
+            raise MandantenwerteFehlen(
+                f"{alt} gefunden, erwartet wird {DATEINAME} (ADR-0020, 26.09.2026). "
+                f"Datei umbenennen; der Inhalt bleibt gleich.")
         raise MandantenwerteFehlen(MELDUNG_OHNE_WERTE)
     daten = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
     mandanten = daten.get("mandanten") or {}
