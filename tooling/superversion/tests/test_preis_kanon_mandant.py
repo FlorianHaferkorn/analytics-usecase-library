@@ -137,6 +137,8 @@ _MANDANT = {
                                        "kostenband": "C", "kostensatz_eur_h": 45,
                                        "status": "ANNAHME, ungeprueft", "herkunft": "Testwert"},
             },
+            "auslastung": {"fakturierbare_stunden_je_tag": 8, "fakturierbare_tage_je_woche": 4,
+                           "arbeitstage_je_woche": 5, "arbeitswochen_je_jahr": 44},
             "verfuegbarkeit": {
                 r: {"koepfe": 2, "fakturierbare_stunden_je_tag": 8,
                     "fakturierbare_tage_je_woche": 4, "arbeitstage_je_woche": 5,
@@ -341,3 +343,9 @@ def test_der_alte_dateiname_wird_benannt(tmp_path, monkeypatch):
     monkeypatch.setenv(pkm.ENV_DIR, str(tmp_path))
     with pytest.raises(pkm.MandantenwerteFehlen, match="preis_kanon.yaml"):
         pkm.lade_mandant()
+
+
+def test_ohne_auslastung_kein_preis(mandant):
+    """Gemessen 28.09.2026: ohne `auslastung` bricht `kalkulation()` des Kerns mit KeyError ab."""
+    del mandant["auslastung"]
+    assert any("auslastung" in b for b in pkm.pruefe_mandant(mandant))

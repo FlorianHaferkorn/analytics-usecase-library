@@ -218,6 +218,17 @@ def pruefe_mandant(m: dict) -> list[str]:
         if rolle not in verf:
             befunde.append(f"Rolle {rolle!r} hat eine Satzklasse, aber keine Verfuegbarkeit "
                            f"(ADR-0019 §2.5)")
+    # Der Rechenkern rechnet Lieferzeit in Stunden je Kalender-Arbeitstag ueber eine Angabe fuer
+    # den ganzen Mandanten (`stunden_je_kalender_at`). Fehlt sie, bricht `kalkulation()` mit
+    # KeyError ab - gemessen 28.09.2026, als der Preisweg zum ersten Mal mit Werten lief.
+    ausl = m.get("auslastung")
+    if not isinstance(ausl, dict):
+        befunde.append("keine `auslastung` (der Rechenkern braucht sie fuer Lieferzeit und Preis)")
+    else:
+        fehlend = [f for f in ("fakturierbare_stunden_je_tag", "fakturierbare_tage_je_woche",
+                               "arbeitstage_je_woche", "arbeitswochen_je_jahr") if f not in ausl]
+        if fehlend:
+            befunde.append(f"auslastung: fehlt {', '.join(fehlend)}")
     for rolle, v in verf.items():
         fehlend = [f for f in ("koepfe", "fakturierbare_stunden_je_tag",
                                "fakturierbare_tage_je_woche", "arbeitstage_je_woche",

@@ -1,6 +1,6 @@
 # WB-009 plan: commercial and staffing impact of a decision delta
 
-Status: engine, proposal assumptions and Studio panel implemented 26.09.2026; private price delta, proposal document and named staffing open. Builds on the WB-008 alternative comparison ([PROJECT_ALTERNATIVE_IMPACT.md](PROJECT_ALTERNATIVE_IMPACT.md)).
+Status: engine, proposal assumptions and Studio panel implemented 26.09.2026; private price delta implemented 28.09.2026; named staffing open. Builds on the WB-008 alternative comparison ([PROJECT_ALTERNATIVE_IMPACT.md](PROJECT_ALTERNATIVE_IMPACT.md)).
 
 ## Goal and proof
 
@@ -68,7 +68,7 @@ Tests: `tooling/tests/test_project_commercial_impact.py` (8).
 | 1 | Authority file name: `preis_kanon.yaml` or `nagarro.yaml` | **Decided 26.09.2026 (Florian Haferkorn): `preis_kanon.yaml`, as in ADR-0020.** The loader follows the ADR; the tenant is named inside the file (`mandanten.nagarro`). Meridian's `core/preis_kanon.yaml` stays the Freelancing tenant. The Nagarro path in ALUCA: `preis_kanon_mandant.py vorlage --ziel <Nagarro store>` writes the placeholder template outside the repository (refuses repo paths and overwrites), values are filled at the Nagarro store, `check` validates, `PREIS_KANON_MANDANTEN_DIR` points Studio and CLI at it. |
 | 2 | Future of `estimation.py` | Applied: unchanged, not extended, not used by the adapter |
 | 3 | Where the package and role mappings live | Applied with a deviation: additive optional plan fields within schema 2.0.0 instead of a version bump, because existing packages stay valid; decision rules cannot edit them |
-| 4 | May canon-derived hours and person-days be persisted | Not exercised: the first increment persists nothing |
+| 4 | May canon-derived hours and person-days be persisted | Hours: only in the opt-in proposal-assumptions document. Money: never; the price delta is returned to an admin and not stored (28.09.2026) |
 | 5 | Engagement layer | Applied: thin adapter here, Meridian's layer untouched |
 | 6 | `commercial.estimate.value` | Applied: untouched, stays null |
 | 7 | Dates and named staffing | Applied: bands only |
@@ -77,7 +77,9 @@ Tests: `tooling/tests/test_project_commercial_impact.py` (8).
 
 1. ~~Studio panel~~ **Done 26.09.2026:** Architecture → Decision effects → Compare an alternative → Commercial impact. Fetches only on request; `GET /api/projects/{id}/architecture/commercial` requires the editor role, is `private, no-store`, and withholds any result carrying a rate or price key (second check at the seam, same terms as the Python guard). Shows hours per canon role, window, open points and the rate-free proposal assumptions; an unconfigured canon shows how to set it up instead of zeros.
 2. ~~Proposal assumptions~~ **Done 26.09.2026:** `render_proposal_assumptions(result, side)` renders a rate-free Markdown section (canon packages, quantities with provenance, delivery bands, role participation, window, open points); CLI `--assumptions baseline|alternative`. It reads only those fields, so class hours, rates and prices cannot appear. **Generated document (26.09.2026):** opt-in generation target `proposal_assumptions` (never in the default run) writes `proposal-assumptions.md` plus a manifest with release record and tenant fingerprint for the released revision; it refuses without a configured canon, with tenant findings, or without canon links.
-3. Private price delta: `kalkulation` result returned `no-store` to an authorised caller only, never written.
+3. ~~Private price delta~~ **Done 28.09.2026:** `project_package/price_delta.py` evaluates the same alternative and runs every linked fixed-price canon package through `kalkulation()` of the mirrored core; it sums cost, calculated price, rounded price and list price per side and subtracts. Marked `persist: false`; nothing is written. `GET /api/projects/{id}/architecture/commercial/price` requires the **admin** role, answers `private, no-store`, withholds any result without `persist: false`, and audits only that a delta was viewed (revision, decision, option, tenant fingerprint; no amount). Studio shows it inside the commercial panel behind its own button. T&M packages are listed as unpriced, not zero: the mirrored core prices T&M through the Freelancing classes and fails for the team tenant (measured 28.09.2026). The tenant file now needs `auslastung` (hours per calendar workday for the core); `pruefe_mandant` reports it when missing. Tests: `tooling/tests/test_project_price_delta.py`, `studio/tests/api/project-price.test.ts`, `studio/tests/components/project-price-delta.test.tsx`.
+4. Named staffing.
+5. T&M for the team tenant in the Meridian core (mirror follows).
 
 ## Browser proof
 
