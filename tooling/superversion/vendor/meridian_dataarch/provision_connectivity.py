@@ -537,17 +537,18 @@ def _gateway_contract_section(gateways: list[dict]) -> list[str]:
             lines.append(f"| {label} | `{roles.get(field) or 'UNSPECIFIED'}` |")
 
         lines += ["", "**Connection and runtime evidence**", "",
-                  "| Scope | Requirement | Status | Evidence |", "|---|---|---|---|"]
+                  "| ID | Scope | Requirement | Status | Evidence |", "|---|---|---|---|---|"]
         evidence = gateway.get("evidence_requirements") or []
         if evidence:
             for item in evidence:
                 lines.append(
-                    f"| {str(item.get('scope') or '').replace('_', ' ').title()} | "
+                    f"| `{item.get('evidence_id') or 'unnamed'}` | "
+                    f"{str(item.get('scope') or '').replace('_', ' ').title()} | "
                     f"{item.get('requirement') or '—'} | "
                     f"`{str(item.get('status') or 'pending').upper()}` | "
                     f"`{item.get('evidence_ref') or 'not recorded'}` |")
         else:
-            lines.append("| Connection + runtime | no requirements declared | `UNASSESSED` | "
+            lines.append("| \u2014 | Connection + runtime | no requirements declared | `UNASSESSED` | "
                          "`not recorded` |")
 
         lines += ["", "**Typed operating controls**", "",
@@ -566,7 +567,11 @@ def _gateway_contract_section(gateways: list[dict]) -> list[str]:
                     f"· `{control.get('control_id') or 'unnamed'}` | {control.get('metric') or '—'} | "
                     f"`{threshold.get('operator') or '—'} {rendered_value} {threshold.get('unit') or ''}` | "
                     f"`{provenance or 'unknown'}` · {_PROVENANCE_USE.get(provenance, 'not classified')} | "
-                    f"**{_TELEMETRY_STATE.get(telemetry, 'UNKNOWN')}** |")
+                    f"**{_TELEMETRY_STATE.get(telemetry, 'UNKNOWN')}**"
+                    # Ein Gesund- oder Verletzt-Befund ohne Beleg ist eine Behauptung; das Schema
+                    # verlangt ihn dort (telemetry_evidence_ref), also steht er auch im Dokument.
+                    + (f" \u00b7 `{control['telemetry_evidence_ref']}`"
+                       if control.get("telemetry_evidence_ref") else "") + " |")
         else:
             lines.append("| — | no controls declared | — | — | **UNASSESSED** |")
         lines.append("")
