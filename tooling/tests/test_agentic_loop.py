@@ -98,3 +98,11 @@ def test_cli_writes_the_findings_file(tmp_path, monkeypatch):
     rc = sl.main(["--use-case", "OPS-001", "--run-id", "run-0001", "--stages", "S0", "--arbeit", str(tmp_path)])
     befunde = json.loads((tmp_path / "befunde.json").read_text(encoding="utf-8"))
     assert rc == befunde["exit"] == 0 and [e["name"] for e in befunde["ergebnisse"]] == ["check_index", "usecase_quality"]
+
+
+def test_real_subprocess_output_with_non_utf8_bytes_keeps_exit_code():
+    script = "import sys; sys.stdout.buffer.write(bytes([0x97])); sys.stderr.write('tool failed'); sys.exit(7)"
+    rc, output = sl.subprocess_runner([sys.executable, "-c", script], REPO)
+    assert rc == 7
+    assert "\ufffd" in output
+    assert "tool failed" in output

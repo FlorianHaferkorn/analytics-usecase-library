@@ -7,8 +7,8 @@ const selected = vi.hoisted(() => ({ projectId: 'alpha', packageRevisionHash: 'a
 vi.mock('@/lib/store/project-store', () => ({ useProjectStore: { getState: () => selected } }));
 const hash = 'a'.repeat(64), approvalId = 'b'.repeat(64), planHash = 'c'.repeat(64);
 const plan: DeploymentPlan = { project_ref: 'alpha', revision_hash: hash, tenant_id: 'tenant-id', principal_id: 'principal-id', environment: 'dev', plan_sha256: planHash, workspace_apply_ready: true, whole_project_apply_ready: false, operations: [], capabilities: [] };
-const status = { project_ref: 'alpha', enabled: true, can_approve: true, can_execute: true, identity_broker_available: true, environments: ['dev'], limitations: [] };
-const receipt = { project_ref: 'alpha', revision_hash: hash, approval_id: approvalId, plan_sha256: planHash, expires_at: new Date(Date.now() + 900000).toISOString(), status: 'approved_not_executed' };
+const status = { project_ref: 'alpha', enabled: true, can_approve: true, can_execute: true, identity_broker_available: true, environments: ['dev'], actor: 'github:123', independent_execution_environments: [], limitations: [] };
+const receipt = { project_ref: 'alpha', revision_hash: hash, approval_id: approvalId, plan_sha256: planHash, expires_at: new Date(Date.now() + 900000).toISOString(), approved_by: 'github:123', status: 'approved_not_executed' };
 const reply = (value: unknown, ok = true) => ({ ok, json: async () => value }) as Response;
 beforeEach(() => { selected.projectId = 'alpha'; selected.packageRevisionHash = hash; vi.stubGlobal('fetch', vi.fn(async () => reply(status))); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); window.history.replaceState(null, '', '/'); });
@@ -21,6 +21,37 @@ async function approve() {
   await screen.findByRole('button', { name: 'Execute approved workspace plan' });
 }
 describe('Protected workspace execution UI', () => {
+  it('keeps self-approved team execution disabled even when both allowlists include the operator', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(reply({ ...status, independent_execution_environments: ['dev'] }));
+    render(<ProjectRunner projectId="alpha" revision={hash} plan={plan} />);
+    await approve();
+    fireEvent.click(screen.getByRole('checkbox', { name: /Create the listed workspaces/ }));
+    expect(screen.getByText(/Your approval cannot be executed from this account/)).toBeTruthy();
+    expect((screen.getByRole('button', { name: 'Execute approved workspace plan' }) as HTMLButtonElement).disabled).toBe(true);
+  });
+  it('allows a different authorized operator to execute a retrieved team approval', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(reply({ ...status, can_approve: false, actor: 'github:456', independent_execution_environments: ['dev'] }));
+    render(<ProjectRunner projectId="alpha" revision={hash} plan={plan} />);
+    await screen.findByText(/Host policy is enabled/);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Saved approval ID' }), { target: { value: approvalId } });
+    vi.mocked(fetch).mockResolvedValueOnce(reply({ status: 'approved_not_executed', receipt }));
+    fireEvent.click(screen.getByRole('button', { name: 'Retrieve saved outcome' }));
+    await screen.findByRole('button', { name: 'Execute approved workspace plan' });
+    fireEvent.click(screen.getByRole('checkbox', { name: /Create the listed workspaces/ }));
+    expect((screen.getByRole('button', { name: 'Execute approved workspace plan' }) as HTMLButtonElement).disabled).toBe(false);
+  });
+  it('fails closed when a team approval has no recorded approver identity', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(reply({ ...status, actor: 'github:456', independent_execution_environments: ['dev'] }));
+    render(<ProjectRunner projectId="alpha" revision={hash} plan={plan} />);
+    await screen.findByText(/Host policy is enabled/);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Saved approval ID' }), { target: { value: approvalId } });
+    vi.mocked(fetch).mockResolvedValueOnce(reply({ status: 'approved_not_executed', receipt: { ...receipt, approved_by: undefined } }));
+    fireEvent.click(screen.getByRole('button', { name: 'Retrieve saved outcome' }));
+    await screen.findByRole('button', { name: 'Execute approved workspace plan' });
+    fireEvent.click(screen.getByRole('checkbox', { name: /Create the listed workspaces/ }));
+    expect(screen.getByText(/identities are not available for verification/)).toBeTruthy();
+    expect((screen.getByRole('button', { name: 'Execute approved workspace plan' }) as HTMLButtonElement).disabled).toBe(true);
+  });
   it('allows approval-only actors to approve without execution membership', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(reply({ ...status, can_execute: false, checks: [{ id: 'executor', title: 'Execution operator', state: 'missing', detail: 'Not assigned', action: 'Use a separate authorized executor.' }] }));
     render(<ProjectRunner projectId="alpha" revision={hash} plan={plan} />);

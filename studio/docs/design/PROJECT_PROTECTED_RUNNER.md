@@ -11,10 +11,11 @@ The implementation is `tooling/superversion/project_package/protected_runner.py`
 ## Authority and execution sequence
 
 1. The host authenticates the operator and verifies project-level administrative access. The actor passed to the runner comes from this session, never from a request body.
-2. Host-owned policy must explicitly enable the runner and allow the exact project, tenant ID, principal ID and environment. Separate approver and executor identity allowlists are required. They may contain the same person for a one-person operating model.
+2. Host-owned policy must explicitly enable the runner and allow the exact project, tenant ID, principal ID and environment. Separate approver and executor identity allowlists are required. They may contain the same person for a one-person operating model. A versioned team policy can require a different authenticated executor for selected environments, even when both identities appear in both allowlists.
 3. The runner checks the plan against the current, explicitly released package. The operator confirms the exact plan and records a meaningful rationale.
 4. The host stores the plan and approval together, signed with HMAC-SHA-256. The signature binds the policy as well as project, revision, tenant, principal, environment, operations and expiry. The signing key is not stored with the record or returned to Studio. Approval expires after 15 minutes.
 5. Execution takes an approval ID, authenticated actor, pinned project/revision and explicit confirmation. It does not accept a replacement plan, approval document, token, command or state path.
+   In an independent-execution environment, the host compares this actor with the signer of the stored approval before constructing a client or consuming the attempt. The Studio displays the rule and blocks an obvious self-execution; only the host check is authoritative.
 6. A tenant-wide lock serializes this host's workspace writes. A permanent, exclusive consumption receipt is written before the network-capable client is constructed. One approval authorizes one attempt, including an attempt that fails during startup or preflight.
 7. The existing executor obtains fresh principal-visible inventory, checks the authoritative release again, creates only missing workspaces and reads back the exact workspace ID, name, capacity and domain. An uncertain create response is not retried automatically.
 8. A signed outcome records the attempt. Workspace verification is not item deployment, data readiness, security verification or project acceptance.
@@ -33,6 +34,8 @@ The implementation is `tooling/superversion/project_package/protected_runner.py`
 The client factory is injected host code. It can construct the existing `FabWorkspaceClient` with a trusted Fabric token provider and verified permission evidence for the allowed scope. There is no implicit login, ambient credential discovery, dynamic module loader or arbitrary-command configuration in this boundary.
 
 The Studio endpoint now derives its actor from a verified OAuth session and current project-admin authorization. A private fixed-mode Python subprocess bridges that trusted request to this library. The subprocess is not a standalone authentication service; running it as a host administrator is a privileged operation. Browser-supplied actors and configuration are refused.
+
+Independent execution is configured only by the trusted host, not by the browser or Project Package. It separates two authenticated operators for a single workspace-creation attempt; it does not replace customer approval, change the input-release attestation, prove that the two people reviewed the same business decision, or enforce a complete production release workflow. A team deployment must include those separate gates in its acceptance procedure.
 
 ## Storage and recovery
 

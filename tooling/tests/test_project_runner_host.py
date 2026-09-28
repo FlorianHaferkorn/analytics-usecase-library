@@ -226,6 +226,33 @@ def test_minimal_disabled_config_never_reads_signing_key(setup):
     assert not dispatch(setup, "status", request())["enabled"]
 
 
+def test_team_separation_requires_versioned_explicit_host_configuration(setup):
+    repository, environment, document, path = setup
+    document["independent_execution_environments"] = ["prod"]
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(ValueError, match="fields"):
+        rh.load_configuration(repository, environment)
+
+    document["schema_version"] = "1.2.0"
+    document["executors"].append("github:654321")
+    path.write_text(json.dumps(document), encoding="utf-8")
+    policy = rh.load_configuration(repository, environment).policy
+    assert policy.independent_execution_environments == frozenset({"prod"})
+    status = dispatch(setup, "status", request())
+    assert status["actor"] == ACTOR
+    assert status["independent_execution_environments"] == ["prod"]
+
+    document["independent_execution_environments"] = ["prod", "prod"]
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(ValueError, match="duplicate"):
+        rh.load_configuration(repository, environment)
+
+    document.pop("independent_execution_environments")
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(ValueError, match="fields"):
+        rh.load_configuration(repository, environment)
+
+
 def test_approval_execute_retrieve_is_persistent_and_one_shot(setup):
     receipt, client = approved(setup), FakeClient()
     assert dispatch(setup, "outcome", request(approval_id=receipt["approval_id"]))["status"] == "approved_not_executed"

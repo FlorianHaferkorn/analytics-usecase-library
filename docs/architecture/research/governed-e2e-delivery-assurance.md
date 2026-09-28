@@ -1,6 +1,6 @@
 # Governed E2E delivery assurance
 
-Status: implemented baseline; AI-processing authorization pending
+Status: implemented baseline; AI-processing authorization, full-product and team acceptance pending
 Scope: customer-neutral delivery framework; the first customer engagement is the first validation case, not a source of reusable customer data.
 
 ## Outcome
@@ -124,6 +124,28 @@ The first Fabric validation exposed gaps that are now customer-neutral blocking 
 | Only when policy volume warrants it | Compile stable cross-project rules to OPA or Conftest | A separate policy runtime is unnecessary overhead while the current closed-schema Python checks remain small and testable |
 
 Installing every expert product would make a one-person delivery workflow less reliable. The framework therefore adopts proven patterns first and introduces a platform dependency only when its scale benefit exceeds its operational cost.
+
+## Completion contract: one-person and engagement-team operation
+
+The same Studio and Project Package must serve a named solo operator **and** a Nagarro engagement team. Team operation is not a second compiler or a copy of the project in shared files. Each project retains one immutable revision history, one decision authority and one generated-output lineage. Private commercial inputs, customer evidence and tenant credentials stay in their respective access boundaries. A colleague must be able to continue work from the selected project revision without asking the original author to explain undocumented state.
+
+The following are product acceptance gates, not estimates or a weighted maturity score. A gate is green only when its test and retained evidence exist. The diagnostic score above may help prioritize work but cannot waive a red gate.
+
+| Gate | Required behavior | Acceptance evidence |
+|---|---|---|
+| Guided workflow | The project home names the current stage, owner, blocked decision, required evidence and next permitted action. Every active page has a delivery purpose; no hidden raw-YAML step is needed for supported scope. | A new colleague completes a neutral case from offer to handover using only Studio and the linked evidence; every transition can be explained from the UI. |
+| Collaborative editing | Admin, editor and viewer permissions apply at every API and export boundary. Two editors cannot silently overwrite the same Package HEAD or Discovery draft. A conflict shows both revisions and a safe review path. | Concurrent-editor, stale-save, unauthorized-action and project-isolation tests at API and browser level; audit identifies the authenticated actor and exact revision. |
+| Review and authority | A proposal, internal recommendation, customer decision, input release, tenant execution approval and acceptance are separate states. Team production policy requires an independently identifiable reviewer and executor; a solo exception must be explicit, scoped and auditable rather than inferred from one account. | Negative tests for self-approval under team policy, expired or changed approvals, absent evidence and role changes; signed release and execution records where applicable. |
+| AI data protection | Every model-bound input has a known classification, permitted purpose, approved provider/region and allowed data form. Unknown, restricted or secret content never reaches a model; customer-confidential content requires an explicitly approved enterprise or local route. AI output remains a proposal. | Egress-denial tests for missing classification, disallowed provider/region, secrets and identifiers; retained preflight, redaction and output-scan evidence; tests that AI cannot set a decision, readiness, apply, publication or acceptance state. |
+| Reproducible build | One approved revision deterministically produces architecture, ADRs, delivery plan, executable definitions and customer-facing documents. Unsupported target behavior fails closed with a named blocker. | Same-input output-hash regression on two clean machines plus official format/parser validation; no unreviewed customer-specific default appears in output. |
+| Safe apply and recovery | Plans show exact project, tenant, principal, environment, changes and rollback/reconciliation path before any mutation. Apply is idempotent where the target supports it; an uncertain write is never automatically replayed. | Authorized non-production create/readback, second-run no-op, drift/conflict and interruption tests; production only after a separately approved release path. |
+| Runtime acceptance | Data correctness, freshness, DQ, access denial/allowance, semantic/report results, alert delivery and ownership are proven against the deployed revision and environment. | Positive and negative probes with retained run IDs, principals, expected/actual results and an accountable acceptance record; generated files alone do not pass. |
+| Visual and accessible interface | Shared typography, spacing, components and interaction rules hold across all workflow pages; charts remain readable at supported widths and keyboard/assistive-technology paths work. | Automated token, contrast, accessibility and responsive checks plus human desktop/mobile visual review of every supported state, including empty, loading, error and dense-data states. |
+| Customer portability and maintenance | Scope determines questions, capability packs, outputs and gates without copying a previous customer's answers. Tool/version changes and architecture drift open a reviewed change, not a silent regeneration. | The first customer engagement as the first case **and** a second unrelated neutral case; source-watch, desired/observed diff, owner, review cadence and controlled upgrade/recovery tests. |
+
+The implementation sequence follows the dependencies in these gates: establish a complete single-project proof, make collaboration and authority safe, complete target adapters and runtime verification, then demonstrate portability and continuous maintenance. Do not trade a red mandatory gate for a faster broad demo. Existing local checks remain labeled local; fixture simulations remain labeled simulated; tenant readback and customer approval require their own evidence.
+
+**Shared-host topology remains UNKLAR.** Current project/org roles and SQLite records do not, by themselves, prove secure hosted multi-organization isolation or multi-host locking. A controlled single-host installation with explicit project access is a candidate for a team pilot, not an accepted customer-data hosting pattern until its isolation, backup and recovery tests pass. The protected runner now supports explicitly configured independent execution for selected environments, but existing host configurations can still allow one-person approval and execution; independent production review is not guaranteed until the team policy is configured and tested. A local one-person mode remains supported without inheriting org authority. The shared-host decision must cover backup/restore, key rotation, audit retention, cross-project leakage tests and disaster recovery before general team rollout.
 
 ## AI-processing contract: egress contained, approval workflow pending
 

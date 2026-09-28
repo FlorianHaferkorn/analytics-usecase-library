@@ -62,9 +62,11 @@ An enabled configuration must supply every field below. This is a neutral templa
 }
 ```
 
-Schema `1.0.0` remains accepted for existing client-secret and user-assigned-managed-identity configurations. Workload federation and tenant-setting contracts require `1.1.0`, so an old configuration cannot silently acquire the new behavior.
+Schema `1.0.0` remains accepted for existing client-secret and user-assigned-managed-identity configurations. Workload federation and tenant-setting contracts require `1.1.0` or later, so an old configuration cannot silently acquire the new behavior.
 
 `principal_id` is the tenant service-principal object ID, not the application/client ID. UUIDs must use canonical lower-case form. Scopes and actors are exact allowlists, with no wildcards. Separate approver and executor lists may contain the same person for a one-person operating model.
+
+For a team, schema `1.2.0` adds the required `independent_execution_environments` field to the full host configuration. For example, `"independent_execution_environments": ["test", "prod"]` requires the executor of each matching signed workspace approval to be a different authenticated person from its approver. The field is a bounded, duplicate-free list of `dev`, `test` and/or `prod`; earlier schemas reject it. At least two distinct operators must be present in the combined allowlists. Use `[]` only for an explicit solo policy. The rule is bound into the signed approval's host-policy hash; changing it or upgrading from an older runner policy invalidates pending approvals, which must be reviewed anew. Studio shows the configured rule and refuses self-execution, while the host performs the authoritative comparison before any client creation or attempt consumption. This is operator separation for the create-only runner, not customer sign-off or whole-project release approval.
 
 The signing reference must contain base64-encoded random key material of at least 32 bytes. The identity secret uses a different reference; neither value belongs in JSON, the package, Studio client state or an export. An operator must provide host ACLs and lifecycle management for the private file, state directory and secrets. The module checks path separation and rejects symlinks/junctions; it does not establish or certify operating-system ACLs.
 

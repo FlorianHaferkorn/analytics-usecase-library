@@ -32,8 +32,9 @@ SETTING_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9]{0,199}$")
 ASSERTION = re.compile(r"^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$")
 MAX_TENANT_SETTING_PAGES = 25
 CONFIG_KEYS = {"schema_version", "enabled", "state_dir", "signing_key_env", "approvers", "executors", "scopes"}
+CONFIG_KEYS_TEAM = CONFIG_KEYS | {"independent_execution_environments"}
 SCOPE_KEYS = {"project_ref", "tenant_id", "principal_id", "environment", "identity", "permissions"}
-CONFIG_VERSIONS = {"1.0.0", "1.1.0"}
+CONFIG_VERSIONS = {"1.0.0", "1.1.0", "1.2.0"}
 
 
 def _fields(value: dict, fields: set[str]) -> None:
@@ -173,9 +174,18 @@ def load_configuration(repository: ProjectPackageRevisionRepository, environment
         raise ValueError("Runner host configuration is unavailable or invalid") from error
     if value in ({"schema_version": version, "enabled": False} for version in CONFIG_VERSIONS):
         return HostConfiguration(RunnerPolicy())
-    _fields(value, CONFIG_KEYS)
+    if not isinstance(value, dict):
+        raise ValueError("Runner input or configuration has missing or unsupported fields")
+    _fields(value, CONFIG_KEYS_TEAM if value.get("schema_version") == "1.2.0" else CONFIG_KEYS)
     if value["schema_version"] not in CONFIG_VERSIONS or type(value["enabled"]) is not bool:
         raise ValueError("Unsupported runner configuration version or enable flag")
+    independent = value.get("independent_execution_environments", [])
+    if (not isinstance(independent, list) or len(independent) > 3
+            or any(not isinstance(environment, str) or environment not in {"dev", "test", "prod"}
+                   for environment in independent)):
+        raise ValueError("Independent execution environments must be an explicit bounded list")
+    if len(set(independent)) != len(independent):
+        raise ValueError("Independent execution environments contain duplicate values")
     state = _path(value["state_dir"])
     root = repository.root.absolute()
     if state == Path(state.anchor) or state.is_relative_to(root) or root.is_relative_to(state):
@@ -199,8 +209,8 @@ def load_configuration(repository: ProjectPackageRevisionRepository, environment
             # Require a user-assigned identity; no ambient system-assigned fallback.
             _fields(identity, {"kind", "client_id"})
         elif identity.get("kind") == "workload_identity_federation":
-            if value["schema_version"] != "1.1.0":
-                raise ValueError("Workload federation requires runner configuration schema 1.1.0")
+            if value["schema_version"] not in {"1.1.0", "1.2.0"}:
+                raise ValueError("Workload federation requires runner configuration schema 1.1.0 or later")
             _fields(identity, {"kind", "client_id", "assertion_file_env", "issuer", "subject", "audience"})
             _reference(identity["assertion_file_env"])
             if identity["assertion_file_env"] == value["signing_key_env"]:
@@ -220,8 +230,8 @@ def load_configuration(repository: ProjectPackageRevisionRepository, environment
             if not isinstance(permissions[key], list) or any(dp._uuid(v) != v for v in permissions[key]):
                 raise ValueError("Runner permission IDs require canonical UUID lists")
         scopes.append(scope)
-        if "tenant_settings" in row and value["schema_version"] != "1.1.0":
-            raise ValueError("Tenant-setting contracts require runner configuration schema 1.1.0")
+        if "tenant_settings" in row and value["schema_version"] not in {"1.1.0", "1.2.0"}:
+            raise ValueError("Tenant-setting contracts require runner configuration schema 1.1.0 or later")
         identities.append({"scope": scope, "identity": copy.deepcopy(identity), "permissions": copy.deepcopy(permissions),
             "tenant_settings": _tenant_settings_configuration(row.get("tenant_settings"))})
     for key in ("approvers", "executors"):
@@ -229,7 +239,8 @@ def load_configuration(repository: ProjectPackageRevisionRepository, environment
             raise ValueError("Runner actors must use stable github:<provider-account-id> identities")
         if len(set(value[key])) != len(value[key]):
             raise ValueError("Duplicate runner actor")
-    policy = RunnerPolicy(value["enabled"], tuple(scopes), frozenset(value["approvers"]), frozenset(value["executors"]))
+    policy = RunnerPolicy(value["enabled"], tuple(scopes), frozenset(value["approvers"]),
+        frozenset(value["executors"]), frozenset(independent))
     return HostConfiguration(policy, state, _reference(value["signing_key_env"]), tuple(identities))
 
 
@@ -495,6 +506,8 @@ def status(configuration: HostConfiguration, project_ref: str, actor: str, envir
         "Approve a bounded nonproduction workspace test, verify readback and replanning, and retain expected and actual results.")
     return {"schema_version": "1.0.0", "project_ref": project_ref, "enabled": enabled,
             "scope": "fabric_workspaces_create_only", "environments": sorted({row["scope"].environment for row in entries}),
+            "actor": actor,
+            "independent_execution_environments": sorted(policy.independent_execution_environments),
             "approval_storage_ready": bool(key_configured), "client_factory_configured": bool(broker_configured),
             "identity_broker_available": bool(broker_configured), "execute_endpoint_available": True,
             "tenant_settings_probe_configured": bool(entries) and all(row["tenant_settings"] is not None for row in entries),

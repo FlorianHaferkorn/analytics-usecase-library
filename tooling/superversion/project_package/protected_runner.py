@@ -50,6 +50,7 @@ class RunnerPolicy:
     scopes: tuple[AllowedScope, ...] = ()
     approvers: frozenset[str] = field(default_factory=frozenset)
     executors: frozenset[str] = field(default_factory=frozenset)
+    independent_execution_environments: frozenset[str] = field(default_factory=frozenset)
 
     def __post_init__(self):
         if type(self.enabled) is not bool:
@@ -61,12 +62,19 @@ class RunnerPolicy:
         for actors in (self.approvers, self.executors):
             if not isinstance(actors, frozenset) or any(not isinstance(actor, str) or not actor.strip() or actor != actor.strip() for actor in actors):
                 raise ValueError("Runner actors must be explicit immutable identities")
+        if (not isinstance(self.independent_execution_environments, frozenset)
+                or any(not isinstance(environment, str) or environment not in {"dev", "test", "prod"}
+                       for environment in self.independent_execution_environments)):
+            raise ValueError("Independent execution environments must be explicit immutable environment names")
         if self.enabled and (not self.scopes or not self.approvers or not self.executors):
             raise ValueError("Enabling the runner requires scopes, approvers and executors")
+        if self.enabled and self.independent_execution_environments and len(self.approvers | self.executors) < 2:
+            raise ValueError("Independent execution environments require at least two distinct operators")
 
     def document(self) -> dict:
         return {"enabled": self.enabled, "scopes": [scope.__dict__ for scope in self.scopes],
-                "approvers": sorted(self.approvers), "executors": sorted(self.executors)}
+                "approvers": sorted(self.approvers), "executors": sorted(self.executors),
+                "independent_execution_environments": sorted(self.independent_execution_environments)}
 
 
 class ProtectedWorkspaceRunner:
@@ -108,6 +116,7 @@ class ProtectedWorkspaceRunner:
                 "execute_endpoint_available": False, "whole_project_apply_ready": False,
                 "scope": "fabric_workspaces_create_only",
                 "environments": sorted({scope.environment for scope in scopes}),
+                "independent_execution_environments": sorted(self.policy.independent_execution_environments),
                 "limitations": ["The host must authenticate and authorize each operator.",
                     "No public execute endpoint or automatic token discovery is supplied.",
                     "Only workspace creation and readback are supported; no item, security, data or CI/CD apply.",
@@ -175,7 +184,7 @@ class ProtectedWorkspaceRunner:
                    "policy_sha256": canonical_sha256(self.policy.document())}
         self._persist(self.state_dir / "approvals" / (identity + ".json"), payload)
         return {"approval_id": identity, "project_ref": plan["project_ref"], "revision_hash": plan["revision_hash"],
-                "plan_sha256": plan["plan_sha256"], "expires_at": approval["expires_at"],
+                "plan_sha256": plan["plan_sha256"], "expires_at": approval["expires_at"], "approved_by": actor,
                 "status": "approved_not_executed", "tenant_actions_performed": False}
 
     def _approval(self, identity: str) -> dict:
@@ -213,6 +222,7 @@ class ProtectedWorkspaceRunner:
             raise ValueError("Evidence request does not match the stored project revision")
         receipt = {"approval_id": approval_id, "project_ref": project_ref, "revision_hash": revision_hash,
                    "plan_sha256": plan["plan_sha256"], "expires_at": stored["approval"]["expires_at"],
+                   "approved_by": stored["approval"]["actor"],
                    "tenant_id": plan["tenant_id"], "principal_id": plan["principal_id"], "environment": plan["environment"]}
         expected = {key: receipt[key] for key in ("approval_id", "project_ref", "revision_hash", "plan_sha256")}
         outcome_path = self._safe(self.state_dir / "outcomes" / (approval_id + ".json"))
@@ -246,6 +256,9 @@ class ProtectedWorkspaceRunner:
         plan = payload["plan"]
         if plan["project_ref"] != project_ref or plan["revision_hash"] != revision_hash:
             raise ValueError("Execution request does not match the stored project revision")
+        if (plan["environment"] in self.policy.independent_execution_environments
+                and actor == payload["approval"]["actor"]):
+            raise ValueError("This scope requires an independent operator for execution")
         if self.client_factory is None:
             raise ValueError("Trusted runner identity/client broker is not configured")
         scope = self._scope(plan)
