@@ -46,31 +46,66 @@ export function chainEvent(eventId: string, projectId = 'default'): string {
 }
 
 /**
+ * Gaps a retention run has attested (C-22, M-22.1): resume event id -> hash of the last deleted
+ * event before it. The attestation lives in the chained `audit_retention` event itself, so
+ * changing it breaks that event's hash like any other edit.
+ */
+function attestedGaps(events: AuditEvent[]): Map<string, string> {
+  const gaps = new Map<string, string>();
+  for (const event of events) {
+    if (event.entity_type !== 'audit_retention' || event.action !== 'delete') continue;
+    try {
+      const diff = JSON.parse(event.diff_json) as { after?: { gaps?: unknown } };
+      const list = Array.isArray(diff.after?.gaps) ? diff.after.gaps : [];
+      for (const gap of list as { resume_event_id?: unknown; expected_prev_hash?: unknown }[]) {
+        if (typeof gap?.resume_event_id === 'string' && typeof gap.expected_prev_hash === 'string') {
+          gaps.set(gap.resume_event_id, gap.expected_prev_hash);
+        }
+      }
+    } catch {
+      // A malformed attestation attests nothing; the chain check below decides.
+    }
+  }
+  return gaps;
+}
+
+/**
  * Verify the integrity of the entire audit chain for a project.
  * Returns { valid: true } if chain is intact, or { valid: false, brokenAt } if tampered.
+ *
+ * A retention run deletes expired events and attests each resulting gap in its own chained
+ * event. A gap is accepted only where such an attestation names exactly this resume event and
+ * the hash it continues from; deleting any other event is still reported as tampering.
  */
-export function verifyChain(projectId = 'default'): { valid: boolean; brokenAt?: string; checked: number } {
+export function verifyChain(projectId = 'default'): { valid: boolean; brokenAt?: string; checked: number; gaps: number } {
   const db = getDb();
   const events = db.prepare(
     'SELECT * FROM audit_events WHERE project_id = ? ORDER BY created_at ASC, rowid ASC',
   ).all(projectId) as (AuditEvent & { prev_hash?: string; hash?: string })[];
 
-  if (events.length === 0) return { valid: true, checked: 0 };
+  if (events.length === 0) return { valid: true, checked: 0, gaps: 0 };
 
+  const attested = attestedGaps(events);
   let prevHash = '';
-  for (const event of events) {
+  let gaps = 0;
+  for (const [index, event] of events.entries()) {
     // Skip events that were created before hash chain was enabled
     if (!event.hash) continue;
 
+    if (event.prev_hash !== prevHash) {
+      if (event.prev_hash && attested.get(event.id) === event.prev_hash) {
+        prevHash = event.prev_hash;
+        gaps += 1;
+      } else {
+        return { valid: false, brokenAt: event.id, checked: index + 1, gaps };
+      }
+    }
     const expectedHash = computeEventHash(event, prevHash);
     if (event.hash !== expectedHash) {
-      return { valid: false, brokenAt: event.id, checked: events.indexOf(event) + 1 };
-    }
-    if (event.prev_hash !== prevHash) {
-      return { valid: false, brokenAt: event.id, checked: events.indexOf(event) + 1 };
+      return { valid: false, brokenAt: event.id, checked: index + 1, gaps };
     }
     prevHash = event.hash;
   }
 
-  return { valid: true, checked: events.length };
+  return { valid: true, checked: events.length, gaps };
 }

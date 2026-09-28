@@ -4,7 +4,7 @@ import type { AiPolicyReviewCandidate } from '@/lib/ai/policy-review';
 import { getDb } from './sqlite';
 import { logAuditEvent } from './audit-repo';
 
-export type AiPolicyReviewStatus = 'pending' | 'approved' | 'rejected';
+export type AiPolicyReviewStatus = 'pending' | 'approved' | 'rejected' | 'expired';
 export interface AiPolicyReview {
   id: string;
   project_id: string;
@@ -18,6 +18,7 @@ export interface AiPolicyReview {
   reviewed_by: string | null;
   reviewed_at: string | null;
   rationale: string | null;
+  route_expires_at: string | null;
 }
 
 export class AiPolicyReviewError extends Error {}
@@ -42,14 +43,15 @@ export function submitAiPolicyReview(candidate: AiPolicyReviewCandidate, actor: 
       WHERE project_id = ? AND revision_hash = ? AND route_id = ?
       ORDER BY rowid DESC LIMIT 1
     `).get(candidate.projectId, candidate.revisionHash, candidate.routeId) as AiPolicyReview | undefined;
-    if (current && current.status !== 'rejected') throw new AiPolicyReviewError('This exact policy is already under review or approved.');
+    if (current && current.status !== 'rejected' && current.status !== 'expired') throw new AiPolicyReviewError('This exact policy is already under review or approved.');
     const id = randomUUID();
     db.prepare(`
       INSERT INTO ai_policy_reviews
-        (id, project_id, revision_hash, route_id, route_hash, decision_ref, status, submitted_by)
-      VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
+        (id, project_id, revision_hash, route_id, route_hash, decision_ref, status, submitted_by,
+         route_expires_at)
+      VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)
     `).run(id, candidate.projectId, candidate.revisionHash, candidate.routeId,
-      candidate.routeHash, candidate.decisionRef, actor);
+      candidate.routeHash, candidate.decisionRef, actor, candidate.expiresAt);
     logAuditEvent('ai_policy_review', id, 'submit', {
       before: null,
       after: { revision_hash: candidate.revisionHash, route_id: candidate.routeId,

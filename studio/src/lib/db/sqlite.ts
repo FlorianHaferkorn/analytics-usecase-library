@@ -97,16 +97,30 @@ function initSchema(db: Database.Database) {
       route_id TEXT NOT NULL,
       route_hash TEXT NOT NULL,
       decision_ref TEXT NOT NULL,
-      status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'rejected')),
+      status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'rejected', 'expired')),
       submitted_by TEXT NOT NULL,
       submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
       reviewed_by TEXT,
       reviewed_at TEXT,
       rationale TEXT,
+      -- C-22 (M-22.5): the route's own expiry; approved reviews are kept until the end of that
+      -- year plus the retention period. NULL for reviews stored before this column existed.
+      route_expires_at TEXT,
       FOREIGN KEY (project_id) REFERENCES projects(id)
     );
     CREATE INDEX IF NOT EXISTS idx_ai_policy_reviews_scope
       ON ai_policy_reviews(project_id, revision_hash, route_id, submitted_at);
+
+    -- C-22 (M-22.2): a legal hold stops the retention run for the whole project until released.
+    CREATE TABLE IF NOT EXISTS audit_legal_holds (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL,
+      reference TEXT NOT NULL,
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      released_by TEXT,
+      released_at TEXT
+    );
 
     CREATE TABLE IF NOT EXISTS notification_rules (
       id TEXT PRIMARY KEY,
@@ -277,6 +291,8 @@ function initSchema(db: Database.Database) {
     // ON DELETE SET NULL: deleting an org reverts its projects to solo instead of
     // orphaning or blocking the delete.
     ['projects', 'org_id TEXT REFERENCES organizations(id) ON DELETE SET NULL'],
+    // C-22 (M-22.5): see the CREATE TABLE above.
+    ['ai_policy_reviews', 'route_expires_at TEXT'],
     // ADR-0014 O-3: display-only link to core/organization/org_roles.yaml.
     ['org_members', 'business_role_id TEXT'],
   ];
@@ -289,6 +305,49 @@ function initSchema(db: Database.Database) {
   }
 
   migrateBracketLifecyclePrimaryKey(db);
+  migrateAiPolicyReviewStatus(db);
+}
+
+/**
+ * Allow the status 'expired' (C-22, M-22.5) on databases created before it existed. SQLite cannot
+ * alter a CHECK constraint, hence the same create-copy-drop-rename rebuild as below. No-op on a
+ * fresh database and once migrated.
+ */
+export function migrateAiPolicyReviewStatus(db: Database.Database) {
+  const row = db.prepare(
+    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'ai_policy_reviews'",
+  ).get() as { sql: string } | undefined;
+  if (!row || row.sql.includes("'expired'")) return;
+  db.transaction(() => {
+    db.exec(`
+      CREATE TABLE ai_policy_reviews_new (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL,
+        revision_hash TEXT NOT NULL,
+        route_id TEXT NOT NULL,
+        route_hash TEXT NOT NULL,
+        decision_ref TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'rejected', 'expired')),
+        submitted_by TEXT NOT NULL,
+        submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+        reviewed_by TEXT,
+        reviewed_at TEXT,
+        rationale TEXT,
+        route_expires_at TEXT,
+        FOREIGN KEY (project_id) REFERENCES projects(id)
+      );
+      INSERT INTO ai_policy_reviews_new
+        (id, project_id, revision_hash, route_id, route_hash, decision_ref, status, submitted_by,
+         submitted_at, reviewed_by, reviewed_at, rationale, route_expires_at)
+      SELECT id, project_id, revision_hash, route_id, route_hash, decision_ref, status, submitted_by,
+             submitted_at, reviewed_by, reviewed_at, rationale, route_expires_at
+      FROM ai_policy_reviews;
+      DROP TABLE ai_policy_reviews;
+      ALTER TABLE ai_policy_reviews_new RENAME TO ai_policy_reviews;
+      CREATE INDEX IF NOT EXISTS idx_ai_policy_reviews_scope
+        ON ai_policy_reviews(project_id, revision_hash, route_id, submitted_at);
+    `);
+  })();
 }
 
 /**

@@ -218,6 +218,21 @@ Fristbeginn. Die Aufnahme ins Tier-Modell entscheidet Legal zusammen mit C-10 un
 | M-22.7 | **Betroffenenrechte:** Auskunft (Art. 15) über Pseudonym-Zuordnung beantwortbar machen; Löschersuchen (Art. 17) durch Entfernen der Zuordnung (M-22.3) erfüllen, soweit Kategorie D nicht Art. 17 Abs. 3 lit. e unterliegt | Verfahren in `retention_policy.md` 6.1 ergänzen |
 | M-22.8 | **Dokumentation:** Kategorien A–H in `retention_policy.md` und im VVT (ACT-006/ACT-007) eintragen; `DPIA.md` 11.5 und R-KI-6 aktualisieren, sobald umgesetzt | `compliance/` |
 
+### 2.4a Umsetzungsstand (27.09.2026)
+
+Technisch umgesetzt, **Fristen weiter Vorschlag** (E-22.1 offen). Der Ledger-Punkt C-22 bleibt offen.
+
+| Maßnahme | Stand | Code |
+|---|---|---|
+| M-22.1 | **Umgesetzt mit Abweichung:** statt Monatssegmenten ein **Löschvermerk**. Ein Projekt-Chain enthält KI-Nachweise und alle anderen Audit-Ereignisse gemischt; ein ganzes Monatssegment zu löschen hätte Bracket-, Projekt- und Rollenereignisse mitgenommen. Der Löschlauf bescheinigt jede entstandene Lücke (Folgeereignis + erwarteter Vorgänger-Hash) in seinem eigenen, verketteten `audit_retention`-Ereignis; `verifyChain` akzeptiert eine Lücke nur dort. Gilt auch für den Altbestand | `studio/src/lib/db/audit-chain.ts`, `studio/src/lib/db/ai-retention.ts` |
+| M-22.2 | **Umgesetzt:** Kategorien A/B (13 Monate), E (13 Monate), F (6 Monate → `expired`), D (Jahresende des Routenablaufs + 3 Jahre). Dry-Run ist Voreinstellung; ein echter Lauf braucht `confirm: true`. Legal Hold je Projekt mit Aktenzeichen statt Freitext. Ein Projekt mit bereits gebrochener Kette wird nicht bereinigt, sondern gemeldet. Fristen per Umgebungsvariable überschreibbar (`STUDIO_AI_RETENTION_*`) | `studio/src/lib/db/ai-retention.ts`, `studio/src/app/api/audit/retention/route.ts` |
+| M-22.3 | **Offen.** Bis dahin steht die E-Mail bis zum Ablauf von Kategorie A (13 Monate) im Klartext, nicht nur 90 Tage | — |
+| M-22.4 | **Offen.** KI-Nachweise liegen weiter unter `project_id = 'default'` | — |
+| M-22.5 | **Teilweise:** `route_expires_at` wird beim Einreichen gespeichert, Status `expired` mit Migration. Genehmigte Altbestände ohne `route_expires_at` bleiben erhalten und werden im Bericht gezählt (`approved_without_route_expiry`). Ersetzung durch eine neue Revision als Fristbeginn ist nicht umgesetzt | `studio/src/lib/db/sqlite.ts`, `studio/src/lib/db/ai-policy-review-repo.ts` |
+| M-22.6 bis M-22.8 | **Offen** | — |
+
+Abnahme: A-22.1, A-22.2, A-22.3, A-22.5 und A-22.7 sind durch `studio/tests/lib/audit-retention.test.ts` belegt; A-22.4 (90 Tage) und A-22.6 (Freitextprüfung) nicht. Der Löschvermerk macht die Kette nicht fälschungssicherer als vorher: wer die Datenbank schreiben kann, kann die ungeschlüsselte Kette neu berechnen (E-22.3, WORM).
+
 ### 2.5 Abnahmekriterien
 
 | ID | Kriterium | Test (Vorschlag) |

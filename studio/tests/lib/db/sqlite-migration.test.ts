@@ -8,7 +8,7 @@
 
 import { describe, it, expect } from 'vitest';
 import Database from 'better-sqlite3';
-import { migrateBracketLifecyclePrimaryKey } from '../../../src/lib/db/sqlite';
+import { migrateAiPolicyReviewStatus, migrateBracketLifecyclePrimaryKey } from '../../../src/lib/db/sqlite';
 
 function createPreFixDb(): Database.Database {
   const d = new Database(':memory:');
@@ -126,5 +126,38 @@ describe('migrateBracketLifecyclePrimaryKey', () => {
     expect(() => migrateBracketLifecyclePrimaryKey(d)).not.toThrow();
     const count = (d.prepare('SELECT COUNT(*) as n FROM bracket_lifecycle').get() as { n: number }).n;
     expect(count).toBe(1);
+  });
+});
+
+describe('migrateAiPolicyReviewStatus (C-22)', () => {
+  function preDb(): Database.Database {
+    const d = new Database(':memory:');
+    d.exec(`
+      CREATE TABLE projects (id TEXT PRIMARY KEY);
+      INSERT INTO projects (id) VALUES ('p');
+      CREATE TABLE ai_policy_reviews (
+        id TEXT PRIMARY KEY, project_id TEXT NOT NULL, revision_hash TEXT NOT NULL, route_id TEXT NOT NULL,
+        route_hash TEXT NOT NULL, decision_ref TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'rejected')),
+        submitted_by TEXT NOT NULL, submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+        reviewed_by TEXT, reviewed_at TEXT, rationale TEXT,
+        FOREIGN KEY (project_id) REFERENCES projects(id)
+      );
+      ALTER TABLE ai_policy_reviews ADD COLUMN route_expires_at TEXT;
+      INSERT INTO ai_policy_reviews (id, project_id, revision_hash, route_id, route_hash, decision_ref, status, submitted_by)
+      VALUES ('r1', 'p', 'r', 'route', 'h', 'd', 'pending', 'a@example.com');
+    `);
+    return d;
+  }
+
+  it('allows expired, keeps rows and is idempotent', () => {
+    const d = preDb();
+    expect(() => d.prepare("UPDATE ai_policy_reviews SET status = 'expired'").run()).toThrow();
+    migrateAiPolicyReviewStatus(d);
+    migrateAiPolicyReviewStatus(d);
+    d.prepare("UPDATE ai_policy_reviews SET status = 'expired'").run();
+    expect(d.prepare('SELECT id, status, route_expires_at FROM ai_policy_reviews').all())
+      .toEqual([{ id: 'r1', status: 'expired', route_expires_at: null }]);
+    expect(() => d.prepare("UPDATE ai_policy_reviews SET status = 'deleted'").run()).toThrow();
   });
 });
