@@ -63,6 +63,14 @@ mandanten:
         status: <gemessen ... | ANNAHME, ungeprueft>
         herkunft: <Quelle an der Nagarro-Ablage>
 
+    # Auslastung fuer den ganzen Mandanten: der Rechenkern rechnet damit Lieferzeit in Stunden
+    # je Kalender-Arbeitstag. `verfuegbarkeit` unten traegt die Kapazitaet je Rolle.
+    auslastung:
+      fakturierbare_stunden_je_tag: <stunden>
+      fakturierbare_tage_je_woche: <tage>
+      arbeitstage_je_woche: <tage>
+      arbeitswochen_je_jahr: <wochen>
+
     # Team-Kapazitaet statt Ein-Personen-Sequenz (ADR-0019 §2.5, Aufgabe N-5). Der Kalender
     # liest die Verfuegbarkeit je Rolle; Pakete duerfen deshalb parallel laufen.
     verfuegbarkeit:

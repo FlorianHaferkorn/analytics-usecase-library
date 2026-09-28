@@ -27,6 +27,7 @@ _TENANT = {"mandanten": {"nagarro": {
         "engineer_nearshore": {"rolle": "engineer", "standort": "nearshore", "kostenband": "C", "kostensatz_eur_h": 67.89, **STATUS},
         "tester_nearshore": {"rolle": "tester", "standort": "nearshore", "kostenband": "C", "kostensatz_eur_h": 54.32, **STATUS},
     },
+    "auslastung": {"fakturierbare_stunden_je_tag": 8, "fakturierbare_tage_je_woche": 4, "arbeitstage_je_woche": 5, "arbeitswochen_je_jahr": 44},
     "verfuegbarkeit": {role: {"koepfe": 1, "fakturierbare_stunden_je_tag": 8, "fakturierbare_tage_je_woche": 4,
                               "arbeitstage_je_woche": 5, "arbeitswochen_je_jahr": 44} for role in ("architekt", "engineer", "tester")},
     "pakete": {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 import type { CommercialImpact } from '@/lib/bridge/project-commercial';
+import { ProjectPriceDelta } from './project-price-delta';
 import styles from './project-alternative-impact.module.css';
 
 const label = (value: string) => value.replaceAll('_', ' ');
@@ -62,6 +63,9 @@ export function ProjectCommercialImpact({ projectId, revisionHash, decisionRef, 
     {alternative.gaps.length > 0 && <StudioPanel title="Open points before the offer">
       <ul className={styles.list}>{alternative.gaps.map(gap => <li key={gap.id}><strong>{delta.new_gaps.includes(gap.id) ? 'New · ' : ''}{label(gap.id.split(':')[0])}</strong><span>{gap.detail}</span></li>)}</ul>
     </StudioPanel>}
+    <StudioPanel title="Price delta (admins only)">
+      <ProjectPriceDelta projectId={projectId} revisionHash={revisionHash} decisionRef={decisionRef} optionRef={optionRef} />
+    </StudioPanel>
     {result.proposal_assumptions_markdown && <details className={styles.details}>
       <summary>Proposal assumptions (rate-free)</summary>
       <pre className={styles.markdown}>{result.proposal_assumptions_markdown}</pre>
