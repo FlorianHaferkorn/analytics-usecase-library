@@ -61,7 +61,8 @@ def test_abc_xyz_by_revenue_and_demand_variation():
     dim = pd.DataFrame({"ProductKey": [1, 2, 3, 4, 5]})
     out = mc.dim_product_spalten(dim, pd.DataFrame(zeilen), monate).set_index("ProductKey")
     assert out["ABC_Class"].to_dict() == {1: "A", 2: "B", 3: "C", 4: "C", 5: "C"}
-    assert out.loc[1, "XYZ_Class"] == "X" and out.loc[3, "XYZ_Class"] == "Z"
+    # absolute VK-Grenzen 0,25/0,5: 1 -> 0,0 X; 2 -> 0,5 Y (Grenze inklusiv); 4 -> 0,35 Y; 3 -> 1,73 Z
+    assert out.loc[[1, 2, 3, 4], "XYZ_Class"].tolist() == ["X", "Y", "Z", "Y"]
     assert out.loc[5, "XYZ_Class"] == "Z"                       # ohne Verkauf: nicht planbar
 
 
