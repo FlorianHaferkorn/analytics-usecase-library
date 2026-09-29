@@ -32,7 +32,7 @@ if (-not $SkipPrerequisites) {
         Write-Host "  ✓ Fabric CLI found: $fabricVersion" -ForegroundColor Green
     } catch {
         Write-Host "  ⚠ Fabric CLI not found. Installing..." -ForegroundColor Yellow
-        pip install fabric-cli
+        pip install ms-fabric-cli==1.7.0
     }
     
     # Check if requirements.txt exists

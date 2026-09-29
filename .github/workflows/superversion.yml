@@ -94,7 +94,7 @@ jobs:
         # npm 0.1.4 statt 0.1.1, die neuere Fassung prueft `.platform`, und der Lauf wurde rot
         # auf einem Commit, der daran nichts geaendert hatte. Ein Pin, der nur an einer Stelle
         # gilt, ist kein Pin.
-        run: npm install -g @microsoft/powerbi-report-authoring-cli@0.1.1
+        run: npm install -g @microsoft/powerbi-report-authoring-cli@0.4.0
 
       - name: Show validator version (must equal the pin)
         run: |

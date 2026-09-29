@@ -1,7 +1,8 @@
 """Die dist-Reports gegen den offiziellen Validator — als Ratsche, nicht als Gate.
 
 Gemessen am 03.08.2026: jeder der 17 dist-Reports meldet **25 Errors** des offiziellen
-`powerbi-report-author validate` (Repo-Pin 0.1.1), repo-weit identisch und ausnahmslos
+`powerbi-report-author validate` (damals Repo-Pin 0.1.1; seit 29.09.2026 Pin 0.4.0 mit
+derselben Befundmenge, `docs/architecture/pbir_cli_040_triage.md`), repo-weit identisch und ausnahmslos
 im mitgelieferten Theme. Frisch emittierte Reports sind sauber — der Unterschied ist
 das Theme, nicht der Emitter.
 
