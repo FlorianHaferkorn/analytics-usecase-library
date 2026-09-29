@@ -16,3 +16,10 @@
 *.db-wal binary
 *.parquet binary
 *.pbix binary
+
+# Generator output — edit the sources/generators, then regenerate (see dist/README.md).
+# linguist-generated collapses these in GitHub diffs; it changes nothing on checkout.
+products/fabric/powerbi/dist/** linguist-generated=true
+skills/*/SKILL.md linguist-generated=true
+.claude/skills/*/SKILL.md linguist-generated=true
+.github/copilot-instructions.md linguist-generated=true

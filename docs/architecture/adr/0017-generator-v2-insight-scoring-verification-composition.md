@@ -13,7 +13,7 @@
   [`0010-kpi-calculation-dsl-and-dax-synthesis.md`](0010-kpi-calculation-dsl-and-dax-synthesis.md)–[`0013`](0013-kpi-calculation-dsl-remaining-11-use-cases.md),
   [`../../../core/templates/page_templates/Storytelling_Principles.md`](../../../core/templates/page_templates/Storytelling_Principles.md),
   [`../../../products/fabric/powerbi/tooling/judge/llm_judge_prompt_v1.md`](../../../products/fabric/powerbi/tooling/judge/llm_judge_prompt_v1.md) (R4.2, unrelated post-hoc check, see Consequences),
-  [`../../../UMSETZUNGSPLAN_REPORT_EXZELLENZ.md`](../../../UMSETZUNGSPLAN_REPORT_EXZELLENZ.md) (Cut C5, task R5.2)
+  [`../../../UMSETZUNGSPLAN_REPORT_EXZELLENZ.md`](../../plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md) (Cut C5, task R5.2)
 
 ---
 
@@ -279,7 +279,7 @@ materialized** (I-3.4 WARN). The cross-finding *biggest-actual-delta* magnitude 
 
 | Source | What it grounds |
 |---|---|
-| `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` §2 (guardrail #2), Cut C5 / R5.2 row | The task definition, the four scoring dimensions, and the hard "no free LLM generation" constraint |
+| `docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` §2 (guardrail #2), Cut C5 / R5.2 row | The task definition, the four scoring dimensions, and the hard "no free LLM generation" constraint |
 | `products/fabric/powerbi/tooling/page_scaffold_generator/config_loader.py` | Verified v1 state: template/string composition only, Header/`big_idea` never wired |
 | `core/templates/page_templates/Storytelling_Principles.md` §2, §13 | Big Idea doctrine and the existing AI-generated-narrative grounding/provenance rules (§13) this design must stay compatible with |
 | `0009-wirkungs-loop-action-kpi-attribution.md` | The `UNCOMPUTED, nie 0` honesty rule reused verbatim in the verification gate; the snapshot mechanism Stage 1 may build on |

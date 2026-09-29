@@ -2,14 +2,14 @@
 
 - **Date:** 2026-07-08
 - **Scope:** Final acceptance check for the ALUCA Superversion pipeline against
-  [`PRODUCT_PLAN.md §2`](../../PRODUCT_PLAN.md#2-premium)'s six premium floors (F1–F6),
-  plus **F0** ("das Produkt rechnet"), added by [`SUPERVERSION_ZIELBILD_REVIEW.md`](../../SUPERVERSION_ZIELBILD_REVIEW.md)
+  [`docs/plans/PRODUCT_PLAN.md §2`](../plans/PRODUCT_PLAN.md#2-premium)'s six premium floors (F1–F6),
+  plus **F0** ("das Produkt rechnet"), added by [`docs/plans/SUPERVERSION_ZIELBILD_REVIEW.md`](../plans/SUPERVERSION_ZIELBILD_REVIEW.md)
   finding **A1** after discovering F1–F6 could all report green while every measure in
   every use case emitted `BLANK()` — passing every gate while computing nothing.
 - **Ran against:** the system state after [I-10.0](adr/0010-kpi-calculation-dsl-and-dax-synthesis.md)
-  (+[I-10.0-Folge ADR-0011/0012/0013](adr/), Rechenfähigkeit), [I-10.1](../../UMSETZUNGSPLAN_SUPERVERSION.md)
+  (+[I-10.0-Folge ADR-0011/0012/0013](adr/), Rechenfähigkeit), [I-10.1](../plans/UMSETZUNGSPLAN_SUPERVERSION.md)
   (Windows-Portabilität), [I-10.3](adr/0007-studio-generate-docks-onto-superversion-core.md)
-  (Studio↔Python-Core-Naht), and [I-10.4](../../UMSETZUNGSPLAN_SUPERVERSION.md) (DOCX-Deliverable) — the DoD's
+  (Studio↔Python-Core-Naht), and [I-10.4](../plans/UMSETZUNGSPLAN_SUPERVERSION.md) (DOCX-Deliverable) — the DoD's
   named prerequisites.
 - **Method:** every floor below was independently executed in this session (commands run
   for real, output condensed for readability where verbose but never altered in substance —
@@ -208,7 +208,7 @@ $ python -m tooling.superversion.layer_tools.report_documenter \
     --format docx --out /tmp/COM-001_handover.docx
 [documenter] wrote /tmp/COM-001_handover.docx
 ```
-37.815 Byte, real erzeugt — Beleg für [I-10.4](../../UMSETZUNGSPLAN_SUPERVERSION.md) (DOCX-Deliverable,
+37.815 Byte, real erzeugt — Beleg für [I-10.4](../plans/UMSETZUNGSPLAN_SUPERVERSION.md) (DOCX-Deliverable,
 diese Session abgeschlossen). MD bleibt byte-exakt Golden-Snapshot-getestet
 (`test_matches_golden_snapshot`); MD/DOCX-Content-Parität ist eigens getestet
 (`test_md_and_docx_agree_on_content`), sodass beide Formate nicht auseinanderdriften.
@@ -260,7 +260,7 @@ ein manuelles, nicht in die Superversion-Pipeline verdrahtetes Utility — es br
 einen echten Fabric-Workspace mit Dataset. Keins davon existiert in dieser Sandbox.
 
 Der geplante minimale G1-Pfad („Sandbox-Workspace + `executeQueries` gegen Referenzwerte,
-2 UCs, opt-in", Review-Cut S-4, `UMSETZUNGSPLAN_SUPERVERSION.md` Zeile 278/357) ist bisher
+2 UCs, opt-in", Review-Cut S-4, `docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md` Zeile 278/357) ist bisher
 **nur als Plan dokumentiert, nicht als eigener I-Task oder Code gebaut** — kein
 `live_cert.py`, keine Sandbox-Provisionierung, kein `--live`-Opt-in-Gate.
 

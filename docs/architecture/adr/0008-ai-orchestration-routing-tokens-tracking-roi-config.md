@@ -140,7 +140,7 @@ Neun Festlegungen:
 - Intern: die fünf Research-Drafts unter [`../research/I6-6/`](../research/I6-6/) (T1–T5, Quellen + Abrufdatum
   2026-06-24, mit Ehrlichkeits-Flags); [`../studio-model-routing-research-charter.md`](../studio-model-routing-research-charter.md);
   ADR-0005/0006/0007; `studio/src/lib/ai/orchestrator.ts`; `studio/src/lib/governance/approval-workflow.ts`;
-  `tooling/generator/schemas/` (Hausstil); `UMSETZUNGSPLAN_SUPERVERSION.md` (I-6.6).
+  `tooling/generator/schemas/` (Hausstil); `docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md` (I-6.6).
 - Extern (in den Research-Drafts zitiert, mit Abrufdatum): Provider-Docs (Anthropic/Google/OpenAI, teils 403 →
   unverifiziert geflaggt), OTel-GenAI-Semconv, RouteLLM/FrugalGPT (Cascade-Routing), FinOps-for-AI, JSON-Schema-
   Versionierung.

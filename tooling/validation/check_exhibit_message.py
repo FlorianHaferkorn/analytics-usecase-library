@@ -6,7 +6,7 @@ Enforces the "title = statement, not label" rule of the Boutique-Craft Rubric
 (core/templates/page_templates/governance/Boutique_Craft_Rubric.md, rule BC-NARR-01)
 at the INTENT layer: every 30-second-layer exhibit (component_30s) should carry a
 `message` that reads as a conclusion (IBCS SAY), not a bare "<metric> by <dimension>"
-label. This is the K2 slice of KONZEPT_REPORT_QUALITAET.md — "Aussage als Daten" —
+label. This is the K2 slice of docs/plans/KONZEPT_REPORT_QUALITAET.md — "Aussage als Daten" —
 and the structural seed of the K6 rubric gate.
 
 Scope: renderer-agnostic. Validates the governed bracket intent, not a PBIR render.

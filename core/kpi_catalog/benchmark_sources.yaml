@@ -1,4 +1,4 @@
-# Benchmark source-type catalog — Content-Grounding §6.3 (KONZEPT_REPORT_QUALITAET.md)
+# Benchmark source-type catalog — Content-Grounding §6.3 (docs/plans/KONZEPT_REPORT_QUALITAET.md)
 #
 # The allowed *types* of public source a benchmark may cite. A benchmark entry in
 # benchmarks.yaml MUST name a source_type from this list AND carry a concrete source

@@ -2,7 +2,7 @@
 .SYNOPSIS
   R4.1 Bridge-Workflow: one-shot Power BI Desktop Bridge screenshot capture for
   the visual close-loop (structural validation alone does not prove a report
-  renders correctly -- see UMSETZUNGSPLAN_REPORT_EXZELLENZ.md Cut C4).
+  renders correctly -- see docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md Cut C4).
 
 .DESCRIPTION
   MAINTAINER-ONLY. The Power BI Desktop Bridge is a local-only, named-pipe IPC

@@ -35,6 +35,7 @@ Nicht ganze Ordnerbäume scannen — gezielt routen.
 | Agent (Regeln + Skills) | [`docs/agent/_INDEX.md`](docs/agent/_INDEX.md) | Wie Agenten arbeiten: Rules, Skills, Guided Workflow (GADW), Aktivierung |
 | Repo-Gates + Sensoren | [`scripts/_INDEX.md`](scripts/_INDEX.md) | Drift-Gate, CI-/Spiegel-/Plattform-Sensoren, Tier-0-Sammler `gadw_gate.py` |
 | Produkte (Tool-Adapter) | [`products/_INDEX.md`](products/_INDEX.md) | Fabric/Power BI (Leitfäden, TMDL-/PBIR-Referenzen, Tooling, Deployment, Betrieb) + OSS-Stack (Evidence.dev), Adapter-Vertrag, Connectoren |
+| Pläne + Konzepte | [`docs/plans/_INDEX.md`](docs/plans/_INDEX.md) | Umsetzungspläne (Report-Exzellenz, Agentic Loop, Superversion), Konzepte, Reviews und Begleitnotizen — seit 29.09.2026 aus dem Wurzelordner hierher verschoben |
 | Intern (Maintainer) | [`internal/_INDEX.md`](internal/_INDEX.md) | Fehler-Wissensbasis (`KNOWN_ERRORS_AND_FIXES.md`), Desktop-/Fabric-gated Aufgaben, v1.0-Plan, Backlogs, Doku-Audits, Metriken, Continuity-Dossier, Angebotskalkulation — kein Kunden-Deliverable (außer Continuity-Dossier); `internal/archive/` nicht navigiert |
 
 Übrige Bereiche (`core/kpi_catalog/`, `core/action_codes/`, `core/usecases/`, …) navigieren

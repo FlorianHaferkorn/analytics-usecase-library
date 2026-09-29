@@ -4,7 +4,7 @@
 - **Date:** 2026-06-24
 - **Scope:** Where the Studio cockpit's **deliverables** come from — the *generate* seam between the `studio/` web app and the governed Python Superversion (I-1…I-5). Ratifies decision **E-1** raised by the I-6.1 inventory. Defines the direction + contract of the seam; the concrete bridge is implemented in I-6.2/6.3.
 - **Supersedes:** —
-- **Related:** [`0005-superversion-home-and-meridian-vendoring.md`](0005-superversion-home-and-meridian-vendoring.md), [`0006-superversion-target-adapter-contract.md`](0006-superversion-target-adapter-contract.md), [`../studio-capability-inventory.md`](../studio-capability-inventory.md) (I-6.1, decision E-1), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../../UMSETZUNGSPLAN_SUPERVERSION.md) (I-6.2/6.3 implement), [`../../../tooling/superversion/_INDEX.md`](../../../tooling/superversion/_INDEX.md)
+- **Related:** [`0005-superversion-home-and-meridian-vendoring.md`](0005-superversion-home-and-meridian-vendoring.md), [`0006-superversion-target-adapter-contract.md`](0006-superversion-target-adapter-contract.md), [`../studio-capability-inventory.md`](../studio-capability-inventory.md) (I-6.1, decision E-1), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../plans/UMSETZUNGSPLAN_SUPERVERSION.md) (I-6.2/6.3 implement), [`../../../tooling/superversion/_INDEX.md`](../../../tooling/superversion/_INDEX.md)
 
 ---
 

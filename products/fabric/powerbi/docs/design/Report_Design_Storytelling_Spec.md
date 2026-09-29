@@ -12,7 +12,7 @@
 > [`docs/architecture/use_case_storylines.md`](../../../../../docs/architecture/use_case_storylines.md)
 > (`tooling/storyline/derive_storyline.py`). This spec **references** it and never duplicates it.
 >
-> **Aligns with** the report-quality roadmap (`KONZEPT_REPORT_QUALITAET.md` §8, K1 bar → K2 intent) and defers
+> **Aligns with** the report-quality roadmap (`docs/plans/KONZEPT_REPORT_QUALITAET.md` §8, K1 bar → K2 intent) and defers
 > to the governed policies that landed with it:
 > [`title_policy.py`](../../../../../tooling/reporting/title_policy.py) ·
 > [`format_policy.py`](../../../../../tooling/reporting/format_policy.py) ·

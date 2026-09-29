@@ -4,7 +4,7 @@
 - **Date:** 2026-06-23
 - **Scope:** How the Superversion layer emits stack-specific artifacts (Power BI/TMDL, PBIR, OSI, …) FROM the canonical model — the *target* side of the adapter pattern, complementing the *source* side (`from_aluca`, I-1). Defines the contract only; concrete adapters are separate tasks.
 - **Supersedes:** —
-- **Related:** [`0005-superversion-home-and-meridian-vendoring.md`](0005-superversion-home-and-meridian-vendoring.md), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../../UMSETZUNGSPLAN_SUPERVERSION.md) (I-3.1 ratified here; I-3.2/I-3.3 implement adapters), [`../../../tooling/superversion/targets/base.py`](../../../tooling/superversion/targets/base.py), [`../../../PRODUCT_PLAN.md`](../../../PRODUCT_PLAN.md) (§2 F1/F2/F4)
+- **Related:** [`0005-superversion-home-and-meridian-vendoring.md`](0005-superversion-home-and-meridian-vendoring.md), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../plans/UMSETZUNGSPLAN_SUPERVERSION.md) (I-3.1 ratified here; I-3.2/I-3.3 implement adapters), [`../../../tooling/superversion/targets/base.py`](../../../tooling/superversion/targets/base.py), [`../../../PRODUCT_PLAN.md`](../../plans/PRODUCT_PLAN.md) (§2 F1/F2/F4)
 
 ---
 
@@ -110,6 +110,6 @@ Five rules:
 - Internal: [`0005-superversion-home-and-meridian-vendoring.md`](0005-superversion-home-and-meridian-vendoring.md),
   [`../../../tooling/superversion/targets/base.py`](../../../tooling/superversion/targets/base.py),
   [`../../../tooling/superversion/_INDEX.md`](../../../tooling/superversion/_INDEX.md),
-  [`../../../PRODUCT_PLAN.md`](../../../PRODUCT_PLAN.md) (§2 F1/F2/F4)
+  [`../../../PRODUCT_PLAN.md`](../../plans/PRODUCT_PLAN.md) (§2 F1/F2/F4)
 - External (Meridian, by reference): Meridian ADR-0036 (canonical core + source/target
   adapter pattern), `core/pbi_engine/target/registry.py` (the `emit`/registry contract).

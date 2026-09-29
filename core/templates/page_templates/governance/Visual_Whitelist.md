@@ -33,7 +33,7 @@ If a visual is not listed here, it is **not allowed**.
 **Smart Narrative rules:**
 - Must be bound to a governed narrative measure (e.g. `Narrative Text (COM)`) — never left as an
   unconfigured native Smart Narrative visual, which falls back to generic auto-text disconnected
-  from the use case's authored insight (UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R1.2)
+  from the use case's authored insight (docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R1.2)
 - Implemented as `cardVisual` bound to the measure via `queryState` (mirrors the `ActionPanel`
   slot's proven pattern in this same report) — this makes the narrative live/filter-context-aware.
   A native `smartNarrativeVisual` has no `queryState` at all (it auto-reads page data) and a static

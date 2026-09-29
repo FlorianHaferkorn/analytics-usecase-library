@@ -1,7 +1,7 @@
 """dax_synth — deterministic DSL-formula → DAX synthesis (task I-10.0 / Cut S-1).
 
 This is the missing half of Invariant I1's "neutral core, dialect-materialized-at-
-the-stack-step" story (Review `SUPERVERSION_ZIELBILD_REVIEW.md` Befund A1): the
+the-stack-step" story (Review `docs/plans/SUPERVERSION_ZIELBILD_REVIEW.md` Befund A1): the
 governed KPI catalog carries a stack-neutral `technical.calculation` formula
 (schema: `tooling/generator/schemas/kpi_definition.schema.json#/$defs/calculation`),
 `from_aluca.py` *resolves* it (KPI-id refs → sibling measure names, column refs →

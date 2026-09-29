@@ -1,6 +1,6 @@
 """I-10.0 / Cut S-1 DoD gates: the compiler computes, it doesn't just structure.
 
-Review `SUPERVERSION_ZIELBILD_REVIEW.md` Befund A1 (Critical): before this task,
+Review `docs/plans/SUPERVERSION_ZIELBILD_REVIEW.md` Befund A1 (Critical): before this task,
 `from_aluca` always set `expressions={}` and the TMDL target always emitted
 `BLANK()` — all 16 use cases passed F1–F6 while zero measures actually computed
 anything. These tests are the mechanical proof that the gap is closed for the

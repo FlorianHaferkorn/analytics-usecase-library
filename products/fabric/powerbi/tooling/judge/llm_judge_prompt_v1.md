@@ -2,9 +2,9 @@
 
 version: 1.0.0
 status: versioned, not yet run (blocked on R4.1 — needs a real Desktop
-  screenshot; see `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` R4.1/R4.2 ledger rows)
+  screenshot; see `docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` R4.1/R4.2 ledger rows)
 
-> Implements `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` Cut C4 / **R4.2
+> Implements `docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` Cut C4 / **R4.2
 > LLM-Judge-Abnahme**. Half-automatic: the judge scores and explains; a human
 > reads the verdict and decides accept/reject. The judge's output is never
 > auto-applied to the ledger or auto-merged — it is a decision aid.
@@ -96,7 +96,7 @@ The judge's JSON is a **decision aid, not a gate**. A human:
    dimension against the image yourself).
 2. Decides accept / accept-with-followups / reject — the judge's
    `overall_recommendation` is a suggestion, not a verdict.
-3. Records the run in `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md`'s R4.2 ledger row:
+3. Records the run in `docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md`'s R4.2 ledger row:
    date, report/page, the judge's JSON (or a summary), and the human's final
    decision + any follow-up tasks filed.
 
@@ -121,6 +121,6 @@ step once a real COM-002 screenshot exists.
 
 | Source | What it gave us |
 |---|---|
-| `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` R4.2 row | The five named dimensions (Informativeness, Clarity/Coherence, Visualization Quality, Narrative Quality, Factual Correctness) and the half-automatic judge-then-human posture |
+| `docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` R4.2 row | The five named dimensions (Informativeness, Clarity/Coherence, Visualization Quality, Narrative Quality, Factual Correctness) and the half-automatic judge-then-human posture |
 | `core/usecases/core/COM-002_Margin_Price_Performance/UseCase_Bracket.yaml` | `decision_question`/`big_idea` field paths used for grounding context |
 | `desktop-bridge-screenshot-workflow.md` (R4.1) | Where the input screenshots come from |

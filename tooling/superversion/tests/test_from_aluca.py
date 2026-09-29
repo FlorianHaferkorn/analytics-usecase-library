@@ -1,6 +1,6 @@
 """Phase-0/1 spike test: ALUCA bracket → canonical model round-trips.
 
-Proves (or refutes) the core thesis of PRODUCT_PLAN.md §0: ALUCA's meaning/visual layer
+Proves (or refutes) the core thesis of docs/plans/PRODUCT_PLAN.md §0: ALUCA's meaning/visual layer
 docks onto Meridian's canonical contract. Runs standalone (no Meridian import).
 
 Run:  python -m pytest tooling/superversion/tests/ -v

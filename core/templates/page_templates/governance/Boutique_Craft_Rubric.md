@@ -3,7 +3,7 @@
 > **Authority:** Governs the machine-readable rubric
 > [`tokens/boutique_craft_rubric.yaml`](../tokens/boutique_craft_rubric.yaml). This is
 > the **K1 artifact** of the report-quality concept
-> ([`KONZEPT_REPORT_QUALITAET.md`](../../../../KONZEPT_REPORT_QUALITAET.md)): it turns
+> ([`docs/plans/KONZEPT_REPORT_QUALITAET.md`](../../../../docs/plans/KONZEPT_REPORT_QUALITAET.md)): it turns
 > the Craft-Core (§5) into a **versioned, checkable "Boutique bar"** and pins it to a
 > concrete reference report (COM-002).
 >
