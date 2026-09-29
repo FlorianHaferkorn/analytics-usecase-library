@@ -64,9 +64,10 @@ run_check "Meridian mirror (check_dataarch_mirror.py)" \
   python3 scripts/check_dataarch_mirror.py
 
 # --- Ruff-Sperrklinke (wie CI python-checks) ------------------------------
-# Ohne ruff im Interpreter meldet das Skript laut SKIP statt gruen.
-run_check "Ruff-Sperrklinke (check_lint_ratchet.py --strict)" \
-  python3 scripts/check_lint_ratchet.py --strict
+# Exit 1 = gestiegen, Exit 2 = nicht gelaufen (kein ruff) -- beides rot. Ohne --pin-pflicht:
+# eine abweichende ruff-Version laeuft mit Warnung; die CI verlangt den Pin.
+run_check "Ruff-Sperrklinke (check_lint_ratchet.py)" \
+  python3 scripts/check_lint_ratchet.py
 
 # --- Python test suite --------------------------------------------------
 run_check "Pytest suite (tooling/superversion, tooling/tests, products)" \
