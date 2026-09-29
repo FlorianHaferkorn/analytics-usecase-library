@@ -4,7 +4,7 @@
 schema_version: 1.0.0
 capability:
   id: fabric_data_delivery_assurance
-  version: 1.1.0
+  version: 1.2.0
 
   applicability:
     - id: app_target_is_fabric
@@ -221,6 +221,71 @@ capability:
       evidence_requirement_refs:
         - e_runtime_ownership_proof
       decision_ref: null
+    - id: q_runtime_identity_drift
+      text: Which edits to a production pipeline, schedule or semantic model change the identity it runs under, and which readback after each such edit proves that execution still resolves to the declared runtime identity in every environment that holds operated or tested artifacts?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_operated_product
+      evidence_requirement_refs:
+        - e_runtime_ownership_proof
+        - e_runtime_identity_drift_proof
+      decision_ref: null
+    - id: q_identity_lane_reuse
+      text: If a provisioning or deployment identity also runs production workloads, which decision records this exception, its end gate and the dedicated runtime identity that replaces it?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_operated_product
+      evidence_requirement_refs:
+        - e_identity_inventory
+      decision_ref: null
+    - id: q_personal_access_removal
+      text: Before direct assignments of a delivery user are removed, which group keeps the operator able to act, and which readback proves that no schedule, refresh, semantic model or connection in any environment still depends on that user?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_operated_product
+      evidence_requirement_refs:
+        - e_runtime_ownership_proof
+        - e_access_assignment_proof
+      decision_ref: null
+    - id: q_recovery_targets_and_retention
+      text: Which recovery point and recovery time objectives, item and workspace retention periods and regional disaster-recovery setting apply per failure class, and who confirms them before handover?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_operated_product
+      evidence_requirement_refs:
+        - e_retention_recovery_readback
+      decision_ref: null
+    - id: q_check_execution_identity
+      text: Which identity runs each readiness, ownership and access check, which API and directory permissions does each check need, and how is a check that could not run reported?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_check_execution_record
+      decision_ref: null
+    - id: q_delivery_tooling_baseline
+      text: Which repository, work-item board, documentation home, deployment path and service connections are available at project start, which interim location is used for anything missing, and when and how does content move to the final home?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_delivery_tooling_baseline
+      decision_ref: null
+    - id: q_change_governance
+      text: Which protected branch, blocking branch policies, required reviewers and least-privilege service connections govern changes to production definitions, and which positive and negative pull-request test proves them?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_change_governance_proof
+      decision_ref: null
     - id: q_downstream_cutover
       text: Which current compatibility path feeds each downstream consumer, what is the approved target binding, and which reconciliation, security, render, rollback and retirement proofs permit the old path to be removed?
       state: open
@@ -376,6 +441,59 @@ capability:
         - Negative test proving that removal of an interactive delivery user does not stop the operated workload
       state: registered
       expiry_policy: review_on_scope_change
+    - id: e_runtime_identity_drift_proof
+      claim: After a controlled edit of a production pipeline or schedule, readback shows whether the executing identity changed, and the documented re-save or recreate path restores the declared runtime identity before the next scheduled run.
+      scope: Every operated schedule, pipeline and semantic-model owner in every environment that holds operated or tested artifacts.
+      environment: test
+      acceptable_sources:
+        - Ownership readback before and after the edit with principal type, object identifier, artifact and timestamp
+        - Cross-environment ownership audit including semantic-model owners, not only production schedules
+      state: registered
+      expiry_policy: review_on_tool_change
+    - id: e_retention_recovery_readback
+      claim: The accountable owner confirmed recovery targets per failure class, tenant retention settings were read back, and one restore from retention plus one rebuild from source met the targets.
+      scope: Every operated data product and the tenant retention settings it relies on.
+      environment: test
+      acceptable_sources:
+        - Tenant setting readback for item and workspace retention with timestamp
+        - Recovery test record with start and end time per step, restored artifact identifiers and reconciled row counts
+      state: registered
+      expiry_policy: fixed_review_interval
+    - id: e_check_execution_record
+      claim: Every automated readiness, ownership and access check records the executing identity and reports not run, not permitted and no finding as distinct states.
+      scope: Every automated check whose result is used as delivery evidence.
+      environment: any_non_production
+      acceptable_sources:
+        - Evidence file carrying executing identity, per-check state and the measured rows the assessment was derived from
+        - Negative run without a required permission showing the affected check as not measured rather than passed or empty
+      state: registered
+      expiry_policy: review_on_tool_change
+    - id: e_delivery_tooling_baseline
+      claim: Repository, board, documentation home, deployment path and service connections are available or covered by a named interim location with an owner and a move date; the decision register links every signed decision document.
+      scope: Every tool the delivery and the later operation depend on.
+      environment: none
+      acceptable_sources:
+        - Dated tooling inventory with owner, access readback and interim location per missing tool
+        - Documentation index in the final home with links to the decision register and signed decision documents
+      state: registered
+      expiry_policy: review_on_scope_change
+    - id: e_change_governance_proof
+      claim: A pull request that violates the branch policy is blocked, a compliant one passes with the required reviewers, and the service connections hold only the permissions their pipelines use.
+      scope: Every repository and deployment path that changes test or production definitions.
+      environment: test
+      acceptable_sources:
+        - Positive and negative pull-request record with policy evaluation results
+        - Service-connection permission readback with identity, scope and role
+      state: registered
+      expiry_policy: review_on_tool_change
+    - id: e_board_evidence_reconciliation
+      claim: Before each milestone, every work item marked done has its child items closed and a linked evidence reference, and open work matches the open-points list.
+      scope: Every work item that carries a milestone or acceptance claim.
+      environment: none
+      acceptable_sources:
+        - Dated board export compared with the evidence register, listing mismatches and their resolution
+      state: registered
+      expiry_policy: fixed_review_interval
     - id: e_cutover_decommission_proof
       claim: Every downstream binding uses the approved target and the compatibility path is retired only after value reconciliation, negative security tests, report rendering and rollback proof pass.
       scope: Every transitional source, target, semantic model, report and application binding.
@@ -743,6 +861,18 @@ capability:
       applies_to: item
       rule: Only transient and rate-limit failures retry; authentication, schema, contract and quality failures stop for correction.
       decision_refs: []
+    - id: ar_runtime_identity_after_edit
+      applies_to: identity
+      rule: A manual edit of a production pipeline, schedule or semantic-model binding is complete only after an ownership readback shows the declared runtime identity again.
+      decision_refs: []
+    - id: ar_identity_lane_separation
+      applies_to: identity
+      rule: Provisioning, deployment and runtime identities stay separate; reuse is a recorded, time-bounded exception with a named replacement identity.
+      decision_refs: []
+    - id: ar_derived_assessment
+      applies_to: monitoring
+      rule: Readiness and ownership assessments are computed from measured rows; a check that could not run is reported as not measured, never as passed or empty.
+      decision_refs: []
 
   work_packages:
     - id: wp_identity_access_contract
@@ -944,6 +1074,7 @@ capability:
       gate: discovery_ready
       minimum_evidence_refs:
         - e_source_behavior_profile
+        - e_delivery_tooling_baseline
       decision_refs: []
       blocking: true
     - id: g_delivery_decision_ready
@@ -976,6 +1107,9 @@ capability:
         - e_capacity_baseline
         - e_recovery_proof
         - e_runtime_ownership_proof
+        - e_runtime_identity_drift_proof
+        - e_check_execution_record
+        - e_change_governance_proof
         - e_eventual_consistency_proof
         - e_tenant_guardrail_proof
       decision_refs:
@@ -995,6 +1129,11 @@ capability:
         - e_recovery_proof
         - e_serving_acceptance_proof
         - e_runtime_ownership_proof
+        - e_runtime_identity_drift_proof
+        - e_check_execution_record
+        - e_retention_recovery_readback
+        - e_change_governance_proof
+        - e_board_evidence_reconciliation
         - e_cutover_decommission_proof
         - e_eventual_consistency_proof
         - e_tenant_guardrail_proof
@@ -1058,3 +1197,30 @@ capability:
       expected_result: Visibility delay is absorbed within the approved bounded retry window and the permanent error stops immediately with classified evidence.
       evidence_requirement_refs:
         - e_eventual_consistency_proof
+    - id: at_runtime_identity_drift
+      readiness_gate_ref: g_delivery_apply_ready
+      statement: A production pipeline is edited and saved by a delivery user and then corrected through the documented re-save or recreate path.
+      expected_result: Readback shows the changed executing identity after the edit and the declared runtime identity after the correction; no scheduled run executes under the delivery user.
+      evidence_requirement_refs:
+        - e_runtime_identity_drift_proof
+    - id: at_personal_access_removal
+      readiness_gate_ref: g_delivery_acceptance_ready
+      statement: The direct assignments of the delivery user are removed after the runtime identity has taken over.
+      expected_result: Scheduled runs continue under the runtime identity, the operator keeps access through the declared group and no environment reports a direct user assignment or a user-owned schedule or semantic model.
+      evidence_requirement_refs:
+        - e_runtime_ownership_proof
+        - e_access_assignment_proof
+        - e_check_execution_record
+    - id: at_restore_and_rebuild
+      readiness_gate_ref: g_delivery_acceptance_ready
+      statement: One deleted item is restored from retention and one governed layer is rebuilt from the source in a non-production environment.
+      expected_result: Both paths finish within the confirmed recovery targets, restored and rebuilt data reconcile with the reference, and achieved times are retained.
+      evidence_requirement_refs:
+        - e_retention_recovery_readback
+        - e_recovery_proof
+    - id: at_change_governance
+      readiness_gate_ref: g_delivery_apply_ready
+      statement: A pull request that violates the branch policy and a compliant pull request are submitted against the protected branch.
+      expected_result: The violating request is blocked, the compliant one merges only after the required reviewers approve, and the deployment runs under a service connection with least privilege.
+      evidence_requirement_refs:
+        - e_change_governance_proof
