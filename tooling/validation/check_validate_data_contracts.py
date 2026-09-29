@@ -98,6 +98,12 @@ def check_column(col: dict, table_columns: set[str]) -> list[str]:
     for key in ("nullable", "target_state"):
         if key in col and not isinstance(col[key], bool):
             errors.append(f"{key} must be a boolean, got {col[key]!r}")
+    # source_column (29.09.2026): the physical Gold column when the contract name is the business
+    # / model name — the same split as TMDL `column <name>` + `sourceColumn`.
+    if "source_column" in col and (not isinstance(col["source_column"], str) or not col["source_column"].strip()):
+        errors.append(f"source_column must be a non-empty string, got {col['source_column']!r}")
+    elif col.get("source_column") == col.get("name"):
+        errors.append("source_column equals name — drop it")
     if "unknown_member" in col:
         if not _is_scalar(col["unknown_member"]):
             errors.append(f"unknown_member must be a scalar, got {col['unknown_member']!r}")

@@ -138,7 +138,7 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: ProductKey, type: int, ref: dim_product, nullable: true, cardinality: many-to-one}
-      - {name: Inventory Amount, type: currency, agg: sum}
+      - {name: Average Inventory Amount, type: currency, agg: sum, checks: [{gte: 0}]}
       - {name: COGS Amount, type: currency, agg: sum}
 
   - name: fact_finance

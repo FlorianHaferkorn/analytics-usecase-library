@@ -68,7 +68,7 @@ def test_cli_writes_file(tmp_path):
 def test_tables_carry_showcase_and_column_specs():
     """A-23: additive fields — `columns` unchanged, `showcase` + `column_specs` alongside."""
     tables = _load_tables(REPO / "core" / "data_contracts" / "domains")
-    allowed = {"name", "type", "nullable", "ref", "unknown_member", "checks", "target_state"}
+    allowed = {"name", "source_column", "type", "nullable", "ref", "unknown_member", "checks", "target_state"}
     for t in tables:
         assert isinstance(t["showcase"], bool)
         assert [s["name"] for s in t["column_specs"]] and sorted(s["name"] for s in t["column_specs"]) == t["columns"]
@@ -86,6 +86,9 @@ def test_tables_carry_showcase_and_column_specs():
     assert set(net) == {"name", "type"}                      # only keys the contract sets
     assert any(t["showcase"] is False for t in tables)       # e.g. fact_emissions
     assert any(s.get("target_state") for t in tables for s in t["column_specs"])
+    sc_sales = by_name[("supply_chain", "fact_sales")]
+    units = next(s for s in sc_sales["column_specs"] if s["name"] == "Sales Units")
+    assert units["source_column"] == "Quantity"               # Modellname -> physische Gold-Spalte
 
 
 def test_column_specs_from_synthetic_contract(tmp_path):

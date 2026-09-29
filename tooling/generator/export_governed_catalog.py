@@ -16,7 +16,7 @@ MEASURE_UNDOCUMENTED / TABLE_MISSING / COLUMN_MISSING. Read-only; emits JSON, ru
 Per table, additively (older consumers read only ``name/kind/domain/columns``, which stay as they
 were): ``showcase`` (bool, default true: the Aurora showcase has data for the table) and
 ``column_specs`` — one object per column with only the keys the contract sets out of
-``name, type, nullable, ref, unknown_member, checks, target_state`` (A-23; the structured
+``name, source_column, type, nullable, ref, unknown_member, checks, target_state`` (A-23; the structured
 quality fields are described in ``core/data_contracts/domains/README.md``).
 
 Usage:
@@ -62,7 +62,7 @@ def _load_measures(kpi_dir: Path) -> list[dict]:
     return measures
 
 
-SPEC_KEYS = ("name", "type", "nullable", "ref", "unknown_member", "checks", "target_state")
+SPEC_KEYS = ("name", "source_column", "type", "nullable", "ref", "unknown_member", "checks", "target_state")
 
 
 def _column_spec(col: dict) -> dict:

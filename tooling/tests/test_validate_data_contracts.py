@@ -94,3 +94,11 @@ def test_structure_rules_unchanged():
     assert validate_contract({"version": 1}) == ["missing domain, dimension, or fact"]
     assert validate_contract({"domain": "d", "fact": [{"name": "f"}]}) == ["fact 'f' missing grain"]
     assert validate_contract({"domain": "d", "dimension": [{"columns": []}]}) == ["dimension entry missing name"]
+
+
+def test_source_column_separates_model_name_from_gold_column():
+    """`{name: Sales Units, source_column: Quantity}` — Modellname und physische Gold-Spalte getrennt,
+    wie TMDL `column` + `sourceColumn` (29.09.2026)."""
+    assert check_column({"name": "Sales Units", "source_column": "Quantity"}, COLS) == []
+    assert any("non-empty string" in e for e in check_column({"name": "x", "source_column": ""}, COLS))
+    assert any("equals name" in e for e in check_column({"name": "x", "source_column": "x"}, COLS))

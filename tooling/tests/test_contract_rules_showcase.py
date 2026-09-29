@@ -34,15 +34,12 @@ REPO = Path(__file__).resolve().parents[2]
 CONTRACTS = REPO / "core" / "data_contracts" / "domains"
 GOLD = REPO / "showcases" / "aurora_group" / "data" / "gold"
 
-# Vertragsspalten ohne Gold-Spalte — Sperrklinke, exakte Menge (29.09.2026). Die zehn A-24-Lücken
-# hat der Gold-Generator geschlossen. Uebrig sind zwei Namensfragen des Vertrags, keine
-# Generatorluecken: `fact_sales.Sales Units` ist der Modellname, das Modell liest Gold `Quantity`
-# (E8: zwei Vertraege beschreiben dieselbe Tabelle verschieden); `fact_inventory.Inventory Amount`
-# hat in Gold nur `Average Inventory Amount`. Entscheidung offen (Ledger A-23). Eine neue Luecke
-# UND eine behobene, die hier noch steht, machen den Test rot.
-BEKANNT_OHNE_GOLD = {
-    ("fact_inventory", "Inventory Amount"), ("fact_sales", "Sales Units"),
-}
+# Vertragsspalten ohne Gold-Spalte — Sperrklinke, exakte Menge. Seit 29.09.2026 leer: die zehn
+# A-24-Luecken schloss der Gold-Generator, die zwei Namensfragen (`fact_sales.Sales Units`,
+# `fact_inventory.Inventory Amount`) entschied Florian nach Best Practice — der Vertrag nennt die
+# physische Gold-Spalte (`Quantity`, `Average Inventory Amount`), der fachliche Name ist Synonym.
+# Jede neue Luecke macht den Test rot.
+BEKANNT_OHNE_GOLD: set[tuple[str, str]] = set()
 
 _OPS = {"gte": ">=", "gt": ">", "lte": "<=", "lt": "<", "gte_column": ">=", "lte_column": "<="}
 
@@ -85,7 +82,8 @@ def _rules() -> list[dict]:
         for kind in ("dimension", "fact"):
             for t in doc.get(kind) or []:
                 for c in t.get("columns") or []:
-                    base = {"table": t["name"], "column": c["name"], "showcase": showcase[t["name"]],
+                    # Gegen Gold zaehlt die physische Spalte: source_column, sonst der Name.
+                    base = {"table": t["name"], "column": c.get("source_column", c["name"]), "showcase": showcase[t["name"]],
                             "target_state": bool(c.get("target_state"))}
                     found = []
                     if c.get("nullable") is not True:

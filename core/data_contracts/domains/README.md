@@ -72,6 +72,7 @@ Rules that a machine can run live **on the column**, not as prose in `quality_ru
 | `nullable` | column | `true` = NULL allowed. Missing = never NULL. |
 | `ref` | column | FK to the dimension's `role: key` column. |
 | `unknown_member: <value>` | FK column | Never NULL; `<value>` (e.g. `-1`) is the placeholder row of the referenced dimension ("unknown"/"none"). `nullable` is then `false`. |
+| `source_column: <name>` | column | Physical Gold column when `name` is the business/model name (the TMDL `column` + `sourceColumn` split), e.g. `{name: Sales Units, source_column: Quantity}`. Checks and the showcase proof run against `source_column`; the linguistic schema binds `name`. |
 | `checks: [...]` | column | List of entries with exactly one of `gte`, `gt`, `lte`, `lt` (number), `between: [a, b]` (inclusive), `in: [...]` (allowed values), `gte_column` / `lte_column` (another column of the same row), optionally `when_present: true`. Example: `checks: [{between: [0, 10]}]`. |
 | `target_state: true` | column | Target design: not (yet) delivered by the Aurora showcase or read by a model. |
 | `showcase: false` | table | The Aurora showcase has no data for this table (missing = present). |

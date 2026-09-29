@@ -66,7 +66,7 @@ fact:
       - {name: Net Sales Amount, type: currency, agg: sum}
       - {name: Plan Sales Amount, type: currency, agg: sum, nullable: true}
       - {name: Last Year Sales Amount, type: currency, agg: sum, nullable: true}
-      - {name: Sales Units, type: decimal, agg: sum}
+      - {name: Sales Units, source_column: Quantity, type: decimal, agg: sum, unit: units}
       - {name: Market Share %, type: decimal, nullable: true, checks: [{between: [0, 1], when_present: true}]}
 
   - name: fact_customer_acquisition
