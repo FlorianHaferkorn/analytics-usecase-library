@@ -27,22 +27,33 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/validate_tmdl_style.sh",
-            "timeout": 10000
+            "timeout": 30
           },
           {
             "type": "command",
             "command": "bash .claude/hooks/validate_pbir_structure.sh",
-            "timeout": 10000
+            "timeout": 30
           },
           {
             "type": "command",
             "command": "bash .claude/hooks/validate_measure_metadata.sh",
-            "timeout": 15000
+            "timeout": 30
           },
           {
             "type": "command",
             "command": "bash .claude/hooks/check_pbi_desktop.sh",
-            "timeout": 12000
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/activate_git_hooks.sh\"",
+            "timeout": 30
           }
         ]
       }

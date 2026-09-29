@@ -79,9 +79,18 @@ def check_bracket_required_fields(ctx: PreflightContext) -> None:
 
 def check_kpi_refs_exist(ctx: PreflightContext) -> None:
     b = ctx.bracket
+    orch = b.get("orchestration") or {}
     kpi_ids: List[str] = []
     kpi_ids += b.get("primary_kpi_ids", [])
-    kpi_ids += b.get("influencing_kpi_ids", [])
+    # Laut Schema stehen Nordstern und Hebel unter `orchestration`; ein
+    # `influencing_kpi_ids` auf oberster Ebene verbietet es (additionalProperties).
+    # Bis zum 29.09.2026 wurde nur die oberste Ebene gelesen -- die Hebel-KPIs
+    # echter Brackets wurden nie gegen den Katalog geprueft.
+    if orch.get("strategic_kpi_id"):
+        kpi_ids.append(orch["strategic_kpi_id"])
+    kpi_ids += orch.get("influencing_kpi_ids", [])
+    kpi_ids += b.get("influencing_kpi_ids", [])  # Altform, falls ohne Schema erzeugt
+    kpi_ids = list(dict.fromkeys(kpi_ids))
 
     for kpi_id in kpi_ids:
         filename = f"{kpi_id}.yaml"
@@ -238,16 +247,21 @@ def check_domain_model_exists(ctx: PreflightContext) -> None:
 # ---------------------------------------------------------------------------
 
 def check_bracket_schema_compliance(ctx: PreflightContext) -> None:
+    # Schema-Autoritaet ist `tooling/generator/schemas/` (CLAUDE.md, Golden Thread).
+    # Bis zum 29.09.2026 stand hier `tooling/ai/schemas/` -- einen Pfad, den es nicht
+    # gibt: die Pruefung lief nie, gemeldet wurde nur eine Warnung. Gemessen am selben
+    # Tag: alle 21 UseCase_Bracket.yaml bestehen das Schema.
     schema_path = (
         Path(__file__).parents[3]
-        / "tooling" / "ai" / "schemas" / "usecase_bracket.schema.json"
+        / "tooling" / "generator" / "schemas" / "usecase_bracket.schema.json"
     )
     if not schema_path.is_file():
-        # Nicht mehr lautlos: ein Pruefer, der ohne seine Regeln gruen meldet,
-        # ist schlimmer als keiner. Wer das Schema verschiebt, soll es merken.
-        import warnings
-        warnings.warn(f"Bracket-Schema fehlt ({schema_path}) — NICHT geprueft.",
-                      RuntimeWarning, stacklevel=2)
+        # Ein Pruefer, der ohne seine Regeln gruen meldet, ist schlimmer als keiner:
+        # fehlt das Schema, ist das ein Fehler, keine Warnung, die niemand liest.
+        ctx.error(
+            "BRACKET_SCHEMA_MISSING",
+            f"Bracket-Schema fehlt ({schema_path}) — Bracket NICHT geprueft.",
+        )
         return
     # `jsonschema` steht in requirements.txt und pyproject.toml. Der Rueckfall
     # schuetzte vor nichts und schaltete nur die Pruefung ab, wenn jemand die

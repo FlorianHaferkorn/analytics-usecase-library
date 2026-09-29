@@ -9,6 +9,9 @@ import yaml
 
 from ..preflight.validator import PreflightValidator
 
+_ECHTER_BRACKET = (Path(__file__).resolve().parents[3] / "core" / "usecases" / "core"
+                  / "COM-001_Sales_Performance" / "UseCase_Bracket.yaml")
+
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -37,25 +40,17 @@ def env(tmp_path: Path):
     ac = {"id": "C-S1.1", "name": "Test Action", "owner": "Sales VP"}
     (ac_root / "C-S1.1.yaml").write_text(yaml.dump(ac), encoding="utf-8")
 
-    # Valid bracket
-    bracket = {
-        "id": "COM-001",
-        "title": "Sales Performance",
-        "primary_kpi_ids": ["com.sales.net_sales_amount"],
+    # Valid bracket -- schemakonform (tooling/generator/schemas/usecase_bracket.schema.json).
+    # Bis zum 29.09.2026 fehlten hier schema_version, domain, governance, value_driver_model
+    # und documentation; das fiel nicht auf, weil die Schemapruefung nie lief.
+    # Basis ist der echte COM-001-Bracket, reduziert auf den KPI und die Aktion dieser Umgebung.
+    bracket = yaml.safe_load(_ECHTER_BRACKET.read_text(encoding="utf-8"))
+    bracket["primary_kpi_ids"] = ["com.sales.net_sales_amount"]
+    bracket["orchestration"].update({
+        "strategic_kpi_id": "com.sales.net_sales_amount",
         "influencing_kpi_ids": [],
-        "orchestration": {"action_code_ids": ["C-S1.1"]},
-        "ux_layout_rules": {
-            "page_1_summary": {
-                "page_type": "T1",
-                "component_30s": [
-                    {"visual_type": "trend_line", "category": "dim_date.Date"},
-                ],
-            },
-            "page_2_execution": {
-                "component_300s": {"action_panel": True}
-            },
-        },
-    }
+        "action_code_ids": ["C-S1.1"],
+    })
     bracket_dir = uc_root / "COM-001_Sales_Performance"
     bracket_dir.mkdir()
     bracket_path = bracket_dir / "UseCase_Bracket.yaml"
@@ -193,3 +188,33 @@ class TestPreflightValidator:
         assert "errors" in d
         assert "warnings" in d
         assert "checks_run" in d
+
+
+# ---------------------------------------------------------------------------
+# Bracket-Schema (29.09.2026): die Pruefung zeigte auf `tooling/ai/schemas/`,
+# einen Pfad, den es nicht gibt -- sie lief nie. Belegt wird, dass sie jetzt
+# laeuft (Verstoss faellt auf) und dass ein fehlendes Schema ein Fehler ist.
+# ---------------------------------------------------------------------------
+
+from ..preflight import checks as _checks  # noqa: E402
+
+
+def _ctx(bracket: dict) -> "_checks.PreflightContext":
+    return _checks.PreflightContext(
+        bracket_path=Path("UseCase_Bracket.yaml"), bracket=bracket,
+        kpi_catalog_root=Path("."), action_codes_root=Path("."))
+
+
+def test_bracket_schema_wird_wirklich_geprueft():
+    ctx = _ctx({"usecase_id": 42})
+    _checks.check_bracket_schema_compliance(ctx)
+    assert any("BRACKET_SCHEMA_VIOLATION" in e for e in ctx.errors), ctx.errors
+    assert not any("BRACKET_SCHEMA_MISSING" in e for e in ctx.errors)
+
+
+def test_fehlendes_bracket_schema_ist_ein_fehler(monkeypatch, tmp_path):
+    fake = tmp_path / "tooling" / "generator_core" / "preflight" / "checks.py"
+    monkeypatch.setattr(_checks, "__file__", str(fake))
+    ctx = _ctx({})
+    _checks.check_bracket_schema_compliance(ctx)
+    assert any("BRACKET_SCHEMA_MISSING" in e for e in ctx.errors), ctx.errors
