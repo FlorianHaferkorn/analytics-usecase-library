@@ -32,6 +32,9 @@ Nicht verwendet: Den Keynote-Blog vom 28.09. weist der Egress-Proxy ab; nur Such
 | E-2 | Eigener Grounding-MCP (Meridian ADR-0049) neben Fabric IQ MCP (GA) | — (nur Meridian) |
 | E-3 | Deployment-Default (Meridian-Code `deployment-pipelines` vs. ADR-0050 „zuerst 4 und 1“) | W2.6 |
 | E-4 | Policy Weaver (Quellrechte Snowflake/Databricks → OneLake-Rollen) adoptieren | W1.5 |
+| E-5 | Lieferweg der Ontologie-Inhalte nach Fabric IQ: RDF/OWL-Turtle über die Import-Funktion + Kontextpaket für den Ontology agent · TMDL-Item-Definition per API · „Generate from semantic model“ | W4.3 |
+| E-6 | Gemeinsame Geschäftsobjekt-Schicht (Entity types) und ein KPI-ID-Schema mit Meridian (heute `sales.net_sales.amount` hier, `KPI-FIN-001` dort) | W4.6 |
+| E-7 | Fabric Planning als Blueprint-Option und Angebot | W4.7 (Option) |
 
 ## Aufgaben und Stand
 
@@ -59,6 +62,22 @@ Legende Status: `offen` · `in Arbeit (Branch, Datum)` · `erledigt (Datum, PR #
 | W3.4 | Data Agent: eingestellte Wege (Assistants API, Data-Agent-Integration in Copilot in Power BI, beide 26.08.2026) | M→A | offen | Spiegel nachgezogen |
 | W3.5 | Power BI Modeling MCP: Doku nennt 0.1.9, npm latest 1.0.0, Learn „lokal GA“ | A | offen | `products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md` aktualisiert, gleicher Stand wie Meridian-Pin |
 | W3.6 | PBIP: Regel „Desktop does not watch files“ (`.claude/rules/connect-pbid.md`) gegen das Desktop-Update Aug 2026 testen; PBIR-Schema-Pins (`schema_registry.py`: visualContainer 2.9.0, Theme 2.154) mit Meridian (2.3.0 / 2.145) angleichen | A | offen | Regel bestätigt/angepasst (Desktop-gated) · Schema-Pins gleich, Stage 1 grün |
+
+### Welle 4 — Ontologie (Fabric IQ) und Fabric Planning
+
+Befund (Learn, 29.09.2026):
+- Die neue Ontology-Oberfläche (Preview) definiert Items in TMDL. Die alte JSON-Definition gilt nur noch für Altitems, die alte Oberfläche endet am 31.01.2027.
+- Import von RDF/OWL als TTL in ein leeres Item ist möglich (Preview).
+- Der Ontology agent (Copilot, Preview) nimmt bis zu 10 Dateien als Kontext und baut Entities und Bindungen aus Workspace-Daten.
+- ALUCA hat heute keine Ontologie im Fabric-Sinn, nur KPI-Katalog und Golden-Thread-Registry; eine Geschäftsobjekt-Schicht fehlt.
+- Der Fabric-Ontology-Emitter (`sap_ontology.py`) ist Meridian-eigen und nicht gespiegelt.
+
+| ID | Aufgabe | Art | Status | DoD |
+|---|---|---|---|---|
+| W4.3 | Ontologie-Inhalte aus ALUCA (KPI-YAML, Golden-Thread-Registry `tooling/ontology/`) für Fabric IQ bereitstellen: Registry-Kanten sind Use-Case-/KPI-/Action-Beziehungen, keine Datenbeziehungen; KPI-Definitionen werden Beschreibung/Metric (`explicit` SQL, kein DAX), Action-Codes werden Rule-Statements. Der Emitter selbst entsteht in Meridian (TTL, nach E-5) | M→A (+A) | blockiert (E-5) | ALUCA-Seite liefert die Eingaben im Format, das der Meridian-Emitter erwartet · pytest |
+| W4.4 | TMDL-Modelle aus `dist/` so emittieren, dass Fabric „Generate from semantic model“ saubere Entities/Relationships liefert (Keys, Beziehungen, `///`-Beschreibungen) | A | offen (Tenant-gated für die Probe) | Checkliste im Generator-Gate · Stage 1 grün; Probe im Tenant |
+| W4.6 | Geschäftsobjekt-Schicht + ID-Schema nach E-6 (Schema-First in `tooling/generator/schemas/`) | A | blockiert (E-6) | Schema gleich wie Meridian · pytest |
+| W4.7 | **Fabric Planning** (GA Jul 2026): Plan-Item an genau ein Semantic Model gebunden, Write-back nur in Fabric SQL DB, F-SKU/P1, Abrechnung je 30-Tage-Session (laut Learn: Planner 847 CU-h, Stakeholder 168 CU-h, Viewer 37 CU-h). FIN-Use-Cases mit Plan-Zielen sind die naheliegenden Kandidaten | A | offen (Kalkulation) | `tooling/superversion/capacity.py` + `internal/proposal_costing/` um Planning-Sessions erweitert · Tests grün; Blueprint-Option erst nach E-7 |
 
 ## Beobachten statt bauen
 Die Watchlist liegt in Meridian (`research/upstream_pins.yaml` → `feature_watch`). Der Wochen-Radar
