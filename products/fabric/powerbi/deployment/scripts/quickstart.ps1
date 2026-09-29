@@ -83,15 +83,22 @@ Write-Host ""
 Write-Host "Running setup for environment: $Environment" -ForegroundColor Cyan
 $setupScript = Join-Path $PSScriptRoot "fabric_setup.py"
 
-python $setupScript `
-    --environment $Environment `
-    --action create `
-    --tenant_id $tenantId `
-    --client_id $clientId `
-    --client_secret $clientSecretPlain `
-    --github_pat $githubPat
+# Client secret and GitHub PAT reach fabric_setup.py only through CLIENT_SECRET /
+# GITHUB_PAT (set above), never as arguments: argv is readable in every process list.
+try {
+    python $setupScript `
+        --environment $Environment `
+        --action create `
+        --tenant_id $tenantId `
+        --client_id $clientId
+    $setupExit = $LASTEXITCODE
+} finally {
+    # Clean up sensitive variables, also when setup fails or is interrupted
+    Remove-Item Env:\CLIENT_SECRET -ErrorAction SilentlyContinue
+    Remove-Item Env:\GITHUB_PAT -ErrorAction SilentlyContinue
+}
 
-if ($LASTEXITCODE -eq 0) {
+if ($setupExit -eq 0) {
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Green
     Write-Host "Setup completed successfully!" -ForegroundColor Green
@@ -110,6 +117,3 @@ if ($LASTEXITCODE -eq 0) {
     exit 1
 }
 
-# Clean up sensitive variables
-Remove-Item Env:\CLIENT_SECRET -ErrorAction SilentlyContinue
-Remove-Item Env:\GITHUB_PAT -ErrorAction SilentlyContinue

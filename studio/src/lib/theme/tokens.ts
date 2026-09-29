@@ -2,7 +2,7 @@
  * Design System Tokens - ActionReady Studio
  *
  * Mirrors CSS custom properties for use in JS/TS (Framer Motion, computed styles).
- * Accent uses oklch parametric model — default violet h=290, matching BI Framework template.
+ * Accent uses oklch parametric model — default violet h=290, matching the BI Framework mockup (Studio.html tweak accentHue 290).
  */
 
 export const colors = {

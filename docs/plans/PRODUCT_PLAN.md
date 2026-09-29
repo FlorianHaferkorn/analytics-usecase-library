@@ -167,13 +167,18 @@ From code + the v3 readiness map. ⬤ premium-ready · ◑ exists, not premium �
 | Schema standard / structured definitions | ⬤ | meets F1–F3 already |
 | Source→data mapping, data contracts | ⬤ | present, structured |
 | KPI→TMDL generation (Power BI) | ◑ | **proven** (`dist/*.SemanticModel/_Measures.tmdl` exists), but only PBI; official-first not wired |
-| Report/dashboard delivery (PBIR) | ○ | **prototype/template-copy — the hard gap (Q15)**; must adopt official MS skill |
+| Report/dashboard delivery (PBIR) | ◑ | official-first emit exists (`tooling/superversion/targets/pbir.py`, I-3.3) and passes `powerbi-report-author validate` 0.1.1 with 0 errors for COM-001 (gemessen 29.09.2026, `e2e_smoke --require-cli`); **but the 17 `dist/` reports still come from the deprecated prototype renderer** (`--allow-deprecated-prototype`) and carry 23–25 validator errors each — two report paths, ledger `../architecture/_INDEX.md` A-18 |
 | Value certification | ○ | no value-vs-live-data check (Q29); 103/127 "manual review" |
 | Multi-stack targets (Cube/Databricks/Snowflake/OSI) | ○ in ALUCA / ⬤ in Meridian | **must come from Meridian** — core merge |
 | Gov / Eng / Arch layer tools | ○ in ALUCA / ◑–○ in Meridian | **must come from Meridian**; tool-specific packs missing in both (G7) |
 | Studio cockpit | ◑ | already routed (blueprint/generate/approvals/catalog…); needs the "after-core" deploy + the gov/eng/arch panels + premium UX |
 | Deliverable engine (branded DOCX/XLSX) | ○ in ALUCA / ⬤ in Meridian | comes from Meridian |
-| Tests/CI | ◑ | 57 tests + CI; needs value-level evals + ≥2 reference ontologies |
+| Tests/CI | ◑ | **3.349 Python-Tests** (gemessen 29.09.2026, `pytest --co -q` über die `testpaths` aus `pyproject.toml`: `tooling/tests` 2.032 · `tooling/superversion` 825 · `products/fabric` 237 · `tooling/visual_library` 105 · `products/open_source_stack` 83 · `tooling/generator_core` 67); Gegenprobe voller Lauf in der CI-`pip`-Liste (`pytest -n auto`): 3.319 passed, 32 skipped, 0 failed, 5 min 6 s. Dazu 872 Studio-Testfälle in 150 Dateien (gezählt per `grep` auf `it(`/`test(`, nicht ausgeführt). Value-Gate über 2 Referenz-Ontologien grün (F6 Teil 1); Live-DAX gegen einen Tenant fehlt (F6 Teil 2, `../architecture/premium-acceptance-F0-F6.md`). Frühere Angabe „57 tests" stammt vom 22.06.2026 |
+
+> **Nachzug 29.09.2026 (gemessen, nur diese Tabelle):** die Zeilen „Report/dashboard delivery" und
+> „Tests/CI" sind neu gemessen; die übrigen Zeilen tragen weiter den Stand vom 22.06.2026 und sind
+> nicht erneut geprüft. Offene Befunde aus diesem Nachzug stehen im Architektur-Ledger
+> (`../architecture/_INDEX.md`, A-18 bis A-22), nicht hier.
 
 **The honest summary:** ALUCA owns a premium-grade *meaning + visual-definition* layer.
 Everything from semantic-model-emit outward to a shippable, multi-stack, audited, branded
