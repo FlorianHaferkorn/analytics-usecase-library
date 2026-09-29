@@ -148,7 +148,7 @@ viz tool independently, and the same core feeds all (synergy doc §7, three free
 
 The compiler and Studio must also cover the consulting path before and after artifact
 generation. The proposed
-[`Discovery-to-Deployment Workbench`](docs/architecture/research/discovery-to-deployment-workbench.md)
+[`Discovery-to-Deployment Workbench`](../architecture/research/discovery-to-deployment-workbench.md)
 defines that extension without creating a second core: a scope profile activates only
 the required discovery modules (including selectable Data Governance), approved
 decisions compile into architecture and deployment manifests, and target readback proves
@@ -274,7 +274,7 @@ Phase 2). Original spec below.
   selection, deploy hand-off), and the end-to-end
   authoring→approval→generate→plan→apply→verify flow. Data Governance remains a selectable
   capability with `assess`, `design`, `implement` and `operate` levels. Detailed target:
-  [`Discovery-to-Deployment Workbench`](docs/architecture/research/discovery-to-deployment-workbench.md).
+  [`Discovery-to-Deployment Workbench`](../architecture/research/discovery-to-deployment-workbench.md).
 - **Done-when:** a Nagarro engagement team can guide customer stakeholders through the
   governed decision and delivery flow for a universal use case; the selected scope
   deterministically controls workshops, required evidence, outputs and gates; no raw YAML

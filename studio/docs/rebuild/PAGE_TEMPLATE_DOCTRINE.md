@@ -208,7 +208,7 @@ geprüften System belegen (Grafana Foundation SDK, LookML, Superset, Evidence.de
 
 Praktische Regel: ein Pflicht-Slot startet auf `warning` und steigt auf `error`, sobald
 echte Läufe das tragen. Herleitung und Messstand in
-[`KONZEPT_LAYOUT_SYSTEM.md` §15](../../../KONZEPT_LAYOUT_SYSTEM.md).
+[`docs/plans/KONZEPT_LAYOUT_SYSTEM.md` §15](../../../docs/plans/KONZEPT_LAYOUT_SYSTEM.md).
 
 ---
 

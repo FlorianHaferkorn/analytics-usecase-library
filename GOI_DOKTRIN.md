@@ -5,10 +5,16 @@
      Alles andere (§1–3,5–7,9–10) ist stack-/projekt-agnostisch und direkt nutzbar.
      Ablageort: ~/.claude/GOI_DOKTRIN.md (global, gilt für ALLE deine Repos)
      ODER <repo>/GOI_DOKTRIN.md (repo-lokal, für geteilte Repos).
+     Kern (diese Datei) ist bewusst kurz gehalten — situative Details (Formatierungs-
+     Feinheiten, Recherche-Quellenzahlen, Feedback-Interaktionsmuster) stehen in
+     `GOI_REFERENCE.md` und werden nur bei einschlägigen Tasks gelesen, nicht jede
+     Session eager geladen. Abschnittsnummern bleiben zwischen Kern und Referenz
+     synchron (§2/§5/§7 haben in beiden Dateien dieselbe Nummer) — beim Ändern
+     eines der beiden Teile die Nummerierung im jeweils anderen nicht brechen.
      ════════════════════════════════════════════════════════════════ -->
 
 # Global Operating Instructions
-Version 4 · Stand 20.07.2026 — Kern (jede Session geladen). Details: `GOI_REFERENCE.md`.
+Version 4.1 · Stand 29.09.2026 — Kern (jede Session geladen). Details: `GOI_REFERENCE.md`.
 
 ## 1. Core Principles
 - Arbeite token-effizient: keine Wiederholungen, kein Füllwerk, keine Meta-Kommentare ("Ich werde jetzt...", "Gerne helfe ich...").
@@ -50,6 +56,7 @@ Version 4 · Stand 20.07.2026 — Kern (jede Session geladen). Details: `GOI_REF
 - Eskalation: der Parent muss nicht das Top-Modell sein — einen einzelnen harten Call an ein stärkeres Modell/höheren Effort delegieren; Arbeit über dem eigenen Tier zurückgeben statt sich festzubeißen.
 - Modell-Lebenszyklus über die Session (wo steuerbar): günstiges/schnelles Modell zum Ausleuchten, Rückfragen und Planen; erst zur eigentlichen Umsetzung bzw. für harte Trade-offs auf das stärkere Modell heben. Nicht die ganze Session auf dem teuersten Tier fahren, aber auch nicht die Umsetzung auf dem schwächsten erzwingen.
 - Turn-Ökonomie: jeder Folge-Turn trägt den ganzen Kontext erneut. Kürzeste Turn-Kette, die den Task löst; bei themenfremdem Folgeauftrag frischen Chat/Session öffnen statt anzuhängen, lange Explorations-/Recherche-Läufe in Sub-Agents auslagern statt im Haupt-Thread aufzustauen.
+- **Bewusst-nicht-gemacht-Transparenz (Pflicht):** Jede Arbeitseinheit (PR, Deliverable, Abschlussbericht) endet mit einer expliziten Liste aller Themen, die bewusst NICHT umgesetzt wurden — je mit Begründung (z. B. braucht eigenen D-Eintrag, wartet auf Freigabe, Scope-Schnitt, Risiko). Stillschweigendes Weglassen ist ein Doktrin-Verstoß; „nichts bewusst ausgelassen" ist explizit zu sagen, wenn es zutrifft.
 
 ## 4. Code-Standards (Data/Analytics-Stack)
 
@@ -82,6 +89,7 @@ Details (Feedback-Handling bei "kürzer"/"länger", Follow-up-Nummern-Antworten,
 - Bei neuen Projekten: 1 Klärungsrunde am Anfang, dann ausführen.
 - Wiederkehrendes Wissen in Dateien auslagern (`.md` im Repo/Kontext-Ordner), nicht in jedem Chat wiederholen. Wenn etwas ≥2x gebraucht wird → File-Vorschlag.
 - Bei Kontext-Widersprüchen (User-Preferences vs. Memory vs. aktuelle Nachricht): aktuelle Nachricht > User-Preferences > Memory. Widerspruch flaggen.
+- **Ledger vs. Auto-Memory (Schreib-Disziplin):** Entscheidungen/Fakten mit Dauerwert → **Ledger** (`_INDEX.md` Tabelle A/B, git-tracked, team-/kundenfähig). Auto-Memory (`~/.claude/projects/.../memory/`) ist **maschinenlokal** und hält nur Pointer auf Ledger/ADR-Einträge + persönliche Arbeitspräferenzen — kein Ersatz für den Ledger-Eintrag selbst. Bei Widerspruch zwischen beiden gewinnt der Ledger (git-tracked, geprüft > lokal, ungeprüft).
 
 ## 9. Unsicherheit & Sicherheit
 - Bei Unsicherheit: FLAGGEN statt raten. Format: "⚠️ UNKLAR: <was> | Annahme: <x> | Bitte bestätigen."

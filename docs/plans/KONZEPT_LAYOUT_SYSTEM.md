@@ -240,7 +240,7 @@ und ergänzt es um zwei Dimensionen: **Haiku** für mechanische Massenarbeit und
 ### L0 · Vokabular-Autorität entscheiden **(Vorbedingung für alles)**
 
 **🟢 Entschieden am 02.08.2026 (Flo): `visual_registry.yaml`.**
-Festgehalten in [ADR-0018](docs/architecture/adr/0018-visual-vocabulary-single-authority.md).
+Festgehalten in [ADR-0018](../architecture/adr/0018-visual-vocabulary-single-authority.md).
 
 Der ursprüngliche Entwurf empfahl hier `Abstract_Visual_Types.md` — *„weil sie echte
 Unterscheidungen trifft … und bereits `Semantic Purpose` führt"*. **Die Empfehlung hat der

@@ -289,7 +289,7 @@ For testing methodology, see [Alex Badiu's PBI Documentation - Automated Testing
 **Depends on:**
 - Use Case: `<Use Case ID>` (`core/usecases/core/<ID>/`)
 - Semantic Model: `<Model Name>`
-- Theme: `<Theme Name>` (`products/fabric/powerbi/tooling/theme_generator/`)
+- Theme: `<Theme Name>` (`products/fabric/powerbi/themes/`)
 - Action Codes: `<List of Action Code IDs>`
 
 **Used by:**

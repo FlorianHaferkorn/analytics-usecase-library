@@ -26,7 +26,7 @@ docs/agent/
 | Target | Output Location | Format |
 |--------|----------------|--------|
 | Official skills | `skills/*/SKILL.md` | Official Agent-Skills / skills-for-fabric layout — frontmatter first (`name`, `description`, `version`, `license`, `source`) |
-
+| Claude Code skills | `.claude/skills/*/SKILL.md` | Byte-identical copy of `skills/*/SKILL.md` — the only path Claude Code auto-discovers. A copy, not a symlink (Windows checkouts). The `description` must say *when* to use the skill (“Use when …”): Claude Code selects skills by it. |
 | Copilot instructions | `.github/copilot-instructions.md` | Concatenation of all `alwaysApply: true` rules |
 
 ## Workflow
@@ -35,5 +35,6 @@ docs/agent/
 2. **Update `_index.yaml`** if metadata changes (new rule, changed globs, etc.).
 3. **Run the generator** to produce tool-specific configs.
 4. **Commit both** the canonical source and the generated output.
+5. **Drift check:** `python tooling/generator/generate_tool_configs.py --check` (exit 1 on drift or orphaned skills); `tooling/tests/test_generate_tool_configs.py` runs it in the pytest suite.
 
-Do not edit generated files (`skills/*/SKILL.md`, `.github/copilot-instructions.md`) directly. Changes will be overwritten on the next generator run.
+Do not edit generated files (`skills/*/SKILL.md`, `.claude/skills/*/SKILL.md`, `.github/copilot-instructions.md`) directly. Changes will be overwritten on the next generator run.

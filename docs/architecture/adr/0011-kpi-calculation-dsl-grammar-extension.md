@@ -11,7 +11,7 @@
   established by ADR-0010 — this is a grammar widening, not a redesign.
 - **Supersedes:** —
 - **Related:** [`0010-kpi-calculation-dsl-and-dax-synthesis.md`](0010-kpi-calculation-dsl-and-dax-synthesis.md)
-  (the base grammar + architecture this extends), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../../UMSETZUNGSPLAN_SUPERVERSION.md)
+  (the base grammar + architecture this extends), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../plans/UMSETZUNGSPLAN_SUPERVERSION.md)
   (I-10.0), [`../../../tooling/generator/schemas/kpi_definition.schema.json`](../../../tooling/generator/schemas/kpi_definition.schema.json),
   [`../../../tooling/superversion/targets/dax_synth.py`](../../../tooling/superversion/targets/dax_synth.py)
 

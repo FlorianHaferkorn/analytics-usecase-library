@@ -531,7 +531,7 @@ function Import-MeasuresFromTMDL {
    - Ausgabe: `products/fabric/powerbi/dist/<UC>_<Title>.Report` (z. B. `COM-001_Sales_Performance.Report`) mit `definition/report.json`, `definition/pages/`, **definition.pbir**.
    - **datasetReference** wird in **definition.pbir** gesetzt (nicht in report.json; PBIP/Fabric 3.0). Relativer Pfad zum Domain-Modell im selben dist, z. B. `..\Commercial.SemanticModel` (über `Get-DatasetReferenceRelativeFromReport` in map_aurora_domains.ps1).
 3. **StaticResources:** Fehlen BaseThemes, werden sie aus `showcases/sample_pbip_report/Procurement_Wireframe_Theme.Report/StaticResources` in den Report kopiert.
-4. **Theme:** Aus `showcases/aurora_group/theme_config.json` (`defaultThemeName`) oder Parameter `-ThemeName`; Anwendung via **apply_report_theme.ps1** (Theme aus `tooling/theme_generator/themes/`).
+4. **Theme:** Aus `showcases/aurora_group/theme_config.json` (`defaultThemeName`) oder Parameter `-ThemeName`; Anwendung via **apply_report_theme.ps1** (Theme aus `products/fabric/powerbi/themes/`, vendort aus Freelancing `products/pbi_theme`).
 5. **Fallback:** Wenn kein Python gefunden wird → **report_generator.ps1** (nur Report-Struktur/Sections, keine Visuals).
 
 ### Validierung nach Report (Phase 6 im Orchestrator)

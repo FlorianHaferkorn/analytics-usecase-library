@@ -1,4 +1,4 @@
-"""Ein Einstieg für die agentische Schleife S0 bis S7 (UMSETZUNGSPLAN_AGENTIC_LOOP.md, AP-9).
+"""Ein Einstieg für die agentische Schleife S0 bis S7 (docs/plans/UMSETZUNGSPLAN_AGENTIC_LOOP.md, AP-9).
 
 Die Schleife baut nichts selbst. Jede Stufe ruft vorhandene Werkzeuge auf, in dieser Reihenfolge:
 

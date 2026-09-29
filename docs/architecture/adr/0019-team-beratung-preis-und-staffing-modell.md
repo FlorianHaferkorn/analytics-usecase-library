@@ -6,7 +6,7 @@
 | Entscheider | Florian Haferkorn |
 | Kontext | Flos Vorgabe vom 03.09.2026: „Freelancing sollte auf ein 1 Personen Consulting ausgelegt sein, preislich usw. analytics-usecase-library als Nagarro Consulting." · Freelancing/Meridian D-352, D-355, D-356, **D-357** · Plan 0008 (dort) Stufe D |
 | Betrifft | `tooling/superversion/` (Engagement-Achse: `engagement_guide.py`, `answers.py`, `open_questions.py`, `capacity.py`) · `tooling/superversion/preis_kanon_schema.yaml`, `preis_kanon_mandant.py` und der gespiegelte Rechenkern `vendor/meridian_dataarch/preis_kanon.py` (**nicht** `staffing.py`, siehe §5) |
-| Bezug | ADR-0005 (Meridian-Vendoring, Contract-Mirror) · ADR-0014 (Org-Schicht, G5) · `PRODUCT_PLAN.md` „Team/multi-tenant/RBAC (G5)" |
+| Bezug | ADR-0005 (Meridian-Vendoring, Contract-Mirror) · ADR-0014 (Org-Schicht, G5) · `docs/plans/PRODUCT_PLAN.md` „Team/multi-tenant/RBAC (G5)" |
 
 ## 1. Kontext
 
@@ -30,7 +30,7 @@ Gemessen in diesem Repo am 03.09.2026, bevor etwas geschrieben wurde:
 |---|---|---|
 | Gibt es hier ein Preis- oder Angebotsmodul? | **Nein.** Treffer für `preis`, `ratecard`, `rate_card` nur in `capacity.py` (Fabric-SKU-Floor, ein anderes Thema) und in den DAX-/SQL-Synthesizern | `grep -ril` über `tooling/superversion`, `core`, `docs` |
 | Gibt es die Engagement-Achse, an die ein Preis andocken kann? | **Ja.** `engagement_guide.py` (Termine, Fragen, Torbedingungen), `answers.py` (Antworten zurück in die Eingaben), `open_questions.py`; siehe `tooling/superversion/_INDEX.md` Zeilen zu Klasse C | Index gelesen, Dateien vorhanden |
-| Wo steht Nagarro heute im Repo? | Nur als Skalierungsbedenken: `PRODUCT_PLAN.md` „Team/multi-tenant/RBAC (G5) — the Nagarro-scale concern; customer-operable-solo first". Das ist RBAC im Studio, kein Preismodell | `grep -rn Nagarro` |
+| Wo steht Nagarro heute im Repo? | Nur als Skalierungsbedenken: `docs/plans/PRODUCT_PLAN.md` „Team/multi-tenant/RBAC (G5) — the Nagarro-scale concern; customer-operable-solo first". Das ist RBAC im Studio, kein Preismodell | `grep -rn Nagarro` |
 | Wo zieht Freelancing seine Grenze? | `Strategie/ICP_und_Positionierung.md` dort: „Enterprise (>1.000 MA) → Nagarro-Territorium, zu komplex für Einzelperson" | Datei gelesen |
 
 Ein Repo, das ein Schema für ein Geschäft trägt, das es laut eigener ICP nicht führt, pflegt
@@ -59,7 +59,7 @@ der Kapazitätslogik: eine Person liefert Pakete nacheinander, ein Team liefert 
 5. **Kapazität ist Team-Kapazität.** Pakete dürfen parallel laufen; der Kalender (Meridian E-1)
    rechnet hier mit Verfügbarkeit je Rolle aus der Mandantendatei, nicht mit der
    Ein-Personen-Sequenz des Freelancing-Repos.
-6. **Abgrenzung zu G5.** ADR-0014 und `PRODUCT_PLAN.md` G5 betreffen Multi-Org und RBAC im
+6. **Abgrenzung zu G5.** ADR-0014 und `docs/plans/PRODUCT_PLAN.md` G5 betreffen Multi-Org und RBAC im
    Studio. Dieses ADR betrifft Preis und Staffing. Zwei Achsen; G5 bleibt zurückgestellt, wie
    dort notiert. Die Abweichung wird benannt, nicht geglättet: „Nagarro-scale" meinte bisher
    Mandantenfähigkeit der Software, ab jetzt zusätzlich das Geschäftsmodell der Beratung.

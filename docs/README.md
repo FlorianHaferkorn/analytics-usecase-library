@@ -64,7 +64,8 @@ verified implementation.
 |---|---|
 | [`docs/architecture/research/discovery-to-deployment-workbench.md`](architecture/research/discovery-to-deployment-workbench.md) | Proposed scope-driven operating model from customer discovery to verified tenant state, including selectable Data Governance |
 | [`core/implementation_guides/playbook_strategy_to_first_report.md`](../core/implementation_guides/playbook_strategy_to_first_report.md) | Concrete first-report delivery profile |
-| [`PRODUCT_PLAN.md`](../PRODUCT_PLAN.md) | Product target, quality floors and build phases |
+| [`docs/plans/PRODUCT_PLAN.md`](plans/PRODUCT_PLAN.md) | Product target, quality floors and build phases |
+| [`docs/plans/_INDEX.md`](plans/_INDEX.md) | All plans, concepts and reviews (Superversion, report quality, layout system, agentic loop) — pick one document |
 
 ### Maintainer / Platform Engineer
 

@@ -12,9 +12,9 @@
 - **Supersedes:** —
 - **Related:** [`0007…`](0007-studio-generate-docks-onto-superversion-core.md) (lokal-first-Doktrin,
   Freigabe-Schleuse, ehrliche Degradation), [`0009…`](0009-wirkungs-loop-action-kpi-attribution.md)
-  (Discovery-ADR-Präzedenz: Proposed bis Maintainer-Ratifikation), `PRODUCT_PLAN.md` (G5:
+  (Discovery-ADR-Präzedenz: Proposed bis Maintainer-Ratifikation), `docs/plans/PRODUCT_PLAN.md` (G5:
   Team/Multi-Tenant/RBAC — "customer-operable-solo first"), `docs/architecture/studio-capability-inventory.md`
-  ("Multi-Tenant-Gerüst"), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../../UMSETZUNGSPLAN_SUPERVERSION.md)
+  ("Multi-Tenant-Gerüst"), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../plans/UMSETZUNGSPLAN_SUPERVERSION.md)
   (I-9), `studio/src/lib/db/sqlite.ts`, `studio/src/lib/db/rbac-repo.ts`,
   `studio/src/lib/auth/`, `core/organization/org_roles.yaml`.
 
@@ -25,10 +25,10 @@
 **Wette (I-9, Z4):** Skalierung der Form, nicht der Arbeit — Mehrbenutzer/Rollen/geteilter Katalog
 über demselben Core (Nagarro-Pfad), plus Branchen-Packs (I-9.3). Der Ledger benennt die Spannung
 selbst: *"RBAC, Multi-Tenant widersprechen heutigem lokal-first-Design"* — deshalb **Discovery
-zuerst**, kein Code (`UMSETZUNGSPLAN_SUPERVERSION.md:235-236`).
+zuerst**, kein Code (`docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md:235-236`).
 
 **Sequenz-Hinweis.** Der Ledger sequenziert I-9 explizit *"erst nach grüner I-10-Abnahme"*
-(`UMSETZUNGSPLAN_SUPERVERSION.md:278`). I-10 ist inzwischen weitgehend grün (I-10.0–I-10.6
+(`docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md:278`). I-10 ist inzwischen weitgehend grün (I-10.0–I-10.6
 abgeschlossen), aber laut `docs/architecture/premium-acceptance-F0-F6.md` bleiben **F1** und
 **F6-Teil2** ehrlich rot — beide brauchen einen echten Fabric-Tenant, den diese Sandbox nicht hat,
 kein Code-Defekt. Dieses Discovery-ADR entsteht auf eine Anweisung des Maintainers **innerhalb
@@ -56,7 +56,7 @@ keinen Code und keinen Core.
    mehrerer Projekte. Das ist die eigentliche Lücke, die eine Org-Schicht schließen muss.
 4. **Lokal-first/BYOK/Solo-Betrieb ist explizite Produktstrategie, nicht Zufall.** Login-Seite:
    *"Self-hosted · Your data stays local · BYOK for AI"*; `preflight.ts` (I-6.5) prüft Standalone-
-   Betriebsfähigkeit; `PRODUCT_PLAN.md` benennt Team/Multi-Tenant/RBAC explizit als **G5**,
+   Betriebsfähigkeit; `docs/plans/PRODUCT_PLAN.md` benennt Team/Multi-Tenant/RBAC explizit als **G5**,
    aufgeschoben zugunsten *"customer-operable-solo first"*. Jede Org-Schicht muss **opt-in** sein
    (deckt sich mit I-9.2s eigener Formulierung *"serverseitig (opt-in)"*) und darf den
    Solo-Betrieb nicht verschlechtern — dieselbe ehrliche-Degradation-Doktrin wie ADR-0007 Regel 5,
@@ -72,7 +72,7 @@ keinen Code und keinen Core.
      bereits.
    - Die in diesem ADR zu entwerfende **Organisation** (Mandant/Firma, die mehrere Projekte + Nutzer
      gruppiert) — existiert noch nicht.
-   - G1 ("Live-Tenant-Deploy", `UMSETZUNGSPLAN_SUPERVERSION.md:278`) meint einen **dritten,
+   - G1 ("Live-Tenant-Deploy", `docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md:278`) meint einen **dritten,
      wieder anderen** "Tenant"-Begriff — den Ziel-Fabric-Workspace des Kunden, in den Studio
      Artefakte deployt. Auch das ist nicht dieselbe Sache wie die Org-Schicht hier.
 
@@ -320,8 +320,8 @@ eine Entscheidung, die dieses ADR explizit nicht trifft.
   (JWT-Callback, `project_memberships`), `studio/src/lib/auth/require-role.ts`,
   `studio/src/lib/setup/preflight.ts` (lokal-first/BYOK-Doktrin, I-6.5),
   `core/organization/org_roles.yaml` + `core/organization/README.md`,
-  `docs/architecture/studio-capability-inventory.md`, `PRODUCT_PLAN.md` (G5),
-  `UMSETZUNGSPLAN_SUPERVERSION.md` (I-9, I-10-Gate-Hinweis Zeile 278),
+  `docs/architecture/studio-capability-inventory.md`, `docs/plans/PRODUCT_PLAN.md` (G5),
+  `docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md` (I-9, I-10-Gate-Hinweis Zeile 278),
   [`0007…`](0007-studio-generate-docks-onto-superversion-core.md),
   [`0009…`](0009-wirkungs-loop-action-kpi-attribution.md) (Discovery-ADR- und
   Ratifikations-Präzedenz).

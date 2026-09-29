@@ -1,6 +1,6 @@
 # Run the Agentic Loop (S0–S7)
 
-One entry point for the loop in `UMSETZUNGSPLAN_AGENTIC_LOOP.md`: specification → model → report →
+One entry point for the loop in `docs/plans/UMSETZUNGSPLAN_AGENTIC_LOOP.md`: specification → model → report →
 sandbox → DAX runtime → render → image checks → teardown. The command orchestrates existing tools
 only; fixes never go into rendered artifacts.
 

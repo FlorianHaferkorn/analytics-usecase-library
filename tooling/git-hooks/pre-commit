@@ -37,7 +37,19 @@ $PY scripts/check_index.py --strict || exit 1
 # Dieses Repository bekommt weitere Leser, deshalb gehoert das Gate, das das Solo-Produkt
 # seit Monaten hat, auch hierher. Ohne seine Sperrliste bricht der Pruefer ab, statt Erfolg
 # zu melden — ein Pruefer, der ohne seine Regeln gruen meldet, ist schlimmer als keiner.
-$PY tooling/validation/check_kundendaten.py --staged --leise || exit 1
+# Die Sperrliste ist gitignoriert; in Cloud-Sitzungen und frischen Klonen fehlt sie. Dann
+# laeuft der Pruefer nicht und der Commit traegt ein lautes [UNGEPRUEFT] statt eines
+# Abbruchs, der jeden Commit anhaelt (29.09.2026, gleiche Linie wie Freelancing).
+# Bereitstellen: `.kundendaten-sperrliste.json` im Repo-Wurzelordner oder
+# `KUNDENDATEN_SPERRLISTE=<pfad>` (z. B. aus einem Umgebungs-Secret).
+if [ -n "${KUNDENDATEN_SPERRLISTE:-}" ] && [ -f "$KUNDENDATEN_SPERRLISTE" ]; then
+  $PY tooling/validation/check_kundendaten.py --staged --leise --sperrliste "$KUNDENDATEN_SPERRLISTE" || exit 1
+elif [ -f .kundendaten-sperrliste.json ]; then
+  $PY tooling/validation/check_kundendaten.py --staged --leise || exit 1
+else
+  echo "pre-commit: [UNGEPRUEFT] Kundendaten -- keine Sperrliste (.kundendaten-sperrliste.json" >&2
+  echo "            bzw. KUNDENDATEN_SPERRLISTE). Dieser Commit ist NICHT auf Kundenkennungen geprueft." >&2
+fi
 
 # Gate 2: ontology registry — fast path: skip if no core/ paths staged.
 # --cached = staged only · --name-only = paths only · --diff-filter=ACMR excludes Deleted

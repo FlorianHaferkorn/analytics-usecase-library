@@ -48,9 +48,9 @@ except ImportError:
     _YAML_OK = False
 
 _SHOWCASES_DIR = _REPO_ROOT / "showcases"
-_THEME_OUTPUT_DIR = (
-    _REPO_ROOT / "products" / "fabric" / "powerbi" / "tooling" / "theme_generator" / "themes"
-)
+# ALUCA-owned output (never a foreign tree): brand-spec derivations sit next to the
+# on-demand engine output in themes_local/, see products/fabric/powerbi/tooling/theme_paths.py.
+_THEME_OUTPUT_DIR = _REPO_ROOT / "products" / "fabric" / "powerbi" / "themes_local" / "brand"
 _OSS_THEMES_DIR = _REPO_ROOT / "products" / "open_source_stack" / "themes"
 
 

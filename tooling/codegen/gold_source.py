@@ -2,7 +2,7 @@
 
 Die fuenf Modelle lesen ihre Gold-Tabellen ueber `fn_DeltaCurrentFiles(GoldDataPath & "/...")`,
 und die Funktion listet mit `Folder.Files`. Das ist ein lokaler oder UNC-Pfad; im Power BI
-Service laedt es nur mit Gateway. Fuer den Sandbox-Lauf (UMSETZUNGSPLAN_AGENTIC_LOOP.md) muss
+Service laedt es nur mit Gateway. Fuer den Sandbox-Lauf (docs/plans/UMSETZUNGSPLAN_AGENTIC_LOOP.md) muss
 dasselbe Modell auch aus OneLake lesen koennen.
 
 Dieses Modul schreibt deshalb in `expressions.tmdl` jedes Modells:

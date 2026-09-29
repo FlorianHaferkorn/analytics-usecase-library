@@ -32,6 +32,11 @@ blind to the very window it guards. Measured on 2026-08-27:
 **The sensor never fetches on its own** — no network in ``make check``, same doctrine as "reports
 drift, never bumps". ``--fetch`` makes fetching an explicit act, just as ``--write`` does mirroring.
 
+**Theme mirror (29.09.2026).** A second vendored set under ``products/fabric/powerbi/themes/``:
+the theme JSONs Freelancing's canonical engine ``products/pbi_theme`` generates, byte-identical
+with their own PIN (replaces the uninitialized ``powerbi-theme`` submodule, ADR-0005). Same
+three outcomes; re-mirror explicitly with ``--write-themes`` (from a commit, like ``--write``).
+
 Meridian root resolution: ``$MERIDIAN_ROOT`` env, else the sibling ``../Freelancing`` of this repo.
 Modules are loaded **by path** (concepts/governance are self-contained) or **read as source** (odcs
 imports a sibling), never via ``import core`` — ALUCA owns its own ``core`` package.
@@ -260,9 +265,9 @@ def vendor_pin() -> dict | None:
     return json.loads(pin.read_text(encoding="utf-8")) if pin.is_file() else None
 
 
-def vendor_integrity(pin: dict) -> list[str]:
+def vendor_integrity(pin: dict, vendor_rel: str = _VENDOR_REL) -> list[str]:
     """Local edits inside the byte-identical mirror. Pure; runs without Meridian."""
-    root = REPO_ROOT / _VENDOR_REL
+    root = REPO_ROOT / vendor_rel
     out: list[str] = []
     for entry in pin.get("files", []):
         f = root / entry["path"]
@@ -430,6 +435,119 @@ def write_vendor(meridian_root: Path, pin: dict | None = None, ref: str = "HEAD"
     return fresh
 
 
+# ------------------------------------------------------ Theme-Spiegel (29.09.2026)
+# Zweiter vendorter Satz, gleiche Doktrin: Freelancings `products/pbi_theme` ist die eine
+# kanonische Theme-Engine; ALUCA konsumiert ihre **Ausgabe** — werkzeugfreie Theme-JSONs —
+# byte-identisch, mit PIN (sha256 je Datei) statt Git-Submodul (ADR-0005: vendor + PIN).
+# Bis 29.09.2026 hing hier `powerbi-theme` als nie initialisiertes Submodul, in das ALUCA-Code
+# zudem schrieb. Freelancing prüft seinerseits, dass seine eingecheckten Themes genau die
+# Engine-Ausgabe sind (`products/pbi_theme/tests/test_regeneration.py`); dieser Sensor schließt
+# die Kette bis hierher.
+#
+# **Die Menge ist eine Regel, kein Verzeichnis im PIN:** jede `*.json` unter
+# `_THEME_SRC_REL` außer `manifest.json`. Die Doku (`*.md`) und die Manifeste bleiben drüben,
+# ALUCA-Code liest nur Theme-JSONs.
+_THEME_SRC_REL = "products/pbi_theme/themes"
+_THEME_VENDOR_REL = "products/fabric/powerbi/themes"
+
+
+def _ist_theme_json(rel: str) -> bool:
+    return rel.endswith(".json") and not rel.endswith("/manifest.json") and rel != "manifest.json"
+
+
+def theme_quellen(meridian_root: Path, ref: str | None = None) -> list[str] | None:
+    """Die gespiegelte Theme-Menge, relativ zu ``_THEME_SRC_REL``. None = nicht messbar.
+
+    Mit ``ref`` aus dem Commit (``git ls-tree``), sonst aus dem Arbeitsbaum — dieselbe
+    Unterscheidung wie ``_quelle_bytes``.
+    """
+    if ref is None:
+        src = meridian_root / _THEME_SRC_REL
+        if not src.is_dir():
+            return []
+        return sorted(p.relative_to(src).as_posix() for p in src.rglob("*.json")
+                      if _ist_theme_json(p.relative_to(src).as_posix()))
+    out = _git(meridian_root, "ls-tree", "-r", "--name-only", ref, "--", _THEME_SRC_REL)
+    if out is None:
+        return None
+    prefix = _THEME_SRC_REL + "/"
+    return sorted(ln[len(prefix):] for ln in out.splitlines()
+                  if ln.startswith(prefix) and _ist_theme_json(ln[len(prefix):]))
+
+
+def theme_pin() -> dict | None:
+    pin = REPO_ROOT / _THEME_VENDOR_REL / "PIN.json"
+    return json.loads(pin.read_text(encoding="utf-8")) if pin.is_file() else None
+
+
+def theme_upstream_drift(pin: dict, meridian_root: Path, ref: str | None = None) -> list[str]:
+    """Freelancing-seitige Theme-Änderungen, die der Spiegel noch nicht hat. Pure."""
+    namen = theme_quellen(meridian_root, ref)
+    if namen is None:
+        return [f"  themes: {ref} in {meridian_root} nicht lesbar — Theme-Spiegel NICHT verglichen"]
+    if not namen:
+        return [f"  themes: {_THEME_SRC_REL} fehlt in Freelancing ({ref or 'Arbeitsbaum'}) — "
+                f"Engine-Ausgabe nicht vorhanden, Theme-Spiegel NICHT verglichen"]
+    pinned = {e["path"]: e["sha256"] for e in pin.get("files", [])}
+    out: list[str] = []
+    for name in namen:
+        quelle = f"{_THEME_SRC_REL}/{name}"
+        inhalt = _quelle_bytes(meridian_root, quelle, ref)
+        if inhalt is None:
+            out.append(f"  themes/{name}: nicht lesbar in Freelancing")
+        elif name not in pinned:
+            out.append(f"  themes/{name}: neu in der Engine-Ausgabe, hier nicht gespiegelt — --write-themes")
+        elif hashlib.sha256(inhalt).hexdigest() != pinned[name]:
+            out.append(f"  themes/{name}: " + pin_direction(
+                meridian_root, quelle, REPO_ROOT / _THEME_VENDOR_REL / name))
+    for name in sorted(set(pinned) - set(namen)):
+        out.append(f"  themes/{name}: in Freelancing entfernt, hier noch gespiegelt — --write-themes")
+    return out
+
+
+def write_theme_vendor(meridian_root: Path, ref: str = "HEAD") -> dict:
+    """Theme-Spiegel aus dem Commit ``ref`` neu schreiben (manuell, nie in CI).
+
+    Der Zielordner gehört ganz dem Spiegel: was nicht mehr in der Menge ist, wird entfernt.
+    """
+    commit = _git(meridian_root, "rev-parse", ref)
+    if not commit:
+        raise SystemExit(f"[check-dataarch-mirror] --write-themes: {ref} ist in {meridian_root} kein Commit")
+    namen = theme_quellen(meridian_root, commit)
+    if not namen:
+        raise SystemExit(f"[check-dataarch-mirror] --write-themes: keine Theme-JSONs unter "
+                         f"{_THEME_SRC_REL} im Commit {commit[:8]}")
+    root = REPO_ROOT / _THEME_VENDOR_REL
+    root.mkdir(parents=True, exist_ok=True)
+    for alt in root.rglob("*.json"):
+        if alt.name != "PIN.json":
+            alt.unlink()
+    files = []
+    for name in namen:
+        inhalt = _quelle_bytes(meridian_root, f"{_THEME_SRC_REL}/{name}", commit)
+        if inhalt is None:
+            raise SystemExit(f"[check-dataarch-mirror] --write-themes: {name} nicht im Commit {commit[:8]}")
+        ziel = root / name
+        ziel.parent.mkdir(parents=True, exist_ok=True)
+        ziel.write_bytes(inhalt)
+        files.append({"path": name, "sha256": _sha256(ziel)})
+    for leer in sorted((d for d in root.rglob("*") if d.is_dir()), reverse=True):
+        if not any(leer.iterdir()):
+            leer.rmdir()
+    fresh = {
+        "source_repo": "Freelancing",
+        "source_path": _THEME_SRC_REL,
+        "source_commit": commit,
+        "doctrine": "Freelancing products/pbi_theme ist die kanonische Theme-Engine; ALUCA "
+                    "vendort ihre Theme-JSONs byte-identisch (ADR-0005: vendor + PIN, kein "
+                    "Submodul). Nie hier editieren — in Freelancing erzeugen, dann --write-themes.",
+        "files": files,
+    }
+    (root / "PIN.json").write_text(json.dumps(fresh, indent=2, ensure_ascii=False) + "\n",
+                                   encoding="utf-8", newline="\n")
+    return fresh
+
+
 # ------------------------------------------------------ counterpart freshness (D-341)
 # This sensor diffs against a WORKING TREE, not against `origin`. A stale tree makes both
 # sides look identical — because both are old. Measured instead of trusted; the German
@@ -527,6 +645,7 @@ def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     strict = "--strict" in argv
     write = "--write" in argv
+    write_themes = "--write-themes" in argv
     fetch = "--fetch" in argv
     # `--skip-freshness` exists for exactly one caller: Meridian's `check_aluca_mirror.py`
     # delegates the reverse direction to this script. In that call the "counterpart" is
@@ -542,7 +661,23 @@ def main(argv: list[str] | None = None) -> int:
             max_age = int(argv[i])
 
     pin = vendor_pin()
+    tpin = theme_pin()
     mer = _meridian_root()
+
+    if write_themes:
+        if mer is None:
+            print("[check-dataarch-mirror] --write-themes needs a Freelancing checkout "
+                  "($MERIDIAN_ROOT or ../Freelancing)")
+            return 1
+        ref = "HEAD"
+        if "--ref" in argv:
+            i = argv.index("--ref") + 1
+            if i < len(argv):
+                ref = argv[i]
+        fresh = write_theme_vendor(mer, ref)
+        print(f"[check-dataarch-mirror] re-mirrored {len(fresh['files'])} theme(s) from {mer} "
+              f"at {fresh['source_commit'][:8]}")
+        return 0
 
     # --write runs *before* the integrity gate: it is the operation that re-establishes
     # integrity, so gating it on integrity would make a drifted or extended mirror
@@ -573,6 +708,14 @@ def main(argv: list[str] | None = None) -> int:
             for line in local:
                 print(line)
             return 1
+    if tpin is not None:
+        local = vendor_integrity(tpin, _THEME_VENDOR_REL)
+        if local:
+            print("[check-dataarch-mirror] vendored themes edited locally — generate them in "
+                  "Freelancing (products/pbi_theme) and re-mirror (--write-themes) instead:")
+            for line in local:
+                print(line)
+            return 1
 
     if mer is None:
         # D-341: DID NOT RUN is not a passed comparison. Without --strict this stays a named
@@ -580,6 +723,9 @@ def main(argv: list[str] | None = None) -> int:
         # failure, otherwise the gate passes precisely when it checked nothing.
         if pin is not None:
             print(f"[check-dataarch-mirror] vendored emitters OK ({len(pin['files'])} file(s), "
+                  f"local integrity)")
+        if tpin is not None:
+            print(f"[check-dataarch-mirror] vendored themes OK ({len(tpin['files'])} file(s), "
                   f"local integrity)")
         print("[check-dataarch-mirror] Meridian checkout not reachable "
               "($MERIDIAN_ROOT or ../Freelancing) — the cross-repo diff DID NOT RUN")
@@ -613,11 +759,14 @@ def main(argv: list[str] | None = None) -> int:
         # Gegen den Commit, ausser Meridian selbst ruft (--skip-freshness): dort ist der
         # uncommittete Stand der Gegenstand der Pruefung (siehe oben).
         drift += vendor_upstream_drift(pin, mer, None if skip_freshness else "HEAD")
+    if tpin is not None:
+        drift += theme_upstream_drift(tpin, mer, None if skip_freshness else "HEAD")
 
     if not drift:
         vendored = len(pin["files"]) if pin else 0
+        themes = len(tpin["files"]) if tpin else 0
         print(f"[check-dataarch-mirror] OK — mirror in sync with Meridian ({mer}); "
-              f"contract surface + {vendored} vendored file(s)")
+              f"contract surface + {vendored} vendored file(s) + {themes} vendored theme(s)")
         print(f"[check-dataarch-mirror] diffed against: {freshness_line(freshness)}")
         if uncertain and strict:
             print("[check-dataarch-mirror] --strict: in sync with a state of uncertain freshness "

@@ -1,3 +1,10 @@
+---
+paths:
+  - "products/fabric/powerbi/**"
+  - "**/*.SemanticModel/**"
+  - "**/*.pbip"
+---
+
 Learnings from Claude about connecting to semantic models via the connect-pbid skill
 
 - PBIP models load with a **GUID database name**, not the .SemanticModel name. Match
