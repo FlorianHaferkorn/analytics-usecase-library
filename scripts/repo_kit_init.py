@@ -40,7 +40,7 @@ STACK_UNKNOWN = "(Stack nicht erkannt — manuell eintragen)"
 def repo_name(root: Path) -> str:
     cfg = root / ".git" / "config"
     if cfg.exists():
-        m = re.search(r"url\s*=\s*.*/([^/\n]+?)(?:\.git)?\s*$", cfg.read_text(errors="replace"), re.M)
+        m = re.search(r"url\s*=\s*.*/([^/\n]+?)(?:\.git)?\s*$", cfg.read_text(encoding="utf-8", errors="replace"), re.M)
         if m:
             return m.group(1)
     return root.resolve().name
@@ -76,7 +76,7 @@ def detect_stacks(root: Path) -> tuple[list[str], str]:
         pkg = d / "package.json"
         if pkg.exists():
             try:
-                data = json.loads(pkg.read_text(errors="replace"))
+                data = json.loads(pkg.read_text(encoding="utf-8", errors="replace"))
                 deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
             except Exception:
                 deps = {}
@@ -102,7 +102,7 @@ def detect_stacks(root: Path) -> tuple[list[str], str]:
             for f in ("pyproject.toml", "requirements.txt"):
                 p = d / f
                 if p.exists():
-                    blob += p.read_text(errors="replace").lower()
+                    blob += p.read_text(encoding="utf-8", errors="replace").lower()
             ml = any(k in blob for k in ("torch", "tensorflow", "mps", "scikit", "numpy", "opencv", "ultralytics"))
             add("Python (ML)" if ml else "Python",
                 "- Python: Type-Hints überall; reine Funktionen, klare I/O-Grenzen; "
@@ -160,7 +160,7 @@ def detect_test_cmd(root: Path) -> str:
         pkg = d / "package.json"
         if pkg.exists():
             try:
-                sc = json.loads(pkg.read_text(errors="replace")).get("scripts", {})
+                sc = json.loads(pkg.read_text(encoding="utf-8", errors="replace")).get("scripts", {})
             except Exception:
                 sc = {}
             if "check" in sc:
@@ -171,7 +171,7 @@ def detect_test_cmd(root: Path) -> str:
         if (d / "tests").is_dir():
             return "pytest -q"
         pp = d / "pyproject.toml"
-        if pp.exists() and "pytest" in pp.read_text(errors="replace").lower():
+        if pp.exists() and "pytest" in pp.read_text(encoding="utf-8", errors="replace").lower():
             return "pytest -q"
     for base in (root, root / "scripts"):
         if base.is_dir():
@@ -239,8 +239,8 @@ def scaffold_stack_rules(root: Path) -> list[str]:
         out = rules_dir / f"{slug}.md"
         if out.exists():
             continue
-        out.write_text(_rule_text(d, stacks), encoding="utf-8")
-        written.append(str(out.relative_to(root)))
+        out.write_text(_rule_text(d, stacks), encoding="utf-8", newline="\n")
+        written.append(out.relative_to(root).as_posix())
     return written
 
 
@@ -278,7 +278,7 @@ def prune_stub_rules(root: Path) -> list[str]:
         if tracked:
             subprocess.run(["git", "-C", str(root), "rm", "-q", "--cached", str(f)], capture_output=True)
         f.unlink()
-        removed.append(str(f.relative_to(root)))
+        removed.append(f.relative_to(root).as_posix())
     rules = root / ".claude" / "rules"
     if removed and rules.is_dir() and not any(rules.iterdir()):
         rules.rmdir()
@@ -329,7 +329,7 @@ def prefill_claude(claude_md: Path, root: Path) -> None:
     # Compliance-Befehl mit erkanntem Test/Check vorbelegen
     txt = txt.replace("{{befehl der vor jedem commit/PR grün sein muss}}",
                       d.get("test_cmd") or "make check", 1)
-    claude_md.write_text(txt, encoding="utf-8")
+    claude_md.write_text(txt, encoding="utf-8", newline="\n")
     print(f"✓ prefilled {claude_md.name}: name={d['name']} stacks={d['stacks']} "
           f"test={d.get('test_cmd') or '—'}")
 
@@ -368,7 +368,7 @@ def prefill_goi(goi: Path, root: Path) -> None:
                   "Zielgruppe, fester Stack-Kontext}} — ohne ihn zu wiederholen.", text, flags=re.M)
     text = re.sub(r"^- .*(Fabric|Power BI|Nagarro|Freelancer|NGO e\.V\.).*$",
                   "- {{Projekt-Kontext hier eintragen}}", text, flags=re.M)
-    goi.write_text(text, encoding="utf-8")
+    goi.write_text(text, encoding="utf-8", newline="\n")
     print(f"✓ GOI §4 gesetzt = {', '.join(d['stacks'])}. §8-Projekt-Kontext bleibt Platzhalter (von dir zu füllen).")
 
 
@@ -435,7 +435,7 @@ def scaffold_index(folder: Path, root: Path) -> None:
         "## Offene Punkte (Ledger — hier abhaken)\n\n"
         "| ID | Punkt | Status | Datum |\n|---|---|---|---|\n| — | — | — | — |\n"
     )
-    out.write_text(body, encoding="utf-8")
+    out.write_text(body, encoding="utf-8", newline="\n")
     print(f"✓ {out.relative_to(root)} ({len(rows)} Docs registriert). "
           f"Jetzt nur noch Zweck/lies-wenn füllen.")
 
@@ -541,7 +541,8 @@ SHELL_SHEBANG = re.compile(r"^#!.*\b(sh|bash|dash|zsh|ksh)\b")
 
 
 def _git_out(root: Path, *args: str) -> str:
-    r = subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True)
+    r = subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True,
+        encoding="utf-8", errors="replace")
     return r.stdout.strip() if r.returncode == 0 else ""
 
 
@@ -564,7 +565,7 @@ KIT_HOOK_LINES = ("if [ -f Makefile ]", "make check", "else", "fi", "if command 
 
 def _kit_only(hook: Path) -> bool:
     try:
-        lines = hook.read_text(errors="replace").splitlines()
+        lines = hook.read_text(encoding="utf-8", errors="replace").splitlines()
     except OSError:
         return False
     return not [ln for ln in lines if ln.strip() and not ln.startswith("#") and "check_index.py" not in ln
@@ -606,7 +607,7 @@ def _insert_hook_block(hook: Path, body: str) -> bool | None:
     """Kit-Block DIREKT nach dem Shebang einfügen, nicht anhängen: ein bestehender Hook, der mit
     `exit 0` endet, würde einen angehängten Block nie erreichen. False = war schon drin,
     None = bestehender Hook ist kein Shell-Skript (Python/Node) — dann nichts anfassen."""
-    existing = hook.read_text(errors="replace") if hook.exists() else "#!/usr/bin/env sh\n"
+    existing = hook.read_text(encoding="utf-8", errors="replace") if hook.exists() else "#!/usr/bin/env sh\n"
     if LEGACY_HOOK_BODY in existing.replace("\r\n", "\n") and hook.parent.name == ".githooks":
         # Nur im VERSIONIERTEN Hook ersetzen: dort reist er in Umgebungen ohne make-Abhängigkeiten.
         # Ein lokaler .git/hooks-Hook darf `make check` behalten.
