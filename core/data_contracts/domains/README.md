@@ -64,8 +64,12 @@ fact:
 ### Structured quality fields (A-20/A-23, 29.09.2026)
 
 Rules that a machine can run live **on the column**, not as prose in `quality_rules`
-(consumed by `tooling/generator/export_governed_catalog.py` → `column_specs`, checked by
-`tooling/validation/check_validate_data_contracts.py`):
+(consumed by `tooling/generator/export_governed_catalog.py` → `column_specs`, carried into
+ODCS v3.1 by `tooling/superversion/odcs.py` — `to_odcs(blueprint, governed_catalog)` and back via
+`odcs_to_catalog`, same mapping as Meridian D-581 — and checked by
+`tooling/validation/check_validate_data_contracts.py`, the only contract validator: its JS twin
+`validate_data_contracts.js` was called by no workflow, script or Stage-1 check and was removed
+on 29.09.2026):
 
 | Field | Where | Meaning |
 |---|---|---|
