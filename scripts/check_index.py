@@ -51,6 +51,51 @@ FRONT_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 PLACEHOLDER_RE = re.compile(r"\{\{[^}]+\}\}")
 
 
+# The index checker validates the TRACKED repo. Content git ignores — e.g. real customer showcases
+# kept local per showcases/README.md ("Customer-specific implementations … kept in separate project
+# repositories") — is NOT part of it and must not be scanned. Populated in main().
+_IGNORED: "set[Path]" = set()
+
+
+def _git_ignored_prefixes(root: Path) -> "set[Path]":
+    """Absolute paths git ignores (directories collapsed to one entry via ``--directory``)."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "--others", "--ignored",
+             "--exclude-standard", "--directory", "-z"],
+            capture_output=True, text=True, timeout=30, check=True,
+            encoding="utf-8", errors="replace").stdout
+    except Exception:
+        return set()
+    return {(root / p).resolve() for p in out.split("\0") if p}
+
+
+def _git_submodule_prefixes(root: Path) -> "set[Path]":
+    """Absolute paths of git submodules (gitlinks, mode 160000).
+
+    A submodule is a separate repository: its files exist only after
+    ``git submodule update --init`` and are versioned elsewhere. The index must not
+    depend on them - otherwise a fresh checkout (CI, worktree) fails on paths that
+    the maintainer's initialised checkout happens to have."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "-s", "-z"],
+            capture_output=True, text=True, timeout=30, check=True,
+            encoding="utf-8", errors="replace").stdout
+    except Exception:
+        return set()
+    prefixes = set()
+    for entry in out.split("\0"):
+        if entry.startswith("160000 ") and "\t" in entry:
+            prefixes.add((root / entry.split("\t", 1)[1]).resolve())
+    return prefixes
+
+
+def _under_ignored(p: Path) -> bool:
+    rp = p.resolve()
+    return any(rp == ig or ig in rp.parents for ig in _IGNORED)
+
+
 def slugify(h: str) -> str:
     s = re.sub(r"[^\w\s-]", "", h.strip().lower(), flags=re.UNICODE)
     return re.sub(r"\s+", "-", s)
@@ -64,12 +109,14 @@ def headings_of(md: Path) -> set[str]:
 
 def find_indexes(root: Path) -> list[Path]:
     return sorted(p for p in root.rglob("_INDEX.md")
-                  if not any(part in IGNORE_DIRS for part in p.parts))
+                  if not any(part in IGNORE_DIRS for part in p.parts)
+                  and not _under_ignored(p))
 
 
 def ignored(md: Path) -> bool:
     return (any(p in IGNORE_DIRS for p in md.parts) or md.name in EXEMPT_FILES
-            or DUPE_RE.search(md.name) or DUPE_RE.search(md.stem))
+            or DUPE_RE.search(md.name) or DUPE_RE.search(md.stem)
+            or _under_ignored(md))
 
 
 LIESWENN_HEADER_RE = re.compile(r"nicht\s*n(ö|oe)tig", re.IGNORECASE)
@@ -484,7 +531,8 @@ def _git_last_commit_date(rel_dir: Path, exclude: str | None = None) -> _dt.date
     if exclude:
         args.append(f":(exclude){rel_dir}/{exclude}")
     try:
-        r = subprocess.run(args, cwd=REPO_ROOT, capture_output=True, text=True, timeout=5)
+        r = subprocess.run(args, cwd=REPO_ROOT, capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=5)
         s = r.stdout.strip()
         return _dt.date.fromisoformat(s) if s else None
     except Exception:
@@ -521,7 +569,8 @@ def check_unindexed_areas(root: Path, indexes: list[Path], warnings: list[str]) 
     Vollständigkeits-Lücke (z. B. scripts/ mit 26 .py). Kein harter Fehler."""
     index_dirs = {idx.parent.resolve() for idx in indexes}
     for child in sorted(p for p in root.iterdir() if p.is_dir()):
-        if child.name in IGNORE_DIRS or child.name.startswith(".") or _non_navigated(child):
+        if (child.name in IGNORE_DIRS or child.name.startswith(".") or _non_navigated(child)
+                or _under_ignored(child)):
             continue
         cr = child.resolve()
         if any(d == cr or cr in d.parents for d in index_dirs):
@@ -548,7 +597,7 @@ def _foreign_legacy_hooks(git) -> list[str]:
         return out
     for f in files:
         if f.name == "pre-commit":
-            body = [ln for ln in f.read_text(errors="replace").splitlines()
+            body = [ln for ln in f.read_text(encoding="utf-8", errors="replace").splitlines()
                     if ln.strip() and not ln.startswith("#") and "check_index.py" not in ln
                     and not ln.strip().startswith(KIT_HOOK_LINES)]
             if not body:
@@ -579,7 +628,8 @@ def claude_hook(event: str) -> int:
         return 0
 
     def git(*a: str) -> subprocess.CompletedProcess:
-        return subprocess.run(["git", "-C", str(REPO_ROOT), *a], capture_output=True, text=True)
+        return subprocess.run(["git", "-C", str(REPO_ROOT), *a], capture_output=True, text=True,
+            encoding="utf-8", errors="replace")
 
     try:
         if event == "session-start":
@@ -598,7 +648,8 @@ def claude_hook(event: str) -> int:
             st = git("status", "--porcelain")
             if st.returncode != 0 or not st.stdout.strip():
                 return 0
-            res = subprocess.run([sys.executable, str(Path(__file__).resolve())], capture_output=True, text=True)
+            res = subprocess.run([sys.executable, str(Path(__file__).resolve())], capture_output=True, text=True,
+                encoding="utf-8", errors="replace")
             fails = [ln for ln in res.stdout.splitlines() if ln.startswith("FAIL")]
             if res.returncode == 0 or not fails:
                 return 0   # grün — oder das Gate selbst ist abgestürzt: dann nicht blockieren
@@ -617,6 +668,8 @@ def main(argv: list[str]) -> int:
     strict = "--strict" in argv
     pos = [a for a in argv[1:] if not a.startswith("--")]
     root = (REPO_ROOT / pos[0]) if pos else REPO_ROOT
+    global _IGNORED
+    _IGNORED = _git_ignored_prefixes(REPO_ROOT) | _git_submodule_prefixes(REPO_ROOT)
     indexes = find_indexes(root)
     errors: list[str] = []
     warnings: list[str] = []
@@ -647,7 +700,7 @@ def main(argv: list[str]) -> int:
     # CLAUDE.md/GOI IMMER auf Platzhalter prüfen (auch ohne _INDEX — sonst keine Stub-Durchsetzung).
     # Pfadgebundene Regeln sind ebenfalls Anweisungs-Schicht — ein Stub dort ist genauso ein Stub.
     for f in ["CLAUDE.md", "GOI_DOKTRIN.md",
-              *(str(r.relative_to(REPO_ROOT)) for r in sorted((REPO_ROOT / ".claude" / "rules").glob("*.md")))]:
+              *(r.relative_to(REPO_ROOT).as_posix() for r in sorted((REPO_ROOT / ".claude" / "rules").glob("*.md")))]:
         check_placeholders(REPO_ROOT / f, strict, errors, warnings)
     # Größen-Advisory auf der Anweisungs-Schicht (alles, was bei jedem Sessionstart lädt).
     for f in ("CLAUDE.md", "GOI_DOKTRIN.md", ".claude/CLAUDE.md"):
