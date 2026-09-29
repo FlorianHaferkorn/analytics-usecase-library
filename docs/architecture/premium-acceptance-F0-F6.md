@@ -24,7 +24,7 @@
 | Floor | Verdict | One-line reason |
 |---|:-:|---|
 | **F0** Rechenfähigkeit | 🟢 **grün** (5 MVP-UCs) · 🟡 **offen, geledgert** (11 weitere UCs) | 0/0 BLANK() für die 5 MVP-UCs; 9 einzeln begründete HITL-KPIs über die restlichen 11 UCs, keine stille `BLANK()` |
-| **F1** Official validator | 🟡 **lokal gemessen grün, CI-Messung ausstehend** (Nachtrag 29.09.2026) | CLI 0.1.1 lokal installiert: Validator-Test 0 Errors, dist-Ratsche hält (16×25 + 1×23 ≤ 25), `e2e_smoke --require-cli` PASS; der CI-Schritt lief bis 29.09. vor der CLI-Installation und übersprang die Tests — umgestellt, Lauf auf echtem Runner steht aus |
+| **F1** Official validator | 🟡 **lokal gemessen grün, CI-Messung ausstehend** (Nachtrag 29.09.2026) | CLI 0.1.1 lokal installiert, nach W0.4 (Pin 0.4.0) mit 0.4.0 wiederholt — gleicher CI-Aufruf 826 passed / 1 skipped: Validator-Test 0 Errors, dist-Ratsche hält (16×25 + 1×23 ≤ 25), `e2e_smoke --require-cli` PASS; der CI-Schritt lief bis 29.09. vor der CLI-Installation und übersprang die Tests — umgestellt, Lauf auf echtem Runner steht aus |
 | **F2** Determinismus | 🟢 **grün** | byte-identischer SHA-256 über 3 `PYTHONHASHSEED`-Werte, frisch reproduziert |
 | **F3** Golden Thread | 🟢 **grün** | 0 Error-Verstöße über alle 5 gehärteten MVP-UCs; 4 Advisory-Warnungen offen benannt |
 | **F4** Standalone-Smoke | 🟢 **grün** | jedes Layer-Tool läuft eigenständig via CLI, live verifiziert; gov/eng/arch-Engines bleiben Beta |
@@ -329,8 +329,8 @@ geführt, mit einem konkreten, nicht geratenen nächsten Schritt.
 # F0
 python -m pytest tooling/superversion/tests/test_calculation_coverage.py -q
 
-# F1 (CLI 0.1.1 auf PATH, wie in .github/workflows/superversion.yml)
-npm i -g --prefix /tmp/pbircli @microsoft/powerbi-report-authoring-cli@0.1.1
+# F1 (CLI 0.4.0 auf PATH, wie in .github/workflows/superversion.yml; Pin seit W0.4/D-580)
+npm i -g --prefix /tmp/pbircli @microsoft/powerbi-report-authoring-cli@0.4.0
 export PATH=/tmp/pbircli/bin:$PATH
 ALUCA_PBIR_CLI_PFLICHT=1 python -m pytest tooling/superversion/ tooling/tests/test_dist_validator_ratchet.py -q -rs
 python -m tooling.superversion.e2e_smoke --require-cli
