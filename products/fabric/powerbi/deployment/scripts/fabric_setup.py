@@ -462,7 +462,8 @@ Examples:
         # Validate required arguments
         if not args.tenant_id or not args.client_id or not args.client_secret:
             misc.print_error("Error: tenant_id, client_id, and client_secret are required (or use --dry-run)")
-            misc.print_info("Set TENANT_ID/CLIENT_ID as arguments or environment variables, CLIENT_SECRET only as environment variable")
+            misc.print_info("Set TENANT_ID/CLIENT_ID as arguments or environment variables, "
+                            "CLIENT_SECRET only as environment variable")
             sys.exit(1)
         
         # Authenticate with Fabric CLI
