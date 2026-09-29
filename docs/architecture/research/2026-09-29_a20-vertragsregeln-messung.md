@@ -261,3 +261,27 @@ Ein **lokaler Ausführer** der erzeugten `schema.yml` ließ sich weder in Freela
 3. **Ausführung in Meridian.** Ein neuer Lieferant `contract_dq_column_tests(governed_catalog)` → `emit_dq_gates(column_tests=…)`. Dazu erzeugt `emit_mlv` CHECK-Constraints aus `checks`. Beide werden gespiegelt, und `emit_dq_gates`/`emit_mlv` kommen in die Spiegel-API von `fabric.py`. Für den Showcase-Nachweis in AUL-CI führt ein kleiner Läufer die **erzeugten** Artefakte auf duckdb aus, statt Prosa zu lesen. Er gehört als Werkzeug zu Meridian, damit es nur eine Semantik gibt.
 
 **Vorbedingung** (gemessen, siehe 2.1): Solange 49 Vertragstabellen und 41 Regelspalten im Showcase fehlen und `PromoKey` den unbekannten Eintrag statt NULL nutzt, bleibt jedes Tor gegen den Showcase zu 59 % „nicht gelaufen“. Die Namensabweichungen (`IssueKey`/`IssueTypeKey`, `Promo Cost`/`Promo Cost Amount`, snake_case in `fact_action_outcome`) gehören als eigener Ledger-Punkt entschieden: Welche Seite ist die Wahrheit?
+
+## 5. A-23: Welche Seite gilt? Vertrag und Daten gegen die governte Kette (gemessen 29.09.2026)
+
+**Methode.**
+- **Stufe 1:** Namen aus den Verträgen (`dimension`/`fact` → `columns`) gegen das Parquet-Schema der Aurora-Gold-Tabellen legen. Paare bildet `difflib` mit dem Schwellenwert 0,6.
+- **Stufe 2:** Jede Abweichung tabellengenau in der Kette auf `origin/main` 0c916415 nachschlagen:
+  - Spaltendefinition `column` in der gleichnamigen `table`-Datei der 215 TMDL-Dateien unter `products/fabric/powerbi/dist/`;
+  - DAX-Verweis `Tabelle[Spalte]` in TMDL, KPI-Katalog (157 Dateien) und 21 `UseCase_Bracket.yaml`.
+- **Warum Stufe 2:** Bloße Namenstreffer täuschen, weil `DateKey`, `Region` oder `Severity` in vielen Tabellen vorkommen.
+- **Stufe 3:** Jede `sourceColumn` der Modelle (495 Stück) gegen das Schema der gleichnamigen Gold-Tabelle legen. Das Schema ist die Vereinigung über alle Parquet-Dateien.
+- **Gegenmessung:** Das Schema aus dem Delta-Log (`metaData.schemaString`) liefert für die Stichproben dieselben Namen. Column Mapping ist nicht aktiv.
+
+| Klasse | Anzahl | davon in der Kette genutzt | Folgerung (Herleitung) |
+|---|---|---|---|
+| Namenspaare Vertrag ↔ Daten | 13 | Datenseite in 11 im Modell definiert, Vertragsseite in 0. Ausnahme `Promo Cost`: Daten-Name mit 2 DAX-Verweisen, Vertrags-Name mit 0 | Der Vertrag zieht nach. 4 Paare sind Fehlzuordnungen von `difflib` (`MonthKey`/`Month Name`, `Issue Category`/`IssueKey`, `Outcome Status`/`outcome_date`, Kostenspalten/`Plan COGS Amount`) und zählen als „nur Vertrag“ |
+| Nur im Vertrag | 55 | 8 im Modell definiert oder per DAX genutzt, 47 nirgends | 47 streichen oder als Zielbild markieren. Die 8 sind eine Generatorlücke, siehe die nächste Zeile |
+| **Modell liest Spalten, die Gold nicht hat** | **11 von 495 `sourceColumn`** | — | Finance: `dim_customer.Region`, `fact_cost.Material Cost Amount`, `fact_cost.Overhead Amount`, `fact_inventory.COGS Amount`. SupplyChain: `dim_product.ABC_Class`/`XYZ_Class`, `fact_procurement.Contract Unit Price`. Experience: `fact_action_log.Action Code`/`Responsible Role`. Operations: `fact_inventory_snapshot.Reorder Flag`. Commercial: `dim_pvm_driver.SortOrder`. Ein Import-Refresh gegen diese Gold-Daten scheitert an diesen Tabellen (hergeleitet, nicht in Fabric ausgeführt) |
+| Nur in den Daten | 34 | 29 im Modell definiert | In den Vertrag aufnehmen |
+| Vertragstabellen ohne Daten | 49 | 14 im Modell oder Katalog (11 Dimensionen, z. B. `dim_supplier`, `dim_sla_policy`) | Abdeckung im Vertrag deklarieren. Wo das Modell die Tabelle führt, braucht der Generator sie |
+| Datentabellen ohne Vertrag | 9 | 3 (`fact_action_log`, `fact_inventory_snapshot`, `fact_supplier_risk`) | In den Vertrag aufnehmen |
+
+**Ergebnis.**
+- **Modell und Daten sind sich fast überall einig (484 von 495 `sourceColumn`).** Der Vertrag weicht ab. Wahrheit ist also die Modell- und Datenseite, und der Vertrag zieht nach.
+- **Ausnahme: 11 Modellspalten ohne Daten.** Dort ist das Modell die Vorgabe, und der Generator muss nachziehen. Es kann auch das Modell falsch sein; das entscheidet sich je Spalte (UNKLAR).
