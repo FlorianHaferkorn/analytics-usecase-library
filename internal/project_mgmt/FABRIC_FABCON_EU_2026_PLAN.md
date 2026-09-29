@@ -16,13 +16,13 @@ Nicht verwendet: Den Keynote-Blog vom 28.09. weist der Egress-Proxy ab; nur Such
 **Gegenstück:** Meridian führt denselben Plan als Initiative I-21 (Freelancing-Repo,
 `docs/plans/PLAN_FabCon_EU_2026_Fabric_Nachzug_2026-09-29.md`). Die Aufgaben-IDs hier sind dieselben.
 
-## Parität (Meridian D-577, Modus a — Spiegel mit Sensor)
+## Parität (Meridian D-579, Modus a — Spiegel mit Sensor)
 - **A** = ALUCA-eigener Code, wird hier geändert.
 - **M→A** = gespiegelter Meridian-Code (`tooling/superversion/vendor/meridian_dataarch/`). **Nie hier
   direkt ändern.** Die Änderung landet zuerst in Meridian. Danach hier:
   1. `python scripts/check_dataarch_mirror.py --write --ref <meridian-commit>`
   2. `python -m pytest tooling/tests/ products/ -q`
-- Keine Aufgabe darf die Unterschiede zu Meridian vergrößern (Liste in D-577): Fabric-Pins,
+- Keine Aufgabe darf die Unterschiede zu Meridian vergrößern (Liste in D-579): Fabric-Pins,
   PBIR-Schema-Pins, Speichermodus, Deployment, Copilot-Readiness.
 
 ## Vor Code zu entscheiden (Florian)
@@ -57,7 +57,7 @@ Legende Status: `offen` · `in Arbeit (Branch, Datum)` · `erledigt (Datum, PR #
 | W2.3 | MLV Event-driven Refresh | M→A | offen | Spiegel nachgezogen |
 | W2.4 | dbt Job (GA Sep 2026) auch für den OSS-/dbt-Pfad prüfen | A | offen | Notiz in `products/_INDEX.md`-Bereich OSS, ggf. Adapter |
 | W2.6 | Deployment-Default nach E-3; `deployment/scripts/fabric_release.py` angleichen | A (+M→A) | blockiert (E-3) | gleiche Default-Strategie wie Meridian · pytest |
-| W3.2 | Copilot-Readiness-Parität: kein Gegenstück zu Meridians `meridian_copilot_readiness` (AI instructions, Verified answers, AI data schema); heute nur manuell (`tmdl_best_practices.md`) | A | offen | Produkt gespiegelt oder Unterschied in D-577 deklariert · Florian entscheidet |
+| W3.2 | Copilot-Readiness-Parität: kein Gegenstück zu Meridians `meridian_copilot_readiness` (AI instructions, Verified answers, AI data schema); heute nur manuell (`tmdl_best_practices.md`) | A | offen | Produkt gespiegelt oder Unterschied in D-579 deklariert · Florian entscheidet |
 | W3.3 | Q&A endet Feb 2027: Wert von `cultures/*.tmdl` und Gate H8 (`products/fabric/powerbi/docs/linux-generation.md`) neu bewerten | A | offen | Gate behalten/umwidmen mit Beleg (nutzt Copilot das linguistische Schema? → Learn) |
 | W3.4 | Data Agent: eingestellte Wege (Assistants API, Data-Agent-Integration in Copilot in Power BI, beide 26.08.2026) | M→A | offen | Spiegel nachgezogen |
 | W3.5 | Power BI Modeling MCP: Doku nennt 0.1.9, npm latest 1.0.0, Learn „lokal GA“ | A | offen | `products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md` aktualisiert, gleicher Stand wie Meridian-Pin |
