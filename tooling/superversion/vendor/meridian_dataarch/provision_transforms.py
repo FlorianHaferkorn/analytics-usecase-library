@@ -2651,8 +2651,7 @@ def emit_dq_gates(blueprint: dict, schemas: bool = False,
         # Ein Job je Gold-Workspace: der Job verbindet genau ein Lakehouse, und jede Domaene
         # haelt ihr Gold im eigenen Workspace (`gold_workspace_of`). Ein Job fuer alle haette
         # die Tabellen der anderen Domaenen gar nicht gesehen.
-        from core.dataarch_engine.blueprint.provision_apply import (
-            PLACEHOLDER_WORKSPACE, gold_workspace_of)
+        from core.dataarch_engine.blueprint.provision_apply import PLACEHOLDER_WORKSPACE, gold_workspace_of
         je_ws: dict[str, list[str]] = {}
         for dom, ms in sorted(je_domaene.items()):
             je_ws.setdefault(gold_workspace_of(blueprint, dom, fallback=PLACEHOLDER_WORKSPACE),
