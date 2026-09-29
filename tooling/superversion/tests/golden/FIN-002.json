@@ -15,10 +15,12 @@
             "display_folder": "Finance",
             "description": "Total Cost Amount / Units Produced or Sold.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Output Units\", \"kind\": \"column\", \"table\": \"fact_output\"}, \"numerator\": {\"column\": \"COGS Amount\", \"kind\": \"column\", \"table\": \"fact_cost\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Cost Base Volume Amount",
@@ -26,15 +28,19 @@
             "display_folder": "Finance",
             "description": "Baseline amount of cost volume for the selected period.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"COGS Amount\", \"kind\": \"column\", \"table\": \"fact_cost\"}}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -50,10 +56,12 @@
             "display_folder": "Finance",
             "description": "COGS Amount / Net Sales Amount.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Net Sales Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"numerator\": {\"column\": \"COGS Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "OpEx vs Plan %",
@@ -61,10 +69,12 @@
             "display_folder": "Finance",
             "description": "(OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"minuend\": {\"column\": \"OpEx Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"op\": \"delta_pct\", \"subtrahend\": {\"column\": \"Plan OpEx Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Material Cost %",
@@ -72,10 +82,12 @@
             "display_folder": "Finance",
             "description": "Material Cost Amount / Net Sales Amount.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Net Sales Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"numerator\": {\"column\": \"Material Cost Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Opex Base Amount",
@@ -83,10 +95,12 @@
             "display_folder": "Finance",
             "description": "Baseline operating expense amount for the selected period.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"OpEx Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "EBITDA Margin",
@@ -94,15 +108,19 @@
             "display_folder": "Finance",
             "description": "EBITDA Amount / Net Sales Amount",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Net Sales Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"numerator\": {\"column\": \"EBITDA Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -118,15 +136,19 @@
             "display_folder": "Operations",
             "description": "Output Units or Net Sales divided by Labor Hours (normalized to % baseline).",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Labor Hours\", \"kind\": \"column\", \"table\": \"fact_labor\"}, \"numerator\": {\"column\": \"Output Units\", \"kind\": \"column\", \"table\": \"fact_output\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -142,10 +164,12 @@
             "display_folder": "Operations",
             "description": "Sum of produced units in the period.",
             "format_string": "",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Output Units\", \"kind\": \"column\", \"table\": \"fact_ops\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Quality Defect Rate %",
@@ -153,10 +177,12 @@
             "display_folder": "Operations",
             "description": "Defective Units / Total Produced Units.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Output Units\", \"kind\": \"column\", \"table\": \"fact_ops\"}, \"numerator\": {\"column\": \"Defect Count\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Quality %",
@@ -164,15 +190,19 @@
             "display_folder": "Operations",
             "description": "Good units / Total units",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Output Units\", \"kind\": \"column\", \"table\": \"fact_ops\"}, \"numerator\": {\"column\": \"Good Units\", \"kind\": \"column\", \"table\": \"fact_ops\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -188,15 +218,19 @@
             "display_folder": "Commercial",
             "description": "Sum of all invoice line amounts net of VAT and returns.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Net Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -212,10 +246,12 @@
             "display_folder": "Supply Chain",
             "description": "OTIF Orders / Total Orders.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "On-Time %",
@@ -223,10 +259,12 @@
             "display_folder": "Supply Chain",
             "description": "On-Time Deliveries / Total Deliveries.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"On-Time Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "In-Full %",
@@ -234,15 +272,19 @@
             "display_folder": "Supply Chain",
             "description": "In-Full Deliveries / Total Deliveries.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"In-Full Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -258,15 +300,19 @@
             "display_folder": "Supply Chain",
             "description": "Lost Demand Qty / Total Demand Qty.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"numerator\": {\"column\": \"Lost Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       }
     ],
@@ -275,12 +321,14 @@
       {
         "name": "plant_ops_controllers",
         "model_permission": "read",
+        "description": "",
         "table_permissions": [],
         "column_permissions": []
       },
       {
         "name": "finance_bi_lead",
         "model_permission": "read",
+        "description": "",
         "table_permissions": [],
         "column_permissions": []
       }
@@ -292,6 +340,9 @@
   "report": {
     "name": "FIN-002_Cost_Performance",
     "theme": "",
+    "parsed_filters": [],
+    "exists": true,
+    "is_legacy": false,
     "pages": [
       {
         "name": "page_1_summary",
@@ -315,7 +366,49 @@
             ],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Main_1",
@@ -337,7 +430,49 @@
               "dim_date.CalendarYearMonth"
             ],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Main_2",
@@ -359,7 +494,49 @@
               "dim_org.Entity"
             ],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Slicer_Date",
@@ -377,14 +554,65 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": "dim_date.Date"
+            "slicer_field": "dim_date.Date",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           }
         ],
         "width": 1920,
         "height": 1080,
         "page_type": "Default",
         "has_mobile_layout": false,
-        "is_hidden": false
+        "is_hidden": false,
+        "page_filters": [],
+        "background_image": "",
+        "background_scaling": "Fit",
+        "background_transparency": 0,
+        "frozen": false,
+        "background_color": "",
+        "drillthrough_fields": [],
+        "visual_interactions": [],
+        "parsed_filters": []
       },
       {
         "name": "page_2_execution",
@@ -416,7 +644,49 @@
               "dim_product.Category"
             ],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "ActionPanel",
@@ -434,17 +704,69 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           }
         ],
         "width": 1920,
         "height": 1080,
         "page_type": "Default",
         "has_mobile_layout": false,
-        "is_hidden": false
+        "is_hidden": false,
+        "page_filters": [],
+        "background_image": "",
+        "background_scaling": "Fit",
+        "background_transparency": 0,
+        "frozen": false,
+        "background_color": "",
+        "drillthrough_fields": [],
+        "visual_interactions": [],
+        "parsed_filters": []
       }
     ],
     "extension_measures": [],
-    "bookmarks": []
+    "bookmarks": [],
+    "report_dir": null
   }
 }

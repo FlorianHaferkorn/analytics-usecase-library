@@ -15,10 +15,12 @@
             "display_folder": "Supply Chain",
             "description": "OTIF Orders / Total Orders.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "On-Time %",
@@ -26,10 +28,12 @@
             "display_folder": "Supply Chain",
             "description": "On-Time Deliveries / Total Deliveries.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"On-Time Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "In-Full %",
@@ -37,10 +41,12 @@
             "display_folder": "Supply Chain",
             "description": "In-Full Deliveries / Total Deliveries.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"In-Full Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Penalty Amount",
@@ -48,10 +54,12 @@
             "display_folder": "Supply Chain",
             "description": "Sum of penalty charges incurred in the period.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Penalty Amount\", \"kind\": \"column\", \"table\": \"fact_fulfillment\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Expedite Cost Amount",
@@ -59,15 +67,19 @@
             "display_folder": "Supply Chain",
             "description": "Sum of expedite fees and premium freight charges.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Expedite Cost\", \"kind\": \"column\", \"table\": \"fact_fulfillment\"}}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -83,15 +95,19 @@
             "display_folder": "Supply Chain",
             "description": "Lost Demand Qty / Total Demand Qty.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"numerator\": {\"column\": \"Lost Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -107,10 +123,12 @@
             "display_folder": "Commercial",
             "description": "Count of order line items.",
             "format_string": "",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"count\", \"table\": \"fact_fulfillment\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Shipments Count",
@@ -118,15 +136,19 @@
             "display_folder": "Supply Chain",
             "description": "Count of shipment records.",
             "format_string": "",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"count\", \"table\": \"fact_fulfillment\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       }
     ],
@@ -135,12 +157,14 @@
       {
         "name": "supply_chain_controlling_logistics_performance",
         "model_permission": "read",
+        "description": "",
         "table_permissions": [],
         "column_permissions": []
       },
       {
         "name": "logistics_supply_chain_bi_lead",
         "model_permission": "read",
+        "description": "",
         "table_permissions": [],
         "column_permissions": []
       }
@@ -152,6 +176,9 @@
   "report": {
     "name": "SCM-002_Supply_Reliability_OTIF",
     "theme": "",
+    "parsed_filters": [],
+    "exists": true,
+    "is_legacy": false,
     "pages": [
       {
         "name": "page_1_summary",
@@ -175,7 +202,49 @@
             ],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Main_1",
@@ -195,7 +264,49 @@
             ],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Main_2",
@@ -218,7 +329,49 @@
               "dim_org.OrgName"
             ],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Slicer_Date",
@@ -236,14 +389,65 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": "dim_date.Date"
+            "slicer_field": "dim_date.Date",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           }
         ],
         "width": 1920,
         "height": 1080,
         "page_type": "Default",
         "has_mobile_layout": false,
-        "is_hidden": false
+        "is_hidden": false,
+        "page_filters": [],
+        "background_image": "",
+        "background_scaling": "Fit",
+        "background_transparency": 0,
+        "frozen": false,
+        "background_color": "",
+        "drillthrough_fields": [],
+        "visual_interactions": [],
+        "parsed_filters": []
       },
       {
         "name": "page_2_execution",
@@ -275,7 +479,49 @@
               "lane"
             ],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Slicer_Pane",
@@ -293,17 +539,69 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           }
         ],
         "width": 1920,
         "height": 1080,
         "page_type": "Default",
         "has_mobile_layout": false,
-        "is_hidden": false
+        "is_hidden": false,
+        "page_filters": [],
+        "background_image": "",
+        "background_scaling": "Fit",
+        "background_transparency": 0,
+        "frozen": false,
+        "background_color": "",
+        "drillthrough_fields": [],
+        "visual_interactions": [],
+        "parsed_filters": []
       }
     ],
     "extension_measures": [],
-    "bookmarks": []
+    "bookmarks": [],
+    "report_dir": null
   }
 }
