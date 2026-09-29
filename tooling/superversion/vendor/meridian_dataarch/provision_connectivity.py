@@ -317,6 +317,11 @@ def _oap_section(bp: dict) -> list[str]:
         "| **OneLake Diagnostics** | Partly | only with a lakehouse in the **same** workspace |",
         "| **Warehouse paths from notebooks** | Yes, for `dbo` file paths | query it over T-SQL "
         "instead of over the path |",
+        "| **Data engineering agent (Project Osmos, preview)** | Yes: not available for workspaces "
+        "with OAP enabled (MS Learn, `data-engineering/data-engineering-agent-get-started` → "
+        "Current limitations, read 2026-09-29) | run the agent in an unprotected development "
+        "workspace and promote its output through Git like any other change — never switch OAP "
+        "off on a protected workspace to use it |",
         "",
         "### The limit most easily mistaken for protection", "",
         "OAP restricts **outbound calls**. Where the workspace is the **source** of a copy to the "

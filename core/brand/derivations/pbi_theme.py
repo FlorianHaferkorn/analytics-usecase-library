@@ -99,6 +99,9 @@ def spec_to_pbi_theme(
         "background":  neutral["100"],
         "foreground":  neutral["900"],
         "tableAccent": with_opacity_hex(primary, 0.10),
+        # Report-wide fonts. Without them every font comes from the base theme, and new
+        # reports start on Fluent 2 since August 2026 (W6.10).
+        "textClasses": _build_text_classes(font_stack, font_sizes, neutral["900"]),
         # Visual styles
         "visualStyles": _build_visual_styles(font_stack, font_sizes, neutral, sem),
     }
@@ -153,6 +156,36 @@ def _derive_font_sizes(
     return sizes
 
 
+def _build_text_classes(
+    font_stack: str,
+    font_sizes: dict[str, int],
+    text_color: str,
+) -> dict[str, Any]:
+    """
+    The four primary text classes of a Power BI theme. Secondary classes (largeTitle,
+    boldLabel, smallLightLabel, ...) derive from them, so these four carry the brand font
+    into every visual that the per-visual overrides below do not name.
+    """
+    body_pt = font_sizes.get("md", 12)
+    label_pt = font_sizes.get("xs", 10)
+    kpi_pt = font_sizes.get("3xl", 18)
+
+    def _cls(size: int) -> dict[str, Any]:
+        return {"fontFace": font_stack, "fontSize": size, "color": text_color}
+
+    return {
+        "callout": _cls(kpi_pt),
+        "title": _cls(body_pt),
+        "header": _cls(body_pt),
+        "label": _cls(label_pt),
+    }
+
+
+def _font(size: int, font_stack: str) -> list[dict[str, Any]]:
+    """One theme card entry: ``[{"fontSize": ..., "fontFamily": ...}]``."""
+    return [{"fontSize": size, "fontFamily": font_stack}]
+
+
 def _build_visual_styles(
     font_stack: str,
     font_sizes: dict[str, int],
@@ -166,51 +199,38 @@ def _build_visual_styles(
     body_pt = font_sizes.get("md", 12)
     label_pt = font_sizes.get("xs", 10)
     kpi_pt = font_sizes.get("3xl", 18)
-    heading_pt = font_sizes.get("2xl", 14)
 
-    # Global wildcard — applies to all visuals unless overridden below
-    global_style: dict[str, Any] = {
-        "*": {
-            "fontFamily": [{"value": font_stack}],
-            "fontSize":   [{"value": body_pt}],
-        }
-    }
-
+    # Report-wide fonts live in textClasses (_build_text_classes); the entries below
+    # only override specific visual types.
     return {
-        # Global font defaults
-        "*": global_style,
         # KPI card — callout value uses hero size
         "cardVisual": {
             "*": {
-                "calloutValue": [
-                    {"value": {"fontSize": kpi_pt, "fontFamily": font_stack}}
-                ],
-                "labels": [
-                    {"value": {"fontSize": label_pt, "fontFamily": font_stack}}
-                ],
+                "calloutValue": _font(kpi_pt, font_stack),
+                "labels": _font(label_pt, font_stack),
             }
         },
         # Legacy card visual
         "card": {
             "*": {
-                "labels":     [{"value": {"fontSize": kpi_pt, "fontFamily": font_stack}}],
-                "categoryLabels": [{"value": {"fontSize": label_pt, "fontFamily": font_stack}}],
+                "labels":     _font(kpi_pt, font_stack),
+                "categoryLabels": _font(label_pt, font_stack),
             }
         },
         # Table and matrix — body + header sizes
         "tableEx": {
             "*": {
-                "values":  [{"value": {"fontSize": body_pt, "fontFamily": font_stack}}],
-                "columnHeaders": [{"value": {"fontSize": body_pt, "fontFamily": font_stack}}],
-                "background": [{"value": {"color": neutral["50"]}}],
+                "values":  _font(body_pt, font_stack),
+                "columnHeaders": _font(body_pt, font_stack),
+                "background": [{"color": {"solid": {"color": neutral["50"]}}}],
             }
         },
         "matrix": {
             "*": {
-                "values":  [{"value": {"fontSize": body_pt, "fontFamily": font_stack}}],
-                "columnHeaders": [{"value": {"fontSize": body_pt, "fontFamily": font_stack}}],
-                "rowHeaders":    [{"value": {"fontSize": body_pt, "fontFamily": font_stack}}],
-                "background":    [{"value": {"color": neutral["50"]}}],
+                "values":  _font(body_pt, font_stack),
+                "columnHeaders": _font(body_pt, font_stack),
+                "rowHeaders":    _font(body_pt, font_stack),
+                "background":    [{"color": {"solid": {"color": neutral["50"]}}}],
             }
         },
         # Axis labels (chart visuals)
@@ -223,14 +243,14 @@ def _build_visual_styles(
         # Slicers
         "slicer": {
             "*": {
-                "items": [{"value": {"fontSize": body_pt, "fontFamily": font_stack}}],
-                "header": [{"value": {"fontSize": label_pt, "fontFamily": font_stack}}],
+                "items": _font(body_pt, font_stack),
+                "header": _font(label_pt, font_stack),
             }
         },
         # Text boxes / smart narrative
         "textbox": {
             "*": {
-                "paragraphs": [{"value": {"fontSize": body_pt, "fontFamily": font_stack}}]
+                "paragraphs": _font(body_pt, font_stack)
             }
         },
     }
@@ -240,8 +260,8 @@ def _axis_style(label_pt: int, font_stack: str) -> dict[str, Any]:
     """Return a visualStyles sub-dict for chart axis label formatting."""
     return {
         "*": {
-            "categoryAxis": [{"value": {"fontSize": label_pt, "fontFamily": font_stack}}],
-            "valueAxis":    [{"value": {"fontSize": label_pt, "fontFamily": font_stack}}],
-            "legend":       [{"value": {"fontSize": label_pt, "fontFamily": font_stack}}],
+            "categoryAxis": _font(label_pt, font_stack),
+            "valueAxis":    _font(label_pt, font_stack),
+            "legend":       _font(label_pt, font_stack),
         }
     }
