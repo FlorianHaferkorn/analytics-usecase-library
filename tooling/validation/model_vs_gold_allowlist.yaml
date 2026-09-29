@@ -14,55 +14,8 @@
 # Befund. Gemessen 29.09.2026 an 0c916415.
 #
 # Pflichtfelder je Eintrag: modell, tabelle, quellspalte, grund, ledger.
+#
+# Stand 29.09.2026: leer. Die zehn A-24-Lücken hat der Gold-Generator geschlossen
+# (showcases/aurora_group/data/gold/_model_columns.py, generate_model_columns.py).
 
-eintraege:
-  - modell: Experience
-    tabelle: fact_action_log
-    quellspalte: Action Code
-    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
-    ledger: A-24
-  - modell: Experience
-    tabelle: fact_action_log
-    quellspalte: Responsible Role
-    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
-    ledger: A-24
-  - modell: Finance
-    tabelle: dim_customer
-    quellspalte: Region
-    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
-    ledger: A-24
-  - modell: Finance
-    tabelle: fact_cost
-    quellspalte: Material Cost Amount
-    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
-    ledger: A-24
-  - modell: Finance
-    tabelle: fact_cost
-    quellspalte: Overhead Amount
-    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
-    ledger: A-24
-  - modell: Finance
-    tabelle: fact_inventory
-    quellspalte: COGS Amount
-    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
-    ledger: A-24
-  - modell: Operations
-    tabelle: fact_inventory_snapshot
-    quellspalte: Reorder Flag
-    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
-    ledger: A-24
-  - modell: SupplyChain
-    tabelle: dim_product
-    quellspalte: ABC_Class
-    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
-    ledger: A-24
-  - modell: SupplyChain
-    tabelle: dim_product
-    quellspalte: XYZ_Class
-    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
-    ledger: A-24
-  - modell: SupplyChain
-    tabelle: fact_procurement
-    quellspalte: Contract Unit Price
-    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
-    ledger: A-24
+eintraege: []

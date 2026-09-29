@@ -55,10 +55,14 @@ def test_shipped_models_match_gold_up_to_the_allowlist():
 
 
 @braucht_gold
-def test_without_allowlist_the_known_gaps_turn_it_red(tmp_path):
+def test_gold_covers_every_source_column_without_any_allowlist(tmp_path):
+    """Seit dem Generator-Fix (A-24, 29.09.2026) ist die Allowlist leer: jede sourceColumn steht
+    in ihrer Gold-Tabelle. Bis dahin standen hier zehn bekannte Lücken; dass ein Befund rot
+    macht, belegt der Mutationstest unten."""
+    assert not cmg.lies_allowlist(cmg.ALLOWLIST)
     e = cmg.pruefe(allowlist=_leere_allowlist(tmp_path))
-    assert len(e.neu) == len(cmg.lies_allowlist(cmg.ALLOWLIST)) > 0
-    assert cmg.bericht(e, strict=True) == cmg.EXIT_BEFUND
+    assert not e.neu and not e.befunde
+    assert cmg.bericht(e, strict=True) == cmg.EXIT_OK
 
 
 @braucht_gold
@@ -91,9 +95,9 @@ def test_mutation_invented_source_column_turns_red(tmp_path):
 def test_stale_allowlist_entry_turns_red(tmp_path):
     allow = tmp_path / "allow.yaml"
     allow.write_text(
-        cmg.ALLOWLIST.read_text(encoding="utf-8")
-        + "  - modell: Finance\n    tabelle: fact_cost\n    quellspalte: DateKey\n"
-          "    grund: Test\n    ledger: A-24\n", encoding="utf-8")
+        "eintraege:\n"
+        "  - modell: Finance\n    tabelle: fact_cost\n    quellspalte: DateKey\n"
+        "    grund: Test\n    ledger: A-24\n", encoding="utf-8")
     e = cmg.pruefe(allowlist=allow)
     assert e.verschwunden == [("Finance", "fact_cost", "DateKey")]
     assert cmg.bericht(e, strict=True) == cmg.EXIT_BEFUND
