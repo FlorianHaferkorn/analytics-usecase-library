@@ -63,6 +63,11 @@ run_check "Drift gate (check_index.py --strict)" \
 run_check "Meridian mirror (check_dataarch_mirror.py)" \
   python3 scripts/check_dataarch_mirror.py
 
+# --- Ruff-Sperrklinke (wie CI python-checks) ------------------------------
+# Ohne ruff im Interpreter meldet das Skript laut SKIP statt gruen.
+run_check "Ruff-Sperrklinke (check_lint_ratchet.py --strict)" \
+  python3 scripts/check_lint_ratchet.py --strict
+
 # --- Python test suite --------------------------------------------------
 run_check "Pytest suite (tooling/superversion, tooling/tests, products)" \
   python3 -m pytest tooling/superversion tooling/tests products -q

@@ -1,7 +1,8 @@
 """Die dist-Reports gegen den offiziellen Validator — als Ratsche, nicht als Gate.
 
 Gemessen am 03.08.2026: jeder der 17 dist-Reports meldet **25 Errors** des offiziellen
-`powerbi-report-author validate` (Repo-Pin 0.1.1), repo-weit identisch und ausnahmslos
+`powerbi-report-author validate` (damals Repo-Pin 0.1.1; seit 29.09.2026 Pin 0.4.0 mit
+derselben Befundmenge, `docs/architecture/pbir_cli_040_triage.md`), repo-weit identisch und ausnahmslos
 im mitgelieferten Theme. Frisch emittierte Reports sind sauber — der Unterschied ist
 das Theme, nicht der Emitter.
 
@@ -16,7 +17,12 @@ verleitet. Die Trennung braucht Desktop (L10); bis dahin gilt: **es darf nur bes
 werden.**
 
 Der Test ueberspringt sich ohne CLI — das ist ehrlich (ein externes Werkzeug, das nicht
-da ist, ist kein Befund) und in diesem Repo etabliert.
+da ist, ist kein Befund) und in diesem Repo etabliert. Mit `ALUCA_PBIR_CLI_PFLICHT=1`
+(gesetzt in `.github/workflows/superversion.yml`) ist die fehlende CLI dagegen rot; die
+Regel steht im Marker `braucht_pbir_cli` in der Wurzel-`conftest.py`.
+
+Nachgemessen am 29.09.2026 (CLI 0.1.1, `validate --format json`, alle 17 dist-Reports):
+16 Reports mit 25 Errors, 1 Report mit 23 — der schlechteste Wert steht weiter auf 25.
 """
 from __future__ import annotations
 
@@ -63,8 +69,7 @@ def _validate(report: Path) -> dict:
     return (json.loads(proc.stdout) or {}).get("data", {})
 
 
-@pytest.mark.skipif(_CLI is None,
-                    reason=f"{_CLI_NAME} nicht installiert — externes Werkzeug, kein Befund")
+@pytest.mark.braucht_pbir_cli
 def test_no_report_gets_worse_than_the_measured_baseline():
     reports = sorted(_DIST.glob("*.Report"))
     assert reports, "keine dist-Reports — Test hat seinen Gegenstand verloren"
@@ -80,7 +85,7 @@ def test_no_report_gets_worse_than_the_measured_baseline():
         + ". Die Ratsche laesst nur Verbesserung zu.")
 
 
-@pytest.mark.skipif(_CLI is None, reason=f"{_CLI_NAME} nicht installiert")
+@pytest.mark.braucht_pbir_cli
 def test_baseline_is_not_stale():
     """Faellt der Stand unter die Baseline, gehoert die Zahl gesenkt.
 

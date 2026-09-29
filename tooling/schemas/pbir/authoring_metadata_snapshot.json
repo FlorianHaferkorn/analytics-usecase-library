@@ -1,8 +1,8 @@
 {
   "_meta": {
     "cli": "@microsoft/powerbi-report-authoring-cli",
-    "cliVersion": "0.1.1",
-    "generatedAt": "2026-06-10T18:15:49Z",
+    "cliVersion": "0.4.0",
+    "generatedAt": "2026-09-29T10:07:38Z",
     "visualTypeCount": 57,
     "note": "Generated in CI from the official CLI; consumed offline by the pure-Python floor. Do not hand-edit -- regenerate with tooling/report_quality/refresh_authoring_metadata.py (ADR 0001)."
   },
@@ -241,7 +241,6 @@
     },
     "hundredPercentStackedBarChart": {
       "requiredRoles": [
-        "Category",
         "Y"
       ],
       "roles": {

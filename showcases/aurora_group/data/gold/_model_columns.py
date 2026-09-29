@@ -27,12 +27,15 @@ import pandas as pd
 REPO = Path(__file__).resolve().parents[4]
 
 # --- ABC/XYZ-Schwellen -------------------------------------------------------------------------
-# VORGELEGT, NICHT ENTSCHIEDEN (E8: "Schwellen werden vorgelegt"). ABC nach kumuliertem
-# Nettoumsatzanteil (Pareto 80/95, Lehrbuchwert). XYZ nach **Rang** des Variationskoeffizienten
-# der Monatsmenge: die absoluten Lehrbuchgrenzen (X <= 0,5, Y <= 1,0) liefern auf Aurora-Gold
-# 4996 X, 0 Y, 0 Z (gemessen 29.09.2026, CoV 0,155-0,313), die Klasse waere also leer an Aussage.
+# ENTSCHIEDEN 29.09.2026 (Florian: "Best Practice", E8). ABC nach kumuliertem Nettoumsatzanteil
+# (Pareto 80/95). XYZ nach **absoluten** Grenzen des Variationskoeffizienten der Monatsmenge,
+# X <= 0,25 < Y <= 0,5 < Z — die in der Praxis verbreitete Staffel (u. a. studyflix, weclapp,
+# gelesen 29.09.2026; die grobere Variante 0,5/1,0 gilt ebenso). Kein Rang-Schnitt: er erzwaenge
+# 20 % Z auch in einem stabilen Sortiment und behauptete Volatilitaet, die es nicht gibt. Auf
+# Aurora-Gold (CoV 0,155-0,313, gemessen 29.09.2026) bleibt Z deshalb leer — das ist die Aussage
+# der Daten, keine Luecke. Produkte ohne Absatz sind nicht planbar und bleiben Z.
 ABC_GRENZEN = (0.80, 0.95)          # kumulierter Umsatzanteil bis A bzw. bis B
-XYZ_RANGANTEILE = (0.50, 0.80)      # stabilste 50 % X, naechste 30 % Y, volatilste 20 % Z
+XYZ_GRENZEN = (0.25, 0.50)          # Variationskoeffizient bis X bzw. bis Y (inklusiv)
 
 # Kostenarten in fact_cost, die die Modellspalten tragen (Werte aus generate_finance_gold.py).
 KOSTENART_MATERIAL = "Direct Material"
@@ -103,8 +106,8 @@ def dim_product_spalten(df: pd.DataFrame, produkt_monat: pd.DataFrame, monate: l
 
     ABC: Nettoumsatz 2020-2024 je Produkt absteigend, kumulierter Anteil bis ABC_GRENZEN[0] = A,
     bis [1] = B, Rest C. XYZ: Variationskoeffizient (Standardabweichung/Mittel, Grundgesamtheit)
-    der Monatsmenge ueber alle `monate` (Monate ohne Verkauf zaehlen als 0), aufsteigend gerankt,
-    Anteile nach XYZ_RANGANTEILE. Produkte ohne Verkauf: C und Z (keine Nachfrage, nicht planbar).
+    der Monatsmenge ueber alle `monate` (Monate ohne Verkauf zaehlen als 0), absolute Grenzen
+    XYZ_GRENZEN. Produkte ohne Verkauf: C und Z (keine Nachfrage, nicht planbar).
     Gleichstaende loest die ProductKey auf.
 
     `produkt_monat`: Spalten ProductKey, Monat (YYYYMM), Menge, Umsatz."""
@@ -119,9 +122,9 @@ def dim_product_spalten(df: pd.DataFrame, produkt_monat: pd.DataFrame, monate: l
                            fill_value=0.0).reindex(columns=monate, fill_value=0.0)
     mittel = breit.mean(axis=1)
     cov = (breit.std(axis=1, ddof=0) / mittel).where(mittel > 0)
-    xyz = cov.dropna().reset_index(name="cov").sort_values(["cov", "ProductKey"])
-    rang = (np.arange(len(xyz)) + 1) / len(xyz)
-    xyz["XYZ_Class"] = np.select([rang <= XYZ_RANGANTEILE[0], rang <= XYZ_RANGANTEILE[1]], ["X", "Y"], "Z")
+    xyz = cov.dropna().reset_index(name="cov")
+    xyz["XYZ_Class"] = np.select([xyz["cov"] <= XYZ_GRENZEN[0], xyz["cov"] <= XYZ_GRENZEN[1]],
+                                 ["X", "Y"], "Z")
 
     out = df.drop(columns=["ABC_Class", "XYZ_Class"], errors="ignore")
     out = out.merge(umsatz[["ProductKey", "ABC_Class"]], on="ProductKey", how="left")

@@ -746,6 +746,22 @@ foreach ($domainName in $byDomain.Keys) {
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($pbismPath, $pbismJson, $utf8NoBom)
     Write-Host "  definition.pbism written: $pbismPath" -ForegroundColor Gray
+
+    # database.tmdl: without it TMDL folder loaders (Power BI modeling MCP ConnectFolder,
+    # TmdlSerializer) reject the model. This loop used to write only definition.pbism, so
+    # every domain model the orchestrator created from scratch (Experience, SupplyChain)
+    # had none. Seed from the canonical template (same source as table_ops.ps1
+    # -Operation WriteModelFiles); write only if missing so an existing database.tmdl
+    # (e.g. Commercial's, seeded by the pbip adapter) is never rewritten.
+    $dbPath = Join-Path (Join-Path $modelPath "definition") "database.tmdl"
+    if (-not (Test-Path $dbPath)) {
+        $dbTemplatePath = Join-Path $script:RepoRoot (Join-Path "core" (Join-Path "strategy_operating_model" (Join-Path "operating_model" (Join-Path "reference" (Join-Path "tmdl_base_templates" "database.tmdl.template")))))
+        if (-not (Test-Path $dbTemplatePath)) { throw "database.tmdl template not found: $dbTemplatePath" }
+        $dbModelName = (Split-Path $modelPath -Leaf) -replace '\.SemanticModel$', ''
+        $dbContent = (Get-Content $dbTemplatePath -Raw) -replace '\{\{MODEL_NAME\}\}', $dbModelName
+        [System.IO.File]::WriteAllText($dbPath, $dbContent, $utf8NoBom)
+        Write-Host "  database.tmdl written: $dbPath (model=$dbModelName)" -ForegroundColor Gray
+    }
 }
 
 Invoke-WithRetry "Run Quality Checks" {

@@ -46,7 +46,7 @@ if str(GOLD) not in sys.path:
     sys.path.insert(0, str(GOLD))
 
 from _generator_utils import FACTS_END, FACTS_START, apply_monthly_seasonality, write_fact_delta
-from _model_columns import fact_procurement_spalten  # A-24: Contract Unit Price
+from _model_columns import fact_procurement_spalten  # noqa: E402 -- nach sys.path; A-24 Contract Unit Price
 
 DIMS = GOLD / "dimensions"
 FACTS = GOLD / "facts"
