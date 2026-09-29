@@ -32,9 +32,12 @@ shelf-life-days: 60
 > Spalte `ADR`: zeigt auf den vollen Entscheidungs-Record `docs/adr/NNNN-*.md` (Vorlage
 > `_ADR.md`), wenn das *durable Warum* + die Supersession-Kette dokumentiert sind — sonst „—".
 
-| ID | Entscheidung | Begründung | Datum | ADR |
-|---|---|---|---|---|
-| D1 | {{…}} | {{warum}} | {{JJJJ-MM-TT}} | {{ADR-NNNN / —}} |
+> Spalte `Verworfen`: die geprüfte Alternative bzw. Sackgasse und warum sie rausfiel — das Wissen,
+> das eine neue Session am teuersten wiederentdeckt. „—" nur, wenn es wirklich keine gab.
+
+| ID | Entscheidung | Begründung | Verworfen | Datum | ADR |
+|---|---|---|---|---|---|
+| D1 | {{…}} | {{warum}} | {{Alternative + warum nicht}} | {{JJJJ-MM-TT}} | {{ADR-NNNN / —}} |
 
 <!-- Regeln:
      • Fakten IMMER mit Quelle/Beleg (Feldname, Datei, Datum) — keine ungeprüften Annahmen.
