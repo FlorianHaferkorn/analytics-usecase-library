@@ -77,7 +77,7 @@ Covers:
 - RLS/OLS patterns  
 - Measure & DisplayFolder enforcement  
 - App navigation & UX rules (3-30-300)
-- Report themes & Power BI Theme Generator (standardized themes; tool lives in `products/fabric/powerbi/tooling/theme_generator/` and can be refined)
+- Report themes & Power BI Theme Generator (standardized themes; engine is Freelancing `products/pbi_theme` (canonical engine; ALUCA vendors its theme JSONs into `products/fabric/powerbi/themes/`))
 
 ### Planned guides (not yet included)
 

@@ -105,7 +105,7 @@ Connector implementation:
 | text.secondary       | secondLevelElements             |
 | border.default       | tableAccent                     |
 
-Theme generator: products/fabric/powerbi/tooling/theme_generator/
+Theme generator: Freelancing products/pbi_theme (vendored output: products/fabric/powerbi/themes/)
 
 ### Web / CSS
 
@@ -327,6 +327,6 @@ KPI band → primary visuals → secondary visuals → slicers → action panel
 | Storytelling_Principles.md §9      | Authority for semantic color role definitions             |
 | Storytelling_Principles.md §10     | Authority for typography scale (font sizes and weights)   |
 | Design_Spec_3_30_300.md §7    | Governing spec — this file implements it                  |
-| products/fabric/powerbi/tooling/theme_generator/ | PBI theme JSON generation from these tokens  |
+| products/fabric/powerbi/themes/ (vendored from Freelancing products/pbi_theme) | PBI theme JSONs |
 | connectors/OSS_Connector_Guide.md  | Token binding for Superset, Grafana, Metabase             |
 | core/kpi_catalog/<kpi_id>.yaml     | KPI polarity (higher_is_better) for delta color logic     |

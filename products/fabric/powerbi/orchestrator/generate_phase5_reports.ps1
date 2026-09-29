@@ -76,7 +76,7 @@ function Invoke-Phase5ReportGeneration {
             $reportFolderResolved = [System.IO.Path]::GetFullPath($reportFolderResolved)
             & $applyThemeScript -Report $reportFolderResolved -ThemeName $effectiveTheme -NoValidate -ErrorAction Stop | Out-Null
             if ($LASTEXITCODE -ne 0) {
-                throw "apply_report_theme.ps1 failed (exit $LASTEXITCODE) for $ucId. Theme '$effectiveTheme' not applied. Check theme_generator/themes/ and report definition."
+                throw "apply_report_theme.ps1 failed (exit $LASTEXITCODE) for $ucId. Theme '$effectiveTheme' not applied. Check products/fabric/powerbi/themes/ (vendored) or themes_local/ and the report definition."
             }
             $reportJsonPath = Join-Path $reportFolderResolved "definition\report.json"
             if (Test-Path $reportJsonPath) {

@@ -2,7 +2,7 @@
 
 > **Schema:** `core/brand/BrandSpec.schema.yaml`
 > **PBI theme schema:** <https://raw.githubusercontent.com/microsoft/powerbi-desktop-samples/main/Report%20Theme%20JSON%20Schema/reportThemeSchema-2.145.json>
-> **Derivation tool:** `products/fabric/powerbi/tooling/theme_generator/` + `apply_report_theme.py`
+> **Derivation tool:** `tooling/brand/derive_brand_artifacts.py` (output `products/fabric/powerbi/themes_local/brand/`) + `apply_report_theme.py`
 
 This guide defines exactly how each BrandSpec property translates to a Power BI theme JSON property. Use it to build or validate theme generators.
 
@@ -184,7 +184,7 @@ Generated themes must comply with `tooling/linters/powerbi/REPORT_BEST_PRACTICES
 ## References
 
 - Power BI theme schema: see `$schema` URL in example above
-- Theme generator implementation: `products/fabric/powerbi/tooling/theme_generator/`
+- Theme generator implementation: Freelancing `products/pbi_theme` (canonical engine; ALUCA vendors its theme JSONs into `products/fabric/powerbi/themes/`)
 - Theme application: `products/fabric/powerbi/tooling/apply_report_theme.py`
 - BPA rules: `tooling/linters/powerbi/REPORT_BEST_PRACTICES.md`
 - Aurora Group theme output: `showcases/aurora_group/company/Aurora_Theme_Color_Proposal.md`

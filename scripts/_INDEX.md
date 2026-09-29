@@ -29,7 +29,7 @@ owns: "*.py"
 | `gadw_gate.py` | Gate-Sammler | Alle ständig aktiven Tier-0-Gates in einem Aufruf |
 | `check_index.py` | Drift-Gate | Hält die `_INDEX.md`-Navigation ehrlich und platzhalterfrei |
 | `check_workflows.py` | Gate | Jede Workflow-Datei ist gültiges YAML und deklariert Jobs |
-| `check_dataarch_mirror.py` | Sensor | Drift des gespiegelten Meridian-Dataarch-Vertrags (ADR-0051) |
+| `check_dataarch_mirror.py` | Sensor | Drift des gespiegelten Meridian-Dataarch-Vertrags (ADR-0051) und der vendorten Power-BI-Themes aus Freelancing `products/pbi_theme` (`--write-themes`, seit 29.09.2026) |
 | `check_superversion_pins.py` | Sensor | Pin-Drift der Superversion (ADR-0005 Regel 6) |
 | `check_plattform.py` | Ratchet | Sperrklinke gegen Annahmen, die nur auf Linux stimmen (`plattform_baseline.json`) |
 | `pruefe_sweep.py` | Gegenprobe | Prüft mechanische Massenänderungen nach |

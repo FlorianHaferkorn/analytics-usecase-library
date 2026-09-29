@@ -12,11 +12,15 @@ from __future__ import annotations
 import argparse
 import glob
 import json
-import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from products.fabric.powerbi.tooling.theme_paths import (
+    THEME_DEFAULTS,
+    find_theme,
+    run_engine,
+)
 from products.fabric.powerbi.tooling.theme_registration import (
     custom_theme_collection_name,
     registered_theme_filename,
@@ -25,28 +29,21 @@ from products.fabric.powerbi.tooling.theme_registration import (
 
 # Repo root (apply_report_theme.py lives in products/fabric/powerbi/tooling/)
 REPO_ROOT = Path(__file__).resolve().parents[4]
-# This repo: products/fabric/powerbi/tooling/theme_generator/themes
-THEME_GENERATOR_THEMES = REPO_ROOT / "products" / "fabric" / "powerbi" / "tooling" / "theme_generator" / "themes"
-THEME_GENERATOR_CONFIG = REPO_ROOT / "products" / "fabric" / "powerbi" / "tooling" / "theme_generator" / "themes.config.json"
+# Theme sources: see theme_paths.py (vendored engine output + ALUCA-owned local output).
+THEME_GENERATOR_CONFIG = THEME_DEFAULTS
 SHOWCASES_DIR = REPO_ROOT / "showcases"
 DEFAULT_BASE_THEME = "CY25SU10"
 REPORT_VERSION_AT_IMPORT = {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"}
 
 
 def _find_theme_in_generator(theme_name: str) -> Optional[Path]:
-    """Locate theme JSON under theme_generator/themes by name (with or without .json)."""
-    stem = Path(theme_name).stem
-    if not THEME_GENERATOR_THEMES.exists():
-        return None
-    for p in THEME_GENERATOR_THEMES.rglob("*.json"):
-        if p.stem == stem:
-            return p
-    return None
+    """Locate a theme JSON by name (with or without .json / '#') — see theme_paths.find_theme."""
+    return find_theme(theme_name)
 
 
 def resolve_theme_path(theme_name: str) -> Optional[Path]:
     """
-    Resolve a theme name to its file path under theme_generator/themes/.
+    Resolve a theme name to its file path (themes_local/ first, then vendored themes/).
     For use by scaffold generator or other callers that need the path before calling apply_theme.
     """
     return _find_theme_in_generator(theme_name)
@@ -101,18 +98,12 @@ def get_default_theme_name(report_path: Optional[Path] = None) -> Optional[str]:
 
 
 def _run_theme_generator(color: str, concept: str, mode: str, brand: str, secondary: Optional[str] = None) -> None:
-    """Run theme generator agent_cli with given args."""
-    agent = REPO_ROOT / "products" / "fabric" / "powerbi" / "tooling" / "theme_generator" / "tools" / "theme-agent" / "agent_cli.py"
-    if not agent.exists():
-        raise FileNotFoundError(f"Theme agent not found: {agent}")
-    cmd = [
-        sys.executable,
-        str(agent),
-        "--input", f"#all --color {color} --concept {concept} --mode {mode} --brand {brand!r}",
-    ]
-    if secondary:
-        cmd[-1] += f" --secondary {secondary}"
-    subprocess.run(cmd, check=True, cwd=str(agent.parent))
+    """Generate the theme with the canonical engine (Freelancing products/pbi_theme).
+
+    Output goes to ALUCA's themes_local/. Without a Freelancing checkout the engine does not
+    run (named soft skip) and the lookup falls back to the vendored themes.
+    """
+    run_engine(color, concept, mode, brand, secondary)
 
 
 def _validate_theme_against_schema(theme_path: Path) -> bool:
@@ -122,7 +113,7 @@ def _validate_theme_against_schema(theme_path: Path) -> bool:
     Returns False if the theme is structurally invalid against the schema.
 
     Schema source: microsoft/powerbi-desktop-samples / Report Theme JSON Schema
-    Local resolver: theme_generator/tools/theme-agent/fetch_latest_theme_schema.py
+    Local resolver: products/fabric/powerbi/tooling/fetch_theme_schema.py
     """
     try:
         from jsonschema import Draft202012Validator
@@ -415,7 +406,7 @@ def main() -> int:
     theme_group.add_argument(
         "--theme-name",
         type=str,
-        help="Theme name (e.g. 'Aurora Group__NeutralAccent__Light__#118DFF'); file is looked up under theme_generator/themes/",
+        help="Theme name (e.g. 'Brand Blue__NeutralAccent__Light__118DFF'; '#' optional); looked up in themes_local/, then the vendored themes/",
     )
     theme_group.add_argument(
         "--use-default",
@@ -500,7 +491,7 @@ def main() -> int:
             return 1
         theme_path = _find_theme_in_generator(theme_name)
         if not theme_path:
-            print(f"Default theme '{theme_name}' not found under theme_generator/themes/.", file=sys.stderr)
+            print(f"Default theme '{theme_name}' not found in themes_local/ or the vendored themes/.", file=sys.stderr)
             return 1
     else:
         if not args.theme_path and not args.theme_name:
@@ -513,7 +504,8 @@ def main() -> int:
             theme_path = _find_theme_in_generator(args.theme_name)
             if not theme_path:
                 print(
-                    f"Theme not found: {args.theme_name}. Run from repo root and ensure theme exists under theme_generator/themes/ or use --theme-path.",
+                    f"Theme not found: {args.theme_name}. Not in themes_local/ or the vendored themes/ "
+                    f"(products/fabric/powerbi/); use --run-generator (needs a Freelancing checkout) or --theme-path.",
                     file=sys.stderr,
                 )
                 return 1

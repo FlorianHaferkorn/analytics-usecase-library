@@ -77,7 +77,7 @@ jobs:
       # still zum Backspace wurde. `-f` erzwingt das Neuuebersetzen: sonst
       # verschluckt der Bytecode-Cache die Warnung beim zweiten Lauf.
       - name: Escape-Sequenzen (blockierend)
-        run: python3 -W error::SyntaxWarning -m compileall -q -f -x '(^|/)theme_generator(/|$)' core products scripts tooling
+        run: python3 -W error::SyntaxWarning -m compileall -q -f core products scripts tooling
 
       - name: Install dependencies
         run: |

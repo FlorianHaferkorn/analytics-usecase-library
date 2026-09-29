@@ -7,8 +7,11 @@ Usage:
     # Set showcase default
     python setup_theme_defaults.py --showcase aurora_group --theme "Aurora Group__NeutralAccent__Light__#118DFF"
     
-    # Set framework default
-    python setup_theme_defaults.py --framework --theme "Generic__Monochromatic__Light__#118DFF"
+    # Set framework default (writes products/fabric/powerbi/tooling/theme_defaults.json)
+    python setup_theme_defaults.py --framework --theme "Brand Blue__Monochromatic__Dark__118DFF"
+
+Writes only ALUCA-owned files. The framework default used to live in themes.config.json inside
+the powerbi-theme submodule (removed 2026-09-29, see theme_paths.py).
 """
 
 from __future__ import annotations
@@ -18,9 +21,11 @@ import json
 import sys
 from pathlib import Path
 
+from products.fabric.powerbi.tooling.theme_paths import THEME_DEFAULTS
+
 # Repo root
 REPO_ROOT = Path(__file__).resolve().parents[4]
-THEME_GENERATOR_CONFIG = REPO_ROOT / "products" / "fabric" / "powerbi" / "tooling" / "theme_generator" / "themes.config.json"
+THEME_GENERATOR_CONFIG = THEME_DEFAULTS
 SHOWCASES_DIR = REPO_ROOT / "showcases"
 
 
@@ -43,14 +48,13 @@ def set_showcase_default(showcase_name: str, theme_name: str) -> None:
 
 
 def set_framework_default(theme_name: str) -> None:
-    """Update framework defaultThemeName in themes.config.json."""
-    if not THEME_GENERATOR_CONFIG.exists():
-        raise FileNotFoundError(f"Theme generator config not found: {THEME_GENERATOR_CONFIG}")
-    
-    config_data = json.loads(THEME_GENERATOR_CONFIG.read_text(encoding="utf-8"))
+    """Update framework defaultThemeName in theme_defaults.json (ALUCA-owned)."""
+    config_data = {}
+    if THEME_GENERATOR_CONFIG.exists():
+        config_data = json.loads(THEME_GENERATOR_CONFIG.read_text(encoding="utf-8"))
     config_data["defaultThemeName"] = theme_name
-    
-    THEME_GENERATOR_CONFIG.write_text(json.dumps(config_data, indent=4, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+
+    THEME_GENERATOR_CONFIG.write_text(json.dumps(config_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     print(f"[OK] Framework default theme set: {theme_name}")
     print(f"     Config file: {THEME_GENERATOR_CONFIG}")
 
@@ -68,7 +72,7 @@ def main() -> int:
     group.add_argument(
         "--framework",
         action="store_true",
-        help="Set framework-wide default in themes.config.json",
+        help="Set framework-wide default in products/fabric/powerbi/tooling/theme_defaults.json",
     )
     parser.add_argument(
         "--theme",
