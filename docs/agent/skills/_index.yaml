@@ -42,12 +42,12 @@ skills:
   fix-oss-dashboard-errors:
     name: fix-oss-dashboard-errors
     version: "1.0.0"
-    description: "Diagnose and fix Evidence.dev dashboard / OSS validation errors"
+    description: "Diagnose and fix Evidence.dev dashboard and OSS validation errors. Use when validate_oss.py reports errors, an Evidence page fails npm run build in evidence_app/, or an OSS dashboard SQL query returns unexpected results."
 
   fix-pbi-report-errors:
     name: fix-pbi-report-errors
     version: "1.1.0"
-    description: "Diagnose and fix Power BI report and semantic model errors. Tool-agnostic workflow for any AI tool or human."
+    description: "Diagnose and fix Power BI report and semantic model errors and record each fix in the knowledge base. Use when Power BI Desktop shows an error opening a report, visuals are empty or fields land in filters, TMDL validation fails, measures are missing or DAX errors, or the PBI pipeline/orchestrator reports errors."
 
   fix-stage1-failure:
     name: fix-stage1-failure
@@ -57,17 +57,17 @@ skills:
   generate-and-validate-pbi-report:
     name: generate-and-validate-pbi-report
     version: "1.1.0"
-    description: "Iterative, learning workflow for error-free Power BI report and semantic model generation. Tool-agnostic workflow for any AI tool or human."
+    description: "Generate and validate a Power BI report and semantic model (PBIP/TMDL/PBIR) for a use case in an iterative loop until all checks pass. Use when generating or regenerating a Power BI report from a UseCase_Bracket, building or updating a semantic model with measures, or refreshing reports after UseCase_Bracket.yaml changes."
 
   generate-oss-dashboard:
     name: generate-oss-dashboard
     version: "1.0.0"
-    description: "Generate Evidence.dev dashboard pages from IR and UseCase Bracket"
+    description: "Generate or regenerate Evidence.dev (OSS stack) dashboard pages from the IR and a UseCase_Bracket. Use when a use case needs an OSS dashboard, after bracket UX layout changes, or when KPI catalog changes require page updates."
 
   oss-stack-validation:
     name: oss-stack-validation
     version: "1.0.0"
-    description: "Validate OSS stack artifacts (Evidence pages, adapter manifest, theme tokens, SQL style)"
+    description: "Run all validation checks for the open-source Evidence.dev stack (Evidence pages, adapter manifest, theme tokens, SQL style, dbt metrics vs KPIs). Use after generating or editing Evidence pages and before committing OSS stack changes."
 
   recommend-fabric-capacity:
     name: recommend-fabric-capacity
