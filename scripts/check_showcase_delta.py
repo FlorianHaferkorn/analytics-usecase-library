@@ -76,6 +76,38 @@ def _active_paths(log_dir: str) -> list[str]:
     return [path for path, action in state.items() if action == "add"]
 
 
+def _metadata(log_dir: str) -> dict | None:
+    """Replay a _delta_log directory to its current ``metaData``: top-level column names of
+    ``schemaString`` and ``partitionColumns``.
+
+    The last ``metaData`` action wins (schema evolution rewrites it). Returns ``None`` when
+    no JSON commit carries one — e.g. a log compacted into a checkpoint parquet: the caller
+    must report that as *not checked*, not as an empty schema. Stdlib only, log only.
+    Partition columns live in the folder names, not in the part files — a reader that
+    combines the parquet files itself (``fn_DeltaCurrentFiles`` + ``Parquet.Document``)
+    never sees them. Used by ``tooling/validation/check_model_vs_gold.py``.
+    """
+    meta: dict | None = None
+    for commit in sorted(glob.glob(os.path.join(log_dir, "*.json"))):
+        with open(commit, encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if "metaData" in obj and obj["metaData"].get("schemaString"):
+                    meta = obj["metaData"]
+    if meta is None:
+        return None
+    return {
+        "columns": [f["name"] for f in json.loads(meta["schemaString"]).get("fields", [])],
+        "partitionColumns": list(meta.get("partitionColumns") or []),
+    }
+
+
 def check(root: str = ".") -> int:
     problems = 0
     tables = 0

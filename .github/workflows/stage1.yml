@@ -77,7 +77,7 @@ jobs:
       # still zum Backspace wurde. `-f` erzwingt das Neuuebersetzen: sonst
       # verschluckt der Bytecode-Cache die Warnung beim zweiten Lauf.
       - name: Escape-Sequenzen (blockierend)
-        run: python3 -W error::SyntaxWarning -m compileall -q -f -x '(^|/)theme_generator(/|$)' core products scripts tooling
+        run: python3 -W error::SyntaxWarning -m compileall -q -f core products scripts tooling
 
       - name: Install dependencies
         run: |
@@ -105,13 +105,23 @@ jobs:
           # 3326 passed / 26 skipped in 218 s, identische Skip-Menge. Ein Einzellauf je
           # Modus belegt keinen Determinismus; ein Reihenfolge-Fehler zeigt sich als rot
           # nur unter -n — dann lokal seriell gegenstellen.
-          pip install pyyaml jsonschema pytest pytest-xdist typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow
+          # ruff: gepinnt, weil die Sperrklinke Befunde je Regel zaehlt und eine neue
+          # Ruff-Version Regeln anders zaehlen kann (Baseline gemessen mit 0.16.9).
+          pip install pyyaml jsonschema pytest pytest-xdist typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow ruff==0.16.9
 
-      # Meridian D-578 (29.09.2026): die Aurora-Showdaten (Parquet + _delta_log, 605 MB aktiv)
-      # liegen nicht mehr in Git, sondern als Release-Archiv; showdaten.lock.json haelt Tag
-      # und SHA-256. Solange der Release laut Lock nicht veroeffentlicht ist, meldet `holen
-      # --ci` eine Warnung, und die datenabhaengigen Tests stehen mit „nicht gelaufen: …" im
-      # Skip-Grund (-rs) -- nicht als gruen. Der Cache spart den Download je Lauf.
+      # Ruff lief bis 29.09.2026 nirgends (2768 Befunde in 15 Regeln). Sperrklinke statt
+      # Tor: je Regel eingefroren in scripts/lint_baseline.json, darf nur sinken.
+      - name: Ruff-Sperrklinke (blockierend)
+        run: python scripts/check_lint_ratchet.py --strict
+
+      # Meridian D-578 (29.09.2026): die Aurora-Showdaten (Parquet + _delta_log, 614 MB aktiv)
+      # liegen nicht mehr in Git, sondern als Release-Archiv; showdaten.lock.json haelt Tag,
+      # Asset und SHA-256. `holen` laedt das Asset per gh (GH_TOKEN), prueft die Pruefsumme und
+      # entpackt. Fehlt der Release, endet es mit Exit 2 und einer ::error-Annotation (Tag,
+      # Asset, Befehl zum Hochladen). continue-on-error nur, damit die datenunabhaengigen Tests
+      # trotzdem laufen; rot wird der Job danach zweimal: `check_model_vs_gold --strict`
+      # (Exit 2 "nicht geprueft") und der Schritt "Showdaten vorhanden" am Ende. Kein stilles
+      # Gruen. Der Cache spart den Download je Lauf (Schluessel = Lock).
       - name: Showdaten-Cache
         uses: actions/cache@v4
         with:
@@ -119,15 +129,25 @@ jobs:
             showcases/aurora_group/data/gold/dimensions
             showcases/aurora_group/data/gold/facts
             showcases/aurora_group/data/gold/security_user_org
-          key: showdaten-${{ hashFiles('showcases/aurora_group/data/showdaten.lock.json') }}
+          key: showdaten-${{ runner.os }}-${{ hashFiles('showcases/aurora_group/data/showdaten.lock.json') }}
 
-      - name: Showdaten holen
+      - name: Showdaten holen (Release-Archiv laut showdaten.lock.json)
+        id: showdaten
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: python showcases/aurora_group/data/showdaten.py holen --ci
 
       - name: Run tests
         run: python -m pytest -n auto --tb=short -q -rs
+
+      # Ledger A-24 (29.09.2026): jede sourceColumn der dist-Modelle gegen die Gold-Tabelle, die
+      # ihre Partition liest (Allowlist tooling/validation/model_vs_gold_allowlist.yaml). Eigener
+      # Schritt, weil pytest fehlende Gold-Daten als Skip meldet; hier endet das mit Exit 2
+      # ("nicht geprueft"), nicht gruen. Die Windows-Stage-1 faehrt dasselbe Tor ueber
+      # run_stage1_checks.ps1.
+      - name: Semantic Model gegen Gold-Daten (blockierend)
+        run: python3 tooling/validation/check_model_vs_gold.py --strict
 
       - name: Report quality gate (0 criticals)
         run: |
@@ -143,6 +163,12 @@ jobs:
           python3 products/fabric/powerbi/tooling/validate_bindings.py \
             --dist-dir products/fabric/powerbi/dist \
             --strict
+
+      # Gegenstueck zu continue-on-error oben: ein fehlgeschlagenes Holen macht den Job rot,
+      # auch wenn jeder Schritt dazwischen gruen war. pruefen: 0 da, 1 abweichend, 2 fehlt.
+      - name: Showdaten vorhanden (blockierend)
+        if: always() && steps.showdaten.outcome != 'skipped'
+        run: python showcases/aurora_group/data/showdaten.py pruefen --tief
 
   stage1:
     name: Stage 1 checks
@@ -252,6 +278,25 @@ jobs:
             }
           }
 
+      # Meridian D-578: Stage 1 faehrt check_model_vs_gold --strict und
+      # check_action_outcome_reconciliation, beide lesen Aurora-Gold. Holen wie im Job
+      # python-checks; fehlt der Release, bleibt der Job rot (Stage 1 Exit 2 + Schritt unten).
+      - name: Showdaten-Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            showcases/aurora_group/data/gold/dimensions
+            showcases/aurora_group/data/gold/facts
+            showcases/aurora_group/data/gold/security_user_org
+          key: showdaten-${{ runner.os }}-${{ hashFiles('showcases/aurora_group/data/showdaten.lock.json') }}
+
+      - name: Showdaten holen (Release-Archiv laut showdaten.lock.json)
+        id: showdaten
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python showcases/aurora_group/data/showdaten.py holen --ci
+
       - name: Run Stage 1 checks
         shell: pwsh
         run: ./tooling/run_stage1_checks.ps1 -Root $env:GITHUB_WORKSPACE
@@ -334,3 +379,7 @@ jobs:
           name: report-scorecard
           path: internal/metrics/runs/report_scorecard/
           if-no-files-found: ignore
+
+      - name: Showdaten vorhanden (blockierend)
+        if: always() && steps.showdaten.outcome != 'skipped'
+        run: python showcases/aurora_group/data/showdaten.py pruefen --tief

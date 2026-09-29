@@ -363,3 +363,86 @@ def test_quelle_aus_dem_commit_ignoriert_zeilenenden_der_platte(meridian):
     assert sensor._quelle_bytes(meridian, "m.py") == b"v1\r\n"          # Arbeitsbaum
     assert sensor._quelle_bytes(meridian, "m.py", "HEAD") == b"v1\n"     # Commit
     assert sensor._quelle_bytes(meridian, "fehlt.py", "HEAD") is None
+
+
+# -- theme mirror (29.09.2026) ------------------------------------------------------
+#
+# Second vendored set: Freelancing `products/pbi_theme` is the one canonical theme engine and
+# ALUCA vendors its theme JSONs byte-identically (replaces the powerbi-theme submodule).
+
+def _theme_repo(tmp_path: Path) -> Path:
+    repo = tmp_path / "fl"
+    src = repo / sensor._THEME_SRC_REL / "Brand_X" / "Mono" / "light"
+    src.mkdir(parents=True)
+    _git(repo, "init", "-q")
+    (src / "Brand X__Mono__Light__118DFF.json").write_bytes(b'{"name": "x"}\n')
+    (src / "manifest.json").write_bytes(b"{}\n")
+    (src / "Brand X__Mono__Light__118DFF.en.md").write_bytes(b"# doc\n")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-q", "-m", "themes")
+    return repo
+
+
+_THEME = "Brand_X/Mono/light/Brand X__Mono__Light__118DFF.json"
+
+
+def test_theme_set_is_every_json_but_manifests(tmp_path):
+    repo = _theme_repo(tmp_path)
+    assert sensor.theme_quellen(repo) == [_THEME]
+    assert sensor.theme_quellen(repo, "HEAD") == [_THEME]
+    assert sensor.theme_quellen(tmp_path / "leer") == []
+
+
+def test_vendored_themes_match_their_pin():
+    pin = sensor.theme_pin()
+    assert pin is not None and len(pin["files"]) >= 30
+    assert sensor.vendor_integrity(pin, sensor._THEME_VENDOR_REL) == []
+
+
+def _write_into(tmp_path, monkeypatch, repo):
+    alu = tmp_path / "alu"
+    alu.mkdir()
+    monkeypatch.setattr(sensor, "REPO_ROOT", alu)
+    return alu, sensor.write_theme_vendor(repo, "HEAD")
+
+
+def test_written_theme_mirror_is_in_sync(tmp_path, monkeypatch):
+    repo = _theme_repo(tmp_path)
+    alu, pin = _write_into(tmp_path, monkeypatch, repo)
+    assert [e["path"] for e in pin["files"]] == [_THEME]
+    assert (alu / sensor._THEME_VENDOR_REL / _THEME).is_file()
+    assert not list((alu / sensor._THEME_VENDOR_REL).rglob("*.md"))
+    assert sensor.theme_upstream_drift(pin, repo, "HEAD") == []
+    assert sensor.vendor_integrity(pin, sensor._THEME_VENDOR_REL) == []
+
+
+def test_theme_changed_added_removed_in_freelancing_is_drift(tmp_path, monkeypatch):
+    repo = _theme_repo(tmp_path)
+    _, pin = _write_into(tmp_path, monkeypatch, repo)
+    src = repo / sensor._THEME_SRC_REL
+    (src / _THEME).write_bytes(b'{"name": "x2"}\n')
+    (src / "Brand_X" / "neu.json").write_bytes(b"{}\n")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-q", "-m", "engine moved on")
+    lines = sensor.theme_upstream_drift(pin, repo, "HEAD")
+    assert any(_THEME in ln and "re-mirror" in ln for ln in lines)
+    assert any("neu.json" in ln and "--write-themes" in ln for ln in lines)
+    _git(repo, "rm", "-q", str(Path(sensor._THEME_SRC_REL) / _THEME))
+    _git(repo, "commit", "-q", "-m", "removed")
+    assert any(_THEME in ln and "entfernt" in ln for ln in sensor.theme_upstream_drift(pin, repo, "HEAD"))
+
+
+def test_missing_engine_output_is_not_a_pass(tmp_path, monkeypatch):
+    repo = _theme_repo(tmp_path)
+    _, pin = _write_into(tmp_path, monkeypatch, repo)
+    lines = sensor.theme_upstream_drift(pin, tmp_path / "leer", None)
+    assert lines and "NICHT verglichen" in lines[0]
+
+
+def test_local_edit_of_a_vendored_theme_is_a_hard_failure(tmp_path, monkeypatch, capsys):
+    repo = _theme_repo(tmp_path)
+    alu, _ = _write_into(tmp_path, monkeypatch, repo)
+    (alu / sensor._THEME_VENDOR_REL / _THEME).write_bytes(b'{"name": "hand"}\n')
+    monkeypatch.setattr(sensor, "_meridian_root", lambda: None)
+    assert sensor.main([]) == 1
+    assert "vendored themes edited locally" in capsys.readouterr().out

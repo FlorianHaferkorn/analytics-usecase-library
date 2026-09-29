@@ -18,14 +18,17 @@ Neulauf waere ein neuer Datensatz, keine Wiederherstellung.
     python showcases/aurora_group/data/showdaten.py holen            # Release laden, pruefen, entpacken
     python showcases/aurora_group/data/showdaten.py holen --datei X.tar   # dasselbe aus lokaler Datei
     python showcases/aurora_group/data/showdaten.py pruefen [--tief] # 0 da, 1 abweichend, 2 fehlt
-    python showcases/aurora_group/data/showdaten.py packen --aus-dir /tmp/x  # Archiv + Lock bauen
+    python showcases/aurora_group/data/showdaten.py packen --aus-dir /tmp/x --tag T [--gold D]  # Archiv + Lock
 
 Nur aktive Dateien kommen ins Archiv: bei Delta die, deren letzte Aktion im ``_delta_log``
 ``add`` ist (Logik aus ``scripts/check_showcase_delta.py``, nicht nachgebaut), dazu der Log
 selbst; ohne Log alle ``*.parquet``. Verwaiste Dateien bleiben draussen.
 
 Ein Release wird hier **nicht** angelegt (nach aussen sichtbar, Entscheidung des Owners);
-``packen`` gibt die ``gh``-Zeile dafuer aus.
+``packen`` gibt die ``gh``-Zeile dafuer aus. ``holen`` versucht den Download immer; fehlt der
+Release oder das Asset, endet es mit Exit 2 und nennt Tag, Asset und die Zeile zum Hochladen
+(``--ci`` schreibt das zusaetzlich als ``::error``-Annotation). Ein fehlender Release ist nie
+gruen: die Gates danach (``check_model_vs_gold.py --strict``, ``pruefen``) enden mit Exit 2.
 """
 from __future__ import annotations
 
@@ -154,7 +157,11 @@ def pruefen(tief: bool = False, gold: Path = GOLD) -> int:
     lock = lock_lesen()
     weg = fehlende(gold, lock)
     if weg:
-        print(grund_wenn_fehlend(gold))
+        # Teilstand (einige Parquet da, Lock-Dateien fehlen): grund_wenn_fehlend liefert dann
+        # None, weil Tests gegen vorhandene Daten laufen sollen -- hier trotzdem benennen.
+        print(grund_wenn_fehlend(gold) or
+              f"UNVOLLSTAENDIG: {len(weg)} von {len(lock['dateien'])} Dateien aus dem Lock fehlen, "
+              f"z. B. {weg[0]}; Stand des Locks herstellen: `{BEFEHL}`")
         return FEHLT
     abw = []
     for rel, meta in lock["dateien"].items():
@@ -209,7 +216,6 @@ def packen(aus_dir: Path, tag: str, gold: Path = GOLD) -> int:
         "repo": REPO_SLUG,
         "sha256": _sha256(ziel),
         "bytes": ziel.stat().st_size,
-        "veroeffentlicht": False,
         "inhalt_bytes": gesamt,
         "dateien": eintraege,
     }
@@ -218,42 +224,54 @@ def packen(aus_dir: Path, tag: str, gold: Path = GOLD) -> int:
           f"Inhalt {gesamt / 1e6:.1f} MB)")
     print(f"Lock:   {aus_dir / LOCK.name} -> nach {LOCK} kopieren")
     print("Veroeffentlichen (Owner, nach aussen sichtbar):")
-    print(f"  gh release create {tag} {ziel} --repo {REPO_SLUG} --title \"Aurora-Showdaten {tag}\" "
-          f"--notes \"Gold-Daten der Aurora-Showcase, D-578\"")
-    print("  danach im Lock \"veroeffentlicht\": true setzen")
+    print("  " + hochladen_befehl(lock, ziel))
     return 0
+
+
+def hochladen_befehl(lock: dict, archiv: Path | str | None = None) -> str:
+    archiv = archiv or f"<pfad>/{lock['asset']}"
+    return (f"gh release create {lock['tag']} {archiv} --repo {lock['repo']} "
+            f"--title \"Aurora-Showdaten {lock['tag']}\" --notes \"Gold-Daten der Aurora-Showcase, D-578\"")
 
 
 # ---------------------------------------------------------------------------
 # holen
 # ---------------------------------------------------------------------------
 
+class LadenFehlgeschlagen(Exception):
+    pass
+
+
 def _laden(lock: dict, ziel_dir: Path) -> Path:
     if not shutil.which("gh"):
-        raise SystemExit("gh (GitHub CLI) fehlt; alternativ `--datei <archiv>` angeben")
+        raise LadenFehlgeschlagen("gh (GitHub CLI) fehlt; alternativ `--datei <archiv>` angeben")
+    # Kein Geheimnis in der Befehlszeile: gh liest GH_TOKEN aus der Umgebung.
     cmd = ["gh", "release", "download", lock["tag"], "--repo", lock["repo"],
            "--pattern", lock["asset"], "--dir", str(ziel_dir), "--clobber"]
     r = subprocess.run(cmd, capture_output=True, text=True)
-    if r.returncode != 0:
-        raise SystemExit(f"Download fehlgeschlagen (Tag {lock['tag']}, Asset {lock['asset']}): "
-                         f"{r.stderr.strip()}")
-    return ziel_dir / lock["asset"]
+    ziel = ziel_dir / lock["asset"]
+    if r.returncode != 0 or not ziel.is_file():
+        grund = r.stderr.strip() or r.stdout.strip() or "Asset nicht im Release"
+        raise LadenFehlgeschlagen(
+            f"Release {lock['tag']} mit Asset {lock['asset']} in {lock['repo']} nicht ladbar "
+            f"(gh: {grund}). Fehlt der Release, legt ihn der Owner an: "
+            f"{hochladen_befehl(lock)}")
+    return ziel
 
 
 def holen(datei: Path | None, ci: bool = False, gold: Path = GOLD) -> int:
     lock = lock_lesen()
     if grund_wenn_fehlend(gold) is None and pruefen(gold=gold) == DA:
         return 0
-    if datei is None and not lock.get("veroeffentlicht"):
-        text = (f"nicht gelaufen: Release {lock['tag']} ist laut {LOCK.name} noch nicht "
-                f"veroeffentlicht; datenabhaengige Tests und Gates laufen nicht.")
-        if ci:
-            print(f"::warning title=Showdaten fehlen::{text}")
-            return 0
-        print(text + " Archiv mit `--datei` angeben.", file=sys.stderr)
-        return FEHLT
     with tempfile.TemporaryDirectory(prefix="showdaten_") as tmp:
-        archiv = datei if datei is not None else _laden(lock, Path(tmp))
+        try:
+            archiv = datei if datei is not None else _laden(lock, Path(tmp))
+        except LadenFehlgeschlagen as e:
+            text = f"nicht gelaufen: Aurora-Showdaten nicht geholt. {e}"
+            if ci:
+                print(f"::error title=Showdaten fehlen::{text}")
+            print(text, file=sys.stderr)
+            return FEHLT
         ist = _sha256(archiv)
         if ist != lock["sha256"]:
             raise SystemExit(f"SHA-256 des Archivs passt nicht zum Lock: {ist} != {lock['sha256']}")
@@ -280,18 +298,20 @@ def main(argv: list[str] | None = None) -> int:
     h = sub.add_parser("holen", help="Archiv laden (oder --datei), SHA-256 pruefen, entpacken")
     h.add_argument("--datei", type=Path, help="lokales Archiv statt Download")
     h.add_argument("--ci", action="store_true",
-                   help="unveroeffentlichter Release -> Warnung + Exit 0 (Tests melden dann 'nicht gelaufen')")
+                   help="Fehler zusaetzlich als GitHub-Annotation (::error); Exit bleibt 2")
     p = sub.add_parser("pruefen", help="0 da, 1 abweichend, 2 fehlt")
     p.add_argument("--tief", action="store_true", help="zusaetzlich SHA-256 je Datei")
     k = sub.add_parser("packen", help="Archiv + Lock aus dem lokalen Gold bauen")
     k.add_argument("--aus-dir", type=Path, required=True)
-    k.add_argument("--tag", required=True, help="z. B. showdaten-aurora-2026-09-29")
+    k.add_argument("--tag", required=True, help="z. B. showdaten-aurora-2026-09-29b")
+    k.add_argument("--gold", type=Path, default=GOLD,
+                   help="Quelle (Ordner mit dimensions/facts/security_user_org), Vorgabe: hier")
     a = ap.parse_args(argv)
     if a.cmd == "holen":
         return holen(a.datei, ci=a.ci)
     if a.cmd == "pruefen":
         return pruefen(tief=a.tief)
-    return packen(a.aus_dir, a.tag)
+    return packen(a.aus_dir, a.tag, gold=a.gold)
 
 
 if __name__ == "__main__":

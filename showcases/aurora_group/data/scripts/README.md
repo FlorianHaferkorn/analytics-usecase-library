@@ -13,7 +13,24 @@ python showcases/aurora_group/data/showdaten.py pruefen    # 0 da · 1 weicht vo
 `showdaten.lock.json` hält Tag, Asset, SHA-256 des Archivs und jede Datei mit Größe und
 SHA-256. Ohne Daten melden `scripts/check_showcase_delta.py` und
 `tooling/validation/check_data_model.py` Exit 2 „nicht gelaufen", die datenabhängigen Tests
-stehen mit „nicht gelaufen: … holen mit …" im Skip-Grund (`pytest -rs`).
+stehen mit „nicht gelaufen: … holen mit …" im Skip-Grund (`pytest -rs`),
+`tooling/validation/check_model_vs_gold.py --strict` endet mit Exit 2 „nicht geprüft".
+
+`holen` lädt immer per `gh release download` (Token aus `GH_TOKEN`, nie als Argument). Fehlt
+der Release oder das Asset, endet es mit Exit 2 und nennt Tag, Asset und die Zeile zum
+Hochladen. Die CI (`stage1.yml`, Jobs `python-checks` und `stage1`) holt vor den Tests; ein
+fehlgeschlagenes Holen macht den Job rot (Schritt „Showdaten vorhanden", dazu das Gold-Tor),
+die datenunabhängigen Tests laufen trotzdem.
+
+**Datenstand im Lock** (`showdaten-aurora-2026-09-29b`): Gold aus `origin/main` 1c0f48cf
+(nach #522: 10 Modellspalten, XYZ-Klasse; neu gegenüber dem ersten Paket sind
+`dim_product`, `dim_customer`, `fact_cost`, `fact_inventory`, `fact_procurement`,
+`fact_action_log`, `fact_inventory_snapshot`), 457 aktive Dateien, 614,4 MB Inhalt, Archiv
+615,1 MB. Gebaut mit `git archive origin/main showcases/aurora_group/data/gold` in einen
+Scratch-Ordner und `packen --gold <ordner>`; zweimal gepackt, bytegleich (SHA-256 gleich).
+Net Sales 12/2024 (aktive Dateien `fact_sales`, `DateKey` 20241201–20241231, DuckDB; gegen
+pyarrow über die Partition `Fiscal Year=2024/Fiscal Month=12` gestellt): 439.447.179,34 in
+198.303 Zeilen, gleich im ersten Paket, in `origin/main` und im entpackten neuen Paket.
 
 **Warum ein Archiv und kein Generator-Neulauf** (gemessen 29.09.2026, Methode: die ganze
 Kette in einer Kopie von `HEAD` ohne Daten gefahren, `deltalake==1.6.2` –
@@ -42,11 +59,15 @@ Power BI die spaltenlose Tabelle). Ob die heutige Kette mit sich selbst determin
 nicht automatisch angelegt):
 
 ```bash
-python showcases/aurora_group/data/showdaten.py packen --aus-dir /tmp/showdaten --tag showdaten-aurora-2026-09-29
-gh release create showdaten-aurora-2026-09-29 /tmp/showdaten/aurora_gold_2026-09-29.tar \
-  --repo FlorianHaferkorn/analytics-usecase-library --title "Aurora-Showdaten 2026-09-29"
-# danach in showdaten.lock.json "veroeffentlicht": true -- erst dann laedt die CI
+python showcases/aurora_group/data/showdaten.py packen --aus-dir /tmp/showdaten \
+  --tag showdaten-aurora-2026-09-29b [--gold <ordner mit dimensions/facts/security_user_org>]
+cp /tmp/showdaten/showdaten.lock.json showcases/aurora_group/data/showdaten.lock.json
+gh release create showdaten-aurora-2026-09-29b /tmp/showdaten/aurora_gold_2026-09-29b.tar \
+  --repo FlorianHaferkorn/analytics-usecase-library --title "Aurora-Showdaten showdaten-aurora-2026-09-29b"
 ```
+
+Ein neuer Datenstand bekommt einen neuen Tag (Asset-Name folgt aus dem Tag); ein Release wird
+nicht überschrieben, der Lock pinnt den SHA-256 des Archivs.
 
 Das Archiv enthält nur aktive Dateien (letzte Log-Aktion `add`) plus die Logs; es ist
 bytegleich reproduzierbar (feste Reihenfolge, `mtime` 0, Besitzer 0).
@@ -132,7 +153,7 @@ Get-ChildItem "showcases/aurora_group/data/gold/facts" -Directory |
 
 **Issue:** Fact shows as "Parquet" but should be Delta
 
-- **Solution:** Ensure `deltalake` package is installed: `pip install deltalake`
+- **Solution:** Ensure `deltalake` package is installed: `pip install deltalake==1.6.2` (pinned, see Prerequisites)
 - Regenerate the fact: `py showcases/aurora_group/data/scripts/generate_aurora_gold.py --domain <domain>`
 
 **Issue:** TMDL partition fails to load fact data

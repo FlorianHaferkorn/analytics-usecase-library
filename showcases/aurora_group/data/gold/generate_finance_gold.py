@@ -50,6 +50,7 @@ from _generator_utils import (
     apply_monthly_seasonality,
     write_fact_delta,
 )
+from _model_columns import fact_cost_spalten  # noqa: E402 -- nach sys.path; A-24 Material/Overhead
 
 DIMS  = GOLD / "dimensions"
 FACTS = GOLD / "facts"
@@ -222,7 +223,7 @@ def generate_fact_cost(org_df: pd.DataFrame, product_keys: list[int]) -> None:
                     "Plan COGS Amount": round(plan, 2),
                 })
 
-    df = pd.DataFrame(rows)
+    df = fact_cost_spalten(pd.DataFrame(rows))  # A-24: Material/Overhead aus Cost Type, ohne Zufall
     fmt = write_fact_delta(FACTS / "fact_cost", df, partition_by=["Fiscal Year"])
     print(f"  Written fact_cost ({len(rows):,} rows) [{fmt}]")
 

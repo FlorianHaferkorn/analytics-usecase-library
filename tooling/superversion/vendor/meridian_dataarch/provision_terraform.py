@@ -40,6 +40,32 @@ def _unique_workspaces(bp: dict) -> list[tuple[str, str]]:
     return sorted(seen.items())
 
 
+def _backend_tf() -> str:
+    """Remote-State im Azure-Speicher (I-21 W5.4 c). Der CI/CD-Leitfaden verlangt den State
+    verschlüsselt in geschütztem Cloud-Speicher (Learn `fundamentals/understand-best-practices-
+    fabric-cicd`, Checkliste „Project setup“). Teilkonfiguration: Werte kommen per
+    `-backend-config`, damit kein Speicherkonto im Repo steht."""
+    return (
+        "# Remote state (Azure Storage, encrypted at rest). Partial configuration — values come from\n"
+        "# `terraform init -backend-config=backend.hcl` (copy backend.hcl.example, do not commit it).\n"
+        "# Local try-out without remote state: `terraform init -backend=false`.\n"
+        "terraform {\n"
+        "  backend \"azurerm\" {}\n"
+        "}\n"
+    )
+
+
+def _backend_hcl_example() -> str:
+    return (
+        "# Copy to backend.hcl (gitignored) and fill in. Use Entra auth, not an access key.\n"
+        "resource_group_name  = \"<rg-terraform-state>\"\n"
+        "storage_account_name = \"<sttfstate>\"\n"
+        "container_name       = \"tfstate\"\n"
+        "key                  = \"fabric-platform.tfstate\"\n"
+        "use_azuread_auth     = true\n"
+    )
+
+
 def _providers_tf() -> str:
     return (
         "# Terraform providers — Fabric platform skeleton (ADR-0015; research 2026-07-15 §1).\n"
@@ -267,7 +293,7 @@ def _terraform_md(capacity: str, git: dict | None) -> str:
         "Declarative Fabric **landing zone** via the `microsoft/fabric` provider (research §1/§5). "
         "Complementary to the imperative `fab` `provision.sh` — use Terraform for the stateful, "
         "drift-detected skeleton, `fab` for imperative content ops.\n\n"
-        "```bash\nterraform init\nterraform plan -var capacity_name=" + capacity + "\nterraform apply\n"
+        "```bash\nterraform init -backend-config=backend.hcl   # remote state; -backend=false for a local try-out\nterraform plan -var capacity_name=" + capacity + "\nterraform apply\n"
         "terraform plan   # re-run = drift detection (provider drift shows as a diff)\n```\n\n"
         "## Automation-Target-Abdeckung (Landing-Zone-Vollständigkeit, I-19.5)\n"
         "| Target | Datei | Status |\n|---|---|---|\n"
@@ -301,6 +327,8 @@ def emit_terraform(bp: dict, capacity: str = "<CAPACITY_NAME>", git: dict | None
     stages_hcl = ", ".join(f'"{s}"' for s in stages)
     out = {
         "terraform/providers.tf": _providers_tf(),
+        "terraform/backend.tf": _backend_tf(),
+        "terraform/backend.hcl.example": _backend_hcl_example(),
         "terraform/variables.tf": _variables_tf(),
         "terraform/capacity.tf": _capacity_tf(),
         "terraform/workspaces.tf": _workspaces_tf(workspaces),

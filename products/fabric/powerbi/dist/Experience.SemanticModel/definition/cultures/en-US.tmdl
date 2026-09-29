@@ -222,18 +222,24 @@ culture en-US
 							}
 						]
 					},
-					"dim_issue_type.issue_type": {
+					"dim_issue_type.issuetype": {
 						"Definition": {
 							"Binding": {
 								"ConceptualEntity": "dim_issue_type",
-								"ConceptualProperty": "Issue Type"
+								"ConceptualProperty": "IssueType"
 							}
 						},
 						"State": "Generated",
 						"Terms": [
 							{
-								"Issue Type": {
+								"IssueType": {
 									"State": "Generated"
+								}
+							},
+							{
+								"Issue Type": {
+									"Type": "Noun",
+									"State": "Authored"
 								}
 							},
 							{

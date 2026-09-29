@@ -17,7 +17,6 @@ export default defineConfig([
   globalIgnores([
     '.next/**',
     '_tmp_*/**',
-    'BI Framework/**',
     'coverage/**',
     'node_modules/**',
     'playwright-report/**',

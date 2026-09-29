@@ -20,7 +20,9 @@ _EXPECTED_OFFICIAL_ROLES = {
     "areaChart": {"Category", "Y"},
     "waterfallChart": {"Category", "Y"},
     "clusteredBarChart": {"Category", "Y"},
-    "hundredPercentStackedBarChart": {"Category", "Y"},
+    # hundredPercentStackedBarChart: CLI 0.4.0 fuehrt nur noch {"Y"} als Pflicht (Snapshot
+    # 29.09.2026); seitdem lokale Politik in visual_validator._LOCAL_ROLE_POLICY, hier geprueft
+    # in test_hundred_percent_stacked_bar_policy_keeps_category.
     "hundredPercentStackedColumnChart": {"Category", "Y"},
     "donutChart": {"Category", "Y"},
     "pieChart": {"Category", "Y"},
@@ -41,6 +43,15 @@ def test_official_required_roles_unchanged(visual_type: str, expected: set) -> N
         f"Official requiredRoles for {visual_type} changed. Re-run "
         "refresh_authoring_metadata.py and review visual_validator._LOCAL_ROLE_POLICY."
     )
+
+
+def test_hundred_percent_stacked_bar_policy_keeps_category() -> None:
+    """0.4.0 relaxed the official requiredRoles; the generator keeps Category required."""
+    from products.fabric.powerbi.tooling.page_scaffold_generator import visual_validator as vv
+
+    assert set(am.required_roles("hundredPercentStackedBarChart")) == {"Y"}
+    assert "hundredPercentStackedBarChart" in vv._LOCAL_ROLE_POLICY
+    assert vv.VISUAL_TYPE_ROLES["hundredPercentStackedBarChart"] == {"Category", "Y"}
 
 
 def test_generator_role_table_is_behaviour_preserving() -> None:

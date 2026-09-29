@@ -1275,17 +1275,14 @@ class ConfigLoader:
         Validate that theme file exists.
         
         Args:
-            theme_name: Theme name (e.g., "Brand Blue__Monochromatic__Light__#118DFF")
+            theme_name: Theme name (e.g., "Brand Blue__Monochromatic__Light__118DFF"; '#' optional)
         
         Returns:
             True if theme exists, False otherwise
         """
-        # Theme files are in theme_generator/themes/
-        theme_root = self.repo_root / "products" / "fabric" / "powerbi" / "tooling" / "theme_generator" / "themes"
-        
-        # Search for theme file
-        for theme_file in theme_root.rglob(f"{theme_name}.json"):
-            if theme_file.exists():
-                return True
-        
-        return False
+        # Vendored engine output (themes/) and ALUCA-owned local output (themes_local/),
+        # resolved relative to this loader's repo_root — see theme_paths.py.
+        from products.fabric.powerbi.tooling.theme_paths import find_theme
+
+        powerbi = self.repo_root / "products" / "fabric" / "powerbi"
+        return find_theme(theme_name, roots=(powerbi / "themes_local", powerbi / "themes")) is not None

@@ -135,7 +135,11 @@ def emit_fab_commands(blueprint: dict, capacity: str = "<CAPACITY_NAME>",
         "# fab >= 1.6: command-line mode is the default when a command is passed",
         "# (no 'fab config set mode' step needed — that is deprecated). Authenticate first:",
         "#   fab auth login                       # interactive (browser) — simplest for a trial",
-        "#   fab auth login -u <CLIENT_ID> -p <SECRET> --tenant <TENANT_GUID>   # service principal",
+        "#   Service principal: fab reads FAB_SPN_CLIENT_ID / FAB_SPN_CLIENT_SECRET / FAB_TENANT_ID from the",
+        "#   environment (ms-fabric-cli 1.7.0, core/fab_auth.py). Never pass the secret as `-p` —",
+        "#   arguments are readable in every process list and shell history:",
+        "#     export FAB_SPN_CLIENT_ID=<CLIENT_ID> FAB_TENANT_ID=<TENANT_GUID>",
+        "#     read -rs FAB_SPN_CLIENT_SECRET && export FAB_SPN_CLIENT_SECRET",
         "",
     ]
 

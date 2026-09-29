@@ -15,6 +15,7 @@ dimension:
       - {name: Month, type: text}
       - {name: MonthNumber, type: int}
       - {name: Week, type: text, nullable: true}
+      - {name: CalendarYearMonth, type: text}
 
   - name: dim_org
     description: "Organization dimension (plant, line, shift, region) for operations."
@@ -22,8 +23,8 @@ dimension:
     scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
-      - {name: Plant, type: text, synonyms: [Site, Facility, Werk, Standort]}
-      - {name: Line, type: text, allowed_values: [Line A, Line B, Line C, Line D], synonyms: [Production Line, Work Center, Fertigungslinie, Produktionslinie]}
+      - {name: Plant, type: text, nullable: true, synonyms: [Site, Facility, Werk, Standort]}
+      - {name: Line, type: text, nullable: true, allowed_values: [Line A, Line B, Line C, Line D], synonyms: [Production Line, Work Center, Fertigungslinie, Produktionslinie]}
       - {name: Shift, type: text, nullable: true, allowed_values: [Day Shift, Afternoon Shift, Night Shift], synonyms: [Work Shift, Schicht, Arbeitsschicht]}
       - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Territory, Vertriebsregion]}
       - {name: Country, type: text, nullable: true}
@@ -52,6 +53,7 @@ dimension:
       - {name: Subcategory, type: text, nullable: true, allowed_values: [Apparel, Footwear, Accessories, Jewelry, Furniture, Decor, Kitchenware, Bedding, Lighting, TVs, Audio, Computers, Smartphones, Gaming], synonyms: [Sub Category, Untergruppe, Unterkategorie]}
 
   - name: dim_loss_type
+    showcase: false
     description: "ISO 22400-2 Six Big Losses taxonomy mapping each loss to its OEE pillar."
     purpose: "Standardized loss classification for OEE breakdown and availability/performance/quality attribution."
     scd_type: 1
@@ -63,6 +65,7 @@ dimension:
       - {name: LossPillar, type: text, allowed_values: [Availability, Performance, Quality], synonyms: [OEE Pillar, OEE Component, OEE-Komponente]}
 
   - name: dim_failure_mode
+    showcase: false
     description: "ISO 14224 failure-mode taxonomy (mode and underlying mechanism) for reliability analysis."
     purpose: "Standardized failure-mode classification for MTBF and root cause analysis."
     scd_type: 1
@@ -73,6 +76,7 @@ dimension:
       - {name: FailureMechanism, type: text, nullable: true, synonyms: [Failure Mechanism, Degradation Mechanism, Schadensmechanismus]}
 
   - name: dim_cause_code
+    showcase: false
     description: "Conformed cause-code dimension promoting the former free-text cause code to a governed taxonomy."
     purpose: "Standardized cause classification shared across failure and quality facts."
     scd_type: 1
@@ -83,6 +87,7 @@ dimension:
       - {name: CauseCategory, type: text, nullable: true, synonyms: [Cause Group, Cause Class, Ursachenkategorie]}
 
   - name: dim_defect_mode
+    showcase: false
     description: "ISO 9001 / IATF 16949 defect taxonomy (defect type and category) for quality analysis."
     purpose: "Standardized defect classification for defect-rate and COPQ attribution."
     scd_type: 1
@@ -101,14 +106,14 @@ fact:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: AssetKey, type: int, ref: dim_asset, nullable: true}
-      - {name: LossTypeKey, type: int, ref: dim_loss_type, nullable: true}
+      - {name: LossTypeKey, type: int, ref: dim_loss_type, nullable: true, target_state: true}
       - {name: Planned Time Minutes, type: decimal, agg: sum}
-      - {name: Run Time Minutes, type: decimal, agg: sum}
-      - {name: Downtime Minutes, type: decimal, agg: sum}
+      - {name: Run Time Minutes, type: decimal, agg: sum, checks: [{gte: 0}, {lte_column: Planned Time Minutes}]}
+      - {name: Downtime Minutes, type: decimal, agg: sum, checks: [{gte: 0}]}
       - {name: Output Units, type: decimal, agg: sum}
-      - {name: Good Units, type: decimal, agg: sum}
+      - {name: Good Units, type: decimal, agg: sum, checks: [{gte: 0}, {lte_column: Output Units}]}
       - {name: Scrap Units, type: decimal, agg: sum}
-      - {name: Standard Rate Units Per Minute, type: decimal}
+      - {name: Standard Rate Units Per Minute, type: decimal, checks: [{gt: 0}]}
 
   - name: fact_ops_failures
     description: "Failure events per asset (start/end, repair duration, cause) for MTBF and root cause."
@@ -120,9 +125,10 @@ fact:
       - {name: Failure End DateTime, type: datetime}
       - {name: Repair Duration Hours, type: decimal}
       - {name: Downtime Minutes, type: decimal}
-      - {name: FailureModeKey, type: int, ref: dim_failure_mode, nullable: true}
-      - {name: CauseCodeKey, type: int, ref: dim_cause_code, nullable: true}
+      - {name: FailureModeKey, type: int, ref: dim_failure_mode, nullable: true, target_state: true}
+      - {name: CauseCodeKey, type: int, ref: dim_cause_code, nullable: true, target_state: true}
       - {name: Cause Code, type: text, nullable: true}   # retained free-text for backward-compat; CauseCodeKey is the conformed reference
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
 
   - name: fact_maintenance
     description: "Maintenance orders (PM/CM) per asset and date with status and on-time flags."
@@ -145,12 +151,12 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: ProductKey, type: int, ref: dim_product, nullable: true}
       - {name: Total Units, type: decimal, agg: sum}
-      - {name: Good Units, type: decimal, agg: sum}
+      - {name: Good Units, type: decimal, agg: sum, checks: [{gte: 0}, {lte_column: Total Units}]}
       - {name: Scrap Units, type: decimal, agg: sum}
       - {name: Rework Units, type: decimal, agg: sum}
       - {name: Defect Count, type: decimal, agg: sum, nullable: true}
-      - {name: DefectModeKey, type: int, ref: dim_defect_mode, nullable: true}
-      - {name: CauseCodeKey, type: int, ref: dim_cause_code, nullable: true}
+      - {name: DefectModeKey, type: int, ref: dim_defect_mode, nullable: true, target_state: true}
+      - {name: CauseCodeKey, type: int, ref: dim_cause_code, nullable: true, target_state: true}
 
   - name: fact_quality_costs
     grain: month_product
@@ -158,20 +164,26 @@ fact:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: ProductKey, type: int, ref: dim_product, nullable: true}
-      - {name: Prevention Cost, type: currency, agg: sum}
-      - {name: Appraisal Cost, type: currency, agg: sum}
-      - {name: Internal Failure Cost, type: currency, agg: sum}
-      - {name: External Failure Cost, type: currency, agg: sum}
-      - {name: COPQ Amount, type: currency, agg: sum}    # total cost of poor quality (Internal + External Failure; PAF total)
+      - {name: Prevention Cost, type: currency, agg: sum, checks: [{gte: 0}], target_state: true}
+      - {name: Appraisal Cost, type: currency, agg: sum, checks: [{gte: 0}], target_state: true}
+      - {name: Internal Failure Cost, type: currency, agg: sum, checks: [{gte: 0}], target_state: true}
+      - {name: External Failure Cost, type: currency, agg: sum, checks: [{gte: 0}], target_state: true}
+      - {name: COPQ Amount, type: currency, agg: sum, checks: [{gte: 0}]}    # total cost of poor quality (Internal + External Failure; PAF total)
+      - {name: Scrap Cost Amount, type: currency, agg: sum}
+      - {name: Rework Cost Amount, type: currency, agg: sum}
+      - {name: Warranty Cost Amount, type: currency, agg: sum}
 
   - name: fact_complaints
     grain: complaint
     columns:
       - {name: DateKey, type: int, ref: dim_date}
-      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: ProductKey, type: int, ref: dim_product, target_state: true}
       - {name: Complaint Count, type: int, agg: sum}
-      - {name: Severity, type: text, nullable: true}
+      - {name: Severity, type: text, nullable: true, target_state: true}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: CustomerKey, type: int, ref: dim_customer, cardinality: many-to-one}
+      - {name: Resolved Count, type: int, agg: sum}
+      - {name: Resolution Days, type: decimal, agg: avg}
 
   - name: fact_shipments
     grain: shipment_line
@@ -182,17 +194,35 @@ fact:
       - {name: Shipped Units, type: decimal, agg: sum}
 
   - name: fact_safety
+    showcase: false
     description: "Site-month safety facts (incident count, severity, lost-time flag) for EHS reporting."
     purpose: "Safety incident tracking and lost-time injury monitoring."
     grain: site_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
-      - {name: Incident Count, type: int, agg: sum}
+      - {name: Incident Count, type: int, agg: sum, checks: [{gte: 0}]}
       - {name: Severity, type: text, nullable: true}
       - {name: Lost Time Injury Flag, type: boolean, nullable: true}
 
+  # Aus Gold und Modell nachgezogen (A-23, 29.09.2026). Reorder Flag liest das Operations-Modell,
+  # Gold hat es noch nicht (A-24, Generator zieht nach).
+  - name: fact_inventory_snapshot
+    description: "Month-end stock snapshot per org and product (quantity, value, safety stock)."
+    purpose: "Inventory position and reorder monitoring for operations reporting."
+    grain: product_org_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
+      - {name: Stock Qty, type: int, agg: sum}
+      - {name: Stock Value Amount, type: currency, agg: sum}
+      - {name: Safety Stock Qty, type: int, agg: sum}
+      - {name: Reorder Flag, type: bool}        # A-24: im Modell, fehlt in Gold
+
 quality_rules:
+  # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
+  # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla:
     fact_ops: daily                 # production data by shift-end; next-day availability expected
     fact_ops_failures: real-time    # failure events captured within 30 min of occurrence
@@ -202,33 +232,17 @@ quality_rules:
     fact_complaints: daily
     fact_shipments: daily
     fact_safety: monthly
-  key_nullability:
-    - "fact_ops.DateKey, OrgKey, Planned Time Minutes, Run Time Minutes, Output Units: never null"
-    - "fact_ops_failures.AssetKey, Failure Start DateTime, Repair Duration Hours: never null"
-    - "fact_quality.DateKey, OrgKey, Total Units, Good Units, Scrap Units: never null"
-    - "fact_maintenance.AssetKey, DateKey, Order Type, Order Status: never null"
-    - "fact_quality_costs.DateKey, OrgKey: never null"
-    - "fact_safety.DateKey, OrgKey, Incident Count: never null"
   value_ranges:
-    - "fact_ops.Run Time Minutes: >= 0; <= Planned Time Minutes"
-    - "fact_ops.Downtime Minutes: >= 0"
-    - "fact_ops.Good Units: >= 0; <= Output Units"
-    - "fact_quality.Good Units: >= 0; <= Total Units"
     - "fact_quality.Scrap Units + Rework Units: <= Total Units"
-    - "fact_ops.Standard Rate Units Per Minute: > 0 (must be a positive reference rate)"
-    - "fact_quality_costs.Prevention Cost, Appraisal Cost, Internal Failure Cost, External Failure Cost: >= 0"
-    - "fact_quality_costs.COPQ Amount: >= 0; >= Internal Failure Cost + External Failure Cost"
-    - "fact_safety.Incident Count: >= 0"
+    - "fact_quality_costs.COPQ Amount: >= Internal Failure Cost + External Failure Cost"
   referential_integrity:
-    - "fact_ops.AssetKey → dim_asset (nullable; absent = line without asset-level tracking)"
-    - "fact_ops.LossTypeKey → dim_loss_type (nullable; absent = unclassified loss)"
-    - "fact_ops_failures.FailureModeKey → dim_failure_mode (nullable; absent = unclassified failure mode)"
-    - "fact_ops_failures.CauseCodeKey → dim_cause_code (nullable; absent = uncoded cause)"
-    - "fact_quality.ProductKey → dim_product (nullable; absent = multi-product line run)"
-    - "fact_quality.DefectModeKey → dim_defect_mode (nullable; absent = unclassified defect)"
-    - "fact_quality.CauseCodeKey → dim_cause_code (nullable; absent = uncoded cause)"
-    - "fact_maintenance.AssetKey → dim_asset (required)"
-    - "fact_safety.DateKey → dim_date (required); fact_safety.OrgKey → dim_org (required)"
+    - "fact_ops.AssetKey: NULL = line without asset-level tracking"
+    - "fact_ops.LossTypeKey: NULL = unclassified loss"
+    - "fact_ops_failures.FailureModeKey: NULL = unclassified failure mode"
+    - "fact_ops_failures.CauseCodeKey: NULL = uncoded cause"
+    - "fact_quality.ProductKey: NULL = multi-product line run"
+    - "fact_quality.DefectModeKey: NULL = unclassified defect"
+    - "fact_quality.CauseCodeKey: NULL = uncoded cause"
 
 settings:
   timezone: Europe/Berlin

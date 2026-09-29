@@ -8,8 +8,9 @@
 products/fabric/powerbi/deployment/snapshots/
 products/fabric/powerbi/deployment/reports/
 
-# Generated theme documentation output
-products/fabric/powerbi/tooling/theme_generator/themes/**/*.md
+# Theme-Engine-Ausgabe auf Abruf (apply_report_theme --run-generator, derive_brand_artifacts):
+# ALUCA-eigen, reproduzierbar, nicht versioniert. Vendorte Themes: products/fabric/powerbi/themes/
+products/fabric/powerbi/themes_local/
 
 # Generated review outputs
 internal/reviews/*.md

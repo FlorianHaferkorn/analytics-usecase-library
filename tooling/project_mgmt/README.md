@@ -12,3 +12,7 @@
 - `start_next_task.ps1` — Picks the next Backlog/Planned item, sets Status to In progress, prints issue # and expert.
 - `set_issue_status.ps1` — Sets Status for one or more issues (e.g. `-Issue 23 -Status "In review"`).
 - `refresh_project_snapshot.ps1` — Reads Backlog/Planned (no status change), writes PROJECT_SNAPSHOT.md for the Assistant.
+
+**Archived (2026-09-29):** the unreferenced one-off scripts (project setup, backlog migration,
+duplicate cleanup, granular issue import, workday guard `workday_start/end.ps1`, whose marker
+`AGENT_WORKDAY_OPEN` nothing checked) live in `internal/archive/tooling/project_mgmt/`.

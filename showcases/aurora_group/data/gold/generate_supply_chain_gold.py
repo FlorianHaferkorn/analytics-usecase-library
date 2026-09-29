@@ -28,6 +28,7 @@ from _generator_utils import (
     FACTS_START,
     FACTS_END,
 )
+from _model_columns import fact_inventory_spalten  # noqa: E402 -- nach sys.path; A-24 COGS Amount
 
 # Initialize
 RANDOM_SEED = 12345
@@ -149,8 +150,8 @@ for date_obj in month_end_dates:
                 "Obsolete Inventory Units": float(obsolete_units),
             })
 
-fmt = write_fact_delta(fact_inv_dir, pd.DataFrame(rows_inv), partition_by=["Fiscal Year"])
-print(f"Written fact_inventory ({len(rows_inv):,} records) [{fmt}]")
+# fact_inventory wird erst nach fact_cogs geschrieben: die Finance-Sicht liest dort `COGS Amount`
+# derselben Koernung (A-24). Schreiben zieht keine Zufallszahlen, die Reihenfolge der Ziehungen bleibt.
 
 # fact_cogs (location_sku_month) - Monthly COGS with seasonality
 fact_cogs_dir = facts / "fact_cogs"
@@ -183,6 +184,10 @@ for date_obj in month_end_dates:
 
 fmt = write_fact_delta(fact_cogs_dir, pd.DataFrame(rows_cogs), partition_by=["Fiscal Year"])
 print(f"Written fact_cogs ({len(rows_cogs):,} records) [{fmt}]")
+
+fmt = write_fact_delta(fact_inv_dir, fact_inventory_spalten(pd.DataFrame(rows_inv), pd.DataFrame(rows_cogs)),
+                       partition_by=["Fiscal Year"])
+print(f"Written fact_inventory ({len(rows_inv):,} records) [{fmt}]")
 
 # fact_fulfillment (order grain) - Daily orders with seasonality
 fact_fulfill_dir = facts / "fact_fulfillment"

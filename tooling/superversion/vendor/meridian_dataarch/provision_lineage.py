@@ -1,7 +1,13 @@
 """provision_lineage — emit a metadata catalog, lineage graph, and intended-vs-observed audit.
 
 Sixth live-provisioning helper (ADR-0015 follow-up), sibling to provision_fabric / cicd /
-transforms / orchestration / governance. Two complementary jobs, both admin-based and Official-First:
+transforms / orchestration / governance. Two complementary jobs, both Official-First. The catalog job
+runs in **two modes** (documented 29.09.2026; before, this line said "both admin-based"):
+**admin** (`catalog_scan.py`, tenant-wide metadata scanner, fills ``meta_access``) and **non-admin**
+(`catalog_scan_workspace.py`, ``sempy.fabric``, one workspace, ``meta_access`` empty) — the same
+``meta_*`` tables either way; the non-admin mode matches the Fabric_Lineage contract
+(`schemas/fabric_lineage_vertrag.yaml`, D-578). The intended-vs-observed reconcile below still
+reads the admin scan:
 
 1. **Catalog & graph** (`catalog_scan.py`) — one admin scan → the full artefact graph a customer
    report / Fabric App consumes: typed nodes (workspace, semantic model, report, dataflow, table,

@@ -15,6 +15,7 @@ dimension:
       - {name: Month, type: text}
       - {name: MonthNumber, type: int}
       - {name: Week, type: text, nullable: true}
+      - {name: CalendarYearMonth, type: text}
 
   - name: dim_org
     description: "Organization dimension (region, channel, queue, agent group) for experience."
@@ -26,6 +27,8 @@ dimension:
       - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Direct, Outlet], synonyms: [Sales Channel, Distribution Channel, Vertriebskanal]}
       - {name: Queue, type: text, nullable: true, allowed_values: [Order Management, "Returns & Refunds", Technical Support, "Billing & Payments", General Support, VIP Support], synonyms: [Support Queue, Work Queue, Warteschlange, Routing Queue]}
       - {name: Agent Group, type: text, nullable: true, allowed_values: ["Tier 1 – General", "Tier 2 – Specialist", "Tier 3 – Expert", Back-Office, Escalation Team, VIP Desk], synonyms: [Team, Skill Group, Agententeam, Support Team]}
+      - {name: IssueType, type: text, nullable: true, allowed_values: [Account, Billing, Delivery, Order, Product, Technical]}
+      - {name: Severity, type: text, nullable: true, allowed_values: [Critical, High, Medium, Low]}
 
   - name: dim_case_queue
     description: "Support case queue dimension (queue name, channel, region)."
@@ -42,12 +45,13 @@ dimension:
     purpose: "Issue-type, category, and severity analysis for support (FCR and escalation Pareto)."
     scd_type: 1
     columns:
-      - {name: IssueTypeKey, type: int, role: key}
-      - {name: Issue Type, type: text, allowed_values: [Billing, Delivery, Order, Product, Technical], synonyms: [Case Type, Ticket Type, Request Type, Falltyp, Anliegenart]}
-      - {name: Issue Category, type: text, nullable: true, synonyms: [Issue Group, Category, Anliegenkategorie]}
+      - {name: IssueKey, type: int, role: key}
+      - {name: IssueType, type: text, allowed_values: [Billing, Delivery, Order, Product, Technical], synonyms: [Issue Type, Case Type, Ticket Type, Request Type, Falltyp, Anliegenart]}
+      - {name: Issue Category, type: text, nullable: true, synonyms: [Issue Group, Category, Anliegenkategorie], target_state: true}
       - {name: Severity, type: text, nullable: true, allowed_values: [Critical, High, Medium, Low], synonyms: [Severity Level, Priority, Schweregrad, Priorität]}
 
   - name: dim_sla_policy
+    showcase: false
     description: "SLA policy dimension (priority, response/resolution targets, force-majeure exclusion) for SLA attainment."
     purpose: "Correct SLA attainment with force-majeure exclusion (XD-001)."
     scd_type: 1
@@ -60,6 +64,7 @@ dimension:
       - {name: Force Majeure Exclusion Flag, type: boolean, synonyms: [Force Majeure Flag, SLA Exclusion, Höhere-Gewalt-Ausschluss]}
 
   - name: dim_shrinkage_category
+    showcase: false
     description: "Shrinkage category dimension (category, paid flag) for shrinkage decomposition."
     purpose: "Shrinkage decomposition for utilization (XD-002)."
     scd_type: 1
@@ -69,6 +74,7 @@ dimension:
       - {name: Paid Flag, type: boolean, synonyms: [Paid Shrinkage Flag, Bezahlt-Kennzeichen]}
 
   - name: dim_agent_skill
+    showcase: false
     description: "Agent skill dimension (skill group, level, channel) for skill-based utilization and occupancy."
     purpose: "Skill-based utilization and occupancy analysis (XD-002)."
     scd_type: 2
@@ -87,11 +93,11 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true, cardinality: many-to-one}
-      - {name: IssueTypeKey, type: int, ref: dim_issue_type, nullable: true, cardinality: many-to-one}
-      - {name: SlaPolicyKey, type: int, ref: dim_sla_policy, nullable: true, cardinality: many-to-one}
+      - {name: IssueKey, type: int, ref: dim_issue_type, nullable: true, cardinality: many-to-one}
+      - {name: SlaPolicyKey, type: int, ref: dim_sla_policy, nullable: true, cardinality: many-to-one, target_state: true}
       - {name: SLA Met Flag, type: boolean}
       - {name: FCR Flag, type: boolean}
-      - {name: Handle Time Minutes, type: decimal}
+      - {name: Handle Time Minutes, type: decimal, checks: [{gte: 0}]}
       - {name: Escalation Flag, type: boolean}
       - {name: Backlog Flag, type: boolean}
       - {name: Open Case Flag, type: boolean}
@@ -104,15 +110,15 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true, cardinality: many-to-one}
-      - {name: ShrinkageCategoryKey, type: int, ref: dim_shrinkage_category, nullable: true, cardinality: many-to-one}
-      - {name: AgentSkillKey, type: int, ref: dim_agent_skill, nullable: true, cardinality: many-to-one}
-      - {name: Work Time Minutes, type: decimal, agg: sum}
+      - {name: ShrinkageCategoryKey, type: int, ref: dim_shrinkage_category, nullable: true, cardinality: many-to-one, target_state: true}
+      - {name: AgentSkillKey, type: int, ref: dim_agent_skill, nullable: true, cardinality: many-to-one, target_state: true}
+      - {name: Work Time Minutes, type: decimal, agg: sum, checks: [{gte: 0}, {lte_column: Paid Time Minutes}]}
       - {name: Paid Time Minutes, type: decimal, agg: sum}
       - {name: Talk Time Minutes, type: decimal, agg: sum}
       - {name: Wrap Time Minutes, type: decimal, agg: sum}
-      - {name: Idle Time Minutes, type: decimal, agg: sum}
+      - {name: Idle Time Minutes, type: decimal, agg: sum, checks: [{gte: 0}]}
       - {name: Overtime Minutes, type: decimal, agg: sum, nullable: true}
-      - {name: Shrinkage Minutes, type: decimal, agg: sum, nullable: true}
+      - {name: Shrinkage Minutes, type: decimal, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}]}
 
   - name: fact_nps
     description: "NPS survey facts (score per survey) for experience metrics."
@@ -121,32 +127,37 @@ fact:
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
-      - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true, cardinality: many-to-one}
-      - {name: NPS Score, type: int}
+      - {name: NPS Score, type: int, checks: [{between: [0, 10]}]}
+
+  # Aus Gold und Modell nachgezogen (A-23, 29.09.2026). Action Code / Responsible Role liest das
+  # Experience-Modell, Gold hat sie noch nicht (A-24, Generator zieht nach).
+  - name: fact_action_log
+    description: "Routed actions (one row per action) with use case, type, and outcome."
+    purpose: "Action routing volume and outcome for the action-governance pages (XD-004)."
+    grain: action
+    columns:
+      - {name: ActionID, type: text, role: key}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: UseCaseID, type: text}
+      - {name: Action Type, type: text}
+      - {name: Action Outcome, type: text}
+      - {name: Action Code, type: text}        # A-24: im Modell, fehlt in Gold
+      - {name: Responsible Role, type: text}   # A-24: im Modell, fehlt in Gold
 
 quality_rules:
+  # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
+  # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla:
     fact_support_cases: real-time   # case events captured within 15 min; closed cases same-day
     fact_workforce_management: daily
     fact_nps: per-cycle             # survey results available within 24 h of survey close
-  key_nullability:
-    - "fact_support_cases.DateKey, OrgKey, SLA Met Flag, FCR Flag, Handle Time Minutes: never null"
-    - "fact_support_cases.Escalation Flag, Backlog Flag, Open Case Flag: never null"
-    - "fact_workforce_management.DateKey, OrgKey, Work Time Minutes, Paid Time Minutes: never null"
-    - "fact_nps.DateKey, NPS Score: never null"
   value_ranges:
-    - "fact_support_cases.Handle Time Minutes: >= 0"
-    - "fact_nps.NPS Score: integer in [0; 10]"
-    - "fact_workforce_management.Work Time Minutes: >= 0; <= Paid Time Minutes"
-    - "fact_workforce_management.Shrinkage Minutes: >= 0 when present"
-    - "fact_workforce_management.Idle Time Minutes: >= 0"
+    - "fact_nps.NPS Score: integer values only"
   referential_integrity:
-    - "fact_support_cases.QueueKey → dim_case_queue (nullable)"
-    - "fact_support_cases.IssueTypeKey → dim_issue_type (nullable)"
-    - "fact_support_cases.SlaPolicyKey → dim_sla_policy (nullable; absent = no SLA policy assigned)"
-    - "fact_workforce_management.QueueKey → dim_case_queue (nullable)"
-    - "fact_workforce_management.ShrinkageCategoryKey → dim_shrinkage_category (nullable; absent = unclassified shrinkage)"
-    - "fact_workforce_management.AgentSkillKey → dim_agent_skill (nullable; absent = no skill profile)"
+    - "fact_support_cases.SlaPolicyKey: NULL = no SLA policy assigned"
+    - "fact_workforce_management.ShrinkageCategoryKey: NULL = unclassified shrinkage"
+    - "fact_workforce_management.AgentSkillKey: NULL = no skill profile"
 
 settings:
   timezone: Europe/Berlin

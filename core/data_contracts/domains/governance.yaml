@@ -22,6 +22,7 @@ dimension:
       - {name: Country, type: text, nullable: true}
 
   - name: dim_project
+    showcase: false
     scd_type: 1
     columns:
       - {name: ProjectKey, type: int, role: key}
@@ -30,12 +31,14 @@ dimension:
       - {name: Portfolio, type: text, nullable: true}
 
   - name: dim_dataset
+    showcase: false
     scd_type: 1
     columns:
       - {name: DatasetKey, type: int, role: key}
       - {name: DatasetName, type: text}
 
   - name: dim_action_code
+    showcase: false
     scd_type: 1
     columns:
       - {name: ActionCodeKey, type: int, role: key}
@@ -44,6 +47,7 @@ dimension:
       - {name: ActionFamily, type: text, nullable: true}
 
   - name: dim_owner_role
+    showcase: false
     scd_type: 1
     columns:
       - {name: OwnerRoleKey, type: int, role: key}
@@ -53,32 +57,36 @@ dimension:
 
 fact:
   - name: fact_dq
+    showcase: false
     grain: dataset_month
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
       - {name: DatasetKey, type: int, ref: dim_dataset, cardinality: many-to-one}
-      - {name: Valid Records, type: int, agg: sum}
+      - {name: Valid Records, type: int, agg: sum, checks: [{gte: 0}, {lte_column: Total Records}]}
       - {name: Total Records, type: int, agg: sum}
 
   - name: fact_compliance
+    showcase: false
     grain: month_org
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
-      - {name: Incidents, type: int, agg: sum}
-      - {name: Breaches, type: int, agg: sum}
+      - {name: Incidents, type: int, agg: sum, checks: [{gte: 0}]}
+      - {name: Breaches, type: int, agg: sum, checks: [{gte: 0}, {lte_column: Incidents}]}
 
   - name: fact_audit
+    showcase: false
     grain: finding
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
       - {name: Finding ID, type: text, role: key}
       - {name: Findings, type: int, agg: sum, nullable: true}
-      - {name: Open Findings, type: int, agg: sum, nullable: true}
+      - {name: Open Findings, type: int, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}, {lte_column: Findings, when_present: true}]}
 
   - name: fact_projects
+    showcase: false
     grain: project_month
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
@@ -94,32 +102,38 @@ fact:
       - {name: Cashflows, type: currency, agg: sum, nullable: true}
 
   - name: fact_security
+    showcase: false
     grain: month
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
       - {name: Incidents, type: int, agg: sum}
-      - {name: Critical Incidents, type: int, agg: sum, nullable: true}
-      - {name: MTTR, type: decimal, agg: avg, nullable: true}
+      - {name: Critical Incidents, type: int, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}, {lte_column: Incidents, when_present: true}]}
+      - {name: MTTR, type: decimal, agg: avg, nullable: true, checks: [{gte: 0, when_present: true}]}
 
   - name: fact_action_outcome
     grain: action_outcome
     columns:
-      - {name: ActionOutcomeId, type: text, role: key}
-      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
-      - {name: ActionCodeKey, type: int, ref: dim_action_code, cardinality: many-to-one}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
+      - {name: ActionOutcomeId, type: text, role: key, target_state: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one, target_state: true}
+      - {name: ActionCodeKey, type: int, ref: dim_action_code, cardinality: many-to-one, target_state: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one, target_state: true}
       - {name: action_code_id, type: text}
       - {name: domain, type: text}
       - {name: outcome_status, type: text}
       - {name: days_to_outcome, type: int, agg: avg, nullable: true}
       - {name: impact_value, type: currency, agg: sum, nullable: true}
       - {name: cost_to_execute, type: currency, agg: sum, nullable: true}
-      - {name: Pre KPI Value, type: decimal}
-      - {name: Post KPI Value, type: decimal}
-      - {name: KPI Delta, type: decimal}
-      - {name: Outcome Status, type: text, allowed_values: [Successful, Routed, No Change, Failed]}
-      - {name: Action Effectiveness Delta Amount, type: currency, agg: sum, nullable: true}
+      - {name: Pre KPI Value, type: decimal, target_state: true}
+      - {name: Post KPI Value, type: decimal, target_state: true}
+      - {name: KPI Delta, type: decimal, target_state: true}
+      - {name: Outcome Status, type: text, allowed_values: [Successful, Routed, No Change, Failed], target_state: true}
+      - {name: Action Effectiveness Delta Amount, type: currency, agg: sum, nullable: true, target_state: true}
+      - {name: use_case_id, type: text}
+      - {name: execution_date, type: text}
+      - {name: outcome_date, type: text, nullable: true}
+      - {name: severity_level, type: text}
+      - {name: fiscal_year, type: int}
 
   - name: fact_target
     description: "Ziel- und Planwerte je KPI und Monat, vom Kunden beim Onboarding geliefert (R6.1)."
@@ -132,6 +146,7 @@ fact:
       - {name: Target Value, type: decimal, description: "In der Skala der Measure; Prozent als Anteil (0.85 = 85 %)."}
 
   - name: fact_action_governance
+    showcase: false
     grain: action_instance
     columns:
       - {name: ActionInstanceId, type: text, role: key}
@@ -141,14 +156,16 @@ fact:
       - {name: OwnerRoleKey, type: int, ref: dim_owner_role, cardinality: many-to-one}
       - {name: OwnerRole, type: text}   # retained free-text for backward-compat; OwnerRoleKey is the conformed reference
       - {name: Status, type: text}
-      - {name: Routed Actions, type: int, agg: sum}
-      - {name: Successful Actions, type: int, agg: sum, nullable: true}
-      - {name: Outcome Success Flag, type: int, agg: max, nullable: true}
+      - {name: Routed Actions, type: int, agg: sum, checks: [{gte: 0}]}
+      - {name: Successful Actions, type: int, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}, {lte_column: Routed Actions, when_present: true}]}
+      - {name: Outcome Success Flag, type: int, agg: max, nullable: true, checks: [{between: [0, 1], when_present: true}]}
       - {name: Due Date, type: date, nullable: true}
       - {name: Completion Date, type: date, nullable: true}
       - {name: Evaluation Date, type: date, nullable: true}
 
 quality_rules:
+  # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
+  # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla:
     fact_dq: monthly              # data quality metrics compiled monthly
     fact_compliance: monthly      # compliance incidents reported monthly
@@ -156,31 +173,9 @@ quality_rules:
     fact_projects: monthly
     fact_security: monthly
     fact_action_outcome: per-action-cycle   # outcome verified within 5 business days of action closure
-  key_nullability:
-    - "fact_dq.DateKey, DatasetKey, Valid Records, Total Records: never null"
-    - "fact_compliance.DateKey, OrgKey, Incidents, Breaches: never null"
-    - "fact_audit.Finding ID: unique per row; never null"
-    - "fact_security.DateKey, Incidents: never null"
-    - "fact_action_governance.ActionInstanceId, DateKey, ActionCodeKey, OwnerRoleKey, OwnerRole, Status, Routed Actions: never null"
-    - "fact_action_outcome.ActionOutcomeId, DateKey, ActionCodeKey, action_code_id, Pre KPI Value, Post KPI Value, KPI Delta, Outcome Status: never null"
   value_ranges:
-    - "fact_dq.Valid Records: >= 0; <= Total Records"
-    - "fact_compliance.Incidents: >= 0; Breaches >= 0; Breaches <= Incidents"
-    - "fact_audit.Open Findings: >= 0 when present; <= Findings when present"
-    - "fact_security.Critical Incidents: >= 0 when present; <= Incidents"
-    - "fact_security.MTTR: >= 0 when present"
-    - "fact_action_governance.Routed Actions: >= 0"
-    - "fact_action_governance.Successful Actions: >= 0 when present; <= Routed Actions when present"
-    - "fact_action_governance.Outcome Success Flag: in [0; 1] when present"
     - "fact_action_outcome.KPI Delta: = Post KPI Value - Pre KPI Value"
     - "fact_action_outcome.Outcome Status: Successful requires verified KPI movement (KPI Delta != 0); administrative closure without KPI movement is not Successful"
-  referential_integrity:
-    - "fact_dq.DatasetKey → dim_dataset (required)"
-    - "fact_projects.ProjectKey → dim_project (required)"
-    - "fact_projects.OrgKey → dim_org (nullable)"
-    - "fact_action_governance.ActionCodeKey → dim_action_code (required)"
-    - "fact_action_governance.OwnerRoleKey → dim_owner_role (required)"
-    - "fact_action_outcome.ActionCodeKey → dim_action_code (required)"
 
 settings:
   timezone: Europe/Berlin

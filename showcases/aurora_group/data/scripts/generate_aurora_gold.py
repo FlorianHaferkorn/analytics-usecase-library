@@ -13,8 +13,10 @@ Run from repo root:
   py showcases/aurora_group/data/scripts/generate_aurora_gold.py --domain operations
   py showcases/aurora_group/data/scripts/generate_aurora_gold.py --domain supply_chain,experience,finance
 
-Domains: dims, commercial, operations, supply_chain, experience, finance (default: all).
+Domains: dims, commercial, operations, supply_chain, experience, finance, model_columns (default: all).
   dims – enriches dim_org and dim_date with domain-specific columns (run first).
+  model_columns – adds the columns the semantic models read but no base generator writes
+    (A-24: gold/generate_model_columns.py; runs last, also after a backbone run).
 """
 import argparse
 import pandas as pd
@@ -54,7 +56,7 @@ random.seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
 profile = get_company_profile("aurora")
 
-DOMAINS = frozenset({"dims", "commercial", "operations", "supply_chain", "experience", "finance"})
+DOMAINS = frozenset({"dims", "commercial", "operations", "supply_chain", "experience", "finance", "model_columns"})
 
 
 def _resolve_keys():
@@ -471,6 +473,13 @@ def run_commercial_derived_facts():
             print(f"Written fact_customer_value ({len(agg):,} rows) from fact_sales")
 
 
+def run_model_columns():
+    """Modellspalten auf dem vorhandenen Gold ergaenzen (A-24); nur die sieben betroffenen Tabellen."""
+    script = (gold / "generate_model_columns.py").resolve()
+    print("Running generate_model_columns.py …", flush=True)
+    subprocess.run([sys.executable, str(script)], cwd=str(repo_root.resolve()), check=True)
+
+
 def run_targets():
     """fact_target: Ziel- und Planwerte je KPI und Monat (R6.1, 23.09.2026).
 
@@ -494,7 +503,8 @@ def main():
         "--domain",
         type=str,
         default="all",
-        help="Comma-separated domains: commercial, operations, supply_chain, experience, finance; or 'all' (default).",
+        help="Comma-separated domains: dims, commercial, operations, supply_chain, experience, finance, "
+             "model_columns; or 'all' (default).",
     )
     args = parser.parse_args()
     if args.domain.strip().lower() == "all":
@@ -524,6 +534,8 @@ def main():
         run_commercial_derived_facts()
     if selected == DOMAINS:
         run_targets()
+    if "model_columns" in selected:
+        run_model_columns()
 
     print("Done.")
 

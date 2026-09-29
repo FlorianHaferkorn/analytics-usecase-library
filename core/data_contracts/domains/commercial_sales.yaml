@@ -15,6 +15,10 @@ dimension:
       - {name: Month, type: text}
       - {name: MonthNumber, type: int}
       - {name: Week, type: text, nullable: true}
+      - {name: Month Name, type: text}
+      - {name: Fiscal Year, type: int}
+      - {name: Fiscal Period, type: text}
+      - {name: CalendarYearMonth, type: text}
 
   - name: dim_org
     description: "Organization dimension (region, country, channel, org name) for reporting and RLS."
@@ -24,9 +28,17 @@ dimension:
       - {name: OrgKey, type: int, role: key}
       - {name: OrgCode, type: text}
       - {name: OrgName, type: text}
-      - {name: Region, type: text, description: "Sales region grouping countries.", allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Geo]}
-      - {name: Country, type: text, description: "Country of the selling org unit."}
-      - {name: Channel, type: text, description: "Go-to-market sales channel.", allowed_values: [Retail, Online, Wholesale, Marketplace, Outlet], synonyms: [Sales Channel, Route to Market]}
+      - {name: Region, type: text, nullable: true, description: "Sales region grouping countries.", allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Geo]}
+      - {name: Country, type: text, nullable: true, description: "Country of the selling org unit."}
+      - {name: Channel, type: text, nullable: true, description: "Go-to-market sales channel.", allowed_values: [Retail, Online, Wholesale, Marketplace, Outlet], synonyms: [Sales Channel, Route to Market]}
+      - {name: OrgLevel, type: text, allowed_values: [Group, Region, Country, DC, Store]}
+      - {name: OrgType, type: text, allowed_values: [Group, Region, Country, DC, Store]}
+      - {name: ParentOrgKey, type: decimal, nullable: true}
+      - {name: Currency Code, type: text}
+      - {name: Open DateKey, type: int}
+      - {name: Close DateKey, type: decimal, nullable: true}
+      - {name: IssueType, type: text, nullable: true, allowed_values: [Account, Billing, Delivery, Order, Product, Technical]}
+      - {name: Severity, type: text, nullable: true, allowed_values: [Critical, High, Medium, Low]}
 
   - name: dim_product
     description: "Product dimension with category hierarchy (Category > Sub Category > Brand > Product Name)."
@@ -39,7 +51,9 @@ dimension:
       - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics]}
       - {name: Subcategory, type: text, allowed_values: [Apparel, Footwear, Accessories, Jewelry, Furniture, Decor, Kitchenware, Bedding, Lighting, TVs, Audio, Computers, Smartphones, Gaming]}
       - {name: Brand, type: text}
-      - {name: ProductFamily, type: text, nullable: true}   # for comparable item grouping (cannibalization)
+      - {name: ProductFamily, type: text, nullable: true, target_state: true}   # for comparable item grouping (cannibalization)
+      - {name: Lifecycle Status, type: text, allowed_values: [Active, EOL]}
+      - {name: List Price Amount, type: currency}
 
   - name: dim_customer
     description: "Customer dimension (segment, region, country) for CRM and value reporting."
@@ -50,8 +64,10 @@ dimension:
       - {name: CustomerCode, type: text}
       - {name: CustomerName, type: text}
       - {name: Segment, type: text, nullable: true, allowed_values: [Loyalty, HighValue, New, Occasional, ChurnRisk]}
-      - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Outlet]}
+      - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Outlet], target_state: true}
       - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
+      - {name: Channel Preference, type: text, allowed_values: [Store, ECom, Mixed]}
+      - {name: Tenure Bucket, type: text, allowed_values: [<1Y, 1-3Y, ">3Y"]}
 
   - name: dim_promo
     description: "Promotion dimension (name, type, mechanic, discount depth, date range) for promo effectiveness."
@@ -59,12 +75,13 @@ dimension:
     scd_type: 1
     columns:
       - {name: PromoKey, type: int, role: key}
-      - {name: Promo Name, type: text, synonyms: [Promotion, Campaign Name]}
+      - {name: PromoName, type: text, synonyms: [Promo Name, Promotion, Campaign Name]}
       - {name: Promo Type, type: text, nullable: true, description: "Promotion type family.", allowed_values: [Bundle, "Multi-buy", Discount, "None"], synonyms: [Promotion Type]}
       - {name: Promo Mechanic, type: text, nullable: true, description: "Specific offer mechanic applied.", allowed_values: [FixedPrice, MultiBuy, PercentOff, "None"], synonyms: [Mechanic, Offer Mechanic]}
       - {name: "Discount %", type: decimal, nullable: true, description: "Promotion discount depth as a fraction (0-1)."}
-      - {name: Start Date, type: date, nullable: true}
-      - {name: End Date, type: date, nullable: true}
+      - {name: Start DateKey, type: int, nullable: true}
+      - {name: End DateKey, type: int, nullable: true}
+      - {name: PromoCode, type: text}
 
   # COM-005 pipeline & conversion (convention). Aurora gold: fact_pipeline + fact_sales_target.
   - name: dim_sales_stage
@@ -109,17 +126,19 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
       - {name: CustomerKey, type: int, ref: dim_customer, nullable: true, cardinality: many-to-one}
-      - {name: PromoKey, type: int, ref: dim_promo, nullable: true, cardinality: many-to-one}
+      - {name: PromoKey, type: int, ref: dim_promo, nullable: false, cardinality: many-to-one, unknown_member: -1}
       - {name: Promo Flag, type: boolean, nullable: true}   # identifies promotional transactions
       - {name: Net Sales Amount, type: currency, agg: sum, description: "Invoiced revenue net of discounts and returns.", synonyms: [Revenue, Net Revenue, Umsatz]}
       - {name: Quantity, type: decimal, agg: sum, description: "Units sold on the invoice line.", unit: units}
       - {name: Plan Quantity, type: decimal, agg: sum, nullable: true}
       - {name: List Price Amount, type: currency, agg: sum}
       - {name: Net Price Amount, type: currency, agg: sum}
-      - {name: Discount Amount, type: currency, agg: sum, nullable: true}
+      - {name: Discount Amount, type: currency, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}]}
       - {name: Plan Sales Amount, type: currency, agg: sum, nullable: true}
       - {name: Last Year Sales Amount, type: currency, agg: sum, nullable: true}
       - {name: Cost of Goods Sold Amount, type: currency, agg: sum}
+      - {name: InvoiceLineID, type: text}
+      - {name: Plan COGS Amount, type: currency, agg: sum}
 
   - name: fact_plan_sales
     description: "Planned sales and COGS at product-month grain for variance vs plan."
@@ -139,14 +158,14 @@ fact:
     grain: promo_product_period
     columns:
       - {name: PromoKey, type: int, ref: dim_promo, cardinality: many-to-one}
-      - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
-      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
+      - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one, target_state: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one, target_state: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one, target_state: true}
       - {name: Baseline Sales Amount, type: currency, agg: sum, nullable: true, description: "Expected non-promo sales used as the incremental reference level."}
-      - {name: Incremental Sales Amount, type: currency, agg: sum, nullable: true, description: "Promo sales above baseline (Promo Sales - Baseline Sales)."}
-      - {name: Cannibalized Sales Amount, type: currency, agg: sum, nullable: true, description: "Sales lost on non-promoted comparable items vs baseline."}
-      - {name: Promo Cost Amount, type: currency, agg: sum, nullable: true, description: "Total promotional spend for ROI.", synonyms: [Promo Cost, Trade Spend]}
-      - {name: Incremental GM Amount, type: currency, agg: sum, nullable: true, description: "Incremental gross margin from the promotion (ROI numerator).", synonyms: [Incremental Gross Margin Amount]}
+      - {name: Incremental Sales Amount, type: currency, agg: sum, nullable: true, description: "Promo sales above baseline (Promo Sales - Baseline Sales).", target_state: true}
+      - {name: Cannibalized Sales Amount, type: currency, agg: sum, nullable: true, description: "Sales lost on non-promoted comparable items vs baseline.", checks: [{gte: 0, when_present: true}], target_state: true}
+      - {name: Promo Cost, type: currency, agg: sum, nullable: true, description: "Total promotional spend for ROI.", synonyms: [Promo Cost Amount, Trade Spend], checks: [{gte: 0, when_present: true}]}
+      - {name: Incremental GM Amount, type: currency, agg: sum, nullable: true, description: "Incremental gross margin from the promotion (ROI numerator).", synonyms: [Incremental Gross Margin Amount], target_state: true}
       - {name: Funding Amount, type: currency, agg: sum, nullable: true}
       - {name: Baseline Quantity, type: decimal, agg: sum, nullable: true}
       - {name: Baseline Non-Promo Sales Amount, type: currency, agg: sum, nullable: true}   # for cannibalization calculations
@@ -161,7 +180,7 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
       - {name: Activity Flag, type: boolean}
       - {name: Churn Flag, type: boolean}
-      - {name: Attrition Risk %, type: decimal, nullable: true}
+      - {name: Attrition Risk %, type: decimal, nullable: true, checks: [{between: [0, 1], when_present: true}]}
     qa:
       - "Activity and Churn flags mutually consistent per customer-month."
       - "Attrition Risk % within [0;1] when present."
@@ -173,8 +192,8 @@ fact:
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: CustomerKey, type: int, ref: dim_customer, cardinality: many-to-one}
-      - {name: CLV Amount, type: currency}
-      - {name: CLV Remaining Amount, type: currency, nullable: true}
+      - {name: CLV Amount, type: currency, checks: [{gte: 0}]}
+      - {name: CLV Remaining Amount, type: currency, nullable: true, checks: [{gte: 0, when_present: true}]}
     qa:
       - "CLV Amount >= 0; Remaining Amount >= 0 when present."
 
@@ -188,6 +207,7 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: Severity, type: text, nullable: true}
+      - {name: Complaint Type, type: text, allowed_values: [Billing Error, Delivery Issue, Product Quality, Return Request, Service Complaint]}
     qa:
       - "Complaint ID unique per event."
 
@@ -200,7 +220,7 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: CustomerKey, type: int, ref: dim_customer, nullable: true, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
-      - {name: NPS Score, type: number}
+      - {name: NPS Score, type: number, checks: [{between: [0, 10]}]}
       - {name: Is Promoter, type: bool, nullable: true}
       - {name: Is Detractor, type: bool, nullable: true}
     qa:
@@ -238,30 +258,15 @@ fact:
       - {name: Remaining Target Amount, type: currency, agg: sum}
 
 quality_rules:
+  # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
+  # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla: daily        # fact_sales refreshed within 24 h of business close; fact_customer_events monthly
-  key_nullability:
-    - "fact_sales.DateKey, OrgKey, ProductKey, Net Sales Amount, Quantity: never null"
-    - "fact_customer_events.Activity Flag, Churn Flag: never null"
-    - "fact_nps.NPS Score: never null; ResponseID unique per row"
-    - "fact_customer_value.CLV Amount: never null"
-    - "fact_promo.PromoKey, ProductKey, DateKey: never null (grain keys)"
   value_ranges:
-    - "fact_nps.NPS Score: integer in [0; 10]"
-    - "fact_customer_value.CLV Amount: >= 0; CLV Remaining Amount >= 0 when present"
-    - "fact_customer_events.Attrition Risk %: in [0; 1] when present"
-    - "fact_sales.Discount Amount: >= 0 when present (no negative discount)"
-    - "fact_promo.Promo Cost Amount: >= 0 when present (no negative promo spend)"
-    - "fact_promo.Cannibalized Sales Amount: >= 0 when present (floored at 0)"
+    - "fact_nps.NPS Score: integer values only"
   referential_integrity:
-    - "fact_sales.CustomerKey → dim_customer (nullable; absent = unidentified customer)"
-    - "fact_sales.PromoKey → dim_promo (nullable; absent = non-promotional transaction)"
-    - "fact_customer_events.CustomerKey → dim_customer (required)"
-    - "fact_promo.PromoKey → dim_promo (required)"
-    - "fact_promo.ProductKey → dim_product (required)"
-    - "fact_promo.DateKey → dim_date (required)"
-    - "fact_promo.OrgKey → dim_org (nullable; absent = promo not org-scoped)"
-    - "fact_pipeline.OrgKey → dim_org; SalesRepKey → dim_salesrep; StageKey → dim_sales_stage (required)"
-    - "fact_sales_target.OrgKey → dim_org (required)"
+    - "fact_sales.CustomerKey: NULL = unidentified customer"
+    - "fact_sales.PromoKey: -1 (dim_promo 'No Promotion') = non-promotional transaction"
+    - "fact_promo.OrgKey: NULL = promo not org-scoped"
 
 settings:
   timezone: Europe/Berlin

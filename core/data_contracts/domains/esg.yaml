@@ -26,13 +26,14 @@ dimension:
     scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
-      - {name: SiteCode, type: text}
-      - {name: SiteName, type: text}
+      - {name: SiteCode, type: text, target_state: true}
+      - {name: SiteName, type: text, target_state: true}
       - {name: Region, type: text, nullable: true}
       - {name: Country, type: text, nullable: true}
-      - {name: Segment, type: text, nullable: true}
+      - {name: Segment, type: text, nullable: true, target_state: true}
 
   - name: dim_emission_scope
+    showcase: false
     description: "GHG emission scope classification (Scope 1, 2, 3)."
     purpose: "Carbon reporting by emission scope."
     scd_type: 1
@@ -44,6 +45,7 @@ dimension:
 
 fact:
   - name: fact_emissions
+    showcase: false
     description: "GHG emissions (tCO2e) by site, scope, and period."
     purpose: "Carbon footprint reporting and net-zero progress tracking."
     grain: site_scope_month
@@ -51,10 +53,11 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: ScopeKey, type: int, ref: dim_emission_scope, cardinality: many-to-one}
-      - {name: Emissions tCO2e, type: decimal, agg: sum}
+      - {name: Emissions tCO2e, type: decimal, agg: sum, checks: [{gte: 0}]}
       - {name: Target Emissions tCO2e, type: decimal, agg: sum, nullable: true}
 
   - name: fact_energy
+    showcase: false
     description: "Energy consumption (MWh) by source and site per month."
     purpose: "Energy intensity and renewable energy ratio reporting."
     grain: site_source_month
@@ -66,6 +69,7 @@ fact:
       - {name: Is Renewable, type: boolean}
 
   - name: fact_water_waste
+    showcase: false
     description: "Water withdrawal, recycled water, and waste generated per site per month."
     purpose: "Water intensity and waste-to-landfill reporting."
     grain: site_month
@@ -73,11 +77,12 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Water Withdrawn m3, type: decimal, agg: sum, nullable: true}
-      - {name: Water Recycled m3, type: decimal, agg: sum, nullable: true}
+      - {name: Water Recycled m3, type: decimal, agg: sum, nullable: true, checks: [{lte_column: Water Withdrawn m3, when_present: true}]}
       - {name: Waste Generated Tonnes, type: decimal, agg: sum, nullable: true}
       - {name: Waste Recycled Tonnes, type: decimal, agg: sum, nullable: true}
 
   - name: fact_safety
+    showcase: false
     description: "Workplace safety incidents and lost time per site per month."
     purpose: "LTIFR, incident rate, and safety performance reporting."
     grain: site_month
@@ -85,11 +90,12 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Incidents, type: int, agg: sum}
-      - {name: Lost Time Incidents, type: int, agg: sum}
+      - {name: Lost Time Incidents, type: int, agg: sum, checks: [{lte_column: Incidents}]}
       - {name: Hours Worked, type: decimal, agg: sum}
-      - {name: Fatalities, type: int, agg: sum}
+      - {name: Fatalities, type: int, agg: sum, checks: [{gte: 0}]}
 
   - name: fact_di
+    showcase: false
     description: "Diversity and inclusion metrics per org per reporting period."
     purpose: "D&I reporting (gender, leadership representation, pay gap)."
     grain: org_period
@@ -98,29 +104,20 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Female Headcount, type: int, agg: sum, nullable: true}
       - {name: Total Headcount, type: int, agg: sum}
-      - {name: Female Leadership %, type: decimal, nullable: true}
+      - {name: Female Leadership %, type: decimal, nullable: true, checks: [{between: [0, 1], when_present: true}]}
       - {name: Gender Pay Gap %, type: decimal, nullable: true}
 
 quality_rules:
+  # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
+  # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla:
     fact_emissions: quarterly       # GHG data typically quarterly; annual for external reporting
     fact_energy: monthly
     fact_water_waste: monthly
     fact_safety: monthly
     fact_di: annually               # annual reporting cycle; quarterly updates where available
-  key_nullability:
-    - "fact_emissions.DateKey, OrgKey, ScopeKey, Emissions tCO2e: never null"
-    - "fact_safety.DateKey, OrgKey, Incidents, Hours Worked: never null"
-    - "fact_di.DateKey, OrgKey, Total Headcount: never null"
   value_ranges:
-    - "fact_emissions.Emissions tCO2e: >= 0"
-    - "fact_safety.Fatalities: >= 0; Lost Time Incidents <= Incidents"
-    - "fact_di.Female Leadership %: in [0; 1] when present"
     - "fact_di.Gender Pay Gap %: may be negative (female-favourable gap); no range restriction"
-    - "fact_water_waste.Water Recycled m3: <= Water Withdrawn m3 when both present"
-  referential_integrity:
-    - "fact_emissions.ScopeKey → dim_emission_scope (required)"
-    - "All facts: OrgKey → dim_org (required)"
 
 settings:
   timezone: Europe/Berlin

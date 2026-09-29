@@ -17,7 +17,7 @@ Included:
 - Distribution & navigation rules  
 - AI/Copilot readiness  
 - Recommended workspace, folder, and project structure  
-- **Report themes and Power BI Theme Generator** — standardized report themes aligned with framework conventions; Theme Generator lives in `products/fabric/powerbi/tooling/theme_generator/` and is part of Fabric/Power BI development; working, to be refined.
+- **Report themes and Power BI Theme Generator** — standardized report themes aligned with framework conventions; the Theme Generator is Freelancing `products/pbi_theme` (canonical engine; ALUCA vendors its theme JSONs into `products/fabric/powerbi/themes/`).
 
 Not included:
 
@@ -340,15 +340,15 @@ BI_Experiments
 
 - Report themes (JSON) define visual consistency across reports (colors, fonts, layout defaults).
 - The framework uses **BaseThemes** (e.g. `Base_Theme_Template_V1.json`) and derived themes (e.g. per brand or app) under `StaticResources/SharedResources/BaseThemes/` in PBIP report projects.
-- **Power BI Theme Generator** — lives in `products/fabric/powerbi/tooling/theme_generator/` and generates Power BI themes (JSON) plus documentation (Markdown) from a single color prompt (Light/Dark, multiple concepts). It is part of the Fabric/Power BI development stack. Minimal usage (Windows): `cd products/fabric/powerbi/tooling/theme_generator`, `py -m pip install -r tools/theme-agent/requirements.txt`, then `./theme.ps1 -Action all -Color '#118DFF' -Concept Monochromatic -Mode Both -Brand 'Generic'`. More: `theme_generator/README.md`, `theme_generator/USAGE_Agent.md`.
+- **Power BI Theme Generator** — Freelancing `products/pbi_theme` (canonical engine; ALUCA vendors its theme JSONs into `products/fabric/powerbi/themes/`). It generates Power BI themes (JSON) from a single color prompt (Light/Dark, multiple concepts) and gates every theme on WCAG contrast and colour-vision-deficiency distinguishability. From ALUCA: `apply_report_theme.py --run-generator --color '#118DFF' --concept Monochromatic --mode Light` runs it when a Freelancing checkout is reachable (`$MERIDIAN_ROOT` or `../Freelancing`) and writes to `products/fabric/powerbi/themes_local/`; without one it says so and uses the vendored themes.
 
 **Base vs custom theme:** The base theme is fixed (e.g. in `StaticResources/SharedResources/BaseThemes/`); do not change it. The standardized look is applied via a **custom theme** in `StaticResources/RegisteredResources/`, referenced in report.json as `themeCollection.customTheme` and in `resourcePackages` as type `CustomTheme`. Use **apply_report_theme** to copy a theme into a report and wire base + custom in `definition/report.json` (PBIP definition format only).
 
-**Theme schema (official):** The report theme JSON schema is published by Microsoft in [powerbi-desktop-samples](https://github.com/microsoft/powerbi-desktop-samples) (Report Theme JSON Schema). A pinned version is kept in `theme_generator/themes.config.json` (`reportThemeSchemaVersion`). Run **fetch_latest_theme_schema.py** with `--update-pin` to fetch the latest schema and update the pin; validation and theme generator use the pinned schema. Run from repo root: `py products/fabric/powerbi/tooling/theme_generator/tools/theme-agent/fetch_latest_theme_schema.py --update-pin`.
+**Theme schema (official):** The report theme JSON schema is published by Microsoft in [powerbi-desktop-samples](https://github.com/microsoft/powerbi-desktop-samples) (Report Theme JSON Schema). The pinned version is `THEME_SCHEMA_PINNED_VERSION` in `products/fabric/powerbi/tooling/schema_registry.py`; `fetch_theme_schema.py` caches it and `apply_report_theme.py` validates against it.
 
-**Customer rollout:** When rolling the framework out to customers, keep report look consistent: (1) Default theme can come from `theme_generator/themes/` (e.g. Generic or a branded theme). (2) One-time optional: run `fetch_latest_theme_schema.py --update-pin` so validation uses the latest schema. (3) For every new report, use the page scaffold generator with `--theme <name>` so the theme is applied in one step, or run `apply_report_theme` so all reports share the same base + custom theme.
+**Customer rollout:** When rolling the framework out to customers, keep report look consistent: (1) Default theme can come from `products/fabric/powerbi/themes/` (vendored engine output) or `tooling/theme_defaults.json`. (2) Validation uses the schema pinned in `schema_registry.py`. (3) For every new report, use the page scaffold generator with `--theme <name>` so the theme is applied in one step, or run `apply_report_theme` so all reports share the same base + custom theme.
 
-**Theme applied and documented:** For finalized reports, document the **theme name** (e.g. `CY25SU10` or a custom theme from Theme Generator), **path to theme JSON** (e.g. `products/fabric/powerbi/tooling/theme_generator/themes/` or report `StaticResources/RegisteredResources/`), and **how to apply** (run `apply_report_theme.py` from the tools folder, or use the page scaffold generator with `--theme <name>`). See `tools/theme_generator/README.md` and `tools/apply_report_theme.py`.
+**Theme applied and documented:** For finalized reports, document the **theme name** (e.g. `CY25SU10` or a custom theme from Theme Generator), **path to theme JSON** (e.g. `products/fabric/powerbi/themes/` or report `StaticResources/RegisteredResources/`), and **how to apply** (run `apply_report_theme.py` from the tools folder, or use the page scaffold generator with `--theme <name>`). See `tooling/theme_paths.py` and `tooling/apply_report_theme.py`.
 
 ## 9.5 Report Documentation Generator
 

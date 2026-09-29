@@ -20,6 +20,12 @@ def pytest_configure(config):
         "darf_leer_sein(grund): dieses Parameterset darf leer bleiben -- "
         "mit benannter Begruendung",
     )
+    config.addinivalue_line(
+        "markers",
+        "braucht_pbir_cli: Test ruft den offiziellen Validator "
+        "`powerbi-report-author` auf; ohne CLI uebersprungen, mit "
+        "ALUCA_PBIR_CLI_PFLICHT=1 rot",
+    )
 
 
 def pytest_collection_modifyitems(config, items):
@@ -66,3 +72,60 @@ def pytest_collection_modifyitems(config, items):
               "soll,\n  oder den Fall mit @pytest.mark.darf_leer_sein(\"Grund\") "
               "benennen."
         )
+
+
+# ------------------------------------------------ Offizieller PBIR-Validator
+#: Ohne diese Variable ueberspringt sich ein Test mit `braucht_pbir_cli`, wenn die
+#: CLI fehlt (lokal ist ein fehlendes externes Werkzeug kein Befund). Mit ihr --
+#: gesetzt in `.github/workflows/superversion.yml` -- ist eine fehlende CLI ein
+#: Fehlschlag, und ein Lauf, in dem kein einziger solcher Test wirklich lief, auch.
+#: Anlass (29.09.2026): der pytest-Schritt lief in der CI VOR der CLI-Installation;
+#: `test_official_validator_zero_errors` und die dist-Ratsche waren dort nie gelaufen,
+#: der Lauf trotzdem gruen. "Nichts gefunden" ist nicht "nicht gelaufen".
+_PBIR_CLI = "powerbi-report-author"
+_PBIR_PFLICHT = "ALUCA_PBIR_CLI_PFLICHT"
+_pbir_gelaufen = []
+
+
+def _pbir_pflicht() -> bool:
+    import os
+
+    return os.environ.get(_PBIR_PFLICHT, "") == "1"
+
+
+def pytest_runtest_setup(item):
+    if not any(item.iter_markers(name="braucht_pbir_cli")):
+        return
+    import shutil
+
+    import pytest
+
+    if shutil.which(_PBIR_CLI) is None:
+        if _pbir_pflicht():
+            pytest.fail(
+                "%s nicht auf PATH, aber %s=1: der offizielle Validator muss "
+                "laufen, ein Skip waere hier ein stilles Gruen." % (_PBIR_CLI, _PBIR_PFLICHT),
+                pytrace=False,
+            )
+        pytest.skip("%s nicht installiert -- externes Werkzeug, kein Befund" % _PBIR_CLI)
+
+
+def pytest_runtest_logreport(report):
+    if report.when == "call" and "braucht_pbir_cli" in report.keywords:
+        _pbir_gelaufen.append(report.nodeid)
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Pflichtmodus: mindestens ein Validator-Test muss wirklich ausgefuehrt sein."""
+    if not _pbir_pflicht() or exitstatus != 0:
+        return
+    if session.config.option.collectonly:
+        return
+    if not _pbir_gelaufen:
+        import sys
+
+        sys.stderr.write(
+            "\n%s=1, aber kein Test mit @pytest.mark.braucht_pbir_cli wurde "
+            "ausgefuehrt -- der Validator lief nicht.\n" % _PBIR_PFLICHT
+        )
+        session.exitstatus = 1

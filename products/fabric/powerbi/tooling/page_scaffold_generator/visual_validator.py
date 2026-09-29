@@ -62,8 +62,12 @@ _FALLBACK_ROLES: Dict[str, Optional[set]] = {
 #   pivotTable           -> {Rows, Values} (stricter than official {Values})
 #   card / multiRowCard  -> {Data}         (legacy cards driven like cardVisual)
 #   stacked* / funnelChart                 (absent from the official catalogue v0.1.1)
+#   hundredPercentStackedBarChart -> {Category, Y}  (CLI 0.4.0 lists only {Y} as required,
+#                                   measured 29.09.2026 via refresh_authoring_metadata; we keep
+#                                   Category required so generator output does not change)
 _LOCAL_ROLE_POLICY = frozenset({
     "clusteredColumnChart",
+    "hundredPercentStackedBarChart",
     "pivotTable",
     "card",
     "multiRowCard",

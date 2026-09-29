@@ -86,60 +86,7 @@ def test_every_table_a_model_reads_exists_in_gold():
 
 # --- Jede Quellspalte existiert in den Gold-Dateien (24.09.2026) ------------------------
 #
-# Gefunden von der DAX-Gegenprobe (AP-4): `fact_sales[Sales Units]` im SupplyChain-Modell liest
-# eine Spalte, die in keiner der 60 aktiven Parquet-Dateien steht (dort heisst sie `Quantity`).
-# Keine Partition benennt um oder ergaenzt; die Spalten fehlen also wirklich. Dass ein Refresh
-# daran scheitert, ist **ANNAHME, ungeprueft** bis zum ersten Lauf im Tenant.
-#
-# E8 (24.09.2026): 10 der 20 behoben durch `tooling/codegen/model_alignment.py` (Umbenennen auf die
-# Gold-Spalte, Modell folgt der Gold-Koernung). Die uebrigen 10 ergaenzt der Gold-Generator (Gruppen 3, 4).
-#
-# Die Liste ist eine Sperrklinke: sie darf nur schrumpfen. Eine neue Luecke macht den Test rot,
-# ebenso eine behobene, die noch hier steht. Die Zuordnung ist Flos Entscheidung (Umbenennung im
-# Vertrag oder Spalte im Gold-Generator ergaenzen), nicht geraten.
-BEKANNTE_LUECKEN = {
-    ("Experience", "fact_action_log", "Action Code"),
-    ("Experience", "fact_action_log", "Responsible Role"),
-    ("Finance", "dim_customer", "Region"),
-    ("Finance", "fact_cost", "Material Cost Amount"),
-    ("Finance", "fact_cost", "Overhead Amount"),
-    ("Finance", "fact_inventory", "COGS Amount"),
-    ("Operations", "fact_inventory_snapshot", "Reorder Flag"),
-    ("SupplyChain", "dim_product", "ABC_Class"),
-    ("SupplyChain", "dim_product", "XYZ_Class"),
-    ("SupplyChain", "fact_procurement", "Contract Unit Price"),
-}
-
-
-def _quellspalten_ohne_gold() -> set[tuple[str, str, str]]:
-    import importlib.util
-
-    import pyarrow.parquet as pq
-
-    spec = importlib.util.spec_from_file_location(
-        "slice_gold", REPO / "showcases" / "aurora_group" / "data" / "scripts" / "slice_gold.py")
-    sg = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(sg)
-    gold = REPO / "showcases" / "aurora_group" / "data" / "gold"
-    fehlt = set()
-    for m in MODELLE:
-        for f in sorted((m / "definition" / "tables").glob("*.tmdl")):
-            text = f.read_text(encoding="utf-8")
-            o = re.search(r'GoldDataPath & "/((?:dimensions|facts)/\w+)"', text)
-            if not o:
-                continue
-            namen = set()
-            for p in sg.aktive_dateien(gold / o.group(1)):
-                if p.is_file():
-                    namen |= set(pq.read_schema(str(p)).names)
-            for q in re.findall(r"^\t\tsourceColumn: (.*)$", text, re.M):
-                if q.strip() not in namen:
-                    fehlt.add((m.name.split(".")[0], f.stem, q.strip()))
-    return fehlt
-
-
-@braucht_showdaten
-def test_every_source_column_exists_in_gold_or_is_a_known_gap():
-    fehlt = _quellspalten_ohne_gold()
-    assert sorted(fehlt - BEKANNTE_LUECKEN) == [], "neue Luecke zwischen Modell und Gold"
-    assert sorted(BEKANNTE_LUECKEN - fehlt) == [], "behoben -- aus BEKANNTE_LUECKEN streichen"
+# Die Sperrklinke BEKANNTE_LUECKEN, die hier stand, lebt seit 29.09.2026 (Ledger A-24) als Tor
+# `tooling/validation/check_model_vs_gold.py` mit Allowlist `model_vs_gold_allowlist.yaml`:
+# ohne pyarrow, in Stage 1 und CI, mit „nicht geprüft“ statt Grün, wenn Gold fehlt.
+# Tests: `tooling/tests/test_model_vs_gold.py`.

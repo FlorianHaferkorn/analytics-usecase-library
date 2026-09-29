@@ -84,8 +84,9 @@ Production-ready logging:
 python scripts/fabric_setup.py --environment dev --dry-run
 
 # Actual deployment (includes pre-flight and health checks)
-python scripts/fabric_setup.py --environment dev \
-  --tenant_id <id> --client_id <id> --client_secret <secret>
+# Secret only via environment, never as argument (visible in process lists)
+CLIENT_SECRET=<secret> python scripts/fabric_setup.py --environment dev \
+  --tenant_id <id> --client_id <id>
 ```
 
 ### Using Structured Logging

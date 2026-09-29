@@ -13,6 +13,12 @@ Emits the ``meridian/governed-catalog/v1`` JSON consumed by the Meridian lineage
 The drift check then diffs a live Fabric admin scan against this file: MEASURE_MISSING /
 MEASURE_UNDOCUMENTED / TABLE_MISSING / COLUMN_MISSING. Read-only; emits JSON, runs nothing.
 
+Per table, additively (older consumers read only ``name/kind/domain/columns``, which stay as they
+were): ``showcase`` (bool, default true: the Aurora showcase has data for the table) and
+``column_specs`` — one object per column with only the keys the contract sets out of
+``name, source_column, type, nullable, ref, unknown_member, checks, target_state`` (A-23; the structured
+quality fields are described in ``core/data_contracts/domains/README.md``).
+
 Usage:
     python3 tooling/generator/export_governed_catalog.py --repo-root . --out governed_catalog.json
 """
@@ -56,8 +62,16 @@ def _load_measures(kpi_dir: Path) -> list[dict]:
     return measures
 
 
+SPEC_KEYS = ("name", "source_column", "type", "nullable", "ref", "unknown_member", "checks", "target_state")
+
+
+def _column_spec(col: dict) -> dict:
+    """The column as an object, with only the keys the contract sets (order of SPEC_KEYS)."""
+    return {k: col[k] for k in SPEC_KEYS if k in col}
+
+
 def _load_tables(contracts_dir: Path) -> list[dict]:
-    """Every dimension + fact table with its column names, from the data contracts."""
+    """Every dimension + fact table with its column names and column specs, from the contracts."""
     tables: list[dict] = []
     for path in sorted(contracts_dir.glob("*.yaml")):
         try:
@@ -71,13 +85,18 @@ def _load_tables(contracts_dir: Path) -> list[dict]:
             for tbl in doc.get(key) or []:
                 if not isinstance(tbl, dict) or not tbl.get("name"):
                     continue
-                cols = [c.get("name") for c in (tbl.get("columns") or [])
-                        if isinstance(c, dict) and c.get("name")]
+                specs, seen = [], set()
+                for c in tbl.get("columns") or []:
+                    if isinstance(c, dict) and c.get("name") and c["name"] not in seen:
+                        seen.add(c["name"])
+                        specs.append(_column_spec(c))
                 tables.append({
                     "name": tbl["name"],
                     "kind": kind,
                     "domain": domain,
-                    "columns": sorted(set(cols)),
+                    "columns": sorted(seen),
+                    "showcase": tbl.get("showcase", True) is not False,
+                    "column_specs": specs,
                 })
     return tables
 

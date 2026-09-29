@@ -123,19 +123,20 @@ def parse_model(pbip_root: Path) -> SemanticModel:
     # Alle .tmdl Dateien einlesen
     tmdl_files = list(model_dir.rglob("*.tmdl"))
 
+    # Backport Meridian c68d807e: Dateiart nach TMDL-Ordnerstruktur (``_file_kind``).
+    definition_dir = model_dir / "definition"
+    scan_root = definition_dir if definition_dir.is_dir() else model_dir
     for tmdl_file in tmdl_files:
         content = tmdl_file.read_text(encoding="utf-8", errors="ignore")
-        stem = tmdl_file.stem.lower()
+        kind = _file_kind(tmdl_file, scan_root, content)
 
-        if (stem == "relationships" or "relationship" in stem
-                or tmdl_file.parent.name == "relationships"
-                or re.search(r"^relationship\s", content, re.MULTILINE)):
+        if kind == "relationships":
             model.relationships.extend(_parse_relationships(content))
-        elif stem == "model":
+        elif kind == "model":
             _parse_model_meta(content, model)
-        elif stem == "database":
+        elif kind == "database":
             _parse_database_meta(content, model)
-        elif stem == "functions" or re.search(r"^function\s", content, re.MULTILINE):
+        elif kind == "functions":
             model.functions.extend(_parse_functions(content))
         else:
             table = _parse_table(content, tmdl_file.stem)
@@ -173,6 +174,41 @@ def parse_model(pbip_root: Path) -> SemanticModel:
     model.parse_parity = {k: (raw[k], parsed[k]) for k in raw}
 
     return model
+
+
+_ROOT_FILE_KINDS = frozenset({"relationships", "model", "database", "functions"})
+
+
+def _file_kind(tmdl_file: Path, scan_root: Path, content: str) -> str:
+    """Art einer TMDL-Datei nach der TMDL-Ordnerstruktur, nicht nach Namensteilen.
+
+    Microsoft Learn, *TMDL overview → TMDL folder structure*: Wurzeldateien ``database``,
+    ``model``, ``relationships``, ``expressions``, ``datasources``, ``functions``; Unterordner
+    ``cultures``, ``perspectives``, ``roles``, ``tables`` mit je einer Datei pro Objekt.
+    Daraus: eine Datei unter ``tables/`` ist immer eine Tabelle, ein Wurzel-Dateiname zaehlt nur
+    an der Wurzel. Bis 29.09.2026 galt jede Datei mit "relationship" im Namen als
+    Beziehungsdatei und ``model``/``database``/``functions`` als Stamm in jeder Tiefe — so fiel
+    ``tables/gold_lab fact_relationship_violation.tmdl`` still weg (Fabric_Lineage
+    FabricLineage_manuell: 20 statt 21 Tabellen). Dateien ausserhalb der Spec-Plaetze
+    (Generator-Layout ``relationships/<name>.tmdl``, D-208; Alt-Layouts ohne ``definition/``)
+    werden am Inhalt erkannt: ``relationship``-/``function``-Deklarationen auf Spalte 0.
+    """
+    try:
+        parts = tmdl_file.relative_to(scan_root).parts
+    except ValueError:  # ausserhalb definition/ (z.B. TMDLScripts/): nur Inhalt zaehlt
+        parts = ("", tmdl_file.name)
+    stem = tmdl_file.stem.lower()
+    if len(parts) == 2 and parts[0].lower() == "tables":
+        return "table"
+    if len(parts) == 1 and stem in _ROOT_FILE_KINDS:
+        return stem
+    if len(parts) == 2 and parts[0].lower() == "relationships":
+        return "relationships"
+    if re.search(r"^relationship\s", content, re.MULTILINE):
+        return "relationships"
+    if re.search(r"^function\s", content, re.MULTILINE):
+        return "functions"
+    return "table"
 
 
 def _report_dir_for(pbip_root: Path) -> Optional[Path]:

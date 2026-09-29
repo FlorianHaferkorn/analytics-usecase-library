@@ -15,6 +15,7 @@ dimension:
       - {name: Month, type: text}
       - {name: MonthNumber, type: int}
       - {name: Week, type: text, nullable: true}
+      - {name: CalendarYearMonth, type: text}
 
   - name: dim_org
     description: "Location/organization dimension (location, region, channel) for supply chain."
@@ -22,10 +23,12 @@ dimension:
     scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
-      - {name: Location, type: text, synonyms: [Site, Distribution Center, Node, Standort, Lager]}
+      - {name: Location, type: text, nullable: true, synonyms: [Site, Distribution Center, Node, Standort, Lager]}
       - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Geography, Territory, Vertriebsregion, Gebiet]}
       - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Direct, Outlet], synonyms: [Distribution Channel, Route to Market, Vertriebskanal, Absatzkanal]}
       - {name: Customer, type: text, nullable: true, synonyms: [Account, Ship-To, Consignee, Warenempfänger]}
+      - {name: OrgLevel, type: text, allowed_values: [Group, Region, Country, DC, Store]}
+      - {name: OrgType, type: text, allowed_values: [Group, Region, Country, DC, Store]}
 
   - name: dim_product
     description: "Product dimension with ABC/XYZ classification for supply chain."
@@ -51,6 +54,7 @@ dimension:
       - {name: Mode, type: text, nullable: true, allowed_values: [Road, Rail, Air, Sea], synonyms: [Transport Mode, Shipping Mode, Verkehrsträger, Transportmodus]}
 
   - name: dim_carrier_lane
+    showcase: false
     description: "Carrier-lane dimension (carrier, origin, destination, lane, mode) for on-time root cause."
     purpose: "Carrier and lane-level on-time delivery root cause analysis (SCM-002)."
     scd_type: 1
@@ -63,6 +67,7 @@ dimension:
       - {name: Mode, type: text, nullable: true, allowed_values: [Road, Rail, Air, Sea], synonyms: [Transport Mode, Shipping Mode, Verkehrsträger, Transportmodus]}
 
   - name: dim_forecastability
+    showcase: false
     description: "Forecastability segmentation (ABC/XYZ class, demand CoV band) for segment-specific targets."
     purpose: "Segment-specific forecast accuracy targets and FVA benchmarking (SCM-003)."
     scd_type: 1
@@ -105,9 +110,9 @@ fact:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: ProductKey, type: int, ref: dim_product}
-      - {name: Average Inventory Amount, type: currency, agg: sum}
-      - {name: Average Inventory Units, type: decimal, agg: sum}
-      - {name: Obsolete Inventory Amount, type: currency, agg: sum, nullable: true}
+      - {name: Average Inventory Amount, type: currency, agg: sum, checks: [{gte: 0}]}
+      - {name: Average Inventory Units, type: decimal, agg: sum, checks: [{gte: 0}]}
+      - {name: Obsolete Inventory Amount, type: currency, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}, {lte_column: Average Inventory Amount, when_present: true}]}
       - {name: Obsolete Inventory Units, type: decimal, agg: sum, nullable: true}
 
   - name: fact_cogs
@@ -129,13 +134,13 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: ProductKey, type: int, ref: dim_product, nullable: true}
       - {name: LaneKey, type: int, ref: dim_lane, nullable: true}
-      - {name: CarrierLaneKey, type: int, ref: dim_carrier_lane, nullable: true}
+      - {name: CarrierLaneKey, type: int, ref: dim_carrier_lane, nullable: true, target_state: true}
       - {name: OTIF Flag, type: boolean}
       - {name: On-Time Flag, type: boolean, nullable: true}
       - {name: In-Full Flag, type: boolean, nullable: true}
       - {name: Order Correct Flag, type: boolean, nullable: true}
-      - {name: Order Qty, type: decimal, agg: sum}
-      - {name: Penalty Amount, type: currency, agg: sum, nullable: true}
+      - {name: Order Qty, type: decimal, agg: sum, checks: [{gt: 0}]}
+      - {name: Penalty Amount, type: currency, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}]}
       - {name: Expedite Cost, type: currency, agg: sum, nullable: true}
 
   - name: fact_stockout
@@ -147,8 +152,8 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: ProductKey, type: int, ref: dim_product}
       - {name: Stockout Flag, type: boolean}
-      - {name: Lost Demand Units, type: decimal, agg: sum, nullable: true}
-      - {name: Demand Units, type: decimal, agg: sum}
+      - {name: Lost Demand Units, type: decimal, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}, {lte_column: Demand Units, when_present: true}]}
+      - {name: Demand Units, type: decimal, agg: sum, checks: [{gte: 0}]}
 
   - name: fact_forecast
     description: "Demand forecast by SKU, location, and month with naive/statistical/consensus forecast and actuals for FVA."
@@ -158,11 +163,11 @@ fact:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: ProductKey, type: int, ref: dim_product}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
-      - {name: ForecastabilityKey, type: int, ref: dim_forecastability, nullable: true}
-      - {name: Forecast Units, type: decimal, agg: sum}
-      - {name: Naive Forecast Units, type: decimal, agg: sum, nullable: true}
-      - {name: Statistical Forecast Units, type: decimal, agg: sum, nullable: true}
-      - {name: Actual Units, type: decimal, agg: sum, nullable: true}
+      - {name: ForecastabilityKey, type: int, ref: dim_forecastability, nullable: true, target_state: true}
+      - {name: Forecast Units, type: decimal, agg: sum, checks: [{gte: 0}]}
+      - {name: Naive Forecast Units, type: decimal, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}], target_state: true}
+      - {name: Statistical Forecast Units, type: decimal, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}], target_state: true}
+      - {name: Actual Units, type: decimal, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}], target_state: true}
       - {name: Forecast Version, type: text, nullable: true}
 
   - name: fact_sales
@@ -173,7 +178,7 @@ fact:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: ProductKey, type: int, ref: dim_product}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
-      - {name: Sales Units, type: decimal, agg: sum}
+      - {name: Sales Units, source_column: Quantity, type: decimal, agg: sum, unit: units}
 
   - name: fact_procurement
     description: "Procurement spend at purchase-order-line grain (one row per PO line) so purchase price
@@ -213,6 +218,7 @@ fact:
       - {name: On-Time Flag, type: bool}
 
   - name: fact_replenishment
+    showcase: false
     description: "Replenishment events at location-SKU-day."
     purpose: "Replenishment cycle and fill rate."
     grain: location_sku_day
@@ -224,6 +230,7 @@ fact:
       - {name: Target Orders, type: decimal, agg: sum}
 
   - name: fact_logistics
+    showcase: false
     grain: shipment_line
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -234,6 +241,7 @@ fact:
       - {name: Cost Amount, type: currency, agg: sum}
 
   - name: fact_warehouse
+    showcase: false
     grain: warehouse_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -245,6 +253,8 @@ fact:
       - {name: Cost Amount, type: currency, agg: sum}
 
 quality_rules:
+  # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
+  # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla:
     fact_inventory: daily             # EOD snapshot required for coverage calculation
     fact_stockout: daily              # intraday preferred; next-day maximum
@@ -256,29 +266,11 @@ quality_rules:
     fact_logistics: daily
     fact_warehouse: daily
     fact_cogs: monthly
-  key_nullability:
-    - "fact_inventory.DateKey, OrgKey, ProductKey, Average Inventory Amount: never null"
-    - "fact_fulfillment.DateKey, OrgKey, OTIF Flag: never null"
-    - "fact_stockout.DateKey, OrgKey, ProductKey, Stockout Flag, Demand Units: never null"
-    - "fact_forecast.DateKey, ProductKey, Forecast Units: never null"
-  value_ranges:
-    - "fact_inventory.Average Inventory Amount: >= 0; Average Inventory Units >= 0"
-    - "fact_inventory.Obsolete Inventory Amount: >= 0 when present; <= Average Inventory Amount"
-    - "fact_fulfillment.Order Qty: > 0"
-    - "fact_fulfillment.Penalty Amount: >= 0 when present"
-    - "fact_stockout.Demand Units: >= 0; Lost Demand Units >= 0 and <= Demand Units when present"
-    - "fact_forecast.Forecast Units: >= 0"
-    - "fact_forecast.Naive Forecast Units: >= 0 when present"
-    - "fact_forecast.Statistical Forecast Units: >= 0 when present"
-    - "fact_forecast.Actual Units: >= 0 when present"
   referential_integrity:
-    - "fact_fulfillment.LaneKey → dim_lane (nullable; absent = direct or unrouted shipment)"
-    - "fact_fulfillment.CarrierLaneKey → dim_carrier_lane (nullable; absent = carrier/lane not resolved)"
-    - "fact_fulfillment.ProductKey → dim_product (nullable)"
-    - "fact_forecast.OrgKey → dim_org (nullable; absent = company-wide forecast)"
-    - "fact_forecast.ForecastabilityKey → dim_forecastability (nullable; absent = unsegmented SKU)"
-    - "fact_procurement.OrgKey → dim_org; VendorKey → dim_vendor; CategoryKey → dim_category (required)"
-    - "fact_procurement_receipts.OrgKey → dim_org; VendorKey → dim_vendor; CategoryKey → dim_category (required)"
+    - "fact_fulfillment.LaneKey: NULL = direct or unrouted shipment"
+    - "fact_fulfillment.CarrierLaneKey: NULL = carrier/lane not resolved"
+    - "fact_forecast.OrgKey: NULL = company-wide forecast"
+    - "fact_forecast.ForecastabilityKey: NULL = unsegmented SKU"
 
 settings:
   timezone: Europe/Berlin

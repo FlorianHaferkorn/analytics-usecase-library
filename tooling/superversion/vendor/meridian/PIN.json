@@ -15,7 +15,12 @@
     },
     {
       "path": "core/pbi_engine/parsers/tmdl_parser.py",
-      "sha256": "6389d628bb071e20eaa1a51352d7a05ad8ea404c33c0131f12282216dc83c86c"
+      "sha256": "8cd155c5e75b8a7e6b21d1875f2adbbfae2e5f43971486fe9bb8c61e9967152c",
+      "backport": {
+        "commit": "c68d807ed4b097799cfabb356e20e48460d12cd4",
+        "at": "2026-09-29",
+        "what": "parse_model: Dateiart nach TMDL-Ordnerstruktur (_file_kind) statt Namensteilen — Tabellendateien mit 'relationship'/'model'/'database'/'functions' im Namen fielen still weg. Nur dieser Hunk; die Datei bleibt sonst auf dem Archivstand von source.synced_at, weil der volle Upstream-Stand neue Vertragsfelder mitbringt (Golden-Snapshots, Contract-Parity)."
+      }
     },
     {
       "path": "core/pbi_engine/parsers/pbir_parser.py",

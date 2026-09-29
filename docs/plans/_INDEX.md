@@ -34,7 +34,7 @@ shelf-life-days: 90
 
 | Doc | Zweck | Lies-wenn |
 |---|---|---|
-| `PRODUCT_PLAN.md` | ALUCA → Premium-Produkt: Zielbild, Invarianten, Qualitätsböden, Phasen (Stand 2026-06-22) | Produktrichtung oder eine Invariante (z. B. „dock, don't rebuild") belegen |
+| `PRODUCT_PLAN.md` | ALUCA → Premium-Produkt: Zielbild, Invarianten, Qualitätsböden, Phasen (Stand 2026-06-22; §4 Tests und PBIR-Lieferung nachgemessen 2026-09-29) | Produktrichtung oder eine Invariante (z. B. „dock, don't rebuild") belegen |
 | `SUPERVERSION_ZIELBILD_REVIEW.md` | Unabhängiges Review des Superversion-Zielbilds (Befunde A1 ff., F0) | Einen Review-Befund nachschlagen, auf den Code oder ADRs verweisen |
 | `UMSETZUNGSPLAN_SUPERVERSION.md` | Umsetzungsplan ALUCA × Meridian: I-Blöcke, Tasks, Ledger | Superversion-Arbeit planen oder abhaken |
 | `KONZEPT_REPORT_QUALITAET.md` | Konzept-Ebene Report-Qualität: Zielhöhe, Architektur, Cuts K1–K7 | Eine Report-Qualitätsentscheidung begründen |
