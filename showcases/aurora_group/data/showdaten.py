@@ -303,7 +303,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--tief", action="store_true", help="zusaetzlich SHA-256 je Datei")
     k = sub.add_parser("packen", help="Archiv + Lock aus dem lokalen Gold bauen")
     k.add_argument("--aus-dir", type=Path, required=True)
-    k.add_argument("--tag", required=True, help="z. B. showdaten-aurora-2026-09-29b")
+    k.add_argument("--tag", required=True, help="z. B. showdaten-aurora-2026-09-29c")
     k.add_argument("--gold", type=Path, default=GOLD,
                    help="Quelle (Ordner mit dimensions/facts/security_user_org), Vorgabe: hier")
     a = ap.parse_args(argv)

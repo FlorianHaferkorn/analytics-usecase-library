@@ -1,11 +1,11 @@
 {
  "entscheidung": "Meridian D-578 (29.09.2026): Showdaten raus aus Git",
- "tag": "showdaten-aurora-2026-09-29b",
- "asset": "aurora_gold_2026-09-29b.tar",
+ "tag": "showdaten-aurora-2026-09-29c",
+ "asset": "aurora_gold_2026-09-29c.tar",
  "repo": "FlorianHaferkorn/analytics-usecase-library",
- "sha256": "bbc48d35e6e524490e82767fe72959ee6f9f8030e7e7b20f1ac5f23feb9f8324",
- "bytes": 615065600,
- "inhalt_bytes": 614442728,
+ "sha256": "e92c6bda86b74db6a36c5125f3bb3898a026812d6ce86593d0c3e4aa45982d2d",
+ "bytes": 615075840,
+ "inhalt_bytes": 614442829,
  "dateien": {
   "dimensions/dim_account/_delta_log/00000000000000000000.json": {
    "bytes": 1719,
@@ -147,9 +147,21 @@
    "bytes": 1313,
    "sha256": "82d730bfee4ccc94d00eb35ccfbcaba5bef8e230ba0d5d66f426d78aefea2cba"
   },
-  "dimensions/dim_date/part-00000-610edb66-5321-44eb-80eb-a654f82a26c9-c000.snappy.parquet": {
-   "bytes": 70632,
-   "sha256": "ae0aa633b8326b2ba644612850a57269e02bf729590784be5aea341c46389b00"
+  "dimensions/dim_date/_delta_log/00000000000000000004.json": {
+   "bytes": 2655,
+   "sha256": "73367b32275d2906a904e3152947bb547f5f5274becb6d6c7d9b596a9c29daf3"
+  },
+  "dimensions/dim_date/_delta_log/00000000000000000005.json": {
+   "bytes": 332,
+   "sha256": "d9d1f7934e70c645e1de58e77a01333684e92c47578030e2a08e4583d11d395c"
+  },
+  "dimensions/dim_date/_delta_log/00000000000000000006.json": {
+   "bytes": 249,
+   "sha256": "a8956aff83d7e19d8d3fcabc5d187d050c87073a39fac6eb5e2673b6ef2d55e7"
+  },
+  "dimensions/dim_date/part-00000-3342f130-86fc-4de7-ba1b-4d6e00273a67-c000.snappy.parquet": {
+   "bytes": 67497,
+   "sha256": "e1db2c1cffd9cb319ac0589512f35876b4cd1830f57c2d153ae687a04a4e80f8"
   },
   "dimensions/dim_employee_segment/part-00000.parquet": {
    "bytes": 3333,

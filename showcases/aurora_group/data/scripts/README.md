@@ -22,11 +22,11 @@ Hochladen. Die CI (`stage1.yml`, Jobs `python-checks` und `stage1`) holt vor den
 fehlgeschlagenes Holen macht den Job rot (Schritt „Showdaten vorhanden", dazu das Gold-Tor),
 die datenunabhängigen Tests laufen trotzdem.
 
-**Datenstand im Lock** (`showdaten-aurora-2026-09-29b`): Gold aus `origin/main` 1c0f48cf
-(nach #522: 10 Modellspalten, XYZ-Klasse; neu gegenüber dem ersten Paket sind
-`dim_product`, `dim_customer`, `fact_cost`, `fact_inventory`, `fact_procurement`,
-`fact_action_log`, `fact_inventory_snapshot`), 457 aktive Dateien, 614,4 MB Inhalt, Archiv
-615,1 MB. Gebaut mit `git archive origin/main showcases/aurora_group/data/gold` in einen
+**Datenstand im Lock** (`showdaten-aurora-2026-09-29c`): Gold aus `origin/main` 011478f8
+(nach #535: `dim_date` über das Delta-Log neu geschrieben — das Log von 29b nannte eine falsche
+Dateigröße und kannte `CalendarYearMonth`/`MonthNumber`/`Week` nicht, `deltalake` brach ab;
+sonst gleich 29b: nach #522 10 Modellspalten, XYZ-Klasse), 460 aktive Dateien, 614,4 MB
+Inhalt, Archiv 615,1 MB. `29b` wurde nie veröffentlicht. Gebaut mit `git archive origin/main showcases/aurora_group/data/gold` in einen
 Scratch-Ordner und `packen --gold <ordner>`; zweimal gepackt, bytegleich (SHA-256 gleich).
 Net Sales 12/2024 (aktive Dateien `fact_sales`, `DateKey` 20241201–20241231, DuckDB; gegen
 pyarrow über die Partition `Fiscal Year=2024/Fiscal Month=12` gestellt): 439.447.179,34 in
@@ -60,10 +60,10 @@ nicht automatisch angelegt):
 
 ```bash
 python showcases/aurora_group/data/showdaten.py packen --aus-dir /tmp/showdaten \
-  --tag showdaten-aurora-2026-09-29b [--gold <ordner mit dimensions/facts/security_user_org>]
+  --tag showdaten-aurora-2026-09-29c [--gold <ordner mit dimensions/facts/security_user_org>]
 cp /tmp/showdaten/showdaten.lock.json showcases/aurora_group/data/showdaten.lock.json
-gh release create showdaten-aurora-2026-09-29b /tmp/showdaten/aurora_gold_2026-09-29b.tar \
-  --repo FlorianHaferkorn/analytics-usecase-library --title "Aurora-Showdaten showdaten-aurora-2026-09-29b"
+gh release create showdaten-aurora-2026-09-29c /tmp/showdaten/aurora_gold_2026-09-29c.tar \
+  --repo FlorianHaferkorn/analytics-usecase-library --title "Aurora-Showdaten showdaten-aurora-2026-09-29c"
 ```
 
 Ein neuer Datenstand bekommt einen neuen Tag (Asset-Name folgt aus dem Tag); ein Release wird
