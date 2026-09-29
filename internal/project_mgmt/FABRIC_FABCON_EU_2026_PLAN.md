@@ -62,6 +62,7 @@ Legende Status: `offen` · `in Arbeit (Branch, Datum)` · `erledigt (Datum, PR #
 | W3.4 | Data Agent: eingestellte Wege (Assistants API, Data-Agent-Integration in Copilot in Power BI, beide 26.08.2026) | M→A | offen | Spiegel nachgezogen |
 | W3.5 | Power BI Modeling MCP: Doku nennt 0.1.9, npm latest 1.0.0, Learn „lokal GA“ | A | offen | `products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md` aktualisiert, gleicher Stand wie Meridian-Pin |
 | W3.6 | PBIP: Regel „Desktop does not watch files“ (`.claude/rules/connect-pbid.md`) gegen das Desktop-Update Aug 2026 testen; PBIR-Schema-Pins (`schema_registry.py`: visualContainer 2.9.0, Theme 2.154) mit Meridian (2.3.0 / 2.145) angleichen | A | offen | Regel bestätigt/angepasst (Desktop-gated) · Schema-Pins gleich, Stage 1 grün |
+| W3.8 | **Fabric Apps mit Power BI Pro** (Beobachtung FabCon; Learn verlangt am 29.09. noch eine Fabric-Kapazität, eine Drittquelle nennt eine „Pro/PPU app preview“). Sobald dokumentiert: Lizenzlogik in `tooling/superversion/capacity.py` und `internal/proposal_costing/` anpassen; prüfen, ob Fabric Apps für Pro-Kunden Report-Entwicklung oder Write-back ergänzen | A | blockiert (Doku; Meridian-Watchlist `fabric-apps-pro-license`, recheck 31.10.2026) | Lizenzlogik gleich wie Meridian · Tests grün |
 
 ### Welle 4 — Ontologie (Fabric IQ) und Fabric Planning
 
@@ -82,7 +83,7 @@ Befund (Learn, 29.09.2026):
 ## Beobachten statt bauen
 Die Watchlist liegt in Meridian (`research/upstream_pins.yaml` → `feature_watch`). Der Wochen-Radar
 prüft sie. Ändert sich dort ein Status (Mirroring mit Quellrechten, Copilot im Portal mit Skills,
-Deployment plan, Fabric policies, Capacity Operation Events, Prep data for AI API), wird hier eine
+Deployment plan, Fabric policies, Capacity Operation Events, Prep data for AI API, Fabric Apps mit Power BI Pro), wird hier eine
 Zeile ergänzt.
 
 ## Ablauf für eine übernehmende Sitzung
