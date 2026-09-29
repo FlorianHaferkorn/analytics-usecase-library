@@ -125,10 +125,10 @@ Zwei Randbedingungen, gemessen statt vermutet:
 - `check_schema_validation.ps1` ist ein **Node**-Validator und macht ohne Deps einen
   Soft-Skip mit rc=0 — also einmal `npm ci` in `tooling/validation/`, sonst prüft er nichts
   und meldet trotzdem Erfolg.
-- `check_validate_data_contracts.ps1` wird ohne das Modul `powershell-yaml` **übersprungen**
-  (das Skript sagt das selbst: „SKIPPED, not passed"). Ist die PowerShell Gallery nicht
-  erreichbar, deckt sein Python-Delegat dieselbe Logik ab:
-  `python3 tooling/validation/check_validate_data_contracts.py --root .`
+- `check_validate_data_contracts.ps1` wurde bis 29.09.2026 ohne das Modul `powershell-yaml`
+  **übersprungen**, obwohl das Skript das Modul nie nutzte (es ruft den Python-Delegaten
+  `tooling/validation/check_validate_data_contracts.py`). Die Vorbedingung ist entfernt; die
+  Prüfung läuft jetzt auch ohne PowerShell Gallery und braucht nur PyYAML + jsonschema.
 
 Dabei fiel eine dritte Sache auf, und die ist keine Randbedingung, sondern ein Regelkonflikt:
 `check_markdownlint.ps1` fährt `markdownlint-cli2 --fix`, und MD010 („no hard tabs") ersetzt

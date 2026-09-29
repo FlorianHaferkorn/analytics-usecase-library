@@ -1,6 +1,6 @@
 import type { CatalogKpi } from '@/lib/core/catalog-loader';
 import type { ActionCodeDefinitionV20AIMirror } from '@/lib/schemas';
-import type { DataContract } from '@/lib/schemas';
+import type { ResolvedContract } from '@/lib/core/contract-loader';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 import { detailPath } from '@/lib/studio/entity-ia';
 import { matchesDomainFilter } from '@/lib/studio/domain-filter';
@@ -25,7 +25,7 @@ export function kpiRows(kpis: CatalogKpi[]): LibraryRow[] {
   }));
 }
 
-export function dimensionRows(contracts: DataContract[]): LibraryRow[] {
+export function dimensionRows(contracts: ResolvedContract[]): LibraryRow[] {
   const rows: LibraryRow[] = [];
   for (const c of contracts) {
     for (const dim of c.dimension ?? []) {
@@ -42,7 +42,7 @@ export function dimensionRows(contracts: DataContract[]): LibraryRow[] {
   return rows.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export function sourceRows(contracts: DataContract[]): LibraryRow[] {
+export function sourceRows(contracts: ResolvedContract[]): LibraryRow[] {
   return contracts.map((c) => ({
     id: c.domain,
     name: c.domain,

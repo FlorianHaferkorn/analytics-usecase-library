@@ -19,7 +19,7 @@ npm run dev      # http://localhost:3000
 | `npm run build` | Production build |
 | `npm run lint` | ESLint |
 | `npm run lint:tokens` | Verify design tokens against the system |
-| `npm run generate:types` | Regenerate TS types from JSON schemas in `tooling/ai/schemas/` |
+| `npm run generate:types` | Regenerate TS types from JSON schemas in `tooling/generator/schemas/` (generated set, or name schemas: `npm run generate:types -- data_contract.schema.json`) |
 | `npm test` | Vitest unit tests |
 | `npm run test:e2e` | Playwright end-to-end tests |
 | `npm run mcp` | Run the MCP server locally |

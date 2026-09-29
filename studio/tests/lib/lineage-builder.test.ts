@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { buildLineageGraph } from '@/lib/core/lineage-builder';
-import type { DataContract } from '@/lib/schemas';
+import type { ResolvedContract } from '@/lib/core/contract-loader';
 import type { CatalogKpi } from '@/lib/core/catalog-loader';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 
-function makeContract(domain: string): DataContract {
+function makeContract(domain: string): ResolvedContract {
   return {
     domain,
     version: '1.0',
