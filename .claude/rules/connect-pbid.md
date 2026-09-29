@@ -13,9 +13,17 @@ Learnings from Claude about connecting to semantic models via the connect-pbid s
 - Discover ports via `Get-NetTCPConnection -State Listen` joined to `msmdsrv` PIDs;
   the netstat-split-by-whitespace snippet in the skill parses unreliably here.
 - Open a specific dist report with `Start-Process <full path>\<name>.pbip`. `pbir open`
-  sometimes reports success but no-ops. After editing on-disk TMDL, the model must be
-  re-opened (Desktop does not watch files) — close the stale instance first, else the
-  signature-measure match may hit the old model.
+  sometimes reports success but no-ops. After editing on-disk TMDL/PBIR: since the
+  **August 2026 release** Desktop can detect saved external PBIP changes and shows an
+  **Apply external changes** banner that reloads report and/or model — but only with the
+  **preview** option *Detect and reload external PBIP changes* enabled (Options → Preview
+  features, restart), not for `definition.pbir`/`report.json`/`mobileState.json`/
+  `semanticModelDiagramLayout.json`, not `cache.abf`, and it overwrites unsaved Desktop
+  changes (Learn `power-bi/developer/projects/projects-external-editing`, read 29.09.2026).
+  Without that option or on an older build, Desktop does not watch files: re-open the
+  model — close the stale instance first, else the signature-measure match may hit the old
+  model. Not yet verified on our Desktop (I-21 W3.6, Desktop-gated): until then treat
+  re-open as the safe default.
 - Store Power BI Desktop degrades after ~8 open/close cycles: new pbips open as blank
   "Unbenannt" windows with 0 tables. Fallback for **model** validation without Desktop:
   offline TMDL→TOM load —
