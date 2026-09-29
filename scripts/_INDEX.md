@@ -34,7 +34,7 @@ owns: "*.py"
 | `check_dataarch_mirror.py` | Sensor | Drift des gespiegelten Meridian-Dataarch-Vertrags (ADR-0051) und der vendorten Power-BI-Themes aus Freelancing `products/pbi_theme` (`--write-themes`, seit 29.09.2026) |
 | `check_superversion_pins.py` | Sensor | Pin-Drift der Superversion (ADR-0005 Regel 6) |
 | `check_plattform.py` | Ratchet | Sperrklinke gegen Annahmen, die nur auf Linux stimmen (`plattform_baseline.json`) |
-| `check_lint_ratchet.py` | Ratchet | Ruff-Befunde je Regel eingefroren (`lint_baseline.json`), dürfen nur sinken; CI `python-checks` + pre-commit bei gestagtem `.py` |
+| `check_lint_ratchet.py` | Ratchet | Ruff-Befunde je Regel eingefroren (`lint_baseline.json`), dürfen nur sinken; Exit 0 OK / 1 gestiegen / 2 nicht gelaufen; Ruff aus PATH, dann `python -m ruff`, Pin aus `stage1.yml`; CI `python-checks` (`--pin-pflicht`, hart) + pre-commit bei gestagtem `.py` (2 = `[UNGEPRUEFT]`) |
 | `pruefe_sweep.py` | Gegenprobe | Prüft mechanische Massenänderungen nach |
 | `check_showcase_delta.py` | Gate | Konsistenz der Showcase-Delta-Tabellen; stellt den Delta-Log-Replay (`_active_paths`, `_metadata`: Schema + Partitionsspalten) für andere Tore bereit |
 | `repo_kit_init.py` | Werkzeug | Erkennungs- und Scaffold-Engine des Claude Repo Kits |

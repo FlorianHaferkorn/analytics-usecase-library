@@ -54,10 +54,25 @@ fi
 
 # Gate 1.6: Ruff-Sperrklinke (29.09.2026) -- nur wenn .py-Dateien gestagt sind. Gemessen
 # 0,3 s fuer das ganze Repo (ruff 0.16.9), daher ohne Dateifilter auf den vollen Baum:
-# die Baseline zaehlt je Regel ueber alles. Ohne ruff im Interpreter: lautes SKIP.
+# die Baseline zaehlt je Regel ueber alles.
+#
+# Ausgaenge des Skripts: 0 OK, 1 gestiegen (Abbruch), 2 nicht gelaufen. Bis 29.09.2026
+# meldete es ohne ruff-Modul im System-python3 `SKIP` mit Exit 0 -- das Tor wirkte bei
+# keinem Commit, obwohl ein ruff-Binary im PATH lag. Das Skript sucht jetzt zuerst das
+# Binary, dann `python -m ruff`. Findet es keins, traegt der Commit ein lautes [UNGEPRUEFT]
+# statt eines Abbruchs (gleiche Linie wie Gate 1.5): ein Hook, der in jedem frischen Klon
+# ohne ruff jeden Commit anhielte, wuerde mit --no-verify umgangen und haelt dann auch die
+# anderen Gates nicht mehr. Hart bleibt die CI (stage1.yml, --pin-pflicht, Exit 2 = rot).
 PY_STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.py$' || true)
 if [ -n "$PY_STAGED" ]; then
-  $PY scripts/check_lint_ratchet.py --strict || exit 1
+  LINT_RC=0
+  $PY scripts/check_lint_ratchet.py || LINT_RC=$?
+  if [ "$LINT_RC" -eq 2 ]; then
+    echo "pre-commit: [UNGEPRUEFT] Ruff-Sperrklinke -- ruff nicht gelaufen (s. o.). Dieser Commit ist" >&2
+    echo "            NICHT auf neue Lint-Befunde geprueft; die CI prueft hart. Installieren: pip install ruff" >&2
+  elif [ "$LINT_RC" -ne 0 ]; then
+    exit 1
+  fi
 fi
 
 # Gate 2: ontology registry — fast path: skip if no core/ paths staged.
