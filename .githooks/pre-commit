@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# claude-repo-kit: strict Drift-Gate (zero-dependency; `make check` bleibt für lokal/CI).
+if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi
+"$PY" scripts/check_index.py --strict || exit 1

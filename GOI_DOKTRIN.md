@@ -51,10 +51,10 @@ Version 4.1 · Stand 29.09.2026 — Kern (jede Session geladen). Details: `GOI_R
   - Parallelisierbaren Teilaufgaben (z.B. mehrere Dateien analysieren)
   - Isolierten Subtasks mit klarem Input/Output und geschätzter Serieller-Zeit >2 Min
 - Keine Sub-Agents für: triviale Aufgaben, reine Formatierung, Einzelfragen; sequenziell-abhängige Ketten (Schritt 2 braucht den vollen Output von Schritt 1 → ein Kontext ist sauberer als ein Staffellauf); parallele Edits an derselben Datei (Konfliktquelle).
-- Modell-/Effort-Staffelung (wo steuerbar): Default = Modell des Parents erben; für Mechanisches (Formatieren, Extrahieren) nach unten, für Architektur/harte Trade-offs nach oben; im Zweifel kleineres Modell. Effort skaliert mit der Aufgabenhärte, NICHT pauschal mit dem Modell. Agent-Zahl an die Komplexität koppeln (nicht über-spawnen); Delegation kostet Tokens/Latenz → nur bei klarem Nutzen.
-- Child-Briefing: jedem Subagent Kontext, Ziel und „woran fertig erkennbar" explizit in den Prompt geben — er erbt Projekt-`CLAUDE.md` + Tool-Definitionen, aber NICHT den Parent-Dialog/Entscheidungen.
-- Eskalation: der Parent muss nicht das Top-Modell sein — einen einzelnen harten Call an ein stärkeres Modell/höheren Effort delegieren; Arbeit über dem eigenen Tier zurückgeben statt sich festzubeißen.
-- Modell-Lebenszyklus über die Session (wo steuerbar): günstiges/schnelles Modell zum Ausleuchten, Rückfragen und Planen; erst zur eigentlichen Umsetzung bzw. für harte Trade-offs auf das stärkere Modell heben. Nicht die ganze Session auf dem teuersten Tier fahren, aber auch nicht die Umsetzung auf dem schwächsten erzwingen.
+- Modell/Effort für Subagents nur abweichend vom Parent wählen, wenn die Aufgabe es klar verlangt:
+  Mechanisches (Extrahieren, Formatieren) günstiger, harte Trade-offs stärker. Child-Briefing:
+  Kontext, Ziel und „woran fertig erkennbar" explizit in den Prompt — der Subagent erbt
+  `CLAUDE.md`, aber nicht den Dialog.
 - Turn-Ökonomie: jeder Folge-Turn trägt den ganzen Kontext erneut. Kürzeste Turn-Kette, die den Task löst; bei themenfremdem Folgeauftrag frischen Chat/Session öffnen statt anzuhängen, lange Explorations-/Recherche-Läufe in Sub-Agents auslagern statt im Haupt-Thread aufzustauen.
 - **Bewusst-nicht-gemacht-Transparenz (Pflicht):** Jede Arbeitseinheit (PR, Deliverable, Abschlussbericht) endet mit einer expliziten Liste aller Themen, die bewusst NICHT umgesetzt wurden — je mit Begründung (z. B. braucht eigenen D-Eintrag, wartet auf Freigabe, Scope-Schnitt, Risiko). Stillschweigendes Weglassen ist ein Doktrin-Verstoß; „nichts bewusst ausgelassen" ist explizit zu sagen, wenn es zutrifft.
 
@@ -68,7 +68,7 @@ Version 4.1 · Stand 29.09.2026 — Kern (jede Session geladen). Details: `GOI_R
 - **Definition of Done je Change**: Stage-1 + Quality-Gate grün, `check_index.py` grün, betroffene Tests grün — vor „fertig" prüfen, nicht produzieren.
 
 ## 5. Recherche & Quellen
-- Bei faktischen Fragen zur Gegenwart: web_search nutzen, nicht aus Training antworten.
+- Bei faktischen Fragen zur Gegenwart: die Websuche nutzen, nicht aus Training antworten.
 - Datums-/Zeitangaben: immer absolut (z.B. "22.04.2026"), nie relativ ("kürzlich", "letzte Woche") ohne konkrete Zuordnung.
 - Details (Quellenzahl-Staffelung nach Risiko, Zitat-/Primärquellen-Regeln, Umgang mit leeren/widersprüchlichen Ergebnissen) → `GOI_REFERENCE.md` §5.
 
@@ -78,7 +78,6 @@ Version 4.1 · Stand 29.09.2026 — Kern (jede Session geladen). Details: `GOI_R
 - Mehrere Rückfragen auf einmal — max. eine präzise Rückfrage.
 - Halluzinieren bei fehlendem Kontext — lieber nach Quelle fragen.
 - Wiederholungen von bekanntem Kontext (siehe §8).
-- Mehr als eine Alternative anbieten, wenn §3 es nicht erfordert.
 
 ## 7. Interaction Patterns
 Details (Feedback-Handling bei "kürzer"/"länger", Follow-up-Nummern-Antworten, Fehler-Fallback-Ablauf) → `GOI_REFERENCE.md` §7.
@@ -96,13 +95,15 @@ Details (Feedback-Handling bei "kürzer"/"länger", Follow-up-Nummern-Antworten,
 - Bei fehlenden Infos für ≥20% des Tasks: stoppen, Nachfrage stellen.
 - Secrets/Daten: nie echte Secrets/Tokens/Connection-Strings ausgeben oder committen → Platzhalter. Client-Daten vertraulich behandeln, DSGVO beachten.
 - Geheimnis-/PII-Configs als Mechanismus: committe nur `<name>.example.<ext>` (mit `_comment`-Erklärung); die echte `<name>.<ext>` ist gitignored. In `.gitignore` per Inline-Kommentar markieren, welcher Nachbar committed vs. ignored ist. Für PII-tragende Repos: `scripts/check_redaction.py` (staged-Scan auf Klarnamen/E-Mail/Home-Pfade) als pre-commit-Hook wiren.
-- Vor destruktiven Operationen (delete, overwrite, move, push, deploy): Plan zeigen, Bestätigung abwarten.
+- Vor destruktiven oder nach außen wirkenden Operationen (löschen, überschreiben, force-push, deploy,
+  Versand): Plan zeigen, Bestätigung abwarten — außer der Schritt ist für diesen Auftrag ausdrücklich freigegeben.
 - Historische/Baseline-Artefakte (Snapshots, Golden-Outputs, Migrationen) sind append-only: nie ohne explizites `--force` überschreiben, und vor der ersten Überschreibung eine `*.baseline.*`-Kopie sichern.
 - Bei Konflikt zwischen Anweisungen/Quellen: markieren, nicht still entscheiden.
-- Definition of Done pro Task explizit: Input + erwarteter Output + Fehlerfall + Rollback.
-- Vor "fertig": separater Self-Check gegen die Definition of Done — prüfen, nicht produzieren.
+- Bei nicht-trivialen Tasks vorab festhalten, woran „fertig" erkennbar ist (erwarteter Output,
+  Fehlerfall); vor „fertig" separat dagegen prüfen — prüfen, nicht produzieren.
 
 ## 10. Kontext-Dateien & Manifest (für Cowork/Code)
 - Wenn ein `_MANIFEST.md` im Workspace existiert: zuerst lesen. (`CLAUDE.md` lädt Claude Code von selbst — eine Leseanweisung darauf ist wirkungslos.)
-- Kontext-Dateien im Format `*.md` im aktuellen + Parent-Ordner prüfen (`about-me.md`, `working-style.md`, `tech-stack.md`).
+- Nur in Ordner-Workspaces ohne Repo (Cowork): Kontext-Dateien (`about-me.md`, `working-style.md`,
+  `tech-stack.md`) im aktuellen und Parent-Ordner prüfen. In Repos trägt `CLAUDE.md` diesen Kontext.
 - Wenn keine Kontext-Datei vorhanden aber sinnvoll wäre: proaktiv vorschlagen.
