@@ -594,12 +594,31 @@ def compute_h7(repo_root: Path) -> Dict[str, Any]:
     }
 
 
+# Who reads the linguistic schema H8 guards. Q&A is gone in February 2027 (Learn banner on
+# every Q&A page, read 2026-09-29); the gate stays because Copilot reads the same synonyms.
+# Re-check these pages before Q&A is switched off — if Copilot stops reading synonyms, the
+# coverage half of H8 loses its consumer and must be re-targeted (e.g. AI instructions).
+H8_CONSUMERS: tuple[str, ...] = ("copilot",)
+H8_EVIDENCE: Dict[str, Any] = {
+    "checked": "2026-09-29",
+    "qna_end": "2027-02",
+    "sources": [
+        # DAX query view grounding lists "Synonyms from the model linguistic schema";
+        # "Power BI relies on the same linguistic modeling as the Q&A feature".
+        "https://learn.microsoft.com/power-bi/create-reports/copilot-semantic-models",
+        # Copilot data questions: "Add synonyms to data field names ... for Copilot".
+        "https://learn.microsoft.com/power-bi/create-reports/copilot-ask-data-question",
+    ],
+}
+
+
 def compute_h8(repo_root: Path) -> Dict[str, Any]:
     """H8: AI-Readiness / Linguistic Coverage.
 
     % of governed column synonyms (data-contract ``synonyms``) that are present in
     the committed model linguistic schema (``cultures/<culture>.tmdl``). This is the
-    gate that keeps Copilot/Q&A synonyms from silently regressing: drop a governed
+    gate that keeps Copilot synonyms from silently regressing (consumers and Learn
+    evidence in ``H8_CONSUMERS`` / ``H8_EVIDENCE``; Q&A ends Feb 2027): drop a governed
     synonym from the linguistic schema and H8 goes red even though the ``///``
     description text (H2) stays green. Mirrors H7 -- it reads dist/ and never
     reports false-green when the projection tooling is unavailable.
@@ -689,6 +708,8 @@ def compute_h8(repo_root: Path) -> Dict[str, Any]:
         "present": present,
         "missing": missing,
         "hygiene": {"visible_keys": hyg_keys, "weak_descriptions": hyg_weak},
+        "consumers": list(H8_CONSUMERS),
+        "evidence": H8_EVIDENCE,
     }
     if total == 0:
         details["note"] = "no governed synonyms to project"

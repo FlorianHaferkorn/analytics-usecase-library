@@ -22,7 +22,8 @@ break-even arithmetic that needs them takes them as an argument; without prices 
 emits the formula and records the gap rather than substituting a plausible number. Same
 rule for missing sizing inputs: they land in ``unknowns``, never in a default.
 
-Grounding: all limit tables verified against learn.microsoft.com on 2026-08-05, see
+Grounding: all limit tables verified against learn.microsoft.com on 2026-08-05; overage
+and Fabric Planning figures on 2026-09-29. See
 ``docs/agent/skills/recommend-fabric-capacity.md`` for the source list.
 """
 from __future__ import annotations
@@ -67,6 +68,39 @@ MODEL_REFRESH_PARALLELISM: dict[str, int] = {
 
 # licenses#workspace-types — below F64 every Power BI viewer needs a Pro licence.
 FREE_VIEWER_MIN_SKU = "F64"
+
+# --- Capacity overage (learn.microsoft.com, verified 2026-09-29) --------------------
+# enterprise/capacity-overage-overview + enterprise/enable-capacity-overage; GA Sep 2026
+# per fundamentals/whats-new. Overage is ON by default for every newly created F capacity,
+# so a proposal that does not ask the customer silently carries an open-ended cost line.
+# CU hours per day as published in the overage-threshold table (= CU x 24).
+CU_HOURS_PER_DAY: dict[str, int] = {
+    "F2": 48, "F4": 96, "F8": 192, "F16": 384, "F32": 768, "F64": 1536,
+    "F128": 3072, "F256": 6144, "F512": 12288, "F1024": 24576, "F2048": 49152,
+}
+# Overage CU hours are billed on a separate meter at three times the pay-as-you-go rate.
+OVERAGE_PRICE_MULTIPLIER = 3
+# Default rolling 24-h threshold at capacity creation: 25 % of the daily CU hours
+# (slider in 5 % steps, or an absolute CU-hour value).
+OVERAGE_DEFAULT_THRESHOLD_PCT = 25
+# Learn: keep the threshold below one third of the daily CU hours — above that, scaling up
+# the SKU costs about the same (3x rate x 1/3 = 1x the daily capacity cost).
+OVERAGE_RECOMMENDED_MAX_FRACTION = 1 / 3
+# Quota needed = threshold / 24 CUs (the threshold is spread across 24 hours).
+OVERAGE_QUOTA_DIVISOR = 24
+# The threshold is evaluated every 5 minutes and running operations continue, so real
+# charges can exceed it: threshold x 3 x PAYG is a derived figure, not a hard cap.
+OVERAGE_EVALUATION_INTERVAL_MIN = 5
+
+# --- Fabric Planning (learn.microsoft.com, verified 2026-09-29) ----------------------
+# iq/plan/resources/billing-fabric-plan. A session lasts 730 h (30 days), cannot be ended
+# early and is tracked per tenant + user + capacity; it consumes CU of the capacity it runs
+# on (meters "Fabric Planning - Planner/Stakeholder/Viewer Sessions").
+PLANNING_SESSION_HOURS = 730
+PLANNING_SESSION_CU_HOURS: dict[str, int] = {"planner": 847, "stakeholder": 168, "viewer": 37}
+# Learn recommends an estimated 30 % buffer for the other Fabric workloads (SQL, OneLake,
+# XMLA) that planning deployments use besides the sessions themselves.
+PLANNING_WORKLOAD_BUFFER_PCT = 30
 
 # Reservation costs 59.5 % of the pay-as-you-go rate, so it pays off above 59.5 % runtime.
 # 0.595 * 168 h = 99.96 h/week. Identical across SKUs and regions (proportional discount).
@@ -223,6 +257,89 @@ def split(sizing: dict, domain_count: int) -> dict:
                     "checked every five minutes, not isolation."}
 
 
+OVERAGE_CUSTOMER_QUESTION = (
+    "Capacity overage: switch it off, or set a rolling 24-hour threshold of X CU hours? "
+    "It is on by default for new F capacities (threshold {default_pct} % = {default_cu_h} "
+    "CU hours/day on {sku}) and is billed at {mult}x the pay-as-you-go rate."
+)
+
+
+def overage_profile(sku: str, threshold_cu_hours: float | None = None,
+                    payg_usd_per_cu_hour: float | None = None) -> dict:
+    """Overage figures for one F-SKU: daily CU hours, threshold, quota, cost ceiling.
+
+    ``threshold_cu_hours`` None means the customer has not decided; the Microsoft default
+    (25 % of the daily CU hours) is then shown as what will happen *unless* they decide,
+    and the decision is returned as an open customer question — never as an assumption.
+    The cost figure is derived (threshold x 3 x PAYG per CU hour), not measured, and is a
+    lower bound of the worst case: the threshold is checked every five minutes and
+    operations already running continue, so real charges can exceed it.
+    """
+    if sku not in CU_HOURS_PER_DAY:
+        raise KeyError(f"Unknown F-SKU: {sku}")
+    daily = CU_HOURS_PER_DAY[sku]
+    default_threshold = daily * OVERAGE_DEFAULT_THRESHOLD_PCT / 100
+    decided = threshold_cu_hours is not None
+    threshold = float(threshold_cu_hours) if decided else default_threshold
+    out: dict = {
+        "sku": sku,
+        "cu_hours_per_day": daily,
+        "default_threshold_cu_hours": default_threshold,
+        "threshold_cu_hours": threshold,
+        "threshold_source": "customer" if decided else "microsoft_default",
+        "recommended_max_threshold_cu_hours": round(daily * OVERAGE_RECOMMENDED_MAX_FRACTION, 2),
+        "quota_cu_required": round(threshold / OVERAGE_QUOTA_DIVISOR, 2),
+        "above_recommended_max": threshold > daily * OVERAGE_RECOMMENDED_MAX_FRACTION,
+        "max_cost_per_day_formula": (f"threshold_cu_hours x {OVERAGE_PRICE_MULTIPLIER} x "
+                                     "payg_usd_per_cu_hour"),
+        "evidence": "derived",
+        "caveat": (f"Not a hard cap: evaluated every {OVERAGE_EVALUATION_INTERVAL_MIN} "
+                   "minutes and running operations continue, so real charges can exceed "
+                   "the derived maximum."),
+    }
+    if payg_usd_per_cu_hour is not None:
+        out["max_cost_per_day_usd"] = round(
+            threshold * OVERAGE_PRICE_MULTIPLIER * float(payg_usd_per_cu_hour), 2)
+    if not decided:
+        out["customer_question"] = OVERAGE_CUSTOMER_QUESTION.format(
+            default_pct=OVERAGE_DEFAULT_THRESHOLD_PCT, default_cu_h=f"{default_threshold:g}",
+            sku=sku, mult=OVERAGE_PRICE_MULTIPLIER)
+    return out
+
+
+def planning_load(sessions: dict, sku: str | None = None) -> dict:
+    """CU load of Fabric Planning sessions over one 30-day session window.
+
+    ``sessions`` maps role (planner/stakeholder/viewer) to the number of users active in
+    the window. The result is capacity consumption, not a separate price: sessions burn CU
+    of the capacity they run on. Against ``sku`` it reports the share of that capacity's
+    CU hours in the same 730-hour window and whether the Learn-recommended 30 % buffer for
+    the other workloads still fits. Automation jobs (billed per successful job) are not
+    included — Learn states the rate as "2 CU" without a time unit.
+    """
+    unknown_roles = sorted(set(sessions) - set(PLANNING_SESSION_CU_HOURS))
+    if unknown_roles:
+        raise ValueError(f"Unknown planning role(s): {unknown_roles}; "
+                         f"valid: {sorted(PLANNING_SESSION_CU_HOURS)}")
+    cu_hours = sum(PLANNING_SESSION_CU_HOURS[r] * int(n) for r, n in sessions.items())
+    out: dict = {
+        "sessions": {r: int(n) for r, n in sorted(sessions.items())},
+        "cu_hours_per_session_window": cu_hours,
+        "session_window_hours": PLANNING_SESSION_HOURS,
+        "average_cu": round(cu_hours / PLANNING_SESSION_HOURS, 2),
+        "not_included": "automation jobs (Learn: '2 CU' per successful job, unit unclear)",
+    }
+    if sku:
+        if sku not in CU:
+            raise KeyError(f"Unknown F-SKU: {sku}")
+        window_capacity = CU[sku] * PLANNING_SESSION_HOURS
+        share = round(100 * cu_hours / window_capacity, 1)
+        out["sku"] = sku
+        out["share_of_capacity_pct"] = share
+        out["fits_with_buffer"] = share <= 100 - PLANNING_WORKLOAD_BUFFER_PCT
+    return out
+
+
 def recommend(blueprint: dict, prices: dict | None = None) -> dict:
     """Full capacity recommendation for a blueprint. Deterministic, no network access."""
     platform = blueprint.get("platform", {})
@@ -246,6 +363,14 @@ def recommend(blueprint: dict, prices: dict | None = None) -> dict:
         "split": spl,
         "unknowns": unknowns,
     }
+    overage_sku = assigned if assigned in CU_HOURS_PER_DAY else floor
+    if overage_sku:
+        payg = (prices or {}).get("payg_usd_per_cu_hour")
+        # The blueprint schema has no threshold field yet (sizing is closed), so the
+        # decision is always open here and surfaces as a customer question.
+        out["overage"] = overage_profile(overage_sku, None, payg)
+        if out["overage"].get("customer_question"):
+            out["customer_questions"] = [out["overage"]["customer_question"]]
     if floor:
         out["licence_breakeven"] = licence_breakeven(floor, prices)
         out["headroom_at_floor"] = {

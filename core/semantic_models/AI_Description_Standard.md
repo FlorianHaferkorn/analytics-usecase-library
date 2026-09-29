@@ -70,12 +70,14 @@ One line per populated facet, in priority order:
 <definition> (<unit>, <good_is> is better). Top drivers: <names>.
 ```
 
-### Linguistic schema — Copilot / Q&A (`cultures/<culture>.tmdl`)
+### Linguistic schema — Copilot (`cultures/<culture>.tmdl`)
 
-The first two projections are **description text**. Native Power BI Q&A and Copilot
-do not read description prose — they read the model's **linguistic schema**
-(`cultures` / `linguisticMetadata`). So a synonym that only reaches `///` is visible
-to an LLM *handed the raw TMDL* but invisible to *in-product* natural language.
+The first two projections are **description text**. Copilot reads descriptions (first
+200 characters, in DAX queries and search) but takes **synonyms** from the model's
+**linguistic schema** (`cultures` / `linguisticMetadata`). So a synonym that only
+reaches `///` is prose to an LLM, not a synonym in-product. Q&A, the schema's original
+consumer, ends in February 2027; Copilot keeps reading it (Learn, 29.09.2026 — evidence
+and re-check under H8 in `core/strategy_operating_model/operating_model/framework_health_metrics.md`).
 
 The third projection closes that gap. Curated column `synonyms` (governed source,
 below) are projected into a TMDL `culture` object's `linguisticMetadata` — the
@@ -200,7 +202,7 @@ Run `python3 tooling/validation/check_values_coverage.py --domain Commercial`
 The curated column `synonyms` are *also* the source for the **linguistic schema**
 projection (above): each column with synonyms becomes a bound entity in
 `cultures/<culture>.tmdl`, so the same governed source reaches the `///` block, the
-viz tooltip **and** in-product Copilot/Q&A. For Aurora Commercial today:
+viz tooltip **and** in-product Copilot. For Aurora Commercial today:
 `dim_org.Region → {Sales Region, Geo}`, `dim_org.Channel → {Sales Channel, Route to
 Market}`, `fact_sales.Net Sales Amount → {Revenue, Net Revenue, Umsatz}`.
 

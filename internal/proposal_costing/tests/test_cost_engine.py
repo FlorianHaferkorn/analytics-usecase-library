@@ -415,3 +415,83 @@ def test_fill_template_package_customer_offer():
     minimal = {"scenario_id": "x"}
     out2 = fill_template(minimal, "P: {{ package_name }} | C: {{ customer_name }}")
     assert "—" in out2
+
+
+# --- Capacity overage and Fabric Planning (FabCon EU 2026, W1.1 / W4.7) --------------
+# Learn facts live in tooling/superversion/capacity.py; these tests check the costing
+# lines built on them. All cost figures are derived (threshold x 3 x PAYG), not measured.
+
+from cost_engine import (  # noqa: E402
+    compute_overage,
+    compute_planning,
+    format_overage,
+    payg_usd_per_cu_hour,
+)
+
+
+def test_payg_per_cu_hour_derived_from_monthly_price():
+    drivers = load_cost_drivers(_product_root)
+    # 262.80 USD/month for F2 = 2 CU x 730 h x 0.18 USD
+    assert payg_usd_per_cu_hour(drivers, "F2") == pytest.approx(0.18)
+    assert payg_usd_per_cu_hour(drivers, "F64") == pytest.approx(0.18)
+
+
+def test_overage_default_is_open_question_with_derived_daily_max():
+    drivers = load_cost_drivers(_product_root)
+    ov = compute_overage(drivers, "F8")
+    assert ov["enabled"] is True
+    assert ov["threshold_source"] == "microsoft_default"
+    assert ov["threshold_cu_hours"] == 48            # 25 % of 192
+    assert ov["max_usd_per_day"] == pytest.approx(48 * 3 * 0.18)
+    assert ov["evidence"] == "derived"
+    assert ov["customer_question"]
+
+
+def test_overage_customer_threshold_and_switch_off():
+    drivers = load_cost_drivers(_product_root)
+    ov = compute_overage(drivers, "F8", threshold_cu_hours=20)
+    assert ov["threshold_source"] == "customer"
+    assert ov["customer_question"] is None
+    assert ov["max_usd_per_day"] == pytest.approx(20 * 3 * 0.18)
+    off = compute_overage(drivers, "F8", enabled=False)
+    assert off["enabled"] is False and off["max_usd_per_day"] == 0.0
+
+
+def test_compute_carries_overage_line_and_customer_question():
+    r = compute("compact", product_root=_product_root)
+    assert r["overage"]["sku"] == r["prod_sku"]
+    assert r["customer_questions"] and "overage" in r["customer_questions"][0].lower()
+    decided = compute("compact", {"overage_threshold_cu_hours": 10}, product_root=_product_root)
+    assert decided["customer_questions"] == []
+    # The overage line never changes the platform total: it is a contingent cost.
+    assert decided["total_month"] == r["total_month"]
+
+
+def test_compute_without_prod_capacity_has_no_overage():
+    r = compute("power_bi_only", product_root=_product_root)
+    assert r["overage"] is None
+    assert r["customer_questions"] == []
+
+
+def test_template_shows_overage_formula_and_caveat():
+    r = compute("compact", product_root=_product_root)
+    text = fill_template(r, "{{ overage }}\n{{ customer_questions }}")
+    assert "threshold × 3 × PAYG price per CU hour" in text
+    assert "derived, not measured" in text
+    assert "5 minutes" in text
+    assert "{{" not in text
+    assert format_overage(None) == "—"
+
+
+def test_planning_sessions_as_capacity_share_not_added_to_total():
+    drivers = load_cost_drivers(_product_root)
+    pl = compute_planning(drivers, {"planner": 1, "stakeholder": 5}, "F8")
+    assert pl["cu_hours_per_session_window"] == 847 + 5 * 168
+    assert pl["usd_equivalent_per_session_window"] == pytest.approx(1687 * 0.18, abs=0.01)
+    assert pl["included_in_capacity_total"] is True
+    base = compute("compact", product_root=_product_root)
+    with_plan = compute("compact", {"planning_sessions": {"planner": 1}}, product_root=_product_root)
+    assert with_plan["planning"]["sessions"] == {"planner": 1}
+    assert with_plan["total_month"] == base["total_month"]
+    text = fill_template(with_plan, "{{ planning }}")
+    assert "847 CU hours per 730 h" in text
