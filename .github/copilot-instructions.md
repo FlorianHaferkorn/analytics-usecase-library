@@ -6,10 +6,6 @@
 
 When working on an assigned GitHub Issue or task, follow this workflow. Set issue status to In progress after creating the branch and document relevant delivery notes in the PR body.
 
-## Workday note (before starting any new implementation)
-
-1. If your team uses a workday guard, run `tooling/project_mgmt/workday_start.ps1` before starting implementation.
-
 ## Obtain issue number (if user said "start next task" or similar)
 
 If the user asked to **start the next task**, **take the next task**, **next task**, or similar and did **not** give an issue number: run from the **repo root** (PowerShell):

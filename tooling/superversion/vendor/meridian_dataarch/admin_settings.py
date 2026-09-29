@@ -8,13 +8,13 @@ settings that gate it, each carrying: the exact portal name + section, its **sco
 tenant / capacity / workspace / entra), **default**, **who** can set it, the **target** value for the
 delivery, and — the crux of
 "within a day" — whether it is **automatable** via the Fabric *Update Tenant Setting* Admin REST API
-(preview) / ``sempy`` or needs a **human** admin (capacity-admin portal action, or an RBAC grant a
+/ ``sempy`` or needs a **human** admin (capacity-admin portal action, or an RBAC grant a
 privileged human must perform). ``settability_summary`` splits the plan into "scriptable" vs "needs a
 human" so the one-day setup is honest about what can be automated.
 
 Honest by construction: settings MS docs do not pin (default state, or whether a specific setting
-round-trips through the generic preview API) are marked ``"unverified"`` rather than guessed; the
-*Update Tenant Setting* API itself is MS-flagged **preview / not for production**, surfaced as a caveat.
+round-trips through the generic API) are marked ``"unverified"`` rather than guessed; the API publishes
+no per-setting allow-list and is rate-limited, surfaced as a caveat.
 
 Tool-Reuse: this is the single source of truth for the tenant-settings knowledge that
 ``provision_apply._tenant_setup_md`` renders (that checklist now reads from this catalog — no second silo).
@@ -27,9 +27,13 @@ ist nicht mehr noetig, bleibt aber moeglich (die CLI nutzt ihn als Rueckfall, we
 Emit-Flags ohne IR-Deklaration fahrt).
 
 Grounding date: 2026-07-24. Sources are per-setting ``source`` URLs (learn.microsoft.com), verified then.
-Cross-cutting: Update Tenant Setting API is generic over an opaque ``settingName`` but PREVIEW —
+Cross-cutting: Update Tenant Setting API is generic over an opaque ``settingName`` —
   learn.microsoft.com/rest/api/fabric/admin/tenants/update-tenant-setting
   learn.microsoft.com/rest/api/fabric/admin/tenants/list-tenant-settings (settingName ``CertifyDatasets`` shown).
+  Status re-measured 2026-09-29 (plan W1.4): no preview flag on either Learn page, and the official spec
+  (github.com/microsoft/fabric-rest-api-specs, ``admin/swagger.json``) carries no preview marker on
+  ``Tenants_ListTenantSettings`` / ``Tenants_UpdateTenantSetting`` while it marks 18 other admin operations
+  preview. Until 2026-09-29 this module called the API "preview / not for production".
 """
 from __future__ import annotations
 
@@ -44,12 +48,14 @@ GROUNDING_DATE = "2026-07-24"
 #: Entra. The set is a constant so the catalog and its test read the same list.
 SCOPES = ("tenant", "capacity", "workspace", "entra")
 
-# The generic Admin REST API that makes tenant settings scriptable — but MS-flagged preview.
-API_PREVIEW_CAVEAT = (
+# The generic Admin REST API that makes tenant settings scriptable. Not preview (re-measured 2026-09-29,
+# see module docstring); what remains true is the opaque settingName, the missing allow-list and the limit.
+API_CAVEAT = (
     "The Fabric *Update Tenant Setting* Admin REST API (and the sempy `update_tenant_setting` wrapper) is "
-    "generic over an opaque settingName, so tenant-scope settings are in principle scriptable — but MS "
-    "flags it PREVIEW / not for production, and publishes no per-setting allow-list, so smoke-test each "
-    "targeted settingName before relying on it in the one-day setup."
+    "generic over an opaque settingName, so tenant-scope settings are scriptable — but MS publishes no "
+    "per-setting allow-list and limits the API to 25 requests per minute (Tenant.ReadWrite.All, Fabric "
+    "administrator or service principal), so read each targeted settingName via List Tenant Settings and "
+    "smoke-test it before relying on it in the one-day setup."
 )
 
 # Capability keys are AGNOSTIC — a feature the delivery uses, not a source system or a mesh/medallion choice.
@@ -61,13 +67,17 @@ CAPABILITIES: dict[str, str] = {
     "mcp_apply": "Power BI / Fabric MCP apply path",
     "onelake_external": "External-engine / Iceberg access to OneLake",
     "copilot": "Copilot in Fabric / Power BI",
-    "data_agents": "Fabric Data Agents (preview)",
+    # GA seit Maerz 2026 (Learn "What's new in Fabric? archive", GA-Tabelle, Zeile "Fabric Data Agent
+    # (Generally Available)"; concept-data-agent: "a generally available feature"; per MCP gelesen
+    # 29.09.2026). Vorher hier als "(preview)" gefuehrt. Einzelne Konfigurationen (preview runtime,
+    # Purview-Zugriffsrestriktionen) bleiben Preview; die Faehigkeit selbst nicht.
+    "data_agents": "Fabric Data Agents (GA since March 2026)",
     "ontology": "Fabric IQ Ontology item (preview)",
     "sharing": "Cross-tenant external data sharing (OneLake shares)",
     "governance": "Sensitivity labels + endorsement/certification",
 }
 
-# automatable: True = a documented, stable tenant switch, settable via the (preview) Update Tenant Setting
+# automatable: True = a documented, stable tenant switch, settable via the Update Tenant Setting
 #                     API — the round-trip is still subject to the blanket smoke-test caveat below (of these,
 #                     only #13 carries a settingName MS shows by name in the API docs: CertifyDatasets);
 #              "unverified" = a tenant setting whose name/existence or API round-trip MS docs leave open;
@@ -80,7 +90,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Developer settings", "scope": "tenant", "capabilities": ["base"],
         "default": "on (new tenants)", "target": "on, scoped to the automation security group",
         "who": "Fabric tenant admin", "automatable": True,
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": "any REST / fab / MCP automation under the SPN", "required": "yes",
         "source": _L + "fabric/admin/service-admin-portal-developer",
     },
@@ -89,7 +99,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Developer settings", "scope": "tenant", "capabilities": ["base"],
         "default": "off", "target": "on, scoped to the automation security group",
         "who": "Fabric tenant admin", "automatable": True,
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": "provisioning workspaces / connections / pipelines via the SPN", "required": "yes",
         "source": _L + "fabric/admin/service-admin-portal-developer",
     },
@@ -98,7 +108,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Admin API settings", "scope": "tenant", "capabilities": ["admin_apis"],
         "default": "unverified (likely off)", "target": "on if admin/metadata APIs are used",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         # Bis 07.08.2026 stand hier zusaetzlich „scanner". Das war falsch und teuer: der
         # Metadaten-Scanner (`scan_workspaces`) ist eine READ-ONLY-Admin-API und haengt an
         # einem ANDEREN Schalter (#20). Wer nur diesen hier setzt, bekommt beim Scan
@@ -112,7 +122,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Git integration", "scope": "tenant", "capabilities": ["cicd_git"],
         "default": "Azure DevOps on / GitHub off", "target": "on for the chosen provider",
         "who": "Fabric tenant admin (delegatable to capacity/workspace)", "automatable": True,
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": "--emit-cicd Git integration + fabric-cicd", "required": "if CI/CD",
         "source": _L + "fabric/admin/git-integration-admin-settings",
     },
@@ -130,7 +140,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Integration settings", "scope": "tenant", "capabilities": ["mcp_apply"],
         "default": "unverified", "target": "on if the MCP apply path is used",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal (settingName unconfirmed)",
+        "how": "Update Tenant Setting REST / sempy — or portal (settingName unconfirmed)",
         "why": "the Power BI / Fabric MCP apply path (+ setting #1 for the SPN)", "required": "if MCP apply",
         "source": _L + "fabric/admin/tenant-settings-index",
     },
@@ -139,7 +149,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "OneLake settings", "scope": "tenant", "capabilities": ["onelake_external"],
         "default": "unverified", "target": "on if external engines / Iceberg interop",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": "external-engine / Iceberg / OneLake-SPN access", "required": "if external/Iceberg",
         "source": _L + "fabric/admin/service-admin-portal-onelake",
     },
@@ -148,7 +158,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Copilot and Azure OpenAI Service", "scope": "tenant", "capabilities": ["copilot"],
         "default": "on (auto-delegated to capacity admins)", "target": "on (default)",
         "who": "Fabric tenant admin (capacity admin retains override)", "automatable": True,
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": "Copilot in Fabric / Power BI (needs a paid F2+/P1+ capacity — not F64)", "required": "if Copilot",
         "source": _L + "fabric/admin/service-admin-portal-copilot",
     },
@@ -158,7 +168,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Copilot and Azure OpenAI Service", "scope": "tenant", "capabilities": ["copilot"],
         "default": "off", "target": "on ONLY if the capacity region has no in-region Azure OpenAI",
         "who": "Fabric tenant admin", "automatable": True,
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": "cross-geo Copilot processing (does not auto-delegate to capacity admins)",
         "required": "if Copilot cross-geo",
         "source": _L + "fabric/admin/service-admin-portal-copilot",
@@ -168,8 +178,8 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Copilot and Azure OpenAI Service", "scope": "tenant", "capabilities": ["data_agents"],
         "default": "on", "target": "on + designate the capacity as a Copilot capacity",
         "who": "Fabric tenant admin (+ capacity admin designation)", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy for the switch; capacity designation is portal",
-        "why": "Fabric Data Agents (preview) ride on the Copilot switches + a Copilot capacity",
+        "how": "Update Tenant Setting REST / sempy for the switch; capacity designation is portal",
+        "why": "Fabric Data Agents (GA since March 2026) ride on the Copilot switches + a Copilot capacity",
         "required": "if Data Agents",
         "source": _L + "fabric/data-science/data-agent-tenant-settings",
     },
@@ -184,7 +194,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["sharing"],
         "default": "off", "target": "on in the PROVIDING tenant + specify who may create shares",
         "who": "Fabric tenant admin (providing tenant)", "automatable": True,
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": "P5: without it nobody in our tenant can create the share at all",
         "required": "if sharing",
         "source": _L + "fabric/governance/external-data-sharing-enable",
@@ -206,7 +216,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Information protection", "scope": "tenant", "capabilities": ["governance"],
         "default": "off", "target": "on + a label policy that includes the caller",
         "who": "Fabric tenant admin", "automatable": True,
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal (SPNs exempt from MANDATORY labels)",
+        "how": "Update Tenant Setting REST / sempy — or portal (SPNs exempt from MANDATORY labels)",
         "why": "sensitivity-label application (--emit-governance)", "required": "if governance",
         "source": _L + "fabric/enterprise/powerbi/service-security-enable-data-sensitivity-labels",
     },
@@ -215,7 +225,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["governance"],
         "default": "off", "target": "on + a security group of authorized certifiers (SGs only, no named users)",
         "who": "Fabric tenant admin (delegatable to domain admin)", "automatable": True,
-        "how": "Update Tenant Setting REST (preview) / sempy (settingName CertifyDatasets) — or portal",
+        "how": "Update Tenant Setting REST / sempy (settingName CertifyDatasets) — or portal",
         "why": "endorsement / certification of gold products (--emit-governance)", "required": "if governance",
         "source": _L + "fabric/admin/endorsement-certification-enable",
     },
@@ -262,7 +272,7 @@ CATALOG: list[dict[str, Any]] = [
         "default": "off",
         "target": "on ONLY if the capacity region has no in-region Azure OpenAI (same condition as id 9)",
         "who": "Fabric tenant admin", "automatable": True,
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": ("Data Agents store conversation history across sessions — 28-day retention if the user "
                 "never clears the chat. An EU-Data-Boundary capacity needs NEITHER this nor id 9: MS's "
                 "region table maps EUDB capacity to EUDB processing. (The ontology tutorial lists both as "
@@ -276,7 +286,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Users can create and use new item types", "scope": "tenant", "capabilities": ["ontology"],
         "default": "off", "target": "on",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal (preview item switch)",
+        "how": "Update Tenant Setting REST / sempy — or portal (preview item switch)",
         "why": "the Ontology item we emit cannot be created at all without it",
         "required": "if ontology",
         "source": _L + "fabric/iq/ontology/overview-tenant-settings",
@@ -294,7 +304,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Admin API settings", "scope": "tenant", "capabilities": ["admin_apis"],
         "default": "off", "target": "on, scoped to the automation security group",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": ("der Readiness-Collector fährt `sempy_labs.admin.scan_workspaces`, also eine "
                 "READ-ONLY-Admin-API. MS: der SPN muss zusätzlich Mitglied der erlaubten "
                 "Sicherheitsgruppe sein — die Gruppenmitgliedschaft ist der zweite, gern übersehene "
@@ -307,7 +317,7 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Admin API settings", "scope": "tenant", "capabilities": ["admin_apis"],
         "default": "off", "target": "on",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": ("der Collector ruft `scan_workspaces(lineage=True, data_source_details=True)`. Ohne "
                 "diesen Schalter antwortet die API, aber ohne Tabellen-/Spalten-Metadaten — der Scan "
                 "wirkt erfolgreich und liefert eine leere Beobachtung. MS koppelt ihn ausdrücklich an "
@@ -464,7 +474,7 @@ CATALOG: list[dict[str, Any]] = [
         "default": 'on — MS: "The … tenant setting is on by default" (same-geo tenants)',
         "target": "off; the cross-geography sub-toggle off in every case",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal; changes take up to 24 hours",
+        "how": "Update Tenant Setting REST / sempy — or portal; changes take up to 24 hours",
         "why": ("mit diesem Schalter sendet Fabric von sich aus Metadaten an Microsoft 365 — "
                 "Berichtsname, Beschreibung, Adresse, ACL, Arbeitsbereich, Ersteller, Seitennamen, "
                 "Diagrammtitel sowie Spalten- und Measure-Namen, dazu wer welchen Bericht "
@@ -494,7 +504,7 @@ CATALOG: list[dict[str, Any]] = [
         "target": "off unless guest access was decided (SEC-SHARE); if decided, scoped to a named "
                   "security group, never the whole organisation",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": ("der Hauptschalter fuer Entra-B2B-Gaeste. Aus heisst: ein Gast bekommt einen Fehler, "
                 "auch auf Elemente, fuer die er Berechtigungen hat — und niemand kann ueber "
                 "Freigabe-Dialoge neue Gaeste einladen"),
@@ -508,7 +518,7 @@ CATALOG: list[dict[str, Any]] = [
         "default": "unverified — the settings page does not pin it",
         "target": "off — an invitation is a planned act, not a side effect of a share dialog",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": ("mit ihm entstehen neue Gastkonten **durch Teilen**: wer einen Bericht teilt, laedt "
                 "die fremde Adresse zugleich in die Organisation ein"),
         "required": "yes",
@@ -524,7 +534,7 @@ CATALOG: list[dict[str, Any]] = [
         "default": "unverified — the settings page does not pin it",
         "target": "off — sharing then falls back to 'Specific people' / 'People with existing access'",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": ("der „Jeder mit dem Link\"-Fall: ein einziger Klick macht einen Bericht fuer die "
                 "ganze Organisation lesbar, an jeder Rollen- und Domaenenlogik vorbei"),
         "required": "yes",
@@ -536,7 +546,7 @@ CATALOG: list[dict[str, Any]] = [
         "default": 'off — MS: "This setting is off by default for customers"',
         "target": "stays off",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": ("aus heisst nicht, dass der Gast das Modell nicht sieht — er sieht es weiterhin im "
                 "liefernden Tenant. An heisst, er darf es im **eigenen** Tenant weiterverwenden und "
                 "darauf aufbauen"),
@@ -555,7 +565,7 @@ CATALOG: list[dict[str, Any]] = [
         "target": "disabled for the whole organisation; where a business case exists, 'Allow only "
                   "existing embed codes' instead of a free hand",
         "who": "Fabric tenant admin", "automatable": "unverified",
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "how": "Update Tenant Setting REST / sempy — or portal",
         "why": ("die einzige Freigabe der Plattform, die **ohne Anmeldung** liest: ein "
                 "veroeffentlichter Bericht ist oeffentlich im Netz"),
         "required": "yes",
@@ -590,9 +600,9 @@ def procedural_settings(capabilities: Iterable[str]) -> list[dict[str, Any]]:
 def settability_summary(capabilities: Iterable[str]) -> dict[str, Any]:
     """Split the required settings into what a one-day setup can SCRIPT vs what needs a HUMAN.
 
-    Returns ``{scriptable[], scriptable_unverified[], needs_human[], api_preview_caveat, grounding_date}``
+    Returns ``{scriptable[], scriptable_unverified[], needs_human[], api_caveat, grounding_date}``
     where each list holds ``(id, name, how)`` tuples. ``scriptable`` = tenant settings settable via the
-    (preview) Update Tenant Setting API; ``scriptable_unverified`` = tenant settings whose API round-trip
+    Update Tenant Setting API; ``scriptable_unverified`` = tenant settings whose API round-trip
     MS docs don't individually confirm (smoke-test first); ``needs_human`` = capacity-admin / RBAC actions
     that no tenant-settings script can perform."""
     req = required_settings(capabilities)
@@ -602,7 +612,7 @@ def settability_summary(capabilities: Iterable[str]) -> dict[str, Any]:
         "scriptable": [_t(s) for s in req if s["automatable"] is True],
         "scriptable_unverified": [_t(s) for s in req if s["automatable"] == "unverified"],
         "needs_human": [_t(s) for s in req if s["automatable"] is False],
-        "api_preview_caveat": API_PREVIEW_CAVEAT,
+        "api_caveat": API_CAVEAT,
         "grounding_date": GROUNDING_DATE,
     }
 

@@ -23,7 +23,7 @@
 | API credentials | `export ANTHROPIC_API_KEY=…` (or `ant auth login`) | step 5 |
 | Model id | `export ANTHROPIC_MODEL=<your Claude model id>` — use the latest Opus model id | step 5 |
 
-> The pinned CLI is **public preview 0.1.1** — pin it (`npm install -g @microsoft/powerbi-report-authoring-cli@0.1.1`) so the vendored snapshot stays reproducible.
+> The pinned CLI is **public preview 0.4.0** (since 29.09.2026, `docs/architecture/pbir_cli_040_triage.md`) — pin it (`npm install -g @microsoft/powerbi-report-authoring-cli@0.4.0`) so the vendored snapshot stays reproducible.
 
 ---
 

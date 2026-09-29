@@ -4,7 +4,9 @@ Provides high-level functions that abstract Fabric CLI commands.
 """
 import subprocess
 import json
+import os
 import sys
+import tempfile
 import time
 import uuid
 from pathlib import Path
@@ -25,8 +27,41 @@ DEFAULT_RETRY_DELAY = 1.0
 DEFAULT_RETRY_BACKOFF = 2.0
 
 
+# Anmeldedaten des Dienstprinzipals gehen nur ueber die Umgebung an die
+# fab-Kindprozesse, nie in deren Befehlszeile (argv ist fuer `ps`,
+# /proc/<pid>/cmdline, Protokolle und jede Fehlermeldung ueber den Aufruf
+# lesbar). Die Fabric CLI liest FAB_SPN_CLIENT_ID / FAB_SPN_CLIENT_SECRET /
+# FAB_TENANT_ID bei jedem Start (ms-fabric-cli 1.7.0, core/fab_auth.py,
+# FabAuth._load_env). Die Werte stehen nur in diesem Modul, nicht in
+# os.environ -- andere Kindprozesse (pwsh, Validatoren) erben sie nicht.
+_ANMELDE_UMGEBUNG: Dict[str, str] = {}
+_GEHEIMWERTE: set = set()
+
+FAB_TIMEOUT_SECONDS = 120
+
+
+class SecretInCommandError(ValueError):
+    """Ein fab-Aufruf haette ein registriertes Geheimnis in argv getragen."""
+
+
+def register_secret(value: Optional[str]) -> None:
+    """Merkt einen Wert, der in keiner fab-Befehlszeile auftauchen darf."""
+    if value:
+        _GEHEIMWERTE.add(value)
+
+
+def _assert_no_secret(command: str) -> None:
+    for wert in _GEHEIMWERTE:
+        if wert in command:
+            # Bewusst ohne `command`: genau der wuerde das Geheimnis drucken.
+            raise SecretInCommandError(
+                "Fabric-CLI-Aufruf abgelehnt: die Befehlszeile enthielte ein "
+                "Geheimnis. Geheimes ueber Umgebung oder Datei uebergeben.")
+
+
 def _run_command_impl(command: str) -> str:
     """Internal: run Fabric CLI command and return stdout. Raises CalledProcessError on failure."""
+    _assert_no_secret(command)
     # Aufgeloester Pfad statt nacktem Namen -- siehe `tooling/prozess.py`:
     # auf Windows ist `fab` je nach Installationsweg eine `.cmd`-Huelle, die
     # `CreateProcess` nicht startet, obwohl `which` sie findet.
@@ -34,16 +69,21 @@ def _run_command_impl(command: str) -> str:
     if fab is None:
         raise FileNotFoundError(
             "fab CLI nicht gefunden — https://aka.ms/fabriccli")
-    result = subprocess.run(
-        befehl(fab, "-c", command),
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        env=kind_umgebung(),
-        check=True,
-        timeout=120,
-    )
+    try:
+        result = subprocess.run(
+            befehl(fab, "-c", command),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=kind_umgebung(**_ANMELDE_UMGEBUNG),
+            check=True,
+            timeout=FAB_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired:
+        # TimeoutExpired traegt `cmd` im Text; ohne ihn neu werfen.
+        raise TimeoutError(
+            f"fab-Aufruf nach {FAB_TIMEOUT_SECONDS} s abgebrochen") from None
     output = result.stdout.strip()
     filtered_lines = [
         line for line in output.splitlines()
@@ -62,6 +102,65 @@ def _run_command_impl(command: str) -> str:
 def _run_command_with_retry(command: str) -> str:
     """Run Fabric CLI command with retry on transient failures."""
     return _run_command_impl(command)
+
+
+def login_service_principal(tenant_id: str, client_id: str, client_secret: str) -> bool:
+    """Meldet die Fabric CLI als Dienstprinzipal an, ohne das Geheimnis in argv.
+
+    Ersetzt `fab auth login -u <id> -p <secret> --tenant <tid>`: die Werte gehen
+    als FAB_SPN_CLIENT_ID / FAB_SPN_CLIENT_SECRET / FAB_TENANT_ID in die
+    Umgebung jedes folgenden fab-Aufrufs. Geprueft wird mit `auth status`,
+    das dafuer ein Token holt; es endet auch ohne Anmeldung mit 0, deshalb
+    zaehlt nur die Zeile `Logged In: True`.
+    """
+    register_secret(client_secret)
+    _ANMELDE_UMGEBUNG.update({
+        "FAB_TENANT_ID": tenant_id,
+        "FAB_SPN_CLIENT_ID": client_id,
+        "FAB_SPN_CLIENT_SECRET": client_secret,
+    })
+    status = run_command("auth status", use_retry=False)
+    return any(line.strip().lower() == "logged in: true" for line in status.splitlines())
+
+
+def secret_from_environment(cli_value: Optional[str], flag: str, *env_names: str) -> Optional[str]:
+    """Liest ein Geheimnis nur aus der Umgebung; als Argument wird es abgelehnt.
+
+    Die Skripte nahmen `--client_secret` / `--github_pat` frueher als Argument
+    an -- damit stand das Geheimnis in der Befehlszeile des Python-Prozesses.
+    Das Argument bleibt deklariert, damit ein alter Aufruf laut scheitert statt
+    mit einer argparse-Meldung, die den Wert wiederholt.
+    """
+    if cli_value:
+        raise SystemExit(
+            f"{flag} als Befehlszeilenargument ist abgelehnt (Geheimnis waere in "
+            f"der Prozessliste lesbar). Stattdessen {' oder '.join(env_names)} setzen.")
+    for name in env_names:
+        wert = os.environ.get(name)
+        if wert:
+            register_secret(wert)
+            return wert
+    return None
+
+
+def _api_with_json_body(endpoint: str, payload: Dict[str, Any], method: str = "post") -> str:
+    """`fab api` mit Anfragekoerper aus einer Datei statt aus argv.
+
+    `fab api -i <pfad>.json` liest den Koerper aus der Datei (ms-fabric-cli
+    1.7.0, commands/api/fab_api.py, _parse_config_args). Die Datei liegt im
+    Systemtemp mit Rechten 600 und wird im finally entfernt.
+    """
+    fd, pfad = tempfile.mkstemp(prefix="fab_body_", suffix=".json")
+    try:
+        os.chmod(pfad, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as datei:
+            json.dump(payload, datei)
+        return run_command(f"api -X {method} {endpoint} -i {pfad}")
+    finally:
+        try:
+            os.remove(pfad)
+        except OSError:
+            pass
 
 
 def is_guid(value: str) -> bool:
@@ -278,7 +377,7 @@ def create_fabric_connection(
             }
         }
         
-        response = run_command(f"api -X post connections -i {json.dumps(connection_payload)}")
+        response = _api_with_json_body("connections", connection_payload)
         result = json.loads(response)
         
         if result.get("status_code") == 200 or result.get("status_code") == 201:
@@ -317,7 +416,7 @@ def create_github_connection(
             }
         }
         
-        response = run_command(f"api -X post connections -i {json.dumps(connection_payload)}")
+        response = _api_with_json_body("connections", connection_payload)
         result = json.loads(response)
         
         if result.get("status_code") == 200 or result.get("status_code") == 201:
@@ -365,7 +464,7 @@ def create_azuredevops_connection(
             }
         }
         
-        response = run_command(f"api -X post connections -i {json.dumps(connection_payload)}")
+        response = _api_with_json_body("connections", connection_payload)
         result = json.loads(response)
         
         if result.get("status_code") == 200 or result.get("status_code") == 201:

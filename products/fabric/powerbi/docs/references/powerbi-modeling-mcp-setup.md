@@ -6,33 +6,72 @@ relationships) — either this repo's PBIP output or a model open in Power BI De
 When to use MCP vs. file edits / REST: see [`fabric-powerbi-authoring.md`](fabric-powerbi-authoring.md)
 (MCP for fine-grained measure/column edits; not for structural changes such as new tables or partitions).
 
-## One-time install (Windows)
+## Installation: npm package, pinned (since 29.09.2026)
 
-1. **Download the server** (VSIX from the Visual Studio Marketplace):
-   `https://marketplace.visualstudio.com/_apis/public/gallery/publishers/analysis-services/vsextensions/powerbi-modeling-mcp/<version>/vspackage?targetPlatform=win32-x64`
-   — or install the [Power BI Modeling MCP VS Code extension](https://aka.ms/powerbi-modeling-mcp-vscode)
-   and locate its extension folder.
-2. **Extract:** rename the `.vsix` to `.zip` and unzip it, e.g. to `C:\MCPServers\PowerBIModelingMCP`.
-   The result is a versioned subfolder, e.g. `analysis-services.powerbi-modeling-mcp-0.1.9@win32-x64`.
-3. **Executable:** `<versioned-folder>\extension\server\powerbi-modeling-mcp.exe`.
-4. **Register** the server in your MCP client's local configuration (location depends on the client;
-   the file is machine-specific and is not committed). Reload/restart the client afterwards.
+The server ships as the npm package `@microsoft/powerbi-modeling-mcp` with native binaries for
+`linux-x64`, `linux-arm64`, `win32-x64`, `win32-arm64` and `darwin-arm64` (npm metadata,
+`npm view @microsoft/powerbi-modeling-mcp optionalDependencies`, 29.09.2026). The former route —
+unpacking the VS Code VSIX by hand to a Windows `.exe` (version 0.1.9) — is obsolete.
 
-### Example configuration
+**Pinned version: `1.0.0`** (`npm view @microsoft/powerbi-modeling-mcp version` → `1.0.0`,
+29.09.2026). The pin is tracked for drift in Freelancing `research/upstream_pins.yaml`
+(id `powerbi-modeling-mcp`). Raise it in one place — [`.mcp.json`](../../../../../.mcp.json) — and
+note the measurement below again.
 
-Standard `mcpServers` JSON (adjust the path to your version; use double backslashes in JSON):
+### Claude Code: project configuration
+
+The repo root carries [`.mcp.json`](../../../../../.mcp.json) (Claude Code project scope; Claude
+Code asks once per user before it starts a project server):
 
 ```json
 {
   "mcpServers": {
     "powerbi-modeling-mcp": {
-      "command": "C:\\MCPServers\\PowerBIModelingMCP\\analysis-services.powerbi-modeling-mcp-0.1.9@win32-x64\\extension\\server\\powerbi-modeling-mcp.exe",
-      "args": ["--start"],
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@microsoft/powerbi-modeling-mcp@1.0.0", "--start"],
       "env": {}
     }
   }
 }
 ```
+
+Other MCP clients take the same `command`/`args`. Without `--start` the package does not serve
+MCP: it prints a registration hint and waits for a key press (on a redirected console it ends
+with `System.InvalidOperationException: Cannot read keys…`, measured 29.09.2026).
+
+### Licence (EULA) — deliberately not accepted in the repo
+
+Every tool call answers with *"The Power BI Authoring MCP EULA must be accepted before using this
+tool"* until the EULA is accepted (measured 29.09.2026, three tools, all `isError: true`). The
+committed configuration does **not** pass `--accept-eula`: accepting the licence is the user's
+decision, not the repository's. Three ways, per the server's own message: call the server's
+`accept_eula` tool in the session, set `PBI_MODELING_MCP_ACCEPT_EULA=true` in your own
+environment, or add `--accept-eula` in a local, uncommitted client configuration. Licence text:
+https://go.microsoft.com/fwlink/?LinkId=2381247.
+
+### Measured under Linux (29.09.2026)
+
+Environment: Linux x86_64, Node 22.22.2, `npx -y @microsoft/powerbi-modeling-mcp@1.0.0 --start`,
+driven by a small stdio JSON-RPC client (initialize → tools/list → tools/call); EULA accepted via
+`PBI_MODELING_MCP_ACCEPT_EULA=true` for the measurement only.
+
+| Step | Result |
+|---|---|
+| `initialize` | answer after 2.3 s, `serverInfo.name = powerbi-authoring-local`, version `1.0.0` |
+| `tools/list` | 21 tools (`connection_operations`, `database_operations`, `model_operations`, `table_operations`, `measure_operations`, `relationship_operations`, `dax_query_operations`, …) |
+| `ConnectFolder` + `table_operations List` + `measure_operations List`, `dist/*.SemanticModel` | **3 of 5 load**: Commercial 19 tables / 54 measures / 22 relationships, Finance 23/69/30, Operations 16/53/15 |
+| same, Experience and SupplyChain | **fail**: `'database.tmdl' not found` — both `definition/` folders carry no `database.tmdl` (the other three do) |
+
+Second measurement for the three loading models: the counts equal the files on disk
+(`ls definition/tables | wc -l`, `grep -c '^\s*measure '` over `tables/`, `grep -c '^relationship '`
+over `definition/`) — 19/54/22, 23/69/30, 16/53/15.
+
+What this does **not** show: the Power BI Desktop connection (Windows only), `dax_query_operations`
+(needs a running engine — Desktop or a Fabric workspace; an offline TMDL folder has none), and
+`ConnectFabric`/`DeployToFabric` (need a tenant and sign-in). Changes made through `ConnectFolder`
+stay in memory until `database_operations ExportToTmdlFolder` — and `dist/` is generator output,
+so the MCP is for reading and trying out; lasting changes go into the generators.
 
 ### Options
 
@@ -40,14 +79,15 @@ Standard `mcpServers` JSON (adjust the path to your version; use double backslas
 |------|--------|
 | Read-only (no model edits) | Add `"--readonly"` to `args`. |
 | Skip confirmation prompts | Add `"--skipconfirmation"` to `args`. Use only if you trust the operations and have backups. |
-| Fabric workspace auth | Set `"PBI_MODELING_MCP_ACCESS_TOKEN": "<token>"` in `env` (never commit a token). |
+| Fabric workspace auth | Set `"PBI_MODELING_MCP_ACCESS_TOKEN": "<token>"` in `env` of a **local** configuration (never commit a token). |
 
 ## Connecting to this repo's models
 
-- **PBIP semantic model (TMDL):** connect via `connection_operations` → `ConnectFolder` (or the
-  server's *ConnectToPBIP* prompt) with the path to the model's **definition** folder, e.g.
-  `products/fabric/powerbi/dist/Commercial.SemanticModel/definition` (absolute path also works).
-  Other domains: `Experience`, `Finance`, `Operations`, `SupplyChain`.
+- **PBIP semantic model (TMDL):** connect via `connection_operations` → `ConnectFolder` with the
+  path to the `.SemanticModel` folder or its `definition` subfolder (the server looks for
+  `database.tmdl` in both), absolute path, e.g.
+  `products/fabric/powerbi/dist/Commercial.SemanticModel`. Loads today: `Commercial`, `Finance`,
+  `Operations`; `Experience` and `SupplyChain` lack `database.tmdl` (see measurement above).
 - **Power BI Desktop:** with a `.pbip` open in Desktop, connect with
   `Connect to '[Report or Model Name]' in Power BI Desktop`.
 - **Typical tools:** `connection_operations` (ConnectFolder, ListConnections), `model_operations`

@@ -25,6 +25,10 @@ either passes meaninglessly or blocks a pipeline on a guess, and neither is wort
 
 Finally this consumes ``medallion.silver.quality_threshold`` — a field the IR has always
 declared and no emitter has ever read.
+
+**Supplier number three** (ALUCA-Ledger A-20, 29.09.2026) lives at the end of this module: the
+data contract's own ``column_specs`` (governed catalog) → dbt column tests for ``emit_dq_gates``
+and ``CHECK`` constraints for ``emit_mlv`` — translated here, once, not in a second DQ engine.
 """
 from __future__ import annotations
 
@@ -237,3 +241,262 @@ def emit_ingress_dq(bp: dict[str, Any],
         index += ["", "Run their introspection query (`source_schema/queries/`) and re-emit."]
     out["dq_ingress/_INDEX.md"] = "\n".join(index) + "\n"
     return out
+
+
+# ═══════════════════════════════════════════════════════════════════════════════════════════
+# Lieferant 3: der Datenvertrag selbst (`column_specs` im governed catalog, ALUCA-Ledger A-20)
+# ═══════════════════════════════════════════════════════════════════════════════════════════
+#
+# ALUCAs Datenvertraege tragen seit A-20 strukturierte Pruefungen je Spalte. Sie kommen ueber
+# denselben Weg wie die Spaltennamen (`meridian/governed-catalog/v1`, je Tabelle
+# `column_specs: [{name, type, nullable, ref, unknown_member, checks, target_state}]`) und
+# werden HIER, an einer Stelle, in die zwei Formen uebersetzt, die die vorhandenen Emitter
+# schon sprechen. Kein zweiter DQ-Ausfuehrer:
+#
+#   * `vertrags_spaltentests`  → dbt-Spaltentests fuer `emit_dq_gates(column_tests=…)`
+#     (not_null, relationships, accepted_values). Bereiche gehen NICHT nach dbt: dbt-core hat
+#     keinen generischen Bereichstest, und `emit_dq_gates` bleibt bewusst ohne `dbt_utils`.
+#   * `vertrags_constraints`   → `CONSTRAINT … CHECK (…) ON MISMATCH …` fuer `emit_mlv`.
+#   * `pruef_praedikat`        → das SQL-Praedikat einer Pruefung; dieselbe Funktion speist
+#     die MLV-Bedingung und die ODCS-`quality`-Regel (`odcs.to_odcs`), damit es genau eine
+#     Uebersetzung gibt.
+#
+# NULL-Semantik, ausdruecklich statt dem Dialekt ueberlassen: ohne `when_present` ist NULL ein
+# Verstoss, mit `when_present: true` wird nur der Nicht-NULL-Wert geprueft. Jedes Praedikat ist
+# damit zweiwertig (nie NULL) — ob eine Engine ein NULL-Ergebnis als Treffer oder Verstoss
+# wertet, spielt keine Rolle mehr. MS Learn nennt die NULL-Behandlung von MLV-Bedingungen
+# nicht (*Data quality in materialized lake views*, abgerufen 29.09.2026).
+#
+# `showcase` (je Tabelle) aendert hier nichts: es beschreibt die Showcase-Abdeckung in ALUCA,
+# nicht das Kundenschema. `target_state: true` heisst Zielbild — keine Pruefung, aber als
+# `TODO(target_state:…)` sichtbar.
+
+#: Vergleichsoperatoren mit einem Zahlenwert → SQL-Operator.
+_VERGLEICH = {"gte": ">=", "gt": ">", "lte": "<=", "lt": "<"}
+#: Spaltenvergleiche → SQL-Operator.
+_SPALTENVERGLEICH = {"gte_column": ">=", "lte_column": "<="}
+PRUEF_OPERATOREN = (*_VERGLEICH, "between", "in", *_SPALTENVERGLEICH)
+
+
+def _spark_zitat(spalte: str) -> str:
+    from core.dataarch_engine.blueprint.provision_transforms import zitiere
+    return zitiere(spalte)
+
+
+def _literal(wert: Any) -> str:
+    """SQL-Literal. Zahlen bleiben Zahlen, alles andere wird eine Zeichenkette."""
+    if isinstance(wert, bool):
+        return "TRUE" if wert else "FALSE"
+    if isinstance(wert, (int, float)):
+        return repr(wert)
+    return "'" + str(wert).replace("'", "''") + "'"
+
+
+def pruef_operator(check: dict[str, Any]) -> str:
+    """Der eine Operator-Schluessel einer Pruefung; ``ValueError`` bei null oder mehreren."""
+    if not isinstance(check, dict):
+        raise ValueError(f"Pruefung ist kein Objekt: {check!r}")
+    ops = [k for k in check if k != "when_present"]
+    if len(ops) != 1 or ops[0] not in PRUEF_OPERATOREN:
+        raise ValueError(f"Pruefung braucht genau einen Schluessel aus {PRUEF_OPERATOREN}, "
+                         f"hat {ops}")
+    return ops[0]
+
+
+def pruef_spalten(spalte: str, check: dict[str, Any]) -> list[str]:
+    """Die Spalten, die eine Pruefung liest (die eigene, bei Spaltenvergleichen auch die andere)."""
+    op = pruef_operator(check)
+    return [spalte, str(check[op])] if op in _SPALTENVERGLEICH else [spalte]
+
+
+def pruef_praedikat(spalte: str, check: dict[str, Any], zitat=None,
+                    spalte_sql: str | None = None) -> str:
+    """Das zweiwertige SQL-Praedikat einer Pruefung — WAHR heisst: die Zeile haelt.
+
+    ``zitat`` maskiert Spaltennamen (Vorgabe: Spark-Backticks wie ``provision_transforms.zitiere``);
+    ``spalte_sql`` ersetzt die gerenderte eigene Spalte (ODCS: ``{property}``).
+    """
+    zitat = zitat or _spark_zitat
+    op = pruef_operator(check)
+    wert = check[op]
+    c = spalte_sql if spalte_sql is not None else zitat(spalte)
+    nullbar = [c]
+    if op in _VERGLEICH:
+        if isinstance(wert, bool) or not isinstance(wert, (int, float)):
+            raise ValueError(f"'{op}' erwartet eine Zahl, hat {wert!r}")
+        kern = f"{c} {_VERGLEICH[op]} {_literal(wert)}"
+    elif op == "between":
+        if (not isinstance(wert, (list, tuple)) or len(wert) != 2
+                or any(isinstance(w, bool) or not isinstance(w, (int, float)) for w in wert)):
+            raise ValueError(f"'between' erwartet [a, b] aus Zahlen, hat {wert!r}")
+        kern = f"{c} BETWEEN {_literal(wert[0])} AND {_literal(wert[1])}"
+    elif op == "in":
+        werte = [w for w in (wert or []) if w is not None]
+        if not werte:
+            raise ValueError(f"'in' erwartet eine nicht-leere Liste, hat {wert!r}")
+        kern = f"{c} IN ({', '.join(_literal(w) for w in werte)})"
+    else:
+        if not isinstance(wert, str) or not wert:
+            raise ValueError(f"'{op}' erwartet einen Spaltennamen, hat {wert!r}")
+        andere = zitat(wert)
+        # Vertragssemantik (ALUCA core/data_contracts/domains/README.md): ein NULL auf der
+        # Vergleichsseite ist nicht auswertbar und zaehlt nicht als Verstoss — unabhaengig von
+        # `when_present`, das nur die eigene Spalte betrifft.
+        kern = f"({andere} IS NULL OR {c} {_SPALTENVERGLEICH[op]} {andere})"
+    if check.get("when_present") is True:
+        return "(" + " OR ".join(f"{n} IS NULL" for n in nullbar) + f" OR {kern})"
+    return "(" + " AND ".join(f"{n} IS NOT NULL" for n in nullbar) + f" AND {kern})"
+
+
+def _katalog_tabelle(governed_catalog: dict | None, name: str) -> dict:
+    """Katalogeintrag zu einem Tabellen-/Produktnamen (``name`` oder ``gold_<name>``)."""
+    for t in (governed_catalog or {}).get("tables") or []:
+        tn = str(t.get("name") or "")
+        if tn in (name, f"gold_{name}") or (tn.startswith("gold_") and tn[5:] == name):
+            return t
+    return {}
+
+
+def ref_ziel(governed_catalog: dict | None, spalte: str, ref: str) -> tuple[str, str | None]:
+    """``(Dimension, Schluesselspalte | None)`` zu einem ``ref``.
+
+    Reihenfolge, von belegt zu hergeleitet: ausdrueckliches ``dim.spalte`` → der deklarierte
+    einspaltige ``key`` der Dimension → dieselbe Spalte gibt es in der Dimension (ALUCA-
+    Konvention ``DateKey`` → ``dim_date.DateKey``). Sonst ``None``: kein erfundenes Ziel.
+    """
+    ref = str(ref or "")
+    tabelle, _, feld = ref.partition(".")
+    dim = _katalog_tabelle(governed_catalog, tabelle)
+    if feld:
+        return tabelle, feld
+    key = [k for k in (dim.get("key") or []) if k]
+    if len(key) == 1:
+        return tabelle, key[0]
+    spalten = set(dim.get("columns") or []) | {
+        s.get("name") for s in dim.get("column_specs") or [] if isinstance(s, dict)}
+    return tabelle, (spalte if spalte in spalten else None)
+
+
+def _gold_ident(name: str) -> str:
+    from core.dataarch_engine.blueprint.provision_transforms import _ident
+    return _ident(name)
+
+
+def vertrags_spaltentests(governed_catalog: dict | None) -> dict[str, list[dict]]:
+    """``{Tabelle → [dbt-Spaltentests]}`` aus den ``column_specs`` — Lieferant 3 fuer ``emit_dq_gates``.
+
+    * ``nullable: false`` oder ``unknown_member`` → ``not_null`` (``unknown_member`` heisst
+      „nie NULL, <wert> = unbekannt“ — dieselbe Regel wie die Schnittspalten).
+    * ``ref`` → ``not_null`` bleibt Sache von ``nullable``; dazu ``relationships`` zur Dimension,
+      wenn das Ziel belegbar ist (``ref_ziel``), sonst ein sichtbares TODO statt eines Ziels.
+    * ``checks: [{in: …}]`` → ``accepted_values`` (ohne ``when_present`` zusaetzlich ``not_null``,
+      weil dbt NULL in ``accepted_values`` durchlaesst).
+    * Bereichs-/Spaltenvergleiche → kein dbt-Test (kein ``dbt_utils``), Hinweis auf ``mlv/``.
+    * ``target_state: true`` → ``TODO(target_state:<spalte>)``, keine Pruefung.
+    * ein unlesbarer Pruefeintrag → ``TODO(contract-check:<spalte>)`` mit dem Grund.
+    Schluessel sind Katalognamen; ein ``gold_``-Praefix wird zusaetzlich ohne gefuehrt.
+    """
+    out: dict[str, list[dict]] = {}
+    for t in (governed_catalog or {}).get("tables") or []:
+        specs = [s for s in t.get("column_specs") or [] if isinstance(s, dict) and s.get("name")]
+        if not specs:
+            continue
+        key = [k for k in (t.get("key") or []) if k]
+        eintraege: list[dict] = []
+        for s in specs:
+            # physische Spalte: `source_column` (Vertrag trennt Modellname und Gold-Spalte), sonst name
+            name = str(s.get("source_column") or s["name"])
+            if s.get("target_state") is True:
+                eintraege.append({"name": f"TODO(target_state:{name})",
+                                  "description": "Zielbild laut Datenvertrag — noch keine Pruefung."})
+                continue
+            tests: list[Any] = []
+            notizen: list[str] = []
+            if s.get("nullable") is False or "unknown_member" in s:
+                tests.append("not_null")
+            if "unknown_member" in s:
+                notizen.append(f"nie NULL; {s['unknown_member']!r} = unbekannt")
+            if len(key) == 1 and key[0] == name:
+                tests.append("unique")
+            if s.get("ref"):
+                dim, feld = ref_ziel(governed_catalog, name, s["ref"])
+                if feld:
+                    tests.append({"relationships": {"to": f"ref('gold_{_gold_ident(dim)}')",
+                                                    "field": feld}})
+                else:
+                    notizen.append(f"TODO(contract:ref): Schluessel von '{dim}' nicht belegt — "
+                                   "kein relationships-Test")
+            for check in s.get("checks") or []:
+                try:
+                    op = pruef_operator(check)
+                    pruef_praedikat(name, check)             # dieselbe Validierung wie MLV
+                except ValueError as e:
+                    notizen.append(f"TODO(contract-check:{name}): {e}")
+                    continue
+                if op == "in":
+                    if check.get("when_present") is not True and "not_null" not in tests:
+                        tests.append("not_null")
+                    tests.append({"accepted_values": {"values": list(check["in"])}})
+                else:
+                    notizen.append(f"{op} → MLV-Bedingung (mlv/), kein dbt-Test ohne dbt_utils")
+            if tests or notizen:
+                e: dict[str, Any] = {"name": name}
+                if notizen:
+                    e["description"] = "Datenvertrag: " + "; ".join(notizen)
+                if tests:
+                    e["tests"] = tests
+                eintraege.append(e)
+        if eintraege:
+            tn = str(t.get("name"))
+            out[tn] = eintraege
+            if tn.startswith("gold_"):
+                out.setdefault(tn[5:], eintraege)
+    return out
+
+
+def vertrags_constraints(table: dict | None, produkt_ident: str, aktion: str,
+                         spalten: list[str] | None = None) -> tuple[list[str], list[str]]:
+    """``(CONSTRAINT-Zeilen, TODO-Kommentare)`` fuer eine MLV aus den ``column_specs`` ihrer Tabelle.
+
+    Syntax nach MS Learn *Spark SQL reference for materialized lake views* und *Data quality in
+    materialized lake views* (abgerufen 29.09.2026): ``CONSTRAINT <name> CHECK (<bool>) ON
+    MISMATCH DROP|FAIL``, mehrere Bedingungen erlaubt; ohne Angabe gilt ``FAIL``, und stehen
+    DROP und FAIL in einer Sicht, gewinnt FAIL. ``aktion`` kommt deshalb vom Aufrufer (dieselbe
+    Art-Politik wie die Schluesselbedingung), damit eine Sicht nicht gemischt wird.
+
+    Eine Bedingung auf eine Spalte, die die Projektion ``spalten`` nicht fuehrt, wird nicht
+    aktiv geschrieben — MLV_CONSTRAINT_SCHEMA_VIOLATION war genau dieser Fehler (13.08.2026).
+    """
+    zeilen: list[str] = []
+    offen: list[str] = []
+    vergeben: set[str] = set()
+    projektion = set(spalten or [])
+    for s in (table or {}).get("column_specs") or []:
+        if not isinstance(s, dict) or not s.get("name"):
+            continue
+        name = str(s.get("source_column") or s["name"])   # physische Spalte, s. o.
+        checks = s.get("checks") or []
+        if s.get("target_state") is True:
+            if checks:
+                offen.append(f"-- TODO(target_state:{name}): {len(checks)} Pruefung(en) im Zielbild, "
+                             "noch nicht aktiv.")
+            continue
+        for check in checks:
+            try:
+                op = pruef_operator(check)
+                praedikat = pruef_praedikat(name, check)
+            except ValueError as e:
+                offen.append(f"-- TODO(contract-check:{name}): {e}")
+                continue
+            fehlt = [c for c in pruef_spalten(name, check) if projektion and c not in projektion]
+            if fehlt:
+                offen.append(f"-- TODO(contract-check:{name}): {op} liest {', '.join(fehlt)} — "
+                             f"nicht in der Projektion, Bedingung nicht aktiv: CHECK {praedikat}")
+                continue
+            basis = f"{produkt_ident}_{_gold_ident(name) or 'spalte'}_{op}"
+            cname, n = basis, 2
+            while cname in vergeben:
+                cname, n = f"{basis}_{n}", n + 1
+            vergeben.add(cname)
+            zeilen.append(f"    CONSTRAINT {cname} CHECK {praedikat} ON MISMATCH {aktion}")
+    return zeilen, offen

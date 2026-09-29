@@ -1,6 +1,6 @@
 # Umsetzungsplan — Agentische Report-Entwicklung als deterministische Schleife
 
-**Stand 24.09.2026 · Status: in Arbeit (AP-2, AP-3, AP-4, AP-11 ohne Tenant umgesetzt, AP-8 gesichtet) · Übergabe an Cowork (Flos Rechner)**
+**Stand 29.09.2026 · Status: in Arbeit (AP-2, AP-3, AP-4, AP-11 ohne Tenant umgesetzt, AP-8 gesichtet, AP-1 ALUCA-Konfiguration gemessen) · Übergabe an Cowork (Flos Rechner)**
 
 Anlass: Flo hat am 24.09.2026 eine Zusammenfassung des Videos „Agentic development of Power BI
 reports and semantic models" (https://youtu.be/zalHX6SLp6w) eingebracht. Das Video selbst wurde
@@ -27,19 +27,19 @@ Der eigentliche Gewinn für uns: **Rendern im Power BI Service statt in Desktop.
 Desktop-Blocker der offenen Punkte R6.1, R6.2, R6.3, R4.1/R4.2 und R1.6
 (`UMSETZUNGSPLAN_REPORT_EXZELLENZ.md`) und läuft auf Linux und in CI.
 
-## 2 · Bestand (gemessen 24.09.2026)
+## 2 · Bestand (gemessen 24.09.2026; drei Zeilen nachgemessen 29.09.2026)
 
 | Baustein | Wo | Stand |
 |---|---|---|
 | Deterministische Spezifikation (Bracket, KPI-Katalog, Action-Codes, Ziele) | ALUCA `core/`, `tooling/codegen/` | fertig, mit `--check` |
-| PBIR-/TMDL-Generator | ALUCA `products/fabric/powerbi/tooling/page_scaffold_generator/`, `tooling/codegen/` | fertig, 15 von 17 Reports |
-| Strukturprüfungen | ALUCA `tooling/quality/run_quality_gate.ps1`, `tooling/report_quality/report_scorecard.py`; Meridian `make check-pbir` (`powerbi-report-author` 0.1.1) | fertig |
+| PBIR-/TMDL-Generator | ALUCA `products/fabric/powerbi/tooling/page_scaffold_generator/`, `tooling/codegen/` | fertig, 15 von 17 Reports. **Nachtrag 29.09.2026:** das ist der deprecated Prototyp-Renderer (`generate_full_report.py` nur mit `--allow-deprecated-prototype`, aufgerufen aus `generate_phase5_reports.ps1`); der offizielle Superversion-Emit `tooling/superversion/targets/pbir.py` schreibt nicht nach `dist/`. Zwei Pfade, Ledger A-18 in `../architecture/_INDEX.md` |
+| Strukturprüfungen | ALUCA `tooling/quality/run_quality_gate.ps1`, `tooling/report_quality/report_scorecard.py`; Meridian `make check-pbir` (`powerbi-report-author` 0.1.1) | fertig. **Nachtrag 29.09.2026:** auch ALUCA `superversion.yml` installiert die CLI gepinnt 0.1.1 und prüft den Emit blockierend (`e2e_smoke --require-cli`); lokal gemessen 0 Errors für COM-001, die 17 `dist/`-Reports 23 bis 25 Errors je Report (Ratsche, `premium-acceptance-F0-F6.md` F1). npm führt inzwischen 0.4.0 (`npm view`, 29.09.2026); der Pin ist bewusst |
 | Manueller Render-Ablauf | ALUCA `RENDER_GATED_RUNBOOK.md` (Windows-Laptop-Sitzung, 7 Schritte) | Checkliste, keine Pipeline |
 | Desktop-Screenshots | ALUCA `products/fabric/powerbi/tooling/desktop_bridge_screenshot.ps1` (R4.1) | gebaut, vom Maintainer nie erfolgreich ausgeführt |
 | Export über die echte Power-BI-Engine | Meridian `products/pbi_visual_regression/fabric_export.py`, `bootstrap_fabric.py`, CLI `fabric-render`, `bootstrap-fabric`; Workflow `visual-fabric.yml` | gebaut; **30 von 30 Läufen rot**, die letzten nach ~4 s im Limit-Fenster, ob die Secrets gesetzt sind, ist offen |
 | Headless-Renderer + Pixelvergleich | Meridian `products/pbi_visual_regression/` (`capture`, `verify`) | fertig, Baselines je Plattform |
 | LLM-Judge | ALUCA `products/fabric/powerbi/tooling/judge/llm_judge_prompt_v1.md`, `tooling/report_quality/boutique_scorecard` | Prompt versioniert, nie über echte Bilder gelaufen |
-| Modeling-MCP | ALUCA `.cursor/mcp.json` | **veraltet**: Windows-Exe 0.1.9 von Hand entpackt |
+| Modeling-MCP | ALUCA `.mcp.json` (seit 29.09.2026; `.cursor/` ist abgeschafft) | npm `@microsoft/powerbi-modeling-mcp@1.0.0` gepinnt; startet unter Linux, lädt 3 von 5 dist-Modellen (AP-1). Vorher: Windows-Exe 0.1.9 von Hand entpackt |
 
 ## 3 · Was Microsoft dazu offiziell anbietet (Learn, 24.09.2026)
 
@@ -110,11 +110,32 @@ Desktop, Pakete mit ☁ einen Tenant.
 - `powerbi-authoring`-Plugin für Claude Code/Cowork installieren.
 - ALUCA `.cursor/mcp.json` auf `npx @microsoft/powerbi-modeling-mcp@<Version>` umstellen und
   `.cursor/MCP_SETUP.md` nachziehen; dieselbe Konfiguration als `.mcp.json` für Claude Code.
+  **Nachtrag 29.09.2026:** `.cursor/` gibt es nicht mehr (25.09.2026); Ziel ist damit nur noch
+  `.mcp.json` plus die Setup-Doku unter `products/fabric/powerbi/docs/references/`.
 - Pins in Freelancing `research/upstream_pins.yaml` aufnehmen (MCP-Paket, Skills-Commit), damit
   `make check-upstream` (D-238) Drift meldet.
 - Entscheidung als D-Nummer (Meridian) und ADR-Zeile (ALUCA) festhalten (E6).
 - **Fertig, wenn** der MCP lokal einen PBIP-Ordner aus `products/fabric/powerbi/dist/` öffnet und
   Tabellen und Measures auflistet, und `make check-upstream` die neuen Pins kennt.
+- **Stand 29.09.2026 (ALUCA-Teil, gemessen unter Linux):** `.cursor/` gibt es nicht mehr
+  (Commit `8abea425`), die Konfiguration steht nur noch in `.mcp.json` (Claude-Code-Projektformat,
+  `npx -y @microsoft/powerbi-modeling-mcp@1.0.0 --start`). Version gemessen mit
+  `npm view @microsoft/powerbi-modeling-mcp version` → `1.0.0`. Gemessen mit einem stdio-JSON-RPC-
+  Client (Linux x86_64, Node 22.22.2): `initialize` antwortet nach 2,3 s, `tools/list` liefert
+  21 Werkzeuge; `ConnectFolder` + `table_operations List` + `measure_operations List` laden
+  **3 von 5** dist-Modellen — Commercial 19 Tabellen/54 Measures/22 Beziehungen, Finance
+  23/69/30, Operations 16/53/15; Gegenprobe über die TMDL-Dateien (Tabellendateien,
+  `measure`- und `relationship`-Zeilen gezählt) ergibt dieselben Zahlen. **Experience und
+  SupplyChain scheitern** mit `'database.tmdl' not found`: beiden `definition/`-Ordnern fehlt die
+  Datei, die die drei anderen tragen — offen, gehört in den Generator, nicht von Hand nach `dist/`.
+  Ohne angenommene EULA antwortet jedes Werkzeug mit einem Fehler; `.mcp.json` nimmt sie bewusst
+  **nicht** an (Entscheidung des Nutzers: `accept_eula`-Werkzeug oder
+  `PBI_MODELING_MCP_ACCEPT_EULA=true` lokal). Nicht gemessen: Desktop-Verbindung (Windows),
+  DAX-Abfragen (brauchen eine laufende Engine), `ConnectFabric` (Tenant). Details:
+  `products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md`. **Offen:** Plugin
+  `powerbi-authoring`, Pin im Freelancing-`research/upstream_pins.yaml` (dort steht das Paket mit
+  `track: true`, aber ohne Version und mit der Notiz „nur Desktop, Windows“ — nachziehen),
+  D-Nummer/ADR-Zeile (E6), `database.tmdl` für Experience und SupplyChain.
 
 ### AP-2 · Sandbox-Lebenszyklus als Kommando ☁
 - Heimat: ALUCA `products/fabric/orchestrator/` (E4, 24.09.2026), Spiegel nach Meridian.

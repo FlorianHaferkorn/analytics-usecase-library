@@ -2481,6 +2481,8 @@ def emit_dq_gates(blueprint: dict, schemas: bool = False,
     supply when it actually knows the columns (e.g. the SAP standard pack → real key not_null+unique and
     FK not_null + ``relationships`` to the referenced dim). Where present, real tests replace the
     ``TODO(contract:…)`` placeholder for that product; absent products keep the honest placeholder.
+    Suppliers: the SAP pack (``sap_dq``), the introspected source (``provision_dq``, ingress) and
+    the data contract's ``column_specs`` (``provision_dq.vertrags_spaltentests``, ALUCA A-20).
     """
     med = blueprint.get("medallion", {})
     contract_ref = med.get("silver", {}).get("data_contract_ref", "<silver-contract>")
@@ -2650,6 +2652,9 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
       comment** above the statement rather than an un-parseable ``<placeholder>`` inside a ``CHECK``.
     * **Projection** — with a ``governed_catalog`` the ``SELECT`` lists the real columns; without one it
       stays ``SELECT *`` + a ``TODO(contract)`` marker (never invents columns).
+    * **Contract checks** — ``column_specs[].checks`` (ALUCA A-20) become additional ``CHECK``
+      constraints with the same kind policy (``provision_dq.vertrags_constraints``); a check on a
+      column outside the projection stays a TODO comment (never a constraint on a missing column).
     * **PARTITIONED BY** — emitted only for a real date-ish catalog column; otherwise the grain is noted
       as a partition TODO comment (grain is prose, not a column).
     * **TBLPROPERTIES** — deterministic provenance tags (generator/layer/kind), always valid.
@@ -2737,16 +2742,25 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
                     f"(`transforms/…/silver_to_gold__{pident}.sql`).")
 
             # --- #1 DQ constraint: active when the key is known, else a valid template comment ----------
+            # Dazu die Pruefungen aus dem Datenvertrag (`column_specs`, Lieferant 3, ALUCA A-20),
+            # uebersetzt an EINER Stelle (`provision_dq.vertrags_constraints`), mit derselben
+            # Art-Politik: MS Learn — stehen DROP und FAIL in einer Sicht, gewinnt FAIL.
+            from core.dataarch_engine.blueprint.provision_dq import vertrags_constraints
+            vertrag_zeilen, vertrag_offen = vertrags_constraints(kat, pident, action, columns)
+            preamble.extend(vertrag_offen)
             if key_col:
-                constraint_block = (f" (\n    CONSTRAINT {pident}_{suffix}_not_null "
-                                    f"CHECK ({key_col} IS NOT NULL) ON MISMATCH {action}\n)")
+                zeilen = [f"    CONSTRAINT {pident}_{suffix}_not_null "
+                          f"CHECK ({key_col} IS NOT NULL) ON MISMATCH {action}", *vertrag_zeilen]
                 constraint_cell = f"`… CHECK ({key_col} …) ON MISMATCH {action}`"
             else:
-                constraint_block = ""
+                zeilen = list(vertrag_zeilen)
                 preamble.append(
                     f"-- TODO(contract:{c_ref}): add the DQ constraint once the key column is known — "
                     f"CONSTRAINT {pident}_{suffix}_not_null CHECK (<{kind}_key> IS NOT NULL) ON MISMATCH {action}")
                 constraint_cell = f"template (no catalog key) · ON MISMATCH {action}"
+            constraint_block = (" (\n" + ",\n".join(zeilen) + "\n)") if zeilen else ""
+            if vertrag_zeilen:
+                constraint_cell += f" + {len(vertrag_zeilen)} contract check(s)"
 
             # --- #3 partition: real date-ish catalog column, else the grain as a TODO comment ----------
             part_col = _mlv_partition_column(columns, kat)

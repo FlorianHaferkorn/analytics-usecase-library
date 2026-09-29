@@ -107,7 +107,7 @@ if ($wrongFormat.Count -gt 0) {
   Write-Host ""
   Write-Host "The following date-partitioned facts are Parquet but should be Delta:" -ForegroundColor Yellow
   $wrongFormat | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
-  Write-Host "Install deltalake (pip install deltalake) and regenerate, or run: py showcases/aurora_group/data/scripts/generate_aurora_gold.py --domain <domain>" -ForegroundColor Gray
+  Write-Host "Install deltalake (pip install deltalake==1.6.2, pinned: 1.6.6 URL-encodes log paths) and regenerate, or run: py showcases/aurora_group/data/scripts/generate_aurora_gold.py --domain <domain>" -ForegroundColor Gray
   exit 1
 }
 
