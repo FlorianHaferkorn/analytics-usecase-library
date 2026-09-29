@@ -442,6 +442,15 @@ class TestComputeH8:
         hyg = result["details"]["hygiene"]
         assert hyg["visible_keys"] == {} and hyg["weak_descriptions"] == {}
 
+    def test_consumer_is_copilot_after_qna_retirement(self):
+        """W3.3: Q&A ends Feb 2027; H8 names Copilot as its consumer, with dated Learn evidence."""
+        repo_root = Path(__file__).resolve().parents[2]
+        details = compute_h8(repo_root)["details"]
+        assert details["consumers"] == ["copilot"]
+        assert details["evidence"]["qna_end"] == "2027-02"
+        assert details["evidence"]["checked"] == "2026-09-29"
+        assert all(u.startswith("https://learn.microsoft.com/") for u in details["evidence"]["sources"])
+
     def test_red_when_a_visible_key_is_reintroduced(self, tmp_path):
         # Coverage is complete, but a visible surrogate key fails the hygiene half.
         self._seed(tmp_path, ["Sales Region", "Geo"])

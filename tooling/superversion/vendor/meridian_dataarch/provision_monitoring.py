@@ -53,11 +53,17 @@ def _recipients(alerts: dict, key: str) -> list[str]:
 
 def _workspace_failures_kql() -> str:
     """A KQL Queryset over ItemJobEventLogs catching ALL failed jobs workspace-wide (pipeline / refresh
-    / notebook). Grounded verbatim-shape in MS Learn (workspace-level alerts). Real, deployable."""
+    / notebook). Grounded verbatim-shape in MS Learn (workspace-level alerts). Real, deployable.
+
+    Seit den Activator-Job-Alerts im Monitor hub (I-21 W1.6) ist die Regel fuer deren neun Jobtypen
+    der **Fallback**; fuer semantische Modelle, Dataflow Gen2 und Copy job bleibt sie die einzige
+    (``job_alerts.json`` → ``nicht_abgedeckt``)."""
     return (
         "// Workspace-wide job failures — deploy as a KQL Queryset, then bind an Activator rule to it.\n"
         "// Prereq: enable Workspace monitoring (writes ItemJobEventLogs into the monitoring Eventhouse).\n"
         "// Catches pipeline, semantic-model refresh and notebook job failures in one rule.\n"
+        "// Since the Monitor hub job alerts (preview): fallback for the nine job types listed in\n"
+        "// job_alerts.json; the only rule for semantic models, Dataflow Gen2 and Copy job.\n"
         "ItemJobEventLogs\n"
         "| extend SecondsAgo = datetime_diff('second', now(), ingestion_time())\n"
         "| where JobStatus == 'Failed'\n"
@@ -67,29 +73,328 @@ def _workspace_failures_kql() -> str:
     )
 
 
-def _capacity_throttling_rule(capacity: str, alerts: dict) -> str:
-    """Activator rule spec over Capacity Overview Events — grounded thresholds (Monitor Fabric Capacity
-    Health). Emitted as a declarative spec (Activator rules are authored in Real-Time Hub / Activator)."""
-    spec = {
-        "_note": ("Author in Real-Time Hub → Capacity Overview Events → Set alert (or an Activator rule). "
-                  "This is the rule to reproduce; there is no deterministic create-API for Activator rules."),
+#: Standard-Aufbewahrung der Workspace-Monitoring-Daten. **Standard, nicht fest:** die Aufbewahrung
+#: ist eine Datenrichtlinie der Monitoring-KQL-Datenbank (Manage → Data policies) und aenderbar
+#: (MS Learn ``fundamentals/enable-workspace-monitoring``, gelesen 29.09.2026). Bis 29.09.2026
+#: stand hier „Fest, nicht einstellbar (BK-B01)" — Abweichung benannt (Plan I-21 W1.6 d).
+WORKSPACE_MONITORING_RETENTION_DEFAULT_DAYS = 30
+
+#: Grenze je Ziel-Workspace: jede Quelle bekommt dort eine eigene KQL-Datenbank, und jede zaehlt
+#: auf das Item-Limit (MS Learn, gelesen 29.09.2026).
+WORKSPACE_ITEM_LIMIT = 1000
+
+TOPOLOGIEN = ("zentral", "je-workspace")
+
+#: Die drei Kennzahlen, die Learn fuer die Kapazitaetsvorlage nennt (Tutorial
+#: ``real-time-hub/tutorial-monitor-capacity-threshold``, gelesen 29.09.2026). Andere Namen
+#: werden abgewiesen: ein Tippfehler waere eine Regel, die nie feuert.
+CAPACITY_ALERT_METRICS: dict[str, str] = {
+    "backgroundRejectionThresholdPercentage":
+        "Hintergrundoperationen werden unter Kapazitaetsdruck abgewiesen",
+    "interactiveDelayThresholdPercentage":
+        "interaktive Operationen werden verzoegert (Berichte langsam)",
+    "interactiveRejectionThresholdPercentage":
+        "interaktive Operationen werden abgewiesen (Berichte scheitern)",
+}
+
+#: 80 ist im Learn-Tutorial ausdruecklich ein **Beispielwert** („Adjust this threshold based on
+#: your operational policy"). Er steht hier als Vorbelegung, uebersteuerbar ueber die Politik.
+CAPACITY_ALERT_DEFAULT_THRESHOLD = 80
+
+CAPACITY_STATES = ("Any state change", "Overloaded", "Active", "Suspended", "Deleted")
+
+#: Jobtypen der Activator-Job-Alerts (MS Learn ``admin/monitoring-hub-alerts``, gelesen
+#: 29.09.2026, Abschnitt „Requirements for Activator-based alerts"). Reihenfolge wie dort.
+JOB_ALERT_TYPES: tuple[str, ...] = (
+    "Pipeline", "Spark job", "Notebook", "User data function", "Warehouse", "Lakehouse",
+    "Mirrored database", "SQL database", "KQL database",
+)
+
+#: Was die Job-Runs-Seite zeigt, die Job-Alerts aber nicht abdecken, soweit es in dieser
+#: Lieferung laeuft (Vergleich ``admin/monitoring-hub-jobs`` gegen ``admin/monitoring-hub-alerts``,
+#: beide gelesen 29.09.2026). Fuer diese Typen bleibt die KQL-Queryset-Regel die einzige.
+JOB_ALERT_NOT_COVERED: tuple[str, ...] = ("Semantic model", "Dataflow Gen2", "Copy job")
+
+JOB_ALERTS_PATH = "monitoring/job_alerts.json"
+MONITORING_ITEM_PATH = "monitoring/workspace_monitoring_item.json"
+CAPACITY_ALERTS_RUNBOOK_PATH = "monitoring/capacity_alerts.md"
+
+#: Die Monitoring-Politik: alles, was vor der Anlage entschieden sein muss oder als Schwelle
+#: gilt. ``None`` heisst **offen** — irreversible Optionen bekommen keine stille Vorbelegung.
+MONITORING_POLITIK_VORGABE: dict = {
+    "aufbewahrung_tage": WORKSPACE_MONITORING_RETENTION_DEFAULT_DAYS,
+    "cache_tage": None,
+    "topologie": "zentral",
+    "zentral_workspace": None,
+    "diagnosedaten": True,
+    "ki_untersuchungen": None,
+    "custom_endpoint": None,
+    "kapazitaet_schwellen": {m: CAPACITY_ALERT_DEFAULT_THRESHOLD for m in CAPACITY_ALERT_METRICS},
+    "kapazitaet_zustand": "Overloaded",
+    "operation_events": False,
+}
+
+
+def monitoring_politik(politik: dict | None = None) -> dict:
+    """Politik mit Vorgaben aufgefuellt und geprueft. Ein Verstoss bricht ab (``ValueError``):
+    ein falsch angelegtes Monitoring-Item ist in zwei Punkten nicht mehr zu korrigieren."""
+    roh = dict(politik or {})
+    fehler: list[str] = []
+    for k in sorted(set(roh) - set(MONITORING_POLITIK_VORGABE)):
+        fehler.append(f"unbekannter Schluessel {k!r}")
+    p = {**MONITORING_POLITIK_VORGABE, **roh}
+    if "kapazitaet_schwellen" in roh:            # uebergeben heisst: genau diese Regeln
+        p["kapazitaet_schwellen"] = dict(roh["kapazitaet_schwellen"] or {})
+    tage = p["aufbewahrung_tage"]
+    if not isinstance(tage, int) or isinstance(tage, bool) or tage < 1:
+        fehler.append(f"aufbewahrung_tage muss eine ganze Zahl >= 1 sein, ist {tage!r}")
+    cache = p["cache_tage"]
+    if cache is not None and (not isinstance(cache, int) or isinstance(cache, bool) or cache < 0
+                              or (isinstance(tage, int) and cache > tage)):
+        fehler.append(f"cache_tage muss zwischen 0 und aufbewahrung_tage liegen "
+                      f"(Learn: caching <= retention), ist {cache!r}")
+    if p["topologie"] not in TOPOLOGIEN:
+        fehler.append(f"topologie muss eine von {TOPOLOGIEN} sein, ist {p['topologie']!r}")
+    for k in ("diagnosedaten", "ki_untersuchungen", "custom_endpoint"):
+        if p[k] not in (True, False, None):
+            fehler.append(f"{k} muss true, false oder null (offen) sein, ist {p[k]!r}")
+    for m, wert in p["kapazitaet_schwellen"].items():
+        if m not in CAPACITY_ALERT_METRICS:
+            fehler.append(f"kapazitaet_schwellen: {m!r} ist keine dokumentierte Kennzahl "
+                          f"({', '.join(CAPACITY_ALERT_METRICS)})")
+        elif not isinstance(wert, (int, float)) or isinstance(wert, bool) or wert <= 0:
+            fehler.append(f"kapazitaet_schwellen[{m!r}] muss eine Zahl > 0 sein, ist {wert!r}")
+    if p["kapazitaet_zustand"] is not None and p["kapazitaet_zustand"] not in CAPACITY_STATES:
+        fehler.append(f"kapazitaet_zustand muss einer von {CAPACITY_STATES} oder null sein")
+    if not isinstance(p["operation_events"], bool):
+        fehler.append("operation_events muss true oder false sein")
+    if fehler:
+        raise ValueError("Monitoring-Politik ungueltig: " + "; ".join(fehler))
+    return p
+
+
+def _capacity_alert_spec(capacity: str, alerts: dict, politik: dict) -> dict:
+    """Kapazitaetsalarme als Vorlagen-Spezifikation (I-21 W1.2). Eine Quelle fuer JSON und Runbook.
+
+    Belegt (MS Learn, gelesen 29.09.2026: ``real-time-hub/set-alerts-fabric-capacity-overview-
+    events``, ``tutorial-monitor-capacity-threshold``, ``set-alerts-fabric-capacity-operation-
+    events``): der Dialog **Set capacity alert** hat drei Vorlagen; die Metrik-Vorlage fuellt
+    Monitor und Bedingung vor, gruppiert je ``capacityId`` — ein Alarm je Ueberschreitung statt
+    Dauerfeuer. Voraussetzung: keine Trial-Kapazitaet, Rolle Capacity Admin.
+
+    Kein Emitter fuer das Activator-Item: die Reflex-Definition ist per *Create Item* anlegbar,
+    aber fuer die Template-Instanzen empfiehlt Learn selbst, im Portal zu bauen und die Definition
+    danach mit *Get Item Definition* zu holen. Ein erzeugtes ``ReflexEntities.json`` waere geraten.
+    """
+    regeln: list[dict] = [
+        {"vorlage": "Alert when a capacity metric exceeds a threshold", "when": m,
+         "condition": "increases to or above", "value": wert,
+         "meaning": CAPACITY_ALERT_METRICS[m]}
+        for m, wert in sorted(politik["kapazitaet_schwellen"].items())
+    ]
+    if politik["kapazitaet_zustand"]:
+        regeln.append({"vorlage": "Alert when a capacity changes state", "when": "capacityState",
+                       "condition": "changes to", "value": politik["kapazitaet_zustand"],
+                       "meaning": "Zustandswechsel der Kapazitaet (Microsoft.Fabric.Capacity.State)"})
+    op = {
+        "status": "Preview", "aktiv": politik["operation_events"],
+        "quelle": "Capacity operation events (Microsoft.Fabric.CapacityOperationEvents.Operation)",
+        "gruppierung": ["workspaceId", "itemId", "operationName"],
+        "messgroessen": ["capacityUnitMs", "durationMs", "throttlingDelayMs", "status"],
+        "vorfilter": ["itemKind", "utilizationType", "status"],
+        "vorfilter_pflicht": True,
+        "hinweis": ("Ein Ereignis je Operation, hohes Volumen: vor der Bedingung filtern und "
+                    "gruppieren, sonst Alarmsturm (Learn). Schwellen je Operation sind "
+                    "Kundenangaben und stehen hier bewusst nicht vorbelegt."),
+    }
+    return {
+        "_note": ("Author in Real-Time Hub → Fabric events → Capacity overview events → Set alert "
+                  "(template dialog). Runbook: capacity_alerts.md. No create-API emitted, see "
+                  "create_api."),
         "source": "Capacity Overview Events",
         "capacity": capacity,
         "groupingField": "capacityId",
-        "rules": [
-            {"when": "backgroundRejectionThresholdPercentage", "condition": "increases to or above",
-             "value": 80, "meaning": "background operations rejected under capacity pressure"},
-            {"when": "interactiveRejectionThresholdPercentage", "condition": "increases to or above",
-             "value": 80, "meaning": "interactive operations rejected (reports failing)"},
-            {"when": "interactiveDelayThresholdPercentage", "condition": "increases to or above",
-             "value": 80, "meaning": "interactive operations delayed (reports slow)"},
-        ],
+        "voraussetzungen": {"kapazitaet": "keine Trial-Kapazitaet", "rolle": "Capacity Admin"},
+        "rules": regeln,
         "action": {"type": "email", "to": _recipients(alerts, "capacity"),
                    "subject": "Fabric Capacity Throttling Alert",
-                   "note": "Capacity exceeded rejection threshold: @backgroundRejectionThresholdPercentage%"},
+                   "headline": "Capacity threshold exceeded",
+                   "note": "Capacity exceeded rejection threshold: @backgroundRejectionThresholdPercentage%",
+                   "alternativen": ["Teams message", "Run function (UDF)", "Run Fabric item"]},
         "escalation": "Optionally set action=Run function (UDF) for auto-mitigation (pause/resume, scale).",
+        "oap": ("Liegt die Activator-Regel in einem Workspace mit Outbound Access Protection, "
+                "braucht er die Datenverbindungsregel fuer den Connector „Real-Time Events\" — "
+                "sonst ist der workspaceuebergreifende Ereignisbezug gesperrt (Learn)."),
+        "historie": ("Die Ereignisse werden nicht rueckwirkend gefuellt. Wer spaeter Verlaeufe "
+                     "zeigen will, leitet sie frueh per Eventstream in ein Eventhouse (Learn)."),
+        "create_api": {
+            "emitter": False,
+            "grund": ("Reflex-Definition per Create Item dokumentiert, Template-Instanzen nicht: "
+                      "Learn empfiehlt, im Portal zu bauen und Get Item Definition zu nutzen. "
+                      "SPN-Eigentuemerschaft: UNKLAR, Tenant-gated."),
+        },
+        "operation_events": op,
     }
+
+
+def _capacity_throttling_rule(capacity: str, alerts: dict, politik: dict | None = None) -> str:
+    """Activator rule spec over Capacity Overview Events as JSON (see ``_capacity_alert_spec``)."""
+    spec = _capacity_alert_spec(capacity, alerts, monitoring_politik(politik))
     return json.dumps(spec, indent=2, ensure_ascii=False) + "\n"
+
+
+def _capacity_alerts_md(capacity: str, alerts: dict, politik: dict) -> str:
+    """``capacity_alerts.md`` — das Runbook mit den exakten Vorlagenwerten, aus derselben
+    Spezifikation gerendert wie das JSON (eine Quelle, zwei Formen)."""
+    spec = _capacity_alert_spec(capacity, alerts, politik)
+    an = ", ".join(f"`{r}`" for r in spec["action"]["to"])
+    z = [
+        f"# Kapazitaetsalarme fuer `{capacity}`", "",
+        "Angelegt im Real-Time Hub, nicht per API: **Real-Time → Fabric events → Capacity "
+        "overview events → Set alert**. Der Dialog *Set capacity alert* bietet Vorlagen; "
+        "je Zeile unten eine Regel.", "",
+        "Voraussetzungen: keine Trial-Kapazitaet, Rolle **Capacity Admin** auf der Kapazitaet.", "",
+        "| Vorlage | Kennzahl / Feld | Bedingung | Wert | Bedeutung |", "|---|---|---|---|---|",
+    ]
+    for r in spec["rules"]:
+        z.append(f"| {r['vorlage']} | `{r['when']}` | {r['condition']} | {r['value']} | "
+                 f"{r['meaning']} |")
+    z += [
+        "",
+        f"Bedingung vorbefuellt, gruppiert je `{spec['groupingField']}`: ein Alarm je "
+        "Ueberschreitung, kein Dauerfeuer, solange der Wert oben bleibt.",
+        f"Aktion: **Send email** an {an}, Betreff „{spec['action']['subject']}\", Headline "
+        f"„{spec['action']['headline']}\". Im Notizfeld `@backgroundRejectionThresholdPercentage` "
+        "eintippen statt einfuegen, sonst wird die Variable nicht befuellt.", "",
+        f"Der Wert {CAPACITY_ALERT_DEFAULT_THRESHOLD} ist im Learn-Tutorial ein Beispielwert. "
+        "Abweichende Schwellen gehoeren in die Monitoring-Politik (`kapazitaet_schwellen`), nicht "
+        "in den Dialog allein — sonst weicht die Lieferung vom Mandanten ab, ohne dass es "
+        "jemand sieht.", "",
+        "## Ablageort und Netz", "",
+        f"- {spec['oap']}",
+        f"- {spec['historie']}",
+        "- Speicherort: ein Activator-Item im Monitoring-Workspace, nicht auf der ueberwachten "
+        "Kapazitaet, wo die Topologie das erlaubt.", "",
+        "## Capacity operation events (Preview)", "",
+    ]
+    op = spec["operation_events"]
+    if op["aktiv"]:
+        z += [f"Aktiv. Gruppierung je {', '.join(f'`{g}`' for g in op['gruppierung'])}, "
+              f"Messgroessen {', '.join(f'`{m}`' for m in op['messgroessen'])}. Vorher filtern "
+              f"nach {', '.join(f'`{f}`' for f in op['vorfilter'])}.", "", op["hinweis"]]
+    else:
+        z += ["Nicht aktiv (`operation_events: false`). Einschalten erst mit Filter und "
+              "Kundenschwelle je Operation: ein Ereignis je Operation, hohes Volumen."]
+    z += ["", "## Warum kein Skript", "", spec["create_api"]["grund"]]
+    return "\n".join(z) + "\n"
+
+
+def _monitoring_item_spec(bp: dict, politik: dict) -> dict:
+    """``workspace_monitoring_item.json`` — das Monitoring-Item als Spezifikation (I-21 W1.6).
+
+    Belegt (MS Learn, gelesen 29.09.2026, ``fundamentals/enable-workspace-monitoring`` und
+    ``workspace-monitoring-overview``): *Workspace settings → Monitoring* legt ein Monitoring-Item
+    an (Eventhouse mit schreibgeschuetzter KQL-Datenbank, Eventstream, Activator, optional
+    Operations Agent); Datensammlung ist bei der Anlage aus, kein Backfill; das Ziel ist nicht
+    aenderbar; Learn empfiehlt ein zentrales Eventhouse auf eigener Kapazitaet.
+    """
+    quellen = [d["name"] for d in _domains(bp)]
+    zentral = politik["topologie"] == "zentral"
+    opt = {
+        "diagnosedaten": {
+            "wert": politik["diagnosedaten"], "vorgabe_microsoft": True, "reversibel": True,
+            "hinweis": ("Audit-, Compliance-Logs, Telemetrie. Hoehere Ingestion-Kosten auf der "
+                        "Kapazitaet; fuer Activator-Job-Alerts nicht noetig (Learn)."),
+        },
+        "ki_untersuchungen": {
+            "wert": politik["ki_untersuchungen"], "vorgabe_microsoft": True, "reversibel": False,
+            "hinweis": ("Legt den Operations Agent an — „If you enable the Operations Agent, you "
+                        "can't disable it later\" (Learn). Setzt die Tenant-Settings fuer "
+                        "Operations Agent, Copilot und Azure OpenAI voraus, keine Trial. "
+                        "DSGVO/Copilot-Freigabe vor der Anlage klaeren."),
+        },
+        "custom_endpoint": {
+            "wert": politik["custom_endpoint"], "vorgabe_microsoft": False, "reversibel": False,
+            "hinweis": ("Export an Event Hubs/Kafka/AMQP. In der Preview nur bei der Anlage "
+                        "aktivierbar (Learn)."),
+        },
+    }
+    offen = sorted(k for k, v in opt.items() if v["wert"] is None)
+    return {
+        "_quelle": ("learn.microsoft.com/fabric/fundamentals/enable-workspace-monitoring + "
+                    "workspace-monitoring-overview + admin/monitoring-hub-alerts, gelesen 29.09.2026"),
+        "modell": "monitoring-item",
+        "anlage": ("Portal: Workspace settings → Monitoring → Enable. Fuer das Monitoring-Item ist "
+                   "kein dokumentierter REST-Weg vorhanden (Learn-Suche 29.09.2026); Create-API "
+                   "UNKLAR, Watchlist fabric-workspace-monitoring-item."),
+        "bestandteile": ["Eventhouse", "KQL Database (read-only)", "Eventstream", "Activator",
+                         "Operations Agent (optional)"],
+        "voraussetzungen": [
+            "Workspace auf einer Fabric- oder Premium-Kapazitaet",
+            "Tenant-Setting „Workspace admins can turn on monitoring for their workspaces\" "
+            "(Fabric-Administrator)",
+            "Tenant-Setting „Users can create Fabric items\" fuer den Ausfuehrenden — sonst ist "
+            "Monitoring ausgegraut, ohne Fehlermeldung",
+            "Workspace-Rolle Admin",
+        ],
+        "topologie": {
+            "art": politik["topologie"],
+            "ziel_workspace": (politik["zentral_workspace"]
+                               or "<VERIFY: Monitoring-Workspace auf eigener Kapazitaet>")
+            if zentral else "je Quelle der eigene Workspace",
+            "eigene_kapazitaet": zentral,
+            "quellen": quellen,
+            "kql_datenbanken_im_ziel": len(quellen) if zentral else 1,
+            "item_limit_ziel_workspace": WORKSPACE_ITEM_LIMIT,
+            "gleiche_azure_region": zentral,
+            "begruendung": ("Learn empfiehlt ein zentrales Monitoring-Eventhouse auf eigener "
+                            "Kapazitaet: schuetzt das Monitoring vor Drosselung der Last und die "
+                            "Last vor dem Monitoring.") if zentral else
+                           "Je Workspace ein eigenes Monitoring-Item (Abweichung von der "
+                           "Learn-Empfehlung, bewusst gewaehlt).",
+        },
+        "ziel_aenderbar": False,
+        "optionen": opt,
+        "offene_entscheidungen": offen,
+        "aufbewahrung": {
+            "tage": politik["aufbewahrung_tage"],
+            "cache_tage": politik["cache_tage"],
+            "vorgabe_microsoft": WORKSPACE_MONITORING_RETENTION_DEFAULT_DAYS,
+            "ort": "Monitoring-KQL-Datenbank → Manage → Data policies",
+            "regel": "cache_tage <= tage",
+        },
+        "datensammlung": {"bei_anlage": "aus", "backfill": False,
+                          "schritt": "Turn on data collection"},
+    }
+
+
+def _job_alerts_spec(alerts: dict) -> dict:
+    """``job_alerts.json`` — Activator-Job-Alerts je Jobtyp (I-21 W1.6 e).
+
+    Belegt (MS Learn ``admin/monitoring-hub-alerts``, gelesen 29.09.2026): *Job runs → … →
+    Create and manage alerts → Alerts (paid)*; Voraussetzung Workspace-Monitoring (das Item nimmt
+    die Alerts auf) und Owner- oder Contributor-Rolle; Ereignisse u. a. Started/Succeeded/Failed.
+    Die Pruefart „On every value" stammt vom FabCon-Foto (29.09.2026) und steht auf Learn nicht:
+    ANNAHME, ungeprueft.
+    """
+    an = _recipients(alerts, "jobs")
+    return {
+        "_quelle": "learn.microsoft.com/fabric/admin/monitoring-hub-alerts, gelesen 29.09.2026",
+        "status": "Preview",
+        "weg": "Monitor hub → Job runs → … (Item) → Create and manage alerts → Alerts (paid)",
+        "voraussetzung": {"monitoring_item": True, "rollen": ["Owner", "Contributor"],
+                          "eventhouse_noetig": False},
+        "kosten": "Activator-Kapazitaetsverbrauch (bezahlt); Schedule failure emails sind frei",
+        "regeln": [
+            {"jobtyp": t, "ereignis": "Failed", "pruefung": "On every value",
+             "pruefung_beleg": "ANNAHME, ungeprueft (FabCon-Foto 29.09.2026)",
+             "weitere_ereignisse": ["Started", "Succeeded"],
+             "aktion": {"typ": "Teams message", "an": an}}
+            for t in JOB_ALERT_TYPES
+        ],
+        "nicht_abgedeckt": list(JOB_ALERT_NOT_COVERED),
+        "fallback": "workspace_job_failures.kql (KQL Queryset + Activator)",
+    }
 
 
 def _pipeline_failure_runbook(bp: dict, alerts: dict,
@@ -182,9 +487,6 @@ METRICS_APP_COMPUTE_DAYS = 14
 #: sind eine haeufige Fehlerquelle beim Planen: „14 Tage" stimmt fuer Rechenlast, nicht fuer
 #: Speicherwachstum.
 METRICS_APP_STORAGE_DAYS = 30
-
-#: Aufbewahrung der Workspace-Monitoring-Daten. Fest, nicht einstellbar (BK-B01).
-WORKSPACE_MONITORING_RETENTION_DAYS = 30
 
 #: Ruhezeit nach einer Kapazitaets-Benachrichtigung aus dem Admin-Portal. Danach schweigt sie,
 #: auch wenn die Schwelle erneut gerissen wird — der Grund, warum sie die Activator-Regel
@@ -611,10 +913,18 @@ def _activity_log_lines() -> list[str]:
 
 def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspace>",
                     capacity: str = "<CAPACITY_NAME>", alerts: dict | None = None,
-                    stages: tuple[str, ...] = ("dev", "test", "prod")) -> dict[str, str]:
+                    stages: tuple[str, ...] = ("dev", "test", "prod"),
+                    monitoring: dict | None = None) -> dict[str, str]:
     """Return the monitoring/alerting artifact set (path → content). Fabric-specific surfaces (KQL,
-    Activator specs) are emitted for the fabric stack; the plan doc is always emitted."""
+    Activator specs) are emitted for the fabric stack; the plan doc is always emitted.
+
+    ``monitoring`` ist die Monitoring-Politik (``MONITORING_POLITIK_VORGABE``: Aufbewahrung,
+    Topologie, Optionen des Monitoring-Items, Kapazitaetsschwellen). Ungueltig → ``ValueError``."""
     alerts = alerts or {}
+    politik = monitoring_politik(monitoring)
+    n_ws = len(_domains(bp))
+    zentral = politik["topologie"] == "zentral"
+    aufbewahrung = politik["aufbewahrung_tage"]
     doc = [
         "# Monitoring & alerting (generated — grounded MS Learn 2026-07)", "",
         f"Stack: **{stack}**  ·  Workspaces watched: **{len(_domains(bp))} domain(s)**  ·  "
@@ -624,8 +934,15 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "| Signal | Artifact | Mechanism | Status |", "|---|---|---|---|",
         "| Any job failure (pipeline / refresh / notebook), workspace-wide | `workspace_job_failures.kql` | "
         "Workspace monitoring → ItemJobEventLogs KQL → Activator rule | deployable KQL + portal rule |",
+        f"| The monitoring item itself (topology, options, retention) | `{MONITORING_ITEM_PATH.split('/')[-1]}` "
+        "| monitoring item, created from the workspace settings (step 1) | portal spec, decisions "
+        "first |",
+        f"| Job started / succeeded / failed, nine job types | `{JOB_ALERTS_PATH.split('/')[-1]}` | "
+        "Monitor hub → Job runs → Alerts (paid) → Activator | portal rule spec (preview) |",
         "| Scheduled pipeline failure | `pipeline_failure_notifications.md` | built-in Failure notifications | GA, per-item |",
-        "| Capacity throttling | `capacity_throttling_alert.json` | Capacity Overview Events → Activator | portal rule spec |",
+        "| Capacity throttling / state | `capacity_throttling_alert.json` + "
+        f"`{CAPACITY_ALERTS_RUNBOOK_PATH.split('/')[-1]}` | Capacity Overview Events → Set capacity "
+        "alert templates → Activator | portal rule spec + runbook |",
         "| Compute/storage dashboards | `capacity_metrics_app_setup.md` → Fabric **Capacity Metrics "
         "App** | built-in, portal install | GA |",
         "| Audit history beyond the retention window | `activity_log_export.py` | Get Activity Events "
@@ -638,27 +955,68 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "0. **Tenant setting first, and only a Fabric administrator can set it.** Admin portal → "
         "Tenant settings → *Workspace admins can turn on monitoring for their workspaces*. Until "
         "that switch is on, step 1 is not offered in any workspace, and a workspace admin cannot "
-        "turn it on for themselves. One switch for the whole tenant, once.",
-        "1. Enable **Workspace monitoring** on each workspace (job logs → monitoring Eventhouse). "
-        f"That is **{len(_domains(bp))} portal step(s)** for this blueprint, one per workspace that "
-        "carries scheduled load, and each one is a manual step: Workspace settings → Monitoring → "
-        "+Eventhouse. No REST path for it is documented (checked 2026-08-16), so this cannot be "
-        "scripted with the rest of the provisioning. Two conditions decide whether the step is "
-        "even offered: the workspace must already sit on a capacity, and you must hold the "
-        "workspace **admin** role — contributor is not enough.",
+        "turn it on for themselves. One switch for the whole tenant, once. A second tenant "
+        "setting fails silently: *Users can create Fabric items* must be on for whoever runs "
+        "step 1 — without it **Monitoring** is greyed out and no error is shown (MS Learn, "
+        "*Configure workspace monitoring*, read 2026-09-29).",
+        "1. Enable **Workspace monitoring** on each workspace: Workspace settings → Monitoring → "
+        "**Enable**. This creates a **monitoring item** (Eventhouse with a read-only KQL "
+        "database, Eventstream, Activator, optionally an Operations Agent) — the legacy "
+        "*+Eventhouse* path is the old model. "
+        f"That is **{n_ws} portal step(s)** for this blueprint, one per workspace that carries "
+        "scheduled load"
+        + (", plus **1** for the central monitoring workspace, which gets its own item first; "
+           "every other workspace then sends to *Eventhouse in another Monitoring Item*. "
+           "Microsoft recommends this topology: one central monitoring Eventhouse on its own "
+           "capacity. Same Azure region required, and each source adds one KQL database to the "
+           f"central workspace's {WORKSPACE_ITEM_LIMIT}-item limit."
+           if zentral else
+           ". Topology *per workspace* — a deliberate deviation from Microsoft's recommendation "
+           "of one central monitoring Eventhouse on its own capacity.")
+        + " The destination cannot be changed later. No REST path for the monitoring item is "
+        "documented (checked 2026-09-29), so this cannot be scripted with the rest of the "
+        "provisioning. Two conditions decide whether the step is even offered: the workspace "
+        "must already sit on a capacity, and you must hold the workspace **admin** role — "
+        "contributor is not enough. Collection is **off** when the item is created: finish "
+        "with *Turn on data collection*, or nothing is recorded. "
+        f"The item's options and topology are in `{MONITORING_ITEM_PATH.split('/')[-1]}`.",
         "1a. **Where Power BI Log Analytics is already configured, this step fails — and the fix "
         "costs hours, not minutes.** A workspace can carry workspace monitoring or Log Analytics, "
         "never both. Delete the Log Analytics configuration, then wait *a few hours* before "
         "enabling monitoring. On a brownfield tenant this is the one item in the whole setup order "
-        "that cannot be done on the day it is discovered, so check it before the day is planned.",
+        "that cannot be done on the day it is discovered, so check it before the day is planned. "
+        "(Read 2026-08-16 for the legacy path; the monitoring-item pages read 2026-09-29 no longer "
+        "state it — ASSUMPTION, unverified for the new model, so check anyway.)",
+        "1c. **Decide the item's options before the item is created — two of them are one-way.** "
+        "Microsoft preselects *all* options on Enable: diagnostic data (audit, compliance logs, "
+        "telemetry — higher ingestion cost on the capacity) and **AI powered investigations**. "
+        "The latter adds the Operations Agent, and an enabled Operations Agent cannot be switched "
+        "off again. It also needs the tenant settings for Operations Agent, Copilot and Azure "
+        "OpenAI, and no trial capacity — a GDPR/Copilot question for the customer, not a click. "
+        "The **custom endpoint** (export via Event Hubs/Kafka/AMQP) can only be enabled at "
+        "creation during the preview. Untick whatever is still open in "
+        f"`{MONITORING_ITEM_PATH.split('/')[-1]}` → `offene_entscheidungen`.",
         "1b. **Capacity notifications** (Admin portal → Capacity settings → Notifications): a "
         "percentage threshold and *capacity exceeded*, to the capacity admins. Five clicks, no "
         "infrastructure, and independent of everything below — it is the only signal in this list "
         "that survives a workspace being misconfigured. Its blind spots are in "
         "`capacity_metrics_app_setup.md`.",
-        "2. Create a **KQL Queryset** from `workspace_job_failures.kql`.",
-        "3. Create an **Activator** rule on that queryset → email/Teams to the on-call recipients.",
-        "4. Create the **capacity** Activator rule from `capacity_throttling_alert.json`.",
+        "2. **Job alerts** (Monitor hub → Job runs → … → *Create and manage alerts* → *Alerts "
+        f"(paid)*, preview) per job type from `{JOB_ALERTS_PATH.split('/')[-1]}`: pipeline, Spark "
+        "job, notebook, user data function, warehouse, lakehouse, mirrored database, SQL database, "
+        "KQL database. Needs the monitoring item from step 1 and Owner or Contributor. Semantic "
+        "models, Dataflow Gen2 and Copy job are not in that list — for them steps 3 and 4 remain "
+        "the only alert.",
+        "3. Create a **KQL Queryset** from `workspace_job_failures.kql` (fallback for the job "
+        "types above, the only rule for the rest).",
+        "4. Create an **Activator** rule on that queryset → email/Teams to the on-call recipients.",
+        "4a. Create the **capacity** alerts from the *Set capacity alert* templates — exact "
+        f"values in `{CAPACITY_ALERTS_RUNBOOK_PATH.split('/')[-1]}` (spec: "
+        "`capacity_throttling_alert.json`). Capacity Admin on a non-trial capacity.",
+        "4b. For a failed pipeline run, **Investigate** (Monitor hub → Job runs → run history) "
+        "starts a read-only root-cause analysis by the Operations Agent. Only available if the "
+        "agent exists (step 1c) — with its tenant prerequisites (Operations Agent, Copilot, "
+        "Azure OpenAI; no trial capacity).",
         "5. Set built-in **Failure notifications** per scheduled **item** — the setting hangs off the item "
         "and covers all its schedules (`pipeline_failure_notifications.md`).",
         "6. Evidence the step in **Monitoring hub → Schedule failures** (preview): it lists every item "
@@ -682,10 +1040,12 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "the Eventhouse. A platform that gets monitoring on handover day has no run history for its "
         "whole build phase.", "",
         "Three properties worth planning around (MS Learn, *Workspace monitoring overview* → "
-        "Considerations and limitations, read 2026-08-16): the monitoring items are billed against "
-        "the capacity they consume; ingestion cannot be filtered by log type, so a workspace is "
-        f"either fully monitored or not at all; retention is fixed at "
-        f"{WORKSPACE_MONITORING_RETENTION_DAYS} days.", "",
+        "Considerations and limitations, read 2026-08-16 and 2026-09-29): the monitoring items are "
+        "billed against the capacity they consume; the legacy path cannot filter ingestion by log "
+        "type, so a workspace is either fully monitored or not at all; retention is an Eventhouse "
+        f"data policy, {WORKSPACE_MONITORING_RETENTION_DEFAULT_DAYS} days by default and "
+        f"changeable — this delivery sets **{aufbewahrung} days** (monitoring KQL database → "
+        "Manage → Data policies; caching must not exceed retention).", "",
         "### What survives a bad day, and what doesn't", "",
         "The layer above is not one thing under pressure, and the split is documented rather than "
         "guessed (same source):", "",
@@ -694,20 +1054,26 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "capacity state does not reach them |",
         "| Power BI reports and **Activator alerts** built on the monitoring database | throttled "
         "like everything else |", "",
-        "Read the second row twice. The job-failure alert from step 3 sits on the monitoring "
+        "Read the second row twice. The job-failure alert from step 4 sits on the monitoring "
         "database, so a throttled capacity silences the alert at the moment it has the most to "
         "report. The capacity-side signals — the built-in notification from step 1b and the "
-        "Capacity Overview Events rule from step 4 — do not come from that database, which is why "
-        "this delivery emits both layers instead of the cheaper one.", "",
-        "Two repair moves that are not obvious from the UI. A table missing from the monitoring "
-        "Eventhouse usually means the Eventhouse predates that table: turn **Log workspace "
-        "activity** off in the workspace settings and on again, and it is recreated. And the "
-        "monitoring Eventhouse is **read-only** — deleting it goes through the workspace settings, "
-        "and recreating it needs about 15 minutes of patience, not a second attempt.", "",
-        "> **Private links and workspace monitoring do not mix at all** (documented, not a "
-        "configuration problem). Where the network stance in `connectivity/_CONNECTIVITY.md` ends "
-        "up on private links, this monitoring layer is not available, and the decision has to be "
-        "taken with that on the table rather than after.", "",
+        "Capacity Overview Events rule from step 4a — do not come from that database, which is why "
+        "this delivery emits both layers instead of the cheaper one. A central monitoring "
+        "workspace on its own capacity (step 1) narrows the gap: throttling of the production "
+        "capacity no longer reaches the monitoring database.", "",
+        "Two repair moves for the **legacy** monitoring Eventhouse that are not obvious from the "
+        "UI. A table missing from the monitoring Eventhouse usually means the Eventhouse predates "
+        "that table: turn **Log workspace activity** off in the workspace settings and on again, "
+        "and it is recreated. And the monitoring Eventhouse is **read-only** — deleting it goes "
+        "through the workspace settings, and recreating it needs about 15 minutes of patience, "
+        "not a second attempt. Migrating legacy to the monitoring item is manual (turn *Log "
+        "workspace activity* off, then the migration banner); old data stays in the legacy "
+        "Eventhouse.", "",
+        "> **Private links and workspace monitoring:** the monitoring item supports private links "
+        "(MS Learn, read 2026-09-29) — if enabling fails, disable the workspace's private links, "
+        "enable monitoring, re-enable them. The **legacy** path (+Eventhouse) does not support "
+        "private links. Until 2026-09-29 this document said they do not mix; that was the legacy "
+        "statement; `connectivity/_CONNECTIVITY.md` carries the same current statement.", "",
         "> Activator must poll more frequently than the KQL time window, else failures are missed. Use",
         "> stateful operators + preview-before-activate to avoid alert spam (grounded).",
         *_activity_log_lines(),
@@ -720,7 +1086,13 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         out["monitoring/_MONITORING.md"] = _note
     if stack == "fabric":
         out["monitoring/workspace_job_failures.kql"] = _workspace_failures_kql()
-        out["monitoring/capacity_throttling_alert.json"] = _capacity_throttling_rule(capacity, alerts)
+        out["monitoring/capacity_throttling_alert.json"] = _capacity_throttling_rule(
+            capacity, alerts, politik)
+        out[CAPACITY_ALERTS_RUNBOOK_PATH] = _capacity_alerts_md(capacity, alerts, politik)
+        out[MONITORING_ITEM_PATH] = json.dumps(_monitoring_item_spec(bp, politik), indent=2,
+                                               ensure_ascii=False) + "\n"
+        out[JOB_ALERTS_PATH] = json.dumps(_job_alerts_spec(alerts), indent=2,
+                                          ensure_ascii=False) + "\n"
         out[METRICS_APP_SETUP_PATH] = _metrics_app_setup_md(capacity, alerts)
         # Der Export haengt am Power-BI-/Fabric-Aktivitaetsprotokoll. Auf einem fremden Stack gibt
         # es dieses Protokoll nicht — ein Skript dafuer waere dort eine Anweisung ins Leere.

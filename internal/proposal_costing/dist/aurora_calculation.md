@@ -14,7 +14,6 @@
 *Warum:* Diese Übersicht bildet die monatlichen und jährlichen Plattformkosten (Capacity + Lizenzen) ab; optional ergänzt um Storage. Implementierung und Wartung erscheinen in den Bausteinen und in der TCO.
 
 ## Kosten nach Bausteinen
-
 | Baustein | Kategorie | USD/month | USD/year |
 |----------|-----------|-----------|----------|
 | Fabric Capacity | Operating | 1839.60 | 22075.20 |
@@ -39,7 +38,6 @@
 *Warum:* Nur die unter „Included“ genannten Leistungen sind in dieser Kalkulation abgedeckt. Alles Weitere (z. B. Schulung, individuelle Anpassungen) ist separat zu kalkulieren.
 
 ## Daten-Rollen / FTE
-
 | Role | Domain | FTE | Phase | Person / Ansprechpartner |
 |------|--------|-----|-------|---------------------------|
 | Sales BI Lead | Commercial | 0.5 | implementation | — |
@@ -58,7 +56,6 @@
 *Warum:* Damit Implementierung und Zeitplan halten, sind folgende Beiträge des Kunden erforderlich.
 
 ## Implementierung / Meilensteine
-
 | Phase | Deliverable | Dauer |
 |-------|-------------|-------|
 | Kick-off & Anforderung | Anforderungsdokument, Abnahme Kriterien | Woche 1–2 |
@@ -72,6 +69,22 @@ With production capacity below F64, report viewers require Power BI Pro.
 
 *Warum:* Die Lizenzierung der Viewer hängt von der gewählten Production-Capacity ab (F64+ = Free Viewer; darunter benötigen Viewer Pro). Das beeinflusst Gesamtkosten und Nutzerakzeptanz.
 
+## Capacity-Overage
+- SKU F8: 192 CU hours per day
+- Rolling 24-hour threshold: 48 CU hours (Microsoft default at capacity creation (25 %), not yet confirmed by the customer); Microsoft recommends staying below 64 (one third of the daily CU hours)
+- Maximum overage cost per day ≈ threshold × 3 × PAYG price per CU hour ≈ 25.92 USD (derived, not measured; can be exceeded because the threshold is checked every 5 minutes and running operations continue)
+- Additional Fabric quota required: 2 CU
+
+*Warum:* Microsoft schaltet Overage bei neuen F-Kapazitäten standardmäßig ein und rechnet Last über der Kapazität zum dreifachen Pay-as-you-go-Satz ab. Die Tagesobergrenze ist hergeleitet und keine harte Grenze.
+
+## Fabric Planning
+—
+
+*Warum:* Planning-Sessions verbrauchen CU der Produktionskapazität. Der Anteil steckt bereits im Kapazitätspreis und muss neben den übrigen Workloads Platz haben.
+
+## Offene Kundenfragen
+- Capacity overage: switch it off, or set a rolling 24-hour threshold of X CU hours? It is on by default for new F capacities (threshold 25 % = 48 CU hours/day on F8) and is billed at 3x the pay-as-you-go rate.
+
 ## Capacity breakdown
 dev: F2 262.80 USD/mo | test: F4 525.60 USD/mo | prod: F8 1051.20 USD/mo
 
@@ -81,7 +94,6 @@ PRO: 3 users, 42.00 USD/mo
 *Warum:* Die Aufteilung nach Umgebungen (Dev/Test/Prod) bzw. Lizenzen ermöglicht die Nachvollziehbarkeit der Kalkulation und spätere Anpassungen (z. B. Skalierung Prod).
 
 ## Cost projection (horizons)
-
 | Horizon | Years | USD/year (platform) | USD/year (maintenance) |
 |---------|-------|---------------------|------------------------|
 | Year 1 (short-term) | 1 | 22579.20 | 36000.00 |

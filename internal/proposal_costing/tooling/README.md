@@ -7,7 +7,8 @@ Cost engine and CLI for proposal costing.
 - **load_cost_drivers()** / **load_scenarios()** / **load_proposal_defaults()** / **load_role_allocation()** / **load_projection()** / **load_product_packages():** Load model YAML files (defaults optional; fallback to inline where defined).
 - **compute(scenario_id, overrides=None, product_root=None, package_id=None, use_reservation=False, storage_gb=None, implementation_fte=None, implementation_months=None, maintenance_fte=None, role_allocation_path=None, ...):** Returns full result dict. If `package_id` is set, scenario and implementation/maintenance come from the package (fixed USD or FTE profile). Result includes `package_id`, `package_name` when a package is used.
 - **compute_projection(..., package_id=None, ...):** Runs compute per horizon; passes through `package_id`.
-- **fill_template(result, template_content):** Replaces placeholders including `scenario_id`, `total_year`, `capacity_breakdown`, `license_breakdown`, `building_blocks_table`, `role_breakdown_table`, `projection_table`, `implementation_one_time`, `maintenance_year`, `tco_3y`, `tco_5y`, `package_name`, `customer_name`, `offer_date`, scope/assumptions, storage.
+- **fill_template(result, template_content):** Replaces placeholders including `scenario_id`, `total_year`, `capacity_breakdown`, `license_breakdown`, `building_blocks_table`, `role_breakdown_table`, `projection_table`, `implementation_one_time`, `maintenance_year`, `tco_3y`, `tco_5y`, `package_name`, `customer_name`, `offer_date`, `overage`, `planning`, `customer_questions`, scope/assumptions, storage.
+- **compute_overage() / compute_planning() / payg_usd_per_cu_hour():** Overage and Fabric Planning lines on the prod SKU, built on `tooling/superversion/capacity.py` (see `docs/README.md`).
 
 ## CLI (`run_costing.py`)
 
@@ -35,6 +36,10 @@ python tooling/run_costing.py --scenario compact --role-allocation model/role_al
 
 # Power BI only (PPU)
 python tooling/run_costing.py --scenario power_bi_only --ppu-users 15
+
+# Customer decided the overage question (off, or a threshold in CU hours per rolling 24 h)
+python tooling/run_costing.py --scenario compact --overage-off
+python tooling/run_costing.py --scenario compact --overage-threshold-cu-hours 40
 
 # JSON output
 python tooling/run_costing.py --scenario compact --json

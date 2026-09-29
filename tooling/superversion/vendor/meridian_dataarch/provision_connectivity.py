@@ -279,8 +279,13 @@ def _oap_section(bp: dict) -> list[str]:
         "Definitions, Environments |",
         "| OneLake | managed private endpoints | OneLake shortcuts |",
         "| Data Factory | data connection rules | Dataflows Gen2 (with CI/CD), Pipelines, Copy Jobs |",
-        "| Mirrored databases · Real-Time Intelligence · Fabric IQ · Power BI | data connection "
-        "rules | Eventstream, Eventhouse, Activator, semantic models, … |",
+        "| Mirrored databases | data connection rules | Mirrored databases |",
+        "| Real-Time Intelligence | data connection rules | Activator, Eventstream, Eventhouse, Fabric "
+        "Maps |",
+        "| Real-Time Events (**preview**) | data connection rules | Azure, Fabric and Business events |",
+        "| Fabric IQ | data connection rules | Graph, Operations agent, Data agent |",
+        "| Power BI (**preview**) | data connection rules | semantic models — see the next section, "
+        "they need a rule even for their own workspace |",
         "| Data Science · Data Warehouse | **none** | no allow-list mechanism exists for these |",
         "",
         "The last row is not a gap in the table. MS gives the mechanism for Data Science and Data "
@@ -288,10 +293,14 @@ def _oap_section(bp: dict) -> list[str]:
         "that does not exist.", "",
         "### What this collides with in this delivery", "",
         "| Collision | In the way? | Way around it |", "|---|---|---|",
-        "| **Power BI reports in the workspace** | Yes, and hard: apart from semantic models no Power "
-        "BI item supports OAP. A workspace holding one cannot be protected, and while OAP is on none "
-        "can be created | put reports in their own unprotected workspace — the cut in "
-        "`workspaces.json` decides this, not the switch |",
+        "| **Power BI reports in the workspace** | **The two MS pages disagree** (both read "
+        "2026-09-29). The OAP overview still says that apart from semantic models no Power BI item "
+        "supports OAP, so a workspace holding a report cannot be protected. The page *OAP for Power "
+        "BI reports* (**preview**) says interactive reports are supported, bound to a semantic model "
+        "in the **same** workspace only; paginated reports, dashboards and scorecards are not. "
+        "Planned here against the stricter reading | keep reports in their own unprotected "
+        "workspace — the cut in `workspaces.json` decides this, not the switch. Revisit once the "
+        "preview is GA |",
         "| **Git integration (`cicd/`)** | Yes: with OAP on, Git is blocked by default | turn on "
         "*Allow Git integration* in the same panel. Without that one step the delivery chain breaks "
         "and the error points at Git instead of at OAP |",
@@ -300,6 +309,11 @@ def _oap_section(bp: dict) -> list[str]:
          "allow lists do not exist |") if shares else
         ("| **External data sharing** | No — this delivery declares none | it stays that way only "
          "while none is added: OAP and Fabric external data sharing are mutually exclusive |"),
+        "| **Deployment pipelines (`cicd/`, code default `deployment-pipelines`)** | Not with OAP, "
+        "but with **inbound** protection: MS, `cicd/cicd-security` — deployment pipelines are not "
+        "supported for a workspace with inbound access protection, and inbound restriction cannot "
+        "be configured on a workspace assigned to a pipeline | a protected workspace needs Git-based "
+        "promotion instead; which one is the open decision E-3 (plan I-21), not this file's |",
         "| **OneLake Diagnostics** | Partly | only with a lakehouse in the **same** workspace |",
         "| **Warehouse paths from notebooks** | Yes, for `dbo` file paths | query it over T-SQL "
         "instead of over the path |",
@@ -310,14 +324,223 @@ def _oap_section(bp: dict) -> list[str]:
         "Azure Storage and OneLake*: \"outbound access protection does not restrict your workspace "
         "from being the source of a copy operation\"). Only inbound protection covers that, and "
         "inbound is a separate decision.", "",
+        *_semantic_model_oap_section(bp),
         "### Evidence", "",
-        "`Workspaces - List Networking Communication Policies` (admin API) returns the inbound and "
-        "outbound rules per workspace. That turns \"is OAP on everywhere it should be?\" into a query "
-        "rather than a click-through. Caller: Fabric admin or service principal, permission "
-        "`Tenant.Read.All`.", "",
+        "`Workspaces - List Networking Communication Policies` (admin API, **GA since September "
+        "2026**, `GET /v1/admin/workspaces/networking/communicationpolicies`) returns the inbound and "
+        "outbound rules per workspace, IP firewall rules and managed private endpoints included. That "
+        "turns \"is OAP on everywhere it should be?\" into a query rather than a click-through. "
+        "Caller: Fabric admin or service principal, `Tenant.Read.All`.", "",
+        f"This delivery uses it as a gate: fill `{NETZ_SOLL_PATH.split('/')[-1]}` with the "
+        "intended stance per workspace, then run "
+        f"`{NETZ_AUDIT_PATH.split('/')[-1]}`. It reports each workspace as `MATCH`, `MISMATCH`, "
+        "`MISSING` (protection intended, workspace not in the response) or `UNDECLARED` (target still "
+        "a placeholder) — and exits non-zero on anything but `MATCH`, so an unfilled target is never a "
+        "pass.", "",
         "> With private links enabled at workspace or tenant level, the portal cannot configure data "
-        "connection rules at all — the *Outbound Gateway Rules* REST API is the only way in.",
+        "connection rules at all — the *Outbound Gateway Rules* REST API is the only way in.", "",
+        *_inbound_section(),
     ]
+
+
+def _semantic_model_oap_section(bp: dict) -> list[str]:
+    """OAP fuer Semantikmodelle (Preview): auch die Verbindung in den EIGENEN Workspace braucht eine Regel.
+
+    Das ist die Stelle, an der OAP am teuersten missverstanden wird: ein Modell, das aus dem Lakehouse
+    nebenan liest, wirkt „intern" — OAP behandelt aber jede SQL-Server- und ADLS-Gen2-Verbindung als
+    potenziell workspace-uebergreifend. Ohne Ausnahme scheitert beim Import-Modell der **gesamte**
+    Refresh. Gelesen per Learn-MCP am 29.09.2026: `fabric/security/workspace-outbound-access-
+    protection-semantic-models` (Preview).
+    """
+    gold = sorted({str(p.get("name")) for p in
+                   (((bp.get("medallion") or {}).get("gold") or {}).get("data_products") or [])
+                   if p.get("name")})
+    return [
+        "### Semantic models under OAP (**preview**) — the own workspace needs a rule too", "",
+        "OAP treats **every** SQL Server and ADLS Gen2 connection as potentially cross-workspace, the "
+        "lakehouse next door included. For an Import model a single source missing from the allow "
+        "list fails the **entire** refresh; DirectQuery fails per query.", "",
+        "| Storage mode | Rule to add | Value |", "|---|---|---|",
+        "| Import · DirectQuery · Direct Lake on SQL endpoint | SQL Server connection rule | FQDN of "
+        "the SQL analytics endpoint (lakehouse/warehouse settings → SQL analytics endpoint → SQL "
+        "connection string) |",
+        "| Direct Lake on OneLake | ADLS Gen2 connection rule | the workspace's OneLake URL (a Delta "
+        "table's URL, trimmed after the workspace GUID) |",
+        "",
+        (f"Gold products that feed a model in this delivery: {', '.join(f'`{g}`' for g in gold)}. "
+         "The FQDN and the OneLake URL are tenant values and stay placeholders until read from the "
+         "workspace.") if gold else
+        "This delivery declares no gold products yet; the rule is still needed as soon as a model "
+        "reads from its own workspace.",
+        "",
+        "Some connectors — the KQL database connector among them — accept no endpoint-level "
+        "exception yet; using them from a model means allowing the whole connector type. Changes "
+        "propagate in about 15 minutes. Preview: the rows above are flagged, not promised.", "",
+    ]
+
+
+def _inbound_section() -> list[str]:
+    """Die eingehende Seite als Schichten — bis 29.09.2026 stand hier nur OAP (ausgehend).
+
+    Gelesen per Learn-MCP am 29.09.2026: `fabric/admin/service-admin-portal-advanced-networking`
+    (Tenant-Schalter), `fabric/security/security-workspace-level-firewall-overview` + `-set-up`
+    (IP-Firewall, GA Maerz 2026 laut „What's new"-Archiv), `fabric/security/security-workspace-level-
+    private-links-support` (nicht unterstuetzte Items, Deployment Pipelines), `fabric/cicd/cicd-
+    security`. Conditional Access ist eine Entra-Schicht; sie steht hier als Zeile, weil sie zur
+    Frage „wer kommt herein" gehoert, ohne dass wir sie konfigurieren.
+    """
+    return [
+        "## Inbound protection — four layers, each with its own owner", "",
+        "| Layer | Who sets it | What it does | Where it stops |", "|---|---|---|---|",
+        "| Tenant setting **Configure workspace-level inbound network rules** | Fabric tenant admin | "
+        "lets workspace admins restrict inbound access per workspace | while a workspace restricts "
+        "inbound access, existing tenant-level private links can no longer reach it |",
+        "| **Workspace-level private link** (+ *deny public access*) | workspace admin + Azure owner | "
+        "workspace reachable only from approved VNets | F SKU only (no P SKU, no trial); **semantic "
+        "models and deployment pipelines are not supported** in such a workspace; item sharing links "
+        "stop working |",
+        "| **Workspace IP firewall rules** (GA since March 2026) | workspace admin (tenant setting "
+        "*Configure workspace IP firewall rules* is on by default) | allow list of public IPs / ranges | "
+        "all capacity types including trial; up to 256 rules; public addresses only (no RFC 1918); "
+        "not supported: Power BI and Copilot experiences, OneLake security, Databricks Unity Catalog "
+        "mirroring |",
+        "| **Resource instance rules** (OneLake) | workspace admin | admit a named Azure resource "
+        "(e.g. a Databricks access connector) by its ARM id while public access stays restricted | "
+        "per resource; the identity is checked per request |",
+        "| **Conditional Access** | Entra admin | who may sign in, from where, with which device | "
+        "identity, not network — it does not replace any row above (ANNAHME, ungeprueft: exact Fabric "
+        "coverage not read on 2026-09-29) |",
+        "",
+        "> With inbound protection on, **deployment pipelines cannot reach the workspace**, and a "
+        "workspace already assigned to a pipeline cannot be switched to restricted. Git integration "
+        "keeps working from the approved network; branching out is blocked.", "",
+        "> The Fabric portal cannot switch inbound (workspace private link) and outbound protection on "
+        "together for one workspace — use `PUT /v1/workspaces/{id}/networking/communicationPolicy` "
+        f"with both halves, as in `{OAP_POLICY_PATH.split('/')[-1]}`.", "",
+        "> **Private Link and the admin surface:** the *OneLake catalog → Govern* tab is not "
+        "available while Private Link is activated. Admins then work in the Admin portal "
+        "(Settings → Admin portal) — plan runbooks accordingly.", "",
+    ]
+
+
+#: Soll je Workspace (vom Kunden auszufuellen) und der Pruefer gegen die GA-Admin-API (I-21 W1.9e).
+NETZ_SOLL_PATH = "connectivity/network_policy_target.json"
+NETZ_AUDIT_PATH = "connectivity/audit_network_policies.py"
+#: Eine Frage, nicht je Workspace eine: der Binding-Katalog fasst gleiche Token zu einem offenen Punkt
+#: zusammen, und die Antwort ist die Netzhaltung (PLAT-NET), angewandt je Workspace.
+_NETZ_FRAGE = "<VERIFY: Netzhaltung je Workspace und Richtung (Allow oder Deny)>"
+
+
+def _workspace_names(bp: dict) -> list[str]:
+    return sorted({str(ws.get("name")) for d in ((bp.get("mesh") or {}).get("domains") or [])
+                   for ws in (d.get("workspaces") or []) if ws.get("name")})
+
+
+def _netz_soll_json(bp: dict) -> str:
+    """Die Vorlage des Soll-Zustands: jeder Workspace der Lieferung, jede Richtung ein Platzhalter.
+
+    Bewusst **kein** vorbelegtes Allow/Deny: die Netzhaltung ist die Entscheidung `PLAT-NET`, und
+    ein vorbelegter Wert saehe im Pruefbericht aus wie eine Aussage des Kunden."""
+    payload = {
+        "_note": ("Intended network stance per workspace, compared against the admin API "
+                  "`Workspaces - List Networking Communication Policies` (GA Sep 2026) by "
+                  "audit_network_policies.py. Replace every VERIFY placeholder with Allow or Deny. A value "
+                  "left as a placeholder is reported as UNDECLARED and fails the audit."),
+        "workspaces": {name: {"inbound": _NETZ_FRAGE, "outbound": _NETZ_FRAGE}
+                       for name in _workspace_names(bp)},
+    }
+    return json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
+
+
+def _netz_audit_py() -> str:
+    """Selbsttragender Pruefer (keine Meridian-Abhaengigkeit beim Kunden): Soll-Datei gegen die API.
+
+    ``vergleiche`` ist rein und wird im Test direkt aus dem emittierten Text ausgefuehrt — geprueft
+    wird also das Artefakt, das der Kunde bekommt, nicht eine Zweitfassung davon."""
+    return '''"""audit_network_policies.py — intended vs actual network policy per workspace (generated).
+
+Reads network_policy_target.json (the intended stance), calls the Fabric admin API
+`GET /v1/admin/workspaces/networking/communicationpolicies` (GA Sep 2026; Fabric admin or
+service principal, Tenant.Read.All) and reports per workspace:
+
+  MATCH       inbound and outbound as intended
+  MISMATCH    at least one direction differs
+  MISSING     protection (Deny) intended, workspace not in the response
+  NOT_LISTED  nothing intended beyond Allow and workspace not in the response
+  UNDECLARED  the target still carries a VERIFY placeholder
+
+Exit code 0 only if every workspace is MATCH or NOT_LISTED. The token comes from the
+environment variable FABRIC_TOKEN, never from the command line.
+
+Why MISSING and NOT_LISTED instead of one verdict: the API reference says it returns the
+policies "for all workspaces in the tenant", the OAP overview says it lists workspaces "with
+access protection enabled" (both read 2026-09-29). Under either reading, a workspace meant to
+be protected must appear — so MISSING is a finding. A workspace meant to stay open may or may
+not appear, so its absence is reported, not judged.
+"""
+import json
+import os
+import sys
+import urllib.request
+
+API = "https://api.fabric.microsoft.com/v1/admin/workspaces/networking/communicationpolicies"
+_OK = ("MATCH", "NOT_LISTED")
+
+
+def _richtung(eintrag, seite):
+    return (((eintrag or {}).get(seite) or {}).get("publicAccessRules") or {}).get("defaultAction")
+
+
+def vergleiche(soll, ist):
+    """soll: {workspace: {inbound, outbound}}; ist: the API's `value` list. Pure."""
+    by_name = {e.get("workspaceName"): e for e in ist}
+    zeilen = []
+    for ws in sorted(soll):
+        ziel = soll[ws]
+        if any(str(ziel.get(s, "")).startswith("<") or ziel.get(s) not in ("Allow", "Deny")
+               for s in ("inbound", "outbound")):
+            zeilen.append((ws, "UNDECLARED", "target not filled in"))
+            continue
+        e = by_name.get(ws)
+        if e is None:
+            geschuetzt = "Deny" in (ziel["inbound"], ziel["outbound"])
+            zeilen.append((ws, "MISSING" if geschuetzt else "NOT_LISTED",
+                           "not in the API response"))
+            continue
+        abw = [f"{s}: intended {ziel[s]}, actual {_richtung(e, s) or 'absent'}"
+               for s in ("inbound", "outbound") if _richtung(e, s) != ziel[s]]
+        zeilen.append((ws, "MISMATCH" if abw else "MATCH", "; ".join(abw)))
+    return zeilen
+
+
+def _alle_seiten(token):
+    url, werte = API, []
+    while url:
+        req = urllib.request.Request(url, headers={"Authorization": "Bearer " + token})
+        with urllib.request.urlopen(req) as r:
+            seite = json.load(r)
+        werte += seite.get("value", [])
+        url = seite.get("continuationUri")
+    return werte
+
+
+def main():
+    token = os.environ.get("FABRIC_TOKEN")
+    if not token:
+        print("FABRIC_TOKEN not set — audit NOT RUN (this is not a pass).")
+        return 2
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "network_policy_target.json"), encoding="utf-8") as f:
+        soll = json.load(f)["workspaces"]
+    zeilen = vergleiche(soll, _alle_seiten(token))
+    for ws, status, detail in zeilen:
+        print(f"{status:<11} {ws}  {detail}")
+    return 0 if zeilen and all(s in _OK for _, s, _ in zeilen) else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'''
 
 
 GATEWAY_OPS_PATH = "connectivity/gateway_cluster_ops.ps1"
@@ -374,9 +597,12 @@ def _network_stance_section(bp: dict) -> list[str]:
         "on the workspace it is installed in (both read 2026-08-16). Planned here against the "
         "narrower statement: assume the app is lost, and confirm against your tenant before "
         "relying on it |",
-        "| Workspace monitoring (`BK-B01`, the job-failure alert rests on it) | not supported at "
-        "all. Stated twice: in the monitoring limitations, and again for API for GraphQL, whose "
-        "logging „based on Workspace Monitoring is not supported\" |",
+        "| Workspace monitoring (`BK-B01`, the job-failure alert rests on it) | the monitoring "
+        "item supports private links (MS Learn, read 2026-09-29): if enabling fails, disable the "
+        "workspace's private links, enable monitoring, re-enable them. The **legacy** path "
+        "(+Eventhouse) does not support them, and API for GraphQL still states its logging "
+        "„based on Workspace Monitoring is not supported\". Until 2026-09-29 this row said „not "
+        "supported at all\" — that was the legacy statement |",
         "| Copilot / Data Agent items | Copilot is not supported; Data Agents lose Kusto, semantic "
         "models and mirrored sources as data sources |",
         "| Report delivery (subscriptions, PDF/PowerPoint export, Publish to Web) | all three "
@@ -699,6 +925,10 @@ def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<worksp
         # Unabhaengig von privaten Quellen: OAP schuetzt den Workspace, nicht die Quelle. Eine
         # Lieferung ganz ohne private Quelle braucht ihn genauso — sie hat nur keine MPEs.
         out[OAP_POLICY_PATH] = _oap_policy_json()
+        # Soll-Vorlage + Pruefer gegen die GA-Admin-API (I-21 W1.9e): der Nachweis, dass die
+        # Netzhaltung je Workspace so ist wie deklariert, als Abfrage statt als Klickstrecke.
+        out[NETZ_SOLL_PATH] = _netz_soll_json(bp)
+        out[NETZ_AUDIT_PATH] = _netz_audit_py()
         # Anders als OAP haengt das Gateway an einer Bedingung der Lieferung: einer erkannten
         # privaten Quelle oder einem ausdruecklich deklarierten On-Premises-Gateway. Ein
         # Betriebsskript fuer ein Geraet, das weder gebraucht noch deklariert ist, waere eine
