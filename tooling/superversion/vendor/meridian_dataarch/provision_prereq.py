@@ -193,17 +193,26 @@ def _beschaffung_md() -> str:
         "| Mechanismus | Verfügbar auf | Stand |", "|---|---|---|",
         "| **Power BI Autoscale** | **nur P-SKUs** | auf F-Kapazitäten nicht vorhanden. Für diese "
         "Lieferung damit gegenstandslos |",
-        "| **Capacity Overage** | F-SKUs | **Vorschau (Preview)**. Kauft Drosselung ab, zum "
-        "dreifachen Satz |",
+        "| **Capacity Overage** | F-SKUs | **allgemein verfügbar** (Stand 29.09.2026), "
+        "E-Mail-Benachrichtigungen dazu Preview. Kauft Drosselung ab, zum dreifachen Satz |",
         "| **Autoscale Billing for Spark** | F2 und größer, **nicht** auf Testkapazität | "
         "allgemein verfügbar seit Juli 2025. Verlagert Spark-Jobs aus der Kapazität heraus |", "",
         "### Capacity Overage", "",
         "Der Mechanismus zahlt Überverbrauch ab, statt zu drosseln — bis zu einer Grenze, die der "
-        "Kapazitäts-Admin setzt. Er ist standardmäßig **aus**.", "",
+        "Kapazitäts-Admin setzt.", "",
+        "**Abweichung vom Stand 16.08.2026, benannt statt geglättet (Belegpflicht Regel 5).** Hier "
+        "stand bis 29.09.2026: Preview, ab Werk **aus**, Grenze in Vielfachen von 48 CU. Gelesen "
+        "am 29.09.2026 (`enterprise/capacity-overage-overview`, `enterprise/enable-capacity-"
+        "overage`): Overage ist allgemein verfügbar und bei **neuen** F-Kapazitäten **ab Werk "
+        "an**, mit einer Schwelle von 25 % (Schieberegler in 5-%-Schritten oder absolut in "
+        "CU-Stunden). Wer „drosseln\" entscheidet, muss es **beim Anlegen** ausschalten — sonst "
+        "hat er zugekauft, ohne es zu wissen.", "",
         "- Abgerechnet wird über einen eigenen Zähler zum **dreifachen** Pay-as-you-go-Satz, und "
         "nur für die CU-Stunden über der SKU. In der Kostenanalyse heißt er "
         "`Capacity Overage Capacity Usage CU`.",
-        "- Die Grenze ist ein rollierendes 24-Stunden-Limit in **Vielfachen von 48 CU**.",
+        "- Die Grenze ist ein rollierendes 24-Stunden-Limit in **CU-Stunden**. Der Bauplan trägt "
+        "sie je Kapazität als `overage` (`state`, `threshold_cu_hours`), benannt wie die "
+        "ARM-Eigenschaft `properties.overage` (API `2026-08-01-preview`).",
         f"- Sie wird alle **{OVERAGE_PRUEFTAKT_MIN} Minuten** ausgewertet. MS schreibt die Folge "
         "selbst hin: „you might exceed your limit\". Die Grenze ist eine Bremse, kein Anschlag.",
         f"- MS empfiehlt, sie unter **{OVERAGE_EMPFEHLUNG_ANTEIL}** der Tages-CU-Stunden zu "
@@ -217,11 +226,11 @@ def _beschaffung_md() -> str:
         "Drosselungsereignisses eingeschaltet, berechnet Fabric den **gesamten aufgelaufenen "
         "Carry-forward** zu diesem Zeitpunkt. Der Schalter ist damit als Notmaßnahme die teuerste "
         "seiner Varianten. Wer ihn will, schaltet ihn in der Ruhe ein.", "",
-        "**Für den Regelbetrieb bewertet:** Capacity Overage steht in der Vorschau. Ein "
-        "Sicherheitsnetz, dessen Verhalten sich vor der allgemeinen Verfügbarkeit noch ändern "
-        "darf, trägt keine Zusage. Empfehlung deshalb: die SKU auf die Dauerlast auslegen und "
-        "Overage höchstens als befristete Brücke einschalten, mit gesetzter Grenze. Wer das "
-        "Budget über die Antwortzeit stellt, lässt es aus und nimmt Drosselung in Kauf.", "",
+        "**Für den Regelbetrieb bewertet:** die SKU auf die Dauerlast auslegen und Overage "
+        "höchstens als Sicherheitsnetz für seltene Spitzen nutzen, mit gesetzter Grenze unter "
+        "einem Drittel der Tages-CU-Stunden. Wer das Budget über die Antwortzeit stellt, schaltet "
+        "es beim Anlegen aus und nimmt Drosselung in Kauf. Tabelle je Kapazität, Kontingentbedarf "
+        "und Kalkulationszeile: `platform/CAPACITY_RUNBOOK.md`.", "",
         "### Autoscale Billing for Spark", "",
         "Verlagert Spark-Jobs auf serverlose Ressourcen; sie verbrauchen dann **kein** CU der "
         "Kapazität mehr. Abgerechnet wird nur Laufzeit aktiver Jobs (0,5 CU-Stunde), kein "
@@ -324,6 +333,43 @@ def emit_prereq_check_sh() -> str:
         "  fi",
         "}",
         "check_fabric_provider",
+        "",
+        # I-21 W1.1 (29.09.2026): die Overage-Schwelle zieht Schwelle/24 CU aus dem Kontingent
+        # (Learn enterprise/capacity-overage-overview). Dreiwertig wie oben: nicht lesbar ist
+        # nicht dasselbe wie zu knapp. Ohne Schwelle in der Umgebung wird nicht geprueft — und
+        # das sagt der Lauf, statt still „OK" zu melden.
+        "check_overage_quota() {  # BK-F07 — freies Kontingent >= Schwelle/24",
+        '  local schwelle="${OVERAGE_SCHWELLE_CUH:-}"',
+        '  if [ -z "$schwelle" ] || [ "$schwelle" = "0" ]; then',
+        '    advis+=("quota:Overage — nicht geprueft: OVERAGE_SCHWELLE_CUH leer (Overage aus oder '
+        'nicht entschieden, siehe platform/CAPACITY_RUNBOOK.md)")',
+        "    return 0",
+        "  fi",
+        '  command -v az >/dev/null 2>&1 || return 0',
+        '  if [ -z "${AZURE_SUBSCRIPTION_ID:-}" ] || [ -z "${FABRIC_REGION:-}" ]; then',
+        '    advis+=("quota:Overage — nicht geprueft: AZURE_SUBSCRIPTION_ID und FABRIC_REGION setzen")',
+        "    return 0",
+        "  fi",
+        '  local bedarf=$(( (schwelle + 23) / 24 ))',
+        '  local werte',
+        '  werte="$(az rest --method get --url "https://management.azure.com/subscriptions/'
+        '${AZURE_SUBSCRIPTION_ID}/providers/Microsoft.Fabric/locations/${FABRIC_REGION}/usages'
+        '?api-version=2023-11-01" --query "value[?name.value==\'CapacityQuota\'] | [0].[limit, '
+        'currentValue]" -o tsv 2>/dev/null || true)"',
+        '  if [ -z "$werte" ]; then',
+        '    advis+=("quota:Overage — Kontingent nicht lesbar (Rolle Contributor noetig?)")',
+        "    return 0",
+        "  fi",
+        "  local limit aktuell frei",
+        '  read -r limit aktuell <<<"$werte"',
+        '  frei=$(( ${limit%.*} - ${aktuell%.*} ))',
+        '  if [ "$frei" -lt "$bedarf" ]; then',
+        '    missing+=("quota:Overage — Schwelle $schwelle CU-h braucht $bedarf CU freies '
+        'Kontingent, frei sind $frei (Limit $limit, belegt $aktuell). Kontingent erhoehen oder '
+        'Schwelle senken")',
+        "  fi",
+        "}",
+        "check_overage_quota",
         "",]
     lines += [
         "",

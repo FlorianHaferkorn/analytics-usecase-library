@@ -454,6 +454,91 @@ def vertrags_spaltentests(governed_catalog: dict | None) -> dict[str, list[dict]
     return out
 
 
+def katalog_kanten(governed_catalog: dict | None,
+                   quellen: tuple[str, ...] = ("relationships",)) -> list[dict[str, Any]]:
+    """Die Sternkanten, die der governte Katalog **ausdruecklich** fuehrt — an einer Stelle.
+
+    Je Kante ``{from_table, from_column, to_table, to_column, aktiv}``. Nur Kanten, deren beide
+    Seiten als echte Spalten im Katalog stehen; Selbstbezug und Dubletten fallen weg, und je
+    Tabellenpaar ist genau eine Kante aktiv (Power BI kennt nur einen aktiven Pfad). Nichts wird
+    geraten: eine Kante mit fehlender Seite faellt stillschweigend heraus.
+
+    Bis 29.09.2026 stand diese Regel nur in ``sap_tmdl._rels_from_catalog``. Die DQ-Tore
+    brauchen sie auch (W5.11), aber ``provision_dq`` ist nach ALUCA gespiegelt und darf
+    ``sap_tmdl`` nicht importieren (D-541). Deshalb liegt sie hier, und ``sap_tmdl`` liest
+    sie von hier — eine Regel, zwei Leser.
+
+    ``quellen`` — welche Katalogfelder gelesen werden: ``relationships`` (deklariert, auch die
+    Kalenderkanten) und/oder ``fremdschluessel`` (SAP-Sternkanten, D-559).
+    """
+    gc = governed_catalog or {}
+    cols = {t.get("name"): set(t.get("columns") or []) for t in gc.get("tables") or []}
+    roh = [r for q in quellen for r in (gc.get(q) or []) if isinstance(r, dict)]
+    out: list[dict[str, Any]] = []
+    gesehen: set[tuple] = set()
+    aktive_paare: set[tuple[str, str]] = set()
+    for r in sorted(roh, key=lambda r: (str(r.get("from_table")), str(r.get("from_column")),
+                                        str(r.get("to_table")), str(r.get("to_column")))):
+        ft, fc, tt, tc = (r.get("from_table"), r.get("from_column"), r.get("to_table"),
+                          r.get("to_column"))
+        if not all((ft, fc, tt, tc)) or ft == tt:
+            continue
+        if ft not in cols or fc not in cols[ft] or tc not in cols.get(tt, set()):
+            continue
+        k = (ft, fc, tt, tc)
+        if k in gesehen:
+            continue
+        gesehen.add(k)
+        out.append({"from_table": ft, "from_column": fc, "to_table": tt, "to_column": tc,
+                    "aktiv": (ft, tt) not in aktive_paare})
+        aktive_paare.add((ft, tt))
+    return out
+
+
+def beziehungs_spaltentests(governed_catalog: dict | None,
+                            basis: dict[str, list[dict]] | None = None,
+                            modelle: set[str] | None = None) -> dict[str, list[dict]]:
+    """dbt-``relationships``-Tests aus den Sternkanten des Katalogs — fuer **jeden** Blueprint (W5.11).
+
+    Gemessen 29.09.2026: ``emit_dq_gates`` schrieb fuer ein Faktum ohne SAP-Paket nur
+    ``not_null`` auf den Platzhalter ``<dimension_foreign_key>``, obwohl der Katalog die Kanten
+    kannte. Ein echter ``relationships``-Test entstand allein im SAP-Pfad (``sap_dq``). Dieser
+    Lieferant liest dieselben Kanten (``katalog_kanten``: ``relationships`` + ``fremdschluessel``)
+    und schreibt je Fremdschluessel ``not_null`` + ``relationships`` in derselben Form wie
+    ``sap_dq`` — dieselbe DQ-Flaeche, kein zweites Silo.
+
+    ``basis`` — die Tests anderer Lieferanten (z. B. ``vertrags_spaltentests``); sie werden
+    zusammengefuehrt, nicht ersetzt: eine Spalte mit Vertragstests bekommt den Beziehungstest
+    dazu, sofern sie noch keinen hat. ``modelle`` — die Gold-Produkte, die in dieser Lieferung
+    dbt-Modelle sind. Zeigt eine Kante auf eine Tabelle ausserhalb, entsteht **kein** Test auf
+    ein Modell, das es nicht gibt (dbt bricht sonst beim Kompilieren ab), sondern ein
+    sichtbarer Hinweis an der Spalte.
+    """
+    out: dict[str, list[dict]] = {k: [dict(e) for e in v] for k, v in (basis or {}).items()}
+    for k in katalog_kanten(governed_catalog, ("relationships", "fremdschluessel")):
+        ft, fc, tt, tc = k["from_table"], k["from_column"], k["to_table"], k["to_column"]
+        ziel_ok = modelle is None or tt in modelle or _gold_ident(tt) in {
+            _gold_ident(m) for m in modelle}
+        eintraege = out.setdefault(ft, [])
+        e = next((x for x in eintraege if x.get("name") == fc), None)
+        if e is None:
+            e = {"name": fc, "description": f"FK -> {tt}"}
+            eintraege.append(e)
+        tests = list(e.get("tests") or [])
+        if not ziel_ok:
+            hinweis = (f"TODO(relationships): Ziel '{tt}' ist kein dbt-Modell dieser "
+                       "Lieferung — kein relationships-Test")
+            e["description"] = "; ".join(x for x in (e.get("description"), hinweis) if x)
+            continue
+        if "not_null" not in tests:
+            tests.insert(0, "not_null")
+        if not any(isinstance(t, dict) and "relationships" in t for t in tests):
+            tests.append({"relationships": {"to": f"ref('gold_{_gold_ident(tt)}')",
+                                            "field": tc}})
+        e["tests"] = tests
+    return {k: v for k, v in out.items() if v}
+
+
 def vertrags_constraints(table: dict | None, produkt_ident: str, aktion: str,
                          spalten: list[str] | None = None) -> tuple[list[str], list[str]]:
     """``(CONSTRAINT-Zeilen, TODO-Kommentare)`` fuer eine MLV aus den ``column_specs`` ihrer Tabelle.

@@ -360,10 +360,182 @@ def _git_blind_spots_lines() -> list[str]:
     ]
 
 
+# --------------------------------------------------------------------------- Workspace-Export (Bulk)
+# I-21 W2.8 b. Learn (`fundamentals/understand-best-practices-fabric-cicd`, gelesen 29.09.2026):
+# Bulk Export/Import Item Definitions sind **Public Preview seit März 2026**, Aufruf nur mit
+# `?beta=true`; Szenarien Backup/Restore, Klonen, Cross-Tenant-Migration. Die FabCon-Folie vom
+# 29.09.2026 nennt GA — Widerspruch, UNKLAR, Nachprüfung 05.10.2026. Bis dahin Preview-Flag:
+# emittiert wird nur auf Wunsch, und `BULK_API_BETA` steht im Skript als Feld.
+WORKSPACE_EXPORT_PATH = "lifecycle/workspace_export.py"
+WORKSPACE_EXPORT_DOC = "lifecycle/WORKSPACE_EXPORT.md"
+
+_WORKSPACE_EXPORT_PY = '''#!/usr/bin/env python3
+"""Workspace-Export als JSON (Bulk Export Item Definitions, Preview) — generiert, I-21 W2.8 b.
+
+Aufruf:  python workspace_export.py WORKSPACE_ID ZIEL.json
+Anmeldung: Service Principal aus AZURE_TENANT_ID / AZURE_CLIENT_ID / AZURE_CLIENT_SECRET
+(Umgebung, nie Befehlszeile). Schreibt die Antwort (itemDefinitionsIndex + definitionParts)
+und vergleicht sie mit der Item-Liste des Workspaces: Item-Typen ohne Definition-API
+ueberspringt der Export im Modus All **ohne Fehler**. Fehlt etwas, endet das Skript mit
+Exit 3 und nennt die Items — ein Export, der still weniger enthaelt, ist kein Backup.
+"""
+import json
+import sys
+import time
+
+API = "https://api.fabric.microsoft.com/v1"
+BULK_API_BETA = True          # Preview (Learn 29.09.2026): ?beta=true Pflicht; nach GA auf False
+MAX_VERSUCHE = 6
+
+
+def wartezeit(status: int, headers: dict, body: dict, versuch: int) -> float | None:
+    """Wie lange vor dem naechsten Versuch warten; None = nicht wiederholen.
+
+    429 kennt zwei Ursachen (Learn rest/api/fabric/articles/throttling, 29.09.2026):
+    RequestBlocked -> Retry-After einhalten; CapacityLimitExceeded -> exponentiell
+    zurueckweichen, sofort wiederholen hilft nicht (die Kapazitaet ist ueberlastet)."""
+    if status != 429 or versuch >= MAX_VERSUCHE:
+        return None
+    code = (body or {}).get("errorCode", "")
+    if code == "CapacityLimitExceeded":
+        return float(min(30 * 2 ** versuch, 600))
+    try:
+        return float(headers.get("Retry-After", 60))
+    except (TypeError, ValueError):
+        return 60.0
+
+
+def _anfrage(session, methode: str, url: str, **kw):
+    for versuch in range(MAX_VERSUCHE + 1):
+        r = session.request(methode, url, timeout=120, **kw)
+        try:
+            body = r.json() if r.content else {}
+        except ValueError:
+            body = {}
+        pause = wartezeit(r.status_code, r.headers, body, versuch)
+        if pause is None:
+            return r, body
+        print(f"429 {body.get('errorCode', '')}: warte {pause:.0f} s", file=sys.stderr)
+        time.sleep(pause)
+    return r, body
+
+
+def _lro(session, r, body):
+    """202 -> Operation abwarten und Ergebnis holen (GET /operations/{id}, /result)."""
+    if r.status_code == 200:
+        return body
+    if r.status_code != 202:
+        raise SystemExit(f"Export fehlgeschlagen: HTTP {r.status_code} {body}")
+    op = r.headers.get("x-ms-operation-id")
+    while True:
+        time.sleep(float(r.headers.get("Retry-After", 5)))
+        r, st = _anfrage(session, "GET", f"{API}/operations/{op}")
+        if st.get("status") in ("Succeeded", "Failed"):
+            break
+    if st.get("status") != "Succeeded":
+        raise SystemExit(f"Export-Operation {op} endete mit {st}")
+    _r, res = _anfrage(session, "GET", f"{API}/operations/{op}/result")
+    return res
+
+
+def _items(session, ws: str) -> list[dict]:
+    items, url = [], f"{API}/workspaces/{ws}/items"
+    while url:
+        _r, body = _anfrage(session, "GET", url)
+        items += body.get("value", [])
+        token = body.get("continuationToken")
+        url = f"{API}/workspaces/{ws}/items?continuationToken={token}" if token else None
+    return items
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) != 3:
+        print(__doc__)
+        return 2
+    import os
+    import requests
+    from azure.identity import ClientSecretCredential
+    ws, ziel = argv[1], argv[2]
+    cred = ClientSecretCredential(os.environ["AZURE_TENANT_ID"], os.environ["AZURE_CLIENT_ID"],
+                                  os.environ["AZURE_CLIENT_SECRET"])
+    s = requests.Session()
+    s.headers["Authorization"] = "Bearer " + cred.get_token(
+        "https://api.fabric.microsoft.com/.default").token
+    url = f"{API}/workspaces/{ws}/items/bulkExportDefinitions" + ("?beta=true" if BULK_API_BETA else "")
+    r, body = _anfrage(s, "POST", url, json={"mode": "All"})
+    export = _lro(s, r, body)
+    with open(ziel, "w", encoding="utf-8") as f:
+        json.dump(export, f, indent=1, ensure_ascii=False)
+    exportiert = {e.get("id") for e in export.get("itemDefinitionsIndex", [])}
+    fehlend = [f"{i.get('displayName')}.{i.get('type')}" for i in _items(s, ws)
+               if i.get("id") not in exportiert]
+    print(f"{len(exportiert)} Items exportiert -> {ziel}")
+    if fehlend:
+        print("NICHT im Export (Typ ohne Definition-API oder uebersprungen):", file=sys.stderr)
+        for n in sorted(fehlend):
+            print(f"  {n}", file=sys.stderr)
+        return 3
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
+'''
+
+
+def _workspace_export_doc() -> str:
+    return "\n".join([
+        "# Workspace-Export als JSON — Sicherung der Item-Definitionen (generiert, **Preview**)", "",
+        "Git trägt die Item-Definitionen der Git-verbundenen Workspaces. Der Export sichert "
+        "zusätzlich den Stand **eines Workspaces**, wie er im Tenant steht — auch wenn der "
+        "Workspace nicht mit Git verbunden ist (Test, Produktion bei Items-API-Deployment). "
+        "Die JSON-Datei wird in einen Sicherungs-Branch committet oder in einen Storage-Container "
+        "gelegt.", "",
+        "Beleg: Learn `fundamentals/understand-best-practices-fabric-cicd` (gelesen 29.09.2026), "
+        "Abschnitt Bulk import and export APIs.", "",
+        "**Status UNKLAR:** Learn führt die APIs als Public Preview seit März 2026 mit "
+        "`?beta=true`; die FabCon-Folie vom 29.09.2026 sagt GA. Das Skript ruft mit "
+        "`?beta=true` (`BULK_API_BETA`). Nachprüfung 05.10.2026.", "",
+        "## Sichern", "",
+        "```bash",
+        "python lifecycle/workspace_export.py <workspace-id> backup/<workspace>_$(date +%F).json",
+        "```", "",
+        "Exit 3 heißt: Items fehlen im Export. Im Modus `All` überspringt die API Item-Typen "
+        "ohne Definition-API ohne Fehler; das Skript vergleicht deshalb mit der Item-Liste und "
+        "nennt, was fehlt. Diese Items brauchen einen eigenen Sicherungsweg.", "",
+        "Eine Ausführung zählt gegen die API-Quote der Identität (500 Aufrufe/min für "
+        "Platform-APIs) — den Export unter dem Betriebs-SPN fahren, nicht unter dem Deploy-SPN.", "",
+        "## Wiederherstellen", "",
+        "`POST /v1/workspaces/{id}/items/bulkImportDefinitions?beta=true` mit den "
+        "`definitionParts` aus der Datei, `options.allowPairingByName: false` (Zuordnung über "
+        "`logicalId`). Abhängigkeiten zwischen Items bindet der Import über `logicalId` neu.", "",
+        "Was der Import **nicht** zurückbringt und ein eigener Schritt bleibt:", "",
+        "| Nicht enthalten | Folgeschritt |", "|---|---|",
+        "| Daten in Lakehouses/Warehouses | Ladeläufe fahren bzw. OneLake-DR (`BCDR_RUNBOOK.md`) |",
+        "| aktiver Wertesatz der Variable Library | von Hand wählen |",
+        "| Shortcuts | neu anlegen |",
+        "| Item-Typen ohne Definition-API | siehe Exit 3 beim Export |", "",
+        "## Cross-Tenant-Migration", "",
+        "Derselbe Weg zwischen zwei Tenants: Export unter einem SPN im Quell-Tenant, Import unter "
+        "einem SPN im Ziel-Tenant; die JSON-Datei ist das Übergabestück. Als Angebotsbaustein "
+        "nutzbar, sobald der Preview-Status geklärt ist.", "",
+        "## Abgrenzung", "",
+        "Für das reguläre Deployment bleibt `fabric-cicd` erste Wahl (Learn-Empfehlung); Bulk ist "
+        "für Sicherung, Klonen, Migration und nicht unterstützte Git-Anbieter.", "",
+    ]) + "\n"
+
+
+def emit_workspace_export() -> dict[str, str]:
+    """Workspace-Export-Skript + Runbook (Preview, nur hinter Flag)."""
+    return {WORKSPACE_EXPORT_PATH: _WORKSPACE_EXPORT_PY,
+            WORKSPACE_EXPORT_DOC: _workspace_export_doc()}
+
+
 def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_NAME>",
                    schemas: bool = False, retention: dict | None = None,
                    lakehouse: str = "analytics_gold",
-                   governed_catalog: dict | None = None) -> dict[str, str]:
+                   governed_catalog: dict | None = None,
+                   bulk_export_preview: bool = False) -> dict[str, str]:
     """Return the retention/lifecycle/BCDR artifact set (path → content). Maintenance SQL is emitted for
     Spark stacks (fabric/databricks); the plan, retention config and BCDR runbook are always emitted."""
     retention = retention or {}
@@ -429,6 +601,8 @@ def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_N
     if stack in ("fabric", "databricks"):
         out["lifecycle/table_maintenance.sql"] = _table_maintenance(bp, schemas,
                                                                      governed_catalog)
+    if bulk_export_preview and stack == "fabric":   # I-21 W2.8 b — Preview, nur auf Wunsch
+        out.update(emit_workspace_export())
     return out
 
 # --------------------------------------------------------------------------- OneLake storage tiers

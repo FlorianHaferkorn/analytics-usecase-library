@@ -217,9 +217,34 @@ def add_edge(src, dst, etype, sot=""):
 def add_access(principal, ptype, item_id, item_type, right):
     access.append((principal or "", ptype or "", item_id or "", item_type or "", right or ""))
 
+# --- tags and domains: the scanner has tag UUIDs but no names, and no domain at all -----------
+# (Learn, read 2026-09-29: "the payload includes a `tags` field containing a list of applied tag
+# IDs. Use the List Tags API to resolve the IDs"). Both lookups use sempy.fabric.admin
+# (list_tags -> "Tag Name"/"Tag Id"; list_workspaces -> "Domain Id"). Soft-skip: a missing right
+# leaves the ids unresolved and says so, it does not fail the scan.
+tag_name, ws_domain = {}, {}
+try:
+    import sempy.fabric.admin as _fadmin
+    tag_name = {r["Tag Id"]: r["Tag Name"] for _, r in _fadmin.list_tags().iterrows()}
+    ws_domain = {r["Id"]: r["Domain Id"] for _, r in _fadmin.list_workspaces().iterrows()
+                 if r.get("Domain Id")}
+except Exception as _e:
+    print("  tag/domain lookup skipped (ids stay unresolved):", _e)
+
+def add_tags(obj_id, obj):
+    for t in (obj or {}).get("tags", []) or []:
+        tid = t if isinstance(t, str) else (t or {}).get("id")
+        if tid:
+            add_node("tag::" + tid, "Tag", tag_name.get(tid, tid))
+            add_edge(obj_id, "tag::" + tid, "HAS_TAG", "scan")
+
 for ws in scan.get("workspaces", []):
     wid, wname = ws.get("id"), ws.get("name", "")
     add_node(wid, "Workspace", wname, wname, ws.get("type", ""))
+    add_tags(wid, ws)
+    if ws_domain.get(wid):
+        add_node("domain::" + ws_domain[wid], "Domain", ws_domain[wid])
+        add_edge(wid, "domain::" + ws_domain[wid], "IN_DOMAIN", "list_workspaces")
     for u in ws.get("users", []) or []:
         add_access(u.get("identifier") or u.get("emailAddress"), u.get("principalType"),
                    wid, "Workspace", u.get("groupUserAccessRight", ""))
@@ -229,6 +254,7 @@ for ws in scan.get("workspaces", []):
         rid = r.get("id")
         add_node(rid, "Report", r.get("name", ""), wname, r.get("reportType", ""))
         add_edge(wid, rid, "CONTAINS", "scan")
+        add_tags(rid, r)
         if r.get("datasetId"):
             add_edge(rid, r["datasetId"], "CONSUMES", "scan")
 
@@ -236,6 +262,7 @@ for ws in scan.get("workspaces", []):
         did = d.get("id")
         add_node(did, "SemanticModel", d.get("name", ""), wname, d.get("configuredBy", ""))
         add_edge(wid, did, "CONTAINS", "scan")
+        add_tags(did, d)
         for t in d.get("tables", []) or []:
             tname = t.get("name", "")
             tid = did + "::" + tname
@@ -569,6 +596,35 @@ print("wrote:", _p + "meta_nodes,", _p + "meta_edges,", _p + "meta_access")
 '''
 
 
+#: Plan I-21 W5.6, gelesen per Learn-MCP am 29.09.2026. Was blockiert ist, steht als blockiert da.
+ONELAKE_CATALOG_GEPRUEFT = "2026-09-29"
+
+
+def _onelake_catalog_section() -> list[str]:
+    """Der OneLake catalog als Discovery-Oberflaeche: was wir nutzen, was wir adoptieren, was wartet.
+
+    Die Catalog Search API ist laut Learn Preview (die FabCon-Folie sagte GA); Tabellen als Treffer
+    sind im Schema nicht dokumentiert. Beides wird **nicht** gebaut — der Abschnitt sagt das, statt es
+    wegzulassen, weil ein Leser sonst annimmt, es sei vergessen worden."""
+    return [
+        f"### OneLake catalog — discovery (checked {ONELAKE_CATALOG_GEPRUEFT})",
+        "",
+        "| Need | Path | State |", "|---|---|---|",
+        "| Find items and workspaces by text | Catalog Search API `POST /v1/catalog/search` "
+        "(`Catalog.Read.All`, service principal and managed identity supported) | **preview** on "
+        "Learn — not built here, watchlist |",
+        "| Find **tables** | not in the documented search schema | **blocked** until documented |",
+        "| Discovery from an agent or CLI | Microsoft skill `search-consumption-cli` (skills-for-fabric) "
+        "— adopt, do not rebuild; check first whether the customer already runs it | adopt |",
+        "| Tags on items | `governance/apply_tags.sh` (Admin List Tags → Apply Tags) | GA |",
+        "| Tags and domains in the graph | `catalog_scan.py` (`HAS_TAG`, `IN_DOMAIN`) | GA |",
+        "",
+        "Descriptions are what catalog search and Copilot read. Gold tables with a `COMMENT` and "
+        "models with `///` descriptions are the lever — the size of the benefit is ANNAHME, "
+        "ungeprueft.",
+    ]
+
+
 def _lineage_doc(bp: dict, intended: dict, stack: str, gov: bool = False) -> str:
     n_ass = len(intended["assertions"])
     n_sm = len(intended["semantic_models"])
@@ -610,8 +666,13 @@ def _lineage_doc(bp: dict, intended: dict, stack: str, gov: bool = False) -> str
         ("- **`meta_nodes`** — every artefact: Workspace, SemanticModel, Report, Dataflow, Table, "
          "Column, Measure, Datasource, Principal (`node_id`, `node_type`, `name`, `workspace`, `attribute`).") if fabric else "",
         ("- **`meta_edges`** — typed **multi-edges** (a pair may be joined by several): `CONTAINS`, "
-         "`CONSUMES`, `READS_FROM`, `HAS_TABLE`, `HAS_COLUMN`, `HAS_MEASURE`, `HAS_ACCESS`. "
-         "Per-artefact connections: `WHERE from_id = '<x>' OR to_id = '<x>'`.") if fabric else "",
+         "`CONSUMES`, `READS_FROM`, `HAS_TABLE`, `HAS_COLUMN`, `HAS_MEASURE`, `HAS_ACCESS`, "
+         "`HAS_TAG`, `IN_DOMAIN`. Per-artefact connections: `WHERE from_id = '<x>' OR to_id = '<x>'`."
+         ) if fabric else "",
+        ("- **Tags and domains** (`Tag`/`Domain` nodes): the scanner returns tags as **UUIDs** and no "
+         "domain at all. `catalog_scan.py` resolves tag names via Admin *List Tags* and the domain "
+         "via *List Workspaces* (`Domain Id`), both through `sempy.fabric.admin`; without the right, "
+         "the ids stay unresolved and the run says so.") if fabric else "",
         ("- **`meta_access`** — who can reach what: workspace roles + dataset RLS members "
          "(`principal`, `principal_type`, `item_id`, `item_type`, `access_right`).") if fabric else "",
         ("Measure DAX is captured on `Measure` nodes (`attribute`).") if fabric else "",
@@ -641,7 +702,8 @@ def _lineage_doc(bp: dict, intended: dict, stack: str, gov: bool = False) -> str
             "### Observed edges from a scan (scanner vocabulary)",
             "`Report.datasetId → Dataset` (CONSUMES) · `Dataset.datasourceUsages → datasourceInstance`",
             "(READS_FROM) · `Dataset.upstreamDataflows → Dataflow` (READS_FROM). This diff uses the",
-            "Dataset→Datasource edges (the model's real sources).",
+            "Dataset→Datasource edges (the model's real sources).", "",
+            *_onelake_catalog_section(),
         ]
     else:
         lines += [

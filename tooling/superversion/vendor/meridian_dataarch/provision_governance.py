@@ -1040,7 +1040,10 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
            "| Workspace roles + Domains | `governance.sh` (REST/fab api) | GA |",
            "| Domain-Admins + Domain-Contributors | `governance.sh` Abschnitt 1c | GA |",
            "| Sensitivity labels | `sensitivity_labels.sh` (bulk admin API) | GA |",
-           "| Endorsement | `ENDORSEMENT_RUNBOOK.md` (manual — no write API) | manual |"]
+           "| Endorsement | `ENDORSEMENT_RUNBOOK.md` (manual — no write API) | manual |",
+           "| Which items may be created where | `fabric_policies/` (Fabric policies, target picture; "
+           "not in West/North Europe) | **preview** |",
+           "| Catalog tags | `tags.json` + `apply_tags.sh` (Admin List Tags → Apply Tags) | GA |"]
     doc += ["",
             "> **OneLake-Security schliesst die Fabric-IQ-Ontologie aus.** MS dokumentiert an drei",
             "> Stellen, dass ein Lakehouse mit aktivierter OneLake-Security **nicht** als",
@@ -1082,12 +1085,244 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         out["governance/governance.sh"] = _governance_script(bp, workspace, governance, dom_owner)
         out["governance/sensitivity_labels.sh"] = _sensitivity_script(bp, governance)
         out.update(emit_onelake_roles(bp, lakehouse, sensitivity, governed_catalog))
+        out.update(emit_fabric_policies(bp))
+        out.update(emit_tags(bp))
     # P5 gehoert hierher und nicht hinter ein eigenes Flag: es IST Governance, und es erscheint genau
     # dann, wenn die IR einen Share deklariert. Ein eigenes `--emit-sharing` waere ein Schalter, den man
     # vergessen kann — bei einer Bedingung, die das Sicherheitsmodell aufhebt, ist das der falsche
     # Freiheitsgrad.
     out.update(emit_sharing(bp, stack=stack))
     return out
+
+# --------------------------------------------------------------------------- Fabric policies (I-21 W1.12)
+#
+# Gelesen per Learn-MCP am 29.09.2026: `fabric/governance/fabric-policies-overview`,
+# `-item-creation`, `-rest-api` (alle Preview). Die Zahlen unten sind MS-Grenzen, keine eigenen.
+FABRIC_POLICIES_GEPRUEFT = "2026-09-29"
+POLICY_MAX_RULES_CAPACITY = 50
+POLICY_MAX_RULES_TENANT = 100
+POLICY_MAX_VALUES_PER_CONDITION = 50
+
+#: Zielbild: erlaubte Item-Typen je Workspace-Rolle, als **API-Bezeichner** (MS: „Use API item-type
+#: identifiers, not UI display names", z. B. ``DataPipeline`` fuer „Pipeline"). Nur Bezeichner, die
+#: auf den MS-Seiten selbst als Wert stehen — die Liste ist ein Vorschlag, den der Kunde erweitert,
+#: und sie muss vor der Aktivierung gegen alles geprueft werden, was die Lieferung selbst anlegt
+#: (Variable Library, Environment, Eventhouse …), sonst blockiert die Policy unser eigenes Deployment.
+ITEMTYPEN_JE_ROLLE: dict[str, tuple[str, ...]] = {
+    "bronze": ("Lakehouse", "Notebook", "DataPipeline"),
+    "silver": ("Lakehouse", "Notebook", "DataPipeline"),
+    "gold": ("Lakehouse", "Notebook", "DataPipeline", "Warehouse", "SemanticModel"),
+    "reporting": ("Report", "SemanticModel"),
+}
+FABRIC_POLICY_PATH = "governance/fabric_policies/item_creation_policy.json"
+
+
+def _policy_workspaces(bp: dict) -> list[tuple[str, str]]:
+    return sorted({(str(ws.get("name")), str(ws.get("role") or ""))
+                   for d in _domains(bp) for ws in (d.get("workspaces") or []) if ws.get("name")})
+
+
+def _ws_platzhalter(name: str) -> str:
+    """`workspace.name` weist die API mit UnsupportedPropertyValue ab — es muss die GUID sein.
+
+    Die Form ``<{ws}-workspace-id>`` ist in ``provision_binding`` als **Laufzeit-ID** registriert
+    (Erzeuger: ``create_workspace``). Ein ``<VERIFY: …>`` saehe dort aus wie eine Kundenfrage —
+    gemessen 29.09.2026 am SAP-E2E-Snapshot: 8 neue „offene Punkte" fuer Werte, die der Apply-Lauf
+    selbst erzeugt."""
+    return f"<{name}-workspace-id>"
+
+
+def fabric_policy_rules(bp: dict) -> list[dict]:
+    """Die ``ItemCreation``-Regeln des Zielbilds: eine je Rolle mit Einschraenkung, ``mixed`` ohne
+    Typbedingung, und die Auffangregel fuer alle **anderen** Workspaces der Kapazitaet.
+
+    Die Auffangregel ist nicht optional: sobald eine Regel existiert, gilt die Allow-List fuer die
+    ganze Kapazitaet, und jeder Workspace ausserhalb der Lieferung koennte nichts mehr anlegen
+    (MS-Beispiel „Rule 2 - Allow all other item types for all users")."""
+    ws = _policy_workspaces(bp)
+    regeln: list[dict] = []
+    for rolle in sorted({r for _, r in ws}):
+        namen = [n for n, r in ws if r == rolle]
+        bedingungen = [{"type": "Dynamic", "targetProperty": "workspace.id",
+                        "predicate": {"operator": "AnyOf",
+                                      "values": [_ws_platzhalter(n) for n in namen]}}]
+        typen = ITEMTYPEN_JE_ROLLE.get(rolle)
+        if typen:
+            bedingungen.append({"type": "Dynamic", "targetProperty": "item.type",
+                                "predicate": {"operator": "AnyOf", "values": list(typen)}})
+        regeln.append({"displayName": f"Allow {rolle} item types"[:100],
+                       "description": (f"Workspace role '{rolle}': "
+                                       + (", ".join(typen) if typen else "no type restriction")),
+                       "policy": "ItemCreation", "conditions": bedingungen})
+    if ws:
+        regeln.append({"displayName": "Allow all item types outside this delivery",
+                       "description": "Keeps every other workspace on the capacity at allow-all.",
+                       "policy": "ItemCreation",
+                       "conditions": [{"type": "Dynamic", "targetProperty": "workspace.id",
+                                       "predicate": {"operator": "NoneOf",
+                                                     "values": [_ws_platzhalter(n) for n, _ in ws]}}]})
+    return regeln
+
+
+def pruefe_policy_grenzen(regeln: list[dict], scope: str = "Capacity") -> list[str]:
+    """Die dokumentierten Grenzen als Befundliste (leer = innerhalb). Rein."""
+    maximal = POLICY_MAX_RULES_CAPACITY if scope == "Capacity" else POLICY_MAX_RULES_TENANT
+    befunde = []
+    if len(regeln) > maximal:
+        befunde.append(f"{len(regeln)} rules > {maximal} per {scope.lower()}-scope policy")
+    for r in regeln:
+        for c in r.get("conditions") or []:
+            n = len((c.get("predicate") or {}).get("values") or [])
+            if not 1 <= n <= POLICY_MAX_VALUES_PER_CONDITION:
+                befunde.append(f"rule '{r.get('displayName')}' condition {c.get('targetProperty')}: "
+                               f"{n} values (allowed 1–{POLICY_MAX_VALUES_PER_CONDITION})")
+    return befunde
+
+
+def emit_fabric_policies(bp: dict) -> dict[str, str]:
+    """Policy-Set als Zielbild (JSON) + Runbook. Nie aktivierungsbereit ausgeliefert: Preview, und in
+    West/North Europe nicht verfuegbar — der Regionsbefund steht im Runbook, aus
+    ``stack_capabilities`` (eine Tabelle, nicht zwei)."""
+    from core.dataarch_engine.blueprint import stack_capabilities as _sc
+
+    regeln = fabric_policy_rules(bp)
+    regionen = _sc.blueprint_regionen(bp)
+    urteile = {r: _sc.feature_in_region("fabric_policies", r) for r in regionen}
+    grenzen = pruefe_policy_grenzen(regeln)
+    payload = {
+        "_note": ("Fabric policies (preview) — Allow item creation, capacity scope. TARGET PICTURE, not "
+                  "an activation: remove _note/_status, replace every workspace-id placeholder with the workspace GUID, "
+                  "check the item-type lists against everything this delivery creates, then create the "
+                  "policy set and activate it (Git cannot activate). Read on "
+                  f"{FABRIC_POLICIES_GEPRUEFT}: learn.microsoft.com/fabric/governance/"
+                  "fabric-policies-item-creation."),
+        "_status": "zielbild",
+        "_region_verdict": urteile or {"": "unbekannt"},
+        "scopeType": "Capacity",
+        "rules": regeln,
+    }
+    ist_eu_block = any(v == "fehlt" for v in urteile.values())
+    region_zeilen = ([f"| `{r}` | **{v}** |" for r, v in sorted(urteile.items())]
+                     or ["| — (no capacity region declared) | **unbekannt** |"])
+    teilen = bool(bp.get("sharing"))
+    doc = [
+        "# Fabric policies — which items may be created where (target picture)", "",
+        f"Status: **preview**, read on {FABRIC_POLICIES_GEPRUEFT}. Delivered as a target picture only "
+        "— `item_creation_policy.json` carries `_status: zielbild` and is not activation-ready.", "",
+        "## Region first", "",
+        "MS: *Fabric policies aren't currently supported in the following capacity regions: West "
+        "Europe, North Europe, and West US.* Those are the EU regions most DACH deliveries use.", "",
+        "| Capacity region | Fabric policies |", "|---|---|", *region_zeilen, "",
+        ("> **Not available in this delivery's region.** Keep this file as documentation; nothing "
+         "can be activated until Microsoft extends the region list.") if ist_eu_block else
+        ("> Region not declared or not in the MS table — confirm before planning activation."
+         if not urteile or any(v != "verfuegbar" for v in urteile.values()) else
+         "> The declared region supports Fabric policies (preview)."),
+        "",
+        "## How the policy behaves", "",
+        "- A policy set is an **item** in a workspace; its scope (Tenant or Capacity) is fixed at "
+        "creation. Only **one** active policy per scope. Activation needs a capacity admin (Capacity) "
+        "or Fabric admin (Tenant); **Git cannot activate**.",
+        "- The only effect is **Allow**. The moment one rule exists, the policy is an **allow list**: "
+        "everything no rule matches is blocked — across the whole capacity. That is why the JSON "
+        "ends with a catch-all rule for every workspace outside this delivery.",
+        f"- Limits: {POLICY_MAX_RULES_CAPACITY} rules per capacity policy, "
+        f"{POLICY_MAX_RULES_TENANT} per tenant policy, {POLICY_MAX_VALUES_PER_CONDITION} values per "
+        "condition; takes effect within 15 minutes; free, no CUs.",
+        "- Conditions take **GUIDs** (`workspace.id`, `principal.groups.id`); `workspace.name` is "
+        "rejected with `UnsupportedPropertyValue`. Activation with `ScopeType: Workspace` is rejected.",
+        "- Item types are **API identifiers** (`DataPipeline`, not *Pipeline*).",
+        "",
+        "## Target picture per workspace role", "",
+        "| Role | Allowed item types |", "|---|---|",
+        *[f"| {r} | {', '.join(f'`{t}`' for t in ITEMTYPEN_JE_ROLLE.get(r, ())) or 'no restriction'} |"
+          for r in sorted({r for _, r in _policy_workspaces(bp)})],
+        "",
+        "Before activation: add every item type this delivery itself deploys (variable libraries, "
+        "environments, eventhouses, data agents …). Missing one blocks our own deployment with a "
+        "policy error, not a permission error.", "",
+        "## Collision with external data sharing", "",
+        "The tenant-scope policy *Allow external data sharing* defaults to **Block all**. "
+        + ("This delivery declares external shares (`sharing/`). Hergeleitet, not measured: "
+           "activating a tenant policy set without an Allow rule for external data sharing would "
+           "block them. Add that rule in the same set — or keep the tenant scope unactivated."
+           if teilen else
+           "This delivery declares no external shares today; the default only matters once one is "
+           "added."),
+        "",
+        "## Limits check", "",
+        ("All rules within the documented limits." if not grenzen else
+         "**Over the documented limits:**\n\n" + "\n".join(f"- {g}" for g in grenzen)),
+        "",
+    ]
+    return {FABRIC_POLICY_PATH: json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+            "governance/fabric_policies/FABRIC_POLICIES.md": "\n".join(doc) + "\n"}
+
+
+# --------------------------------------------------------------------------- Tags (I-21 W5.6 d)
+TAGS_GEPRUEFT = "2026-09-29"
+_TAG_FRAGE = "<VERIFY: Katalog-Tag je Domäne>"
+
+
+def emit_tags(bp: dict) -> dict[str, str]:
+    """Tags setzen per API — bis 29.09.2026 setzte diese Lieferung keine.
+
+    Tags sind Katalog- und Such-Metadaten (OneLake catalog). Sie werden von Admins **definiert**
+    (Tenant- oder Domaenen-Ebene) und an Items **angebracht**; diese Lieferung erfindet keine
+    Tag-Namen: ``tags.json`` traegt je Domaene Platzhalter, das Skript loest Namen ueber die
+    Admin-API in Ids auf und bringt sie an. Gelesen per Learn-MCP am 29.09.2026:
+    `rest/api/fabric/admin/tags/list-tags` (GET /v1/admin/tags, Tenant.Read.All, 25/min),
+    `rest/api/fabric/core/tags/apply-tags` (POST …/items/{itemId}/applyTags, Contributor, 25/min),
+    `fabric/governance/tags-overview` (max. 10 Tags je Item, 10.000 je Tenant)."""
+    ziel = {
+        "_note": ("Tag names per domain, applied to every item in the domain's workspaces by "
+                  "apply_tags.sh. Tags must already be defined by a Fabric/domain admin; replace each "
+                  "VERIFY placeholder with an existing tag display name. Max 10 tags per item."),
+        "domains": {d["name"]: {"workspaces": {str(w.get("name")): _ws_platzhalter(str(w.get("name")))
+                                               for w in d.get("workspaces") or [] if w.get("name")},
+                                "tags": [_TAG_FRAGE]}
+                    for d in _domains(bp)},
+    }
+    sh = "\n".join([
+        "#!/usr/bin/env bash",
+        f"# Apply catalog tags to the delivery's items (generated, checked {TAGS_GEPRUEFT}).",
+        "# 1) GET /v1/admin/tags resolves display names to ids (Fabric admin or SPN, Tenant.Read.All).",
+        "# 2) POST /v1/workspaces/{ws}/items/{item}/applyTags per item (Contributor on the workspace).",
+        "# Both APIs allow 25 requests per minute per principal - the loop sleeps 2.5 s per call.",
+        "# The scanner returns tags as UUIDs; the catalog scan resolves them the same way (step 1).",
+        "# Token from the environment, never as an argument.",
+        "set -euo pipefail",
+        ': "${FABRIC_TOKEN:?set FABRIC_TOKEN}"',
+        'API="https://api.fabric.microsoft.com/v1"',
+        'HERE="$(cd "$(dirname "$0")" && pwd)"',
+        'TAGS_JSON="$(curl -sf -H "Authorization: Bearer $FABRIC_TOKEN" "$API/admin/tags")"',
+        "export TAGS_JSON",
+        "# Follow continuationUri if the tenant has more tags than one page (see the API reference).",
+        'python3 - "$HERE/tags.json" <<\'PY\' | while IFS=$\'\\t\' read -r WS_ID TAG_IDS; do',
+        "import json, sys, os",
+        "ziel = json.load(open(sys.argv[1]))['domains']",
+        "tags = {t['displayName']: t['id'] for t in json.loads(os.environ['TAGS_JSON'])['value']}",
+        "for dom, z in sorted(ziel.items()):",
+        "    offen = [n for n in z['tags'] if n.startswith('<') or n not in tags]",
+        "    if offen:",
+        "        sys.exit(f'domain {dom}: unresolved tag names {offen} - nothing applied')",
+        "    for ws, ws_id in sorted(z['workspaces'].items()):",
+        "        print(f\"{ws_id}\\t{','.join(tags[n] for n in z['tags'])}\")",
+        "PY",
+        '  case "$WS_ID" in "<"*) echo "workspace id not filled in: $WS_ID"; exit 1;; esac',
+        '  for ITEM in $(curl -sf -H "Authorization: Bearer $FABRIC_TOKEN" \\',
+        '      "$API/workspaces/$WS_ID/items" | python3 -c \'import json,sys; [print(i["id"]) for i in json.load(sys.stdin)["value"]]\'); do',
+        '    BODY="$(python3 -c \'import json,sys; print(json.dumps({"tags": sys.argv[1].split(",")}))\' "$TAG_IDS")"',
+        '    curl -sf -X POST -H "Authorization: Bearer $FABRIC_TOKEN" -H "Content-Type: application/json" \\',
+        '      -d "$BODY" "$API/workspaces/$WS_ID/items/$ITEM/applyTags" >/dev/null',
+        '    sleep 2.5',
+        '  done',
+        'done',
+        "",
+    ])
+    return {"governance/tags.json": json.dumps(ziel, indent=2, ensure_ascii=False) + "\n",
+            "governance/apply_tags.sh": sh}
+
 
 # --------------------------------------------------------------------------- P5 external sharing
 _SHARE_GROUNDED = "2026-08-26"   # MS Learn: Fabric Core/Admin External Data Share REST v1
