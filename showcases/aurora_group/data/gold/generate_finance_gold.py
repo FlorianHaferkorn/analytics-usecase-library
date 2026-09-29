@@ -50,7 +50,7 @@ from _generator_utils import (
     apply_monthly_seasonality,
     write_fact_delta,
 )
-from _model_columns import fact_cost_spalten  # A-24: Modellspalten Material/Overhead
+from _model_columns import fact_cost_spalten  # noqa: E402 -- nach sys.path; A-24 Material/Overhead
 
 DIMS  = GOLD / "dimensions"
 FACTS = GOLD / "facts"
