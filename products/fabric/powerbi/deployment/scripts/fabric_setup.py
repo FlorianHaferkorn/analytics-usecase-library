@@ -7,7 +7,7 @@ Creates Fabric workspaces, connections, Git integration, and permissions
 based on environment JSON configuration files.
 
 Usage:
-    python fabric_setup.py --environment dev --tenant_id <id> --client_id <id> --client_secret <secret>
+    CLIENT_SECRET=<secret> python fabric_setup.py --environment dev --tenant_id <id> --client_id <id>
     python fabric_setup.py --environment dev --dry-run  # Simulate without executing
 """
 import os
@@ -423,18 +423,20 @@ Examples:
         help="Service principal client ID (or set CLIENT_ID env var)"
     )
     
+    # Geheimnisse nur ueber CLIENT_SECRET / GITHUB_PAT; die Argumente lehnen
+    # einen alten Aufruf ab, statt den Wert in der Prozessliste zu dulden.
     parser.add_argument(
         "--client_secret",
         required=False,
-        default=os.environ.get('CLIENT_SECRET'),
-        help="Service principal client secret (or set CLIENT_SECRET env var)"
+        default=None,
+        help=argparse.SUPPRESS
     )
     
     parser.add_argument(
         "--github_pat",
         required=False,
-        default=os.environ.get('GITHUB_PAT'),
-        help="GitHub Personal Access Token (or set GITHUB_PAT env var)"
+        default=None,
+        help=argparse.SUPPRESS
     )
 
     parser.add_argument(
@@ -450,24 +452,24 @@ Examples:
     )
 
     args = parser.parse_args()
+    args.client_secret = fabcli.secret_from_environment(
+        args.client_secret, "--client_secret", "CLIENT_SECRET")
+    args.github_pat = fabcli.secret_from_environment(
+        args.github_pat, "--github_pat", "GITHUB_PAT")
     
     # In dry-run mode, skip authentication
     if not args.dry_run:
         # Validate required arguments
         if not args.tenant_id or not args.client_id or not args.client_secret:
             misc.print_error("Error: tenant_id, client_id, and client_secret are required (or use --dry-run)")
-            misc.print_info("Set them as arguments or environment variables (TENANT_ID, CLIENT_ID, CLIENT_SECRET)")
+            misc.print_info("Set TENANT_ID/CLIENT_ID as arguments or environment variables, CLIENT_SECRET only as environment variable")
             sys.exit(1)
         
         # Authenticate with Fabric CLI
         misc.print_header("Authenticating with Fabric")
         fabcli.run_command("config set encryption_fallback_enabled true")
-        auth_result = fabcli.run_command(
-            f"auth login -u {args.client_id} -p {args.client_secret} --tenant {args.tenant_id}"
-        )
-        
-        if "error" in auth_result.lower() or "failed" in auth_result.lower():
-            misc.print_error(f"Authentication failed: {auth_result}")
+        if not fabcli.login_service_principal(args.tenant_id, args.client_id, args.client_secret):
+            misc.print_error("Authentication failed: fab auth status meldet keine Anmeldung")
             sys.exit(1)
         
         misc.print_success("Authentication successful")
