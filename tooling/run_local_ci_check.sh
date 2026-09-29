@@ -91,6 +91,13 @@ run_check "Showcase Delta-table consistency (active files present on disk)" \
 run_check "Data-model best-practice gate (check_data_model.py)" \
   python3 tooling/validation/check_data_model.py
 
+# --- Semantic Model gegen Gold-Daten (Ledger A-24, blocking) -------------
+# Jede sourceColumn der dist-Modelle steht in der Gold-Tabelle, die ihre Partition
+# liest, oder in tooling/validation/model_vs_gold_allowlist.yaml. Exit 2 = Gold fehlt
+# ("nicht geprueft"), nie gruen.
+run_check "Semantic Model gegen Gold-Daten (check_model_vs_gold.py --strict)" \
+  python3 tooling/validation/check_model_vs_gold.py --strict
+
 # --- Boutique rubric: BC-NARR-01 exhibit titles (K6) --------------------
 run_check "Boutique rubric BC-NARR-01 (exhibit titles are statements, not labels)" \
   python3 tooling/validation/check_exhibit_message.py
