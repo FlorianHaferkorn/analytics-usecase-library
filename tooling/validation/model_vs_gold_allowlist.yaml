@@ -1,0 +1,68 @@
+# Bekannte Lücken zwischen Semantic Model und Aurora-Gold (Allowlist für
+# tooling/validation/check_model_vs_gold.py).
+#
+# Sperrklinke: die Liste darf nur schrumpfen. Ein neuer Befund macht das Tor rot, ebenso ein
+# Eintrag, dessen Tabelle geprüft wurde und der nicht mehr auftritt (behoben -> hier streichen).
+# Je Spalte entscheidet Florian: Gold-Generator ergänzt (Standard, Modell ist Vorgabe) oder
+# Modell korrigieren (Ledger A-24, docs/architecture/_INDEX.md; Vorgänger-Liste
+# BEKANNTE_LUECKEN in tooling/tests/test_gold_source.py, 24.09.2026, E8 Gruppen 3 und 4).
+#
+# Nicht hier: Commercial.dim_pvm_driver[SortOrder]. A-24 zählt ihn als elften Fall, weil der
+# Prototyp Modell und Gold über den Tabellennamen verband. Die Partition ist ein Inline-#table
+# (Driver, SortOrder) und liest kein Gold; das Tor führt die Tabelle deshalb unter
+# „ohne Gold-Quelle“ (mit Hinweis auf den gleichnamigen, ungenutzten Gold-Ordner), nicht als
+# Befund. Gemessen 29.09.2026 an 0c916415.
+#
+# Pflichtfelder je Eintrag: modell, tabelle, quellspalte, grund, ledger.
+
+eintraege:
+  - modell: Experience
+    tabelle: fact_action_log
+    quellspalte: Action Code
+    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
+    ledger: A-24
+  - modell: Experience
+    tabelle: fact_action_log
+    quellspalte: Responsible Role
+    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
+    ledger: A-24
+  - modell: Finance
+    tabelle: dim_customer
+    quellspalte: Region
+    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
+    ledger: A-24
+  - modell: Finance
+    tabelle: fact_cost
+    quellspalte: Material Cost Amount
+    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
+    ledger: A-24
+  - modell: Finance
+    tabelle: fact_cost
+    quellspalte: Overhead Amount
+    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
+    ledger: A-24
+  - modell: Finance
+    tabelle: fact_inventory
+    quellspalte: COGS Amount
+    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
+    ledger: A-24
+  - modell: Operations
+    tabelle: fact_inventory_snapshot
+    quellspalte: Reorder Flag
+    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
+    ledger: A-24
+  - modell: SupplyChain
+    tabelle: dim_product
+    quellspalte: ABC_Class
+    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
+    ledger: A-24
+  - modell: SupplyChain
+    tabelle: dim_product
+    quellspalte: XYZ_Class
+    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
+    ledger: A-24
+  - modell: SupplyChain
+    tabelle: fact_procurement
+    quellspalte: Contract Unit Price
+    grund: Gold-Generator schreibt die Spalte nicht; Modell liest sie (E8 Gruppe 3/4, offen)
+    ledger: A-24

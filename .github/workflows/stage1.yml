@@ -110,6 +110,14 @@ jobs:
       - name: Run tests
         run: python -m pytest -n auto --tb=short -q
 
+      # Ledger A-24 (29.09.2026): jede sourceColumn der dist-Modelle gegen die Gold-Tabelle, die
+      # ihre Partition liest (Allowlist tooling/validation/model_vs_gold_allowlist.yaml). Eigener
+      # Schritt, weil pytest fehlende Gold-Daten als Skip meldet; hier endet das mit Exit 2
+      # ("nicht geprueft"), nicht gruen. Die Windows-Stage-1 faehrt dasselbe Tor ueber
+      # run_stage1_checks.ps1.
+      - name: Semantic Model gegen Gold-Daten (blockierend)
+        run: python3 tooling/validation/check_model_vs_gold.py --strict
+
       - name: Report quality gate (0 criticals)
         run: |
           python -c "import sys; sys.path.insert(0, 'packages/pbi_quality_tools'); from pbi_quality_tools.cli import main; raise SystemExit(main(['validate', '--summary']))"

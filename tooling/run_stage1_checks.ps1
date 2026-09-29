@@ -62,6 +62,10 @@ $checks = @(
 $pythonChecks = @(
   @{ Script = "tooling/validation/check_catalog_tmdl_drift.py"; Args = @("--repo-root", $rootPath) },
   @{ Script = "tooling/validation/check_docs_links.py"; Args = @("--repo-root", $rootPath) },
+  # Semantic Model gegen Gold-Daten (Ledger A-24, 29.09.2026): jede sourceColumn der dist-Modelle
+  # steht in der Gold-Tabelle, die ihre Partition liest, oder in der Allowlist. --strict: fehlen
+  # die Gold-Daten, endet das Tor mit 2 ("nicht geprueft"), nicht gruen.
+  @{ Script = "tooling/validation/check_model_vs_gold.py"; Args = @("--repo-root", $rootPath, "--strict") },
   @{ Script = "tooling/generator/validation/check_action_outcome_reconciliation.py"; Args = @("--strict") },
   @{ Script = "tooling/generator/validation/check_business_cases.py"; Args = @("--strict", "--repo-root", $rootPath) },
   # Layout-System-Boden (L4): jede analytische Absicht muss im Pflichtziel Power BI

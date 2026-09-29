@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-09-25
+last-reviewed: 2026-09-29
 shelf-life-days: 90
 owns: "*.py"
 ---
@@ -20,6 +20,7 @@ owns: "*.py"
 | Test oder Skript nimmt Linux an (Pfade, Encoding) | `check_plattform.py` | `check_dataarch_mirror.py` |
 | Massenänderung (Sweep) gegenprüfen | `pruefe_sweep.py` | Einzel-Gates |
 | Showcase-Delta-Tabellen geändert | `check_showcase_delta.py` | `check_plattform.py` |
+| Semantic Model gegen Gold-Daten prüfen (fehlende `sourceColumn`, Ledger A-24) | [`../tooling/validation/check_model_vs_gold.py`](../tooling/validation/check_model_vs_gold.py) (liest `_metadata`/`_active_paths` von hier) | `check_plattform.py` |
 | Neues Repo mit dem Claude Repo Kit einrichten | `repo_kit_init.py` | Gates |
 
 ## 2. Register
@@ -33,7 +34,7 @@ owns: "*.py"
 | `check_superversion_pins.py` | Sensor | Pin-Drift der Superversion (ADR-0005 Regel 6) |
 | `check_plattform.py` | Ratchet | Sperrklinke gegen Annahmen, die nur auf Linux stimmen (`plattform_baseline.json`) |
 | `pruefe_sweep.py` | Gegenprobe | Prüft mechanische Massenänderungen nach |
-| `check_showcase_delta.py` | Gate | Konsistenz der Showcase-Delta-Tabellen |
+| `check_showcase_delta.py` | Gate | Konsistenz der Showcase-Delta-Tabellen; stellt den Delta-Log-Replay (`_active_paths`, `_metadata`: Schema + Partitionsspalten) für andere Tore bereit |
 | `repo_kit_init.py` | Werkzeug | Erkennungs- und Scaffold-Engine des Claude Repo Kits |
 
 Datendateien: `plattform_baseline.json` (Stand der Plattform-Ratchet),
