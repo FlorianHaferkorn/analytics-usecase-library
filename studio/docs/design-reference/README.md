@@ -51,6 +51,17 @@ T1 page exists in the embedded template library inside `html/Report_Templates.ht
 - **Preserve**: visual system, OKLCH tokens, density modes, font pairings, slot/grid positioning for page templates, primitive component names (`PageChrome`, `Slot`, `Card`, `KpiCard`, `SmartNarrative`, `DetailMatrix`, `DataBar`, `Waterfall`, `ActionPanel`, `SlicerPane`, `Annotations`, `ExceptionTable`).
 - **Replace**: mock `FRAMEWORK` / `GRAPH` globals with real data from `src/lib/core/*-loader.ts`. See `../rebuild/DATA_WIRING.md`.
 
+## Other copies of the same mockup
+
+The same Claude Design project ("BI Framework") exists twice more, with correct filenames:
+`docs/design-bundle/project/` (original handoff: `accentHue` 250, font pairing `inter`) and
+`docs/rebuild/MOCKUP_REFERENCE/` (`accentHue` 250, pairing `geist`; referenced by `TOKEN_SPEC.md`
+and `tokens.css`). A third copy, `studio/BI Framework/`, was removed on 2026-09-29: 17 of its
+19 files were byte-identical to `MOCKUP_REFERENCE`; the two others differed only in
+`Studio.html` `accentHue` 290 (implemented in `src/lib/theme/tokens.ts`) and `tokens.js`
+`warning` `#C08000` (not implemented; the studio uses `#FFB800`). The removed files remain
+in git history (commit `ac1c8881`).
+
 ## Source of truth hierarchy
 
 1. `docs/rebuild/REBUILD_DECISIONS.md` — locked product decisions

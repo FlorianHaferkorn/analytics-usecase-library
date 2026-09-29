@@ -10,13 +10,22 @@ Studio loader consumes -- no DuckDB/parquet reader needed at Studio runtime.
 Usage:
     python showcases/aurora_group/data/build_kpi_snapshot.py
     # writes studio/data/aurora_kpi_snapshot.json
+
+Only the files the ``_delta_log`` marks active are read (29.09.2026). The former
+``**/*.parquet`` glob also read part-files that later commits had ``remove``d: measured
+on fact_sales, 298 parquet files / 28.7M rows on disk versus 60 active files / 9.35M
+rows, which inflated every summed KPI. The log replay is reused from
+``scripts/check_showcase_delta.py`` (same reader as ``check_data_model.py`` and
+``slice_gold.py``), not rebuilt here.
 """
 
 from __future__ import annotations
 
+import importlib.util
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import unquote
 
 import duckdb
 
@@ -26,8 +35,40 @@ _OUT = _REPO / "studio" / "data" / "aurora_kpi_snapshot.json"
 _MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 
+def _active_paths(log_dir: Path) -> list[str]:
+    spec = importlib.util.spec_from_file_location(
+        "check_showcase_delta", _REPO / "scripts" / "check_showcase_delta.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod._active_paths(str(log_dir))
+
+
+def active_files(table: Path) -> list[Path]:
+    """Parquet files the Delta log marks active; without a log, every parquet file.
+
+    Delta stores ``add.path`` as a URI: deltalake >= 1.6.6 writes ``Fiscal%20Year=...``
+    while the directory on disk stays ``Fiscal Year=...`` (1.6.2 writes it unencoded).
+    Both spellings are accepted; an active file missing on disk is an error, never a
+    silent drop -- a smaller sum would look like a valid KPI value.
+    """
+    log = table / "_delta_log"
+    if not log.is_dir():
+        return sorted(table.rglob("*.parquet"))
+    files, missing = [], []
+    for rel in _active_paths(log):
+        p = table / rel
+        if not p.exists():
+            p = table / unquote(rel)
+        (files if p.exists() else missing).append(p)
+    if missing:
+        raise FileNotFoundError(
+            f"{len(missing)} active file(s) from {log} missing on disk, e.g. {missing[0]}")
+    return sorted(files, key=lambda p: p.relative_to(table).as_posix())
+
+
 def _glob() -> str:
-    return f"read_parquet('{_GOLD}/**/*.parquet', hive_partitioning=true)"
+    files = ", ".join("'" + p.as_posix().replace("'", "''") + "'" for p in active_files(_GOLD))
+    return f"read_parquet([{files}], hive_partitioning=true)"
 
 
 def _monthly(con: duckdb.DuckDBPyConnection) -> list[dict]:

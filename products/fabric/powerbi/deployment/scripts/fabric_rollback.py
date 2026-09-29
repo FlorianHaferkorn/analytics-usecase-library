@@ -76,10 +76,11 @@ def main():
         default=os.environ.get("CLIENT_ID"),
         help="Service principal client ID",
     )
+    # Geheimnis nur ueber CLIENT_SECRET; das Argument lehnt einen alten Aufruf ab.
     parser.add_argument(
         "--client_secret",
-        default=os.environ.get("CLIENT_SECRET"),
-        help="Service principal client secret",
+        default=None,
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--repo_path",
@@ -87,6 +88,8 @@ def main():
         help="Repository path (for release rollback hint)",
     )
     args = parser.parse_args()
+    args.client_secret = fabcli.secret_from_environment(
+        args.client_secret, "--client_secret", "CLIENT_SECRET")
 
     snapshot_path = args.snapshot
     if args.latest and args.environment:
@@ -104,11 +107,8 @@ def main():
     if not args.dry_run:
         if args.tenant_id and args.client_id and args.client_secret:
             fabcli.run_command("config set encryption_fallback_enabled true")
-            auth_result = fabcli.run_command(
-                f"auth login -u {args.client_id} -p {args.client_secret} --tenant {args.tenant_id}"
-            )
-            if "error" in auth_result.lower() or "failed" in auth_result.lower():
-                misc.print_error(f"Authentication failed: {auth_result}")
+            if not fabcli.login_service_principal(args.tenant_id, args.client_id, args.client_secret):
+                misc.print_error("Authentication failed: fab auth status meldet keine Anmeldung")
                 sys.exit(1)
 
     misc.print_header("Rollback")
