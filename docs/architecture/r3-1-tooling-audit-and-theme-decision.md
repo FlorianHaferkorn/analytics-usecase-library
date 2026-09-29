@@ -4,7 +4,7 @@ shelf-life-days: 90
 ---
 # R3.1 — Tooling-Audit + Rückbau-Entscheidung
 
-> Umsetzt `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` Cut C3 / Task R3.1. Entstanden aus
+> Umsetzt `docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` Cut C3 / Task R3.1. Entstanden aus
 > Funden während R1.6-Vorbereitung (2026-07-08): der offizielle Tier-1-Oracle
 > (`powerbi-report-author`) wurde zum ersten Mal in dieser Session tatsächlich
 > ausgeführt statt nur referenziert — mit erheblichen, teils überraschenden
@@ -163,5 +163,5 @@ Generator (R2.3/R2.4-Rollout) oder einen eigenen Task, nicht in Ad-hoc-Patches.
 | `docs/references/powerbi-report-author-cli.md` | Spike-Notizen zur Oracle-CLI (vor dieser Session) |
 | `products/fabric/powerbi/tooling/run_fabric_checks.ps1` | Ruft `pbir-cli validate --qa` auf — das tatsächliche CI-Gate, s. Abschnitt 2 |
 | `docs/architecture/quality-tooling-map.md:26` | Bestehender Verweis auf `pbir-cli --qa` im `fabric_gate` |
-| `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` §6 Ledger | R1.6-Vorbefund, R3.1-Zeile |
+| `docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` §6 Ledger | R1.6-Vorbefund, R3.1-Zeile |
 | `quality-tooling-map.md` | Sollte nach diesem Dokument aktualisiert werden (Tier-1 jetzt verdrahtet) |

@@ -14,7 +14,7 @@
 - **Related:** [`0010-kpi-calculation-dsl-and-dax-synthesis.md`](0010-kpi-calculation-dsl-and-dax-synthesis.md),
   [`0011-kpi-calculation-dsl-grammar-extension.md`](0011-kpi-calculation-dsl-grammar-extension.md),
   [`0012-kpi-calculation-dsl-sql-synthesis.md`](0012-kpi-calculation-dsl-sql-synthesis.md),
-  [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../../UMSETZUNGSPLAN_SUPERVERSION.md) (I-10.0),
+  [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../plans/UMSETZUNGSPLAN_SUPERVERSION.md) (I-10.0),
   [`../../../tooling/generator/schemas/kpi_definition.schema.json`](../../../tooling/generator/schemas/kpi_definition.schema.json),
   [`../../../tooling/superversion/targets/dax_synth.py`](../../../tooling/superversion/targets/dax_synth.py)
 

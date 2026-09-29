@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-07-03
-- **Scope:** Closes Critical Befund A1 (`SUPERVERSION_ZIELBILD_REVIEW.md`) — the
+- **Scope:** Closes Critical Befund A1 (`docs/plans/SUPERVERSION_ZIELBILD_REVIEW.md`) — the
   Superversion emit path produced structurally valid but semantically empty
   Semantic Models (every measure `= BLANK()`). Defines: (a) the governed,
   stack-neutral `technical.calculation` grammar in the KPI catalog schema, (b)
@@ -13,8 +13,8 @@
 - **Supersedes:** —
 - **Related:** [`0005-superversion-home-and-meridian-vendoring.md`](0005-superversion-home-and-meridian-vendoring.md)
   (Invariant I1, corrected here), [`0006-superversion-target-adapter-contract.md`](0006-superversion-target-adapter-contract.md)
-  (dialect materialization is a target-side concern), [`../../../SUPERVERSION_ZIELBILD_REVIEW.md`](../../../SUPERVERSION_ZIELBILD_REVIEW.md)
-  (Befund A1/A2, Cut S-1), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../../UMSETZUNGSPLAN_SUPERVERSION.md)
+  (dialect materialization is a target-side concern), [`../../../SUPERVERSION_ZIELBILD_REVIEW.md`](../../plans/SUPERVERSION_ZIELBILD_REVIEW.md)
+  (Befund A1/A2, Cut S-1), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../plans/UMSETZUNGSPLAN_SUPERVERSION.md)
   (I-10.0), [`../../../tooling/superversion/eval/refcalc.py`](../../../tooling/superversion/eval/refcalc.py)
   (the pre-existing readable formula DSL this grammar is modeled on),
   [`../../../tooling/generator/schemas/kpi_definition.schema.json`](../../../tooling/generator/schemas/kpi_definition.schema.json)
@@ -23,7 +23,7 @@
 
 ## Context
 
-The independent Fable-review (`SUPERVERSION_ZIELBILD_REVIEW.md`, 2026-07-02) found that
+The independent Fable-review (`docs/plans/SUPERVERSION_ZIELBILD_REVIEW.md`, 2026-07-02) found that
 the governed KPI catalog carried *meaning + lineage* but no *formula*: `from_aluca.py`
 always set `Measure.expressions = {}`, and the TMDL target (`targets/tmdl.py`, I-3.2)
 always emitted a `BLANK()` placeholder when no dialect was present — for **all 16 use

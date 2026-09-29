@@ -1,6 +1,6 @@
 """from_aluca — Source-Adapter: ALUCA UseCase-Bracket + KPI-Katalog → kanonisches Modell.
 
-Dies ist der KERN der Superversion (PRODUCT_PLAN.md §0/§6, Phase 0/1): er dockt ALUCAs
+Dies ist der KERN der Superversion (docs/plans/PRODUCT_PLAN.md §0/§6, Phase 0/1): er dockt ALUCAs
 Bedeutungs-/Visual-Schicht (Brackets, golden_20, KPI-Definitionen, 3-30-300-Layout) an
 Meridians kanonischen Modell-Vertrag (`core.pbi_engine.model.CanonicalModel`) an —
 gleichrangig neben `from_pbip` (Brownfield), `from_spec` (Greenfield), Meridian-Derive.

@@ -17,7 +17,7 @@
 > Liste unten (`kpi_card`, `trend_line`, `bar_chart`, `waterfall`, `line_chart`,
 > `bar_chart_horizontal`). Sie sind damit **nicht falsch**, sondern folgen der
 > abgelösten Autorität. Die Normalisierung auf die Registry ist Task **L2** in
-> `KONZEPT_LAYOUT_SYSTEM.md`.
+> `docs/plans/KONZEPT_LAYOUT_SYSTEM.md`.
 
 ---
 

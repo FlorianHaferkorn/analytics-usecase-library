@@ -4,7 +4,7 @@
 - **Date:** 2026-06-22
 - **Scope:** Where the Superversion layer (ALUCA's meaning/visual layer docked onto Meridian's canonical engine) lives, and how the Meridian canonical core is brought into ALUCA without copying it or making it a hard runtime dependency.
 - **Supersedes:** —
-- **Related:** [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../../UMSETZUNGSPLAN_SUPERVERSION.md) (I-2.1, the task this ADR ratifies; I-2.2/I-2.4 implement it), [`../../../PRODUCT_PLAN.md`](../../../PRODUCT_PLAN.md) (§0 reconciliation, §2 premium floors F2/F4), [`../../../SYNERGY_ALUCA_MERIDIAN.md`](../../../SYNERGY_ALUCA_MERIDIAN.md), [`../../../tooling/superversion/_INDEX.md`](../../../tooling/superversion/_INDEX.md), [`0004-industry-variant-use-case-tier-taxonomy.md`](0004-industry-variant-use-case-tier-taxonomy.md)
+- **Related:** [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../plans/UMSETZUNGSPLAN_SUPERVERSION.md) (I-2.1, the task this ADR ratifies; I-2.2/I-2.4 implement it), [`../../../PRODUCT_PLAN.md`](../../plans/PRODUCT_PLAN.md) (§0 reconciliation, §2 premium floors F2/F4), [`../../../SYNERGY_ALUCA_MERIDIAN.md`](../../../SYNERGY_ALUCA_MERIDIAN.md), [`../../../tooling/superversion/_INDEX.md`](../../../tooling/superversion/_INDEX.md), [`0004-industry-variant-use-case-tier-taxonomy.md`](0004-industry-variant-use-case-tier-taxonomy.md)
 
 ---
 
@@ -19,14 +19,14 @@ Meridian.
 
 Two facts force a home/ingestion decision before initiative I-2 proceeds:
 
-1. **The neutral core already exists upstream.** Per `PRODUCT_PLAN.md` §0, Meridian's I-1
+1. **The neutral core already exists upstream.** Per `docs/plans/PRODUCT_PLAN.md` §0, Meridian's I-1
    shipped the canonical-core + source/target adapter pattern (its ADR-0036/0037),
    Greenfield-standalone-validated, with a conformance kit. The Superversion work is
    therefore *"dock ALUCA onto that spine"*, **not** *"rebuild a canonical engine in
    ALUCA"*. Copying Meridian's engine into ALUCA would fork the very substrate both
    products are converging on and recreate the drift this library exists to prevent.
 
-2. **ALUCA must stay standalone (P5 / premium floor F4).** `PRODUCT_PLAN.md` §2 F4 requires
+2. **ALUCA must stay standalone (P5 / premium floor F4).** `docs/plans/PRODUCT_PLAN.md` §2 F4 requires
    every layer tool to run against a bare stack with **zero ALUCA-core dependency**; the
    project's invariant I4 demands "standalone AND integratable". A fresh ALUCA clone must
    build a `CanonicalModel` and run its tests **without** network access, a Meridian
@@ -161,7 +161,7 @@ records the concrete pin-file format. Rationale:
 ## Alternatives considered
 
 - **Copy Meridian's `pbi_engine` into ALUCA as owned source.** Rejected: forks the shared
-  canonical core, guarantees drift, and contradicts `PRODUCT_PLAN.md` §0 ("dock onto the
+  canonical core, guarantees drift, and contradicts `docs/plans/PRODUCT_PLAN.md` §0 ("dock onto the
   spine, don't rebuild it").
 - **Hard runtime dependency on Meridian (e.g. `pip install meridian-core`).** Rejected:
   breaks F4/I4 standalone — a bare ALUCA clone would not run; also couples release cadences.
@@ -175,8 +175,8 @@ records the concrete pin-file format. Rationale:
 
 ## References
 
-- Internal: [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../../UMSETZUNGSPLAN_SUPERVERSION.md) (I-2.1/I-2.2/I-2.4),
-  [`../../../PRODUCT_PLAN.md`](../../../PRODUCT_PLAN.md) (§0, §2 F2/F4),
+- Internal: [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../plans/UMSETZUNGSPLAN_SUPERVERSION.md) (I-2.1/I-2.2/I-2.4),
+  [`../../../PRODUCT_PLAN.md`](../../plans/PRODUCT_PLAN.md) (§0, §2 F2/F4),
   [`../../../SYNERGY_ALUCA_MERIDIAN.md`](../../../SYNERGY_ALUCA_MERIDIAN.md),
   [`../../../tooling/superversion/_INDEX.md`](../../../tooling/superversion/_INDEX.md),
   [`../../../tooling/superversion/canonical_contract.py`](../../../tooling/superversion/canonical_contract.py),

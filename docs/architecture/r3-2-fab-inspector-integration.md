@@ -4,7 +4,7 @@ shelf-life-days: 90
 ---
 # R3.2 — Inspector V2 + BPA in CI
 
-> Umsetzt `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` Cut C3 / Task R3.2. Baut direkt auf
+> Umsetzt `docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` Cut C3 / Task R3.2. Baut direkt auf
 > R3.1 (`r3-1-tooling-audit-and-theme-decision.md`) auf: R3.1 hat drei
 > konkurrierende PBIR-Validatoren gefunden, davon einer (`pbir-cli`) proprietär,
 > Windows-only und aus dieser Sandbox weder installier- noch einsehbar. R3.2
@@ -144,4 +144,4 @@ Umgebungs-Proxy). Das bedeutet konkret:
 | `products/fabric/powerbi/tooling/validation/check_fab_inspector.ps1` | Runner-Skript |
 | `.tools/fab-inspector.lock`, `.tools/README.md` | Versions-Pin, Installationsanleitung |
 | `docs/architecture/r3-1-tooling-audit-and-theme-decision.md` | Vorarbeit: 3-Tool-Konflikt, warum `pbir-cli` nicht erneut angefasst wurde |
-| `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` §6 Ledger | R3.2-Zeile |
+| `docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` §6 Ledger | R3.2-Zeile |

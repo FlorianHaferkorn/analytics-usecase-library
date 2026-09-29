@@ -6,7 +6,7 @@ shelf-life-days: 90
 
 > **Erstkontakt für den Superversion-Layer** (ALUCA × Meridian). Eine neue
 > Claude-Code-Session liest **zuerst** `AGENTS.md` → `CLAUDE.md` → den eigenen
-> Task-Block in `UMSETZUNGSPLAN_SUPERVERSION.md` (Repo-Root) → dann von hier gezielt
+> Task-Block in `docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md` → dann von hier gezielt
 > die nötige Detail-Datei. **Nicht** den ganzen Ordner scannen.
 
 | Feld | Wert |
@@ -14,7 +14,7 @@ shelf-life-days: 90
 | Stand | 2026-07-04 |
 | Rolle | Bereichs-Index des Superversion-Source-Adapters (ALUCA-Bedeutung → kanonisches Modell) |
 | Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅, I-3.5 E2E-Smoke ✅ (I-3 komplett); I-4.1 Value-Eval-Referenzdaten ✅, I-4.2 Value-Gate ✅, I-4.3 ≥2 Ontologien/Regression ✅, I-4.4 COMP-DSGVO ✅ (I-4 komplett); I-5.1 Visual-Library ✅, I-5.2 Report-Documenter ✅, I-5.3 gov/eng/arch-Engines (Beta) ✅, I-5.4 Tool-Domänen-Packs ✅ (Stufe I-5 komplett); I-6.1 Studio-Inventur ✅ + E-1/ADR-0007 ✅, I-6.2 „Vor dem Core"-Bridge ✅, I-6.3 „Nach dem Core" (Target + Gate-Report) ✅, I-6.4 E2E-Flow (Kunde-ohne-Builder) ✅, I-6.5 Standalone-Setup/Preflight (`bridge.py ping`) ✅, I-6.6 AI-Orchestrierung (ADR-0008, V1–V6 + UI) ✅ (Stufe I-6 komplett); I-7.1 OSI-Target (offiziell validiert) ✅, I-7.2 Databricks-Metric-View-Target (docs-validiert, Vendor-Validator geplant) ✅, I-7.3 Stack-Indifferenz-Test ✅ (Stufe I-7 komplett: 1 Core → TMDL/OSI/Databricks, KPI-Menge identisch); I-8.1 Wirkungs-Loop-ADR-0009 ✅ + I-8.2 Effekt-Tracking (`eval/wirkung.py`) ✅ + I-8.3 Refinement-Trigger (`eval/refinement.py`, proposal-only) ✅ (Stufe I-8 komplett); I-9 im Umsetzungsplan; I-10.0 Rechenfähigkeit ✅ (ADR-0010, `technical.calculation`-DSL im KPI-Katalog + `targets/dax_synth.py`, BLANK()-Quote=0 für FIN-002/SCM-002, Legacy-PS-Generator warn-deprecated; ADR-0011 schließt die letzten 13 HITL-KPIs der 5 MVP-UCs via Grammatik-Erweiterung; ADR-0012 `targets/sql_synth.py` — DSL→Databricks-SQL; ADR-0013 schließt die restlichen 11 UCs — alle 16 UCs jetzt über die echte Pipeline aufgelöst, 9 eindeutige, individuell begründete `hitl`-KPIs verbleiben repo-weit, Paritätstest ggü. Legacy-Output grün); I-10.1 Windows-Portabilität ✅; I-10.3 Studio↔Python-Core-Naht ✅ (Governed-Preview-Panel in `delivery-client.tsx`, TS-Shadow-Adapter als Preview gelabelt); I-10.4 DOCX-Deliverable ✅ (`core/brand`-BrandSpec statt unvendorbarem Meridian-`docx_branding`); I-10.5 ADR-0009-Maintainer-Ratifikation + O-1..O-4 ✅ (O-3/O-4 entschieden, O-1/O-2 kundenspezifische Hälfte bewusst offen); **I-10.6 Premium-Floor-F0–F6-Abnahme ✅** (`docs/architecture/premium-acceptance-F0-F6.md` — F0/F2/F3/F4/F5/F6-Teil1 grün live reproduziert, F1 + F6-Teil2 ehrlich rot geledgert: beide brauchen eine echte Fabric-Tenant-Verbindung, die in dieser Sandbox fehlt) |
-| Verlinkt von | Umsetzungsplan (Repo-Root), PRODUCT_PLAN |
+| Verlinkt von | Umsetzungsplan und PRODUCT_PLAN (beide `docs/plans/`) |
 
 ## 1. „Lies-wenn"-Routing (nur das Nötige lesen)
 
@@ -61,8 +61,8 @@ shelf-life-days: 90
 | Liefer-Güte, Use-Case-Liefer-Specs, ADRs oder Aufwand aus dem Package rendern | `project_package/delivery_quality.py` (Package gegen das governte E2E-Liefer-Referenzmodell; Score diagnostisch, Readiness fail-closed je Gate) · `project_package/use_case_delivery.py` (projektspezifische E2E-Use-Case-Liefer-Spezifikationen validieren/rendern) · `project_package/adr.py` (deterministische ADRs aus der Decision-Set-SoT) · `project_package/estimation.py` (explizite, private kommerzielle Szenarien; ändert nie Package oder Freigabe) | — |
 | Verstehen, was geprüft wird (DoD) | `tests/test_from_aluca.py` (+ `tests/golden/*.json` Snapshots) | — |
 | Modell als JSON exportieren / Snapshot regenerieren | `python -m tooling.superversion.from_aluca <bracket> --out tests/golden/*.json` | — |
-| Den Gesamt-Bauplan/die Reihenfolge | Repo-Root: UMSETZUNGSPLAN_SUPERVERSION.md | Code |
-| Zielbild/Phasen/Premium-Floors | Repo-Root: PRODUCT_PLAN.md | Code |
+| Den Gesamt-Bauplan/die Reihenfolge | docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md | Code |
+| Zielbild/Phasen/Premium-Floors | docs/plans/PRODUCT_PLAN.md | Code |
 | Architektur/Wettbewerb (Hintergrund) | Repo-Root: SYNERGY_ALUCA_MERIDIAN.md | Code |
 
 ## 2. Dokument-Register (jede `*.md` im Bereich — Drift-Gate)
@@ -106,13 +106,13 @@ sowie der vendored Meridian-Subtree unter
 `vendor/meridian/` (+ `PIN.json`) sind kein `*.md` und unterliegen nicht dem
 Index-Gate; sie sind über das Routing in §1 erreichbar.)*
 
-## 3. Verwandte Top-Level-Artefakte (Repo-Root, kein lokaler Index-Owner)
+## 3. Verwandte Top-Level-Artefakte (außerhalb dieses Bereichs)
 
-Die folgenden Planungsdokumente liegen im Repo-Root (von keinem `_INDEX.md` regiert)
-und steuern diesen Bereich — hier als Pointer registriert, damit der Bezug nicht driftet:
+Die folgenden Planungsdokumente liegen im Repo-Root bzw. unter `docs/plans/` (dort von
+`docs/plans/_INDEX.md` regiert) und steuern diesen Bereich — hier als Pointer registriert, damit der Bezug nicht driftet:
 
-- UMSETZUNGSPLAN_SUPERVERSION.md — der I-1..I-9-Bauplan (Single Source of Truth für Status, Ledger §6).
-- PRODUCT_PLAN.md — Produkt-Zielbild, Phasen, Premium-Floors F1–F6.
+- docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md — der I-1..I-9-Bauplan (Single Source of Truth für Status, Ledger §6).
+- docs/plans/PRODUCT_PLAN.md — Produkt-Zielbild, Phasen, Premium-Floors F1–F6.
 - SYNERGY_ALUCA_MERIDIAN.md — Vergleich + Zielarchitektur + Code-Tiefenanalyse.
 - SHARED_SUBSTANCE.md — die Grenze: welche Substanz beide Repos teilen (Klasse A, offiziell belegbar), welche eigene IP bleibt (Klasse B), welche bewusst verschieden ist (Klasse C). Byte-identisch in beiden Repos; regelt Richtung + Mechanismus jeder Spiegelung.
-- SUPERVERSION_ZIELBILD_REVIEW.md — unabhängiges Zielbild-Review (Fable, 2026-07-02): Critical A1 (Produkt rechnet nicht/`BLANK()`), A2 zweites Doppelsilo, A3 Markt-Entkopplung, A4 F6-Oracle-Selbstvergleich + Cut-Plan S-1..S-5. Speist I-10.0 + F0-Floor.
+- docs/plans/SUPERVERSION_ZIELBILD_REVIEW.md — unabhängiges Zielbild-Review (Fable, 2026-07-02): Critical A1 (Produkt rechnet nicht/`BLANK()`), A2 zweites Doppelsilo, A3 Markt-Entkopplung, A4 F6-Oracle-Selbstvergleich + Cut-Plan S-1..S-5. Speist I-10.0 + F0-Floor.

@@ -194,7 +194,7 @@ class TestCOM002GoldenR23Fields:
     (R1.6), and Smart_Narrative/ActionPanel now bind to the governed
     domain-level "Narrative Text (<SUFFIX>)"/"Active Actions Text (<SUFFIX>)"
     DAX measures (cardVisual) instead of a synthesized textbox literal.
-    See UMSETZUNGSPLAN_REPORT_EXZELLENZ.md's R2.3-Fund follow-up ledger
+    See docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md's R2.3-Fund follow-up ledger
     entry for the full account. R1.6's Main_2 maxPerRole.Y=1 concern (a
     waterfallChart real-schema violation: 3 measures in the Y role) is now
     also fixed -- a disconnected dim_pvm_driver selector table + a single
@@ -283,7 +283,7 @@ class TestCOM002GoldenR23Fields:
     def test_detail_matrix_topn_filter_matches_real_dist(self):
         """The filter *name* is a cosmetic-only PBIR identifier; dist/ was
         updated to the generator's new deterministic naming rule (R2.3),
-        see UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R2.3 ledger entry."""
+        see docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R2.3 ledger entry."""
         dist_matrix = json.loads((self.DIST_DETAIL / "Detail_Matrix" / "visual.json").read_text(encoding="utf-8"))
 
         generator = PageScaffoldGenerator("COM-002", "detail", repo_root=REPO_ROOT)

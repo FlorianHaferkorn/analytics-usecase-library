@@ -4,7 +4,7 @@
 |---|---|
 | Status | **Accepted** (02.08.2026) |
 | Entscheider | Florian Haferkorn |
-| Kontext | `KONZEPT_LAYOUT_SYSTEM.md` Task **L0** (Vorbedingung für L1/L2) · Meridian-Backlog **B4** |
+| Kontext | `docs/plans/KONZEPT_LAYOUT_SYSTEM.md` Task **L0** (Vorbedingung für L1/L2) · Meridian-Backlog **B4** |
 | Betrifft | `core/templates/page_templates/visual_registry.yaml` · `Abstract_Visual_Types.md` · `visual_whitelist.md` · `tokens/visual_slot_mapping.yaml` · `tooling/superversion/layer_tools/visual_library.py` |
 | Bezug | ADR-0006 (Adapter-Vertrag) · ADR-0017 (Generator v2) |
 
@@ -62,7 +62,7 @@ Visualtyp-Vokabular.** Sie wird *de jure*, was sie *de facto* bereits ist.
 * **Erzwingbarkeit schlägt Vollständigkeit.** Eine Liste, die niemand prüft, ist keine
   Autorität — sie ist eine Meinung mit Dateinamen. Genau das war der Zustand: „es gibt
   heute keine lebende Instanz, die sagt, welche Visuals zulässig sind" (B4).
-* **Der Typ ist nicht das Atom.** `KONZEPT_LAYOUT_SYSTEM.md` §3.1 setzt die **Absicht** als
+* **Der Typ ist nicht das Atom.** `docs/plans/KONZEPT_LAYOUT_SYSTEM.md` §3.1 setzt die **Absicht** als
   Atom. Eine freistehende Typliste widerspricht dem strukturell: sie erlaubt einen Typ ohne
   die Frage, die er beantwortet. Die Registry kann das nicht — dort *ist* ein Typ die
   Antwort auf einen Block.

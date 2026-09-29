@@ -479,7 +479,7 @@ Harte Randbedingungen:
 
 Vor Commit: pwsh tooling/run_stage1_checks.ps1, python -m pytest tooling/ products/ -q,
 python3 scripts/check_index.py --strict. Ergebnisse im Konzept-Ledger
-(KONZEPT_LAYOUT_SYSTEM.md §9) abhaken.
+(docs/plans/KONZEPT_LAYOUT_SYSTEM.md §9) abhaken.
 ```
 
 ---
@@ -608,7 +608,7 @@ Harte Randbedingungen:
 Vor Commit: pwsh -NoProfile -File tooling/run_stage1_checks.ps1,
 python -m pytest tooling/ products/ -q, python3 scripts/check_index.py --strict,
 bash tooling/run_local_ci_check.sh. Ergebnisse im Ledger abhaken
-(KONZEPT_LAYOUT_SYSTEM.md §9 + dieser Datei).
+(docs/plans/KONZEPT_LAYOUT_SYSTEM.md §9 + dieser Datei).
 
 Zur CI: seit dem 03.08. laufen alle Jobs mit runner_id 0 (Usage-Limit, ~2s, Logs 404) —
 das ist keine Code-Ursache. Vor dem Abhaken eines roten Laufs einmal

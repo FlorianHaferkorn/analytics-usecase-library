@@ -47,7 +47,7 @@ ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
   # R2.1/R2.3 (Cut C2): intent layer opt-in. COM-002 is the reference pattern
-  # R2.4 migrates the other 16 brackets against (UMSETZUNGSPLAN_REPORT_EXZELLENZ.md).
+  # R2.4 migrates the other 16 brackets against (docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md).
   # message/unit/sort_by/top_n/highlight_rule below reproduce, via the generator,
   # what R1.1/R1.3/R1.4 previously hand-patched directly into dist/ PBIR.
   intent_rules_version: 2

@@ -13,15 +13,15 @@
   Sektor-Register — `M`=Manufacturing bereits reserviert für `OPS-IND-M001`),
   [`../../../internal/project_mgmt/KNOWN_GAPS.md`](../../../internal/project_mgmt/KNOWN_GAPS.md) §7
   (die sechs Industry/Extension-UCs, `DEC-SPINE-OPS-OEE` **nicht** salvaged — fehlender Action-Code),
-  [`../../../PRODUCT_PLAN.md`](../../../PRODUCT_PLAN.md) (Meridian-Skizze-Korrektur),
-  [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../../UMSETZUNGSPLAN_SUPERVERSION.md) (I-9.3,
+  [`../../../PRODUCT_PLAN.md`](../../plans/PRODUCT_PLAN.md) (Meridian-Skizze-Korrektur),
+  [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../plans/UMSETZUNGSPLAN_SUPERVERSION.md) (I-9.3,
   vorherige Ledger-Zeile „Prämisse widerlegt")
 
 ---
 
 ## Context
 
-Die vorherige I-9.3-Bearbeitung (Ledger, 2026-07-10) stellte fest: die im `PRODUCT_PLAN.md`
+Die vorherige I-9.3-Bearbeitung (Ledger, 2026-07-10) stellte fest: die im `docs/plans/PRODUCT_PLAN.md`
 behauptete „Meridian hat eine Skizze"-Prämisse war unbelegt (repo-weite Suche: 0 Treffer) und
 wurde korrigiert. Tieferer Befund damals: der Ziel-UC `OPS-IND-M001` „OEE" ist inhaltlich bereits
 weitgehend durch generischen Operations-Content abgedeckt — `OPS-001` (OEE/Availability/
@@ -143,7 +143,7 @@ Batch-/Prozessfertigung ist — alles hängt an den Open Points unten.
 
 - Internal: [`../../../internal/project_mgmt/KNOWN_GAPS.md`](../../../internal/project_mgmt/KNOWN_GAPS.md) §7,
   [`0004-industry-variant-use-case-tier-taxonomy.md`](0004-industry-variant-use-case-tier-taxonomy.md),
-  [`../../../PRODUCT_PLAN.md`](../../../PRODUCT_PLAN.md)
+  [`../../../PRODUCT_PLAN.md`](../../plans/PRODUCT_PLAN.md)
 - External (Festlegung 1): Varisco, Johnsson, Mejvik, Schiraldi, Zhu — "KPIs for Manufacturing
   Operations Management: driving the ISO22400 standard towards practical applicability", IFAC-
   PapersOnLine, INCOM 2018 (Bergamo) —

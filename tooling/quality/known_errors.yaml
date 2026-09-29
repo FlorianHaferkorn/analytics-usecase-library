@@ -314,7 +314,7 @@ errors:
       als shared VCO. In Desktop pruefen, ob die Formatierung greift; greift sie,
       Eintrag behalten und den CLI-Pin beim naechsten Bump neu bewerten.
     regression_test: null
-    docs: "KONZEPT_LAYOUT_SYSTEM.md#21-die-25-validator-fehler-sind-zwei-klassen"
+    docs: "docs/plans/KONZEPT_LAYOUT_SYSTEM.md#21-die-25-validator-fehler-sind-zwei-klassen"
 
   - id: pbir_theme_prop_likely_defect
     signature: "PBIR_(THEME_VISUAL_PROP|FORMATTING_OBJECT|FORMATTING_PROP)_UNKNOWN.*(padding\\.show|outspace\"|\\.header|calloutValue|text\\.text|smallMultiplesLayout|legend\\.alignment)"
@@ -335,7 +335,7 @@ errors:
       Elemente auf die Standardwerte zurueckfallen, ein Entfernen ist also
       rueckwirkungsfrei, sobald der Befund bestaetigt ist.
     regression_test: "tooling/tests/test_dist_validator_ratchet.py"
-    docs: "KONZEPT_LAYOUT_SYSTEM.md#21-die-25-validator-fehler-sind-zwei-klassen"
+    docs: "docs/plans/KONZEPT_LAYOUT_SYSTEM.md#21-die-25-validator-fehler-sind-zwei-klassen"
 
   - id: pbir_waterfall_role_max_exceeded
     signature: "PBIR_ROLE_MAX_EXCEEDED.*waterfallChart"
@@ -358,4 +358,4 @@ errors:
       damit kuenftige Laeufe gueltig sind; die ausgelieferten Artefakte bleiben bis
       zur Entscheidung unangetastet.
     regression_test: "tooling/tests/test_dist_validator_ratchet.py"
-    docs: "KONZEPT_LAYOUT_SYSTEM.md#21-die-25-validator-fehler-sind-zwei-klassen"
+    docs: "docs/plans/KONZEPT_LAYOUT_SYSTEM.md#21-die-25-validator-fehler-sind-zwei-klassen"

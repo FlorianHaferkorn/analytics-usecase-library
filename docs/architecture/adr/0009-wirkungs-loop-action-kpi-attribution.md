@@ -4,7 +4,7 @@
 - **Date:** 2026-06-25
 - **Scope:** Das **Modell + die Verträge** für den Wirkungs-Loop (I-8): wie eine ausgelöste Action gegen die spätere KPI-Bewegung gemessen und ehrlich attribuiert wird, und wie die Wirkung als *reviewbarer* Refinement-Vorschlag in die Ontologie zurückfließt. **Kein Code** — Discovery. Implementierung folgt in I-8.2 (Effekt-Tracking) / I-8.3 (Ontologie-Feedback).
 - **Supersedes:** —
-- **Related:** [`0005…`](0005-superversion-home-and-meridian-vendoring.md), [`0007…`](0007-studio-generate-docks-onto-superversion-core.md) (Freigabe-Schleuse als Gate), [`0008-ai-orchestration-routing-tokens-tracking-roi-config.md`](0008-ai-orchestration-routing-tokens-tracking-roi-config.md) (Attributions-Methoden-Enum, Ehrlichkeits-Regeln), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../../UMSETZUNGSPLAN_SUPERVERSION.md) (I-8), `core/action_codes/`, `tooling/superversion/eval/`
+- **Related:** [`0005…`](0005-superversion-home-and-meridian-vendoring.md), [`0007…`](0007-studio-generate-docks-onto-superversion-core.md) (Freigabe-Schleuse als Gate), [`0008-ai-orchestration-routing-tokens-tracking-roi-config.md`](0008-ai-orchestration-routing-tokens-tracking-roi-config.md) (Attributions-Methoden-Enum, Ehrlichkeits-Regeln), [`../../../UMSETZUNGSPLAN_SUPERVERSION.md`](../../plans/UMSETZUNGSPLAN_SUPERVERSION.md) (I-8), `core/action_codes/`, `tooling/superversion/eval/`
 
 ---
 
@@ -173,6 +173,6 @@ echten Kundenkontext braucht — dieser Teil bleibt bewusst offen (DoD-Fehlerfal
   `tooling/superversion/eval/refcalc.py` + `eval/value_gate.py` (reproduzierbare KPI-Snapshots, UNCOMPUTED-Doktrin),
   [`0008-ai-orchestration-routing-tokens-tracking-roi-config.md`](0008-ai-orchestration-routing-tokens-tracking-roi-config.md) (Attributions-Enum, Ehrlichkeit),
   [`0007-studio-generate-docks-onto-superversion-core.md`](0007-studio-generate-docks-onto-superversion-core.md) (Freigabe-Schleuse als Mutations-Gate),
-  `UMSETZUNGSPLAN_SUPERVERSION.md` (I-8).
+  `docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md` (I-8).
 - Extern (Methoden-Familien, by reference): before/after, difference-in-differences, holdout/control —
   Standard-Attributions-/Quasi-Experiment-Ansätze; live zu vertiefen, falls I-8.2 über `before_after` hinausgeht.

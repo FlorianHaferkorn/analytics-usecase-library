@@ -1,6 +1,6 @@
 # boutique_craft_rubric.yaml — Machine-readable Boutique-Craft rubric (tool-agnostic)
 #
-# Purpose:  Turns the Craft-Core (KONZEPT_REPORT_QUALITAET.md §5) into a versioned,
+# Purpose:  Turns the Craft-Core (docs/plans/KONZEPT_REPORT_QUALITAET.md §5) into a versioned,
 #           checkable rubric. This is the K1 artifact: the "Boutique bar" as data.
 #           Renderer-agnostic — scored against the report INTENT/DESIGN-SPEC, not a
 #           specific output format (Power BI, Web, PDF).

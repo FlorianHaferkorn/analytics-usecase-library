@@ -78,7 +78,7 @@ rules:
       to answer the page's decision_question -- never a full-width table
       dump of every available field.
     source: >
-      UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R1.3 DoD ("Spaltenzahl <= 8"),
+      docs/plans/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R1.3 DoD ("Spaltenzahl <= 8"),
       applied and verified against COM-002 (12 -> 7 curated columns).
     parameters:
       scope: component_300s
