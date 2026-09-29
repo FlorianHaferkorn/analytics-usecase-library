@@ -26,6 +26,7 @@ table dim_promo
 
 		annotation SummarizationSetBy = Automatic
 
+	/// Promotion type family. Type: text · Role: attribute · Values: Bundle, Multi-buy, Discount, None · Synonyms: Promotion Type
 	column 'Promo Type'
 		dataType: string
 		lineageTag: 2fbdfe2e-e2f6-4b2c-a337-cda2ac28955f
@@ -34,6 +35,7 @@ table dim_promo
 
 		annotation SummarizationSetBy = Automatic
 
+	/// Specific offer mechanic applied. Type: text · Role: attribute · Values: FixedPrice, MultiBuy, PercentOff, None · Synonyms: Mechanic, Offer Mechanic
 	column 'Promo Mechanic'
 		dataType: string
 		lineageTag: 22820823-341f-441c-a875-3384b2df21aa
@@ -62,6 +64,7 @@ table dim_promo
 
 		annotation SummarizationSetBy = Automatic
 
+	/// Promotion discount depth as a fraction (0-1). Type: decimal · Role: attribute
 	column 'Discount %'
 		dataType: double
 		lineageTag: 10f24340-0084-4be2-873e-b28a86ed4290

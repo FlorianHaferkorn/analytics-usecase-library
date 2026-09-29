@@ -120,6 +120,15 @@ MONITORING_ITEM_PATH = "monitoring/workspace_monitoring_item.json"
 CAPACITY_ALERTS_RUNBOOK_PATH = "monitoring/capacity_alerts.md"
 #: Item-Definition des Operations Agents (I-21 W6.4): der einzige Definitionsteil laut Learn.
 OPERATIONS_AGENT_PATH = "monitoring/operations_agent/Configurations.json"
+# Die Bibliothek, gegen die die Datenquelle des Operations Agents aufloest (I-21 W6.4). Name und
+# Variable stehen einmal hier; Definition, Runbook und emittierte Bibliothek lesen sie von hier.
+MONITORING_VARLIB = "vl_monitoring"
+MONITORING_KQL_VARIABLE = "monitoring_kql_database"
+MONITORING_VARLIB_REFS = [
+    {"name": MONITORING_KQL_VARIABLE, "cat": "items", "key": MONITORING_KQL_VARIABLE,
+     "note": "KQL database of the workspace-monitoring Eventhouse (not the Eventhouse itself) - "
+             "data source of the operations agent."},
+]
 
 #: Learn ``rest/api/fabric/articles/item-management/definitions/operations-agent-definition``,
 #: gelesen 29.09.2026. ``validation rejects unknown values`` — daher geschlossene Mengen.
@@ -436,7 +445,7 @@ def _operations_agent_definition(bp: dict, politik: dict) -> dict:
     Identitaet laufen; vorab freigegebene Aktionen sind nur angekuendigt. ``shouldRun`` ist
     ``false``, bis die KI-/DSGVO-Freigabe vorliegt (dieselbe Frage wie ``ki_untersuchungen``).
     """
-    ws = politik["zentral_workspace"] or "<VERIFY: Monitoring-Workspace auf eigener Kapazitaet>"
+    ws = _agent_workspace(politik)
     sp = politik["operations_agent_sponsor"]
     sponsor = sp["alias"] if sp else "<VERIFY: Sponsor des Operations Agents (Gruppe oder SPN)>"
     domaenen = ", ".join(d["name"] for d in _domains(bp)) or "the platform"
@@ -449,7 +458,7 @@ def _operations_agent_definition(bp: dict, politik: dict) -> dict:
                 "the same item fails twice in a row, say so explicitly. Do not propose or run any "
                 "action; report only."),
             "dataSources": {
-                "monitoringEventhouse": f"$(/{ws}/vl_monitoring/monitoring_kql_database)",
+                "monitoringEventhouse": f"$(/{ws}/{MONITORING_VARLIB}/{MONITORING_KQL_VARIABLE})",
             },
             "actions": {},
             "messageDestination": {
@@ -462,6 +471,27 @@ def _operations_agent_definition(bp: dict, politik: dict) -> dict:
         "playbook": {},
         "shouldRun": False,
     }
+
+
+def _agent_workspace(politik: dict) -> str:
+    return politik["zentral_workspace"] or "<VERIFY: Monitoring-Workspace auf eigener Kapazitaet>"
+
+
+def pruefe_agent_variablen(defn: dict, out: dict[str, str]) -> list[str]:
+    """Jede Variablenreferenz in ``dataSources`` muss gegen eine in ``out`` emittierte Bibliothek
+    samt Variable aufloesen (I-21 W6.4); leer heisst alle aufgeloest."""
+    from core.dataarch_engine.blueprint.provision_varlib import (
+        library_variables,
+        resolve_variable_reference,
+    )
+    libs = library_variables(out)
+    befunde = []
+    for alias, ds in ((defn.get("configuration") or {}).get("dataSources") or {}).items():
+        if isinstance(ds, str):
+            b = resolve_variable_reference(ds, libs)
+            if b:
+                befunde.append(f"dataSources.{alias}: {b}")
+    return befunde
 
 
 def pruefe_operations_agent_definition(defn: dict) -> list[str]:
@@ -540,10 +570,16 @@ def _operations_agent_lines(politik: dict) -> list[str]:
         "or SPN alias there is an ASSUMPTION, unverified — check at the first tenant run.",
         "- **Messages** go to a Teams channel, not to one person. Recipients need write "
         "permission on the agent item (MS Learn, *Operations agent actions*).",
-        "- **Data source** is a variable-library reference (`$(/<workspace>/vl_monitoring/"
-        "monitoring_kql_database)`), so the definition carries no tenant IDs. The variable "
-        "library is not part of the agent definition and has to be deployed alongside it; this "
-        "delivery does not emit it yet.",
+        f"- **Data source** is a variable-library reference (`$(/<workspace>/{MONITORING_VARLIB}/"
+        f"{MONITORING_KQL_VARIABLE})`), so the definition carries no tenant IDs. The variable "
+        "library is not part of the agent definition (MS Learn) and is emitted next to it as "
+        f"`{MONITORING_VARLIB}.VariableLibrary/` — deploy it into the same workspace **before** "
+        f"the agent. `{MONITORING_KQL_VARIABLE}` is an `ItemReference` to the **KQL database** "
+        "of the monitoring Eventhouse (not the Eventhouse); its IDs stay placeholders until "
+        "`--varlib-config` supplies them, and Fabric rejects the library while a placeholder "
+        "remains. That an operations agent accepts an `ItemReference` variable is an "
+        "ASSUMPTION, unverified (Learn documents the reference form, not the variable type; "
+        "Eventstreams use `ItemReference` for the same KQL database).",
         "- Start (`shouldRun: true`) only after the Copilot/Azure OpenAI tenant settings and the "
         "GDPR clearance — the same decision as *AI powered investigations* in step 1c.", "",
     ]
@@ -1096,7 +1132,8 @@ def _activity_log_lines() -> list[str]:
 def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspace>",
                     capacity: str = "<CAPACITY_NAME>", alerts: dict | None = None,
                     stages: tuple[str, ...] = ("dev", "test", "prod"),
-                    monitoring: dict | None = None) -> dict[str, str]:
+                    monitoring: dict | None = None,
+                    varlib_config: dict | None = None) -> dict[str, str]:
     """Return the monitoring/alerting artifact set (path → content). Fabric-specific surfaces (KQL,
     Activator specs) are emitted for the fabric stack; the plan doc is always emitted.
 
@@ -1282,6 +1319,11 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
                                           ensure_ascii=False) + "\n"
         out[OPERATIONS_AGENT_PATH] = json.dumps(_operations_agent_definition(bp, politik),
                                                 indent=2, ensure_ascii=False) + "\n"
+        from core.dataarch_engine.blueprint.provision_varlib import emit_item_reference_library
+        out.update(emit_item_reference_library(
+            MONITORING_VARLIB, MONITORING_VARLIB_REFS, _agent_workspace(politik),
+            stages=tuple(stages) or ("dev",), env_config=varlib_config,
+            prefix="monitoring/"))
         out[METRICS_APP_SETUP_PATH] = _metrics_app_setup_md(capacity, alerts)
         # Der Export haengt am Power-BI-/Fabric-Aktivitaetsprotokoll. Auf einem fremden Stack gibt
         # es dieses Protokoll nicht — ein Skript dafuer waere dort eine Anweisung ins Leere.

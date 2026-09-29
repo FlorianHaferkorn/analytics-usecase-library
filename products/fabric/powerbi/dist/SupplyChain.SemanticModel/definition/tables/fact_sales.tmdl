@@ -16,6 +16,7 @@ table fact_sales
 		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
+	/// Units sold (SupplyChain model name of Quantity). Type: decimal · Unit: units · Role: measure
 	column 'Sales Units'
 		dataType: Decimal
 		sourceColumn: Quantity

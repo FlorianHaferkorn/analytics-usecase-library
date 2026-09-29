@@ -287,6 +287,10 @@ def generate_domain(domain: str, gold_path: str, dry_run: bool = False):
 
     # 8. Table files — dimensions and facts from data contract
     table_tpl = JINJA.get_template("table.tmdl.j2")
+    # Column ``///`` from the data contract (W5.6): same post-generation step that keeps
+    # dist/ in sync (``enrich_measure_docs.py --columns``), one description path.
+    from tooling.generator.enrich_measure_docs import _domain_tables, enrich_columns_text
+    contract_tables = _domain_tables(domain, DATA_CONTRACTS)
     sec_tpl   = JINJA.get_template("security_table.tmdl.j2")
 
     generated_tables = []
@@ -321,7 +325,8 @@ def generate_domain(domain: str, gold_path: str, dry_run: bool = False):
             "columns":     cols,
             "hierarchies": hierarchies,
         }
-        write_file(tbl_dir / f"{tname_str}.tmdl", table_tpl.render(**ctx), dry_run)
+        content = enrich_columns_text(table_tpl.render(**ctx), contract_tables.get(tname_str))
+        write_file(tbl_dir / f"{tname_str}.tmdl", content, dry_run)
         generated_tables.append(tname_str)
 
     for tbl_entry in sec_tables:

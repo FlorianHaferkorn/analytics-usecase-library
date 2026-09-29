@@ -11,10 +11,12 @@ table dim_org
 		dataType: String
 		sourceColumn: Entity
 		summarizeBy: none
+	/// Sales region grouping countries. Type: text · Role: attribute · Values: DACH, Benelux, Nordics, SouthernEurope, CEE · Synonyms: Sales Region, Geo, Geography, Territory, Vertriebsregion, Gebiet
 	column Region
 		dataType: String
 		sourceColumn: Region
 		summarizeBy: none
+	/// Country of the selling org unit. Type: text · Role: attribute · Synonyms: Country of Domicile, Land, Sitzland
 	column Country
 		dataType: String
 		sourceColumn: Country
