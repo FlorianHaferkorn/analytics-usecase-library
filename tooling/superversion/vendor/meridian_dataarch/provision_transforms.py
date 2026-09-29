@@ -986,6 +986,36 @@ def _projektion(spalte: str, table: dict | None, stack: str) -> str:
     return f"{zitiere(quelle, stack)} AS {zitiert}" if quelle and quelle != spalte else zitiert
 
 
+def _spalten_kommentare(gold_tbl: str, table: dict | None, spalten: list[str], dl: dict) -> str:
+    """``ALTER TABLE … ALTER COLUMN … COMMENT '…'`` je beschriebener Gold-Spalte (I-21 W5.6 e).
+
+    Beschreibungen sind der Hebel fuer Katalog und Copilot. Quelle ist ausschliesslich
+    ``column_descriptions`` des governten Katalogs (SAP: ``meaning`` aus dem Paket; Kalender:
+    ``sap_calendar``) — eine Spalte ohne Beschreibung bekommt keine Anweisung, nichts wird
+    erfunden. Syntax nach MS Learn *Schema evolution for Delta tables* (fabric/data-engineering/
+    delta-lake-schema-evolution, gelesen 29.09.2026): ``ALTER TABLE sales ALTER COLUMN amount
+    COMMENT '…'``. Nach dem ``CREATE OR REPLACE`` gesetzt, damit jeder Vollaufbau sie erneuert.
+    Nur Spark (Fabric/Databricks); Snowflake hat eine eigene Syntax und ist hier nicht Ziel.
+
+    Ein ``'`` im Text wird zum typografischen Apostroph: Spark SQL verkettet ``'a''b'`` zu
+    ``ab`` statt zu escapen, und ``sql_anweisungen`` zaehlt Anfuehrungszeichen ohne Backslash.
+    """
+    if dl.get("stack") == "snowflake":
+        return ""
+    beschr = (table or {}).get("column_descriptions") or {}
+    zeilen = []
+    for sp in spalten:
+        text = " ".join(str(beschr.get(sp) or "").split()).replace("\\", "\\\\").replace("'", "\u2019")
+        if text:
+            zeilen.append(f"ALTER TABLE {gold_tbl} ALTER COLUMN {zitiere(sp, dl['stack'])} "
+                          f"COMMENT '{text}';")
+    if not zeilen:
+        return ""
+    return (f"{dl['comment']} Spaltenbeschreibungen aus dem governten Katalog "
+            f"({len(zeilen)} von {len(spalten)}) — Katalog/Copilot lesen sie.\n"
+            + "\n".join(zeilen) + "\n")
+
+
 def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_ref: str,
                     dl: dict, gold_tbl: str = "", table: dict | None = None,
                     kopf_extra: list[str] | None = None,
@@ -1042,7 +1072,8 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
                                                 roh_sql=roh_sql, bezuege=bezuege)
         if ctas != dl["ctas"]:
             head = head.replace(f"{dl['ctas']} {gold_tbl}", f"{ctas} {gold_tbl}", 1)
-        return (head + "\n".join(kopf + kopf_h) + "\n" + quell_sql + "\n;\n" + anhang)
+        return (head + "\n".join(kopf + kopf_h) + "\n" + quell_sql + "\n;\n" + anhang
+                + _spalten_kommentare(gold_tbl, table, spalten, dl))
 
     # honest, runnable-shaped skeleton: the modeled projection lives in a TODO *comment* (with a concrete
     # example), the executable statement stays valid SQL (`SELECT *`) — never an un-parseable placeholder.
@@ -1488,7 +1519,8 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple],
     kopf_h, ctas, anhang = (_historie_anhang(name, gold_tbl, quell_sql, table, dl, wasserzeichen)
                             if spalten and blocks else ([], dl["ctas"], ""))
     return (f"{chr(10).join(kopf + kopf_h)}\n{ctas} {gold_tbl}{dl['using']} AS\n"
-            + quell_sql + "\n;\n" + anhang)
+            + quell_sql + "\n;\n" + anhang
+            + (_spalten_kommentare(gold_tbl, table, spalten, dl) if blocks else ""))
 
 
 def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = False,
@@ -2403,6 +2435,10 @@ def emit_warehouse_gold(blueprint: dict, schemas: bool = False,
            "Gold-Warehouse). One `CREATE TABLE` per gold product; populate via CTAS/`COPY INTO` from "
            "silver. **Honest boundary**: the IR gives product + kind, not the business columns "
            "(those live in the silver data contract → `TODO(contract:…)`).", "",
+           "**Column descriptions are not emitted here** (I-21 W5.6 e): MS Learn *T-SQL surface "
+           "area in Fabric Data Warehouse* (read 2026-09-29) documents neither `COMMENT` nor "
+           "extended properties (`sp_addextendedproperty`) for Warehouse tables. Lakehouse gold "
+           "carries them as `ALTER COLUMN … COMMENT` (documented for Delta tables).", "",
            "| Domain | Product | Kind | DDL |", "|---|---|---|---|"]
     for d in sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", "")):
         c_ref = _domain_contract(d, contract_ref)

@@ -103,13 +103,21 @@ def _prefixed(prefix: str, name: str) -> str:
 _SINGLETONS = ("capacity", "sql_endpoint")
 
 
-def _value(env_config: dict, cat: str, key: str, stage: str, missing: list[str]) -> str:
+def _value(env_config: dict, cat: str, key: str, stage: str, missing: list[str],
+           vtype: str = "String"):
     """Look up a stage value from the config; placeholder + record-missing when absent.
 
     Singletons (``capacity``/``sql_endpoint``) live directly under ``env_config[cat]``;
     keyed categories (``workspaces``/``connections``) under ``env_config[cat][key]``.
     An entry may be a per-stage dict ``{dev:…, test:…}`` or a scalar shared across stages.
+
+    ``ItemReference`` (Learn *Variable library definition*, gelesen 29.09.2026) hat als Wert ein
+    Objekt ``{workspaceId, itemId}``; ein Eintrag ist dann ``{dev: {workspaceId, itemId}, …}``
+    oder ein stufenübergreifendes ``{workspaceId, itemId}``. Fehlt ein Teil, steht dort der
+    Platzhalter ``<stage-cat-key-workspaceId|itemId>`` — nie eine erfundene GUID.
     """
+    if vtype == "ItemReference":
+        return _item_reference_value(env_config, cat, key, stage, missing)
     if cat in _SINGLETONS:
         entry = env_config.get(cat)
     else:
@@ -125,6 +133,52 @@ def _value(env_config: dict, cat: str, key: str, stage: str, missing: list[str])
     return ph
 
 
+_ITEM_REFERENCE_KEYS = ("workspaceId", "itemId")
+
+
+def _item_reference_value(env_config: dict, cat: str, key: str, stage: str,
+                          missing: list[str]) -> dict:
+    node = env_config.get(cat)
+    entry = node.get(key) if isinstance(node, dict) else None
+    if isinstance(entry, dict) and isinstance(entry.get(stage), dict):
+        entry = entry[stage]
+    wert = {}
+    for teil in _ITEM_REFERENCE_KEYS:
+        v = entry.get(teil) if isinstance(entry, dict) else None
+        if v in (None, ""):
+            missing.append(f"{cat}.{key}.{teil} @ {stage}")
+            v = f"<{stage}-{cat}-{_slug(key)}-{teil}>"
+        wert[teil] = str(v)
+    return wert
+
+
+def _library_parts(base: str, specs: list[dict], stages: tuple[str, ...], env_config: dict,
+                   missing: list[str]) -> dict[str, str]:
+    """``variables.json`` + ``settings.json`` + ``valueSets/<stage>.json`` eines Items.
+
+    Eine Stelle für das Format (Learn *Variable library definition*), damit jede Bibliothek des
+    Repos — ``platform_config`` wie ``vl_monitoring`` — dieselbe Struktur trägt."""
+    default_stage = stages[0]
+    variables = [{"name": s["name"], "type": s["type"],
+                  "value": _value(env_config, s["cat"], s["key"], default_stage, missing,
+                                  s["type"]),
+                  "note": s["note"]} for s in specs]
+    out = {f"{base}/variables.json": json.dumps(
+        {"$schema": f"{_SCHEMA}/variables/1.0.0/schema.json", "variables": variables},
+        indent=2, ensure_ascii=False) + "\n"}
+    out[f"{base}/settings.json"] = json.dumps(
+        {"$schema": f"{_SCHEMA}/settings/1.0.0/schema.json",
+         "valueSetsOrder": list(stages[1:])}, indent=2, ensure_ascii=False) + "\n"
+    for st in stages[1:]:  # alternate value sets: only the overrides for that stage
+        overrides = [{"name": s["name"],
+                      "value": _value(env_config, s["cat"], s["key"], st, missing, s["type"])}
+                     for s in specs]
+        out[f"{base}/valueSets/{st}.json"] = json.dumps(
+            {"$schema": f"{_SCHEMA}/valueSet/1.0.0/schema.json", "name": st,
+             "variableOverrides": overrides}, indent=2, ensure_ascii=False) + "\n"
+    return out
+
+
 def emit_variable_library(bp: dict, stack: str = "fabric",
                           stages: tuple[str, ...] = ("dev", "test", "prod"),
                           env_config: dict | None = None,
@@ -138,34 +192,85 @@ def emit_variable_library(bp: dict, stack: str = "fabric",
     """
     env_config = env_config or {}
     specs = _variable_specs(bp, lakehouse)
-    default_stage = stages[0]
-    missing: list[str] = []
     base = f"{lib_name}.VariableLibrary"
+    # Das Doc listet die Lücken des Default-Wertesatzes (Verhalten seit I-19.2 unverändert).
+    missing: list[str] = []
+    for s in specs:
+        _value(env_config, s["cat"], s["key"], stages[0], missing, s["type"])
+    parts = _library_parts(base, specs, stages, env_config, []) if stack == "fabric" else {}
 
-    # defaults (baseline = first stage)
-    variables = [{"name": s["name"], "type": s["type"],
-                  "value": _value(env_config, s["cat"], s["key"], default_stage, missing),
-                  "note": s["note"]} for s in specs]
-
-    out: dict[str, str] = {}
-    doc = _doc(lib_name, stages, specs, missing, stack)
-    out[f"{base}/_VARIABLE_LIBRARY.md"] = doc
-    if stack != "fabric":
-        return out  # Variable Library is a Fabric item; portable config lives in the doc
-
-    out[f"{base}/variables.json"] = json.dumps(
-        {"$schema": f"{_SCHEMA}/variables/1.0.0/schema.json", "variables": variables},
-        indent=2, ensure_ascii=False) + "\n"
-    out[f"{base}/settings.json"] = json.dumps(
-        {"$schema": f"{_SCHEMA}/settings/1.0.0/schema.json",
-         "valueSetsOrder": list(stages[1:])}, indent=2, ensure_ascii=False) + "\n"
-    for st in stages[1:]:  # alternate value sets: only the overrides for that stage
-        overrides = [{"name": s["name"],
-                      "value": _value(env_config, s["cat"], s["key"], st, missing)} for s in specs]
-        out[f"{base}/valueSets/{st}.json"] = json.dumps(
-            {"$schema": f"{_SCHEMA}/valueSet/1.0.0/schema.json", "name": st,
-             "variableOverrides": overrides}, indent=2, ensure_ascii=False) + "\n"
+    out: dict[str, str] = {f"{base}/_VARIABLE_LIBRARY.md": _doc(lib_name, stages, specs, missing,
+                                                                stack)}
+    out.update(parts)  # Variable Library is a Fabric item; portable config lives in the doc
     return out
+
+
+def emit_item_reference_library(lib_name: str, refs: list[dict], workspace: str,
+                                stages: tuple[str, ...] = ("dev", "test", "prod"),
+                                env_config: dict | None = None,
+                                prefix: str = "") -> dict[str, str]:
+    """Eine kleine Bibliothek aus ``ItemReference``-Variablen (I-21 W6.4: ``vl_monitoring``).
+
+    ``refs`` = ``[{name, cat, key, note}]``. Werte kommen wie bei ``emit_variable_library`` aus
+    ``env_config[cat][key]`` (``{workspaceId, itemId}`` je Stufe oder stufenübergreifend), sonst
+    Platzhalter + „Fehlende Werte“. ``workspace`` ist der Workspace, in dem die Bibliothek liegen
+    muss — Referenzen ``$(/<workspace>/<lib>/<var>)`` lösen nur dort auf."""
+    env_config = env_config or {}
+    specs = [dict(r, type="ItemReference") for r in refs]
+    missing: list[str] = []
+    base = f"{prefix}{lib_name}.VariableLibrary"
+    out = _library_parts(base, specs, stages, env_config, missing)
+    lines = [f"# Variable Library `{lib_name}` (generiert — I-21 W6.4)", "",
+             f"Workspace: **{workspace}**  ·  Stages: **{' → '.join(stages)}**  ·  "
+             f"Variablen: **{len(specs)}**", "",
+             "Typ `ItemReference` (Vorschau; Wert `{workspaceId, itemId}`, Learn *Variable "
+             "library definition*, gelesen 29.09.2026). Beim Speichern prüft Fabric, dass jedes "
+             "referenzierte Item des aktiven Wertesatzes existiert und lesbar ist (Learn "
+             "*Variable library permissions*) — ein Platzhalter lässt den Import deshalb "
+             "scheitern, statt still falsch zu binden.", "",
+             "| Variable | Typ | Referenz | Zweck |", "|---|---|---|---|"]
+    for s in specs:
+        lines.append(f"| `{s['name']}` | `ItemReference` | `$(/{workspace}/{lib_name}/"
+                     f"{s['name']})` | {s['note']} |")
+    lines.append("")
+    if missing:
+        lines += ["## Fehlende Werte (Platzhalter — in `--varlib-config` füllen)"]
+        lines += [f"- {m}" for m in sorted(set(missing))]
+    else:
+        lines.append("Alle Werte aus der Config gefüllt — keine Platzhalter.")
+    out[f"{base}/_VARIABLE_LIBRARY.md"] = "\n".join(lines) + "\n"
+    return out
+
+
+_REF_RE = re.compile(r"^\$\(/([^/()]+)/([^/()]+)/([^/()]+)\)$")
+
+
+def library_variables(out: dict[str, str]) -> dict[str, set[str]]:
+    """Aus einem Artefaktsatz: ``{<lib>: {<var>, …}}`` je emittiertem ``variables.json``.
+
+    Variablennamen sind laut Learn (*Variable types*) nicht groß-/kleinschreibungssensitiv —
+    deshalb in Kleinschrift."""
+    libs: dict[str, set[str]] = {}
+    for path, content in out.items():
+        teile = path.split("/")
+        if teile[-1] == "variables.json" and len(teile) >= 2 and \
+                teile[-2].endswith(".VariableLibrary"):
+            lib = teile[-2][:-len(".VariableLibrary")]
+            libs[lib] = {v["name"].lower() for v in json.loads(content)["variables"]}
+    return libs
+
+
+def resolve_variable_reference(ref: str, libs: dict[str, set[str]]) -> str | None:
+    """``None``, wenn ``$(/<ws>/<lib>/<var>)`` gegen ``libs`` auflöst; sonst der Befund."""
+    m = _REF_RE.match(ref or "")
+    if not m:
+        return f"{ref!r}: nicht in der Form $(/<Workspace>/<Library>/<Variable>)"
+    _ws, lib, var = m.groups()
+    if lib not in libs:
+        return f"{ref!r}: Bibliothek {lib!r} wird nicht emittiert"
+    if var.lower() not in libs[lib]:
+        return f"{ref!r}: Variable {var!r} fehlt in {lib!r}"
+    return None
 
 
 def _doc(lib_name: str, stages: tuple[str, ...], specs: list[dict],
