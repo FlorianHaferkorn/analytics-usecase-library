@@ -45,6 +45,7 @@ table fact_sales
 
 		annotation SummarizationSetBy = Automatic
 
+	/// Invoiced revenue net of discounts and returns. Type: currency · Unit: EUR · Role: measure · Synonyms: Revenue, Net Revenue, Umsatz
 	column 'Net Sales Amount'
 		dataType: double
 		lineageTag: 09b57e30-521a-4b80-8773-27bc5aaf9db1
@@ -55,6 +56,7 @@ table fact_sales
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	/// Units sold on the invoice line. Type: decimal · Unit: units · Role: measure
 	column Quantity
 		dataType: int64
 		formatString: 0

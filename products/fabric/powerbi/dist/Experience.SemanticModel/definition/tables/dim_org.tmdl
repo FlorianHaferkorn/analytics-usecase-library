@@ -7,10 +7,12 @@ table dim_org
 		summarizeBy: none
 		isHidden
 		isAvailableInMDX: false
+	/// Sales region grouping countries. Type: text · Role: attribute · Values: DACH, Benelux, Nordics, SouthernEurope, CEE · Synonyms: Sales Region, Geo, Geography, Territory, Vertriebsregion, Gebiet
 	column Region
 		dataType: String
 		sourceColumn: Region
 		summarizeBy: none
+	/// Go-to-market sales channel. Type: text · Role: attribute · Values: Retail, Online, Wholesale, Marketplace, Direct, Outlet · Synonyms: Sales Channel, Route to Market, Distribution Channel, Vertriebskanal, Absatzkanal
 	column Channel
 		dataType: String
 		sourceColumn: Channel
