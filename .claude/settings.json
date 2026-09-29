@@ -19,7 +19,9 @@
       "PowerShell(.\\products\\fabric\\powerbi\\tooling\\validation\\check_tmdl_pbip_readiness.ps1 *)",
       "PowerShell(.\\products\\fabric\\powerbi\\tooling\\validation\\check_report_layout.ps1 *)",
       "Bash(python3 scripts/check_index.py *)",
-      "Bash(python scripts/check_index.py *)"
+      "Bash(python scripts/check_index.py *)",
+      "Bash(make check)",
+      "Bash(make check-index)"
     ],
     "deny": [
       "Read(./**/*.parquet)",
@@ -61,6 +63,26 @@
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/activate_git_hooks.sh\"",
             "timeout": 30
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=\"$CLAUDE_PROJECT_DIR/scripts/check_index.py\"; [ -f \"$f\" ] || exit 0; if command -v python3 >/dev/null 2>&1; then py=python3; else py=python; fi; \"$py\" \"$f\" --claude-hook session-start",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=\"$CLAUDE_PROJECT_DIR/scripts/check_index.py\"; [ -f \"$f\" ] || exit 0; if command -v python3 >/dev/null 2>&1; then py=python3; else py=python; fi; \"$py\" \"$f\" --claude-hook stop",
+            "timeout": 60
           }
         ]
       }
