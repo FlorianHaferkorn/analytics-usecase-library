@@ -1,8 +1,10 @@
 """odcs — bidirectional mapping between the neutral IR and the Open Data Contract Standard (I-20.3).
 
 Cross-repo mirror of Meridian's `core.dataarch_engine.blueprint.odcs` (contract surface). Official-First
-(ADR-0051): the gold data contract is expressed in **ODCS** (Bitol Open Data Contract Standard v3.0.0),
-not a home-grown format. This module bridges the two directions the Baukasten needs:
+(ADR-0051): the gold data contract is expressed in **ODCS** (Bitol Open Data Contract Standard v3.1.0),
+not a home-grown format. Every contract this module emits carries the **one** ``ODCS_API_VERSION``
+(Meridian D-584; there it is checked against the vendored official v3.1 schema). This module
+bridges the two directions the Baukasten needs:
 
   * **export** ``to_odcs(blueprint)`` — one ODCS ``DataContract`` per mesh domain; each gold product
     becomes a schema object (``kind``/``grain`` preserved via ``customProperties`` so the round-trip is
@@ -33,15 +35,14 @@ import yaml
 
 from tooling.superversion.architecture_blueprint import _slug
 
-ODCS_API_VERSION = "v3.0.0"
-#: Vertraege mit Spalten aus dem governed catalog tragen property-level ``relationships`` und
-#: ``quality``-Regeln mit ``metric``. Beides steht erst in ODCS v3.1.0 (CHANGELOG v3.1.0,
-#: 2025-12-08: "Add `relationships` array field to both `SchemaObject` and `SchemaProperty`";
-#: ``metric`` statt des veralteten ``rule``). Gelesen 29.09.2026 in
-#: github.com/bitol-io/open-data-contract-standard, Tag v3.2.0 (f0bdad9, 08.09.2026 — aktuell;
-#: v3.2.0 bringt ``enum`` dazu, das hier nicht gebraucht wird). Vertraege ohne Spalten bleiben
-#: auf v3.0.0, damit sich bestehende Ausgaben nicht aendern.
-ODCS_API_VERSION_SPALTEN = "v3.1.0"
+#: Eine Version fuer jeden Vertrag, den der Baukasten schreibt (Meridian D-584, 29.09.2026). Bis
+#: dahin standen hier zwei: ``v3.0.0`` fuer Vertraege ohne Spalten und die Uebergabegrenze,
+#: ``v3.1.0`` fuer Vertraege mit Spalten (``relationships``/``metric`` gibt es erst seit v3.1.0,
+#: CHANGELOG 2025-12-08). Meridian prueft gegen das vendored v3.1-Schema, also wird auch v3.1.0
+#: gestempelt. Bitol hat am 08.09.2026 v3.2.0 getaggt (github.com/bitol-io/open-data-contract-standard,
+#: f0bdad9, gelesen 29.09.2026); ein Wechsel dorthin folgt Meridian, sobald dort das v3.2-Schema
+#: vendored ist.
+ODCS_API_VERSION = "v3.1.0"
 ODCS_KIND = "DataContract"
 _CONTRACT_STANDARD = "odcs"
 
@@ -243,8 +244,8 @@ def to_odcs(blueprint: dict[str, Any], governed_catalog: dict[str, Any] | None =
     """Export the IR's gold/mesh layer as one ODCS ``DataContract`` per domain (sorted, deterministic).
 
     With ``governed_catalog`` each gold product found there carries its columns as ODCS
-    ``properties`` — including the structured ``column_specs`` checks (A-20) — and the contract is
-    stamped ``v3.1.0`` (``relationships``/``metric`` need it). ``odcs_to_catalog`` reads them back.
+    ``properties`` — including the structured ``column_specs`` checks (A-20). Every contract is
+    stamped ``ODCS_API_VERSION`` (v3.1.0), with or without columns. ``odcs_to_catalog`` reads them back.
     """
     stack = blueprint.get("platform", {}).get("stack", "fabric")
     gold = blueprint.get("medallion", {}).get("gold", {}).get("data_products", [])
@@ -261,9 +262,8 @@ def to_odcs(blueprint: dict[str, Any], governed_catalog: dict[str, Any] | None =
             for pn in sorted(dom.get("data_products", []))
             if pn in gold_by_name
         ]
-        mit_spalten = any(o.get("properties") for o in schema)
         contract: dict[str, Any] = {
-            "apiVersion": ODCS_API_VERSION_SPALTEN if mit_spalten else ODCS_API_VERSION,
+            "apiVersion": ODCS_API_VERSION,
             "kind": ODCS_KIND,
             "id": f"{_slug(stack)}-{_slug(name)}",
             "name": name,
@@ -297,7 +297,7 @@ def emit_odcs(blueprint: dict[str, Any]) -> dict[str, str]:
     contracts = to_odcs(blueprint)
     out: dict[str, str] = {}
     index = ["# ODCS data contracts (generated — ADR-0051 / Official-First)", "",
-             "Open Data Contract Standard v3.0.0 · one contract per governance domain "
+             f"Open Data Contract Standard {ODCS_API_VERSION} · one contract per governance domain "
              "(data product = single owning domain).", "",
              "| Domain | Contract | Data products |", "|---|---|---|"]
     for c in contracts:
@@ -313,11 +313,31 @@ def emit_odcs(blueprint: dict[str, Any]) -> dict[str, str]:
 # --------------------------------------------------------------------------- handover boundary (ingestion/silver)
 # Cross-repo mirror of Meridian's Stage-0b ODCS-beyond-gold: govern the inbound SAP→Fabric interface —
 # one boundary contract per ingestion source, carrying handover_layer + connector + access_mode.
-_CONNECTOR_SERVER_TYPE = {
+#
+# Server type (Meridian D-584, dort gemessen 29.09.2026 gegen das vendored v3.1-Schema): ``odbc`` und
+# ``sap`` stehen nicht in der ``type``-Aufzaehlung, ``api`` verlangt ``location``, ``azure`` verlangt
+# ``location`` + ``format``, und ``host`` ist nur beim Typ ``custom`` erlaubt. Deshalb ist der Server
+# immer ``type: custom`` (das Standard-Ventil fuer nicht gelistete Systeme); der Hinweis unten reist
+# als customProperty ``serverTypeHint`` mit.
+_CONNECTOR_SERVER_TYPE = {  # connector → server type hint (carried as customProperty, see above)
     "odbc-live": "odbc", "odbc-copy": "odbc", "hana": "sap", "odata": "api",
     "premium-outbound-shortcut": "azure", "mirroring": "sap", "sap-cdc": "sap",
     "open-mirroring": "custom", "bdc-connect": "sap",
 }
+
+
+def _custom_server(server: str, hint: str, description: str, host: str | None = None
+                   ) -> dict[str, Any]:
+    """An ODCS v3.1 ``servers`` entry for a system the standard does not enumerate (SAP, ODBC …).
+
+    ``type: custom`` is the schema's own answer; ``host`` is valid there. The system kind
+    travels as customProperty ``serverTypeHint`` (omitted when it is ``custom`` itself)."""
+    out: dict[str, Any] = {"server": server, "type": "custom", "description": description}
+    if host:
+        out["host"] = host
+    if hint and hint != "custom":
+        out["customProperties"] = [{"property": "serverTypeHint", "value": hint}]
+    return out
 
 
 def _handover_schema_object(entry: dict[str, Any]) -> dict[str, Any]:
@@ -344,14 +364,11 @@ def to_odcs_ingestion(blueprint: dict[str, Any]) -> list[dict[str, Any]]:
     contracts: list[dict[str, Any]] = []
     for e in sorted(blueprint.get("ingestion", []), key=lambda e: e.get("source", "")):
         connector = e.get("connector")
-        server: dict[str, Any] = {
-            "server": "sap-source",
-            "type": _CONNECTOR_SERVER_TYPE.get(connector, "custom"),
-            "description": f"handover via {connector or 'unspecified connector'} at the "
-                           f"{e.get('handover_layer') or 'unspecified'} layer",
-        }
-        if e.get("source_system"):
-            server["host"] = e["source_system"]
+        server = _custom_server(
+            "sap-source", _CONNECTOR_SERVER_TYPE.get(connector, "custom"),
+            f"handover via {connector or 'unspecified connector'} at the "
+            f"{e.get('handover_layer') or 'unspecified'} layer",
+            host=e.get("source_system"))
         custom = [{"property": "layer", "value": "ingestion/handover-boundary"},
                   {"property": "handover_layer", "value": e.get("handover_layer") or "unspecified"}]
         if connector:
@@ -379,7 +396,7 @@ def emit_odcs_ingestion(blueprint: dict[str, Any]) -> dict[str, str]:
     contracts = to_odcs_ingestion(blueprint)
     out: dict[str, str] = {}
     index = ["# ODCS handover-boundary contracts (generated — Fahrplan Stage 0b)", "",
-             "Open Data Contract Standard v3.0.0 · one contract per **ingestion source** — governs the "
+             f"Open Data Contract Standard {ODCS_API_VERSION} · one contract per **ingestion source** — governs the "
              "inbound SAP→Fabric interface (raw/conformed/silver), beyond the gold `to_odcs` scope.", "",
              "| Source | Handover layer | Connector | Contract |", "|---|---|---|---|"]
     for c in contracts:
