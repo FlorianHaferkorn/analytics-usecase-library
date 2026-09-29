@@ -93,17 +93,44 @@ def test_no_tenant_or_findings_return_no_money(tmp_path, tenant_dir, monkeypatch
     assert result["status"] == "not_checked" and "baseline" not in result
 
 
-def test_time_and_material_is_listed_unpriced_not_zero(tmp_path, tenant_dir):
+def _tm_tenant(tenant_dir, **kalkulation):
     tenant = copy.deepcopy(_TENANT)
     sources = tenant["mandanten"]["nagarro"]["pakete"]["REF_SOURCES"]
     sources["abrechnung"] = "tm"
     del sources["festpreis"]
+    sources.setdefault("kalkulation", {}).update(kalkulation)
     _write(tenant_dir, tenant)
+    return tenant
+
+
+def test_time_and_material_is_a_band_from_the_core_not_a_total(tmp_path, tenant_dir):
+    _tm_tenant(tenant_dir)
     repository, revision = _baseline(tmp_path)
     result = price_delta.compare_price(repository, PROJECT, revision, DECISION, "dev_prod")
-    assert result["status"] == "evaluated" and result["comparable"] is False
-    assert [row["work_package_ref"] for row in result["baseline"]["unpriced"]] == ["wp_source_contracts"]
-    assert {row["package_ref"] for row in result["baseline"]["packages"]} == {"REF_LANES"}
+    assert result["status"] == "evaluated" and result["comparable"] is True
+    tenant, core = pkm.lade_mandant(), pkm.rechenkern()
+    for side in ("baseline", "alternative"):
+        assert result[side]["unpriced"] == []
+        assert {row["package_ref"] for row in result[side]["packages"]} == {"REF_LANES"}
+        (row,) = result[side]["time_and_material"]
+        sheet = core.kalkulation(tenant, core.paket(tenant, "REF_SOURCES"), row["quantities"])
+        assert row["work_package_ref"] == "wp_source_contracts"
+        assert row["price_band"] == [round(v, 2) for v in sheet["preisband"]]
+        assert row["price_band"][0] <= row["price_band"][1] and row["blended_rate"] > 0
+        assert row["rate_mix_source"] == "Aufgabenstunden je Satzklasse (D-576)"
+        assert result[side]["time_and_material_price_band"] == row["price_band"]
+        assert result[side]["totals"] == _expected(tenant, {"REF_LANES": next(r["quantities"] for r in result[side]["packages"])})
+    band = result["delta"]["time_and_material_price_band"]
+    assert band == [round(result["alternative"]["time_and_material_price_band"][i] - result["baseline"]["time_and_material_price_band"][i], 2) for i in (0, 1)]
+
+
+def test_time_and_material_mix_from_the_package_wins(tmp_path, tenant_dir):
+    _tm_tenant(tenant_dir, satzklassen_anteil={"engineer_nearshore": 1.0})
+    repository, revision = _baseline(tmp_path)
+    result = price_delta.compare_price(repository, PROJECT, revision, DECISION, "dev_prod")
+    (row,) = result["baseline"]["time_and_material"]
+    assert row["rate_mix"] == {"engineer_nearshore": 1.0} and row["rate_mix_source"] == "Paket: satzklassen_anteil"
+    assert row["blended_rate"] == pytest.approx(pkm.rechenkern().verkaufssatz(pkm.lade_mandant(), "engineer_nearshore"), abs=0.01)
 
 
 def test_blocked_alternative_is_refused(tmp_path, tenant_dir):

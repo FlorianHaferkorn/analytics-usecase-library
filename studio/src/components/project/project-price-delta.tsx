@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
-import type { PriceDelta, PriceTotals } from '@/lib/bridge/project-price';
+import type { PriceBandRow, PriceDelta, PriceTotals } from '@/lib/bridge/project-price';
 import styles from './project-alternative-impact.module.css';
 
 const ROWS: Array<[keyof PriceTotals, string]> = [
@@ -48,6 +48,13 @@ export function ProjectPriceDelta({ projectId, revisionHash, decisionRef, option
   const money = new Intl.NumberFormat('en-GB', { style: 'currency', currency: result.currency ?? 'EUR', maximumFractionDigits: 0 });
   const signed = (value: number) => `${value > 0 ? '+' : ''}${money.format(value)}`;
   const unpriced = [...baseline.unpriced, ...alternative.unpriced];
+  const band = (value?: [number, number]) => value ? `${money.format(value[0])} \u2013 ${money.format(value[1])}` : '\u2013';
+  const tmBase = baseline.time_and_material ?? [];
+  const tmAlt = alternative.time_and_material ?? [];
+  const tmRefs = [...new Set([...tmBase, ...tmAlt].map(row => row.work_package_ref))];
+  const tmCell = (row?: PriceBandRow) => row
+    ? `${band(row.price_band)} (${row.hours_band[0]}\u2013${row.hours_band[1]} h at ${money.format(row.blended_rate)}/h)`
+    : '\u2013';
   return <div className={styles.stack}>
     <table className={styles.parts}>
       <caption>Cost and price · accepted baseline → alternative ({alternative.priced_packages} priced packages)</caption>
@@ -56,6 +63,20 @@ export function ProjectPriceDelta({ projectId, revisionHash, decisionRef, option
         <td>{text}</td><td>{money.format(baseline.totals[key])}</td><td>{money.format(alternative.totals[key])}</td><td>{signed(delta[key])}</td>
       </tr>)}</tbody>
     </table>
+    {tmRefs.length > 0 && <StudioPanel title="Time and material (band, not in the totals above)">
+      <table className={styles.parts}>
+        <caption>Price band per sprint scope from hours band and blended rate</caption>
+        <thead><tr><th scope="col">Package</th><th scope="col">Baseline</th><th scope="col">Alternative</th></tr></thead>
+        <tbody>
+          {tmRefs.map(ref => <tr key={ref}>
+            <td>{ref.replaceAll('_', ' ')}</td>
+            <td>{tmCell(tmBase.find(row => row.work_package_ref === ref))}</td>
+            <td>{tmCell(tmAlt.find(row => row.work_package_ref === ref))}</td>
+          </tr>)}
+          <tr><td>Band total</td><td>{band(baseline.time_and_material_price_band)}</td><td>{band(alternative.time_and_material_price_band)}</td></tr>
+        </tbody>
+      </table>
+    </StudioPanel>}
     {!result.comparable && <p className={styles.note}>Not fully comparable: the two sides price different packages or some packages are unpriced.</p>}
     {unpriced.length > 0 && <StudioPanel title="Not priced">
       <ul className={styles.list}>{unpriced.map((row, index) => <li key={`${row.work_package_ref}-${index}`}><strong>{row.work_package_ref.replaceAll('_', ' ')}</strong><span>{row.reason}</span></li>)}</ul>
