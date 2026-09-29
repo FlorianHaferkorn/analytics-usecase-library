@@ -93,10 +93,11 @@ def test_tables_carry_showcase_and_column_specs():
 
 def test_one_entry_per_table_name():
     """Bus-Matrix (29.09.2026): a conformed table is defined once; references only add a domain.
-    Measured before the change: 139 entries under 108 names, 8 names with differing specs."""
+    Measured before the change: 139 entries under 108 names, 8 names with differing specs.
+    109 since 29.09.2026: fact_safety_incidents (incident grain) split off fact_safety."""
     tables = _load_tables(REPO / "core" / "data_contracts" / "domains")
     names = [t["name"] for t in tables]
-    assert len(names) == len(set(names)) == 108
+    assert len(names) == len(set(names)) == 109
     by_name = {t["name"]: t for t in tables}
     for t in tables:
         assert t["domain"] in t["domains"] and t["domains"] == sorted(set(t["domains"]))
@@ -104,7 +105,8 @@ def test_one_entry_per_table_name():
     assert by_name["fact_nps"]["domain"] == "experience"
     assert by_name["fact_inventory"]["domain"] == "supply_chain"
     assert by_name["fact_safety"]["domain"] == "esg"
-    assert sum(len(t["domains"]) for t in tables) == 139       # Bus-Matrix: every use still listed
+    assert by_name["fact_safety_incidents"]["domains"] == ["operations"]
+    assert sum(len(t["domains"]) for t in tables) == 140       # Bus-Matrix: every use still listed (139 + fact_safety_incidents)
 
 
 def test_conformed_reference_adds_domain_not_entry(tmp_path):

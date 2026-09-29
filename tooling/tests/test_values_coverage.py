@@ -45,9 +45,12 @@ def test_enumerable_classification():
 
 def test_commercial_safe_fills_are_covered():
     cov = domain_coverage("Commercial", _CONTRACTS)
-    for loc in ("dim_org.Region", "dim_org.Channel", "dim_date.Quarter",
+    for loc in ("dim_org.Region", "dim_org.Channel",
                 "dim_customer.Channel", "dim_customer.Region"):
         assert loc in cov.covered, f"{loc} should carry allowed_values"
+    # dim_date.Quarter is int 1-4 since 29.09.2026 (Aurora gold is INTEGER), a range check,
+    # not a value list: non-text columns are not enumerable
+    assert "dim_date.Quarter" not in cov.covered
 
 
 def test_commercial_is_fully_enumerated():
@@ -58,7 +61,8 @@ def test_commercial_is_fully_enumerated():
     # + 7 gold columns the Commercial model reads, taken into the contract with A-23 (values
     # measured on Aurora gold 29.09.2026): dim_org OrgLevel/OrgType/IssueType/Severity,
     # dim_product Lifecycle Status, dim_customer Channel Preference/Tenure Bucket
-    assert cov.enumerable == 22 and len(cov.covered) == 22
+    # - dim_date.Quarter, int since 29.09.2026 (A-25)
+    assert cov.enumerable == 21 and len(cov.covered) == 21
     for loc in ("dim_product.Category", "dim_product.Subcategory", "dim_customer.Segment",
                 "dim_promo.Promo Type", "dim_promo.Promo Mechanic"):
         assert loc in cov.covered

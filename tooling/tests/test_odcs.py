@@ -309,13 +309,14 @@ def test_catalog_table_names_are_unique():
     name-keyed consumer — ``to_odcs`` here, Meridian's ``_katalog_tabelle`` for
     ``emit_dq_gates``/``emit_mlv`` — saw only the first entry. Bus-Matrix since then: one definition
     per table, the other domains refer (``conformed_from``); zero collisions, and the validator
-    rejects a second definition."""
+    rejects a second definition. 109 since 29.09.2026: fact_safety_incidents (incident grain)
+    split off the monthly fact_safety snapshot."""
     full = build_governed_catalog(REPO)
     by_name: dict[str, list[dict]] = {}
     for t in full["tables"]:
         by_name.setdefault(t["name"], []).append(t)
     colliding = sorted(n for n, ts in by_name.items() if len(ts) > 1)
-    assert (len(full["tables"]), len(by_name)) == (108, 108)
+    assert (len(full["tables"]), len(by_name)) == (109, 109)
     assert colliding == []
 
 

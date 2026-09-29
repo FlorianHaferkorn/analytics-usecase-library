@@ -170,7 +170,23 @@ fact:
 
   - name: fact_safety
     conformed_from: esg   # einzige Definition dort (Bus-Matrix, 29.09.2026)
-    uses_columns: [DateKey, OrgKey, Incident Count, Severity, Lost Time Injury Flag]
+    uses_columns: [DateKey, OrgKey, Incident Count]
+
+  # Transaktions-Fakt je Vorfall (Kimball: Merkmale je Vorfall gehören nicht in den Monats-
+  # Snapshot fact_safety). Severity und Lost Time Injury Flag standen bis 29.09.2026 in
+  # fact_safety (Korn site_month). Den Tabellennamen nennt der DAX-Platzhalter von
+  # 'Safety Incident Count' im Operations-Modell. Weder Gold noch Modell führen ihn.
+  - name: fact_safety_incidents
+    showcase: false
+    description: "One row per recorded workplace safety incident (severity, lost-time flag)."
+    purpose: "Incident-level safety analysis (severity mix, lost-time share); feeds the monthly fact_safety snapshot."
+    grain: incident
+    columns:
+      - {name: IncidentID, type: text, role: key}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: Severity, type: text, nullable: true}
+      - {name: Lost Time Injury Flag, type: boolean, nullable: true}
 
   # Aus Gold und Modell nachgezogen (A-23, 29.09.2026). Reorder Flag liest das Operations-Modell,
   # Gold hat es noch nicht (A-24, Generator zieht nach).
