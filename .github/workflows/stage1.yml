@@ -43,6 +43,9 @@ jobs:
     # runner. Wall-clock is a few seconds longer; runner-minutes are lower.
     name: Python checks + report bindings
     runs-on: ubuntu-latest
+    # Cap a hung run. Default is 360 min of billed runner time; the suite takes ~12.5 min
+    # serial locally (745 s), a few minutes with xdist — 30 leaves headroom for cold caches.
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,6 +54,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          # The package list lives inline in "Install dependencies" below, so the cache
+          # key hashes this workflow file: edit the list and the key changes with it.
+          # Saves the pyarrow/pandas/vl-convert wheel downloads on every run.
+          cache: "pip"
+          cache-dependency-path: .github/workflows/stage1.yml
 
       - name: Index drift-gate (_INDEX.md completeness)
         run: python3 scripts/check_index.py --strict
@@ -92,10 +100,15 @@ jobs:
           # sammelt nur die `testpaths` der pyproject.toml, und `tooling/visual_library/tests`
           # stand dort seit dem 10.08. nicht drin (gemessen: 0 gesammelt, danach 105).
           # pillow: sechs visreg-Tests haengen daran; ohne es uebersprungen, mit es 6 passed.
-          pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow
+          # pytest-xdist: `-n auto` below. Gemessen 29.09.2026, 4 Kerne, gleiche venv mit
+          # genau dieser Paketliste: seriell 3326 passed / 26 skipped in 790 s, `-n auto`
+          # 3326 passed / 26 skipped in 218 s, identische Skip-Menge. Ein Einzellauf je
+          # Modus belegt keinen Determinismus; ein Reihenfolge-Fehler zeigt sich als rot
+          # nur unter -n — dann lokal seriell gegenstellen.
+          pip install pyyaml jsonschema pytest pytest-xdist typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow
 
       - name: Run tests
-        run: python -m pytest --tb=short -q
+        run: python -m pytest -n auto --tb=short -q
 
       - name: Report quality gate (0 criticals)
         run: |
@@ -121,6 +134,13 @@ jobs:
     # (incl. this job) runs the moment the PR is marked ready for review, and it
     # always runs on push to main. Local `run_quality_gate.ps1` covers drafts.
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
+    # Cap a hung run (default 360 min, billed at 2x on Windows).
+    timeout-minutes: 45
+    env:
+      # Point the `py` launcher at the same minor version actions/setup-python installs,
+      # so `py -3` (run_stage1_checks.ps1) and `python` (other gate scripts) agree.
+      PY_PYTHON: "3.11"
+      PY_PYTHON3: "3.11"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -148,26 +168,38 @@ jobs:
         run: npm ci
         working-directory: tooling/validation
 
-      - name: Install Stage 1 Python validation dependencies
-        # run_stage1_checks.ps1 runs the Python checks via the `py -3` launcher
-        # (to dodge the Windows Store `python` alias), which can resolve to a
-        # different interpreter than actions/setup-python. Install the deps into
-        # BOTH so the interpreter that actually runs the checks has them.
+      - name: Install Python dependencies (once, into the interpreter the gates use)
+        # run_stage1_checks.ps1 prefers the `py -3` launcher (to dodge the Windows Store
+        # `python` alias); other gate scripts call `python`. Formerly every requirements
+        # file was installed twice, into both, because they could resolve to different
+        # interpreters. Now: ask both which interpreter they are, install once, and only
+        # install a second time if they really differ (logged as a warning, so the first
+        # real runner measures whether the launcher pin above suffices).
+        shell: pwsh
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r tooling/validation/requirements-data-contracts.txt
-          py -3 -m pip install --upgrade pip
-          py -3 -m pip install -r tooling/validation/requirements-data-contracts.txt
-
-      - name: Install Fabric check dependencies
-        run: |
-          python -m pip install -r products/fabric/powerbi/tooling/requirements-fabric-checks.txt
-          py -3 -m pip install -r products/fabric/powerbi/tooling/requirements-fabric-checks.txt
-
-      - name: Install test dependencies
-        run: |
-          python -m pip install -r tooling/tests/requirements.txt
-          py -3 -m pip install -r tooling/tests/requirements.txt
+          $reqs = @(
+            '-r', 'tooling/validation/requirements-data-contracts.txt',
+            '-r', 'products/fabric/powerbi/tooling/requirements-fabric-checks.txt',
+            '-r', 'tooling/tests/requirements.txt'
+          )
+          $pythonExe = (& python -c "import sys; print(sys.executable)").Trim()
+          $launcherExe = $null
+          try { $launcherExe = (& py -3 -c "import sys; print(sys.executable)" 2>$null | Select-Object -First 1) } catch { }
+          if ($launcherExe) { $launcherExe = $launcherExe.Trim() }
+          Write-Host "python -> $pythonExe"
+          Write-Host "py -3  -> $launcherExe"
+          $targets = @(,@('python'))
+          if ($launcherExe -and ($launcherExe -ne $pythonExe)) {
+            Write-Warning "py -3 resolves to a different interpreter; installing into both."
+            $targets += ,@('py', '-3')
+          }
+          foreach ($t in $targets) {
+            $exe = $t[0]; $pre = @($t | Select-Object -Skip 1)
+            & $exe @pre -m pip install --upgrade pip
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $exe @pre -m pip install @reqs
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
 
       - name: Install PowerShell modules
         shell: pwsh

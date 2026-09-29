@@ -33,6 +33,8 @@ jobs:
   discover-schemas:
     name: Schema & Source Discovery
     runs-on: ubuntu-latest
+    # Cap a hung run (default 360 min); network discovery only.
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4

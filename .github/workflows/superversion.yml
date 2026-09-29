@@ -47,6 +47,8 @@ jobs:
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     name: superversion (adapter tests + drift-gate)
     runs-on: ubuntu-latest
+    # Cap a hung run (default 360 min).
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,6 +57,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          # Packages are listed inline below, so the cache key hashes this workflow file.
+          cache: "pip"
+          cache-dependency-path: .github/workflows/superversion.yml
 
       - name: Index drift-gate (_INDEX.md completeness)
         run: python scripts/check_index.py --strict
