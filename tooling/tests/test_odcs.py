@@ -22,7 +22,6 @@ from tooling.generator.export_governed_catalog import SPEC_KEYS, build_governed_
 from tooling.superversion.architecture_blueprint import derive_blueprint
 from tooling.superversion.odcs import (
     ODCS_API_VERSION,
-    ODCS_API_VERSION_SPALTEN,
     emit_odcs,
     emit_odcs_ingestion,
     from_odcs,
@@ -84,6 +83,7 @@ def test_emit_odcs_yaml_is_valid_and_parses():
     assert parsed["dataProduct"] == "Commercial"
     assert validate_odcs(parsed) == []
     assert emit_odcs(_bp()) == emit_odcs(_bp())
+    assert f"Standard {ODCS_API_VERSION}" in files["contracts/odcs/_CONTRACTS.md"]
 
 
 def test_validate_flags_schema_violations():
@@ -137,6 +137,29 @@ def test_odcs_ingestion_handover_boundary_contract():
     cps = {p["property"]: p["value"] for p in contracts[0]["customProperties"]}
     assert cps["connector"] == "mirroring" and cps["handover_layer"] == "conformed"
     assert "contracts/odcs/handover/s4hana-sd.handover.odcs.yaml" in emit_odcs_ingestion(bp)
+    assert contracts[0]["apiVersion"] == ODCS_API_VERSION
+    srv = contracts[0]["servers"][0]
+    assert srv["type"] == "custom" and srv["host"] == "SAP S/4HANA SD"      # v3.1: host only on custom
+    assert srv["customProperties"] == [{"property": "serverTypeHint", "value": "sap"}]
+
+
+def test_handover_server_is_always_custom_with_type_hint():
+    """Meridian D-584: `sap`/`odbc` are not in the ODCS v3.1 server-type enum, `api`/`azure` need
+    fields the handover does not know — every connector yields `type: custom` + `serverTypeHint`."""
+    from tooling.superversion.odcs import _CONNECTOR_SERVER_TYPE
+    for conn in sorted(_CONNECTOR_SERVER_TYPE) + ["nicht-gelistet", None]:
+        bp = {"platform": {"stack": "fabric"},
+              "ingestion": [{"source": f"src_{conn}", "connector": conn, "handover_layer": "raw",
+                             "access_mode": "copy", "source_system": "SAP S/4HANA"}]}
+        (c,) = to_odcs_ingestion(bp)
+        srv = c["servers"][0]
+        assert srv["type"] == "custom", conn
+        assert c["apiVersion"] == ODCS_API_VERSION and validate_odcs(c) == [], conn
+        hint = _CONNECTOR_SERVER_TYPE.get(conn, "custom")
+        expected = [] if hint == "custom" else [{"property": "serverTypeHint", "value": hint}]
+        assert srv.get("customProperties", []) == expected, conn
+    index = emit_odcs_ingestion(bp)["contracts/odcs/handover/_HANDOVER_CONTRACTS.md"]
+    assert f"Standard {ODCS_API_VERSION}" in index
 
 
 def test_odcs_to_catalog_bridges_contract_to_catalog_shape():
@@ -192,7 +215,7 @@ BP = {
 
 def test_column_specs_round_trip_is_lossless():
     contracts = to_odcs(BP, GC)
-    assert contracts[0]["apiVersion"] == ODCS_API_VERSION_SPALTEN
+    assert contracts[0]["apiVersion"] == ODCS_API_VERSION == "v3.1.0"   # eine Version (D-584)
     assert validate_odcs(contracts[0]) == []
     back = {t["name"]: t for t in odcs_to_catalog(contracts)["tables"]}
     for t in GC["tables"]:
@@ -214,7 +237,7 @@ def test_column_specs_use_the_official_odcs_expressions():
     assert "quality" not in props["Margin"]                  # Zielbild: getragen, nicht ausfuehrbar
 
 
-def test_without_catalog_stays_v300_and_needs_no_mirror(monkeypatch):
+def test_without_catalog_needs_no_mirror_and_carries_the_one_version(monkeypatch):
     import tooling.superversion.odcs as odcs_mod
 
     def _boom():
@@ -271,7 +294,7 @@ def test_real_contracts_round_trip_through_odcs():
     for dom, gc, bp in catalogs:
         contracts = to_odcs(bp, gc)
         assert len(contracts) == 1
-        assert contracts[0]["apiVersion"] == ODCS_API_VERSION_SPALTEN, dom
+        assert contracts[0]["apiVersion"] == ODCS_API_VERSION, dom
         assert validate_odcs(contracts[0]) == [], dom
         assert yaml.safe_load(yaml.safe_dump(contracts[0], sort_keys=False,
                                              allow_unicode=True)) == contracts[0]
