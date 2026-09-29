@@ -266,11 +266,13 @@ Examples:
         help="Service principal client ID (or set CLIENT_ID env var)"
     )
     
+    # Geheimnis nur ueber die Umgebung (CLIENT_SECRET / AZURE_CLIENT_SECRET); das
+    # Argument ist nur noch deklariert, um einen alten Aufruf laut abzulehnen.
     parser.add_argument(
         "--client_secret",
         required=False,
-        default=os.environ.get('CLIENT_SECRET'),
-        help="Service principal client secret (or set CLIENT_SECRET env var)"
+        default=None,
+        help=argparse.SUPPRESS
     )
 
     parser.add_argument(
@@ -323,7 +325,8 @@ Examples:
     # both spellings so the two sides cannot drift apart again.
     args.tenant_id = args.tenant_id or os.environ.get('AZURE_TENANT_ID')
     args.client_id = args.client_id or os.environ.get('AZURE_CLIENT_ID')
-    args.client_secret = args.client_secret or os.environ.get('AZURE_CLIENT_SECRET')
+    args.client_secret = fabcli.secret_from_environment(
+        args.client_secret, "--client_secret", "CLIENT_SECRET", "AZURE_CLIENT_SECRET")
 
     # A dry run with a known workspace ID needs no Fabric call at all — it only resolves
     # directories — so it must stay runnable without credentials (that is what makes it
@@ -333,7 +336,8 @@ Examples:
     # Validate required arguments
     if not offline_dry_run and (not args.tenant_id or not args.client_id or not args.client_secret):
         misc.print_error("Error: tenant_id, client_id, and client_secret are required")
-        misc.print_info("Set them as arguments or environment variables "
+        misc.print_info("Set tenant/client ID as arguments or environment variables, the secret "
+                        "only as environment variable "
                         "(TENANT_ID/CLIENT_ID/CLIENT_SECRET or AZURE_TENANT_ID/AZURE_CLIENT_ID/AZURE_CLIENT_SECRET)")
         sys.exit(1)
 
@@ -362,12 +366,9 @@ Examples:
         # Authenticate with Fabric CLI (for workspace lookup)
         misc.print_header("Authenticating with Fabric")
         fabcli.run_command("config set encryption_fallback_enabled true")
-        auth_result = fabcli.run_command(
-            f"auth login -u {args.client_id} -p {args.client_secret} --tenant {args.tenant_id}"
-        )
-
-        if "error" in auth_result.lower() or "failed" in auth_result.lower():
-            misc.print_error(f"Authentication failed: {auth_result}")
+        # Geheimnis ueber die Umgebung der fab-Aufrufe, nie als `-p` in argv.
+        if not fabcli.login_service_principal(args.tenant_id, args.client_id, args.client_secret):
+            misc.print_error("Authentication failed: fab auth status meldet keine Anmeldung")
             sys.exit(1)
 
         misc.print_success("Authentication successful")
