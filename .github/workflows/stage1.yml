@@ -107,8 +107,27 @@ jobs:
           # nur unter -n — dann lokal seriell gegenstellen.
           pip install pyyaml jsonschema pytest pytest-xdist typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow
 
+      # Meridian D-578 (29.09.2026): die Aurora-Showdaten (Parquet + _delta_log, 605 MB aktiv)
+      # liegen nicht mehr in Git, sondern als Release-Archiv; showdaten.lock.json haelt Tag
+      # und SHA-256. Solange der Release laut Lock nicht veroeffentlicht ist, meldet `holen
+      # --ci` eine Warnung, und die datenabhaengigen Tests stehen mit „nicht gelaufen: …" im
+      # Skip-Grund (-rs) -- nicht als gruen. Der Cache spart den Download je Lauf.
+      - name: Showdaten-Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            showcases/aurora_group/data/gold/dimensions
+            showcases/aurora_group/data/gold/facts
+            showcases/aurora_group/data/gold/security_user_org
+          key: showdaten-${{ hashFiles('showcases/aurora_group/data/showdaten.lock.json') }}
+
+      - name: Showdaten holen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python showcases/aurora_group/data/showdaten.py holen --ci
+
       - name: Run tests
-        run: python -m pytest -n auto --tb=short -q
+        run: python -m pytest -n auto --tb=short -q -rs
 
       - name: Report quality gate (0 criticals)
         run: |

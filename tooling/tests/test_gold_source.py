@@ -18,6 +18,13 @@ if str(REPO) not in sys.path:
 
 from tooling.codegen import gold_source as gs  # noqa: E402
 
+# Meridian D-578 (29.09.2026): die Showdaten liegen nicht mehr in Git. Tests, die sie lesen,
+# stehen ohne sie mit "nicht gelaufen: ... holen mit ..." im Skip-Grund, nicht gruen.
+from showcases.aurora_group.data import showdaten  # noqa: E402
+
+braucht_showdaten = showdaten.pytest_markierung()
+
+
 MODELLE = sorted(gs.DIST.glob("*.SemanticModel"))
 
 
@@ -64,6 +71,7 @@ def test_an_unknown_function_shape_is_refused_not_guessed():
         gs.soll("X", "expression fn_DeltaCurrentFiles =\n\t\tAllFiles = Sonstwas(),\n")
 
 
+@braucht_showdaten
 def test_every_table_a_model_reads_exists_in_gold():
     """Die Scheibe schneidet alle Gold-Tabellen; fehlt eine im Gold, fehlt sie im Sandbox."""
     gold = REPO / "showcases" / "aurora_group" / "data" / "gold"
@@ -130,6 +138,7 @@ def _quellspalten_ohne_gold() -> set[tuple[str, str, str]]:
     return fehlt
 
 
+@braucht_showdaten
 def test_every_source_column_exists_in_gold_or_is_a_known_gap():
     fehlt = _quellspalten_ohne_gold()
     assert sorted(fehlt - BEKANNTE_LUECKEN) == [], "neue Luecke zwischen Modell und Gold"

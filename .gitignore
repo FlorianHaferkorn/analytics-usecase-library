@@ -155,3 +155,10 @@ studio/.e2e/
 # Arbeitsordner der agentischen Schleife (AP-9): Manifest, PBIP-Kopien, Seitenbilder, befunde.json.
 # Ins Repo kommt davon nur, was bewusst uebernommen wird (Plan §5), nie der ganze Lauf.
 /out/agentic_loop/
+
+# Aurora-Showdaten (Meridian D-578, 29.09.2026): Parquet + _delta_log liegen nicht in Git,
+# sondern in einem Release-Archiv. Holen: python showcases/aurora_group/data/showdaten.py holen
+# Nur die drei Datenordner -- Generatoren, READMEs und showdaten.lock.json bleiben versioniert.
+/showcases/aurora_group/data/gold/dimensions/
+/showcases/aurora_group/data/gold/facts/
+/showcases/aurora_group/data/gold/security_user_org/

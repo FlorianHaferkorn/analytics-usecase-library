@@ -108,6 +108,16 @@ def check(root: str = ".") -> int:
                 print(f"     physical parquet not referenced (likely the renamed file):")
                 for o in orphans:
                     print(f"       - {o}")
+    if tables == 0:
+        # Seit D-578 (29.09.2026) liegen die Showdaten nicht mehr in Git. Null Tabellen ist
+        # dann kein „OK — 0 consistent", sondern ein Gate, das nichts zu pruefen hatte.
+        print(
+            "NICHT GELAUFEN — keine Showcase-Delta-Tabelle unter "
+            f"{GOLD_GLOB} gefunden (Showdaten fehlen). Holen: "
+            "python showcases/aurora_group/data/showdaten.py holen",
+            file=sys.stderr,
+        )
+        return 2
     if problems:
         print(
             f"\n{problems} Delta table(s) inconsistent — physical parquet does not match "

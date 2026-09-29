@@ -17,6 +17,13 @@ if str(REPO_ROOT) not in sys.path:
 
 from tooling.codegen import comparison_measures as cm  # noqa: E402
 
+# Meridian D-578 (29.09.2026): die Showdaten liegen nicht mehr in Git. Tests, die sie lesen,
+# stehen ohne sie mit "nicht gelaufen: ... holen mit ..." im Skip-Grund, nicht gruen.
+from showcases.aurora_group.data import showdaten  # noqa: E402
+
+braucht_showdaten = showdaten.pytest_markierung()
+
+
 
 def test_models_carry_exactly_the_generated_comparison_layer():
     drift, luecken = cm.pruefe()
@@ -74,6 +81,7 @@ def test_the_trend_draws_its_declared_target():
     assert ys == ["Overall Equipment Effectiveness (OEE) %", "Overall Equipment Effectiveness (OEE) % Target"]
 
 
+@braucht_showdaten
 def test_target_values_are_empty_in_the_demo_on_purpose():
     import pyarrow.parquet as pq
     files = list((REPO_ROOT / "showcases/aurora_group/data/gold/facts/fact_target").glob("*.parquet"))

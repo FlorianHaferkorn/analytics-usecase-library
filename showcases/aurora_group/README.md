@@ -32,7 +32,7 @@ aurora_group/
 Can someone take a framework use case, use Aurora’s data (and a tool’s semantic model/report), and get the promised KPIs and data-driven decisions?
 
 - **Stage 1 green** — `.\tooling\run_stage1_checks.ps1`
-- **Aurora data** — Gold under `showcases/aurora_group/data/gold/`
+- **Aurora data** — Gold under `showcases/aurora_group/data/gold/`. Seit 29.09.2026 (D-578) nicht mehr in Git: `python showcases/aurora_group/data/showdaten.py holen` stellt sie her (Details `data/scripts/README.md`)
 - **Open PBIP** — Semantic model and reports from `products/fabric/powerbi/dist/` (see Fabric docs for how to run the pipeline and open reports)
 
 **How to run the pipeline and verify:** See `products/fabric/powerbi/docs/DEMO_AND_VERIFICATION.md`.
@@ -40,7 +40,7 @@ Can someone take a framework use case, use Aurora’s data (and a tool’s seman
 ## How to use Aurora
 
 - Start with `company/Aurora_Group_Profile.md` and `company/Aurora_Operating_Model.md`.
-- Generate gold data from repo root (see `data/scripts/README.md`). Point the Fabric semantic model/dataset to this path (or deployed equivalent).
+- Get the gold data with `python showcases/aurora_group/data/showdaten.py holen` (release archive, SHA-256-checked); the generators in `data/scripts/README.md` produce a *new* dataset, not the published one. Point the Fabric semantic model/dataset to this path (or deployed equivalent).
 - Align use cases with canonical factsheets in `core/usecases/core/`.
 - Feed real KPI numbers into ActionReady Studio: run `python showcases/aurora_group/data/build_kpi_snapshot.py`. It aggregates the gold facts (DuckDB over the partitioned parquet) into `studio/data/aurora_kpi_snapshot.json`, keyed by `kpi_id`. Studio's report builder hydrates KPI cards, trends, and waterfalls from this snapshot, so exports show governed Aurora values instead of stub zeros. Regenerate after the gold data changes.
 
