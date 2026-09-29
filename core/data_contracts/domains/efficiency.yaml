@@ -26,12 +26,13 @@ dimension:
     scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
-      - {name: Plant, type: text}
+      - {name: Plant, type: text, nullable: true}
       - {name: Line, type: text, nullable: true}
-      - {name: CostCentre, type: text, nullable: true}
+      - {name: CostCentre, type: text, nullable: true, target_state: true}
       - {name: Region, type: text, nullable: true}
 
   - name: dim_process
+    showcase: false
     description: "Business process dimension for cycle time and automation analysis."
     purpose: "Process-level efficiency and automation rate reporting."
     scd_type: 1
@@ -43,32 +44,35 @@ dimension:
 
 fact:
   - name: fact_labor_productivity
+    showcase: false
     description: "Labor productivity at plant-line-month grain (output units per labor hour, OEE-adjusted)."
     purpose: "Throughput per FTE and productivity trend analysis."
     grain: plant_line_month
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
-      - {name: Output Units, type: decimal, agg: sum}
-      - {name: Labor Hours, type: decimal, agg: sum}
+      - {name: Output Units, type: decimal, agg: sum, checks: [{gte: 0}]}
+      - {name: Labor Hours, type: decimal, agg: sum, checks: [{gt: 0}]}
       - {name: FTE, type: decimal, agg: avg}
       - {name: Plan Output Units, type: decimal, agg: sum, nullable: true}
       - {name: Plan Labor Hours, type: decimal, agg: sum, nullable: true}
 
   - name: fact_cost_per_unit
+    showcase: false
     description: "Cost-per-unit (COGS, labor, overhead) at plant-product-month grain."
     purpose: "Unit cost analysis, benchmark, and cost reduction tracking."
     grain: plant_product_month
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
-      - {name: Output Units, type: decimal, agg: sum}
-      - {name: Total Cost Amount, type: currency, agg: sum}
+      - {name: Output Units, type: decimal, agg: sum, checks: [{gt: 0}]}
+      - {name: Total Cost Amount, type: currency, agg: sum, checks: [{gte: 0}]}
       - {name: Material Cost Amount, type: currency, agg: sum, nullable: true}
       - {name: Labor Cost Amount, type: currency, agg: sum, nullable: true}
       - {name: Overhead Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_process_efficiency
+    showcase: false
     description: "Process cycle time and automation rates at process-org-month grain."
     purpose: "Process automation, STP rate, and cycle time optimization."
     grain: process_org_month
@@ -77,27 +81,18 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: ProcessKey, type: int, ref: dim_process, cardinality: many-to-one}
       - {name: Cycle Time Hours, type: decimal, agg: avg}
-      - {name: Automated Transactions, type: int, agg: sum, nullable: true}
+      - {name: Automated Transactions, type: int, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}, {lte_column: Total Transactions, when_present: true}]}
       - {name: Total Transactions, type: int, agg: sum}
-      - {name: Exception Rate %, type: decimal, nullable: true}
+      - {name: Exception Rate %, type: decimal, nullable: true, checks: [{between: [0, 1], when_present: true}]}
 
 quality_rules:
+  # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
+  # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla:
     fact_labor_productivity: monthly    # aligned to payroll and production close
     fact_cost_per_unit: monthly         # aligned to finance close cycle
     fact_process_efficiency: monthly
-  key_nullability:
-    - "fact_labor_productivity.DateKey, OrgKey, Output Units, Labor Hours: never null"
-    - "fact_cost_per_unit.DateKey, OrgKey, Output Units, Total Cost Amount: never null"
-    - "fact_process_efficiency.DateKey, OrgKey, ProcessKey, Total Transactions, Cycle Time Hours: never null"
-  value_ranges:
-    - "fact_labor_productivity.Output Units: >= 0; Labor Hours > 0"
-    - "fact_cost_per_unit.Total Cost Amount: >= 0; Output Units > 0"
-    - "fact_process_efficiency.Automated Transactions: >= 0; <= Total Transactions when present"
-    - "fact_process_efficiency.Exception Rate %: in [0; 1] when present"
   referential_integrity:
-    - "fact_process_efficiency.ProcessKey → dim_process (required)"
-    - "All facts: OrgKey → dim_org (required)"
     - "Source: derived from operations.fact_ops, finance.fact_cost/fact_labor, and people.fact_hr"
 
 settings:

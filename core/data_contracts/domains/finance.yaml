@@ -14,6 +14,7 @@ dimension:
       - {name: Quarter, type: text, allowed_values: [Q1, Q2, Q3, Q4]}
       - {name: Month, type: text}
       - {name: MonthNumber, type: int}
+      - {name: CalendarYearMonth, type: text}
 
   - name: dim_org
     description: "Entity/organization dimension (entity, region, country) for finance."
@@ -36,6 +37,7 @@ dimension:
       - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Territory, Vertriebsregion]}
 
   - name: dim_supplier
+    showcase: false
     description: "Supplier dimension for AP and procurement attribution."
     purpose: "Supplier-level payables and COGS."
     scd_type: 2
@@ -56,6 +58,7 @@ dimension:
       - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics], synonyms: [Product Group, Warengruppe, Produktgruppe]}
 
   - name: dim_cost_category
+    showcase: false
     description: "Cost-category dimension for activity-based costing and variance decomposition."
     purpose: "ABC/causal overhead attribution and price/usage/volume/mix variance decomposition."
     scd_type: 1
@@ -110,11 +113,11 @@ fact:
       - {name: CustomerKey, type: int, ref: dim_customer, nullable: true, cardinality: many-to-one}
       - {name: AR Amount, type: currency, agg: sum}
       - {name: Revenue Amount, type: currency, agg: sum}
-      - {name: Overdue AR Amount, type: currency, agg: sum, nullable: true}
-      - {name: AR 0-30 Days Amount, type: currency, agg: sum, nullable: true}
-      - {name: AR 31-60 Days Amount, type: currency, agg: sum, nullable: true}
-      - {name: AR 61-90 Days Amount, type: currency, agg: sum, nullable: true}
-      - {name: AR Over 90 Days Amount, type: currency, agg: sum, nullable: true}
+      - {name: Overdue AR Amount, type: currency, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}], target_state: true}
+      - {name: AR 0-30 Days Amount, type: currency, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}], target_state: true}
+      - {name: AR 31-60 Days Amount, type: currency, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}], target_state: true}
+      - {name: AR 61-90 Days Amount, type: currency, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}], target_state: true}
+      - {name: AR Over 90 Days Amount, type: currency, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}], target_state: true}
 
   - name: fact_accounts_payable
     description: "Accounts payable and COGS by entity and supplier per month."
@@ -180,13 +183,13 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
-      - {name: CostCategoryKey, type: int, ref: dim_cost_category, nullable: true, cardinality: many-to-one}
-      - {name: COGS Amount, type: currency, agg: sum}
+      - {name: CostCategoryKey, type: int, ref: dim_cost_category, nullable: true, cardinality: many-to-one, target_state: true}
+      - {name: COGS Amount, type: currency, agg: sum, checks: [{gte: 0}]}
       - {name: Material Cost Amount, type: currency, agg: sum, nullable: true}
       - {name: Overhead Amount, type: currency, agg: sum, nullable: true}
-      - {name: Actual Cost Amount, type: currency, agg: sum}
-      - {name: Standard Cost Amount, type: currency, agg: sum, nullable: true}
-      - {name: Plan/Budget Cost Amount, type: currency, agg: sum, nullable: true}
+      - {name: Actual Cost Amount, type: currency, agg: sum, checks: [{gte: 0}], target_state: true}
+      - {name: Standard Cost Amount, type: currency, agg: sum, nullable: true, target_state: true}
+      - {name: Plan/Budget Cost Amount, type: currency, agg: sum, nullable: true, target_state: true}
 
   - name: fact_output
     description: "Output units per plant-line-product-month."
@@ -196,9 +199,9 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
-      - {name: Output Units, type: decimal, agg: sum}
-      - {name: Good Units, type: decimal, agg: sum}
-      - {name: Defect Count, type: decimal, agg: sum}
+      - {name: Output Units, type: decimal, agg: sum, checks: [{gte: 0}]}
+      - {name: Good Units, type: decimal, agg: sum, checks: [{gte: 0}, {lte_column: Output Units}]}
+      - {name: Defect Count, type: decimal, agg: sum, checks: [{gte: 0}]}
 
   - name: fact_labor
     description: "Labor hours and cost per plant-line-month."
@@ -207,9 +210,24 @@ fact:
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
-      - {name: Labor Hours, type: decimal, agg: sum}
+      - {name: Labor Hours, type: decimal, agg: sum, checks: [{gte: 0}]}
+
+  # Aus Gold und Modell nachgezogen (A-23, 29.09.2026); das Finance-Modell führt die Tabelle.
+  - name: fact_supplier_risk
+    description: "Daily supplier risk scores (overall, delivery, quality, financial) per supplier."
+    purpose: "Supplier risk monitoring (KPI scm.supplier_risk.score)."
+    grain: supplier_day
+    columns:
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: SupplierKey, type: int, ref: dim_supplier, cardinality: many-to-one}
+      - {name: Risk Score, type: decimal, agg: avg}
+      - {name: Delivery Risk Score, type: decimal, agg: avg}
+      - {name: Quality Risk Score, type: decimal, agg: avg}
+      - {name: Financial Risk Score, type: decimal, agg: avg}
 
 quality_rules:
+  # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
+  # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla:
     fact_cash_position: daily           # treasury reconciled daily
     fact_cash_flow: monthly             # within 3 business days of month close
@@ -219,30 +237,12 @@ quality_rules:
     fact_cost: monthly
     fact_output: daily
     fact_labor: monthly
-  key_nullability:
-    - "fact_cash_position.DateKey, OrgKey, Cash Balance Amount: never null"
-    - "fact_accounts_receivable.AR Amount, Revenue Amount: never null"
-    - "fact_accounts_payable.AP Amount, COGS Amount: never null"
-    - "fact_finance.Net Sales Amount, COGS Amount, EBITDA Amount: never null"
-    - "fact_cost.Actual Cost Amount: never null"
-    - "fact_output.Output Units: never null; must be >= 0"
-    - "fact_output.Good Units, Defect Count: never null; must be >= 0"
   value_ranges:
     - "fact_cash_position.Cash Balance Amount: may be negative (overdraft); no range constraint"
-    - "fact_output.Output Units: >= 0"
-    - "fact_output.Good Units: >= 0 and <= Output Units"
-    - "fact_output.Defect Count: >= 0"
-    - "fact_labor.Labor Hours: >= 0"
-    - "fact_cost.COGS Amount: >= 0"
-    - "fact_cost.Actual Cost Amount: >= 0"
-    - "fact_accounts_receivable.AR 0-30 Days Amount, AR 31-60 Days Amount, AR 61-90 Days Amount, AR Over 90 Days Amount: each >= 0; sum of buckets = AR Amount"
-    - "fact_accounts_receivable.Overdue AR Amount: >= 0; = AR 31-60 + AR 61-90 + AR Over 90 (excludes current 0-30)"
+    - "fact_accounts_receivable.AR 0-30 Days Amount + AR 31-60 Days Amount + AR 61-90 Days Amount + AR Over 90 Days Amount: = AR Amount"
+    - "fact_accounts_receivable.Overdue AR Amount: = AR 31-60 + AR 61-90 + AR Over 90 (excludes current 0-30)"
   referential_integrity:
-    - "fact_accounts_receivable.CustomerKey → dim_customer (nullable)"
-    - "fact_accounts_payable.SupplierKey → dim_supplier (nullable)"
-    - "fact_cost.ProductKey → dim_product (required)"
-    - "fact_cost.CostCategoryKey → dim_cost_category (nullable; absent = uncategorized cost)"
-    - "fact_opex_costcenter.OrgKey → dim_org; CostCenterKey → dim_cost_center (required)"
+    - "fact_cost.CostCategoryKey: NULL = uncategorized cost"
 
 settings:
   timezone: Europe/Berlin

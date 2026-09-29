@@ -61,6 +61,29 @@ fact:
       - {name: Net Sales Amount, type: currency, agg: sum}
 ```
 
+### Structured quality fields (A-20/A-23, 29.09.2026)
+
+Rules that a machine can run live **on the column**, not as prose in `quality_rules`
+(consumed by `tooling/generator/export_governed_catalog.py` → `column_specs`, checked by
+`tooling/validation/check_validate_data_contracts.py`):
+
+| Field | Where | Meaning |
+|---|---|---|
+| `nullable` | column | `true` = NULL allowed. Missing = never NULL. |
+| `ref` | column | FK to the dimension's `role: key` column. |
+| `unknown_member: <value>` | FK column | Never NULL; `<value>` (e.g. `-1`) is the placeholder row of the referenced dimension ("unknown"/"none"). `nullable` is then `false`. |
+| `checks: [...]` | column | List of entries with exactly one of `gte`, `gt`, `lte`, `lt` (number), `between: [a, b]` (inclusive), `in: [...]` (allowed values), `gte_column` / `lte_column` (another column of the same row), optionally `when_present: true`. Example: `checks: [{between: [0, 10]}]`. |
+| `target_state: true` | column | Target design: not (yet) delivered by the Aurora showcase or read by a model. |
+| `showcase: false` | table | The Aurora showcase has no data for this table (missing = present). |
+
+Semantics: without `when_present`, a NULL value violates a check; with it, only non-NULL values
+are checked. For `*_column`, a NULL on the compared side cannot be evaluated and does not count
+as a violation. `quality_rules` keeps `freshness_sla` and only what does not structure
+(arithmetic across columns, business meaning of NULL, lineage notes).
+
+Proof against Aurora gold: `tooling/tests/test_contract_rules_showcase.py` (counts rules run,
+not in showcase, and column missing in gold).
+
 ## Usage
 
 ### For Customers

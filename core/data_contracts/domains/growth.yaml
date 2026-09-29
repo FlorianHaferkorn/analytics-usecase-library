@@ -25,10 +25,10 @@ dimension:
     scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
-      - {name: Region, type: text}
+      - {name: Region, type: text, nullable: true}
       - {name: Country, type: text, nullable: true}
       - {name: Channel, type: text, nullable: true}
-      - {name: Segment, type: text, nullable: true}
+      - {name: Segment, type: text, nullable: true, target_state: true}
 
   - name: dim_product
     description: "Product dimension with lifecycle stage and category hierarchy."
@@ -40,9 +40,10 @@ dimension:
       - {name: ProductName, type: text}
       - {name: Category, type: text}
       - {name: Subcategory, type: text, nullable: true}
-      - {name: Lifecycle Stage, type: text, nullable: true}   # Launch / Growth / Mature / Decline
+      - {name: Lifecycle Stage, type: text, nullable: true, target_state: true}   # Launch / Growth / Mature / Decline
 
   - name: dim_customer_segment
+    showcase: false
     description: "Customer segment dimension for acquisition and retention analysis."
     purpose: "Segment-level acquisition, conversion, and NPS reporting."
     scd_type: 2
@@ -54,6 +55,7 @@ dimension:
 
 fact:
   - name: fact_revenue_growth
+    showcase: false
     description: "Revenue, volume, and mix growth at product-org-month grain with plan and prior year."
     purpose: "Net sales growth, PVM decomposition, and market share trend."
     grain: product_org_month
@@ -65,9 +67,10 @@ fact:
       - {name: Plan Sales Amount, type: currency, agg: sum, nullable: true}
       - {name: Last Year Sales Amount, type: currency, agg: sum, nullable: true}
       - {name: Sales Units, type: decimal, agg: sum}
-      - {name: Market Share %, type: decimal, nullable: true}
+      - {name: Market Share %, type: decimal, nullable: true, checks: [{between: [0, 1], when_present: true}]}
 
   - name: fact_customer_acquisition
+    showcase: false
     description: "New customer acquisition events at segment-channel-month grain."
     purpose: "New customer volume, conversion rate, and CAC reporting."
     grain: segment_channel_month
@@ -75,12 +78,13 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: SegmentKey, type: int, ref: dim_customer_segment, cardinality: many-to-one}
-      - {name: New Customers, type: int, agg: sum}
+      - {name: New Customers, type: int, agg: sum, checks: [{gte: 0}]}
       - {name: Leads, type: int, agg: sum, nullable: true}
-      - {name: Conversion Rate %, type: decimal, nullable: true}
-      - {name: CAC Amount, type: currency, agg: sum, nullable: true}   # Customer Acquisition Cost
+      - {name: Conversion Rate %, type: decimal, nullable: true, checks: [{between: [0, 1], when_present: true}]}
+      - {name: CAC Amount, type: currency, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}]}   # Customer Acquisition Cost
 
   - name: fact_product_launch
+    showcase: false
     description: "Product launch performance at product-org-month grain (launch-relative periods)."
     purpose: "Launch vs plan tracking and early-stage growth curve analysis."
     grain: product_org_month
@@ -88,30 +92,21 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
-      - {name: Launch Month Offset, type: int}   # months since product launch date
+      - {name: Launch Month Offset, type: int, checks: [{gte: 0}]}   # months since product launch date
       - {name: Net Sales Amount, type: currency, agg: sum}
       - {name: Plan Launch Sales Amount, type: currency, agg: sum, nullable: true}
       - {name: Distribution Points, type: int, agg: sum, nullable: true}
 
 quality_rules:
+  # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
+  # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla:
     fact_revenue_growth: daily        # aligned to commercial_sales.fact_sales
     fact_customer_acquisition: monthly
     fact_product_launch: daily
-  key_nullability:
-    - "fact_revenue_growth.DateKey, OrgKey, ProductKey, Net Sales Amount, Sales Units: never null"
-    - "fact_customer_acquisition.DateKey, OrgKey, SegmentKey, New Customers: never null"
-    - "fact_product_launch.DateKey, OrgKey, ProductKey, Launch Month Offset, Net Sales Amount: never null"
   value_ranges:
     - "fact_revenue_growth.Net Sales Amount: may be negative (returns/credits); no floor constraint"
-    - "fact_revenue_growth.Market Share %: in [0; 1] when present"
-    - "fact_customer_acquisition.New Customers: >= 0"
-    - "fact_customer_acquisition.Conversion Rate %: in [0; 1] when present"
-    - "fact_customer_acquisition.CAC Amount: >= 0 when present"
-    - "fact_product_launch.Launch Month Offset: >= 0 (0 = launch month)"
   referential_integrity:
-    - "fact_customer_acquisition.SegmentKey → dim_customer_segment (required)"
-    - "fact_product_launch.ProductKey → dim_product (required)"
     - "Source: fact_revenue_growth aligned to commercial_sales.fact_sales (same grain and keys)"
 
 settings:

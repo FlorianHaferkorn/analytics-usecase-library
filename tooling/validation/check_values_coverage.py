@@ -52,6 +52,8 @@ _NOT_ENUMERABLE = {
     "Country", "City", "Brand", "ProductFamily", "Month", "Week", "Promotion",
     # high-cardinality references (confirmed against the Aurora gold data)
     "Entity", "Plant", "Location", "Customer",
+    # period labels, one value per month (132 in Aurora gold dim_date, measured 29.09.2026)
+    "Fiscal Period", "CalendarYearMonth",
 }
 
 

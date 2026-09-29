@@ -12,7 +12,7 @@ dimension:
       - {name: Quarter, type: text}
       - {name: Month, type: text}
       - {name: MonthNumber, type: int}
-      - {name: MonthKey, type: int}
+      - {name: MonthKey, type: int, target_state: true}
 
   - name: dim_org
     scd_type: 2
@@ -43,30 +43,33 @@ dimension:
 
 fact:
   - name: fact_hr
+    showcase: false
     grain: month_org
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
-      - {name: Headcount, type: decimal, agg: avg}
-      - {name: Leavers, type: int, agg: sum}
-      - {name: Absent Hours, type: decimal, agg: sum}
-      - {name: Scheduled Hours, type: decimal, agg: sum}
-      - {name: FTE, type: decimal, agg: sum}
-      - {name: Personnel Cost, type: currency, agg: sum}
+      - {name: Headcount, type: decimal, agg: avg, checks: [{gte: 0}]}
+      - {name: Leavers, type: int, agg: sum, checks: [{gte: 0}]}
+      - {name: Absent Hours, type: decimal, agg: sum, checks: [{gte: 0}, {lte_column: Scheduled Hours}]}
+      - {name: Scheduled Hours, type: decimal, agg: sum, checks: [{gte: 0}]}
+      - {name: FTE, type: decimal, agg: sum, checks: [{gte: 0}]}
+      - {name: Personnel Cost, type: currency, agg: sum, checks: [{gte: 0}]}
 
   - name: fact_it
+    showcase: false
     grain: month_org
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
-      - {name: Digital Users, type: int, agg: sum}
+      - {name: Digital Users, type: int, agg: sum, checks: [{gte: 0}]}
 
   - name: fact_survey
+    showcase: false
     grain: survey_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
-      - {name: Engaged Responses, type: int, agg: sum}
+      - {name: Engaged Responses, type: int, agg: sum, checks: [{lte_column: Total Responses}]}
       - {name: Total Responses, type: int, agg: sum}
       - {name: Training Hours, type: decimal, agg: sum}
 
@@ -77,11 +80,11 @@ fact:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: EmployeeSegmentKey, type: int, ref: dim_employee_segment}
-      - {name: Headcount FTE, type: decimal, agg: sum}
+      - {name: Headcount FTE, type: decimal, agg: sum, checks: [{gt: 0}]}
       - {name: Voluntary Leavers, type: decimal, agg: sum}
       - {name: Involuntary Leavers, type: decimal, agg: sum}
       - {name: Hires, type: decimal, agg: sum}
-      - {name: Absence Days, type: decimal, agg: sum}
+      - {name: Absence Days, type: decimal, agg: sum, checks: [{gte: 0}, {lte_column: Scheduled Working Days}]}
       - {name: Scheduled Working Days, type: decimal, agg: sum}
       - {name: Workforce Cost Amount, type: currency, agg: sum}
 
@@ -91,8 +94,8 @@ fact:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: EmployeeSegmentKey, type: int, ref: dim_employee_segment}
-      - {name: Engagement Score, type: decimal, agg: avg}
-      - {name: Respondents, type: int, agg: sum}
+      - {name: Engagement Score, type: decimal, agg: avg, checks: [{between: [0, 100]}]}
+      - {name: Respondents, type: int, agg: sum, checks: [{lte_column: Invited}]}
       - {name: Invited, type: int, agg: sum}
 
   - name: fact_recruiting
@@ -104,35 +107,17 @@ fact:
       - {name: Requisition Open Date, type: int}
       - {name: Filled Date, type: int}
       - {name: Positions Filled, type: int, agg: sum}
-      - {name: Days to Fill, type: int, agg: avg}
+      - {name: Days to Fill, type: int, agg: avg, checks: [{gt: 0}]}
 
 quality_rules:
+  # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
+  # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla:
     fact_hr: monthly          # payroll-aligned; available within 5 business days of month close
     fact_it: monthly
     fact_survey: per-cycle    # survey data available within 2 weeks of survey close
-  key_nullability:
-    - "fact_hr.DateKey, OrgKey, Headcount, FTE: never null"
-    - "fact_hr.Leavers, Absent Hours, Scheduled Hours: never null; must be >= 0"
-    - "fact_survey.Engaged Responses, Total Responses: never null"
-    - "fact_it.Digital Users: never null; must be >= 0"
-  value_ranges:
-    - "fact_hr.Headcount: >= 0"
-    - "fact_hr.Absent Hours: >= 0; <= Scheduled Hours"
-    - "fact_hr.FTE: >= 0"
-    - "fact_survey.Engaged Responses: <= Total Responses"
-    - "fact_hr.Personnel Cost: >= 0"
-    - "fact_workforce.Headcount FTE: > 0"
-    - "fact_workforce.Absence Days: >= 0; <= Scheduled Working Days"
-    - "fact_engagement_survey.Respondents: <= Invited"
-    - "fact_engagement_survey.Engagement Score: 0..100"
-    - "fact_recruiting.Days to Fill: > 0"
   referential_integrity:
-    - "fact_hr.OrgKey → dim_org (required)"
-    - "fact_survey.OrgKey → dim_org (nullable; absent = company-wide survey)"
-    - "fact_workforce.OrgKey → dim_org; EmployeeSegmentKey → dim_employee_segment (both required)"
-    - "fact_engagement_survey.OrgKey → dim_org; EmployeeSegmentKey → dim_employee_segment"
-    - "fact_recruiting.OrgKey → dim_org; RoleKey → dim_role"
+    - "fact_survey.OrgKey: NULL = company-wide survey"
 
 settings:
   timezone: Europe/Berlin

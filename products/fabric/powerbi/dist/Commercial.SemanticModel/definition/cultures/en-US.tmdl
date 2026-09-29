@@ -62,18 +62,24 @@ culture en-US
 							}
 						]
 					},
-					"dim_promo.promo_name": {
+					"dim_promo.promoname": {
 						"Definition": {
 							"Binding": {
 								"ConceptualEntity": "dim_promo",
-								"ConceptualProperty": "Promo Name"
+								"ConceptualProperty": "PromoName"
 							}
 						},
 						"State": "Generated",
 						"Terms": [
 							{
-								"Promo Name": {
+								"PromoName": {
 									"State": "Generated"
+								}
+							},
+							{
+								"Promo Name": {
+									"Type": "Noun",
+									"State": "Authored"
 								}
 							},
 							{
@@ -140,22 +146,22 @@ culture en-US
 							}
 						]
 					},
-					"fact_promo.promo_cost_amount": {
+					"fact_promo.promo_cost": {
 						"Definition": {
 							"Binding": {
 								"ConceptualEntity": "fact_promo",
-								"ConceptualProperty": "Promo Cost Amount"
+								"ConceptualProperty": "Promo Cost"
 							}
 						},
 						"State": "Generated",
 						"Terms": [
 							{
-								"Promo Cost Amount": {
+								"Promo Cost": {
 									"State": "Generated"
 								}
 							},
 							{
-								"Promo Cost": {
+								"Promo Cost Amount": {
 									"Type": "Noun",
 									"State": "Authored"
 								}
