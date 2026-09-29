@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-09-28
+last-reviewed: 2026-09-29
 shelf-life-days: 90
 ---
 # Superversion — Bereichs-Index (_INDEX)
