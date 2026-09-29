@@ -1,6 +1,6 @@
 # Umsetzungsplan — Agentische Report-Entwicklung als deterministische Schleife
 
-**Stand 24.09.2026 · Status: in Arbeit (AP-2, AP-3, AP-4, AP-11 ohne Tenant umgesetzt, AP-8 gesichtet) · Übergabe an Cowork (Flos Rechner)**
+**Stand 29.09.2026 · Status: in Arbeit (AP-2, AP-3, AP-4, AP-11 ohne Tenant umgesetzt, AP-8 gesichtet, AP-1 ALUCA-Konfiguration gemessen) · Übergabe an Cowork (Flos Rechner)**
 
 Anlass: Flo hat am 24.09.2026 eine Zusammenfassung des Videos „Agentic development of Power BI
 reports and semantic models" (https://youtu.be/zalHX6SLp6w) eingebracht. Das Video selbst wurde
@@ -39,7 +39,7 @@ Desktop-Blocker der offenen Punkte R6.1, R6.2, R6.3, R4.1/R4.2 und R1.6
 | Export über die echte Power-BI-Engine | Meridian `products/pbi_visual_regression/fabric_export.py`, `bootstrap_fabric.py`, CLI `fabric-render`, `bootstrap-fabric`; Workflow `visual-fabric.yml` | gebaut; **30 von 30 Läufen rot**, die letzten nach ~4 s im Limit-Fenster, ob die Secrets gesetzt sind, ist offen |
 | Headless-Renderer + Pixelvergleich | Meridian `products/pbi_visual_regression/` (`capture`, `verify`) | fertig, Baselines je Plattform |
 | LLM-Judge | ALUCA `products/fabric/powerbi/tooling/judge/llm_judge_prompt_v1.md`, `tooling/report_quality/boutique_scorecard` | Prompt versioniert, nie über echte Bilder gelaufen |
-| Modeling-MCP | ~~ALUCA `.cursor/mcp.json`~~ → `products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md` | **Nachtrag 29.09.2026:** `.cursor/` ist seit 25.09.2026 entfernt (Commit `8abea425`); im Repo liegt keine MCP-Konfiguration mehr, weder `.cursor/mcp.json` noch `.mcp.json`. Die Setup-Doku beschreibt weiter die von Hand entpackte Windows-Exe 0.1.9; npm führt `@microsoft/powerbi-modeling-mcp` 1.0.0 (`npm view`, 29.09.2026). Nicht gemessen: ob 1.0.0 unter Linux einen PBIP öffnet (AP-1) |
+| Modeling-MCP | ALUCA `.mcp.json` (seit 29.09.2026; `.cursor/` ist abgeschafft) | npm `@microsoft/powerbi-modeling-mcp@1.0.0` gepinnt; startet unter Linux, lädt 3 von 5 dist-Modellen (AP-1). Vorher: Windows-Exe 0.1.9 von Hand entpackt |
 
 ## 3 · Was Microsoft dazu offiziell anbietet (Learn, 24.09.2026)
 
@@ -117,6 +117,25 @@ Desktop, Pakete mit ☁ einen Tenant.
 - Entscheidung als D-Nummer (Meridian) und ADR-Zeile (ALUCA) festhalten (E6).
 - **Fertig, wenn** der MCP lokal einen PBIP-Ordner aus `products/fabric/powerbi/dist/` öffnet und
   Tabellen und Measures auflistet, und `make check-upstream` die neuen Pins kennt.
+- **Stand 29.09.2026 (ALUCA-Teil, gemessen unter Linux):** `.cursor/` gibt es nicht mehr
+  (Commit `8abea425`), die Konfiguration steht nur noch in `.mcp.json` (Claude-Code-Projektformat,
+  `npx -y @microsoft/powerbi-modeling-mcp@1.0.0 --start`). Version gemessen mit
+  `npm view @microsoft/powerbi-modeling-mcp version` → `1.0.0`. Gemessen mit einem stdio-JSON-RPC-
+  Client (Linux x86_64, Node 22.22.2): `initialize` antwortet nach 2,3 s, `tools/list` liefert
+  21 Werkzeuge; `ConnectFolder` + `table_operations List` + `measure_operations List` laden
+  **3 von 5** dist-Modellen — Commercial 19 Tabellen/54 Measures/22 Beziehungen, Finance
+  23/69/30, Operations 16/53/15; Gegenprobe über die TMDL-Dateien (Tabellendateien,
+  `measure`- und `relationship`-Zeilen gezählt) ergibt dieselben Zahlen. **Experience und
+  SupplyChain scheitern** mit `'database.tmdl' not found`: beiden `definition/`-Ordnern fehlt die
+  Datei, die die drei anderen tragen — offen, gehört in den Generator, nicht von Hand nach `dist/`.
+  Ohne angenommene EULA antwortet jedes Werkzeug mit einem Fehler; `.mcp.json` nimmt sie bewusst
+  **nicht** an (Entscheidung des Nutzers: `accept_eula`-Werkzeug oder
+  `PBI_MODELING_MCP_ACCEPT_EULA=true` lokal). Nicht gemessen: Desktop-Verbindung (Windows),
+  DAX-Abfragen (brauchen eine laufende Engine), `ConnectFabric` (Tenant). Details:
+  `products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md`. **Offen:** Plugin
+  `powerbi-authoring`, Pin im Freelancing-`research/upstream_pins.yaml` (dort steht das Paket mit
+  `track: true`, aber ohne Version und mit der Notiz „nur Desktop, Windows“ — nachziehen),
+  D-Nummer/ADR-Zeile (E6), `database.tmdl` für Experience und SupplyChain.
 
 ### AP-2 · Sandbox-Lebenszyklus als Kommando ☁
 - Heimat: ALUCA `products/fabric/orchestrator/` (E4, 24.09.2026), Spiegel nach Meridian.

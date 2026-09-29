@@ -9,8 +9,9 @@
 # runner, HTTP 404 logs) regardless of code, on main and all branches. Treat
 # those red runs as infrastructure, not code defects; do NOT re-run or "fix"
 # them. The authoritative gate until the window reopens is LOCAL:
-#   python -m pytest tooling/superversion/ -q
+#   python -m pytest tooling/superversion/ tooling/tests/test_dist_validator_ratchet.py -q -rs
 #   python scripts/check_index.py --strict
+# (mit powerbi-report-author 0.4.0 auf PATH und ALUCA_PBIR_CLI_PFLICHT=1, wie unten)
 # (both must be green before commit). This workflow becomes meaningful again
 # once the quota window reopens.
 
@@ -26,6 +27,9 @@ on:
       - "core/usecases/**"
       - "core/kpi_catalog/**"
       - "scripts/check_index.py"
+      - "conftest.py"
+      - "products/fabric/powerbi/dist/**"
+      - "tooling/tests/test_dist_validator_ratchet.py"
       - ".github/workflows/superversion.yml"
   push:
     branches: [main]
@@ -34,6 +38,9 @@ on:
       - "core/usecases/**"
       - "core/kpi_catalog/**"
       - "scripts/check_index.py"
+      - "conftest.py"
+      - "products/fabric/powerbi/dist/**"
+      - "tooling/tests/test_dist_validator_ratchet.py"
       - ".github/workflows/superversion.yml"
   # manual trigger for on-demand branch testing (no merge / ready needed)
   workflow_dispatch: {}
@@ -75,15 +82,6 @@ jobs:
           # installiert, prueft sie etwas anderes.
           pip install pyyaml jsonschema pytest python-docx
 
-      - name: Run superversion adapter tests
-        run: python -m pytest tooling/superversion/ -q
-
-      - name: Pin-drift sensor (advisory — reports, never bumps)
-        run: python scripts/check_superversion_pins.py
-
-      - name: Golden-Thread gate (measures must have a strategic anchor)
-        run: python -m tooling.superversion.golden_thread
-
       - name: Set up Node (for the official PBIR validator CLI)
         uses: actions/setup-node@v4
         with:
@@ -97,6 +95,28 @@ jobs:
         # auf einem Commit, der daran nichts geaendert hatte. Ein Pin, der nur an einer Stelle
         # gilt, ist kein Pin.
         run: npm install -g @microsoft/powerbi-report-authoring-cli@0.4.0
+
+      - name: Show validator version (must equal the pin)
+        run: |
+          v="$(powerbi-report-author --version)"
+          echo "powerbi-report-author $v"
+          test "$v" = "0.4.0"
+
+      # Laeuft NACH der CLI-Installation (bis 29.09.2026 lief er davor: der offizielle
+      # Validator-Test und die dist-Ratsche wurden hier still uebersprungen, der Lauf war
+      # trotzdem gruen). ALUCA_PBIR_CLI_PFLICHT=1 macht eine fehlende CLI rot statt Skip
+      # und verlangt, dass mindestens ein `braucht_pbir_cli`-Test wirklich lief
+      # (Wurzel-`conftest.py`). "Nichts gefunden" ist nicht "nicht gelaufen".
+      - name: Run superversion adapter tests + official-validator tests
+        env:
+          ALUCA_PBIR_CLI_PFLICHT: "1"
+        run: python -m pytest tooling/superversion/ tooling/tests/test_dist_validator_ratchet.py -q -rs
+
+      - name: Pin-drift sensor (advisory — reports, never bumps)
+        run: python scripts/check_superversion_pins.py
+
+      - name: Golden-Thread gate (measures must have a strategic anchor)
+        run: python -m tooling.superversion.golden_thread
 
       - name: E2E smoke (Bracket → TMDL+PBIR → validate, COM-001)
         run: python -m tooling.superversion.e2e_smoke --require-cli

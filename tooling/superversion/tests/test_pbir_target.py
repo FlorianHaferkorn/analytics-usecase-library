@@ -2,7 +2,8 @@
 
 Gate per the DoD: the emitted report passes Microsoft's official
 ``powerbi-report-author validate`` with **0 errors** (the I-3.3 ``check_pbir``
-gate) — skipped only when the CLI is not installed. Always-on structural checks
+gate) — skipped only when the CLI is not installed, and a failure instead of a
+skip when ``ALUCA_PBIR_CLI_PFLICHT=1`` (CI, see root ``conftest.py``). Always-on structural checks
 mirror the validator's hard rules (every visual carries a ``queryState`` with
 its required roles), plus determinism and a parse round-trip through Meridian's
 vendored ``pbir_parser``.
@@ -128,7 +129,7 @@ def test_every_data_visual_has_querystate_with_projections(model):
             assert body["projections"], f"role {role} has no projection"
 
 
-@pytest.mark.skipif(shutil.which(CLI) is None, reason="powerbi-report-author CLI not installed")
+@pytest.mark.braucht_pbir_cli  # skip without CLI; red under ALUCA_PBIR_CLI_PFLICHT=1 (conftest.py)
 def test_official_validator_zero_errors(model, tmp_path):
     """I-3.3 gate: the official MS validator reports 0 errors on the emitted report."""
     base.render("pbir", model, tmp_path)
