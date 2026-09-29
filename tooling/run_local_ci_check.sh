@@ -63,6 +63,11 @@ run_check "Drift gate (check_index.py --strict)" \
 run_check "Meridian mirror (check_dataarch_mirror.py)" \
   python3 scripts/check_dataarch_mirror.py
 
+# --- Ruff-Sperrklinke (wie CI python-checks) ------------------------------
+# Ohne ruff im Interpreter meldet das Skript laut SKIP statt gruen.
+run_check "Ruff-Sperrklinke (check_lint_ratchet.py --strict)" \
+  python3 scripts/check_lint_ratchet.py --strict
+
 # --- Python test suite --------------------------------------------------
 run_check "Pytest suite (tooling/superversion, tooling/tests, products)" \
   python3 -m pytest tooling/superversion tooling/tests products -q
@@ -85,6 +90,13 @@ run_check "Showcase Delta-table consistency (active files present on disk)" \
 # degenerate key, non-conformed dim) that structural contract validation misses.
 run_check "Data-model best-practice gate (check_data_model.py)" \
   python3 tooling/validation/check_data_model.py
+
+# --- Semantic Model gegen Gold-Daten (Ledger A-24, blocking) -------------
+# Jede sourceColumn der dist-Modelle steht in der Gold-Tabelle, die ihre Partition
+# liest, oder in tooling/validation/model_vs_gold_allowlist.yaml. Exit 2 = Gold fehlt
+# ("nicht geprueft"), nie gruen.
+run_check "Semantic Model gegen Gold-Daten (check_model_vs_gold.py --strict)" \
+  python3 tooling/validation/check_model_vs_gold.py --strict
 
 # --- Boutique rubric: BC-NARR-01 exhibit titles (K6) --------------------
 run_check "Boutique rubric BC-NARR-01 (exhibit titles are statements, not labels)" \

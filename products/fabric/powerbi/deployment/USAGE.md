@@ -67,7 +67,7 @@ Create an Azure AD service principal with Fabric API permissions:
 
 Install Fabric CLI:
 ```bash
-pip install fabric-cli
+pip install ms-fabric-cli==1.7.0
 ```
 
 ## Configuration
@@ -272,7 +272,7 @@ After setup, you'll have workspaces per environment:
 
 - Verify service principal has Fabric Administrator role
 - Check tenant_id, client_id, client_secret are correct
-- Ensure Fabric CLI is installed: `pip install fabric-cli`
+- Ensure Fabric CLI is installed: `pip install ms-fabric-cli==1.7.0`
 
 ### Workspace Creation Fails
 

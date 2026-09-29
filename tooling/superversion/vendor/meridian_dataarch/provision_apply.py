@@ -689,7 +689,7 @@ def _tenant_setup_md(bp: dict) -> str:
     summ = _admin.settability_summary(caps)
     lines += ["", "## Within a day: what scripts vs what needs a human", ""]
     if summ["scriptable"]:
-        lines.append("**Scriptable** (Update Tenant Setting API, preview — smoke-test each first): "
+        lines.append("**Scriptable** (Update Tenant Setting API — smoke-test each first): "
                      + ", ".join(f"#{i} {n}" for i, n, _ in summ["scriptable"]) + ".")
     if summ["scriptable_unverified"]:
         lines.append("**Scriptable but API round-trip unconfirmed** (verify per settingName): "
@@ -697,14 +697,14 @@ def _tenant_setup_md(bp: dict) -> str:
     if summ["needs_human"]:
         lines.append("**Needs a human** (capacity-admin portal / RBAC grant — no tenant-setting script can "
                      "do these): " + ", ".join(f"#{i} {n}" for i, n, _ in summ["needs_human"]) + ".")
-    lines += ["", f"> {summ['api_preview_caveat']}", ""]
-    lines += _procedure_and_limits(caps)
+    lines += ["", f"> {summ['api_caveat']}", ""]
+    lines += _procedure_and_limits(caps, bp)
     lines.append("Also grant the SPN read on each ingestion source. See _MCP_INTEGRATION.md for "
                  "guardrails.")
     return "\n".join(lines) + "\n"
 
 
-def _procedure_and_limits(caps: set[str]) -> list[str]:
+def _procedure_and_limits(caps: set[str], bp: dict | None = None) -> list[str]:
     """Die Settings, bei denen „an" erst der Anfang ist — Verfahren und dokumentierte Grenzen.
 
     Warum eigener Abschnitt und keine breitere Tabelle: Surge Protection ohne Schwellen ist
@@ -727,8 +727,38 @@ def _procedure_and_limits(caps: set[str]) -> list[str]:
             out += ["**Limits**", ""]
             out += [f"- {g}" for g in s["grenzen"]]
             out.append("")
+        if s["id"] == 22 and bp is not None:
+            out += _workspace_surge_rows(bp)
         out += [f"Source: {s['source']}", ""]
     return out
+
+
+def _workspace_surge_rows(bp: dict) -> list[str]:
+    """Die Workspace-Ebene von #22 je Workspace dieser Lieferung (Plan I-21 W1.3, 29.09.2026).
+
+    Bis dahin stand die Workspace-Ebene nur als allgemeines Verfahren im Tenant-Setup; welche
+    Workspaces der Lieferung betroffen sind, musste der Kapazitaets-Admin selbst zusammensuchen.
+    Bewusst **kein** Blueprint-Parameter: es gibt keine Schnittstelle, die den Zustand setzt oder
+    liest, und die Obergrenze entsteht erst aus dem Messfenster. Ein Feld im IR haette einen Wert
+    behauptet, den kein Emitter anwenden und kein Readiness-Check nachweisen kann. Die Tabelle
+    nennt deshalb nur die Workspaces, einen Vorschlag je Stufe und eine offene Spalte fuer die
+    Entscheidung.
+    """
+    zeilen = []
+    for d in (bp.get("mesh") or {}).get("domains") or []:
+        for w in d.get("workspaces") or []:
+            stage = w.get("stage")
+            vorschlag = ("*Available* with a CU cap — keeps dev/test load off the capacity"
+                         if stage in ("dev", "test") else
+                         "*Mission critical* — lifts the workspace cap only (see limits above)")
+            zeilen.append(f"| {w['name']} | {stage or 'single stage'} | {vorschlag} | open |")
+    if not zeilen:
+        return []
+    return ["**Workspace level for this delivery** (preview; portal only — no API sets or reads it). "
+            "Proposal per stage; the capacity admin decides, and the cap in % follows the first "
+            "measurement window:", "",
+            "| Workspace | Stage | Proposal | Decision · cap % |", "|---|---|---|---|",
+            *zeilen, ""]
 
 
 def emit_apply(bp: dict, stack: str = "fabric", workspace: str = PLACEHOLDER_WORKSPACE,

@@ -28,7 +28,7 @@ from _generator_utils import (
     FACTS_START,
     FACTS_END,
 )
-from _model_columns import fact_inventory_spalten  # A-24: COGS Amount aus fact_cogs
+from _model_columns import fact_inventory_spalten  # noqa: E402 -- nach sys.path; A-24 COGS Amount
 
 # Initialize
 RANDOM_SEED = 12345

@@ -130,14 +130,17 @@ def main():
         help="Service principal client ID"
     )
     
+    # Geheimnis nur ueber CLIENT_SECRET; das Argument lehnt einen alten Aufruf ab.
     parser.add_argument(
         "--client_secret",
         required=False,
-        default=os.environ.get('CLIENT_SECRET'),
-        help="Service principal client secret"
+        default=None,
+        help=argparse.SUPPRESS
     )
     
     args = parser.parse_args()
+    args.client_secret = fabcli.secret_from_environment(
+        args.client_secret, "--client_secret", "CLIENT_SECRET")
     
     # Validate required arguments
     if not args.tenant_id or not args.client_id or not args.client_secret:
@@ -147,12 +150,8 @@ def main():
     # Authenticate
     misc.print_header("Authenticating with Fabric")
     fabcli.run_command("config set encryption_fallback_enabled true")
-    auth_result = fabcli.run_command(
-        f"auth login -u {args.client_id} -p {args.client_secret} --tenant {args.tenant_id}"
-    )
-    
-    if "error" in auth_result.lower() or "failed" in auth_result.lower():
-        misc.print_error(f"Authentication failed: {auth_result}")
+    if not fabcli.login_service_principal(args.tenant_id, args.client_id, args.client_secret):
+        misc.print_error("Authentication failed: fab auth status meldet keine Anmeldung")
         sys.exit(1)
     
     misc.print_success("Authentication successful")

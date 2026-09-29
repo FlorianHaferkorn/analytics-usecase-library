@@ -51,11 +51,20 @@ def emit_deploy_py(stages: tuple[str, ...], item_types: tuple[str, ...]) -> str:
         'from FABRIC_WS_<ENV> env vars (kept out of the repo).\n"""\n'
         "import os\n"
         "import sys\n\n"
+        "from azure.identity import ClientSecretCredential\n"
         "from fabric_cicd import FabricWorkspace, publish_all_items, unpublish_all_orphan_items\n\n"
         "WORKSPACES = {\n"
         f"{ws_lines}\n"
         "}\n"
         f"ITEM_TYPE_IN_SCOPE = [{it_lines}]\n\n\n"
+        "def credential() -> ClientSecretCredential:\n"
+        '    """Service principal from the environment (never from the repo). fabric-cicd requires\n'
+        '    token_credential; without it FabricWorkspace raises TypeError."""\n'
+        "    return ClientSecretCredential(\n"
+        '        tenant_id=os.environ["AZURE_TENANT_ID"],\n'
+        '        client_id=os.environ["AZURE_CLIENT_ID"],\n'
+        '        client_secret=os.environ["AZURE_CLIENT_SECRET"],\n'
+        "    )\n\n\n"
         "def main(environment: str) -> None:\n"
         "    if environment not in WORKSPACES:\n"
         "        raise SystemExit(f\"unknown environment {environment!r}; expected one of {list(WORKSPACES)}\")\n"
@@ -64,6 +73,7 @@ def emit_deploy_py(stages: tuple[str, ...], item_types: tuple[str, ...]) -> str:
         "        environment=environment,\n"
         "        repository_directory=os.path.dirname(os.path.abspath(__file__)),\n"
         "        item_type_in_scope=ITEM_TYPE_IN_SCOPE,\n"
+        "        token_credential=credential(),\n"
         "    )\n"
         "    publish_all_items(workspace)\n"
         "    unpublish_all_orphan_items(workspace)   # remove items no longer in source\n\n\n"
@@ -112,8 +122,10 @@ def emit_fabric_cicd(bp: dict, stack: str = "fabric", stages: tuple[str, ...] = 
         "```", "",
         "Deploys `publish_all_items` then `unpublish_all_orphan_items` (source is the single source of",
         "truth; orphans in the workspace are removed). `parameter.yml` handles per-environment GUID swaps.",
-        "", "**Preview-gate:** `fabric-cicd` is **0.1.x** — pin the version; **PBIP (Power BI project)",
-        "deployment is preview**. Prefer **Variable libraries** over find/replace where the item type",
+        "Authentication: a service principal from `AZURE_TENANT_ID` / `AZURE_CLIENT_ID` /",
+        "`AZURE_CLIENT_SECRET` (CI secrets, never committed); fabric-cicd requires `token_credential`.",
+        "", "**Pin:** `fabric-cicd==1.3.0` (PyPI, measured 2026-09-29) — pin the version and re-validate on",
+        "upgrade; **PBIP (Power BI project) deployment is preview**. Prefer **Variable libraries** over find/replace where the item type",
         "supports them. For in-Fabric workspace-to-workspace promotion instead, use Deployment Pipelines.",
     ]
     return {
