@@ -20,6 +20,35 @@ StaticResources/
 
 The custom theme inherits from the base theme and overrides specific properties. **Modify the custom theme file, not the base theme.** The base theme is managed by Microsoft and changes with Power BI updates.
 
+### Base theme: Fluent 2 for new reports, CY25SU10 in ALUCA
+
+Since August 2026, **Fluent 2** is the base theme of every new report in Desktop and the
+service; Classic 2026 and Classic 2018 remain selectable. Existing reports keep their base
+theme until someone selects **Update theme** or **Reset to default**. Fluent 2 changes, among
+others: titles and subtitles on, axis titles off, more padding with rounded corners, smooth
+lines in line charts, grey wallpaper and background, 1920×1080 for new pages
+([Visual defaults in Power BI reports](https://learn.microsoft.com/power-bi/create-reports/power-bi-reports-visual-defaults), checked 29.09.2026).
+
+ALUCA generators pin `CY25SU10` (`page_scaffold_generator/pbip_writer.py`, `adapters/pbip.py`,
+`apply_report_theme.py`) and ship `BaseThemes/CY25SU10.json`, so generated reports do not
+move to Fluent 2 on their own. A custom theme must still not rely on the base theme for
+what it wants to control: whatever it leaves out changes when a report is created in
+Desktop or its base theme is updated.
+
+Measured on 29.09.2026 (script over the theme JSONs, one flag per property):
+
+| Property Fluent 2 changes | Vendored themes (`themes/`, 32) | BrandSpec derivation (`core/brand/derivations/pbi_theme.py`) |
+|---|---|---|
+| Fonts: `textClasses` callout/title/header/label with face, size, colour | 32/32 | set since 29.09.2026 (before: none) |
+| `title.show`, `subTitle.show` | 32/32 | not set |
+| `padding`, `border.radius` | 32/32 | not set |
+| Page `background` and `outspace` | 32/32 | not set |
+| `categoryAxis`/`valueAxis` `showAxisTitle` | 0/32 | not set |
+| `lineStyles.lineChartType` | 0/32 | not set |
+
+The vendored themes come from Freelancing `products/pbi_theme` (read-only here, `themes/PIN.json`);
+gaps in them are fixed there and re-mirrored.
+
 ---
 
 ## Theme File Structure

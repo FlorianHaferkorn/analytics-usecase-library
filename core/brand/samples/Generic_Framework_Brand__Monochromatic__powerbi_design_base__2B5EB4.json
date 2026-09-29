@@ -20,37 +20,41 @@
   "background": "#F3F2F1",
   "foreground": "#201F1E",
   "tableAccent": "#2B5EB41A",
-  "visualStyles": {
-    "*": {
-      "*": {
-        "fontFamily": [
-          {
-            "value": "Segoe UI, system-ui, -apple-system, sans-serif"
-          }
-        ],
-        "fontSize": [
-          {
-            "value": 12
-          }
-        ]
-      }
+  "textClasses": {
+    "callout": {
+      "fontFace": "Segoe UI, system-ui, -apple-system, sans-serif",
+      "fontSize": 18,
+      "color": "#201F1E"
     },
+    "title": {
+      "fontFace": "Segoe UI, system-ui, -apple-system, sans-serif",
+      "fontSize": 12,
+      "color": "#201F1E"
+    },
+    "header": {
+      "fontFace": "Segoe UI, system-ui, -apple-system, sans-serif",
+      "fontSize": 12,
+      "color": "#201F1E"
+    },
+    "label": {
+      "fontFace": "Segoe UI, system-ui, -apple-system, sans-serif",
+      "fontSize": 10,
+      "color": "#201F1E"
+    }
+  },
+  "visualStyles": {
     "cardVisual": {
       "*": {
         "calloutValue": [
           {
-            "value": {
-              "fontSize": 18,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 18,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "labels": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ]
       }
@@ -59,18 +63,14 @@
       "*": {
         "labels": [
           {
-            "value": {
-              "fontSize": 18,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 18,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "categoryLabels": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ]
       }
@@ -79,24 +79,22 @@
       "*": {
         "values": [
           {
-            "value": {
-              "fontSize": 12,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 12,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "columnHeaders": [
           {
-            "value": {
-              "fontSize": 12,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 12,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "background": [
           {
-            "value": {
-              "color": "#FAFAFA"
+            "color": {
+              "solid": {
+                "color": "#FAFAFA"
+              }
             }
           }
         ]
@@ -106,32 +104,28 @@
       "*": {
         "values": [
           {
-            "value": {
-              "fontSize": 12,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 12,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "columnHeaders": [
           {
-            "value": {
-              "fontSize": 12,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 12,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "rowHeaders": [
           {
-            "value": {
-              "fontSize": 12,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 12,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "background": [
           {
-            "value": {
-              "color": "#FAFAFA"
+            "color": {
+              "solid": {
+                "color": "#FAFAFA"
+              }
             }
           }
         ]
@@ -141,26 +135,20 @@
       "*": {
         "categoryAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "valueAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "legend": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ]
       }
@@ -169,26 +157,20 @@
       "*": {
         "categoryAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "valueAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "legend": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ]
       }
@@ -197,26 +179,20 @@
       "*": {
         "categoryAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "valueAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "legend": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ]
       }
@@ -225,26 +201,20 @@
       "*": {
         "categoryAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "valueAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "legend": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ]
       }
@@ -253,26 +223,20 @@
       "*": {
         "categoryAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "valueAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "legend": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ]
       }
@@ -281,26 +245,20 @@
       "*": {
         "categoryAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "valueAxis": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "legend": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ]
       }
@@ -309,18 +267,14 @@
       "*": {
         "items": [
           {
-            "value": {
-              "fontSize": 12,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 12,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ],
         "header": [
           {
-            "value": {
-              "fontSize": 10,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 10,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ]
       }
@@ -329,10 +283,8 @@
       "*": {
         "paragraphs": [
           {
-            "value": {
-              "fontSize": 12,
-              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
-            }
+            "fontSize": 12,
+            "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
           }
         ]
       }
