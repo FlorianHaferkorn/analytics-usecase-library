@@ -14,8 +14,8 @@ dimension:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
       - {name: Year, type: int}
-      - {name: Quarter, type: text, allowed_values: [Q1, Q2, Q3, Q4]}
-      - {name: Month, type: text}
+      - {name: Quarter, type: int, checks: [{between: [1, 4]}]}      # Gold: INTEGER 1–4 (29.09.2026)
+      - {name: Month, type: int, checks: [{between: [1, 12]}]}       # Monatsnummer, = MonthNumber
       - {name: MonthNumber, type: int}
       - {name: Week, type: text, nullable: true}
       - {name: Month Name, type: text}

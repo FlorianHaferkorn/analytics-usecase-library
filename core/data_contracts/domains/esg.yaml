@@ -81,8 +81,8 @@ fact:
       - {name: Lost Time Incidents, type: int, agg: sum, checks: [{lte_column: Incident Count}]}
       - {name: Hours Worked, type: decimal, agg: sum}
       - {name: Fatalities, type: int, agg: sum, checks: [{gte: 0}]}
-      - {name: Severity, type: text, nullable: true}
-      - {name: Lost Time Injury Flag, type: boolean, nullable: true}
+      # Severity und Lost Time Injury Flag (Merkmale je Vorfall) stehen seit 29.09.2026 in
+      # operations.fact_safety_incidents (Korn incident), nicht in diesem Monats-Snapshot.
 
   - name: fact_di
     showcase: false
