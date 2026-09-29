@@ -13,6 +13,7 @@ Subcommands (Ziel-Repo = $2 oder cwd):
   scaffold-index D  schreibt D/_INDEX.md aus dem realen Ordner (Register vollständig)
   scaffold-rules    Monorepo mit Stacks in ≥2 Unterordnern → pfadgebundene .claude/rules/*.md
                     (D7, ARCHITECTURE.md); Single-Stack-Repos: no-op (CLAUDE.md bleibt richtig)
+  prune-stub-rules  entfernt UNBERÜHRTE Regel-Stubs, die vor v3.24 fälschlich angelegt wurden
   wire-gate         druckt (oder --apply) die Gate-Verdrahtung (pre-commit/CI/npm)
 
 Kein Tool, kein Netzwerk. Überschreibt nie (→ .new bei Konflikt).
@@ -21,19 +22,25 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from collections import Counter
 from pathlib import Path
 
 IGNORE = {".git", "node_modules", "dist", "build", ".venv", "venv", "__pycache__",
           ".stubs", ".next", "out", "target", "templates", "archive"}
+# Vom Installer selbst nach scripts/ kopierte Kit-Dateien — dürfen die Stack-Erkennung nicht
+# beeinflussen (sonst wird jedes Repo nach dem Kopieren zum „Python (Scripts)"-Repo).
+KIT_FILES = {"check_index.py", "repo_kit_init.py", "doctrine_migrations.py", "check_redaction.py"}
+# Sentinel für „nichts erkannt" — Aufrufer filtern es, statt es als Stack zu zählen.
+STACK_UNKNOWN = "(Stack nicht erkannt — manuell eintragen)"
 
 # ── Detection ────────────────────────────────────────────────────────────────
 
 def repo_name(root: Path) -> str:
     cfg = root / ".git" / "config"
     if cfg.exists():
-        m = re.search(r"url\s*=\s*.*/([^/\n]+?)(?:\.git)?\s*$", cfg.read_text(errors="replace", encoding="utf-8"), re.M)
+        m = re.search(r"url\s*=\s*.*/([^/\n]+?)(?:\.git)?\s*$", cfg.read_text(errors="replace"), re.M)
         if m:
             return m.group(1)
     return root.resolve().name
@@ -69,7 +76,7 @@ def detect_stacks(root: Path) -> tuple[list[str], str]:
         pkg = d / "package.json"
         if pkg.exists():
             try:
-                data = json.loads(pkg.read_text(errors="replace", encoding="utf-8"))
+                data = json.loads(pkg.read_text(errors="replace"))
                 deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
             except Exception:
                 deps = {}
@@ -95,7 +102,7 @@ def detect_stacks(root: Path) -> tuple[list[str], str]:
             for f in ("pyproject.toml", "requirements.txt"):
                 p = d / f
                 if p.exists():
-                    blob += p.read_text(errors="replace", encoding="utf-8").lower()
+                    blob += p.read_text(errors="replace").lower()
             ml = any(k in blob for k in ("torch", "tensorflow", "mps", "scikit", "numpy", "opencv", "ultralytics"))
             add("Python (ML)" if ml else "Python",
                 "- Python: Type-Hints überall; reine Funktionen, klare I/O-Grenzen; "
@@ -108,7 +115,8 @@ def detect_stacks(root: Path) -> tuple[list[str], str]:
 
     if not stacks:  # kein Manifest irgendwo → aus Quelldatei-Endungen ableiten (Notebook-/Script-Repo)
         exts = Counter(p.suffix.lower() for p in root.rglob("*")
-                       if p.is_file() and not any(part in IGNORE for part in p.parts))
+                       if p.is_file() and p.name not in KIT_FILES
+                       and not any(part in IGNORE for part in p.parts))
         if exts[".py"] or exts[".ipynb"]:
             stacks.append("Python (Scripts/Notebooks)")
             std.append("- Python: Type-Hints; reine Funktionen, klare I/O-Grenzen; Pfade über `pathlib`. "
@@ -123,7 +131,7 @@ def detect_stacks(root: Path) -> tuple[list[str], str]:
             stacks.append("Data/Analytics (SQL/DAX)")
             std.append("- SQL/DAX: lesbare CTEs/Measures, keine Magic-Numbers; Quelle→Modell-Trennung sauber halten.")
     if not stacks:
-        stacks.append("(Stack nicht erkannt — manuell eintragen)")
+        stacks.append(STACK_UNKNOWN)
         std.append("- {{Code-Standards deines Stacks hier}}")
     return stacks, "\n".join(std)
 
@@ -140,7 +148,8 @@ def detect_areas(root: Path) -> tuple[list[str], list[str]]:
         if count_md(child) >= 2:
             doc.append(child.name)
         elif any((child / s).exists() for s in ("src", "app", "lib", "package.json", "pyproject.toml", "__init__.py")) \
-                or any(child.glob("*.py")) or any(child.glob("*.ts")) or any(child.glob("*.tsx")):
+                or any(f.name not in KIT_FILES for f in child.glob("*.py")) \
+                or any(child.glob("*.ts")) or any(child.glob("*.tsx")):
             code.append(child.name)
     return doc, code
 
@@ -151,7 +160,7 @@ def detect_test_cmd(root: Path) -> str:
         pkg = d / "package.json"
         if pkg.exists():
             try:
-                sc = json.loads(pkg.read_text(errors="replace", encoding="utf-8")).get("scripts", {})
+                sc = json.loads(pkg.read_text(errors="replace")).get("scripts", {})
             except Exception:
                 sc = {}
             if "check" in sc:
@@ -162,7 +171,7 @@ def detect_test_cmd(root: Path) -> str:
         if (d / "tests").is_dir():
             return "pytest -q"
         pp = d / "pyproject.toml"
-        if pp.exists() and "pytest" in pp.read_text(errors="replace", encoding="utf-8").lower():
+        if pp.exists() and "pytest" in pp.read_text(errors="replace").lower():
             return "pytest -q"
     for base in (root, root / "scripts"):
         if base.is_dir():
@@ -215,6 +224,7 @@ def scaffold_stack_rules(root: Path) -> list[str]:
             if d.name in IGNORE or d.name.startswith("."):
                 continue
             stacks, _ = detect_stacks(d)
+            stacks = [x for x in stacks if x != STACK_UNKNOWN]
             if stacks:
                 per_dir[d] = stacks
     except OSError:
@@ -229,15 +239,50 @@ def scaffold_stack_rules(root: Path) -> list[str]:
         out = rules_dir / f"{slug}.md"
         if out.exists():
             continue
-        seeds = rule_seeds(d, stacks)
-        body = "\n\n".join(f"### {t}\n{h}" for t, h in seeds)
-        out.write_text(
-            f"---\npaths: [\"{d.name}/**\"]\n---\n"
-            f"# {', '.join(stacks)} — Stack-Regeln ({d.name}/, pfadgebunden — lädt nur hier)\n\n"
-            f"{body}\n",
-            encoding="utf-8", newline="\n")
-        written.append(out.relative_to(root).as_posix())
+        out.write_text(_rule_text(d, stacks), encoding="utf-8")
+        written.append(str(out.relative_to(root)))
     return written
+
+
+def _rule_text(d: Path, stacks: list[str]) -> str:
+    body = "\n\n".join(f"### {t}\n{h}" for t, h in rule_seeds(d, stacks))
+    return (f"---\npaths: [\"{d.name}/**\"]\n---\n"
+            f"# {', '.join(stacks)} — Stack-Regeln ({d.name}/, pfadgebunden — lädt nur hier)\n\n"
+            f"{body}\n")
+
+
+RULE_HEAD_RE = re.compile(r"^# (.+) — Stack-Regeln \((.+?)/, pfadgebunden", re.M)
+
+
+def prune_stub_rules(root: Path) -> list[str]:
+    """Räumt Regel-Stubs weg, die der Bug vor v3.24 für Nicht-Stack-Ordner angelegt hat
+    (Sentinel „Stack nicht erkannt" bzw. die kit-eigenen scripts/ als „Python").
+
+    Gelöscht wird NUR, wenn beides gilt: (1) die Datei ist Byte für Byte das, was die Engine
+    damals erzeugt hat — also unberührt, und (2) die heutige Erkennung fände in dem Ordner keinen
+    Stack mehr. Eine angefasste oder weiterhin berechtigte Regel bleibt stehen."""
+    removed = []
+    for f in sorted((root / ".claude" / "rules").glob("*.md")):
+        text = f.read_text(encoding="utf-8", errors="replace")
+        m = RULE_HEAD_RE.search(text)
+        if not m or "{{" not in text:
+            continue
+        d = root / m.group(2)
+        if text != _rule_text(d, m.group(1).split(", ")):
+            continue
+        now = [x for x in (detect_stacks(d)[0] if d.is_dir() else []) if x != STACK_UNKNOWN]
+        if now:
+            continue
+        tracked = subprocess.run(["git", "-C", str(root), "ls-files", "--error-unmatch", str(f)],
+                                 capture_output=True).returncode == 0
+        if tracked:
+            subprocess.run(["git", "-C", str(root), "rm", "-q", "--cached", str(f)], capture_output=True)
+        f.unlink()
+        removed.append(str(f.relative_to(root)))
+    rules = root / ".claude" / "rules"
+    if removed and rules.is_dir() and not any(rules.iterdir()):
+        rules.rmdir()
+    return removed
 
 
 def detect(root: Path) -> dict:
@@ -284,7 +329,7 @@ def prefill_claude(claude_md: Path, root: Path) -> None:
     # Compliance-Befehl mit erkanntem Test/Check vorbelegen
     txt = txt.replace("{{befehl der vor jedem commit/PR grün sein muss}}",
                       d.get("test_cmd") or "make check", 1)
-    claude_md.write_text(txt, encoding="utf-8", newline="\n")
+    claude_md.write_text(txt, encoding="utf-8")
     print(f"✓ prefilled {claude_md.name}: name={d['name']} stacks={d['stacks']} "
           f"test={d.get('test_cmd') or '—'}")
 
@@ -323,7 +368,7 @@ def prefill_goi(goi: Path, root: Path) -> None:
                   "Zielgruppe, fester Stack-Kontext}} — ohne ihn zu wiederholen.", text, flags=re.M)
     text = re.sub(r"^- .*(Fabric|Power BI|Nagarro|Freelancer|NGO e\.V\.).*$",
                   "- {{Projekt-Kontext hier eintragen}}", text, flags=re.M)
-    goi.write_text(text, encoding="utf-8", newline="\n")
+    goi.write_text(text, encoding="utf-8")
     print(f"✓ GOI §4 gesetzt = {', '.join(d['stacks'])}. §8-Projekt-Kontext bleibt Platzhalter (von dir zu füllen).")
 
 
@@ -387,10 +432,10 @@ def scaffold_index(folder: Path, root: Path) -> None:
         f"## Dokument-Register (vollständig — Drift-Gate erzwingt das)\n\n"
         f"<!-- Code-Bereich? Frontmatter `owns: *.ts, *.sql` ergänzen → Gate erzwingt auch diese Dateien.{big} -->\n"
         f"| Doc | Zweck | Lies-wenn |\n|---|---|---|\n" + "\n".join(rows) + "\n\n"
-        f"## Offene Punkte (Ledger — hier abhaken)\n\n"
-        f"| ID | Punkt | Status | Datum |\n|---|---|---|---|\n| — | — | — | — |\n"
+        "## Offene Punkte (Ledger — hier abhaken)\n\n"
+        "| ID | Punkt | Status | Datum |\n|---|---|---|---|\n| — | — | — | — |\n"
     )
-    out.write_text(body, encoding="utf-8", newline="\n")
+    out.write_text(body, encoding="utf-8")
     print(f"✓ {out.relative_to(root)} ({len(rows)} Docs registriert). "
           f"Jetzt nur noch Zweck/lies-wenn füllen.")
 
@@ -398,65 +443,192 @@ def scaffold_index(folder: Path, root: Path) -> None:
 def wire_gate(root: Path, apply: bool) -> None:
     # Commit-/CI-Gate fährt --strict → blockt ungefüllte {{…}}-Gerüste (Qualitäts-Floor).
     cmd = "python3 scripts/check_index.py --strict"
-    # Pre-commit-Hook: bevorzugt `make check` (Single-Entry, falls vorhanden), sonst direkt
-    # das Gate — portabel (python3 ODER python; Windows/Git-Bash hat oft nur 'python').
-    hook_body = (
-        "# claude-repo-kit: strict Gate — `make check` wenn vorhanden, sonst direkt.\n"
-        "if [ -f Makefile ] && grep -q '^check:' Makefile && command -v make >/dev/null 2>&1; then\n"
-        "  make check || exit 1\n"
-        "else\n"
-        "  if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi\n"
-        '  "$PY" scripts/check_index.py --strict || exit 1\n'
-        "fi\n"
-    )
+    hook_body = HOOK_BODY
     print("Single-Entry-Gate: Makefile-Vorlage unter .claude/repo-kit/templates/Makefile ins\n"
-          "  Repo-Root übernehmen (Make-Repos) → der pre-commit-Hook nutzt dann `make check`.")
+          "  Repo-Root übernehmen (Make-Repos) → `make check` bündelt Gate + eigene Checks für lokal/CI.\n"
+          "  Der versionierte pre-commit-Hook fährt bewusst NUR das Gate — er läuft auch dort, wo\n"
+          "  `make check`-Abhängigkeiten fehlen (Cloud-Container, Mitstreiter).")
     if (root / "package.json").exists():
         print('npm-Script (Single-Entry) — in package.json "scripts": '
               '"check": "python3 scripts/check_index.py --strict"  (eigene Checks mit && anhängen)')
     if (root / ".github").is_dir():
         print(f"GitHub-Actions-Step:\n  - run: {cmd}")
-    # pre-commit-Framework? Dann NICHT .git/hooks/pre-commit schreiben (es verwaltet diese
-    # Datei selbst → Kollision). Stattdessen einen local-Hook für die Config ausgeben.
-    if (root / ".pre-commit-config.yaml").exists() or (root / ".husky").is_dir():
-        print("\n⚠ pre-commit-Framework erkannt (.pre-commit-config.yaml/.husky) — KEIN roher\n"
-              "  .git/hooks/pre-commit geschrieben (würde kollidieren). Diesen local-Hook in\n"
-              "  .pre-commit-config.yaml eintragen:\n"
+    # Hook-Framework? Dann KEINEN eigenen Hook schreiben (das Framework verwaltet die Hook-Datei
+    # bzw. core.hooksPath selbst → Kollision). Stattdessen den passenden Eintrag ausgeben.
+    # prek (Rust-Neuimplementierung von pre-commit) liest dieselbe .pre-commit-config.yaml.
+    lefthook = next((f for f in ("lefthook.yml", ".lefthook.yml", "lefthook.yaml") if (root / f).exists()), "")
+    if (root / ".pre-commit-config.yaml").exists():
+        print("\n⚠ pre-commit/prek erkannt (.pre-commit-config.yaml) — KEIN eigener Hook geschrieben\n"
+              "  (würde kollidieren). Diesen local-Hook eintragen:\n"
               "  - repo: local\n"
               "    hooks:\n"
               "      - id: check-index\n"
               "        name: claude-repo-kit drift+quality gate\n"
-              "        entry: python3 scripts/check_index.py --strict\n"
+              f"        entry: {cmd}\n"
               "        language: system\n"
               "        pass_filenames: false\n"
               "        always_run: true")
         return
-    hook = root / ".git" / "hooks" / "pre-commit"
-    if apply and (root / ".git").is_dir():
-        existing = hook.read_text(encoding="utf-8") if hook.exists() else "#!/usr/bin/env sh\n"
-        if "check_index.py" not in existing:
-            # R2/D10: `.git` ist ein Protected Path — in einer Claude-Code-Session läuft dieser
-            # Write über Prompt/Classifier, im `dontAsk`-Modus (CI/headless) wird er HART
-            # verweigert. Auch eine aktive Bash-Sandbox sperrt `.git/hooks`. Ein nackter
-            # OSError wäre hier irreführend ("Kit kaputt"), obwohl alles wie vorgesehen wirkt.
-            try:
-                hook.write_text(existing.rstrip() + "\n" + hook_body, encoding="utf-8", newline="\n")
-                hook.chmod(0o755)
-            except OSError as e:
-                print(f"\n⚠ pre-commit-Hook NICHT verdrahtet: {hook} nicht schreibbar ({e.__class__.__name__}: {e}).\n"
-                      "  Häufigster Grund ist kein Defekt, sondern Absicht: `.git` ist ein Protected Path.\n"
-                      "  In einer Claude-Code-Session muss der Write bestätigt werden, im `dontAsk`-Modus\n"
-                      "  (CI/headless) und unter aktiver Bash-Sandbox ist er gesperrt.\n"
-                      "  → Gate-Wiring gehört nicht in einen headless Lauf; einmal manuell im Terminal:\n"
-                      f"    printf '%s' '{cmd} || exit 1' >> .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit\n"
-                      "  Das Gate AUSFÜHREN ist davon unberührt: `python3 scripts/check_index.py --strict`.\n"
-                      "  Hintergrund: docs/GATE_HOOKS.md")
-            else:
-                print(f"\n✓ pre-commit-Hook verdrahtet ({hook.relative_to(root)}) — strict, portabel (python3/python).")
-        else:
-            print("\n= pre-commit-Hook ruft check_index.py bereits auf.")
-    else:
-        print(f"\npre-commit (mit --apply automatisch): in .git/hooks/pre-commit:\n  {cmd} || exit 1")
+    if lefthook:
+        print(f"\n⚠ Hook-Framework lefthook erkannt ({lefthook}) — KEIN eigener Hook geschrieben.\n"
+              "  Eintragen:\n"
+              "  pre-commit:\n"
+              "    commands:\n"
+              "      check-index:\n"
+              f"        run: {cmd}")
+        return
+    if (root / ".husky").is_dir():
+        print("\n⚠ Hook-Framework husky erkannt (.husky/) — KEIN eigener Hook geschrieben.\n"
+              f"  In .husky/pre-commit eine Zeile ergänzen:  {cmd}")
+        return
+    if not apply:
+        print(f"\npre-commit (mit --apply automatisch): versioniert unter .githooks/pre-commit +\n"
+              f"  git config core.hooksPath .githooks   — Inhalt: {cmd} || exit 1")
+        return
+    if not (root / ".git").exists():
+        return
+    target, set_hooks_path, note = _hook_target(root)
+    if target is None:
+        print(note)
+        return
+    try:
+        changed = _insert_hook_block(target, hook_body)
+        if changed is None:
+            print(f"\n⚠ {target} ist kein Shell-Skript (Shebang) — Kit-Block NICHT eingefügt, er würde\n"
+                  f"  den Hook zerstören. Von Hand ergänzen: {cmd} (Exit-Code ≠ 0 → Commit abbrechen).")
+            return
+        if set_hooks_path:
+            subprocess.run(["git", "-C", str(root), "config", "core.hooksPath", ".githooks"],
+                           check=True, capture_output=True)
+    except (OSError, subprocess.CalledProcessError) as e:
+        # R2/D10: `.git` ist ein Protected Path — in einer Claude-Code-Session läuft der Write
+        # über Prompt/Classifier, im `dontAsk`-Modus (CI/headless) wird er HART verweigert.
+        print(f"\n⚠ pre-commit-Hook NICHT verdrahtet ({e.__class__.__name__}: {e}).\n"
+              "  Häufigster Grund ist kein Defekt, sondern Absicht: `.git` ist ein Protected Path —\n"
+              "  in einer Claude-Code-Session muss der Schritt bestätigt werden, headless ist er gesperrt.\n"
+              "  → einmal manuell im Terminal:  git config core.hooksPath .githooks\n"
+              "  Das Gate AUSFÜHREN ist davon unberührt: `python3 scripts/check_index.py --strict`.\n"
+              "  Hintergrund: docs/GATE_HOOKS.md")
+        return
+    rel = target.relative_to(root) if target.is_relative_to(root) else target
+    print(("\n✓ pre-commit-Hook verdrahtet" if changed else "\n= pre-commit-Hook ruft check_index.py bereits auf")
+          + f" ({rel}) — strict, portabel (python3/python).")
+    if note:
+        print(note)
+
+
+# Der versionierte Hook fährt NUR das Gate (zero-dependency, läuft überall). Bis v3.24 bevorzugte
+# er `make check` — richtig, solange der Hook nur lokal lag. Versioniert reist er in Cloud-Container
+# und zu Mitstreitern, wo `make check` an fehlenden Abhängigkeiten oder lokalen, vertraulichen
+# Dateien scheitert und damit JEDEN Commit blockiert (beim Rollout in Freelancing gefunden).
+# `make check` bleibt der Single-Entry für lokal und CI.
+HOOK_BODY = (
+    "# claude-repo-kit: strict Drift-Gate (zero-dependency; `make check` bleibt für lokal/CI).\n"
+    "if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi\n"
+    '"$PY" scripts/check_index.py --strict || exit 1\n'
+)
+LEGACY_HOOK_BODY = (
+    "# claude-repo-kit: strict Gate — `make check` wenn vorhanden, sonst direkt.\n"
+    "if [ -f Makefile ] && grep -q '^check:' Makefile && command -v make >/dev/null 2>&1; then\n"
+    "  make check || exit 1\n"
+    "else\n"
+    "  if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi\n"
+    '  "$PY" scripts/check_index.py --strict || exit 1\n'
+    "fi\n"
+)
+
+SHELL_SHEBANG = re.compile(r"^#!.*\b(sh|bash|dash|zsh|ksh)\b")
+
+
+def _git_out(root: Path, *args: str) -> str:
+    r = subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 else ""
+
+
+def active_legacy_hooks(root: Path) -> list[str]:
+    """Nicht-`.sample`-Hooks im unversionierten Hook-Ordner. Ein `core.hooksPath` würde sie ALLE
+    stilllegen — git-lfs (pre-push/post-checkout), commit-msg (Gerrit), eigene Hooks (v3.24-Review)."""
+    d = _git_out(root, "rev-parse", "--git-path", "hooks")
+    hooks_dir = Path(d) if d else root / ".git" / "hooks"
+    hooks_dir = hooks_dir if hooks_dir.is_absolute() else root / hooks_dir
+    try:
+        found = sorted(f for f in hooks_dir.iterdir() if f.is_file() and not f.name.endswith(".sample"))
+    except OSError:
+        return []
+    # Ein pre-commit, der NUR den Kit-Block trägt (Install vor v3.24), zählt nicht: er ist ersetzbar.
+    return [f.name for f in found if not (f.name == "pre-commit" and _kit_only(f))]
+
+
+KIT_HOOK_LINES = ("if [ -f Makefile ]", "make check", "else", "fi", "if command -v python3", '"$PY"')
+
+
+def _kit_only(hook: Path) -> bool:
+    try:
+        lines = hook.read_text(errors="replace").splitlines()
+    except OSError:
+        return False
+    return not [ln for ln in lines if ln.strip() and not ln.startswith("#") and "check_index.py" not in ln
+                and not ln.strip().startswith(KIT_HOOK_LINES)]
+
+
+def _hook_target(root: Path) -> tuple[Path | None, bool, str]:
+    """Wohin der Gate-Aufruf gehört (D16). Bevorzugt ein VERSIONIERTER Hook unter `.githooks/`
+    (+ `core.hooksPath`) — `.git/hooks` reist nicht mit: fehlt in jedem Clone, im Team und in
+    jedem Cloud-Container. Rückgabe: (Hook-Datei oder None, core.hooksPath setzen?, Hinweis).
+
+    Nie angefasst werden: ein GLOBALER hooksPath (gilt für jedes Repo des Rechners — der Kit-Block
+    liefe dann überall) und bestehende Hooks im unversionierten Ordner (hooksPath legte sie still)."""
+    local = _git_out(root, "config", "--local", "core.hooksPath")
+    if local:
+        d = Path(local).expanduser()
+        return (d if d.is_absolute() else root / d) / "pre-commit", False, ""
+    effective = _git_out(root, "config", "core.hooksPath")
+    if effective:
+        return None, False, (
+            f"\n⚠ Globaler core.hooksPath ({effective}) — NICHT angefasst: ein Eintrag dort liefe in JEDEM\n"
+            "  Repo dieses Rechners. Entweder dort von Hand einen repo-bedingten Aufruf ergänzen oder\n"
+            "  in diesem Repo `git config --local core.hooksPath .githooks` setzen (dann gelten deine\n"
+            "  globalen Hooks hier nicht mehr).")
+    legacy_dir = _git_out(root, "rev-parse", "--git-path", "hooks") or ".git/hooks"
+    legacy = (Path(legacy_dir) if Path(legacy_dir).is_absolute() else root / legacy_dir) / "pre-commit"
+    others = active_legacy_hooks(root)
+    if others:
+        return legacy, False, (
+            f"  ⚠ Bestehende, unversionierte Hooks ({', '.join(others)}) — core.hooksPath würde sie\n"
+            "    stilllegen, deshalb in .git/hooks ergänzt. Der Hook fehlt so in Clones/Cloud: Hooks nach\n"
+            "    .githooks/ umziehen, dann `git config core.hooksPath .githooks`.")
+    return root / ".githooks" / "pre-commit", True, (
+        "  Versioniert unter .githooks/ — Mitstreiter aktivieren ihn einmal mit\n"
+        "  `git config core.hooksPath .githooks`; Claude-Code-Sessions erledigen das per SessionStart-Hook.")
+
+
+def _insert_hook_block(hook: Path, body: str) -> bool | None:
+    """Kit-Block DIREKT nach dem Shebang einfügen, nicht anhängen: ein bestehender Hook, der mit
+    `exit 0` endet, würde einen angehängten Block nie erreichen. False = war schon drin,
+    None = bestehender Hook ist kein Shell-Skript (Python/Node) — dann nichts anfassen."""
+    existing = hook.read_text(errors="replace") if hook.exists() else "#!/usr/bin/env sh\n"
+    if LEGACY_HOOK_BODY in existing.replace("\r\n", "\n") and hook.parent.name == ".githooks":
+        # Nur im VERSIONIERTEN Hook ersetzen: dort reist er in Umgebungen ohne make-Abhängigkeiten.
+        # Ein lokaler .git/hooks-Hook darf `make check` behalten.
+        with open(hook, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(existing.replace("\r\n", "\n").replace(LEGACY_HOOK_BODY, body))
+        return True
+    if "check_index.py" in existing:
+        return False
+    lines = existing.splitlines(keepends=True)
+    if lines and lines[0].startswith("#!") and not SHELL_SHEBANG.match(lines[0]):
+        return None
+    head = lines[0] if lines and lines[0].startswith("#!") else "#!/usr/bin/env sh\n"
+    rest = lines[1:] if lines and lines[0].startswith("#!") else lines
+    hook.parent.mkdir(parents=True, exist_ok=True)
+    # LF erzwingen: unter Windows schriebe write_text CRLF → `then\r` bricht den sh-Hook.
+    with open(hook, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write((head + body + "".join(rest)).replace("\r\n", "\n"))
+    try:
+        hook.chmod(0o755)
+    except OSError:
+        pass
+    return True
 
 
 def main(argv: list[str]) -> int:
@@ -464,7 +636,7 @@ def main(argv: list[str]) -> int:
         print(__doc__); return 2
     cmd = argv[1]
     root = Path(argv[3]).resolve() if (cmd in ("prefill-claude", "scaffold-index", "prefill-goi") and len(argv) > 3) \
-        else Path(argv[2]).resolve() if (cmd in ("detect", "goi-snippet", "wire-gate", "scaffold-rules") and len(argv) > 2 and not argv[2].startswith("--")) \
+        else Path(argv[2]).resolve() if (cmd in ("detect", "goi-snippet", "wire-gate", "scaffold-rules", "prune-stub-rules") and len(argv) > 2 and not argv[2].startswith("--")) \
         else Path.cwd()
     if cmd == "detect":
         print(json.dumps(detect(root), ensure_ascii=False, indent=2))
@@ -480,6 +652,10 @@ def main(argv: list[str]) -> int:
         written = scaffold_stack_rules(root)
         print(f"✓ .claude/rules/: {', '.join(written)}" if written
               else "(kein Monorepo mit Stacks in ≥2 Unterordnern — CLAUDE.md bleibt richtig)")
+    elif cmd == "prune-stub-rules":
+        removed = prune_stub_rules(root)
+        if removed:
+            print(f"✓ unberührte Stub-Regeln aus dem Bug vor v3.24 entfernt: {', '.join(removed)}")
     elif cmd == "wire-gate":
         wire_gate(root, "--apply" in argv)
     else:

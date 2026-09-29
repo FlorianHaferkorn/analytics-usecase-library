@@ -22,6 +22,8 @@ Exit 1 bei harten Befunden, 0 sonst.
 
 Aufruf:  python3 scripts/check_index.py [--strict] [TEILBAUM]
          (pre-commit/CI: --strict; lokal/nach-Scaffold: ohne)
+         python3 scripts/check_index.py --claude-hook session-start|stop
+         (nur aus `.claude/settings.json` — siehe docs/GATE_HOOKS.md)
 """
 from __future__ import annotations
 
@@ -48,50 +50,6 @@ PATH_RE = re.compile(r"`([^`]+)`")
 FRONT_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 PLACEHOLDER_RE = re.compile(r"\{\{[^}]+\}\}")
 
-# The index checker validates the TRACKED repo. Content git ignores — e.g. real customer showcases
-# kept local per showcases/README.md ("Customer-specific implementations … kept in separate project
-# repositories") — is NOT part of it and must not be scanned. Populated in main().
-_IGNORED: "set[Path]" = set()
-
-
-def _git_ignored_prefixes(root: Path) -> "set[Path]":
-    """Absolute paths git ignores (directories collapsed to one entry via ``--directory``)."""
-    try:
-        out = subprocess.run(
-            ["git", "-C", str(root), "ls-files", "--others", "--ignored",
-             "--exclude-standard", "--directory", "-z"],
-            capture_output=True, text=True, timeout=30, check=True,
-            encoding="utf-8", errors="replace").stdout
-    except Exception:
-        return set()
-    return {(root / p).resolve() for p in out.split("\0") if p}
-
-
-def _git_submodule_prefixes(root: Path) -> "set[Path]":
-    """Absolute paths of git submodules (gitlinks, mode 160000).
-
-    A submodule is a separate repository: its files exist only after
-    ``git submodule update --init`` and are versioned elsewhere. The index must not
-    depend on them - otherwise a fresh checkout (CI, worktree) fails on paths that
-    the maintainer's initialised checkout happens to have."""
-    try:
-        out = subprocess.run(
-            ["git", "-C", str(root), "ls-files", "-s", "-z"],
-            capture_output=True, text=True, timeout=30, check=True,
-            encoding="utf-8", errors="replace").stdout
-    except Exception:
-        return set()
-    prefixes = set()
-    for entry in out.split("\0"):
-        if entry.startswith("160000 ") and "\t" in entry:
-            prefixes.add((root / entry.split("\t", 1)[1]).resolve())
-    return prefixes
-
-
-def _under_ignored(p: Path) -> bool:
-    rp = p.resolve()
-    return any(rp == ig or ig in rp.parents for ig in _IGNORED)
-
 
 def slugify(h: str) -> str:
     s = re.sub(r"[^\w\s-]", "", h.strip().lower(), flags=re.UNICODE)
@@ -106,14 +64,12 @@ def headings_of(md: Path) -> set[str]:
 
 def find_indexes(root: Path) -> list[Path]:
     return sorted(p for p in root.rglob("_INDEX.md")
-                  if not any(part in IGNORE_DIRS for part in p.parts)
-                  and not _under_ignored(p))
+                  if not any(part in IGNORE_DIRS for part in p.parts))
 
 
 def ignored(md: Path) -> bool:
     return (any(p in IGNORE_DIRS for p in md.parts) or md.name in EXEMPT_FILES
-            or DUPE_RE.search(md.name) or DUPE_RE.search(md.stem)
-            or _under_ignored(md))
+            or DUPE_RE.search(md.name) or DUPE_RE.search(md.stem))
 
 
 LIESWENN_HEADER_RE = re.compile(r"nicht\s*n(ö|oe)tig", re.IGNORECASE)
@@ -442,6 +398,66 @@ def check_context_size(path: Path, warnings: list[str]) -> None:
                         f"Situatives in eine Referenz-/Skill-Datei auslagern.")
 
 
+# Summen-Budget in Tokens statt Zeilen: 200 Zeilen sagen nichts, wenn eine Zeile 400 Zeichen hat.
+# 6000 Tokens ≈ 200 Zeilen à ~120 Zeichen — dieselbe Faustregel, nur ehrlich gemessen und über
+# ALLES summiert, was bei jedem Sessionstart lädt (CLAUDE.md + @-Imports + Regeln ohne `paths:`).
+STARTUP_TOKEN_BUDGET = 6000
+IMPORT_RE = re.compile(r"^@(\S+)\s*$", re.M)
+
+
+def _est_tokens(text: str) -> int:
+    return len(text) // 4   # grobe, sprachunabhängige Schätzung; bewusst kein Tokenizer (Zero-Dependency)
+
+
+def _loaded_text(text: str) -> str:
+    return COMMENT_RE.sub("", FRONT_RE.sub("", text, count=1))
+
+
+def _startup_files() -> list[Path]:
+    """Was Claude Code bei jedem Sessionstart lädt: Root-CLAUDE.md (+ .claude/CLAUDE.md,
+    CLAUDE.local.md), deren @-Imports (max. 4 Hops, wie Claude Code) und Regeln OHNE `paths:`."""
+    seen: list[Path] = []
+
+    def visit(p: Path, depth: int) -> None:
+        if depth > 4 or not p.is_file() or p in seen:
+            return
+        seen.append(p)
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return
+        for m in IMPORT_RE.finditer(_strip_fences(_loaded_text(text))):
+            target = m.group(1)
+            if target.startswith("~"):
+                continue   # User-Scope-Imports liegen außerhalb des Repos
+            visit((p.parent / target).resolve(), depth + 1)
+
+    for f in ("CLAUDE.md", ".claude/CLAUDE.md", "CLAUDE.local.md"):
+        visit(REPO_ROOT / f, 0)
+    for rule in sorted((REPO_ROOT / ".claude" / "rules").glob("*.md")):
+        m = FRONT_RE.match(rule.read_text(encoding="utf-8", errors="replace"))
+        if not (m and re.search(r"^paths\s*:", m.group(1), re.M)):
+            visit(rule, 0)
+    return seen
+
+
+def check_startup_budget(warnings: list[str]) -> None:
+    """Advisory wie check_context_size — aber summiert und in Tokens (D16)."""
+    files = _startup_files()
+    total = 0
+    for f in files:
+        try:
+            total += _est_tokens(_loaded_text(f.read_text(encoding="utf-8", errors="replace")))
+        except OSError:
+            pass
+    if total > STARTUP_TOKEN_BUDGET:
+        parts = ", ".join(f"{f.relative_to(REPO_ROOT) if f.is_relative_to(REPO_ROOT) else f}"
+                          for f in files)
+        warnings.append(f"[Größe] Startkontext ~{total} Tokens (> {STARTUP_TOKEN_BUDGET}) aus {parts} — "
+                        f"lädt bei JEDEM Sessionstart. Ableitbares (Ordnerlisten, Architektur-"
+                        f"Überblick) streichen, Situatives in Skill/Referenz auslagern.")
+
+
 def check_staleness(index: Path, warnings: list[str]) -> None:
     rel = index.relative_to(REPO_ROOT)
     fm = _frontmatter(index.read_text(encoding="utf-8", errors="replace"))
@@ -468,7 +484,7 @@ def _git_last_commit_date(rel_dir: Path, exclude: str | None = None) -> _dt.date
     if exclude:
         args.append(f":(exclude){rel_dir}/{exclude}")
     try:
-        r = subprocess.run(args, cwd=REPO_ROOT, capture_output=True, text=True, timeout=5, encoding="utf-8", errors="replace")
+        r = subprocess.run(args, cwd=REPO_ROOT, capture_output=True, text=True, timeout=5)
         s = r.stdout.strip()
         return _dt.date.fromisoformat(s) if s else None
     except Exception:
@@ -505,8 +521,7 @@ def check_unindexed_areas(root: Path, indexes: list[Path], warnings: list[str]) 
     Vollständigkeits-Lücke (z. B. scripts/ mit 26 .py). Kein harter Fehler."""
     index_dirs = {idx.parent.resolve() for idx in indexes}
     for child in sorted(p for p in root.iterdir() if p.is_dir()):
-        if (child.name in IGNORE_DIRS or child.name.startswith(".")
-                or _non_navigated(child) or _under_ignored(child)):
+        if child.name in IGNORE_DIRS or child.name.startswith(".") or _non_navigated(child):
             continue
         cr = child.resolve()
         if any(d == cr or cr in d.parents for d in index_dirs):
@@ -518,12 +533,90 @@ def check_unindexed_areas(root: Path, indexes: list[Path], warnings: list[str]) 
                             f"aber kein _INDEX.md — navigierbarer Bereich ohne Index (erwäge einen).")
 
 
+KIT_HOOK_LINES = ("if [ -f Makefile ]", "make check", "else", "fi", "if command -v python3", '"$PY"')
+
+
+def _foreign_legacy_hooks(git) -> list[str]:
+    """Hooks in `.git/hooks`, die ein core.hooksPath stilllegen würde (git-lfs, commit-msg …).
+    Ein pre-commit, der nur den Kit-Block trägt, zählt nicht. Spiegel von repo_kit_init.py."""
+    d = git("rev-parse", "--git-path", "hooks").stdout.strip() or ".git/hooks"
+    hooks_dir = Path(d) if Path(d).is_absolute() else REPO_ROOT / d
+    out = []
+    try:
+        files = [f for f in hooks_dir.iterdir() if f.is_file() and not f.name.endswith(".sample")]
+    except OSError:
+        return out
+    for f in files:
+        if f.name == "pre-commit":
+            body = [ln for ln in f.read_text(errors="replace").splitlines()
+                    if ln.strip() and not ln.startswith("#") and "check_index.py" not in ln
+                    and not ln.strip().startswith(KIT_HOOK_LINES)]
+            if not body:
+                continue
+        out.append(f.name)
+    return out
+
+
+def claude_hook(event: str) -> int:
+    """Einstieg für Claude-Code-Hooks aus `.claude/settings.json` (D16). Nie blockierend außer
+    dort, wo es gewollt ist — ein Hook-Fehler darf eine Session nicht lahmlegen.
+
+    session-start: setzt `core.hooksPath=.githooks`, wenn der Repo einen versionierten
+      pre-commit mitbringt, noch kein hooksPath gilt (auch kein globaler) und keine anderen
+      Hooks in `.git/hooks` liegen, die dadurch stillgelegt würden (git-lfs u. a.).
+    stop: fährt das Gate LAX (Platzhalter nur Warnung — direkt nach dem Install ist strict per
+      Design rot) und blockt (exit 2) nur, wenn der Arbeitsbaum Änderungen hat. Reine
+      Frage-Antwort-Turns und die zweite Runde (`stop_hook_active`) laufen nie in eine Schleife."""
+    import json
+    import os
+    try:
+        payload = json.loads(sys.stdin.read() or "{}")
+    except (ValueError, OSError):
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    if os.environ.get("REPO_KIT_HOOKS") == "0":
+        return 0
+
+    def git(*a: str) -> subprocess.CompletedProcess:
+        return subprocess.run(["git", "-C", str(REPO_ROOT), *a], capture_output=True, text=True)
+
+    try:
+        if event == "session-start":
+            if not (REPO_ROOT / ".githooks" / "pre-commit").is_file() or git("config", "core.hooksPath").stdout.strip():
+                return 0
+            others = _foreign_legacy_hooks(git)
+            if others:
+                print(f"repo-kit: core.hooksPath NICHT gesetzt — würde {', '.join(others)} in .git/hooks "
+                      f"stilllegen. Hooks nach .githooks/ umziehen, dann setzen.")
+            elif git("config", "core.hooksPath", ".githooks").returncode == 0:
+                print("repo-kit: core.hooksPath=.githooks gesetzt — das Commit-Gate ist aktiv.")
+            return 0
+        if event == "stop":
+            if payload.get("stop_hook_active"):
+                return 0
+            st = git("status", "--porcelain")
+            if st.returncode != 0 or not st.stdout.strip():
+                return 0
+            res = subprocess.run([sys.executable, str(Path(__file__).resolve())], capture_output=True, text=True)
+            fails = [ln for ln in res.stdout.splitlines() if ln.startswith("FAIL")]
+            if res.returncode == 0 or not fails:
+                return 0   # grün — oder das Gate selbst ist abgestürzt: dann nicht blockieren
+            sys.stderr.write("repo-kit Drift-Gate rot — vor dem Beenden beheben (Index/Register nachziehen):\n"
+                             + "\n".join(fails[:15]) + "\n")
+            return 2
+    except OSError:
+        return 0   # kein git, nicht lesbar … — ein Hook-Fehler legt die Session nicht lahm
+    return 0
+
+
 def main(argv: list[str]) -> int:
+    if "--claude-hook" in argv:
+        i = argv.index("--claude-hook")
+        return claude_hook(argv[i + 1] if i + 1 < len(argv) else "")
     strict = "--strict" in argv
     pos = [a for a in argv[1:] if not a.startswith("--")]
     root = (REPO_ROOT / pos[0]) if pos else REPO_ROOT
-    global _IGNORED
-    _IGNORED = _git_ignored_prefixes(REPO_ROOT) | _git_submodule_prefixes(REPO_ROOT)
     indexes = find_indexes(root)
     errors: list[str] = []
     warnings: list[str] = []
@@ -552,13 +645,16 @@ def main(argv: list[str]) -> int:
     elif root == REPO_ROOT:
         warnings.append("[Navigation] kein _INDEX.md im Repo — Navigation nicht eingerichtet")
     # CLAUDE.md/GOI IMMER auf Platzhalter prüfen (auch ohne _INDEX — sonst keine Stub-Durchsetzung).
-    for f in ("CLAUDE.md", "GOI_DOKTRIN.md"):
+    # Pfadgebundene Regeln sind ebenfalls Anweisungs-Schicht — ein Stub dort ist genauso ein Stub.
+    for f in ["CLAUDE.md", "GOI_DOKTRIN.md",
+              *(str(r.relative_to(REPO_ROOT)) for r in sorted((REPO_ROOT / ".claude" / "rules").glob("*.md")))]:
         check_placeholders(REPO_ROOT / f, strict, errors, warnings)
     # Größen-Advisory auf der Anweisungs-Schicht (alles, was bei jedem Sessionstart lädt).
     for f in ("CLAUDE.md", "GOI_DOKTRIN.md", ".claude/CLAUDE.md"):
         check_context_size(REPO_ROOT / f, warnings)
     for rule in sorted((REPO_ROOT / ".claude" / "rules").glob("*.md")):
         check_context_size(rule, warnings)
+    check_startup_budget(warnings)
     if advisory_until:
         n = sum(1 for w in warnings if w.startswith("[Vollständigkeit"))
         warnings.append(f"[Advisory] Vollständigkeitsprüfung bis {advisory_until} advisory "
