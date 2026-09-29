@@ -17,6 +17,18 @@ from pathlib import Path
 from typing import Optional
 
 
+# Auto-Date/Time-Artefakte: Power BI legt je Datumsspalte eine versteckte Kalendertabelle an.
+# EINE Definition, weil es vorher fuenf gab — und vier davon pruefen nur `LocalDateTable_`,
+# womit `DateTableTemplate_*` durchrutscht. Der Regelkatalog (SM012) meldet sie als Befund,
+# jeder Verbraucher (Anforderungs-Extraktion, Reverse-Engineering) filtert sie hier heraus.
+_AUTO_DATE_TABLE_RE = re.compile(r"^(DateTableTemplate|LocalDateTable)_", re.IGNORECASE)
+
+
+def is_auto_date_table(name: str) -> bool:
+    """Ist ``name`` eine von Power BI erzeugte Auto-Date/Time-Kalendertabelle?"""
+    return bool(_AUTO_DATE_TABLE_RE.match(name or ""))
+
+
 @dataclass
 class Column:
     name: str
@@ -24,6 +36,18 @@ class Column:
     is_hidden: bool = False
     description: str = ""
     summarize_by: str = ""
+    # DAX einer BERECHNETEN Spalte (``column X = <DAX>``); leer bei Quellspalten.
+    # Zaehlt als Verwendungs-Nachweis: eine versteckte Spalte, die nur von einer
+    # anderen Calc-Column gelesen wird, ist NICHT tot (SM010).
+    expression: str = ""
+    # Ziel eines ``sortByColumn:``. Ebenfalls eine echte Verwendung — die Sortier-
+    # spalte ist meist versteckt und taucht in keinem DAX und keiner Beziehung auf.
+    # Fehlte das hier, empfiehlt SM010 ihre Loeschung und zerlegt damit die
+    # Sortierung (Befund 14.07.2026: dim_artikel[BereichSort]).
+    sort_by_column: str = ""
+    # Alternativ-Begriffe für semantisches Grounding (Cortex/Genie). Schema-first/optional:
+    # leer ⇒ Targets leiten höchstens Namens-Varianten ab; gesetzt ⇒ governte Synonyme.
+    synonyms: list = field(default_factory=list)
 
 
 @dataclass
@@ -33,11 +57,19 @@ class Measure:
     display_folder: str = ""
     description: str = ""
     format_string: str = ""
+    # Dynamischer Format-String (`formatStringDefinition = <DAX>`). Eigenes Feld,
+    # weil dieser DAX-Ausdruck Measures, Spalten UND UDFs aufruft — Referenz-Scans
+    # (SM010/SM011/UDF003) muessen ihn mitlesen, sonst gelten reine Format-Helfer
+    # faelschlich als totes Material (Befund 29.07., Contoso-Repro: _FormatMagnitude
+    # 28x / _FormatPercent 9x nur hier verwendet).
+    format_string_definition: str = ""
     is_hidden: bool = False
     # Dialekt-Map (ADR-0036): Ausdruck je Ziel-Dialekt — Core liefert jedem Target
     # SEINEN Dialekt direkt (core->sql, nicht core->dax->sql). `expression` bleibt der
     # primaere/DAX-Ausdruck (Power-BI-Quelle); `expressions` traegt z.B. {"sql": ...}.
     expressions: dict = field(default_factory=dict)
+    # Alternativ-Begriffe für semantisches Grounding (Cortex Analyst / Databricks Genie).
+    synonyms: list = field(default_factory=list)
 
 
 @dataclass
@@ -57,6 +89,10 @@ class RoleColumnPermission:
 class Role:
     name: str
     model_permission: str = "read"
+    # ///-Doku ueber der role-Deklaration. Traegt bei Contoso die fachliche
+    # Begruendung und die zugehoerige Entra-Gruppe — fuer die Uebergabe die
+    # wichtigste Information an einer Rolle, deshalb geparst statt verworfen.
+    description: str = ""
     table_permissions: list[RoleTablePermission] = field(default_factory=list)
     column_permissions: list[RoleColumnPermission] = field(default_factory=list)
 
@@ -70,8 +106,12 @@ class Table:
     columns: list[Column] = field(default_factory=list)
     measures: list[Measure] = field(default_factory=list)
     has_partition: bool = False
-    partition_type: str = ""  # "m" oder "calculated"
+    partition_type: str = ""  # "m" · "calculated" · "entity" (Direct Lake)
     m_expression: str = ""    # M-Skript der Partition (Power-Query-Regeln, D-160)
+    # Direct-Lake-Partition (partition_type == "entity"): die Lakehouse-Delta-Tabelle,
+    # die diese Modell-Tabelle im Direct-Lake-Modus bindet (source = entity).
+    entity_name: str = ""     # entityName (Lakehouse-Tabellenname), default = table.name
+    entity_schema: str = ""   # schemaName (default dbo)
     # Spaltennamen, die in Hierarchie-Levels referenziert werden —
     # gebraucht von SM010 (Unused Columns) als Verwendungs-Nachweis.
     hierarchy_columns: list[str] = field(default_factory=list)
@@ -110,9 +150,16 @@ class SemanticModel:
     parse_parity: dict = field(default_factory=dict)
 
 
-def parse_model(pbip_root: Path) -> SemanticModel:
-    """Parst ein PBIP SemanticModel-Verzeichnis und gibt ein SemanticModel zurück."""
-    model_dir = _find_model_dir(pbip_root)
+def parse_model(pbip_root: Path, *, report_name: str | None = None) -> SemanticModel:
+    """Parst ein PBIP SemanticModel-Verzeichnis und gibt ein SemanticModel zurück.
+
+    :param report_name: Name des ``.Report``-Ordners, dessen Modell gemeint ist.
+        Pflicht, sobald unter ``pbip_root`` MEHRERE ``.SemanticModel``-Ordner liegen
+        (Contoso ``dist_REFLEX-TOOLS/``: Reproduktion + Modern nebeneinander). Ohne
+        den Hint wurde bis 04.08.2026 still der ERSTE Ordner aus ``iterdir()``
+        genommen — siehe ``_find_model_dir``.
+    """
+    model_dir = _find_model_dir(pbip_root, report_name=report_name)
     model_name = model_dir.name.replace(".SemanticModel", "") if model_dir else pbip_root.name
 
     model = SemanticModel(name=model_name)
@@ -120,12 +167,22 @@ def parse_model(pbip_root: Path) -> SemanticModel:
     if not model_dir or not model_dir.exists():
         return model
 
-    # Alle .tmdl Dateien einlesen
-    tmdl_files = list(model_dir.rglob("*.tmdl"))
-
-    # Backport Meridian c68d807e: Dateiart nach TMDL-Ordnerstruktur (``_file_kind``).
+    # Nur die Modell-DEFINITION lesen, nicht den ganzen .SemanticModel-Ordner.
+    # Power BI Desktop legt unter <name>.SemanticModel/TMDLScripts/ die Skripte
+    # seiner TMDL-Ansicht ab — Arbeitsmaterial des Autors, nicht Modell. Wer sie
+    # mitliest, zaehlt Objekte doppelt und riskiert Phantom-Objekte: ein Skript
+    # mit `role`-Deklaration haette ueber den Rollen-Pass unten Rollen erfunden,
+    # die es im Modell nicht gibt — und RLS-Regeln urteilen darauf.
+    # Belegt 07.08.2026 an Contoso Modern: `TMDLScripts/Skript 2.tmdl` enthielt 56
+    # measure-Deklarationen, der Roh-Scan zaehlte 103 statt 47, und PAR001 meldete
+    # 56 "still verworfene" Measures, die nie zum Modell gehoerten. Das Modell
+    # selbst war vollstaendig — die Regel log, nicht der Parser.
+    # Fallback auf model_dir, falls kein definition/ existiert (Alt-Layouts,
+    # Direkt-Intake einzelner Dateien) — sonst braeche der Desktop-Fremdkorpus.
     definition_dir = model_dir / "definition"
     scan_root = definition_dir if definition_dir.is_dir() else model_dir
+    tmdl_files = sorted(scan_root.rglob("*.tmdl"))
+
     for tmdl_file in tmdl_files:
         content = tmdl_file.read_text(encoding="utf-8", errors="ignore")
         kind = _file_kind(tmdl_file, scan_root, content)
@@ -195,8 +252,8 @@ def _file_kind(tmdl_file: Path, scan_root: Path, content: str) -> str:
     """
     try:
         parts = tmdl_file.relative_to(scan_root).parts
-    except ValueError:  # ausserhalb definition/ (z.B. TMDLScripts/): nur Inhalt zaehlt
-        parts = ("", tmdl_file.name)
+    except ValueError:
+        parts = (tmdl_file.name,)
     stem = tmdl_file.stem.lower()
     if len(parts) == 2 and parts[0].lower() == "tables":
         return "table"
@@ -211,18 +268,41 @@ def _file_kind(tmdl_file: Path, scan_root: Path, content: str) -> str:
     return "table"
 
 
-def _report_dir_for(pbip_root: Path) -> Optional[Path]:
-    """Findet das .Report-Verzeichnis (selbst oder als Unterordner) — fuer byPath."""
+def _report_dir_for(pbip_root: Path, report_name: str | None = None) -> Optional[Path]:
+    """Findet das .Report-Verzeichnis (selbst oder als Unterordner) — fuer byPath.
+
+    Mit ``report_name`` wird GENAU dieser Ordner genommen.
+
+    OHNE Hint und bei MEHREREN Reports: fail-fast statt Erst-Treffer (11.08.2026).
+    Der Erst-Treffer war die letzte halbe Absicherung dieser Fehlerklasse. ``_find_model_dir``
+    prueft ab Schritt 2 auf Mehrdeutigkeit und wirft — aber Schritt 1 laeuft davor und loeste
+    das Modell ueber DIESEN Ordner auf. Bei zwei Reports gewann also die Reihenfolge von
+    ``iterdir()``, und ``_find_model_dir`` kam nie bis zu seiner eigenen Pruefung. Gemessen an
+    zwei Kundenberichten in einem Ordner: analysiert wurde einer von beiden, 117 der 132
+    Measures fielen weg — ohne Warnung, mit plausibel aussehendem Ergebnis. Genau die
+    Kombination, die im Kommentar zu ``_find_model_dir`` als gefaehrlicher als gar keine
+    Absicherung beschrieben ist.
+    """
     if pbip_root.is_dir() and ".Report" in pbip_root.name and (pbip_root / "definition").is_dir():
         return pbip_root
     if pbip_root.is_dir():
-        for d in pbip_root.iterdir():
-            if d.is_dir() and ".Report" in d.name:
-                return d
+        if report_name:
+            cand = pbip_root / report_name
+            return cand if cand.is_dir() else None
+        reports = sorted(d for d in pbip_root.iterdir() if d.is_dir() and ".Report" in d.name)
+        if len(reports) > 1:
+            raise ValueError(
+                f"Mehrere Reports unter {pbip_root}: "
+                f"{', '.join(r.name for r in reports)}. Welcher gemeint ist, entscheidet "
+                f"nicht die Verzeichnisreihenfolge — report_name uebergeben."
+            )
+        if reports:
+            return reports[0]
     return None
 
 
-def _model_via_dataset_reference(pbip_root: Path) -> Optional[Path]:
+def _model_via_dataset_reference(pbip_root: Path,
+                                 report_name: str | None = None) -> Optional[Path]:
     """Loest das SemanticModel ueber die offizielle ``datasetReference.byPath``-Angabe.
 
     Fabric verlinkt Report und SemanticModel in getrennten Ordnern via
@@ -230,7 +310,7 @@ def _model_via_dataset_reference(pbip_root: Path) -> Optional[Path]:
     Report-Ordner). So wird eine Meridian-derivierte Loesung (UC.Report + verlinktes
     Domaenen-Modell) ins kanonische Modell aufgenommen — ohne Meridian zu importieren.
     """
-    report_dir = _report_dir_for(pbip_root)
+    report_dir = _report_dir_for(pbip_root, report_name)
     if not report_dir:
         return None
     pbir = report_dir / "definition.pbir"
@@ -244,18 +324,52 @@ def _model_via_dataset_reference(pbip_root: Path) -> Optional[Path]:
     return cand if cand.is_dir() and ".SemanticModel" in cand.name else None
 
 
-def _find_model_dir(pbip_root: Path) -> Optional[Path]:
+def _find_model_dir(pbip_root: Path, *, report_name: str | None = None) -> Optional[Path]:
+    """Loest das SemanticModel-Verzeichnis auf.
+
+    REIHENFOLGE-KORREKTUR 04.08.2026 (Official-First, CLAUDE.md): die OFFIZIELLE
+    Verknuepfung ``<Report>/definition.pbir -> datasetReference.byPath`` gewinnt
+    jetzt VOR dem Verzeichnis-Scan. Vorher war sie nur Fallback, und Schritt 1 nahm
+    den ERSTEN ``.SemanticModel``-Ordner aus ``iterdir()``.
+
+    Der Fehler, der das aufgedeckt hat (Contoso, 04.08.2026): in
+    ``dist_REFLEX-TOOLS/`` liegen Reproduktion UND Modern nebeneinander — je ein
+    Report und je ein Modell. ``audit_pbip`` bekam den Report per ``report_name``
+    (Fail-fast-Fix T1, 03.07.2026), das MODELL aber nicht. Also wurde der
+    Reproduktions-Report gegen das MODERN-Modell geprueft und meldete 5 Objekte als
+    "existiert nicht", die in seinem eigenen Modell sehr wohl existieren
+    (``Sicherer Umsatz Miete``, ``Produktgruppen-Wert``, ``Forward-Matrix-Wert``,
+    ``Forward-Matrix-Farbe``, ``dim_kpizeile_forward``) — 2 CRITICAL, komplett
+    falsch. Ein Report-Fix haette funktionierende Visuals kaputt gemacht.
+    Merkmal dieser Fehlerklasse: die Report-Seite war gegen Mehrdeutigkeit
+    abgesichert, die Modell-Seite nicht — halbe Absicherung ist gefaehrlicher als
+    keine, weil das Ergebnis dann plausibel aussieht.
+    """
     # 0. pbip_root IST bereits ein .SemanticModel-Verzeichnis (Direkt-Intake,
     #    z.B. ein einzelnes Modell aus einer Multi-Modell-dist) — Gate/CLI nutzen das.
     if pbip_root.is_dir() and ".SemanticModel" in pbip_root.name:
         return pbip_root
-    # 1. .SemanticModel direkt unter pbip_root (klassisches Single-Project-PBIP)
+    # 1. Offizielle Verknuepfung Report -> Modell (datasetReference.byPath).
+    #    Das ist die einzige Quelle, die die PAARUNG kennt; alles andere raet.
+    via_ref = _model_via_dataset_reference(pbip_root, report_name)
+    if via_ref:
+        return via_ref
+    # 2. .SemanticModel direkt unter pbip_root (klassisches Single-Project-PBIP).
+    #    Nur eindeutig, solange dort GENAU EINES liegt — sonst fail-fast statt
+    #    stiller Erst-Treffer-Wahl (symmetrisch zu parse_report, T1 03.07.2026).
     if pbip_root.is_dir():
-        for d in pbip_root.iterdir():
-            if d.is_dir() and ".SemanticModel" in d.name:
-                return d
-    # 2. Fallback: ueber datasetReference.byPath (Report+Modell getrennt, z.B. Meridian)
-    return _model_via_dataset_reference(pbip_root)
+        sms = sorted(d for d in pbip_root.iterdir()
+                     if d.is_dir() and ".SemanticModel" in d.name)
+        if len(sms) == 1:
+            return sms[0]
+        if len(sms) > 1:
+            raise ValueError(
+                f"Mehrere SemanticModels unter {pbip_root}: "
+                f"{', '.join(s.name for s in sms)}. Ohne aufloesbare "
+                f"datasetReference.byPath ist die Paarung Report<->Modell nicht "
+                f"bestimmbar — report_name uebergeben (siehe audit_pbip)."
+            )
+    return None
 
 
 def _parse_model_meta(content: str, model: SemanticModel) -> None:
@@ -374,10 +488,14 @@ def _parse_table(content: str, default_name: str) -> Optional[Table]:
     # Spalten
     col_blocks = re.split(r"\n\s+column\s+", content)
     for i, block in enumerate(col_blocks[1:], 1):
-        col_name_match = re.match(r"'?([^'\n]+)'?", block)
+        # Spaltenname: entweder 'quotiert mit Leerzeichen' ODER unquotierter Token bis
+        # zum ersten Whitespace/'='. Das '=' ist wichtig fuer BERECHNETE Spalten
+        # (``column Name = <DAX>``) — sonst wandert der ganze Ausdruck in den Namen und
+        # Report-Bindings auf die Spalte schlagen als RB002 (unbekannte Spalte) fehl.
+        col_name_match = re.match(r"'([^']+)'|([^\s=]+)", block)
         if not col_name_match:
             continue
-        col_name = col_name_match.group(1).strip()
+        col_name = (col_name_match.group(1) or col_name_match.group(2) or "").strip()
         col = Column(name=col_name)
         dtype_match = re.search(r"dataType\s*:\s*(\w+)", block)
         if dtype_match:
@@ -389,6 +507,24 @@ def _parse_table(content: str, default_name: str) -> Optional[Table]:
         sb_match = re.search(r"summarizeBy\s*:\s*(\w+)", block)
         if sb_match:
             col.summarize_by = sb_match.group(1)
+        sort_match = re.search(r"sortByColumn\s*:\s*'?([^'\n]+)'?", block)
+        if sort_match:
+            col.sort_by_column = sort_match.group(1).strip()
+        # DAX einer berechneten Spalte: alles hinter dem '=' der Kopfzeile, inkl.
+        # eingerueckter Folgezeilen bis zur ersten Property (dataType:, isHidden, ...).
+        head, sep, tail = block.partition("=")
+        if sep and "\n" not in head:
+            expr_lines = []
+            for line in tail.splitlines():
+                s = line.strip()
+                if not expr_lines and not s:
+                    continue
+                if re.match(r"(?:dataType|lineageTag|summarizeBy|sourceColumn|sortByColumn|"
+                            r"formatString|displayFolder|dataCategory|annotation|isHidden|"
+                            r"isKey|isNameInferred|isAvailableInMdx|changedProperty)\b", s):
+                    break
+                expr_lines.append(s)
+            col.expression = " ".join(expr_lines).strip()
         table.columns.append(col)
 
     # Hierarchien — Level-Spalten als Verwendungs-Nachweis sammeln (SM010)
@@ -433,6 +569,16 @@ def _parse_table(content: str, default_name: str) -> Optional[Table]:
         fs_match = re.search(r"formatString\s*:\s*(.+)", block)
         if fs_match:
             measure.format_string = fs_match.group(1).strip().strip('"').strip("'")
+        # `formatStringDefinition = <DAX>` (dynamischer Format-String). Nutzt `=`,
+        # nicht `:` — kollidiert daher nicht mit fs_match oben. Mehrzeilige Bodies
+        # werden mitgenommen, Terminierung analog zur Measure-Expression.
+        fsd_match = re.search(
+            r"formatStringDefinition\s*=\s*(.+?)(?=\n\s+(?:formatString\s*:|displayFolder|"
+            r"description|lineageTag|dataCategory|annotation\b|changedProperty|isHidden\b)|\Z)",
+            block, re.DOTALL,
+        )
+        if fsd_match:
+            measure.format_string_definition = fsd_match.group(1).strip()
         measure.is_hidden = bool(re.search(r"^\s*isHidden\b", block, re.MULTILINE))
         table.measures.append(measure)
 
@@ -532,14 +678,34 @@ def _parse_roles_from_content(content: str) -> list[Role]:
     """Parst eine TMDL-Datei, die eine oder mehrere Rollen enthält."""
     roles = []
     # Split by role blocks — each starts with "role " at line start
-    blocks = re.split(r"(?=^role\s)", content, flags=re.MULTILINE)
-    for block in blocks:
-        block = block.strip()
-        if not block.startswith("role"):
-            continue
-        role = _parse_single_role(block)
-        if role:
-            roles.append(role)
+    # Beim Split die ///-Doku-Zeilen UNMITTELBAR ueber `role` mitnehmen — sie
+    # gehoeren fachlich zur Rolle (07.08.2026: vorher fielen sie weg, und die
+    # Dokumentation zeigte eine leere Beschreibungsspalte, obwohl im TMDL die
+    # Begruendung samt Entra-Gruppe stand).
+    # Zeilenweise statt per re.split: ein Lookahead auf "optionale ///-Zeilen,
+    # dann role" trifft AUCH direkt vor `role` und trennt die Doku dadurch von
+    # ihrem Block ab (gemessen 07.08.2026: 3 Bloecke statt 2, Beschreibung leer).
+    lines = content.replace("\r\n", "\n").split("\n")
+    i, n = 0, len(lines)
+    while i < n:
+        doku: list[str] = []
+        j = i
+        while j < n and lines[j].startswith("///"):
+            doku.append(lines[j][3:].strip())
+            j += 1
+        if j < n and re.match(r"^role\s", lines[j]):
+            k = j + 1
+            while k < n and not (lines[k].startswith("///")
+                                 or re.match(r"^role\s", lines[k])):
+                k += 1
+            role = _parse_single_role("\n".join(lines[j:k]))
+            if role:
+                if doku:
+                    role.description = " ".join(x for x in doku if x)
+                roles.append(role)
+            i = k
+        else:
+            i = j if j > i else i + 1
     return roles
 
 

@@ -61,11 +61,51 @@ fact:
       - {name: Net Sales Amount, type: currency, agg: sum}
 ```
 
+### Conformed tables — one definition per table (Bus-Matrix, 29.09.2026)
+
+Every physical table has **exactly one** definition, in the contract of its owning domain
+(Kimball conformed dimensions / bus matrix). Every other domain that uses the table refers to it:
+
+```yaml
+dimension:
+  - name: dim_date
+    conformed_from: commercial_sales        # the owning domain's `domain:` value
+    uses_columns: [DateKey, Date, Year]     # optional: the columns this domain's model uses
+```
+
+A reference carries no `columns` and no table fields (description, grain, scd_type, showcase …).
+`uses_columns` may also stand on the definition itself, for the owner's own model. The owner's
+definition is the union of all former domain versions; conflicts were decided against Aurora gold
+and the semantic models (ledger A-20/A-23, `docs/architecture/_INDEX.md`).
+
+| Table | Owner | Referenced by |
+|---|---|---|
+| `dim_date`, `dim_org` | `commercial_sales` | all eleven other domains |
+| `dim_product` | `commercial_sales` | finance, growth, operations, supply_chain |
+| `dim_customer` | `commercial_sales` | finance |
+| `fact_sales` | `commercial_sales` | supply_chain (`Sales Units` = Gold `Quantity`) |
+| `fact_nps` | `experience` | commercial_sales |
+| `fact_inventory` | `supply_chain` | finance |
+| `fact_safety` | `esg` | operations |
+
+Enforced by `tooling/validation/check_validate_data_contracts.py` (hard: a second definition of a
+table name, a reference to a domain that does not define the table or defines it in the other
+section, `uses_columns` outside the definition). Two views, one source
+(`tooling/utils/data_contracts.py`): the **canonical** view (raw YAML, one definition per table —
+`export_governed_catalog.py` emits exactly one entry per table with `domain` = owner and
+`domains` = every domain that uses it) and the **domain view** (`load_resolved_contract`: references
+replaced by the owner's table narrowed to `uses_columns`) for per-domain consumers
+(`generate_semantic_model`, `ai_description`, `linguistic_schema`, Studio `contract-loader.ts`).
+
 ### Structured quality fields (A-20/A-23, 29.09.2026)
 
 Rules that a machine can run live **on the column**, not as prose in `quality_rules`
-(consumed by `tooling/generator/export_governed_catalog.py` → `column_specs`, checked by
-`tooling/validation/check_validate_data_contracts.py`):
+(consumed by `tooling/generator/export_governed_catalog.py` → `column_specs`, carried into
+ODCS v3.1 by `tooling/superversion/odcs.py` — `to_odcs(blueprint, governed_catalog)` and back via
+`odcs_to_catalog`, same mapping as Meridian D-581 — and checked by
+`tooling/validation/check_validate_data_contracts.py`, the only contract validator: its JS twin
+`validate_data_contracts.js` was called by no workflow, script or Stage-1 check and was removed
+on 29.09.2026):
 
 | Field | Where | Meaning |
 |---|---|---|

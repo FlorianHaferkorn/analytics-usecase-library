@@ -24,7 +24,7 @@ Health metrics are tracked across releases and reviewed at each major version.
 | H5 | Factsheet Quality Score | Average section completeness across core Business Factsheets | ≥80% | Business Owners |
 | H6 | Prioritization & Readiness Coverage % | Use cases with both a prioritization and a readiness block | ≥80% | Framework Owner |
 | H7 | Report Binding Integrity % | Generated report visual bindings that resolve to a defined TMDL measure | 100% | Data Engineering |
-| H8 | AI-Readiness / Linguistic Coverage % | Governed synonyms in the linguistic schema (Copilot/Q&A) + AI-surface hygiene (0 visible keys, 0 weak descriptions) | 100% | Data Engineering |
+| H8 | AI-Readiness / Linguistic Coverage % | Governed synonyms in the linguistic schema (Copilot) + AI-surface hygiene (0 visible keys, 0 weak descriptions) | 100% | Data Engineering |
 
 ---
 
@@ -182,9 +182,9 @@ quality (automated check only validates presence, not depth).
 
 **Definition:** The percentage of governed column synonyms (data-contract
 `synonyms`) that are present in the committed model **linguistic schema**
-(`cultures/<culture>.tmdl`). Power BI Copilot/Q&A resolve natural language against
-the linguistic schema, not against `///` description text — so a synonym that only
-reaches the `///` block is invisible in-product. H8 is the gate that keeps the
+(`cultures/<culture>.tmdl`). Power BI Copilot reads synonyms from the linguistic
+schema, not from `///` description text — so a synonym that only reaches the `///`
+block does not act as a synonym in-product. H8 is the gate that keeps the
 **third projection** (see `core/semantic_models/AI_Description_Standard.md`) from
 silently regressing: drop a governed synonym from the schema and H8 goes red even
 though H2 (description text) stays green.
@@ -198,6 +198,25 @@ H8 = (governed synonyms present in cultures/*.tmdl) / (governed synonyms in cont
 A domain contributes only when its contract carries `synonyms`; today that is
 Aurora **Commercial** (`Region`, `Channel`, `Net Sales Amount` → 7 governed
 synonyms, 100% present). Other domains join as their contracts are curated.
+
+**Consumer after the Q&A retirement (re-assessed 29.09.2026, plan W3.3).** Q&A ends in
+February 2027 (banner on every Learn Q&A page). The gate is **kept**; its consumer is now
+Copilot alone (`H8_CONSUMERS` in `tooling/health_scorecard.py`, returned in the H8
+details). Evidence, Learn, read 29.09.2026:
+
+- *Use Copilot with semantic models*: Copilot in DAX query view grounds on "Synonyms from
+  the model linguistic schema"; "Power BI relies on the same linguistic modeling as the
+  Q&A feature".
+- *Ask data questions with Copilot*: "Add synonyms to data field names to clarify
+  business-specific terms for Copilot".
+
+Counter-signal, also Learn 29.09.2026: the *Prep data for AI* FAQ lists AI data schema,
+verified answers, AI instructions and descriptions as the Copilot tooling and routes
+"understand the term I'm using" to **AI instructions**, not synonyms. Copilot data
+questions and *Prep data for AI* still require the model's Q&A setting to be on (it
+drives value indexing). Re-check both points before February 2027; if Copilot stops
+reading synonyms, the coverage half of H8 loses its consumer and has to be re-targeted.
+The hygiene half is independent of Q&A.
 
 **AI-surface hygiene (folded in).** H8 is the composite AI-readiness gate: in
 addition to linguistic coverage it must show **0 visible surrogate/FK keys** (C1 —

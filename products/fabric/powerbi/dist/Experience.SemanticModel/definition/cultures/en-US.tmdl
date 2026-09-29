@@ -363,6 +363,18 @@ culture en-US
 								}
 							},
 							{
+								"Sales Region": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Geo": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
 								"Geography": {
 									"Type": "Noun",
 									"State": "Authored"
@@ -409,6 +421,12 @@ culture en-US
 								}
 							},
 							{
+								"Route to Market": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
 								"Distribution Channel": {
 									"Type": "Noun",
 									"State": "Authored"
@@ -416,6 +434,12 @@ culture en-US
 							},
 							{
 								"Vertriebskanal": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Absatzkanal": {
 									"Type": "Noun",
 									"State": "Authored"
 								}

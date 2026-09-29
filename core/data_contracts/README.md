@@ -39,7 +39,7 @@ Usage:
 - Delivery teams: model and ingestion specs start here; keep semantic assumptions identical to these contracts.
 - Framework evolution: extend contracts carefully and version changes; preserve conformed dimensions (dim_date, dim_org, dim_product, dim_customer, security_user_org).
 
-**Shared / conformed tables:** The following tables are intentionally defined in more than one domain contract (each domain may keep a local copy for its scope). Ownership for the conformed shape is Data Platform; domain contracts document domain-specific usage. When running `audit_data_contracts_content.ps1`, these are allowlisted as known shared tables: dim_date, dim_org, dim_product, dim_customer, fact_sales, fact_nps, fact_inventory.
+**Shared / conformed tables (Bus-Matrix, 29.09.2026):** every table is defined **once**, in its owning domain; other domains refer with `conformed_from: <domain>` (and optionally `uses_columns`) instead of keeping a local copy — the validator rejects a second definition. Owners and rules: `domains/README.md` (section *Conformed tables*): dim_date, dim_org, dim_product, dim_customer, fact_sales → commercial_sales; fact_nps → experience; fact_inventory → supply_chain; fact_safety → esg.
 
 Relations:
 

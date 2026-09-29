@@ -9,28 +9,12 @@ owner: ESG / Sustainability Data Product
 
 dimension:
   - name: dim_date
-    description: "Calendar dimension for ESG reporting (annual and quarterly cycles)."
-    purpose: "Time slicing for ESG KPIs, aligned to reporting periods."
-    scd_type: 1
-    columns:
-      - {name: DateKey, type: int, role: key}
-      - {name: Date, type: date}
-      - {name: Year, type: int}
-      - {name: Quarter, type: text}
-      - {name: Month, type: text}
-      - {name: MonthNumber, type: int}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, Date, Year, Quarter, Month, MonthNumber]
 
   - name: dim_org
-    description: "Organization/site dimension for ESG reporting (plant, region, country)."
-    purpose: "Scoping for site-level environmental and social reporting."
-    scd_type: 2
-    columns:
-      - {name: OrgKey, type: int, role: key}
-      - {name: SiteCode, type: text, target_state: true}
-      - {name: SiteName, type: text, target_state: true}
-      - {name: Region, type: text, nullable: true}
-      - {name: Country, type: text, nullable: true}
-      - {name: Segment, type: text, nullable: true, target_state: true}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [OrgKey, SiteCode, SiteName, Region, Country, Segment]
 
   - name: dim_emission_scope
     showcase: false
@@ -86,13 +70,19 @@ fact:
     description: "Workplace safety incidents and lost time per site per month."
     purpose: "LTIFR, incident rate, and safety performance reporting."
     grain: site_month
+    # Konformer Fakt (Bus-Matrix, 29.09.2026): die einzige Definition; operations verweist.
+    # `Incidents` (esg) und `Incident Count` (operations) waren dieselbe Zählung: eine Spalte,
+    # Name aus der KPI-Lineage (ops.safety.incident.count). Weder Gold noch Modell führen die Tabelle.
+    uses_columns: [DateKey, OrgKey, Incident Count, Lost Time Incidents, Hours Worked, Fatalities]
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
-      - {name: Incidents, type: int, agg: sum}
-      - {name: Lost Time Incidents, type: int, agg: sum, checks: [{lte_column: Incidents}]}
+      - {name: Incident Count, type: int, agg: sum, checks: [{gte: 0}]}
+      - {name: Lost Time Incidents, type: int, agg: sum, checks: [{lte_column: Incident Count}]}
       - {name: Hours Worked, type: decimal, agg: sum}
       - {name: Fatalities, type: int, agg: sum, checks: [{gte: 0}]}
+      # Severity und Lost Time Injury Flag (Merkmale je Vorfall) stehen seit 29.09.2026 in
+      # operations.fact_safety_incidents (Korn incident), nicht in diesem Monats-Snapshot.
 
   - name: fact_di
     showcase: false

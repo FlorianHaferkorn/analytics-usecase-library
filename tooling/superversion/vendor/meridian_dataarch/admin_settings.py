@@ -46,7 +46,67 @@ GROUNDING_DATE = "2026-07-24"
 #: capacity or workspace surface carries it. Filing it under ``tenant`` would have been the convenient
 #: lie, and it would have sent an admin to the Fabric admin portal to look for something that lives in
 #: Entra. The set is a constant so the catalog and its test read the same list.
-SCOPES = ("tenant", "capacity", "workspace", "entra")
+#:
+#: ``m365`` joined on 2026-09-29 (plan I-21 W5.7) for the same reason: *Fabric data in Microsoft
+#: Copilot* lives in the Microsoft 365 admin center, not in Fabric. A Fabric admin looking for it under
+#: Govern finds nothing, and the Fabric tenant-setting API cannot read or set it.
+SCOPES = ("tenant", "capacity", "workspace", "entra", "m365")
+
+# --- Navigation: OneLake catalog → Govern is the admin start page (plan I-21 W1.7) -------------------
+#
+# Learn, read 2026-09-29 via MCP: `fabric/admin/about-tenant-settings` („Select OneLake catalog, and then
+# select the Govern tab … Configurations > Tenant settings"; „OneLake catalog and Govern are rolling out
+# by region. If they're not available in your region, select Settings (gear) icon > Admin portal >
+# Tenant settings"), `fabric/admin/tenant-settings-index` („Administrators can use Govern as their
+# primary destination"), `fabric/governance/onelake-catalog-capacities` (Capacities page, same fallback
+# sentence), `fabric/governance/onelake-catalog-govern` (the four limits below).
+#
+# Why a table and not a search-and-replace over the texts: the path is a function of the SCOPE, and the
+# fallback is part of the answer, not a footnote. A text that names only Govern sends an admin in a
+# region without Govern — or on a Private-Link tenant — to a tab that does not exist.
+NAVIGATION_GEPRUEFT = "2026-09-29"
+GOVERN_PFAD: dict[str, str] = {
+    "tenant": "OneLake catalog → Govern → Configurations → Tenant settings",
+    "capacity": "OneLake catalog → Govern → Capacities → the capacity → More options → Settings",
+}
+ADMIN_PORTAL_FALLBACK: dict[str, str] = {
+    "tenant": "Settings (gear) → Admin portal → Tenant settings",
+    "capacity": "Settings (gear) → Admin portal → Capacity settings",
+}
+#: The documented limits of the Govern tab. Each one is a case in which the fallback is not optional.
+GOVERN_GRENZEN: tuple[str, ...] = (
+    "Not available while Private Link is activated — the Admin portal stays the only way in.",
+    "No cross-tenant scenarios and no guest users.",
+    "Estate insights and recommended actions come from admin monitoring storage refreshed once a day; "
+    "a change made today shows up tomorrow.",
+    "Everyone viewing the admin monitoring workspace (estate report) needs a Power BI Pro licence "
+    "unless that workspace is assigned to a capacity.",
+)
+
+
+def navigation(scope: str) -> dict[str, str] | None:
+    """Where a setting of ``scope`` is set: ``{"govern": …, "fallback": …}``, or ``None``.
+
+    ``None`` for ``workspace`` (workspace settings, not an admin surface), ``entra`` (Entra admin
+    center) and ``m365`` (Microsoft 365 admin center) — Govern is the wrong place for all three, and
+    answering with it would be the convenient lie again."""
+    if scope not in GOVERN_PFAD:
+        return None
+    return {"govern": GOVERN_PFAD[scope], "fallback": ADMIN_PORTAL_FALLBACK[scope]}
+
+
+def navigation_md() -> list[str]:
+    """The navigation block every admin-facing runbook renders — one source, English like its readers."""
+    out = [f"## Where to set it (checked {NAVIGATION_GEPRUEFT})", "",
+           "The admin start page is **OneLake catalog → Govern**. The Admin portal is the fallback, "
+           "not the default — and it is the only way in while Govern is not rolled out in your region.",
+           "", "| Scope | Govern (primary) | Fallback |", "|---|---|---|"]
+    for scope in GOVERN_PFAD:
+        out.append(f"| {scope} | {GOVERN_PFAD[scope]} | {ADMIN_PORTAL_FALLBACK[scope]} |")
+    out += ["", "Govern limits that force the fallback:", ""]
+    out += [f"- {g}" for g in GOVERN_GRENZEN]
+    out.append("")
+    return out
 
 # The generic Admin REST API that makes tenant settings scriptable. Not preview (re-measured 2026-09-29,
 # see module docstring); what remains true is the opaque settingName, the missing allow-list and the limit.
@@ -131,7 +191,9 @@ CATALOG: list[dict[str, Any]] = [
         "section": "Capacity settings → Power BI workloads (NOT a tenant setting)", "scope": "capacity",
         "capabilities": ["xmla_rw"], "default": "read only", "target": "read/write",
         "who": "Capacity admin", "automatable": False,
-        "how": "capacity-admin portal action (companion tenant switch 'Allow XMLA endpoints…' IS API-settable)",
+        "how": ("capacity-admin portal action: OneLake catalog → Govern → Capacities → the capacity → "
+                "Settings → Power BI workloads (fallback: Admin portal → Capacity settings); the "
+                "companion tenant switch 'Allow XMLA endpoints…' IS API-settable"),
         "why": "deploy semantic-model TMDL / RLS via XMLA", "required": "if XMLA/RLS/OLS",
         "source": _L + "fabric/enterprise/powerbi/service-premium-connect-tools#enable-xmla-read-write",
     },
@@ -348,8 +410,10 @@ CATALOG: list[dict[str, Any]] = [
         "default": "off — the documented enable steps switch Background Operations to On",
         "target": "on; thresholds derived from the first full measurement window, never set up front",
         "who": "Capacity admin", "automatable": False,
-        "how": ("capacity-admin portal action: Admin Portal → Capacity settings → select the capacity "
-                "→ Surge protection → Background Operations On → rejection + recovery threshold → Apply"),
+        "how": ("capacity-admin portal action: OneLake catalog → Govern → Capacities → select the "
+                "capacity → More options → Settings → Surge protection → Background Operations On → "
+                "rejection + recovery threshold → Apply (fallback where Govern is not rolled out: Admin "
+                "portal → Capacity settings → select the capacity → Surge protection)"),
         "why": ("without it the capacity's 24-hour background percentage may reach 100% before background "
                 "operations are rejected, and the deep throttling that follows recovers slowly"),
         "required": "yes",
@@ -373,9 +437,10 @@ CATALOG: list[dict[str, Any]] = [
             "Two things to settle before switching the workspace cap on. *Blocked* is a harder stop "
             "than the capacity-level one: capacity level rejects background operations, a blocked "
             "workspace rejects **all** operations, interactive included — to its users that looks "
-            "like an outage. Turn the banner on in the same visit (Admin Portal → Capacity settings "
-            "→ Notification → *Display a banner to all users of the workspace*) so they read a "
-            "limit instead of guessing at a fault. And the rolling 24-hour window does not reset "
+            "like an outage. Turn the banner on in the same visit (OneLake catalog → Govern → "
+            "Capacities → the capacity → settings → *Capacity Notifications* → *Display a banner to "
+            "all users of the workspace*; fallback Admin portal → Capacity settings → *Throttling "
+            "notifications*) so they read a limit instead of guessing at a fault. And the rolling 24-hour window does not reset "
             "when a block expires: a workspace whose usage still sits above the cap is blocked "
             "again straight away."),
         "grenzen": (
@@ -572,8 +637,65 @@ CATALOG: list[dict[str, Any]] = [
         "source": _L + "fabric/admin/service-admin-portal-export-sharing",
         "verfahren": (
             "Disabling for the whole organisation also stops existing published reports from rendering. "
-            "Review the existing embed codes first — Admin portal → Embed codes lists them — because "
-            "that list, not the toggle, tells you what is live on the web right now."),
+            "Review the existing embed codes first — Admin portal → Embed codes lists them (a Govern "
+            "equivalent was not checked on 2026-09-29: ANNAHME, ungeprueft) — because that list, not "
+            "the toggle, tells you what is live on the web right now."),
+    },
+    # --- 29.09.2026: Fabric IQ in Microsoft 365 Copilot und der neue Copilot-Einstieg (I-21 W5.7) ---
+    #
+    # Beide Eintraege tragen das Feld ``lizenz``: die Lizenz, die der Schalter voraussetzt, als
+    # ANNAHME der Lieferung. Warum ein Feld und kein Satz im ``why``: ob der Kunde die Lizenz hat,
+    # ist eine Frage an den Kunden (vorlegen, nicht schaetzen), und ein Renderer, der sie stellen
+    # soll, kann sie nur aus einem Feld stellen. Gelesen per Learn-MCP am 29.09.2026:
+    # `fabric/iq/connectors/microsoft-365-copilot-overview` (GA, „Microsoft 365 Copilot Premium
+    # license: Required for all users", RLS/OLS respektiert, Einstellung „enabled by default"),
+    # `microsoft-365/copilot/copilot-powerbi-copilot-chat` (Weg im M365 admin center),
+    # `fabric/iq/connectors/copilot-power-bi-fabric` (Preview, „off by default", Copilot Premium).
+    {
+        "id": 30, "name": "Fabric data in Microsoft Copilot",
+        "alias": "Fabric data available in M365 Copilot",   # Name auf den Fabric-IQ-Seiten
+        "section": "Microsoft 365 admin center → Copilot → Settings → View all (NOT a Fabric setting)",
+        "scope": "m365", "capabilities": ["governance"],
+        "default": 'on — MS: "The setting is enabled by default"',
+        "target": "a decision, not the default: No users / Specific groups / All users — decided with "
+                  "the data-protection owner before go-live (SEC-SHARE)",
+        "who": "Microsoft 365 administrator (not the Fabric admin)", "automatable": False,
+        "how": ("Microsoft 365 admin center → Copilot → Settings → View all → Fabric data in Microsoft "
+                "Copilot → Step 1: No users / All users / Specific groups → Save. The Fabric tenant-"
+                "setting API does not reach it"),
+        "why": ("Fabric IQ in Microsoft 365 Copilot Chat and Cowork is GA and answers from Power BI "
+                "reports and semantic models under the user's own permissions, RLS and OLS included. "
+                "Nothing is exposed beyond those permissions — but the answers leave Power BI and "
+                "mix with mail, chat and files, and that is a data-protection decision the delivery "
+                "must not take by default"),
+        "required": "yes",
+        "lizenz": "Microsoft 365 Copilot Premium for every user who is to get answers "
+                  "(ANNAHME, ungeprueft — to be confirmed by the customer, not assumed)",
+        "source": _L + "fabric/iq/connectors/microsoft-365-copilot-overview",
+        "grenzen": (
+            "Turning it off hides Fabric context from Copilot responses; it does not change who can "
+            "open the report in Power BI.",
+            "#24 is a different switch on the Fabric side: it governs the background metadata flow "
+            "(search, attachment menu). With #24 off, users can still paste a report link or name a "
+            "report in the prompt.",
+            "Semantic models in workspaces on Embedded capacities (A/EM SKUs) are not supported; Pro, "
+            "PPU, Premium and Fabric capacities are.",
+            "Power-BI-only regions are not supported.",
+        ),
+    },
+    {
+        "id": 31, "name": "Users can access Microsoft Copilot in Power BI and Microsoft Fabric (preview)",
+        "section": "Copilot and Azure OpenAI Service", "scope": "tenant", "capabilities": ["copilot"],
+        "default": 'off — MS: "This setting is off by default during the preview"',
+        "target": "off in production while it is preview; on only for a named pilot group",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST / sempy — or portal (settingName unconfirmed)",
+        "why": ("the new Copilot entry point in Power BI and Fabric. Preview, and MS lists three more "
+                "prerequisites next to it: #8, the Microsoft 365 setting #30, and a per-user licence"),
+        "required": "if Copilot",
+        "lizenz": "Copilot Premium per user (ANNAHME, ungeprueft — MS announces a later rollout for "
+                  "users without it, capabilities not published)",
+        "source": _L + "fabric/iq/connectors/copilot-power-bi-fabric",
     },
 ]
 
@@ -595,6 +717,16 @@ def procedural_settings(capabilities: Iterable[str]) -> list[dict[str, Any]]:
     im Renderer: sonst entscheidet der Renderer, was als Haertung gilt, und der naechste Renderer
     entscheidet es anders. Sortiert nach Katalog-Id; rein."""
     return [s for s in required_settings(capabilities) if s.get("verfahren") or s.get("grenzen")]
+
+
+def lizenzannahmen(capabilities: Iterable[str]) -> list[dict[str, Any]]:
+    """Die Lizenzannahmen der geforderten Settings: ``[{id, name, lizenz}]``, sortiert nach Id.
+
+    Eine Lizenz ist keine Einstellung, und die Lieferung kann sie nicht setzen — sie kann sie nur
+    **vorlegen**. Deshalb eine eigene Liste: der Renderer stellt sie als Frage an den Kunden, und ein
+    Test kann zaehlen, ob jede lizenzpflichtige Einstellung ihre Annahme traegt (I-21 W5.7)."""
+    return [{"id": s["id"], "name": s["name"], "lizenz": s["lizenz"]}
+            for s in required_settings(capabilities) if s.get("lizenz")]
 
 
 def settability_summary(capabilities: Iterable[str]) -> dict[str, Any]:

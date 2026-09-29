@@ -112,7 +112,9 @@ jobs:
       # Ruff lief bis 29.09.2026 nirgends (2768 Befunde in 15 Regeln). Sperrklinke statt
       # Tor: je Regel eingefroren in scripts/lint_baseline.json, darf nur sinken.
       - name: Ruff-Sperrklinke (blockierend)
-        run: python scripts/check_lint_ratchet.py --strict
+        # --pin-pflicht: eine andere Ruff-Version als der Pin oben ist Exit 2 (nicht gelaufen),
+        # ebenso fehlendes Ruff; ein Anstieg ist Exit 1. Beides rot (29.09.2026).
+        run: python scripts/check_lint_ratchet.py --pin-pflicht
 
       # Meridian D-578 (29.09.2026): die Aurora-Showdaten (Parquet + _delta_log, 614 MB aktiv)
       # liegen nicht mehr in Git, sondern als Release-Archiv; showdaten.lock.json haelt Tag,

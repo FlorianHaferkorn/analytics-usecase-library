@@ -2449,14 +2449,16 @@ def _dq_model_entry(name: str, kind: str, contract_ref: str, columns: list[dict]
         cols = columns
     elif kind == "dimension":
         cols = [{"name": f"{name}_sk", "description": "surrogate key", "tests": ["not_null", "unique"]}]
+    # Die Platzhalter tragen seit 29.09.2026 KEINEN Test mehr: `dq/` ist jetzt ein lauffaehiges
+    # dbt-Projekt, und ein Test auf eine Spalte, die es nicht gibt, endet dort mit ERROR
+    # (gemessen mit dbt 1.12.5: `not_null_gold_fact_ledger__dimension_foreign_key_` ERROR). Ein
+    # Tor, das immer rot ist, wird abgeschaltet. Der TODO bleibt sichtbar in der Beschreibung.
     elif kind == "fact":
         cols = [{"name": "<dimension_foreign_key>",
-                 "description": f"TODO(contract:{contract_ref}): FK not_null + relationships test",
-                 "tests": ["not_null"]}]
+                 "description": f"TODO(contract:{contract_ref}): FK not_null + relationships test"}]
     else:  # aggregate
         cols = [{"name": "<group_key>",
-                 "description": f"TODO(contract:{contract_ref}): grouping grain not_null",
-                 "tests": ["not_null"]}]
+                 "description": f"TODO(contract:{contract_ref}): grouping grain not_null"}]
     # Die Schnittspalten kommen ZUSAETZLICH, nie statt der Schluesseltests: sie stehen auf einer
     # anderen Achse (wer darf die Zeile sehen) als der Schluessel (haengt die Zeile richtig).
     vorhanden = {c.get("name") for c in cols}
@@ -2466,8 +2468,109 @@ def _dq_model_entry(name: str, kind: str, contract_ref: str, columns: list[dict]
             "columns": cols}
 
 
+#: Name des Fabric-dbt-Jobs, der die DQ-Tore faehrt (W2.4). Ein Name, weil ein Job alle Domaenen
+#: prueft — die Tore sind ein dbt-Projekt, nicht eins je Domaene.
+DBT_DQ_JOB = "dbt_dq_gates"
+
+
+def _dbt_projekt(modelle: list[tuple[str, str, str]]) -> dict[str, str]:
+    """``dbt_project.yml`` + je Gold-Produkt ein **ephemeres** Modell, das die Tabelle nur liest.
+
+    Anlass (29.09.2026, W2.4): ``dq/<domaene>/schema.yml`` beschrieb Tests fuer Modelle, die es
+    in keinem dbt-Projekt gab. dbt haengt Tests nur an Knoten, die existieren; ein ``schema.yml``
+    ohne Modell ist ein Patch ins Leere und ``dbt test`` meldet dann **nichts gefunden**, obwohl
+    es nichts geprueft hat. Mit dem Job-Item (unten) waere genau das ein gruener Lauf gewesen.
+
+    ``ephemeral`` legt nichts an: dbt setzt das Modell als CTE in jede Testabfrage ein. Die
+    Gold-Tabelle bleibt Sache des Transform-Pfads; das dbt-Projekt prueft sie nur.
+    """
+    out = {"dq/dbt_project.yml": yaml.safe_dump({
+        "name": "meridian_dq_gates", "version": "1.0.0", "config-version": 2,
+        "profile": "meridian_dq_gates",
+        # Die Modelle liegen neben ihren schema.yml in dq/<domaene>/. Nicht "." — dann liest dbt
+        # auch dbt_project.yml als Schemadatei und bricht ab (gemessen 29.09.2026, dbt 1.12.5:
+        # "The schema file at ./dbt_project.yml is invalid").
+        "model-paths": sorted({o for o, _m, _t in modelle}),
+        "models": {"meridian_dq_gates": {"+materialized": "ephemeral"}},
+    }, sort_keys=False, allow_unicode=True)}
+    for ordner, modell, tabelle in modelle:
+        out[f"dq/{ordner}/{modell}.sql"] = (
+            "-- generiert: liest die Gold-Tabelle nur, damit dbt die Tests aus schema.yml\n"
+            "-- daran haengen kann (ephemeral: dbt legt nichts an).\n"
+            "{{ config(materialized='ephemeral') }}\n"
+            f"select * from {tabelle}\n")
+    return out
+
+
+def _dbt_job_item(name: str, workspace_token: str, lakehouse_token: str, schemas: bool,
+                  select: list[str] | None = None) -> dict[str, str]:
+    """Das Fabric-Item ``DataBuildToolJob`` (W2.4), das die DQ-Tore mit ``dbt test`` faehrt.
+
+    Form nach MS Learn *DataBuildToolJob item definition* (abgerufen 29.09.2026): Teil
+    ``dbtjob-content.json`` mit ``project`` / ``profile`` / ``command``; ``operation`` einer von
+    ``run, build, show, seed, compile, test, snapshot``. **Nicht belegt** sind die Werte
+    ``profileType``/``connectionSettings.type`` fuer das Lakehouse-Profil — die Seite zeigt nur
+    ``DataWarehouse`` und ``PostgreSql``. ``Lakehouse`` ist hier eine ANNAHME, ungeprueft; ein
+    falscher Wert scheitert laut beim Import, nicht still.
+    """
+    verbindung = {"type": "Lakehouse",
+                  "properties": {"workspaceId": workspace_token, "artifactId": lakehouse_token}}
+    inhalt = {
+        "project": {"projectType": "Lakehouse", "folderPath": "Files/dq",
+                    "connectionSettings": verbindung},
+        "profile": {"profileType": "Lakehouse", "schema": "gold" if schemas else "dbo",
+                    "connectionSettings": verbindung},
+        "command": {"operation": "test", "arguments": {
+            **({"select": ",".join(select)} if select else {}),
+            "failFast": False, "threads": 4}},
+    }
+    platform = {
+        "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/"
+                   "platformProperties/2.0.0/schema.json",
+        "metadata": {"type": "DataBuildToolJob", "displayName": name},
+        "config": {"version": "2.0", "logicalId": "00000000-0000-0000-0000-000000000000"},
+    }
+    import json as _json
+    return {
+        f"dq/{name}.DataBuildToolJob/dbtjob-content.json":
+            _json.dumps(inhalt, indent=2, ensure_ascii=False) + "\n",
+        f"dq/{name}.DataBuildToolJob/.platform": _json.dumps(platform, indent=2) + "\n",
+    }
+
+
+def _dbt_job_doc(n_tests: int, jobs: list[tuple[str, str, int]]) -> list[str]:
+    return [
+        "", "## Ausfuehrung als Fabric-dbt-Job (W2.4)", "",
+        f"{len(jobs)} Job(s) fahren `dbt test` auf diesem Projekt (`dbt_project.yml`, ein "
+        f"ephemeres Modell je Gold-Produkt, {n_tests} Spaltentest(s) in den `schema.yml`), einer "
+        "je Gold-Workspace. Quelle: MS Learn *dbt job in Microsoft Fabric*, *DataBuildToolJob "
+        "item definition* (abgerufen 29.09.2026).",
+        "",
+        "| Job | Workspace | Modelle |", "|---|---|---|",
+        *(f"| `{n}.DataBuildToolJob` | `{w}` | {k} |" for n, w, k in jobs),
+        "",
+        "| Punkt | Stand |", "|---|---|",
+        "| Adapter | Fabric Lakehouse = `dbt-fabricspark` 1.12.2, dbt Core 1.11, "
+        "Job-Laufzeit 1.0; Authentifizierung nur Microsoft Entra (OAuth) |",
+        "| Projekt | liegt im Lakehouse unter `Files/dq` (dieser Ordner) — hochladen ist ein "
+        "Deploy-Schritt |",
+        "| `profileType`/`type` = `Lakehouse` | **ANNAHME, ungeprueft** — Learn zeigt nur "
+        "`DataWarehouse` und `PostgreSql`; beim ersten Import pruefen (Tenant-gated) |",
+        "| Freigabe | Mandanteneinstellung *dbt jobs* muss an sein; Learn fuehrt sie am 29.09.2026 "
+        "noch als „(preview)“, die Pipeline-Aktivitaet ebenfalls — „GA Sep 2026“ ist dort nicht "
+        "belegt |",
+        "| Kosten | 2 CU-Stunden je Laufstunde (Learn *dbt job pricing*) |",
+        "",
+        "**Rot heisst rot.** `dbt test` endet mit Fehler, sobald ein Test Zeilen findet — der Job "
+        "ist dann fehlgeschlagen. Ein Projekt ohne Modelle haette nichts geprueft und waere gruen "
+        "gewesen; deshalb stehen die Modelle hier.",
+    ]
+
+
 def emit_dq_gates(blueprint: dict, schemas: bool = False,
-                  column_tests: dict[str, list[dict]] | None = None) -> dict[str, str]:
+                  column_tests: dict[str, list[dict]] | None = None,
+                  stack: str | None = None,
+                  lakehouse: str = "analytics_gold") -> dict[str, str]:
     """Emit **runtime** data-quality gates for the strecke as dbt-style ``schema.yml`` tests.
 
     One ``dq/<domain>/schema.yml`` per domain (dbt ``version: 2`` models + kind-aware structural tests:
@@ -2482,7 +2585,12 @@ def emit_dq_gates(blueprint: dict, schemas: bool = False,
     FK not_null + ``relationships`` to the referenced dim). Where present, real tests replace the
     ``TODO(contract:…)`` placeholder for that product; absent products keep the honest placeholder.
     Suppliers: the SAP pack (``sap_dq``), the introspected source (``provision_dq``, ingress) and
-    the data contract's ``column_specs`` (``provision_dq.vertrags_spaltentests``, ALUCA A-20).
+    the data contract's ``column_specs`` (``provision_dq.vertrags_spaltentests``, ALUCA A-20) and
+    the catalog's star edges (``provision_dq.beziehungs_spaltentests``, W5.11).
+
+    Seit 29.09.2026 (W2.4) ist ``dq/`` ein lauffaehiges dbt-Projekt (``dbt_project.yml`` + ein
+    ephemeres Modell je Gold-Produkt), und ``stack="fabric"`` legt das Fabric-Item
+    ``DataBuildToolJob`` dazu, das ``dbt test`` faehrt.
     """
     med = blueprint.get("medallion", {})
     contract_ref = med.get("silver", {}).get("data_contract_ref", "<silver-contract>")
@@ -2509,6 +2617,10 @@ def emit_dq_gates(blueprint: dict, schemas: bool = False,
            "never NULL. The FK test does not cover this: the cut columns are ancestor copies on the "
            "fact row, and they are exactly what goes empty when the FK finds nothing.",
            "", "| Domain | schema.yml | Products |", "|---|---|---|"]
+    dbt_modelle: list[tuple[str, str, str]] = []
+    modell_namen: set[str] = set()
+    je_domaene: dict[str, list[str]] = {}
+    n_tests = 0
     for d in sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", "")):
         c_ref = _domain_contract(d, contract_ref)
         prods = sorted(d.get("data_products", []))
@@ -2526,6 +2638,36 @@ def emit_dq_gates(blueprint: dict, schemas: bool = False,
         rel = f"dq/{_dirslug(d['name'])}/schema.yml"
         out[rel] = yaml.safe_dump({"version": 2, "models": models}, sort_keys=False, allow_unicode=True)
         doc.append(f"| {d['name']} | `{rel}` | {', '.join(f'`{p}`' for p in prods)} |")
+        for p in prods:
+            m = f"gold_{_ident(p)}"
+            if m not in modell_namen:
+                modell_namen.add(m)
+                dbt_modelle.append((_dirslug(d["name"]), m, layer_ref("gold", _ident(p), schemas)))
+                je_domaene.setdefault(d["name"], []).append(m)
+            n_tests += sum(len(c.get("tests") or []) for e in models if e["name"] == m
+                           for c in e.get("columns") or [])
+    out.update(_dbt_projekt(dbt_modelle))
+    if stack == "fabric" and dbt_modelle:
+        # Ein Job je Gold-Workspace: der Job verbindet genau ein Lakehouse, und jede Domaene
+        # haelt ihr Gold im eigenen Workspace (`gold_workspace_of`). Ein Job fuer alle haette
+        # die Tabellen der anderen Domaenen gar nicht gesehen.
+        from core.dataarch_engine.blueprint.provision_apply import (
+            PLACEHOLDER_WORKSPACE, gold_workspace_of)
+        je_ws: dict[str, list[str]] = {}
+        for dom, ms in sorted(je_domaene.items()):
+            je_ws.setdefault(gold_workspace_of(blueprint, dom, fallback=PLACEHOLDER_WORKSPACE),
+                             []).extend(ms)
+        jobs: list[tuple[str, str, int]] = []
+        for ws, ms in sorted(je_ws.items()):
+            name = DBT_DQ_JOB if len(je_ws) == 1 else f"{DBT_DQ_JOB}__{_ident(ws)}"
+            ws_token = ("<workspace-id>" if ws == PLACEHOLDER_WORKSPACE
+                        else f"<{ws}-workspace-id>")
+            lh_token = ("<lakehouse-id>" if ws == PLACEHOLDER_WORKSPACE
+                        else f"<{ws}/{lakehouse}-lakehouse-id>")
+            out.update(_dbt_job_item(name, ws_token, lh_token, schemas,
+                                     select=None if len(je_ws) == 1 else sorted(ms)))
+            jobs.append((name, ws, len(ms)))
+        doc += _dbt_job_doc(n_tests, jobs)
     out["dq/_DQ_GATES.md"] = "\n".join(doc) + "\n"
     return out
 
@@ -2634,9 +2776,25 @@ def _mlv_constraint(name: str, kind: str) -> tuple[str, str]:
     return (f"    CONSTRAINT {name}_{suffix}_not_null CHECK ({col} IS NOT NULL) ON MISMATCH {action}", col)
 
 
+#: Fabric-Laufzeiten, fuer die der MLV-Emitter eine Aussage hat (W2.2). Quelle: MS Learn
+#: *Apache Spark runtimes in Fabric* und *Lifecycle*, abgerufen 29.09.2026.
+MLV_LAUFZEITEN = {
+    "1.3": {"spark": "3.5", "delta": "3.2", "stand": "EOSA, Support bis 30.09.2026, danach LTS "
+            "bis März 2027", "mlv_belegt": True},
+    "2.0": {"spark": "4.1", "delta": "4.2", "stand": "GA, Support bis 31.08.2028",
+            "mlv_belegt": False},
+}
+#: Ausloeser des MLV-Refresh (D-529, Nachtrag W2.3).
+MLV_AUSLOESER = ("zeitplan", "ereignis")
+
+
 def emit_mlv(blueprint: dict, schemas: bool = True,
              governed_catalog: dict | None = None,
-             entscheidungen: dict | None = None) -> dict[str, str]:
+             entscheidungen: dict | None = None,
+             runtime: str = "1.3",
+             ausloeser: str = "zeitplan",
+             refresh_hints: bool = False,
+             pipeline_name: str = "medallion_orchestration") -> dict[str, str]:
     """Emit the medallion as **Materialized Lake Views** (declarative, SQL-only). Idea I-20.7.
 
     PREVIEW / SQL-only, honestly flagged. One ``CREATE OR REPLACE MATERIALIZED LAKE VIEW`` per gold
@@ -2668,11 +2826,27 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
     writes ``mlv/refresh_schedule.json`` (request body for the lakehouse's RefreshMaterializedLakeViews
     schedule) and says in ``_MLV.md`` who triggers what. Non-SQL logic (ML/Python/API) is out of MLV
     scope → the doc points at the notebook fallback (``emit_notebooks``). Deterministic; emits only.
+
+    Seit 29.09.2026 (Plan I-21):
+
+    * ``runtime`` (W2.2) — ``"1.3"`` (Vorgabe) oder ``"2.0"``; steht im Dokument mit dem, was fuer
+      die Laufzeit belegt ist und was nicht (``MLV_LAUFZEITEN``). Die DDL bleibt gleich.
+    * ``ausloeser`` (W2.3, Nachtrag D-529) — ``"zeitplan"`` (Vorgabe) oder ``"ereignis"``: dann
+      zusaetzlich ``mlv/refresh_event.json``, die Beschreibung eines ereignisgesteuerten
+      Ausloesers (Preview, Einrichtung im Portal). ``refresh_schedule.json`` bleibt der
+      reproduzierbare Rueckfall.
+    * ``refresh_hints`` (W5.8) — schreibt fuer Dimensionen mit belegtem Schluessel
+      ``REFRESH_HINT … UNIQUE (…)`` (Preview), damit Updates/Deletes inkrementell laufen koennen.
     """
+    if runtime not in MLV_LAUFZEITEN:
+        raise ValueError(f"runtime {runtime!r} unbekannt — erlaubt: {sorted(MLV_LAUFZEITEN)}")
+    if ausloeser not in MLV_AUSLOESER:
+        raise ValueError(f"ausloeser {ausloeser!r} unbekannt — erlaubt: {list(MLV_AUSLOESER)}")
     med = blueprint.get("medallion", {})
     contract_ref = med.get("silver", {}).get("data_contract_ref", "<silver-contract>")
     kinds = _gold_kinds(blueprint)
     grains = _gold_grains(blueprint)
+    hints: list[str] = []
     grounded = "governed catalog" if governed_catalog else "IR skeleton (no catalog → SELECT * + TODO)"
     out: dict[str, str] = {}
     # Materialized Lake Views REQUIRE a schema-enabled lakehouse (MS Learn: "Features like
@@ -2751,6 +2925,12 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
             if key_col:
                 zeilen = [f"    CONSTRAINT {pident}_{suffix}_not_null "
                           f"CHECK ({key_col} IS NOT NULL) ON MISMATCH {action}", *vertrag_zeilen]
+                # W5.8: REFRESH_HINT nur fuer Dimensionen mit Katalogschluessel — dort ist er
+                # der Schluessel der Tabelle, und `dq/` prueft ihn mit `unique`. Fabric prueft
+                # die Eindeutigkeit selbst NICHT (MS Learn, 29.09.2026).
+                if refresh_hints and kind == "dimension" and kat:
+                    zeilen.insert(0, f"    REFRESH_HINT {pident}_key UNIQUE ({zitiere(key_col)})")
+                    hints.append(f"`{mlv_name}` ({key_col})")
                 constraint_cell = f"`… CHECK ({key_col} …) ON MISMATCH {action}`"
             else:
                 zeilen = list(vertrag_zeilen)
@@ -2829,7 +3009,12 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
                                                         d.get("name", "")) or "vollaufbau")
                   for d in blueprint.get("mesh", {}).get("domains", []) or []}
     doc += _mlv_refresh_doc(ladeformen)
+    doc += _mlv_ereignis_doc(ausloeser, pipeline_name)
+    doc += _mlv_hint_doc(refresh_hints, hints)
+    doc += _mlv_laufzeit_doc(runtime)
     out["mlv/_MLV.md"] = "\n".join(doc) + "\n"
+    if ausloeser == "ereignis":
+        out["mlv/refresh_event.json"] = _mlv_refresh_event(pipeline_name)
     # Der Ausloeser. Dieselbe Zeitplan-Gestalt wie `orchestration/schedule.json` (Werkzeug-
     # Wiederverwendung), eine Stunde nach dessen Vorgabe: die MLV liest Silber, und Silber
     # entsteht in der Pipeline. Zeitversatz ist eine Annahme, keine Kopplung — steht im Dokument.
@@ -2927,4 +3112,116 @@ def _mlv_refresh_doc(ladeformen: dict[str, str] | None = None) -> list[str]:
         "Eigentümer nicht. In einem Kundenprojekt gehörten nach der Inbetriebnahme alle "
         "Zeitpläne (Laden und Sichten, drei Stufen) einer Person: technisch vollständig, im "
         "Betrieb an einem Konto hängend.",
+    ]
+
+
+def _mlv_refresh_event(pipeline_name: str) -> str:
+    """``mlv/refresh_event.json`` — der ereignisgesteuerte Ausloeser als Beschreibung (W2.3).
+
+    **Keine API-Nutzlast.** MS Learn (*Schedule a materialized lake view refresh*, abgerufen
+    29.09.2026) beschreibt den Weg nur im Portal (*Manage schedules → New schedule → Refresh
+    type: Event-triggered*); eine REST-Form fuer diese Art Zeitplan war dort nicht zu finden.
+    Die Datei haelt deshalb fest, was im Portal einzustellen ist, damit es geprueft werden kann.
+    """
+    import json as _json
+    return _json.dumps({
+        "_comment": ("Ereignisgesteuerter MLV-Refresh (Preview). Einrichtung im Portal, nicht per "
+                     "API — siehe mlv/_MLV.md, Abschnitt 'Ereignisgesteuert'. "
+                     "refresh_schedule.json bleibt der reproduzierbare Rueckfall."),
+        "refreshType": "Event-triggered",
+        "status": "Preview",
+        "eventSourceType": "Job events",
+        "eventSource": {"itemType": "DataPipeline", "itemName": pipeline_name},
+        "eventType": "<im Portal waehlen: erfolgreicher Abschluss der Pipeline>",
+        "scope": "Refresh all materialized lake views",
+        "abhaengigkeiten": ["FMLV Refresh (Notebook, automatisch angelegt)",
+                            "Activator (automatisch angelegt)"],
+        "nicht_unterstuetzt": ["Private Link"],
+    }, indent=2, ensure_ascii=False) + "\n"
+
+
+def _mlv_ereignis_doc(ausloeser: str, pipeline_name: str) -> list[str]:
+    """Abschnitt zum ereignisgesteuerten Refresh (D-529, Nachtrag W2.3)."""
+    kopf = ["", "## Ereignisgesteuert (Preview, D-529 Nachtrag)", ""]
+    fakten = [
+        "MS Learn (*Schedule a materialized lake view refresh*, abgerufen 29.09.2026): neben "
+        "*Time-based* gibt es **Event-triggered (Preview)** — Quelle *Job events* (Abschluss eines "
+        "Notebooks oder einer Pipeline) oder *OneLake events* (Daten landen in OneLake). Er haengt "
+        "an zwei **automatisch angelegten Items** (*FMLV Refresh*-Notebook und Activator); wer sie "
+        "aendert oder loescht, legt den Ausloeser still. **Private Link ist nicht im "
+        "Preview-Umfang.** Eine REST-Form fuer diese Art Zeitplan war dort nicht zu finden — "
+        "die Einrichtung ist Handarbeit.",
+        "",
+        "**Was das an D-529 aendert:** der Kopplungsgrund gegen den Zeitversatz faellt weg (ein "
+        "Pipeline-Abschluss loest aus, keine persoenliche Identitaet wie bei der "
+        "Pipeline-Aktivitaet). **Was es nicht aendert:** nicht reproduzierbar im Deployment, "
+        "Preview, und unter welcher Identitaet Activator und *FMLV Refresh* laufen, ist nicht "
+        "belegt (UNKLAR, Tenant-gated) — die Eigentuemerfrage aus D-537 stellt sich neu.",
+    ]
+    if ausloeser != "ereignis":
+        return kopf + fakten + ["", "In dieser Lieferung **nicht gewaehlt** "
+                                "(`ausloeser=\"zeitplan\"`)."]
+    return kopf + fakten + [
+        "",
+        f"**Gewaehlt** (`ausloeser=\"ereignis\"`). `refresh_event.json` beschreibt, was im Portal "
+        f"einzustellen ist: *Job events*, Quelle die Pipeline `{pipeline_name}`, Ereignis "
+        "erfolgreicher Abschluss. `refresh_schedule.json` bleibt als reproduzierbarer Rueckfall "
+        "in der Lieferung. Ob ein ereignisgesteuerter Ausloeser zu den Zeitplaenen zaehlt, von "
+        "denen je Lineage nur einer aktiv sein darf, ist nicht belegt — **vor dem Aktivieren des "
+        "Ereignisses den Zeitplan pausieren** und nach dem ersten Pipeline-Lauf den MLV-Lauf in "
+        "*Recent runs* lesen, nicht die Einstellung.",
+    ]
+
+
+def _mlv_hint_doc(refresh_hints: bool, hints: list[str]) -> list[str]:
+    """Abschnitt Refresh-Hints (W5.8 → W2.3)."""
+    kopf = ["", "## Refresh-Hints (Preview)", "",
+            "MS Learn (*Enable optimal refresh for deletes and updates*, abgerufen 29.09.2026): "
+            "`REFRESH_HINT <name> UNIQUE (<spalten>)` erklaert die Zeilenidentitaet einer Sicht; "
+            "damit laufen **Updates und Deletes** in den Quellen inkrementell statt voll. "
+            "Voraussetzung CDF auf allen Quellen, hoechstens ein Hint je Sicht. **Fabric prueft "
+            "die Eindeutigkeit nicht** — ein falscher Hint erzeugt still falsche Daten."]
+    if not refresh_hints:
+        return kopf + ["", "In dieser Lieferung **aus** (`refresh_hints=False`)."]
+    ziele = ", ".join(hints) or "— (kein Dimensionsschluessel im Katalog)"
+    return kopf + [
+        "",
+        f"**An** fuer {len(hints)} Sicht(en): {ziele}. Nur Dimensionen mit Katalogschluessel; "
+        "`dq/` prueft denselben Schluessel mit `unique` — das ist die Eindeutigkeitspruefung, "
+        "die Fabric nicht macht.",
+        "",
+        "ANNAHME, ungeprueft: dass `REFRESH_HINT` und `CONSTRAINT … CHECK` in **einer** Klammer "
+        "stehen duerfen. Learn zeigt beide Formen nur getrennt; beim ersten `CREATE` pruefen "
+        "(Tenant-gated).",
+    ]
+
+
+def _mlv_laufzeit_doc(runtime: str) -> list[str]:
+    """Abschnitt Laufzeit (W2.2): was fuer 1.3 und 2.0 belegt ist — und was nicht."""
+    lz = MLV_LAUFZEITEN[runtime]
+    zeilen = [f"| {k} | {v['spark']} / {v['delta']} | {v['stand']} | "
+              + ("ja (Quickstart setzt 1.3 voraus)" if v["mlv_belegt"]
+                 else "nein — UNKLAR, Tenant-gated") + " |"
+              for k, v in MLV_LAUFZEITEN.items()]
+    return [
+        "", "## Laufzeit", "",
+        f"Gewaehlt: **Fabric Runtime {runtime}** (Spark {lz['spark']}, Delta {lz['delta']}; "
+        f"{lz['stand']}).",
+        "",
+        "| Runtime | Spark / Delta | Stand (Learn, 29.09.2026) | MLV auf Learn belegt |",
+        "|---|---|---|---|",
+        *zeilen,
+        "",
+        "**Kompatibilitaet, gemessen 29.09.2026.** Runtime 2.0 legt Delta-Tabellen mit Reader 3 / "
+        "Writer 7 und **Deletion Vectors** an (Learn *Delta Lake table format interoperability*). "
+        "Der Spark-freie Lader (`deltalake==0.18.2`, delta-rs) scheitert an solchen Tabellen: "
+        "Lesen `DeltaProtocolError` (*reader features {'deletionVectors'} … not yet supported*), "
+        "Ueberschreiben mit pyarrow-Engine `DeltaProtocolError`, mit Rust-Engine "
+        "`CommitFailedError` — gemessen lokal an einem Delta-Log mit diesem Protokoll. Der Lader "
+        "darf deshalb nur Tabellen schreiben, die er selbst anlegt (Protokoll 1/2), nie eine, die "
+        "Spark 2.0 angelegt hat.",
+        "",
+        "`notebookutils.lakehouse.refreshMlv` gibt es erst ab Spark 4.0 (siehe oben); fuer den "
+        "Betrieb gilt ohnehin der Zeitplan. Die DDL dieser Lieferung ist fuer beide Laufzeiten "
+        "dieselbe.",
     ]

@@ -4,37 +4,16 @@ owner: Finance Data Product
 
 dimension:
   - name: dim_date
-    description: "Calendar dimension for finance reporting."
-    purpose: "Time dimension for P&L, cash flow, and working capital."
-    scd_type: 1
-    columns:
-      - {name: DateKey, type: int, role: key}
-      - {name: Date, type: date}
-      - {name: Year, type: int}
-      - {name: Quarter, type: text, allowed_values: [Q1, Q2, Q3, Q4]}
-      - {name: Month, type: text}
-      - {name: MonthNumber, type: int}
-      - {name: CalendarYearMonth, type: text}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, Date, Year, Quarter, Month, MonthNumber, CalendarYearMonth]
 
   - name: dim_org
-    description: "Entity/organization dimension (entity, region, country) for finance."
-    purpose: "Scoping for P&L and balance sheet."
-    scd_type: 2
-    columns:
-      - {name: OrgKey, type: int, role: key}
-      - {name: Entity, type: text, synonyms: [Legal Entity, Company Code, Gesellschaft, Buchungskreis]}
-      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Territory, Vertriebsregion]}
-      - {name: Country, type: text, nullable: true, synonyms: [Country of Domicile, Land, Sitzland]}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [OrgKey, Entity, Region, Country]
 
   - name: dim_customer
-    description: "Customer dimension for AR and revenue attribution."
-    purpose: "Customer-level receivables and revenue."
-    scd_type: 2
-    columns:
-      - {name: CustomerKey, type: int, role: key}
-      - {name: CustomerCode, type: text}
-      - {name: CustomerName, type: text}
-      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Territory, Vertriebsregion]}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [CustomerKey, CustomerCode, CustomerName, Region]
 
   - name: dim_supplier
     showcase: false
@@ -48,14 +27,8 @@ dimension:
       - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Territory, Vertriebsregion]}
 
   - name: dim_product
-    description: "Product dimension for finance (inventory, COGS, cost)."
-    purpose: "Product-level P&L and working capital."
-    scd_type: 2
-    columns:
-      - {name: ProductKey, type: int, role: key}
-      - {name: ProductCode, type: text}
-      - {name: ProductName, type: text}
-      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics], synonyms: [Product Group, Warengruppe, Produktgruppe]}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [ProductKey, ProductCode, ProductName, Category]
 
   - name: dim_cost_category
     showcase: false
@@ -131,15 +104,8 @@ fact:
       - {name: COGS Amount, type: currency, agg: sum}
 
   - name: fact_inventory
-    description: "Inventory and COGS value by entity and product per month (finance view)."
-    purpose: "Working capital and inventory valuation."
-    grain: month
-    columns:
-      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
-      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
-      - {name: ProductKey, type: int, ref: dim_product, nullable: true, cardinality: many-to-one}
-      - {name: Average Inventory Amount, type: currency, agg: sum, checks: [{gte: 0}]}
-      - {name: COGS Amount, type: currency, agg: sum}
+    conformed_from: supply_chain   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, OrgKey, ProductKey, Average Inventory Amount, COGS Amount]
 
   - name: fact_finance
     description: "P&L facts (net sales, COGS, EBITDA, OpEx, plan) per entity-month."

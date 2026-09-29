@@ -81,10 +81,20 @@ def _load_dim(name: str) -> pd.DataFrame:
 def _write_dim(name: str, df: pd.DataFrame) -> None:
     out_dir = DIMS / name
     out_dir.mkdir(parents=True, exist_ok=True)
-    # Remove ALL existing parquet files (including stale delta overwrite copies)
-    for f in out_dir.rglob("*.parquet"):
-        f.unlink()
-    df.to_parquet(out_dir / "part-00000.parquet", index=False)
+    if (out_dir / "_delta_log").is_dir():
+        # Eine Delta-Tabelle wird über ihr Log geschrieben, nie daneben: Parquet am Log vorbei
+        # hinterließ in dim_date eine Datei, deren Größe (60.288 statt 70.632 Bytes) und
+        # Schema (ohne CalendarYearMonth/MonthNumber/Week) das Log nicht kannte — delta-rs
+        # brach beim Lesen ab (gemessen 29.09.2026). Gleicher Weg wie generate_model_columns.
+        from deltalake import DeltaTable, write_deltalake
+        write_deltalake(str(out_dir), df, mode="overwrite", schema_mode="overwrite")
+        DeltaTable(str(out_dir)).vacuum(retention_hours=0, enforce_retention_duration=False,
+                                        dry_run=False)
+    else:
+        # Remove ALL existing parquet files (including stale delta overwrite copies)
+        for f in out_dir.rglob("*.parquet"):
+            f.unlink()
+        df.to_parquet(out_dir / "part-00000.parquet", index=False)
     print(f"  Written {name} ({len(df):,} rows, {len(df.columns)} cols): {list(df.columns)}")
 
 

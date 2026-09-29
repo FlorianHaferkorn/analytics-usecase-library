@@ -33,7 +33,9 @@ Fills `platform.capacity_sku` in the architecture blueprint IR, or states a reco
 
 5. **Choose the split.** One larger capacity or several smaller ones.
 
-6. **Write the result to the IR** (`platform.capacity_sku`), or state the floor explicitly when the customer has not assigned a capacity yet.
+6. **Ask the overage question** (see *Capacity overage*): off, or threshold X CU hours per rolling 24 h. Never leave the Microsoft default unmentioned.
+
+7. **Write the result to the IR** (`platform.capacity_sku`), or state the floor explicitly when the customer has not assigned a capacity yet.
 
 ## Sizing: what changes between SKUs
 
@@ -68,6 +70,22 @@ Two conclusions that come up in almost every conversation:
 
 **R7 — Always cost storage separately.** OneLake storage is billed per GB, is **not** covered by the reservation, and keeps running while the capacity is paused. It never changes the reserved-vs-PAYG decision but is added on top in every scenario. Mirroring includes 1 TB free per CU, and the replication itself consumes no CU.
 
+## Capacity overage (GA Sep 2026)
+
+Learn `enterprise/capacity-overage-overview` and `enable-capacity-overage`, read 2026-09-29:
+
+- **On by default** for every newly created F capacity; default threshold **25 %** of the daily CU hours (slider in 5 % steps or absolute CU hours). Only F SKUs.
+- Only usage that would otherwise be throttled is billed, on a separate meter at **3× the PAYG rate**. No standing charge.
+- The threshold is a **rolling 24-hour value in CU hours, not a hard cap**: evaluated every 5 minutes, running operations continue, so charges can exceed it.
+- Quota needed = threshold / 24 CU (48 CU h → 2 CU).
+- Daily CU hours = CU × 24 (F2 48, F8 192, F64 1,536). Learn: keep the threshold **below one third** of that; above it, scaling up costs about the same.
+
+**R8 — Overage is a customer decision, not a default.** Ask “overage off, or threshold X?” in every sizing conversation. Quote the derived ceiling: maximum overage cost per day ≈ threshold × 3 × PAYG per CU hour — derived, not measured, and a lower bound of the worst case because of the 5-minute evaluation. `tooling/superversion/capacity.py` (`overage_profile`) computes it; `recommend()` returns the open question in `customer_questions`; `internal/proposal_costing` prints it in the quote.
+
+## Fabric Planning sessions
+
+Learn `iq/plan/resources/billing-fabric-plan`, read 2026-09-29: a session lasts 30 days (730 h), cannot be ended early and is counted per tenant + user + capacity. It consumes CU of the capacity: **Planner 847, Stakeholder 168, Viewer 37 CU hours** per session. Keep an estimated **30 % buffer** for the other workloads a planning deployment uses. Automation jobs are billed per successful job (“2 CU”, time unit not stated — do not quote a number). Pausing or deleting the capacity bills the remaining session CU at once. `planning_load()` in `capacity.py` returns load and share of a SKU; planning as a blueprint option waits for decision E-7.
+
 ## Guardrails
 
 - Never quote a price from memory or from an older conversation. Fetch it.
@@ -99,4 +117,4 @@ Germany West Central carries **no premium** over West Europe. Sweden Central lac
 
 ## Sources
 
-All figures verified against learn.microsoft.com and the Azure Retail Prices API on 2026-08-04: capacity reservations and discount mechanics, throttling and smoothing policy, SKU limits for semantic models and Direct Lake, region availability, pause and resume behaviour, mirroring cost, OneLake consumption.
+Overage and Fabric Planning figures verified against learn.microsoft.com on 2026-09-29 (pages named in their sections). All other figures verified against learn.microsoft.com and the Azure Retail Prices API on 2026-08-04: capacity reservations and discount mechanics, throttling and smoothing policy, SKU limits for semantic models and Direct Lake, region availability, pause and resume behaviour, mirroring cost, OneLake consumption.

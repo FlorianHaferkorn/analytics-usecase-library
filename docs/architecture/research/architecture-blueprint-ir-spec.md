@@ -224,6 +224,105 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
               "entscheidung": {
                 "type": "string",
                 "description": "Was zu entscheiden ist und woher die Antwort kommt. Pflicht, sobald `zielbild` gesetzt ist."
+              },
+              "overage": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "state"
+                ],
+                "description": "I-21 W1.1 (29.09.2026): Capacity Overage dieser Kapazitaet — benannt wie die ARM-Eigenschaft `properties.overage` (`state`, `thresholdCapacityUnitHours`, API 2026-08-01-preview). Ohne Vorgabe: Overage ist bei NEUEN F-Kapazitaeten ab Werk an (Schwelle 25 %), wer nichts entscheidet, hat also zugekauft. Fehlt das Feld an einer benannten Fabric-Kapazitaet, meldet P4 der Conformance eine Warnung (amber; rot erst nach Nachzug der Bestandslieferungen). Empfehlung laut Learn: Schwelle unter einem Drittel der Tages-CU-Stunden (SKU-CU x 24). Die Schwelle zieht Schwelle/24 CU aus dem Azure-Kontingent.",
+                "properties": {
+                  "state": {
+                    "enum": [
+                      "enabled",
+                      "disabled"
+                    ]
+                  },
+                  "threshold_cu_hours": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Rollierende 24-Stunden-Schwelle in CU-Stunden. Keine harte Kostengrenze: Pruefung alle 5 Minuten, laufende Operationen werden weiter abgerechnet."
+                  }
+                },
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "state": {
+                          "const": "enabled"
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "threshold_cu_hours"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "surge_protection": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "I-21 W1.11 (29.09.2026): Surge Protection dieser Kapazitaet. Kapazitaetsebene: Ablehnungs- und Erholungsschwelle auf den 24-Stunden-Hintergrundanteil. Workspace-Ebene (Preview): EIN Prozentwert fuer alle Workspaces ausser `mission_critical`. Leer = noch nicht gemessen; Microsoft nennt keinen Startwert (BK-F06), die Werte folgen aus dem Messfenster.",
+                "properties": {
+                  "background_rejection_pct": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "background_recovery_pct": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "workspace_cu_limit_pct": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 100,
+                    "description": "Workspace-Ebene (Preview): Anteil der Tages-CU, den ein einzelner Workspace in 24 h verbrauchen darf, bevor er blockiert wird."
+                  }
+                }
+              },
+              "notifications": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "I-21 W1.10/W1.11 (29.09.2026): Empfaenger der Kapazitaets-Mails (Govern → Capacities → Capacity Notifications). Gruppen- oder Funktionsadressen statt Personen; Mail-Versand an frei gewaehlte Empfaenger ist laut Learn Preview.",
+                "properties": {
+                  "throttling_recipients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "overage_recipients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "schedule_failure_recipients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Entra-Nutzer oder -Gruppen fuer „Schedule failure emails\" der geplanten Elemente auf dieser Kapazitaet (Monitor hub → Alerts, Preview). Keine externen Adressen; Semantikmodelle noch nicht unterstuetzt."
+                  }
+                }
+              },
+              "spark": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "I-21 W1.10 (29.09.2026): Spark-Politik dieser Kapazitaet. `on_demand_billing` ist die Einstellung „On-demand billing for Apache Spark\" (Autoscale Billing for Spark); Ein-/Ausschalten bricht laufende Spark-Jobs ab. `workspace_pool_customization` entspricht „Data Engineering/Science Settings\": duerfen Workspace-Admins Pools selbst dimensionieren.",
+                "properties": {
+                  "on_demand_billing": {
+                    "type": "boolean"
+                  },
+                  "workspace_pool_customization": {
+                    "type": "boolean"
+                  }
+                }
               }
             }
           }
@@ -651,6 +750,26 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
               }
             ]
           }
+        },
+        "encryption": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "I-21 W5.5 (29.09.2026): Schluesselverwaltung. `customer_managed` = Workspace-CMK aus Azure Key Vault (Tenant-Schalter „Apply customer-managed keys\", Dienstprinzipal „Fabric Platform CMK\", versionsloser RSA-Schluessel, Soft-Delete und Purge-Schutz). Fehlt das Feld, bleibt es bei Microsoft-verwalteten Schluesseln und die Sicherheitsbasis fragt nicht weiter.",
+          "properties": {
+            "keys": {
+              "enum": [
+                "microsoft_managed",
+                "customer_managed"
+              ]
+            },
+            "workspaces": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Workspaces, die den CMK tragen. Leer bei `customer_managed` = alle."
+            }
+          }
         }
       }
     },
@@ -959,6 +1078,13 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                         "prod"
                       ],
                       "description": "The lifecycle stage this workspace belongs to, set when governance.stages materialises more than one. A Fabric deployment pipeline moves content BETWEEN workspaces, so a stage is a workspace of its own — not a flag on a shared one."
+                    },
+                    "surge_class": {
+                      "enum": [
+                        "available",
+                        "mission_critical"
+                      ],
+                      "description": "I-21 W1.11 (29.09.2026): Klasse fuer die Surge Protection auf Workspace-Ebene (Preview), benannt wie im Portal (Available / Mission critical). Fehlt sie, schlaegt das Kapazitaets-Runbook sie aus der Stufe vor (prod → mission_critical, sonst available) und kennzeichnet das als Vorschlag."
                     }
                   }
                 }

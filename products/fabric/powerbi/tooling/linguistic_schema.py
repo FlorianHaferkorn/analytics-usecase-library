@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
-linguistic_schema.py — Epic A2: linguistic-schema projection (Copilot/Q&A readiness)
-====================================================================================
+linguistic_schema.py — Epic A2: linguistic-schema projection (Copilot readiness)
+================================================================================
 
 The *third* projection of the governed catalog. PR #283 projects the catalog into
 two AI surfaces — the TMDL ``///`` doc block and the viz tooltip (see
 ``core/semantic_models/AI_Description_Standard.md``). Both are **description text**.
-Native Power BI Q&A and Copilot do not read description prose; they read the model's
-**linguistic schema** (``cultures`` / ``linguisticMetadata``). So curated synonyms
-that only reach ``///`` are invisible to in-product natural language.
+Copilot takes synonyms from the model's **linguistic schema** (``cultures`` /
+``linguisticMetadata``), not from description prose, so curated synonyms that only
+reach ``///`` do not act as synonyms in-product. Q&A, the schema's original consumer,
+ends in February 2027; Copilot keeps reading it (Learn 29.09.2026, see H8 in
+``tooling/health_scorecard.py``).
 
 This module closes that gap: it projects the curated, governed ``synonyms`` on data
 contract columns into a TMDL ``culture`` object's ``linguisticMetadata`` (Power BI

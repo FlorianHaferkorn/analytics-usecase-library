@@ -19,6 +19,12 @@ were): ``showcase`` (bool, default true: the Aurora showcase has data for the ta
 ``name, source_column, type, nullable, ref, unknown_member, checks, target_state`` (A-23; the structured
 quality fields are described in ``core/data_contracts/domains/README.md``).
 
+**Exactly one entry per table name** (Bus-Matrix, 29.09.2026): a conformed table is defined once,
+in its owning domain; other domains refer to it (``conformed_from``). ``domain`` is the owning
+domain, ``domains`` the sorted list of every domain that defines or refers to the table. Name-keyed
+consumers (ODCS ``to_odcs``, Meridian ``_katalog_tabelle`` for ``emit_dq_gates``/``emit_mlv``) now
+see the one definition instead of the first of several.
+
 Usage:
     python3 tooling/generator/export_governed_catalog.py --repo-root . --out governed_catalog.json
 """
@@ -36,6 +42,10 @@ except ImportError:
         print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
         sys.exit(2)
     raise
+
+if __package__ in (None, ""):          # run as a script: make `tooling.` importable
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tooling.utils.data_contracts import is_reference, load_contracts, users  # noqa: E402
 
 
 def _load_measures(kpi_dir: Path) -> list[dict]:
@@ -71,19 +81,19 @@ def _column_spec(col: dict) -> dict:
 
 
 def _load_tables(contracts_dir: Path) -> list[dict]:
-    """Every dimension + fact table with its column names and column specs, from the contracts."""
+    """Every dimension + fact table with its column names and column specs, from the contracts.
+
+    One entry per definition — a conformed reference (``conformed_from``) adds only its domain to
+    the owner's ``domains`` list, never a second entry.
+    """
     tables: list[dict] = []
-    for path in sorted(contracts_dir.glob("*.yaml")):
-        try:
-            doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-        except yaml.YAMLError:
-            continue
-        if not isinstance(doc, dict):
-            continue
+    contracts = load_contracts(contracts_dir)
+    used_by = users(contracts)
+    for path, doc in contracts:
         domain = doc.get("domain", path.stem)
         for kind, key in (("dimension", "dimension"), ("fact", "fact")):
             for tbl in doc.get(key) or []:
-                if not isinstance(tbl, dict) or not tbl.get("name"):
+                if not isinstance(tbl, dict) or not tbl.get("name") or is_reference(tbl):
                     continue
                 specs, seen = [], set()
                 for c in tbl.get("columns") or []:
@@ -94,6 +104,7 @@ def _load_tables(contracts_dir: Path) -> list[dict]:
                     "name": tbl["name"],
                     "kind": kind,
                     "domain": domain,
+                    "domains": used_by.get(tbl["name"], [domain]),
                     "columns": sorted(seen),
                     "showcase": tbl.get("showcase", True) is not False,
                     "column_specs": specs,

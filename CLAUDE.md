@@ -7,9 +7,9 @@
 
 ## Globale Doktrin (Pflichtlektüre)
 
-**Vor jeder Aufgabe lesen und befolgen:** [GOI_DOKTRIN.md](GOI_DOKTRIN.md) — die
-Global Operating Instructions (Stil, Workflow, Recherche, Sicherheit). Gilt
-projektübergreifend; bei Konflikt gewinnen die projektspezifischen Regeln hier.
+@GOI_DOKTRIN.md
+
+Bei Konflikt gewinnen die projektspezifischen Regeln hier.
 
 ## Navigations-Prinzip (Token-Disziplin)
 
@@ -53,14 +53,7 @@ Wo ein Ledger geführt wird, ist es SoT für offene/entschiedene Punkte:
   (Symptom | Ursache | Fix) — bei Validierungsfehlern zuerst dort nachsehen, neue
   Klassen dort ergänzen.
 
-## Drift-Gate (hält Indizes ehrlich)
-
-`python scripts/check_index.py` prüft: jede `*.md` ist im zuständigen `_INDEX.md`
-gelistet (Subtree-Ownership), jeder Pfad/Anker zeigt auf echte Ziele, keine
-ungefüllten Doppelklammer-Platzhalter in `CLAUDE.md`/`GOI_DOKTRIN.md`/`_INDEX.md`,
-Staleness advisory.
-Vor Commit hart: `python scripts/check_index.py --strict` (auch im pre-commit-Hook).
-Das ist **zusätzlich** zum fachlichen Quality-Gate (s. u.), nicht dessen Ersatz.
+<!-- Kit-Konventionen (Gate, Vorlagen, ADR-Kriterium, make check): .claude/repo-kit/CONVENTIONS.md -->
 
 ---
 
@@ -100,6 +93,10 @@ Sonst öffnet `fab` blockierende interaktive Prompts.
 Mindestens Stage 1 (`.\tooling\run_stage1_checks.ps1`) vor jedem Commit; Python-Suite
 `python -m pytest tooling/tests/ products/ -q`. Alle Skripte aus der **Repo-Wurzel**
 ausführen. Eine Aufgabe gilt nie als fertig, solange Validierung Fehler zeigt.
+
+### Drift-Gate — zusätzlich zum Quality-Gate
+Vor Commit hart: `python scripts/check_index.py --strict` (auch im pre-commit-Hook).
+Das ist **zusätzlich** zum fachlichen Quality-Gate (s. o.), nicht dessen Ersatz.
 
 ### GitHub-Actions-CI — bekannte Usage-Limit-Bedingung (wiederkehrend)
 

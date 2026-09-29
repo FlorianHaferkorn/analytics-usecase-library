@@ -44,6 +44,19 @@
 
 *Warum:* Die Lizenzierung der Viewer hängt von der gewählten Production-Capacity ab (F64+ = Free Viewer; darunter benötigen Viewer Pro). Das beeinflusst Gesamtkosten und Nutzerakzeptanz.
 
+## Capacity-Overage
+{{ overage }}
+
+*Warum:* Microsoft schaltet Overage bei neuen F-Kapazitäten standardmäßig ein und rechnet Last über der Kapazität zum dreifachen Pay-as-you-go-Satz ab. Die Tagesobergrenze ist hergeleitet und keine harte Grenze.
+
+## Fabric Planning
+{{ planning }}
+
+*Warum:* Planning-Sessions verbrauchen CU der Produktionskapazität. Der Anteil steckt bereits im Kapazitätspreis und muss neben den übrigen Workloads Platz haben.
+
+## Offene Kundenfragen
+{{ customer_questions }}
+
 ## Capacity breakdown
 {{ capacity_breakdown }}
 

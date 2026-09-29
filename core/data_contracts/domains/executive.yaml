@@ -7,23 +7,12 @@ owner: Executive Data Product
 
 dimension:
   - name: dim_date
-    scd_type: 1
-    columns:
-      - {name: DateKey, type: int, role: key}
-      - {name: Date, type: date}
-      - {name: Year, type: int}
-      - {name: Quarter, type: text}
-      - {name: Month, type: text}
-      - {name: MonthNumber, type: int}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, Date, Year, Quarter, Month, MonthNumber]
 
   - name: dim_org
-    scd_type: 2
-    columns:
-      - {name: OrgKey, type: int, role: key}
-      - {name: Entity, type: text}
-      - {name: Region, type: text, nullable: true}
-      - {name: Country, type: text, nullable: true}
-      - {name: Segment, type: text, nullable: true, target_state: true}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [OrgKey, Entity, Region, Country, Segment]
 
   - name: dim_entity
     showcase: false

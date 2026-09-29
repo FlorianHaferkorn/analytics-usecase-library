@@ -80,8 +80,8 @@ def test_build_report_levels():
 # ---- end-to-end against the real vendored pin ----------------------------- #
 
 def test_sensor_run_on_real_pin_advisory_exit0():
-    """The vendored pin is intact (so no hard drift) but synced from an archive
-    (commit UNKNOWN) → advisory, exit 0 even under --strict (no hard drift)."""
+    """The vendored pin is intact (so no hard drift) → exit 0 even under --strict.
+    Staleness alone is advisory and never fails the gate."""
     if not sensor.PIN_PATH.exists():
         pytest.skip("vendored Meridian pin absent")
     assert sensor.main([]) == 0
@@ -96,3 +96,62 @@ def test_sensor_json_output(tmp_path):
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["level"] in {"OK", "ADVISORY", "DRIFT"}
     assert all(r["status"] == "ok" for r in data["integrity"]), "vendored files must be intact"
+
+
+# ---- re-sync from a commit (--write, A-19 29.09.2026) ---------------------- #
+
+def _git(cwd, *args):
+    import subprocess
+    subprocess.run(("git", *args), cwd=str(cwd), check=True, capture_output=True)
+
+
+def _fake_meridian(root: Path) -> None:
+    for rel in sensor.VENDORED_FILES:
+        f = root / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(f"# {rel} committed\n", encoding="utf-8")
+    _git(root, "init", "-q")
+    _git(root, "add", ".")
+    _git(root, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "c1")
+
+
+def test_write_vendor_copies_committed_blobs_and_pins_commit(tmp_path, monkeypatch):
+    """--write takes the COMMITTED blob (not the working tree) and pins its SHA."""
+    mer = tmp_path / "Freelancing"
+    _fake_meridian(mer)
+    # uncommitted edit in Meridian must NOT be mirrored
+    (mer / sensor.VENDORED_FILES[0]).write_text("# dirty\n", encoding="utf-8")
+    vendor = tmp_path / "vendor"
+    monkeypatch.setattr(sensor, "VENDOR_DIR", vendor)
+    monkeypatch.setattr(sensor, "PIN_PATH", vendor / "PIN.json")
+
+    fresh = sensor.write_vendor(mer, "HEAD")
+
+    head = sensor._git(mer, "rev-parse", "HEAD")
+    assert fresh["source"]["commit"] == head and len(head) == 40
+    assert "backport" not in json.dumps(fresh)
+    for rel in sensor.VENDORED_FILES:
+        assert (vendor / rel).read_text(encoding="utf-8") == f"# {rel} committed\n"
+    assert all(r["status"] == "ok" for r in sensor.verify_integrity(fresh, vendor))
+    assert sensor.pin_provenance(fresh, dt.date.today())["commit_pinned"] is True
+    lines = sensor.upstream_comparison(fresh, mer, "HEAD")
+    assert all("equal" in ln for ln in lines[1:]), lines
+
+
+def test_upstream_comparison_reports_difference(tmp_path):
+    mer = tmp_path / "Freelancing"
+    _fake_meridian(mer)
+    pin = {"files": [{"path": sensor.VENDORED_FILES[0], "sha256": "0" * 64}]}
+    lines = sensor.upstream_comparison(pin, mer, "HEAD")
+    assert "upstream differs" in lines[1]
+    assert "soft-skipped" in sensor.upstream_comparison(pin, mer, "no-such-ref")[0]
+
+
+def test_real_pin_is_commit_pinned_without_backport():
+    """A-19: the vendored subtree is pinned to an exact Meridian commit; no hand-ported
+    hunks remain (they would make the files differ from that commit)."""
+    pin = json.loads(sensor.PIN_PATH.read_text(encoding="utf-8"))
+    assert sensor.pin_provenance(pin, dt.date.today())["commit_pinned"] is True
+    assert len(pin["source"]["commit"]) == 40
+    assert "backport" not in json.dumps(pin)
+    assert [e["path"] for e in pin["files"]] == list(sensor.VENDORED_FILES)

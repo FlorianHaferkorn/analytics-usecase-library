@@ -10,6 +10,8 @@ shelf-life-days: 90
 > Datei** und navigiert von hier gezielt weiter — **nicht** den ganzen Ordner.
 > Jede Zeile trägt Zweck + „lies-wenn". SoT-Disziplin: offene/erledigte Punkte und
 > Ableitungsketten leben **hier**, nicht verstreut im Fließtext.
+> Nur Nicht-Ableitbares eintragen: wofür ein Dokument maßgeblich ist, wann man es braucht,
+> was man nicht anfassen darf — keine Inhaltsangabe dessen, was beim Öffnen ohnehin sichtbar ist.
 
 | Feld | Wert |
 |---|---|

@@ -23,7 +23,8 @@ asserting output is produced and committed `dist/` is untouched.
 
 The **third projection** of the governed catalog (after the `///` block and the viz
 tooltip) is the model linguistic schema — curated column synonyms emitted into
-`cultures/<culture>.tmdl` for Copilot/Q&A. It is pure Python (no pwsh, no Power BI
+`cultures/<culture>.tmdl` for Copilot (Q&A ends Feb 2027; the gate stays — see H8 in
+`core/strategy_operating_model/operating_model/framework_health_metrics.md`). It is pure Python (no pwsh, no Power BI
 Desktop), so it regenerates on Linux unchanged and is deterministic/idempotent:
 
 ```bash

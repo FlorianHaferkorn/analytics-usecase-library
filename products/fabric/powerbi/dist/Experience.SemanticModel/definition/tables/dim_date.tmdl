@@ -16,11 +16,11 @@ table dim_date
 		sourceColumn: Year
 		summarizeBy: none
 	column Quarter
-		dataType: String
+		dataType: Int64
 		sourceColumn: Quarter
 		summarizeBy: none
 	column Month
-		dataType: String
+		dataType: Int64
 		sourceColumn: Month
 		summarizeBy: none
 	column MonthNumber

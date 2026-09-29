@@ -9,26 +9,12 @@ owner: Risk / Governance Data Product
 
 dimension:
   - name: dim_date
-    description: "Calendar dimension for risk reporting."
-    purpose: "Time slicing for risk register snapshots and control cycles."
-    scd_type: 1
-    columns:
-      - {name: DateKey, type: int, role: key}
-      - {name: Date, type: date}
-      - {name: Year, type: int}
-      - {name: Quarter, type: text}
-      - {name: Month, type: text}
-      - {name: MonthNumber, type: int}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, Date, Year, Quarter, Month, MonthNumber]
 
   - name: dim_org
-    description: "Organization dimension for risk ownership and reporting."
-    purpose: "Scoping risk items to business units and regions."
-    scd_type: 2
-    columns:
-      - {name: OrgKey, type: int, role: key}
-      - {name: Entity, type: text}
-      - {name: Region, type: text, nullable: true}
-      - {name: Country, type: text, nullable: true}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [OrgKey, Entity, Region, Country]
 
   - name: dim_risk_category
     showcase: false

@@ -91,11 +91,14 @@ def test_commercial_region_channel_and_net_sales_bound():
         "ConceptualEntity": "dim_org",
         "ConceptualProperty": "Region",
     }
-    assert _terms(region) == ["Region", "Sales Region", "Geo"]
+    # dim_org ist konform (eine Definition in commercial_sales, 29.09.2026): Synonyme aller Fassungen
+    assert _terms(region) == ["Region", "Sales Region", "Geo", "Geography", "Territory",
+                              "Vertriebsregion", "Gebiet"]
 
     channel = entities["dim_org.channel"]
     assert channel["Definition"]["Binding"]["ConceptualProperty"] == "Channel"
-    assert _terms(channel) == ["Channel", "Sales Channel", "Route to Market"]
+    assert _terms(channel) == ["Channel", "Sales Channel", "Route to Market", "Distribution Channel",
+                               "Vertriebskanal", "Absatzkanal"]
 
     net_sales = entities["fact_sales.net_sales_amount"]
     assert net_sales["Definition"]["Binding"] == {
@@ -185,8 +188,10 @@ def test_emit_for_domain_idempotent(tmp_path):
     model_after_second = (def_dir / "model.tmdl").read_text(encoding="utf-8")
 
     assert first == second
-    # 8 synonym-bearing commercial entities after the dim_promo additions (was 3)
-    assert (n1, n2) == (8, 8)
+    # 12 synonym-bearing commercial entities: 8 after the dim_promo additions (was 3), plus
+    # dim_org.Country, dim_product.Category/Subcategory, dim_customer.Region from the conformed
+    # definitions (29.09.2026)
+    assert (n1, n2) == (12, 12)
     assert added1 is True and added2 is False           # ref added once, not duplicated
     assert model_after_first == model_after_second
     assert model_after_first.count("ref culture en-US") == 1

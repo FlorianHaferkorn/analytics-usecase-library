@@ -435,7 +435,33 @@ def _deployment_model_doc(model: str, blueprint: dict, stages: tuple[str, ...]) 
                   "die **co-emittierte** `fabric-cicd/deploy.py` (`python deploy.py <env>`; Workspace-GUIDs "
                   "via `FABRIC_WS_<STAGE>`). Build-Env-Transform über `fabric-cicd/parameter.yml`. Approval = "
                   "Environments. Mechanik = Tool-Reuse aus `--emit-fabric-cicd`, gleiche `fabric-cicd/`-Location."]
+    lines += ["", *_ZEITPLAN_ABSCHNITT, "", *_QUOTE_ABSCHNITT]
     return "\n".join(lines) + "\n"
+
+
+#: I-21 W5.4 f — Befund 29.09.2026, als Abschnitt im Modell-Dokument, weil er je Stage wirkt.
+_ZEITPLAN_ABSCHNITT = (
+    "## Zeitpläne: per REST je Stage, nicht als `.schedules` im Item",
+    "Learn (`fundamentals/understand-best-practices-fabric-cicd`, gelesen 29.09.2026) empfiehlt, "
+    "Zeitpläne als `.schedules`-Datei in die Item-Definition von Notebooks und Pipelines zu legen. "
+    "Das Format dieser Datei ist auf Learn nicht beschrieben (nur ein Bildschirmfoto; Suche am "
+    "29.09.2026 ohne Definitionsseite). Diese Lieferung legt Zeitpläne deshalb weiter per REST an "
+    "(`orchestration/schedule.json`, `POST …/jobs/{jobType}/schedules`) — **je Stage einmal**, "
+    "denn ein REST-Zeitplan wandert mit keinem Deployment mit. Umgekehrt würde ein `.schedules` "
+    "im Item in jede Stage mitwandern, auch nach `dev`. Umstieg erst, wenn das Format dokumentiert ist.",
+)
+
+#: I-21 W2.8 a — Unified Quota je Identität (Learn `rest/api/fabric/articles/throttling`, 29.09.2026).
+_QUOTE_ABSCHNITT = (
+    "## API-Quote je Identität",
+    "Fabric drosselt REST-Aufrufe je Identität (Benutzer, Service Principal, Managed Identity): "
+    "500 Aufrufe/min Platform-APIs, 200/min Job Scheduler, 500/min Long-Running Operations, "
+    "festes 60-s-Fenster ohne anteilige Erholung. Ein Deploy-SPN, der auch Monitoring und Agenten "
+    "bedient, teilt sich eine Quote mit ihnen. Empfehlung: je Zweck ein eigener SPN (Deploy, "
+    "Monitoring, Agenten). Ein 429 trägt `errorCode`: `RequestBlocked` → `Retry-After` abwarten; "
+    "`CapacityLimitExceeded` → exponentiell zurückweichen und die Kapazität prüfen, sofort "
+    "wiederholen hilft nicht.",
+)
 
 
 # --- Rücksprung einer einzelnen Beförderung (BK-C05, 20.08.2026) -------------------------
@@ -603,6 +629,378 @@ def _ruecksprung_doc(model: str, blueprint: dict, stages: tuple[str, ...]) -> st
     return "\n".join(z) + "\n"
 
 
+# --- Branch-Regel für den Integrations-Branch (I-21 W5.4 d, 29.09.2026) --------------------
+#
+# Learn `fundamentals/understand-best-practices-fabric-cicd` (gelesen 29.09.2026): eine Quelle
+# der Wahrheit im Integrations-Branch, Änderungen nur per Pull Request. Ohne Regel kann jeder mit
+# Schreibrecht direkt auf den Branch schieben, und die beiden Tore (Architektur-Gate,
+# Geheimnis-Scan) laufen nur, wenn jemand freiwillig einen PR aufmacht.
+#
+# Form: GitHub-Repository-Ruleset (REST `POST /repos/{owner}/{repo}/rulesets`). Feldnamen und
+# Pflichtfelder gemessen am 29.09.2026 gegen die OpenAPI-Beschreibung
+# `github/rest-api-description` (api.github.com.json, info.version 1.1.4): `pull_request` verlangt
+# die fünf Parameter unten, `required_status_checks` verlangt `required_status_checks` und
+# `strict_required_status_checks_policy`, eine Prüfung verlangt `context`.
+
+#: Die Job-Namen der beiden mitgelieferten Tore. Ein GitHub-Check trägt den Job-Namen als
+#: Kontext; ändert jemand den Job-Namen, läuft die Regel ins Leere — daher hier als Feld.
+RULESET_STATUS_CHECKS = ("conformance", "detect-secrets")
+
+
+def _integration_branches(deployment_model: str, stages: tuple[str, ...], git: dict) -> list[str]:
+    """Die geschützten Branches: bei GitFlow ein Primär-Branch je Stage, sonst der eine
+    Integrations-Branch (``git.branch``, Vorgabe ``main``)."""
+    if deployment_model == "git-integration-gitflow":
+        return list(stages)
+    return [git.get("branch") or "main"]
+
+
+def emit_branch_ruleset(deployment_model: str = _DEFAULT_MODEL,
+                        stages: tuple[str, ...] = _DEFAULT_STAGES, git: dict | None = None,
+                        approvals: int = 1) -> str:
+    """GitHub-Ruleset (JSON): nur PR in den Integrations-Branch, Tore als Pflicht-Checks."""
+    import json
+    branches = _integration_branches(deployment_model, stages, git or {})
+    ruleset = {
+        "name": "integration-branch-pr-only",
+        "target": "branch",
+        "enforcement": "active",
+        "conditions": {"ref_name": {"include": [f"refs/heads/{b}" for b in branches],
+                                    "exclude": []}},
+        "rules": [
+            {"type": "deletion"},
+            {"type": "non_fast_forward"},
+            {"type": "pull_request", "parameters": {
+                "dismiss_stale_reviews_on_push": True,
+                "require_code_owner_review": False,
+                "require_last_push_approval": True,
+                "required_approving_review_count": approvals,
+                "required_review_thread_resolution": True}},
+            {"type": "required_status_checks", "parameters": {
+                "strict_required_status_checks_policy": True,
+                "required_status_checks": [{"context": c} for c in RULESET_STATUS_CHECKS]}},
+        ],
+    }
+    return json.dumps(ruleset, indent=2, ensure_ascii=False) + "\n"
+
+
+def _branch_rule_doc(deployment_model: str, stages: tuple[str, ...], git: dict) -> str:
+    branches = _integration_branches(deployment_model, stages, git)
+    liste = ", ".join(f"`{b}`" for b in branches)
+    return "\n".join([
+        "# Branch-Regel für den Integrations-Branch (generiert — I-21 W5.4 d)", "",
+        f"Geschützt: {liste} (Modell `{deployment_model}`). Änderungen kommen nur per Pull Request "
+        "hinein; direktes Schieben, Force-Push und Löschen sind gesperrt. Pflicht-Checks sind die "
+        "beiden mitgelieferten Tore: "
+        + ", ".join(f"`{c}`" for c in RULESET_STATUS_CHECKS) + ".", "",
+        "Beleg: Learn `fundamentals/understand-best-practices-fabric-cicd` (gelesen 29.09.2026) — "
+        "Quelle der Wahrheit im Integrations-Branch, Beiträge über Pull Requests.", "",
+        "## GitHub", "",
+        "```bash",
+        'gh api "repos/{owner}/{repo}/rulesets" -X POST --input cicd/branch-ruleset.json   '
+        "# gh setzt owner/repo aus dem aktuellen Repo",
+        "```", "",
+        "Die Check-Namen sind die Job-Namen aus `architecture-gate.yml` und `secret-scan.yml`. Wer "
+        "einen Job umbenennt, muss die Regel mitziehen — sonst wartet jeder PR auf einen Check, der "
+        "nie kommt.", "",
+        "## Azure DevOps", "",
+        "Branch policies je geschütztem Branch (Learn `azure/devops/repos/git/branch-policies`, "
+        "gelesen 29.09.2026). Zwei Werte setzt, wer die Regel anlegt, als Umgebungsvariable: "
+        "`ADO_REPO_ID` (aus `az repos list`) und `ADO_GATE_PIPELINE_ID` (Build-Definition, die "
+        "`azure-pipelines-architecture-gate.yml` fährt, aus `az pipelines list`).", "",
+        "```bash",
+        *[line for b in branches for line in (
+            f"az repos policy approver-count create --branch {b} --repository-id \"$ADO_REPO_ID\" "
+            "--minimum-approver-count 1 --creator-vote-counts false --allow-downvotes false "
+            "--reset-on-source-push true --blocking true --enabled true",
+            f"az repos policy build create --branch {b} --repository-id \"$ADO_REPO_ID\" "
+            "--build-definition-id \"$ADO_GATE_PIPELINE_ID\" --display-name architecture-gate "
+            "--manual-queue-only false --queue-on-source-update-only true --valid-duration 0 "
+            "--blocking true --enabled true")],
+        "```", "",
+    ]) + "\n"
+
+
+# --- Branch workspaces (I-21 W2.7 b + W2.8 c) -------------------------------------------------
+
+def _branch_workspaces_doc(blueprint: dict) -> str:
+    """Runbook: Branch-Workspace-Admin-Profil, Selective Branching, Änderungen vergleichen.
+
+    Portal-Einstellung, keine öffentliche API dafür gefunden (Learn gelesen 29.09.2026) — daher
+    Runbook statt Aufruf."""
+    ws = [n for n, r in _unique_workspaces(blueprint) if r != "reporting"]
+    quelle = f"`{ws[0]}`" if ws else "der Entwicklungs-Workspace"
+    return "\n".join([
+        "# Branch-Workspaces für Entwickler (generiert — I-21 W2.7 b, W2.8 c)", "",
+        "Entwickler zweigen aus dem Entwicklungs-Workspace einen eigenen Feature-Workspace ab, ohne "
+        "selbst Workspaces anlegen oder Kapazität zuweisen zu dürfen. Das trägt das "
+        "**Branch workspace admin profile (Preview)**.", "",
+        "Beleg: Learn `cicd/git-integration/branch-workspace-admin-profile` und "
+        "`cicd/git-integration/branched-workspace` (gelesen 29.09.2026).", "",
+        f"## Admin-Profil einrichten (einmal, auf {quelle})", "",
+        "Workspace settings → Git integration → Branch workspaces → **Allow branch workspace admin "
+        "profile** an.", "",
+        "| Feld | Vorgabe dieser Lieferung | Warum |", "|---|---|---|",
+        "| Role assignment | Contributor | kleinste Rolle, die Items anlegen kann |",
+        "| Admins | eine **Sicherheitsgruppe**, keine Person | bei Contributor ist mindestens ein "
+        "Admin Pflicht; eine Person verlässt irgendwann den Tenant und macht das Profil ungültig |",
+        "| Capacity | eigene Entwicklungs-Kapazität, nicht die Produktions-Kapazität | Feature-Arbeit "
+        "soll die Produktion nicht drosseln |",
+        "| Contributor darf Branch wechseln | aus | Branch-Wechsel überschreibt alle Items des "
+        "Workspaces |", "",
+        "## Die Identität, unter der alles läuft", "",
+        "Der Workspace-Admin, der das Profil **zuletzt speichert**, wird zur *consented identity*: "
+        "jedes spätere Abzweigen legt Workspaces unter seiner Identität an, weist Kapazität zu und "
+        "verbindet Git. Speichert ein anderer Admin, wechselt die Identität still mit. Deshalb "
+        "speichert das Profil nur ein benannter Betriebs-Admin, und jede Änderung wird "
+        "protokolliert:", "",
+        "| gespeichert am | von (consented identity) | Anlass |", "|---|---|---|",
+        "|  |  |  |", "",
+        "## Was das Profil ungültig macht", "",
+        "- Kapazität und Git-Repository liegen in verschiedenen Regionen, und der Tenant-Schalter "
+        "gegen regionsübergreifende Operationen ist an.",
+        "- Die consented identity verliert ein Recht, die Kapazität wird pausiert, oder ein Admin "
+        "aus der Liste verlässt den Tenant. Das Profil ist dann bis zur Reparatur nicht nutzbar.",
+        "- Auf einem Branch-Workspace selbst lässt sich kein Profil anlegen.", "",
+        "## Abzweigen, vergleichen, zurückführen", "",
+        "- **Selective Branching:** „Select items individually“ zweigt nur die benötigten Items ab. "
+        "Abhängigkeiten müssen mit („select related items“), sonst scheitert das Abzweigen. Ein "
+        "späterer Branch-Wechsel setzt die Auswahl zurück und holt alle Items.",
+        "- **Änderungen vergleichen:** Source control → Changes bzw. Updates → Review changes "
+        "zeigt den Unterschied seit dem letzten Sync, vor Commit und vor Update. File-level "
+        "Commit ist laut Learn Preview.",
+        "- **Related branches:** der Reiter zeigt Branch-Workspace und Quell-Workspace zueinander.",
+        "- Zurück in den Integrations-Branch geht es nur per Pull Request (`_BRANCH_RULE.md`).", "",
+        "**Status UNKLAR:** Learn führt Branched Workspaces, Selective Branching und Compare im "
+        "What's-new-Archiv als Preview (März 2026), die FabCon-Folie vom 29.09.2026 als GA. "
+        "Nachprüfung 05.10.2026.", "",
+    ]) + "\n"
+
+
+# --- Deployment plan (I-21 W2.7 a, Preview) -------------------------------------------------
+#
+# Belegt, Learn gelesen 29.09.2026: `cicd/deployment-plan/deployment-plan-overview`,
+# `…/deployment-plan-sample-plans` (plan.yml-Struktur), `…/deployment-plan-actions`,
+# `…/deployment-plan-automation`. Der Plan ist ein Workspace-Item; in Git liegt er als
+# `plan.yml` im Item-Ordner. Eine Gruppe deployt genau ein Item; Reihenfolge nur über
+# `dependsOn`; Aktionen (Notebook, Pipeline, Dataflow Gen2, Copy job, UDF; Job-Typ `Execute`)
+# laufen vor oder nach dem Item. Eine Aktion kann nur ein Item fahren, das im Ziel schon steht —
+# darum deployt die erste Gruppe das Gate-Notebook selbst (Muster „Validate before anything
+# deploys“).
+
+DEPLOYMENT_PLAN_SCHEMA = ("https://developer.microsoft.com/json-schemas/fabric/item/"
+                          "deploymentPlan/definition/plan/1.0.0/schema.json")
+#: Dokumentierte Grenze (deployment-plan-overview, „Deployment plan size limits“).
+DEPLOYMENT_PLAN_MAX_NAME = 60
+#: Workspace-Rolle → Gruppen in Deploy-Reihenfolge (Schlüssel, Item-Typ).
+_PLAN_GROUPS_BY_ROLE = {
+    "bronze": (("Bronze_Lakehouse", "Lakehouse"),),
+    "silver": (("Silver_Lakehouse", "Lakehouse"),),
+    "gold": (("Gold_Lakehouse", "Lakehouse"),),
+    "mixed": (("Bronze_Lakehouse", "Lakehouse"), ("Silver_Lakehouse", "Lakehouse"),
+              ("Gold_Lakehouse", "Lakehouse")),
+    "reporting": (("Semantic_Model", "SemanticModel"),),
+}
+_GATE_GROUP = "Gate_Notebook"
+
+
+def _plan_groups(blueprint: dict, role: str) -> list[tuple[str, str]]:
+    groups = list(_PLAN_GROUPS_BY_ROLE.get(role, ()))
+    bronze = (blueprint.get("medallion") or {}).get("bronze") or {}
+    if bronze.get("enabled") is False:   # Bronze ausgelagert → kein Bronze-Item im Workspace
+        groups = [g for g in groups if g[0] != "Bronze_Lakehouse"]
+    return groups
+
+
+def _plan_yml(groups: list[tuple[str, str]]) -> str:
+    """plan.yml-Vorlage. `${logicalId:<Schlüssel>}` löst `resolve_plan.py` aus den `.platform`-
+    Dateien im Git-Ordner auf — die logicalIds entstehen erst im Tenant und werden nie geraten."""
+    z = [f"$schema: {DEPLOYMENT_PLAN_SCHEMA}", "version: 1.0.0", "groups:",
+         f"  - name: {_GATE_GROUP}", f"    logicalId: ${{logicalId:{_GATE_GROUP}}}"]
+    prev = _GATE_GROUP
+    for key, _typ in groups:
+        z += [f"  - name: {key}", f"    logicalId: ${{logicalId:{key}}}",
+              "    dependsOn:", f"      - groupName: {prev}",
+              "    postActions:", f"      - name: Gate {key}", "        job:",
+              "          type: Execute", f"          logicalId: ${{logicalId:{_GATE_GROUP}}}"]
+        prev = key
+    return "\n".join(z) + "\n"
+
+
+def _plan_items_json(groups: list[tuple[str, str]], gate_notebook: str) -> str:
+    import json
+    items = {_GATE_GROUP: f"{gate_notebook}.Notebook"}
+    for key, typ in groups:
+        items[key] = f"<{key.lower()}-item-name>.{typ}"
+    return json.dumps({
+        "_comment": ("Gruppe -> Item-Ordner im Git-Ordner des Workspaces (ANZEIGENAME.TYP). "
+                     "Platzhalter <...> vor dem Auflösen ersetzen; resolve_plan.py bricht sonst ab."),
+        "items": items}, indent=2, ensure_ascii=False) + "\n"
+
+
+_RESOLVE_PLAN_PY = '''#!/usr/bin/env python3
+"""Löst die ${logicalId:GRUPPE}-Platzhalter einer plan.yml-Vorlage auf (generiert — I-21 W2.7).
+
+Aufruf:  python resolve_plan.py PLAN_ORDNER GIT_ORDNER
+Liest PLAN_ORDNER/plan.template.yml und items.json, schlägt je Gruppe die logicalId in
+GIT_ORDNER/ITEM_ORDNER/.platform (config.logicalId) nach und schreibt plan.yml.
+Bricht mit Exit 1 ab, wenn ein Platzhalter offen bleibt, ein Item fehlt oder eine logicalId
+leer bzw. die Null-GUID ist — ein halb aufgelöster Plan wird nie geschrieben.
+"""
+import json
+import re
+import sys
+from pathlib import Path
+
+_NULL = "00000000-0000-0000-0000-000000000000"
+_PLATZHALTER = re.compile(r"\\$\\{logicalId:([A-Za-z0-9_]+)\\}")
+
+
+def resolve(plan_dir: Path, git_dir: Path) -> tuple[str, list[str]]:
+    vorlage = (plan_dir / "plan.template.yml").read_text(encoding="utf-8")
+    items = json.loads((plan_dir / "items.json").read_text(encoding="utf-8"))["items"]
+    fehler: list[str] = []
+    ids: dict[str, str] = {}
+    for key in sorted(set(_PLATZHALTER.findall(vorlage))):
+        ordner = items.get(key)
+        if not ordner:
+            fehler.append(f"{key}: kein Eintrag in items.json")
+            continue
+        if "<" in ordner:
+            fehler.append(f"{key}: Platzhalter nicht ersetzt ({ordner})")
+            continue
+        platform = git_dir / ordner / ".platform"
+        if not platform.is_file():
+            fehler.append(f"{key}: {platform} fehlt (Item nicht im Git-Ordner committet?)")
+            continue
+        lid = (json.loads(platform.read_text(encoding="utf-8")).get("config") or {}).get("logicalId", "")
+        if not lid or lid == _NULL:
+            fehler.append(f"{key}: logicalId in {platform} leer oder Null-GUID")
+            continue
+        ids[key] = lid
+    if fehler:
+        return "", fehler
+    return _PLATZHALTER.sub(lambda m: ids[m.group(1)], vorlage), []
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) != 3:
+        print(__doc__)
+        return 2
+    text, fehler = resolve(Path(argv[1]), Path(argv[2]))
+    if fehler:
+        for f in fehler:
+            print(f"FEHLER {f}", file=sys.stderr)
+        return 1
+    (Path(argv[1]) / "plan.yml").write_text(text, encoding="utf-8")
+    print(f"plan.yml geschrieben ({Path(argv[1]) / 'plan.yml'})")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
+'''
+
+
+def _deployment_plan_doc(deployment_model: str, plans: list[tuple[str, str, list]]) -> str:
+    anhang = {
+        "deployment-pipelines": ("Deploy Stage Content",
+                                 "POST /v1/deploymentPipelines/{id}/deploy?beta=true",
+                                 '{"options":{"deploymentPlan":{"itemId":"<plan-item-id>",'
+                                 '"referenceType":"ByItemId"}}}'),
+        "git-integration-gitflow": ("Update From Git",
+                                    "POST /v1/workspaces/{id}/git/updateFromGit?beta=true",
+                                    '{"options":{"deploymentPlan":{"logicalId":"<plan-logical-id>",'
+                                    '"referenceType":"ByLogicalId"}}}'),
+    }
+    z = [
+        "# Deployment plan (generiert — I-21 W2.7 a, **Preview**)", "",
+        "Der Plan legt Reihenfolge und Nach-Aktionen fest: zuerst das Gate-Notebook, dann die "
+        "Schichten in Medaillon-Reihenfolge, nach jeder Schicht einmal das Gate. Fabric verbindet "
+        "die Plan-Reihenfolge mit der Lineage; der Plan hebt keine Lineage-Abhängigkeit auf.", "",
+        "Beleg: Learn `cicd/deployment-plan/*` (gelesen 29.09.2026).", "",
+        "## Pläne dieser Lieferung", "",
+        "| Workspace | Rolle | Gruppen in Reihenfolge |", "|---|---|---|",
+    ]
+    for ws, role, groups in plans:
+        z.append(f"| `{ws}` | {role} | {' → '.join([_GATE_GROUP] + [g for g, _ in groups])} |")
+    z += [
+        "", "Ein Plan deployt in genau einen Workspace je Lauf, daher ein Plan je Workspace.", "",
+        "## Voraussetzungen (Tenant-gated)", "",
+        "- Tenant-Setting **Users can create deployment plan (preview) items** für die "
+        "Entwicklergruppe an.",
+        "- Mindestens Contributor im Quell-Workspace.",
+        "- Automatisierung: Token mit `Item.Execute.All` zusätzlich zum Scope der Operation, "
+        "URL mit `?beta=true`.",
+        "- Das Gate-Notebook (`items.json` → `Gate_Notebook`) muss es im Workspace geben. Dieser "
+        "Emitter erzeugt es nicht; es fährt die Prüfungen aus `gates/` im Tenant und endet mit "
+        "Fehler, wenn eine rot ist.", "",
+        "## Ablauf", "",
+        "1. Plan-Item einmal im Entwicklungs-Workspace auf dem Canvas anlegen und committen — so "
+        "entsteht der Item-Ordner mit `.platform` im Git.",
+        "2. `items.json` ausfüllen (Anzeigename je Gruppe), dann "
+        "`python cicd/deployment_plan/resolve_plan.py cicd/deployment_plan/WORKSPACE "
+        "GIT_ORDNER`.",
+        "3. Das erzeugte `plan.yml` in den Item-Ordner des Plans kopieren, per PR mergen.",
+        "4. Beim Deployment den Plan anhängen — jedes Mal, ein Standard-Plan lässt sich nicht "
+        "hinterlegen.", "",
+        "## Anhängen je Deployment-Modell", "",
+    ]
+    if deployment_model in anhang:
+        name, pfad, body = anhang[deployment_model]
+        z += [f"Modell `{deployment_model}`: **{name}**", "", "```http", pfad, "```", "",
+              "```json", body, "```", ""]
+    else:
+        z += [f"Modell `{deployment_model}` deployt mit `fabric-cicd`. **`fabric-cicd` "
+              "unterstützt keine Deployment plans** (Learn, deployment-plan-automation). Mit Plan "
+              "geht es nur über **Bulk Import Item Definitions** (selbst Preview):", "",
+              "```http", "POST /v1/workspaces/{id}/items/bulkImportDefinitions?beta=true", "```",
+              "", "```json",
+              '{"options":{"allowPairingByName":false,"deploymentPlan":{"logicalId":'
+              '"<plan-logical-id>","referenceType":"ByLogicalId"}}}', "```", "",
+              "Ohne Umstieg bleibt der Plan hier wirkungslos — er wird dann nur für Git-Update "
+              "im Entwicklungs-Workspace genutzt.", ""]
+    z += [
+        "Der Plan wirkt auch bei Git-Update und REST, also dort, wo Inbound-Schutz Deployment "
+        "Pipelines ausschließt (Zusammenhang mit Entscheidung E-3).", "",
+        "## Was der Plan nicht tut", "",
+        "- **Kein Rollback:** scheitert ein Item oder eine Aktion, bleibt Deployedes stehen, der "
+        "Rest kommt nicht. Rückweg: `_RUECKSPRUNG.md`.",
+        "- Keine Workspace-Einstellungen, Identitäten, Verbindungen, Gateway-Bindungen, "
+        "Spark-Settings — die müssen im Ziel stehen, bevor eine Aktion sie braucht.",
+        "- Er schaltet den aktiven Wertesatz einer Variable Library nicht um.",
+        "- Eine Aktion wartet nicht auf nachgelagerte Dienste (z. B. SQL-Endpunkt). Wer das "
+        "braucht, wartet im Notebook selbst.",
+        "- Gruppen laufen nie parallel. Höchstens 20 Nach-Aktionen je Gruppe, Namen höchstens "
+        f"{DEPLOYMENT_PLAN_MAX_NAME} Zeichen, Plan höchstens 1 MB.", "",
+        "**Schema nicht gegengeprüft:** die Schema-URL im `$schema` war am 29.09.2026 aus dieser "
+        "Umgebung nicht abrufbar. Die Struktur folgt dem Learn-Beispiel "
+        "(`deployment-plan-sample-plans`); ANNAHME, ungeprüft gegen das Schema.", "",
+    ]
+    return "\n".join(z) + "\n"
+
+
+def emit_deployment_plan(blueprint: dict, deployment_model: str = _DEFAULT_MODEL,
+                         gate_notebook: str = "nb_gate") -> dict[str, str]:
+    """Deployment-plan-Vorlagen je Workspace + Auflöser + Runbook (Preview, nur hinter Flag)."""
+    out: dict[str, str] = {}
+    plans: list[tuple[str, str, list]] = []
+    for ws, role in _unique_workspaces(blueprint):
+        groups = _plan_groups(blueprint, role)
+        if not groups:
+            continue
+        for key, _typ in groups:
+            if len(key) > DEPLOYMENT_PLAN_MAX_NAME:
+                raise ValueError(f"Gruppenname {key!r} > {DEPLOYMENT_PLAN_MAX_NAME} Zeichen")
+        base = f"cicd/deployment_plan/{ws}"
+        out[f"{base}/plan.template.yml"] = _plan_yml(groups)
+        out[f"{base}/items.json"] = _plan_items_json(groups, gate_notebook)
+        plans.append((ws, role, groups))
+    out["cicd/deployment_plan/resolve_plan.py"] = _RESOLVE_PLAN_PY
+    out["cicd/deployment_plan/_DEPLOYMENT_PLAN.md"] = _deployment_plan_doc(deployment_model, plans)
+    return out
+
+
 def _wire_bash_gates(script: str) -> str:
     """Inject real pre-/post-deploy gate calls (I-19.3) into a bash CD script.
 
@@ -631,7 +1029,8 @@ def _wire_python_gates(script: str) -> str:
 def emit_cicd(blueprint: dict, architecture_path: str = "data_architecture.json",
               stack: str = "fabric", stages: tuple[str, ...] = _DEFAULT_STAGES,
               stage_capacities: dict | None = None, git: dict | None = None,
-              deployment_model: str = _DEFAULT_MODEL) -> dict[str, str]:
+              deployment_model: str = _DEFAULT_MODEL,
+              deployment_plan: bool = False) -> dict[str, str]:
     """Return the CI/CD artifact set (path -> content), analogous to ``emit_grounding``.
 
     ``cicd/architecture-gate.yml`` (stack-agnostic CI gate) + ``cicd/_DEPLOYMENT_MODEL.md`` +
@@ -642,6 +1041,9 @@ def emit_cicd(blueprint: dict, architecture_path: str = "data_architecture.json"
     deployment-pipelines → ``promote.sh``; git-integration-gitflow → ``promote_gitflow.sh``;
     isv-per-customer → ``deploy_customers.sh`` (+ ``customers.example.json``); items-api-trunk →
     ``deploy_items.sh`` driver + the co-emitted ``fabric-cicd/`` mechanism. Unknown model → ValueError.
+    Immer dazu: ``cicd/branch-ruleset.json`` + ``cicd/_BRANCH_RULE.md`` (I-21 W5.4 d), auf Fabric
+    ``cicd/_BRANCH_WORKSPACES.md`` (W2.7 b). ``deployment_plan=True`` ergänzt die Deployment-plan-
+    Vorlagen unter ``cicd/deployment_plan/`` (W2.7 a, Preview).
     """
     if deployment_model not in _DEPLOYMENT_MODELS:
         raise ValueError(f"unknown deployment_model {deployment_model!r}; "
@@ -652,7 +1054,13 @@ def emit_cicd(blueprint: dict, architecture_path: str = "data_architecture.json"
            "cicd/_DEPLOYMENT_MODEL.md": _deployment_model_doc(deployment_model, blueprint, stages),
            "cicd/_RUECKSPRUNG.md": _ruecksprung_doc(deployment_model, blueprint, stages)}
     out.update(emit_gates(architecture_path, stack, blueprint=blueprint))  # I-19.3 + BK-C04
+    # I-21 W5.4 d: der Integrations-Branch nimmt nur PRs an; stack-unabhängig wie die Tore.
+    out["cicd/branch-ruleset.json"] = emit_branch_ruleset(deployment_model, stages, git or {})
+    out["cicd/_BRANCH_RULE.md"] = _branch_rule_doc(deployment_model, stages, git or {})
     if stack == "fabric":
+        out["cicd/_BRANCH_WORKSPACES.md"] = _branch_workspaces_doc(blueprint)
+        if deployment_plan:   # I-21 W2.7 a — Preview, nur auf Wunsch
+            out.update(emit_deployment_plan(blueprint, deployment_model))
         if deployment_model == "deployment-pipelines":
             out["cicd/promote.sh"] = _wire_bash_gates(
                 emit_cd_promotion(blueprint, stages, stage_capacities, git))

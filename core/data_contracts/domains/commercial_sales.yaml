@@ -7,30 +7,38 @@ dimension:
     description: "Calendar dimension with fiscal hierarchy (Fiscal Year > Quarter > Month > Date)."
     purpose: "Single source for time slicing and fiscal reporting."
     scd_type: 1
+    # Konforme Dimension (Bus-Matrix, 29.09.2026): die einzige Definition; alle elf anderen
+    # Domänen verweisen per `conformed_from: commercial_sales`. MonthKey stammt aus people.
+    uses_columns: [DateKey, Date, Year, Quarter, Month, MonthNumber, Week, Month Name, Fiscal Year, Fiscal Period, CalendarYearMonth]
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
       - {name: Year, type: int}
-      - {name: Quarter, type: text, allowed_values: [Q1, Q2, Q3, Q4]}
-      - {name: Month, type: text}
+      - {name: Quarter, type: int, checks: [{between: [1, 4]}]}      # Gold: INTEGER 1–4 (29.09.2026)
+      - {name: Month, type: int, checks: [{between: [1, 12]}]}       # Monatsnummer, = MonthNumber
       - {name: MonthNumber, type: int}
       - {name: Week, type: text, nullable: true}
       - {name: Month Name, type: text}
       - {name: Fiscal Year, type: int}
       - {name: Fiscal Period, type: text}
       - {name: CalendarYearMonth, type: text}
+      - {name: MonthKey, type: int, target_state: true}
 
   - name: dim_org
     description: "Organization dimension (region, country, channel, org name) for reporting and RLS."
     purpose: "Scoping and security for entity-level reporting."
     scd_type: 2
+    # Konforme Dimension (Bus-Matrix, 29.09.2026): die einzige Definition, Vereinigung der zwölf
+    # Domänenfassungen (alle 22 Gold-Spalten plus fünf Zielbild-Spalten). Synonyme vereinigt;
+    # Channel trägt `Direct`, weil Aurora-Gold den Wert führt.
+    uses_columns: [OrgKey, OrgCode, OrgName, Region, Country, Channel, OrgLevel, OrgType, ParentOrgKey, Currency Code, Open DateKey, Close DateKey, IssueType, Severity]
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: OrgCode, type: text}
       - {name: OrgName, type: text}
-      - {name: Region, type: text, nullable: true, description: "Sales region grouping countries.", allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Geo]}
-      - {name: Country, type: text, nullable: true, description: "Country of the selling org unit."}
-      - {name: Channel, type: text, nullable: true, description: "Go-to-market sales channel.", allowed_values: [Retail, Online, Wholesale, Marketplace, Outlet], synonyms: [Sales Channel, Route to Market]}
+      - {name: Region, type: text, nullable: true, description: "Sales region grouping countries.", allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Geo, Geography, Territory, Vertriebsregion, Gebiet]}
+      - {name: Country, type: text, nullable: true, description: "Country of the selling org unit.", synonyms: [Country of Domicile, Land, Sitzland]}
+      - {name: Channel, type: text, nullable: true, description: "Go-to-market sales channel.", allowed_values: [Retail, Online, Wholesale, Marketplace, Direct, Outlet], synonyms: [Sales Channel, Route to Market, Distribution Channel, Vertriebskanal, Absatzkanal]}
       - {name: OrgLevel, type: text, allowed_values: [Group, Region, Country, DC, Store]}
       - {name: OrgType, type: text, allowed_values: [Group, Region, Country, DC, Store]}
       - {name: ParentOrgKey, type: decimal, nullable: true}
@@ -39,33 +47,53 @@ dimension:
       - {name: Close DateKey, type: decimal, nullable: true}
       - {name: IssueType, type: text, nullable: true, allowed_values: [Account, Billing, Delivery, Order, Product, Technical]}
       - {name: Severity, type: text, nullable: true, allowed_values: [Critical, High, Medium, Low]}
+      - {name: Plant, type: text, nullable: true, synonyms: [Site, Facility, Werk, Standort]}
+      - {name: Line, type: text, nullable: true, allowed_values: [Line A, Line B, Line C, Line D], synonyms: [Production Line, Work Center, Fertigungslinie, Produktionslinie]}
+      - {name: CostCentre, type: text, nullable: true, target_state: true}
+      - {name: SiteCode, type: text, target_state: true}
+      - {name: SiteName, type: text, target_state: true}
+      - {name: Segment, type: text, nullable: true, target_state: true}
+      - {name: Entity, type: text, synonyms: [Legal Entity, Company Code, Gesellschaft, Buchungskreis]}
+      - {name: Queue, type: text, nullable: true, allowed_values: [Order Management, "Returns & Refunds", Technical Support, "Billing & Payments", General Support, VIP Support], synonyms: [Support Queue, Work Queue, Warteschlange, Routing Queue]}
+      - {name: Agent Group, type: text, nullable: true, allowed_values: ["Tier 1 – General", "Tier 2 – Specialist", "Tier 3 – Expert", Back-Office, Escalation Team, VIP Desk], synonyms: [Team, Skill Group, Agententeam, Support Team]}
+      - {name: Shift, type: text, nullable: true, allowed_values: [Day Shift, Afternoon Shift, Night Shift], synonyms: [Work Shift, Schicht, Arbeitsschicht]}
+      - {name: Location, type: text, nullable: true, synonyms: [Site, Distribution Center, Node, Standort, Lager]}
+      - {name: Customer, type: text, nullable: true, synonyms: [Account, Ship-To, Consignee, Warenempfänger]}
 
   - name: dim_product
     description: "Product dimension with category hierarchy (Category > Sub Category > Brand > Product Name)."
     purpose: "Product and margin analysis, mix reporting."
     scd_type: 2
+    # Konforme Dimension (Bus-Matrix, 29.09.2026): die einzige Definition, Vereinigung aus
+    # commercial_sales, finance, growth, operations, supply_chain. Subcategory bleibt nie NULL
+    # (Aurora-Gold: 0 NULL in 5.000 Zeilen), obwohl drei Fassungen `nullable: true` trugen.
+    uses_columns: [ProductKey, ProductCode, ProductName, Category, Subcategory, Brand, ProductFamily, Lifecycle Status, List Price Amount]
     columns:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
       - {name: ProductName, type: text}
-      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics]}
-      - {name: Subcategory, type: text, allowed_values: [Apparel, Footwear, Accessories, Jewelry, Furniture, Decor, Kitchenware, Bedding, Lighting, TVs, Audio, Computers, Smartphones, Gaming]}
+      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics], synonyms: [Product Group, Warengruppe, Produktgruppe]}
+      - {name: Subcategory, type: text, allowed_values: [Apparel, Footwear, Accessories, Jewelry, Furniture, Decor, Kitchenware, Bedding, Lighting, TVs, Audio, Computers, Smartphones, Gaming], synonyms: [Sub Category, Untergruppe, Unterkategorie]}
       - {name: Brand, type: text}
       - {name: ProductFamily, type: text, nullable: true, target_state: true}   # for comparable item grouping (cannibalization)
       - {name: Lifecycle Status, type: text, allowed_values: [Active, EOL]}
       - {name: List Price Amount, type: currency}
+      - {name: Lifecycle Stage, type: text, nullable: true, target_state: true}
+      - {name: ABC_Class, type: text, nullable: true, allowed_values: [A, B, C], synonyms: [ABC Class, ABC Classification, ABC-Analyse, ABC-Klassifizierung]}
+      - {name: XYZ_Class, type: text, nullable: true, allowed_values: [X, Y, Z], synonyms: [XYZ Class, XYZ Classification, XYZ-Analyse, RSU-Analyse]}
 
   - name: dim_customer
     description: "Customer dimension (segment, region, country) for CRM and value reporting."
     purpose: "Customer-level analysis, CLV, retention, and segmentation."
     scd_type: 2
+    # Konforme Dimension (Bus-Matrix, 29.09.2026): die einzige Definition; finance verweist.
     columns:
       - {name: CustomerKey, type: int, role: key}
       - {name: CustomerCode, type: text}
       - {name: CustomerName, type: text}
       - {name: Segment, type: text, nullable: true, allowed_values: [Loyalty, HighValue, New, Occasional, ChurnRisk]}
       - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Outlet], target_state: true}
-      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Territory, Vertriebsregion]}
       - {name: Channel Preference, type: text, allowed_values: [Store, ECom, Mixed]}
       - {name: Tenure Bucket, type: text, allowed_values: [<1Y, 1-3Y, ">3Y"]}
 
@@ -121,6 +149,10 @@ fact:
     description: "Invoice-line sales (net sales, quantity, price, COGS) with plan and prior year."
     purpose: "Core revenue and margin reporting; PVM and variance analysis."
     grain: invoice_line
+    # Konformer Fakt (Bus-Matrix, 29.09.2026): die einzige Definition; supply_chain verweist.
+    # `Sales Units` ist der Name derselben Gold-Spalte `Quantity` im SupplyChain-Modell (KPI-
+    # Lineage fact_sales.Sales Units); OrgKey ist nie NULL (Aurora-Gold: 0 NULL in 9.353.179 Zeilen).
+    uses_columns: [DateKey, OrgKey, ProductKey, CustomerKey, PromoKey, Promo Flag, Net Sales Amount, Quantity, Plan Quantity, List Price Amount, Net Price Amount, Discount Amount, Plan Sales Amount, Last Year Sales Amount, Cost of Goods Sold Amount, InvoiceLineID, Plan COGS Amount]
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
@@ -139,6 +171,7 @@ fact:
       - {name: Cost of Goods Sold Amount, type: currency, agg: sum}
       - {name: InvoiceLineID, type: text}
       - {name: Plan COGS Amount, type: currency, agg: sum}
+      - {name: Sales Units, source_column: Quantity, type: decimal, agg: sum, unit: units, description: "Units sold (SupplyChain model name of Quantity)."}
 
   - name: fact_plan_sales
     description: "Planned sales and COGS at product-month grain for variance vs plan."
@@ -212,19 +245,7 @@ fact:
       - "Complaint ID unique per event."
 
   - name: fact_nps
-    description: "NPS survey responses (score, promoter/detractor flags) per response."
-    purpose: "NPS and advocacy reporting."
-    grain: customer_event
-    columns:
-      - {name: ResponseID, type: text, role: key}
-      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
-      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true, cardinality: many-to-one}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
-      - {name: NPS Score, type: number, checks: [{between: [0, 10]}]}
-      - {name: Is Promoter, type: bool, nullable: true}
-      - {name: Is Detractor, type: bool, nullable: true}
-    qa:
-      - "NPS Score in [0;10]; Promoter/Detractor flags mutually exclusive."
+    conformed_from: experience   # einzige Definition dort (Bus-Matrix, 29.09.2026)
 
   # --- COM-005 pipeline facts (Aurora gold) ---
   - name: fact_pipeline
@@ -261,8 +282,6 @@ quality_rules:
   # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
   # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla: daily        # fact_sales refreshed within 24 h of business close; fact_customer_events monthly
-  value_ranges:
-    - "fact_nps.NPS Score: integer values only"
   referential_integrity:
     - "fact_sales.CustomerKey: NULL = unidentified customer"
     - "fact_sales.PromoKey: -1 (dim_promo 'No Promotion') = non-promotional transaction"

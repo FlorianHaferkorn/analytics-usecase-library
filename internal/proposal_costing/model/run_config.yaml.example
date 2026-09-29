@@ -17,6 +17,12 @@ contract_term_months: 12
 region: West Europe
 quote_valid_days: 30
 output_path: dist/last_calculation.md
+# Capacity overage (on by default for new F capacities, billed at 3x PAYG). Ask the
+# customer: switched off, or threshold X CU hours per rolling 24 h? Unset = open question.
+# overage_enabled: false
+# overage_threshold_cu_hours: 96
+# Fabric Planning sessions per 30-day window (consume CU of the prod capacity).
+# planning_sessions: {planner: 2, stakeholder: 10, viewer: 50}
 # template_path: templates/offer_snippet.md   # optional; for offer output
 # customer_name: ""                            # optional; for offer
 # offer_date: ""                               # optional; for offer (e.g. 2025-02-15)

@@ -67,6 +67,9 @@ def _run(
     contract_months: int | None = typer.Option(None, "--contract-months", help="Contract term in months (for assumptions)"),
     region: str | None = typer.Option(None, "--region", help="Region (e.g. West Europe) for assumptions"),
     quote_valid_days: int | None = typer.Option(None, "--quote-valid-days", help="Days until quote expires (from valid_from)"),
+    overage_off: bool = typer.Option(False, "--overage-off", help="Customer switched capacity overage off"),
+    overage_threshold: float | None = typer.Option(
+        None, "--overage-threshold-cu-hours", help="Customer's rolling 24-h overage threshold in CU hours"),
     json_out: bool = typer.Option(False, "--json", help="Output result as JSON only"),
     output: str | None = typer.Option(None, "--output", "-o", help="Fill template and write to file (e.g. dist/last_calculation.md)"),
 ) -> None:
@@ -131,6 +134,15 @@ def _run(
         caps["prod"] = capacity_prod
     if caps:
         overrides["capacities"] = caps
+    # Overage decision (customer question) and Fabric Planning sessions; config keys
+    # overage_enabled, overage_threshold_cu_hours, planning_sessions {planner, stakeholder, viewer}.
+    if overage_off or cfg.get("overage_enabled") is False:
+        overrides["overage_enabled"] = False
+    threshold = overage_threshold if overage_threshold is not None else cfg.get("overage_threshold_cu_hours")
+    if threshold is not None:
+        overrides["overage_threshold_cu_hours"] = threshold
+    if cfg.get("planning_sessions"):
+        overrides["planning_sessions"] = cfg["planning_sessions"]
 
     root = _product_root()
     try:
@@ -283,6 +295,9 @@ def main(
     contract_months: int | None = typer.Option(None, "--contract-months", help="Contract term in months"),
     region: str | None = typer.Option(None, "--region", help="Region for assumptions"),
     quote_valid_days: int | None = typer.Option(None, "--quote-valid-days", help="Days until quote expires"),
+    overage_off: bool = typer.Option(False, "--overage-off", help="Customer switched capacity overage off"),
+    overage_threshold: float | None = typer.Option(
+        None, "--overage-threshold-cu-hours", help="Customer's rolling 24-h overage threshold in CU hours"),
     json_out: bool = typer.Option(False, "--json", help="Output result as JSON only"),
     output: str | None = typer.Option(None, "--output", "-o", help="Fill template and write to file"),
 ) -> None:
@@ -309,6 +324,8 @@ def main(
         contract_months=contract_months,
         region=region,
         quote_valid_days=quote_valid_days,
+        overage_off=overage_off,
+        overage_threshold=overage_threshold,
         json_out=json_out,
         output=output,
     )

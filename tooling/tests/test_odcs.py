@@ -7,12 +7,22 @@ malformed contracts are reported (not silently accepted). Deterministic.
 """
 from __future__ import annotations
 
+import copy
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
 import pytest
 import yaml
+
+from tooling.generator.export_governed_catalog import SPEC_KEYS, build_governed_catalog
 
 from tooling.superversion.architecture_blueprint import derive_blueprint
 from tooling.superversion.odcs import (
     ODCS_API_VERSION,
+    ODCS_API_VERSION_SPALTEN,
     emit_odcs,
     emit_odcs_ingestion,
     from_odcs,
@@ -133,7 +143,220 @@ def test_odcs_to_catalog_bridges_contract_to_catalog_shape():
     # mirror of Meridian: an ODCS schema object with properties → {tables:[{name,columns}]}, sorted
     ddl = "CREATE TABLE fact_sales (sales_id INT PRIMARY KEY, customer_sk INT NOT NULL, amount DECIMAL(9,2))"
     cat = odcs_to_catalog({"schema": [import_sql_table(ddl)]})
-    assert cat == {"tables": [{"name": "fact_sales", "columns": ["amount", "customer_sk", "sales_id"]}]}
+    assert [(t["name"], t["columns"]) for t in cat["tables"]] == [
+        ("fact_sales", ["amount", "customer_sk", "sales_id"])]
+    # A-20: `required` aus dem Vertrag reist als `column_specs.nullable` mit (NOT NULL ist ein Fakt)
+    assert {s["name"]: s["nullable"] for s in cat["tables"][0]["column_specs"]} == {
+        "sales_id": False, "customer_sk": False, "amount": True}
     # to_odcs objects have no properties (IR has no columns) → skipped, honest
     bp = derive_blueprint(_INPUTS)["blueprint"]
     assert odcs_to_catalog(to_odcs(bp)) == {"tables": []}
+
+
+
+# --- column_specs ⇄ ODCS v3.1 (A-20/A-23, Meridian D-581) ------------------------------------------
+# Synthetic fixture = Meridian's `test_vertrags_dq.GC`/`BP`, so both repos pin the same semantics.
+REPO = Path(__file__).resolve().parents[2]
+
+GC = {
+    "schema": "meridian/governed-catalog/v1",
+    "tables": [
+        {"name": "dim_date", "kind": "dimension", "columns": ["Date", "DateKey"],
+         "column_specs": [{"name": "DateKey", "type": "int", "nullable": False}]},
+        {"name": "fact_sales", "kind": "fact", "showcase": False,
+         "columns": ["DateKey", "Discount %", "End Date", "Promo Type", "Qty", "Start Date"],
+         "column_specs": [
+             {"name": "DateKey", "type": "date_key", "ref": "dim_date", "unknown_member": -1},
+             {"name": "Discount %", "type": "decimal", "nullable": True,
+              "checks": [{"between": [0, 1], "when_present": True}]},
+             {"name": "Qty", "type": "int", "checks": [{"gte": 0}]},
+             {"name": "Promo Type", "type": "text",
+              "checks": [{"in": ["Bundle", "None"], "when_present": True}]},
+             {"name": "Start Date", "type": "date",
+              "checks": [{"lte_column": "End Date", "when_present": True}]},
+             {"name": "Margin", "type": "decimal", "target_state": True, "checks": [{"gt": 0}]},
+             {"name": "Sales Units", "source_column": "Quantity", "type": "decimal",
+              "nullable": False, "checks": [{"gte": 0}]},
+         ]},
+    ],
+}
+
+BP = {
+    "platform": {"stack": "fabric"},
+    "medallion": {"silver": {"data_contract_ref": "c.yaml"},
+                  "gold": {"data_products": [{"name": "dim_date", "kind": "dimension"},
+                                             {"name": "fact_sales", "kind": "fact"}]}},
+    "mesh": {"domains": [{"name": "Sales", "data_products": ["dim_date", "fact_sales"]}]},
+}
+
+
+def test_column_specs_round_trip_is_lossless():
+    contracts = to_odcs(BP, GC)
+    assert contracts[0]["apiVersion"] == ODCS_API_VERSION_SPALTEN
+    assert validate_odcs(contracts[0]) == []
+    back = {t["name"]: t for t in odcs_to_catalog(contracts)["tables"]}
+    for t in GC["tables"]:
+        assert back[t["name"]]["column_specs"] == t["column_specs"]
+        assert back[t["name"]]["columns"] == sorted(t["columns"])
+        assert back[t["name"]].get("showcase") == t.get("showcase")
+
+
+def test_column_specs_use_the_official_odcs_expressions():
+    props = {p["name"]: p for p in to_odcs(BP, GC)[0]["schema"][1]["properties"]}
+    assert props["DateKey"]["required"] is True
+    assert props["DateKey"]["relationships"] == [{"type": "foreignKey", "to": "dim_date.DateKey"}]
+    promo = props["Promo Type"]["quality"][0]
+    assert (promo["metric"], promo["mustBe"]) == ("invalidValues", 0)
+    qty = props["Qty"]["quality"][0]
+    assert qty["type"] == "sql" and qty["mustBe"] == 0 and "{object}" in qty["query"]
+    assert qty["query"] == "SELECT COUNT(*) FROM {object} WHERE NOT ({property} IS NOT NULL AND {property} >= 0)"
+    assert props["Sales Units"]["physicalName"] == "Quantity"
+    assert "quality" not in props["Margin"]                  # Zielbild: getragen, nicht ausfuehrbar
+
+
+def test_without_catalog_stays_v300_and_needs_no_mirror(monkeypatch):
+    import tooling.superversion.odcs as odcs_mod
+
+    def _boom():
+        raise AssertionError("to_odcs without a catalog must not load the mirror")
+    monkeypatch.setattr(odcs_mod, "_provision_dq", _boom)
+    assert to_odcs(BP)[0]["apiVersion"] == ODCS_API_VERSION
+    assert "properties" not in to_odcs(BP)[0]["schema"][0]
+
+
+def _domain_catalogs() -> list[tuple[str, dict, dict]]:
+    """One (domain, governed catalog, blueprint) per real contract file under
+    core/data_contracts/domains — every table the domain owns is a gold product of its domain.
+
+    Per owning domain, as ODCS carries one contract per owning domain; since 29.09.2026 the full
+    catalog is unique by table name (``test_catalog_table_names_are_unique``), so a conformed
+    table sits in the contract of its owner only.
+    """
+    full = build_governed_catalog(REPO)
+    out = []
+    for dom in sorted({t["domain"] for t in full["tables"]}):
+        tables = [t for t in full["tables"] if t["domain"] == dom]
+        gc = {**full, "tables": tables}
+        bp = {
+            "platform": {"stack": "fabric"},
+            "medallion": {"silver": {"data_contract_ref": f"core/data_contracts/domains/{dom}.yaml"},
+                          "gold": {"data_products": [{"name": t["name"], "kind": t["kind"]}
+                                                     for t in tables]}},
+            "mesh": {"domains": [{"name": dom, "data_products": sorted(t["name"] for t in tables)}]},
+        }
+        out.append((dom, gc, bp))
+    return out
+
+
+def _normalised(spec: dict) -> dict:
+    """The one documented normalisation (Meridian `_property_to_spec`): `nullable: false` beside
+    `unknown_member` is redundant — `unknown_member` already means "never NULL"."""
+    out = dict(spec)
+    if "unknown_member" in out and out.get("nullable") is False:
+        out.pop("nullable")
+    return out
+
+
+def test_real_contracts_round_trip_through_odcs():
+    """Every column spec of every real contract survives column_specs → ODCS v3.1 → column_specs."""
+    catalogs = _domain_catalogs()
+    tables = [t for _, gc, _ in catalogs for t in gc["tables"]]
+    specs_total = sum(len(t["column_specs"]) for t in tables)
+    checks_total = sum(len(s.get("checks") or []) for t in tables for s in t["column_specs"])
+    assert len(catalogs) == len(list((REPO / "core/data_contracts/domains").glob("*.yaml")))
+    assert specs_total > 500 and checks_total > 50, (specs_total, checks_total)
+    assert {k for t in tables for s in t["column_specs"] for k in s} <= set(SPEC_KEYS)
+
+    compared = 0
+    for dom, gc, bp in catalogs:
+        contracts = to_odcs(bp, gc)
+        assert len(contracts) == 1
+        assert contracts[0]["apiVersion"] == ODCS_API_VERSION_SPALTEN, dom
+        assert validate_odcs(contracts[0]) == [], dom
+        assert yaml.safe_load(yaml.safe_dump(contracts[0], sort_keys=False,
+                                             allow_unicode=True)) == contracts[0]
+        back = {t["name"]: t for t in odcs_to_catalog(contracts)["tables"]}
+        assert set(back) == {t["name"] for t in gc["tables"] if t["column_specs"]}, dom
+        for t in gc["tables"]:
+            if not t["column_specs"]:
+                continue
+            got = back[t["name"]]
+            assert got["columns"] == t["columns"], (dom, t["name"])
+            assert got["showcase"] == t["showcase"], (dom, t["name"])
+            want = [s for s in (_normalised(s) for s in t["column_specs"]) if len(s) > 1]
+            assert got.get("column_specs", []) == want, (dom, t["name"])
+            compared += len(t["column_specs"])
+    assert compared == specs_total
+
+
+def test_real_contract_checks_become_executable_quality_rules():
+    """Each non-target-state check becomes exactly one ODCS quality rule (sql or invalidValues)."""
+    expected = rules = 0
+    for _, gc, bp in _domain_catalogs():
+        expected += sum(len(s.get("checks") or []) for t in gc["tables"] for s in t["column_specs"]
+                        if s.get("target_state") is not True)
+        found = [r for c in to_odcs(bp, gc) for o in c["schema"] for p in o.get("properties") or []
+                 for r in p.get("quality") or []]
+        assert all(r["mustBe"] == 0 and r["type"] in {"sql", "library"} for r in found)
+        rules += len(found)
+    assert rules == expected > 0
+
+
+def test_catalog_table_names_are_unique():
+    """Exact ratchet on a measured catalog property. Until 29.09.2026 the same table name lived in
+    several domain contracts with DIFFERENT column_specs (139 entries under 108 names; dim_customer,
+    dim_date, dim_org, dim_product, fact_inventory, fact_nps, fact_safety, fact_sales), and every
+    name-keyed consumer — ``to_odcs`` here, Meridian's ``_katalog_tabelle`` for
+    ``emit_dq_gates``/``emit_mlv`` — saw only the first entry. Bus-Matrix since then: one definition
+    per table, the other domains refer (``conformed_from``); zero collisions, and the validator
+    rejects a second definition. 109 since 29.09.2026: fact_safety_incidents (incident grain)
+    split off the monthly fact_safety snapshot."""
+    full = build_governed_catalog(REPO)
+    by_name: dict[str, list[dict]] = {}
+    for t in full["tables"]:
+        by_name.setdefault(t["name"], []).append(t)
+    colliding = sorted(n for n, ts in by_name.items() if len(ts) > 1)
+    assert (len(full["tables"]), len(by_name)) == (109, 109)
+    assert colliding == []
+
+
+def _meridian_root() -> Path | None:
+    env = os.environ.get("MERIDIAN_ROOT")
+    cand = Path(env).expanduser() if env else REPO.parent / "Freelancing"
+    return cand if (cand / "core/dataarch_engine/blueprint/odcs.py").is_file() else None
+
+
+_MERIDIAN_TO_ODCS = """
+import json, sys
+from core.dataarch_engine.blueprint.odcs import to_odcs, odcs_to_catalog
+bp, gc = json.load(sys.stdin)
+c = to_odcs(bp, gc)
+json.dump({"contracts": c, "catalog": odcs_to_catalog(c)}, sys.stdout, ensure_ascii=False)
+"""
+
+
+def test_same_output_as_meridian_on_real_contracts():
+    """Parity with the home implementation (Meridian `odcs.py`), measured on the real contracts.
+    Soft-skip without a Freelancing checkout ($MERIDIAN_ROOT or ../Freelancing)."""
+    mer = _meridian_root()
+    if mer is None:
+        pytest.skip("no Meridian checkout — parity with Meridian's odcs.py not measured")
+    full = build_governed_catalog(REPO)
+    cases = [(d, gc, bp) for d, gc, bp in _domain_catalogs()]
+    # plus the full catalog in one go (unique by name since 29.09.2026, conformed tables included)
+    cases.append(("*", full, {
+        "platform": {"stack": "fabric"},
+        "medallion": {"gold": {"data_products": [{"name": t["name"], "kind": t["kind"]}
+                                                 for t in full["tables"]]}},
+        "mesh": {"domains": [{"name": "all", "data_products": sorted({t["name"]
+                                                                      for t in full["tables"]})}]}}))
+    for dom, gc, bp in cases:
+        proc = subprocess.run([sys.executable, "-c", _MERIDIAN_TO_ODCS], cwd=str(mer),
+                              input=json.dumps([bp, gc]), capture_output=True, text=True,
+                              encoding="utf-8", env={**os.environ, "PYTHONPATH": str(mer)})
+        if proc.returncode != 0:
+            pytest.skip(f"Meridian odcs.py not runnable here: {proc.stderr.strip()[-300:]}")
+        theirs = json.loads(proc.stdout)
+        ours = to_odcs(copy.deepcopy(bp), copy.deepcopy(gc))
+        assert json.loads(json.dumps(ours, ensure_ascii=False)) == theirs["contracts"], dom
+        assert json.loads(json.dumps(odcs_to_catalog(ours))) == theirs["catalog"], dom
