@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import type { LineageGraph, LineageNode } from '@/lib/core/lineage-builder';
-import type { DataContract } from '@/lib/schemas';
+import type { ResolvedContract } from '@/lib/core/contract-loader';
 import { ContractDetailList } from '@/components/lineage/contract-detail';
 import { StudioFormField, StudioSelect } from '@/components/ui/studio-data';
 import { StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioSegmentedControl, StudioToolbar } from '@/components/ui/studio-page';
@@ -16,7 +16,7 @@ const LineageFlow = dynamic(
 
 interface Props {
   graph: LineageGraph;
-  contracts: DataContract[];
+  contracts: ResolvedContract[];
   focusId?: string;
 }
 

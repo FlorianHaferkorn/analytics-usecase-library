@@ -5,10 +5,9 @@
  * tables) to KPIs to use case brackets, enabling visual lineage exploration.
  */
 
-import { loadAllContracts } from './contract-loader';
+import { loadAllContracts, type ResolvedContract } from './contract-loader';
 import { loadKpiCatalog } from './catalog-loader';
 import { loadAllBrackets } from './bracket-loader';
-import type { DataContract } from '@/lib/schemas';
 import type { CatalogKpi } from './catalog-loader';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 
@@ -32,7 +31,7 @@ export interface LineageGraph {
 }
 
 interface PreloadedData {
-  contracts: DataContract[];
+  contracts: ResolvedContract[];
   kpis: CatalogKpi[];
   brackets: UseCaseBracketV20Lean[];
 }
@@ -100,7 +99,7 @@ export async function buildLineageGraph(
         type: 'fact',
         label: fact.name,
         domain: contract.domain,
-        metadata: { grain: fact.grain, columns: String(fact.columns.length) },
+        metadata: { grain: fact.grain ?? '', columns: String(fact.columns.length) },
       });
     }
   }
