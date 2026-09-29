@@ -184,7 +184,7 @@ python -m pytest tests/test_scaffold_generator.py -v
 ### Theme Not Found
 
 If you get a "Theme not found" error:
-1. Check that the theme file exists in `theme_generator/themes/`
+1. Check that the theme file exists in `products/fabric/powerbi/themes/` (vendored) or `themes_local/`
 2. Verify the theme name matches the filename (without .json extension)
 3. Use `--theme` argument to specify the correct theme name
 

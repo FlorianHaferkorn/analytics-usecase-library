@@ -90,7 +90,7 @@ This runs the full pipeline:
 showcases/<name>/brand/brand_spec.yaml  (source of truth)
          │
          ├── core/brand/derivations/pbi_theme.py
-         │     └─→  products/fabric/powerbi/tooling/theme_generator/themes/<ThemeName>.json
+         │     └─→  products/fabric/powerbi/themes_local/brand/<ThemeName>.json
          │           + showcases/<name>/theme_config.json  (default theme registered)
          │
          └── core/brand/derivations/css_variables.py
@@ -108,7 +108,7 @@ See `tool_derivations/powerbi_mapping.md` and `tool_derivations/css_mapping.md` 
 - Page layouts and slot definitions → [`core/templates/page_templates/`](../templates/page_templates/)
 - Visual whitelist or chart type rules → [`core/templates/page_templates/governance/`](../templates/page_templates/governance/)
 - Reporting principles → [`reporting_principles.md`](../strategy_operating_model/company/reporting_principles.md)
-- Tool-specific theme implementation details → `products/fabric/powerbi/tooling/theme_generator/`
+- Tool-specific theme implementation details → Freelancing `products/pbi_theme` (canonical engine; ALUCA vendors its theme JSONs into `products/fabric/powerbi/themes/`)
 
 ---
 

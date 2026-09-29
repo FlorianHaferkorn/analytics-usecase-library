@@ -1,5 +1,0 @@
-[submodule "products/fabric/powerbi/tooling/theme_generator"]
-	path = products/fabric/powerbi/tooling/theme_generator
-	url = https://github.com/FlorianHaferkorn/powerbi-theme.git
-	branch = main
-
