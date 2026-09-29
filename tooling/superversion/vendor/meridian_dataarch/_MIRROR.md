@@ -124,6 +124,13 @@ Brücke registriert **nur den Blattnamen**; `core.pbi_engine` entsteht nicht, AL
 mit dem eigenen Generator, und eine zugesagte Funktion, die niemand ruft, ist ein
 Versprechen ohne Halter.
 
+**Die Gegenrichtung (29.09.2026, A-20/A-23).** Der untergeschobene ODCS-Writer trägt seitdem
+auch Meridians `column_specs`-Abbildung (D-581). Deren Prüf-SQL und Ref-Auflösung
+(`pruef_operator`, `pruef_praedikat`, `ref_ziel`, `_katalog_tabelle`) holt `odcs.py` über
+`_dataarch_vendor.load_module("provision_dq")` aus diesem Spiegel, statt sie nachzubauen —
+dieselbe Übersetzung wie für `emit_dq_gates`/`emit_mlv`. Nur ein Katalog mit Spalten lädt
+den Spiegel; `to_odcs(blueprint)` ohne Katalog bleibt spiegelfrei.
+
 **Ein Nebenbefund, gemessen 26.08.2026.** `--stack databricks` und `--stack snowflake`
 standen seit jeher als Auswahl im CLI und scheiterten bei **jedem** Lauf mit
 `does not accept: source_schema_results`: der Aufrufer reichte die leere Vorgabe
