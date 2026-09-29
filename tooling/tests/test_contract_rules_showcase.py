@@ -12,8 +12,8 @@ als "alles geprüft" gelesen wird):
 * ``geprueft``          Tabelle und Spalte(n) sind im Showcase, die Regel lief.
 * ``nicht_im_showcase`` Tabelle ``showcase: false``, Spalte ``target_state: true`` oder die
                         referenzierte Dimension ist nicht im Showcase.
-* ``spalte_fehlt``      Tabelle im Showcase, Spalte nicht in Gold. Erlaubt nur für die bekannte
-                        Generatorlücke A-24 (das Modell liest sie, Gold hat sie noch nicht).
+* ``spalte_fehlt``      Tabelle im Showcase, Spalte nicht in Gold. Erlaubt nur für die exakt
+                        benannten Fälle in ``BEKANNT_OHNE_GOLD`` (Sperrklinke).
 
 Semantik: fehlt ``nullable: true``, darf die Spalte nicht NULL sein. ``checks`` werten NULL als
 Verstoß, außer ``when_present: true``; bei ``*_column`` ist ein NULL auf der Vergleichsseite
@@ -34,15 +34,14 @@ REPO = Path(__file__).resolve().parents[2]
 CONTRACTS = REPO / "core" / "data_contracts" / "domains"
 GOLD = REPO / "showcases" / "aurora_group" / "data" / "gold"
 
-# A-24: Modellspalten, die Gold (noch) nicht hat — der Generator zieht sie nach. Weniger ist ok,
-# eine neue Spalte hier heißt Drift zwischen Vertrag und Gold und macht den Test rot.
-A24_MODELL_OHNE_GOLD = {
-    ("dim_customer", "Region"), ("dim_product", "ABC_Class"), ("dim_product", "XYZ_Class"),
-    ("fact_cost", "Material Cost Amount"), ("fact_cost", "Overhead Amount"),
-    ("fact_inventory", "COGS Amount"), ("fact_inventory", "Inventory Amount"),
-    ("fact_sales", "Sales Units"),
-    ("fact_action_log", "Action Code"), ("fact_action_log", "Responsible Role"),
-    ("fact_inventory_snapshot", "Reorder Flag"),
+# Vertragsspalten ohne Gold-Spalte — Sperrklinke, exakte Menge (29.09.2026). Die zehn A-24-Lücken
+# hat der Gold-Generator geschlossen. Uebrig sind zwei Namensfragen des Vertrags, keine
+# Generatorluecken: `fact_sales.Sales Units` ist der Modellname, das Modell liest Gold `Quantity`
+# (E8: zwei Vertraege beschreiben dieselbe Tabelle verschieden); `fact_inventory.Inventory Amount`
+# hat in Gold nur `Average Inventory Amount`. Entscheidung offen (Ledger A-23). Eine neue Luecke
+# UND eine behobene, die hier noch steht, machen den Test rot.
+BEKANNT_OHNE_GOLD = {
+    ("fact_inventory", "Inventory Amount"), ("fact_sales", "Sales Units"),
 }
 
 _OPS = {"gte": ">=", "gt": ">", "lte": "<=", "lt": "<", "gte_column": ">=", "lte_column": "<="}
@@ -208,9 +207,11 @@ def test_contract_rules_hold_on_aurora_gold(ergebnis):
     total = sum(count.values())
     print(f"\nVertragsregeln gegen Aurora-Gold: {total} Regeln · geprueft={count['geprueft']} · "
           f"nicht_im_showcase={count['nicht_im_showcase']} · spalte_fehlt={count['spalte_fehlt']} "
-          f"(A-24: {sorted(missing)}) · verletzt={len(violations)}")
+          f"(bekannt: {sorted(missing)}) · verletzt={len(violations)}")
     assert count["geprueft"] > 0, "nichts gelaufen — ein Tor muss 'nicht gelaufen' von 'nichts gefunden' trennen"
-    assert missing <= A24_MODELL_OHNE_GOLD, f"Vertragsspalten fehlen in Gold (Drift): {sorted(missing - A24_MODELL_OHNE_GOLD)}"
+    assert missing == BEKANNT_OHNE_GOLD, (
+        f"Vertragsspalten ohne Gold weichen ab — neu: {sorted(missing - BEKANNT_OHNE_GOLD)}, "
+        f"behoben (hier streichen): {sorted(BEKANNT_OHNE_GOLD - missing)}")
     msg = "\n".join(f"  {r['table']}.{r['column']} {r['rule']} {r.get('check', r.get('dim', ''))}: {n} Zeilen"
                     for r, n in violations)
     assert not violations, f"{len(violations)} Vertragsregel(n) verletzt:\n{msg}"
