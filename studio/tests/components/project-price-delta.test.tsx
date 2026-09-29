@@ -35,11 +35,25 @@ describe('Price delta', () => {
   });
   it('names unpriced packages instead of counting them as zero', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(reply(evaluated({ comparable: false,
-      alternative: { packages: [], totals: totals(1500), priced_packages: 1, unpriced: [{ work_package_ref: 'wp_source_contracts', reason: 'Time-and-material packages are not priced.' }] } })));
+      alternative: { packages: [], totals: totals(1500), priced_packages: 1, unpriced: [{ work_package_ref: 'wp_source_contracts', reason: 'Time-and-material package cannot be banded: no rate mix.' }] } })));
     render(<ProjectPriceDelta {...props} />);
     fireEvent.click(screen.getByRole('button', { name: 'Show price delta' }));
-    await screen.findByText('Time-and-material packages are not priced.');
+    await screen.findByText('Time-and-material package cannot be banded: no rate mix.');
     expect(screen.getByText(/Not fully comparable/)).toBeTruthy();
+  });
+  it('shows time and material as a band outside the totals', async () => {
+    const row = { work_package_ref: 'wp_source_contracts', package_ref: 'REF_SOURCES', hours_band: [40, 60], blended_rate: 100,
+      rate_mix: { engineer_nearshore: 1 }, rate_mix_source: 'Paket: satzklassen_anteil', price_band: [4000, 6000], status: 'Annahme' };
+    vi.mocked(fetch).mockResolvedValueOnce(reply(evaluated({
+      baseline: { packages: [], totals: totals(2000), priced_packages: 1, unpriced: [], time_and_material: [row], time_and_material_price_band: [4000, 6000] },
+      alternative: { packages: [], totals: totals(1500), priced_packages: 1, unpriced: [], time_and_material: [row], time_and_material_price_band: [4000, 6000] },
+    })));
+    render(<ProjectPriceDelta {...props} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Show price delta' }));
+    await screen.findByText('Time and material (band, not in the totals above)');
+    expect(screen.getAllByText('\u20ac4,000 \u2013 \u20ac6,000 (40\u201360 h at \u20ac100/h)')).toHaveLength(2);
+    expect(screen.getAllByText('\u20ac4,000 \u2013 \u20ac6,000')).toHaveLength(2);
+    expect(screen.getByText('\u20ac2,000')).toBeTruthy();
   });
   it('rejects a result that could be persisted', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(reply(evaluated({ persist: true })));

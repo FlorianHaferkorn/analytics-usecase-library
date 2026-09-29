@@ -10,6 +10,13 @@ export interface PriceSide {
   totals: PriceTotals;
   priced_packages: number;
   unpriced: Array<{ work_package_ref: string; reason: string }>;
+  /** Time-and-material packages: a band from the core (D-576), never part of `totals`. */
+  time_and_material?: PriceBandRow[];
+  time_and_material_price_band?: [number, number];
+}
+export interface PriceBandRow {
+  work_package_ref: string; package_ref: string; hours_band: [number, number]; blended_rate: number;
+  rate_mix: Record<string, number>; rate_mix_source: string; price_band: [number, number]; status: string;
 }
 /** Private money result of tooling/superversion/project_package/price_delta.py. Never persisted. */
 export interface PriceDelta {
@@ -27,7 +34,7 @@ export interface PriceDelta {
   findings?: string[];
   baseline?: PriceSide;
   alternative?: PriceSide;
-  delta?: PriceTotals;
+  delta?: PriceTotals & { time_and_material_price_band?: [number, number] };
   comparable?: boolean;
   limitations?: string[];
 }

@@ -14,6 +14,9 @@ Three rules keep that money where it belongs (ADR-0019 §2.3, ADR-0020):
   price per package come from `kalkulation()`; the module adds them per side and subtracts.
 * **No silent zero.** A package the core cannot price is listed under ``unpriced`` with its
   reason, and the totals say how many packages they cover.
+* **Bands stay bands.** Time-and-material packages have no fixed price. The core returns an
+  hours band, a blended sales rate and a price band (D-576); they are listed under
+  ``time_and_material`` and summed into their own band, never into the fixed-price totals.
 """
 from __future__ import annotations
 
@@ -30,14 +33,15 @@ from .commercial_impact import _quantities
 from .hashes import canonical_sha256
 from .repository import ProjectPackageRevisionRepository
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 _MONEY = ("cost", "price_calculated", "price_rounded", "list_price")
 
 
 def _side(tenant: dict, plan: dict, architecture: dict) -> dict:
     core = pkm.rechenkern()
-    rows, unpriced = [], []
+    rows, unpriced, tm_rows = [], [], []
     totals = {key: 0.0 for key in _MONEY}
+    tm_band = [0.0, 0.0]
     for wp in plan.get("work_packages", []):
         canon = wp.get("canon")
         if canon is None:
@@ -47,12 +51,22 @@ def _side(tenant: dict, plan: dict, architecture: dict) -> dict:
         except (KeyError, ValueError, SystemExit):
             unpriced.append({"work_package_ref": wp["id"], "reason": f"Canon package {canon['package_ref']} is not in the tenant file."})
             continue
-        if core.ist_tm(package):
-            # Gemessen 28.09.2026: der gespiegelte Kern rechnet T&M ueber die Meridian-Klassen
-            # `delivery`/`architektur` und bricht beim Team-Mandanten ab.
-            unpriced.append({"work_package_ref": wp["id"], "reason": "Time-and-material packages are not priced by the mirrored core for the team tenant yet."})
-            continue
         quantities, _provenance = _quantities(canon, architecture)
+        if core.ist_tm(package):
+            try:
+                sheet = core.kalkulation(tenant, package, quantities)
+            except ValueError as error:
+                unpriced.append({"work_package_ref": wp["id"], "reason": f"Time-and-material package cannot be banded: {error}"})
+                continue
+            tm_rows.append({"work_package_ref": wp["id"], "package_ref": canon["package_ref"], "quantities": quantities,
+                            "hours_band": [round(float(v), 2) for v in sheet["stundenband"]],
+                            "blended_rate": round(float(sheet["verkaufssatz_blended"]), 2),
+                            "rate_mix": {k: round(float(v), 4) for k, v in sheet["satzklassen_anteil"].items()},
+                            "rate_mix_source": sheet["satzklassen_anteil_herkunft"],
+                            "price_band": [round(float(v), 2) for v in sheet["preisband"]],
+                            "status": sheet["status"]})
+            tm_band = [tm_band[0] + float(sheet["preisband"][0]), tm_band[1] + float(sheet["preisband"][1])]
+            continue
         sheet = core.kalkulation(tenant, package, quantities)
         row = {"work_package_ref": wp["id"], "package_ref": canon["package_ref"], "quantities": quantities,
                "hours": sheet["stunden_gesamt"], "cost": sheet["selbstkosten"],
@@ -63,7 +77,8 @@ def _side(tenant: dict, plan: dict, architecture: dict) -> dict:
         for key in _MONEY:
             totals[key] += float(row[key] or 0.0)
     return {"packages": rows, "totals": {key: round(value, 2) for key, value in totals.items()},
-            "priced_packages": len(rows), "unpriced": unpriced}
+            "priced_packages": len(rows), "unpriced": unpriced,
+            "time_and_material": tm_rows, "time_and_material_price_band": [round(tm_band[0], 2), round(tm_band[1], 2)]}
 
 
 def compare_price(repository: ProjectPackageRevisionRepository, project_ref: str, baseline_revision: str,
@@ -87,16 +102,21 @@ def compare_price(repository: ProjectPackageRevisionRepository, project_ref: str
     alt = _side(tenant, state["projected"]["plan"] or {}, state["projected"]["architecture_input"])
     if state["before_fingerprint"] != _fingerprint(repository):
         raise RuntimeError("Baseline repository changed during a read-only comparison")
-    comparable = {row["package_ref"] for row in base["packages"]} == {row["package_ref"] for row in alt["packages"]} \
+    def refs(side: dict, key: str) -> set[str]:
+        return {row["package_ref"] for row in side[key]}
+    comparable = refs(base, "packages") == refs(alt, "packages") \
+        and refs(base, "time_and_material") == refs(alt, "time_and_material") \
         and not base["unpriced"] and not alt["unpriced"]
+    tm_delta = [round(alt["time_and_material_price_band"][i] - base["time_and_material_price_band"][i], 2) for i in (0, 1)]
     return {**common, "status": "evaluated", "currency": tenant.get("waehrung", "EUR"),
             "tenant_fingerprint_sha256": canonical_sha256(tenant),
             "baseline": base, "alternative": alt,
-            "delta": {key: round(alt["totals"][key] - base["totals"][key], 2) for key in _MONEY},
+            "delta": {**{key: round(alt["totals"][key] - base["totals"][key], 2) for key in _MONEY},
+                      "time_and_material_price_band": tm_delta},
             "comparable": comparable,
             "limitations": ["Money comes from the tenant price canon through the mirrored core; values are assumptions until the tenant file is confirmed.",
                             "Not written anywhere: not in the package, not in generated outputs, not in the audit trail.",
-                            "Only fixed-price packages are priced; unpriced packages are listed, not counted as zero."]}
+                            "Totals cover fixed-price packages only; time-and-material packages are a separate hours and price band; unpriced packages are listed, not counted as zero."]}
 
 
 def main() -> int:

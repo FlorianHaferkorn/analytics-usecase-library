@@ -193,6 +193,25 @@ def lieferzeit_status(p: dict) -> str:
     return (p.get("lieferzeit") or {}).get("status", "Kanon")
 
 
+def _tm_anteil(m: dict, kalk: dict, h: dict[str, float]) -> tuple[dict[str, float], str]:
+    """Wie sich der T&M-Satz auf die Satzklassen verteilt, und woher die Verteilung kommt.
+
+    1. ``satzklassen_anteil`` am Paket, wenn gepflegt.
+    2. Sonst ``delivery`` = 1, wenn der Mandant diese Klasse fuehrt (Freelancing, D-357 -
+       unveraendert gegenueber dem Stand vor D-576).
+    3. Sonst die Stundenanteile der Aufgaben des Pakets. Ein Team-Mandant (ALUCA, Rolle x
+       Standort) kennt kein ``delivery``; bis D-576 brach der Kern dort mit KeyError ab.
+    """
+    if kalk.get("satzklassen_anteil"):
+        return dict(kalk["satzklassen_anteil"]), "Paket: satzklassen_anteil"
+    if "delivery" in (m.get("satzklassen") or {}):
+        return {"delivery": 1.0}, "Vorgabe: delivery"
+    summe = sum(h.values())
+    if not summe:
+        raise ValueError("T&M-Paket ohne satzklassen_anteil und ohne Aufgabenstunden - kein Satz ableitbar")
+    return {k: v / summe for k, v in sorted(h.items()) if v}, "Aufgabenstunden je Satzklasse (D-576)"
+
+
 def kalkulation(m: dict, p: dict, mengen: dict | None = None) -> dict:
     """Ein Kalkulationsblatt als dict, jede Zahl mit Herkunft rekonstruierbar."""
     mg = _mengen(p, mengen)
@@ -215,12 +234,14 @@ def kalkulation(m: dict, p: dict, mengen: dict | None = None) -> dict:
     if tm:
         kalk = p.get("kalkulation") or {}
         b_lo, b_hi = kalk.get("beteiligung_band", [1.0, 1.0])
-        anteil = kalk.get("satzklassen_anteil") or {"delivery": 1.0}
+        anteil, anteil_herkunft = _tm_anteil(m, kalk, h)
         satz = sum(verkaufssatz(m, k) * float(a) for k, a in anteil.items())
         std_lo, std_hi = band[0] * h_je_at * float(b_lo), band[1] * h_je_at * float(b_hi)
         blatt.update({
             "stundenband": (std_lo, std_hi),
             "verkaufssatz_blended": satz,
+            "satzklassen_anteil": anteil,
+            "satzklassen_anteil_herkunft": anteil_herkunft,
             "preisband": (std_lo * satz, std_hi * satz),
             "arbeitstage_bedarf": None,
             "vermerk": None,
