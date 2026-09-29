@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import type { CatalogKpi } from '@/lib/core/catalog-types';
-import type { ActionCodeDefinitionV20AIMirror, DataContract, UseCaseBracketV20Lean } from '@/lib/schemas';
+import type { ActionCodeDefinitionV20AIMirror, UseCaseBracketV20Lean } from '@/lib/schemas';
+import type { ResolvedContract } from '@/lib/core/contract-loader';
 import { LibraryTabs } from '@/components/library/LibraryTabs';
 import { MetricsTable } from '@/components/library/MetricsTable';
 import { EntityTable } from '@/components/library/EntityTable';
@@ -20,7 +21,7 @@ import {
 
 interface LibraryClientProps {
   metrics: CatalogKpi[];
-  contracts: DataContract[];
+  contracts: ResolvedContract[];
   actions: ActionCodeDefinitionV20AIMirror[];
   useCases: UseCaseBracketV20Lean[];
 }
