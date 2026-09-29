@@ -23,7 +23,6 @@
     ],
     "deny": [
       "Read(./**/*.parquet)",
-      "Read(./studio/_tmp_design_compare/**)",
       "Read(./**/node_modules/**)"
     ]
   },
