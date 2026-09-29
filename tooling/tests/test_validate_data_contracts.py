@@ -102,3 +102,59 @@ def test_source_column_separates_model_name_from_gold_column():
     assert check_column({"name": "Sales Units", "source_column": "Quantity"}, COLS) == []
     assert any("non-empty string" in e for e in check_column({"name": "x", "source_column": ""}, COLS))
     assert any("equals name" in e for e in check_column({"name": "x", "source_column": "x"}, COLS))
+
+
+# ---------------------------------------------------------------------------
+# Conformed tables (Bus-Matrix, 29.09.2026): one definition per table
+# ---------------------------------------------------------------------------
+
+from tooling.validation.check_validate_data_contracts import validate_conformance  # noqa: E402
+from tooling.utils.data_contracts import load_resolved_contract  # noqa: E402
+
+_OWNER = {"domain": "a", "dimension": [{"name": "dim_x", "columns": [
+    {"name": "XKey", "type": "int", "role": "key"}, {"name": "Label", "type": "text"}]}]}
+
+
+def _ref(**extra):
+    return {"domain": "b", "dimension": [{"name": "dim_x", "conformed_from": "a", **extra}]}
+
+
+def test_committed_contracts_have_one_definition_per_table():
+    contracts = {p.name: yaml.safe_load(p.read_text(encoding="utf-8"))
+                 for p in sorted((REPO / "core" / "data_contracts" / "domains").glob("*.yaml"))}
+    assert validate_conformance(contracts) == {}
+
+
+def test_reference_resolves_and_is_valid():
+    assert validate_contract(_ref(uses_columns=["XKey"])) == []
+    assert validate_conformance({"a.yaml": _OWNER, "b.yaml": _ref(uses_columns=["XKey"])}) == {}
+
+
+@pytest.mark.parametrize("contracts, fragment", [
+    ({"a.yaml": _OWNER, "b.yaml": {"domain": "b", "dimension": _OWNER["dimension"]}}, "defined in 2 contracts"),
+    ({"a.yaml": _OWNER, "b.yaml": {"domain": "b", "dimension": [{"name": "dim_x", "conformed_from": "c"}]}},
+     "is no domain contract"),
+    ({"a.yaml": {"domain": "a", "dimension": [{"name": "dim_y", "columns": []}]}, "b.yaml": _ref()},
+     "does not define dim_x"),
+    ({"a.yaml": {"domain": "a", "fact": [{"name": "dim_x", "grain": "g", "columns": []}]}, "b.yaml": _ref()},
+     "defines it as fact"),
+    ({"a.yaml": _OWNER, "b.yaml": _ref(uses_columns=["Nope"])}, "not in the definition"),
+    ({"b.yaml": {"domain": "b", "dimension": [{"name": "dim_x", "conformed_from": "b"}]}}, "its own domain"),
+])
+def test_conformance_violations(contracts, fragment):
+    errors = [e for errs in validate_conformance(contracts).values() for e in errs]
+    assert any(fragment in e for e in errors), errors
+
+
+def test_reference_must_not_carry_its_own_definition():
+    errors = validate_contract(_ref(columns=[{"name": "XKey"}], description="local copy"))
+    assert any("must not carry ['columns', 'description']" in e for e in errors), errors
+
+
+def test_domain_view_narrows_owner_definition(tmp_path):
+    (tmp_path / "a.yaml").write_text(yaml.safe_dump(_OWNER), encoding="utf-8")
+    (tmp_path / "b.yaml").write_text(yaml.safe_dump(_ref(uses_columns=["XKey"])), encoding="utf-8")
+    (dim,) = load_resolved_contract(tmp_path / "b.yaml")["dimension"]
+    assert dim["conformed_from"] == "a" and [c["name"] for c in dim["columns"]] == ["XKey"]
+    (own,) = load_resolved_contract(tmp_path / "a.yaml")["dimension"]
+    assert [c["name"] for c in own["columns"]] == ["XKey", "Label"]

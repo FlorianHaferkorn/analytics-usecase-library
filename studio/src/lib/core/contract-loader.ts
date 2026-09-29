@@ -18,7 +18,51 @@ const CONTRACTS_DIR = join(
   'domains',
 );
 
-/** Load all Data Contracts from core/data_contracts/domains/. */
+type ContractTable = { name: string; columns?: { name: string }[]; conformed_from?: string; uses_columns?: string[] };
+type Section = 'dimension' | 'fact';
+
+/**
+ * Domain view of the contracts (Bus-Matrix, 29.09.2026 — same rule as the Python resolver
+ * `tooling/utils/data_contracts.py`): a table is defined once, in its owning domain; another
+ * domain refers with `{ name, conformed_from, uses_columns? }` and no columns. Every reference is
+ * replaced by a copy of the owner's table, narrowed to `uses_columns`, with `conformed_from` kept;
+ * a definition with `uses_columns` is narrowed the same way. Unresolvable references get
+ * `columns: []` so no consumer reads `undefined`.
+ */
+export function resolveConformed(contracts: DataContract[]): DataContract[] {
+  const owners = new Map<string, { domain: string; section: Section; table: ContractTable }>();
+  for (const c of contracts) {
+    for (const section of ['dimension', 'fact'] as Section[]) {
+      for (const t of ((c[section] ?? []) as ContractTable[])) {
+        if (t?.name && !t.conformed_from && !owners.has(t.name)) {
+          owners.set(t.name, { domain: c.domain, section, table: t });
+        }
+      }
+    }
+  }
+  const narrow = (t: ContractTable, uses?: string[]): ContractTable => {
+    if (!Array.isArray(uses)) return t;
+    const byName = new Map((t.columns ?? []).map((col) => [col.name, col]));
+    return { ...t, columns: uses.filter((n) => byName.has(n)).map((n) => byName.get(n)!) };
+  };
+  return contracts.map((c) => {
+    const out = { ...c } as DataContract;
+    for (const section of ['dimension', 'fact'] as Section[]) {
+      const tables = (c[section] ?? []) as ContractTable[];
+      (out as unknown as Record<Section, ContractTable[]>)[section] = tables.map((t) => {
+        if (!t?.conformed_from) return narrow(t, t?.uses_columns);
+        const own = owners.get(t.name);
+        if (!own || own.domain !== t.conformed_from) return { ...t, columns: [] };
+        const ownerTable: ContractTable = { ...own.table };
+        delete ownerTable.uses_columns;   // the owner's own use is not the referencing domain's
+        return { ...narrow(ownerTable, t.uses_columns), conformed_from: t.conformed_from };
+      });
+    }
+    return out;
+  });
+}
+
+/** Load all Data Contracts from core/data_contracts/domains/ (domain view, see resolveConformed). */
 export async function loadAllContracts(): Promise<DataContract[]> {
   let entries: string[];
   try {
@@ -46,7 +90,7 @@ export async function loadAllContracts(): Promise<DataContract[]> {
     }),
   );
 
-  return results.filter((c): c is DataContract => c !== null);
+  return resolveConformed(results.filter((c): c is DataContract => c !== null));
 }
 
 /** Load a single Data Contract by domain name. */

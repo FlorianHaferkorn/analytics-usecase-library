@@ -391,6 +391,18 @@ culture en-US
 								}
 							},
 							{
+								"Geo": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Geography": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
 								"Territory": {
 									"Type": "Noun",
 									"State": "Authored"
@@ -398,6 +410,46 @@ culture en-US
 							},
 							{
 								"Vertriebsregion": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Gebiet": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							}
+						]
+					},
+					"dim_org.country": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Country"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Country": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Country of Domicile": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Land": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Sitzland": {
 									"Type": "Noun",
 									"State": "Authored"
 								}

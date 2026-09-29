@@ -8,39 +8,16 @@ owner: Commercial Data Product (cross-domain)
 
 dimension:
   - name: dim_date
-    description: "Calendar dimension for growth reporting."
-    purpose: "Time slicing for revenue growth, acquisition, and expansion trends."
-    scd_type: 1
-    columns:
-      - {name: DateKey, type: int, role: key}
-      - {name: Date, type: date}
-      - {name: Year, type: int}
-      - {name: Quarter, type: text}
-      - {name: Month, type: text}
-      - {name: MonthNumber, type: int}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, Date, Year, Quarter, Month, MonthNumber]
 
   - name: dim_org
-    description: "Organization dimension (region, country, channel, segment) for growth reporting."
-    purpose: "Market and channel scoping for growth analysis."
-    scd_type: 2
-    columns:
-      - {name: OrgKey, type: int, role: key}
-      - {name: Region, type: text, nullable: true}
-      - {name: Country, type: text, nullable: true}
-      - {name: Channel, type: text, nullable: true}
-      - {name: Segment, type: text, nullable: true, target_state: true}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [OrgKey, Region, Country, Channel, Segment]
 
   - name: dim_product
-    description: "Product dimension with lifecycle stage and category hierarchy."
-    purpose: "Product-level growth, launch performance, and portfolio analysis."
-    scd_type: 2
-    columns:
-      - {name: ProductKey, type: int, role: key}
-      - {name: ProductCode, type: text}
-      - {name: ProductName, type: text}
-      - {name: Category, type: text}
-      - {name: Subcategory, type: text, nullable: true}
-      - {name: Lifecycle Stage, type: text, nullable: true, target_state: true}   # Launch / Growth / Mature / Decline
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [ProductKey, ProductCode, ProductName, Category, Subcategory, Lifecycle Stage]
 
   - name: dim_customer_segment
     showcase: false

@@ -80,8 +80,11 @@ export async function buildLineageGraph(
   };
 
   // 1. Data contract nodes — Pass 1: add ALL nodes first so FK refs resolve correctly
+  // A conformed reference (`conformed_from`) is the owner's table: its node belongs to the owner.
+  const isReference = (t: object) => 'conformed_from' in t;
   for (const contract of contracts) {
     for (const dim of contract.dimension ?? []) {
+      if (isReference(dim)) continue;
       addNode({
         id: `dim:${dim.name}`,
         type: 'dimension',
@@ -91,6 +94,7 @@ export async function buildLineageGraph(
       });
     }
     for (const fact of contract.fact ?? []) {
+      if (isReference(fact)) continue;
       addNode({
         id: `fact:${fact.name}`,
         type: 'fact',
@@ -104,7 +108,7 @@ export async function buildLineageGraph(
   // Pass 2: add FK edges now that all nodes exist
   for (const contract of contracts) {
     for (const fact of contract.fact ?? []) {
-      for (const col of fact.columns) {
+      for (const col of fact.columns ?? []) {
         if (col.ref) {
           const refTable = extractTable(col.ref);
           if (refTable && nodeIds.has(`dim:${refTable}`)) {

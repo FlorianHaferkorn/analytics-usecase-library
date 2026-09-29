@@ -6,6 +6,40 @@ culture en-US
 				"Version": "1.0.0",
 				"Language": "en-US",
 				"Entities": {
+					"dim_customer.region": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_customer",
+								"ConceptualProperty": "Region"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Region": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Sales Region": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Territory": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Vertriebsregion": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							}
+						]
+					},
 					"dim_org.region": {
 						"Definition": {
 							"Binding": {
@@ -28,6 +62,64 @@ culture en-US
 							},
 							{
 								"Geo": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Geography": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Territory": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Vertriebsregion": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Gebiet": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							}
+						]
+					},
+					"dim_org.country": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Country"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Country": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Country of Domicile": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Land": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Sitzland": {
 									"Type": "Noun",
 									"State": "Authored"
 								}
@@ -56,6 +148,92 @@ culture en-US
 							},
 							{
 								"Route to Market": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Distribution Channel": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Vertriebskanal": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Absatzkanal": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							}
+						]
+					},
+					"dim_product.category": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_product",
+								"ConceptualProperty": "Category"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Category": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Product Group": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Warengruppe": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Produktgruppe": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							}
+						]
+					},
+					"dim_product.subcategory": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_product",
+								"ConceptualProperty": "Subcategory"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Subcategory": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Sub Category": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Untergruppe": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Unterkategorie": {
 									"Type": "Noun",
 									"State": "Authored"
 								}

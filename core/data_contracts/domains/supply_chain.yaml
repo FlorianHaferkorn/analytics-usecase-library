@@ -4,44 +4,16 @@ owner: Supply Chain Data Product
 
 dimension:
   - name: dim_date
-    description: "Calendar dimension for time slicing in supply chain."
-    purpose: "Time dimension for inventory, fulfillment, and forecast reporting."
-    scd_type: 1
-    columns:
-      - {name: DateKey, type: int, role: key}
-      - {name: Date, type: date}
-      - {name: Year, type: int}
-      - {name: Quarter, type: text, allowed_values: [Q1, Q2, Q3, Q4]}
-      - {name: Month, type: text}
-      - {name: MonthNumber, type: int}
-      - {name: Week, type: text, nullable: true}
-      - {name: CalendarYearMonth, type: text}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, Date, Year, Quarter, Month, MonthNumber, Week, CalendarYearMonth]
 
   - name: dim_org
-    description: "Location/organization dimension (location, region, channel) for supply chain."
-    purpose: "Scoping for inventory, fulfillment, and replenishment."
-    scd_type: 2
-    columns:
-      - {name: OrgKey, type: int, role: key}
-      - {name: Location, type: text, nullable: true, synonyms: [Site, Distribution Center, Node, Standort, Lager]}
-      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Geography, Territory, Vertriebsregion, Gebiet]}
-      - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Direct, Outlet], synonyms: [Distribution Channel, Route to Market, Vertriebskanal, Absatzkanal]}
-      - {name: Customer, type: text, nullable: true, synonyms: [Account, Ship-To, Consignee, Warenempfänger]}
-      - {name: OrgLevel, type: text, allowed_values: [Group, Region, Country, DC, Store]}
-      - {name: OrgType, type: text, allowed_values: [Group, Region, Country, DC, Store]}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [OrgKey, Location, Region, Channel, Customer, OrgLevel, OrgType]
 
   - name: dim_product
-    description: "Product dimension with ABC/XYZ classification for supply chain."
-    purpose: "Product-level inventory, COGS, and fulfillment."
-    scd_type: 2
-    columns:
-      - {name: ProductKey, type: int, role: key}
-      - {name: ProductCode, type: text}
-      - {name: ProductName, type: text}
-      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics], synonyms: [Product Group, Warengruppe, Produktgruppe]}
-      - {name: Subcategory, type: text, nullable: true, allowed_values: [Apparel, Footwear, Accessories, Jewelry, Furniture, Decor, Kitchenware, Bedding, Lighting, TVs, Audio, Computers, Smartphones, Gaming], synonyms: [Sub Category, Untergruppe, Unterkategorie]}
-      - {name: ABC_Class, type: text, nullable: true, allowed_values: [A, B, C], synonyms: [ABC Class, ABC Classification, ABC-Analyse, ABC-Klassifizierung]}
-      - {name: XYZ_Class, type: text, nullable: true, allowed_values: [X, Y, Z], synonyms: [XYZ Class, XYZ Classification, XYZ-Analyse, RSU-Analyse]}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [ProductKey, ProductCode, ProductName, Category, Subcategory, ABC_Class, XYZ_Class]
 
   - name: dim_lane
     description: "Transport lane dimension (origin, destination, mode) for fulfillment."
@@ -103,17 +75,22 @@ dimension:
 
 fact:
   - name: fact_inventory
-    description: "Daily inventory snapshot (on-hand/average/obsolete) at location-SKU-day grain for precise DIO."
+    description: "Month-end inventory snapshot (average/obsolete amount and units, COGS) at location-SKU-month grain."
     purpose: "Inventory value, days inventory outstanding (DIO), and obsolescence reporting (SCM-001)."
-    grain: location_sku_day
+    grain: location_sku_month
+    # Konformer Fakt (Bus-Matrix, 29.09.2026): die einzige Definition; finance verweist.
+    # Korn nach Aurora-Gold: 18.000 Zeilen = 60 Monatsend-DateKeys x 10 OrgKeys x 30 ProductKeys,
+    # eindeutig (vorher location_sku_day hier, month in finance). COGS Amount aus finance.
+    uses_columns: [DateKey, OrgKey, ProductKey, Average Inventory Amount, Average Inventory Units, Obsolete Inventory Amount, Obsolete Inventory Units]
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
       - {name: Average Inventory Amount, type: currency, agg: sum, checks: [{gte: 0}]}
       - {name: Average Inventory Units, type: decimal, agg: sum, checks: [{gte: 0}]}
       - {name: Obsolete Inventory Amount, type: currency, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}, {lte_column: Average Inventory Amount, when_present: true}]}
       - {name: Obsolete Inventory Units, type: decimal, agg: sum, nullable: true}
+      - {name: COGS Amount, type: currency, agg: sum}
 
   - name: fact_cogs
     description: "Cost of goods sold at location-SKU-month grain."
@@ -171,14 +148,8 @@ fact:
       - {name: Forecast Version, type: text, nullable: true}
 
   - name: fact_sales
-    description: "Sales units by SKU and month (supply chain view)."
-    purpose: "Demand and sell-through for SCM."
-    grain: sku_month
-    columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: ProductKey, type: int, ref: dim_product}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
-      - {name: Sales Units, source_column: Quantity, type: decimal, agg: sum, unit: units}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, ProductKey, OrgKey, Sales Units]
 
   - name: fact_procurement
     description: "Procurement spend at purchase-order-line grain (one row per PO line) so purchase price
@@ -260,7 +231,6 @@ quality_rules:
     fact_stockout: daily              # intraday preferred; next-day maximum
     fact_fulfillment: daily           # order closure events same-day
     fact_forecast: weekly             # S&OP cycle; latest version by Monday 08:00
-    fact_sales: daily
     fact_procurement: daily
     fact_replenishment: daily
     fact_logistics: daily

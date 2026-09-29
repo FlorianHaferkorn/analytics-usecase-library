@@ -336,12 +336,18 @@ def _table_kind(table: dict) -> str:
 
 
 def build_table_descriptions(contract_path: Path) -> List[TableDescription]:
-    """Build table + column descriptions from one data-contract YAML (best-effort)."""
+    """Build table + column descriptions from one data-contract YAML (best-effort).
+
+    Reads the **domain view**: a conformed table (``conformed_from``) comes from its owning
+    domain's definition, narrowed to ``uses_columns`` (``tooling/utils/data_contracts.py``).
+    """
+    from tooling.utils.data_contracts import load_resolved_contract
+
     contract_path = Path(contract_path)
     if not contract_path.is_file():
         return []
     try:
-        doc = yaml.safe_load(contract_path.read_text(encoding="utf-8")) or {}
+        doc = load_resolved_contract(contract_path)
     except yaml.YAMLError:
         return []
     out: List[TableDescription] = []

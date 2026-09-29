@@ -86,9 +86,45 @@ def test_tables_carry_showcase_and_column_specs():
     assert set(net) == {"name", "type"}                      # only keys the contract sets
     assert any(t["showcase"] is False for t in tables)       # e.g. fact_emissions
     assert any(s.get("target_state") for t in tables for s in t["column_specs"])
-    sc_sales = by_name[("supply_chain", "fact_sales")]
-    units = next(s for s in sc_sales["column_specs"] if s["name"] == "Sales Units")
+    units = next(s for s in sales["column_specs"] if s["name"] == "Sales Units")
     assert units["source_column"] == "Quantity"               # Modellname -> physische Gold-Spalte
+    assert sales["domains"] == ["commercial_sales", "supply_chain"]
+
+
+def test_one_entry_per_table_name():
+    """Bus-Matrix (29.09.2026): a conformed table is defined once; references only add a domain.
+    Measured before the change: 139 entries under 108 names, 8 names with differing specs."""
+    tables = _load_tables(REPO / "core" / "data_contracts" / "domains")
+    names = [t["name"] for t in tables]
+    assert len(names) == len(set(names)) == 108
+    by_name = {t["name"]: t for t in tables}
+    for t in tables:
+        assert t["domain"] in t["domains"] and t["domains"] == sorted(set(t["domains"]))
+    assert len(by_name["dim_date"]["domains"]) == 12 and by_name["dim_date"]["domain"] == "commercial_sales"
+    assert by_name["fact_nps"]["domain"] == "experience"
+    assert by_name["fact_inventory"]["domain"] == "supply_chain"
+    assert by_name["fact_safety"]["domain"] == "esg"
+    assert sum(len(t["domains"]) for t in tables) == 139       # Bus-Matrix: every use still listed
+
+
+def test_conformed_reference_adds_domain_not_entry(tmp_path):
+    (tmp_path / "a.yaml").write_text(
+        "domain: a\n"
+        "dimension:\n"
+        "  - name: dim_x\n"
+        "    columns:\n"
+        "      - {name: XKey, type: int, role: key}\n"
+        "      - {name: Label, type: text}\n",
+        encoding="utf-8")
+    (tmp_path / "b.yaml").write_text(
+        "domain: b\n"
+        "dimension:\n"
+        "  - name: dim_x\n"
+        "    conformed_from: a\n"
+        "    uses_columns: [XKey]\n",
+        encoding="utf-8")
+    (t,) = _load_tables(tmp_path)
+    assert (t["name"], t["domain"], t["domains"], t["columns"]) == ("dim_x", "a", ["a", "b"], ["Label", "XKey"])
 
 
 def test_column_specs_from_synthetic_contract(tmp_path):

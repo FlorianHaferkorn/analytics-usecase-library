@@ -75,16 +75,19 @@ def parse_model(contracts_dir: Path) -> dict[str, Any]:
 
     fact = {domain, name, grain, refs: [(column, dim_name)], keys: [column,…]}
     dim  = {domain, name, key}
+
+    Only definitions: a conformed reference (``conformed_from``, Bus-Matrix 29.09.2026) is the
+    owner's table, not a second declaration — whether it resolves is the contract validator's job.
     """
     facts, dims = [], []
     for f in sorted(contracts_dir.glob("*.yaml")):
         data = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
         domain = data.get("domain", f.stem)
         for d in (data.get("dimension") or []):
-            if isinstance(d, dict) and d.get("name"):
+            if isinstance(d, dict) and d.get("name") and "conformed_from" not in d:
                 dims.append({"domain": domain, "name": d["name"], "key": _key_of(d)})
         for fc in (data.get("fact") or []):
-            if not (isinstance(fc, dict) and fc.get("name")):
+            if not (isinstance(fc, dict) and fc.get("name")) or "conformed_from" in fc:
                 continue
             refs, keys = [], []
             for c in (fc.get("columns") or []):
