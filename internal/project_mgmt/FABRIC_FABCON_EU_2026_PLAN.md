@@ -35,6 +35,7 @@ Nicht verwendet: Den Keynote-Blog vom 28.09. weist der Egress-Proxy ab; nur Such
 | E-5 | Lieferweg der Ontologie-Inhalte nach Fabric IQ: RDF/OWL-Turtle über die Import-Funktion + Kontextpaket für den Ontology agent · TMDL-Item-Definition per API · „Generate from semantic model“ | W4.3 |
 | E-6 | Gemeinsame Geschäftsobjekt-Schicht (Entity types) und ein KPI-ID-Schema mit Meridian (heute `sales.net_sales.amount` hier, `KPI-FIN-001` dort) | W4.6 |
 | E-7 | Fabric Planning als Blueprint-Option und Angebot | W4.7 (Option) |
+| E-8 | Microsofts Govern-Skill `onelake-catalog-govern-cli` (microsoft/skills-for-fabric, seit 0.3.15) als Audit-/Remediation-Werkzeug übernehmen | — (Spike in Meridian W1.8) |
 
 ## Aufgaben und Stand
 
@@ -52,6 +53,7 @@ Legende Status: `offen` · `in Arbeit (Branch, Datum)` · `erledigt (Datum, PR #
 | W1.4 | Tenant-Settings-API: Preview-Caveat neu messen | M→A | offen | Spiegel nachgezogen |
 | W1.5 | OneLake-Rollen auf gespiegelten Items (Preview, nur Read) + Policy-Weaver-Test | M→A | blockiert (E-4 nach Test) | Spiegel nachgezogen |
 | W1.6 | Workspace-Monitoring-Item: Create-API? | M→A | offen | Spiegel nachgezogen |
+| W1.7 | **OneLake catalog → Govern ist die Admin-Startseite** (Learn, 29.09.2026): Tenant settings unter Govern → Configurations, dazu Workspaces, Capacities, Domains, Tags, Policies; Rollout nach Region, Admin-Portal als Fallback. Grenzen: nicht bei Private Link, keine Gäste/Cross-Tenant. Gespiegelter Emitter-Text über den Spiegel; ALUCA-eigene Doku (3 Dateien nennen „Admin portal“, gemessen 29.09.) hier umstellen | M→A (+A) | offen | Pfade „Govern → …“ mit Fallback-Satz · Spiegel ohne Drift, `check_index --strict` grün |
 | W2.1 | Speichermodus nach E-1. Heute Import-Modus, und `GoldDataPath` ist ein lokaler Windows-Pfad (`dist/*/definition/expressions.tmdl`) | A | blockiert (E-1) | Blueprints/Orchestrator erzeugen den gewählten Modus; Pfad als Parameter/Variable Library · Stage 1 + pytest grün, Desktop-Laden per `CLAUDE_CLI_PBI_DESKTOP_TASKS.md` |
 | W2.2 | Runtime 2.0 / MLV-Kompatibilität | M→A | offen | Spiegel nachgezogen |
 | W2.3 | MLV Event-driven Refresh | M→A | offen | Spiegel nachgezogen |
