@@ -27,19 +27,19 @@ Der eigentliche Gewinn für uns: **Rendern im Power BI Service statt in Desktop.
 Desktop-Blocker der offenen Punkte R6.1, R6.2, R6.3, R4.1/R4.2 und R1.6
 (`UMSETZUNGSPLAN_REPORT_EXZELLENZ.md`) und läuft auf Linux und in CI.
 
-## 2 · Bestand (gemessen 24.09.2026)
+## 2 · Bestand (gemessen 24.09.2026; drei Zeilen nachgemessen 29.09.2026)
 
 | Baustein | Wo | Stand |
 |---|---|---|
 | Deterministische Spezifikation (Bracket, KPI-Katalog, Action-Codes, Ziele) | ALUCA `core/`, `tooling/codegen/` | fertig, mit `--check` |
-| PBIR-/TMDL-Generator | ALUCA `products/fabric/powerbi/tooling/page_scaffold_generator/`, `tooling/codegen/` | fertig, 15 von 17 Reports |
-| Strukturprüfungen | ALUCA `tooling/quality/run_quality_gate.ps1`, `tooling/report_quality/report_scorecard.py`; Meridian `make check-pbir` (`powerbi-report-author` 0.1.1) | fertig |
+| PBIR-/TMDL-Generator | ALUCA `products/fabric/powerbi/tooling/page_scaffold_generator/`, `tooling/codegen/` | fertig, 15 von 17 Reports. **Nachtrag 29.09.2026:** das ist der deprecated Prototyp-Renderer (`generate_full_report.py` nur mit `--allow-deprecated-prototype`, aufgerufen aus `generate_phase5_reports.ps1`); der offizielle Superversion-Emit `tooling/superversion/targets/pbir.py` schreibt nicht nach `dist/`. Zwei Pfade, Ledger A-18 in `../architecture/_INDEX.md` |
+| Strukturprüfungen | ALUCA `tooling/quality/run_quality_gate.ps1`, `tooling/report_quality/report_scorecard.py`; Meridian `make check-pbir` (`powerbi-report-author` 0.1.1) | fertig. **Nachtrag 29.09.2026:** auch ALUCA `superversion.yml` installiert die CLI gepinnt 0.1.1 und prüft den Emit blockierend (`e2e_smoke --require-cli`); lokal gemessen 0 Errors für COM-001, die 17 `dist/`-Reports 23 bis 25 Errors je Report (Ratsche, `premium-acceptance-F0-F6.md` F1). npm führt inzwischen 0.4.0 (`npm view`, 29.09.2026); der Pin ist bewusst |
 | Manueller Render-Ablauf | ALUCA `RENDER_GATED_RUNBOOK.md` (Windows-Laptop-Sitzung, 7 Schritte) | Checkliste, keine Pipeline |
 | Desktop-Screenshots | ALUCA `products/fabric/powerbi/tooling/desktop_bridge_screenshot.ps1` (R4.1) | gebaut, vom Maintainer nie erfolgreich ausgeführt |
 | Export über die echte Power-BI-Engine | Meridian `products/pbi_visual_regression/fabric_export.py`, `bootstrap_fabric.py`, CLI `fabric-render`, `bootstrap-fabric`; Workflow `visual-fabric.yml` | gebaut; **30 von 30 Läufen rot**, die letzten nach ~4 s im Limit-Fenster, ob die Secrets gesetzt sind, ist offen |
 | Headless-Renderer + Pixelvergleich | Meridian `products/pbi_visual_regression/` (`capture`, `verify`) | fertig, Baselines je Plattform |
 | LLM-Judge | ALUCA `products/fabric/powerbi/tooling/judge/llm_judge_prompt_v1.md`, `tooling/report_quality/boutique_scorecard` | Prompt versioniert, nie über echte Bilder gelaufen |
-| Modeling-MCP | ALUCA `.cursor/mcp.json` | **veraltet**: Windows-Exe 0.1.9 von Hand entpackt |
+| Modeling-MCP | ~~ALUCA `.cursor/mcp.json`~~ → `products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md` | **Nachtrag 29.09.2026:** `.cursor/` ist seit 25.09.2026 entfernt (Commit `8abea425`); im Repo liegt keine MCP-Konfiguration mehr, weder `.cursor/mcp.json` noch `.mcp.json`. Die Setup-Doku beschreibt weiter die von Hand entpackte Windows-Exe 0.1.9; npm führt `@microsoft/powerbi-modeling-mcp` 1.0.0 (`npm view`, 29.09.2026). Nicht gemessen: ob 1.0.0 unter Linux einen PBIP öffnet (AP-1) |
 
 ## 3 · Was Microsoft dazu offiziell anbietet (Learn, 24.09.2026)
 
@@ -110,6 +110,8 @@ Desktop, Pakete mit ☁ einen Tenant.
 - `powerbi-authoring`-Plugin für Claude Code/Cowork installieren.
 - ALUCA `.cursor/mcp.json` auf `npx @microsoft/powerbi-modeling-mcp@<Version>` umstellen und
   `.cursor/MCP_SETUP.md` nachziehen; dieselbe Konfiguration als `.mcp.json` für Claude Code.
+  **Nachtrag 29.09.2026:** `.cursor/` gibt es nicht mehr (25.09.2026); Ziel ist damit nur noch
+  `.mcp.json` plus die Setup-Doku unter `products/fabric/powerbi/docs/references/`.
 - Pins in Freelancing `research/upstream_pins.yaml` aufnehmen (MCP-Paket, Skills-Commit), damit
   `make check-upstream` (D-238) Drift meldet.
 - Entscheidung als D-Nummer (Meridian) und ADR-Zeile (ALUCA) festhalten (E6).
