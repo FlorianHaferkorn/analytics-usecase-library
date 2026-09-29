@@ -1,8 +1,9 @@
 #!/bin/sh
-# Pre-commit hook (drei Gates):
+# Pre-commit hook (vier Gates):
 #   1.   claude-repo-kit strict drift/quality gate — laeuft bei JEDEM Commit (guenstig;
 #        prueft nur _INDEX.md-Bereiche + CLAUDE.md/GOI_DOKTRIN.md-Platzhalter).
 #   1.5  Kundenkennungen — laeuft bei JEDEM Commit, nur auf gestagten Dateien.
+#   1.6  Ruff-Sperrklinke — nur wenn .py-Dateien gestagt sind.
 #   2.   ontology registry builder (strict) — nur wenn core/-Pfade gestagt sind.
 # Install/refresh via: .\tooling\git-hooks\install_precommit.ps1
 set -e
@@ -49,6 +50,14 @@ elif [ -f .kundendaten-sperrliste.json ]; then
 else
   echo "pre-commit: [UNGEPRUEFT] Kundendaten -- keine Sperrliste (.kundendaten-sperrliste.json" >&2
   echo "            bzw. KUNDENDATEN_SPERRLISTE). Dieser Commit ist NICHT auf Kundenkennungen geprueft." >&2
+fi
+
+# Gate 1.6: Ruff-Sperrklinke (29.09.2026) -- nur wenn .py-Dateien gestagt sind. Gemessen
+# 0,3 s fuer das ganze Repo (ruff 0.16.9), daher ohne Dateifilter auf den vollen Baum:
+# die Baseline zaehlt je Regel ueber alles. Ohne ruff im Interpreter: lautes SKIP.
+PY_STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.py$' || true)
+if [ -n "$PY_STAGED" ]; then
+  $PY scripts/check_lint_ratchet.py --strict || exit 1
 fi
 
 # Gate 2: ontology registry — fast path: skip if no core/ paths staged.
