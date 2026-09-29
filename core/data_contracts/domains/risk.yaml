@@ -31,6 +31,7 @@ dimension:
       - {name: Country, type: text, nullable: true}
 
   - name: dim_risk_category
+    showcase: false
     description: "Risk category taxonomy (strategic, operational, financial, compliance, reputational)."
     purpose: "Risk classification and reporting by category."
     scd_type: 1
@@ -42,6 +43,7 @@ dimension:
 
 fact:
   - name: fact_risk_register
+    showcase: false
     description: "Risk register snapshot per risk item and reporting period."
     purpose: "Enterprise risk exposure reporting and trend analysis."
     grain: risk_item_period
@@ -50,13 +52,14 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: RiskCategoryKey, type: int, ref: dim_risk_category}
       - {name: Risk ID, type: text, role: key}
-      - {name: Likelihood Score, type: int}        # 1–5 scale
-      - {name: Impact Score, type: int}             # 1–5 scale
-      - {name: Residual Risk Score, type: int}      # Likelihood × Impact
+      - {name: Likelihood Score, type: int, checks: [{between: [1, 5]}]}        # 1–5 scale
+      - {name: Impact Score, type: int, checks: [{between: [1, 5]}]}             # 1–5 scale
+      - {name: Residual Risk Score, type: int, checks: [{between: [1, 25]}]}      # Likelihood × Impact
       - {name: Target Risk Score, type: int, nullable: true}
       - {name: Status, type: text}                  # Open / Mitigated / Closed / Escalated
 
   - name: fact_control_effectiveness
+    showcase: false
     description: "Control testing results per control item and period."
     purpose: "Control coverage and effectiveness reporting."
     grain: control_period
@@ -69,6 +72,7 @@ fact:
       - {name: Exception Count, type: int, agg: sum, nullable: true}
 
   - name: fact_risk_incidents
+    showcase: false
     description: "Risk incidents and near-misses with impact quantification per event."
     purpose: "Incident frequency and financial impact reporting."
     grain: incident
@@ -77,28 +81,19 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: RiskCategoryKey, type: int, ref: dim_risk_category}
       - {name: Incident ID, type: text, role: key}
-      - {name: Financial Impact Amount, type: currency, agg: sum, nullable: true}
+      - {name: Financial Impact Amount, type: currency, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}]}
       - {name: Is Near Miss, type: boolean}
       - {name: Is Resolved, type: boolean}
 
 quality_rules:
+  # Not-null, FK, unbekannter Eintrag und Wertebereiche stehen strukturiert an den Spalten
+  # (nullable, ref, unknown_member, checks). Hier bleibt nur, was sich nicht strukturieren laesst.
   freshness_sla:
     fact_risk_register: quarterly       # risk register reviewed quarterly; critical risks monthly
     fact_control_effectiveness: per-audit-cycle
     fact_risk_incidents: real-time      # incidents logged within 24 h of occurrence
-  key_nullability:
-    - "fact_risk_register.Risk ID, DateKey, OrgKey, Likelihood Score, Impact Score, Status: never null"
-    - "fact_control_effectiveness.Control ID, DateKey, OrgKey: never null"
-    - "fact_risk_incidents.Incident ID, DateKey, OrgKey: never null"
   value_ranges:
-    - "fact_risk_register.Likelihood Score: integer in [1; 5]"
-    - "fact_risk_register.Impact Score: integer in [1; 5]"
-    - "fact_risk_register.Residual Risk Score: in [1; 25] (product of Likelihood × Impact)"
-    - "fact_risk_incidents.Financial Impact Amount: >= 0 when present"
-  referential_integrity:
-    - "fact_risk_register.RiskCategoryKey → dim_risk_category (required)"
-    - "fact_risk_incidents.RiskCategoryKey → dim_risk_category (required)"
-    - "All facts: OrgKey → dim_org (required)"
+    - "fact_risk_register.Residual Risk Score: = Likelihood Score × Impact Score"
 
 settings:
   timezone: Europe/Berlin

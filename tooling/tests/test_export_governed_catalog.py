@@ -63,3 +63,49 @@ def test_cli_writes_file(tmp_path):
     import json
     cat = json.loads(out.read_text(encoding="utf-8"))
     assert cat["measures"] and cat["tables"]
+
+
+def test_tables_carry_showcase_and_column_specs():
+    """A-23: additive fields — `columns` unchanged, `showcase` + `column_specs` alongside."""
+    tables = _load_tables(REPO / "core" / "data_contracts" / "domains")
+    allowed = {"name", "source_column", "type", "nullable", "ref", "unknown_member", "checks", "target_state"}
+    for t in tables:
+        assert isinstance(t["showcase"], bool)
+        assert [s["name"] for s in t["column_specs"]] and sorted(s["name"] for s in t["column_specs"]) == t["columns"]
+        for spec in t["column_specs"]:
+            assert set(spec) <= allowed and "name" in spec
+    by_name = {(t["domain"], t["name"]): t for t in tables}
+    sales = by_name[("commercial_sales", "fact_sales")]
+    assert sales["showcase"] is True
+    promo_key = next(s for s in sales["column_specs"] if s["name"] == "PromoKey")
+    assert promo_key == {"name": "PromoKey", "type": "int", "nullable": False, "ref": "dim_promo",
+                         "unknown_member": -1}
+    discount = next(s for s in sales["column_specs"] if s["name"] == "Discount Amount")
+    assert discount["checks"] == [{"gte": 0, "when_present": True}]
+    net = next(s for s in sales["column_specs"] if s["name"] == "Net Sales Amount")
+    assert set(net) == {"name", "type"}                      # only keys the contract sets
+    assert any(t["showcase"] is False for t in tables)       # e.g. fact_emissions
+    assert any(s.get("target_state") for t in tables for s in t["column_specs"])
+    sc_sales = by_name[("supply_chain", "fact_sales")]
+    units = next(s for s in sc_sales["column_specs"] if s["name"] == "Sales Units")
+    assert units["source_column"] == "Quantity"               # Modellname -> physische Gold-Spalte
+
+
+def test_column_specs_from_synthetic_contract(tmp_path):
+    (tmp_path / "d.yaml").write_text(
+        "domain: d\n"
+        "fact:\n"
+        "  - name: fact_x\n"
+        "    showcase: false\n"
+        "    grain: row\n"
+        "    columns:\n"
+        "      - {name: A, type: int, agg: sum, description: x, checks: [{between: [0, 1]}]}\n"
+        "      - {name: A, type: text}\n"
+        "      - {name: B, type: int, ref: dim_y, nullable: false, unknown_member: -1, target_state: true}\n",
+        encoding="utf-8")
+    (t,) = _load_tables(tmp_path)
+    assert t["showcase"] is False and t["columns"] == ["A", "B"]
+    assert t["column_specs"] == [
+        {"name": "A", "type": "int", "checks": [{"between": [0, 1]}]},       # first wins, extra keys dropped
+        {"name": "B", "type": "int", "nullable": False, "ref": "dim_y", "unknown_member": -1, "target_state": True},
+    ]

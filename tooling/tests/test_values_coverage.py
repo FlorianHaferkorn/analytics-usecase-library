@@ -55,7 +55,10 @@ def test_commercial_is_fully_enumerated():
     cov = domain_coverage("Commercial", _CONTRACTS)
     assert cov.missing == []
     # 10 original + 5 from the COM-005/COM-001 dims (dim_sales_stage, dim_salesrep, dim_pvm_driver)
-    assert cov.enumerable == 15 and len(cov.covered) == 15
+    # + 7 gold columns the Commercial model reads, taken into the contract with A-23 (values
+    # measured on Aurora gold 29.09.2026): dim_org OrgLevel/OrgType/IssueType/Severity,
+    # dim_product Lifecycle Status, dim_customer Channel Preference/Tenure Bucket
+    assert cov.enumerable == 22 and len(cov.covered) == 22
     for loc in ("dim_product.Category", "dim_product.Subcategory", "dim_customer.Segment",
                 "dim_promo.Promo Type", "dim_promo.Promo Mechanic"):
         assert loc in cov.covered
