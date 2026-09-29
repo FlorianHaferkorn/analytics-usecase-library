@@ -130,7 +130,8 @@ def main():
     print("SPARSE = few rows for a fact that should have full 2020-2024 (re-run supply_chain or operations).")
     print("MULTI  = multiple parquet files; semantic model must use Table.Combine (e.g. fact_sales, fact_experience).")
     print("Format = Delta Lake (partitioned) or Parquet (single file). Delta facts use Table.Combine in TMDL.")
-    print("EXPECT_DELTA = fact is date-partitioned and should be Delta; install deltalake==1.6.2 and regenerate (see README).")
+    print("EXPECT_DELTA = fact is date-partitioned and should be Delta; "
+          "install deltalake==1.6.2 and regenerate (see README).")
 
 if __name__ == "__main__":
     main()
