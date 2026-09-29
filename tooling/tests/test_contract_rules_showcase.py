@@ -83,7 +83,8 @@ def _rules() -> list[dict]:
             for t in doc.get(kind) or []:
                 for c in t.get("columns") or []:
                     # Gegen Gold zaehlt die physische Spalte: source_column, sonst der Name.
-                    base = {"table": t["name"], "column": c.get("source_column", c["name"]), "showcase": showcase[t["name"]],
+                    base = {"table": t["name"], "column": c.get("source_column", c["name"]),
+                            "showcase": showcase[t["name"]],
                             "target_state": bool(c.get("target_state"))}
                     found = []
                     if c.get("nullable") is not True:
