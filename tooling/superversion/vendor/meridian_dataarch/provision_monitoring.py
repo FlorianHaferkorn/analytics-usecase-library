@@ -118,6 +118,17 @@ JOB_ALERT_NOT_COVERED: tuple[str, ...] = ("Semantic model", "Dataflow Gen2", "Co
 JOB_ALERTS_PATH = "monitoring/job_alerts.json"
 MONITORING_ITEM_PATH = "monitoring/workspace_monitoring_item.json"
 CAPACITY_ALERTS_RUNBOOK_PATH = "monitoring/capacity_alerts.md"
+#: Item-Definition des Operations Agents (I-21 W6.4): der einzige Definitionsteil laut Learn.
+OPERATIONS_AGENT_PATH = "monitoring/operations_agent/Configurations.json"
+
+#: Learn ``rest/api/fabric/articles/item-management/definitions/operations-agent-definition``,
+#: gelesen 29.09.2026. ``validation rejects unknown values`` — daher geschlossene Mengen.
+OPERATIONS_AGENT_DATASOURCE_TYPES: tuple[str, ...] = ("KustoDatabase", "Ontology")
+OPERATIONS_AGENT_ACTION_KINDS: tuple[str, ...] = ("PowerAutomateAction", "FabricJobAction")
+OPERATIONS_AGENT_DESTINATION_KINDS: tuple[str, ...] = ("Recipient", "TeamsChannel")
+#: Sponsor-Arten, die diese Lieferung zulaesst. ``person`` ist bewusst nicht dabei.
+OPERATIONS_AGENT_SPONSOR_ARTEN: tuple[str, ...] = ("gruppe", "spn")
+_VARIABLE_REF_RE = re.compile(r"^\$\(/[^/()]+/[^/()]+/[^/()]+\)$")
 
 #: Die Monitoring-Politik: alles, was vor der Anlage entschieden sein muss oder als Schwelle
 #: gilt. ``None`` heisst **offen** — irreversible Optionen bekommen keine stille Vorbelegung.
@@ -132,6 +143,7 @@ MONITORING_POLITIK_VORGABE: dict = {
     "kapazitaet_schwellen": {m: CAPACITY_ALERT_DEFAULT_THRESHOLD for m in CAPACITY_ALERT_METRICS},
     "kapazitaet_zustand": "Overloaded",
     "operation_events": False,
+    "operations_agent_sponsor": None,
 }
 
 
@@ -168,6 +180,14 @@ def monitoring_politik(politik: dict | None = None) -> dict:
         fehler.append(f"kapazitaet_zustand muss einer von {CAPACITY_STATES} oder null sein")
     if not isinstance(p["operation_events"], bool):
         fehler.append("operation_events muss true oder false sein")
+    sp = p["operations_agent_sponsor"]
+    if sp is not None:
+        if (not isinstance(sp, dict) or not isinstance(sp.get("alias"), str)
+                or not sp.get("alias", "").strip()
+                or sp.get("art") not in OPERATIONS_AGENT_SPONSOR_ARTEN):
+            fehler.append("operations_agent_sponsor muss {alias: <Text>, art: "
+                          f"{'|'.join(OPERATIONS_AGENT_SPONSOR_ARTEN)}}} sein — eine Person als "
+                          f"Sponsor ist nicht zulaessig, ist {sp!r}")
     if fehler:
         raise ValueError("Monitoring-Politik ungueltig: " + "; ".join(fehler))
     return p
@@ -395,6 +415,138 @@ def _job_alerts_spec(alerts: dict) -> dict:
         "nicht_abgedeckt": list(JOB_ALERT_NOT_COVERED),
         "fallback": "workspace_job_failures.kql (KQL Queryset + Activator)",
     }
+
+
+def _operations_agent_definition(bp: dict, politik: dict) -> dict:
+    """``Configurations.json`` des Operations Agents (I-21 W6.4) — Item-Definition statt Portal.
+
+    Belegt (MS Learn ``rest/api/fabric/articles/item-management/definitions/
+    operations-agent-definition``, gelesen 29.09.2026): ein Definitionsteil ``Configurations.json``
+    mit ``configuration`` (``instructions``, ``dataSources``, ``actions`` Pflicht;
+    ``messageDestination``, ``identity``), ``playbook`` (``{}``) und ``shouldRun``. ``goals`` und
+    ``recipient`` sind seit Juni 2026 veraltet. ``dataSources`` darf statt GUIDs eine
+    Variable-Library-Referenz ``$(/<Workspace>/<Library>/<Variable>)`` tragen — deshalb stehen hier
+    keine Tenant-IDs. ``identity.sponsor`` ist laut Learn ein „Sponsor alias provided by the user";
+    ob Fabric eine Gruppe oder einen SPN als Sponsor annimmt, sagt die Seite nicht (ANNAHME,
+    ungeprueft; Entra Agent ID erlaubt Gruppen als Sponsor, ``entra/agent-id/
+    create-delete-agent-identities``).
+
+    Bewusst leer: ``actions``. Der Agent laeuft delegiert (OBO) mit den Rechten seines Erstellers
+    (Learn ``real-time-intelligence/operations-agent``) — jede Aktion wuerde unter dieser
+    Identitaet laufen; vorab freigegebene Aktionen sind nur angekuendigt. ``shouldRun`` ist
+    ``false``, bis die KI-/DSGVO-Freigabe vorliegt (dieselbe Frage wie ``ki_untersuchungen``).
+    """
+    ws = politik["zentral_workspace"] or "<VERIFY: Monitoring-Workspace auf eigener Kapazitaet>"
+    sp = politik["operations_agent_sponsor"]
+    sponsor = sp["alias"] if sp else "<VERIFY: Sponsor des Operations Agents (Gruppe oder SPN)>"
+    domaenen = ", ".join(d["name"] for d in _domains(bp)) or "the platform"
+    return {
+        "configuration": {
+            "instructions": (
+                "Watch the job event logs of the monitored workspaces "
+                f"({domaenen}). When a pipeline, notebook, Spark job or refresh fails, report "
+                "item, workspace, failure time and error message to the operations channel. When "
+                "the same item fails twice in a row, say so explicitly. Do not propose or run any "
+                "action; report only."),
+            "dataSources": {
+                "monitoringEventhouse": f"$(/{ws}/vl_monitoring/monitoring_kql_database)",
+            },
+            "actions": {},
+            "messageDestination": {
+                "kind": "TeamsChannel",
+                "teamId": "<VERIFY: Teams-Team-ID des Betriebskanals>",
+                "channelId": "<VERIFY: Teams-Kanal-ID des Betriebskanals>",
+            },
+            "identity": {"sponsor": sponsor},
+        },
+        "playbook": {},
+        "shouldRun": False,
+    }
+
+
+def pruefe_operations_agent_definition(defn: dict) -> list[str]:
+    """Befunde gegen die Learn-Definition (gelesen 29.09.2026); leer heisst konform.
+
+    Prueft Pflichtfelder, geschlossene Enums (Learn: „validation rejects unknown values"), die
+    Form der Variable-Library-Referenz und die beiden seit Juni 2026 veralteten Felder."""
+    f: list[str] = []
+    if not isinstance(defn, dict):
+        return ["Definition ist kein Objekt"]
+    for k in ("configuration", "playbook", "shouldRun"):
+        if k not in defn:
+            f.append(f"Pflichtfeld {k} fehlt")
+    if not isinstance(defn.get("playbook", {}), dict):
+        f.append("playbook muss ein Objekt sein")
+    if "shouldRun" in defn and not isinstance(defn["shouldRun"], bool):
+        f.append("shouldRun muss boolesch sein")
+    c = defn.get("configuration") or {}
+    for k in ("instructions", "dataSources", "actions"):
+        if k not in c:
+            f.append(f"configuration.{k} fehlt")
+    for alt in ("goals", "recipient"):
+        if alt in c:
+            f.append(f"configuration.{alt} ist seit Juni 2026 veraltet")
+    for alias, ds in (c.get("dataSources") or {}).items():
+        if isinstance(ds, str):
+            if not _VARIABLE_REF_RE.match(ds):
+                f.append(f"dataSources.{alias}: Variablenreferenz nicht in der Form "
+                         "$(/<Workspace>/<Library>/<Variable>)")
+        elif not isinstance(ds, dict) or not {"id", "type", "workspaceId"} <= set(ds):
+            f.append(f"dataSources.{alias}: id, type und workspaceId sind Pflicht")
+        elif ds["type"] not in OPERATIONS_AGENT_DATASOURCE_TYPES:
+            f.append(f"dataSources.{alias}: type {ds['type']!r} nicht dokumentiert")
+    for alias, a in (c.get("actions") or {}).items():
+        if not isinstance(a, dict) or not {"id", "displayName", "description", "kind"} <= set(a):
+            f.append(f"actions.{alias}: id, displayName, description und kind sind Pflicht")
+        elif a["kind"] not in OPERATIONS_AGENT_ACTION_KINDS:
+            f.append(f"actions.{alias}: kind {a['kind']!r} nicht dokumentiert")
+        elif a["kind"] == "FabricJobAction" and not isinstance(a.get("connection"), dict):
+            f.append(f"actions.{alias}: FabricJobAction braucht connection")
+    md = c.get("messageDestination")
+    if md is not None:
+        kind = md.get("kind") if isinstance(md, dict) else None
+        if kind not in OPERATIONS_AGENT_DESTINATION_KINDS:
+            f.append(f"messageDestination.kind {kind!r} nicht dokumentiert")
+        elif kind == "Recipient" and "recipient" not in md:
+            f.append("messageDestination Recipient braucht recipient")
+        elif kind == "TeamsChannel" and not {"teamId", "channelId"} <= set(md):
+            f.append("messageDestination TeamsChannel braucht teamId und channelId")
+    ident = c.get("identity")
+    if ident is not None and (not isinstance(ident, dict) or set(ident) - {"sponsor"}):
+        f.append("identity: in GA-Definitionen ist nur sponsor zulaessig")
+    return f
+
+
+def _operations_agent_lines(politik: dict) -> list[str]:
+    """Abschnitt in `_MONITORING.md` zur Item-Definition (I-21 W6.4)."""
+    sp = politik["operations_agent_sponsor"]
+    return [
+        "## Operations Agent as an item definition (I-21 W6.4)", "",
+        f"`{OPERATIONS_AGENT_PATH.split('/', 1)[1]}` is the agent's item definition, deployable "
+        "through the item APIs or Git instead of configured in the portal (MS Learn, *Operations "
+        "Agent definition*, read 2026-09-29). It is emitted **stopped** (`shouldRun: false`) and "
+        "**without actions** — on purpose:", "",
+        "- The agent runs **delegated** (on-behalf-of) with the permissions of the identity that "
+        "**created** it; an approved recommendation runs under that identity (MS Learn, "
+        "*Operations agent identities*). Create it with the operations service account, never "
+        "with a personal account — the same *consented identity* risk as the branch workspace "
+        "admin profile. Whether a service principal can create the item is not documented "
+        "(ASSUMPTION, unverified).",
+        "- **Sponsor** (`identity.sponsor`) = a security group or a service principal, not a "
+        "person: a person leaves, and the agent loses its accountable owner. "
+        + (f"This delivery sets `{sp['alias']}` ({sp['art']})." if sp else
+           "Still open — `operations_agent_sponsor` in the monitoring policy.")
+        + " Learn documents the field only as a \"sponsor alias\"; whether Fabric accepts a group "
+        "or SPN alias there is an ASSUMPTION, unverified — check at the first tenant run.",
+        "- **Messages** go to a Teams channel, not to one person. Recipients need write "
+        "permission on the agent item (MS Learn, *Operations agent actions*).",
+        "- **Data source** is a variable-library reference (`$(/<workspace>/vl_monitoring/"
+        "monitoring_kql_database)`), so the definition carries no tenant IDs. The variable "
+        "library is not part of the agent definition and has to be deployed alongside it; this "
+        "delivery does not emit it yet.",
+        "- Start (`shouldRun: true`) only after the Copilot/Azure OpenAI tenant settings and the "
+        "GDPR clearance — the same decision as *AI powered investigations* in step 1c.", "",
+    ]
 
 
 def _pipeline_failure_runbook(bp: dict, alerts: dict,
@@ -883,6 +1035,36 @@ def _metrics_app_setup_md(capacity: str, alerts: dict) -> str:
     ]) + "\n"
 
 
+def _warehouse_monitor_lines() -> list[str]:
+    """Monitor for Fabric Data Warehouse (I-21 W6.11) — Abschnitt in `_MONITORING.md`.
+
+    Belegt (MS Learn ``fabric/data-warehouse/monitor``, gelesen 29.09.2026): Preview, frueher
+    „Query Activity"; nur Workspace-Admins; bis 15 Minuten Verzug; hoechstens 10.000 Zeilen je
+    Filter; dieselben Daten liegen in ``queryinsights.exec_requests_history``. Kein Alert — die
+    Oberflaeche ist ein Diagnosewerkzeug, kein Signal.
+    """
+    return [
+        "## Warehouse queries — the built-in Monitor (preview)", "",
+        "Warehouse and SQL analytics endpoint have their own query monitor (formerly *Query "
+        "Activity*): workspace view → **…** next to the warehouse → **Monitor**, or **Monitor** in "
+        "the query editor ribbon. Pages: *Query history* (status, submitter, run source, CPU time, "
+        "data scanned, result cache hit, error code; cancel a running query), *Long running "
+        "queries*, *Frequently run queries* (MS Learn, `data-warehouse/monitor`, read 2026-09-29).", "",
+        "| Property | Value | Consequence for operations |", "|---|---|---|",
+        "| Who can open it | workspace **Admin** only — not Member, Contributor or Viewer | the "
+        "on-call role needs Admin on the warehouse workspace, or works from the views below |",
+        "| Latency | up to **15 minutes** | not a live signal; alerts stay with the job alerts and "
+        "the KQL rule above |",
+        "| Result cap | top **10,000** rows per filter | narrow the time range before concluding "
+        "that a query is absent |",
+        "| Same data, scriptable | `queryinsights.exec_requests_history` and the other Query "
+        "insights views | use the views for evidence and trend reports; the Monitor for the "
+        "incident itself |", "",
+        "It raises no alerts. Failed warehouse *jobs* are covered by the job alerts (step 2, job "
+        "type *Warehouse*); a slow or failing *query* is only visible here or in the views.",
+    ]
+
+
 def _activity_log_lines() -> list[str]:
     """Der Abschnitt zum Protokoll-Export in `_MONITORING.md`. Englisch wie der Rest der Datei."""
     return [
@@ -945,6 +1127,9 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "alert templates → Activator | portal rule spec + runbook |",
         "| Compute/storage dashboards | `capacity_metrics_app_setup.md` → Fabric **Capacity Metrics "
         "App** | built-in, portal install | GA |",
+        "| Warehouse / SQL analytics endpoint queries: running, history, long-running, frequent "
+        "(I-21 W6.11) | none — see *Warehouse queries* below | built-in **Monitor** on the "
+        "warehouse | portal, preview |",
         "| Audit history beyond the retention window | `activity_log_export.py` | Get Activity Events "
         "(admin REST) → Bronze, daily D-1 | runnable script |",
         f"| …made queryable | `{ACTIVITY_BRONZE_LOAD_PATH.split('/')[-1]}` | raw files → Delta table "
@@ -1075,7 +1260,9 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "private links. Until 2026-09-29 this document said they do not mix; that was the legacy "
         "statement; `connectivity/_CONNECTIVITY.md` carries the same current statement.", "",
         "> Activator must poll more frequently than the KQL time window, else failures are missed. Use",
-        "> stateful operators + preview-before-activate to avoid alert spam (grounded).",
+        "> stateful operators + preview-before-activate to avoid alert spam (grounded).", "",
+        *((_warehouse_monitor_lines() + [""] + _operations_agent_lines(politik))
+          if stack == "fabric" else []),
         *_activity_log_lines(),
     ]
     out: dict[str, str] = {"monitoring/_MONITORING.md": "\n".join(doc) + "\n",
@@ -1093,6 +1280,8 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
                                                ensure_ascii=False) + "\n"
         out[JOB_ALERTS_PATH] = json.dumps(_job_alerts_spec(alerts), indent=2,
                                           ensure_ascii=False) + "\n"
+        out[OPERATIONS_AGENT_PATH] = json.dumps(_operations_agent_definition(bp, politik),
+                                                indent=2, ensure_ascii=False) + "\n"
         out[METRICS_APP_SETUP_PATH] = _metrics_app_setup_md(capacity, alerts)
         # Der Export haengt am Power-BI-/Fabric-Aktivitaetsprotokoll. Auf einem fremden Stack gibt
         # es dieses Protokoll nicht — ein Skript dafuer waere dort eine Anweisung ins Leere.

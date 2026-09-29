@@ -419,7 +419,10 @@ def _deployment_model_doc(model: str, blueprint: dict, stages: tuple[str, ...]) 
         "## Wo die Validierungs-Gates sitzen (I-19.3 verdrahtet sie)",
         "- **PR-Gate (CI):** `architecture-gate.yml` (Conformance) + Modell-/TMDL-/Katalog-Checks → blockt Merge.",
         "- **Pre-Deploy:** vor `update-from-git`/`fabric-cicd`/Deployment-Pipeline.",
-        "- **Post-Deploy:** Smoke (Modell lädt, Refresh, Lineage-Reconcile) vor der nächsten Stage.", "",
+        "- **Post-Deploy:** Smoke (Modell lädt, Refresh, Lineage-Reconcile) vor der nächsten Stage.",
+        "- **Refresh nach dem Deploy:** *Refresh data only* — das Schema kommt aus Git, nicht aus "
+        "einem Schema-Sync im Ziel; *Sync schema only* nur im Entwicklungs-Workspace mit "
+        "anschließendem Commit (Tabelle in `operability/BETRIEBSBEREITSCHAFT.md`, I-21 W6.7).", "",
     ]
     if model == "git-integration-gitflow":
         lines += ["## GitFlow", f"Je Stage ein Primär-Branch ({', '.join(stages)}); Promotion = PR zwischen "
@@ -771,6 +774,34 @@ def _branch_workspaces_doc(blueprint: dict) -> str:
         "Commit ist laut Learn Preview.",
         "- **Related branches:** der Reiter zeigt Branch-Workspace und Quell-Workspace zueinander.",
         "- Zurück in den Integrations-Branch geht es nur per Pull Request (`_BRANCH_RULE.md`).", "",
+        "## Abzweigen per API statt Portal (I-21 W6.6, Preview)", "",
+        "Für wiederholbares Abzweigen (z. B. je Ticket ein Feature-Workspace) ersetzt eine "
+        "Automatisierung den Portal-Knopf *Branch out*. Learn nennt dafür die Reihenfolge: erst "
+        "Workspace vorbereiten, Git-Branch anlegen und die Git-Verbindung des Workspaces "
+        "einrichten, **danach** die Beziehung setzen (Learn `cicd/git-integration/"
+        "branched-workspace` und REST `core/git/create-workspace-relation`, gelesen 29.09.2026).", "",
+        "| Schritt | Aufruf | Beleg |", "|---|---|---|",
+        "| 1 | Workspace anlegen, Kapazität zuweisen | Fabric REST Core (Workspaces) |",
+        "| 2 | Branch im Git-Provider anlegen (vom Branch des Quell-Workspaces) | Git-Provider |",
+        "| 3 | `POST /v1/workspaces/{branchId}/git/connect`, dann `…/git/initializeConnection` | "
+        "wie das CI/CD-Setup-Skript dieser Lieferung |",
+        "| 4 | `POST /v1/workspaces/{branchId}/git/workspaceRelations` mit "
+        "`{\"relatedWorkspaceId\": \"{baseWorkspaceId}\", \"relationType\": \"Base\"}` → 201 | "
+        "REST `create-workspace-relation` (Preview) |", "",
+        "- **Rechte:** Admin auf dem Branch-Workspace, mindestens Contributor auf dem "
+        "Quell-Workspace; Scope `Workspace.ReadWrite.All`. Service Principal und Managed Identity "
+        "werden unterstützt — die Automatisierung läuft unter dem Deploy-SPN, nicht unter einer "
+        "Person (gleiche Begründung wie beim Admin-Profil).",
+        "- **Fehlercodes, die die Automatisierung auswerten muss:** "
+        "`WorkspaceRelationRootDirectoryMismatch` (nicht dasselbe Repository-Stammverzeichnis — "
+        "Schritt 3 prüfen), `WorkspaceRelationBaseIsBranch` (Quelle ist selbst ein Branch), "
+        "`WorkspaceRelationTargetHasBranches`, `WorkspaceRelationAlreadyExists`; 429 mit "
+        "`Retry-After`.",
+        "- **Was die API nicht ersetzt:** Selective Branching und das Admin-Profil bleiben "
+        "Portal-Schritte; die Beziehung verschwindet, sobald der Branch-Workspace von Git getrennt "
+        "oder der Quell-Workspace gelöscht wird.",
+        "- Die API ist laut Learn Preview („not recommended for production use“) — für "
+        "Entwickler-Workspaces vertretbar, nicht für die Stufen dev/test/prod.", "",
         "**Status UNKLAR:** Learn führt Branched Workspaces, Selective Branching und Compare im "
         "What's-new-Archiv als Preview (März 2026), die FabCon-Folie vom 29.09.2026 als GA. "
         "Nachprüfung 05.10.2026.", "",
