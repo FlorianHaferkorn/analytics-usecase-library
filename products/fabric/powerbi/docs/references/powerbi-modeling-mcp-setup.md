@@ -6,6 +6,24 @@ relationships) — either this repo's PBIP output or a model open in Power BI De
 When to use MCP vs. file edits / REST: see [`fabric-powerbi-authoring.md`](fabric-powerbi-authoring.md)
 (MCP for fine-grained measure/column edits; not for structural changes such as new tables or partitions).
 
+## One authoring server, two deployments (Learn, read 29.09.2026)
+
+Microsoft Learn now calls it the **Power BI Authoring MCP server**
+([power-bi-authoring-mcp](https://learn.microsoft.com/power-bi/developer/mcp/power-bi-authoring-mcp)):
+
+| | Local — **generally available** | Hosted — **preview** |
+|---|---|---|
+| What | this npm package, `stdio` | `https://api.fabric.microsoft.com/v1/mcp/powerbi/authoring`, Streamable HTTP |
+| Reaches | Power BI Desktop, PBIP/TMDL on disk, Fabric workspaces | Fabric workspaces only |
+| Auth | Entra interactive sign-in or **service principal** | Entra, as the signed-in user; tenant setting *Users can use the Power BI Model Context Protocol server endpoint* |
+| Transactions / AS traces | yes | no |
+| macOS | not supported | works |
+
+This repo uses the **local** server: its models are PBIP/TMDL files under `dist/`, which the
+hosted server cannot reach. Learn advises against registering both at once (overlapping tool
+sets). For **end users asking questions of a model**, Learn recommends the **Fabric IQ MCP**
+server, not the authoring server ([mcp-servers-overview](https://learn.microsoft.com/power-bi/developer/mcp/mcp-servers-overview)).
+
 ## Installation: npm package, pinned (since 29.09.2026)
 
 The server ships as the npm package `@microsoft/powerbi-modeling-mcp` with native binaries for

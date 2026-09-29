@@ -6,6 +6,7 @@ Supports reservation pricing, viewer note (F64 threshold), optional OneLake stor
 
 from __future__ import annotations
 
+import importlib.util
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -37,6 +38,78 @@ _INLINE_DEFAULTS: dict[str, Any] = {
 def _product_root() -> Path:
     """Root of proposal_costing product (parent of tooling/)."""
     return Path(__file__).resolve().parent.parent
+
+
+def _capacity_module():
+    """Load tooling/superversion/capacity.py — the single home of the Learn capacity facts.
+
+    Loaded by file path because this product puts its own ``tooling/`` on sys.path, which
+    would shadow the repo-level ``tooling`` package. capacity.py has no imports of its own.
+    """
+    path = Path(__file__).resolve().parents[3] / "tooling" / "superversion" / "capacity.py"
+    spec = importlib.util.spec_from_file_location("_aluca_superversion_capacity", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
+    return module
+
+
+_CAPACITY = _capacity_module()
+_HOURS_PER_MONTH = 730  # Azure monthly list prices are hourly rate x 730 h.
+
+
+def payg_usd_per_cu_hour(drivers: dict[str, Any], sku: str) -> float:
+    """PAYG price per CU hour, derived from the monthly list price in cost_drivers.yaml.
+
+    Derived, not a second price source: monthly price / (CU x 730 h). Keeps the overage and
+    planning lines on the same price basis as the capacity line of the same quote.
+    """
+    return _price_by_sku(drivers, sku) / (_CAPACITY.CU[sku] * _HOURS_PER_MONTH)
+
+
+def compute_overage(drivers: dict[str, Any], sku: str, enabled: bool | None = None,
+                    threshold_cu_hours: float | None = None) -> dict[str, Any]:
+    """Capacity-overage line for the production SKU.
+
+    enabled False: overage is off, no cost line. Otherwise the threshold is either the
+    customer's (threshold_cu_hours) or Microsoft's default at capacity creation (25 % of
+    the daily CU hours), in which case the decision is an open customer question.
+    max_usd_per_day = threshold x 3 x PAYG per CU hour is derived, not measured, and not
+    a cap: the threshold is checked every 5 minutes and running operations continue.
+    """
+    if enabled is False:
+        return {"sku": sku, "enabled": False, "max_usd_per_day": 0.0,
+                "threshold_source": "customer"}
+    prof = _CAPACITY.overage_profile(sku, threshold_cu_hours,
+                                     payg_usd_per_cu_hour(drivers, sku))
+    return {
+        "sku": sku,
+        "enabled": True,  # on by default for new F capacities unless switched off
+        "cu_hours_per_day": prof["cu_hours_per_day"],
+        "threshold_cu_hours": prof["threshold_cu_hours"],
+        "threshold_source": prof["threshold_source"],
+        "recommended_max_threshold_cu_hours": prof["recommended_max_threshold_cu_hours"],
+        "above_recommended_max": prof["above_recommended_max"],
+        "quota_cu_required": prof["quota_cu_required"],
+        "max_usd_per_day": prof["max_cost_per_day_usd"],
+        "evidence": prof["evidence"],
+        "caveat": prof["caveat"],
+        "customer_question": prof.get("customer_question"),
+    }
+
+
+def compute_planning(drivers: dict[str, Any], sessions: dict[str, int], sku: str) -> dict[str, Any]:
+    """Fabric Planning sessions as a capacity cost position on the production SKU.
+
+    Sessions consume CU of the capacity they run on, so the USD figure is the share of the
+    capacity price they occupy (CU hours x PAYG per CU hour), already inside the capacity
+    line — shown for transparency, not added to the total.
+    """
+    load = _CAPACITY.planning_load(sessions, sku)
+    rate = payg_usd_per_cu_hour(drivers, sku)
+    load["usd_equivalent_per_session_window"] = round(load["cu_hours_per_session_window"] * rate, 2)
+    load["included_in_capacity_total"] = True
+    load["evidence"] = "derived"
+    return load
 
 
 def load_cost_drivers(product_root: Path | None = None) -> dict[str, Any]:
@@ -361,6 +434,16 @@ def compute(
     total_year = round(total_month * 12, 2)
 
     prod_sku = capacities.get("prod") or ""
+    overage: dict[str, Any] | None = None
+    planning: dict[str, Any] | None = None
+    customer_questions: list[str] = []
+    if prod_sku:
+        overage = compute_overage(drivers, prod_sku, overrides.get("overage_enabled"),
+                                  overrides.get("overage_threshold_cu_hours"))
+        if overage.get("customer_question"):
+            customer_questions.append(overage["customer_question"])
+        if overrides.get("planning_sessions"):
+            planning = compute_planning(drivers, overrides["planning_sessions"], prod_sku)
     if prod_sku and _sku_at_least_f64(prod_sku):
         viewer_note = defaults.get("viewer_note_f64_plus", _INLINE_DEFAULTS["viewer_note_f64_plus"])
     elif prod_sku:
@@ -428,6 +511,9 @@ def compute(
         "implementation_milestones_table": implementation_milestones_table,
         "package_id": package_id_out,
         "package_name": package_name_out,
+        "overage": overage,
+        "planning": planning,
+        "customer_questions": customer_questions,
     }
 
 
@@ -614,6 +700,50 @@ def format_building_blocks_table(building_blocks: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def format_overage(overage: dict[str, Any] | None) -> str:
+    """Overage line for the proposal: derived daily maximum, never presented as a cap."""
+    if not overage:
+        return "—"
+    if overage.get("enabled") is False:
+        return f"Capacity overage on {overage['sku']} is switched off: throttling applies, no overage charges."
+    source = ("Microsoft default at capacity creation (25 %), not yet confirmed by the customer"
+              if overage.get("threshold_source") == "microsoft_default" else "set by the customer")
+    lines = [
+        f"- SKU {overage['sku']}: {overage['cu_hours_per_day']} CU hours per day",
+        f"- Rolling 24-hour threshold: {overage['threshold_cu_hours']:g} CU hours ({source}); "
+        f"Microsoft recommends staying below {overage['recommended_max_threshold_cu_hours']:g} "
+        "(one third of the daily CU hours)",
+        f"- Maximum overage cost per day ≈ threshold × 3 × PAYG price per CU hour ≈ "
+        f"{overage['max_usd_per_day']:.2f} USD (derived, not measured; can be exceeded because "
+        "the threshold is checked every 5 minutes and running operations continue)",
+        f"- Additional Fabric quota required: {overage['quota_cu_required']:g} CU",
+    ]
+    return "\n".join(lines)
+
+
+def format_planning(planning: dict[str, Any] | None) -> str:
+    """Fabric Planning sessions as capacity share; not added to the total."""
+    if not planning:
+        return "—"
+    roles = ", ".join(f"{n} {r}" for r, n in planning["sessions"].items())
+    fit = "fits" if planning.get("fits_with_buffer") else "does NOT fit"
+    return "\n".join([
+        f"- Sessions per 30-day window: {roles}",
+        f"- Consumption: {planning['cu_hours_per_session_window']} CU hours per 730 h "
+        f"(average {planning['average_cu']:g} CU) = {planning['share_of_capacity_pct']:g} % of "
+        f"{planning['sku']}; {fit} within the recommended 30 % buffer for other workloads",
+        f"- Capacity share ≈ {planning['usd_equivalent_per_session_window']:.2f} USD per 30 days "
+        "(derived; already contained in the capacity price, not added to the total)",
+        f"- Not included: {planning['not_included']}",
+    ])
+
+
+def format_customer_questions(questions: list[str] | None) -> str:
+    if not questions:
+        return "—"
+    return "\n".join(f"- {q}" for q in questions)
+
+
 def fill_template(result: dict[str, Any], template_content: str) -> str:
     """Replace {{ key }} placeholders in template_content with result values."""
     cap_m = result.get("capacity_month", 0)
@@ -655,6 +785,9 @@ def fill_template(result: dict[str, Any], template_content: str) -> str:
         "package_name": result.get("package_name", "") or "—",
         "customer_name": result.get("customer_name", "") or "—",
         "offer_date": result.get("offer_date", "") or "—",
+        "overage": format_overage(result.get("overage")),
+        "planning": format_planning(result.get("planning")),
+        "customer_questions": format_customer_questions(result.get("customer_questions")),
     }
     out = template_content
     for key, value in replacements.items():

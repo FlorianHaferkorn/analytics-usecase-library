@@ -31,6 +31,15 @@ Provide a governed, auditable product for proposal costing and pricing decisions
 - **Power BI Pro / PPU:** [Power BI pricing](https://powerbi.microsoft.com/pricing/) — List prices USD (annual commitment); Pro $14, PPU $24 per user/month.
 - All amounts in this product are **USD**. Regional and contractual variations apply; treat as reference only.
 
+## Capacity overage and Fabric Planning
+
+Facts from Microsoft Learn (read 29.09.2026) live in `tooling/superversion/capacity.py`; the engine only builds costing lines on them.
+
+- **Overage** (`enterprise/capacity-overage-overview`, `enable-capacity-overage`; GA Sep 2026): on by default for every new F capacity, default threshold 25 % of the daily CU hours (F2 48, F8 192, F64 1,536 CU h/day), billed on a separate meter at 3× the PAYG rate, rolling 24-hour threshold in CU hours, **no hard cap**; quota needed = threshold / 24 CU.
+- **Line in the quote:** maximum overage cost per day ≈ threshold × 3 × PAYG price per CU hour. Derived, not measured; real charges can be higher because the threshold is checked every 5 minutes and running operations continue. The PAYG CU-hour price is derived from `cost_drivers.yaml` (monthly price / (CU × 730 h)). The line is contingent and never added to the total.
+- **Mandatory customer question:** “Overage off, or threshold X CU hours?” It stays in `customer_questions` until `overage_enabled: false` or `overage_threshold_cu_hours` is set (run-config or `--overage-off` / `--overage-threshold-cu-hours`).
+- **Fabric Planning** (`iq/plan/resources/billing-fabric-plan`): 30-day sessions (730 h) at 847 (Planner), 168 (Stakeholder), 37 (Viewer) CU hours, consumed from the capacity. Run-config `planning_sessions` yields load, share of the prod SKU, a check against the recommended 30 % buffer and the USD equivalent (already inside the capacity price, not added). Automation jobs are not costed: Learn gives “2 CU” per job without a time unit.
+
 ## Output and proposal readiness
 
 The generated proposal snippet includes: **Scope** (included / not included), **Viewer note** (automatic: F64+ prod = Free viewers; below F64 = viewers need Pro), **Pricing mode** (Pay-as-you-go or 1-year reservation), **Assumptions** (contract term, region, price basis, valid-from, quote-valid-until), and optional **OneLake Storage** when `--storage-gb` is used. Default scope and assumption texts are configurable in `model/proposal_defaults.yaml`.

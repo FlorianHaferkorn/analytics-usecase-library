@@ -207,6 +207,162 @@ def _framing_cell(model_name: str) -> list[str]:
     ]
 
 
+#: Notebook, das nach dem Refresh die Beziehungen des veroeffentlichten Modells prueft (W5.12).
+RI_NOTEBOOK = "nb_ri_pruefung"
+#: Notebook, das Kennzahlen des Modells gegen Spark SQL auf dem Lakehouse abgleicht (W5.16).
+ABGLEICH_NOTEBOOK = "nb_abgleich_modell_lakehouse"
+#: Log-Tabelle des Abgleichs (Spalten wie in der Vorlage: run_date_time, dataset, workspace,
+#: difference; dazu id, beide Werte und das Ergebnis).
+ABGLEICH_LOG = "data_quality_log"
+#: DAX- und SQL-Engine weichen ab der 5. Nachkommastelle ab → beide Seiten auf 4 Stellen runden.
+ABGLEICH_STELLEN = 4
+
+
+def _ri_cell(model_name: str) -> list[str]:
+    """Zellcode der RI-Pruefung am veroeffentlichten Modell (W5.12).
+
+    Official-First: ``sempy.relationships.list_relationship_violations`` mit den Beziehungen
+    aus ``sempy.fabric.list_relationships`` — das Muster aus MS Learn *Discover relationships in
+    a semantic model using semantic link* (``list_relationship_violations(tables,
+    fabric.list_relationships(dataset))``, abgerufen 29.09.2026). Abweichung vom Planwortlaut
+    (``sempy.fabric.list_relationship_violations(tables, …)``): die ``sempy.fabric``-Variante
+    nimmt **keine** Beziehungsliste, sondern liest die Beziehungen aus den Metadaten der
+    FabricDataFrames (API-Referenz); die Zwei-Argument-Form gehoert zu ``sempy.relationships``.
+
+    Drei Ausgaenge, nie zwei: Verletzungen → rot; keine Beziehung im Modell oder eine leere
+    Tabelle auf der Faktenseite → **rot mit „nicht geprueft“** (sempy wertet Beziehungen aus
+    leeren Tabellen als gueltig); sonst gruen mit Zahl.
+    """
+    return [
+        "# RI-Pruefung am veroeffentlichten Modell, nach dem Refresh (W5.12).",
+        "# Verwaiste Schluessel zeigen sich im Bericht als (Leer)-Zeile der Dimension; hier werden",
+        "# sie rot, bevor jemand den Bericht oeffnet.",
+        "# Voraussetzung (MS Learn, API-Referenz): list_relationships braucht ReadWrite am Modell,",
+        "# read_table laedt ganze Tabellen in den Treiber — bei grossen Fakten Kapazitaet beachten.",
+        "import sempy.fabric as fabric",
+        "from sempy.relationships import list_relationship_violations",
+        "",
+        f'MODELL = "{model_name}"   # Name statt GUID: das Artefakt traegt keine Umgebungs-ID',
+        "",
+        "beziehungen = fabric.list_relationships(MODELL)",
+        "if len(beziehungen) == 0:",
+        "    raise RuntimeError(f'RI nicht geprueft: {MODELL} hat keine Beziehungen')",
+        "namen = sorted(set(beziehungen['From Table']) | set(beziehungen['To Table']))",
+        "tabellen = {t: fabric.read_table(MODELL, t) for t in namen}",
+        "leer = sorted(t for t in set(beziehungen['From Table']) if len(tabellen[t]) == 0)",
+        "if leer:",
+        "    raise RuntimeError(f'RI nicht geprueft: leere Faktentabelle(n) {leer} — sempy wertet '",
+        "                       'Beziehungen aus leeren Tabellen als gueltig')",
+        "verletzungen = list_relationship_violations(tabellen, beziehungen,",
+        "                                            missing_key_errors='raise',",
+        "                                            coverage_threshold=1.0, n_keys=10)",
+        "if len(verletzungen):",
+        "    print(verletzungen.to_string())",
+        "    raise RuntimeError(f'RI verletzt: {len(verletzungen)} von {len(beziehungen)} '",
+        "                       'Beziehung(en) — siehe Tabelle oben')",
+        "print(f'RI: 0 Verletzungen in {len(beziehungen)} Beziehung(en), '",
+        "      f'{len(tabellen)} Tabelle(n) gelesen')",
+    ]
+
+
+def abgleich_assertions(data: dict) -> tuple[str, list[dict]]:
+    """``(Modell, Abgleiche)`` aus einer Assertions-Datei im Format von ``reconcile.py`` (W5.16).
+
+    Tool-Reuse: dieselbe Datei wie ``products/pbi_report_kit/reconcile.py`` (``model`` +
+    ``assertions`` mit ``id``, ``title``, ``lhs``, ``tolerance``/``tolerance_pct``, ``why``) —
+    nur steht auf der rechten Seite statt eines DAX-Ausdrucks ``rhs_sql``, eine Spark-SQL-Abfrage
+    mit **einem** Zahlenwert. ``reconcile.py`` bleibt DAX gegen DAX (Desktop); hier wird Modell
+    gegen Lakehouse geprueft (Tenant). Eine Assertion ohne ``rhs_sql`` gehoert zu reconcile und
+    wird hier uebergangen, nicht geraten.
+    """
+    out = []
+    for a in (data or {}).get("assertions") or []:
+        if not a.get("rhs_sql"):
+            continue
+        for feld in ("id", "lhs"):
+            if not a.get(feld):
+                raise ValueError(f"Assertion ohne '{feld}': {a!r}")
+        out.append({"id": str(a["id"]), "title": str(a.get("title", a["id"])),
+                    "lhs": str(a["lhs"]), "rhs_sql": str(a["rhs_sql"]),
+                    "tolerance": float(a.get("tolerance", 0) or 0),
+                    "tolerance_pct": float(a.get("tolerance_pct", 0) or 0)})
+    return str((data or {}).get("model", "")), out
+
+
+def _abgleich_cell(model_name: str, abgleiche: list[dict], lakehouse: str) -> list[str]:
+    """Zellcode des Abgleichs Modell ↔ Lakehouse (W5.16).
+
+    Je Abgleich: linke Seite am Modell (eine blanke Kennzahl ``[Name]`` ueber
+    ``fabric.evaluate_measure`` — REST, kein XMLA; jeder andere DAX-Ausdruck ueber
+    ``fabric.evaluate_dax`` in derselben ``EVALUATE ROW(…)``-Form wie ``reconcile._query``),
+    rechte Seite per ``spark.sql``. Beide Seiten auf ``ABGLEICH_STELLEN`` Stellen gerundet, dann
+    die Toleranzregel von ``reconcile.Result.passed``. Jede Zeile geht in ``data_quality_log``
+    — **auch** die gruenen, sonst ist „kein Eintrag“ von „nicht gelaufen“ nicht zu trennen.
+    Vorher der Metadaten-Sync des SQL-Endpunkts (``sempy.fabric.sql_endpoint``), damit ein
+    Modell, das ueber den Endpunkt liest, denselben Stand sieht wie Spark.
+    """
+    return [
+        "# Abgleich Modell <-> Lakehouse (W5.16): Kennzahl im Modell gegen Spark SQL auf Gold.",
+        "# Quelle der Abgleiche: Assertions-Datei im reconcile.py-Format (lhs = DAX, rhs_sql = SQL).",
+        "import datetime",
+        "import json",
+        "import re",
+        "",
+        "import sempy.fabric as fabric",
+        "from sempy.fabric.sql_endpoint import refresh_sql_endpoint_metadata",
+        "",
+        f'MODELL = "{model_name}"',
+        f'LAKEHOUSE = "{lakehouse}"',
+        f'LOG = "{ABGLEICH_LOG}"',
+        f"STELLEN = {ABGLEICH_STELLEN}   # DAX und SQL weichen ab der 5. Nachkommastelle ab",
+        f"ABGLEICHE = json.loads({json.dumps(json.dumps(abgleiche, ensure_ascii=False))})",
+        "",
+        "",
+        "def bewerte(lhs, rhs, tolerance=0.0, tolerance_pct=0.0, stellen=STELLEN):",
+        "    # Dieselbe Regel wie products/pbi_report_kit/reconcile.py (Result.passed), nach Rundung.",
+        "    if lhs is None or rhs is None:",
+        "        return None, False",
+        "    delta = round(float(lhs), stellen) - round(float(rhs), stellen)",
+        "    grenze = tolerance",
+        "    if tolerance_pct:",
+        "        grenze = max(grenze, abs(float(rhs)) * tolerance_pct / 100.0)",
+        "    return delta, abs(delta) <= grenze",
+        "",
+        "",
+        "def modellwert(ausdruck):",
+        "    name = re.fullmatch(r'\\[([^\\]]+)\\]', ausdruck.strip())",
+        "    if name:",
+        "        df = fabric.evaluate_measure(MODELL, measure=name.group(1))",
+        "    else:",
+        "        df = fabric.evaluate_dax(MODELL, f'EVALUATE ROW(\"__lhs\", {ausdruck})')",
+        "    return None if len(df) == 0 else df.iloc[0, -1]",
+        "",
+        "",
+        "if not ABGLEICHE:",
+        "    raise RuntimeError('Abgleich nicht gelaufen: keine Abgleiche definiert')",
+        "print('SQL-Endpunkt-Sync:', refresh_sql_endpoint_metadata(LAKEHOUSE, 'Lakehouse'))",
+        "lauf = datetime.datetime.now(datetime.timezone.utc)",
+        "workspace = fabric.get_workspace_id()",
+        "zeilen, rot = [], []",
+        "for a in ABGLEICHE:",
+        "    lhs = modellwert(a['lhs'])",
+        "    rhs = spark.sql(a['rhs_sql']).collect()[0][0]",
+        "    delta, ok = bewerte(lhs, rhs, a['tolerance'], a['tolerance_pct'])",
+        "    zeilen.append((lauf, MODELL, workspace, a['id'],",
+        "                   None if lhs is None else float(lhs), None if rhs is None else float(rhs),",
+        "                   delta, ok))",
+        "    if not ok:",
+        "        rot.append(f\"{a['id']}: Modell={lhs} SQL={rhs} Differenz={delta}\")",
+        "spark.createDataFrame(zeilen, 'run_date_time timestamp, dataset string, workspace string, '",
+        "                      'assertion_id string, model_value double, sql_value double, '",
+        "                      'difference double, passed boolean'",
+        "                      ).write.mode('append').saveAsTable(LOG)",
+        "if rot:",
+        "    raise RuntimeError(f'Abgleich rot ({len(rot)}/{len(ABGLEICHE)}): ' + '; '.join(rot))",
+        "print(f'Abgleich gruen: {len(ABGLEICHE)} Kennzahl(en), Log in {LOG}')",
+    ]
+
+
 def silver_notebook_name(source: str) -> str:
     """Der Name des Notebooks, das eine Quelle von Bronze nach Silber bringt (D-556).
 
@@ -350,7 +506,8 @@ def emit_notebooks(bp: dict, architecture: dict | None = None, stack: str = "fab
                    governed_catalog: dict | None = None,
                    lakehouse: str = "analytics_gold", workspace: str = PLACEHOLDER_WORKSPACE,
                    sample_rows: bool = False, schemas: bool = False,
-                   transforms: dict[str, str] | None = None) -> dict[str, str]:
+                   transforms: dict[str, str] | None = None,
+                   abgleiche: list[dict] | None = None) -> dict[str, str]:
     """Return the gold-table materialisation as ``path → content``, stack-aware:
 
     - **fabric** → ``notebooks/<nb>.Notebook/`` (fab-importable ipynb + .platform),
@@ -473,6 +630,21 @@ def emit_notebooks(bp: dict, architecture: dict | None = None, stack: str = "fab
         out[f"notebooks/{FRAMING_NOTEBOOK}.Notebook/.platform"] = _platform(FRAMING_NOTEBOOK)
         rows.append(f"| _(Semantikmodell `{modell}`)_ | `notebooks/{FRAMING_NOTEBOOK}.Notebook` "
                     f"| — |")
+        # W5.12: nach dem Rahmen die Beziehungen des veroeffentlichten Modells pruefen.
+        out[f"notebooks/{RI_NOTEBOOK}.Notebook/notebook-content.ipynb"] = (
+            _notebook_content_ipynb(_ri_cell(modell), lakehouse, ws_framing))
+        out[f"notebooks/{RI_NOTEBOOK}.Notebook/.platform"] = _platform(RI_NOTEBOOK)
+        rows.append(f"| _(RI-Pruefung `{modell}`)_ | `notebooks/{RI_NOTEBOOK}.Notebook` "
+                    f"| sempy list_relationship_violations |")
+        # W5.16: nur mit Abgleichen — ein Abgleich ohne Kennzahlen waere ein gruener Leerlauf.
+        if abgleiche:
+            out[f"notebooks/{ABGLEICH_NOTEBOOK}.Notebook/notebook-content.ipynb"] = (
+                _notebook_content_ipynb(_abgleich_cell(modell, abgleiche, lakehouse),
+                                        lakehouse, ws_framing))
+            out[f"notebooks/{ABGLEICH_NOTEBOOK}.Notebook/.platform"] = _platform(ABGLEICH_NOTEBOOK)
+            rows.append(f"| _(Abgleich `{modell}` ↔ Lakehouse)_ | "
+                        f"`notebooks/{ABGLEICH_NOTEBOOK}.Notebook` | {len(abgleiche)} Kennzahl(en) "
+                        f"→ `{ABGLEICH_LOG}` |")
 
     root = "sql" if stack == "snowflake" else "notebooks"
     how = {

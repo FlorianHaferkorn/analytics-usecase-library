@@ -365,3 +365,131 @@ def gap_doc_for(bp: dict, capability: str, title: str) -> str | None:
     if stack == "fabric":
         return None
     return capability_gap_doc(capability, stack, title, platform.get("tier"))
+
+
+# -- Feature × Region (Plan I-21 W5.1) --------------------------------------------------------------
+#
+# Nicht jede Fabric-Funktion gibt es in jeder Region, und gerade die EU-Regionen, die DACH-Kunden
+# waehlen, fehlen mehrfach: Ontologie und Database Hub nicht in West und North Europe, Fabric Apps nicht
+# in Germany West Central, Fabric policies nicht in West und North Europe. Ein Angebot, das eine
+# Ontologie in `westeurope` verspricht, ist ohne diese Tabelle eine Zusage, die im Mandanten scheitert.
+#
+# Maschinenform: je Funktion die Regionen, in denen sie **fehlt**, als Azure-Region-Id — so fuehrt MS
+# die Ausnahmen. Fehlt eine Region ganz in der MS-Tabelle, sagt der Validator `unbekannt`, nicht `ok`.
+#
+# Datenstand: per Learn-MCP gelesen am 29.09.2026 — `fabric/admin/region-availability` (Spalten
+# „Unavailable Fabric features" und „Power BI only region") und fuer die Policies
+# `fabric/governance/fabric-policies-overview` („not currently supported in … West Europe, North Europe,
+# and West US"). Die Tabelle ist ein Snapshot mit Datum; der Wochen-Radar prueft sie nach.
+REGION_DATENSTAND = "2026-09-29"
+
+#: Azure-Regionen mit Power BI **und** allen Fabric-Workloads.
+FABRIC_REGIONEN: frozenset[str] = frozenset({
+    "brazilsouth", "canadacentral", "canadaeast", "mexicocentral", "centralus", "eastus", "eastus2",
+    "northcentralus", "southcentralus", "westus", "westus2", "westus3",
+    "northeurope", "westeurope", "francecentral", "germanywestcentral", "italynorth", "norwayeast",
+    "polandcentral", "spaincentral", "swedencentral", "switzerlandnorth", "switzerlandwest",
+    "uksouth", "ukwest", "uaenorth", "southafricanorth", "eastasia", "southeastasia",
+    "australiaeast", "australiasoutheast", "centralindia", "southindia", "indonesiacentral",
+    "israelcentral", "japaneast", "japanwest", "koreacentral", "malaysiawest", "newzealandnorth",
+    "taiwannorth", "taiwannorthwest",
+})
+
+#: Regionen, in denen es nur Power BI gibt — dort fehlt jede Fabric-Workload.
+NUR_POWER_BI_REGIONEN: frozenset[str] = frozenset({
+    "chilecentral", "austriaeast", "belgiumcentral", "denmarkeast", "francesouth", "germanynorth",
+    "norwaywest", "qatarcentral", "uaecentral", "southafricawest", "westindia", "koreasouth",
+})
+
+_RA = "learn.microsoft.com/fabric/admin/region-availability"
+
+#: Funktion -> Status, Regionen ohne diese Funktion, Quelle.
+FEATURE_NICHT_IN: dict[str, dict[str, Any]] = {
+    "ontology": {"status": "preview", "quelle": _RA,
+                 "fehlt_in": frozenset({"northeurope", "westeurope", "southcentralus"})},
+    "database_hub": {"status": "unbekannt", "quelle": _RA,
+                     "fehlt_in": frozenset({"northeurope", "westeurope"})},
+    "fabric_apps": {"status": "preview", "quelle": _RA,
+                    "fehlt_in": frozenset({
+                        "brazilsouth", "canadacentral", "mexicocentral", "northeurope",
+                        "germanywestcentral", "polandcentral", "spaincentral", "switzerlandwest",
+                        "indonesiacentral", "israelcentral", "japanwest", "malaysiawest",
+                        "newzealandnorth", "taiwannorth", "taiwannorthwest"})},
+    "digital_twin_builder": {"status": "preview", "quelle": _RA,
+                             "fehlt_in": frozenset({"southcentralus", "northeurope", "israelcentral",
+                                                    "japanwest"})},
+    "fabric_policies": {"status": "preview",
+                        "quelle": "learn.microsoft.com/fabric/governance/fabric-policies-overview",
+                        "fehlt_in": frozenset({"westeurope", "northeurope", "westus"})},
+}
+
+#: Die EU-Kandidaten, aus denen der Angebotssatz „braucht z. B. …" eine Ausweichregion nennt.
+EU_KANDIDATEN: tuple[str, ...] = ("francecentral", "germanywestcentral", "swedencentral",
+                                  "switzerlandnorth", "westeurope", "northeurope")
+
+
+def region_id(region: str | None) -> str:
+    """„West Europe", „west-europe", „westeurope" -> ``westeurope``. Leer bleibt leer."""
+    return "".join(ch for ch in str(region or "").lower() if ch.isalnum())
+
+
+def feature_in_region(feature: str, region: str | None) -> str:
+    """``verfuegbar`` · ``fehlt`` · ``nur_power_bi`` · ``unbekannt`` — nie ein stilles Ja.
+
+    ``unbekannt`` heisst: Region nicht angegeben, nicht in der MS-Tabelle oder Funktion nicht
+    gefuehrt. Das ist kein Befund und keine Entwarnung."""
+    rid = region_id(region)
+    if not rid or feature not in FEATURE_NICHT_IN:
+        return "unbekannt"
+    if rid in NUR_POWER_BI_REGIONEN:
+        return "nur_power_bi"
+    if rid not in FABRIC_REGIONEN:
+        return "unbekannt"
+    return "fehlt" if rid in FEATURE_NICHT_IN[feature]["fehlt_in"] else "verfuegbar"
+
+
+def regionen_mit(feature: str, kandidaten: tuple[str, ...] = EU_KANDIDATEN) -> list[str]:
+    """Welche der Kandidaten die Funktion haben — fuer den Angebotssatz „braucht z. B. …"."""
+    return [r for r in kandidaten if feature_in_region(feature, r) == "verfuegbar"]
+
+
+def blueprint_regionen(bp: dict) -> list[str]:
+    """Alle deklarierten Kapazitaetsregionen: ``platform.sizing.region`` + ``platform.capacities[].region``."""
+    platform = bp.get("platform") or {}
+    werte = [(platform.get("sizing") or {}).get("region")]
+    werte += [k.get("region") for k in (platform.get("capacities") or []) if isinstance(k, dict)]
+    return sorted({region_id(w) for w in werte if region_id(w)})
+
+
+def blueprint_features(bp: dict) -> set[str]:
+    """Regionsabhaengige Funktionen, die die IR ausdrueckt. Heute nur die Ontologie
+    (``ai_grounding.ontology.enabled``). Fabric Apps (E-10/W3.9) und Database Hub haben noch kein
+    IR-Feld — sie werden dem Validator ausdruecklich uebergeben, nicht geraten."""
+    ai = bp.get("ai_grounding") or {}
+    return {"ontology"} if (ai.get("ontology") or {}).get("enabled") else set()
+
+
+def region_findings(bp: dict, features: set[str] | None = None) -> list[dict[str, str]]:
+    """Feature × Region fuer eine Lieferung: je (Funktion, Region) ein Befund, sortiert.
+
+    ``verdict``: ``fehlt`` / ``nur_power_bi`` (Fehler), ``unbekannt`` (Warnung — auch wenn gar keine
+    Region deklariert ist). ``verfuegbar`` erscheint nicht; ein leeres Ergebnis bei deklarierter
+    Region und bekannter Funktion ist die einzige Entwarnung."""
+    feats = sorted(blueprint_features(bp) | set(features or ()))
+    regionen = blueprint_regionen(bp)
+    out: list[dict[str, str]] = []
+    for f in feats:
+        if not regionen:
+            out.append({"feature": f, "region": "", "verdict": "unbekannt",
+                        "detail": f"{f}: keine Kapazitaetsregion deklariert (platform.sizing.region "
+                                  f"/ platform.capacities[].region)"})
+            continue
+        for r in regionen:
+            v = feature_in_region(f, r)
+            if v == "verfuegbar":
+                continue
+            alt = ", ".join(regionen_mit(f)) or "keiner der EU-Kandidaten"
+            out.append({"feature": f, "region": r, "verdict": v,
+                        "detail": f"{f} ({FEATURE_NICHT_IN.get(f, {}).get('status', '?')}) in {r}: "
+                                  f"{v}; verfuegbar z. B. in {alt} (Stand {REGION_DATENSTAND})"})
+    return out

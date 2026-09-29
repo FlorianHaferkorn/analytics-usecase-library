@@ -127,6 +127,8 @@ def recommend_capacity(workload: dict[str, Any]) -> dict[str, Any]:
       * ``data_agents`` (bool)            — Fabric Data Agents needed? (preview)
       * ``directquery_connections`` (int) — peak concurrent DirectQuery connections, if a DQ workload.
       * ``headroom_pct`` (int, default 20)— advisory head-room over the memory ceiling.
+      * ``planning_sessions`` (dict)      — active Fabric Planning sessions per 30 days,
+        ``{"planner": n, "stakeholder": n, "viewer": n}`` (I-21 W4.7, see ``planning_last``).
 
     Returns ``{recommended_sku, capacity_units, pbi_equivalent, binding_constraints[], floors{},
     advisories[], grounding_date, note}``. Floor = max over all constraint floors; ``binding_constraints``
@@ -175,6 +177,19 @@ def recommend_capacity(workload: dict[str, Any]) -> dict[str, Any]:
     if workload.get("free_license_viewers"):
         idxs.append(("free_license_viewers", _INDEX[_FREE_VIEWER_MIN])); floors["free_license_viewers"] = _FREE_VIEWER_MIN
 
+    # I-21 W4.7: Fabric Planning rechnet je 30-Tage-Sitzung ab (Learn, gelesen 29.09.2026). Das ist
+    # eine Mittelwertlast, keine Spitze — deshalb bindet sie nur, wenn sie den Rest uebersteigt.
+    planung = workload.get("planning_sessions")
+    if isinstance(planung, dict) and any(planung.get(r) for r in PLANNING_CU_STUNDEN_JE_SITZUNG):
+        pl = planning_last(**{r: int(planung.get(r) or 0) for r in PLANNING_CU_STUNDEN_JE_SITZUNG})
+        i = _floor_by(lambda s: s["cu"] >= pl["mit_puffer_cu"])
+        if i is None:
+            over_ladder.append(("planning_sessions",
+                                f"planning sessions need {pl['mit_puffer_cu']} CU on average "
+                                "(incl. buffer), more than F1024 provides"))
+        else:
+            idxs.append(("planning_sessions", i)); floors["planning_sessions"] = _SKUS[i]["sku"]
+
     dq = workload.get("directquery_connections")
     if dq is not None:
         i = _floor_by(lambda s: s["dq_conn"] >= dq)
@@ -209,6 +224,12 @@ def recommend_capacity(workload: dict[str, Any]) -> dict[str, Any]:
         advisories.append("Copilot/Data Agents also require: the tenant Copilot switch ON, a supported "
                           "region (Azure OpenAI US/EU boundary; cross-geo needs a tenant setting), and a "
                           "PAID SKU (trial SKUs never qualify). Data Agents are in preview.")
+    if isinstance(planung, dict) and "planning_sessions" in floors:
+        advisories.append(
+            "Fabric Planning bills per 30-day session (Planner 847, Stakeholder 168, Viewer 37 CU-h; "
+            "Learn billing-fabric-plan, read 2026-09-29). The planning floor is DERIVED (average load "
+            "over 730 h plus the 30 % buffer Learn suggests), not measured. Pausing or deleting the "
+            "capacity bills the remaining CUs of all active sessions at once.")
     if workload.get("free_license_viewers"):
         data_top = max([i for c, i in idxs if c != "free_license_viewers"], default=0)
         if data_top < _INDEX[_FREE_VIEWER_MIN]:          # the non-viewer constraints alone fit a smaller SKU
@@ -234,3 +255,95 @@ def recommend_capacity(workload: dict[str, Any]) -> dict[str, Any]:
                                     + " — engage the Microsoft account team (F2048+ / partitioning / "
                                     "DirectQuery-fallback design).")
     return result
+
+
+# ---------------------------------------------------------------- I-21 Kapazitaet (29.09.2026)
+# Ein Block, damit parallele Pakete ihn beim Zusammenfuehren nicht zerschneiden. Alles hier ist
+# gegen learn.microsoft.com gelesen am 29.09.2026; was hergeleitet ist, sagt das Ergebnis selbst
+# (``herkunft``), damit keine Rechnung als Messung in ein Kundendokument wandert.
+
+#: Overage kostet den dreifachen Pay-as-you-go-Satz je CU-Stunde (``enterprise/capacity-overage-
+#: overview``, „three times the pay-as-you-go rate").
+OVERAGE_PREISFAKTOR = 3
+#: Microsoft empfiehlt die Schwelle unter einem Drittel der Tages-CU-Stunden — dort kostet Overage
+#: so viel wie die naechstgroessere SKU (dieselbe Seite, Abschnitt „Capacity overage thresholds").
+OVERAGE_EMPFEHLUNG_NENNER = 3
+#: Voreinstellung bei neuen F-Kapazitaeten: Overage **an**, Schwelle 25 % (``enterprise/enable-
+#: capacity-overage``). Worauf sich die 25 % beziehen, nennt Learn nur als „extra daily capacity
+#: consumption" — ANNAHME, ungeprueft: Anteil an den Tages-CU-Stunden der SKU.
+OVERAGE_VOREINSTELLUNG_PCT = 25
+#: Die Schwelle braucht Fabric-Kontingent in Hoehe von Schwelle/24 CU (dieselbe Seite:
+#: „a 48 CU hour threshold adds 2 CUs to your quota").
+OVERAGE_KONTINGENT_TEILER = 24
+
+
+def tages_cu_stunden(sku: str) -> int | None:
+    """CU-Stunden je Tag einer SKU (CU × 24) — die Groesse, an der Learn die Overage-Schwelle misst.
+
+    Gegenprobe gegen die Learn-Tabelle (29.09.2026): F2 = 48, F8 = 192, F64 = 1 536,
+    F8192 = 196 608 — alle vier folgen aus ``cu * 24`` ohne Sonderfall.
+    """
+    zeile = sku_ceilings(sku)
+    return None if zeile is None else int(zeile["cu"]) * 24
+
+
+def overage_kalkulation(sku: str, schwelle_cuh: float,
+                        payg_preis_je_cu_stunde: float | None = None) -> dict[str, Any]:
+    """Was eine Overage-Schwelle auf einer SKU bedeutet: Kontingent, Empfehlung, Tagesobergrenze.
+
+    Die Kostenzeile ist **hergeleitet**, nicht gemessen: Schwelle × 3 × PAYG-Preis je CU-Stunde. Sie
+    ist keine harte Grenze — Learn: Fabric prueft alle 5 Minuten, laufende Operationen und bis zu
+    5 Minuten danach werden weiter zum Overage-Satz abgerechnet. Ohne Preis bleibt die Zeile leer,
+    statt einen Listenpreis zu raten (Preise sind regional).
+    """
+    tages = tages_cu_stunden(sku)
+    if tages is None:
+        raise ValueError(f"unbekannte SKU {sku!r} — Overage gibt es nur auf F-SKUs")
+    if schwelle_cuh < 0:
+        raise ValueError("Overage-Schwelle darf nicht negativ sein")
+    empfehlung = tages // OVERAGE_EMPFEHLUNG_NENNER
+    kontingent = -(-int(round(schwelle_cuh)) // OVERAGE_KONTINGENT_TEILER)  # aufrunden
+    kosten = (None if payg_preis_je_cu_stunde is None
+              else round(schwelle_cuh * OVERAGE_PREISFAKTOR * payg_preis_je_cu_stunde, 2))
+    return {
+        "sku": sku.strip().upper(),
+        "tages_cu_stunden": tages,
+        "schwelle_cu_stunden": schwelle_cuh,
+        "empfehlung_max_cu_stunden": empfehlung,
+        "ueber_empfehlung": schwelle_cuh > empfehlung,
+        "voreinstellung_cu_stunden": tages * OVERAGE_VOREINSTELLUNG_PCT // 100,
+        "kontingent_bedarf_cu": kontingent,
+        "max_kosten_je_tag": kosten,
+        "herkunft": "hergeleitet",
+        "hinweis": "Keine harte Kostengrenze: Pruefung alle 5 min, laufende Operationen und bis "
+                   "zu 5 min danach werden weiter abgerechnet.",
+    }
+
+
+#: Fabric Planning: CU-Stunden je 30-Tage-Sitzung und Rolle (Learn ``iq/plan/resources/billing-
+#: fabric-plan``, gelesen 29.09.2026). Eine Sitzung laeuft 730 Stunden und endet nicht vorzeitig.
+PLANNING_CU_STUNDEN_JE_SITZUNG: dict[str, int] = {"planner": 847, "stakeholder": 168, "viewer": 37}
+PLANNING_SITZUNG_STUNDEN = 730
+#: Learn nennt „an estimated 30% capacity buffer" fuer die uebrigen Fabric-Lasten neben Planning.
+PLANNING_PUFFER_PCT = 30
+
+
+def planning_last(planner: int = 0, stakeholder: int = 0, viewer: int = 0) -> dict[str, Any]:
+    """CU-Last aktiver Planning-Sitzungen je 30 Tage — Summe, Mittel und Mittel mit Puffer.
+
+    Hergeleitet, nicht gemessen: die Sitzung wird laut Learn „periodically" abgerechnet; dass sie
+    sich gleichmaessig ueber 730 h verteilt, ist ANNAHME, ungeprueft. Automatisierungsjobs (je
+    erfolgreichem Job „2 CU" laut Learn, Einheit dort nicht naeher bestimmt) sind nicht enthalten.
+    """
+    anzahl = {"planner": planner, "stakeholder": stakeholder, "viewer": viewer}
+    if any(v < 0 for v in anzahl.values()):
+        raise ValueError("Sitzungszahlen duerfen nicht negativ sein")
+    summe = sum(PLANNING_CU_STUNDEN_JE_SITZUNG[r] * n for r, n in anzahl.items())
+    mittel = summe / PLANNING_SITZUNG_STUNDEN
+    return {
+        "sitzungen": anzahl,
+        "cu_stunden_30_tage": summe,
+        "mittlere_cu": round(mittel, 2),
+        "mit_puffer_cu": round(mittel * (100 + PLANNING_PUFFER_PCT) / 100, 2),
+        "herkunft": "hergeleitet",
+    }

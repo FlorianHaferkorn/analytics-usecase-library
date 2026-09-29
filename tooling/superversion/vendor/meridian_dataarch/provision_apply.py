@@ -270,7 +270,9 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     elif netz == "private_link_tenant":
         add("enable_tenant_private_link", "Mandant — Private Link (Tenant-Ebene)",
             "Azure: Private Link Service fuer Fabric + Tenant-Einstellung 'Azure Private Link' | "
-            "portal: Admin-Portal",
+            "portal: OneLake catalog → Govern → Configurations → Tenant settings → Advanced "
+            "networking (Fallback: Admin-Portal → Tenant settings; sobald Private Link aktiv ist, "
+            "gibt es den Govern-Tab nicht mehr, dann bleibt nur das Admin-Portal)",
             "human-approved",
             "Entschieden: PLAT-NET = private_link_tenant. Kostet u. a. Publish-to-Web, Export, "
             "E-Mail-Abonnements, Copilot, Capacity-Metrics-App und tenantuebergreifende Shortcuts "
@@ -698,6 +700,17 @@ def _tenant_setup_md(bp: dict) -> str:
         lines.append("**Needs a human** (capacity-admin portal / RBAC grant — no tenant-setting script can "
                      "do these): " + ", ".join(f"#{i} {n}" for i, n, _ in summ["needs_human"]) + ".")
     lines += ["", f"> {summ['api_caveat']}", ""]
+    # I-21 W1.7: Pfade aus einer Quelle (admin_settings), Govern zuerst, Admin portal als Fallback.
+    lines += _admin.navigation_md()
+    lizenzen = _admin.lizenzannahmen(caps)
+    if lizenzen:
+        # I-21 W5.7: eine Lizenz ist keine Einstellung — sie wird vorgelegt, nicht angenommen.
+        lines += ["## Licence assumptions to confirm", "",
+                  "These settings only do something for users who hold the licence below. The "
+                  "delivery cannot set a licence; confirm each line with the customer.", "",
+                  "| # | Setting | Licence assumed |", "|---|---|---|"]
+        lines += [f"| {z['id']} | {z['name']} | {z['lizenz']} |" for z in lizenzen]
+        lines.append("")
     lines += _procedure_and_limits(caps, bp)
     lines.append("Also grant the SPN read on each ingestion source. See _MCP_INTEGRATION.md for "
                  "guardrails.")
