@@ -120,6 +120,24 @@ Quellen und geklärte Streitpunkte wie in Meridian I-21 Welle 5: Blogs vom Proxy
 | W5.19 | Weitere Sept-Neuerungen (Custom Live Pools, Notebook Toolkit, File-level Commit, DirectQuery-Modellierung im Web, Approximate Distinct Count, Design-Ribbon im Web) — beobachten, Nachprüfung 05.10. (Quelle: Meridian I-21 W5.19) | M + A | beobachten | — |
 | W5.20 | **Semantic views und Ossie mit DAX** (Power BI Blog 29.09.2026; keine Learn-Seite, daher Ankündigung): Kennzahlen und Semantik direkt in OneLake definieren und über Fabric hinaus nutzen; berührt `core/kpi_catalog/` und E-5/E-6 — Abbildung erst prüfen, wenn dokumentiert. Microsoft will DAX als Ossie-Abfragesprache etablieren (stützt W5.10) (Quelle: Meridian I-21 W5.20, Watchlist `onelake-semantic-views`) | M + A | beobachten | — |
 
+## Welle 6 — Nachlauf 29.09.2026 abends (Quelle: Meridian I-21 Welle 6)
+
+Learn per MCP gelesen; Fabric-/Power-BI-Blogs, Azure Updates und Roadmap vom Proxy blockiert — Blog-Inhalte nur als Suchauszug, daher „angekündigt“. Power BI „What's new“ zeigt am 29.09. noch August → Nachprüfung 05.10.
+
+**Statuskorrekturen:** dbt job — Learn widersprüchlich (What's new GA Sep 2026, Tenant-Setting noch Preview) · Custom Live Pools Preview, nicht GA · Git-Neuerungen (Branched workspaces, Compare, File-level commit) Preview · Fabric policies auch mit Bedingung Sensitivity labels · Catalog-Search-Tabellen Preview (Folie „GA“ gilt nicht) · DLP „Restrict access“: Summary GA, Learn Preview.
+
+| ID | Aufgabe | Art | Status | DoD (Out · Prüfung) |
+|---|---|---|---|---|
+| W6.1 | Fabric Apps: keine `anonymous`-Rolle (Learn Preview Aug 2026, DSGVO), Konsumenten brauchen nur Read — gilt für die ALUCA-Fabric-App-Ausgabe (W3.9) | A (+M) | offen (nach W3.9) | Test in der App-Ausgabe |
+| W6.2 | Data engineering agent (Osmos) nicht in OAP-Workspaces → Kollisionstabelle über den Spiegel | M→A | offen | Spiegel nachgezogen |
+| W6.4 | Operations Agent als Item-Definition (REST) statt Portal-Schalter | M→A | offen | Spiegel nachgezogen |
+| W6.5 | Warehouse CI/CD 2.0 (DacFx-Item-Definition v2.0, Preview) → W5.4 (g), hängt an E-3 | M→A | offen (E-3) | Bewertung |
+| W6.7 | Refresh-Optionen „Sync schema only“/„Refresh data only“, Refresh je Tabelle → ALUCA-eigen: Deploy-/Refresh-Doku (`products/fabric/powerbi/deployment/`) | A | offen | Doku-Zeilen |
+| W6.8 | Direct Lake calculated columns (Preview) → Faktor in E-1 (ALUCA heute Import) | M + A | offen (Input E-1) | E-1 ergänzt |
+| W6.10 | Fluent 2 als Basis-Theme (GA) → ALUCA-Themes und Theme-Generator auf Font-Overrides prüfen | A | offen | Befund + Test |
+
+Weitere Punkte (W6.3 Claude Code/Codex in der VS-Code-Extension, W6.6 Git Workspace Relation API, W6.9 Copilot-Lizenz/Data Agent in Copilot Studio, W6.11 Monitor for Data Warehouse) und die neue Watchlist (Business Events, Database Hub, Delegated Shortcuts, OneLake OAP mit externen Shortcuts, Fabric Apps in GitHub Copilot, Power BI September-Update, Operations-Agent-Telemetrie an Agent 365) führt Meridian (`research/upstream_pins.yaml`).
+
 ## Beobachten statt bauen
 Die Watchlist liegt in Meridian (`research/upstream_pins.yaml` → `feature_watch`). Der Wochen-Radar
 prüft sie. Ändert sich dort ein Status (Mirroring mit Quellrechten, Copilot im Portal mit Skills,
