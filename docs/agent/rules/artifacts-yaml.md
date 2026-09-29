@@ -26,7 +26,7 @@
   One definition per table (Bus-Matrix): a table another domain owns is referenced with
   `conformed_from: <domain>` (+ optional `uses_columns`), never copied — see `data_contracts/domains/README.md`.
 - **Sources:** `data_contracts/sources/*.yaml` — source-level mappings.
-- Schema: `tooling/generator/schemas/data_contract.schema.json` (if used for validation).
+- Schema: `tooling/generator/schemas/data_contract.schema.json` — run on every contract by `tooling/validation/check_validate_data_contracts.py` (Stage 1); tables, columns, `quality_rules` and `settings` are closed, so a new field goes into the schema first.
 
 ## General
 

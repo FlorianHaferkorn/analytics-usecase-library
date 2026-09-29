@@ -1,15 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import type { DataContract } from '@/lib/schemas';
+import type { ResolvedContract } from '@/lib/core/contract-loader';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 import { StudioTable, StudioTableCell, StudioTableHeadCell, StudioTableShell } from '@/components/ui/studio-data';
 
 interface Props {
-  contracts: DataContract[];
+  contracts: ResolvedContract[];
 }
 
-function ContractCard({ contract }: { contract: DataContract }) {
+function ContractCard({ contract }: { contract: ResolvedContract }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -87,7 +87,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
           {(contract.fact ?? []).map((fact) => (
             <div key={fact.name}>
               <p style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--ink-2)', marginBottom: '4px' }}>
-                {fact.name} (fact &middot; grain: {fact.grain})
+                {fact.name} (fact &middot; grain: {fact.grain ?? '—'})
               </p>
               <StudioTableShell>
               <StudioTable>
@@ -123,7 +123,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
           {contract.settings && (
             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
               {contract.settings.currency && <span>Currency: {contract.settings.currency} &middot; </span>}
-              {contract.settings.time_zone && <span>TZ: {contract.settings.time_zone} &middot; </span>}
+              {contract.settings.timezone && <span>TZ: {contract.settings.timezone} &middot; </span>}
               {contract.settings.naming && <span>Naming: {contract.settings.naming}</span>}
             </div>
           )}

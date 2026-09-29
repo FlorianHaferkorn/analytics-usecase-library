@@ -130,7 +130,7 @@ on:
   pull_request:
     paths:
       - 'core/**'
-      - 'tooling/ai/schemas/**'
+      - 'tooling/generator/schemas/**'
       - 'studio/**'
 
 jobs:
