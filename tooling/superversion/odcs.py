@@ -12,6 +12,13 @@ not a home-grown format. This module bridges the two directions the Baukasten ne
   * **SQL import** ``import_sql_table(ddl)`` — a single ``CREATE TABLE`` → an ODCS schema object.
   * **catalog bridge** ``odcs_to_catalog(contracts)`` — an ODCS contract set → the ``governed_catalog``
     shape the emitters consume (the governed contract drives column projection; Meridian-side consumer).
+  * **column contract** ``to_odcs(blueprint, governed_catalog)`` — the ``column_specs`` of
+    ``tooling/generator/export_governed_catalog.py`` (A-20/A-23) become ODCS v3.1 properties
+    (``required``, ``relationships``, ``quality``, ``physicalName``) and come back through
+    ``odcs_to_catalog`` unchanged (Meridian D-581). The check → SQL translation and the ref
+    resolution are **not** re-implemented here: they come from the mirrored
+    ``vendor/meridian_dataarch/provision_dq.py`` (``pruef_operator``/``pruef_praedikat``/
+    ``ref_ziel``/``_katalog_tabelle``), the same code that feeds ``emit_dq_gates``/``emit_mlv``.
 
 Honest scope: ODCS carries the **gold contract** (data products + their schema), not the bronze
 ingestion sources — so the round-trip is exact for ``medallion.gold`` + ``mesh.domains[].data_products``,
@@ -27,6 +34,14 @@ import yaml
 from tooling.superversion.architecture_blueprint import _slug
 
 ODCS_API_VERSION = "v3.0.0"
+#: Vertraege mit Spalten aus dem governed catalog tragen property-level ``relationships`` und
+#: ``quality``-Regeln mit ``metric``. Beides steht erst in ODCS v3.1.0 (CHANGELOG v3.1.0,
+#: 2025-12-08: "Add `relationships` array field to both `SchemaObject` and `SchemaProperty`";
+#: ``metric`` statt des veralteten ``rule``). Gelesen 29.09.2026 in
+#: github.com/bitol-io/open-data-contract-standard, Tag v3.2.0 (f0bdad9, 08.09.2026 — aktuell;
+#: v3.2.0 bringt ``enum`` dazu, das hier nicht gebraucht wird). Vertraege ohne Spalten bleiben
+#: auf v3.0.0, damit sich bestehende Ausgaben nicht aendern.
+ODCS_API_VERSION_SPALTEN = "v3.1.0"
 ODCS_KIND = "DataContract"
 _CONTRACT_STANDARD = "odcs"
 
@@ -46,23 +61,191 @@ def _logical_type(sql_type: str) -> str:
     return "string"  # varchar/char/nvarchar/text/uuid/… — safe default
 
 
+def _provision_dq():
+    """Meridian's ``provision_dq`` from the byte-identical mirror (PIN-checked, ADR-0051 Klasse A).
+
+    Where Meridian writes ``from core.dataarch_engine.blueprint.provision_dq import …``, ALUCA
+    loads the same file through ``_dataarch_vendor`` — one translation of a contract check into
+    SQL for dbt, MLV and ODCS, not a second one here. Lazy: only a catalog with ``column_specs``
+    needs it, so ``to_odcs(blueprint)`` without a catalog keeps working without the mirror.
+    """
+    from tooling.superversion._dataarch_vendor import load_module
+    return load_module("provision_dq")
+
+
 # --------------------------------------------------------------------------- export (IR → ODCS)
-def _schema_object(product: dict[str, Any]) -> dict[str, Any]:
-    """One gold product → an ODCS schema object; kind/grain survive as customProperties."""
+def _schema_object(product: dict[str, Any], table: dict[str, Any] | None = None,
+                   governed_catalog: dict[str, Any] | None = None) -> dict[str, Any]:
+    """One gold product → an ODCS schema object; kind/grain survive as customProperties.
+
+    With a governed-catalog ``table`` the object also carries ``properties`` (one per column; the
+    ``column_specs`` become ``required``/``relationships``/``quality``, see ``_spec_to_property``)
+    and ``showcase`` as a customProperty — so the contract itself can drive the DQ emitters.
+    """
     custom = [{"property": "kind", "value": product["kind"]}]
     if product.get("grain"):
         custom.append({"property": "grain", "value": product["grain"]})
-    return {
+    obj: dict[str, Any] = {
         "name": product["name"],
         "physicalName": product["name"],
         "logicalType": "object",
         "physicalType": "table",
         "customProperties": custom,
     }
+    if table:
+        if "showcase" in table:
+            custom.append({"property": "showcase", "value": bool(table["showcase"])})
+        props = _table_properties(table, governed_catalog)
+        if props:
+            obj["properties"] = props
+    return obj
 
 
-def to_odcs(blueprint: dict[str, Any]) -> list[dict[str, Any]]:
-    """Export the IR's gold/mesh layer as one ODCS ``DataContract`` per domain (sorted, deterministic)."""
+# --------------------------------------------------------------------------- column_specs ⇄ ODCS properties
+# ALUCA-Ledger A-20: the governed catalog carries per table ``column_specs`` with structured checks.
+# Official-First: ODCS v3.1 expresses them natively where it can —
+#   nullable/unknown_member → ``required``; ref → property-level ``relationships`` (``to: dim.col``);
+#   ``in`` → library metric ``invalidValues`` (``arguments.validValues``, ``mustBe: 0``);
+#   ranges / column comparisons → ``type: sql`` rule counting violating rows, ``mustBe: 0``.
+# ODCS operators (``mustBe`` …) compare the *metric result* (a row count), not a column value, so a
+# value range has no library metric — the SQL rule is the standard's own answer. Each rule also carries
+# the structured check as customProperty ``meridianCheck`` so the round-trip is lossless; the predicate
+# SQL comes from ``provision_dq.pruef_praedikat`` (one translation for MLV and ODCS).
+_SHORTHAND_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\-]*(\.[A-Za-z_][A-Za-z0-9_\-]*)+$")
+_STABLE_ID_RE = re.compile(r"[\s.#/\\@!%&^]+")
+
+
+def _quality_rule(column: str, check: dict[str, Any], n: int) -> dict[str, Any]:
+    dq = _provision_dq()
+    pruef_operator, pruef_praedikat = dq.pruef_operator, dq.pruef_praedikat
+    op = pruef_operator(check)
+    rule: dict[str, Any] = {"id": _STABLE_ID_RE.sub("_", f"{column}_{op}_{n}")}
+    if op == "in" and check.get("when_present") is True:
+        # invalidValues zaehlt NULL nicht als ungueltig — genau when_present.
+        rule.update({"type": "library", "metric": "invalidValues",
+                     "arguments": {"validValues": list(check["in"])}, "mustBe": 0})
+    else:
+        # eigene Spalte als ODCS-Platzhalter, eine Vergleichsspalte im Zieldialekt maskiert
+        # (ODCS: "should match the target SQL engine" — Fabric/Spark → Backticks)
+        praedikat = pruef_praedikat(column, check, spalte_sql="{property}")
+        rule.update({"type": "sql",
+                     "query": f"SELECT COUNT(*) FROM {{object}} WHERE NOT {praedikat}",
+                     "mustBe": 0})
+    rule["customProperties"] = [{"property": "meridianCheck", "value": dict(check)}]
+    return rule
+
+
+def _spec_to_property(spec: dict[str, Any], governed_catalog: dict[str, Any] | None) -> dict[str, Any]:
+    """One ``column_specs`` entry → an ODCS v3.1 property (lossless, see ``_property_to_spec``)."""
+    ref_ziel = _provision_dq().ref_ziel
+    name = spec["name"]
+    prop: dict[str, Any] = {"name": name}
+    if spec.get("source_column"):
+        # ODCS trennt logischen Namen und physische Spalte selbst: `physicalName` (v3).
+        prop["physicalName"] = str(spec["source_column"])
+    custom: list[dict[str, Any]] = []
+    if spec.get("type"):
+        prop["logicalType"] = _logical_type(str(spec["type"]))
+        prop["physicalType"] = str(spec["type"])
+    if "unknown_member" in spec:
+        prop["required"] = True
+        custom.append({"property": "unknownMember", "value": spec["unknown_member"]})
+    elif "nullable" in spec:
+        prop["required"] = not bool(spec["nullable"])
+    if spec.get("ref"):
+        dim, feld = ref_ziel(governed_catalog, name, spec["ref"])
+        ziel = f"{dim}.{feld}" if feld else ""
+        if ziel and _SHORTHAND_RE.match(ziel):
+            prop["relationships"] = [{"type": "foreignKey", "to": ziel}]
+        if ziel != spec["ref"] or "relationships" not in prop:
+            custom.append({"property": "ref", "value": spec["ref"]})
+    checks = list(spec.get("checks") or [])
+    if spec.get("target_state") is True:
+        custom.append({"property": "targetState", "value": True})
+        if checks:   # Zielbild: getragen, aber nicht als ausfuehrbare Regel
+            custom.append({"property": "meridianChecks", "value": checks})
+    elif checks:
+        prop["quality"] = [_quality_rule(name, c, i) for i, c in enumerate(checks, 1)]
+    if custom:
+        prop["customProperties"] = custom
+    return prop
+
+
+def _property_to_spec(prop: dict[str, Any]) -> dict[str, Any]:
+    """An ODCS property → a ``column_specs`` entry (only keys that are set).
+
+    One normalisation, not a loss: ``nullable: false`` beside ``unknown_member`` is redundant
+    (``unknown_member`` already means "never NULL") and comes back as ``unknown_member`` alone.
+    """
+    spec: dict[str, Any] = {"name": prop["name"]}
+    if prop.get("physicalName") and prop["physicalName"] != prop["name"]:
+        spec["source_column"] = prop["physicalName"]
+    if prop.get("physicalType"):
+        spec["type"] = prop["physicalType"]
+    unknown_set = False
+    for cp in prop.get("customProperties") or []:
+        if cp.get("property") == "unknownMember":
+            spec["unknown_member"] = cp.get("value")
+            unknown_set = True
+    if "required" in prop and not unknown_set:
+        spec["nullable"] = not prop["required"]
+    ref = _custom(prop, "ref")
+    if ref:
+        spec["ref"] = ref
+    else:
+        for rel in prop.get("relationships") or []:
+            if isinstance(rel.get("to"), str):
+                spec["ref"] = rel["to"]
+                break
+    checks: list[dict[str, Any]] = []
+    for rule in prop.get("quality") or []:
+        structured = _custom(rule, "meridianCheck")
+        if isinstance(structured, dict):
+            checks.append(dict(structured))
+        elif (rule.get("metric") == "invalidValues" and rule.get("mustBe") == 0
+              and (rule.get("arguments") or {}).get("validValues")):
+            # auch ohne Meridian-Markierung lesbar: der offizielle Weg fuer `in`
+            checks.append({"in": list(rule["arguments"]["validValues"]), "when_present": True})
+    if _custom(prop, "targetState") is True:
+        spec["target_state"] = True
+        checks = list(_custom(prop, "meridianChecks") or checks)
+    if checks:
+        spec["checks"] = checks
+    return spec
+
+
+def _table_properties(table: dict[str, Any], governed_catalog: dict[str, Any] | None
+                      ) -> list[dict[str, Any]]:
+    """ODCS properties for a catalog table: ``column_specs`` first (in contract order), then the
+    remaining plain column names (sorted) as name-only properties."""
+    specs = [s for s in table.get("column_specs") or [] if isinstance(s, dict) and s.get("name")]
+    columns = set(table.get("columns") or [])
+    props = []
+    for s in specs:
+        prop = _spec_to_property(s, governed_catalog)
+        if columns and s["name"] not in columns:
+            # z. B. eine Zielbild-Spalte, die es noch nicht gibt: nicht projizieren
+            prop.setdefault("customProperties", []).append({"property": "projected", "value": False})
+        props.append(prop)
+    seen = {s["name"] for s in specs}
+    props += [{"name": c} for c in sorted(columns) if c not in seen]
+    return props
+
+
+def _catalog_table_for(governed_catalog: dict[str, Any] | None, name: str) -> dict[str, Any]:
+    if not governed_catalog:   # same answer as `_katalog_tabelle(None, …)`, without the mirror
+        return {}
+    return _provision_dq()._katalog_tabelle(governed_catalog, name)
+
+
+def to_odcs(blueprint: dict[str, Any], governed_catalog: dict[str, Any] | None = None
+            ) -> list[dict[str, Any]]:
+    """Export the IR's gold/mesh layer as one ODCS ``DataContract`` per domain (sorted, deterministic).
+
+    With ``governed_catalog`` each gold product found there carries its columns as ODCS
+    ``properties`` — including the structured ``column_specs`` checks (A-20) — and the contract is
+    stamped ``v3.1.0`` (``relationships``/``metric`` need it). ``odcs_to_catalog`` reads them back.
+    """
     stack = blueprint.get("platform", {}).get("stack", "fabric")
     gold = blueprint.get("medallion", {}).get("gold", {}).get("data_products", [])
     gold_by_name = {p["name"]: p for p in gold}
@@ -73,12 +256,14 @@ def to_odcs(blueprint: dict[str, Any]) -> list[dict[str, Any]]:
         name = dom["name"]
         pub = dom.get("publishing", {})
         schema = [
-            _schema_object(gold_by_name[pn])
+            _schema_object(gold_by_name[pn], _catalog_table_for(governed_catalog, pn),
+                           governed_catalog)
             for pn in sorted(dom.get("data_products", []))
             if pn in gold_by_name
         ]
+        mit_spalten = any(o.get("properties") for o in schema)
         contract: dict[str, Any] = {
-            "apiVersion": ODCS_API_VERSION,
+            "apiVersion": ODCS_API_VERSION_SPALTEN if mit_spalten else ODCS_API_VERSION,
             "kind": ODCS_KIND,
             "id": f"{_slug(stack)}-{_slug(name)}",
             "name": name,
@@ -251,21 +436,40 @@ def from_odcs(contracts: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def odcs_to_catalog(contracts: list[dict[str, Any]] | dict[str, Any]) -> dict[str, Any]:
-    """Bridge an ODCS contract set → the ``governed_catalog`` shape the Meridian emitters consume.
+    """Bridge an ODCS contract set → the ``governed_catalog`` shape the emitters consume.
 
-    Cross-repo mirror of Meridian's ``odcs_to_catalog`` (contract surface). Returns
-    ``{"tables": [{"name", "columns"}]}`` — one entry per schema object that declares ``properties``
-    (columns); objects without columns are skipped (nothing to project, honest). Deterministic (sorted).
+    Cross-repo mirror of Meridian's ``odcs_to_catalog`` (contract surface).
+
+    Returns ``{"tables": [{"name", "columns"[, "column_specs", "showcase"]}]}`` — one entry per
+    schema object that declares
+    ``properties`` (columns). This lets the **governed data contract itself** drive column projection in
+    ``emit_mlv`` / ``emit_metricflow`` (Golden-Thread: the contract is the SoT), closing the loop so no
+    separate catalog export is required. Objects without ``properties`` are skipped — nothing to project,
+    honest (the caller falls back to ``SELECT *`` + TODO). Deterministic: tables + columns sorted.
+
+    Pairs with ``import_sql_table`` (CREATE TABLE → schema object *with* properties): running an existing
+    warehouse's DDL through ``import_sql_table`` → ``odcs_to_catalog`` grounds the projection in the real DB.
     """
     if isinstance(contracts, dict):
         contracts = [contracts]
     tables: list[dict[str, Any]] = []
     for c in contracts:
         for obj in c.get("schema", []) or []:
-            cols = sorted({p["name"] for p in (obj.get("properties") or []) if p.get("name")})
+            props = [p for p in (obj.get("properties") or []) if p.get("name")]
+            cols = sorted({p["name"] for p in props if _custom(p, "projected") is not False})
             if not cols:
-                continue
-            tables.append({"name": obj.get("physicalName") or obj.get("name"), "columns": cols})
+                continue                                    # no declared columns → nothing to project
+            entry: dict[str, Any] = {"name": obj.get("physicalName") or obj.get("name"),
+                                     "columns": cols}
+            # A-20: structured column contract (only properties that say more than their name)
+            specs = [_property_to_spec(p) for p in props]
+            specs = [sp for sp in specs if len(sp) > 1]
+            if specs:
+                entry["column_specs"] = specs
+            showcase = _custom(obj, "showcase")
+            if showcase is not None:
+                entry["showcase"] = showcase
+            tables.append(entry)
     tables.sort(key=lambda t: t.get("name") or "")
     return {"tables": tables}
 

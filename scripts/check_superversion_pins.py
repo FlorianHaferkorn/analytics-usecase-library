@@ -19,12 +19,22 @@ Tracks the pins ALUCA owns for the vendored Meridian canonical-core
   * **OSI schema** — reported if vendored in ALUCA; otherwise noted as
     Meridian-owned (ALUCA adopts the OSI target later, I-3/I-7).
 
-Upstream-commit comparison (does our pin lag the Meridian remote?) needs the
-Meridian git remote, which is not configured here — that slice soft-skips with a
-clear marker, mirroring Meridian's offline behaviour.
+Upstream-commit comparison (does our pin lag Meridian?) needs a Meridian checkout
+(``$MERIDIAN_ROOT`` or ``../Freelancing``); without one that slice soft-skips with a
+clear marker, mirroring Meridian's offline behaviour. With one, each vendored file
+is compared against the blob at ``--upstream-ref`` (default ``origin/main``) —
+advisory, no network (``git fetch`` stays a deliberate act of the caller).
+
+Re-sync (``--write``, 29.09.2026, A-19): copies ``VENDORED_FILES`` from the commit
+``--ref`` (default ``HEAD``) of the Meridian checkout — ``git show <commit>:<path>``,
+never the working tree — and rewrites ``PIN.json`` with the exact commit SHA, its
+commit date and fresh sha256 values. Deliberately manual, never in CI. Until then
+the pin carried ``commit: UNKNOWN`` (zip sync 23.06.2026) plus a hand-ported hunk.
 
 Usage:
   python3 scripts/check_superversion_pins.py [--strict] [--json FILE]
+                                             [--upstream-ref REF]
+  python3 scripts/check_superversion_pins.py --write [--ref REF]
 """
 from __future__ import annotations
 
@@ -32,6 +42,8 @@ import argparse
 import datetime as _dt
 import hashlib
 import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
@@ -40,6 +52,16 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 VENDOR_DIR = REPO_ROOT / "tooling" / "superversion" / "vendor" / "meridian"
 PIN_PATH = VENDOR_DIR / "PIN.json"
 STALENESS_ADVISORY_DAYS = 60
+
+# The vendored contract surface, relative to Meridian's repo root and to VENDOR_DIR.
+# The list lives HERE, not in PIN.json: otherwise a file could only be added by
+# hand-editing the pin, which the integrity check (rightly) treats as divergence.
+VENDORED_FILES = (
+    "core/pbi_engine/model.py",
+    "core/pbi_engine/parsers/tmdl_parser.py",
+    "core/pbi_engine/parsers/pbir_parser.py",
+)
+SUBTREE_DOC = "core/pbi_engine (contract surface only: model.py + parsers/)"
 
 
 # --------------------------------------------------------------------------- #
@@ -100,7 +122,8 @@ def has_drift(integrity: list[dict]) -> bool:
 
 
 def build_report(pin: dict, integrity: list[dict], provenance: dict,
-                 parity_active: Optional[bool], osi_status: str) -> tuple[str, list[str]]:
+                 parity_active: Optional[bool], osi_status: str,
+                 upstream: Optional[list[str]] = None) -> tuple[str, list[str]]:
     """(level, lines). level: 'DRIFT' (hard) | 'ADVISORY' | 'OK'."""
     lines: list[str] = []
     for r in integrity:
@@ -118,7 +141,11 @@ def build_report(pin: dict, integrity: list[dict], provenance: dict,
     else:
         lines.append(f"  parity: seam re-exports {'vendored originals' if parity_active else 'standalone mirror'}.")
     lines.append(f"  osi-schema: {osi_status}")
-    lines.append("  upstream-commit comparison: soft-skipped (no Meridian remote configured).")
+    if upstream is None:
+        lines.append("  upstream-commit comparison: soft-skipped (no Meridian checkout: "
+                     "$MERIDIAN_ROOT or ../Freelancing).")
+    else:
+        lines.extend(upstream)
 
     if has_drift(integrity):
         return "DRIFT", lines
@@ -130,6 +157,85 @@ def build_report(pin: dict, integrity: list[dict], provenance: dict,
 # --------------------------------------------------------------------------- #
 # IO (impure)                                                                  #
 # --------------------------------------------------------------------------- #
+
+def _meridian_root() -> Optional[Path]:
+    """Meridian checkout: ``$MERIDIAN_ROOT`` or the sibling ``../Freelancing``."""
+    env = os.environ.get("MERIDIAN_ROOT")
+    cand = Path(env).expanduser() if env else REPO_ROOT.parent / "Freelancing"
+    return cand if (cand / VENDORED_FILES[0]).is_file() else None
+
+
+def _git(root: Path, *args: str) -> Optional[str]:
+    try:
+        proc = subprocess.run(("git", *args), cwd=str(root), capture_output=True,
+                              text=True, timeout=30, encoding="utf-8", errors="replace")
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return proc.stdout.strip() if proc.returncode == 0 else None
+
+
+def _blob(root: Path, commit: str, rel: str) -> Optional[bytes]:
+    """File content as committed (``git show``), independent of working tree and EOL."""
+    try:
+        proc = subprocess.run(("git", "show", f"{commit}:{rel}"), cwd=str(root),
+                              capture_output=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return proc.stdout if proc.returncode == 0 else None
+
+
+def upstream_comparison(pin: dict, meridian_root: Path, ref: str) -> list[str]:
+    """Advisory: does each vendored file equal the blob at ``ref`` in Meridian?"""
+    commit = _git(meridian_root, "rev-parse", "--verify", f"{ref}^{{commit}}")
+    if not commit:
+        return [f"  upstream-commit comparison: soft-skipped ({ref} unknown in {meridian_root})."]
+    lines = [f"  upstream-commit comparison against {ref} = {commit[:8]}:"]
+    for entry in pin.get("files", []):
+        rel = entry.get("path", "")
+        data = _blob(meridian_root, commit, rel)
+        if data is None:
+            lines.append(f"    [!! ] {rel} — absent upstream")
+        elif hashlib.sha256(data).hexdigest() == entry.get("sha256"):
+            lines.append(f"    [OK ] {rel} — equal")
+        else:
+            lines.append(f"    [!! ] {rel} — upstream differs (ADVISORY: re-sync with --write)")
+    return lines
+
+
+def write_vendor(meridian_root: Path, ref: str = "HEAD") -> dict:
+    """Re-copy ``VENDORED_FILES`` from commit ``ref`` and rewrite PIN.json. Manual only."""
+    commit = _git(meridian_root, "rev-parse", "--verify", f"{ref}^{{commit}}")
+    if not commit:
+        raise SystemExit(f"[superversion-pins] --write: {ref} ist in {meridian_root} kein Commit")
+    blobs: dict[str, bytes] = {}
+    for rel in VENDORED_FILES:
+        data = _blob(meridian_root, commit, rel)
+        if data is None:
+            raise SystemExit(f"[superversion-pins] --write: {rel} nicht im Commit {commit[:8]}")
+        blobs[rel] = data
+    for rel, data in blobs.items():
+        target = VENDOR_DIR / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+    old = json.loads(PIN_PATH.read_text(encoding="utf-8")) if PIN_PATH.exists() else {}
+    fresh = {
+        "_doc": old.get("_doc", "Pin + integrity manifest for the vendored Meridian "
+                        "canonical-core subtree (ADR-0005)."),
+        "source": {
+            "repo": old.get("source", {}).get("repo", "Freelancing (Meridian)"),
+            "ref": ref,
+            "commit": commit,
+            "commit_date": _git(meridian_root, "show", "-s", "--format=%cs", commit) or "?",
+            "synced_at": _dt.date.today().isoformat(),
+            "subtree": SUBTREE_DOC,
+        },
+        "vendored": "tooling/superversion/vendor/meridian",
+        "files": [{"path": rel, "sha256": hashlib.sha256(blobs[rel]).hexdigest()}
+                  for rel in VENDORED_FILES],
+    }
+    PIN_PATH.write_text(json.dumps(fresh, indent=2, ensure_ascii=False) + "\n",
+                        encoding="utf-8", newline="\n")
+    return fresh
 
 def _osi_status() -> str:
     candidates = list(VENDOR_DIR.rglob("osi-schema.json"))
@@ -157,7 +263,23 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument("--strict", action="store_true",
                         help="exit 1 on hard drift (missing/diverged vendored file)")
     parser.add_argument("--json", type=Path, default=None, help="write status JSON here")
+    parser.add_argument("--upstream-ref", default="origin/main",
+                        help="Meridian ref for the advisory upstream comparison")
+    parser.add_argument("--write", action="store_true",
+                        help="re-sync the vendored files from a Meridian commit (manual, never CI)")
+    parser.add_argument("--ref", default="HEAD", help="Meridian commit/ref for --write")
     args = parser.parse_args(argv)
+
+    if args.write:
+        mer = _meridian_root()
+        if mer is None:
+            print("[superversion-pins] --write needs a Meridian checkout "
+                  "($MERIDIAN_ROOT or ../Freelancing)")
+            return 1
+        fresh = write_vendor(mer, args.ref)
+        print(f"[superversion-pins] re-synced {len(fresh['files'])} file(s) from {mer} "
+              f"at {fresh['source']['commit'][:8]} ({fresh['source']['commit_date']})")
+        return 0
 
     if not PIN_PATH.exists():
         print("[superversion-pins] no vendored Meridian pin — nothing to check (soft-skip).")
@@ -169,7 +291,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     provenance = pin_provenance(pin, today)
     parity = _parity_active()
     osi = _osi_status()
-    level, lines = build_report(pin, integrity, provenance, parity, osi)
+    mer = _meridian_root()
+    upstream = upstream_comparison(pin, mer, args.upstream_ref) if mer is not None else None
+    level, lines = build_report(pin, integrity, provenance, parity, osi, upstream)
 
     print(f"[superversion-pins] {level}")
     for ln in lines:

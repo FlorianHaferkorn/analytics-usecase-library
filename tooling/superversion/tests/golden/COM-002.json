@@ -15,10 +15,12 @@
             "display_folder": "Finance",
             "description": "(Net Sales Amount - COGS Amount) / Net Sales Amount",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"numerator\": {\"kind\": \"measure\", \"name\": \"Gross Margin Amount\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Gross Margin % vs Plan",
@@ -26,10 +28,12 @@
             "display_folder": "Finance",
             "description": "(Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"minuend\": {\"kind\": \"measure\", \"name\": \"Gross Margin Amount\"}, \"op\": \"delta_pct\", \"subtrahend\": {\"kind\": \"expr\", \"minuend\": {\"column\": \"Plan Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}, \"op\": \"delta\", \"subtrahend\": {\"column\": \"Plan COGS Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Price Realization %",
@@ -37,10 +41,12 @@
             "display_folder": "Commercial",
             "description": "Net Price Amount / List Price Amount.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"kind\": \"measure\", \"name\": \"List Price Amount\"}, \"numerator\": {\"kind\": \"measure\", \"name\": \"Net Price Amount\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Gross Margin Amount",
@@ -48,10 +54,12 @@
             "display_folder": "Finance",
             "description": "Net Sales Amount - COGS Amount",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"minuend\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"op\": \"delta\", \"subtrahend\": {\"kind\": \"measure\", \"name\": \"Cost of Goods Sold Amount\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "List Price Amount",
@@ -59,10 +67,12 @@
             "display_folder": "Commercial",
             "description": "Sum of list price amount at invoice line grain.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"List Price Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Net Price Amount",
@@ -70,10 +80,12 @@
             "display_folder": "Commercial",
             "description": "Sum of net price amount at invoice line grain.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Net Price Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Mix Effect Amount",
@@ -81,10 +93,12 @@
             "display_folder": "Commercial",
             "description": "Total variance - Price Effect - Volume Effect.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"minuend\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"op\": \"delta_chain\", \"subtrahends\": [{\"column\": \"Plan Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}, {\"kind\": \"measure\", \"name\": \"Price Effect Amount\"}, {\"kind\": \"measure\", \"name\": \"Volume Effect Amount\"}]}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "COGS per Unit",
@@ -92,10 +106,12 @@
             "display_folder": "Finance",
             "description": "COGS Amount / Units Sold.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Quantity\", \"kind\": \"column\", \"table\": \"fact_sales\"}, \"numerator\": {\"kind\": \"measure\", \"name\": \"Cost of Goods Sold Amount\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Cost of Goods Sold Amount",
@@ -103,10 +119,12 @@
             "display_folder": "Commercial",
             "description": "Sum of invoice line COGS amounts.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Cost of Goods Sold Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Incremental Gross Margin Amount",
@@ -114,10 +132,12 @@
             "display_folder": "Commercial",
             "description": "Incremental sales minus incremental COGS; proxy here as share of incremental sales.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"minuend\": {\"kind\": \"expr\", \"op\": \"mul\", \"terms\": [{\"kind\": \"measure\", \"name\": \"Incremental Sales Amount\"}, {\"denominator\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"kind\": \"expr\", \"numerator\": {\"kind\": \"measure\", \"name\": \"Gross Margin Amount\"}, \"op\": \"ratio\"}]}, \"op\": \"delta\", \"subtrahend\": {\"kind\": \"measure\", \"name\": \"Promo Cost\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Price Effect Amount",
@@ -125,10 +145,12 @@
             "display_folder": "Commercial",
             "description": "(Actual Price - Plan Price) x Actual Quantity.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"net_price_column\": \"Net Sales Amount\", \"op\": \"pvm_price_effect\", \"plan_quantity_column\": \"Plan Quantity\", \"plan_sales_column\": \"Plan Sales Amount\", \"quantity_column\": \"Quantity\", \"table\": \"fact_sales\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Volume Effect Amount",
@@ -136,15 +158,19 @@
             "display_folder": "Commercial",
             "description": "(Actual Quantity - Plan Quantity) x Plan Price.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"pvm_volume_effect\", \"plan_quantity_column\": \"Plan Quantity\", \"plan_sales_column\": \"Plan Sales Amount\", \"quantity_column\": \"Quantity\", \"table\": \"fact_sales\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -160,10 +186,12 @@
             "display_folder": "Commercial",
             "description": "Sum of baseline sales from promo system.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Baseline Sales Amount\", \"kind\": \"column\", \"table\": \"fact_promo\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Promo Cost",
@@ -171,10 +199,12 @@
             "display_folder": "Commercial",
             "description": "Sum of promo cost from promo systems.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Promo Cost\", \"kind\": \"column\", \"table\": \"fact_promo\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Incremental Sales Amount",
@@ -182,15 +212,19 @@
             "display_folder": "Commercial",
             "description": "Promo Sales Amount - Baseline Sales Amount",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"minuend\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"op\": \"delta\", \"subtrahend\": {\"kind\": \"measure\", \"name\": \"Baseline Sales Amount\"}}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -206,15 +240,19 @@
             "display_folder": "COM-002",
             "description": "Presentation-layer selector for the COM-002 Main_2 PVM bridge waterfall -- returns the active Driver category's effect measure so a single Y-role measure can serve a 3-bar breakdown chart.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"cases\": [{\"value\": {\"kind\": \"measure\", \"name\": \"Plan Sales Amount\"}, \"when\": \"Plan Sales\"}, {\"value\": {\"kind\": \"measure\", \"name\": \"Price Effect Amount\"}, \"when\": \"Price Effect\"}, {\"value\": {\"kind\": \"measure\", \"name\": \"Volume Effect Amount\"}, \"when\": \"Volume Effect\"}, {\"value\": {\"kind\": \"measure\", \"name\": \"Mix Effect Amount\"}, \"when\": \"Mix Effect\"}], \"op\": \"selector_switch\", \"selector\": {\"column\": \"Driver\", \"table\": \"dim_pvm_driver\"}}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       }
     ],
@@ -223,12 +261,14 @@
       {
         "name": "commercial_controlling_lead",
         "model_permission": "read",
+        "description": "",
         "table_permissions": [],
         "column_permissions": []
       },
       {
         "name": "commercial_bi_pricing_analytics_lead",
         "model_permission": "read",
+        "description": "",
         "table_permissions": [],
         "column_permissions": []
       }
@@ -240,6 +280,9 @@
   "report": {
     "name": "COM-002_Margin_Price_Performance",
     "theme": "",
+    "parsed_filters": [],
+    "exists": true,
+    "is_legacy": false,
     "pages": [
       {
         "name": "page_1_summary",
@@ -263,7 +306,49 @@
             ],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Main_1",
@@ -285,7 +370,49 @@
               "dim_date.Date"
             ],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Main_2",
@@ -307,7 +434,49 @@
               "dim_pvm_driver.Driver"
             ],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Main_3",
@@ -327,7 +496,49 @@
             ],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Slicer_Date",
@@ -345,14 +556,65 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": "dim_date.Date"
+            "slicer_field": "dim_date.Date",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           }
         ],
         "width": 1920,
         "height": 1080,
         "page_type": "Default",
         "has_mobile_layout": false,
-        "is_hidden": false
+        "is_hidden": false,
+        "page_filters": [],
+        "background_image": "",
+        "background_scaling": "Fit",
+        "background_transparency": 0,
+        "frozen": false,
+        "background_color": "",
+        "drillthrough_fields": [],
+        "visual_interactions": [],
+        "parsed_filters": []
       },
       {
         "name": "page_2_execution",
@@ -383,7 +645,49 @@
               "sku"
             ],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "ActionPanel",
@@ -401,17 +705,69 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           }
         ],
         "width": 1920,
         "height": 1080,
         "page_type": "Default",
         "has_mobile_layout": false,
-        "is_hidden": false
+        "is_hidden": false,
+        "page_filters": [],
+        "background_image": "",
+        "background_scaling": "Fit",
+        "background_transparency": 0,
+        "frozen": false,
+        "background_color": "",
+        "drillthrough_fields": [],
+        "visual_interactions": [],
+        "parsed_filters": []
       }
     ],
     "extension_measures": [],
-    "bookmarks": []
+    "bookmarks": [],
+    "report_dir": null
   }
 }

@@ -62,6 +62,11 @@ _MER_REL = "core/dataarch_engine/blueprint"
 _ALU_REL = "tooling/superversion"
 _ODCS_PUBLIC = ("to_odcs", "emit_odcs", "to_odcs_ingestion", "emit_odcs_ingestion",
                 "from_odcs", "import_sql_table", "odcs_to_catalog", "validate_odcs")
+# The column-contract half (A-20/A-23, Meridian D-581, mirrored 29.09.2026): private in both
+# repos, but it is the mapping `column_specs ⇄ ODCS v3.1 property`. A function added or dropped on
+# one side only means the round-trip means different things here and there.
+_ODCS_COLUMN_SPECS = ("_quality_rule", "_spec_to_property", "_property_to_spec",
+                      "_table_properties", "_catalog_table_for")
 
 # Zweite, stärkere Hälfte des Sensors (SHARED_SUBSTANCE.md Klasse A): die offiziell
 # belegten Emitter werden nicht per Hand nachgezogen, sondern **byte-identisch**
@@ -225,9 +230,12 @@ def sql_type_map(text: str) -> list[list[str]]:
 def _odcs_facts(source: Path) -> dict:
     text = source.read_text(encoding="utf-8")
     version = re.search(r'ODCS_API_VERSION\s*=\s*"([^"]+)"', text)
+    columns = re.search(r'ODCS_API_VERSION_SPALTEN\s*=\s*"([^"]+)"', text)
     defs = set(re.findall(r'^def (\w+)\(', text, re.M))
     return {"api_version": version.group(1) if version else None,
+            "api_version_columns": columns.group(1) if columns else None,
             "public_api": sorted(d for d in defs if d in _ODCS_PUBLIC),
+            "column_specs_api": sorted(d for d in defs if d in _ODCS_COLUMN_SPECS),
             "sql_type_map": sql_type_map(text)}
 
 

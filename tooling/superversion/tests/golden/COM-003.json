@@ -15,15 +15,19 @@
             "display_folder": "Customer & Market",
             "description": "Sum of expected future gross margin per customer discounted over the chosen time horizon.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"key_column\": \"CustomerKey\", \"op\": \"avgx_over_key\", \"table\": \"fact_customer_value\", \"value\": {\"column\": \"CLV Amount\", \"kind\": \"column\", \"table\": \"fact_customer_value\"}}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -39,10 +43,12 @@
             "display_folder": "Customer & Market",
             "description": "Sum of net sales amount from first purchase to date for the customer.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"key_column\": \"CustomerKey\", \"op\": \"sumx_over_key\", \"table\": \"fact_sales\", \"value\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Revenue at Risk Amount",
@@ -50,10 +56,12 @@
             "display_folder": "Customer & Market",
             "description": "Net Sales Amount × (Churned Customers / Active Customers).",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"mul\", \"terms\": [{\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, {\"denominator\": {\"column\": \"CustomerKey\", \"filters\": [{\"column\": \"Activity Flag\", \"equals\": true, \"table\": \"fact_customer_events\"}], \"kind\": \"expr\", \"op\": \"distinctcount\", \"table\": \"fact_customer_events\"}, \"kind\": \"expr\", \"numerator\": {\"column\": \"CustomerKey\", \"filters\": [{\"column\": \"Churn Flag\", \"equals\": true, \"table\": \"fact_customer_events\"}], \"kind\": \"expr\", \"op\": \"distinctcount\", \"table\": \"fact_customer_events\"}, \"op\": \"ratio\"}]}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Net Sales Amount",
@@ -61,10 +69,12 @@
             "display_folder": "Commercial",
             "description": "Sum of all invoice line amounts net of VAT and returns.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Net Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Cost of Goods Sold Amount",
@@ -72,15 +82,19 @@
             "display_folder": "Commercial",
             "description": "Sum of invoice line COGS amounts.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Cost of Goods Sold Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -96,10 +110,12 @@
             "display_folder": "Customer & Market",
             "description": "(Active Customers at end of period) / (Active Customers at start of period).",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"CustomerKey\", \"filters\": [{\"column\": \"Activity Flag\", \"equals\": true, \"table\": \"fact_customer_events\"}], \"kind\": \"expr\", \"op\": \"distinctcount\", \"table\": \"fact_customer_events\"}, \"numerator\": {\"column\": \"CustomerKey\", \"filters\": [{\"column\": \"Activity Flag\", \"equals\": true, \"table\": \"fact_customer_events\"}, {\"column\": \"Churn Flag\", \"equals\": false, \"table\": \"fact_customer_events\"}], \"kind\": \"expr\", \"op\": \"distinctcount\", \"table\": \"fact_customer_events\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Churned Customers",
@@ -107,10 +123,12 @@
             "display_folder": "Customer & Market",
             "description": "Distinct customers with no qualifying transactions in the current period but active in the look-back window.",
             "format_string": "",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"CustomerKey\", \"filters\": [{\"column\": \"Churn Flag\", \"equals\": true, \"table\": \"fact_customer_events\"}], \"op\": \"distinctcount\", \"table\": \"fact_customer_events\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Active Customers",
@@ -118,15 +136,19 @@
             "display_folder": "Customer & Market",
             "description": "Distinct customers with at least one qualifying transaction in the period.",
             "format_string": "",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"CustomerKey\", \"filters\": [{\"column\": \"Activity Flag\", \"equals\": true, \"table\": \"fact_customer_events\"}], \"op\": \"distinctcount\", \"table\": \"fact_customer_events\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -142,15 +164,19 @@
             "display_folder": "Customer & Market",
             "description": "(%Promoters - %Detractors) from survey responses in the period.",
             "format_string": "",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"digits\": 0, \"op\": \"round\", \"value\": {\"denominator\": {\"kind\": \"expr\", \"op\": \"count\", \"table\": \"fact_nps\"}, \"kind\": \"expr\", \"numerator\": {\"kind\": \"expr\", \"minuend\": {\"column\": \"NPS Score\", \"comparator\": \">=\", \"kind\": \"expr\", \"op\": \"count_threshold\", \"table\": \"fact_nps\", \"value\": 9}, \"op\": \"delta\", \"subtrahend\": {\"column\": \"NPS Score\", \"comparator\": \"<=\", \"kind\": \"expr\", \"op\": \"count_threshold\", \"table\": \"fact_nps\", \"value\": 6}}, \"op\": \"ratio\", \"scale\": 100}}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -166,10 +192,12 @@
             "display_folder": "Customer & Market",
             "description": "Count of complaint records in the complaint/service system.",
             "format_string": "",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Complaint Count\", \"kind\": \"column\", \"table\": \"fact_complaints\"}}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Complaint Rate %",
@@ -177,15 +205,19 @@
             "display_folder": "Operations",
             "description": "Complaint Count / Units Shipped.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Shipped Units\", \"kind\": \"column\", \"table\": \"fact_shipments\"}, \"numerator\": {\"column\": \"Complaint Count\", \"kind\": \"column\", \"table\": \"fact_complaints\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -201,15 +233,19 @@
             "display_folder": "Operations",
             "description": "Sum of cost impacts for quality failures in period.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"COPQ Amount\", \"kind\": \"column\", \"table\": \"fact_quality_costs\"}}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -225,10 +261,12 @@
             "display_folder": "Operations",
             "description": "(Defect Count / Total Units) * 1,000.",
             "format_string": "",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Total Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"numerator\": {\"column\": \"Defect Count\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\", \"scale\": 1000}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "First Pass Yield %",
@@ -236,10 +274,12 @@
             "display_folder": "Operations",
             "description": "Good Units / Total Units.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Total Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"numerator\": {\"column\": \"Good Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Rework Rate %",
@@ -247,10 +287,12 @@
             "display_folder": "Operations",
             "description": "Reworked Units / Total Units.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Total Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"numerator\": {\"column\": \"Rework Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "Scrap Rate %",
@@ -258,15 +300,19 @@
             "display_folder": "Operations",
             "description": "Scrap Units / Total Units.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Total Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"numerator\": {\"column\": \"Scrap Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -282,10 +328,12 @@
             "display_folder": "Supply Chain",
             "description": "In-Full Deliveries / Total Deliveries.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"In-Full Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "On-Time %",
@@ -293,10 +341,12 @@
             "display_folder": "Supply Chain",
             "description": "On-Time Deliveries / Total Deliveries.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"On-Time Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
+            },
+            "synonyms": []
           },
           {
             "name": "OTIF %",
@@ -304,15 +354,19 @@
             "display_folder": "Supply Chain",
             "description": "OTIF Orders / Total Orders.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       },
       {
@@ -328,15 +382,19 @@
             "display_folder": "Supply Chain",
             "description": "Lost Demand Qty / Total Demand Qty.",
             "format_string": "0.0%",
+            "format_string_definition": "",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"numerator\": {\"column\": \"Lost Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"op\": \"ratio\"}"
-            }
+            },
+            "synonyms": []
           }
         ],
         "has_partition": false,
         "partition_type": "",
         "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
         "hierarchy_columns": []
       }
     ],
@@ -345,12 +403,14 @@
       {
         "name": "commercial_controlling_lead",
         "model_permission": "read",
+        "description": "",
         "table_permissions": [],
         "column_permissions": []
       },
       {
         "name": "sales_ops_bi_lead",
         "model_permission": "read",
+        "description": "",
         "table_permissions": [],
         "column_permissions": []
       }
@@ -362,6 +422,9 @@
   "report": {
     "name": "COM-003_Customer_Value",
     "theme": "",
+    "parsed_filters": [],
+    "exists": true,
+    "is_legacy": false,
     "pages": [
       {
         "name": "page_1_summary",
@@ -385,7 +448,49 @@
             ],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Main_1",
@@ -405,7 +510,49 @@
             ],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Main_2",
@@ -425,7 +572,49 @@
             ],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Main_3",
@@ -447,7 +636,49 @@
               "dim_customer.Segment"
             ],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "Slicer_Date",
@@ -465,14 +696,65 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": "dim_date.Date"
+            "slicer_field": "dim_date.Date",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           }
         ],
         "width": 1920,
         "height": 1080,
         "page_type": "Default",
         "has_mobile_layout": false,
-        "is_hidden": false
+        "is_hidden": false,
+        "page_filters": [],
+        "background_image": "",
+        "background_scaling": "Fit",
+        "background_transparency": 0,
+        "frozen": false,
+        "background_color": "",
+        "drillthrough_fields": [],
+        "visual_interactions": [],
+        "parsed_filters": []
       },
       {
         "name": "page_2_execution",
@@ -504,7 +786,49 @@
               "channel"
             ],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           },
           {
             "visual_id": "ActionPanel",
@@ -522,17 +846,69 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": ""
+            "slicer_field": "",
+            "slicer_style": "",
+            "sync_group": "",
+            "ref_value_units": "",
+            "ref_detail_units": "",
+            "value_specs": [],
+            "row_subtotals": null,
+            "column_subtotals": null,
+            "conditional": null,
+            "objects": {},
+            "container": {},
+            "column_widths": {},
+            "tooltip_measures": [],
+            "category_field": "",
+            "category_fields": [],
+            "legend_field": "",
+            "line_measures": [],
+            "display_units": "",
+            "card_precision": null,
+            "reference_labels": [],
+            "top_n": null,
+            "sort_spec": {},
+            "visual_filters": [],
+            "bound_columns": [],
+            "shows_items_with_no_data": false,
+            "parsed_filters": [],
+            "text": "",
+            "text_bg": "",
+            "text_color": "",
+            "text_font_size": 0,
+            "nav_target": "",
+            "accent_fill": "",
+            "shape_fill": "",
+            "shape_radius": 0,
+            "image_name": "",
+            "image_fit": "",
+            "nav_orientation": "",
+            "nav_show_hidden": false,
+            "reference_lines": [],
+            "raw_objects": {},
+            "sort_keys": [],
+            "value_axis_start": null,
+            "decorative_objects": []
           }
         ],
         "width": 1920,
         "height": 1080,
         "page_type": "Default",
         "has_mobile_layout": false,
-        "is_hidden": false
+        "is_hidden": false,
+        "page_filters": [],
+        "background_image": "",
+        "background_scaling": "Fit",
+        "background_transparency": 0,
+        "frozen": false,
+        "background_color": "",
+        "drillthrough_fields": [],
+        "visual_interactions": [],
+        "parsed_filters": []
       }
     ],
     "extension_measures": [],
-    "bookmarks": []
+    "bookmarks": [],
+    "report_dir": null
   }
 }
