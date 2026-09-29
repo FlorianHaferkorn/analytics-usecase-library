@@ -9,9 +9,9 @@
     "#365431",
     "#698764",
     "#3D5E37",
-    "#4E6C47"
+    "#5F7A59"
   ],
-  "minimum": "#8B928A",
+  "minimum": "#899187",
   "center": "#F0F0F0",
   "maximum": "#44693D",
   "firstLevelElements": "#252423",
@@ -22,8 +22,8 @@
   "secondaryBackground": "#FFFFFF",
   "accent": "#E6E9EC",
   "tableAccent": "#E6E9EC",
-  "hyperlink": "#0078D4",
-  "visitedHyperlink": "#0078D4",
+  "hyperlink": "#0067B8",
+  "visitedHyperlink": "#0067B8",
   "good": "#519872",
   "neutral": "#F6AE2D",
   "bad": "#EC4E20",
