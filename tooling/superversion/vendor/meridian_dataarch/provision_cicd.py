@@ -110,6 +110,43 @@ jobs:
 """
 
 
+def emit_secret_scan(python_version: str = "3.11") -> str:
+    """GitHub-Actions-Workflow: Geheimnis-Scan auf jedem PR (I-21 W5.4 e).
+
+    Der CI/CD-Leitfaden verlangt „never commit credentials“, die Azure-Sicherheitsbaseline (IM-8)
+    einen Credential-Scanner auf Code. Erste Wahl bleibt GitHub Secret Scanning mit Push Protection
+    in den Repo-Einstellungen; dieser Job ist das Tor für Repos ohne diese Funktion. Werkzeug:
+    `detect-secrets` (PyPI, gepinnt 1.5.0, gemessen 29.09.2026) — pip-basiert wie das
+    Architektur-Gate, ohne Lizenzschlüssel."""
+    return f"""# secret-scan — fail the PR when a credential-like string is committed (I-21 W5.4 e).
+# First choice: enable GitHub Secret Scanning + Push Protection in the repository settings.
+# This job is the gate for repos without it. To accept a reviewed false positive, create a
+# baseline once (`detect-secrets scan > .secrets.baseline`) and review it in the PR.
+name: secret-scan
+on:
+  pull_request: {{}}
+  workflow_dispatch: {{}}
+jobs:
+  detect-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "{python_version}"
+      - name: Install detect-secrets (pinned)
+        run: pip install detect-secrets==1.5.0
+      - name: Scan working tree
+        run: |
+          if [ -f .secrets.baseline ]; then
+            git ls-files -z | xargs -0 detect-secrets-hook --baseline .secrets.baseline
+          else
+            detect-secrets scan --all-files > _secrets.json
+            python -c "import json,sys; r=json.load(open('_secrets.json'))['results']; print(json.dumps(r, indent=1)); sys.exit(1 if r else 0)"
+          fi
+"""
+
+
 def emit_ci_gate_azure(architecture_path: str = "data_architecture.json",
                        stack: str = "fabric", python_version: str = "3.11") -> str:
     """Return the **Azure Pipelines** twin of ``emit_ci_gate`` — same gate, other CI host.
@@ -237,6 +274,17 @@ def emit_cd_promotion(blueprint: dict, stages: tuple[str, ...] = _DEFAULT_STAGES
     return "\n".join(lines) + "\n"
 
 
+def _git_directory(git: dict, workspace: str, n_workspaces: int) -> str:
+    """Git-Ordner je Workspace. Mehrere Workspaces auf einem Branch brauchen je einen eigenen
+    Ordner (Learn `fundamentals/understand-best-practices-fabric-cicd`, Git folder settings,
+    Szenario 2: z. B. `/workspace/staging` und `/workspace/presentation`); derselbe Ordner für alle
+    ließe die Workspaces sich gegenseitig überschreiben (I-21 W5.4 a)."""
+    if n_workspaces <= 1:
+        return git.get("directory", "/")
+    base = git.get("directory", "/workspace").rstrip("/")
+    return f"{base}/{workspace}"
+
+
 def emit_gitflow_promotion(blueprint: dict, stages: tuple[str, ...] = _DEFAULT_STAGES,
                            git: dict | None = None) -> str:
     """CD via **Git integration + GitFlow** (MS Option 1): one primary branch per stage,
@@ -257,7 +305,7 @@ def emit_gitflow_promotion(blueprint: dict, stages: tuple[str, ...] = _DEFAULT_S
         "#   POST /v1/workspaces/{id}/git/updateFromGit    — pull the branch into the workspace",
         "",
         f"# Stage branches (GitFlow): {', '.join(stages)}",
-        f"#   provider={git.get('provider', '<GitHub|AzureDevOps>')} repo={git.get('repository', '<repo>')} dir={git.get('directory', '/')}",
+        f"#   provider={git.get('provider', '<GitHub|AzureDevOps>')} repo={git.get('repository', '<repo>')} dir={git.get('directory', '/workspace')}/<workspace> (ein Ordner je Workspace)",
         "",
         "# 1. Bind each stage workspace to its stage branch (once).",
     ]
@@ -265,7 +313,7 @@ def emit_gitflow_promotion(blueprint: dict, stages: tuple[str, ...] = _DEFAULT_S
         for st in stages:
             lines.append(f'#   {name} ({role}) @ {st} → branch "{st}"')
             lines.append(f'#   fab api "workspaces/<{name}-{st}-workspace-id>/git/connect" -X POST -i - <<JSON')
-            lines.append(f'#   {{"gitProviderDetails":{{"branchName":"{st}","directoryName":"{git.get("directory", "/")}"}}}}')
+            lines.append(f'#   {{"gitProviderDetails":{{"branchName":"{st}","directoryName":"{_git_directory(git, name, len(workspaces))}"}}}}')
             lines.append("#   JSON")
     lines += ["", "# 2. Promote by PR between stage branches, then update-from-git into the target workspace."]
     for i, st in enumerate(stages):
@@ -298,13 +346,21 @@ GitHub/ADO. Customer workspace ids + per-customer parameters come from customers
 committed — like connections/governance maps).
 """
 import json
+import os
 from pathlib import Path
 
-# fabric-cicd is the MS-supported deploy library (Official-First). pip install fabric-cicd
+# fabric-cicd is the MS-supported deploy library (Official-First). pip install fabric-cicd==1.3.0
+from azure.identity import ClientSecretCredential
 from fabric_cicd import FabricWorkspace, publish_all_items
 
 REPO_DIR = "."                      # item definitions live in the repo (main)
 CUSTOMERS = json.loads(Path("customers.json").read_text(encoding="utf-8"))["customers"]
+# Service principal from the environment (CI secrets, never committed).
+CREDENTIAL = ClientSecretCredential(
+    tenant_id=os.environ["AZURE_TENANT_ID"],
+    client_id=os.environ["AZURE_CLIENT_ID"],
+    client_secret=os.environ["AZURE_CLIENT_SECRET"],
+)
 
 for c in CUSTOMERS:                 # e.g. {{"name":..., "workspace_id":..., "environment":"prod"}}
     print(f"deploying to {{c['name']}} ({{c['workspace_id']}})")
@@ -312,6 +368,7 @@ for c in CUSTOMERS:                 # e.g. {{"name":..., "workspace_id":..., "en
         workspace_id=c["workspace_id"],
         environment=c.get("environment", "prod"),   # picks the value-set in parameter.yml
         repository_directory=REPO_DIR,
+        token_credential=CREDENTIAL,                # required by fabric-cicd
     )
     publish_all_items(ws)           # add unpublish_all_orphan_items(ws) if you prune per customer
 print("ISV per-customer release complete.")
@@ -591,6 +648,7 @@ def emit_cicd(blueprint: dict, architecture_path: str = "data_architecture.json"
                          f"choose one of {sorted(_DEPLOYMENT_MODELS)}")
     out = {"cicd/architecture-gate.yml": emit_ci_gate(architecture_path, stack),
            "cicd/azure-pipelines-architecture-gate.yml": emit_ci_gate_azure(architecture_path, stack),
+           "cicd/secret-scan.yml": emit_secret_scan(),
            "cicd/_DEPLOYMENT_MODEL.md": _deployment_model_doc(deployment_model, blueprint, stages),
            "cicd/_RUECKSPRUNG.md": _ruecksprung_doc(deployment_model, blueprint, stages)}
     out.update(emit_gates(architecture_path, stack, blueprint=blueprint))  # I-19.3 + BK-C04

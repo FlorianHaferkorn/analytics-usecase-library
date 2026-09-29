@@ -13,10 +13,9 @@ construction — never claims automation that Microsoft does not offer):
 - Workspace roles / Domains / Sensitivity labels → idempotent REST/`fab api` templates
   (GA) with GET→diff→apply intent; tenant GUIDs/principals are VERIFY placeholders.
 - OneLake data access roles → a declarative dataAccessRoles PUT payload, **GA since May 2026**
-  (`learn.microsoft.com/fabric/fundamentals/whats-new-archive`, table "Generally available
-  features", row "May 2026 | OneLake security (Generally Available) and OneLake data access roles
-  (Generally Available)" — read 29.09.2026 via MS Learn MCP; the entry has moved from `whats-new`
-  to the archive page. Was labelled Preview here until 11.08.2026).
+  (`learn.microsoft.com/fabric/fundamentals/whats-new-archive`, row "May 2026 · OneLake security
+  (Generally Available) and OneLake data access roles (Generally Available)", read 29.09.2026;
+  was labelled Preview here until 11.08.2026).
 - Endorsement (Promoted/Certified) → an audit + **manual runbook**, because Fabric exposes
   **no supported write API** for endorsement (set is portal-only).
 
@@ -703,8 +702,7 @@ def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None =
     Grounded in the REST reference *OneLake Data Access Security — Create Or Update Data Access
     Roles*: ``PUT /v1/workspaces/{ws}/items/{itemId}/dataAccessRoles``. OneLake security and
     OneLake data access roles are **GA since May 2026** (MS Learn what's-new, retrieved
-    10.08.2026; re-read 29.09.2026 in `fabric/fundamentals/whats-new-archive`, row "May 2026 |
-    OneLake security (Generally Available)"); the Preview label that stood here was stale. Honest by
+    10.08.2026; since moved to what's-new-archive, re-read 29.09.2026); the Preview label that stood here was stale. Honest by
     construction — only the IR-derivable parts are filled, the policy parts are workshop-owned:
 
     - **Table access (OLS)** ← the domain's gold products. Each rule carries the two mandatory
