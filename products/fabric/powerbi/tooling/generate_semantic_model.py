@@ -141,11 +141,14 @@ def quote_if_spaces(name: str) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def load_data_contract(domain: str) -> dict:
-    """Load and index a data contract by table name."""
+    """Load and index a data contract by table name (domain view: a conformed table comes from
+    its owner's definition, narrowed to ``uses_columns`` — ``tooling/utils/data_contracts.py``)."""
+    from tooling.utils.data_contracts import load_resolved_contract
+
     contract_file = DATA_CONTRACTS / DOMAIN_CONTRACT[domain]
     if not contract_file.exists():
         raise FileNotFoundError(f"Data contract not found: {contract_file}")
-    raw = load_yaml(contract_file)
+    raw = load_resolved_contract(contract_file)
     tables = {}
     for section in ("dimension", "fact"):
         for tbl in raw.get(section, []):

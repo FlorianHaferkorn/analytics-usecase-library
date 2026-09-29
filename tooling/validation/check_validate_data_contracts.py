@@ -14,6 +14,13 @@ Structured quality fields (A-20/A-23, see core/data_contracts/domains/README.md)
   (number), ``between`` ([lo, hi], lo <= hi, inclusive), ``in`` (non-empty list of scalars),
   ``gte_column`` / ``lte_column`` (another column of the same table), plus optional
   ``when_present: true``.
+
+Conformed tables (Bus-Matrix, 29.09.2026, hard rule): every table name has **exactly one**
+definition across all contracts; every other domain refers to it with
+``{name, conformed_from: <owning domain>[, uses_columns: [...]]}`` — no columns, no own table
+fields. The reference must name a domain that defines the table in the same section, and every
+``uses_columns`` entry must be a column of that definition (``tooling/utils/data_contracts.py``
+resolves the domain view).
 """
 
 import argparse
@@ -30,6 +37,12 @@ except ImportError:
         print("FAIL: PyYAML required. Install with: pip install pyyaml", file=sys.stderr)
         sys.exit(1)
     raise
+
+if __package__ in (None, ""):          # run as a script: make `tooling.` importable
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tooling.utils.data_contracts import (  # noqa: E402
+    CONFORMED_FROM, REFERENCE_KEYS, SECTIONS, USES_COLUMNS, is_reference,
+)
 
 
 def resolve_root(root_arg: str) -> Path:
@@ -137,6 +150,9 @@ def validate_contract(data) -> list[str]:
                 errors.append(f"{kind} entry missing name")
                 continue
             tname = tbl["name"]
+            if is_reference(tbl):
+                errors.extend(f"{tname}: {e}" for e in check_reference(tbl))
+                continue
             if kind == "fact" and not tbl.get("grain"):
                 errors.append(f"fact '{tname}' missing grain")
             if "showcase" in tbl and not isinstance(tbl["showcase"], bool):
@@ -146,7 +162,93 @@ def validate_contract(data) -> list[str]:
             for col in cols:
                 for err in check_column(col, names):
                     errors.append(f"{tname}.{col.get('name', '?')}: {err}")
+            if USES_COLUMNS in tbl:
+                errors.extend(f"{tname}: {e}" for e in check_uses_columns(tbl[USES_COLUMNS], names))
     return errors
+
+
+def check_uses_columns(uses, columns: set[str]) -> list[str]:
+    """Errors of a ``uses_columns`` list against the columns of the definition it narrows."""
+    if not (isinstance(uses, list) and uses and all(isinstance(u, str) and u for u in uses)):
+        return [f"{USES_COLUMNS} must be a non-empty list of column names, got {uses!r}"]
+    errors = []
+    dup = sorted({u for u in uses if uses.count(u) > 1})
+    if dup:
+        errors.append(f"{USES_COLUMNS} lists {dup} more than once")
+    missing = [u for u in uses if u not in columns]
+    if missing:
+        errors.append(f"{USES_COLUMNS} {missing} not in the definition")
+    return errors
+
+
+def check_reference(tbl: dict) -> list[str]:
+    """Structure of one conformed reference (the owner is checked across contracts)."""
+    errors = []
+    extra = sorted(set(tbl) - REFERENCE_KEYS)
+    if extra:
+        errors.append(f"reference to '{tbl.get(CONFORMED_FROM)}' must not carry {extra} — "
+                      "the owner's definition is the only one")
+    owner = tbl.get(CONFORMED_FROM)
+    if not isinstance(owner, str) or not owner:
+        errors.append(f"{CONFORMED_FROM} must name the owning domain, got {owner!r}")
+    if USES_COLUMNS in tbl and not (isinstance(tbl[USES_COLUMNS], list) and tbl[USES_COLUMNS]):
+        errors.append(f"{USES_COLUMNS} must be a non-empty list of column names")
+    return errors
+
+
+def validate_conformance(contracts: dict[str, dict]) -> dict[str, list[str]]:
+    """Cross-contract rule: one definition per table; every reference resolves.
+
+    ``contracts`` maps a label (file path) to the parsed contract. Returns label → errors.
+    """
+    errors: dict[str, list[str]] = {}
+    definitions: dict[str, list[tuple[str, str, str, dict]]] = {}
+    domains: dict[str, str] = {}
+    for label, doc in contracts.items():
+        if not isinstance(doc, dict):
+            continue
+        dom = str(doc.get("domain") or Path(label).stem)
+        domains[dom] = label
+        for section in SECTIONS:
+            tables = doc.get(section) or []
+            for tbl in tables if isinstance(tables, list) else [tables]:
+                if isinstance(tbl, dict) and tbl.get("name") and not is_reference(tbl):
+                    definitions.setdefault(tbl["name"], []).append((label, dom, section, tbl))
+    for name, defs in sorted(definitions.items()):
+        if len(defs) > 1:
+            where = ", ".join(sorted(d[1] for d in defs))
+            for label, *_ in defs:
+                errors.setdefault(label, []).append(
+                    f"{name}: defined in {len(defs)} contracts ({where}) — one definition, "
+                    f"the others refer with {CONFORMED_FROM}")
+    for label, doc in contracts.items():
+        if not isinstance(doc, dict):
+            continue
+        dom = str(doc.get("domain") or Path(label).stem)
+        for section in SECTIONS:
+            tables = doc.get(section) or []
+            for tbl in tables if isinstance(tables, list) else [tables]:
+                if not is_reference(tbl):
+                    continue
+                name, owner = tbl.get("name"), tbl.get(CONFORMED_FROM)
+                own = [d for d in definitions.get(name, []) if d[1] == owner]
+                msg = None
+                if owner == dom:
+                    msg = f"{name}: {CONFORMED_FROM} points to its own domain"
+                elif owner not in domains:
+                    msg = f"{name}: {CONFORMED_FROM} '{owner}' is no domain contract"
+                elif not own:
+                    msg = f"{name}: '{owner}' does not define {name}"
+                elif own[0][2] != section:
+                    msg = f"{name}: '{owner}' defines it as {own[0][2]}, referenced as {section}"
+                if msg:
+                    errors.setdefault(label, []).append(msg)
+                    continue
+                cols = {c.get("name") for c in own[0][3].get("columns") or [] if isinstance(c, dict)}
+                if isinstance(tbl.get(USES_COLUMNS), list):
+                    errors.setdefault(label, []).extend(
+                        f"{name}: {e}" for e in check_uses_columns(tbl[USES_COLUMNS], cols))
+    return {k: v for k, v in errors.items() if v}
 
 
 def main() -> int:
@@ -170,19 +272,23 @@ def main() -> int:
         return 0
 
     yaml_files = sorted(contracts_dir.glob("*.yaml"))
+    parsed: dict[str, dict] = {}
+    per_file: dict[str, list[str]] = {}
     for file_path in yaml_files:
-        rel_path = file_path.relative_to(root_path).as_posix().replace("\\", "/")
         contract_path = f"core/data_contracts/domains/{file_path.name}"
         try:
             raw = file_path.read_text(encoding="utf-8")
-            errors = validate_contract(yaml.safe_load(raw))
+            doc = yaml.safe_load(raw)
+            parsed[contract_path] = doc
+            per_file[contract_path] = validate_contract(doc)
         except Exception as e:
-            errors = [str(e)]
+            per_file[contract_path] = [str(e)]
+    for label, errs in validate_conformance(parsed).items():
+        per_file.setdefault(label, []).extend(errs)
+    for contract_path, errors in per_file.items():
         for err in errors:
-            print(f"FAIL {rel_path} : {err}")
-        file_failed = bool(errors)
-
-        if file_failed:
+            print(f"FAIL {contract_path} : {err}")
+        if errors:
             failed_contracts.append(contract_path)
 
     results_dir.mkdir(parents=True, exist_ok=True)

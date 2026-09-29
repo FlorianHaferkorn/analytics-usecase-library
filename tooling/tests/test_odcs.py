@@ -226,10 +226,11 @@ def test_without_catalog_stays_v300_and_needs_no_mirror(monkeypatch):
 
 def _domain_catalogs() -> list[tuple[str, dict, dict]]:
     """One (domain, governed catalog, blueprint) per real contract file under
-    core/data_contracts/domains — every contract table is a gold product of its domain.
+    core/data_contracts/domains — every table the domain owns is a gold product of its domain.
 
-    Per domain, because the full catalog is not unique by table name (see
-    ``test_catalog_table_names_collide_across_domains``) and ``to_odcs`` looks tables up by name.
+    Per owning domain, as ODCS carries one contract per owning domain; since 29.09.2026 the full
+    catalog is unique by table name (``test_catalog_table_names_are_unique``), so a conformed
+    table sits in the contract of its owner only.
     """
     full = build_governed_catalog(REPO)
     out = []
@@ -301,20 +302,21 @@ def test_real_contract_checks_become_executable_quality_rules():
     assert rules == expected > 0
 
 
-def test_catalog_table_names_collide_across_domains():
-    """Exact ratchet on a measured catalog property (29.09.2026): the same table name lives in
-    several domain contracts with DIFFERENT column_specs (dim_date in 12, dim_org in 12, …).
-    Every name-keyed consumer — ``to_odcs`` here, Meridian's ``_katalog_tabelle`` for
-    ``emit_dq_gates``/``emit_mlv`` — sees only the first entry. Change this number deliberately."""
+def test_catalog_table_names_are_unique():
+    """Exact ratchet on a measured catalog property. Until 29.09.2026 the same table name lived in
+    several domain contracts with DIFFERENT column_specs (139 entries under 108 names; dim_customer,
+    dim_date, dim_org, dim_product, fact_inventory, fact_nps, fact_safety, fact_sales), and every
+    name-keyed consumer — ``to_odcs`` here, Meridian's ``_katalog_tabelle`` for
+    ``emit_dq_gates``/``emit_mlv`` — saw only the first entry. Bus-Matrix since then: one definition
+    per table, the other domains refer (``conformed_from``); zero collisions, and the validator
+    rejects a second definition."""
     full = build_governed_catalog(REPO)
     by_name: dict[str, list[dict]] = {}
     for t in full["tables"]:
         by_name.setdefault(t["name"], []).append(t)
-    colliding = sorted(n for n, ts in by_name.items()
-                       if len(ts) > 1 and any(t["column_specs"] != ts[0]["column_specs"] for t in ts))
-    assert (len(full["tables"]), len(by_name)) == (139, 108)
-    assert colliding == ["dim_customer", "dim_date", "dim_org", "dim_product",
-                         "fact_inventory", "fact_nps", "fact_safety", "fact_sales"]
+    colliding = sorted(n for n, ts in by_name.items() if len(ts) > 1)
+    assert (len(full["tables"]), len(by_name)) == (108, 108)
+    assert colliding == []
 
 
 def _meridian_root() -> Path | None:
@@ -340,7 +342,7 @@ def test_same_output_as_meridian_on_real_contracts():
         pytest.skip("no Meridian checkout — parity with Meridian's odcs.py not measured")
     full = build_governed_catalog(REPO)
     cases = [(d, gc, bp) for d, gc, bp in _domain_catalogs()]
-    # plus the full catalog in one go: the name collisions must resolve identically, too
+    # plus the full catalog in one go (unique by name since 29.09.2026, conformed tables included)
     cases.append(("*", full, {
         "platform": {"stack": "fabric"},
         "medallion": {"gold": {"data_products": [{"name": t["name"], "kind": t["kind"]}

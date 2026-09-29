@@ -4,30 +4,12 @@ owner: Operations Data Product
 
 dimension:
   - name: dim_date
-    description: "Calendar dimension with fiscal hierarchy for time slicing."
-    purpose: "Time dimension for operations reporting."
-    scd_type: 1
-    columns:
-      - {name: DateKey, type: int, role: key}
-      - {name: Date, type: date}
-      - {name: Year, type: int}
-      - {name: Quarter, type: text, allowed_values: [Q1, Q2, Q3, Q4]}
-      - {name: Month, type: text}
-      - {name: MonthNumber, type: int}
-      - {name: Week, type: text, nullable: true}
-      - {name: CalendarYearMonth, type: text}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, Date, Year, Quarter, Month, MonthNumber, Week, CalendarYearMonth]
 
   - name: dim_org
-    description: "Organization dimension (plant, line, shift, region) for operations."
-    purpose: "Scoping for production and quality reporting."
-    scd_type: 2
-    columns:
-      - {name: OrgKey, type: int, role: key}
-      - {name: Plant, type: text, nullable: true, synonyms: [Site, Facility, Werk, Standort]}
-      - {name: Line, type: text, nullable: true, allowed_values: [Line A, Line B, Line C, Line D], synonyms: [Production Line, Work Center, Fertigungslinie, Produktionslinie]}
-      - {name: Shift, type: text, nullable: true, allowed_values: [Day Shift, Afternoon Shift, Night Shift], synonyms: [Work Shift, Schicht, Arbeitsschicht]}
-      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Territory, Vertriebsregion]}
-      - {name: Country, type: text, nullable: true}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [OrgKey, Plant, Line, Shift, Region, Country]
 
   - name: dim_asset
     description: "Asset or production line dimension (code, name, class, criticality) for OEE and maintenance."
@@ -42,15 +24,8 @@ dimension:
       - {name: OrgKey, type: int, ref: dim_org}
 
   - name: dim_product
-    description: "Product dimension for quality and output reporting."
-    purpose: "Product-level quality and throughput."
-    scd_type: 2
-    columns:
-      - {name: ProductKey, type: int, role: key}
-      - {name: ProductCode, type: text}
-      - {name: ProductName, type: text}
-      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics], synonyms: [Product Group, Warengruppe, Produktgruppe]}
-      - {name: Subcategory, type: text, nullable: true, allowed_values: [Apparel, Footwear, Accessories, Jewelry, Furniture, Decor, Kitchenware, Bedding, Lighting, TVs, Audio, Computers, Smartphones, Gaming], synonyms: [Sub Category, Untergruppe, Unterkategorie]}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [ProductKey, ProductCode, ProductName, Category, Subcategory]
 
   - name: dim_loss_type
     showcase: false
@@ -194,16 +169,8 @@ fact:
       - {name: Shipped Units, type: decimal, agg: sum}
 
   - name: fact_safety
-    showcase: false
-    description: "Site-month safety facts (incident count, severity, lost-time flag) for EHS reporting."
-    purpose: "Safety incident tracking and lost-time injury monitoring."
-    grain: site_month
-    columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: Incident Count, type: int, agg: sum, checks: [{gte: 0}]}
-      - {name: Severity, type: text, nullable: true}
-      - {name: Lost Time Injury Flag, type: boolean, nullable: true}
+    conformed_from: esg   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, OrgKey, Incident Count, Severity, Lost Time Injury Flag]
 
   # Aus Gold und Modell nachgezogen (A-23, 29.09.2026). Reorder Flag liest das Operations-Modell,
   # Gold hat es noch nicht (A-24, Generator zieht nach).
@@ -231,7 +198,6 @@ quality_rules:
     fact_quality_costs: monthly
     fact_complaints: daily
     fact_shipments: daily
-    fact_safety: monthly
   value_ranges:
     - "fact_quality.Scrap Units + Rework Units: <= Total Units"
     - "fact_quality_costs.COPQ Amount: >= Internal Failure Cost + External Failure Cost"

@@ -4,31 +4,12 @@ owner: Experience / Service Data Product
 
 dimension:
   - name: dim_date
-    description: "Calendar dimension for experience and service reporting."
-    purpose: "Time slicing for cases, WFM, and NPS."
-    scd_type: 1
-    columns:
-      - {name: DateKey, type: int, role: key}
-      - {name: Date, type: date}
-      - {name: Year, type: int}
-      - {name: Quarter, type: text, allowed_values: [Q1, Q2, Q3, Q4]}
-      - {name: Month, type: text}
-      - {name: MonthNumber, type: int}
-      - {name: Week, type: text, nullable: true}
-      - {name: CalendarYearMonth, type: text}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, Date, Year, Quarter, Month, MonthNumber, Week, CalendarYearMonth]
 
   - name: dim_org
-    description: "Organization dimension (region, channel, queue, agent group) for experience."
-    purpose: "Scoping for support cases and WFM."
-    scd_type: 2
-    columns:
-      - {name: OrgKey, type: int, role: key}
-      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Geography, Territory, Vertriebsregion, Gebiet]}
-      - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Direct, Outlet], synonyms: [Sales Channel, Distribution Channel, Vertriebskanal]}
-      - {name: Queue, type: text, nullable: true, allowed_values: [Order Management, "Returns & Refunds", Technical Support, "Billing & Payments", General Support, VIP Support], synonyms: [Support Queue, Work Queue, Warteschlange, Routing Queue]}
-      - {name: Agent Group, type: text, nullable: true, allowed_values: ["Tier 1 – General", "Tier 2 – Specialist", "Tier 3 – Expert", Back-Office, Escalation Team, VIP Desk], synonyms: [Team, Skill Group, Agententeam, Support Team]}
-      - {name: IssueType, type: text, nullable: true, allowed_values: [Account, Billing, Delivery, Order, Product, Technical]}
-      - {name: Severity, type: text, nullable: true, allowed_values: [Critical, High, Medium, Low]}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [OrgKey, Region, Channel, Queue, Agent Group, IssueType, Severity]
 
   - name: dim_case_queue
     description: "Support case queue dimension (queue name, channel, region)."
@@ -121,13 +102,23 @@ fact:
       - {name: Shrinkage Minutes, type: decimal, agg: sum, nullable: true, checks: [{gte: 0, when_present: true}]}
 
   - name: fact_nps
-    description: "NPS survey facts (score per survey) for experience metrics."
-    purpose: "Net Promoter Score reporting."
-    grain: survey
+    description: "NPS survey responses (score, promoter/detractor flags), one row per response."
+    purpose: "Net Promoter Score and advocacy reporting."
+    grain: survey_response
+    # Konformer Fakt (Bus-Matrix, 29.09.2026): die einzige Definition; commercial_sales verweist.
+    # Spalten aus der commercial_sales-Fassung (trifft Aurora-Gold 7/7, ResponseID eindeutig in
+    # 900 Zeilen); NPS Score ist int (Gold BIGINT, Werte 0-10).
+    uses_columns: [DateKey, OrgKey, NPS Score]
     columns:
+      - {name: ResponseID, type: text, role: key}
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
       - {name: NPS Score, type: int, checks: [{between: [0, 10]}]}
+      - {name: Is Promoter, type: bool, nullable: true}
+      - {name: Is Detractor, type: bool, nullable: true}
+    qa:
+      - "NPS Score in [0;10]; Promoter/Detractor flags mutually exclusive."
 
   # Aus Gold und Modell nachgezogen (A-23, 29.09.2026). Action Code / Responsible Role liest das
   # Experience-Modell, Gold hat sie noch nicht (A-24, Generator zieht nach).

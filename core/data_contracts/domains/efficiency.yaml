@@ -9,27 +9,12 @@ owner: Operations / Finance Data Product (cross-domain)
 
 dimension:
   - name: dim_date
-    description: "Calendar dimension for efficiency reporting."
-    purpose: "Time slicing for productivity and cost-per-unit trends."
-    scd_type: 1
-    columns:
-      - {name: DateKey, type: int, role: key}
-      - {name: Date, type: date}
-      - {name: Year, type: int}
-      - {name: Quarter, type: text}
-      - {name: Month, type: text}
-      - {name: MonthNumber, type: int}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [DateKey, Date, Year, Quarter, Month, MonthNumber]
 
   - name: dim_org
-    description: "Organization/site dimension (plant, line, entity) for efficiency reporting."
-    purpose: "Scoping productivity metrics to plant, line, or cost centre."
-    scd_type: 2
-    columns:
-      - {name: OrgKey, type: int, role: key}
-      - {name: Plant, type: text, nullable: true}
-      - {name: Line, type: text, nullable: true}
-      - {name: CostCentre, type: text, nullable: true, target_state: true}
-      - {name: Region, type: text, nullable: true}
+    conformed_from: commercial_sales   # einzige Definition dort (Bus-Matrix, 29.09.2026)
+    uses_columns: [OrgKey, Plant, Line, CostCentre, Region]
 
   - name: dim_process
     showcase: false

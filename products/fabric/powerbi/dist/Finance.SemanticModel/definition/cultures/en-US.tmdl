@@ -209,6 +209,18 @@ culture en-US
 								}
 							},
 							{
+								"Geo": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Geography": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
 								"Territory": {
 									"Type": "Noun",
 									"State": "Authored"
@@ -216,6 +228,12 @@ culture en-US
 							},
 							{
 								"Vertriebsregion": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Gebiet": {
 									"Type": "Noun",
 									"State": "Authored"
 								}
