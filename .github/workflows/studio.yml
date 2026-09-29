@@ -31,6 +31,8 @@ jobs:
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     name: Studio (typecheck + vitest)
     runs-on: ubuntu-latest
+    # Cap a hung run (default 360 min).
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: studio
@@ -63,6 +65,8 @@ jobs:
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     name: Studio (Playwright e2e)
     runs-on: ubuntu-latest
+    # Cap a hung run (default 360 min); browser install + e2e.
+    timeout-minutes: 25
     defaults:
       run:
         working-directory: studio
