@@ -24,12 +24,15 @@
 | Floor | Verdict | One-line reason |
 |---|:-:|---|
 | **F0** Rechenfähigkeit | 🟢 **grün** (5 MVP-UCs) · 🟡 **offen, geledgert** (11 weitere UCs) | 0/0 BLANK() für die 5 MVP-UCs; 9 einzeln begründete HITL-KPIs über die restlichen 11 UCs, keine stille `BLANK()` |
-| **F1** Official validator | 🔴 **offen** | `powerbi-report-author`-CLI in dieser Umgebung nicht installiert — das eigentliche Gate läuft nicht, sondern skipt strukturell |
+| **F1** Official validator | 🟡 **teilweise** (Nachmessung 29.09.2026, s. u.) · ursprünglich 🔴 | Superversion-Emit COM-001: 0 Errors im offiziellen Validator 0.1.1, in `superversion.yml` blockierend verdrahtet; die 17 ausgelieferten `dist/`-Reports: 23–25 Errors je Report, nur als Ratsche geprüft |
 | **F2** Determinismus | 🟢 **grün** | byte-identischer SHA-256 über 3 `PYTHONHASHSEED`-Werte, frisch reproduziert |
 | **F3** Golden Thread | 🟢 **grün** | 0 Error-Verstöße über alle 5 gehärteten MVP-UCs; 4 Advisory-Warnungen offen benannt |
 | **F4** Standalone-Smoke | 🟢 **grün** | jedes Layer-Tool läuft eigenständig via CLI, live verifiziert; gov/eng/arch-Engines bleiben Beta |
 | **F5** Handover-Doku | 🟢 **grün** | DOCX + MD live erzeugt (I-10.4), Content-Parität getestet |
 | **F6** Real evals | 🟢 **grün** (≥2 Referenz-Ontologien) · 🔴 **offen** (Live-DAX-Ausführung) | Value-Gate-Tests grün über 2 Ontologien; Live-Ausführung gegen ein echtes Fabric-Tenant existiert nicht im Repo und ist in dieser Sandbox nicht herstellbar |
+
+> **Nachtrag 29.09.2026:** F1 ist inzwischen teilweise grün (Superversion-Emit gemessen 0
+> Errors, `dist/` nicht; Nachmessung im F1-Abschnitt). Rot bleibt der zweite Teil von F6.
 
 **Zwei Floors bleiben ehrlich rot: F1 und der zweite Teil von F6.** Beide sind nicht
 "noch nicht gebaut, aber baubar" — beide brauchen eine echte Power-BI/Fabric-Tenant-
@@ -108,6 +111,30 @@ F1-Kriterium — der ECHTE MS-Validator meldet 0 Errors — ist unverifiziert, w
 hier nicht installiert/erreichbar ist. Das ist ein ehrlicher Sandbox-Gap, kein Code-Defekt:
 `e2e_smoke` degradiert korrekt zu `SKIP` statt einen falschen `PASS` vorzutäuschen
 (dieselbe Disziplin wie die I-10.1-Fixes für `bash`-Verfügbarkeit).
+
+**Nachmessung 29.09.2026 (Stand oben vom 08.07. bleibt als Beleg stehen):**
+
+- **Verdrahtung, gelesen:** `.github/workflows/superversion.yml` installiert die CLI gepinnt
+  (`npm install -g @microsoft/powerbi-report-authoring-cli@0.1.1`) und fährt danach
+  `python -m tooling.superversion.e2e_smoke --require-cli` — ohne CLI wird der Schritt rot,
+  nicht übersprungen. Der `pytest`-Schritt desselben Jobs läuft **vor** der Installation;
+  `test_official_validator_zero_errors` wird dort also weiter übersprungen. Stage 1
+  (`stage1.yml`) installiert die CLI nicht; `tooling/tests/test_dist_validator_ratchet.py`
+  überspringt sich dort.
+- **Lokal gemessen** (CLI 0.1.1 per `npm install` in ein Scratch-Präfix, Python-Umgebung aus
+  der CI-`pip`-Liste): `e2e_smoke --require-cli` → `pbir: PASS - check_pbir 0 errors (0 warn)`,
+  Exit 0. Gegenprobe: `pytest tooling/tests/test_dist_validator_ratchet.py
+  tooling/superversion/tests/test_pbir_target.py tooling/superversion/tests/test_e2e_smoke.py`
+  → 46 passed, 0 skipped.
+- **`dist/`-Reports, je Report `powerbi-report-author validate --format json`:** 16 × 25 Errors
+  (5 Warnings), `FIN-001_Cash_Liquidity_Performance.Report` 23 Errors. Die Ratsche
+  (`BASELINE_ERRORS = 25`) hält; die Errors liegen laut Ratschen-Doku im mitgelieferten Theme
+  (Übergabepunkt A, Trennung braucht Desktop).
+- **Verdict: 🟡 teilweise.** Das F1-Kriterium „offizieller Validator 0 Errors" ist für den
+  Superversion-Emit (1 UC) gemessen erfüllt, für die ausgelieferten `dist/`-Reports nicht.
+  Diese kommen aus dem deprecated Prototyp-Renderer, nicht aus dem Superversion-Emit
+  (Ledger A-18 in `_INDEX.md`). Ein grüner CI-Lauf von `superversion.yml` mit echtem Runner
+  ist hier **nicht** gemessen (Actions-Kontingent, `CLAUDE.md`).
 
 ---
 

@@ -15,7 +15,7 @@ py showcases/aurora_group/data/scripts/generate_aurora_gold.py --domain supply_c
 
 **Domains:** `commercial`, `operations`, `supply_chain`, `experience`, `finance` (default: all).
 
-**Prerequisites:** Python with `pandas`, `pyarrow`, and `deltalake` (e.g. `pip install pandas pyarrow deltalake`). Delta Lake format is optional but recommended for date-partitioned facts. The script reads existing gold dimensions (dim_org, dim_date, dim_product, dim_customer) when present to align keys.
+**Prerequisites:** Python with `pandas`, `pyarrow`, and `deltalake` (e.g. `pip install pandas pyarrow deltalake==1.6.2`; the pin matters: deltalake 1.6.6 writes `Fiscal%20Year=...` into `_delta_log`, which `fn_DeltaCurrentFiles` in the semantic models does not decode). Delta Lake format is optional but recommended for date-partitioned facts. The script reads existing gold dimensions (dim_org, dim_date, dim_product, dim_customer) when present to align keys.
 
 **Location:** `showcases/aurora_group/data/scripts/` — orchestrator; output in sibling folder `gold/`. Operations and supply_chain are delegated to `gold/generate_operations_gold.py` and `gold/generate_supply_chain_gold.py` (realistic names, seasonality, full 2020–2024). For RLS, run `py showcases/aurora_group/data/gold/generate_security_user_org.py` (generates `security_user_org` from company org chart).
 
@@ -79,7 +79,7 @@ Get-ChildItem "showcases/aurora_group/data/gold/facts" -Directory |
 
 **Issue:** Fact shows as "Parquet" but should be Delta
 
-- **Solution:** Ensure `deltalake` package is installed: `pip install deltalake`
+- **Solution:** Ensure `deltalake` package is installed: `pip install deltalake==1.6.2` (pinned, see Prerequisites)
 - Regenerate the fact: `py showcases/aurora_group/data/scripts/generate_aurora_gold.py --domain <domain>`
 
 **Issue:** TMDL partition fails to load fact data

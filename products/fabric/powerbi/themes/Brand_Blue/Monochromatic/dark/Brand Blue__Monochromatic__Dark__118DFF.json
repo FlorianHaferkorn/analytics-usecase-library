@@ -8,8 +8,8 @@
     "#94CCFF",
     "#1082EB",
     "#99B5FF",
-    "#1C8CF2",
-    "#9ED1FF"
+    "#1872C5",
+    "#8EBDE6"
   ],
   "minimum": "#48647E",
   "center": "#262626",
@@ -22,8 +22,8 @@
   "secondaryBackground": "#282828",
   "accent": "#E6E9EC",
   "tableAccent": "#E6E9EC",
-  "hyperlink": "#0078D4",
-  "visitedHyperlink": "#0078D4",
+  "hyperlink": "#479EF5",
+  "visitedHyperlink": "#479EF5",
   "good": "#519872",
   "neutral": "#F6AE2D",
   "bad": "#EC4E20",
