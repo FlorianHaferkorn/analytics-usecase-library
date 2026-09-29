@@ -89,18 +89,9 @@ def test_every_table_a_model_reads_exists_in_gold():
 # Die Liste ist eine Sperrklinke: sie darf nur schrumpfen. Eine neue Luecke macht den Test rot,
 # ebenso eine behobene, die noch hier steht. Die Zuordnung ist Flos Entscheidung (Umbenennung im
 # Vertrag oder Spalte im Gold-Generator ergaenzen), nicht geraten.
-BEKANNTE_LUECKEN = {
-    ("Experience", "fact_action_log", "Action Code"),
-    ("Experience", "fact_action_log", "Responsible Role"),
-    ("Finance", "dim_customer", "Region"),
-    ("Finance", "fact_cost", "Material Cost Amount"),
-    ("Finance", "fact_cost", "Overhead Amount"),
-    ("Finance", "fact_inventory", "COGS Amount"),
-    ("Operations", "fact_inventory_snapshot", "Reorder Flag"),
-    ("SupplyChain", "dim_product", "ABC_Class"),
-    ("SupplyChain", "dim_product", "XYZ_Class"),
-    ("SupplyChain", "fact_procurement", "Contract Unit Price"),
-}
+# A-24 (29.09.2026): Gruppen 3 und 4 umgesetzt -- die zehn Spalten ergaenzt der Gold-Generator
+# (`showcases/aurora_group/data/gold/_model_columns.py`, `generate_model_columns.py`). Sperrklinke 10 -> 0.
+BEKANNTE_LUECKEN: set[tuple[str, str, str]] = set()
 
 
 def _quellspalten_ohne_gold() -> set[tuple[str, str, str]]:

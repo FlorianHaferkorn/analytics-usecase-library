@@ -46,6 +46,7 @@ if str(GOLD) not in sys.path:
     sys.path.insert(0, str(GOLD))
 
 from _generator_utils import FACTS_END, FACTS_START, apply_monthly_seasonality, write_fact_delta
+from _model_columns import fact_procurement_spalten  # A-24: Contract Unit Price
 
 DIMS = GOLD / "dimensions"
 FACTS = GOLD / "facts"
@@ -655,7 +656,7 @@ def build_fact_procurement(org_df: pd.DataFrame, vendor_cats: dict[int, list[int
                         "Procurement Amount": round(actual_spend, 2),   # continuity alias for line spend
                         "Vendor Count": 1, "PO Count": 1,
                     })
-    df = pd.DataFrame(rows)
+    df = fact_procurement_spalten(pd.DataFrame(rows))  # A-24: Vertragspreis nur auf Vertragszeilen
     fmt = write_fact_delta(FACTS / "fact_procurement", df, partition_by=["Fiscal Year"])
     real = float(df["Savings Amount"].sum() / df["Savings Target Amount"].sum() * 100)
     onc = float(df["On-Contract Amount"].sum() / df["Addressable Amount"].sum() * 100)
