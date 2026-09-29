@@ -24,14 +24,14 @@
 | Floor | Verdict | One-line reason |
 |---|:-:|---|
 | **F0** Rechenfähigkeit | 🟢 **grün** (5 MVP-UCs) · 🟡 **offen, geledgert** (11 weitere UCs) | 0/0 BLANK() für die 5 MVP-UCs; 9 einzeln begründete HITL-KPIs über die restlichen 11 UCs, keine stille `BLANK()` |
-| **F1** Official validator | 🔴 **offen** | `powerbi-report-author`-CLI in dieser Umgebung nicht installiert — das eigentliche Gate läuft nicht, sondern skipt strukturell |
+| **F1** Official validator | 🟡 **lokal gemessen grün, CI-Messung ausstehend** (Nachtrag 29.09.2026) | CLI 0.1.1 lokal installiert: Validator-Test 0 Errors, dist-Ratsche hält (16×25 + 1×23 ≤ 25), `e2e_smoke --require-cli` PASS; der CI-Schritt lief bis 29.09. vor der CLI-Installation und übersprang die Tests — umgestellt, Lauf auf echtem Runner steht aus |
 | **F2** Determinismus | 🟢 **grün** | byte-identischer SHA-256 über 3 `PYTHONHASHSEED`-Werte, frisch reproduziert |
 | **F3** Golden Thread | 🟢 **grün** | 0 Error-Verstöße über alle 5 gehärteten MVP-UCs; 4 Advisory-Warnungen offen benannt |
 | **F4** Standalone-Smoke | 🟢 **grün** | jedes Layer-Tool läuft eigenständig via CLI, live verifiziert; gov/eng/arch-Engines bleiben Beta |
 | **F5** Handover-Doku | 🟢 **grün** | DOCX + MD live erzeugt (I-10.4), Content-Parität getestet |
 | **F6** Real evals | 🟢 **grün** (≥2 Referenz-Ontologien) · 🔴 **offen** (Live-DAX-Ausführung) | Value-Gate-Tests grün über 2 Ontologien; Live-Ausführung gegen ein echtes Fabric-Tenant existiert nicht im Repo und ist in dieser Sandbox nicht herstellbar |
 
-**Zwei Floors bleiben ehrlich rot: F1 und der zweite Teil von F6.** Beide sind nicht
+**Zwei Floors blieben am 08.07.2026 ehrlich rot: F1 und der zweite Teil von F6.** (F1 seit 29.09.2026 🟡: lokal gemessen grün, CI-Lauf ausstehend — Nachtrag im F1-Abschnitt.) Beide sind nicht
 "noch nicht gebaut, aber baubar" — beide brauchen eine echte Power-BI/Fabric-Tenant-
 Verbindung (installierte, authentifizierte `powerbi-report-author`- bzw. `az`/`fab`-CLI),
 die in dieser Sandbox nicht existiert. Details und der nächste Schritt stehen in der
@@ -108,6 +108,44 @@ F1-Kriterium — der ECHTE MS-Validator meldet 0 Errors — ist unverifiziert, w
 hier nicht installiert/erreichbar ist. Das ist ein ehrlicher Sandbox-Gap, kein Code-Defekt:
 `e2e_smoke` degradiert korrekt zu `SKIP` statt einen falschen `PASS` vorzutäuschen
 (dieselbe Disziplin wie die I-10.1-Fixes für `bash`-Verfügbarkeit).
+
+### Nachtrag 29.09.2026 — lokal gemessen, CI-Lücke geschlossen, CI-Lauf ausstehend
+
+**Befund in der CI (aus der Workflow-Datei gelesen, nicht aus einem Lauf):**
+`.github/workflows/superversion.yml` installierte die CLI gepinnt (0.1.1) und fuhr
+`e2e_smoke --require-cli` blockierend — aber der pytest-Schritt stand **vor** der Installation.
+`test_official_validator_zero_errors` übersprang sich dort also immer, die dist-Ratsche
+(`tooling/tests/test_dist_validator_ratchet.py`) lief in keinem Workflow mit CLI (Stage 1 hat
+keine). Die Tabelle oben verwies für F1 auf „dort läuft dieser Check tatsächlich“ — für den
+Test galt das nicht.
+
+**Umbau:** pytest läuft jetzt nach Node-Setup, CLI-Installation und einer Versionsprüfung
+(`test "$v" = "0.1.1"`) und schließt die Ratsche ein. Neuer Marker `braucht_pbir_cli`
+(Wurzel-`conftest.py`) ersetzt die beiden `skipif`: ohne CLI Skip wie bisher, mit
+`ALUCA_PBIR_CLI_PFLICHT=1` (im Workflow gesetzt) ist die fehlende CLI **rot**, und ein Lauf, in
+dem kein einziger Marker-Test ausgeführt wurde, endet mit Exit 1.
+
+**Lokale Messung (CLI 0.1.1 per `npm i -g --prefix`, Node 22.22.2, Python 3.11, Linux):**
+```
+$ ALUCA_PBIR_CLI_PFLICHT=1 python -m pytest tooling/superversion/ tooling/tests/test_dist_validator_ratchet.py -q -rs
+826 passed, 1 skipped in 388.43s        # der eine Skip: test_dax_parity_legacy.py:397 (dokumentierte Divergenz)
+$ ... test_official_validator_zero_errors + Ratsche, -v
+test_official_validator_zero_errors PASSED · test_no_report_gets_worse_than_the_measured_baseline PASSED · test_baseline_is_not_stale PASSED
+$ python -m tooling.superversion.e2e_smoke --require-cli
+[e2e] pbir: PASS - check_pbir 0 errors (0 warn)
+```
+Gegenprobe ohne CLI, gleicher Aufruf auf dem Stand vor dem Umbau: `823 passed, 2 skipped`
+(der zweite Skip ist der Validator-Test). Ratsche direkt nachgezählt
+(`powerbi-report-author validate <Report> --format json`, `errorCount` je Report):
+**16 Reports mit 25, 1 Report mit 23** Errors — der schlechteste Wert entspricht der Baseline 25.
+Negativproben: Pflichtmodus ohne CLI → 3 Errors, Exit 1; Pflichtmodus mit Auswahl ohne
+Validator-Test (`-k "not official"`) → Exit 1; ohne Pflicht und ohne CLI → 3 Skips, Exit 0.
+
+**Verdict: 🟡.** Lokal gemessen grün; ein grüner lokaler Lauf ist eine Annahme über gleiche
+Umgebungen, kein CI-Nachweis. Grün wird F1, wenn der Superversion-Workflow auf einem echten
+Runner (`runner_id` ≠ 0) mit den drei Tests als `PASSED` durchläuft. Die 25 Theme-Errors der
+dist-Reports bleiben Ratsche, nicht Gate (Trennung Werkzeuglücke/echter Fehler braucht Desktop,
+siehe Testdocstring).
 
 ---
 
@@ -276,7 +314,7 @@ nur ein fehlendes Paket).
 
 | # | Floor | Was fehlt | Warum hier nicht schließbar | Nächster Schritt |
 |---|---|---|---|---|
-| 1 | F1 | `powerbi-report-author`-CLI-Validierung mit echten 0 Errors | CLI nicht installiert/erreichbar in dieser Sandbox | Node+npm-Install von `@microsoft/powerbi-report-authoring-cli` in einer Umgebung mit Netzzugriff auf die Registry (bereits Teil von `.github/workflows/superversion.yml`s CI-Setup — dort läuft dieser Check tatsächlich, hier lokal nicht) |
+| 1 | F1 | Messung auf einem echten CI-Runner | Lokal seit 29.09.2026 gemessen grün (CLI 0.1.1, 0 Errors, Ratsche hält); der Workflow führt die Tests erst seit dem Umbau vom 29.09.2026 nach der CLI-Installation aus | Ersten Superversion-Lauf mit `runner_id` ≠ 0 prüfen: drei `braucht_pbir_cli`-Tests `PASSED`, dann F1 auf 🟢 |
 | 2 | F6 (Teil 2) | Live-DAX-Ausführung gegen ein echtes Fabric-Dataset, verglichen mit Referenzwerten (kein Selbstvergleich) | Braucht einen echten Fabric-Tenant + authentifizierte `az`/`fab`-CLIs — in dieser Sandbox nicht vorhanden und nicht herstellbar | G1-minimal bauen (Sandbox-Workspace-Deploy + `executeQueries`, 2 UCs, opt-in `--live`-Flag mit ehrlichem SKIP-Fallback wie die bestehenden `shutil.which`-Muster) — als eigener I-Task, sobald Tenant-Zugriff verfügbar ist |
 | 3 | F0 (Rest-Scope) | 9 benannte KPIs über 11 Nicht-MVP-UCs bleiben `hitl` | Legacy-Datenquellen fehlen (4×), Grammatik-Grenze (2×), unterspezifizierte Business-Regel (3×) | Je in ADR-0013 dokumentiert; kein pauschaler Blocker, sondern 9 einzelne, unterschiedlich geartete Tasks |
 
@@ -291,9 +329,11 @@ geführt, mit einem konkreten, nicht geratenen nächsten Schritt.
 # F0
 python -m pytest tooling/superversion/tests/test_calculation_coverage.py -q
 
-# F1 (zeigt den Sandbox-Gap)
-which powerbi-report-author
-python -m tooling.superversion.e2e_smoke
+# F1 (CLI 0.1.1 auf PATH, wie in .github/workflows/superversion.yml)
+npm i -g --prefix /tmp/pbircli @microsoft/powerbi-report-authoring-cli@0.1.1
+export PATH=/tmp/pbircli/bin:$PATH
+ALUCA_PBIR_CLI_PFLICHT=1 python -m pytest tooling/superversion/ tooling/tests/test_dist_validator_ratchet.py -q -rs
+python -m tooling.superversion.e2e_smoke --require-cli
 
 # F2
 for seed in 0 1 42; do
