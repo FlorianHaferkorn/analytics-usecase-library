@@ -15,6 +15,7 @@ const TENANT = { mandanten: { nagarro: {
     engineer_nearshore: { rolle: 'engineer', standort: 'nearshore', kostenband: 'C', kostensatz_eur_h: 67.89, ...STATUS },
     tester_nearshore: { rolle: 'tester', standort: 'nearshore', kostenband: 'C', kostensatz_eur_h: 54.32, ...STATUS },
   },
+  auslastung: { fakturierbare_stunden_je_tag: 8, fakturierbare_tage_je_woche: 4, arbeitstage_je_woche: 5, arbeitswochen_je_jahr: 44 },
   verfuegbarkeit: Object.fromEntries(['architekt', 'engineer', 'tester'].map(role => [role, { koepfe: 1, fakturierbare_stunden_je_tag: 8, fakturierbare_tage_je_woche: 4, arbeitstage_je_woche: 5, arbeitswochen_je_jahr: 44 }])),
   pakete: {
     REF_LANES: { name: 'Umgebungsstrecken', sales_code: 'REF_LANES', dod_paket: null, tier: 2,
@@ -29,8 +30,14 @@ const TENANT = { mandanten: { nagarro: {
   },
 } } };
 
+// Invented people for the named-staffing step. Nobody real.
+const ROSTER = { personen: [
+  { name: 'Person Alpha', rolle: 'engineer', standort: 'nearshore', stunden_je_woche: 20 },
+  { name: 'Person Beta', rolle: 'tester', standort: 'nearshore', stunden_je_woche: 3 },
+] };
+
 // Opt-in: real routes, real Python engine and mirrored core, synthetic tenant. Never a tenant cloud.
-test('real engine: rate-free commercial impact of the DEV / PROD alternative', async ({ page, context, baseURL }) => {
+test('real engine: commercial impact, price delta and named staffing of the DEV / PROD alternative', async ({ page, context, baseURL }) => {
   test.skip(process.env.STUDIO_COMMERCIAL_IMPACT_E2E !== '1', 'Opt in on a development server started with STUDIO_PACKAGE_DATA_ROOT and PREIS_KANON_MANDANTEN_DIR.');
   test.setTimeout(240_000);
   const dataRoot = process.env.STUDIO_PACKAGE_DATA_ROOT, tenantDir = process.env.PREIS_KANON_MANDANTEN_DIR;
@@ -38,6 +45,7 @@ test('real engine: rate-free commercial impact of the DEV / PROD alternative', a
   const root = isAbsolute(dataRoot!) ? dataRoot! : resolve(process.cwd(), dataRoot!);
   mkdirSync(tenantDir!, { recursive: true });
   writeFileSync(join(tenantDir!, 'preis_kanon.yaml'), JSON.stringify(TENANT, null, 2), 'utf-8');
+  writeFileSync(join(tenantDir!, 'besetzung.yaml'), JSON.stringify(ROSTER, null, 2), 'utf-8');
   const errors: string[] = [], writes: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('request', request => { if (request.method() !== 'GET' && /\/api\/projects\//.test(request.url())) writes.push(request.url()); });
@@ -88,6 +96,28 @@ test('real engine: rate-free commercial impact of the DEV / PROD alternative', a
     expect(raw).not.toContain(value);
     expect(pageText).not.toContain(value);
   }
+
+  // Admin views (WB-009): price delta and named staffing, both private and never stored.
+  const pricePromise = page.waitForResponse(r => r.url().includes('/architecture/commercial/price?'), { timeout: 120_000 });
+  await page.getByRole('button', { name: 'Show price delta', exact: true }).click();
+  const priceResponse = await pricePromise;
+  expect(priceResponse.status(), await priceResponse.text()).toBe(200);
+  expect(priceResponse.headers()['cache-control']).toBe('private, no-store');
+  const price = await priceResponse.json();
+  expect(price).toMatchObject({ status: 'evaluated', persist: false, project_ref: projectId, comparable: true });
+  expect(price.alternative.totals.cost).toBeLessThan(price.baseline.totals.cost);
+  await expect(page.getByText(/Cost and price · accepted baseline → alternative/)).toBeVisible();
+
+  const staffPromise = page.waitForResponse(r => r.url().includes('/architecture/commercial/staffing?'), { timeout: 120_000 });
+  await page.getByRole('button', { name: 'Show named staffing', exact: true }).click();
+  const staffResponse = await staffPromise;
+  expect(staffResponse.status(), await staffResponse.text()).toBe(200);
+  expect(staffResponse.headers()['cache-control']).toBe('private, no-store');
+  expect(await staffResponse.json()).toMatchObject({ status: 'evaluated', persist: false, delta: { weeks_in_parallel: { before: 3, after: 2 } } });
+  await expect(page.getByText(/Person Alpha \(26 h\)/)).toBeVisible();
+  await expect(page.getByText('architekt onshore', { exact: true })).toBeVisible();
+  await page.screenshot({ path: test.info().outputPath('commercial-admin-views.png'), fullPage: true });
+
   await page.setViewportSize({ width: 768, height: 1000 });
   expect(await page.locator('main').evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
   expect(writes).toEqual([]);

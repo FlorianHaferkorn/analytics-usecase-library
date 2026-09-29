@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 import type { CommercialImpact } from '@/lib/bridge/project-commercial';
 import { ProjectPriceDelta } from './project-price-delta';
+import { ProjectStaffing } from './project-staffing';
 import styles from './project-alternative-impact.module.css';
 
 const label = (value: string) => value.replaceAll('_', ' ');
@@ -65,6 +66,9 @@ export function ProjectCommercialImpact({ projectId, revisionHash, decisionRef, 
     </StudioPanel>}
     <StudioPanel title="Price delta (admins only)">
       <ProjectPriceDelta projectId={projectId} revisionHash={revisionHash} decisionRef={decisionRef} optionRef={optionRef} />
+    </StudioPanel>
+    <StudioPanel title="Named staffing (admins only)">
+      <ProjectStaffing projectId={projectId} revisionHash={revisionHash} decisionRef={decisionRef} optionRef={optionRef} />
     </StudioPanel>
     {result.proposal_assumptions_markdown && <details className={styles.details}>
       <summary>Proposal assumptions (rate-free)</summary>

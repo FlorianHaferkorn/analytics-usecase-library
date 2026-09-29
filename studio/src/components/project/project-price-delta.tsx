@@ -42,7 +42,7 @@ export function ProjectPriceDelta({ projectId, revisionHash, decisionRef, option
   }
   if (!result) return <StudioEmptyState title={error ? 'Price delta unavailable' : 'Calculating price delta'} description={error || 'Running the price canon through the mirrored calculation core.'} />;
   if (result.status !== 'evaluated' || !result.baseline || !result.alternative || !result.delta) {
-    return <StudioEmptyState title="No price delta" description={result.reason ?? (result.findings ?? []).join(' · ') ?? 'The price canon could not be evaluated.'} />;
+    return <StudioEmptyState title="No price delta" description={result.reason ?? ((result.findings ?? []).join(' · ') || 'The price canon could not be evaluated.')} />;
   }
   const { baseline, alternative, delta } = result;
   const money = new Intl.NumberFormat('en-GB', { style: 'currency', currency: result.currency ?? 'EUR', maximumFractionDigits: 0 });
