@@ -5,13 +5,18 @@
 # meridian_module = module of the Meridian Cockpit plan (M1 Shell, M2 Reports, M3 Steuerung,
 # M4 Wissen, M5 Transparenz, M6 KI, M7 Zusammenarbeit, M8 Betrieb).
 schema_version: "1.0.0"
+# Corpus entries of the feature strands (interaction_*, capability_*) that no feature carries, each
+# with its reason; the test demands every entry is either a source or listed here.
+excluded_sources:
+  - {id: pbi-117, reason: "Befund über fehlende Microsoft-Learn-Doku zu VegaVisual, keine Nutzerfunktion."}
+  - {id: market-039, reason: "Scrollytelling ist ein Erzählformat für Redaktionen, kein Berichts- oder Cockpit-Bedarf."}
 features:
   # --- chart: reading a single visual -------------------------------------------------------
   - id: feat-001
     area: chart
     name: Tooltip je Datenpunkt
     user_need: Beim Zeigen auf einen Balken oder Punkt Kategorie und Wert mit Einheit lesen.
-    sources: [pbi-001, pbi-002, users-017, pbi-114]
+    sources: [pbi-001, pbi-002, users-017, pbi-114, pbi-003]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -111,7 +116,7 @@ features:
     area: chart
     name: Trend, Forecast und Anomalie im Liniendiagramm
     user_need: Sehen, wohin sich eine Kennzahl entwickelt und welcher Monat aus der Reihe fällt.
-    sources: [pbi-075, pbi-076, market-015, di-024, di-026, di-027]
+    sources: [pbi-075, pbi-076, market-015, di-024, di-026, di-027, pbi-077]
     pbi_status: native
     must_have: false
     beyond_pbi: false
@@ -206,7 +211,7 @@ features:
     area: page
     name: Kreuzfilter und Hervorheben zwischen Visuals
     user_need: Auf eine Region klicken und alle anderen Charts der Seite zeigen nur diese Region.
-    sources: [pbi-010, pbi-012, pbi-013, pbi-110, pbi-111, market-017, market-025]
+    sources: [pbi-010, pbi-012, pbi-013, pbi-110, pbi-111, market-017, market-025, pbi-115]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -220,7 +225,7 @@ features:
     area: page
     name: Mehrfachauswahl und Legenden-Auswahl
     user_need: Zwei Regionen zugleich wählen oder eine Reihe über die Legende isolieren.
-    sources: [pbi-011, pbi-014, market-005, market-035]
+    sources: [pbi-011, pbi-014, market-005, market-035, pbi-015, pbi-016, pbi-017]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -261,7 +266,7 @@ features:
     area: page
     name: Responsive und mobil lesbar
     user_need: Den Bericht auf dem Telefon lesen, ohne abgeschnittene Werte.
-    sources: [pbi-102, pbi-101, market-031, users-026, users-018]
+    sources: [pbi-102, pbi-101, market-031, users-026, users-018, pbi-103]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -317,7 +322,7 @@ features:
     area: navigation
     name: Drill anywhere nach beliebigem Attribut
     user_need: Einen Wert nach einer Dimension aufschlüsseln, die der Berichtsautor nicht vorgesehen hat.
-    sources: [market-018, market-019, market-020, market-022, users-022]
+    sources: [market-018, market-019, market-020, market-022, users-022, bi-038]
     pbi_status: absent
     must_have: false
     beyond_pbi: true
@@ -343,7 +348,7 @@ features:
     area: navigation
     name: Fragen als Navigation, Suche und Favoriten
     user_need: Den Bericht über die Frage finden, die ich beantworten will, nicht über den Dateinamen.
-    sources: [users-001]
+    sources: [users-001, bi-028]
     pbi_status: absent
     must_have: false
     beyond_pbi: true
@@ -357,7 +362,7 @@ features:
     area: time
     name: Szenario-Schalter AC gegen PL, PY, FC
     user_need: Mit einem Klick von Ist gegen Plan auf Ist gegen Vorjahr wechseln.
-    sources: [market-029, users-004, users-003]
+    sources: [market-029, users-004, users-003, bi-026, bi-027]
     pbi_status: absent
     must_have: true
     beyond_pbi: true
@@ -371,7 +376,7 @@ features:
     area: time
     name: Relativer Zeitraum und Datumsauswahl
     user_need: Letzte 12 Monate oder laufendes Jahr wählen, ohne Daten einzutippen.
-    sources: [pbi-051, pbi-052]
+    sources: [pbi-051, pbi-052, bi-024, bi-025]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -411,7 +416,7 @@ features:
     area: self_service
     name: Lesezeichen und gemerkter Zustand
     user_need: Meine Filterauswahl speichern und beim nächsten Öffnen wiederfinden.
-    sources: [pbi-060, pbi-062]
+    sources: [pbi-060, pbi-062, bi-029, bi-030]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -438,7 +443,7 @@ features:
     area: distribution
     name: Zahlen hinter dem Chart als Tabelle
     user_need: Die Werte eines Charts als Tabelle sehen, auch für Screenreader.
-    sources: [pbi-032, pbi-033, pbi-094, pbi-095, users-005, users-021, users-025]
+    sources: [pbi-032, pbi-033, pbi-094, pbi-095, users-005, users-021, users-025, market-007]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -451,7 +456,7 @@ features:
     area: distribution
     name: Export nach Excel, wie das Visual es zeigt
     user_need: Die Zahlen des Charts in Excel weiterverarbeiten.
-    sources: [pbi-034, pbi-035, users-006, users-007]
+    sources: [pbi-034, pbi-035, users-006, users-007, bi-039]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -464,7 +469,7 @@ features:
     area: distribution
     name: Bild, PDF und Druck für Sitzungen
     user_need: Einen Chart oder die Seite mit Filterkontext in die Vorstandsvorlage übernehmen.
-    sources: [pbi-038, pbi-116, users-030]
+    sources: [pbi-038, pbi-116, users-030, bi-005, bi-006, bi-007, bi-008, bi-062]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -473,11 +478,12 @@ features:
     status: planned
     user_value: medium
     priority: 2
+    note: exportToFile gilt nur für Power-BI-Berichte; Cockpit baut Druck/PDF selbst oder nutzt einen Zwillingsbericht in derselben Org App.
   - id: feat-053
     area: alerting
     name: Abos und Datenalarme
     user_need: Benachrichtigt werden, wenn eine Kennzahl eine Schwelle reißt, statt nachzusehen.
-    sources: [pbi-040, pbi-041, users-027, market-015, di-021, di-022, di-023, di-025]
+    sources: [pbi-040, pbi-041, users-027, market-015, di-021, di-022, di-023, di-025, bi-018, bi-019, bi-063, bi-065, bi-066, bi-070]
     pbi_status: fabric_feature
     must_have: true
     beyond_pbi: true
@@ -492,7 +498,7 @@ features:
     area: trust
     name: Datenstand sichtbar
     user_need: Wissen, von wann die Zahlen sind, bevor ich sie weitergebe.
-    sources: [pbi-046, users-010]
+    sources: [pbi-046, users-010, bi-044]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -505,7 +511,7 @@ features:
     area: trust
     name: KPI-Steckbrief und Glossar am Chart
     user_need: Nachlesen, wie eine Kennzahl definiert ist, direkt aus dem Chart heraus.
-    sources: [users-028, users-011, pbi-006, di-015]
+    sources: [users-028, users-011, pbi-006, di-015, bi-050]
     pbi_status: absent
     must_have: true
     beyond_pbi: true
@@ -518,7 +524,7 @@ features:
     area: trust
     name: Datenqualität und Herkunft prüfbar
     user_need: Sehen, ob die Daten vollständig geladen sind und woher eine Zahl stammt.
-    sources: [users-012, users-013]
+    sources: [users-012, users-013, bi-045, bi-046, bi-047, bi-048]
     pbi_status: fabric_feature
     must_have: true
     beyond_pbi: true
@@ -531,7 +537,7 @@ features:
     area: trust
     name: Keine Scheingenauigkeit
     user_need: Werte in sinnvoller Genauigkeit lesen, nicht mit sechs Nachkommastellen.
-    sources: [users-020]
+    sources: [users-020, bi-031]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -547,7 +553,7 @@ features:
     area: collaboration
     name: Kommentare am Datenpunkt mit Erwähnung
     user_need: Eine Abweichung kommentieren und die verantwortliche Person darauf hinweisen.
-    sources: [pbi-039, users-023, users-008, di-036]
+    sources: [pbi-039, users-023, users-008, di-036, bi-015, bi-051, bi-052, bi-053]
     pbi_status: native
     must_have: false
     beyond_pbi: true
@@ -575,7 +581,7 @@ features:
     area: decision
     name: Fragen in natürlicher Sprache und Chart-Zusammenfassung
     user_need: Eine Frage eintippen oder mir einen Chart in zwei Sätzen erklären lassen.
-    sources: [pbi-043, pbi-044, di-019, di-020]
+    sources: [pbi-043, pbi-044, di-019, di-020, bi-034, bi-035, bi-036, bi-037, bi-040]
     pbi_status: premium
     must_have: false
     beyond_pbi: true
@@ -584,7 +590,7 @@ features:
     status: planned
     user_value: medium
     priority: 3
-    note: Grenze ist der KPI-Katalog (Plan M6).
+    note: Grenze ist der KPI-Katalog (Plan M6). Q&A wird im Februar 2027 abgeschaltet; Copilot nicht in Germany North und offiziell nicht mehrsprachig (bi-035, bi-037).
   - id: feat-073
     area: decision
     name: Was-wäre-wenn-Parameter
@@ -603,7 +609,7 @@ features:
     area: accessibility
     name: Tastaturbedienung und Screenreader
     user_need: Den Bericht ohne Maus bedienen und vorgelesen bekommen.
-    sources: [pbi-090, pbi-091, pbi-092, pbi-093, pbi-113, market-037]
+    sources: [pbi-090, pbi-091, pbi-092, pbi-093, pbi-113, market-037, bi-061]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -631,7 +637,7 @@ features:
     area: performance
     name: Antwortzeit unter einer Sekunde
     user_need: Nach einem Klick nicht warten müssen.
-    sources: [users-014, users-015]
+    sources: [users-014, users-015, bi-054, bi-055, bi-056, bi-057, bi-058, bi-060]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -727,7 +733,7 @@ features:
     area: decision_loop
     name: Maßnahme direkt aus dem Bericht erfassen
     user_need: Aus dem Chart heraus eine Maßnahme mit Verantwortlichem und Frist anlegen.
-    sources: [di-035]
+    sources: [di-035, bi-023, bi-041]
     pbi_status: fabric_feature
     must_have: true
     beyond_pbi: false
@@ -767,12 +773,135 @@ features:
     area: planning
     name: Ziele mit Verantwortlichen und Check-ins
     user_need: Ziele je Verantwortlichem verfolgen, mit Status und regelmäßigem Update.
-    sources: [di-029]
+    sources: [di-029, bi-020, bi-021, bi-022]
     pbi_status: native
-    must_have: false
+    must_have: true
     beyond_pbi: false
     home: fabric_platform
     meridian_module: M3
     status: gap
     user_value: high
+    priority: 2
+    note: Scorecard-Hierarchien und Heatmap seit 15.04.2026 entfernt (bi-022); Scorecards laut Inhaltsliste nicht in Org Apps (abgeleitet).
+  # --- BI platform: distribution, governance, language, operations ------------------------------
+  - id: feat-100
+    area: distribution
+    name: Abonnement per Mail, dynamisch je Empfänger
+    user_need: Den Monatsbericht automatisch als PDF bekommen, gefiltert auf meinen Bereich.
+    sources: [bi-001, bi-002, bi-003, bi-004, bi-017, bi-064, bi-067, bi-068, bi-069]
+    pbi_status: premium
+    must_have: true
+    beyond_pbi: false
+    home: meridian_backend
+    meridian_module: null
+    gap_reason: Abos der Plattform gelten nur für Power-BI-Berichte; offen, ob das Cockpit eigenen Versand baut oder einen Zwillingsbericht in der Org App abonnieren lässt.
+    status: gap
+    user_value: high
+    priority: 2
+  - id: feat-101
+    area: distribution
+    name: Verteilung über Org App mit Zielgruppen und Navigation
+    user_need: Nur die Berichte meiner Rolle sehen, in einer App mit eigener Startseite.
+    sources: [bi-012, bi-013, bi-071, bi-072, bi-073]
+    pbi_status: fabric_feature
+    must_have: true
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: M1
+    status: planned
+    user_value: high
+    priority: 1
+    note: Org App kann die Fabric App (Vorschau) neben Berichten tragen; Rechte und Audiences kommen dadurch von der Plattform.
+  - id: feat-102
+    area: collaboration
+    name: In Teams und SharePoint teilen und einbetten
+    user_need: Einen Bericht mit meiner Filterauswahl im Teams-Chat teilen oder in einer Teams-Registerkarte öffnen.
+    sources: [bi-009, bi-011, bi-016]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: gap
+    user_value: high
+    priority: 2
+    note: Ob eine Fabric App als Teams-Tab oder SharePoint-Web-Part läuft, ist ungeprüft (UNKLAR).
+  - id: feat-103
+    area: trust
+    name: Zertifizierung und Vertraulichkeitsstufe sichtbar
+    user_need: Erkennen, ob ein Bericht freigegeben ist und wie vertraulich die Zahlen sind, auch nach dem Export.
+    sources: [bi-042, bi-043]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M5
+    status: planned
+    user_value: high
+    priority: 2
+  - id: feat-104
+    area: language
+    name: Mehrsprachige Berichte
+    user_need: Denselben Bericht auf Deutsch oder Englisch lesen, inklusive Titel und Beschriftungen.
+    sources: [bi-032, bi-033]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: gap
+    user_value: medium
+    priority: 3
+  - id: feat-105
+    area: operations
+    name: Nutzung und Adoption messen
+    user_need: Als Verantwortlicher sehen, welche Seiten gelesen werden und welche nicht.
+    sources: [bi-049]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: false
+    home: meridian_backend
+    meridian_module: M8
+    status: planned
+    user_value: medium
+    priority: 3
+  - id: feat-106
+    area: distribution
+    name: Offline lesen auf dem Telefon
+    user_need: Den Bericht im Flugzeug mit dem letzten Stand öffnen.
+    sources: [bi-014]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: gap
+    user_value: low
+    priority: 3
+  - id: feat-107
+    area: distribution
+    name: Live-Daten in PowerPoint
+    user_need: In der Vorstandspräsentation den aktuellen Stand zeigen, ohne Screenshots zu ersetzen.
+    sources: [bi-010]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: null
+    status: gap
+    user_value: medium
+    priority: 3
+    note: Laut Recherche in einer Fabric App nicht möglich (abgeleitet); Weg über einen Zwillingsbericht.
+  - id: feat-108
+    area: performance
+    name: Automatische Seitenaktualisierung
+    user_need: Operative Kennzahlen ohne Neuladen aktuell sehen.
+    sources: [bi-059]
+    pbi_status: premium
+    must_have: false
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M2
+    status: gap
+    user_value: low
     priority: 3

@@ -60,3 +60,16 @@ def test_must_haves_without_a_module_state_why(catalog):
     for f in catalog["features"]:
         if f["must_have"] and f["meridian_module"] is None:
             assert f.get("gap_reason"), f"{f['id']}: must-have without module and without gap_reason"
+
+
+FEATURE_STRANDS = ("interaction_pbi", "interaction_market", "interaction_users", "capability_di", "capability_bi")
+
+
+def test_every_strand_entry_is_carried_or_excluded(catalog):
+    """Coverage: a research entry either feeds a feature or is excluded with a reason — none drops silently."""
+    strand_ids = {str(r["id"]) for name in FEATURE_STRANDS
+                  for r in yaml.safe_load((CORPUS / f"{name}.yaml").read_text(encoding="utf-8"))}
+    used = {s for f in catalog["features"] for s in f["sources"]}
+    excluded = {e["id"] for e in catalog.get("excluded_sources") or []}
+    assert not (used & excluded), f"excluded and used at once: {sorted(used & excluded)}"
+    assert not (strand_ids - used - excluded), f"unmapped entries: {sorted(strand_ids - used - excluded)}"
