@@ -11,7 +11,8 @@ function Invoke-Phase5ReportGeneration {
     foreach ($cmd in @("py -3", "python3", "python")) {
         try {
             $parts = $cmd -split " "; $exe = $parts[0]
-            $exeArgs = @($parts[1..([Math]::Min(999, $parts.Count - 1))] | Where-Object { $null -ne $_ }) + @("--version")
+            # $parts[1..0] counts down (1,0) for a single-word command and would pass the exe name as an argument.
+            $exeArgs = @($parts | Select-Object -Skip 1) + @("--version")
             $ver = (& $exe $exeArgs 2>&1) -join " "
             if ($LASTEXITCODE -eq 0 -and $ver -match "Python 3") { $pyCmd = $cmd; break }
         } catch { continue }
@@ -26,7 +27,7 @@ function Invoke-Phase5ReportGeneration {
     }
     $pyExe = ($pyCmd -split " ")[0]
     $pySplit = $pyCmd -split " "
-    $pyExeArgs = @($pySplit[1..([Math]::Min(999, $pySplit.Count - 1))] | Where-Object { $null -ne $_ })
+    $pyExeArgs = @($pySplit | Select-Object -Skip 1)
     # Resolve theme: explicit -ThemeName wins; else Aurora default from showcases/aurora_group/theme_config.json (no hardcoded fallback)
     $effectiveTheme = $ThemeName
     if (-not $effectiveTheme) {
@@ -56,24 +57,20 @@ function Invoke-Phase5ReportGeneration {
         } else {
             Write-Host "  Report created for $ucId (overview + detail, UX Engine)" -ForegroundColor Green
         }
-        # Ensure report has StaticResources (BaseThemes) like sample so theme application and base theme work
-        $sampleStatic = Join-Path $script:RepoRoot "showcases\sample_pbip_report\Procurement_Wireframe_Theme.Report\StaticResources"
-        if (Test-Path $sampleStatic) {
-            $destStatic = Join-Path $reportFolder "StaticResources"
-            $baseThemesPath = Join-Path $destStatic "SharedResources\BaseThemes"
-            if (-not (Test-Path $baseThemesPath)) {
-                New-Item -ItemType Directory -Force -Path $destStatic | Out-Null
-                Copy-Item -Path (Join-Path $sampleStatic "*") -Destination $destStatic -Recurse -Force
-                Write-Host "  StaticResources (BaseThemes) copied from sample" -ForegroundColor Cyan
-            }
+        # Base theme (BaseThemes/<name>.json, themeCollection.baseTheme, SharedResources item) comes from
+        # the one established source: apply_report_theme --sync-base-theme, i.e. the vendored copy in
+        # tooling/report_quality/base_theme.py (D-587). Runs with or without a custom theme.
+        $applyThemeScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\apply_report_theme.ps1"
+        if (-not (Test-Path $applyThemeScript)) {
+            throw "apply_report_theme.ps1 not found at $applyThemeScript."
+        }
+        $reportFolderResolved = if ([System.IO.Path]::IsPathRooted($reportFolder)) { $reportFolder } else { Join-Path $script:RepoRoot $reportFolder }
+        $reportFolderResolved = [System.IO.Path]::GetFullPath($reportFolderResolved)
+        & $applyThemeScript -Report $reportFolderResolved -SyncBaseTheme -ErrorAction Stop | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw "apply_report_theme.ps1 -SyncBaseTheme failed (exit $LASTEXITCODE) for $ucId. Report: $reportFolderResolved"
         }
         if ($effectiveTheme) {
-            $applyThemeScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\apply_report_theme.ps1"
-            if (-not (Test-Path $applyThemeScript)) {
-                throw "apply_report_theme.ps1 not found at $applyThemeScript. Cannot apply theme $effectiveTheme."
-            }
-            $reportFolderResolved = if ([System.IO.Path]::IsPathRooted($reportFolder)) { $reportFolder } else { Join-Path $script:RepoRoot $reportFolder }
-            $reportFolderResolved = [System.IO.Path]::GetFullPath($reportFolderResolved)
             & $applyThemeScript -Report $reportFolderResolved -ThemeName $effectiveTheme -NoValidate -ErrorAction Stop | Out-Null
             if ($LASTEXITCODE -ne 0) {
                 throw "apply_report_theme.ps1 failed (exit $LASTEXITCODE) for $ucId. Theme '$effectiveTheme' not applied. Check products/fabric/powerbi/themes/ (vendored) or themes_local/ and the report definition."

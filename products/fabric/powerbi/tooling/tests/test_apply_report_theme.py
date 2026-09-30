@@ -8,7 +8,13 @@ id.) A bare-stem CustomTheme name is flagged PBIR_THEME_NAME_MISSING_JSON_EXT; a
 that mismatches the referenced file is flagged PBIR_THEME_FILE_NAME_MISMATCH.
 """
 import json
+import os
+import shutil
+import subprocess
+import sys
 from pathlib import Path
+
+import pytest
 
 from products.fabric.powerbi.tooling.apply_report_theme import (
     DEFAULT_BASE_THEME,
@@ -125,3 +131,43 @@ def test_sync_base_theme_moves_report_onto_pinned_theme_and_is_idempotent(tmp_pa
 
     assert sync_base_theme(report) == []
     assert sync_base_theme(report, check=True) == []
+
+
+_TOOL_DIR = Path(__file__).resolve().parents[1]
+_PY_SCRIPT = _TOOL_DIR / "apply_report_theme.py"
+_PS1_SCRIPT = _TOOL_DIR / "apply_report_theme.ps1"
+_PWSH = os.environ.get("ALUCA_PWSH") or shutil.which("pwsh")
+
+
+def _run(cmd, cwd):
+    # PYTHONPATH cleared: the script must find the repo root itself, not inherit it from pytest.
+    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+    return subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True, encoding="utf-8", timeout=120)
+
+
+def test_runs_as_standalone_script_from_foreign_cwd(tmp_path):
+    """Regression (30.09.2026): as a script it died with ModuleNotFoundError: products."""
+    proc = _run([sys.executable, str(_PY_SCRIPT), "--help"], cwd=tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    assert "--sync-base-theme" in proc.stdout
+
+
+def test_script_sync_base_theme_check_reports_drift_then_clean(tmp_path):
+    report = _old_report(tmp_path)
+    cmd = [sys.executable, str(_PY_SCRIPT), str(report), "--sync-base-theme"]
+    assert _run(cmd + ["--check"], cwd=tmp_path).returncode == 1
+    assert _run(cmd, cwd=tmp_path).returncode == 0
+    assert _run(cmd + ["--check"], cwd=tmp_path).returncode == 0
+
+
+@pytest.mark.skipif(not _PWSH, reason="pwsh not installed (set ALUCA_PWSH or put pwsh on PATH)")
+def test_ps1_wrapper_sync_base_theme_from_foreign_cwd(tmp_path):
+    report = _old_report(tmp_path)
+    base = [_PWSH, "-NoProfile", "-NonInteractive", "-File", str(_PS1_SCRIPT), "-Report", str(report),
+            "-SyncBaseTheme"]
+    first = _run(base + ["-Check"], cwd=tmp_path)
+    assert first.returncode == 1, first.stdout + first.stderr
+    synced = _run(base, cwd=tmp_path)
+    assert synced.returncode == 0, synced.stdout + synced.stderr
+    again = _run(base + ["-Check"], cwd=tmp_path)
+    assert again.returncode == 0, again.stdout + again.stderr
