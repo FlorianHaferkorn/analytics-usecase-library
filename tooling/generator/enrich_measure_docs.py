@@ -10,6 +10,14 @@ display name -> ``kpi_id`` (via the KPI catalog ``kpi_key``); measures that do
 not resolve to a catalog KPI keep their existing ``///`` lines, and warning lines
 (``[!]`` / ``UNTRUSTED`` / ``MISSING``) are always preserved.
 
+Measures in ``--dist`` (30.09.2026): the committed dist is refreshed only where the
+catalog render loses nothing the existing block carries (:func:`doc_losses`: a facet
+the render drops, a value it shortens, an action code it removes, an extra free line).
+Such a measure keeps its block and is reported; ``--dist --check`` exits 1 when a
+measure would change. ``tooling/tests/test_enrich_measure_docs.py`` holds the
+dist == catalog parity and the explicit exception list. ``--file`` (the orchestrator
+step right after generation) replaces unconditionally, as before.
+
 Columns (W5.6, 29.09.2026): ``--columns`` projects the data-contract column
 description (``build_table_descriptions`` -> ``ColumnDescription.render_semantic_layer``)
 onto each ``column`` of the table files -- the same single description path the
@@ -29,7 +37,7 @@ not inherit the original's description).
 
 Usage::
 
-    python tooling/generator/enrich_measure_docs.py --dist products/fabric/powerbi/dist
+    python tooling/generator/enrich_measure_docs.py --dist products/fabric/powerbi/dist [--check]
     python tooling/generator/enrich_measure_docs.py --dist products/fabric/powerbi/dist --columns [--check]
     python tooling/generator/enrich_measure_docs.py --file <path>/_Measures.tmdl
     python tooling/generator/enrich_measure_docs.py --file <path> --stdout   # preview
@@ -41,7 +49,8 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 if TYPE_CHECKING:
     from tooling.generator_core.ai_description import ColumnDescription, TableDescription
@@ -65,9 +74,87 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+_FACET_KEYS = ("Formula", "Grain", "Unit", "Good", "Drivers", "Owner", "Status", "Actions",
+               "Synonyms", "Example question")
+_FACET_RE = re.compile(r"^(%s):\s*(.*)$" % "|".join(_FACET_KEYS))
+
+
+@dataclass(frozen=True)
+class DocLoss:
+    """One piece of the existing ``///`` block the catalog render would not carry."""
+
+    measure: str
+    facet: str   # "definition", a facet key ("Formula", "Grain", ...) or "line"
+    kind: str    # "dropped" | "shortened" | "actions_removed" | "line_removed"
+    old: str
+
+
+def _facets(lines: List[str]) -> Tuple[Dict[str, str], List[str]]:
+    """Split ``///`` lines (without the ``\t/// `` prefix) into facets and free lines.
+    The first free line is the definition; further free lines are returned separately."""
+    facets: Dict[str, str] = {}
+    free: List[str] = []
+    for line in lines:
+        parts = [p.strip() for p in line.split(" · ")]
+        matches = [_FACET_RE.match(p) for p in parts]
+        if all(matches):
+            for m in matches:
+                facets[m.group(1)] = m.group(2).strip()
+        elif "definition" not in facets and not free:
+            facets["definition"] = line.strip()
+        else:
+            free.append(line.strip())
+    return facets, free
+
+
+def _norm(value: str) -> str:
+    return value.strip().rstrip(".").strip()
+
+
+def doc_losses(measure: str, old_block: List[str], new_block: List[str]) -> List[DocLoss]:
+    """What ``old_block`` carries that ``new_block`` (the catalog render) would drop.
+
+    Replacing a value is not a loss -- the catalog is the source of truth. A loss is
+    a facet the render omits, a value it shortens (the render is contained in the old
+    value), an action code it removes, or a free line it does not repeat. Warning
+    lines are kept by the enricher and are not compared."""
+    def strip(block: List[str]) -> List[str]:
+        return [ln.strip()[3:].strip() for ln in block if not _KEEP_RE.search(ln)]
+
+    old_f, old_free = _facets(strip(old_block))
+    new_f, new_free = _facets(strip(new_block))
+    losses: List[DocLoss] = []
+    for key, old in old_f.items():
+        if not old:
+            continue
+        new = new_f.get(key)
+        if not new:
+            losses.append(DocLoss(measure, key, "dropped", old))
+        elif key == "Actions":
+            removed = {a.strip() for a in old.split(",")} - {a.strip() for a in new.split(",")}
+            if removed:
+                losses.append(DocLoss(measure, key, "actions_removed", ", ".join(sorted(removed))))
+        elif len(_norm(old)) > len(_norm(new)) and _norm(new) in _norm(old):
+            losses.append(DocLoss(measure, key, "shortened", old))
+    for line in old_free:
+        if line not in new_free:
+            losses.append(DocLoss(measure, "line", "line_removed", line))
+    return losses
+
+
 def enrich_text(text: str, repo_root: Path) -> str:
     """Return ``text`` with each resolvable measure's ``///`` block replaced by the
     rendered standard block. Pure function; never raises on unresolved measures."""
+    return _enrich(text, repo_root, keep_richer=False)[0]
+
+
+def enrich_text_guarded(text: str, repo_root: Path) -> Tuple[str, List[DocLoss]]:
+    """Like :func:`enrich_text`, but a measure whose existing block would lose
+    information (:func:`doc_losses`) keeps it; the losses are returned."""
+    return _enrich(text, repo_root, keep_richer=True)
+
+
+def _enrich(text: str, repo_root: Path, keep_richer: bool) -> Tuple[str, List[DocLoss]]:
     from generator_core.ai_description import load_kpi_catalog
 
     catalog = load_kpi_catalog(repo_root / "core" / "kpi_catalog" / "KPI_Catalog.md")
@@ -79,6 +166,7 @@ def enrich_text(text: str, repo_root: Path) -> str:
 
     out: list[str] = []
     pending: list[str] = []
+    skipped: List[DocLoss] = []
     for line in text.splitlines():
         if _DOC_RE.match(line):
             pending.append(line)
@@ -86,11 +174,13 @@ def enrich_text(text: str, repo_root: Path) -> str:
         match = _MEASURE_RE.match(line)
         if match:
             block = _render_block(name_to_kpi.get(match.group(1)), repo_root)
-            if block is not None:
+            losses = doc_losses(match.group(1), pending, block) if (block and keep_richer) else []
+            if block is not None and not losses:
                 out.extend(block)
                 out.extend(p for p in pending if _KEEP_RE.search(p))  # keep warnings
             else:
                 out.extend(pending)
+                skipped.extend(losses)
             pending = []
             out.append(line)
             continue
@@ -98,7 +188,28 @@ def enrich_text(text: str, repo_root: Path) -> str:
         pending = []
         out.append(line)
     out.extend(pending)
-    return "\n".join(out) + ("\n" if text.endswith("\n") else "")
+    return "\n".join(out) + ("\n" if text.endswith("\n") else ""), skipped
+
+
+def enrich_dist_measures(
+    dist: Path, repo_root: Path, write: bool = True
+) -> Tuple[List[Path], Dict[Tuple[str, str], List[DocLoss]]]:
+    """Guarded refresh of every ``_Measures.tmdl`` under ``dist``. Returns the files that
+    changed (or would, with ``write=False``) and the kept measures keyed by
+    ``(model, measure)`` -- model is the ``<model>.SemanticModel`` folder stem."""
+    changed: List[Path] = []
+    kept: Dict[Tuple[str, str], List[DocLoss]] = {}
+    for f in sorted(Path(dist).rglob("_Measures.tmdl")):
+        model = next((p[: -len(".SemanticModel")] for p in f.parts if p.endswith(".SemanticModel")), f.parent.name)
+        text = f.read_text(encoding="utf-8")
+        new, losses = enrich_text_guarded(text, repo_root)
+        for loss in losses:
+            kept.setdefault((model, loss.measure), []).append(loss)
+        if new != text:
+            changed.append(f)
+            if write:
+                f.write_text(new, encoding="utf-8", newline="\n")
+    return changed, kept
 
 
 def _render_block(kpi_id: str | None, repo_root: Path) -> list[str] | None:
@@ -214,7 +325,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--columns", action="store_true",
                         help="With --dist: project data-contract column descriptions onto the table files.")
     parser.add_argument("--check", action="store_true",
-                        help="With --columns: write nothing, exit 1 if a table file would change.")
+                        help="With --dist: write nothing, exit 1 if a file would change.")
     args = parser.parse_args(argv)
     repo_root = _repo_root()
 
@@ -237,9 +348,15 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.dist:
-        count = sum(1 for f in args.dist.rglob("_Measures.tmdl") if enrich_file(f, repo_root))
-        print(f"enriched {count} _Measures.tmdl file(s)")
-        return 0
+        changed, kept = enrich_dist_measures(args.dist, repo_root, write=not args.check)
+        for (model, measure), losses in sorted(kept.items()):
+            detail = "; ".join(f"{loss.facet} {loss.kind}" for loss in losses)
+            print(f"kept (catalog render would lose information): {model} / {measure}: {detail}")
+        for f in changed:
+            print(f"{'would change' if args.check else 'enriched'}: {f}")
+        print(f"{len(changed)} _Measures.tmdl file(s) {'out of sync' if args.check else 'enriched'}, "
+              f"{len(kept)} measure(s) kept")
+        return 1 if (args.check and changed) else 0
 
     parser.error("provide --file or --dist")
     return 2

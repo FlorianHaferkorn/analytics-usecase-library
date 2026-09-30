@@ -57,7 +57,7 @@ table _Measures
 		lineageTag: a993b6d5-bd3d-4d4b-b8f1-c6b3952844d2
 	/// Average EUR impact per achieved action execution.
 	/// Formula: AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
-	/// Grain: month · Unit: EUR
+	/// Grain: month · Unit: EUR · Good: higher_is_better
 	/// Owner: Commercial BI · Status: active
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
@@ -151,7 +151,7 @@ table _Measures
 
 	/// Uptime control: Run Time / Planned Production Time.
 	/// Formula: SUM(fact_ops[Run Time Minutes]) / SUM(fact_ops[Planned Time Minutes])
-	/// Grain: line_day · Unit: %
+	/// Grain: line_day · Unit: % · Good: higher_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-A2.1, O-A2.3, O-O1.1
 	/// Synonyms: Availability Rate, Uptime, Verfügbarkeit, Anlagenverfügbarkeit, Verfügbarkeitsgrad
 	/// Example question: What is dragging availability down on Line B?
@@ -167,7 +167,7 @@ table _Measures
 
 	/// Speed vs standard: Actual Output / Theoretical Output.
 	/// Formula: Actual output / Theoretical maximum output
-	/// Grain: line_day · Unit: %
+	/// Grain: line_day · Unit: % · Good: higher_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-O1.2
 	/// Synonyms: Performance Rate, Speed Factor, Leistungsgrad, Leistung, Leistungsfaktor
 	/// Example question: Where are speed losses hurting performance this week?
@@ -187,8 +187,8 @@ table _Measures
 
 	/// First pass yield: Good Units / Total Units.
 	/// Formula: Good units / Total units
-	/// Grain: line_day · Unit: %
-	/// Owner: Operations Analytics · Status: active · Actions: O-O1.3
+	/// Grain: line_day · Unit: % · Good: higher_is_better
+	/// Owner: Operations Analytics · Status: active · Actions: O-O1.3, F-K2.2
 	/// Synonyms: Quality Rate, Yield, Qualitätsgrad, Gutanteil, Qualitätsfaktor
 	/// Example question: Which lines are below the quality target this month?
 	measure 'Quality %' = VAR GoodUnits = SUM ( fact_ops[Good Units] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
@@ -198,7 +198,7 @@ table _Measures
 
 	/// Display alias for OEE %. Composite measure combining availability, performance, and quality in manufacturing.
 	/// Formula: [OEE %]
-	/// Grain: line_day · Unit: %
+	/// Grain: line_day · Unit: % · Good: higher_is_better
 	/// Owner: Operations BI · Status: active · Actions: O-O1.1, O-O1.3, O-O1.4
 	/// Synonyms: Overall Equipment Effectiveness, Equipment Effectiveness, Gesamtanlageneffektivität, GAE, Anlageneffektivität
 	/// Example question: Which production lines have the lowest OEE this month?
@@ -208,15 +208,15 @@ table _Measures
 
 	/// Volume output over time.
 	/// Formula: Sum of produced units in the period.
-	/// Grain: line_day · Unit: qty
-	/// Owner: Operations Analytics · Status: active · Actions: O-O1.2, O-O1.4
+	/// Grain: line_day · Unit: qty · Good: higher_is_better
+	/// Owner: Operations Analytics · Status: active · Actions: O-O1.2, O-O1.4, F-K2.3
 	measure 'Throughput Units' = SUM ( fact_ops[Output Units] )
 		formatString: "#,0"
 		displayFolder: "OPS-001"
 
 	/// Loss share: Downtime / Planned Production Time.
 	/// Formula: Downtime Minutes / Planned Time Minutes.
-	/// Grain: line_day · Unit: %
+	/// Grain: line_day · Unit: % · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active
 	measure 'Downtime %' = VAR Downtime = SUM ( fact_ops[Downtime Minutes] ) VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] ) RETURN DIVIDE ( Downtime, PlannedTime )
 		formatString: "0.0%"
@@ -236,7 +236,7 @@ table _Measures
 
 	/// Mean time between failures.
 	/// Formula: Operating Time Hours / Number of Failures.
-	/// Grain: asset · Unit: hours
+	/// Grain: asset · Unit: hours · Good: higher_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-A2.2, O-A2.4
 	/// Synonyms: Mean Time Between Failures, Reliability Interval, Mittlere Betriebsdauer zwischen Ausfällen, mittlere Zeit zwischen Ausfällen
 	/// Example question: Which assets have the worst MTBF this quarter?
@@ -246,7 +246,7 @@ table _Measures
 
 	/// Mean time to repair.
 	/// Formula: Total Repair Time Hours / Number of Failures.
-	/// Grain: asset · Unit: hours
+	/// Grain: asset · Unit: hours · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-A2.3, O-A2.5
 	/// Synonyms: Mean Time To Repair, Mean Time To Restore, Mittlere Reparaturdauer, mittlere Wiederherstellungszeit
 	/// Example question: Where is MTTR longest, and why?
@@ -256,7 +256,7 @@ table _Measures
 
 	/// Unplanned downtime share of planned time.
 	/// Formula: Unplanned Downtime Minutes / Planned Time Minutes.
-	/// Grain: asset_day · Unit: %
+	/// Grain: asset_day · Unit: % · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-A2.1, O-A2.2
 	/// Synonyms: Unscheduled Downtime, Breakdown Downtime, Ungeplante Stillstandszeit, ungeplanter Stillstand
 	/// Example question: Which assets cause the most unplanned downtime?
@@ -266,7 +266,7 @@ table _Measures
 
 	/// Maintenance readiness via stockout rate for parts.
 	/// Formula: Stockout Events / Total Parts Requests.
-	/// Grain: month · Unit: %
+	/// Grain: month · Unit: % · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-A2.5
 	measure 'Spare Parts Stockout %' = VAR StockoutCount = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Parts Stockout Flag] = TRUE () ) VAR TotalRequests = COUNTROWS ( fact_maintenance ) RETURN DIVIDE ( StockoutCount, TotalRequests )
 		formatString: "0.0%"
@@ -274,14 +274,15 @@ table _Measures
 
 	/// Preventive maintenance discipline: on-time PM orders / planned PM orders.
 	/// Formula: Completed PM Orders / Planned PM Orders.
-	/// Grain: month · Unit: %
+	/// Grain: month · Unit: % · Good: higher_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-A2.4
 	measure 'PM Compliance %' = VAR CompletedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM", fact_maintenance[Order Status] = "Completed" ) VAR PlannedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM" ) RETURN DIVIDE ( CompletedPM, PlannedPM )
 		formatString: "0.0%"
 		displayFolder: "OPS-002"
 
-	/// Count of failure events.
-	/// Formula: SUM(fact_ops_failures[Failure Start DateTime])
+	/// Count of recorded equipment or process failure events.
+	/// Formula: COUNT ( fact_ops_failures[Failure Start DateTime] )
+	/// Grain: failure_event · Unit: count · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-A2.2, O-A2.3, O-A2.5
 	measure 'Failure Count' = COUNTROWS ( fact_ops_failures )
 		formatString: "#,0"
@@ -296,8 +297,8 @@ table _Measures
 		displayFolder: "OPS-002"
 
 	/// Count of safety incidents in the period.
-	/// Formula: Count of recorded safety incidents.
-	/// Grain: site_day · Unit: count
+	/// Formula: Count of recorded safety incidents in the selected period.
+	/// Grain: site_day · Unit: count · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active
 	measure 'Safety Incident Count' = VAR _pending = "Requires fact_safety_incidents table (not yet in data contract)" RETURN BLANK()
 		formatString: "#,0"
@@ -305,7 +306,7 @@ table _Measures
 
 	/// Good units / total units at first pass.
 	/// Formula: SUM(fact_quality[Good Units]) / SUM(fact_quality[Total Units])
-	/// Grain: line_day · Unit: %
+	/// Grain: line_day · Unit: % · Good: higher_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.1, O-Q3.2
 	/// Synonyms: First Pass Yield, First Time Yield, Erstausbeute, Gutausbeute im ersten Durchgang
 	/// Example question: Which products have the lowest first pass yield?
@@ -315,7 +316,7 @@ table _Measures
 
 	/// Scrap units / total units.
 	/// Formula: Scrap Units / Total Units.
-	/// Grain: line_day · Unit: %
+	/// Grain: line_day · Unit: % · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.1, O-Q3.3, O-Q3.4
 	/// Synonyms: Scrap Ratio, Reject Rate, Waste Rate, Ausschussquote, Ausschussrate
 	/// Example question: What is driving the scrap rate up in Fashion?
@@ -325,7 +326,7 @@ table _Measures
 
 	/// Reworked units / total units.
 	/// Formula: Reworked Units / Total Units.
-	/// Grain: line_day · Unit: %
+	/// Grain: line_day · Unit: % · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.1, O-Q3.3
 	measure 'Rework Rate %' = VAR ReworkUnits = SUM ( fact_quality[Rework Units] ) VAR TotalUnits = SUM ( fact_quality[Total Units] ) RETURN DIVIDE ( ReworkUnits, TotalUnits )
 		formatString: "0.0%"
@@ -333,7 +334,7 @@ table _Measures
 
 	/// Financial impact from scrap, rework, and warranty/complaint costs.
 	/// Formula: Sum of cost impacts for quality failures in period.
-	/// Grain: month · Unit: EUR
+	/// Grain: month · Unit: EUR · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.4, O-Q3.5
 	measure 'Cost of Poor Quality' = SUM ( fact_quality_costs[COPQ Amount] )
 		formatString: "#,0.00"
@@ -341,7 +342,7 @@ table _Measures
 
 	/// Complaints / units shipped.
 	/// Formula: Complaint Count / Units Shipped.
-	/// Grain: month · Unit: %
+	/// Grain: month · Unit: % · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.5
 	measure 'Complaint Rate %' = VAR Complaints = SUM ( fact_complaints[Complaint Count] ) VAR ShippedUnits = SUM ( fact_shipments[Shipped Units] ) RETURN DIVIDE ( Complaints, ShippedUnits )
 		formatString: "0.0%"
@@ -349,7 +350,7 @@ table _Measures
 
 	/// Defects per 1k units.
 	/// Formula: (Defect Count / Total Units) * 1,000.
-	/// Grain: line_day · Unit: defects per 1k units
+	/// Grain: line_day · Unit: defects per 1k units · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.2
 	measure 'Defect Density' =
 			VAR DefectCount =
