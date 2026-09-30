@@ -1071,11 +1071,18 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
         },
         "platinum": {
           "type": "object",
-          "description": "Meridian-only: the semantic-model/ontology layer above gold.",
+          "description": "The semantic-model/ontology layer above gold. semantic_model_ref is Meridian-only; storage_mode is read by the semantic-model generators of both repos.",
           "additionalProperties": false,
           "properties": {
             "semantic_model_ref": {
               "type": "string"
+            },
+            "storage_mode": {
+              "enum": [
+                "direct_lake_onelake",
+                "import"
+              ],
+              "description": "Storage mode of this tenant's semantic models (Meridian D-590). direct_lake_onelake = Direct Lake on OneLake: entity partitions over the gold Delta tables, shared expression AzureStorage.DataLake (Learn fabric/fundamentals/direct-lake-develop, read 30.09.2026). import = import partitions in M. Absent = the default rule in storage_mode.py (Meridian core/dataarch_engine/blueprint/, mirrored to ALUCA tooling/superversion/vendor/meridian_dataarch/): direct_lake_onelake when the tenant has a Fabric capacity (platform.stack = fabric, or a capacity named or sized), otherwise import. Generators read the resolved value and derive nothing from platform themselves. Direct Lake on OneLake allows calculated columns only with expression context User Context, unmaterialized and never as relationship keys (Learn power-bi/transform-model/desktop-calculated-columns, read 30.09.2026); a model that needs materialized helper columns or calculated keys makes the generator abort in direct_lake_onelake instead of mixing in import tables. Direct Lake on SQL is not offered: not deprecated (Learn direct-lake-overview, read 30.09.2026), but no generator emits it from the blueprint."
             }
           }
         },
