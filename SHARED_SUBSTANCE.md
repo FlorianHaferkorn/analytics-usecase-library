@@ -12,7 +12,7 @@
 > **Fortgeschrieben 30.09.2026 (Owner-Entscheidung E3):** Klasse B darf zwischen Meridian
 > und ALUCA geteilt werden, wenn es die Qualität hebt — Heimat eindeutig, Spiegel mit PIN
 > und Sensor. Die alte Regel „nie portiert" steht in §1, §2.2 und §5 als abgelöst markiert.
-> **Fortgeschrieben 30.09.2026 (Visual-Stack, Meridian D-610, ALUCA A-31):** Visual Library,
+> **Fortgeschrieben 30.09.2026 (Visual-Stack, Meridian D-612, ALUCA A-31):** Visual Library,
 > Auswahllogik Frage → Form, Farbsemantik/Kontrast und Markenableitung sind Klasse A mit je
 > einer Heimat (§2.1). Bei Design-Tokens ist die Logik Klasse A, die Werte bleiben Klasse C (§2.3).
 
