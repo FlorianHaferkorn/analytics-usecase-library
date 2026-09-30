@@ -91,6 +91,7 @@ realizations:
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "data": { "name": "dataset" },
+        "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] } ],
         "padding": { "right": 40 },
         "encoding": {
           "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "-x", "axis": { "title": null } },
@@ -98,9 +99,8 @@ realizations:
         },
         "layer": [
           { "mark": { "type": "bar", "color": "{{col_bar}}" } },
-          { "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] }, { "filter": "datum._n < 10" } ],
-            "mark": { "type": "text", "align": "left", "dx": 4, "color": "{{col_label}}" },
-            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" } } }
+          { "mark": { "type": "text", "align": "left", "dx": 4, "color": "{{col_label}}" },
+            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "datum._n < 10", "value": 1 }, "value": 0 } } }
         ]
       }
 

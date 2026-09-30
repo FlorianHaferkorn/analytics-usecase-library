@@ -90,6 +90,7 @@ realizations:
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "data": { "name": "dataset" },
         "transform": [
+          { "joinaggregate": [ { "op": "count", "as": "_n" } ] },
           { "window": [ { "op": "sum", "field": "{{field_val}}", "as": "cum" } ], "frame": [null, 0] },
           { "calculate": "datum.cum - datum['{{field_val}}']", "as": "prev" }
         ],
@@ -99,11 +100,10 @@ realizations:
         "layer": [
           { "mark": { "type": "bar", "color": "{{col_step}}" },
             "encoding": {
-            "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } },
+            "y": { "field": "prev", "type": "quantitative", "axis": { "title": null }, "scale": { "padding": 16 } },
             "y2": { "field": "cum" } } },
-          { "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] }, { "filter": "datum._n < 10" } ],
-            "mark": { "type": "text", "baseline": "bottom", "dy": -4, "color": "{{col_label}}" },
-            "encoding": { "y": { "field": "cum", "type": "quantitative" }, "text": { "field": "{{field_val}}", "type": "quantitative", "format": ",.1~f" } } }
+          { "mark": { "type": "text", "baseline": "bottom", "dy": -4, "color": "{{col_label}}" },
+            "encoding": { "y": { "field": "cum", "type": "quantitative" }, "text": { "field": "{{field_val}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "datum._n < 10", "value": 1 }, "value": 0 } } }
         ]
       }
 

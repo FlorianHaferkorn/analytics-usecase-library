@@ -10,6 +10,14 @@
     },
     "transform": [
       {
+        "joinaggregate": [
+          {
+            "op": "count",
+            "as": "_n"
+          }
+        ]
+      },
+      {
         "window": [
           {
             "op": "sum",
@@ -50,6 +58,9 @@
             "type": "quantitative",
             "axis": {
               "title": null
+            },
+            "scale": {
+              "padding": 16
             }
           },
           "y2": {
@@ -58,19 +69,6 @@
         }
       },
       {
-        "transform": [
-          {
-            "joinaggregate": [
-              {
-                "op": "count",
-                "as": "_n"
-              }
-            ]
-          },
-          {
-            "filter": "datum._n < 10"
-          }
-        ],
         "mark": {
           "type": "text",
           "baseline": "bottom",
@@ -86,6 +84,13 @@
             "field": "value",
             "type": "quantitative",
             "format": ",.1~f"
+          },
+          "opacity": {
+            "condition": {
+              "test": "datum._n < 10",
+              "value": 1
+            },
+            "value": 0
           }
         }
       }

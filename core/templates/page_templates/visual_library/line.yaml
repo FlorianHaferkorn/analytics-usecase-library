@@ -41,6 +41,7 @@ data_slots:
   plan_field: {role: plan, required: false}
 
 canonical_params:
+  col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
   entity: "_Measures"
   measure: "Gross Margin %"
   target_measure: "Plan Gross Margin %"
@@ -119,7 +120,10 @@ realizations:
             "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
           { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
             "mark": { "type": "point", "filled": true, "size": 60, "color": "{{col_end}}" },
-            "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } }
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } },
+          { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
+            "mark": { "type": "text", "align": "right", "dx": -8, "dy": -10, "color": "{{col_label}}" },
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative" }, "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" } } }
         ]
       }
 

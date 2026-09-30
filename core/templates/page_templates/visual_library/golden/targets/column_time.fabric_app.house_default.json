@@ -8,6 +8,16 @@
     "data": {
       "name": "dataset"
     },
+    "transform": [
+      {
+        "joinaggregate": [
+          {
+            "op": "count",
+            "as": "_n"
+          }
+        ]
+      }
+    ],
     "encoding": {
       "x": {
         "field": "month",
@@ -33,19 +43,6 @@
         }
       },
       {
-        "transform": [
-          {
-            "joinaggregate": [
-              {
-                "op": "count",
-                "as": "_n"
-              }
-            ]
-          },
-          {
-            "filter": "datum._n < 10"
-          }
-        ],
         "mark": {
           "type": "text",
           "baseline": "bottom",
@@ -57,6 +54,13 @@
             "field": "count",
             "type": "quantitative",
             "format": ",.1~f"
+          },
+          "opacity": {
+            "condition": {
+              "test": "datum._n < 10",
+              "value": 1
+            },
+            "value": 0
           }
         }
       }

@@ -57,7 +57,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:007395e258158dbf9487dec9481aed22efcd015f4b416ec5ae11da9a854233de"
+      "checksum": "sha256:d99dd07299edabc7fd31f49a9f00c6db90b576ec270ebc2f57bdaabd0fd385cc"
     },
     {
       "id": "bar_ranking",
@@ -87,7 +87,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:fdfc80e911ac2ea63172136c5d1112af25f5e8371a89c795a4585c0653b3f496"
+      "checksum": "sha256:a536d716b7aea7d0e1597b7de4bb492fed0b54fc55ca074aa4b6db2ac51c5291"
     },
     {
       "id": "bar_stacked",
@@ -197,7 +197,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:6f2c4e3489240e0c4cff16ce44d42794dbb7848a396518e4af54e61ffd7792e6"
+      "checksum": "sha256:a5115f46207252e18124585a1caf89b467bc22bc8647d6f9fa9ed25f11446afd"
     },
     {
       "id": "decomposition_tree",
@@ -467,7 +467,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:cd28c1933c465cf506a992998aef945f80607fac66345f1bbc640815d9b538d8"
+      "checksum": "sha256:7e8a2fc99c08f62e99e3f301c220086010a4dcef96577dfcc2c5d6248d73c9f5"
     },
     {
       "id": "lollipop",
@@ -812,7 +812,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:6c503b9cf9072f3cba856209baf6c08e238a290db97895c0b00e8b49565e45b3"
+      "checksum": "sha256:8a25b6293fe8f8950b5a1822f9cf02fcc0f73b5e00bc00ca6fc6e8348952510c"
     },
     {
       "id": "waterfall_pvm",
@@ -841,7 +841,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:5ff790a1b72566928c2dce6fde82abd48ef598cd59858171bf81efdda832158b"
+      "checksum": "sha256:d0f142bb7fdbdc5211346f1b6cd5127d840b5f7fc8cfa441def1531e57484d4e"
     },
     {
       "id": "waterfall_variance",
@@ -869,7 +869,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:82795e0c256df7fcf4d199a558f447663c38095aeb35529b0d4f3668c8746ed8"
+      "checksum": "sha256:93383fa6194e62bd554c3a6606ef0b1523de5b544ec83fcfb294eb4244f490b9"
     }
   ]
 }

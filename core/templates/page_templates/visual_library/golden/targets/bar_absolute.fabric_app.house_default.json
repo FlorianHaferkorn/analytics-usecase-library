@@ -8,6 +8,16 @@
     "data": {
       "name": "dataset"
     },
+    "transform": [
+      {
+        "joinaggregate": [
+          {
+            "op": "count",
+            "as": "_n"
+          }
+        ]
+      }
+    ],
     "padding": {
       "right": 40
     },
@@ -39,19 +49,6 @@
         }
       },
       {
-        "transform": [
-          {
-            "joinaggregate": [
-              {
-                "op": "count",
-                "as": "_n"
-              }
-            ]
-          },
-          {
-            "filter": "datum._n < 10"
-          }
-        ],
         "mark": {
           "type": "text",
           "align": "left",
@@ -63,6 +60,13 @@
             "field": "net_sales",
             "type": "quantitative",
             "format": ",.1~f"
+          },
+          "opacity": {
+            "condition": {
+              "test": "datum._n < 10",
+              "value": 1
+            },
+            "value": 0
           }
         }
       }

@@ -11,6 +11,16 @@
     "data": {
       "name": "dataset"
     },
+    "transform": [
+      {
+        "joinaggregate": [
+          {
+            "op": "count",
+            "as": "_n"
+          }
+        ]
+      }
+    ],
     "layer": [
       {
         "mark": {
@@ -20,7 +30,10 @@
           "y": {
             "field": "unit",
             "type": "nominal",
-            "sort": "x",
+            "sort": {
+              "field": "gm",
+              "order": "ascending"
+            },
             "axis": {
               "title": null
             }
@@ -57,19 +70,6 @@
         }
       },
       {
-        "transform": [
-          {
-            "joinaggregate": [
-              {
-                "op": "count",
-                "as": "_n"
-              }
-            ]
-          },
-          {
-            "filter": "datum._n < 10"
-          }
-        ],
         "mark": {
           "type": "text",
           "align": "left",
@@ -80,7 +80,10 @@
           "y": {
             "field": "unit",
             "type": "nominal",
-            "sort": "x"
+            "sort": {
+              "field": "gm",
+              "order": "ascending"
+            }
           },
           "x": {
             "field": "gm",
@@ -90,6 +93,13 @@
             "field": "gm",
             "type": "quantitative",
             "format": ",.1~f"
+          },
+          "opacity": {
+            "condition": {
+              "test": "datum._n < 10",
+              "value": 1
+            },
+            "value": 0
           }
         }
       }

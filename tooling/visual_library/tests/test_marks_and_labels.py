@@ -121,5 +121,17 @@ def test_ibcs_line_labels_only_first_last_and_extrema_when_many_points():
     vlc = pytest.importorskip("vl_convert")
     vega = vlc.vegalite_to_vega(_spec("line", "ibcs", {"time": "Monat", "value": "Umsatz"}, rows))
     vega = json.loads(vega) if isinstance(vega, str) else vega
-    assert not [a for a in vega.get("axes", []) if a.get("orient") in ("left", "right") and a.get("labels", True)
-                and a.get("aria") is not False and a.get("scale") == "y"], "IBCS: value axis next to data labels (SI 3.1)"
+    value_axes = [a for a in vega.get("axes", []) if a.get("orient") in ("left", "right") and a.get("labels", True)
+                  and a.get("aria") is not False and a.get("scale") == "y"]
+    assert not value_axes, "IBCS: value axis next to data labels (SI 3.1)"
+
+
+def test_ranking_stays_sorted_by_value_with_a_label_layer():
+    """Measured 30.09.2026: a second layer made `sort: "x"` ambiguous and Vega fell back to A-Z."""
+    rows = [{"Region": c, "Umsatz": v} for c, v in zip(CATS, [1240, 1105, 980, 890, 760])]
+    for pid in ("house_default", "ibcs"):
+        bars = _bars("bar_ranking", pid, {"category": "Region", "value": "Umsatz"}, rows)
+        ac = sorted((b for b in bars), key=lambda b: b[1])        # top to bottom
+        widths = [b[2] for b in ac if b[2] > 0]
+        order = widths[:5] if pid == "house_default" else widths[1::2][:5]
+        assert order == sorted(order) or order == sorted(order, reverse=True), f"{pid}: not sorted {order}"
