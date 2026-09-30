@@ -63,7 +63,7 @@ _ALU_REL = "tooling/superversion"
 _ODCS_PUBLIC = ("to_odcs", "emit_odcs", "to_odcs_ingestion", "emit_odcs_ingestion",
                 "from_odcs", "import_sql_table", "odcs_to_catalog", "validate_odcs")
 # The column-contract half (A-20/A-23, Meridian D-581, mirrored 29.09.2026): private in both
-# repos, but it is the mapping `column_specs ⇄ ODCS v3.1 property`. A function added or dropped on
+# repos, but it is the mapping `column_specs ⇄ ODCS property`. A function added or dropped on
 # one side only means the round-trip means different things here and there.
 _ODCS_COLUMN_SPECS = ("_quality_rule", "_spec_to_property", "_property_to_spec",
                       "_table_properties", "_catalog_table_for")

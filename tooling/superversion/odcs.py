@@ -1,9 +1,10 @@
 """odcs — bidirectional mapping between the neutral IR and the Open Data Contract Standard (I-20.3).
 
 Cross-repo mirror of Meridian's `core.dataarch_engine.blueprint.odcs` (contract surface). Official-First
-(ADR-0051): the gold data contract is expressed in **ODCS** (Bitol Open Data Contract Standard v3.1.0),
+(ADR-0051): the gold data contract is expressed in **ODCS** (Bitol Open Data Contract Standard v3.2.0),
 not a home-grown format. Every contract this module emits carries the **one** ``ODCS_API_VERSION``
-(Meridian D-584; there it is checked against the vendored official v3.1 schema). This module
+(Meridian D-584, raised to v3.2.0 by Meridian D-586; there it is checked against the vendored
+official v3.2 schema). This module
 bridges the two directions the Baukasten needs:
 
   * **export** ``to_odcs(blueprint)`` — one ODCS ``DataContract`` per mesh domain; each gold product
@@ -15,7 +16,7 @@ bridges the two directions the Baukasten needs:
   * **catalog bridge** ``odcs_to_catalog(contracts)`` — an ODCS contract set → the ``governed_catalog``
     shape the emitters consume (the governed contract drives column projection; Meridian-side consumer).
   * **column contract** ``to_odcs(blueprint, governed_catalog)`` — the ``column_specs`` of
-    ``tooling/generator/export_governed_catalog.py`` (A-20/A-23) become ODCS v3.1 properties
+    ``tooling/generator/export_governed_catalog.py`` (A-20/A-23) become ODCS properties
     (``required``, ``relationships``, ``quality``, ``physicalName``) and come back through
     ``odcs_to_catalog`` unchanged (Meridian D-581). The check → SQL translation and the ref
     resolution are **not** re-implemented here: they come from the mirrored
@@ -35,18 +36,18 @@ import yaml
 
 from tooling.superversion.architecture_blueprint import _slug
 
-#: Eine Version fuer jeden Vertrag, den der Baukasten schreibt (Meridian D-584, 29.09.2026). Bis
-#: dahin standen hier zwei: ``v3.0.0`` fuer Vertraege ohne Spalten und die Uebergabegrenze,
-#: ``v3.1.0`` fuer Vertraege mit Spalten (``relationships``/``metric`` gibt es erst seit v3.1.0,
-#: CHANGELOG 2025-12-08). Meridian prueft gegen das vendored v3.1-Schema, also wird auch v3.1.0
-#: gestempelt. Bitol hat am 08.09.2026 v3.2.0 getaggt (github.com/bitol-io/open-data-contract-standard,
-#: f0bdad9, gelesen 29.09.2026); ein Wechsel dorthin folgt Meridian, sobald dort das v3.2-Schema
-#: vendored ist.
-ODCS_API_VERSION = "v3.1.0"
+#: Eine Version fuer jeden Vertrag, den der Baukasten schreibt (Meridian D-584, 29.09.2026: v3.1.0
+#: statt v3.0.0/v3.1.0 nebeneinander). Am 30.09.2026 mit Meridian D-586 auf v3.2.0 gehoben
+#: (Owner-Entscheidung, Official-First): Tag ``v3.2.0`` von github.com/bitol-io/open-data-contract-standard
+#: (f0bdad9, 08.09.2026), in Meridian vendored als ``odcs-json-schema-v3.2.json`` (sha256 edb41f33…).
+#: v3.2.0 ist gegenueber v3.1.0 rein additiv und fuehrt kein neues Pflichtfeld ein; ``status`` ist im
+#: v3.2-Schema nicht mehr Pflicht, wird hier aber weiter gestempelt (``validate_odcs`` verlangt es).
+ODCS_API_VERSION = "v3.2.0"
 ODCS_KIND = "DataContract"
 _CONTRACT_STANDARD = "odcs"
 
-# ODCS v3 logical types: string · integer · number · boolean · object · array · date.
+# ODCS v3 logical types: string · integer · number · boolean · object · array · date (v3.2 adds
+# map · vector — no SQL type maps onto them here, so the table below is unchanged).
 _SQL_TYPE_TO_LOGICAL = [
     (re.compile(r"^(tinyint|smallint|int|integer|bigint)\b", re.I), "integer"),
     (re.compile(r"^(decimal|numeric|number|float|real|double|money|smallmoney)\b", re.I), "number"),
@@ -104,7 +105,7 @@ def _schema_object(product: dict[str, Any], table: dict[str, Any] | None = None,
 
 # --------------------------------------------------------------------------- column_specs ⇄ ODCS properties
 # ALUCA-Ledger A-20: the governed catalog carries per table ``column_specs`` with structured checks.
-# Official-First: ODCS v3.1 expresses them natively where it can —
+# Official-First: ODCS (since v3.1) expresses them natively where it can —
 #   nullable/unknown_member → ``required``; ref → property-level ``relationships`` (``to: dim.col``);
 #   ``in`` → library metric ``invalidValues`` (``arguments.validValues``, ``mustBe: 0``);
 #   ranges / column comparisons → ``type: sql`` rule counting violating rows, ``mustBe: 0``.
@@ -137,7 +138,7 @@ def _quality_rule(column: str, check: dict[str, Any], n: int) -> dict[str, Any]:
 
 
 def _spec_to_property(spec: dict[str, Any], governed_catalog: dict[str, Any] | None) -> dict[str, Any]:
-    """One ``column_specs`` entry → an ODCS v3.1 property (lossless, see ``_property_to_spec``)."""
+    """One ``column_specs`` entry → an ODCS property (lossless, see ``_property_to_spec``)."""
     ref_ziel = _provision_dq().ref_ziel
     name = spec["name"]
     prop: dict[str, Any] = {"name": name}
@@ -245,7 +246,7 @@ def to_odcs(blueprint: dict[str, Any], governed_catalog: dict[str, Any] | None =
 
     With ``governed_catalog`` each gold product found there carries its columns as ODCS
     ``properties`` — including the structured ``column_specs`` checks (A-20). Every contract is
-    stamped ``ODCS_API_VERSION`` (v3.1.0), with or without columns. ``odcs_to_catalog`` reads them back.
+    stamped ``ODCS_API_VERSION`` (v3.2.0), with or without columns. ``odcs_to_catalog`` reads them back.
     """
     stack = blueprint.get("platform", {}).get("stack", "fabric")
     gold = blueprint.get("medallion", {}).get("gold", {}).get("data_products", [])
@@ -319,8 +320,12 @@ def emit_odcs(blueprint: dict[str, Any]) -> dict[str, str]:
 # ``location`` + ``format``, und ``host`` ist nur beim Typ ``custom`` erlaubt. Deshalb ist der Server
 # immer ``type: custom`` (das Standard-Ventil fuer nicht gelistete Systeme); der Hinweis unten reist
 # als customProperty ``serverTypeHint`` mit.
+# v3.2.0 (Meridian D-586, gemessen 30.09.2026 am vendored v3.2-Schema): ``sap``/``odbc`` fehlen weiter,
+# ``host`` bleibt ``custom`` vorbehalten; neu ist der Typ ``hana`` (RFC 0045, Pflicht ``host``). Der
+# Hinweis fuer den Konnektor ``hana`` nennt deshalb jetzt diesen Standardwert. Der Server bleibt
+# ``custom``: ``source_system`` ist ein Systemname („SAP S/4HANA“), kein Hostname.
 _CONNECTOR_SERVER_TYPE = {  # connector → server type hint (carried as customProperty, see above)
-    "odbc-live": "odbc", "odbc-copy": "odbc", "hana": "sap", "odata": "api",
+    "odbc-live": "odbc", "odbc-copy": "odbc", "hana": "hana", "odata": "api",
     "premium-outbound-shortcut": "azure", "mirroring": "sap", "sap-cdc": "sap",
     "open-mirroring": "custom", "bdc-connect": "sap",
 }
@@ -328,7 +333,7 @@ _CONNECTOR_SERVER_TYPE = {  # connector → server type hint (carried as customP
 
 def _custom_server(server: str, hint: str, description: str, host: str | None = None
                    ) -> dict[str, Any]:
-    """An ODCS v3.1 ``servers`` entry for a system the standard does not enumerate (SAP, ODBC …).
+    """An ODCS ``servers`` entry for a system the standard does not enumerate (SAP, ODBC …).
 
     ``type: custom`` is the schema's own answer; ``host`` is valid there. The system kind
     travels as customProperty ``serverTypeHint`` (omitted when it is ``custom`` itself)."""
