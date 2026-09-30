@@ -66,9 +66,11 @@ def test_cli_writes_file(tmp_path):
 
 
 def test_tables_carry_showcase_and_column_specs():
-    """A-23: additive fields — `columns` unchanged, `showcase` + `column_specs` alongside."""
+    """A-23: additive fields — `columns` unchanged, `showcase` + `column_specs` alongside.
+    `agg` + `synonyms` since 30.09.2026 (ODCS v3.2 semanticType/synonyms, Meridian D-590)."""
     tables = _load_tables(REPO / "core" / "data_contracts" / "domains")
-    allowed = {"name", "source_column", "type", "nullable", "ref", "unknown_member", "checks", "target_state"}
+    allowed = {"name", "source_column", "type", "nullable", "ref", "unknown_member", "checks", "target_state",
+               "agg", "synonyms"}
     for t in tables:
         assert isinstance(t["showcase"], bool)
         assert [s["name"] for s in t["column_specs"]] and sorted(s["name"] for s in t["column_specs"]) == t["columns"]
@@ -83,7 +85,10 @@ def test_tables_carry_showcase_and_column_specs():
     discount = next(s for s in sales["column_specs"] if s["name"] == "Discount Amount")
     assert discount["checks"] == [{"gte": 0, "when_present": True}]
     net = next(s for s in sales["column_specs"] if s["name"] == "Net Sales Amount")
-    assert set(net) == {"name", "type"}                      # only keys the contract sets
+    assert set(net) == {"name", "type", "agg", "synonyms"}   # only keys the contract sets
+    assert net["agg"] == "sum" and net["synonyms"] == ["Revenue", "Net Revenue", "Umsatz"]   # contract order
+    region = next(s for t in tables for s in t["column_specs"] if s["name"] == "Region" and s.get("synonyms"))
+    assert "agg" not in region and "Vertriebsregion" in region["synonyms"]
     assert any(t["showcase"] is False for t in tables)       # e.g. fact_emissions
     assert any(s.get("target_state") for t in tables for s in t["column_specs"])
     units = next(s for s in sales["column_specs"] if s["name"] == "Sales Units")
@@ -144,6 +149,6 @@ def test_column_specs_from_synthetic_contract(tmp_path):
     (t,) = _load_tables(tmp_path)
     assert t["showcase"] is False and t["columns"] == ["A", "B"]
     assert t["column_specs"] == [
-        {"name": "A", "type": "int", "checks": [{"between": [0, 1]}]},       # first wins, extra keys dropped
+        {"name": "A", "type": "int", "checks": [{"between": [0, 1]}], "agg": "sum"},   # first wins, extra keys dropped
         {"name": "B", "type": "int", "nullable": False, "ref": "dim_y", "unknown_member": -1, "target_state": True},
     ]
