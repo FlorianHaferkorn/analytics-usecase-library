@@ -1,3 +1,13 @@
-kit_version: 3.24
+kit_version: 3.25
 installed: 2026-09-30
 doctrine_sha: 96c6cf7a0b3a
+sha 2285655785a35d0a92f0d31db2a33fa9a32f81f8 .claude/repo-kit/CONVENTIONS.md
+sha cb5603a73def3f2a1998fe7161bdccfc1518fb09 .claude/repo-kit/templates/Makefile
+sha 36bd40c126ecb07d3378eff7dd71eef36603dcae .claude/repo-kit/templates/_ADR.md
+sha 4d12a32af425bd6f7e1f51dd6d1f5057983bc7c8 .claude/repo-kit/templates/_INDEX.area.md
+sha 12ab664a855e6ede4f57f5838de0a278165f1b99 .claude/repo-kit/templates/_INDEX.ledger.md
+sha 15883fd8d7b2e5d32422cf396d8a0894cc6c3464 .claude/repo-kit/templates/_MANIFEST.md
+sha e9ea976d440adf78d572c489a68454065118109c GOI_REFERENCE.md
+sha fe5858e8317c06b78c4550b0e0ad69f04c98c945 docs/NAVIGATION_PHILOSOPHY.md
+sha ce71a8d7dee13d495f83a2763fbf16f1bc502077 scripts/check_index.py
+sha 9a8b7d75c0c1342499c2a00e1eaa0344d5c7cea9 scripts/repo_kit_init.py
