@@ -23,6 +23,11 @@ Regel steht im Marker `braucht_pbir_cli` in der Wurzel-`conftest.py`.
 
 Nachgemessen am 29.09.2026 (CLI 0.1.1, `validate --format json`, alle 17 dist-Reports):
 16 Reports mit 25 Errors, 1 Report mit 23 — der schlechteste Wert steht weiter auf 25.
+
+Nachgemessen am 30.09.2026 (CLI 0.4.0): unverändert 16 × 25 und 1 × 23. Der offizielle Emit
+käme auf 0, trägt aber nur 105 statt 211 Visuals und 39 von 133 im dist-Modell auflösbare
+Bindungen; `dist/` bleibt deshalb auf dem Prototyp und die Ratsche auf 25
+(`docs/architecture/research/2026-09-30_a18-dist-emit-messung.md`, A-18).
 """
 from __future__ import annotations
 

@@ -1,8 +1,9 @@
 """Spalten-``///`` aus dem Datenvertrag im TMDL (W5.6, 29.09.2026).
 
 Festgeschrieben: Vertragsbeschreibung -> ``///``; ohne Beschreibung keine; handgeschriebene
-bleibt; eine früher erzeugte wird aus dem Vertrag erneuert. Dazu die Verdrahtung im
-Generator (``generate_semantic_model``) und der Gleichstand von ``dist/``.
+bleibt; eine früher erzeugte wird aus dem Vertrag erneuert. Dazu der Gleichstand von ``dist/``.
+Der Verdrahtungstest für ``generate_semantic_model`` ging am 30.09.2026 mit dem Generator ins
+Archiv (A-25); ``dist/`` hält jetzt allein ``enrich_measure_docs.py --dist ... --columns``.
 """
 from __future__ import annotations
 
@@ -88,19 +89,6 @@ def test_idempotent_and_generated_doc_is_refreshed():
 
 def test_table_outside_contract_untouched():
     assert enrich_columns_text(_TMDL, None) == _TMDL
-
-
-def test_generator_writes_column_doc(tmp_path, monkeypatch):
-    """Verdrahtung: generate_semantic_model schreibt die Vertragsbeschreibung an die Spalte."""
-    import products.fabric.powerbi.tooling.generate_semantic_model as gsm
-
-    monkeypatch.setattr(gsm, "DIST", tmp_path)
-    gsm.generate_domain("Commercial", "gold", dry_run=False)
-    text = (tmp_path / "Commercial.SemanticModel" / "definition" / "tables" / "fact_sales.tmdl").read_text(
-        encoding="utf-8")
-    lines = text.splitlines()
-    i = next(n for n, line in enumerate(lines) if line.startswith("\tcolumn 'Net Sales Amount'"))
-    assert lines[i - 1].startswith("\t/// Invoiced revenue net of discounts and returns.")
 
 
 def test_dist_in_sync_with_contracts():

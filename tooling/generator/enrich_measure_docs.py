@@ -172,7 +172,7 @@ def enrich_columns_text(text: str, table: Optional["TableDescription"]) -> str:
 
 
 def _domain_tables(domain: str, contracts_dir: Path) -> Dict[str, "TableDescription"]:
-    from products.fabric.powerbi.tooling.generate_semantic_model import DOMAIN_CONTRACT
+    from products.fabric.powerbi.tooling.linguistic_schema import DOMAIN_CONTRACT
     from tooling.generator_core.ai_description import build_table_descriptions
 
     contract = DOMAIN_CONTRACT.get(domain)
