@@ -23,20 +23,23 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from products.fabric.powerbi.tooling.theme_paths import (
+# Repo root (apply_report_theme.py lives in products/fabric/powerbi/tooling/). On sys.path so the
+# file also runs as a standalone script (the .ps1 wrapper, any cwd), not only via `python -m`.
+REPO_ROOT = Path(__file__).resolve().parents[4]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from products.fabric.powerbi.tooling.theme_paths import (  # noqa: E402
     THEME_DEFAULTS,
     find_theme,
     run_engine,
 )
-from products.fabric.powerbi.tooling.theme_registration import (
+from products.fabric.powerbi.tooling.theme_registration import (  # noqa: E402
     custom_theme_collection_name,
     registered_theme_filename,
     write_registered_theme,
 )
-from tooling.report_quality import base_theme as _bt
-
-# Repo root (apply_report_theme.py lives in products/fabric/powerbi/tooling/)
-REPO_ROOT = Path(__file__).resolve().parents[4]
+from tooling.report_quality import base_theme as _bt  # noqa: E402
 # Theme sources: see theme_paths.py (vendored engine output + ALUCA-owned local output).
 THEME_GENERATOR_CONFIG = THEME_DEFAULTS
 SHOWCASES_DIR = REPO_ROOT / "showcases"

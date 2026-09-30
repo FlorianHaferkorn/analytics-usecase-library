@@ -75,7 +75,7 @@ table _Measures
 		lineageTag: 0d48ddf2-cce0-42c3-bf0d-6e08d514271d
 	/// Average EUR impact per achieved action execution.
 	/// Formula: AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
-	/// Grain: month · Unit: EUR
+	/// Grain: month · Unit: EUR · Good: higher_is_better
 	/// Owner: Commercial BI · Status: active
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
@@ -154,7 +154,7 @@ table _Measures
 
 	/// Cases meeting SLA divided by total cases.
 	/// Formula: Cases with SLA Met Flag = 1 divided by total cases in period.
-	/// Grain: day_queue · Unit: %
+	/// Grain: day_queue · Unit: % · Good: higher_is_better
 	/// Owner: Service Analytics · Status: active · Actions: X-S1.1, X-S1.2, X-S1.4
 	/// Synonyms: Service Level, SLA Compliance, Telephone Service Factor, Servicegrad, Servicelevel
 	/// Example question: Which queues are missing the SLA this week?
@@ -188,7 +188,7 @@ table _Measures
 
 	/// Open cases not resolved.
 	/// Formula: Count of open cases at period end.
-	/// Grain: day_queue · Unit: count
+	/// Grain: day_queue · Unit: count · Good: lower_is_better
 	/// Owner: Service Analytics · Status: active · Actions: X-S1.1, X-S1.2
 	/// Synonyms: Support Backlog, Open Ticket Backlog, Unresolved Tickets, Rückstand, offene Tickets
 	/// Example question: Which queues have the largest case backlog?
@@ -222,7 +222,7 @@ table _Measures
 
 	/// Escalated cases / total cases.
 	/// Formula: Escalated cases divided by total cases.
-	/// Grain: day_queue · Unit: %
+	/// Grain: day_queue · Unit: % · Good: lower_is_better
 	/// Owner: Service Analytics · Status: active · Actions: X-S1.1, X-S1.3
 	/// Synonyms: Escalation Rate, Ticket Escalation Rate, Transfer Rate, Eskalationsquote, Eskalationsrate
 	/// Example question: Which issue types escalate most often?
@@ -259,7 +259,7 @@ table _Measures
 
 	/// Share of cases solved on first contact without escalation or rework.
 	/// Formula: DIVIDE ( CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[FCR Flag] = TRUE() ), COUNTROWS ( fact_support_cases ) )
-	/// Grain: queue_day · Unit: %
+	/// Grain: queue_day · Unit: % · Good: higher_is_better
 	/// Owner: Service BI · Status: active · Actions: X-S1.3
 	/// Synonyms: First Contact Resolution, First Call Resolution, One-Touch Resolution, Erstlösungsquote, Erstkontaktlösung
 	/// Example question: Where is first contact resolution lowest, and why?
@@ -269,7 +269,7 @@ table _Measures
 
 	/// Display alias for AHT Minutes; measures average time to handle a contact.
 	/// Formula: DIVIDE ( SUM ( fact_support_cases[Handle Time Minutes] ), COUNTROWS ( fact_support_cases ) )
-	/// Grain: queue_day · Unit: minutes
+	/// Grain: queue_day · Unit: minutes · Good: lower_is_better
 	/// Owner: Service BI · Status: active · Actions: X-S1.4
 	/// Synonyms: Average Handle Time, Average Handling Time, Handle Time, durchschnittliche Bearbeitungszeit
 	/// Example question: What is pushing average handle time up on chat?
@@ -279,7 +279,7 @@ table _Measures
 
 	/// Productive time vs paid time.
 	/// Formula: Productive time divided by paid time.
-	/// Grain: agent_day or queue_day · Unit: %
+	/// Grain: agent_day or queue_day · Unit: % · Good: within_target_band
 	/// Owner: Service Analytics · Status: active · Actions: X-R2.1, X-R2.2, X-R2.3, X-R2.4
 	measure 'Utilization %' = DIVIDE ( SUM ( fact_workforce_management[Work Time Minutes] ), SUM ( fact_workforce_management[Paid Time Minutes] ) )
 		formatString: "0.0%"
@@ -287,7 +287,7 @@ table _Measures
 
 	/// Active vs available time: (Talk + Wrap) / (Talk + Wrap + Idle).
 	/// Formula: (Talk + Wrap) / (Talk + Wrap + Idle).
-	/// Grain: agent_day or queue_day · Unit: %
+	/// Grain: agent_day or queue_day · Unit: % · Good: within_target_band
 	/// Owner: Service Analytics · Status: active · Actions: X-R2.1, X-R2.2
 	measure 'Occupancy %' =
 			VAR TalkMinutes =
@@ -307,7 +307,7 @@ table _Measures
 
 	/// Overtime minutes / paid time minutes.
 	/// Formula: Overtime hours divided by total hours.
-	/// Grain: agent_day or region_week · Unit: %
+	/// Grain: agent_day or region_week · Unit: % · Good: lower_is_better
 	/// Owner: Service Analytics · Status: active · Actions: X-R2.1, X-R2.4
 	measure 'Overtime %' = DIVIDE ( SUM ( fact_workforce_management[Overtime Minutes] ), SUM ( fact_workforce_management[Paid Time Minutes] ) )
 		formatString: "0.0%"
@@ -315,7 +315,7 @@ table _Measures
 
 	/// Shrinkage minutes / paid time minutes.
 	/// Formula: Non-productive time divided by paid time.
-	/// Grain: agent_day · Unit: %
+	/// Grain: agent_day · Unit: % · Good: lower_is_better
 	/// Owner: Service Analytics · Status: active · Actions: X-R2.3
 	measure 'Shrinkage %' = DIVIDE ( SUM ( fact_workforce_management[Shrinkage Minutes] ), SUM ( fact_workforce_management[Paid Time Minutes] ) )
 		formatString: "0.0%"
@@ -363,7 +363,7 @@ table _Measures
 
 	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
 	/// Formula: AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )
-	/// Grain: customer · Unit: EUR
+	/// Grain: customer · Unit: EUR · Good: higher_is_better
 	/// Owner: Commercial BI · Status: active · Actions: C-C3.1
 	measure 'CLV (Customer Lifetime Value)' = [CLV]
 		formatString: "#,0.00"
@@ -437,6 +437,7 @@ table _Measures
 
 	/// Aggregated cash conversion cycle derived from DSO, DIO, and DPO measures.
 	/// Formula: DSO + DIO - DPO.
+	/// Good: lower_is_better
 	/// Owner: Finance BI · Status: active
 	measure 'Cash Conversion Cycle (Days)' =
 			VAR DaysSalesOutstanding =
@@ -452,6 +453,7 @@ table _Measures
 
 	/// Alias for Digital Adoption % (TMDL display name).
 	/// Formula: Alias for Digital Adoption % (TMDL display name).
+	/// Good: higher_is_better
 	/// Owner: Innovation Analytics · Status: active
 	measure 'Digital Adoption Rate %' = VAR _pending = "Requires fact_it Digital Users and fact_hr Total Headcount (not yet in data contracts)" RETURN BLANK()
 		formatString: "0.0%"
@@ -459,7 +461,7 @@ table _Measures
 
 	/// Average attrition risk for the selected population.
 	/// Formula: Probability of attrition for the selected population in the period.
-	/// Grain: month · Unit: %
+	/// Grain: month · Unit: % · Good: lower_is_better
 	/// Owner: Innovation Analytics · Status: active
 	measure 'Attrition Risk %' = VAR _pending = "Requires predictive attrition model output table (not yet in data contracts)" RETURN BLANK()
 		formatString: "0.0%"
@@ -487,7 +489,7 @@ table _Measures
 
 	/// Composite enterprise risk index based on domain signals.
 	/// Formula: Weighted index of normalized domain risk signals.
-	/// Grain: entity_month · Unit: index
+	/// Grain: entity_month · Unit: index · Good: lower_is_better
 	/// Owner: Risk Analytics · Status: active · Actions: X-E3.2
 	measure 'Enterprise Value-at-Risk Index' =
 			VAR RevenueAtRiskShare =
