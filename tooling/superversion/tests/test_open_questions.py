@@ -136,9 +136,13 @@ def test_the_mirrored_decisions_arrive_with_their_ways(ledger):
     19 -> 20: `DATA-SILVER-LOAD` (Schreibmuster der Silber-Schicht) mit Meridian D-533.
     Anders als die beiden davor traegt sie einen Ermittlungsweg (wo, wen, wenn unklar):
     die zweite Zahl geht deshalb von 7 auf 8.
+
+    20 -> 25 mit Meridian D-615 (30.09.2026): SEC-MIRROR, OPS-MONITORING, PLAT-OVERAGE,
+    OUT-REPORT, AI-DE-COPILOT, die Plattformfragen aus der FabCon Europe 2026. Alle fuenf
+    sind vorbelegt, ohne Ermittlungsweg: die zweite Zahl bleibt bei 8.
     """
     mirrored = [q for q in ledger["questions"] if q["origin"] == ORIGIN_MIRROR]
-    assert len(mirrored) == 20
+    assert len(mirrored) == 25
     mit_weg = [q for q in mirrored
                if all(str(q["way"].get(f, "")).strip() for f in WAY_FIELDS)]
     assert len(mit_weg) == 8
