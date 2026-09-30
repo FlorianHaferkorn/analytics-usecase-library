@@ -90,7 +90,7 @@ def _resolve_theme_path(bracket_path: Path, repo_root: Path, explicit_theme: Opt
       1. Explicit --theme argument (absolute or repo-relative path)
       2. bracket → brand.brand_id → showcases/<id>/brand/brand_spec.yaml → tool_derivations.powerbi_theme
       3. repo_config.yaml → showcase_id → brand_spec.yaml → tool_derivations.powerbi_theme
-      4. None (no custom theme; falls back to CY25SU10 base theme)
+      4. None (no custom theme; falls back to the base theme, tooling/report_quality/base_theme.py)
     """
     if explicit_theme:
         p = Path(explicit_theme)

@@ -5,7 +5,7 @@ the base theme (Learn, power-bi/create-reports/desktop-report-themes, checked 29
 Since August 2026 new reports start on the Fluent 2 base theme, which brings its own fonts
 and font sizes (Learn, power-bi/create-reports/power-bi-reports-visual-defaults). A derived
 brand theme without `textClasses` therefore shows Fluent 2 fonts in a new report and the
-CY25SU10 fonts in a generated one — the brand font never reaches either.
+base theme fonts (CY25SU10; since D-587, 30.09.2026: CY26SU10) in a generated one — the brand font never reaches either.
 
 Measured on 29.09.2026 before the fix: `spec_to_pbi_theme` wrote no `textClasses`, put the
 font into a card named `fontFamily` (`visualStyles.*.*.fontFamily[{"value": …}]`, not a

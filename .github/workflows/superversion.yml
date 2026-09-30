@@ -30,6 +30,9 @@ on:
       - "conftest.py"
       - "products/fabric/powerbi/dist/**"
       - "tooling/tests/test_dist_validator_ratchet.py"
+      - "tooling/tests/test_base_theme_drift.py"
+      - "tooling/report_quality/base_theme.py"
+      - "tooling/schemas/pbir/base_themes/**"
       - ".github/workflows/superversion.yml"
   push:
     branches: [main]
@@ -41,6 +44,9 @@ on:
       - "conftest.py"
       - "products/fabric/powerbi/dist/**"
       - "tooling/tests/test_dist_validator_ratchet.py"
+      - "tooling/tests/test_base_theme_drift.py"
+      - "tooling/report_quality/base_theme.py"
+      - "tooling/schemas/pbir/base_themes/**"
       - ".github/workflows/superversion.yml"
   # manual trigger for on-demand branch testing (no merge / ready needed)
   workflow_dispatch: {}
@@ -110,7 +116,7 @@ jobs:
       - name: Run superversion adapter tests + official-validator tests
         env:
           ALUCA_PBIR_CLI_PFLICHT: "1"
-        run: python -m pytest tooling/superversion/ tooling/tests/test_dist_validator_ratchet.py -q -rs
+        run: python -m pytest tooling/superversion/ tooling/tests/test_dist_validator_ratchet.py tooling/tests/test_base_theme_drift.py -q -rs
 
       - name: Pin-drift sensor (advisory — reports, never bumps)
         run: python scripts/check_superversion_pins.py
