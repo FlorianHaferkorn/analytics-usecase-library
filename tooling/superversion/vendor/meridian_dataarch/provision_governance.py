@@ -693,6 +693,51 @@ def _row_security_roles(domain: dict, sensitivity: dict, cols_by_table: dict) ->
     return rollen, todo
 
 
+def _onelake_areas(bp: dict) -> list[dict]:
+    return [a for a in (((bp.get("governance") or {}).get("security") or {}).get("onelake_areas") or [])
+            if isinstance(a, dict) and a.get("name") and a.get("path")]
+
+
+def _onelake_area_roles(bp: dict) -> tuple[list[dict], list[str]]:
+    """Rollen fuer ``governance.security.onelake_areas``: Ordner lesen oder schreiben (I-21, 30.09.2026).
+
+    Learn (``onelake/security/data-access-control-model``, gelesen 30.09.2026): ReadWrite gibt es nur
+    im Lakehouse, es wirkt nur fuer Nutzer mit Read-Recht (Viewer) — Admin/Member/Contributor
+    schreiben ohnehin —, eine ReadWrite-Rolle darf keine RLS/CLS tragen, und geschrieben wird nur
+    ueber Spark, OneLake-APIs oder den OneLake-Datei-Explorer, nicht ueber die Lakehouse-Oberflaeche.
+    Ordnerrechte vererben sich auf Unterordner. Die REST-Referenz nennt als ``Action``-Wert nur
+    ``Read`` („such as"); ``ReadWrite`` als Wert ist ANNAHME, ungeprueft — deshalb ein Punkt vor
+    dem PUT (``dryRun=true`` zeigt es).
+    """
+    rollen: list[dict] = []
+    todo: list[str] = []
+    gold = {str(t) for d in _domains(bp) for t in d.get("data_products", []) or []}
+    for a in sorted(_onelake_areas(bp), key=lambda x: str(x["name"])):
+        pfad = "/" + str(a["path"]).strip("/")
+        schreiben = a.get("access") == "readwrite"
+        aktionen = ["Read", "ReadWrite"] if schreiben else ["Read"]
+        rollen.append({
+            "name": f"area_{_ident(a['name'])}",
+            "kind": "Policy",
+            "decisionRules": [{"effect": "Permit", "permission": [
+                {"attributeName": "Path", "attributeValueIncludedIn": [pfad]},
+                {"attributeName": "Action", "attributeValueIncludedIn": aktionen},
+            ]}],
+            "members": {"microsoftEntraMembers": [{
+                "objectId": f"<VERIFY: Entra group objectId of {a.get('group') or 'the group for ' + str(a['name'])}>",
+                "objectType": "Group",
+                "tenantId": "<TENANT_GUID>"}]},
+        })
+        if schreiben:
+            todo.append(f"Bereich `{a['name']}` ({pfad}): `ReadWrite` als Action-Wert mit "
+                        "`dryRun=true` pruefen (REST-Referenz nennt nur `Read`; ANNAHME, ungeprueft).")
+            tabelle = pfad.split("/", 3)[2] if pfad.startswith("/Tables/") else ""
+            if tabelle in gold:
+                todo.append(f"Bereich `{a['name']}` gibt Schreibrecht auf die Gold-Tabelle `{tabelle}` — "
+                            "Viewer schreiben dann an der Ladestrecke vorbei. Absicht bestaetigen.")
+    return rollen, todo
+
+
 def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None = None,
                             catalog: dict | None = None, _with_todo: bool = False):
     """OneLake Security roles — the **primary, engine-unified** RLS/CLS/OLS layer: defined once
@@ -777,6 +822,9 @@ def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None =
                  "objectType": "Group",
                  "tenantId": "<TENANT_GUID>"}]},
         })
+    area_rollen, area_todo = _onelake_area_roles(bp)
+    roles += area_rollen
+    cls_todo += area_todo
     payload = {"value": sorted(roles, key=lambda r: r["name"])}
     # **Reines JSON, keine Kommentarzeilen.** Diese Datei ist der Rumpf eines PUT auf
     # `/dataAccessRoles`. Bis 31.07.2026 stand ein `//`-Kommentarblock davor — damit war sie kein
@@ -855,6 +903,67 @@ def _row_security_doc(bp: dict) -> list[str]:
     return lines
 
 
+def _areas_doc(bp: dict) -> list[str]:
+    """Die Bereiche aus ``onelake_areas`` — was freigegeben ist und was daran begrenzt bleibt."""
+    bereiche = _onelake_areas(bp)
+    if not bereiche:
+        return []
+    lines = ["## Bereiche: Ordner lesen, Ordner schreiben", "",
+             "| Rolle | Pfad | Zugriff | Gruppe | Zweck |", "|---|---|---|---|---|"]
+    for a in sorted(bereiche, key=lambda x: str(x["name"])):
+        lines.append(f"| `area_{_ident(a['name'])}` | `{a['path']}` | {a.get('access')} | "
+                     f"{a.get('group') or '—'} | {a.get('purpose') or '—'} |")
+    lines += ["",
+              "- **ReadWrite wirkt nur fuer Viewer** (Nutzer mit Read-Recht). Admin, Member und "
+              "Contributor schreiben ohnehin. Geschrieben wird ueber Spark, OneLake-APIs oder den "
+              "OneLake-Datei-Explorer — nicht ueber die Lakehouse-Oberflaeche.",
+              "- **Keine RLS/CLS in einer ReadWrite-Rolle.** Wer schreiben darf, sieht den Bereich "
+              "ganz; ein Zeilenschnitt gehoert in eine eigene Leserolle.",
+              "- **Ordnerrechte vererben sich** auf alle Unterordner, auch auf Shortcuts darin.",
+              "- Quelle: Learn `onelake/security/data-access-control-model`, gelesen 30.09.2026.", ""]
+    return lines
+
+
+def _shortcut_mirror_doc() -> list[str]:
+    """Shortcut-Sicherheit und gespiegelte Datenbanken (Learn, gelesen 30.09.2026)."""
+    return [
+        "## Shortcuts: wessen Identitaet liest",
+        "",
+        "| Shortcut | Modus | Folge |",
+        "|---|---|---|",
+        "| OneLake → OneLake, selber Mandant | Passthrough (Vorgabe) oder Delegated | Passthrough: "
+        "die Rechte des Lesers am Ziel gelten; auf dem Shortcut selbst keine eigenen Rollen. |",
+        "| OneLake → OneLake, anderer Mandant; External Data Sharing | immer Delegated | Der Leser "
+        "sieht die Schnittmenge aus seinen Rollen am Shortcut und den Rechten der hinterlegten "
+        "Identitaet an der Quelle. |",
+        "| Extern (ADLS, S3, GCS, Dataverse) | immer Delegated | Die Verbindung liest alles, was ihr "
+        "Schluessel darf — **nur OneLake-Rollen auf dem Shortcut-Pfad** grenzen den Leser ein. |",
+        "",
+        "- **Zeilenschnitt nur an der Quelle.** Bei delegierten Shortcuts ist RLS nur auf der "
+        "Quellseite moeglich, auf der Konsumentenseite nur CLS. Wer Daten teilt oder "
+        "per Shortcut verteilt, schneidet Zeilen beim Anbieter, nicht beim Empfaenger.",
+        "- **Externe Shortcuts brauchen eigene Rollen.** Ohne Rolle auf dem Shortcut-Pfad liest "
+        "jeder mit ReadAll ueber den `DefaultReader` alles, was die Verbindung darf. Zusaetzlich "
+        "braucht Spark bzw. die OneLake-API das Read-Recht auf dem Item mit dem Shortcut.",
+        "- **SQL-Endpunkt im delegierten Modus blockiert** Shortcuts auf Tabellen mit OneLake-RLS, "
+        "-CLS oder -OLS. Deshalb laeuft der Endpunkt hier auf Nutzeridentitaet "
+        "(Tenant-Setup, `set_sql_endpoint_identity_mode`).",
+        "- **Muster:** Sicherheit im Quell-Workspace setzen, nachgelagerte Workspaces lesen per "
+        "Shortcut; alle SQL-Endpunkte auf Nutzeridentitaet (Learn best-practices-secure-data-in-onelake).",
+        "",
+        "## Gespiegelte Datenbanken",
+        "",
+        "Jede gespiegelte Datenbank bringt einen eigenen `DefaultReader` mit: jeder mit ReadAll "
+        "liest die gespiegelten Rohdaten vollstaendig. Das Tenant-Setup fuehrt je gespiegelter "
+        "Quelle einen Freigabeschritt `restrict_default_reader`. OneLake-Rollen auf gespiegelten "
+        "Datenbanken koennen nur **Read** (kein ReadWrite).",
+        "",
+        "Quellen: Learn `onelake/onelake-shortcut-security`, `onelake/security/data-access-control-model`, "
+        "`onelake/security/sql-analytics-endpoint-onelake-security`, gelesen 30.09.2026.",
+        "",
+    ]
+
+
 def _onelake_roles_doc(cls_todo: list[str], catalog: dict | None, bp: dict | None = None) -> str:
     """Die Erklärung zu ``onelake_data_access_roles.json`` — als Dokument, nicht als Kommentar
     in einem JSON-Rumpf, der abgeschickt werden soll."""
@@ -894,6 +1003,8 @@ def _onelake_roles_doc(cls_todo: list[str], catalog: dict | None, bp: dict | Non
         "",
     ]
     lines += _row_security_doc(bp or {})
+    lines += _areas_doc(bp or {})
+    lines += _shortcut_mirror_doc()
     if cls_todo:
         # Nicht mehr nur CLS: seit dem Zeilenschnitt landen hier auch gerissene OneLake-Grenzen
         # und Produkte, die kein Schnitt erfasst. Eine Liste, weil beides dasselbe ist — etwas,
@@ -1405,6 +1516,14 @@ def _sharing_md(bp: dict) -> str:
         "eine DSGVO-Lieferung ist das aussagepflichtig — es ist dieselbe Regionsachse, die schon Direct "
         "Lake, Iceberg-Shortcuts, den OneLake-Endpunkt und die AI-Dienste bindet, hier aber ausserhalb "
         "unseres Einflussbereichs.", "",
+        # 30.09.2026: eine FabCon-Folie zeigte beim Empfaenger Zeilenrollen („(R1 OR R2) AND SRC").
+        # Learn widerspricht fuer delegierte Shortcuts — und ein angenommener Share ist einer.
+        "**Was der Empfaenger selbst noch einschraenken kann:** ein angenommener Share ist bei ihm ein "
+        "delegierter Shortcut ueber Mandanten. Darauf kann er Spalten (CLS) und Objekte je Nutzer "
+        "weiter verengen, **Zeilen aber nicht** — RLS ist auf der Konsumentenseite eines delegierten "
+        "Shortcuts nicht setzbar (Learn `onelake/onelake-shortcut-security`, gelesen 30.09.2026). "
+        "Braucht er einen Zeilenschnitt je Nutzergruppe, entsteht er **hier**: als eigener Share oder "
+        "eigene geteilte Tabelle je Schnitt.", "",
         "**Deshalb ist die Sanitisierung nicht eine Kontrolle unter mehreren, sondern die einzige, die "
         "die Grenze ueberlebt.** Was vor dem Share entfernt oder maskiert wurde, ist drueben nicht da; "
         "alles andere ist Vertrauenssache. Ein Label ersetzt sie nicht.", "",
