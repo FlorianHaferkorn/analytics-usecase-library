@@ -33,7 +33,7 @@ def test_diff_flags_each_drifted_field():
     mer = _contract()
     alu = _contract()
     alu["arch_concepts"] = ["medallion", "data-vault"]        # Meridian added a concept, ALUCA didn't
-    alu["odcs"] = {"api_version": "v3.1.0", "public_api": ["to_odcs"]}
+    alu["odcs"] = {"api_version": "v3.2.0", "public_api": ["to_odcs"]}
     lines = sensor._diff(mer, alu)
     assert any("arch_concepts" in ln for ln in lines)
     assert any("odcs" in ln for ln in lines)
@@ -42,7 +42,7 @@ def test_diff_flags_each_drifted_field():
 
 def test_odcs_facts_extract_from_real_source():
     facts = sensor._odcs_facts(_ALUCA_ODCS)
-    assert facts["api_version"] == "v3.1.0"            # eine Version (Meridian D-584)
+    assert facts["api_version"] == "v3.2.0"            # eine Version (Meridian D-584, v3.2 seit D-586)
     assert facts["api_version_columns"] is None        # ODCS_API_VERSION_SPALTEN entfernt
     for fn in ("to_odcs", "emit_odcs", "from_odcs", "import_sql_table", "validate_odcs"):
         assert fn in facts["public_api"]

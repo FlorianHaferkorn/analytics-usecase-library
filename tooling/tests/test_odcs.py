@@ -139,13 +139,14 @@ def test_odcs_ingestion_handover_boundary_contract():
     assert "contracts/odcs/handover/s4hana-sd.handover.odcs.yaml" in emit_odcs_ingestion(bp)
     assert contracts[0]["apiVersion"] == ODCS_API_VERSION
     srv = contracts[0]["servers"][0]
-    assert srv["type"] == "custom" and srv["host"] == "SAP S/4HANA SD"      # v3.1: host only on custom
+    assert srv["type"] == "custom" and srv["host"] == "SAP S/4HANA SD"      # v3.1/v3.2: host only on custom
     assert srv["customProperties"] == [{"property": "serverTypeHint", "value": "sap"}]
 
 
 def test_handover_server_is_always_custom_with_type_hint():
-    """Meridian D-584: `sap`/`odbc` are not in the ODCS v3.1 server-type enum, `api`/`azure` need
-    fields the handover does not know — every connector yields `type: custom` + `serverTypeHint`."""
+    """Meridian D-584: `sap`/`odbc` are not in the ODCS server-type enum (v3.1 nor v3.2), `api`/`azure`
+    need fields the handover does not know — every connector yields `type: custom` + `serverTypeHint`.
+    Meridian D-586 (v3.2.0): the `hana` connector's hint is the new standard value `hana`."""
     from tooling.superversion.odcs import _CONNECTOR_SERVER_TYPE
     for conn in sorted(_CONNECTOR_SERVER_TYPE) + ["nicht-gelistet", None]:
         bp = {"platform": {"stack": "fabric"},
@@ -158,6 +159,7 @@ def test_handover_server_is_always_custom_with_type_hint():
         hint = _CONNECTOR_SERVER_TYPE.get(conn, "custom")
         expected = [] if hint == "custom" else [{"property": "serverTypeHint", "value": hint}]
         assert srv.get("customProperties", []) == expected, conn
+    assert _CONNECTOR_SERVER_TYPE["hana"] == "hana"
     index = emit_odcs_ingestion(bp)["contracts/odcs/handover/_HANDOVER_CONTRACTS.md"]
     assert f"Standard {ODCS_API_VERSION}" in index
 
@@ -177,7 +179,7 @@ def test_odcs_to_catalog_bridges_contract_to_catalog_shape():
 
 
 
-# --- column_specs ⇄ ODCS v3.1 (A-20/A-23, Meridian D-581) ------------------------------------------
+# --- column_specs ⇄ ODCS (A-20/A-23, Meridian D-581) ------------------------------------------
 # Synthetic fixture = Meridian's `test_vertrags_dq.GC`/`BP`, so both repos pin the same semantics.
 REPO = Path(__file__).resolve().parents[2]
 
@@ -215,7 +217,7 @@ BP = {
 
 def test_column_specs_round_trip_is_lossless():
     contracts = to_odcs(BP, GC)
-    assert contracts[0]["apiVersion"] == ODCS_API_VERSION == "v3.1.0"   # eine Version (D-584)
+    assert contracts[0]["apiVersion"] == ODCS_API_VERSION == "v3.2.0"   # eine Version (D-584, v3.2 seit D-586)
     assert validate_odcs(contracts[0]) == []
     back = {t["name"]: t for t in odcs_to_catalog(contracts)["tables"]}
     for t in GC["tables"]:
@@ -281,7 +283,7 @@ def _normalised(spec: dict) -> dict:
 
 
 def test_real_contracts_round_trip_through_odcs():
-    """Every column spec of every real contract survives column_specs → ODCS v3.1 → column_specs."""
+    """Every column spec of every real contract survives column_specs → ODCS → column_specs."""
     catalogs = _domain_catalogs()
     tables = [t for _, gc, _ in catalogs for t in gc["tables"]]
     specs_total = sum(len(t["column_specs"]) for t in tables)
