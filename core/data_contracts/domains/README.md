@@ -95,7 +95,7 @@ section, `uses_columns` outside the definition). Two views, one source
 `export_governed_catalog.py` emits exactly one entry per table with `domain` = owner and
 `domains` = every domain that uses it) and the **domain view** (`load_resolved_contract`: references
 replaced by the owner's table narrowed to `uses_columns`) for per-domain consumers
-(`generate_semantic_model`, `ai_description`, `linguistic_schema`, Studio `contract-loader.ts`).
+(`ai_description`, `linguistic_schema`, `enrich_measure_docs`, Studio `contract-loader.ts`).
 
 ### Structured quality fields (A-20/A-23, 29.09.2026)
 

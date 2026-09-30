@@ -36,7 +36,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root for im
 
 from tooling.generator_core.ai_description import build_table_descriptions
 
-# Domain -> contract filename (mirrors generate_semantic_model.DOMAIN_CONTRACT).
+# Domain -> contract filename (mirrors linguistic_schema.DOMAIN_CONTRACT).
 DOMAIN_CONTRACT: Dict[str, str] = {
     "Commercial": "commercial_sales.yaml",
     "Finance": "finance.yaml",

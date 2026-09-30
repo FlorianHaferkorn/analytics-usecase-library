@@ -63,7 +63,8 @@ _PROJECT_ROOT = _PBIP_ROOT.parent.parent.parent               # analytics-usecas
 DIST = _PBIP_ROOT / "dist"
 DATA_CONTRACTS = _PROJECT_ROOT / "core" / "data_contracts" / "domains"
 
-# Domain → data contract filename — mirrors generate_semantic_model.DOMAIN_CONTRACT.
+# Domain → data contract filename. Owner since 30.09.2026 (A-25: generate_semantic_model.py
+# archived); enrich_measure_docs imports it, check_values_coverage mirrors it.
 DOMAIN_CONTRACT: Dict[str, str] = {
     "Commercial": "commercial_sales.yaml",
     "Finance": "finance.yaml",
