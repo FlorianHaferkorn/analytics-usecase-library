@@ -309,11 +309,13 @@ def _oap_section(bp: dict) -> list[str]:
          "allow lists do not exist |") if shares else
         ("| **External data sharing** | No — this delivery declares none | it stays that way only "
          "while none is added: OAP and Fabric external data sharing are mutually exclusive |"),
-        "| **Deployment pipelines (`cicd/`, code default `deployment-pipelines`)** | Not with OAP, "
+        "| **Deployment pipelines (`cicd/`)** | Not with OAP, "
         "but with **inbound** protection: MS, `cicd/cicd-security` — deployment pipelines are not "
         "supported for a workspace with inbound access protection, and inbound restriction cannot "
-        "be configured on a workspace assigned to a pipeline | a protected workspace needs Git-based "
-        "promotion instead; which one is the open decision E-3 (plan I-21), not this file's |",
+        "be configured on a workspace assigned to a pipeline | decided (D-592): the deployment "
+        "model follows `PLAT-NET` — inbound-protected (`private_link_workspace`, `ip_firewall`) "
+        "promotes Git-based (`git-integration-gitflow`), otherwise deployment pipelines; an "
+        "explicit `deployment-pipelines` with inbound protection is rejected at generation |",
         "| **OneLake Diagnostics** | Partly | only with a lakehouse in the **same** workspace |",
         "| **Warehouse paths from notebooks** | Yes, for `dbo` file paths | query it over T-SQL "
         "instead of over the path |",

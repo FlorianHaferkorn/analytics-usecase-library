@@ -1,7 +1,7 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "e526d2eb13f77636c0c98788c038a50aed4ab587",
+  "source_commit": "e6f4d9f32e6ffeeee3315faa1f54319791f9bd7e",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
@@ -26,7 +26,7 @@
     },
     {
       "path": "provision_connectivity.py",
-      "sha256": "e95270ebf7f4aadaf68e4e98c15f9f5bc63c4e87e8f4918bf066f140f3d398ad"
+      "sha256": "ddeb6dd7394c45444bf95c39c26d4432329ce8c8c1145985d44616653838d567"
     },
     {
       "path": "provision_governance.py",
@@ -38,7 +38,7 @@
     },
     {
       "path": "provision_monitoring.py",
-      "sha256": "786c36cf874c783ce5ccacc64adce531c6ae86cca9fd29af0c9a77fa386d59bb"
+      "sha256": "e62a36dd852e25cd6288a44b8376cbc98cb580c8815e0c9047265d8d95a0d4e9"
     },
     {
       "path": "provision_operability.py",
@@ -78,7 +78,7 @@
     },
     {
       "path": "provision_cicd.py",
-      "sha256": "c56e77350271157fe4d5615309713c7a82cff06a5a7a5aabdf2c16b6880f6c1b"
+      "sha256": "e0013a1e215b8fedab4f41582361e5c10db128d523ed81aea47d4357dacc3891"
     },
     {
       "path": "provision_databricks_cicd.py",
@@ -126,7 +126,11 @@
     },
     {
       "path": "provision_terraform.py",
-      "sha256": "ca505018146b74b28412a08095be97c059f8ee6834d337ab04d878daf9b7b831"
+      "sha256": "3b5247fe454f8c54e0ff0d96ed4557cde5c935db97ecf206a67475ccf010ad8c"
+    },
+    {
+      "path": "kapazitaet_stufen.py",
+      "sha256": "b16f43029e624d393617a812a8b8829e2438a1c976e1146b80bd69ca82e8f7d0"
     },
     {
       "path": "provision_transforms.py",
@@ -138,7 +142,7 @@
     },
     {
       "path": "provision_varlib.py",
-      "sha256": "cdcdb3152a3fb06828e73eb4571d36933b2c72f444783ba7e6b141cb63f0d1ff"
+      "sha256": "e1c38d0a35995ff539e9e89b645a7fb51373591f3ad712fdbe335be641d32b70"
     },
     {
       "path": "sql_validate.py",

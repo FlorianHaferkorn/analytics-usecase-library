@@ -119,7 +119,15 @@ JOB_ALERTS_PATH = "monitoring/job_alerts.json"
 MONITORING_ITEM_PATH = "monitoring/workspace_monitoring_item.json"
 CAPACITY_ALERTS_RUNBOOK_PATH = "monitoring/capacity_alerts.md"
 #: Item-Definition des Operations Agents (I-21 W6.4): der einzige Definitionsteil laut Learn.
-OPERATIONS_AGENT_PATH = "monitoring/operations_agent/Configurations.json"
+#: Seit D-597 (30.09.2026) **je Stufe** eine Datei: die Datenquelle nennt den Workspace im
+#: Klartext, und die Stufen-Workspaces heissen nach der Namenskonvention verschieden.
+OPERATIONS_AGENT_DIR = "monitoring/operations_agent"
+
+
+def operations_agent_path(stufe: str) -> str:
+    """Pfad der Agent-Definition einer Stufe (D-597)."""
+    return f"{OPERATIONS_AGENT_DIR}/{stufe}/Configurations.json"
+
 # Die Bibliothek, gegen die die Datenquelle des Operations Agents aufloest (I-21 W6.4). Name und
 # Variable stehen einmal hier; Definition, Runbook und emittierte Bibliothek lesen sie von hier.
 MONITORING_VARLIB = "vl_monitoring"
@@ -426,7 +434,7 @@ def _job_alerts_spec(alerts: dict) -> dict:
     }
 
 
-def _operations_agent_definition(bp: dict, politik: dict) -> dict:
+def _operations_agent_definition(bp: dict, politik: dict, stufe: str | None = None) -> dict:
     """``Configurations.json`` des Operations Agents (I-21 W6.4) — Item-Definition statt Portal.
 
     Belegt (MS Learn ``rest/api/fabric/articles/item-management/definitions/
@@ -440,12 +448,15 @@ def _operations_agent_definition(bp: dict, politik: dict) -> dict:
     ungeprueft; Entra Agent ID erlaubt Gruppen als Sponsor, ``entra/agent-id/
     create-delete-agent-identities``).
 
+    D-597: der Workspace in der Referenz ist der Name **dieser Stufe** nach der
+    Namenskonvention (:func:`agent_workspace`), nicht ein fester Name fuer alle Stufen.
+
     Bewusst leer: ``actions``. Der Agent laeuft delegiert (OBO) mit den Rechten seines Erstellers
     (Learn ``real-time-intelligence/operations-agent``) — jede Aktion wuerde unter dieser
     Identitaet laufen; vorab freigegebene Aktionen sind nur angekuendigt. ``shouldRun`` ist
     ``false``, bis die KI-/DSGVO-Freigabe vorliegt (dieselbe Frage wie ``ki_untersuchungen``).
     """
-    ws = _agent_workspace(politik)
+    ws = agent_workspace(politik, stufe)
     sp = politik["operations_agent_sponsor"]
     sponsor = sp["alias"] if sp else "<VERIFY: Sponsor des Operations Agents (Gruppe oder SPN)>"
     domaenen = ", ".join(d["name"] for d in _domains(bp)) or "the platform"
@@ -477,20 +488,50 @@ def _agent_workspace(politik: dict) -> str:
     return politik["zentral_workspace"] or "<VERIFY: Monitoring-Workspace auf eigener Kapazitaet>"
 
 
-def pruefe_agent_variablen(defn: dict, out: dict[str, str]) -> list[str]:
-    """Jede Variablenreferenz in ``dataSources`` muss gegen eine in ``out`` emittierte Bibliothek
-    samt Variable aufloesen (I-21 W6.4); leer heisst alle aufgeloest."""
+def agent_workspace(politik: dict, stufe: str | None = None) -> str:
+    """Der Monitoring-Workspace einer Stufe (D-597) — aus ``naming.NamingConvention``.
+
+    Dieselbe Stelle, die in ``governance_strategy`` die Stufen-Workspaces benennt (Suffix
+    ``[Dev]``/``[Test]``, Prod ohne). Keine zweite Quelle fuer den Namen; ohne Stufe der
+    Basisname."""
+    from core.dataarch_engine.blueprint.naming import NamingConvention
+    basis = _agent_workspace(politik)
+    return NamingConvention(apply_type_prefixes=False, stage=stufe).workspace(basis) \
+        if stufe else basis
+
+
+def pruefe_agent_variablen(out: dict[str, str], stages: tuple[str, ...],
+                           monitoring: dict | None = None) -> list[str]:
+    """Je Stufe (D-597): die Definition liegt vor, und jede Variablenreferenz in
+    ``dataSources`` loest gegen eine in ``out`` emittierte Bibliothek samt Variable auf
+    (I-21 W6.4) — **im Workspace dieser Stufe** nach der Namenskonvention. Leer heisst alles
+    aufgeloest. ``monitoring`` ist dieselbe Politik wie beim Emittieren."""
     from core.dataarch_engine.blueprint.provision_varlib import (
+        _REF_RE,
         library_variables,
         resolve_variable_reference,
     )
+    politik = monitoring_politik(monitoring)
     libs = library_variables(out)
-    befunde = []
-    for alias, ds in ((defn.get("configuration") or {}).get("dataSources") or {}).items():
-        if isinstance(ds, str):
+    befunde: list[str] = []
+    for stufe in stages:
+        pfad = operations_agent_path(stufe)
+        if pfad not in out:
+            befunde.append(f"{stufe}: {pfad} fehlt")
+            continue
+        defn = json.loads(out[pfad])
+        soll_ws = agent_workspace(politik, stufe)
+        for alias, ds in ((defn.get("configuration") or {}).get("dataSources") or {}).items():
+            if not isinstance(ds, str):
+                continue
             b = resolve_variable_reference(ds, libs)
             if b:
-                befunde.append(f"dataSources.{alias}: {b}")
+                befunde.append(f"{stufe}: dataSources.{alias}: {b}")
+                continue
+            ist_ws = _REF_RE.match(ds).group(1)
+            if ist_ws != soll_ws:
+                befunde.append(f"{stufe}: dataSources.{alias}: Workspace {ist_ws!r}, nach der "
+                               f"Namenskonvention {soll_ws!r}")
     return befunde
 
 
@@ -552,7 +593,8 @@ def _operations_agent_lines(politik: dict) -> list[str]:
     sp = politik["operations_agent_sponsor"]
     return [
         "## Operations Agent as an item definition (I-21 W6.4)", "",
-        f"`{OPERATIONS_AGENT_PATH.split('/', 1)[1]}` is the agent's item definition, deployable "
+        f"`{OPERATIONS_AGENT_DIR.split('/', 1)[1]}/` holds the agent's item definition, one "
+        "`Configurations.json` per stage folder, deployable "
         "through the item APIs or Git instead of configured in the portal (MS Learn, *Operations "
         "Agent definition*, read 2026-09-29). It is emitted **stopped** (`shouldRun: false`) and "
         "**without actions** — on purpose:", "",
@@ -571,7 +613,10 @@ def _operations_agent_lines(politik: dict) -> list[str]:
         "- **Messages** go to a Teams channel, not to one person. Recipients need write "
         "permission on the agent item (MS Learn, *Operations agent actions*).",
         f"- **Data source** is a variable-library reference (`$(/<workspace>/{MONITORING_VARLIB}/"
-        f"{MONITORING_KQL_VARIABLE})`), so the definition carries no tenant IDs. The variable "
+        f"{MONITORING_KQL_VARIABLE})`), so the definition carries no tenant IDs. The "
+        "`<workspace>` part is a plain name, and stage workspaces are named per stage by the "
+        "naming convention (`[Dev]`, `[Test]`, prod without suffix) — hence one definition per "
+        "stage (D-597); promote each stage's file, never copy one across stages. The variable "
         "library is not part of the agent definition (MS Learn) and is emitted next to it as "
         f"`{MONITORING_VARLIB}.VariableLibrary/` — deploy it into the same workspace **before** "
         f"the agent. `{MONITORING_KQL_VARIABLE}` is an `ItemReference` to the **KQL database** "
@@ -1317,13 +1362,16 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
                                                ensure_ascii=False) + "\n"
         out[JOB_ALERTS_PATH] = json.dumps(_job_alerts_spec(alerts), indent=2,
                                           ensure_ascii=False) + "\n"
-        out[OPERATIONS_AGENT_PATH] = json.dumps(_operations_agent_definition(bp, politik),
-                                                indent=2, ensure_ascii=False) + "\n"
+        stufen = tuple(stages) or ("dev",)
+        for stufe in stufen:   # D-597: je Stufe eine Definition mit dem Namen dieser Stufe
+            out[operations_agent_path(stufe)] = json.dumps(
+                _operations_agent_definition(bp, politik, stufe), indent=2,
+                ensure_ascii=False) + "\n"
         from core.dataarch_engine.blueprint.provision_varlib import emit_item_reference_library
         out.update(emit_item_reference_library(
             MONITORING_VARLIB, MONITORING_VARLIB_REFS, _agent_workspace(politik),
-            stages=tuple(stages) or ("dev",), env_config=varlib_config,
-            prefix="monitoring/"))
+            stages=stufen, env_config=varlib_config, prefix="monitoring/",
+            workspaces_je_stufe={st: agent_workspace(politik, st) for st in stufen}))
         out[METRICS_APP_SETUP_PATH] = _metrics_app_setup_md(capacity, alerts)
         # Der Export haengt am Power-BI-/Fabric-Aktivitaetsprotokoll. Auf einem fremden Stack gibt
         # es dieses Protokoll nicht — ein Skript dafuer waere dort eine Anweisung ins Leere.
