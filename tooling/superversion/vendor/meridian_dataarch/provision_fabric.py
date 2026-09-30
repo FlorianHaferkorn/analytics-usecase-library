@@ -13,6 +13,8 @@ commented VERIFY steps rather than invented commands — honest by construction.
 """
 from __future__ import annotations
 
+from core.dataarch_engine.blueprint.governance_strategy import LAKEHOUSE_ROLES
+
 GOLD_LAKEHOUSE = "analytics_gold"
 
 
@@ -168,12 +170,12 @@ def emit_fab_commands(blueprint: dict, capacity: str = "<CAPACITY_NAME>",
         lines.append("#    not the default 'dbo' namespace. VERIFY the -P flag against your fab version.")
     sp = " -P enableSchemas=true" if schemas else ""
     for name, role in sorted(seen_ws.items()):
-        if role in ("gold", "mixed"):
+        if role in LAKEHOUSE_ROLES:
             lh = f'{name}.Workspace/{lakehouse}.Lakehouse'
             lines.append(f'fab ls "{lh}" >/dev/null 2>&1 || fab mkdir "{lh}"{sp}')
     lines.append("")
 
-    gold_ws = [n for n, r in sorted(seen_ws.items()) if r in ("gold", "mixed")]
+    gold_ws = [n for n, r in sorted(seen_ws.items()) if r in LAKEHOUSE_ROLES]
     target_lh = (f"{gold_ws[0]}.Workspace/{lakehouse}.Lakehouse" if gold_ws
                  else "<gold-workspace>.Workspace/<lakehouse>.Lakehouse")
 

@@ -26,6 +26,8 @@ from __future__ import annotations
 
 import re
 
+from core.dataarch_engine.blueprint.governance_strategy import LAKEHOUSE_ROLES
+
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 
 
@@ -316,7 +318,7 @@ def _roles_tf(workspaces: list[tuple[str, str]]) -> str:
 
 
 def _git_tf(bp: dict, git: dict) -> str:
-    gold = [n for n, r in _unique_workspaces(bp) if r in ("gold", "mixed")]
+    gold = [n for n, r in _unique_workspaces(bp) if r in LAKEHOUSE_ROLES]
     target = _tf_name(gold[0]) if gold else _tf_name(_unique_workspaces(bp)[0][0])
     return (
         "# Git integration — connect the gold/dev workspace to a repo branch.\n"
