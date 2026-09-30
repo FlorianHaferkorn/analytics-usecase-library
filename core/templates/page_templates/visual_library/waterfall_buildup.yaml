@@ -33,6 +33,11 @@ tokens:
   col_step:  color_semantics.brand   # #0078D4 component contributions (single series)
   col_total: ink                     # #0F2430 the Total anchor
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field: {role: step, required: true}
+  field_val: {role: value, required: true}
+
 canonical_params:
   entity: "_Measures"
   measure: "Revenue Buildup Value"

@@ -285,6 +285,35 @@ def _parse_shape(tokens: "list[str]") -> dict:
     return shape
 
 
+
+def choose(purpose: str, roles: "set[str] | list[str]", profile: "str | None" = None) -> "dict | None":
+    """The governed idiom for a purpose that the available data can fill (A-31 R4).
+
+    Walks the purpose's candidates in governed order (`best` first) and returns the first idiom
+    that (a) has a derived Vega-Lite target under `profile` and (b) whose REQUIRED data_slots
+    roles are all in `roles`. Returns {idiom, profile, notation, reason} or None — never a guess
+    outside the purpose's candidate list. Deterministic: same inputs, same answer."""
+    idx = _index()
+    pur = (idx.get("purposes") or {}).get(purpose)
+    if pur is None:
+        raise KeyError(f"unknown purpose '{purpose}'")
+    profile = profile or render.default_profile()
+    have = set(roles)
+    seen = []
+    for cand in [pur.get("best")] + list(pur.get("candidates") or []):
+        iid = str(cand).split("@")[0] if cand else None
+        if not iid or iid in seen:
+            continue
+        seen.append(iid)
+        if iid not in idx.get("implemented", []) or profile not in render.target_profiles(iid):
+            continue
+        need = {s["role"] for s in render.data_slots(iid).values() if s.get("required", True)}
+        if need and need <= have:
+            reason = f"first candidate of '{purpose}' with a {profile} target and roles {sorted(need)}"
+            return {"idiom": iid, "profile": profile, "notation": render.notation_of(profile), "reason": reason}
+    return None
+
+
 def main(argv: list[str]) -> int:
     if not argv:
         print(__doc__)

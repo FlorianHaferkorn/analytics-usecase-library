@@ -30,6 +30,11 @@ params:
 tokens:
   col_bar: ink                      # #0F2430 — single neutral series colour (magnitude, not signal)
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field: {role: value, required: true}
+  field_cat: {role: category, required: true}
+
 canonical_params:
   entity: "_Measures"
   measure: "Net Sales Amount"

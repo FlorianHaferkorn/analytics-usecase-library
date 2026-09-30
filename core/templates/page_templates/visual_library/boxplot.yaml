@@ -32,6 +32,11 @@ tokens:
   col_box: brand.primary            # #0078D4
   col_med: ink                      # #0F2430
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field: {role: value, required: true}
+  field_cat: {role: category, required: true}
+
 canonical_params:
   entity: "_Measures"
   measure: "Unit Margin"

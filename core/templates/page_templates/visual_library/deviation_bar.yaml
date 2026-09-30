@@ -32,6 +32,10 @@ tokens:
   col_track: surface.row_alt              # #EFF2F5
 
 # frozen sample that fills the templates for the golden test (same in -> same out)
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field: {role: variance, required: true}
+
 canonical_params:
   entity: "_Measures"
   measure: "Gross Margin % vs Plan"

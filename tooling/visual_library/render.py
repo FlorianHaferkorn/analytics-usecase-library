@@ -256,15 +256,52 @@ def target_profiles(idiom: str) -> "list[str]":
     return out
 
 
-def render_target(idiom: str, target: str, profile: "str | None" = None) -> "tuple[str, str]":
-    """Derived target output for one idiom x profile. Deterministic JSON."""
+SLOT_ROLES = ("value", "variance", "time", "category", "series", "step", "period",
+              "plan", "prior", "x", "y", "start", "end")
+
+
+def data_slots(idiom: str) -> dict:
+    """{param: {role, required}} of the idiom's Vega-Lite track (empty if none declared)."""
+    return load_entry(idiom).get("data_slots") or {}
+
+
+def bind(idiom: str, columns: dict) -> dict:
+    """Map {role: column name} onto the idiom's column params. KeyError if a required role is
+    missing; optional roles that are absent keep their canonical sample name."""
+    out = {}
+    for param, slot in data_slots(idiom).items():
+        role = slot["role"]
+        if role in columns:
+            out[param] = columns[role]
+        elif slot.get("required", True):
+            raise KeyError(f"{idiom}: required role '{role}' ({param}) not bound")
+    return out
+
+
+def render_target(idiom: str, target: str, profile: "str | None" = None,
+                  bindings: "dict | None" = None, params: "dict | None" = None) -> "tuple[str, str]":
+    """Derived target output for one idiom x profile. Deterministic JSON.
+
+    `bindings` ({role: column}) binds real data columns through `data_slots`; `params` overrides
+    any other template parameter (e.g. polarity -1 for a lower-is-better measure). Without both,
+    the frozen canonical sample is used — that is what the goldens freeze."""
     if target not in DERIVED_TARGETS:
         raise KeyError(f"unknown derived target '{target}'")
     profile = profile or default_profile()
     notation = notation_of(profile)
     if notation != default_profile() and notation not in profiles(idiom):
         raise KeyError(f"{idiom} has no '{notation}' reading")
-    spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
+    if bindings or params:
+        entry = load_entry(idiom)
+        real = _realization(entry, "deneb_vegalite", notation)
+        if real is None or not real.get("applicable", True):
+            raise KeyError(f"{idiom}.deneb_vegalite is not applicable under '{notation}'")
+        eff = dict(_effective_params(entry, notation))
+        eff.update(bind(idiom, bindings or {}) if bindings else {})
+        eff.update({k: str(v) for k, v in (params or {}).items()})
+        spec = json.loads(fill(real["template"], eff))
+    else:
+        spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
     config = vegalite_config(profile)
     if target == "html_vegalite":
         out = dict(spec)

@@ -34,6 +34,12 @@ tokens:
   col_below: color_semantics.negative# #A4262C below target
   col_ref:   color_semantics.neutral # #94A0AC target reference
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field: {role: value, required: true}
+  field_cat: {role: category, required: true}
+  py_field: {role: prior, required: false}
+
 canonical_params:
   entity: "_Measures"
   measure: "Gross Margin %"

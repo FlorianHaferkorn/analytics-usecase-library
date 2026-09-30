@@ -29,7 +29,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:99a6883305ab36694647cf82a4391984b4dac7433747bfebed6857da786fc08a"
+      "checksum": "sha256:32f783ebae76f8fdabafc72bd1cc7dcd70c69795358357a3d73044c4f9ace4bc"
     },
     {
       "id": "bar_absolute",
@@ -57,7 +57,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:394c5ae910af9c68b4bb7bc2262dff8bacb4c9b2bdb314292a867233db77db15"
+      "checksum": "sha256:41df8a50cd6f426f9442b6c3702c1e60f0bb1f9977d37443ed78bb9b841a42d6"
     },
     {
       "id": "bar_ranking",
@@ -87,7 +87,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:95c97dbd4119c145e6cf2df43b2e6743571c53f5cf6948bf35a0859212f3f3f7"
+      "checksum": "sha256:8949822c6446440a1484b70d3cc3902bf9b29fabd1397e7feb26b2d5fe1ef60f"
     },
     {
       "id": "bar_stacked",
@@ -114,7 +114,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:db90d5d5ffe6068478924525db7b3f40fdb1788ea03656cf0911ed83be4cf7c8"
+      "checksum": "sha256:ccd815c04d7199ea55a9cb2f9b5d6497d451c102c3d29782a35df7a12b348d46"
     },
     {
       "id": "boxplot",
@@ -139,7 +139,7 @@
         "cols": 3,
         "rows": 4
       },
-      "checksum": "sha256:faf55165f37beffe990287b900cb36fb94a9e1060db7934be5b7d15f106ff20f"
+      "checksum": "sha256:3b8aac977ea1dc450a7f6dcc6a02f505f5915e461888c1c9c520c4e4a392f70d"
     },
     {
       "id": "bullet",
@@ -169,7 +169,7 @@
         "cols": 3,
         "rows": 2
       },
-      "checksum": "sha256:7dea0c09cc94b31ae9cbf1355ba9afa270e78a375ae17640475fe907322358ee"
+      "checksum": "sha256:e90284e360787971ec7a183f7afb76091ff94625bf10870d03a3f2818480e716"
     },
     {
       "id": "column_time",
@@ -197,7 +197,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:7aff3212b09edee8c7786549f8b9cd28e6aecc43a2163bb21b182528bd3478ed"
+      "checksum": "sha256:d5da0ab4b193bfac489b72f6e4cb636cce2f90e0f44599311632a15a37cd958b"
     },
     {
       "id": "decomposition_tree",
@@ -254,7 +254,7 @@
         "cols": 3,
         "rows": 2
       },
-      "checksum": "sha256:8c1ecef5ae7ee9d6f9b7596215930b0261abacfcac6b92ce68a906da1e47fc3d"
+      "checksum": "sha256:fb9c33806b10941762fb140d42896db771cb74724d7b5d72e372a27bc9cf43fd"
     },
     {
       "id": "donut",
@@ -281,7 +281,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:e6051ce6c083d7b8cb41d19e4b087b7674e313e9bc1631b05d9e820b67ce90c0"
+      "checksum": "sha256:c81c8250d9e1146c5c6cd62a124c82b211717e07477296dd50c0a7fb68850934"
     },
     {
       "id": "dumbbell",
@@ -307,7 +307,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:3d9650708efb850ca2dcf61bbcaf64c83dd65e8e22bda1dfd7ce12f94fb87574"
+      "checksum": "sha256:962bcccf705dfc435d65f32f51d3e4f9b58b7bd98c75de1cc8378d4799bb95da"
     },
     {
       "id": "histogram",
@@ -333,7 +333,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:f704b69d381f5a09abf657cc606a7cc09ed4eedc0ef11143940f62d4f583d564"
+      "checksum": "sha256:bb9fed8014270a6d0922a85642f833116a62ee673bc0bfdd3f994c8d144bd459"
     },
     {
       "id": "indexed_line",
@@ -361,7 +361,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:44350479f442be24435a94b7a96f07ae6e63a4d79cee34a68c91e430febea12f"
+      "checksum": "sha256:ba9f63d3d542c41d134a797e45cb28fc62b35095b21bcdff0c7bbd1549639e82"
     },
     {
       "id": "kpi_card_bullet",
@@ -467,7 +467,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:5f6c04bd209639eafa5aac0cac2efc569bf2ddd263aa290ddd1fde4f7942d3da"
+      "checksum": "sha256:140a42a0b694ff858e011fbd85380b7ecbef7d6582d03fdddc2ac31f35e92bf3"
     },
     {
       "id": "lollipop",
@@ -494,7 +494,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:b566d4353e9d33af690244528d938a2e3c9a6a4ecb0261b2eb86651143a842b0"
+      "checksum": "sha256:781093dd36f83e77032b371410f3bf5441426e782a1c1aa80bfaa2e1c179ce7f"
     },
     {
       "id": "matrix_bullet",
@@ -648,7 +648,7 @@
         "cols": 3,
         "rows": 5
       },
-      "checksum": "sha256:7625720fd295e1d3773d2488eba26810739ae110b9a89ca08ad9401ab4eceba8"
+      "checksum": "sha256:f155f41130e15fb2ec4f4c4f3240d35383ef802eaa9252896243be09bee81898"
     },
     {
       "id": "slope",
@@ -676,7 +676,7 @@
         "cols": 3,
         "rows": 5
       },
-      "checksum": "sha256:2fa373a6b0dabf47784f89cfe4967c47c56476853e2e5315eb646c24d9806d5e"
+      "checksum": "sha256:77ff0fdc5d6566ce8fd2f63493ae8787f2d448a3805b3fece0bc31a9b9666ad3"
     },
     {
       "id": "small_multiples",
@@ -702,7 +702,7 @@
         "cols": 5,
         "rows": 6
       },
-      "checksum": "sha256:ec77f46736f6e41a398296b2d1c8d60b7530c47c4fc4c0b5f103f8667cca4c8d"
+      "checksum": "sha256:86db2766840c504d9c5b385882c5cc914406d348295349ebec19b9c40fcffd15"
     },
     {
       "id": "stacked_100",
@@ -729,7 +729,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:381c94e490b569c17ced43329c4884c565f9b805fb71965dd141012e8970a2d1"
+      "checksum": "sha256:484bd6d15e7a4c5dda7e2e7254e5e8ee245633f5fba50d9d87417922446bf2f8"
     },
     {
       "id": "waterfall_buildup",
@@ -757,7 +757,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:404e40ad6aa602f6e37f31a08b810755f990f3f6f338b48c4770f47ae1b6313f"
+      "checksum": "sha256:c3b46e362459ff22bcd9a717f31d9c65f61cc367afe558123c0472439f76a4f8"
     },
     {
       "id": "waterfall_pvm",
@@ -786,7 +786,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:6dfda0a5bdd823614bad4b9e4ad88e60746c54b470895e4dcef37acb7a26e014"
+      "checksum": "sha256:c2c2dda6af1dc439f63efbce07e41f5af16c06fd8708bc5a7e0834a79ebd9f89"
     },
     {
       "id": "waterfall_variance",
@@ -814,7 +814,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:8e898047b8088faae553dea2bdf8bac9c0c84ada26d74d157480530144c66d81"
+      "checksum": "sha256:5aab31071d71687bb6c4e7f3827a513d3f6f0bbd8ca4c9e348a68f67800da580"
     }
   ]
 }

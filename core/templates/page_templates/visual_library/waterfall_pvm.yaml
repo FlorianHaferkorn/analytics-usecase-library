@@ -34,6 +34,11 @@ tokens:
   col_dec:   color_semantics.negative   # #A4262C
   col_total: ink                        # #0F2430 anchors
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field: {role: step, required: true}
+  field_val: {role: variance, required: true}
+
 canonical_params:
   entity: "_Measures"
   measure: "PVM Bridge Value"
