@@ -118,6 +118,10 @@ PUBLIC_API: dict[str, tuple[str, ...]] = {
     "provision_translations": ("emit_translations",),
     "provision_varlib": ("emit_variable_library",),
     "direct_lake_guardrails": ("emit_direct_lake_guardrails",),
+    # Speichermodus je Mandant (Meridian D-590): die eine Vorgaberegel und die Direct-Lake-
+    # Grenze fuer berechnete Spalten. Halter: `tooling/codegen/speichermodus.py`.
+    "storage_mode": ("resolve_storage_mode", "storage_mode_source", "check_storage_mode",
+                     "direct_lake_violations"),
     # Kein Emitter, sondern die Umwandlung Introspektions-Rohpayload → Tabellenobjekte.
     # Ohne sie hätte der Ingress-DQ-Emitter hier keine Eingabe, und ALUCA würde die
     # zweite Phase der Quell-Introspektion zwar erheben und dann liegen lassen.
