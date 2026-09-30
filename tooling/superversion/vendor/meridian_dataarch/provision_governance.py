@@ -1112,6 +1112,9 @@ ITEMTYPEN_JE_ROLLE: dict[str, tuple[str, ...]] = {
     "bronze": ("Lakehouse", "Notebook", "DataPipeline"),
     "silver": ("Lakehouse", "Notebook", "DataPipeline"),
     "gold": ("Lakehouse", "Notebook", "DataPipeline", "Warehouse", "SemanticModel"),
+    # D-600: der Daten-Workspace baut Bronze bis Gold; Semantikmodelle gehoeren in den
+    # Consumption-Workspace (`reporting`), dort liest der Konsument.
+    "data": ("Lakehouse", "Notebook", "DataPipeline", "Warehouse"),
     "reporting": ("Report", "SemanticModel"),
 }
 FABRIC_POLICY_PATH = "governance/fabric_policies/item_creation_policy.json"

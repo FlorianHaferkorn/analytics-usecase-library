@@ -23,6 +23,8 @@ from __future__ import annotations
 import json
 import re
 
+from core.dataarch_engine.blueprint.governance_strategy import LAKEHOUSE_ROLES
+
 _SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/variableLibrary/definition"
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 
@@ -51,7 +53,7 @@ def _lakehouse_workspaces(bp: dict) -> list[tuple[str, str]]:
     Ableitungen derselben Menge driften, und dann fehlt still eine Variable.
     """
     from core.dataarch_engine.blueprint.provision_apply import _unique_workspaces
-    return [(name, role) for name, role in _unique_workspaces(bp) if role in ("gold", "mixed")]
+    return [(name, role) for name, role in _unique_workspaces(bp) if role in LAKEHOUSE_ROLES]
 
 
 def _sources(bp: dict) -> list[str]:
@@ -74,7 +76,7 @@ def _variable_specs(bp: dict, lakehouse: str = "analytics_gold") -> list[dict]:
     Bauplan: die Notebooks fordern ``<ws-…/analytics_gold-lakehouse-id>`` an, und die Bibliothek
     hatte dafür **keine** Variable — der Wert konnte also gar nicht aus der Konfiguration kommen,
     egal wie sorgfältig jemand sie pflegt. Emittiert wird eine je Workspace, der ein Lakehouse
-    trägt (Rolle ``gold``/``mixed``), damit dieselbe Quelle wie im Apply-Plan zählt.
+    trägt (Rolle aus ``LAKEHOUSE_ROLES``: ``gold``/``data``/``mixed``), damit dieselbe Quelle wie im Apply-Plan zählt.
     """
     specs = [
         {"name": "capacity", "cat": "capacity", "key": "capacity", "type": "String",

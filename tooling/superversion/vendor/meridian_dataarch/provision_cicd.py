@@ -915,6 +915,9 @@ _PLAN_GROUPS_BY_ROLE = {
     "bronze": (("Bronze_Lakehouse", "Lakehouse"),),
     "silver": (("Silver_Lakehouse", "Lakehouse"),),
     "gold": (("Gold_Lakehouse", "Lakehouse"),),
+    # D-600: der Daten-Workspace unter `per_domain` traegt alle drei Lakehouses.
+    "data": (("Bronze_Lakehouse", "Lakehouse"), ("Silver_Lakehouse", "Lakehouse"),
+             ("Gold_Lakehouse", "Lakehouse")),
     "mixed": (("Bronze_Lakehouse", "Lakehouse"), ("Silver_Lakehouse", "Lakehouse"),
               ("Gold_Lakehouse", "Lakehouse")),
     "reporting": (("Semantic_Model", "SemanticModel"),),
