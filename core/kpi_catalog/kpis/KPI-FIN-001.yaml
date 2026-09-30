@@ -1,0 +1,77 @@
+kpi_id: KPI-FIN-001
+synonyms:
+- Days Sales Outstanding
+- Receivables Days
+- Average Collection Period
+- Debitorenlaufzeit
+- Forderungslaufzeit
+example_question: Why did DSO increase in the Nordics region last quarter?
+kpi_key: DSO Days
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Liquidity
+domain_tag:
+- Finance
+- Corporate & Strategy
+use_case_ref:
+- FIN-001
+action_code_ref:
+- F-C1.2
+calc_type: amount
+good_is: lower
+business:
+  purpose: Measures days sales outstanding for receivables.
+  definition: Receivables / (Net Sales / 365).
+  grain_scope: Company/segment; monthly close.
+  unit_format: days_0
+  interpretation: Lower is better; rising DSO indicates collection issues.
+technical:
+  measure_name: DSO Days
+  description: Measures days sales outstanding for receivables.
+  depends_on_measures: []
+  lineage:
+  - dim_date.CalendarYearMonth
+  - fact_accounts_receivable.AR Amount
+  - fact_accounts_receivable.Revenue Amount
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: mul
+        terms:
+        - calc:
+            op: avgx_over_key
+            key_column: CalendarYearMonth
+            value:
+              column: AR Amount
+        - literal: 365
+    denominator:
+      calc:
+        op: mul
+        terms:
+        - calc:
+            op: avgx_over_key
+            key_column: CalendarYearMonth
+            value:
+              column: Revenue Amount
+        - literal: 12
+governance:
+  business_owner: Head of Treasury
+  data_owner: Finance BI
+  steward: Working Capital Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Net Sales > 0
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: AM.1.1
+  name: Cash-to-Cash Cycle Time — DSO component
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: partial
+  note: Days Sales Outstanding is the receivables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory
+    Days − DPO). Not an IFRS line item; the receivables base is IFRS 9 / IAS 1.

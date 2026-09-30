@@ -171,8 +171,8 @@ class TestXD004Bracket:
     def test_strategic_kpi_is_outcome_rate(self):
         data = yaml.safe_load(XD004_BRACKET.read_text(encoding="utf-8"))
         strategic = data.get("orchestration", {}).get("strategic_kpi_id")
-        assert strategic == "enterprise.action_outcome_rate.pct", \
-            f"XD-004 strategic KPI should be enterprise.action_outcome_rate.pct, got {strategic}"
+        assert strategic == "KPI-GOV-001", \
+            f"XD-004 strategic KPI should be KPI-GOV-001, got {strategic}"
 
     def test_all_impactful_15_wired(self):
         data = yaml.safe_load(XD004_BRACKET.read_text(encoding="utf-8"))
@@ -183,12 +183,12 @@ class TestXD004Bracket:
 
     def test_no_deprecated_kpis(self):
         deprecated = {
-            "fin.liquidity.payables.amount",
-            "ops.planned.hours",
-            "cost.base_volume.amount",
-            "cost.opex.base.amount",
+            "KPI-FIN-003",
+            "KPI-SCM-019",
+            "KPI-FIN-019",
+            "KPI-SCM-021",
             "plan.replan.count",
-            "enterprise.action_routed.count",
+            "KPI-GOV-003",
         }
         content = XD004_BRACKET.read_text(encoding="utf-8")
         found = [d for d in deprecated if d in content]

@@ -1,0 +1,20 @@
+kpi_id: KPI-SVC-005
+label: First Contact Resolution %
+baseline_range:
+  min: 65
+  likely: 72
+  max: 80
+  unit: "%"
+  note: "FCR benchmark: contact centres average 70-75%; world-class 85%+."
+target_range:
+  min: 76
+  likely: 82
+  max: 88
+  unit: "%"
+  note: "Target: 8-12 pp FCR improvement through knowledge base and agent enablement."
+time_horizon_months: 12
+driver_notes:
+  - "Each 1 pp FCR improvement reduces repeat contact volume by ~1%, saving 20-50k EUR/year."
+  - "FCR improvement also reduces KPI-SVC-008; escalations cost 5-8x first-contact resolution."
+  - "X-S1.1 (Service Level Orchestration) governs the framework; FCR is the primary enabler."
+  - "Agent knowledge tools and CRM integration are the highest-ROI FCR enablers (Gartner 2023)."

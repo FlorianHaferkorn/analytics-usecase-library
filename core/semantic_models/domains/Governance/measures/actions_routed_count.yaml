@@ -1,6 +1,6 @@
 measure_name: Actions Routed Count
 is_kpi_measure: true
-kpi_id_ref: enterprise.action_routed.count
+kpi_id_ref: KPI-GOV-003
 semantic_model: Governance_SemanticModel
 display_folder: 06_Execution
 category: KPI

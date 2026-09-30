@@ -28,14 +28,14 @@ use_cases:
     title: "Service Level Performance"
     purpose: "Improve SLA attainment by identifying root causes of SLA breaches, high handle times, and case backlogs"
     strategic_kpis:
-      - svc.sla.attainment.pct
-      - svc.fcr.pct
-      - svc.aht.minutes
-      - svc.backlog.count
-      - crm.nps.index
-      - svc.escalation.pct
-      - svc.tickets.created.count
-      - svc.tickets.closed.count
+      - KPI-SVC-004
+      - KPI-SVC-005
+      - KPI-SVC-006
+      - KPI-SVC-007
+      - KPI-CUS-003
+      - KPI-SVC-008
+      - KPI-SVC-013
+      - KPI-SVC-014
     action_codes: [X-S1.1, X-S1.2, X-S1.3, X-S1.4]
     display_folder: "10_Service Level"
     reporting_level: Tactical / Operational
@@ -46,13 +46,13 @@ use_cases:
     title: "Resource Utilization"
     purpose: "Optimize workforce capacity by balancing utilization, occupancy, and shrinkage against service level"
     strategic_kpis:
-      - res.utilization.pct
-      - res.occupancy.pct
-      - svc.sla.attainment.pct
-      - res.overtime.pct
-      - res.shrinkage.pct
-      - svc.backlog.count
-      - svc.tickets.created.count
+      - KPI-SVC-009
+      - KPI-SVC-010
+      - KPI-SVC-004
+      - KPI-SVC-011
+      - KPI-SVC-012
+      - KPI-SVC-007
+      - KPI-SVC-013
     action_codes: [X-R2.1, X-R2.2, X-R2.3, X-R2.4]
     display_folder: "11_Resources"
     reporting_level: Tactical / Operational
@@ -63,17 +63,17 @@ use_cases:
     title: "Executive KPI Overview"
     purpose: "Give C-level a single-screen view of enterprise health across Commercial, Finance, Ops, Supply Chain, and Experience"
     strategic_kpis:
-      - margin.gm.pct
-      - sales.net_sales.delta_pct.ly
-      - crm.clv.amount
-      - svc.sla.attainment.pct
-      - supply.otif.pct
-      - ops.working_capital.ccc.days
-      - people.digital_adoption.pct
-      - people.attrition_risk.pct
-      - enterprise.action_routed.count
-      - enterprise.action_outcome_rate.pct
-      - enterprise.value_at_risk.index
+      - KPI-COM-013
+      - KPI-COM-008
+      - KPI-CUS-001
+      - KPI-SVC-004
+      - KPI-SCM-007
+      - KPI-FIN-006
+      - KPI-SVC-002
+      - KPI-SVC-003
+      - KPI-GOV-003
+      - KPI-GOV-001
+      - KPI-GOV-004
     action_codes: [X-E3.2, X-E3.3]
     display_folder: "12_Executive"
     reporting_level: Strategic
@@ -263,42 +263,42 @@ display_folders:
   - folder_name: "10_Service Level"
     description: "XD-001: SLA attainment, FCR, handle time, backlog, NPS, escalation"
     measures:
-      - svc.sla.attainment.pct
-      - svc.fcr.pct
-      - svc.aht.minutes
-      - svc.backlog.count
-      - crm.nps.index
-      - svc.escalation.pct
-      - svc.tickets.created.count
-      - svc.tickets.closed.count
+      - KPI-SVC-004
+      - KPI-SVC-005
+      - KPI-SVC-006
+      - KPI-SVC-007
+      - KPI-CUS-003
+      - KPI-SVC-008
+      - KPI-SVC-013
+      - KPI-SVC-014
 
   - folder_name: "11_Resources"
     description: "XD-002: Utilization, occupancy, overtime, shrinkage, and workload balance"
     measures:
-      - res.utilization.pct
-      - res.occupancy.pct
-      - svc.sla.attainment.pct
-      - res.overtime.pct
-      - res.shrinkage.pct
-      - svc.backlog.count
-      - svc.tickets.created.count
+      - KPI-SVC-009
+      - KPI-SVC-010
+      - KPI-SVC-004
+      - KPI-SVC-011
+      - KPI-SVC-012
+      - KPI-SVC-007
+      - KPI-SVC-013
 
   - folder_name: "12_Executive"
     description: "XD-003: Cross-functional executive scorecard — Commercial, Finance, Ops, SC, Experience"
     measures:
-      - margin.gm.pct
-      - sales.net_sales.delta_pct.ly
-      - crm.clv.amount
-      - svc.sla.attainment.pct
-      - supply.otif.pct
-      - ops.working_capital.ccc.days
-      - people.digital_adoption.pct
-      - people.attrition_risk.pct
-      - enterprise.action_routed.count
-      - enterprise.action_outcome_rate.pct
-      - enterprise.value_at_risk.index
-      - sales.net_sales.amount
-      - cost.cogs.amount
+      - KPI-COM-013
+      - KPI-COM-008
+      - KPI-CUS-001
+      - KPI-SVC-004
+      - KPI-SCM-007
+      - KPI-FIN-006
+      - KPI-SVC-002
+      - KPI-SVC-003
+      - KPI-GOV-003
+      - KPI-GOV-001
+      - KPI-GOV-004
+      - KPI-COM-005
+      - KPI-FIN-011
 
   - folder_name: "Supporting Measures"
     description: "Hidden helper measures used by KPI calculations"
@@ -356,21 +356,21 @@ notes:
     - "XD-003 references KPIs from other domains — cross-model measures via composite model or shared measures"
 
   cross_domain_note:
-    - "XD-003 (Executive KPI Overview) references measures from Commercial (margin.gm.pct, crm.clv.amount),"
-    - "Operations (ops.working_capital.ccc.days) and Supply Chain (supply.otif.pct)."
+    - "XD-003 (Executive KPI Overview) references measures from Commercial (KPI-COM-013, KPI-CUS-001),"
+    - "Finance (KPI-FIN-006) and Supply Chain (KPI-SCM-007)."
     - "In a Fabric deployment, implement XD-003 as a Composite Model that references the other domain models,"
     - "or duplicate the critical cross-domain KPIs as shared measures in this model."
 
   implementation_status:
     - "XD-001: COMPLETE — 8 measures with real DAX in _Measures.tmdl"
     - "XD-002: COMPLETE — 7 measures with real DAX in _Measures.tmdl"
-    - "XD-003: COMPLETE — 13 measures (2 intentional BLANK() for people.digital_adoption.pct and people.attrition_risk.pct)"
-    - "people.digital_adoption.pct: INTENTIONAL BLANK() — awaiting fact_it + fact_hr data contract"
-    - "people.attrition_risk.pct: INTENTIONAL BLANK() — awaiting predictive attrition model output"
+    - "XD-003: COMPLETE — 13 measures (2 intentional BLANK() for KPI-SVC-002 and KPI-SVC-003)"
+    - "KPI-SVC-002: INTENTIONAL BLANK() — awaiting fact_it + fact_hr data contract"
+    - "KPI-SVC-003: INTENTIONAL BLANK() — awaiting predictive attrition model output"
 
   future_enhancements:
     - "Implement XD-003 as Composite Model consuming Commercial, Finance, Operations, SupplyChain models"
-    - "Add fact_it and fact_hr tables to unlock people.digital_adoption.pct and people.attrition_risk.pct"
+    - "Add fact_it and fact_hr tables to unlock KPI-SVC-002 and KPI-SVC-003"
     - "Add dim_agent for agent-level drill-through in workforce analysis (XD-002)"
     - "Implement real-time refresh for SLA attainment and backlog (XD-001)"
 

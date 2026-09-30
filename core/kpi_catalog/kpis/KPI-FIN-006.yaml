@@ -1,0 +1,70 @@
+kpi_id: KPI-FIN-006
+synonyms:
+- Cash Conversion Cycle
+- Net Operating Cycle
+- Cash Cycle
+- Geldumschlagsdauer
+example_question: What pushed the cash conversion cycle higher this month?
+kpi_key: CCC Days
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Liquidity
+domain_tag:
+- Finance
+- Corporate & Strategy
+use_case_ref:
+- FIN-001
+action_code_ref:
+- F-C1.1
+calc_type: amount
+good_is: lower
+business:
+  purpose: Measures cash conversion cycle length.
+  definition: DSO + DIO - DPO.
+  grain_scope: Company/segment; monthly close.
+  unit_format: days_0
+  interpretation: Lower values indicate faster cash recovery.
+technical:
+  measure_name: CCC Days
+  description: Measures cash conversion cycle length.
+  depends_on_measures:
+  - KPI-FIN-001
+  - KPI-FIN-004
+  - KPI-FIN-005
+  lineage:
+  - dim_date.CalendarYearMonth
+  - fact_accounts_receivable.AR Amount
+  - fact_accounts_receivable.Revenue Amount
+  - fact_inventory.Average Inventory Amount
+  - fact_accounts_payable.AP Amount
+  - fact_accounts_payable.COGS Amount
+  calculation:
+    op: delta
+    minuend:
+      calc:
+        op: add
+        terms:
+        - kpi: KPI-FIN-001
+        - kpi: KPI-FIN-004
+    subtrahend:
+      kpi: KPI-FIN-005
+governance:
+  business_owner: Head of Treasury
+  data_owner: Finance BI
+  steward: Working Capital Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - DSO, DIO, DPO available for period
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.8
+  last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: AM.1.1
+  name: Cash-to-Cash Cycle Time
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: exact
+  note: CCC (DSO + DIO − DPO) is definitionally SCOR AM.1.1 Cash-to-Cash Cycle Time — a cross-domain finance↔supply-chain
+    metric with no single IFRS equivalent. The fixed-ratio proxy twin was removed (D-594, 30.09.2026).

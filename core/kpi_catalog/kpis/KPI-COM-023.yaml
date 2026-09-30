@@ -1,0 +1,55 @@
+kpi_id: KPI-COM-023
+kpi_key: Items per Transaction
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: Growth
+domain_tag:
+- Commercial
+- Retail
+use_case_ref:
+- COM-IND-R001
+action_code_ref: []
+calc_type: ratio
+good_is: higher
+business:
+  purpose: Average number of distinct line items per completed transaction.
+  definition: Total line items divided by total transactions in scope.
+  grain_scope: Transaction aggregated by Month, Store, Channel.
+  unit_format: ratio_1
+  interpretation: A core basket-size driver; rising values indicate broader baskets and successful attachment, falling
+    values indicate basket erosion.
+technical:
+  measure_name: Items per Transaction
+  description: Average distinct line items per completed transaction.
+  depends_on_measures: []
+  lineage:
+  - fact_sales.Line Item Key
+  - fact_sales.Transaction Key
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: distinctcount
+        column: Line Item Key
+    denominator:
+      calc:
+        op: distinctcount
+        column: Transaction Key
+governance:
+  business_owner: Head of Category Management
+  data_owner: Commercial BI Engineering
+  steward: Trade Marketing Analyst
+  review_cycle: monthly
+  validation_process: monthly reconciliation against POS line-item counts
+  qa_rules:
+  - Bounds [1; 50]
+  - Exclude voided and returns-only baskets from the denominator
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.06.2026
+standard_ref:
+- standard: Retail analytics (convention)
+  name: Units per transaction (UPT)
+  alignment: none
+  note: Items per transaction (UPT) is a retail-analytics convention; no governing standard.

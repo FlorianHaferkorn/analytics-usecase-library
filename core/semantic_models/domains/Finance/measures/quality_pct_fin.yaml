@@ -1,6 +1,6 @@
 measure_name: Quality % (FIN)
 is_kpi_measure: true
-kpi_id_ref: ops.quality.pct
+kpi_id_ref: KPI-OPS-003
 semantic_model: Finance_SemanticModel
 display_folder: FIN-002
 category: KPI

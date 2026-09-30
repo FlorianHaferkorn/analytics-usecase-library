@@ -13,12 +13,12 @@ use_case_links:
   - SCM-002
 kpis:
   trigger_kpis:
-  - plans.count
+  - KPI-SCM-014
   guardrail_kpis:
-  - supply.otif.pct
+  - KPI-SCM-007
   outcome_kpis:
-  - plans.count
-  - plan.forecast.accuracy.pct
+  - KPI-SCM-014
+  - KPI-SCM-005
 scope:
   default_grain: sop_cycle_month
   default_perspective:
@@ -45,7 +45,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: plans.count
+        metric_kpi_id: KPI-SCM-014
         comparator: gte
         value: 10
         unit: count
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: plans.count
+        metric_kpi_id: KPI-SCM-014
         comparator: gt
         threshold:
           basis: absolute
@@ -63,7 +63,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: plans.count
+        metric_kpi_id: KPI-SCM-014
         comparator: gt
         threshold:
           basis: absolute
@@ -73,7 +73,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: plans.count
+        metric_kpi_id: KPI-SCM-014
         comparator: gt
         threshold:
           basis: absolute
@@ -89,7 +89,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P60D
-    metric_kpi_id: plans.count
+    metric_kpi_id: KPI-SCM-014
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -104,7 +104,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: plans.count
+    metric_kpi_id: KPI-SCM-014
     value_low: -20.0
     value_high: -50.0
     unit: '%'

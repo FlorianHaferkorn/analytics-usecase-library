@@ -27,7 +27,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 ```yaml
 - measure_name: Cash Balance
   is_kpi_measure: true
-  kpi_id_ref: fin.cash.balance
+  kpi_id_ref: KPI-FIN-007
   semantic_model: Finance_SemanticModel
   display_folder: 01_Liquidity
   category: KPI
@@ -55,7 +55,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Operating Cash Flow
   is_kpi_measure: true
-  kpi_id_ref: fin.cash.ocf
+  kpi_id_ref: KPI-FIN-009
   category: KPI
   expression:
     aggregation_method: sum
@@ -83,7 +83,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Cash vs Plan %
   is_kpi_measure: true
-  kpi_id_ref: fin.cash.vs_plan.pct
+  kpi_id_ref: KPI-FIN-010
   semantic_model: Finance_SemanticModel
   display_folder: 01_Liquidity
   category: KPI
@@ -113,7 +113,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: CCC Days
   is_kpi_measure: true
-  kpi_id_ref: wc.ccc.days
+  kpi_id_ref: KPI-FIN-006
   semantic_model: Finance_SemanticModel
   display_folder: 02_WorkingCapital
   category: KPI
@@ -143,7 +143,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: DSO Days
   is_kpi_measure: true
-  kpi_id_ref: wc.dso.days
+  kpi_id_ref: KPI-FIN-001
   semantic_model: Finance_SemanticModel
   display_folder: 02_WorkingCapital
   category: KPI
@@ -172,7 +172,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: DIO Days
   is_kpi_measure: true
-  kpi_id_ref: wc.dio.days
+  kpi_id_ref: KPI-FIN-004
   semantic_model: Finance_SemanticModel
   display_folder: 02_WorkingCapital
   category: KPI
@@ -201,7 +201,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: DPO Days
   is_kpi_measure: true
-  kpi_id_ref: wc.dpo.days
+  kpi_id_ref: KPI-FIN-005
   semantic_model: Finance_SemanticModel
   display_folder: 02_WorkingCapital
   category: KPI
@@ -472,7 +472,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Unit Cost Amount
   is_kpi_measure: true
-  kpi_id_ref: cost.unit.amount
+  kpi_id_ref: KPI-FIN-015
   semantic_model: Finance_SemanticModel
   display_folder: 03_Cost
   category: KPI
@@ -501,7 +501,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: COGS % of Sales
   is_kpi_measure: true
-  kpi_id_ref: margin.cogs.pct
+  kpi_id_ref: KPI-FIN-016
   semantic_model: Finance_SemanticModel
   display_folder: 03_Cost
   category: KPI
@@ -530,7 +530,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: OpEx vs Plan %
   is_kpi_measure: true
-  kpi_id_ref: cost.opex.vs_plan.pct
+  kpi_id_ref: KPI-FIN-014
   semantic_model: Finance_SemanticModel
   display_folder: 04_OpEx
   category: KPI
@@ -559,7 +559,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Material Cost %
   is_kpi_measure: true
-  kpi_id_ref: cost.material.pct
+  kpi_id_ref: KPI-SCM-020
   semantic_model: Finance_SemanticModel
   display_folder: 03_Cost
   category: KPI
@@ -588,7 +588,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Labor Productivity %
   is_kpi_measure: true
-  kpi_id_ref: ops.labor.productivity.pct
+  kpi_id_ref: KPI-OPS-004
   semantic_model: Finance_SemanticModel
   display_folder: 05_Productivity
   category: KPI
@@ -617,7 +617,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: EBITDA Margin
   is_kpi_measure: true
-  kpi_id_ref: margin.ebitda.pct
+  kpi_id_ref: KPI-FIN-018
   semantic_model: Finance_SemanticModel
   display_folder: 06_Profitability
   category: KPI
@@ -689,7 +689,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: OTIF % (FIN)
   is_kpi_measure: true
-  kpi_id_ref: supply.otif.pct
+  kpi_id_ref: KPI-SCM-007
   semantic_model: Finance_SemanticModel
   display_folder: FIN-001
   category: KPI
@@ -710,7 +710,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Throughput Units (FIN)
   is_kpi_measure: true
-  kpi_id_ref: ops.throughput.units
+  kpi_id_ref: KPI-OPS-009
   semantic_model: Finance_SemanticModel
   display_folder: FIN-002
   category: KPI
@@ -731,7 +731,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Quality % (FIN)
   is_kpi_measure: true
-  kpi_id_ref: ops.quality.pct
+  kpi_id_ref: KPI-OPS-003
   semantic_model: Finance_SemanticModel
   display_folder: FIN-002
   category: KPI
@@ -753,7 +753,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Actions Executed Count (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.actions_executed.count
+  kpi_id_ref: KPI-GOV-005
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -774,7 +774,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Action Outcome Rate % (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_outcome_rate.pct
+  kpi_id_ref: KPI-GOV-001
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -795,7 +795,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Avg Time-to-Outcome Days (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.avg_time_to_outcome.days
+  kpi_id_ref: KPI-GOV-006
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -816,7 +816,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Action ROI % (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_roi.pct
+  kpi_id_ref: KPI-GOV-007
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -838,7 +838,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 
 - measure_name: Action Effectiveness Delta (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_effectiveness_delta.amount
+  kpi_id_ref: KPI-GOV-002
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:

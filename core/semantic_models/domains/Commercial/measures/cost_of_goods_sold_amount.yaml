@@ -1,6 +1,6 @@
 measure_name: Cost of Goods Sold Amount
 is_kpi_measure: true
-kpi_id_ref: cost.cogs.amount
+kpi_id_ref: KPI-FIN-011
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 02_Margin
 category: KPI

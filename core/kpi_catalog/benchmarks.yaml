@@ -11,7 +11,7 @@
 schema_version: '1.0'
 
 benchmarks:
-  - kpi_id: ops.oee.pct
+  - kpi_id: KPI-OPS-011
     scope: "Manufacturing (discrete & process) — world-class standard"
     benchmark_class: normative
     metric: world_class
@@ -33,10 +33,10 @@ benchmarks:
         tier: large_sample
         as_of: '2026-07-11'
     note: >-
-      Normative standard for ops.oee.pct (OPS-001). Universal to manufacturing; 90/90/90
+      Normative standard for KPI-OPS-011 (OPS-001). Universal to manufacturing; 90/90/90
       yields only ~73%, so 85% is a demanding bar.
 
-  - kpi_id: svc.fcr.pct
+  - kpi_id: KPI-SVC-005
     scope: "Contact-center / customer service — peer performance by sector"
     benchmark_class: empirical
     metric: median
@@ -62,11 +62,11 @@ benchmarks:
         tier: large_sample
         as_of: '2026-07-11'
     note: >-
-      Empirical for svc.fcr.pct (XD-001) — use the sector segment, not the 74% average
+      Empirical for KPI-SVC-005 (XD-001) — use the sector segment, not the 74% average
       (retail 78 vs tech-support 65 differ by call complexity). 80%+ is the world-class
       aspiration.
 
-  - kpi_id: supply.otif.pct
+  - kpi_id: KPI-SCM-007
     scope: "Supply-chain delivery to retail / CPG customers"
     benchmark_class: normative
     metric: world_class
@@ -88,10 +88,10 @@ benchmarks:
         tier: secondary
         as_of: '2026-07-11'
     note: >-
-      Normative for supply.otif.pct (SCM-002). 95% world-class; retail mandates ~98% —
+      Normative for KPI-SCM-007 (SCM-002). 95% world-class; retail mandates ~98% —
       the standard scales with customer power.
 
-  - kpi_id: crm.nps.index
+  - kpi_id: KPI-CUS-003
     scope: "Net Promoter Score — peer distribution by sector"
     benchmark_class: empirical
     metric: median
@@ -123,10 +123,10 @@ benchmarks:
         tier: primary
         as_of: '2026-07-11'
     note: >-
-      Empirical for crm.nps.index (COM-003) — an index (−100..100), not a percent. Use the
+      Empirical for KPI-CUS-003 (COM-003) — an index (−100..100), not a percent. Use the
       sector segment: 44 cross-industry hides SaaS ~35 vs retail ~45 vs telecom ~10.
 
-  - kpi_id: inv.turnover
+  - kpi_id: KPI-SCM-016
     scope: "Inventory turns per year — peer performance by sector"
     benchmark_class: empirical
     metric: median
@@ -152,10 +152,10 @@ benchmarks:
         tier: large_sample
         as_of: '2026-07-12'
     note: >-
-      Empirical for inv.turnover — turns compare only within a sector (grocery perishables
+      Empirical for KPI-SCM-016 — turns compare only within a sector (grocery perishables
       ~13 vs manufacturing ~5). Use the sector segment, not the 8.5 cross-industry average.
 
-  - kpi_id: wc.dso.days
+  - kpi_id: KPI-FIN-001
     scope: "Days Sales Outstanding — peer performance by sector"
     benchmark_class: empirical
     metric: median
@@ -182,10 +182,10 @@ benchmarks:
         tier: secondary
         as_of: '2026-07-12'
     note: >-
-      Empirical for wc.dso.days (lower is better) — the 56-day median hides card-settled
+      Empirical for KPI-FIN-001 (lower is better) — the 56-day median hides card-settled
       retail (~11d) vs milestone-billed construction (~100d). Use the sector segment.
 
-  - kpi_id: plan.forecast.mape.pct
+  - kpi_id: KPI-SCM-017
     scope: "Demand-forecast MAPE — achievable accuracy by demand profile"
     benchmark_class: empirical
     metric: typical
@@ -211,10 +211,10 @@ benchmarks:
         tier: secondary
         as_of: '2026-07-12'
     note: >-
-      Empirical for plan.forecast.mape.pct (lower is better) — a fashion SKU held to the
+      Empirical for KPI-SCM-017 (lower is better) — a fashion SKU held to the
       FMCG 15% bar fails by physics, not performance. Compare against the demand-profile segment.
 
-  - kpi_id: crm.retention.pct
+  - kpi_id: KPI-CUS-002
     scope: "Customer retention rate — peer performance by sector"
     benchmark_class: empirical
     metric: median
@@ -240,10 +240,10 @@ benchmarks:
         tier: large_sample
         as_of: '2026-07-12'
     note: >-
-      Empirical for crm.retention.pct — the 75% average hides 90% SaaS vs 31% DTC e-commerce
+      Empirical for KPI-CUS-002 — the 75% average hides 90% SaaS vs 31% DTC e-commerce
       (driven by switching costs, not effort). Use the sector segment.
 
-  - kpi_id: inv.dio.days
+  - kpi_id: KPI-SCM-001
     scope: "Days Inventory Outstanding — peer performance by sector"
     benchmark_class: empirical
     metric: median
@@ -271,11 +271,11 @@ benchmarks:
         tier: secondary
         as_of: '2026-07-12'
     note: >-
-      Empirical for inv.dio.days (lower is better) — DIO is the reciprocal-in-days of turns;
+      Empirical for KPI-SCM-001 (lower is better) — DIO is the reciprocal-in-days of turns;
       a grocer at 15d and a manufacturer at 75d are both healthy. Use the sector segment,
       never the 45-day cross-industry median.
 
-  - kpi_id: quality.fpy.pct
+  - kpi_id: KPI-QUA-001
     scope: "First Pass Yield — world-class manufacturing standard"
     benchmark_class: normative
     metric: world_class
@@ -297,10 +297,10 @@ benchmarks:
         tier: large_sample
         as_of: '2026-07-12'
     note: >-
-      Normative for quality.fpy.pct (OPS-003). Universal manufacturing bar: 98% world-class
+      Normative for KPI-QUA-001 (OPS-003). Universal manufacturing bar: 98% world-class
       FPY (units right first time, no rework/scrap). Unlike scrap, FPY also penalises rework.
 
-  - kpi_id: quality.scrap.pct
+  - kpi_id: KPI-QUA-002
     scope: "Scrap rate — world-class manufacturing standard"
     benchmark_class: normative
     metric: world_class
@@ -322,5 +322,5 @@ benchmarks:
         tier: secondary
         as_of: '2026-07-12'
     note: >-
-      Normative for quality.scrap.pct (lower is better). World-class ≤1%; 2–5% typical. Pair with
+      Normative for KPI-QUA-002 (lower is better). World-class ≤1%; 2–5% typical. Pair with
       FPY — a 0.5% scrap rate with 82% FPY hides a 17.5% rework gap (symestic's "honest number").

@@ -7,25 +7,25 @@ import { parseFormula, getFormulaKpiIds } from '../../src/lib/simulation/formula
 
 describe('parseFormula', () => {
   it('parses additive formula with + and -', () => {
-    const result = parseFormula('wc.ccc.days = wc.dso.days + wc.dio.days - wc.dpo.days');
+    const result = parseFormula('KPI-FIN-006 = KPI-FIN-001 + KPI-FIN-004 - KPI-FIN-005');
     expect(result).not.toBeNull();
     expect(result!.type).toBe('additive');
-    expect(result!.target).toBe('wc.ccc.days');
+    expect(result!.target).toBe('KPI-FIN-006');
     if (result!.type === 'additive') {
       expect(result!.terms).toHaveLength(3);
-      expect(result!.terms[0]).toEqual({ kpiId: 'wc.dso.days', operator: '+' });
-      expect(result!.terms[1]).toEqual({ kpiId: 'wc.dio.days', operator: '+' });
-      expect(result!.terms[2]).toEqual({ kpiId: 'wc.dpo.days', operator: '-' });
+      expect(result!.terms[0]).toEqual({ kpiId: 'KPI-FIN-001', operator: '+' });
+      expect(result!.terms[1]).toEqual({ kpiId: 'KPI-FIN-004', operator: '+' });
+      expect(result!.terms[2]).toEqual({ kpiId: 'KPI-FIN-005', operator: '-' });
     }
   });
 
   it('parses functional formula with f()', () => {
-    const result = parseFormula('margin.gm.pct = f(sales.net_sales.amount, sales.pvm.price_effect.amount)');
+    const result = parseFormula('KPI-COM-013 = f(KPI-COM-005, KPI-COM-010)');
     expect(result).not.toBeNull();
     expect(result!.type).toBe('functional');
-    expect(result!.target).toBe('margin.gm.pct');
+    expect(result!.target).toBe('KPI-COM-013');
     if (result!.type === 'functional') {
-      expect(result!.drivers).toEqual(['sales.net_sales.amount', 'sales.pvm.price_effect.amount']);
+      expect(result!.drivers).toEqual(['KPI-COM-005', 'KPI-COM-010']);
     }
   });
 

@@ -13,11 +13,11 @@ use_case_links:
   - XD-001
 kpis:
   trigger_kpis:
-  - quality.complaint.pct
+  - KPI-QUA-004
   guardrail_kpis:
-  - quality.fpy.pct
+  - KPI-QUA-001
   outcome_kpis:
-  - quality.complaint.pct
+  - KPI-QUA-004
 scope:
   default_grain: product_month
   default_perspective:
@@ -45,7 +45,7 @@ trigger:
       min_observations: 5
       volume_guardrail:
         enabled: true
-        metric_kpi_id: sales.units
+        metric_kpi_id: KPI-COM-012
         comparator: gte
         value: 10000
         unit: units
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: quality.complaint.pct
+        metric_kpi_id: KPI-QUA-004
         comparator: gt
         threshold:
           basis: absolute
@@ -63,7 +63,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: quality.complaint.pct
+        metric_kpi_id: KPI-QUA-004
         comparator: gt
         threshold:
           basis: absolute
@@ -73,7 +73,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: quality.complaint.pct
+        metric_kpi_id: KPI-QUA-004
         comparator: gt
         threshold:
           basis: absolute
@@ -89,7 +89,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P90D
-    metric_kpi_id: quality.complaint.pct
+    metric_kpi_id: KPI-QUA-004
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: quality.complaint.pct
+    metric_kpi_id: KPI-QUA-004
     value_low: -20.0
     value_high: -50.0
     unit: '%'

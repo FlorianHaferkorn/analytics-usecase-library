@@ -1,0 +1,48 @@
+kpi_id: KPI-FIN-019
+deprecated: true
+deprecation_reason: No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)
+kpi_key: Cost Base Volume Amount
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Profitability
+domain_tag:
+- Finance
+use_case_ref:
+- FIN-002
+action_code_ref:
+- F-K2.1
+- F-K2.2
+calc_type: amount
+business:
+  purpose: Baseline cost volume used for variance analysis.
+  definition: Baseline amount of cost volume for the selected period.
+  grain_scope: Cost center or product; aggregated by period.
+  unit_format: eur_2
+  interpretation: Provides a stable base for cost variance comparisons.
+technical:
+  measure_name: Cost Base Volume Amount
+  description: Baseline cost volume used for variance analysis.
+  depends_on_measures: []
+  lineage:
+  - fact_cost.COGS Amount
+  calculation:
+    op: sum
+    column: COGS Amount
+governance:
+  business_owner: Head of Controlling
+  data_owner: Finance BI
+  steward: Cost Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules: []
+  version: v0.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: IFRS
+  id: IAS 2
+  name: Cost-base baseline (variance analysis)
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+  alignment: none
+  note: Internal variance-analysis baseline; no external standard. Underlying cost is IAS 2 inventory cost.

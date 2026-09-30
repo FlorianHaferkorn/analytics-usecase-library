@@ -1,6 +1,6 @@
 measure_name: Customer Complaints Count
 is_kpi_measure: true
-kpi_id_ref: crm.complaint.count
+kpi_id_ref: KPI-SVC-001
 semantic_model: CustomerValue_SemanticModel
 display_folder: 02_CX
 category: KPI

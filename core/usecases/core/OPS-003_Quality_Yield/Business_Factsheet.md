@@ -52,15 +52,15 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| quality.fpy.pct | Strategic |
-| quality.scrap.pct | Influencing |
-| quality.rework.pct | Influencing |
-| quality.copq.amount | Influencing |
-| quality.complaint.pct | Influencing |
-| quality.defect_density | Influencing |
-| ops.planned_output.units | Supporting |
-| sales.units | Supporting |
-| crm.complaint.count | Supporting |
+| KPI-QUA-001 | Strategic |
+| KPI-QUA-002 | Influencing |
+| KPI-OPS-010 | Influencing |
+| KPI-QUA-003 | Influencing |
+| KPI-QUA-004 | Influencing |
+| KPI-QUA-005 | Influencing |
+| KPI-OPS-013 | Supporting |
+| KPI-COM-012 | Supporting |
+| KPI-SVC-001 | Supporting |
 
 **Action Codes:** O-Q3.1, O-Q3.2, O-Q3.3, O-Q3.4, O-Q3.5
 
@@ -72,12 +72,12 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **First Pass Yield %** (`quality.fpy.pct`) → **ISO 22400-2 FPY** (exact): ISO 22400-2 First Pass Yield = units passing first time without rework or scrap / total units.
-- **Scrap Rate %** (`quality.scrap.pct`) → **ISO 22400-2 SR** (exact): ISO 22400-2 Scrap ratio SR = scrap quantity / produced quantity.
-- **Rework Rate %** (`quality.rework.pct`) → **ISO 22400-2 RR** (exact): ISO 22400-2 Rework ratio RR = reworked quantity / produced quantity.
-- **Cost of Poor Quality** (`quality.copq.amount`) → **ISO 22400-2** (none): Cost of Poor Quality is a cost concept (ASQ / Juran Cost-of-Quality framework: prevention–appraisal–failure), not an ISO 22400-2 operations KPI.
-- **Complaint Rate %** (`quality.complaint.pct`) → **ISO 22400-2** (none): Customer-complaint rate is a complaints-handling metric (ISO 10002), not a manufacturing-operations KPI.
-- **Defect Density** (`quality.defect_density`) → **ISO 22400-2** (none): Defects-per-thousand is not an ISO 22400-2 KPI; it is a Six Sigma defect-rate (DPMO-family) metric.
+- **First Pass Yield %** (`KPI-QUA-001`) → **ISO 22400-2 FPY** (exact): ISO 22400-2 First Pass Yield = units passing first time without rework or scrap / total units.
+- **Scrap Rate %** (`KPI-QUA-002`) → **ISO 22400-2 SR** (exact): ISO 22400-2 Scrap ratio SR = scrap quantity / produced quantity.
+- **Rework Rate %** (`KPI-OPS-010`) → **ISO 22400-2 RR** (exact): ISO 22400-2 Rework ratio RR = reworked quantity / produced quantity.
+- **Cost of Poor Quality** (`KPI-QUA-003`) → **ISO 22400-2** (none): Cost of Poor Quality is a cost concept (ASQ / Juran Cost-of-Quality framework: prevention–appraisal–failure), not an ISO 22400-2 operations KPI.
+- **Complaint Rate %** (`KPI-QUA-004`) → **ISO 22400-2** (none): Customer-complaint rate is a complaints-handling metric (ISO 10002), not a manufacturing-operations KPI.
+- **Defect Density** (`KPI-QUA-005`) → **ISO 22400-2** (none): Defects-per-thousand is not an ISO 22400-2 KPI; it is a Six Sigma defect-rate (DPMO-family) metric.
 
 ---
 

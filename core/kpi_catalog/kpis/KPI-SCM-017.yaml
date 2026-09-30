@@ -1,0 +1,70 @@
+kpi_id: KPI-SCM-017
+synonyms:
+- Mean Absolute Percentage Error
+- MAPE
+- WMAPE
+- mittlerer absoluter prozentualer Fehler
+example_question: Which product families have the highest MAPE?
+kpi_key: Forecast MAPE %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Supply Chain
+- Operational Efficiency
+use_case_ref:
+- SCM-003
+action_code_ref:
+- S-F3.2
+calc_type: rate
+good_is: lower
+business:
+  purpose: Measures mean absolute percentage error in forecast.
+  definition: Mean(|Forecast - Actual| / Actual).
+  grain_scope: SKU/week; aggregated monthly.
+  unit_format: percent_1
+  interpretation: Lower is better; high MAPE indicates unstable demand or poor model fit.
+technical:
+  measure_name: Forecast MAPE %
+  description: Measures mean absolute percentage error in forecast.
+  depends_on_measures: []
+  lineage:
+  - fact_forecast.ProductKey
+  - fact_forecast.Forecast Units
+  - fact_sales.Sales Units
+  calculation:
+    op: avgx_over_key
+    key_column: ProductKey
+    value:
+      calc:
+        op: ratio
+        numerator:
+          calc:
+            op: abs
+            value:
+              calc:
+                op: delta
+                minuend:
+                  column: Forecast Units
+                subtrahend:
+                  column: Sales Units
+        denominator:
+          column: Sales Units
+governance:
+  business_owner: Supply Planning Lead
+  data_owner: Supply Chain BI
+  steward: Planner
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Actual Demand > 0
+  - Review outliers for promotions or anomalies
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  alignment: none
+  note: As KPI-SCM-005 — no SCOR metric home; MAPE is defined by IBF/APICS forecasting standards,
+    not SCOR.

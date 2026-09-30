@@ -1,6 +1,6 @@
 measure_name: Material Cost %
 is_kpi_measure: true
-kpi_id_ref: cost.material.pct
+kpi_id_ref: KPI-SCM-020
 semantic_model: Finance_SemanticModel
 display_folder: 03_Cost
 category: KPI

@@ -134,7 +134,7 @@ def test_com002_builds_canonical_model(com002):
 
 def test_com002_tables_from_lineage(com002):
     names = {t.name for t in com002.semantic.tables}
-    # margin/price KPIs route to fact_sales; promo drivers split out. `margin.gm.vs_plan.pct`'s
+    # margin/price KPIs route to fact_sales; promo drivers split out. `KPI-FIN-017`'s
     # calculation (I-10.0 grammar extension) resolves against fact_sales[Plan Sales Amount]/
     # [Plan COGS Amount] — matching the real legacy DAX, which never touched fact_plan_sales
     # (that lineage entry was itself the bug: no such "Plan Gross Margin Amount" column exists).
@@ -233,7 +233,7 @@ def test_measures_fallback_to_measures_table_for_column_less_lineage():
     ⚠️ Known nuance (Ledger §6): a column-less lineage entry that *is* a table
     name still routes to _Measures rather than to that fact table. Captured here
     as a direct unit test of `_measure_from_kpi`/`_split_lineage` (not tied to a
-    real catalog KPI — `crm.complaint.count`, the previous real-world exemplar,
+    real catalog KPI — `KPI-SVC-001`, the previous real-world exemplar,
     was itself the documented lineage bug and has since been corrected to
     `fact_complaints.Complaint Count`, I-10.0 grammar extension)."""
     kpi = {
@@ -345,7 +345,7 @@ def test_scm002_fact_routing(scm002):
 
 
 def test_scm002_measures_fallback_table(scm002):
-    """KPIs with column-less lineage (e.g. order.lines / shipments.count →
+    """KPIs with column-less lineage (e.g. KPI-SCM-013 / KPI-SCM-015 →
     lineage ['fact_fulfillment'], no '<table>.<column>') land in the _Measures
     fallback per the documented `_split_lineage` contract.
 

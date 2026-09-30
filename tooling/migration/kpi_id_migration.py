@@ -9,8 +9,8 @@ kein Mapping in der Ladestrecke (D-594 Nachtrag 1).
 
 Was es tut (`--apply`), in dieser Reihenfolge:
 
-1. Plan-Bezuege als Katalogfeld: `plan_kpi_ref` / `plan_variance_kpi_ref` werden aus der alten
-   ID-Syntax abgeleitet (`<basis>.plan.<einheit>`, `<basis>.vs_plan.<einheit>`), solange sie noch
+1. Was die ID-Syntax trug, wird Katalogfeld: `plan_kpi_ref` / `plan_variance_kpi_ref` und
+   `is_variance` werden aus der alten ID-Syntax abgeleitet (`<basis>.plan.<einheit>`, `<basis>.vs_plan.<einheit>`), solange sie noch
    lesbar ist -- danach traegt die ID keine Bedeutung mehr (`comparison_measures.plan_kpi`).
 2. `rolle: entfernen` (CCC-Proxy): Katalogdatei geloescht; in YAML-Listen, die das Ziel schon
    fuehren, faellt die Zeile weg; Tabellenzeilen der Katalog-Doku, die die entfernte KPI nennen,
@@ -18,7 +18,7 @@ Was es tut (`--apply`), in dieser Reihenfolge:
 3. Umschreiben mit exakter Grenze (wie die Blast-Radius-Analyse):
    `(?<![A-Za-z0-9_.])ID(?![A-Za-z0-9_])(?!\\.[a-z0-9_])`, dazu Dateipfade (`kpis/<ID>.yaml`),
    die Praefixe `Pre_`/`Post_` der Wirkungsformeln und -- nur in `UNTERSTRICH_KLASSEN` -- die
-   Unterstrich-Form der OSS-Namen (`margin_gm_pct` -> `kpi_com_013`, dieselbe Form wie
+   Unterstrich-Form der OSS-Namen (`margin_gm_pct[_trend]` -> `kpi_com_013[_trend]`, dieselbe Form wie
    `sql_builder.kpi_to_query_name` und `generate_dbt_metrics`).
 4. Dateiumbenennung (`git mv`) fuer Katalog und ROI-Presets.
 
@@ -150,7 +150,8 @@ class Muster:
             punkt=re.compile(r"(?<![A-Za-z0-9_.])(" + a + r")(?![A-Za-z0-9_])(?!\.[a-z0-9_])"),
             pfad=re.compile(r"(?<=[/`'\"(\s])(" + a + r")(?=\.ya?ml\b)"),
             praefix=re.compile(r"(?<![A-Za-z0-9.])(Pre_|Post_)(" + a + r")(?![A-Za-z0-9_])(?!\.[a-z0-9_])"),
-            unterstrich=re.compile(r"(?<![A-Za-z0-9_])(" + _alt(m.unterstrich) + r")(?![A-Za-z0-9_])"),
+            # OSS-Namen tragen Suffixe (`margin_gm_pct_trend`); ein Unterstrich danach ist erlaubt.
+            unterstrich=re.compile(r"(?<![A-Za-z0-9_])(" + _alt(m.unterstrich) + r")(?![A-Za-z0-9])"),
         )
 
 
@@ -229,9 +230,17 @@ def entferne_zeilen(text: str, rel: str, m: Mapping) -> str:
                 if w in m.entfernt and m.entfernt[w] in werte:
                     raus.add(j)
     if _passt(rel, KATALOG_DOKU):
-        rx = re.compile(r"(?<![A-Za-z0-9_.])(" + _alt(m.entfernt) + r")(?![A-Za-z0-9_])(?!\.[a-z0-9_])")
+        # Zeile der entfernten KPI (erste Zelle) oder Zwillingszeile (erste Zelle nennt keine der
+        # beiden IDs, spaetere Zellen die entfernte). Die Zeile des Ziels bleibt.
+        grenze = r")(?![A-Za-z0-9_])(?!\.[a-z0-9_])"
+        rx = re.compile(r"(?<![A-Za-z0-9_.])(" + _alt(m.entfernt) + grenze)
+        ziel = re.compile(r"(?<![A-Za-z0-9_.])(" + _alt(set(m.entfernt.values())) + grenze)
         for j, z in enumerate(zeilen):
-            if z.lstrip().startswith("|") and rx.search(z):
+            zellen = z.strip().strip("|").split("|")
+            if not z.lstrip().startswith("|") or not rx.search(z):
+                continue
+            erste = zellen[0]
+            if rx.search(erste) or not ziel.search(erste):
                 raus.add(j)
     return "\n".join(z for j, z in enumerate(zeilen) if j not in raus)
 
@@ -239,6 +248,7 @@ def entferne_zeilen(text: str, rel: str, m: Mapping) -> str:
 # --------------------------------------------------------------------------- Plan-Bezuege
 
 PLAN_FELDER = (("plan_kpi_ref", "plan"), ("plan_variance_kpi_ref", "vs_plan"))
+VARIANZ_FELD = "is_variance"
 
 
 def plan_bezuege(ids: set[str]) -> dict[str, dict[str, str]]:
@@ -251,6 +261,21 @@ def plan_bezuege(ids: set[str]) -> dict[str, dict[str, str]]:
             kandidat = f"{basis}.{art}.{einheit}"
             if basis and kandidat in ids:
                 out.setdefault(kid, {})[feld] = kandidat
+    return out
+
+
+def varianz_ids(ids: set[str]) -> set[str]:
+    """Abweichungs-KPIs aus der alten ID-Syntax (`.vs_plan.`, `.delta_pct.`), bisher im
+    Seitenbauer per Teilstring erkannt (KPI-Band: eigene, nach Vorzeichen gefaerbte Karte)."""
+    return {k for k in ids if ".vs_plan." in f"{k}." or ".delta_pct." in f"{k}."}
+
+
+def katalog_felder(m: Mapping) -> dict[str, dict[str, str]]:
+    """Alle Felder, die die ID-Syntax bisher trug, je alter ID (Werte noch als alte IDs)."""
+    ids = set(m.alt_neu) - set(m.entfernt)
+    out = plan_bezuege(ids)
+    for kid in sorted(varianz_ids(ids)):
+        out.setdefault(kid, {})[VARIANZ_FELD] = "true"
     return out
 
 
@@ -302,10 +327,12 @@ def datei_umbenennungen(root: Path, m: Mapping) -> tuple[list[tuple[str, str]], 
 
 def apply(root: Path, m: Mapping) -> dict:
     mu = Muster.aus(m)
-    ids = {p.stem for p in (root / KPIS).glob("*.yaml") if p.stem != "_index"}
-    for kid, felder in plan_bezuege(ids).items():
-        p = root / KPIS / f"{kid}.yaml"
-        p.write_text(setze_plan_felder(p.read_text(encoding="utf-8"), felder), encoding="utf-8")
+    for kid, felder in katalog_felder(m).items():
+        # vor der Umbenennung unter der alten ID, bei erneutem Lauf unter der neuen (idempotent)
+        p = next(q for q in (root / KPIS / f"{kid}.yaml", root / KPIS / f"{m.alt_neu[kid]}.yaml")
+                 if q.is_file())
+        werte = {f: (m.alt_neu.get(v, v) if p.stem.startswith("KPI-") else v) for f, v in felder.items()}
+        p.write_text(setze_plan_felder(p.read_text(encoding="utf-8"), werte), encoding="utf-8", newline="")
     mv, rm = datei_umbenennungen(root, m)
     for rel in rm:
         subprocess.run(["git", "rm", "-q", rel], cwd=root, check=True)
@@ -424,7 +451,7 @@ def main(argv: list[str] | None = None) -> int:
             "umbenennungen": [{"alt": x, "neu": y} for x, y in mv],
             "entfernt": rm,
         }
-        a.report.write_text(json.dumps(bericht, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        a.report.write_text(json.dumps(bericht, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
         print(f"{bericht['summe']['vorkommen']} Vorkommen in {bericht['summe']['dateien']} Dateien, "
               f"{len(ausgenommen)} Ausnahmedateien, {len(mv)} Umbenennungen, {len(rm)} entfernt")
         return 0
@@ -445,7 +472,7 @@ def main(argv: list[str] | None = None) -> int:
         "# Vorlage D-594: Neuzugaenge der Bibliothek, vorbelegt aus Meridian; null = Leerstelle.\n"
         f"# Erzeugt von tooling/migration/kpi_id_migration.py --neuzugaenge. {NEUZUGANG_BLOCKIERT}\n"
         + yaml.safe_dump(entwuerfe, allow_unicode=True, sort_keys=False, width=100),
-        encoding="utf-8")
+        encoding="utf-8", newline="\n")
     print(f"{len(entwuerfe)} Neuzugaenge als Vorlage -> {a.neuzugaenge}")
     return 0
 

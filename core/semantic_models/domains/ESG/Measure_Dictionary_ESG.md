@@ -7,7 +7,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 ```yaml
 - measure_name: Safety Incident Count
   is_kpi_measure: true
-  kpi_id_ref: ops.safety.incident.count
+  kpi_id_ref: KPI-OPS-015
   category: KPI
   expression:
     logical: Safety Incident Count = Count of recorded safety incidents in the selected period.

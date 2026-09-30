@@ -13,13 +13,13 @@ use_case_links:
   - FIN-002
 kpis:
   trigger_kpis:
-  - quality.scrap.pct
-  - quality.rework.pct
+  - KPI-QUA-002
+  - KPI-OPS-010
   guardrail_kpis:
-  - quality.fpy.pct
+  - KPI-QUA-001
   outcome_kpis:
-  - quality.scrap.pct
-  - quality.rework.pct
+  - KPI-QUA-002
+  - KPI-OPS-010
 scope:
   default_grain: line_month
   default_perspective:
@@ -47,7 +47,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: ops.planned_output.units
+        metric_kpi_id: KPI-OPS-013
         comparator: gte
         value: 15000
         unit: units
@@ -55,7 +55,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: quality.scrap.pct
+        metric_kpi_id: KPI-QUA-002
         comparator: gt
         threshold:
           basis: absolute
@@ -65,7 +65,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: quality.scrap.pct
+        metric_kpi_id: KPI-QUA-002
         comparator: gt
         threshold:
           basis: absolute
@@ -75,7 +75,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: quality.scrap.pct
+        metric_kpi_id: KPI-QUA-002
         comparator: gt
         threshold:
           basis: absolute
@@ -91,7 +91,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P30D
-    metric_kpi_id: quality.rework.pct
+    metric_kpi_id: KPI-OPS-010
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -107,7 +107,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: quality.scrap.pct
+    metric_kpi_id: KPI-QUA-002
     value_low: -0.5
     value_high: -2.0
     unit: pp

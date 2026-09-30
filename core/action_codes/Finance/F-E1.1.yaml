@@ -12,12 +12,12 @@ use_case_links:
   related_use_cases: []
 kpis:
   trigger_kpis:
-  - margin.ebitda.pct
-  - cost.opex.vs_plan.pct
+  - KPI-FIN-018
+  - KPI-FIN-014
   guardrail_kpis:
-  - margin.gm.pct
+  - KPI-COM-013
   outcome_kpis:
-  - margin.ebitda.pct
+  - KPI-FIN-018
 scope:
   default_grain: costcenter_month
   default_perspective:
@@ -45,7 +45,7 @@ trigger:
       min_observations: 3
       volume_guardrail:
         enabled: true
-        metric_kpi_id: margin.ebitda.amount
+        metric_kpi_id: KPI-FIN-020
         comparator: gte
         value: 50
         unit: count
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: margin.ebitda.pct
+        metric_kpi_id: KPI-FIN-018
         comparator: lt
         threshold:
           basis: absolute
@@ -63,7 +63,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: margin.ebitda.pct
+        metric_kpi_id: KPI-FIN-018
         comparator: lt
         threshold:
           basis: absolute
@@ -73,7 +73,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: margin.ebitda.pct
+        metric_kpi_id: KPI-FIN-018
         comparator: lt
         threshold:
           basis: absolute
@@ -89,7 +89,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P30D
-    metric_kpi_id: margin.ebitda.pct
+    metric_kpi_id: KPI-FIN-018
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: margin.ebitda.pct
+    metric_kpi_id: KPI-FIN-018
     value_low: 2.0
     value_high: 8.0
     unit: pp

@@ -50,18 +50,18 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| enterprise.value_at_risk.index | Strategic |
-| margin.gm.pct | Influencing |
-| sales.net_sales.delta_pct.ly | Influencing |
-| crm.clv.amount | Influencing |
-| svc.sla.attainment.pct | Influencing |
-| supply.otif.pct | Influencing |
-| ops.working_capital.ccc.days | Influencing |
-| people.digital_adoption.pct | Influencing |
-| people.attrition_risk.pct | Influencing |
-| cost.cogs.amount | Supporting |
-| sales.net_sales.amount | Supporting |
-| supply.otif.pct | Supporting |
+| KPI-GOV-004 | Strategic |
+| KPI-COM-013 | Influencing |
+| KPI-COM-008 | Influencing |
+| KPI-CUS-001 | Influencing |
+| KPI-SVC-004 | Influencing |
+| KPI-SCM-007 | Influencing |
+| KPI-FIN-006 | Influencing |
+| KPI-SVC-002 | Influencing |
+| KPI-SVC-003 | Influencing |
+| KPI-FIN-011 | Supporting |
+| KPI-COM-005 | Supporting |
+| KPI-SCM-007 | Supporting |
 
 **Action Codes:** X-E3.2
 
@@ -73,15 +73,15 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Enterprise Value-at-Risk Index** (`enterprise.value_at_risk.index`) → **Internal — ActionReady governance** (none): A composite index built from already-governed KPIs — SCOR reliability (OTIF, in-full → RL) and ISO 22400 quality (first-pass yield → QR) weighted into a 0-100 risk score.
-- **Gross Margin %** (`margin.gm.pct`) → **ESMA-APM** (partial): A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM.
-- **Delta% Net Sales** (`sales.net_sales.delta_pct.ly`) → **IFRS 15** (none): Year-over-year growth is a management trend metric.
-- **CLV (Customer Lifetime Value)** (`crm.clv.amount`) → **Marketing analytics — CRM (convention)** (none): CLV (discounted expected future gross margin per customer) is a well-established marketing-analytics model, not a governed standard.
-- **SLA Attainment %** (`svc.sla.attainment.pct`) → **ISO/IEC 20000-1 8.3.3** (partial): ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets.
-- **OTIF %** (`supply.otif.pct`) → **SCOR-DS RL.1.1** (partial): OTIF = on-time AND in-full, 2 of SCOR Perfect Order's 4 components (governed OTIF; consolidated from the former `ops.otif.pct`).
-- **Cash Conversion Cycle (Days)** (`ops.working_capital.ccc.days`) → **SCOR-DS AM.1.1** (partial): Same CCC concept as SCOR AM.1.1 but computed from fixed-ratio Net Sales/COGS proxies (Experience-domain executive view where the receivables/inventory/payables facts are unavailable).
-- **Digital Adoption Rate %** (`people.digital_adoption.pct`) → **ISO 30414** (none): Digital adoption (digital / total transactions for eligible processes) is a digital-transformation / change-management metric, not part of ISO 30414's human-capital areas.
-- **Attrition Risk %** (`people.attrition_risk.pct`) → **ISO 30414** (partial): ISO 30414:2018 (human capital reporting) defines turnover and retention-rate metrics.
+- **Enterprise Value-at-Risk Index** (`KPI-GOV-004`) → **Internal — ActionReady governance** (none): A composite index built from already-governed KPIs — SCOR reliability (OTIF, in-full → RL) and ISO 22400 quality (first-pass yield → QR) weighted into a 0-100 risk score.
+- **Gross Margin %** (`KPI-COM-013`) → **ESMA-APM** (partial): A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM.
+- **Delta% Net Sales** (`KPI-COM-008`) → **IFRS 15** (none): Year-over-year growth is a management trend metric.
+- **CLV (Customer Lifetime Value)** (`KPI-CUS-001`) → **Marketing analytics — CRM (convention)** (none): CLV (discounted expected future gross margin per customer) is a well-established marketing-analytics model, not a governed standard.
+- **SLA Attainment %** (`KPI-SVC-004`) → **ISO/IEC 20000-1 8.3.3** (partial): ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets.
+- **OTIF %** (`KPI-SCM-007`) → **SCOR-DS RL.1.1** (partial): OTIF = on-time AND in-full, 2 of SCOR Perfect Order's 4 components (governed OTIF; consolidated from the former `ops.otif.pct`).
+- **CCC Days** (`KPI-FIN-006`) → **SCOR-DS AM.1.1** (exact): CCC (DSO + DIO − DPO) is definitionally SCOR AM.1.1 Cash-to-Cash Cycle Time — a cross-domain finance↔supply-chain metric with no single IFRS equivalent.
+- **Digital Adoption Rate %** (`KPI-SVC-002`) → **ISO 30414** (none): Digital adoption (digital / total transactions for eligible processes) is a digital-transformation / change-management metric, not part of ISO 30414's human-capital areas.
+- **Attrition Risk %** (`KPI-SVC-003`) → **ISO 30414** (partial): ISO 30414:2018 (human capital reporting) defines turnover and retention-rate metrics.
 
 ---
 

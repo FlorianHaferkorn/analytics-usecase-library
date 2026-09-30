@@ -30,7 +30,7 @@ export function KpiAutocomplete({ value, onChange, kpiIds, placeholder }: Props)
         list={listId}
         value={value}
         onChange={handleChange}
-        placeholder={placeholder ?? 'Select KPI (e.g., margin.gm.pct)'}
+        placeholder={placeholder ?? 'Select KPI (e.g., KPI-COM-013)'}
         style={{ fontSize: '0.75rem', padding: '4px 8px', borderRadius: 'var(--radius-sm)' }}
         autoComplete="off"
       />

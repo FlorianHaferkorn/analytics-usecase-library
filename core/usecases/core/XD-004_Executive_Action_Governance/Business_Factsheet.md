@@ -46,9 +46,9 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| enterprise.action_outcome_rate.pct | Strategic |
-| enterprise.action_effectiveness_delta.amount | Influencing |
-| enterprise.value_at_risk.index | Influencing |
+| KPI-GOV-001 | Strategic |
+| KPI-GOV-002 | Influencing |
+| KPI-GOV-004 | Influencing |
 
 **Action Codes:** X-E3.3
 
@@ -60,9 +60,9 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Action Outcome Rate %** (`enterprise.action_outcome_rate.pct`) → **Internal — ActionReady governance** (none): Action outcome rate (achieved / total action outcomes) is the ActionReady framework's own action-governance construct — no external standard defines it.
-- **Action Effectiveness Delta** (`enterprise.action_effectiveness_delta.amount`) → **Internal — ActionReady governance** (none): Average realised impact across achieved actions — the framework's own effectiveness measure.
-- **Enterprise Value-at-Risk Index** (`enterprise.value_at_risk.index`) → **Internal — ActionReady governance** (none): A composite index built from already-governed KPIs — SCOR reliability (OTIF, in-full → RL) and ISO 22400 quality (first-pass yield → QR) weighted into a 0-100 risk score.
+- **Action Outcome Rate %** (`KPI-GOV-001`) → **Internal — ActionReady governance** (none): Action outcome rate (achieved / total action outcomes) is the ActionReady framework's own action-governance construct — no external standard defines it.
+- **Action Effectiveness Delta** (`KPI-GOV-002`) → **Internal — ActionReady governance** (none): Average realised impact across achieved actions — the framework's own effectiveness measure.
+- **Enterprise Value-at-Risk Index** (`KPI-GOV-004`) → **Internal — ActionReady governance** (none): A composite index built from already-governed KPIs — SCOR reliability (OTIF, in-full → RL) and ISO 22400 quality (first-pass yield → QR) weighted into a 0-100 risk score.
 
 ---
 

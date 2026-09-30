@@ -136,7 +136,7 @@ bracket + generator logic + DEP update, then regenerate TMDL/report and validate
   **repair-time split** `Active Repair Hours` + `Logistic/Wait Hours` (EN 13306) decomposing
   `Repair Duration Hours`.
 - **New KPIs** (already designed in the DEP): `ops.failure.count.by_mode`, MTTR active-vs-wait
-  decomposition, repeat-failure %, PM-adequacy (reuse `ops.pm_compliance.pct`).
+  decomposition, repeat-failure %, PM-adequacy (reuse `KPI-OPS-007`).
 - **Bracket**: add failure-mode Pareto + MTTR-decomposition `evidence_columns`; add diagnostics
   to `supporting_kpi_ids` (now resolvable).
 - **Synthetic**: cause-code distribution per asset class; wait-time correlated with

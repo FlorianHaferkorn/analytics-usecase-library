@@ -307,7 +307,7 @@ class TestTMDLGeneration:
     def test_single_measure_block(self):
         from tooling.generator_core.ir.specs import MeasureSpec
         m = MeasureSpec(
-            kpi_id="sales.net_sales.amount",
+            kpi_id="KPI-COM-005",
             name="Net Sales Amount",
             dax="SUM ( fact_sales[net_sales] )",
             format_string="#,0.00",
@@ -395,7 +395,7 @@ def _spec_with_kpi_cards() -> DashboardSpec:
         pages=[overview, detail],
         measures=[
             MeasureSpec(
-                kpi_id="sales.net_sales.amount",
+                kpi_id="KPI-COM-005",
                 name="Net Sales Amount",
                 dax="SUM ( fact_sales[net_sales] )",
                 format_string="#,0.00",

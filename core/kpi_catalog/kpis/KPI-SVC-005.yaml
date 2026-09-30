@@ -1,0 +1,55 @@
+kpi_id: KPI-SVC-005
+synonyms:
+- First Contact Resolution
+- First Call Resolution
+- One-Touch Resolution
+- Erstlösungsquote
+- Erstkontaktlösung
+example_question: Where is first contact resolution lowest, and why?
+kpi_key: First Contact Resolution %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Service
+domain_tag:
+- Service & Experience
+use_case_ref:
+- XD-001
+action_code_ref:
+- X-S1.3
+calc_type: ratio
+good_is: higher
+business:
+  purpose: Shows the share of cases solved on first contact.
+  definition: Cases with FCR Flag = 1 divided by total cases.
+  grain_scope: queue_day or month; aggregated by Org/Channel/Queue.
+  unit_format: percent_1
+  interpretation: Higher is better; keep in balance with AHT and escalation %.
+technical:
+  measure_name: FCR %
+  description: Shows the share of cases solved on first contact.
+  depends_on_measures: []
+  lineage:
+  - fact_support_cases.FCR Flag
+  calculation:
+    op: rate
+    column: FCR Flag
+governance:
+  business_owner: Head of Service
+  data_owner: Service Analytics
+  steward: Service Ops Analyst
+  review_cycle: monthly
+  validation_process: automated
+  qa_rules:
+  - Total cases > 0; reopened cases handled per policy
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: ITIL 4
+  name: Service desk — First Contact Resolution
+  url: https://www.axelos.com/certifications/itil-service-management
+  alignment: partial
+  note: First Contact Resolution is a de-facto ITIL 4 service-desk / incident-management practice metric (and COPC
+    CX Standard), not formally defined by ISO/IEC 20000. Widely standard in service management; pin the 'contact'
+    grain (call vs case, single vs multi-channel) to compare externally.

@@ -85,7 +85,7 @@ These behaviours are by design. They are not open work to "fix"; they require ma
 | Item | Description |
 |------|-------------|
 | KPI Catalog: DAX removal | Removed `dax_expression` (110), `formatString` (113) from core KPI Catalog. Renamed `dax_name` → `measure_name`. DAX lives in Fabric overlay. |
-| KPI Catalog: YAML fixes | Fixed 28+41 malformed `domain_tag` entries (dangling list items). Fixed self-referential dep on `svc.tickets.created.count`. |
+| KPI Catalog: YAML fixes | Fixed 28+41 malformed `domain_tag` entries (dangling list items). Fixed self-referential dep on `KPI-SVC-013`. |
 | KPI Catalog: completeness scores | Updated 17 entries from 0.6 → 1.0 (incomplete DAX no longer penalizes score). |
 | KPI Catalog Schema | Updated `kpi_catalog_SCHEMA.md`: removed `dax_expression`/`formatString`, renamed `dax_name` → `measure_name`. |
 | Measure Dictionaries: logical expressions | Completed tool-agnostic pseudocode for 223 placeholder measures (was "Fabric: see overlay / TMDL"). Added `aggregation_method` to all. |

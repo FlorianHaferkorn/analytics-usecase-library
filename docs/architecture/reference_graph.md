@@ -6,10 +6,10 @@
 ## Coverage
 
 - Use cases: **20**  (evidence packs: 16/20, factsheets: 20/20)
-- KPIs in catalog: **140**  — reachable: **139**, roadmap (planned.yaml): 30, orphan: **0**
+- KPIs in catalog: **139**  — reachable: **138**, roadmap (planned.yaml): 30, orphan: **0**
 - Action codes: **57**  — reachable: **57**, orphan: **0**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
-- Semantic measures: **251**  — backing a catalog KPI: **112** (registry/drift gated by `test_measure_dictionary_files`)
+- Semantic measures: **251**  — backing a catalog KPI: **111** (registry/drift gated by `test_measure_dictionary_files`)
 
 ## Integrity (must be empty)
 
@@ -39,7 +39,7 @@
 | SCM-004 | 6 | 1 | — | supply_chain.yaml |
 | XD-001 | 8 | 4 | ✓ | experience.yaml |
 | XD-002 | 11 | 4 | ✓ | experience.yaml |
-| XD-003 | 27 | 1 | ✓ | executive.yaml |
+| XD-003 | 30 | 1 | ✓ | executive.yaml |
 | XD-004 | 67 | 16 | ✓ | governance.yaml |
 
 ## Orphans (not reachable from any use case; review)
@@ -60,30 +60,30 @@ _none_
 
 ## Reachable KPIs with no backing measure (review — not a gate)
 
-- `fin.overdue_ar.pct`
-- `inv.excess_inventory.amount`
-- `margin.ebitda.amount`
-- `margin.ebitda.delta_pct.plan`
-- `ops.changeover.minutes`
-- `ops.speed_loss.pct`
-- `people.absence.pct`
-- `people.attrition.pct`
-- `people.cost.per_fte.amount`
-- `people.engagement.index`
-- `people.headcount.fte`
-- `people.timetofill.days`
-- `procurement.oncontract.pct`
-- `procurement.ppv.pct`
-- `procurement.savings.realized.pct`
-- `procurement.spend.managed.amount`
-- `procurement.supplier.otd.pct`
-- `retail.basket.items_per_transaction`
-- `retail.basket.value.average`
-- `retail.category.crosssell_rate.pct`
-- `retail.promotion.attachment_rate.pct`
-- `sales.conversion.pct`
-- `sales.pipeline.coverage.ratio`
-- `sales.pipeline.value.amount`
-- `sales.sales_cycle.days`
-- `sales.velocity.amount`
-- `sales.win_rate.pct`
+- `KPI-COM-022`
+- `KPI-COM-023`
+- `KPI-COM-024`
+- `KPI-COM-025`
+- `KPI-COM-026`
+- `KPI-COM-027`
+- `KPI-COM-028`
+- `KPI-COM-029`
+- `KPI-COM-030`
+- `KPI-COM-031`
+- `KPI-FIN-008`
+- `KPI-FIN-020`
+- `KPI-FIN-021`
+- `KPI-OPS-019`
+- `KPI-OPS-020`
+- `KPI-PPL-001`
+- `KPI-PPL-002`
+- `KPI-PPL-003`
+- `KPI-PPL-004`
+- `KPI-PPL-005`
+- `KPI-PPL-006`
+- `KPI-SCM-003`
+- `KPI-SCM-023`
+- `KPI-SCM-024`
+- `KPI-SCM-025`
+- `KPI-SCM-026`
+- `KPI-SCM-027`

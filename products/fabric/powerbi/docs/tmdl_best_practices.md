@@ -101,7 +101,7 @@ measure 'Net Sales Amount' =
 Use a three-line `///` block above each measure: **KPI ID** (or Supporting), **Description**, and **Purpose**. Source: `core/kpi_catalog/KPI_Catalog.md`. For supporting measures use `/// Supporting: <id> — <Display Name>` and supply Description and Purpose from the measure dictionary or a short formulation.
 
 ```tmdl
-/// KPI: sales.net_sales.amount — Net Sales Amount
+/// KPI: KPI-COM-005 — Net Sales Amount
 /// Description: Total invoiced revenue net of discounts and returns.
 /// Purpose: Total invoiced revenue net of discounts and returns.
 measure 'Net Sales Amount' = ...

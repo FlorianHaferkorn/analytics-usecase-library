@@ -12,6 +12,10 @@ import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
+# Threshold units that were KPI-ID suffixes before D-594 and were never displayed; same set as
+# tooling/generator_core/ir/compiler.py SUFFIX_UNITS (tooling/tests/test_kpi_id_migration.py).
+_SUFFIX_UNITS = frozenset({"amount", "count", "index", "pct", "days", "hours", "minutes", "units"})
+
 logger = logging.getLogger(__name__)
 
 # Framework fallback data palette (used when no brand spec is configured).
@@ -116,6 +120,22 @@ class ConfigLoader:
             if isinstance(d, dict) and d.get("kpi_id") and d.get("good_is"):
                 out[str(d["kpi_id"])] = str(d["good_is"])
         self._good_is = out
+        return out
+
+    def load_variance_kpi_ids(self) -> set:
+        """KPI-IDs, die eine Abweichung sind (Katalogfeld `is_variance`). Bis D-594 am Teilstring
+        `.vs_plan.`/`.delta_pct.` der ID erkannt; die ID traegt seither keine Bedeutung mehr."""
+        if "_variance_ids" in self.__dict__:
+            return self._variance_ids
+        out = set()
+        for f in sorted((self.repo_root / "core" / "kpi_catalog" / "kpis").glob("*.yaml")):
+            try:
+                d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+            except yaml.YAMLError:
+                continue
+            if isinstance(d, dict) and d.get("kpi_id") and d.get("is_variance") is True:
+                out.add(str(d["kpi_id"]))
+        self._variance_ids = out
         return out
 
     def load_kpi_id_to_measure_name_map(self) -> Dict[str, str]:
@@ -466,9 +486,11 @@ class ConfigLoader:
 
     @staticmethod
     def _format_threshold_value(val: Any, unit: str, metric: str = "") -> str:
-        # Until D-594 the unit was dropped when the dotted KPI ID already ended in it
-        # (`margin.gm.pct < 30`); a numbered ID carries no unit, so the unit is always shown.
+        # Unit-class words stay hidden as while they were KPI-ID suffixes (D-594); same set
+        # as the IR compiler (tooling/generator_core/ir/compiler.py SUFFIX_UNITS).
         unit = (unit or "").strip()
+        if unit in _SUFFIX_UNITS:
+            unit = ""
         if unit in ("%", "pp"):
             return f"{val}{unit}"
         if unit:
@@ -1065,6 +1087,7 @@ class ConfigLoader:
                 "card_measure_names": card_measure_names,
                 "kpi_id_to_measure_name": kpi_to_measure,
                 "kpi_good_is": self.load_kpi_good_is(),
+                "variance_kpi_ids": self.load_variance_kpi_ids(),
                 "comparison_refs": self._comparison_refs(bracket),
                 "kpi_band_delta": self._band_delta(bracket),
                 "intent_rules_version": intent_rules_version,
@@ -1151,7 +1174,7 @@ class ConfigLoader:
             # not-yet-modeled dimension (e.g. "plant", "agent_group") -- not a
             # deliberate raw-measure-name escape hatch (those are always
             # Title-Case-with-spaces DAX names, e.g. "Plan Sales Amount", and a
-            # dotted KPI id like "sales.net_sales.amount" never matches this
+            # dotted KPI id like "KPI-COM-005" never matches this
             # shape either). Silently passing it through would mint a bogus
             # _Measures.<token> reference -- the same failure class R2.3/R2.4
             # found and fixed case-by-case ("sku", "asset", "queue", ...); this
@@ -1251,6 +1274,7 @@ class ConfigLoader:
                 "card_measure_names": card_measure_names,
                 "kpi_id_to_measure_name": kpi_to_measure,
                 "kpi_good_is": self.load_kpi_good_is(),
+                "variance_kpi_ids": self.load_variance_kpi_ids(),
                 "comparison_refs": self._comparison_refs(bracket),
                 "kpi_band_delta": self._band_delta(bracket),
                 "detail_matrix_columns": detail_matrix_columns,

@@ -13,12 +13,12 @@ use_case_links:
   - OPS-001
 kpis:
   trigger_kpis:
-  - ops.mttr.hours
+  - KPI-OPS-006
   guardrail_kpis:
-  - ops.safety.incident.count
+  - KPI-OPS-015
   outcome_kpis:
-  - ops.mttr.hours
-  - ops.availability.pct
+  - KPI-OPS-006
+  - KPI-OPS-016
 scope:
   default_grain: asset_month
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: ops.failure.count
+        metric_kpi_id: KPI-OPS-012
         comparator: gte
         value: 2
         unit: count
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: ops.mttr.hours
+        metric_kpi_id: KPI-OPS-006
         comparator: gt
         threshold:
           basis: relative
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: ops.mttr.hours
+        metric_kpi_id: KPI-OPS-006
         comparator: gt
         threshold:
           basis: relative
@@ -74,7 +74,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: ops.mttr.hours
+        metric_kpi_id: KPI-OPS-006
         comparator: gt
         threshold:
           basis: relative
@@ -90,7 +90,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P90D
-    metric_kpi_id: ops.spare_parts.stockout.pct
+    metric_kpi_id: KPI-OPS-008
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: ops.mttr.hours
+    metric_kpi_id: KPI-OPS-006
     value_low: -10.0
     value_high: -30.0
     unit: '%'

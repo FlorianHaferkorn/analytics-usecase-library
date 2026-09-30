@@ -1,6 +1,6 @@
 measure_name: Penalty Amount
 is_kpi_measure: true
-kpi_id_ref: supply.penalty.amount
+kpi_id_ref: KPI-SCM-011
 semantic_model: SupplyChain_SemanticModel
 display_folder: 04_Cost
 category: KPI

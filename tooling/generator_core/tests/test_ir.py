@@ -258,26 +258,26 @@ class TestBracketCompiler:
     def test_card_kpi_ids_deduplicates_lead_and_influencing(self):
         bracket = {
             "orchestration": {
-                "strategic_kpi_id": "margin.gm.pct",
+                "strategic_kpi_id": "KPI-COM-013",
                 "influencing_kpi_ids": [
-                    "sales.net_sales.delta_pct.plan",
-                    "sales.net_sales.delta_pct.ly",
-                    "margin.gm.pct",
-                    "sales.net_sales.amount",
+                    "KPI-COM-009",
+                    "KPI-COM-008",
+                    "KPI-COM-013",
+                    "KPI-COM-005",
                 ],
             },
             "ux_layout_rules": {
                 "page_1_summary": {
-                    "component_3s": {"kpi_id": "sales.net_sales.amount"},
+                    "component_3s": {"kpi_id": "KPI-COM-005"},
                 }
             },
         }
         ids = _card_kpi_ids(bracket)
         assert ids == [
-            "sales.net_sales.amount",
-            "sales.net_sales.delta_pct.plan",
-            "sales.net_sales.delta_pct.ly",
-            "margin.gm.pct",
+            "KPI-COM-005",
+            "KPI-COM-009",
+            "KPI-COM-008",
+            "KPI-COM-013",
         ]
 
     def test_measures_compiled_from_catalog(self, tmp_dirs, bracket_file):
@@ -326,7 +326,7 @@ class TestTriggerFormatting:
                 "levels": {
                     "L2": {
                         "condition": {
-                            "metric_kpi_id": "sales.pvm.price_effect.amount",
+                            "metric_kpi_id": "KPI-COM-010",
                             "comparator": "lt",
                             "threshold": {"value": 0, "unit": "amount"},
                         }
@@ -334,7 +334,7 @@ class TestTriggerFormatting:
                 }
             }
         }
-        assert _format_trigger(ac) == "sales.pvm.price_effect.amount < 0"
+        assert _format_trigger(ac) == "KPI-COM-010 < 0"
 
 
 class TestMeasureNameResolution:
@@ -404,7 +404,7 @@ class TestBenchmarkReferenceLabel:
 
         card = overview.visual_by_id("KPI_Cards")
         ref = card.config.get("benchmark_reference")
-        assert ref and ref["kpi_id"] == "ops.oee.pct"
+        assert ref and ref["kpi_id"] == "KPI-OPS-011"
         assert ref["basis"] == "universal" and ref["label"] == "vs. world-class 85%"
         # the primary comparison is preserved — the benchmark is additive
         caption = overview.visual_by_id("Benchmark_Caption")
@@ -419,10 +419,10 @@ class TestBenchmarkReferenceLabel:
         # A retail deployment sees the peer segment; an unmatched one sees an honest fallback.
         retail = BracketCompiler(repo_root / "core/kpi_catalog", repo_root / "core/action_codes",
                                  deployment_industry="Omnichannel Retail & Consumer Goods")
-        assert retail._benchmark_reference("crm.nps.index")["label"] == "vs. Retail peer 45"
+        assert retail._benchmark_reference("KPI-CUS-003")["label"] == "vs. Retail peer 45"
         mining = BracketCompiler(repo_root / "core/kpi_catalog", repo_root / "core/action_codes",
                                  deployment_industry="Mining")
-        assert "cross-industry" in mining._benchmark_reference("crm.nps.index")["label"]
+        assert "cross-industry" in mining._benchmark_reference("KPI-CUS-003")["label"]
 
     def test_no_benchmark_kpi_returns_none(self):
         repo_root = self._repo_root()

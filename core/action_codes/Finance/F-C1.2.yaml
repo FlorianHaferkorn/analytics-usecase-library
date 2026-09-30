@@ -13,12 +13,12 @@ use_case_links:
   - COM-003
 kpis:
   trigger_kpis:
-  - wc.dso.days
+  - KPI-FIN-001
   guardrail_kpis:
-  - fin.cash.balance
+  - KPI-FIN-007
   outcome_kpis:
-  - wc.dso.days
-  - fin.cash.ocf
+  - KPI-FIN-001
+  - KPI-FIN-009
 scope:
   default_grain: month
   default_perspective:
@@ -45,7 +45,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: fin.cash.balance
+        metric_kpi_id: KPI-FIN-007
         comparator: gte
         value: 300000
         unit: amount
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: wc.dso.days
+        metric_kpi_id: KPI-FIN-001
         comparator: gt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: wc.dso.days
+        metric_kpi_id: KPI-FIN-001
         comparator: gt
         threshold:
           basis: absolute
@@ -75,7 +75,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: wc.dso.days
+        metric_kpi_id: KPI-FIN-001
         comparator: gt
         threshold:
           basis: absolute
@@ -94,7 +94,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P60D
-    metric_kpi_id: wc.dpo.days
+    metric_kpi_id: KPI-FIN-005
     success_criteria:
       kind: threshold_met
       baseline_window: P60D
@@ -108,7 +108,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: wc.dso.days
+    metric_kpi_id: KPI-FIN-001
     value_low: -2
     value_high: -6
     unit: days

@@ -27,7 +27,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 ```yaml
 - measure_name: Days in Inventory
   is_kpi_measure: true
-  kpi_id_ref: inv.dio.days
+  kpi_id_ref: KPI-SCM-001
   semantic_model: SupplyChain_SemanticModel
   display_folder: 01_Inventory
   category: KPI
@@ -56,7 +56,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Inventory Turnover
   is_kpi_measure: true
-  kpi_id_ref: inv.turnover
+  kpi_id_ref: KPI-SCM-016
   category: KPI
   expression:
     logical: Inventory Turnover = COGS / Average Inventory
@@ -85,7 +85,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Stockout Rate %
   is_kpi_measure: true
-  kpi_id_ref: inv.stockout.pct
+  kpi_id_ref: KPI-SCM-002
   semantic_model: SupplyChain_SemanticModel
   display_folder: 02_Service
   category: KPI
@@ -113,7 +113,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: OTIF %
   is_kpi_measure: true
-  kpi_id_ref: supply.otif.pct
+  kpi_id_ref: KPI-SCM-007
   semantic_model: SupplyChain_SemanticModel
   display_folder: 02_Service
   category: KPI
@@ -141,7 +141,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Obsolete Inventory %
   is_kpi_measure: true
-  kpi_id_ref: inv.obsolete.pct
+  kpi_id_ref: KPI-SCM-004
   semantic_model: SupplyChain_SemanticModel
   display_folder: 01_Inventory
   category: KPI
@@ -170,7 +170,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Forecast Accuracy %
   is_kpi_measure: true
-  kpi_id_ref: plan.forecast.accuracy.pct
+  kpi_id_ref: KPI-SCM-005
   semantic_model: SupplyChain_SemanticModel
   display_folder: 03_Forecast
   category: KPI
@@ -199,7 +199,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: MAPE %
   is_kpi_measure: true
-  kpi_id_ref: plan.forecast.mape.pct
+  kpi_id_ref: KPI-SCM-017
   semantic_model: SupplyChain_SemanticModel
   display_folder: 03_Forecast
   category: KPI
@@ -232,7 +232,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Forecast Bias %
   is_kpi_measure: true
-  kpi_id_ref: plan.forecast.bias.pct
+  kpi_id_ref: KPI-SCM-006
   semantic_model: SupplyChain_SemanticModel
   display_folder: 03_Forecast
   category: KPI
@@ -254,7 +254,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Forecast MAPE %
   is_kpi_measure: true
-  kpi_id_ref: plan.forecast.mape.pct
+  kpi_id_ref: KPI-SCM-017
   semantic_model: SupplyChain_SemanticModel
   display_folder: 03_Forecast
   category: KPI
@@ -276,7 +276,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Bias %
   is_kpi_measure: true
-  kpi_id_ref: plan.forecast.bias.pct
+  kpi_id_ref: KPI-SCM-006
   semantic_model: SupplyChain_SemanticModel
   display_folder: 03_Forecast
   category: KPI
@@ -305,7 +305,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Service Impact %
   is_kpi_measure: true
-  kpi_id_ref: plan.forecast.service_impact.pct
+  kpi_id_ref: KPI-SCM-012
   semantic_model: SupplyChain_SemanticModel
   display_folder: 03_Forecast
   category: KPI
@@ -341,7 +341,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: On-Time %
   is_kpi_measure: true
-  kpi_id_ref: supply.on_time.pct
+  kpi_id_ref: KPI-SCM-008
   semantic_model: SupplyChain_SemanticModel
   display_folder: 02_Service
   category: KPI
@@ -369,7 +369,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: In-Full %
   is_kpi_measure: true
-  kpi_id_ref: supply.in_full.pct
+  kpi_id_ref: KPI-SCM-018
   semantic_model: SupplyChain_SemanticModel
   display_folder: 02_Service
   category: KPI
@@ -397,7 +397,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Stockout Impact %
   is_kpi_measure: true
-  kpi_id_ref: supply.stockout_impact.pct
+  kpi_id_ref: KPI-SCM-009
   semantic_model: SupplyChain_SemanticModel
   display_folder: 02_Service
   category: KPI
@@ -426,7 +426,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Penalty Amount
   is_kpi_measure: true
-  kpi_id_ref: supply.penalty.amount
+  kpi_id_ref: KPI-SCM-011
   semantic_model: SupplyChain_SemanticModel
   display_folder: 04_Cost
   category: KPI
@@ -454,7 +454,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Expedite Cost Amount
   is_kpi_measure: true
-  kpi_id_ref: supply.expedite.amount
+  kpi_id_ref: KPI-SCM-010
   semantic_model: SupplyChain_SemanticModel
   display_folder: 04_Cost
   category: KPI
@@ -867,7 +867,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Order Lines Count
   is_kpi_measure: true
-  kpi_id_ref: order.lines
+  kpi_id_ref: KPI-SCM-013
   semantic_model: SupplyChain_SemanticModel
   display_folder: 02_Service
   category: KPI
@@ -895,7 +895,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Plans Count
   is_kpi_measure: true
-  kpi_id_ref: plans.count
+  kpi_id_ref: KPI-SCM-014
   semantic_model: SupplyChain_SemanticModel
   display_folder: 03_Forecast
   category: KPI
@@ -923,7 +923,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Shipments Count
   is_kpi_measure: true
-  kpi_id_ref: shipments.count
+  kpi_id_ref: KPI-SCM-015
   semantic_model: SupplyChain_SemanticModel
   display_folder: 02_Service
   category: KPI
@@ -951,7 +951,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: OTIF % (XD)
   is_kpi_measure: true
-  kpi_id_ref: supply.otif.pct
+  kpi_id_ref: KPI-SCM-007
   semantic_model: SupplyChain_SemanticModel
   display_folder: 01_Service_Level
   category: KPI
@@ -972,7 +972,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Actions Executed Count (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.actions_executed.count
+  kpi_id_ref: KPI-GOV-005
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -993,7 +993,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Action Outcome Rate % (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_outcome_rate.pct
+  kpi_id_ref: KPI-GOV-001
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -1014,7 +1014,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Avg Time-to-Outcome Days (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.avg_time_to_outcome.days
+  kpi_id_ref: KPI-GOV-006
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -1035,7 +1035,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Action ROI % (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_roi.pct
+  kpi_id_ref: KPI-GOV-007
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -1057,7 +1057,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 
 - measure_name: Action Effectiveness Delta (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_effectiveness_delta.amount
+  kpi_id_ref: KPI-GOV-002
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:

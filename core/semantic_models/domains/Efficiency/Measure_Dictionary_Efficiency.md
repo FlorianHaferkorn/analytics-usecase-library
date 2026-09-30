@@ -7,7 +7,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 ```yaml
 - measure_name: OEE %
   is_kpi_measure: true
-  kpi_id_ref: ops.oee.pct
+  kpi_id_ref: KPI-OPS-011
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -96,7 +96,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Availability %
   is_kpi_measure: true
-  kpi_id_ref: ops.availability.pct
+  kpi_id_ref: KPI-OPS-016
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -113,7 +113,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Performance %
   is_kpi_measure: true
-  kpi_id_ref: ops.performance.pct
+  kpi_id_ref: KPI-OPS-002
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -130,7 +130,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Quality %
   is_kpi_measure: true
-  kpi_id_ref: ops.quality.pct
+  kpi_id_ref: KPI-OPS-003
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -147,7 +147,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Inventory Turnover
   is_kpi_measure: true
-  kpi_id_ref: inv.turnover
+  kpi_id_ref: KPI-SCM-016
   category: KPI
   expression:
     logical: Inventory Turnover = COGS / Average Inventory
@@ -168,7 +168,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Cash Conversion Cycle (Days)
   is_kpi_measure: true
-  kpi_id_ref: ops.working_capital.ccc.days
+  kpi_id_ref: KPI-FIN-006
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -251,7 +251,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Service Impact %
   is_kpi_measure: true
-  kpi_id_ref: plan.forecast.service_impact.pct
+  kpi_id_ref: KPI-SCM-012
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:

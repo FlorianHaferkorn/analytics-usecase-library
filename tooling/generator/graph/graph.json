@@ -7,7 +7,7 @@
       "name": "Sales Performance",
       "kpis": [
         {
-          "kpi_id": "sales.net_sales.amount",
+          "kpi_id": "KPI-COM-005",
           "measure": "[Net Sales Amount]",
           "fact_column": "fact_sales.Net Sales Amount",
           "dimensions": ["dim_date", "dim_org", "dim_product", "dim_customer"],
@@ -16,7 +16,7 @@
           "visuals": ["overview: KPI card", "overview: trend", "overview: price/volume/mix bridge", "insights: variance waterfall"]
         },
         {
-          "kpi_id": "margin.gm.pct",
+          "kpi_id": "KPI-COM-013",
           "measure": "[Gross Margin %]",
           "fact_column": "fact_sales.Gross Margin Amount",
           "dimensions": ["dim_date", "dim_org", "dim_product"],
@@ -31,7 +31,7 @@
       "name": "Margin & Price Performance",
       "kpis": [
         {
-          "kpi_id": "sales.price.realization_pct",
+          "kpi_id": "KPI-COM-003",
           "measure": "[Price Realization %]",
           "fact_column": "fact_sales.Net Price Amount",
           "dimensions": ["dim_date", "dim_org", "dim_product", "dim_customer"],
@@ -46,7 +46,7 @@
       "name": "Operations Performance",
       "kpis": [
         {
-          "kpi_id": "ops.oee.pct",
+          "kpi_id": "KPI-OPS-011",
           "measure": "[OEE %]",
           "fact_column": "fact_operations.OEE %",
           "dimensions": ["dim_date", "dim_org", "dim_asset"],

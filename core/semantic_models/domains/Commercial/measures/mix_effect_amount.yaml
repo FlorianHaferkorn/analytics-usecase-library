@@ -1,6 +1,6 @@
 measure_name: Mix Effect Amount
 is_kpi_measure: true
-kpi_id_ref: sales.pvm.mix_effect.amount
+kpi_id_ref: KPI-COM-004
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 03_PVM
 category: Driver

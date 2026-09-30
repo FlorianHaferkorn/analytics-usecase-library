@@ -1,0 +1,20 @@
+kpi_id: KPI-CUS-003
+label: Net Promoter Score (Customer NPS)
+baseline_range:
+  min: 28
+  likely: 35
+  max: 45
+  unit: "index (-100 to +100)"
+  note: "B2B NPS benchmark range; consumer products typically higher."
+target_range:
+  min: 38
+  likely: 48
+  max: 60
+  unit: "index (-100 to +100)"
+  note: "Target assumes 10-15 point improvement through OTIF, quality, and complaint resolution."
+time_horizon_months: 18
+driver_notes:
+  - "OTIF improvement (S-R2.1) is the top NPS driver in product-led B2B businesses."
+  - "Quality complaint reduction (C-C3.2) removes the largest detractor experience category."
+  - "Response time to escalations correlates with NPS recovery in post-incident surveys."
+  - "NPS used as guardrail KPI in retention and service action codes."

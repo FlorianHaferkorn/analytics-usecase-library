@@ -1,0 +1,20 @@
+kpi_id: KPI-OPS-002
+label: OEE Performance %
+baseline_range:
+  min: 55
+  likely: 65
+  max: 75
+  unit: "%"
+  note: "OEE performance sub-metric (speed losses); world-class target 85%+."
+target_range:
+  min: 68
+  likely: 78
+  max: 88
+  unit: "%"
+  note: "Target: close performance gap through cycle-time discipline and micro-stop elimination."
+time_horizon_months: 12
+driver_notes:
+  - "Performance losses are the largest OEE component in high-variety manufacturing (30-50% of losses)."
+  - "O-A2.1 (Reliability Orchestration) directly targets micro-stops and speed-reduction root causes."
+  - "Each 1 pp OEE performance improvement worth 80-150k EUR in throughput value at a single line."
+  - "Improvement pathway: data collection, root-cause analysis, changeover reduction, standard work."

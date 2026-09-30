@@ -15,11 +15,11 @@ use_case_links:
   - COM-004
 kpis:
   trigger_kpis:
-  - sales.net_sales.delta_pct.plan
+  - KPI-COM-009
   guardrail_kpis:
-  - margin.gm.pct
+  - KPI-COM-013
   outcome_kpis:
-  - sales.net_sales.amount
+  - KPI-COM-005
 scope:
   default_grain: month
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: sales.net_sales.amount
+        metric_kpi_id: KPI-COM-005
         comparator: gte
         value: 200000
         unit: amount
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: sales.net_sales.delta_pct.plan
+        metric_kpi_id: KPI-COM-009
         comparator: lt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: sales.net_sales.delta_pct.plan
+        metric_kpi_id: KPI-COM-009
         comparator: lt
         threshold:
           basis: absolute
@@ -74,7 +74,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: sales.net_sales.delta_pct.plan
+        metric_kpi_id: KPI-COM-009
         comparator: lt
         threshold:
           basis: absolute
@@ -93,7 +93,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P60D
-    metric_kpi_id: sales.net_sales.amount
+    metric_kpi_id: KPI-COM-005
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -107,7 +107,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: sales.net_sales.amount
+    metric_kpi_id: KPI-COM-005
     value_low: 1.0
     value_high: 3.0
     unit: '%'

@@ -25,8 +25,8 @@ SAMPLE_TAXONOMY = {
     "version": "1.0",
     "id_patterns": {
         "kpi": {
-            "format": "<domain>.<entity>.<metric>",
-            "regex": r"^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$",
+            "format": "KPI-<KUERZEL>-<NNN>",
+            "regex": r"^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\d{3}$",
         },
         "use_case": {
             "format": "<DOMAIN>-<NNN>",
@@ -95,7 +95,7 @@ class TestLoadTaxonomy:
 
 class TestKpiIdValidation:
     def test_valid_kpi_id_no_issue(self):
-        kpis = {"sales.net_sales.amount": _make_kpi("sales.net_sales.amount")}
+        kpis = {"KPI-COM-005": _make_kpi("KPI-COM-005")}
         issues = validate_taxonomy(kpis, {}, {}, SAMPLE_TAXONOMY)
         kpi_format_issues = [i for i in issues if i.code == "taxonomy.kpi_id_format"]
         assert len(kpi_format_issues) == 0
@@ -107,17 +107,18 @@ class TestKpiIdValidation:
         assert len(kpi_format_issues) == 1
         assert kpi_format_issues[0].severity == "WARN"
 
-    def test_two_segment_kpi_id_warns(self):
-        kpis = {"sales.amount": _make_kpi("sales.amount")}
+    def test_retired_dotted_kpi_id_warns(self):
+        """D-594: the semantic dotted form is no longer a valid KPI ID."""
+        kpis = {"finance.cash_flow.amount": _make_kpi("finance.cash_flow.amount")}
         issues = validate_taxonomy(kpis, {}, {}, SAMPLE_TAXONOMY)
         kpi_format_issues = [i for i in issues if i.code == "taxonomy.kpi_id_format"]
         assert len(kpi_format_issues) == 1
 
-    def test_valid_kpi_with_underscores(self):
-        kpis = {"finance.cash_flow.amount": _make_kpi("finance.cash_flow.amount")}
+    def test_unknown_kuerzel_warns(self):
+        kpis = {"KPI-XYZ-001": _make_kpi("KPI-XYZ-001")}
         issues = validate_taxonomy(kpis, {}, {}, SAMPLE_TAXONOMY)
         kpi_format_issues = [i for i in issues if i.code == "taxonomy.kpi_id_format"]
-        assert len(kpi_format_issues) == 0
+        assert len(kpi_format_issues) == 1
 
 
 # ---------------------------------------------------------------------------

@@ -76,9 +76,9 @@ Summary of what was done:
   `tooling/validation/check_standard_ref.py` reports the duplicate sets). This task does the **physical**
   removal the Linux session could not validate.
 - **7 twins → canonical:** `ops.otif.pct`, `scm.service_level.pct`, `ops.service_level.pct` →
-  `supply.otif.pct`; `ops.inventory.value.amount` → `fin.liquidity.inventory.amount`;
-  `ops.production.volume` → `ops.throughput.units`; `ops.yield.pct` → `ops.quality.pct`;
-  `svc.nps.index` → `crm.nps.index`.
+  `KPI-SCM-007`; `ops.inventory.value.amount` → `KPI-FIN-002`;
+  `ops.production.volume` → `KPI-OPS-009`; `ops.yield.pct` → `KPI-OPS-003`;
+  `svc.nps.index` → `KPI-CUS-003`.
 - **Report bindings are small:** only **FIN-001** (`Supply Chain Service Level %`) and **FIN-002**
   (`Production Volume Units`, `Yield %`) bind a twin measure. Reconcile measure names per model (the
   two Finance service-level twins collapse to one `OTIF %`; Experience already has `OTIF % (XD)`).
@@ -274,9 +274,9 @@ nicht abgedeckt. Zu entscheiden ist genau eine Zeile: gehört die Display-Schrif
 **BC-CHART-05 hat eine zweite Grenze, die der Katalog sichtbar macht:** `value` ist
 `numeric`, es gibt **keine** Measure-Bindung. Der Wert muss also aus einer governten
 Quelle als Zahl kommen — das ist `core/kpi_catalog/benchmarks.yaml`. Dort sind nur die
-**normativen** Einträge als Ziellinie zulässig (`ops.oee.pct` 85,0 mit Komponenten
-`availability 90,0 · performance 95,0 · quality 99,0`; `supply.otif.pct` 95,0;
-`quality.fpy.pct` 98,0; `quality.scrap.pct` 1,0). Die **empirischen** sind Peer-Mediane —
+**normativen** Einträge als Ziellinie zulässig (`KPI-OPS-011` 85,0 mit Komponenten
+`availability 90,0 · performance 95,0 · quality 99,0`; `KPI-SCM-007` 95,0;
+`KPI-QUA-001` 98,0; `KPI-QUA-002` 1,0). Die **empirischen** sind Peer-Mediane —
 die Datei sagt das selbst — und als „Ziel" gezeichnet wären sie irreführend.
 
 ### Nebenbefund, der wichtiger ist als beide: Spezifikation und Artefakt driften

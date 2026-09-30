@@ -1,6 +1,6 @@
 measure_name: Cannibalization %
 is_kpi_measure: true
-kpi_id_ref: sales.promo.cannibalization.pct
+kpi_id_ref: KPI-COM-018
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 04_Promo
 category: KPI

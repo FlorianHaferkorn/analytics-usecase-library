@@ -1,6 +1,6 @@
 measure_name: Tickets Created Count
 is_kpi_measure: true
-kpi_id_ref: svc.tickets.created.count
+kpi_id_ref: KPI-SVC-013
 semantic_model: Service_SemanticModel
 display_folder: 01_Service
 category: KPI

@@ -6,25 +6,25 @@ governance:
   owner_role: hr_controlling_people_analytics
   steward_role: people_analytics_bi_lead
 orchestration:
-  strategic_kpi_id: people.attrition.pct
+  strategic_kpi_id: KPI-PPL-001
   influencing_kpi_ids:
-  - people.engagement.index
-  - people.timetofill.days
-  - people.absence.pct
-  - people.cost.per_fte.amount
+  - KPI-PPL-002
+  - KPI-PPL-003
+  - KPI-PPL-004
+  - KPI-PPL-005
   supporting_kpi_ids:
-  - people.headcount.fte
-  - people.attrition_risk.pct
+  - KPI-PPL-006
+  - KPI-SVC-003
   action_code_ids:
   - X-R1.1
 primary_kpi_ids:
-- people.attrition.pct
-- people.engagement.index
+- KPI-PPL-001
+- KPI-PPL-002
 value_driver_model:
-  formula: people.attrition.pct = f(people.engagement.index, people.absence.pct, people.timetofill.days)
+  formula: KPI-PPL-001 = f(KPI-PPL-002, KPI-PPL-004, KPI-PPL-003)
   impact_direction: minimize
-  primary_driver: people.engagement.index
-  impact_logic: Raising people.engagement.index is the primary lever for lowering people.attrition.pct.
+  primary_driver: KPI-PPL-002
+  impact_logic: Raising KPI-PPL-002 is the primary lever for lowering KPI-PPL-001.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas:
@@ -40,13 +40,13 @@ ux_layout_rules:
     big_idea: Attrition is rising in the lowest-engagement segments — a retention problem concentrated
       in a few teams, not a broad one.
     component_3s:
-      kpi_id: people.attrition.pct
+      kpi_id: KPI-PPL-001
       visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: lower_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: people.engagement.index
+      kpi_id: KPI-PPL-002
       visual_type: line_chart
       question: Is falling engagement the driver behind rising attrition?
       message: Attrition is concentrated in the lowest-engagement segments, not spread evenly across the
@@ -56,7 +56,7 @@ ux_layout_rules:
       unit: index
     - slot_id: Main_2
       kpi_ids:
-      - people.absence.pct
+      - KPI-PPL-004
       visual_type: horizontal_bar_chart
       question: Where is workforce strain compounding beyond exits?
       message: Absence is climbing in the same teams losing people, compounding the strain where engagement
@@ -76,20 +76,20 @@ ux_layout_rules:
       evidence_columns:
       - segment
       - role
-      - people.attrition.pct
-      - people.engagement.index
-      - people.absence.pct
-      - people.timetofill.days
-      - people.cost.per_fte.amount
-      - people.headcount.fte
+      - KPI-PPL-001
+      - KPI-PPL-002
+      - KPI-PPL-004
+      - KPI-PPL-003
+      - KPI-PPL-005
+      - KPI-PPL-006
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: people.attrition.pct
+        measure: KPI-PPL-001
         direction: descending
       top_n: 20
       highlight_rule:
-        column: people.attrition.pct
+        column: KPI-PPL-001
         type: data_bar
 prioritization:
   business_value: high

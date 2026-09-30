@@ -1,0 +1,49 @@
+kpi_id: KPI-COM-017
+kpi_key: Cannibalized Sales Amount
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Profitability
+domain_tag:
+- Commercial
+use_case_ref:
+- COM-004
+action_code_ref: []
+calc_type: amount
+good_is: lower
+business:
+  purpose: Sales lost on non-promoted items versus baseline (cannibalization in value).
+  definition: 'Proxy: 15% of Baseline Sales Amount, pending real non-promo-segment actuals (target formula: MAX(0,
+    Baseline Non-Promo Sales - Actual Non-Promo Sales) once that segmentation is available).'
+  grain_scope: Promo campaign / product / period.
+  unit_format: eur_0
+  interpretation: Numerator for Cannibalization %; higher means more cannibalization.
+technical:
+  measure_name: Cannibalized Sales Amount
+  description: Sales amount lost on non-promoted items versus baseline (15% proxy factor).
+  depends_on_measures:
+  - KPI-COM-020
+  lineage:
+  - fact_promo.Baseline Sales Amount
+  calculation:
+    op: mul
+    terms:
+    - kpi: KPI-COM-020
+    - literal: 0.15
+governance:
+  business_owner: Head of Marketing Controlling
+  data_owner: BI Engineering
+  steward: Trade Marketing Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Documented proxy (15% of baseline) — replace with real non-promo actuals once segmentation data is available
+  version: v1.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: Trade Promotion Management (convention)
+  name: Cannibalized sales (proxy)
+  alignment: none
+  note: Cannibalized sales is a TPM concept, here a documented 15%-of-baseline proxy pending non-promo-segment actuals
+    — a convention, not a standard.

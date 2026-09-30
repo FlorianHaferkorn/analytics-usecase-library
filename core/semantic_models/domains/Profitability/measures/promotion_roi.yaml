@@ -1,6 +1,6 @@
 measure_name: Promotion ROI %
 is_kpi_measure: true
-kpi_id_ref: sales.promo.roi.pct
+kpi_id_ref: KPI-COM-016
 semantic_model: Profitability_SemanticModel
 display_folder: 04_Promo
 category: KPI

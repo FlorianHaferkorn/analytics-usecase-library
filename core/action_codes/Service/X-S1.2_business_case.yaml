@@ -1,6 +1,6 @@
 id: X-S1.2
 action_code_id: X-S1.2
-kpi_id: svc.backlog.count
+kpi_id: KPI-SVC-007
 impact_range_eur_min: 80000
 impact_range_eur_likely: 350000
 impact_range_eur_max: 1000000

@@ -13,14 +13,14 @@ use_case_links:
   - COM-002
 kpis:
   trigger_kpis:
-  - sales.promo.roi.pct
-  - crm.complaint.count
+  - KPI-COM-016
+  - KPI-SVC-001
   guardrail_kpis:
-  - margin.promo.gm.pct
+  - KPI-FIN-012
   outcome_kpis:
-  - sales.promo.roi.pct
-  - margin.promo.gm.pct
-  - crm.nps.index
+  - KPI-COM-016
+  - KPI-FIN-012
+  - KPI-CUS-003
 scope:
   default_grain: promotion
   default_perspective:
@@ -48,7 +48,7 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: sales.promo.incremental.amount
+        metric_kpi_id: KPI-COM-021
         comparator: gte
         value: 100000
         unit: amount
@@ -56,7 +56,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: sales.promo.roi.pct
+        metric_kpi_id: KPI-COM-016
         comparator: lt
         threshold:
           basis: absolute
@@ -66,7 +66,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: sales.promo.roi.pct
+        metric_kpi_id: KPI-COM-016
         comparator: lt
         threshold:
           basis: absolute
@@ -76,7 +76,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: sales.promo.roi.pct
+        metric_kpi_id: KPI-COM-016
         comparator: lt
         threshold:
           basis: absolute
@@ -94,7 +94,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P30D
-    metric_kpi_id: sales.promo.roi.pct
+    metric_kpi_id: KPI-COM-016
     success_criteria:
       kind: threshold_met
       baseline_window: P30D
@@ -108,7 +108,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: sales.promo.roi.pct
+    metric_kpi_id: KPI-COM-016
     value_low: 5.0
     value_high: 20.0
     unit: pp

@@ -1,0 +1,43 @@
+kpi_id: KPI-PPL-006
+kpi_key: Headcount FTE
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: governance
+domain_tag:
+- People & Culture
+use_case_ref:
+- HR-001
+action_code_ref: []
+calc_type: count
+business:
+  purpose: Measures full-time-equivalent headcount for the population.
+  definition: Sum of FTE fractions across active employees in the period.
+  grain_scope: Org/segment; monthly snapshot.
+  unit_format: count_0
+  interpretation: Denominator base for attrition, cost and absence; watch for structural drift.
+technical:
+  measure_name: Headcount FTE
+  description: Measures full-time-equivalent headcount for the population.
+  depends_on_measures: []
+  lineage:
+  - fact_workforce.Headcount FTE
+  calculation:
+    op: sum
+    column: Headcount FTE
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: ISO 30414
+  name: Human capital — workforce availability (FTE)
+  alignment: exact
+  note: ISO 30414 defines FTE headcount within workforce availability; definition matches.

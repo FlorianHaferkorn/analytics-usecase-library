@@ -1,0 +1,57 @@
+kpi_id: KPI-SCM-008
+synonyms:
+- On-Time Delivery
+- OTD
+- Termintreue
+- Liefertermintreue
+example_question: What is driving late deliveries on the DACH lanes?
+kpi_key: On-Time %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Supply Chain
+- Operational Efficiency
+use_case_ref:
+- SCM-002
+action_code_ref:
+- S-R2.1
+- S-R2.2
+calc_type: rate
+good_is: higher
+business:
+  purpose: Measures share of deliveries arriving on time.
+  definition: On-Time Deliveries / Total Deliveries.
+  grain_scope: Delivery/day; aggregated weekly or monthly.
+  unit_format: percent_1
+  interpretation: Higher is better; analyze by carrier and lane.
+technical:
+  measure_name: On-Time %
+  description: Measures share of deliveries arriving on time.
+  depends_on_measures: []
+  lineage:
+  - fact_fulfillment.On-Time Flag
+  calculation:
+    op: rate
+    column: On-Time Flag
+governance:
+  business_owner: Head of Supply Chain / Logistics
+  data_owner: Supply Chain BI
+  steward: Logistics Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Total Deliveries > 0
+  - Value between 0 % and 100 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: RL.2.2
+  name: Delivery Performance to Customer Commit Date
+  url: https://scor.ascm.org/performance/reliability/RL.1.1
+  alignment: partial
+  note: Reference date is unspecified in our definition; SCOR RL.2.2 measures against the customer COMMIT date,
+    not the requested/scheduled date. Pin the reference date to the commit date to align.

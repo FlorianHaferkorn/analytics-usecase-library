@@ -45,20 +45,20 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| margin.gm.pct | Strategic |
-| margin.gm.amount | Influencing |
-| sales.price.list.amount | Influencing |
-| sales.price.net.amount | Influencing |
-| sales.price.realization_pct | Influencing |
-| sales.pvm.mix_effect.amount | Influencing |
-| cost.cogs_per_unit.amount | Influencing |
-| margin.gm.vs_plan.pct | Influencing |
-| cost.cogs.amount | Supporting |
-| sales.promo.baseline_sales.amount | Supporting |
-| sales.promo.cost.amount | Supporting |
-| sales.promo.incremental_gm.amount | Supporting |
-| sales.pvm.price_effect.amount | Supporting |
-| sales.pvm.volume_effect.amount | Supporting |
+| KPI-COM-013 | Strategic |
+| KPI-COM-019 | Influencing |
+| KPI-COM-001 | Influencing |
+| KPI-COM-002 | Influencing |
+| KPI-COM-003 | Influencing |
+| KPI-COM-004 | Influencing |
+| KPI-FIN-013 | Influencing |
+| KPI-FIN-017 | Influencing |
+| KPI-FIN-011 | Supporting |
+| KPI-COM-020 | Supporting |
+| KPI-COM-014 | Supporting |
+| KPI-COM-015 | Supporting |
+| KPI-COM-010 | Supporting |
+| KPI-COM-011 | Supporting |
 
 **Action Codes:** C-M2.2, C-P4.1, C-S1.2
 
@@ -70,14 +70,14 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Gross Margin %** (`margin.gm.pct`) → **ESMA-APM** (partial): A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM.
-- **Gross Margin % vs Plan** (`margin.gm.vs_plan.pct`) → **IFRS IAS 1** (none): Internal budget-variance metric; no external standard.
-- **Price Realization %** (`sales.price.realization_pct`) → **IFRS 15** (none): Price realization (net/list) is a management pricing metric, not IFRS-defined.
-- **Gross Margin Amount** (`margin.gm.amount`) → **IFRS IAS 1** (partial): Gross profit (Revenue − Cost of sales) is an illustrative IAS 1 by-function subtotal, not a mandated line item.
-- **List Price Amount** (`sales.price.list.amount`) → **IFRS 15** (none): List price is a pre-discount catalogue figure — an input to discount/realization analysis, not an IFRS 15 figure (IFRS 15 measures the transaction price actually expected).
-- **Net Price Amount** (`sales.price.net.amount`) → **IFRS 15** (partial): Net price is the IFRS 15 transaction price after trade discounts and variable consideration.
-- **Mix Effect Amount** (`sales.pvm.mix_effect.amount`) → **Management accounting (CIMA/IMA)** (partial): Mix effect is the residual (total − price − volume) in the standard three-way variance decomposition.
-- **COGS per Unit** (`cost.cogs_per_unit.amount`) → **IFRS IAS 2** (none): Internal cost-accounting metric.
+- **Gross Margin %** (`KPI-COM-013`) → **ESMA-APM** (partial): A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM.
+- **Gross Margin % vs Plan** (`KPI-FIN-017`) → **IFRS IAS 1** (none): Internal budget-variance metric; no external standard.
+- **Price Realization %** (`KPI-COM-003`) → **IFRS 15** (none): Price realization (net/list) is a management pricing metric, not IFRS-defined.
+- **Gross Margin Amount** (`KPI-COM-019`) → **IFRS IAS 1** (partial): Gross profit (Revenue − Cost of sales) is an illustrative IAS 1 by-function subtotal, not a mandated line item.
+- **List Price Amount** (`KPI-COM-001`) → **IFRS 15** (none): List price is a pre-discount catalogue figure — an input to discount/realization analysis, not an IFRS 15 figure (IFRS 15 measures the transaction price actually expected).
+- **Net Price Amount** (`KPI-COM-002`) → **IFRS 15** (partial): Net price is the IFRS 15 transaction price after trade discounts and variable consideration.
+- **Mix Effect Amount** (`KPI-COM-004`) → **Management accounting (CIMA/IMA)** (partial): Mix effect is the residual (total − price − volume) in the standard three-way variance decomposition.
+- **COGS per Unit** (`KPI-FIN-013`) → **IFRS IAS 2** (none): Internal cost-accounting metric.
 
 ---
 

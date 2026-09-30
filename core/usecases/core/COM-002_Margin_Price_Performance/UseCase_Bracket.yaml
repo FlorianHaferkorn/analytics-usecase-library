@@ -6,7 +6,7 @@ governance:
   owner_role: commercial_controlling_lead
   steward_role: commercial_bi_pricing_analytics_lead
 orchestration:
-  strategic_kpi_id: margin.gm.pct
+  strategic_kpi_id: KPI-COM-013
   # R2.3-Fund follow-up: order matters here -- _card_kpi_ids() takes the lead
   # (component_3s.kpi_id) + first 3 unique influencing_kpi_ids for the KPI
   # band. Reordered (same 7 KPIs, no membership change) to match R1.5's real,
@@ -14,35 +14,35 @@ orchestration:
   # Amount) -- R1.5 changed which 3 KPIs the cards show but never updated this
   # list's order, so the generator kept building the pre-R1.5 card set.
   influencing_kpi_ids:
-  - margin.gm.vs_plan.pct
-  - sales.price.realization_pct
-  - margin.gm.amount
-  - sales.price.list.amount
-  - sales.price.net.amount
-  - sales.pvm.mix_effect.amount
-  - cost.cogs_per_unit.amount
+  - KPI-FIN-017
+  - KPI-COM-003
+  - KPI-COM-019
+  - KPI-COM-001
+  - KPI-COM-002
+  - KPI-COM-004
+  - KPI-FIN-013
   supporting_kpi_ids:
-  - cost.cogs.amount
-  - sales.promo.baseline_sales.amount
-  - sales.promo.cost.amount
-  - sales.promo.incremental_gm.amount
-  - sales.promo.incremental.amount
-  - sales.pvm.price_effect.amount
-  - sales.pvm.volume_effect.amount
+  - KPI-FIN-011
+  - KPI-COM-020
+  - KPI-COM-014
+  - KPI-COM-015
+  - KPI-COM-021
+  - KPI-COM-010
+  - KPI-COM-011
   action_code_ids:
   - C-M2.2
   - C-P4.1
   - C-S1.2
 primary_kpi_ids:
-  - margin.gm.pct
-  - margin.gm.amount
+  - KPI-COM-013
+  - KPI-COM-019
 
 value_driver_model:
-  formula: margin.gm.pct = f(margin.gm.amount, sales.price.realization_pct, sales.pvm.mix_effect.amount, cost.cogs_per_unit.amount,
-    margin.gm.vs_plan.pct)
+  formula: KPI-COM-013 = f(KPI-COM-019, KPI-COM-003, KPI-COM-004, KPI-FIN-013,
+    KPI-FIN-017)
   impact_direction: maximize
-  primary_driver: margin.gm.amount
-  impact_logic: Improving margin.gm.amount is the primary lever for maximizing margin.gm.pct.
+  primary_driver: KPI-COM-019
+  impact_logic: Improving KPI-COM-019 is the primary lever for maximizing KPI-COM-013.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -72,13 +72,13 @@ ux_layout_rules:
     decision_question: "Is our gross margin holding against price and mix pressure?"
     big_idea: "Gross Margin is under pressure — price concessions and adverse mix in key SKUs are compressing contribution; guardrails and mix optimization are the priority levers."
     component_3s:
-      kpi_id: margin.gm.pct
+      kpi_id: KPI-COM-013
       visual_type: kpi_card_with_delta
       comparison: vs_plan
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: margin.gm.amount
+      kpi_id: KPI-COM-019
       visual_type: line_chart
       # R2.3-Fund follow-up: generator's trend_line default is CalendarYearMonth
       # (matches COM-001's own dist/); COM-002's real dist/ uses daily Date
@@ -119,13 +119,13 @@ ux_layout_rules:
     - slot_id: Main_3
       # Ranking slot (Slot_Definitions.md §3): entities ranked by a SINGLE performance
       # measure — "Who are top/bottom performers? Where should attention focus?"
-      # dim_org.OrgName ranked by margin.gm.pct (the page's primary KPI, component_3s),
+      # dim_org.OrgName ranked by KPI-COM-013 (the page's primary KPI, component_3s),
       # one unit (%), default-sorted descending. Resolves the R1.4 mixed-scale bug: the
       # prior three multi-unit drivers (price realization %, mix effect €, unit cost €)
       # never belonged on one axis and are already surfaced correctly elsewhere —
       # Main_2's PVM bridge (Price/Volume/Mix, all €) and Detail_Matrix's curated
       # evidence columns (R1.3). PBIR: Main_3/visual.json (Golden Thread — must not drift).
-      kpi_id: margin.gm.pct
+      kpi_id: KPI-COM-013
       visual_type: horizontal_bar_chart
       question: "Is the margin shortfall portfolio-wide or concentrated in a few units?"
       message: Gross margin sits below target in a few business units that drag the portfolio
@@ -153,22 +153,22 @@ ux_layout_rules:
       evidence_columns:
       - product_category
       - sku
-      - margin.gm.amount
-      - margin.gm.vs_plan.pct
-      - sales.price.realization_pct
-      - sales.pvm.mix_effect.amount
-      - margin.gm.pct
+      - KPI-COM-019
+      - KPI-FIN-017
+      - KPI-COM-003
+      - KPI-COM-004
+      - KPI-COM-013
       action_panel: true
       payload_mode: full
       # sort_by/top_n/highlight_rule (R2.1) reproduce, via the generator, what R1.3
       # hand-patched directly into Detail_Matrix/visual.json: worst-first default sort,
       # Top-20 row limit, data-bar emphasis on the variance signal.
       sort_by:
-        measure: margin.gm.vs_plan.pct
+        measure: KPI-FIN-017
         direction: ascending
       top_n: 20
       highlight_rule:
-        column: margin.gm.vs_plan.pct
+        column: KPI-FIN-017
         type: data_bar
 prioritization:
   business_value: high

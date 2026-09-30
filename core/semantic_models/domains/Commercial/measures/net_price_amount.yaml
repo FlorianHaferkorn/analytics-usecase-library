@@ -1,6 +1,6 @@
 measure_name: Net Price Amount
 is_kpi_measure: true
-kpi_id_ref: sales.price.net.amount
+kpi_id_ref: KPI-COM-002
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 01_Revenue
 category: KPI

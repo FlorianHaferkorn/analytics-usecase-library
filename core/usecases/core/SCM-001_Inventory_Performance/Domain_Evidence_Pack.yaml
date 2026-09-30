@@ -35,7 +35,7 @@ process_scope:
 
 canonical_domain_model:
   outcome_kpis:
-    - id: inv.dio.days
+    - id: KPI-SCM-001
       name: Days Inventory Outstanding
       definition: "DIO = (Average Inventory Value / COGS) × 365. Measures inventory efficiency in days."
       unit: days
@@ -44,12 +44,12 @@ canonical_domain_model:
       benchmark_source_id: SRC-004
 
   driver_kpis:
-    - id: inv.stockout.pct
+    - id: KPI-SCM-002
       name: Stockout Rate
       definition: "% of SKU-warehouse-period combinations with zero inventory despite active demand."
       unit: "%"
       direction: minimize
-      drives: inv.dio.days
+      drives: KPI-SCM-001
       causal_mechanism: >
         Reducing DIO without increasing stockout rate requires better forecast accuracy and
         replenishment timing. A stockout rate above 3% signals under-stocking that will
@@ -57,12 +57,12 @@ canonical_domain_model:
       benchmark_target: "< 2% (CSCMP world class); < 5% acceptable"
       benchmark_source_id: SRC-004
 
-    - id: supply.otif.pct
+    - id: KPI-SCM-007
       name: OTIF % (Delivery Service Level)
       definition: "% of customer orders delivered On-Time and In-Full."
       unit: "%"
       direction: maximize
-      drives: inv.dio.days
+      drives: KPI-SCM-001
       causal_mechanism: >
         OTIF is the downstream output of inventory health. Low DIO increases stockout risk
         which drives OTIF failures. OTIF and DIO must be balanced: optimise DIO subject
@@ -70,12 +70,12 @@ canonical_domain_model:
       benchmark_target: "≥ 95% world class (SCOR); ≥ 90% acceptable"
       benchmark_source_id: SRC-001
 
-    - id: plan.forecast.accuracy.pct
+    - id: KPI-SCM-005
       name: Forecast Accuracy
       definition: "1 - MAPE (Mean Absolute Percentage Error). Higher = more accurate."
       unit: "%"
       direction: maximize
-      drives: inv.dio.days
+      drives: KPI-SCM-001
       causal_mechanism: >
         Each 10pp improvement in forecast accuracy reduces required safety stock by
         approximately 15–25% (CSCMP benchmark data). Forecast accuracy is the primary
@@ -84,20 +84,20 @@ canonical_domain_model:
       benchmark_source_id: SRC-004
 
   diagnostic_kpis:
-    - id: inv.excess_inventory.amount
+    - id: KPI-SCM-003
       name: Excess Inventory Value
       definition: "Inventory value exceeding X months of forward demand (typically > 6 months)."
       unit: EUR
       direction: minimize
-      diagnoses: inv.dio.days
+      diagnoses: KPI-SCM-001
       causal_mechanism: Excess inventory is the primary capital lock-up driver when DIO is high.
 
-    - id: plan.forecast.bias.pct
+    - id: KPI-SCM-006
       name: Forecast Bias
       definition: "(Forecast - Actual) / Actual. Positive = over-forecast; negative = under-forecast."
       unit: "%"
       direction: minimize
-      diagnoses: plan.forecast.accuracy.pct
+      diagnoses: KPI-SCM-005
       causal_mechanism: Systematic over-forecast builds excess; under-forecast causes stockouts.
 
   guardrails:
@@ -105,13 +105,13 @@ canonical_domain_model:
       condition: >
         DIO reduction actions must not push stockout rate above 3% or OTIF below 95%.
         Service level is a constraint, not a tradeoff objective.
-      affected_kpis: [inv.dio.days, inv.stockout.pct, supply.otif.pct]
+      affected_kpis: [KPI-SCM-001, KPI-SCM-002, KPI-SCM-007]
 
     - description: Safety stock for critical/high-lead-time SKUs
       condition: >
         DIO reduction targets must not apply to strategic buffer stock for single-source
         or long-lead-time SKUs. These require a separate minimum stock level waiver.
-      affected_kpis: [inv.dio.days]
+      affected_kpis: [KPI-SCM-001]
 
   wrong_interpretations:
     - description: Low DIO as unambiguously good
@@ -255,20 +255,20 @@ source_inventory:
       supports: [wrong_interpretations, guardrails]
 
 action_logic_seeds:
-  - trigger_driver: inv.dio.days
-    trigger_diagnostic: inv.excess_inventory.amount
+  - trigger_driver: KPI-SCM-001
+    trigger_diagnostic: KPI-SCM-003
     trigger_condition: "DIO > benchmark + 20% for 3 consecutive months AND excess inventory > 10% of total inventory value"
     guardrail: "Exclude strategic buffer stock SKUs and long-lead-time items"
     action_description: Excess inventory reduction program (promotions, write-offs, replenishment freeze).
-    expected_outcome_kpi: inv.dio.days
+    expected_outcome_kpi: KPI-SCM-001
     action_code_candidate: S-I1.1
 
-  - trigger_driver: inv.stockout.pct
-    trigger_diagnostic: plan.forecast.bias.pct
+  - trigger_driver: KPI-SCM-002
+    trigger_diagnostic: KPI-SCM-006
     trigger_condition: "Stockout rate > 3% AND forecast bias is negative (under-forecast)"
     guardrail: "Exclude SKUs under product phase-out"
     action_description: Replenishment parameter review and safety stock recalibration.
-    expected_outcome_kpi: supply.otif.pct
+    expected_outcome_kpi: KPI-SCM-007
     action_code_candidate: S-I1.2
 
 required_data_model:
@@ -330,7 +330,7 @@ mapping_readiness:
         affected_artifact: core/usecases/core/SCM-001_Inventory_Performance/UseCase_Bracket.yaml
         field: ux_layout_rules.page_1_summary.component_30s
         description: >
-          Forecast Accuracy (plan.forecast.accuracy.pct) is a key upstream driver of DIO
+          Forecast Accuracy (KPI-SCM-005) is a key upstream driver of DIO
           but likely missing from the 30s visual layer. The DIO vs OTIF tradeoff
           should be visually explicit.
         evidence_reference: SRC-002 SRC-004

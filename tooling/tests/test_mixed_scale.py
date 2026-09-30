@@ -24,24 +24,24 @@ def test_unit_class_buckets():
 
 
 def test_mixed_pct_and_eur_is_flagged():
-    ex = {"visual_type": "bar_chart", "kpi_ids": ["margin.gm.pct", "margin.gm.amount"]}
+    ex = {"visual_type": "bar_chart", "kpi_ids": ["KPI-COM-013", "KPI-COM-019"]}
     mixed, reason = classify_exhibit(ex)
     assert mixed is True
     assert "BC-CHART-01" in reason
 
 
 def test_same_unit_not_flagged():
-    ex = {"visual_type": "waterfall", "kpi_ids": ["margin.gm.amount", "sales.pvm.price_effect.amount"]}
+    ex = {"visual_type": "waterfall", "kpi_ids": ["KPI-COM-019", "KPI-COM-010"]}
     assert classify_exhibit(ex)[0] is False
 
 
 def test_single_measure_not_flagged():
-    assert classify_exhibit({"visual_type": "bar_chart", "kpi_id": "margin.gm.pct"})[0] is False
+    assert classify_exhibit({"visual_type": "bar_chart", "kpi_id": "KPI-COM-013"})[0] is False
 
 
 def test_card_and_table_skipped():
-    card = {"visual_type": "kpi_card", "kpi_ids": ["margin.gm.pct", "margin.gm.amount"]}
-    table = {"visual_type": "table_with_databars", "kpi_ids": ["margin.gm.pct", "margin.gm.amount"]}
+    card = {"visual_type": "kpi_card", "kpi_ids": ["KPI-COM-013", "KPI-COM-019"]}
+    table = {"visual_type": "table_with_databars", "kpi_ids": ["KPI-COM-013", "KPI-COM-019"]}
     assert classify_exhibit(card)[0] is False
     assert classify_exhibit(table)[0] is False
 

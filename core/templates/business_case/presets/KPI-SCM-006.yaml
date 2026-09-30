@@ -1,0 +1,20 @@
+kpi_id: KPI-SCM-006
+label: Forecast Bias %
+baseline_range:
+  min: -8
+  likely: -3
+  max: 5
+  unit: "%"
+  note: "Positive = over-forecast (excess inventory); negative = under-forecast (stockouts). Target near zero."
+target_range:
+  min: -2
+  likely: 0
+  max: 2
+  unit: "%"
+  note: "Target: eliminate systematic bias, often more impactful than reducing MAPE alone."
+time_horizon_months: 6
+driver_notes:
+  - "Systematic over-forecast drives excess inventory and working capital consumption."
+  - "Systematic under-forecast drives stockouts and lost revenue — harder to see in the P&L."
+  - "Bias is often caused by commercial incentives (sandbagging) or seasonal model failures."
+  - "S-F3.1 addresses model-driven bias; sales team alignment addresses incentive-driven bias."

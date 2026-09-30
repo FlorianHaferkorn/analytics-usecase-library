@@ -1,6 +1,6 @@
 id: C-S1.1
 action_code_id: C-S1.1
-kpi_id: margin.gm.pct
+kpi_id: KPI-COM-013
 impact_range_eur_min: 300000
 impact_range_eur_likely: 1200000
 impact_range_eur_max: 3000000

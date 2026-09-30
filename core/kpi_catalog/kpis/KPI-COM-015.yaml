@@ -1,0 +1,65 @@
+kpi_id: KPI-COM-015
+kpi_key: Incremental Gross Margin Amount
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Profitability
+domain_tag:
+- Commercial
+use_case_ref:
+- COM-002
+- COM-003
+- COM-004
+action_code_ref:
+- C-P4.1
+calc_type: amount
+business:
+  purpose: Incremental gross margin from promotions for ROI numerator.
+  definition: Incremental sales minus incremental COGS; proxy here as share of incremental sales.
+  grain_scope: Promo / period.
+  unit_format: eur_0
+  interpretation: Input to Promo ROI %.
+technical:
+  measure_name: Incremental Gross Margin Amount
+  description: Incremental gross margin from promo.
+  depends_on_measures:
+  - KPI-COM-021
+  - KPI-COM-019
+  - KPI-COM-005
+  - KPI-COM-014
+  lineage:
+  - fact_sales.Net Sales Amount
+  - fact_sales.Cost of Goods Sold Amount
+  - fact_promo.Baseline Sales Amount
+  calculation:
+    op: delta
+    minuend:
+      calc:
+        op: mul
+        terms:
+        - kpi: KPI-COM-021
+        - calc:
+            op: ratio
+            numerator:
+              kpi: KPI-COM-019
+            denominator:
+              kpi: KPI-COM-005
+    subtrahend:
+      kpi: KPI-COM-014
+governance:
+  business_owner: Head of Marketing Controlling
+  data_owner: BI Engineering
+  steward: Trade Marketing Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Refine formula when incremental COGS available
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.9
+  last_review: 23.01.2026
+standard_ref:
+- standard: Trade Promotion Management (convention)
+  name: Promo incremental gross margin
+  alignment: none
+  note: Incremental promo GM is a TPM metric; the GM base ties to IFRS 15 revenue / IAS 2 COGS, but the incremental
+    construct itself is convention, not a standard.

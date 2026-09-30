@@ -50,7 +50,7 @@ process_scope:
 # ──────────────────────────────────────────
 canonical_domain_model:
   outcome_kpis:
-    - id: ops.oee.pct
+    - id: KPI-OPS-011
       name: Overall Equipment Effectiveness (OEE)
       definition: >
         OEE = Availability Rate × Performance Rate × Quality Rate. Measures how effectively
@@ -63,14 +63,14 @@ canonical_domain_model:
       iso_reference: ISO 22400-2:2014 clause 5.1.3
 
   driver_kpis:
-    - id: ops.availability.pct
+    - id: KPI-OPS-016
       name: Availability Rate
       definition: >
         Availability = Run Time / Planned Production Time. Measures time lost to unplanned
         downtime, breakdowns, and setup/adjustment events. ISO 22400-2 Section 5.1.3.1.
       unit: "%"
       direction: maximize
-      drives: ops.oee.pct
+      drives: KPI-OPS-011
       causal_mechanism: >
         Each percentage point of availability loss directly reduces OEE by 1 percentage point
         before performance and quality multipliers. Unplanned downtime is the dominant OEE
@@ -78,14 +78,14 @@ canonical_domain_model:
       benchmark_target: "90% world class (SMRP BMP)"
       benchmark_source_id: SRC-010
 
-    - id: ops.performance.pct
+    - id: KPI-OPS-002
       name: Performance Rate
       definition: >
         Performance = (Ideal Cycle Time × Total Count) / Run Time. Captures speed losses
         (running below ideal rate) and minor stops/idling events. ISO 22400-2 Section 5.1.3.2.
       unit: "%"
       direction: maximize
-      drives: ops.oee.pct
+      drives: KPI-OPS-011
       causal_mechanism: >
         Performance losses are less visible than downtime but highly cumulative. A line running
         at 90% of ideal speed loses 10% of theoretical output per shift. Speed reductions often
@@ -93,7 +93,7 @@ canonical_domain_model:
       benchmark_target: "95% world class (ISO 22400 reference)"
       benchmark_source_id: SRC-001
 
-    - id: ops.quality.pct
+    - id: KPI-OPS-003
       name: Quality Rate
       definition: >
         Quality Rate = Good Count / Total Count. Measures output lost to defects,
@@ -101,7 +101,7 @@ canonical_domain_model:
         ISO 22400-2 Section 5.1.3.3.
       unit: "%"
       direction: maximize
-      drives: ops.oee.pct
+      drives: KPI-OPS-011
       causal_mechanism: >
         Quality losses directly reduce the numerator of OEE without reducing run time,
         making them appear hidden unless tracked via separate quality metrics.
@@ -110,31 +110,31 @@ canonical_domain_model:
       benchmark_source_id: SRC-001
 
   diagnostic_kpis:
-    - id: ops.mtbf.hours
+    - id: KPI-OPS-005
       name: Mean Time Between Failures
       definition: >
         MTBF = Total Run Time / Number of Failures. Measures asset reliability.
         A declining MTBF indicates deteriorating equipment health or inadequate PM.
       unit: hours
       direction: maximize
-      diagnoses: ops.availability.pct
+      diagnoses: KPI-OPS-016
       causal_mechanism: >
         MTBF < threshold (asset-specific) combined with high unplanned downtime triggers
         O-A2.1 (Asset Reliability Recovery). SMRP BMP defines MTBF targets by asset criticality.
 
-    - id: ops.mttr.hours
+    - id: KPI-OPS-006
       name: Mean Time to Repair
       definition: >
         MTTR = Total Downtime / Number of Failures. Measures maintenance response and
         repair speed. Combines detection time, active repair time, and restoration time.
       unit: hours
       direction: minimize
-      diagnoses: ops.availability.pct
+      diagnoses: KPI-OPS-016
       causal_mechanism: >
         Even with stable MTBF, an increase in MTTR will reduce availability.
         High MTTR indicates spare parts stockout, skill gap, or documentation deficit.
 
-    - id: ops.pm_compliance.pct
+    - id: KPI-OPS-007
       name: Preventive Maintenance Compliance
       definition: >
         PM Compliance = Completed PM Tasks / Scheduled PM Tasks. Measures adherence to
@@ -142,12 +142,12 @@ canonical_domain_model:
         availability decline (SMRP BMP).
       unit: "%"
       direction: maximize
-      diagnoses: ops.availability.pct
+      diagnoses: KPI-OPS-016
       causal_mechanism: >
         PM compliance below 85% is a leading indicator of MTBF decline within 2–4 months
         on critical assets (SMRP 2023 BMP data).
 
-    - id: ops.changeover.minutes
+    - id: KPI-OPS-020
       name: Changeover Time
       definition: >
         Average time from last good piece of the previous production run to first good piece
@@ -155,12 +155,12 @@ canonical_domain_model:
         Directly drives Six Big Losses Category 2 (Setup & Adjustment).
       unit: minutes
       direction: minimize
-      diagnoses: ops.availability.pct
+      diagnoses: KPI-OPS-016
       causal_mechanism: >
         Changeover time > SMED target is the primary trigger for O-O1.3 (Changeover Reduction).
         SMED methodology targets changeover < 10 minutes for high-mix lines.
 
-    - id: ops.speed_loss.pct
+    - id: KPI-OPS-019
       name: Speed Loss Rate
       definition: >
         Speed Loss = 1 - Performance Rate when minor stops are excluded.
@@ -168,7 +168,7 @@ canonical_domain_model:
         Corresponds to Six Big Losses Category 4 (Reduced Speed).
       unit: "%"
       direction: minimize
-      diagnoses: ops.performance.pct
+      diagnoses: KPI-OPS-002
       causal_mechanism: >
         Speed losses often disguised as "operator safety margin." Hedman et al. (2016)
         found 63% of surveyed plants underestimate speed losses by misclassifying them
@@ -181,19 +181,19 @@ canonical_domain_model:
         Contributes to Quality Rate and directly impacts COGS and COPQ.
       unit: "%"
       direction: minimize
-      diagnoses: ops.quality.pct
+      diagnoses: KPI-OPS-003
       causal_mechanism: >
         Scrap is the dominant quality loss for startup and end-of-run waste (Six Big Losses
         Category 5 Process Defects and Category 6 Startup/Reduced Yield).
 
-    - id: quality.fpy.pct
+    - id: KPI-QUA-001
       name: First Pass Yield
       definition: >
         FPY = Units passing all quality checks without rework / Total units started.
         Differs from Quality Rate (which includes reworked units counted as good).
       unit: "%"
       direction: maximize
-      diagnoses: ops.quality.pct
+      diagnoses: KPI-OPS-003
       causal_mechanism: >
         FPY < Quality Rate indicates hidden rework burden. Both metrics required to
         distinguish between "paper good" units and truly first-pass quality.
@@ -205,8 +205,8 @@ canonical_domain_model:
         approved overhaul periods. These events are excluded from planned production time
         in ISO 22400-2 and must NOT be counted as availability losses.
       affected_kpis:
-        - ops.availability.pct
-        - ops.oee.pct
+        - KPI-OPS-016
+        - KPI-OPS-011
 
     - description: Quality qualification runs
       condition: >
@@ -214,15 +214,15 @@ canonical_domain_model:
         qualification runs (e.g., new product introduction, post-maintenance validation).
         These must NOT be classified as performance losses.
       affected_kpis:
-        - ops.performance.pct
-        - ops.speed_loss.pct
+        - KPI-OPS-002
+        - KPI-OPS-019
 
     - description: Trial and pilot production
       condition: >
         New product or process trial runs where defects are expected and budgeted.
         Scrap and FPY from trial runs must NOT inflate the operational quality loss KPIs.
       affected_kpis:
-        - ops.quality.pct
+        - KPI-OPS-003
         - ops.scrap.pct
 
     - description: Force majeure events
@@ -230,8 +230,8 @@ canonical_domain_model:
         Downtime caused by external factors outside plant control (power outage, natural
         disaster, supply disruption). Exclude from OEE calculation per ISO 22400-2 Annex B.
       affected_kpis:
-        - ops.oee.pct
-        - ops.availability.pct
+        - KPI-OPS-011
+        - KPI-OPS-016
 
   wrong_interpretations:
     - description: "OEE Theater — High OEE without real production value"
@@ -362,54 +362,54 @@ required_data_model:
 # 4. ACTION LOGIC SEEDS
 # ──────────────────────────────────────────
 action_logic_seeds:
-  - trigger_driver: ops.availability.pct
-    trigger_diagnostic: ops.mtbf.hours
+  - trigger_driver: KPI-OPS-016
+    trigger_diagnostic: KPI-OPS-005
     trigger_condition: "Availability < 85% for 2 consecutive months AND MTBF declining trend"
     guardrail: "Exclude periods with planned shutdown or force majeure"
     action_description: >
       Asset reliability recovery: identify chronic failure modes, execute corrective
       maintenance, standardise PM schedule for the specific asset family.
-    expected_outcome_kpi: ops.oee.pct
+    expected_outcome_kpi: KPI-OPS-011
     action_code_candidate: O-A2.1
 
-  - trigger_driver: ops.availability.pct
-    trigger_diagnostic: ops.pm_compliance.pct
+  - trigger_driver: KPI-OPS-016
+    trigger_diagnostic: KPI-OPS-007
     trigger_condition: "Availability < 90% AND PM Compliance < 85% for 3 months"
     guardrail: "Exclude lines under approved overhaul"
     action_description: >
       Planned maintenance recovery: restore PM compliance, review PM task list for
       adequacy, address backlog.
-    expected_outcome_kpi: ops.availability.pct
+    expected_outcome_kpi: KPI-OPS-016
     action_code_candidate: O-O1.2
 
-  - trigger_driver: ops.availability.pct
-    trigger_diagnostic: ops.changeover.minutes
+  - trigger_driver: KPI-OPS-016
+    trigger_diagnostic: KPI-OPS-020
     trigger_condition: "Changeover time > 2× SMED target for this line for 3 consecutive weeks"
     guardrail: "Exclude product introduction qualification runs"
     action_description: >
       Changeover reduction via SMED analysis: separate internal and external setup,
       standardise tooling, train operators.
-    expected_outcome_kpi: ops.availability.pct
+    expected_outcome_kpi: KPI-OPS-016
     action_code_candidate: O-O1.3
 
-  - trigger_driver: ops.performance.pct
-    trigger_diagnostic: ops.speed_loss.pct
+  - trigger_driver: KPI-OPS-002
+    trigger_diagnostic: KPI-OPS-019
     trigger_condition: "Performance < 90% without corresponding downtime events (speed loss dominant)"
     guardrail: "Exclude quality qualification runs"
     action_description: >
       Speed loss investigation: identify authorised vs unauthorised speed reductions,
       standardise operating speed for each product, update standard cycle times.
-    expected_outcome_kpi: ops.performance.pct
+    expected_outcome_kpi: KPI-OPS-002
     action_code_candidate: O-O1.1
 
-  - trigger_driver: ops.quality.pct
-    trigger_diagnostic: quality.fpy.pct
+  - trigger_driver: KPI-OPS-003
+    trigger_diagnostic: KPI-QUA-001
     trigger_condition: "FPY drops > 3pp in 5 consecutive shifts OR Quality Rate < 96%"
     guardrail: "Exclude trial runs and approved product qualification batches"
     action_description: >
       Quality root cause analysis: defect Pareto by loss type, isolate raw material
       batch vs process parameter drift vs equipment degradation.
-    expected_outcome_kpi: ops.quality.pct
+    expected_outcome_kpi: KPI-OPS-003
     action_code_candidate: O-Q3.1
 
 # ──────────────────────────────────────────
@@ -801,11 +801,11 @@ mapping_readiness:
         affected_artifact: core/usecases/core/OPS-001_Operations_Performance/UseCase_Bracket.yaml
         field: orchestration.supporting_kpi_ids
         description: >
-          MTBF (ops.mtbf.hours), MTTR (ops.mttr.hours), PM Compliance (ops.pm_compliance.pct),
+          MTBF (KPI-OPS-005), MTTR (KPI-OPS-006), PM Compliance (KPI-OPS-007),
           and Scrap Rate (ops.scrap.pct) exist in the KPI catalog but are NOT listed in
           supporting_kpi_ids. These are required diagnostic KPIs per the domain model.
         evidence_reference: SRC-008 SRC-010 SRC-001
-        remediation: "Add ops.mtbf.hours, ops.mttr.hours, ops.pm_compliance.pct, ops.scrap.pct to supporting_kpi_ids. Core updated; close gap when DEP status is approved."
+        remediation: "Add KPI-OPS-005, KPI-OPS-006, KPI-OPS-007, ops.scrap.pct to supporting_kpi_ids. Core updated; close gap when DEP status is approved."
         status: in_progress
 
       - gap_type: content_gap
@@ -848,12 +848,12 @@ mapping_readiness:
         affected_artifact: core/usecases/core/OPS-001_Operations_Performance/UseCase_Bracket.yaml
         field: ux_layout_rules.page_1_summary.component_30s (Main_1)
         description: >
-          Main_1 shows ops.availability.pct (a driver KPI) as the primary trend visual.
-          Domain evidence requires the strategic KPI (ops.oee.pct) as Main_1 trend with
+          Main_1 shows KPI-OPS-016 (a driver KPI) as the primary trend visual.
+          Domain evidence requires the strategic KPI (KPI-OPS-011) as Main_1 trend with
           the target overlay. Availability trend should be Main_2, or available in
           drill-down. This answers the core question "Is OEE on target?" before "Why not?"
         evidence_reference: SRC-004 SRC-012
-        remediation: "Change Main_1 kpi_id to ops.oee.pct with comparison: vs_target; move Availability to Main_2. Core updated; close gap when DEP status is approved."
+        remediation: "Change Main_1 kpi_id to KPI-OPS-011 with comparison: vs_target; move Availability to Main_2. Core updated; close gap when DEP status is approved."
         status: in_progress
 
       - gap_type: mapping_gap
@@ -861,15 +861,15 @@ mapping_readiness:
         affected_artifact: core/usecases/core/OPS-001_Operations_Performance/UseCase_Bracket.yaml
         field: ux_layout_rules.page_1_summary.component_30s (Main_3)
         description: >
-          Main_3 combines ops.performance.pct (%), ops.quality.pct (%), and
-          ops.throughput.units (count) on the same visual. Mixing percentage rates
+          Main_3 combines KPI-OPS-002 (%), KPI-OPS-003 (%), and
+          KPI-OPS-009 (count) on the same visual. Mixing percentage rates
           and absolute unit counts on the same axis creates a misleading visual that
           cannot be interpreted without additional context. Violates SQ-V02.
         evidence_reference: SRC-003
         remediation: >
           Split Main_3: show OEE component breakdown (Availability/Performance/Quality %)
           as a grouped bar chart for the current period vs target for each driver.
-          Remove ops.throughput.units from this visual.
+          Remove KPI-OPS-009 from this visual.
           Core updated; close gap when DEP status is approved.
         status: in_progress
 
@@ -878,11 +878,11 @@ mapping_readiness:
         affected_artifact: core/usecases/core/OPS-001_Operations_Performance/UseCase_Bracket.yaml
         field: value_driver_model.formula
         description: >
-          Current formula 'ops.oee.pct = f(ops.availability.pct, ops.performance.pct, ops.quality.pct)'
+          Current formula 'KPI-OPS-011 = f(KPI-OPS-016, KPI-OPS-002, KPI-OPS-003)'
           is correct but does not express the multiplicative nature.
           ISO 22400-2 defines OEE as a product (×), not a general function f().
         evidence_reference: SRC-001
-        remediation: "Update formula to: ops.oee.pct = ops.availability.pct × ops.performance.pct × ops.quality.pct. Core updated; close gap when DEP status is approved."
+        remediation: "Update formula to: KPI-OPS-011 = KPI-OPS-016 × KPI-OPS-002 × KPI-OPS-003. Core updated; close gap when DEP status is approved."
         status: in_progress
 
     schema_gaps: []

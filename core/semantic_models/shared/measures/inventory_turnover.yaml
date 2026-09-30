@@ -1,6 +1,6 @@
 measure_name: Inventory Turnover
 is_kpi_measure: true
-kpi_id_ref: inv.turnover
+kpi_id_ref: KPI-SCM-016
 category: KPI
 expression:
   logical: Inventory Turnover = COGS / Average Inventory

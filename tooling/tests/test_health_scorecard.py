@@ -57,11 +57,11 @@ def sample_registry():
     return {
         "objects": {
             "kpis": {
-                "sales.net_sales.amount": {
+                "KPI-COM-005": {
                     "kpi_role": "strategic",
                     "linked_domain_contracts": ["commercial_sales"],
                 },
-                "sales.growth.pct": {
+                "KPI-COM-099": {
                     "kpi_role": "strategic",
                     "linked_domain_contracts": [],
                 },
@@ -75,8 +75,8 @@ def sample_registry():
             },
         },
         "edges": [
-            {"type": "use_case_strategic_kpi", "from": "COM-001", "to": "sales.net_sales.amount"},
-            {"type": "use_case_strategic_kpi", "from": "COM-001", "to": "sales.growth.pct"},
+            {"type": "use_case_strategic_kpi", "from": "COM-001", "to": "KPI-COM-005"},
+            {"type": "use_case_strategic_kpi", "from": "COM-001", "to": "KPI-COM-099"},
         ],
         "issues": [],
     }
@@ -98,7 +98,7 @@ class TestComputeH1:
         md_file.write_text(textwrap.dedent("""\
             ```yaml
             - measure_name: Net Sales
-              kpi_id_ref: sales.net_sales.amount
+              kpi_id_ref: KPI-COM-005
               governance:
                 status: active
             ```
@@ -112,35 +112,35 @@ class TestComputeH1:
             "trigger": {"type": "threshold", "evaluation": {"levels": [{"level": "warning"}]}},
             "impact": {"category": "revenue"},
             "operational_execution": {"steps": ["step1"]},
-            "kpis": {"trigger_kpis": ["sales.net_sales.amount"], "guardrail_kpis": [], "outcome_kpis": []},
+            "kpis": {"trigger_kpis": ["KPI-COM-005"], "guardrail_kpis": [], "outcome_kpis": []},
         }
         ac_file.write_text(yaml.dump(ac_data), encoding="utf-8")
 
         result = compute_h1(sample_registry, tmp_repo)
-        # sales.net_sales.amount: all 5 layers present (catalog, bracket, measure_dict, data_contract, action_code)
-        # sales.growth.pct: missing measure_dict, data_contract, action_code
+        # KPI-COM-005: all 5 layers present (catalog, bracket, measure_dict, data_contract, action_code)
+        # KPI-COM-099: missing measure_dict, data_contract, action_code
         assert result["details"]["strategic_kpis"] == 2
         assert result["details"]["covered"] == 1
         assert result["score"] == 50.0
 
     def test_full_coverage(self, tmp_repo, sample_registry):
-        # Give sales.growth.pct a data contract
-        sample_registry["objects"]["kpis"]["sales.growth.pct"]["linked_domain_contracts"] = ["commercial_sales"]
+        # Give KPI-COM-099 a data contract
+        sample_registry["objects"]["kpis"]["KPI-COM-099"]["linked_domain_contracts"] = ["commercial_sales"]
 
         # Create measure dictionary referencing both KPIs
         md_file = tmp_repo / "core" / "semantic_models" / "domains" / "commercial" / "Measure_Dictionary_Commercial.md"
         md_file.write_text(textwrap.dedent("""\
             ```yaml
             - measure_name: Net Sales
-              kpi_id_ref: sales.net_sales.amount
+              kpi_id_ref: KPI-COM-005
             - measure_name: Sales Growth
-              kpi_id_ref: sales.growth.pct
+              kpi_id_ref: KPI-COM-099
             ```
         """), encoding="utf-8")
 
         # Action codes for both KPIs
         import yaml
-        for idx, kpi in enumerate(["sales.net_sales.amount", "sales.growth.pct"]):
+        for idx, kpi in enumerate(["KPI-COM-005", "KPI-COM-099"]):
             ac_file = tmp_repo / "core" / "action_codes" / "Commercial" / f"C-M{idx+1}.1.yaml"
             ac_file.write_text(yaml.dump({
                 "id": f"C-M{idx+1}.1",
@@ -166,16 +166,16 @@ class TestScanMeasureDictionaries:
         md_file.write_text(textwrap.dedent("""\
             ```yaml
             - measure_name: Net Sales
-              kpi_id_ref: sales.net_sales.amount
+              kpi_id_ref: KPI-COM-005
               is_kpi_measure: true
             - measure_name: Helper Measure
               is_kpi_measure: false
             - measure_name: Growth Rate
-              kpi_id_ref: sales.growth.pct
+              kpi_id_ref: KPI-COM-099
             ```
         """), encoding="utf-8")
         result = _scan_measure_dictionaries_for_kpis(tmp_repo)
-        assert result == {"sales.net_sales.amount", "sales.growth.pct"}
+        assert result == {"KPI-COM-005", "KPI-COM-099"}
 
     def test_empty_dir(self, tmp_repo):
         result = _scan_measure_dictionaries_for_kpis(tmp_repo)
@@ -197,13 +197,13 @@ class TestScanActionCodeKpiRefs:
         ac_file.write_text(yaml.dump({
             "id": "C-M1.1",
             "kpis": {
-                "trigger_kpis": ["sales.net_sales.amount"],
+                "trigger_kpis": ["KPI-COM-005"],
                 "guardrail_kpis": ["sales.margin.pct"],
-                "outcome_kpis": ["sales.growth.pct"],
+                "outcome_kpis": ["KPI-COM-099"],
             },
         }), encoding="utf-8")
         result = _scan_action_code_kpi_refs(tmp_repo)
-        assert result == {"sales.net_sales.amount", "sales.margin.pct", "sales.growth.pct"}
+        assert result == {"KPI-COM-005", "sales.margin.pct", "KPI-COM-099"}
 
     def test_skips_decision_spines(self, tmp_repo):
         ds_dir = tmp_repo / "core" / "action_codes" / "Commercial" / "decision_spines"
@@ -301,7 +301,7 @@ class TestComputeH4:
             "trigger": {"type": "threshold", "evaluation": {"levels": [{"level": "critical"}]}},
             "impact": {"category": "revenue", "expected_range": "1-5%"},
             "operational_execution": {"steps": ["Review pricing", "Adjust"]},
-            "kpis": {"trigger_kpis": ["sales.net_sales.amount"]},
+            "kpis": {"trigger_kpis": ["KPI-COM-005"]},
         }), encoding="utf-8")
         result = compute_h4(tmp_repo)
         assert result["score"] == 100.0

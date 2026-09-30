@@ -1,0 +1,62 @@
+kpi_id: KPI-FIN-021
+kpi_key: EBITDA Margin vs Plan
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: Profitability
+domain_tag:
+- Finance
+use_case_ref:
+- FIN-003
+action_code_ref: []
+calc_type: rate
+good_is: higher
+is_variance: true
+business:
+  purpose: Measures the EBITDA-margin gap versus plan.
+  definition: EBITDA Margin % (Actual) - EBITDA Margin % (Plan), in percentage points.
+  grain_scope: Entity/BU; monthly.
+  unit_format: percent_1
+  interpretation: 'The steering signal: is earnings tracking plan, and driven by revenue, gross margin or opex?'
+technical:
+  measure_name: EBITDA Margin vs Plan
+  description: Measures the EBITDA-margin gap versus plan.
+  depends_on_measures: []
+  lineage:
+  - fact_finance.EBITDA Amount
+  - fact_finance.Net Sales Amount
+  - fact_finance.Plan EBITDA Amount
+  - fact_finance.Plan Net Sales Amount
+  calculation:
+    op: delta
+    minuend:
+      calc:
+        op: ratio
+        numerator:
+          column: EBITDA Amount
+        denominator:
+          column: Net Sales Amount
+    subtrahend:
+      calc:
+        op: ratio
+        numerator:
+          column: Plan EBITDA Amount
+        denominator:
+          column: Plan Net Sales Amount
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: ESMA-APM
+  name: EBITDA vs plan (APM variance)
+  alignment: partial
+  note: EBITDA-vs-plan variance is an APM comparison; ESMA APM Guidelines require consistent, reconciled definition
+    period-over-period.

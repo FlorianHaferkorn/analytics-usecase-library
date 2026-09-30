@@ -7,20 +7,20 @@ const sources: DiscoverySource[] = [
 ];
 describe('Discovery draft schema and evidence', () => {
   it('links each candidate to its cited block and verifies exact quotes', () => {
-    const text = 'Source: src-a\nQuote: Net sales requires a governed reference.\nkpi_id: sales.net_sales.amount\nname: Net sales\n\nSource: src-b\nQuote: Cash needs a separate review.\nkpi_id: finance.cash.amount\nname: Cash';
+    const text = 'Source: src-a\nQuote: Net sales requires a governed reference.\nkpi_id: KPI-COM-005\nname: Net sales\n\nSource: src-b\nQuote: Cash needs a separate review.\nkpi_id: finance.cash.amount\nname: Cash';
     const candidates = extractDiscoveryCandidates(text, sources);
     expect(candidates.map((candidate) => candidate.sourceId)).toEqual(['src-a', 'src-b']);
     expect(candidates.every((candidate) => candidate.status === 'draft' && candidate.evidenceStatus === 'quote-verified')).toBe(true);
     expect(validateDiscovery({ ...emptyDiscovery(), sources, lastResponse: text, candidates }).errors).toEqual([]);
   });
   it('does not invent provenance from the first source or accept an invented quote', () => {
-    const unlinked = extractDiscoveryCandidates('kpi_id: sales.net_sales.amount\nname: Net sales', sources)[0];
+    const unlinked = extractDiscoveryCandidates('kpi_id: KPI-COM-005\nname: Net sales', sources)[0];
     expect(unlinked.sourceId).toBeNull(); expect(unlinked.evidenceStatus).toBe('unverified');
-    const linked = extractDiscoveryCandidates('Source: src-a\nQuote: Invented\nkpi_id: sales.net_sales.amount\nname: Net sales', sources)[0];
+    const linked = extractDiscoveryCandidates('Source: src-a\nQuote: Invented\nkpi_id: KPI-COM-005\nname: Net sales', sources)[0];
     expect(linked.evidenceStatus).toBe('source-linked'); expect(linked.sourceContext).toBe('');
   });
   it('rejects forged approval, missing source references, forged quotes and duplicate source IDs', () => {
-    const candidate = extractDiscoveryCandidates('Source: src-a\nkpi_id: sales.net_sales.amount\nname: Net sales', sources)[0];
+    const candidate = extractDiscoveryCandidates('Source: src-a\nkpi_id: KPI-COM-005\nname: Net sales', sources)[0];
     expect(validateDiscovery({ ...emptyDiscovery(), sources, candidates: [{ ...candidate, status: 'approved' }] }).errors.length).toBeGreaterThan(0);
     expect(validateDiscovery({ ...emptyDiscovery(), sources, candidates: [{ ...candidate, sourceId: 'foreign' }] }).errors.join()).toContain('Unknown source');
     expect(validateDiscovery({ ...emptyDiscovery(), sources, candidates: [{ ...candidate, evidenceStatus: 'quote-verified', sourceContext: 'not there' }] }).errors.join()).toContain('Quote not found');

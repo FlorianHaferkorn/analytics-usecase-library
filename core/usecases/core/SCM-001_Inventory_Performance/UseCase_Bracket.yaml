@@ -6,23 +6,23 @@ governance:
   owner_role: supply_chain_controlling_inventory_mgmt_lead
   steward_role: supply_chain_bi_lead
 orchestration:
-  strategic_kpi_id: inv.dio.days
+  strategic_kpi_id: KPI-SCM-001
   influencing_kpi_ids:
-  - inv.turnover
-  - inv.stockout.pct
-  - supply.otif.pct
-  - inv.obsolete.pct
-  - plan.forecast.accuracy.pct
+  - KPI-SCM-016
+  - KPI-SCM-002
+  - KPI-SCM-007
+  - KPI-SCM-004
+  - KPI-SCM-005
   supporting_kpi_ids:
-  - supply.on_time.pct
-  - supply.in_full.pct
-  - supply.stockout_impact.pct
-  - plan.forecast.mape.pct
-  - plan.forecast.bias.pct
-  - plan.forecast.service_impact.pct
-  - plans.count
-  - sales.units
-  - inv.excess_inventory.amount
+  - KPI-SCM-008
+  - KPI-SCM-018
+  - KPI-SCM-009
+  - KPI-SCM-017
+  - KPI-SCM-006
+  - KPI-SCM-012
+  - KPI-SCM-014
+  - KPI-COM-012
+  - KPI-SCM-003
   action_code_ids:
   - S-I1.1
   - S-I1.2
@@ -30,14 +30,14 @@ orchestration:
   - S-I1.4
   - S-I1.5
 primary_kpi_ids:
-  - inv.dio.days
-  - inv.turnover
+  - KPI-SCM-001
+  - KPI-SCM-016
 
 value_driver_model:
-  formula: inv.dio.days = f(inv.turnover, inv.stockout.pct, supply.otif.pct, inv.obsolete.pct, plan.forecast.accuracy.pct)
+  formula: KPI-SCM-001 = f(KPI-SCM-016, KPI-SCM-002, KPI-SCM-007, KPI-SCM-004, KPI-SCM-005)
   impact_direction: minimize
-  primary_driver: inv.turnover
-  impact_logic: Improving inv.turnover is the primary lever for minimizing inv.dio.days.
+  primary_driver: KPI-SCM-016
+  impact_logic: Improving KPI-SCM-016 is the primary lever for minimizing KPI-SCM-001.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -51,14 +51,14 @@ ux_layout_rules:
     decision_question: "Is inventory turning efficiently without stockout or obsolescence risk?"
     big_idea: "Inventory turnover is deteriorating — dead stock in three SKU clusters is tying up working capital and masking the true demand signal for replenishment planning."
     component_3s:
-      kpi_id: inv.dio.days
+      kpi_id: KPI-SCM-001
       visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: lower_is_better
       benchmark: true
     component_30s:
     - slot_id: Main_1
-      kpi_id: inv.turnover
+      kpi_id: KPI-SCM-016
       visual_type: line_chart
       question: "Is inventory turning efficiently, or tying up working capital?"
       message: Inventory turnover is falling, tying up working capital in slow-moving stock
@@ -66,9 +66,9 @@ ux_layout_rules:
       unit: ratio
     - slot_id: Main_2
       kpi_ids:
-      - inv.stockout.pct
-      - supply.otif.pct
-      - inv.obsolete.pct
+      - KPI-SCM-002
+      - KPI-SCM-007
+      - KPI-SCM-004
       # R6.3 (23.09.2026): Kennzahlen gegensaetzlicher Richtung auf einer Balkenachse
       # (Knock-out mixed-polarity). Je Einheit eine Zeile, je Signal eine Spalte.
       visual_type: exception_table
@@ -79,7 +79,7 @@ ux_layout_rules:
       unit: rate
     - slot_id: Main_3
       # Forecast Accuracy trend vs target — upstream driver of DIO and the excess/stockout trade-off (content_gap fix)
-      kpi_id: plan.forecast.accuracy.pct
+      kpi_id: KPI-SCM-005
       visual_type: line_chart
       comparison: vs_target
       question: "Is poor forecasting the root cause behind the inventory swings?"
@@ -102,19 +102,19 @@ ux_layout_rules:
       - product_category
       - abc_class
       - xyz_class
-      - inv.turnover
-      - inv.stockout.pct
-      - inv.obsolete.pct
-      - inv.dio.days
-      - supply.otif.pct
+      - KPI-SCM-016
+      - KPI-SCM-002
+      - KPI-SCM-004
+      - KPI-SCM-001
+      - KPI-SCM-007
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: inv.obsolete.pct
+        measure: KPI-SCM-004
         direction: descending
       top_n: 20
       highlight_rule:
-        column: inv.obsolete.pct
+        column: KPI-SCM-004
         type: data_bar
 prioritization:
   business_value: high

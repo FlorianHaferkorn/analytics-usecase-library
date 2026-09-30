@@ -41,12 +41,12 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| procurement.savings.realized.pct | Strategic |
-| procurement.oncontract.pct | Influencing |
-| procurement.ppv.pct | Influencing |
-| procurement.supplier.otd.pct | Influencing |
-| procurement.spend.managed.amount | Supporting |
-| scm.supplier_risk.score | Supporting |
+| KPI-SCM-023 | Strategic |
+| KPI-SCM-024 | Influencing |
+| KPI-SCM-025 | Influencing |
+| KPI-SCM-026 | Influencing |
+| KPI-SCM-027 | Supporting |
+| KPI-SCM-022 | Supporting |
 
 **Action Codes:** S-P1.1
 
@@ -58,12 +58,12 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Realised Savings %** (`procurement.savings.realized.pct`) → **Procurement & spend analytics (convention)** (none): Savings realisation is a procurement-controlling convention; no external standards body defines the metric.
-- **On-Contract Spend %** (`procurement.oncontract.pct`) → **Procurement & spend analytics (convention)** (none): Contract-compliance / maverick-buying share is a procurement convention, not an external standard.
-- **Purchase Price Variance %** (`procurement.ppv.pct`) → **Procurement & spend analytics (convention)** (none): PPV is a standard cost-accounting/procurement convention; align the baseline definition to the internal standard-cost policy.
-- **Supplier On-Time Delivery %** (`procurement.supplier.otd.pct`) → **SCOR-DS** (partial): SCOR governs supplier delivery reliability under Source (sS); grain here is receipt-level inbound OTD, a partial mapping to SCOR's supplier reliability metrics.
-- **Managed Spend** (`procurement.spend.managed.amount`) → **Procurement & spend analytics (convention)** (none): Addressable-spend scoping is a procurement convention, not an external standard.
-- **Supplier Risk Score** (`scm.supplier_risk.score`) → **SCOR-DS** (partial): Loose link only: SCOR Agility (AG) measures adaptability and overall value-at-risk, not a supplier-risk composite score. Conceptual neighbour, not the same metric.
+- **Realised Savings %** (`KPI-SCM-023`) → **Procurement & spend analytics (convention)** (none): Savings realisation is a procurement-controlling convention; no external standards body defines the metric.
+- **On-Contract Spend %** (`KPI-SCM-024`) → **Procurement & spend analytics (convention)** (none): Contract-compliance / maverick-buying share is a procurement convention, not an external standard.
+- **Purchase Price Variance %** (`KPI-SCM-025`) → **Procurement & spend analytics (convention)** (none): PPV is a standard cost-accounting/procurement convention; align the baseline definition to the internal standard-cost policy.
+- **Supplier On-Time Delivery %** (`KPI-SCM-026`) → **SCOR-DS** (partial): SCOR governs supplier delivery reliability under Source (sS); grain here is receipt-level inbound OTD, a partial mapping to SCOR's supplier reliability metrics.
+- **Managed Spend** (`KPI-SCM-027`) → **Procurement & spend analytics (convention)** (none): Addressable-spend scoping is a procurement convention, not an external standard.
+- **Supplier Risk Score** (`KPI-SCM-022`) → **SCOR-DS** (partial): Loose link only: SCOR Agility (AG) measures adaptability and overall value-at-risk, not a supplier-risk composite score. Conceptual neighbour, not the same metric.
 
 ---
 

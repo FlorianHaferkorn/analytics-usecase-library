@@ -41,13 +41,13 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| people.attrition.pct | Strategic |
-| people.engagement.index | Influencing |
-| people.timetofill.days | Influencing |
-| people.absence.pct | Influencing |
-| people.cost.per_fte.amount | Influencing |
-| people.headcount.fte | Supporting |
-| people.attrition_risk.pct | Supporting |
+| KPI-PPL-001 | Strategic |
+| KPI-PPL-002 | Influencing |
+| KPI-PPL-003 | Influencing |
+| KPI-PPL-004 | Influencing |
+| KPI-PPL-005 | Influencing |
+| KPI-PPL-006 | Supporting |
+| KPI-SVC-003 | Supporting |
 
 **Action Codes:** X-R1.1
 
@@ -59,13 +59,13 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Attrition %** (`people.attrition.pct`) → **ISO 30414** (exact): ISO 30414:2018 defines turnover/attrition rate; this is the realised voluntary-turnover base metric.
-- **Engagement Index** (`people.engagement.index`) → **ISO 30414** (partial): ISO 30414 reports engagement under organizational culture; the index here is a survey-mean variant.
-- **Time to Fill** (`people.timetofill.days`) → **ISO 30414** (exact): ISO 30414 defines time-to-fill within recruitment metrics; definition matches.
-- **Absence Rate %** (`people.absence.pct`) → **ISO 30414** (exact): ISO 30414 defines absenteeism rate; definition matches.
-- **Workforce Cost per FTE** (`people.cost.per_fte.amount`) → **ISO 30414** (partial): ISO 30414 reports total workforce cost; per-FTE normalisation is a managerial variant of the ISO cost base.
-- **Headcount FTE** (`people.headcount.fte`) → **ISO 30414** (exact): ISO 30414 defines FTE headcount within workforce availability; definition matches.
-- **Attrition Risk %** (`people.attrition_risk.pct`) → **ISO 30414** (partial): ISO 30414:2018 (human capital reporting) defines turnover and retention-rate metrics. Attrition RISK here is a predicted probability — a modelling variant of the ISO turnover family; align the realised-turnover base to ISO 30414 and treat the risk score as a forward-looking overlay.
+- **Attrition %** (`KPI-PPL-001`) → **ISO 30414** (exact): ISO 30414:2018 defines turnover/attrition rate; this is the realised voluntary-turnover base metric.
+- **Engagement Index** (`KPI-PPL-002`) → **ISO 30414** (partial): ISO 30414 reports engagement under organizational culture; the index here is a survey-mean variant.
+- **Time to Fill** (`KPI-PPL-003`) → **ISO 30414** (exact): ISO 30414 defines time-to-fill within recruitment metrics; definition matches.
+- **Absence Rate %** (`KPI-PPL-004`) → **ISO 30414** (exact): ISO 30414 defines absenteeism rate; definition matches.
+- **Workforce Cost per FTE** (`KPI-PPL-005`) → **ISO 30414** (partial): ISO 30414 reports total workforce cost; per-FTE normalisation is a managerial variant of the ISO cost base.
+- **Headcount FTE** (`KPI-PPL-006`) → **ISO 30414** (exact): ISO 30414 defines FTE headcount within workforce availability; definition matches.
+- **Attrition Risk %** (`KPI-SVC-003`) → **ISO 30414** (partial): ISO 30414:2018 (human capital reporting) defines turnover and retention-rate metrics. Attrition RISK here is a predicted probability — a modelling variant of the ISO turnover family; align the realised-turnover base to ISO 30414 and treat the risk score as a forward-looking overlay.
 
 ---
 

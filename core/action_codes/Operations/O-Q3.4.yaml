@@ -13,11 +13,11 @@ use_case_links:
   - FIN-002
 kpis:
   trigger_kpis:
-  - quality.copq.amount
+  - KPI-QUA-003
   guardrail_kpis:
-  - quality.fpy.pct
+  - KPI-QUA-001
   outcome_kpis:
-  - quality.copq.amount
+  - KPI-QUA-003
 scope:
   default_grain: plant_month
   default_perspective:
@@ -44,7 +44,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: quality.copq.amount
+        metric_kpi_id: KPI-QUA-003
         comparator: gte
         value: 100000
         unit: currency
@@ -52,7 +52,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: quality.copq.amount
+        metric_kpi_id: KPI-QUA-003
         comparator: gt
         threshold:
           basis: relative
@@ -62,7 +62,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: quality.copq.amount
+        metric_kpi_id: KPI-QUA-003
         comparator: gt
         threshold:
           basis: relative
@@ -72,7 +72,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: quality.copq.amount
+        metric_kpi_id: KPI-QUA-003
         comparator: gt
         threshold:
           basis: relative
@@ -88,7 +88,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P60D
-    metric_kpi_id: quality.copq.amount
+    metric_kpi_id: KPI-QUA-003
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -102,7 +102,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: quality.copq.amount
+    metric_kpi_id: KPI-QUA-003
     value_low: -10.0
     value_high: -30.0
     unit: '%'

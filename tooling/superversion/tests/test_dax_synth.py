@@ -54,7 +54,7 @@ def test_ratio_scale_of_one_is_a_noop():
 
 
 def test_mixed_ratio_measure_over_column():
-    """cost.cogs_per_unit.amount: DIVIDE([Cost of Goods Sold Amount], SUM(fact_sales[Quantity]))."""
+    """KPI-FIN-013: DIVIDE([Cost of Goods Sold Amount], SUM(fact_sales[Quantity]))."""
     resolved = {"op": "ratio", "numerator": _measure("Cost of Goods Sold Amount"), "denominator": _col("fact_sales", "Quantity")}
     assert d.synthesize_dax(resolved) == "DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )"
 

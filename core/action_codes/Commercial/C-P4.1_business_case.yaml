@@ -1,6 +1,6 @@
 id: C-P4.1
 action_code_id: C-P4.1
-kpi_id: sales.promo.roi.pct
+kpi_id: KPI-COM-016
 impact_range_eur_min: 300000
 impact_range_eur_likely: 1000000
 impact_range_eur_max: 2500000

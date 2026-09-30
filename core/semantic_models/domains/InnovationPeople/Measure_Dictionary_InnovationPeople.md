@@ -7,7 +7,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 ```yaml
 - measure_name: Digital Adoption %
   is_kpi_measure: true
-  kpi_id_ref: people.digital_adoption.pct
+  kpi_id_ref: KPI-SVC-002
   category: KPI
   expression:
     logical: Digital Adoption % = DIVIDE ( SUM ( fact_it[Digital Users] ), SUM ( fact_hr[Headcount] ) )
@@ -35,7 +35,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Digital Adoption Rate %
   is_kpi_measure: true
-  kpi_id_ref: people.digital_adoption.pct
+  kpi_id_ref: KPI-SVC-002
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 02_Digital
   category: KPI
@@ -55,7 +55,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Attrition Risk %
   is_kpi_measure: true
-  kpi_id_ref: people.attrition_risk.pct
+  kpi_id_ref: KPI-SVC-003
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 04_People
   category: KPI
@@ -80,7 +80,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Gross Margin Amount
   is_kpi_measure: true
-  kpi_id_ref: margin.gm.amount
+  kpi_id_ref: KPI-COM-019
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 04_People
   category: KPI

@@ -1,6 +1,6 @@
 measure_name: Utilization %
 is_kpi_measure: true
-kpi_id_ref: res.utilization.pct
+kpi_id_ref: KPI-SVC-009
 semantic_model: Service_SemanticModel
 display_folder: 05_Workforce
 category: KPI

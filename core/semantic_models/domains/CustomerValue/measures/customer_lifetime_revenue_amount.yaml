@@ -1,6 +1,6 @@
 measure_name: Customer Lifetime Revenue Amount
 is_kpi_measure: true
-kpi_id_ref: crm.lifetime_revenue.amount
+kpi_id_ref: KPI-CUS-005
 semantic_model: CustomerValue_SemanticModel
 display_folder: 01_Revenue
 category: KPI

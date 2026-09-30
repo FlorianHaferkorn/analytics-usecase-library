@@ -6,18 +6,18 @@ governance:
   owner_role: maintenance_controlling_reliability
   steward_role: maintenance_reliability_bi_lead
 orchestration:
-  strategic_kpi_id: ops.mtbf.hours
+  strategic_kpi_id: KPI-OPS-005
   influencing_kpi_ids:
-  - ops.availability.pct
-  - ops.mttr.hours
-  - ops.downtime.unplanned.pct
-  - ops.spare_parts.stockout.pct
-  - ops.pm_compliance.pct
-  - ops.failure.count
+  - KPI-OPS-016
+  - KPI-OPS-006
+  - KPI-OPS-018
+  - KPI-OPS-008
+  - KPI-OPS-007
+  - KPI-OPS-012
   supporting_kpi_ids:
-  - fin.liquidity.inventory.amount
-  - ops.pm.task.count
-  - ops.safety.incident.count
+  - KPI-FIN-002
+  - KPI-OPS-014
+  - KPI-OPS-015
   action_code_ids:
   - O-A2.1
   - O-A2.2
@@ -25,15 +25,15 @@ orchestration:
   - O-A2.4
   - O-A2.5
 primary_kpi_ids:
-  - ops.mtbf.hours
-  - ops.failure.count
+  - KPI-OPS-005
+  - KPI-OPS-012
 
 value_driver_model:
-  formula: ops.mtbf.hours = f(ops.failure.count, ops.mttr.hours, ops.downtime.unplanned.pct, ops.pm_compliance.pct, ops.spare_parts.stockout.pct,
-    ops.availability.pct)
+  formula: KPI-OPS-005 = f(KPI-OPS-012, KPI-OPS-006, KPI-OPS-018, KPI-OPS-007, KPI-OPS-008,
+    KPI-OPS-016)
   impact_direction: maximize
-  primary_driver: ops.failure.count
-  impact_logic: Reducing ops.failure.count is the primary lever for maximizing ops.mtbf.hours because fewer recurring failures directly extend operating time between breakdowns.
+  primary_driver: KPI-OPS-012
+  impact_logic: Reducing KPI-OPS-012 is the primary lever for maximizing KPI-OPS-005 because fewer recurring failures directly extend operating time between breakdowns.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -47,13 +47,13 @@ ux_layout_rules:
     decision_question: "Is asset availability sufficient to meet the production plan?"
     big_idea: "Asset availability is declining — maintenance backlog is accumulating faster than resolution, and OEE compression signals near-term production risk."
     component_3s:
-      kpi_id: ops.mtbf.hours
+      kpi_id: KPI-OPS-005
       visual_type: kpi_card_with_delta
       comparison: vs_plan
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: ops.availability.pct
+      kpi_id: KPI-OPS-016
       visual_type: line_chart
       question: "Is asset availability sufficient to hold the production plan?"
       message: Asset availability is trending toward the threshold needed to hold the production plan
@@ -61,11 +61,11 @@ ux_layout_rules:
       unit: rate
     - slot_id: Main_2
       # R2.4: was 3 KPIs of 2 different calc_types (amount vs. rate) on one
-      # axis -- a ONE_MESSAGE_PER_CHART violation. ops.mttr.hours moved to
+      # axis -- a ONE_MESSAGE_PER_CHART violation. KPI-OPS-006 moved to
       # the Detail_Matrix (it's already the component_3s family's own KPI).
       kpi_ids:
-      - ops.downtime.unplanned.pct
-      - ops.spare_parts.stockout.pct
+      - KPI-OPS-018
+      - KPI-OPS-008
       visual_type: horizontal_bar_chart
       question: "What are the leading failure-risk signals?"
       message: Unplanned downtime and spare-parts stockout — the two leading failure-risk signals.
@@ -84,20 +84,20 @@ ux_layout_rules:
       evidence_columns:
       - asset
       - criticality
-      - ops.mtbf.hours
-      - ops.mttr.hours
-      - ops.downtime.unplanned.pct
-      - ops.pm_compliance.pct
-      - ops.spare_parts.stockout.pct
-      - ops.failure.count
+      - KPI-OPS-005
+      - KPI-OPS-006
+      - KPI-OPS-018
+      - KPI-OPS-007
+      - KPI-OPS-008
+      - KPI-OPS-012
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: ops.downtime.unplanned.pct
+        measure: KPI-OPS-018
         direction: descending
       top_n: 20
       highlight_rule:
-        column: ops.downtime.unplanned.pct
+        column: KPI-OPS-018
         type: data_bar
 prioritization:
   business_value: high

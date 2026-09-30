@@ -1,6 +1,6 @@
 measure_name: Plans Count
 is_kpi_measure: true
-kpi_id_ref: plans.count
+kpi_id_ref: KPI-SCM-014
 semantic_model: SupplyChain_SemanticModel
 display_folder: 03_Forecast
 category: KPI

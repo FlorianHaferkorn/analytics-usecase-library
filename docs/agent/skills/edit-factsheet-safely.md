@@ -52,7 +52,7 @@ After editing Business Factsheet or Bracket, verify:
 
 **If check_factsheet_vs_kpi fails:**
 → KPI ID in bracket doesn't exist: add to catalog OR fix typo
-→ Use exact format: `domain.topic.metric`
+→ Use exact format: `KPI-<DOMAIN>-<NNN>` (D-594)
 
 **If check_forbidden_content fails:**
 → Remove any embedded KPI definitions or metadata from factsheet body
@@ -103,24 +103,24 @@ governance:
   owner_role: "head_of_sales"  # Must exist in org_roles.yaml
   steward_role: "sales_bi_lead"
 orchestration:
-  strategic_kpi_id: "margin.gm.pct"
+  strategic_kpi_id: "KPI-COM-013"
   influencing_kpi_ids:
-    - "sales.net_sales.amount"
-    - "sales.price.realization_pct"
+    - "KPI-COM-005"
+    - "KPI-COM-003"
   action_code_ids:
     - "C-M2.1"
     - "C-S1.1"
 value_driver_model:
   formula: "GM% = (NetSales - COGS) / NetSales"
-  primary_driver: "sales.net_sales.amount"
+  primary_driver: "KPI-COM-005"
   impact_logic: "Increase net sales to improve GM%..."
 ux_layout_rules:
   page_1_summary:
     component_3s:
-      - kpi_id: "margin.gm.pct"
+      - kpi_id: "KPI-COM-013"
     component_30s:
       - visual_type: "trend_line"
-        kpi_ids: ["sales.net_sales.amount"]
+        kpi_ids: ["KPI-COM-005"]
   page_2_execution:
     component_300s:
       evidence_grain: "transaction_line"

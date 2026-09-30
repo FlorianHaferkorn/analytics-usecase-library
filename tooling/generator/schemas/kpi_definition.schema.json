@@ -62,6 +62,10 @@
       "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$",
       "description": "Die governte Plan-Abweichung zu dieser Kennzahl (bisher <basis>.vs_plan.<einheit>). Belegt einen governten Plan, wird aber nie als Referenzreihe neben den Pegel gelegt."
     },
+    "is_variance": {
+      "type": "boolean",
+      "description": "Die Kennzahl ist eine Abweichung (zu Plan oder Vorjahr) und wird im KPI-Band als eigene, nach Vorzeichen gefaerbte Karte gezeigt. Bis D-594 am Teilstring .vs_plan./.delta_pct. der ID erkannt."
+    },
     "calc_type": {
       "type": "string",
       "minLength": 1
@@ -177,7 +181,7 @@
   },
   "$defs": {
     "calc_ref": {
-      "description": "A term inside a governed calculation: another catalog KPI's own measure (resolved via its technical.measure_name, Golden Thread — must exist in the catalog), a raw fact column drawn from THIS KPI's own technical.lineage (resolved by column-name match, table implied), or a nested `calculation` (recursive — for VAR-chain-shaped formulas like `margin.gm.vs_plan.pct`'s Plan GM sub-expression).",
+      "description": "A term inside a governed calculation: another catalog KPI's own measure (resolved via its technical.measure_name, Golden Thread — must exist in the catalog), a raw fact column drawn from THIS KPI's own technical.lineage (resolved by column-name match, table implied), or a nested `calculation` (recursive — for VAR-chain-shaped formulas like `KPI-FIN-017`'s Plan GM sub-expression).",
       "type": "object",
       "oneOf": [
         {

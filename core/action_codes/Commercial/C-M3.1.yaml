@@ -14,12 +14,12 @@ use_case_links:
   - COM-004
 kpis:
   trigger_kpis:
-  - retail.category.crosssell_rate.pct
+  - KPI-COM-022
   guardrail_kpis:
-  - retail.basket.value.average
+  - KPI-COM-024
   outcome_kpis:
-  - retail.category.crosssell_rate.pct
-  - retail.promotion.attachment_rate.pct
+  - KPI-COM-022
+  - KPI-COM-025
 scope:
   default_grain: month
   default_perspective:
@@ -47,7 +47,7 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: retail.basket.items_per_transaction
+        metric_kpi_id: KPI-COM-023
         comparator: gte
         value: 1.2
         unit: ratio
@@ -55,7 +55,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: retail.category.crosssell_rate.pct
+        metric_kpi_id: KPI-COM-022
         comparator: lt
         threshold:
           basis: absolute
@@ -65,7 +65,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: retail.category.crosssell_rate.pct
+        metric_kpi_id: KPI-COM-022
         comparator: lt
         threshold:
           basis: absolute
@@ -75,7 +75,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: retail.category.crosssell_rate.pct
+        metric_kpi_id: KPI-COM-022
         comparator: lt
         threshold:
           basis: absolute
@@ -93,7 +93,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P30D
-    metric_kpi_id: retail.category.crosssell_rate.pct
+    metric_kpi_id: KPI-COM-022
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -107,7 +107,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: retail.category.crosssell_rate.pct
+    metric_kpi_id: KPI-COM-022
     value_low: 2.0
     value_high: 8.0
     unit: pp

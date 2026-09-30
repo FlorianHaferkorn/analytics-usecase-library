@@ -457,7 +457,7 @@ dataset/
 Example KPI Measure snippet:
 
 ```yaml
-/// sales.net_sales.amount – Net Sales Amount
+/// KPI-COM-005 – Net Sales Amount
 measure Net Sales Amount =
     SUM ( fact_sales[Net Sales Amount] )
 ```

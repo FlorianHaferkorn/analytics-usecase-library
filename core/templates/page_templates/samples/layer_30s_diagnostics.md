@@ -228,15 +228,15 @@ When a use case does not activate all 3 slots, remaining slots expand to fill wi
 ux_layout_rules:
   page_1_summary:
     component_30s:
-      - kpi_id: sales.net_sales.amount
+      - kpi_id: KPI-COM-005
         visual_type: trend_line
         slot: "Main_1"
       - kpi_ids:
-          - sales.net_sales.delta_pct.plan
+          - KPI-COM-009
           - sales.net_sales.delta_abs.plan
         visual_type: waterfall
         slot: "Main_2"
-      - kpi_id: sales.net_sales.amount
+      - kpi_id: KPI-COM-005
         visual_type: bar_chart
         segment_by: region
         slot: "Main_3"

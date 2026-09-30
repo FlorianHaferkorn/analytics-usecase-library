@@ -63,12 +63,12 @@ def test_tooltip_measures_strategic_first_capped():
 
 
 def test_format_spec_composes_all():
-    fs = format_spec("supply.otif.pct", "bar_chart", "% (1 decimal)", "higher_is_better", "vs_target",
-                     strategic="supply.otif.pct", influencing=["supply.on_time.pct"])
+    fs = format_spec("KPI-SCM-007", "bar_chart", "% (1 decimal)", "higher_is_better", "vs_target",
+                     strategic="KPI-SCM-007", influencing=["KPI-SCM-008"])
     assert fs.value_axis["zero_based"] is True and fs.value_axis["format"] == "0.0%"
     assert fs.semantic["good_direction"] == "higher"
     assert fs.deviation["show"] is True
-    assert "supply.otif.pct" in fs.tooltip
+    assert "KPI-SCM-007" in fs.tooltip
 
 
 def test_builder_applies_zero_baseline_only_when_opted_in():
@@ -76,7 +76,7 @@ def test_builder_applies_zero_baseline_only_when_opted_in():
     from page_scaffold_generator.layout_calculator import Position
     b = VisualBuilder()
     pos = Position(x=10, y=10, width=400, height=300)
-    fs = format_spec("supply.otif.pct", "bar_chart", "% (1 decimal)", "higher_is_better", "vs_target")
+    fs = format_spec("KPI-SCM-007", "bar_chart", "% (1 decimal)", "higher_is_better", "vs_target")
 
     # default (no spec) → no valueAxis, emission unchanged
     plain = b.build_by_ux_visual_type("bar_chart", pos, name="M", measures=["M"])

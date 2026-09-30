@@ -1,6 +1,6 @@
 measure_name: Downtime %
 is_kpi_measure: true
-kpi_id_ref: ops.downtime.pct
+kpi_id_ref: KPI-OPS-017
 semantic_model: Operations_SemanticModel
 display_folder: 03_Downtime
 category: KPI

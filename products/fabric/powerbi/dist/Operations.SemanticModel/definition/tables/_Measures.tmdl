@@ -9,25 +9,25 @@ table _Measures
 			in
 				Source
 
-	/// enterprise.actions_executed.count - Actions Executed Count
+	/// KPI-GOV-005 - Actions Executed Count
 	/// Number of action codes with a recorded outcome in fact_action_outcome.
 	measure 'Actions Executed Count (XD)' = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.action_outcome_rate.pct - Action Outcome Rate %
+	/// KPI-GOV-001 - Action Outcome Rate %
 	/// Percentage of executed actions with a confirmed achieved outcome.
 	measure 'Action Outcome Rate % (XD)' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
 		formatString: 0.0%
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.avg_time_to_outcome.days - Avg Time-to-Outcome Days
+	/// KPI-GOV-006 - Avg Time-to-Outcome Days
 	/// Average days between action execution and outcome confirmation.
 	measure 'Avg Time-to-Outcome Days (XD)' = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
 		formatString: #,0.0
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.action_roi.pct - Action ROI %
+	/// KPI-GOV-007 - Action ROI %
 	/// Average ROI of executed actions: total impact value / total execution cost - 1.
 	measure 'Action ROI % (XD)' = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
 		formatString: 0.0%
@@ -64,7 +64,7 @@ table _Measures
 		displayFolder: "8_Action_Outcomes"
 
 	/// Purpose: Zielwert von Availability % aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'Availability % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "ops.availability.pct", fact_target[scenario] = "target" )
+	measure 'Availability % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-OPS-016", fact_target[scenario] = "target" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison
 		lineageTag: 96449f23-f860-54f5-9ded-5682775b69b1
@@ -80,7 +80,7 @@ table _Measures
 		annotation ALUCA_Generated = "comparison_measures"
 
 	/// Purpose: Zielwert von First Pass Yield % aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'First Pass Yield % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "quality.fpy.pct", fact_target[scenario] = "target" )
+	measure 'First Pass Yield % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-QUA-001", fact_target[scenario] = "target" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison
 		lineageTag: 2a1f3609-b65f-537c-b12e-ba1f2b09e0df
@@ -96,7 +96,7 @@ table _Measures
 		annotation ALUCA_Generated = "comparison_measures"
 
 	/// Purpose: Planwert von MTBF (hours) aus fact_target (comparison: vs_plan); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'MTBF (hours) Plan (Target Table)' = CALCULATE ( SUM ( fact_target[Target Value] ), fact_target[kpi_id] = "ops.mtbf.hours", fact_target[scenario] = "plan" )
+	measure 'MTBF (hours) Plan (Target Table)' = CALCULATE ( SUM ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-OPS-005", fact_target[scenario] = "plan" )
 		formatString: "0"
 		displayFolder: 8_Comparison
 		lineageTag: 62af54ea-eb16-51dc-9d2a-f70a4ddb395c
@@ -112,7 +112,7 @@ table _Measures
 		annotation ALUCA_Generated = "comparison_measures"
 
 	/// Purpose: Zielwert von Overall Equipment Effectiveness (OEE) % aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'Overall Equipment Effectiveness (OEE) % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "ops.oee.pct", fact_target[scenario] = "target" )
+	measure 'Overall Equipment Effectiveness (OEE) % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-OPS-011", fact_target[scenario] = "target" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison
 		lineageTag: 4cf5e9da-06e8-50e0-9cd8-50f8e34cdaec
@@ -135,7 +135,7 @@ table _Measures
 		summarizeBy: none
 
 	/// OPS-001
-	/// OEE % - ops.oee.pct
+	/// OEE % - KPI-OPS-011
 	/// Measures manufacturing performance combining availability, performance, and quality.
 	measure 'OEE %' =
 			VAR AvailabilityRate =
@@ -364,7 +364,7 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "OPS-003"
 
-	/// Sales Units (OPS) - sales.units
+	/// Sales Units (OPS) - KPI-COM-012
 	/// Measures output units volume from operations in the period.
 	measure 'Sales Units (OPS)' = SUM ( fact_ops[Output Units] )
 		formatString: "#,0"

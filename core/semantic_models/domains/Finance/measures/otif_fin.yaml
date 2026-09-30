@@ -1,6 +1,6 @@
 measure_name: OTIF % (FIN)
 is_kpi_measure: true
-kpi_id_ref: supply.otif.pct
+kpi_id_ref: KPI-SCM-007
 semantic_model: Finance_SemanticModel
 display_folder: FIN-001
 category: KPI

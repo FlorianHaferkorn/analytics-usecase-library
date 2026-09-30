@@ -1,6 +1,6 @@
 id: C-M2.2
 action_code_id: C-M2.2
-kpi_id: margin.gm.pct
+kpi_id: KPI-COM-013
 impact_range_eur_min: 400000
 impact_range_eur_likely: 1200000
 impact_range_eur_max: 3000000

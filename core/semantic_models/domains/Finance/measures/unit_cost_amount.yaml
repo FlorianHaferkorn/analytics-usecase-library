@@ -1,6 +1,6 @@
 measure_name: Unit Cost Amount
 is_kpi_measure: true
-kpi_id_ref: cost.unit.amount
+kpi_id_ref: KPI-FIN-015
 semantic_model: Finance_SemanticModel
 display_folder: 03_Cost
 category: KPI

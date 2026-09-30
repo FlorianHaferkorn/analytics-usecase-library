@@ -156,10 +156,10 @@ class TestLineFinders:
         assert result == 10
 
     def test_find_yaml_kv_quoted(self):
-        yaml_lines = ['  kpi_id: "crm.clv.amount"']
+        yaml_lines = ['  kpi_id: "KPI-CUS-001"']
         result = find_line_for_yaml_kv(
             yaml_lines=yaml_lines, yaml_start_line=5,
-            keys=["kpi_id"], value="crm.clv.amount",
+            keys=["kpi_id"], value="KPI-CUS-001",
         )
         assert result == 5
 
@@ -383,7 +383,7 @@ class TestBuildLinkedSetsFromBrackets:
                     "governance": {"status": "active"},
                     "orchestration": {
                         "strategic_kpi_id": "sales.net.amount",
-                        "influencing_kpi_ids": ["crm.clv.amount"],
+                        "influencing_kpi_ids": ["KPI-CUS-001"],
                         "action_code_ids": ["C-M1.1", "C-M1.2"],
                     },
                 },
@@ -392,7 +392,7 @@ class TestBuildLinkedSetsFromBrackets:
         uc_ids, kpi_ids, action_ids, issues = build_linked_sets_from_brackets(brackets)
         assert "COM-001" in uc_ids
         assert "sales.net.amount" in kpi_ids
-        assert "crm.clv.amount" in kpi_ids
+        assert "KPI-CUS-001" in kpi_ids
         assert "C-M1.1" in action_ids
         assert "C-M1.2" in action_ids
         assert not any(i.severity == "ERROR" for i in issues)

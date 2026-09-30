@@ -7,41 +7,41 @@ governance:
   steward_role: sales_bi_lead
 orchestration:
   # strategic_kpi_id drives the business guardrail (GM% is the ultimate P&L health signal)
-  strategic_kpi_id: margin.gm.pct
+  strategic_kpi_id: KPI-COM-013
   # First 3 influencing → KPI card band on Overview (generator: component_3s lead + deduped influencing, max 4)
-  # Strategic margin.gm.pct must NOT repeat in influencing_kpi_ids (registry causal_links rule)
+  # Strategic KPI-COM-013 must NOT repeat in influencing_kpi_ids (registry causal_links rule)
   influencing_kpi_ids:
-  - sales.net_sales.delta_pct.plan
-  - sales.net_sales.delta_pct.ly
-  - sales.net_sales.amount
-  - sales.pvm.price_effect.amount
-  - sales.pvm.volume_effect.amount
-  - sales.pvm.mix_effect.amount
-  - cost.cogs.amount
+  - KPI-COM-009
+  - KPI-COM-008
+  - KPI-COM-005
+  - KPI-COM-010
+  - KPI-COM-011
+  - KPI-COM-004
+  - KPI-FIN-011
   supporting_kpi_ids:
-  - sales.net_sales.plan.amount
-  - sales.net_sales.ly.amount
-  - sales.price.list.amount
-  - sales.price.net.amount
+  - KPI-COM-006
+  - KPI-COM-007
+  - KPI-COM-001
+  - KPI-COM-002
   # Vergleichsbasen von Main_1/Main_2. Sie stehen hier, weil das kanonische Modell
   # seine Measures ausschliesslich aus diesen Listen baut (from_aluca._kpi_ids_from_bracket);
   # ein Visual-`kpi_ids` allein materialisiert nichts und laesst die Bindung haengen.
-  - sales.net_sales.plan.amount
-  - sales.net_sales.ly.amount
+  - KPI-COM-006
+  - KPI-COM-007
   action_code_ids:
   - C-M2.1
   - C-S1.1
   - C-S1.2
 primary_kpi_ids:
-  - margin.gm.pct
-  - sales.net_sales.amount
+  - KPI-COM-013
+  - KPI-COM-005
 
 value_driver_model:
-  formula: margin.gm.pct = f(sales.net_sales.amount, sales.net_sales.delta_pct.plan, sales.net_sales.delta_pct.ly, sales.pvm.price_effect.amount,
-    sales.pvm.volume_effect.amount, sales.pvm.mix_effect.amount)
+  formula: KPI-COM-013 = f(KPI-COM-005, KPI-COM-009, KPI-COM-008, KPI-COM-010,
+    KPI-COM-011, KPI-COM-004)
   impact_direction: maximize
-  primary_driver: sales.net_sales.amount
-  impact_logic: Improving sales.net_sales.amount is the primary lever for maximizing margin.gm.pct.
+  primary_driver: KPI-COM-005
+  impact_logic: Improving KPI-COM-005 is the primary lever for maximizing KPI-COM-013.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -59,7 +59,7 @@ ux_layout_rules:
       # Lead card: Net Sales Amount — primary metric of this use case (Q1/Q5)
       # Generator uses strategic + first 3 influencing for the 4-card band:
       # Net Sales Amount | Net Sales % vs Plan | Delta% Net Sales | Gross Margin %
-      kpi_id: sales.net_sales.amount
+      kpi_id: KPI-COM-005
       visual_type: kpi_card_with_delta
       sparkline_field: NetSales_Monthly
       comparison: vs_plan
@@ -74,9 +74,9 @@ ux_layout_rules:
       message: "Net Sales compared with Plan and prior year reveals whether commercial performance is sustained."
       so_what: "A deteriorating trajectory moves the decision from monitoring to targeted commercial recovery."
       kpi_ids:
-        - sales.net_sales.amount        # → Net Sales Amount
-        - sales.net_sales.plan.amount   # → Plan Sales Amount
-        - sales.net_sales.ly.amount     # → Last Year Net Sales Amount
+        - KPI-COM-005        # → Net Sales Amount
+        - KPI-COM-006   # → Plan Sales Amount
+        - KPI-COM-007     # → Last Year Net Sales Amount
       category_field: dim_date.CalendarYearMonth
       action_code_id: C-S1.2
       unit: amount
@@ -104,7 +104,7 @@ ux_layout_rules:
       question: "Is the Plan gap broad-based or concentrated in a few regions?"
       message: "Regional variance ranks where the sales gap and recovery opportunity are concentrated."
       so_what: "Worst-first prioritisation focuses commercial capacity where it can close the largest gap."
-      kpi_id: sales.net_sales.delta_pct.plan
+      kpi_id: KPI-COM-009
       category_field: dim_org.Region
       action_code_id: C-S1.2
       unit: rate
@@ -125,20 +125,20 @@ ux_layout_rules:
       evidence_columns:
       - dim_org.Region
       - dim_product.Category
-      - sales.net_sales.amount
-      - sales.net_sales.delta_pct.plan
-      - sales.pvm.price_effect.amount
-      - sales.pvm.volume_effect.amount
-      - sales.pvm.mix_effect.amount
-      - margin.gm.pct
+      - KPI-COM-005
+      - KPI-COM-009
+      - KPI-COM-010
+      - KPI-COM-011
+      - KPI-COM-004
+      - KPI-COM-013
       action_panel: true
       payload_mode: summary
       sort_by:
-        measure: sales.net_sales.delta_pct.plan
+        measure: KPI-COM-009
         direction: ascending
       top_n: 20
       highlight_rule:
-        column: sales.net_sales.delta_pct.plan
+        column: KPI-COM-009
         type: data_bar
 prioritization:
   business_value: high

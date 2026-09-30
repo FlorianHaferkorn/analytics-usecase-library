@@ -50,16 +50,16 @@ diagnostics (COM-002); pipeline/win-loss (COM-010).
 
 | KPI ID | Role |
 |--------|------|
-| margin.gm.pct | Strategic |
-| cost.cogs.amount | Influencing |
-| sales.net_sales.amount | Influencing |
-| sales.net_sales.delta_pct.plan | Influencing |
-| sales.net_sales.delta_pct.ly | Influencing |
-| sales.pvm.price_effect.amount | Influencing |
-| sales.pvm.volume_effect.amount | Influencing |
-| sales.pvm.mix_effect.amount | Influencing |
-| sales.price.list.amount | Supporting |
-| sales.price.net.amount | Supporting |
+| KPI-COM-013 | Strategic |
+| KPI-FIN-011 | Influencing |
+| KPI-COM-005 | Influencing |
+| KPI-COM-009 | Influencing |
+| KPI-COM-008 | Influencing |
+| KPI-COM-010 | Influencing |
+| KPI-COM-011 | Influencing |
+| KPI-COM-004 | Influencing |
+| KPI-COM-001 | Supporting |
+| KPI-COM-002 | Supporting |
 
 **Action Codes:** C-M2.1, C-S1.1, C-S1.2
 
@@ -71,14 +71,14 @@ diagnostics (COM-002); pipeline/win-loss (COM-010).
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Gross Margin %** (`margin.gm.pct`) → **ESMA-APM** (partial): A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM.
-- **Net Sales % vs Plan** (`sales.net_sales.delta_pct.plan`) → **IFRS 15** (none): Net-sales-vs-plan is an internal budget-variance metric.
-- **Delta% Net Sales** (`sales.net_sales.delta_pct.ly`) → **IFRS 15** (none): Year-over-year growth is a management trend metric.
-- **Net Sales Amount** (`sales.net_sales.amount`) → **IFRS 15** (partial): Net sales is a presentation of IFRS 15 revenue: net of VAT (correctly excluded — amounts collected on behalf of third parties are not revenue) and net of returns (IFRS 15 variable consideration — recognise a refund liability, not revenue).
-- **Price Effect Amount** (`sales.pvm.price_effect.amount`) → **Management accounting (CIMA/IMA)** (partial): Price effect follows the managerial-accounting sales-price-variance convention (CIMA Official Terminology; IMA Statements on Management Accounting) — not a governed ISO/IFRS standard.
-- **Volume Effect Amount** (`sales.pvm.volume_effect.amount`) → **Management accounting (CIMA/IMA)** (partial): Volume effect follows the sales-volume-variance convention.
-- **Mix Effect Amount** (`sales.pvm.mix_effect.amount`) → **Management accounting (CIMA/IMA)** (partial): Mix effect is the residual (total − price − volume) in the standard three-way variance decomposition.
-- **Cost of Goods Sold Amount** (`cost.cogs.amount`) → **IFRS IAS 2** (exact): COGS is the IAS 2 carrying amount of inventories recognised as an expense when the related revenue is recognised (IAS 2.34), presented as 'cost of sales' under the IAS 1 function-of-expense method.
+- **Gross Margin %** (`KPI-COM-013`) → **ESMA-APM** (partial): A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM.
+- **Net Sales % vs Plan** (`KPI-COM-009`) → **IFRS 15** (none): Net-sales-vs-plan is an internal budget-variance metric.
+- **Delta% Net Sales** (`KPI-COM-008`) → **IFRS 15** (none): Year-over-year growth is a management trend metric.
+- **Net Sales Amount** (`KPI-COM-005`) → **IFRS 15** (partial): Net sales is a presentation of IFRS 15 revenue: net of VAT (correctly excluded — amounts collected on behalf of third parties are not revenue) and net of returns (IFRS 15 variable consideration — recognise a refund liability, not revenue).
+- **Price Effect Amount** (`KPI-COM-010`) → **Management accounting (CIMA/IMA)** (partial): Price effect follows the managerial-accounting sales-price-variance convention (CIMA Official Terminology; IMA Statements on Management Accounting) — not a governed ISO/IFRS standard.
+- **Volume Effect Amount** (`KPI-COM-011`) → **Management accounting (CIMA/IMA)** (partial): Volume effect follows the sales-volume-variance convention.
+- **Mix Effect Amount** (`KPI-COM-004`) → **Management accounting (CIMA/IMA)** (partial): Mix effect is the residual (total − price − volume) in the standard three-way variance decomposition.
+- **Cost of Goods Sold Amount** (`KPI-FIN-011`) → **IFRS IAS 2** (exact): COGS is the IAS 2 carrying amount of inventories recognised as an expense when the related revenue is recognised (IAS 2.34), presented as 'cost of sales' under the IAS 1 function-of-expense method.
 
 ---
 

@@ -1,6 +1,6 @@
 measure_name: Labor Productivity %
 is_kpi_measure: true
-kpi_id_ref: ops.labor.productivity.pct
+kpi_id_ref: KPI-OPS-004
 semantic_model: Finance_SemanticModel
 display_folder: 05_Productivity
 category: KPI

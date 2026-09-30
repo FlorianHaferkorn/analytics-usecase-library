@@ -33,7 +33,7 @@ process_scope:
 
 canonical_domain_model:
   outcome_kpis:
-    - id: margin.gm.pct
+    - id: KPI-COM-013
       name: Gross Margin %
       definition: "(Net Sales - COGS) / Net Sales × 100"
       unit: "%"
@@ -42,36 +42,36 @@ canonical_domain_model:
       benchmark_source_id: SRC-006
 
   driver_kpis:
-    - id: sales.price.realization_pct
+    - id: KPI-COM-003
       name: Price Realization Rate
       definition: "Net Price / List Price × 100. Measures discount discipline."
       unit: "%"
       direction: maximize
-      drives: margin.gm.pct
+      drives: KPI-COM-013
       causal_mechanism: >
         Each 1pp decline in price realization typically reduces GM% by 0.8–1.2pp
         in B2B manufacturing (Simon-Kucher data). Price realization is the fastest lever.
       benchmark_target: "≥ 90% (Simon-Kucher B2B Pricing Study 2023)"
       benchmark_source_id: SRC-003
 
-    - id: cost.cogs.amount
+    - id: KPI-FIN-011
       name: COGS Amount
       definition: Direct cost of goods sold (material + direct labour + variable overhead).
       unit: EUR
       direction: minimize
-      drives: margin.gm.pct
+      drives: KPI-COM-013
       causal_mechanism: >
         COGS increases directly erode GM%. Key drivers: raw material price increases,
         labour productivity losses, yield/scrap increases.
       benchmark_target: ""
       benchmark_source_id: ""
 
-    - id: sales.pvm.mix_effect.amount
+    - id: KPI-COM-004
       name: Mix Effect on Margin
       definition: Margin variance attributable to product/channel/customer mix shifts.
       unit: EUR
       direction: maximize
-      drives: margin.gm.pct
+      drives: KPI-COM-013
       causal_mechanism: >
         Negative mix effect signals growth in structurally lower-margin products.
         Mix management is a strategic lever for long-term GM% improvement.
@@ -79,19 +79,19 @@ canonical_domain_model:
       benchmark_source_id: ""
 
   diagnostic_kpis:
-    - id: sales.pvm.price_effect.amount
+    - id: KPI-COM-010
       name: Price Effect (PVM)
       definition: GM variance from price changes.
       unit: EUR
       direction: maximize
-      diagnoses: margin.gm.pct
+      diagnoses: KPI-COM-013
 
-    - id: sales.price.net.amount
+    - id: KPI-COM-002
       name: Net Price (Average)
       definition: Average net selling price after discounts, rebates, and returns.
       unit: EUR
       direction: maximize
-      diagnoses: sales.price.realization_pct
+      diagnoses: KPI-COM-003
 
   guardrails:
     - description: Volume guardrail on margin recovery actions
@@ -99,7 +99,7 @@ canonical_domain_model:
         Do not trigger pure margin recovery actions (price increases) if volume is already
         below plan by > 10%. Price recovery at the cost of significant volume loss destroys
         more value than temporary margin dilution.
-      affected_kpis: [margin.gm.pct, sales.net_sales.amount]
+      affected_kpis: [KPI-COM-013, KPI-COM-005]
 
   wrong_interpretations:
     - description: Gross Margin improvement through COGS reduction alone
@@ -245,20 +245,20 @@ source_inventory:
       supports: [wrong_interpretations, guardrails]
 
 action_logic_seeds:
-  - trigger_driver: margin.gm.pct
-    trigger_diagnostic: sales.pvm.price_effect.amount
+  - trigger_driver: KPI-COM-013
+    trigger_diagnostic: KPI-COM-010
     trigger_condition: "GM% below target by > 2pp AND price effect is negative for 2 consecutive months"
     guardrail: "Do not trigger if volume is already below plan by > 10%"
     action_description: Discount discipline review and price realisation improvement program.
-    expected_outcome_kpi: margin.gm.pct
+    expected_outcome_kpi: KPI-COM-013
     action_code_candidate: C-M2.1
 
-  - trigger_driver: margin.gm.pct
-    trigger_diagnostic: sales.pvm.mix_effect.amount
+  - trigger_driver: KPI-COM-013
+    trigger_diagnostic: KPI-COM-004
     trigger_condition: "Mix effect is negative and contributing > 30% of total GM gap"
     guardrail: "Exclude seasonal product mix shifts"
     action_description: Strategic mix management — shift volume toward higher-margin products.
-    expected_outcome_kpi: margin.gm.pct
+    expected_outcome_kpi: KPI-COM-013
     action_code_candidate: C-M2.2
 
 required_data_model:

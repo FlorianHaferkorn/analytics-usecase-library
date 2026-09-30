@@ -102,6 +102,7 @@ class PageBuilder:
         semantic_delta_cards: bool = False,
         model_columns: Optional[set] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
+        variance_kpi_ids: Optional[set] = None,
         comparison_refs: Optional[Dict[str, str]] = None,
         kpi_band_delta: Optional[Any] = None,
     ) -> Dict[str, Any]:
@@ -342,11 +343,12 @@ class PageBuilder:
                 # Semantic-delta band (intent v2): a variance/vs-plan KPI can't be colour-coded
                 # inside the multi-value card (callouts format uniformly — card.md), so split it
                 # out as its own single-value card coloured by sign. The level KPIs stay in the
-                # multi-value card. Detected by governed kpi_id (…vs_plan… / …delta_pct…).
+                # multi-value card. Detected by the catalog field `is_variance` (D-594; until then
+                # by the ID substrings `.vs_plan.` / `.delta_pct.`).
                 _var_idx = None
                 if semantic_delta_cards and card_kpi_ids:
                     for _j, _kid in enumerate(card_kpi_ids):
-                        if isinstance(_kid, str) and (".vs_plan." in _kid or ".delta_pct." in _kid):
+                        if isinstance(_kid, str) and _kid in (variance_kpi_ids or set()):
                             _var_idx = _j
                             break
                 _delta_kid = None
@@ -381,7 +383,8 @@ class PageBuilder:
                     )
             elif visual_type == "cardVisual":
                 measure_ref = (card_measure_names[0] if card_measure_names else None) or (card_kpi_ids[0] if card_kpi_ids else None)
-                title = (card_kpi_ids[0] if card_kpi_ids else measure_ref or slot_id).replace(".", " ").replace("_", " ").title() if (card_kpi_ids or card_measure_names) else None
+                # Display name, not the ID: since D-594 an ID (KPI-COM-013) carries no words.
+                title = (measure_ref or slot_id) if (card_kpi_ids or card_measure_names) else None
                 vis = self.visual_builder.build_kpi_card(position, measure_ref=measure_ref, name=slot_id, title=title)
             elif visual_type == "textbox" and narrative_measure_name:
                 # R2.3-Fund follow-up: real dist/ binds Smart_Narrative to the
@@ -538,6 +541,7 @@ class PageBuilder:
         semantic_delta_cards: bool = False,
         model_columns: Optional[set] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
+        variance_kpi_ids: Optional[set] = None,
         comparison_refs: Optional[Dict[str, str]] = None,
         kpi_band_delta: Optional[Any] = None,
     ) -> Dict[str, Any]:
@@ -603,6 +607,7 @@ class PageBuilder:
                 semantic_delta_cards=semantic_delta_cards,
                 model_columns=model_columns,
                 kpi_good_is=kpi_good_is,
+                variance_kpi_ids=variance_kpi_ids,
                 comparison_refs=comparison_refs,
                 kpi_band_delta=kpi_band_delta,
             )
@@ -646,8 +651,8 @@ class PageBuilder:
         for i, pos in enumerate(kpi_positions):
             # Binding: DAX measure name (card_measure_names); title from kpi_id if available
             measure_ref = (card_measure_names[i] if i < len(card_measure_names) else None) or (card_kpi_ids[i] if i < len(card_kpi_ids) else None)
-            title_ref = card_kpi_ids[i] if i < len(card_kpi_ids) else measure_ref
-            title = title_ref.replace(".", " ").replace("_", " ").title() if title_ref else None
+            # Display name, not the ID: since D-594 an ID (KPI-COM-013) carries no words.
+            title = measure_ref or None
             visual = self.visual_builder.build_kpi_card(
                 pos, measure_ref=measure_ref, name=f"KPI_{i + 1}", title=title
             )

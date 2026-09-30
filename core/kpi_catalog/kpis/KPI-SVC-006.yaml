@@ -1,0 +1,58 @@
+kpi_id: KPI-SVC-006
+synonyms:
+- Average Handle Time
+- Average Handling Time
+- Handle Time
+- durchschnittliche Bearbeitungszeit
+example_question: What is pushing average handle time up on chat?
+kpi_key: Average Handling Time (minutes)
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Service
+domain_tag:
+- Service & Experience
+use_case_ref:
+- XD-001
+action_code_ref:
+- X-S1.4
+calc_type: ratio
+good_is: lower
+business:
+  purpose: Measures average time to handle a contact.
+  definition: Total handle time divided by number of cases/contacts.
+  grain_scope: queue_day or month; aggregated by Org/Channel/Queue.
+  unit_format: eur_0
+  interpretation: Lower is better, but balance with FCR and NPS.
+technical:
+  measure_name: AHT Minutes
+  description: Measures average time to handle a contact.
+  depends_on_measures: []
+  lineage:
+  - fact_support_cases.Handle Time Minutes
+  calculation:
+    op: ratio
+    numerator:
+      column: Handle Time Minutes
+    denominator:
+      calc:
+        op: count
+        column: Handle Time Minutes
+governance:
+  business_owner: Head of Service
+  data_owner: Service Analytics
+  steward: Service Ops Analyst
+  review_cycle: monthly
+  validation_process: automated
+  qa_rules:
+  - Handle time unit consistent; exclude outliers per policy
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: ITIL 4
+  name: Average Handling Time
+  url: https://www.axelos.com/certifications/itil-service-management
+  alignment: partial
+  note: AHT is a contact-centre / ITIL service-desk practice metric (also COPC CX Standard); not ISO/IEC 20000-defined.
+    Align the handle-time components (talk + hold + wrap) so the average is comparable across teams.

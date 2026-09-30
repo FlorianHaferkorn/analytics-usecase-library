@@ -6,24 +6,24 @@ governance:
   owner_role: procurement_controlling_sourcing
   steward_role: procurement_bi_lead
 orchestration:
-  strategic_kpi_id: procurement.savings.realized.pct
+  strategic_kpi_id: KPI-SCM-023
   influencing_kpi_ids:
-  - procurement.oncontract.pct
-  - procurement.ppv.pct
-  - procurement.supplier.otd.pct
+  - KPI-SCM-024
+  - KPI-SCM-025
+  - KPI-SCM-026
   supporting_kpi_ids:
-  - procurement.spend.managed.amount
-  - scm.supplier_risk.score
+  - KPI-SCM-027
+  - KPI-SCM-022
   action_code_ids:
   - S-P1.1
 primary_kpi_ids:
-- procurement.savings.realized.pct
-- procurement.oncontract.pct
+- KPI-SCM-023
+- KPI-SCM-024
 value_driver_model:
-  formula: procurement.savings.realized.pct = f(procurement.oncontract.pct, procurement.ppv.pct, procurement.supplier.otd.pct)
+  formula: KPI-SCM-023 = f(KPI-SCM-024, KPI-SCM-025, KPI-SCM-026)
   impact_direction: maximize
-  primary_driver: procurement.oncontract.pct
-  impact_logic: Raising procurement.oncontract.pct is the primary lever for realising procurement.savings.realized.pct.
+  primary_driver: KPI-SCM-024
+  impact_logic: Raising KPI-SCM-024 is the primary lever for realising KPI-SCM-023.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas:
@@ -40,13 +40,13 @@ ux_layout_rules:
     big_idea: Savings realisation is behind target and the leak is off-contract spend concentrated in
       a few categories.
     component_3s:
-      kpi_id: procurement.savings.realized.pct
+      kpi_id: KPI-SCM-023
       visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: procurement.oncontract.pct
+      kpi_id: KPI-SCM-024
       visual_type: line_chart
       question: Is the savings shortfall a target problem or a compliance problem?
       message: Off-contract buying in a few categories is where realised savings leak, not weak targets
@@ -55,8 +55,8 @@ ux_layout_rules:
       unit: rate
     - slot_id: Main_2
       kpi_ids:
-      - procurement.ppv.pct
-      - procurement.supplier.otd.pct
+      - KPI-SCM-025
+      - KPI-SCM-026
       visual_type: horizontal_bar_chart
       question: Is price variance or supplier reliability eroding value beyond compliance?
       message: Purchase-price variance is climbing in the same categories, compounding the off-contract
@@ -77,20 +77,20 @@ ux_layout_rules:
       evidence_columns:
       - category
       - supplier
-      - procurement.savings.realized.pct
-      - procurement.oncontract.pct
-      - procurement.ppv.pct
-      - procurement.supplier.otd.pct
-      - procurement.spend.managed.amount
-      - scm.supplier_risk.score
+      - KPI-SCM-023
+      - KPI-SCM-024
+      - KPI-SCM-025
+      - KPI-SCM-026
+      - KPI-SCM-027
+      - KPI-SCM-022
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: procurement.savings.realized.pct
+        measure: KPI-SCM-023
         direction: ascending
       top_n: 20
       highlight_rule:
-        column: procurement.savings.realized.pct
+        column: KPI-SCM-023
         type: data_bar
 prioritization:
   business_value: high

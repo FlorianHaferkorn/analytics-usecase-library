@@ -1,0 +1,48 @@
+kpi_id: KPI-CUS-006
+kpi_key: Active Customers
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Customer
+domain_tag:
+- Customer & Market
+use_case_ref:
+- COM-003
+action_code_ref: []
+calc_type: count
+business:
+  purpose: Number of unique active customers in the reporting period.
+  definition: Distinct customers with at least one qualifying transaction in the period.
+  grain_scope: Customer/segment; monthly or quarterly.
+  unit_format: count_0
+  interpretation: Base for retention, churn and at-risk share calculations.
+technical:
+  measure_name: Active Customers
+  description: Number of unique active customers in the reporting period.
+  depends_on_measures: []
+  lineage:
+  - fact_customer_events.CustomerKey
+  - fact_customer_events.Activity Flag
+  calculation:
+    op: distinctcount
+    column: CustomerKey
+    filters:
+    - column: Activity Flag
+      equals: true
+governance:
+  business_owner: Head of CRM / Marketing Analytics
+  data_owner: CRM BI
+  steward: Customer Insights Analyst
+  review_cycle: quarterly
+  validation_process: automated + manual review
+  qa_rules:
+  - Reconciles to monthly active customer stats within +/- 0.5 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: Marketing analytics — CRM (convention)
+  name: Active customer count
+  alignment: none
+  note: Active-customer count (distinct customers with a qualifying transaction) is a CRM-analytics convention;
+    the 'qualifying' window is a definitional choice to pin, not a standard.

@@ -33,7 +33,7 @@ service-desk KPIs" — rather than over-claiming an exact standard definition.
 
 ## Headline findings
 
-1. **SLA attainment is the one clause-anchored KPI.** `svc.sla.attainment.pct` maps to ISO/IEC
+1. **SLA attainment is the one clause-anchored KPI.** `KPI-SVC-004` maps to ISO/IEC
    20000-1 clause 8.3.3 (Service level management), which mandates SLAs and monitoring against
    targets. Pin the agreed target set and it is conformance evidence, not just a dashboard number.
 2. **FCR and AHT are ITIL/COPC practice, not ISO-defined.** They are genuinely standard *in
@@ -42,21 +42,21 @@ service-desk KPIs" — rather than over-claiming an exact standard definition.
 3. **Ticket counts are elements, not KPIs.** Created/closed counts are inputs to arrival-rate,
    throughput and backlog — map them as 8.6.1 incident/request elements, not standalone KPIs.
 4. **NPS is proprietary, and duplicated.** `svc.nps.index` uses Bain's NPS (not an open standard) and
-   duplicates `crm.nps.index`. ISO/IEC 20000 requires customer-satisfaction monitoring (8.3.2 / 9.1)
+   duplicates `KPI-CUS-003`. ISO/IEC 20000 requires customer-satisfaction monitoring (8.3.2 / 9.1)
    but not NPS specifically — consolidate to one governed NPS and treat it as a CX index.
 
 ## Mapping table
 
 | KPI | Standard | Alignment | Drift note / recommendation |
 |---|---|---|---|
-| `svc.aht.minutes` | `ITIL 4` Average Handling Time | **partial** | AHT is a contact-centre / ITIL service-desk practice metric (also COPC CX Standard); not ISO/IEC 20000-defined. Align the handle-time components (talk + hold + wrap) so the average is comparable across teams. |
-| `svc.backlog.count` | `ISO/IEC 20000-1 8.6.1` Incident & service-request management — open backlog | **partial** | Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes (8.6.1 incident / 8.6.2 service request); a count element rather than a named ISO KPI. |
-| `svc.escalation.pct` | `ISO/IEC 20000-1 8.6.1` Incident escalation ratio | **partial** | Escalation ratio relates to ISO/IEC 20000-1 incident-management escalation (8.6.1, functional/hierarchical) and ITIL practice; the % is a practice metric, not an ISO-defined formula. |
-| `svc.fcr.pct` | `ITIL 4` Service desk — First Contact Resolution | **partial** | First Contact Resolution is a de-facto ITIL 4 service-desk / incident-management practice metric (and COPC CX Standard), not formally defined by ISO/IEC 20000. Widely standard in service management; pin the 'contact' grain (call vs case, single vs multi-channel) to compare externally. |
-| `svc.sla.attainment.pct` | `ISO/IEC 20000-1 8.3.3` Service level management — SLA attainment | **partial** | ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets. SLA attainment % is the practice metric for that clause — ISO mandates the SLA and its monitoring, not this specific formula. Pin the target set so attainment is comparable. |
-| `svc.nps.index` | `ISO/IEC 20000-1 9.1` Customer satisfaction (Net Promoter Score) | **none** | NPS is a proprietary Bain & Company methodology, not an open standard. ISO/IEC 20000-1 requires customer-satisfaction monitoring (8.3.2 / performance evaluation 9.1) but does not prescribe NPS. Treat as a CX index; duplicate of crm.nps.index — consolidate to one governed NPS. |
-| `svc.tickets.closed.count` | `ISO/IEC 20000-1 8.6.1` Incident/request throughput (element) | **none** | Raw closed-ticket count is a throughput element feeding backlog and closure-rate; not a named ISO/IEC 20000 KPI on its own. |
-| `svc.tickets.created.count` | `ISO/IEC 20000-1 8.6.1` Incident/request volume (element) | **none** | Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2), not a named ISO KPI — it is an input to arrival-rate/backlog measures. |
+| `KPI-SVC-006` | `ITIL 4` Average Handling Time | **partial** | AHT is a contact-centre / ITIL service-desk practice metric (also COPC CX Standard); not ISO/IEC 20000-defined. Align the handle-time components (talk + hold + wrap) so the average is comparable across teams. |
+| `KPI-SVC-007` | `ISO/IEC 20000-1 8.6.1` Incident & service-request management — open backlog | **partial** | Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes (8.6.1 incident / 8.6.2 service request); a count element rather than a named ISO KPI. |
+| `KPI-SVC-008` | `ISO/IEC 20000-1 8.6.1` Incident escalation ratio | **partial** | Escalation ratio relates to ISO/IEC 20000-1 incident-management escalation (8.6.1, functional/hierarchical) and ITIL practice; the % is a practice metric, not an ISO-defined formula. |
+| `KPI-SVC-005` | `ITIL 4` Service desk — First Contact Resolution | **partial** | First Contact Resolution is a de-facto ITIL 4 service-desk / incident-management practice metric (and COPC CX Standard), not formally defined by ISO/IEC 20000. Widely standard in service management; pin the 'contact' grain (call vs case, single vs multi-channel) to compare externally. |
+| `KPI-SVC-004` | `ISO/IEC 20000-1 8.3.3` Service level management — SLA attainment | **partial** | ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets. SLA attainment % is the practice metric for that clause — ISO mandates the SLA and its monitoring, not this specific formula. Pin the target set so attainment is comparable. |
+| `svc.nps.index` | `ISO/IEC 20000-1 9.1` Customer satisfaction (Net Promoter Score) | **none** | NPS is a proprietary Bain & Company methodology, not an open standard. ISO/IEC 20000-1 requires customer-satisfaction monitoring (8.3.2 / performance evaluation 9.1) but does not prescribe NPS. Treat as a CX index; duplicate of KPI-CUS-003 — consolidate to one governed NPS. |
+| `KPI-SVC-014` | `ISO/IEC 20000-1 8.6.1` Incident/request throughput (element) | **none** | Raw closed-ticket count is a throughput element feeding backlog and closure-rate; not a named ISO/IEC 20000 KPI on its own. |
+| `KPI-SVC-013` | `ISO/IEC 20000-1 8.6.1` Incident/request volume (element) | **none** | Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2), not a named ISO KPI — it is an input to arrival-rate/backlog measures. |
 
 **Alignment legend:** `exact` = same definition as the standard's KPI · `partial` = the standard
 governs the process/requirement (right clause, right practice metric) but not the exact formula ·

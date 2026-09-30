@@ -1,0 +1,59 @@
+kpi_id: KPI-FIN-014
+synonyms:
+- OpEx Budget Variance %
+- Operating Expense Variance
+- Betriebskostenabweichung
+example_question: Where is OpEx running over plan this quarter?
+kpi_key: OpEx vs Plan %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Profitability
+domain_tag:
+- Finance
+- Corporate & Strategy
+use_case_ref:
+- FIN-002
+action_code_ref:
+- F-K2.4
+calc_type: rate
+good_is: lower
+is_variance: true
+business:
+  purpose: Measures OpEx variance versus plan.
+  definition: (OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.
+  grain_scope: Company/segment; monthly close.
+  unit_format: percent_1
+  interpretation: Positive values indicate overspend; negative values indicate savings.
+technical:
+  measure_name: OpEx vs Plan %
+  description: Measures OpEx variance versus plan.
+  depends_on_measures: []
+  lineage:
+  - fact_finance.OpEx Amount
+  - fact_finance.Plan OpEx Amount
+  calculation:
+    op: delta_pct
+    minuend:
+      column: OpEx Amount
+    subtrahend:
+      column: Plan OpEx Amount
+governance:
+  business_owner: Head of Controlling
+  data_owner: Finance BI
+  steward: Finance Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Plan Amount > 0
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.8
+  last_review: 23.01.2026
+standard_ref:
+- standard: IFRS
+  id: IAS 1
+  name: Operating-expense budget variance
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+  alignment: none
+  note: Internal budget-variance management metric; no external financial-reporting standard defines it. Actual
+    and plan inputs trace to IAS 1 operating expenses.

@@ -1,0 +1,20 @@
+kpi_id: KPI-CUS-002
+label: Customer Retention %
+baseline_range:
+  min: 82
+  likely: 86
+  max: 90
+  unit: "%"
+  note: "Annual retention rate; B2B mid-market benchmark 82-90%."
+target_range:
+  min: 86
+  likely: 90
+  max: 94
+  unit: "%"
+  note: "Target assumes 3-5 pp improvement through proactive at-risk intervention."
+time_horizon_months: 12
+driver_notes:
+  - "C-C3.1 (Customer Retention Intervention): identifies at-risk cohorts and triggers personalized recovery."
+  - "NPS-to-retention linkage: each 10-point NPS gain historically reduces churn by 1.5-3 pp."
+  - "Complaint resolution speed reduces silent churn from unresolved dissatisfaction."
+  - "Each 1 pp retention gain worth 750k-1.5M EUR in preserved CLV at a 10k customer base."

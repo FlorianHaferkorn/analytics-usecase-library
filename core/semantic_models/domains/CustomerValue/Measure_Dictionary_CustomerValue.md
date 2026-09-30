@@ -28,7 +28,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Customer Lifetime Value Amount
   is_kpi_measure: true
-  kpi_id_ref: crm.clv.amount
+  kpi_id_ref: KPI-CUS-001
   semantic_model: CustomerValue_SemanticModel
   display_folder: 04_Customer
   category: KPI
@@ -49,7 +49,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Customer Lifetime Revenue Amount
   is_kpi_measure: true
-  kpi_id_ref: crm.lifetime_revenue.amount
+  kpi_id_ref: KPI-CUS-005
   semantic_model: CustomerValue_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -72,7 +72,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Active Customers Count
   is_kpi_measure: true
-  kpi_id_ref: crm.active_customers.count
+  kpi_id_ref: KPI-CUS-006
   semantic_model: CustomerValue_SemanticModel
   display_folder: 01_Retention
   category: KPI
@@ -94,7 +94,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Churned Customers Count
   is_kpi_measure: true
-  kpi_id_ref: crm.churned_customers.count
+  kpi_id_ref: KPI-CUS-004
   semantic_model: CustomerValue_SemanticModel
   display_folder: 01_Retention
   category: KPI
@@ -116,7 +116,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Customer Retention %
   is_kpi_measure: true
-  kpi_id_ref: crm.retention.pct
+  kpi_id_ref: KPI-CUS-002
   semantic_model: CustomerValue_SemanticModel
   display_folder: 01_Retention
   category: KPI
@@ -138,7 +138,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Revenue at Risk Amount
   is_kpi_measure: true
-  kpi_id_ref: crm.revenue_at_risk.amount
+  kpi_id_ref: KPI-OPS-001
   semantic_model: CustomerValue_SemanticModel
   display_folder: 01_Retention
   category: KPI
@@ -160,7 +160,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: NPS Score
   is_kpi_measure: true
-  kpi_id_ref: crm.nps.index
+  kpi_id_ref: KPI-CUS-003
   semantic_model: CustomerValue_SemanticModel
   display_folder: 02_CX
   category: KPI
@@ -181,7 +181,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Customer Complaints Count
   is_kpi_measure: true
-  kpi_id_ref: crm.complaint.count
+  kpi_id_ref: KPI-SVC-001
   semantic_model: CustomerValue_SemanticModel
   display_folder: 02_CX
   category: KPI
@@ -267,7 +267,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Complaint Rate %
   is_kpi_measure: true
-  kpi_id_ref: quality.complaint.pct
+  kpi_id_ref: KPI-QUA-004
   semantic_model: CustomerValue_SemanticModel
   display_folder: 02_CX
   category: KPI
@@ -289,7 +289,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Active Customers
   is_kpi_measure: true
-  kpi_id_ref: crm.active_customers.count
+  kpi_id_ref: KPI-CUS-006
   semantic_model: CustomerValue_SemanticModel
   display_folder: 01_Retention
   category: KPI
@@ -309,7 +309,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Churned Customers
   is_kpi_measure: true
-  kpi_id_ref: crm.churned_customers.count
+  kpi_id_ref: KPI-CUS-004
   semantic_model: CustomerValue_SemanticModel
   display_folder: 01_Retention
   category: KPI
@@ -329,7 +329,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: CLV
   is_kpi_measure: true
-  kpi_id_ref: crm.clv.amount
+  kpi_id_ref: KPI-CUS-001
   semantic_model: CustomerValue_SemanticModel
   display_folder: 04_Customer
   category: KPI

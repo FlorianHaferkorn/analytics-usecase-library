@@ -8,7 +8,7 @@ afterEach(() => { cleanup(); HTMLElement.prototype.scrollTo = originalScrollTo; 
 
 describe('DiscoveryChat text-stream contract', () => {
   it('renders and extracts plain text split across arbitrary UTF-8 and line boundaries', async () => {
-    const content = 'Source: München\nkpi_id: sales.net_sales.amount\nname: Net sales';
+    const content = 'Source: München\nkpi_id: KPI-COM-005\nname: Net sales';
     const bytes = new TextEncoder().encode(content);
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {

@@ -8,7 +8,7 @@
  * DuckDB/parquet reader into the Next.js runtime.
  *
  * Server-side only (uses `node:fs`). The snapshot keys are KPI ids
- * (`sales.net_sales.amount`, `margin.gm.pct`, …) so callers can look values up
+ * (`KPI-COM-005`, `KPI-COM-013`, …) so callers can look values up
  * by `kpi_id` straight from the catalog.
  */
 

@@ -1,6 +1,6 @@
 measure_name: Supplier Risk Score
 is_kpi_measure: true
-kpi_id_ref: scm.supplier_risk.score
+kpi_id_ref: KPI-SCM-022
 semantic_model: Risk_SemanticModel
 display_folder: 03_Supply
 category: KPI

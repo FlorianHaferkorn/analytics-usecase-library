@@ -288,3 +288,18 @@ class TestQualityScorer:
         score = scorer.score(bracket_path=bp)
         d = score.to_dict()
         assert json.dumps(d)  # must be JSON-serialisable
+
+
+class TestMeasureCompletenessByCatalogName:
+    """D-594: the measure is found through the catalog's technical.measure_name, not the ID."""
+
+    def test_resolves_catalog_name_and_domain_variant(self, tmp_path):
+        tables = tmp_path / "definition" / "tables"
+        tables.mkdir(parents=True)
+        (tables / "_Measures.tmdl").write_text(
+            "table _Measures\n\tmeasure 'Gross Margin % (XD)' = 1\n", encoding="utf-8")
+        bracket = {"primary_kpi_ids": ["KPI-COM-013", "KPI-COM-005", "KPI-XXX-999"]}
+        score, findings = QualityScorer()._score_measure_completeness(bracket, tmp_path)
+        assert score == pytest.approx(1 / 3)
+        assert findings == ["No measure found for KPI: KPI-COM-005 (Net Sales Amount)",
+                            "KPI not in catalog: KPI-XXX-999"]

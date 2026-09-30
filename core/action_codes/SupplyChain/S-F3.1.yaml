@@ -14,12 +14,12 @@ use_case_links:
   - SCM-002
 kpis:
   trigger_kpis:
-  - plan.forecast.accuracy.pct
-  - plans.count
+  - KPI-SCM-005
+  - KPI-SCM-014
   guardrail_kpis:
-  - plan.forecast.service_impact.pct
+  - KPI-SCM-012
   outcome_kpis:
-  - plan.forecast.accuracy.pct
+  - KPI-SCM-005
 scope:
   default_grain: sku_location_month
   default_perspective:
@@ -47,7 +47,7 @@ trigger:
       min_observations: 3
       volume_guardrail:
         enabled: true
-        metric_kpi_id: sales.units
+        metric_kpi_id: KPI-COM-012
         comparator: gte
         value: 3000
         unit: units
@@ -55,7 +55,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: plan.forecast.accuracy.pct
+        metric_kpi_id: KPI-SCM-005
         comparator: lt
         threshold:
           basis: absolute
@@ -65,7 +65,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: plan.forecast.accuracy.pct
+        metric_kpi_id: KPI-SCM-005
         comparator: lt
         threshold:
           basis: absolute
@@ -75,7 +75,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: plan.forecast.accuracy.pct
+        metric_kpi_id: KPI-SCM-005
         comparator: lt
         threshold:
           basis: absolute
@@ -91,7 +91,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P60D
-    metric_kpi_id: plan.forecast.bias.pct
+    metric_kpi_id: KPI-SCM-006
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -107,7 +107,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: plan.forecast.accuracy.pct
+    metric_kpi_id: KPI-SCM-005
     value_low: 5.0
     value_high: 12.0
     unit: pp

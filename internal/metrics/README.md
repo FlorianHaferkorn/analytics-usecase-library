@@ -32,7 +32,7 @@ incidents:
     check_failed: "check_factsheet_vs_kpi"
     resolution_time_minutes: 12
     skill_used: "add-kpi-reference-safely"
-    notes: "Missing sales.units KPI ID in SCM-001 bracket"
+    notes: "Missing KPI-COM-012 KPI ID in SCM-001 bracket"
 ```
 
 ### Weekly snapshot (Friday)

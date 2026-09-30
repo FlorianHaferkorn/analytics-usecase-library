@@ -13,12 +13,12 @@ use_case_links:
   - XD-002
 kpis:
   trigger_kpis:
-  - svc.aht.minutes
+  - KPI-SVC-006
   guardrail_kpis:
-  - svc.fcr.pct
+  - KPI-SVC-005
   outcome_kpis:
-  - svc.aht.minutes
-  - svc.sla.attainment.pct
+  - KPI-SVC-006
+  - KPI-SVC-004
 scope:
   default_grain: queue_week
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: svc.tickets.closed.count
+        metric_kpi_id: KPI-SVC-014
         comparator: gte
         value: 300
         unit: count
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: svc.aht.minutes
+        metric_kpi_id: KPI-SVC-006
         comparator: gt
         threshold:
           basis: relative
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: svc.aht.minutes
+        metric_kpi_id: KPI-SVC-006
         comparator: gt
         threshold:
           basis: relative
@@ -74,7 +74,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: svc.aht.minutes
+        metric_kpi_id: KPI-SVC-006
         comparator: gt
         threshold:
           basis: relative
@@ -90,7 +90,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P30D
-    metric_kpi_id: svc.escalation.pct
+    metric_kpi_id: KPI-SVC-008
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -106,7 +106,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: svc.aht.minutes
+    metric_kpi_id: KPI-SVC-006
     value_low: -5.0
     value_high: -15.0
     unit: '%'

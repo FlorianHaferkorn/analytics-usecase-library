@@ -1,6 +1,6 @@
 id: O-Q3.2
 action_code_id: O-Q3.2
-kpi_id: quality.defect_density
+kpi_id: KPI-QUA-005
 impact_range_eur_min: 150000
 impact_range_eur_likely: 600000
 impact_range_eur_max: 1800000

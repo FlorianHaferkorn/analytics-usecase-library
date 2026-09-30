@@ -43,7 +43,7 @@ process_scope:
 
 canonical_domain_model:
   outcome_kpis:
-    - id: supply.otif.pct
+    - id: KPI-SCM-007
       name: OTIF % (On-Time In-Full)
       definition: >
         % of order lines (or orders) delivered both On-Time and In-Full. Operationally
@@ -56,12 +56,12 @@ canonical_domain_model:
       benchmark_source_id: SRC-001
 
   driver_kpis:
-    - id: supply.on_time.pct
+    - id: KPI-SCM-008
       name: On-Time Delivery %
       definition: "% of order lines/orders delivered on or before the agreed delivery date (or Must-Arrive-By-Date)."
       unit: "%"
       direction: maximize
-      drives: supply.otif.pct
+      drives: KPI-SCM-007
       causal_mechanism: >
         On-Time is the primary multiplicative component of OTIF: OTIF cannot exceed the
         On-Time rate. Carrier delays, dock/appointment slips, and order-release latency
@@ -69,48 +69,48 @@ canonical_domain_model:
         driver model (SCOR RL.2.x; Walmart MABD logic).
       benchmark_target: ">= 97% for best-in-class delivery reliability (SCOR/CSCMP)"
       benchmark_source_id: SRC-001
-    - id: supply.in_full.pct
+    - id: KPI-SCM-018
       name: In-Full %
       definition: "% of order lines/orders delivered complete in the ordered quantity with no short-ship (SCOR RL.2.1, orders delivered in full)."
       unit: "%"
       direction: maximize
-      drives: supply.otif.pct
+      drives: KPI-SCM-007
       causal_mechanism: >
         In-Full is the second multiplicative component of OTIF and the link to inventory
         availability. Short-picks, allocation shortfalls, and stockouts reduce In-Full;
         a single short line breaks the whole order under line-level OTIF accounting.
       benchmark_target: ">= 98% In-Full (SCOR RL.2.1 superior range)"
       benchmark_source_id: SRC-001
-    - id: supply.stockout_impact.pct
+    - id: KPI-SCM-009
       name: Stockout Impact %
       definition: "% of demand (units or order lines) unfulfillable due to zero available stock; the availability shortfall that feeds In-Full failures."
       unit: "%"
       direction: minimize
-      drives: supply.in_full.pct
+      drives: KPI-SCM-018
       causal_mechanism: >
         Stockouts are the dominant upstream cause of In-Full failure: when on-hand cannot
         cover demand, lines short-ship and In-Full (and therefore OTIF) drops. Reducing
         stockout impact raises In-Full without expedite spend (CSCMP fill-rate logic).
       benchmark_target: "< 2% stockout impact world class (CSCMP); < 5% acceptable"
       benchmark_source_id: SRC-004
-    - id: supply.penalty.amount
+    - id: KPI-SCM-011
       name: Penalty Amount
       definition: "Total chargebacks/fines levied by customers for OTIF non-compliance (e.g., retailer 3% of cost-of-goods per failed line)."
       unit: EUR
       direction: minimize
-      drives: supply.otif.pct
+      drives: KPI-SCM-007
       causal_mechanism: >
         Penalties are the contractual cost of OTIF failure and the clearest financial
         signal that reliability is below the customer threshold. Walmart applies a 3%
         of cost-of-goods deduction per non-compliant PO line below the 98% threshold.
       benchmark_target: "Target EUR 0; structurally < 0.5% of affected revenue (Walmart OTIF program economics)"
       benchmark_source_id: SRC-005
-    - id: supply.expedite.amount
+    - id: KPI-SCM-010
       name: Expedite Cost
       definition: "Premium/air-freight and rush-handling cost incurred to recover at-risk orders and avoid In-Full/On-Time failure."
       unit: EUR
       direction: minimize
-      drives: supply.otif.pct
+      drives: KPI-SCM-007
       causal_mechanism: >
         Expedite is the cost of recovering OTIF by spending money instead of holding the
         right inventory or planning better. Rising expedite with stable OTIF signals a
@@ -124,21 +124,21 @@ canonical_domain_model:
       definition: "% of shipments on a given carrier/lane delivered on or before commit date; isolates carrier/transport root cause of On-Time failure."
       unit: "%"
       direction: maximize
-      diagnoses: supply.on_time.pct
+      diagnoses: KPI-SCM-008
       causal_mechanism: Lane-level carrier on-time isolates whether On-Time failures are transport-driven vs order-release driven.
     - id: supply.fill_rate.pct
       name: Fill Rate % by Node
       definition: "% of demand satisfied from available stock at a node (DC/location); the availability ratio behind In-Full at echelon level."
       unit: "%"
       direction: maximize
-      diagnoses: supply.in_full.pct
+      diagnoses: KPI-SCM-018
       causal_mechanism: Node-level fill rate localises In-Full failures to specific DCs/SKUs where availability is the constraint.
     - id: supply.appointment_compliance.pct
       name: Dock/Appointment Compliance %
       definition: "% of deliveries that meet the booked dock-appointment/Must-Arrive-By window at the receiving location."
       unit: "%"
       direction: maximize
-      diagnoses: supply.on_time.pct
+      diagnoses: KPI-SCM-008
       causal_mechanism: >
         Many On-Time failures are appointment/MABD misses rather than in-transit delays;
         early or late arrivals outside the window count as non-compliant in retailer OTIF
@@ -150,19 +150,19 @@ canonical_domain_model:
         Do NOT trigger supplier/carrier corrective actions when OTIF misses are caused by
         documented force majeure or an approved promotional/demand surge already routed to
         S&OP. Exclusions must be evidenced, not assumed, to avoid inflating OTIF.
-      affected_kpis: [supply.otif.pct, supply.on_time.pct, supply.in_full.pct]
+      affected_kpis: [KPI-SCM-007, KPI-SCM-008, KPI-SCM-018]
     - description: Cost-of-recovery ceiling on expedite
       condition: >
         Do NOT authorise expedite recovery when expedite cost exceeds the penalty plus
         lost-margin avoided. Expedite is a guardrailed lever — spending more to rescue an
         order than the failure would cost destroys value.
-      affected_kpis: [supply.expedite.amount, supply.penalty.amount, supply.otif.pct]
+      affected_kpis: [KPI-SCM-010, KPI-SCM-011, KPI-SCM-007]
     - description: Critical/strategic customer floor
       condition: >
         Cost-containment actions on penalty/expedite must not push OTIF below the
         contractual threshold for strategic customers whose contract-review clauses are
         triggered by sustained sub-threshold OTIF.
-      affected_kpis: [supply.otif.pct, supply.penalty.amount]
+      affected_kpis: [KPI-SCM-007, KPI-SCM-011]
 
   wrong_interpretations:
     - description: Measuring OTIF at line level vs order level interchangeably
@@ -236,40 +236,40 @@ required_data_model:
       source_id: SRC-007
 
 action_logic_seeds:
-  - trigger_driver: supply.on_time.pct
+  - trigger_driver: KPI-SCM-008
     trigger_diagnostic: supply.carrier_on_time.pct
     trigger_condition: "OTIF < 97% target for 2 consecutive weeks AND On-Time % is the dominant gap AND a specific carrier/lane carrier_on_time < 90%"
     guardrail: "Exclude documented force majeure events and weather embargoes"
     action_description: OTIF orchestration and root-cause split by On-Time vs In-Full, with carrier/lane escalation where transport is the driver.
-    expected_outcome_kpi: supply.otif.pct
+    expected_outcome_kpi: KPI-SCM-007
     action_code_candidate: S-R2.1
-  - trigger_driver: supply.on_time.pct
+  - trigger_driver: KPI-SCM-008
     trigger_diagnostic: supply.appointment_compliance.pct
     trigger_condition: "On-Time % below target AND appointment/MABD compliance < 92% on key lanes"
     guardrail: "Do not escalate carriers when failures are dock-appointment or order-release driven"
     action_description: Fulfillment and transport stabilisation — appointment booking discipline, lane re-routing, and order-release timing fixes.
-    expected_outcome_kpi: supply.on_time.pct
+    expected_outcome_kpi: KPI-SCM-008
     action_code_candidate: S-R2.2
-  - trigger_driver: supply.in_full.pct
-    trigger_diagnostic: supply.stockout_impact.pct
+  - trigger_driver: KPI-SCM-018
+    trigger_diagnostic: KPI-SCM-009
     trigger_condition: "In-Full % below target AND node fill-rate/stockout impact > 5% on the affected SKU-location cluster"
     guardrail: "Exclude SKUs under planned phase-out or allocation rationing"
     action_description: In-Full and stockout-impact reduction — buffer/safety-stock recalibration and node fill-rate recovery.
-    expected_outcome_kpi: supply.in_full.pct
+    expected_outcome_kpi: KPI-SCM-018
     action_code_candidate: S-R2.3
-  - trigger_driver: supply.penalty.amount
-    trigger_diagnostic: supply.expedite.amount
+  - trigger_driver: KPI-SCM-011
+    trigger_diagnostic: KPI-SCM-010
     trigger_condition: "Penalty amount rising 3 consecutive months OR expedite cost > avoided penalty + lost margin"
     guardrail: "Do not authorise expedite where recovery cost exceeds the failure cost it avoids"
     action_description: Penalty and expedite cost control — cost-benefit gating of recovery spend and structural fix prioritisation.
-    expected_outcome_kpi: supply.penalty.amount
+    expected_outcome_kpi: KPI-SCM-011
     action_code_candidate: S-R2.4
-  - trigger_driver: supply.otif.pct
-    trigger_diagnostic: supply.stockout_impact.pct
+  - trigger_driver: KPI-SCM-007
+    trigger_diagnostic: KPI-SCM-009
     trigger_condition: "Sustained OTIF below contractual threshold for a strategic customer AND root cause traced to forecast-driven availability gaps"
     guardrail: "Hand off to SCM-003 S&OP review before structural forecast/buffer change"
     action_description: Structural reliability program with cross-use-case handoff to forecast accuracy (SCM-003) when service misses are planning-driven.
-    expected_outcome_kpi: supply.otif.pct
+    expected_outcome_kpi: KPI-SCM-007
     action_code_candidate: S-R2.5
 
 source_inventory:

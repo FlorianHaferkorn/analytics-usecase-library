@@ -6,15 +6,15 @@ governance:
   owner_role: service_operations_cx_analytics
   steward_role: service_ops_cx_bi_lead
 orchestration:
-  strategic_kpi_id: svc.sla.attainment.pct
+  strategic_kpi_id: KPI-SVC-004
   influencing_kpi_ids:
-  - svc.backlog.count
-  - svc.fcr.pct
-  - svc.aht.minutes
-  - svc.escalation.pct
-  - svc.tickets.created.count
-  - svc.tickets.closed.count
-  - crm.nps.index
+  - KPI-SVC-007
+  - KPI-SVC-005
+  - KPI-SVC-006
+  - KPI-SVC-008
+  - KPI-SVC-013
+  - KPI-SVC-014
+  - KPI-CUS-003
   supporting_kpi_ids: []
   action_code_ids:
   - X-S1.1
@@ -22,15 +22,15 @@ orchestration:
   - X-S1.3
   - X-S1.4
 primary_kpi_ids:
-  - svc.sla.attainment.pct
-  - svc.backlog.count
+  - KPI-SVC-004
+  - KPI-SVC-007
 
 value_driver_model:
-  formula: svc.sla.attainment.pct = f(svc.fcr.pct, svc.aht.minutes, svc.backlog.count, svc.escalation.pct,
-    svc.tickets.created.count, svc.tickets.closed.count)
+  formula: KPI-SVC-004 = f(KPI-SVC-005, KPI-SVC-006, KPI-SVC-007, KPI-SVC-008,
+    KPI-SVC-013, KPI-SVC-014)
   impact_direction: maximize
-  primary_driver: svc.backlog.count
-  impact_logic: Reducing queue backlog is the primary operational lever for maximizing svc.sla.attainment.pct while FCR, AHT, and escalation remain in guardrail balance.
+  primary_driver: KPI-SVC-007
+  impact_logic: Reducing queue backlog is the primary operational lever for maximizing KPI-SVC-004 while FCR, AHT, and escalation remain in guardrail balance.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -44,20 +44,20 @@ ux_layout_rules:
     decision_question: "Is the service organization resolving cases fast enough to prevent backlog growth?"
     big_idea: "Service backlog is growing — first-contact resolution rate is declining and case escalation volume is rising, signalling a capacity or capability gap."
     component_3s:
-      kpi_id: svc.sla.attainment.pct
+      kpi_id: KPI-SVC-004
       visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: svc.backlog.count
+      kpi_id: KPI-SVC-007
       visual_type: line_chart
       question: "Is the service org keeping pace, or is backlog building toward SLA breaches?"
       message: Case backlog is building unchecked toward SLA breaches next cycle
       so_what: "An unchecked backlog trend converts into missed SLAs within the next reporting cycle."
       unit: count
     - slot_id: Main_2
-      kpi_id: svc.fcr.pct
+      kpi_id: KPI-SVC-005
       visual_type: horizontal_bar_chart
       question: "Which service-quality signals explain the backlog?"
       message: First-contact resolution, handle time, and escalation — the three service-quality signals.
@@ -77,17 +77,17 @@ ux_layout_rules:
       - channel
       - issue_type
       - severity
-      - svc.sla.attainment.pct
-      - svc.backlog.count
-      - svc.escalation.pct
+      - KPI-SVC-004
+      - KPI-SVC-007
+      - KPI-SVC-008
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: svc.sla.attainment.pct
+        measure: KPI-SVC-004
         direction: ascending
       top_n: 20
       highlight_rule:
-        column: svc.sla.attainment.pct
+        column: KPI-SVC-004
         type: data_bar
 prioritization:
   business_value: medium

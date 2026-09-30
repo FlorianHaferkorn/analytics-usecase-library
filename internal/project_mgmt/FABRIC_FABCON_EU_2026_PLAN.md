@@ -33,7 +33,7 @@ Nicht verwendet: Den Keynote-Blog vom 28.09. weist der Egress-Proxy ab; nur Such
 | E-3 | Deployment-Default (Meridian-Code `deployment-pipelines` vs. ADR-0050 „zuerst 4 und 1“) | W2.6 |
 | E-4 | Policy Weaver (Quellrechte Snowflake/Databricks → OneLake-Rollen) adoptieren | W1.5 |
 | E-5 | Lieferweg der Ontologie-Inhalte nach Fabric IQ: RDF/OWL-Turtle über die Import-Funktion + Kontextpaket für den Ontology agent · TMDL-Item-Definition per API · „Generate from semantic model“ | W4.3 |
-| E-6 | Gemeinsame Geschäftsobjekt-Schicht (Entity types) und ein KPI-ID-Schema mit Meridian (heute `sales.net_sales.amount` hier, `KPI-FIN-001` dort) | W4.6 |
+| E-6 | Gemeinsame Geschäftsobjekt-Schicht (Entity types) und ein KPI-ID-Schema mit Meridian (bis 30.09.2026 semantische IDs hier, `KPI-FIN-001` dort) | **umgesetzt (dieser PR)**: Meridian D-594, ein Schema `KPI-<KÜRZEL>-<NNN>`, Migration über `tooling/migration/kpi_id_migration.py` → W4.6 |
 | E-7 | Fabric Planning als Blueprint-Option und Angebot | W4.7 (Option) |
 | E-8 | Microsofts Govern-Skill `onelake-catalog-govern-cli` (microsoft/skills-for-fabric, seit 0.3.15) als Audit-/Remediation-Werkzeug übernehmen | — (Spike in Meridian W1.8) |
 | E-9 | **Kapazität je Umgebung**: Microsoft empfiehlt eine eigene Kapazität je Umgebung und für Stufe-1-Workloads (Learn `enterprise/capacity-planning-*`, CI/CD-Leitfaden, gelesen 29.09.2026); ALUCA R6, `split()` und `infrastructure.json` konsolidieren. Optionen: a) Produktion und Nicht-Produktion immer trennen, innerhalb konsolidieren (empfohlen) · b) konsolidieren, Abweichung begründen · c) voll nach MS | W5.2 |

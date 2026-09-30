@@ -1,6 +1,6 @@
 {
   "modell": "Experience.SemanticModel",
-  "quelle_sha256": "fcb24da2eb1f1de84b4fdc79adaa5abfa1943976c8d1a2014cfb3fcead801791",
+  "quelle_sha256": "5d924eda6c2cc940012e19a8ae63d0bd7dec50e9ff4b36b2f37618b1ebf6a404",
   "messungen": [
     {
       "measure": "AHT Minutes",

@@ -219,10 +219,17 @@ def _find_action_code_file(ac_id: str, action_codes_root: Path) -> Optional[Path
     return None
 
 
+# Threshold units that were KPI-ID suffixes before D-594 and were never displayed.
+SUFFIX_UNITS = frozenset({"amount", "count", "index", "pct", "days", "hours", "minutes", "units"})
+
+
 def _format_threshold_value(val: Any, unit: str, metric: str = "") -> str:
-    """Format threshold for display. Until D-594 the unit was dropped when the dotted KPI ID
-    already ended in it (`margin.gm.pct`); a numbered ID carries no unit, so it is always shown."""
+    """Format threshold for display. Unit-class words (`amount`, `days`, ...) stay hidden, as they
+    were while the dotted KPI ID carried them as its suffix; since D-594 the ID carries no unit,
+    the rule is kept so the rendered trigger text does not change."""
     unit = (unit or "").strip()
+    if unit in SUFFIX_UNITS:
+        unit = ""
     if unit in ("%", "pp"):
         return f"{val}{unit}"
     if unit:

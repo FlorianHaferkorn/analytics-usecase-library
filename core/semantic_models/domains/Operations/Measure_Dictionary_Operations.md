@@ -27,7 +27,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 ```yaml
 - measure_name: OEE %
   is_kpi_measure: true
-  kpi_id_ref: ops.oee.pct
+  kpi_id_ref: KPI-OPS-011
   semantic_model: Operations_SemanticModel
   display_folder: 01_Ops
   category: KPI
@@ -58,7 +58,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Availability %
   is_kpi_measure: true
-  kpi_id_ref: ops.availability.pct
+  kpi_id_ref: KPI-OPS-016
   semantic_model: Operations_SemanticModel
   display_folder: 01_Ops
   category: KPI
@@ -87,7 +87,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Performance %
   is_kpi_measure: true
-  kpi_id_ref: ops.performance.pct
+  kpi_id_ref: KPI-OPS-002
   semantic_model: Operations_SemanticModel
   display_folder: 01_Ops
   category: KPI
@@ -117,7 +117,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Planned Hours
   is_kpi_measure: true
-  kpi_id_ref: ops.planned.hours
+  kpi_id_ref: KPI-SCM-019
   semantic_model: Operations_SemanticModel
   display_folder: 01_Ops
   category: KPI
@@ -146,7 +146,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Quality %
   is_kpi_measure: true
-  kpi_id_ref: ops.quality.pct
+  kpi_id_ref: KPI-OPS-003
   semantic_model: Operations_SemanticModel
   display_folder: 01_Ops
   category: KPI
@@ -175,7 +175,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Throughput Units
   is_kpi_measure: true
-  kpi_id_ref: ops.throughput.units
+  kpi_id_ref: KPI-OPS-009
   semantic_model: Operations_SemanticModel
   display_folder: 02_Throughput
   category: KPI
@@ -203,7 +203,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Downtime %
   is_kpi_measure: true
-  kpi_id_ref: ops.downtime.pct
+  kpi_id_ref: KPI-OPS-017
   semantic_model: Operations_SemanticModel
   display_folder: 03_Downtime
   category: KPI
@@ -321,7 +321,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Failure Count
   is_kpi_measure: true
-  kpi_id_ref: ops.failure.count
+  kpi_id_ref: KPI-OPS-012
   semantic_model: Operations_SemanticModel
   display_folder: 04_Reliability
   category: KPI
@@ -330,7 +330,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     aggregation_method: count
   documentation:
     description: Count of recorded equipment or process failure events.
-    notes: 'Grain: failure_event. Unit: count. Source: fact_ops_failures (one row per failure event), matching the ops.failure.count lineage. Feeds MTBF/MTTR reliability measures. QA: de-duplicate failure events; confirm consistent failure taxonomy.'
+    notes: 'Grain: failure_event. Unit: count. Source: fact_ops_failures (one row per failure event), matching the KPI-OPS-012 lineage. Feeds MTBF/MTTR reliability measures. QA: de-duplicate failure events; confirm consistent failure taxonomy.'
   dependencies:
     columns:
     - fact_ops_failures[Failure Start DateTime]
@@ -343,7 +343,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: MTBF (hours)
   is_kpi_measure: true
-  kpi_id_ref: ops.mtbf.hours
+  kpi_id_ref: KPI-OPS-005
   semantic_model: Operations_SemanticModel
   display_folder: 04_Reliability
   category: KPI
@@ -372,7 +372,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: MTTR (hours)
   is_kpi_measure: true
-  kpi_id_ref: ops.mttr.hours
+  kpi_id_ref: KPI-OPS-006
   semantic_model: Operations_SemanticModel
   display_folder: 04_Reliability
   category: KPI
@@ -400,7 +400,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Unplanned Downtime %
   is_kpi_measure: true
-  kpi_id_ref: ops.downtime.unplanned.pct
+  kpi_id_ref: KPI-OPS-018
   semantic_model: Operations_SemanticModel
   display_folder: 03_Downtime
   category: KPI
@@ -429,7 +429,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Spare Parts Stockout %
   is_kpi_measure: true
-  kpi_id_ref: ops.spare_parts.stockout.pct
+  kpi_id_ref: KPI-OPS-008
   semantic_model: Operations_SemanticModel
   display_folder: 05_Maintenance
   category: KPI
@@ -458,7 +458,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: PM Compliance %
   is_kpi_measure: true
-  kpi_id_ref: ops.pm_compliance.pct
+  kpi_id_ref: KPI-OPS-007
   semantic_model: Operations_SemanticModel
   display_folder: 05_Maintenance
   category: KPI
@@ -487,7 +487,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: First Pass Yield %
   is_kpi_measure: true
-  kpi_id_ref: quality.fpy.pct
+  kpi_id_ref: KPI-QUA-001
   semantic_model: Operations_SemanticModel
   display_folder: 06_Quality
   category: KPI
@@ -516,7 +516,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Scrap Rate %
   is_kpi_measure: true
-  kpi_id_ref: quality.scrap.pct
+  kpi_id_ref: KPI-QUA-002
   semantic_model: Operations_SemanticModel
   display_folder: 06_Quality
   category: KPI
@@ -545,7 +545,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Rework Rate %
   is_kpi_measure: true
-  kpi_id_ref: quality.rework.pct
+  kpi_id_ref: KPI-OPS-010
   semantic_model: Operations_SemanticModel
   display_folder: 06_Quality
   category: KPI
@@ -662,7 +662,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Cost of Poor Quality
   is_kpi_measure: true
-  kpi_id_ref: quality.copq.amount
+  kpi_id_ref: KPI-QUA-003
   semantic_model: Operations_SemanticModel
   display_folder: 06_Quality
   category: KPI
@@ -690,7 +690,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Complaint Rate %
   is_kpi_measure: true
-  kpi_id_ref: quality.complaint.pct
+  kpi_id_ref: KPI-QUA-004
   semantic_model: Operations_SemanticModel
   display_folder: 06_Quality
   category: KPI
@@ -763,7 +763,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Defect Density
   is_kpi_measure: true
-  kpi_id_ref: quality.defect_density
+  kpi_id_ref: KPI-QUA-005
   semantic_model: Operations_SemanticModel
   display_folder: 06_Quality
   category: KPI
@@ -880,7 +880,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Planned Output Units
   is_kpi_measure: true
-  kpi_id_ref: ops.planned_output.units
+  kpi_id_ref: KPI-OPS-013
   semantic_model: Operations_SemanticModel
   display_folder: 01_Ops
   category: KPI
@@ -908,7 +908,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Preventive Maintenance Task Count
   is_kpi_measure: true
-  kpi_id_ref: ops.pm.task.count
+  kpi_id_ref: KPI-OPS-014
   semantic_model: Operations_SemanticModel
   display_folder: 01_Ops
   category: KPI
@@ -936,7 +936,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Quality Defect Rate %
   is_kpi_measure: true
-  kpi_id_ref: ops.quality.defect_rate.pct
+  kpi_id_ref: KPI-QUA-006
   semantic_model: Operations_SemanticModel
   display_folder: 04_Quality
   category: KPI
@@ -965,7 +965,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Safety Incident Count
   is_kpi_measure: true
-  kpi_id_ref: ops.safety.incident.count
+  kpi_id_ref: KPI-OPS-015
   category: KPI
   expression:
     logical: Safety Incident Count = Count of recorded safety incidents in the selected period.
@@ -993,7 +993,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Overall Equipment Effectiveness (OEE) %
   is_kpi_measure: true
-  kpi_id_ref: ops.oee.pct
+  kpi_id_ref: KPI-OPS-011
   semantic_model: Operations_SemanticModel
   display_folder: 01_Manufacturing
   category: KPI
@@ -1035,7 +1035,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Actions Executed Count (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.actions_executed.count
+  kpi_id_ref: KPI-GOV-005
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -1056,7 +1056,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Action Outcome Rate % (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_outcome_rate.pct
+  kpi_id_ref: KPI-GOV-001
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -1077,7 +1077,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Avg Time-to-Outcome Days (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.avg_time_to_outcome.days
+  kpi_id_ref: KPI-GOV-006
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -1098,7 +1098,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Action ROI % (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_roi.pct
+  kpi_id_ref: KPI-GOV-007
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -1120,7 +1120,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
 - measure_name: Action Effectiveness Delta (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_effectiveness_delta.amount
+  kpi_id_ref: KPI-GOV-002
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:

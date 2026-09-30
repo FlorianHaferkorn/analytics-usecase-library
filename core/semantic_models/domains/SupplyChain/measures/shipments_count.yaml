@@ -1,6 +1,6 @@
 measure_name: Shipments Count
 is_kpi_measure: true
-kpi_id_ref: shipments.count
+kpi_id_ref: KPI-SCM-015
 semantic_model: SupplyChain_SemanticModel
 display_folder: 02_Service
 category: KPI

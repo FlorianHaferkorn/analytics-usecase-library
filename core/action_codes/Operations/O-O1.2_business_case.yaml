@@ -1,6 +1,6 @@
 id: O-O1.2
 action_code_id: O-O1.2
-kpi_id: ops.performance.pct
+kpi_id: KPI-OPS-002
 impact_range_eur_min: 300000
 impact_range_eur_likely: 1000000
 impact_range_eur_max: 3000000

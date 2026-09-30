@@ -1,6 +1,6 @@
 measure_name: Revenue at Risk Amount
 is_kpi_measure: true
-kpi_id_ref: crm.revenue_at_risk.amount
+kpi_id_ref: KPI-OPS-001
 semantic_model: CustomerValue_SemanticModel
 display_folder: 01_Retention
 category: KPI

@@ -14,12 +14,12 @@ use_case_links:
   - OPS-002
 kpis:
   trigger_kpis:
-  - cost.unit.amount
-  - cost.opex.vs_plan.pct
+  - KPI-FIN-015
+  - KPI-FIN-014
   guardrail_kpis:
-  - ops.labor.productivity.pct
+  - KPI-OPS-004
   outcome_kpis:
-  - cost.unit.amount
+  - KPI-FIN-015
 scope:
   default_grain: month
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: cost.base_volume.amount
+        metric_kpi_id: KPI-FIN-019
         comparator: gte
         value: 500000
         unit: amount
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: cost.unit.amount
+        metric_kpi_id: KPI-FIN-015
         comparator: gt
         threshold:
           basis: relative
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: cost.unit.amount
+        metric_kpi_id: KPI-FIN-015
         comparator: gt
         threshold:
           basis: relative
@@ -74,7 +74,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: cost.unit.amount
+        metric_kpi_id: KPI-FIN-015
         comparator: gt
         threshold:
           basis: relative
@@ -92,7 +92,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P90D
-    metric_kpi_id: cost.cogs.amount
+    metric_kpi_id: KPI-FIN-011
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: cost.unit.amount
+    metric_kpi_id: KPI-FIN-015
     value_low: 2.0
     value_high: 6.0
     unit: '%'

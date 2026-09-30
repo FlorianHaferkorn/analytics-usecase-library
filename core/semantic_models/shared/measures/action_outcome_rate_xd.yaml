@@ -1,6 +1,6 @@
 measure_name: Action Outcome Rate % (XD)
 is_kpi_measure: true
-kpi_id_ref: enterprise.action_outcome_rate.pct
+kpi_id_ref: KPI-GOV-001
 display_folder: 08_Action_Outcomes
 category: KPI
 expression:

@@ -6,7 +6,7 @@ Audits that find missing or inconsistent SSOT content MUST output remediation so
 
 - **ssot_type:** `kpi_catalog` | `usecase_bracket` | `data_contract` | `aurora_domain_mapping`
 - **file_path:** Relative path from repo root (e.g. `core/kpi_catalog/KPI_Catalog.md`)
-- **insert_location:** Human-readable hint where to insert (e.g. "In the YAML block with kpi_id: sales.promo.roi.pct, under depends_on_measures:")
+- **insert_location:** Human-readable hint where to insert (e.g. "In the YAML block with kpi_id: KPI-COM-016, under depends_on_measures:")
 - **insertable_content:** Exact string to paste. Matches the file's indentation and style.
 
 Optional:
@@ -23,7 +23,7 @@ Optional:
 - **insert_location:** "In the YAML block with kpi_id: \<kpi_id\>, under technical.depends_on_measures:"
 - **insertable_content:** One line, 4 spaces + list item. Example:
 ```yaml
-    - sales.promo.cost.amount
+    - KPI-COM-014
 ```
 - Insert as new line after the last existing `- <id>` under `depends_on_measures:` (or after `depends_on_measures:` if empty).
 
@@ -33,7 +33,7 @@ Optional:
 - **insert_location:** "In core/kpi_catalog/KPI_Catalog.md, inside the ```yaml block, before the next - kpi_id: or at end of block. Prefer inserting after KPI \<suggest_after_kpi_id\>."
 - **insertable_content:** Full KPI block in same style as existing entries (indentation 2 spaces for top-level keys, 4 for nested). Example:
 ```yaml
-- kpi_id: sales.promo.cost.amount
+- kpi_id: KPI-COM-014
   kpi_key: Promo Cost
   kpi_type: diagnostic
   kpi_role: supporting
@@ -84,7 +84,7 @@ Optional:
 - **insert_location:** "Under orchestration.influencing_kpi_ids: in UseCase_Bracket.yaml"
 - **insertable_content:** One line, 2 spaces + list item. Example:
 ```yaml
-  - sales.promo.cost.amount
+  - KPI-COM-014
 ```
 
 ### 2.2 Add action_code_id

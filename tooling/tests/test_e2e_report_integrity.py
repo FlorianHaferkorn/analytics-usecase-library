@@ -11,7 +11,7 @@ Tests:
   2. Every measure Property in visual.json exists in the domain _Measures.tmdl
   3. Every Column Property in visual.json exists in the domain TMDL table definitions
   4. No BLANK() stub measures in any domain _Measures.tmdl
-  5. No kpi_id-named measures (e.g. 'margin.gm.pct') — all must use display names
+  5. No kpi_id-named measures (e.g. 'KPI-COM-013') — all must use display names
   6. Every TMDL measure has a formatString and a displayFolder
   7. Required visuals present on every report page (Overview: KPI_Cards; Detail: Smart_Narrative)
   8. All 15 reports have exactly one Overview and one Detail page

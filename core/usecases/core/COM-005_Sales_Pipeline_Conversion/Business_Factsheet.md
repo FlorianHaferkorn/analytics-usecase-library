@@ -41,12 +41,12 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| sales.pipeline.coverage.ratio | Strategic |
-| sales.win_rate.pct | Influencing |
-| sales.conversion.pct | Influencing |
-| sales.sales_cycle.days | Influencing |
-| sales.velocity.amount | Influencing |
-| sales.pipeline.value.amount | Supporting |
+| KPI-COM-026 | Strategic |
+| KPI-COM-027 | Influencing |
+| KPI-COM-028 | Influencing |
+| KPI-COM-029 | Influencing |
+| KPI-COM-030 | Influencing |
+| KPI-COM-031 | Supporting |
 
 **Action Codes:** C-P1.1
 
@@ -58,12 +58,12 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Pipeline Coverage** (`sales.pipeline.coverage.ratio`) → **Sales pipeline management (convention)** (none): No ISO/IFRS standard governs pipeline coverage; this is an established commercial-steering convention (typical ≥3x rule), not an external standard.
-- **Win Rate %** (`sales.win_rate.pct`) → **Sales pipeline management (convention)** (none): Win rate is a standard commercial-analytics convention; no external standards body defines it.
-- **Stage Conversion %** (`sales.conversion.pct`) → **Sales pipeline management (convention)** (none): Funnel conversion is a commercial-analytics convention, not an external standard.
-- **Sales Cycle Length** (`sales.sales_cycle.days`) → **Sales pipeline management (convention)** (none): Sales-cycle length is a commercial-analytics convention, not an external standard.
-- **Sales Velocity** (`sales.velocity.amount`) → **Sales pipeline management (convention)** (none): Sales velocity is a widely-used commercial convention (opps x value x win-rate / cycle); no external standard defines it.
-- **Open Pipeline Value** (`sales.pipeline.value.amount`) → **Sales pipeline management (convention)** (none): Open pipeline value is a commercial-analytics convention, not an external standard.
+- **Pipeline Coverage** (`KPI-COM-026`) → **Sales pipeline management (convention)** (none): No ISO/IFRS standard governs pipeline coverage; this is an established commercial-steering convention (typical ≥3x rule), not an external standard.
+- **Win Rate %** (`KPI-COM-027`) → **Sales pipeline management (convention)** (none): Win rate is a standard commercial-analytics convention; no external standards body defines it.
+- **Stage Conversion %** (`KPI-COM-028`) → **Sales pipeline management (convention)** (none): Funnel conversion is a commercial-analytics convention, not an external standard.
+- **Sales Cycle Length** (`KPI-COM-029`) → **Sales pipeline management (convention)** (none): Sales-cycle length is a commercial-analytics convention, not an external standard.
+- **Sales Velocity** (`KPI-COM-030`) → **Sales pipeline management (convention)** (none): Sales velocity is a widely-used commercial convention (opps x value x win-rate / cycle); no external standard defines it.
+- **Open Pipeline Value** (`KPI-COM-031`) → **Sales pipeline management (convention)** (none): Open pipeline value is a commercial-analytics convention, not an external standard.
 
 ---
 

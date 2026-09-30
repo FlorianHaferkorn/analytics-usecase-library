@@ -7,23 +7,23 @@ governance:
   steward_role: trade_marketing_commercial_bi_lead
   status: active
 orchestration:
-  strategic_kpi_id: retail.category.crosssell_rate.pct
+  strategic_kpi_id: KPI-COM-022
   influencing_kpi_ids:
-  - retail.basket.items_per_transaction
-  - retail.basket.value.average
-  - retail.promotion.attachment_rate.pct
-  - customer.rfm.frequency_score
+  - KPI-COM-023
+  - KPI-COM-024
+  - KPI-COM-025
+  - KPI-CUS-007
   action_code_ids:
   - C-M3.1
 primary_kpi_ids:
-- retail.category.crosssell_rate.pct
-- retail.basket.value.average
+- KPI-COM-022
+- KPI-COM-024
 value_driver_model:
-  formula: retail.category.crosssell_rate.pct = f(retail.basket.items_per_transaction, retail.basket.value.average, retail.promotion.attachment_rate.pct,
-    customer.rfm.frequency_score)
+  formula: KPI-COM-022 = f(KPI-COM-023, KPI-COM-024, KPI-COM-025,
+    KPI-CUS-007)
   impact_direction: maximize
-  primary_driver: retail.promotion.attachment_rate.pct
-  impact_logic: Lifting retail.promotion.attachment_rate.pct is the primary lever for maximizing retail.category.crosssell_rate.pct because margin-accretive attachment on promoted baskets is the fastest, lowest-cost path to broader category capture before placement or campaign investment.
+  primary_driver: KPI-COM-025
+  impact_logic: Lifting KPI-COM-025 is the primary lever for maximizing KPI-COM-022 because margin-accretive attachment on promoted baskets is the fastest, lowest-cost path to broader category capture before placement or campaign investment.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -37,13 +37,13 @@ ux_layout_rules:
     decision_question: "Are we growing basket breadth and category cross-sell?"
     big_idea: "Category cross-sell has stalled — high-affinity pairs are underactivated in core stores, leaving basket breadth and revenue per visit on the table."
     component_3s:
-      kpi_id: retail.category.crosssell_rate.pct
+      kpi_id: KPI-COM-022
       visual_type: kpi_card_with_delta
       comparison: vs_plan
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: retail.basket.value.average
+      kpi_id: KPI-COM-024
       visual_type: line_chart
       question: "Is average basket value growing, or has the cross-sell stall reached revenue?"
       message: Average basket value is flat, confirming the cross-sell stall is reaching revenue per visit
@@ -51,15 +51,15 @@ ux_layout_rules:
       unit: amount
     - slot_id: Main_2
       kpi_ids:
-      - retail.category.crosssell_rate.pct
-      - retail.promotion.attachment_rate.pct
+      - KPI-COM-022
+      - KPI-COM-025
       visual_type: horizontal_bar_chart
       question: "Are cross-sell and promotion-attachment moving together, and what's the fix?"
       message: Cross-sell and promotion attachment are falling short together, pointing at activation not assortment
       so_what: "Two related levers falling short together means the fix is activation, not assortment."
       unit: rate
     - slot_id: Main_3
-      kpi_id: retail.basket.items_per_transaction
+      kpi_id: KPI-COM-023
       visual_type: horizontal_bar_chart
       category_field: dim_product.Category
       question: "Which categories carry the basket-size upside?"
@@ -82,19 +82,19 @@ ux_layout_rules:
       - category
       - channel
       - customer_segment
-      - retail.category.crosssell_rate.pct
-      - retail.basket.value.average
-      - retail.basket.items_per_transaction
-      - retail.promotion.attachment_rate.pct
-      - customer.rfm.frequency_score
+      - KPI-COM-022
+      - KPI-COM-024
+      - KPI-COM-023
+      - KPI-COM-025
+      - KPI-CUS-007
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: retail.category.crosssell_rate.pct
+        measure: KPI-COM-022
         direction: ascending
       top_n: 20
       highlight_rule:
-        column: retail.category.crosssell_rate.pct
+        column: KPI-COM-022
         type: data_bar
 prioritization:
   business_value: high

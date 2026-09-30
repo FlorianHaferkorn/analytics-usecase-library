@@ -1,6 +1,6 @@
 measure_name: Cannibalized Sales Amount
 is_kpi_measure: true
-kpi_id_ref: sales.promo.cannibalized_sales.amount
+kpi_id_ref: KPI-COM-017
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 04_Promo
 category: Supporting

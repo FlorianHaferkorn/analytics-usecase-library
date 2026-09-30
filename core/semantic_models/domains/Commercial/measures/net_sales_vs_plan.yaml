@@ -1,6 +1,6 @@
 measure_name: Net Sales % vs Plan
 is_kpi_measure: true
-kpi_id_ref: sales.net_sales.delta_pct.plan
+kpi_id_ref: KPI-COM-009
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 01_Revenue
 category: KPI

@@ -65,7 +65,7 @@ process_scope:
 # ──────────────────────────────────────────
 canonical_domain_model:
   outcome_kpis:
-    - id: ""                       # e.g. ops.oee.pct
+    - id: ""                       # e.g. KPI-OPS-011
       name: ""
       definition: ""
       unit: ""                     # %, count, days, EUR, etc.

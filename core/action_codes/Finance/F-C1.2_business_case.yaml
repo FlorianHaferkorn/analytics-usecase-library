@@ -1,6 +1,6 @@
 id: F-C1.2
 action_code_id: F-C1.2
-kpi_id: wc.dso.days
+kpi_id: KPI-FIN-001
 impact_range_eur_min: 300000
 impact_range_eur_likely: 1200000
 impact_range_eur_max: 3500000

@@ -7,7 +7,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 ```yaml
 - measure_name: Actions Routed Count
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_routed.count
+  kpi_id_ref: KPI-GOV-003
   semantic_model: Governance_SemanticModel
   display_folder: 06_Execution
   category: KPI
@@ -34,7 +34,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Action Outcome Rate %
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_outcome_rate.pct
+  kpi_id_ref: KPI-GOV-001
   semantic_model: Governance_SemanticModel
   display_folder: 06_Execution
   category: KPI

@@ -104,47 +104,47 @@ Each report's **thesis** (governed `big_idea`), its **archetype/variant**, and t
 ### Commercial
 | Report | KPI | Archetype | Thesis | Actions |
 |---|---|---|---|---|
-| **COM-001** Sales Performance vs Plan & LY | `margin.gm.pct` | T2 Driver-Bridge | Net Sales beats plan but GM% is below target — adverse DACH mix is the driver, and the lead is narrowing, so act on price/mix now, not volume. | C-M2.1, C-S1.1, C-S1.2 |
-| **COM-002** Margin & Price Performance | `margin.gm.pct` | T2 Driver-Bridge | Gross margin is compressing on price concessions and adverse mix — the levers are commercial discipline, not demand. | C-M2.2, C-P4.1, C-S1.2 |
-| **COM-003** Customer Value | `crm.clv.amount` | T1 Portfolio | CLV growth has stalled — mid-tier churn is eroding the base; targeted retention there stops the erosion before it compounds. | C-C3.1, C-C3.2 |
-| **COM-004** Promotion Effectiveness | `sales.promo.roi.pct` | T1 Portfolio | Promo ROI misses — cannibalization on thin margin means the mechanics need redesign, not more spend. | C-P4.1, C-M2.1, C-M2.2 |
-| **COM-005** Sales Pipeline Conversion | `sales.pipeline.coverage.ratio` | T3 Monitor | Pipeline coverage is below the safe threshold, and the gap is a win-rate problem, not a volume shortage. | (discovery) |
-| **COM-IND-R001** Basket & Category Cross-Sell | `retail.category.crosssell_rate.pct` | T1 Portfolio | Cross-sell under-attaches in a few high-traffic categories — the lever is targeted bundling, not blanket promotion. | C-M3.1 |
+| **COM-001** Sales Performance vs Plan & LY | `KPI-COM-013` | T2 Driver-Bridge | Net Sales beats plan but GM% is below target — adverse DACH mix is the driver, and the lead is narrowing, so act on price/mix now, not volume. | C-M2.1, C-S1.1, C-S1.2 |
+| **COM-002** Margin & Price Performance | `KPI-COM-013` | T2 Driver-Bridge | Gross margin is compressing on price concessions and adverse mix — the levers are commercial discipline, not demand. | C-M2.2, C-P4.1, C-S1.2 |
+| **COM-003** Customer Value | `KPI-CUS-001` | T1 Portfolio | CLV growth has stalled — mid-tier churn is eroding the base; targeted retention there stops the erosion before it compounds. | C-C3.1, C-C3.2 |
+| **COM-004** Promotion Effectiveness | `KPI-COM-016` | T1 Portfolio | Promo ROI misses — cannibalization on thin margin means the mechanics need redesign, not more spend. | C-P4.1, C-M2.1, C-M2.2 |
+| **COM-005** Sales Pipeline Conversion | `KPI-COM-026` | T3 Monitor | Pipeline coverage is below the safe threshold, and the gap is a win-rate problem, not a volume shortage. | (discovery) |
+| **COM-IND-R001** Basket & Category Cross-Sell | `KPI-COM-022` | T1 Portfolio | Cross-sell under-attaches in a few high-traffic categories — the lever is targeted bundling, not blanket promotion. | C-M3.1 |
 
 ### Finance
 | Report | KPI | Archetype | Thesis | Actions |
 |---|---|---|---|---|
-| **FIN-001** Cash & Liquidity Performance | `wc.ccc.days` | T1 Trend | Cash conversion is deteriorating — DSO extension squeezes headroom; the fix is receivables and inventory days, not stretching payables. | F-C1.1, F-C1.2, F-C1.4, S-I1.2 |
-| **FIN-002** Cost Performance | `cost.unit.amount` | T1 Portfolio | Input inflation is outrunning pricing — COGS% is expanding and erodes margin within ~2 quarters unless productivity or price responds. | F-K2.1–F-K2.4 |
-| **FIN-003** Earnings Performance vs Plan | `margin.ebitda.pct` | T3 Monitor | EBITDA margin trails plan and the gap is opex-led, while revenue and gross margin hold. | (discovery) |
+| **FIN-001** Cash & Liquidity Performance | `KPI-FIN-006` | T1 Trend | Cash conversion is deteriorating — DSO extension squeezes headroom; the fix is receivables and inventory days, not stretching payables. | F-C1.1, F-C1.2, F-C1.4, S-I1.2 |
+| **FIN-002** Cost Performance | `KPI-FIN-015` | T1 Portfolio | Input inflation is outrunning pricing — COGS% is expanding and erodes margin within ~2 quarters unless productivity or price responds. | F-K2.1–F-K2.4 |
+| **FIN-003** Earnings Performance vs Plan | `KPI-FIN-018` | T3 Monitor | EBITDA margin trails plan and the gap is opex-led, while revenue and gross margin hold. | (discovery) |
 
 ### Operations
 | Report | KPI | Archetype | Thesis | Actions |
 |---|---|---|---|---|
-| **OPS-001** Operations Performance | `ops.oee.pct` | T3 Exception Queue | OEE is below target and widening — availability losses are ~70% of the gap, so maintenance moves the needle fastest. | O-O1.1–O-O1.4 |
-| **OPS-002** Asset Performance | `ops.mtbf.hours` | T1 Portfolio | Availability is declining — backlog accumulates faster than it clears, trending below the level the plan needs. | O-A2.1–O-A2.5 |
-| **OPS-003** Quality & Yield | `quality.fpy.pct` | T3 Process Control | Scrap is above target — yield loss concentrates on two lines, so line-level containment beats a plant-wide program. | O-Q3.1–O-Q3.5 |
+| **OPS-001** Operations Performance | `KPI-OPS-011` | T3 Exception Queue | OEE is below target and widening — availability losses are ~70% of the gap, so maintenance moves the needle fastest. | O-O1.1–O-O1.4 |
+| **OPS-002** Asset Performance | `KPI-OPS-005` | T1 Portfolio | Availability is declining — backlog accumulates faster than it clears, trending below the level the plan needs. | O-A2.1–O-A2.5 |
+| **OPS-003** Quality & Yield | `KPI-QUA-001` | T3 Process Control | Scrap is above target — yield loss concentrates on two lines, so line-level containment beats a plant-wide program. | O-Q3.1–O-Q3.5 |
 
 ### Supply Chain
 | Report | KPI | Archetype | Thesis | Actions |
 |---|---|---|---|---|
-| **SCM-001** Inventory Performance | `inv.dio.days` | T1 Portfolio | Turnover is falling — dead stock in three SKU clusters ties up capital; the root cause is forecast accuracy, not capacity. | S-I1.1–S-I1.5 |
-| **SCM-002** Supply Reliability & OTIF | `supply.otif.pct` | T3 Process Control | OTIF is down — on-time is the drag, not in-full; failures concentrate in two categories, so carrier/lane fixes beat stock buffers. | S-R2.1–S-R2.5 |
-| **SCM-003** Forecast vs Actual | `plan.forecast.accuracy.pct` | T2 Comparative | Forecast error is systematic bias — not noise — in the mid-range cluster, so recalibration beats manual overrides. | S-F3.1–S-F3.4 |
-| **SCM-004** Procurement & Supplier Performance | `procurement.savings.realized.pct` | T3 Monitor | Savings realisation is behind target — the leak is off-contract spend concentrated in a few categories. | (discovery) |
+| **SCM-001** Inventory Performance | `KPI-SCM-001` | T1 Portfolio | Turnover is falling — dead stock in three SKU clusters ties up capital; the root cause is forecast accuracy, not capacity. | S-I1.1–S-I1.5 |
+| **SCM-002** Supply Reliability & OTIF | `KPI-SCM-007` | T3 Process Control | OTIF is down — on-time is the drag, not in-full; failures concentrate in two categories, so carrier/lane fixes beat stock buffers. | S-R2.1–S-R2.5 |
+| **SCM-003** Forecast vs Actual | `KPI-SCM-005` | T2 Comparative | Forecast error is systematic bias — not noise — in the mid-range cluster, so recalibration beats manual overrides. | S-F3.1–S-F3.4 |
+| **SCM-004** Procurement & Supplier Performance | `KPI-SCM-023` | T3 Monitor | Savings realisation is behind target — the leak is off-contract spend concentrated in a few categories. | (discovery) |
 
 ### Experience & Executive
 | Report | KPI | Archetype | Thesis | Actions |
 |---|---|---|---|---|
-| **XD-001** Service Level Performance | `svc.sla.attainment.pct` | T3 Process Control | Backlog is building toward SLA breaches — falling FCR and rising escalations point to a capability gap; fix FCR to cut both. | X-S1.1–X-S1.4 |
-| **XD-002** Resource Utilization | `res.utilization.pct` | T1 Portfolio | Utilization is above sustainable levels — two teams are overloaded and overtime is masking the coming capacity shortfall. | X-R2.1–X-R2.4 |
-| **XD-003** Executive KPI Overview | `enterprise.value_at_risk.index` | T1 Portfolio | Growth is on track but GM% and OTIF flash execution risk — two units below threshold on both need escalation. | X-E3.2 |
-| **XD-004** Executive Action Governance | `enterprise.action_outcome_rate.pct` | T1 Portfolio | Governance is judged by verified outcomes, not actions closed — value-at-risk concentrates where follow-through is weakest. | Impactful-15 |
+| **XD-001** Service Level Performance | `KPI-SVC-004` | T3 Process Control | Backlog is building toward SLA breaches — falling FCR and rising escalations point to a capability gap; fix FCR to cut both. | X-S1.1–X-S1.4 |
+| **XD-002** Resource Utilization | `KPI-SVC-009` | T1 Portfolio | Utilization is above sustainable levels — two teams are overloaded and overtime is masking the coming capacity shortfall. | X-R2.1–X-R2.4 |
+| **XD-003** Executive KPI Overview | `KPI-GOV-004` | T1 Portfolio | Growth is on track but GM% and OTIF flash execution risk — two units below threshold on both need escalation. | X-E3.2 |
+| **XD-004** Executive Action Governance | `KPI-GOV-001` | T1 Portfolio | Governance is judged by verified outcomes, not actions closed — value-at-risk concentrates where follow-through is weakest. | Impactful-15 |
 
 ### People
 | Report | KPI | Archetype | Thesis | Actions |
 |---|---|---|---|---|
-| **HR-001** Workforce Performance & Retention | `people.attrition.pct` | T3 Monitor | Attrition is rising in the lowest-engagement segments — a concentrated retention problem, not a broad one. | (discovery) |
+| **HR-001** Workforce Performance & Retention | `KPI-PPL-001` | T3 Monitor | Attrition is rising in the lowest-engagement segments — a concentrated retention problem, not a broad one. | (discovery) |
 
 ---
 
