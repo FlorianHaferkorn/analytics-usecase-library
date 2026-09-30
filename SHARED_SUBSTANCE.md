@@ -9,6 +9,9 @@
 > Quellen und Recherchen kann geteilt werden.**"
 > **Vorgänger:** `SYNERGY_ALUCA_MERIDIAN.md` beschreibt den *Funktionsvergleich*.
 > Dieses Dokument beantwortet die daraus offene Frage: **was davon darf rüber.**
+> **Fortgeschrieben 30.09.2026 (Owner-Entscheidung E3):** Klasse B darf zwischen Meridian
+> und ALUCA geteilt werden, wenn es die Qualität hebt — Heimat eindeutig, Spiegel mit PIN
+> und Sensor. Die alte Regel „nie portiert" steht in §1, §2.2 und §5 als abgelöst markiert.
 
 ---
 
@@ -24,7 +27,8 @@ Für jedes Asset genau eine Frage:
   und *deterministisch* ist, nicht darin, dass *wir* es erfunden haben. Beide Repos
   bekommen es, byte-identisch, mit Paritäts-Sensor.
 - **Nein — der Wert kommt aus eigener Markt-, Kunden- oder Framework-Wertung** →
-  **Klasse B · eigene IP.** Bleibt wo es ist. Wird nie portiert.
+  **Klasse B · eigene IP.** Bleibt wo es ist. ~~Wird nie portiert.~~ *(abgelöst am
+  30.09.2026: Teilen erlaubt, wenn es die Qualität hebt — Regel in §2.2)*
 - **Gleiche Fähigkeit, andere Ausprägung** (Benennung, Sprache, Design-Tokens,
   Zielkunde, CLI-Oberfläche) → **Klasse C · Eigenheit.** Bewusst in beiden Repos,
   bewusst verschieden.
@@ -86,6 +90,21 @@ deshalb gehören **beide Hälften in beide Repos**.
 | Use-Case-Bracket 3-30-300, Value-Driver | ALUCA | Eigene UX-/Wirkungs-Doktrin |
 | `studio/` | ALUCA | Eigenes Produkt-Frontend |
 | `compliance/` (DPIA/AVV/Art.-30) | ALUCA | Auf den DE-Beschaffungsmarkt zugeschnittene Ausarbeitung |
+
+**Regel bis 29.09.2026 — abgelöst am 30.09.2026:** Klasse B bleibt, wo sie ist, und wird
+nie portiert.
+
+**Regel ab 30.09.2026 (Owner-Entscheidung E3):** Wissen aus Klasse B darf zwischen Meridian
+und ALUCA geteilt werden, wenn es die Qualität des anderen Repos hebt. Drei Bedingungen:
+
+1. **Heimat eindeutig.** Jeder Baustein hat genau eine Quelle der Wahrheit — die Spalte
+   „Repo" oben. Teilen gibt ihm keine zweite Heimat; Änderungen gehen zuerst in die Heimat.
+2. **Spiegel mit PIN.** Geteilt wird per Spiegel nach §3 (Vendor-Teilbaum mit `PIN.json`,
+   sha256 je Datei), nicht per Kopie ohne Pin.
+3. **Sensor.** Jeder Spiegel hat einen Drift-Sensor mit den drei Ausgängen aus §3.
+
+Die Spalte „Warum nicht teilbar" bleibt als Begründung der Herkunft stehen: sie sagt, wo
+der Wert entstanden ist, nicht mehr, dass er das Repo nie verlässt.
 
 ### 2.3 Klasse C — bewusste Eigenheiten (beide Repos, verschieden)
 
@@ -201,7 +220,8 @@ Vor jedem neuen Modul, jeder neuen Regel, jedem neuen Emitter: **erst klassifizi
 
 - Klasse A → in der Heimat bauen, Spiegel im selben Arbeitsschritt nachziehen,
   Sensor grün halten. Nicht „später spiegeln" — genau daraus entsteht Drift.
-- Klasse B → im eigenen Repo bauen, nicht anbieten.
+- Klasse B → im eigenen Repo bauen. ~~Nicht anbieten.~~ *(abgelöst am 30.09.2026)* Hebt
+  es die Qualität im anderen Repo, dort als Spiegel mit PIN und Sensor einziehen (§2.2).
 - Klasse C → in beiden bauen, bewusst unterschiedlich, ohne Paritätsanspruch.
 
 Wer eine Klasse-A-Zusage ändert, ohne den Spiegel nachzuziehen, hinterlässt genau

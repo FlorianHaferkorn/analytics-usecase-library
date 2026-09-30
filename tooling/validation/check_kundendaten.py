@@ -98,6 +98,29 @@ KENNUNG = re.compile(
 # acht gleiche Zeichen kommen in einer echten GUID praktisch nicht vor.
 PLATZHALTER = re.compile(r"^([0-9a-fA-F])\1{7}-")
 
+# Eingebaute Regel Nummer zwei, aus demselben Grund ohne Sperrliste: ein persoenlicher
+# Home-Pfad (`C:/Users/<name>/...`, `/Users/<name>/`, `/home/<name>/`) nennt eine Person
+# und stimmt auf keinem anderen Rechner. Anlass 30.09.2026: alle fuenf ausgelieferten
+# Semantic Models trugen im Parameter `GoldDataPath` den Windows-Pfad des Maintainers.
+# Ausgenommen sind erkennbare Platzhalter und die generischen Konten von Containern und
+# CI-Runnern (`example`, `<name>`, `$env:USERNAME`, `%USERNAME%`, `{user}`, `Public`,
+# `Default`, `user`, `runner`, `...`). `/Users/` gilt nur gross geschrieben: klein ist es ein
+# URL-Pfad (`.../users/1/password`), gemessen am 30.09.2026 an zwei solchen Fundstellen.
+_HEIM_AUSNAHME = r"(?!(?:example|user|runner|public|default)(?![A-Za-z0-9._-]))(?![<$%{.])"
+HEIMPFAD = re.compile(
+    r"(?<![A-Za-z0-9])[A-Za-z]:[\\/]+(?i:users)[\\/]+" + r"(?i:" + _HEIM_AUSNAHME + r")"
+    r"[A-Za-z0-9._-]+"
+    r"|(?<![\w.])/Users/" + r"(?i:" + _HEIM_AUSNAHME + r")" + r"[A-Za-z0-9._-]+/"
+    r"|(?<![\w.])/home/" + r"(?i:" + _HEIM_AUSNAHME + r")" + r"[A-Za-z0-9._-]+/")
+# Grobe Vorauswahl fuer `git grep -E` (POSIX-ERE kennt keinen Lookahead); die Ausnahmen
+# entscheidet HEIMPFAD danach in Python.
+HEIMPFAD_ROH = r"[A-Za-z]:[\\/]+[Uu][Ss][Ee][Rr][Ss][\\/]|/Users/|/home/"
+
+
+def heimpfade(text: str) -> list[str]:
+    """Alle persoenlichen Home-Pfade in `text`, in Fundreihenfolge."""
+    return [m.group(0) for m in HEIMPFAD.finditer(text)]
+
 
 def repo_wurzel(start: Path) -> Path:
     r = subprocess.run(
@@ -170,6 +193,7 @@ def regeln_bauen(daten: dict) -> list[tuple[str, re.Pattern]]:
     # frischer Klon haette diese Regel sonst nicht. Ein Kundenname laesst sich
     # ersetzen, eine Tenant-GUID nicht -- sie ueberdauert jede Umbenennung.
     regeln.append(("mandantenkennung", MANDANTENKENNUNG))
+    regeln.append(("heimpfad", HEIMPFAD))
 
     return regeln
 
@@ -258,6 +282,17 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
             with musterdatei(muster) as datei:
                 for ausschluss in portionen:
                     rohzeilen += _git_grep(cmd + ["-f", datei] + ausschluss)
+
+    if teil in ("alle", "heimpfade"):
+        # Kandidaten wie bei den Kennungen; welcher davon ein persoenlicher Pfad ist,
+        # entscheidet HEIMPFAD unten. Voller Lauf ohne `dist/`-Ausschluss: dort lag der
+        # Anlassfall, und ein generierter Pfad ist so persoenlich wie ein getippter.
+        cmd = ["git", "-C", str(wurzel), "grep", "-nIE", "--no-color"]
+        if nur_staged:
+            cmd.append("--cached")
+        cmd += ["-e", HEIMPFAD_ROH]
+        for ausschluss in (portionen if nur_staged else [["--", "."]]):
+            rohzeilen += _git_grep(cmd + ausschluss)
 
     if teil in ("alle", "kennungen"):
         # Nur Kandidaten einsammeln. Ob eine GUID eine Mandantenkennung IST,
@@ -405,7 +440,7 @@ def main() -> int:
     ap.add_argument("--sperrliste", help="abweichender Pfad zur Sperrliste")
     ap.add_argument("--bericht", help="Befunde zusaetzlich als Markdown ablegen")
     ap.add_argument("--leise", action="store_true", help="nur die Zusammenfassung ausgeben")
-    ap.add_argument("--teil", choices=["alle", "begriffe", "muster"], default="alle",
+    ap.add_argument("--teil", choices=["alle", "begriffe", "muster", "heimpfade"], default="alle",
                     help="Teillauf. Ueber langsame Dateisysteme getrennt ausfuehren")
     args = ap.parse_args()
 
