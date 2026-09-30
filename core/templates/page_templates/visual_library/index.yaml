@@ -73,6 +73,40 @@ purposes:
     best: kpi_card_spark
     candidates: [kpi_card_spark, kpi_card_bullet, kpi_card_sparkbar]   # composite cardVisual tiles (value + micro-chart + delta)
 
+# --- zone vocabulary (A-31 R5): a page-template zone names WHAT it must answer, never the chart ---
+# Both repos map their zone vocabulary here; the chart then comes from `purposes` above via
+# resolve.choose (profile + available data roles). One mapping, one home (ALUCA), mirrored to Meridian.
+#   tasks               Meridian page templates, zone field `task_taxonomy` (Munzner 2014 task).
+#                       The enum of Meridian's template.schema.json must equal these keys (Meridian test).
+#   information_blocks  ALUCA template_manifest slots, field `information_block` (visual_registry.yaml).
+# Value: list of purposes, primary first — or {none: <reason>} for zones that carry no chart.
+zone_vocabulary:
+  tasks:
+    summarize: [value_verdict]
+    compare: [compare_categories]
+    compare_to_target: [deviation_from_target]
+    trend: [time_comparison]
+    rank: [compare_categories]
+    find_extremum: [compare_categories]
+    distribute: [distribution]
+    correlate: [correlation]
+    comprehension: [contribution_to_change, driver_breakdown]
+    lookup: [evidence_detail]           # known target, known place -> the value or row itself
+    locate: {none: "orientation (breadcrumb, filter bar) - no chart"}
+    decide: {none: "action block (recommendation, options, owner) - no chart"}
+    audit: {none: "evidence trail (events, lineage) as a list - no chart"}
+  information_blocks:
+    status_signal: [value_verdict, deviation_from_target, evidence_detail]   # evidence_detail: the registry's bullet_graph is a tableEx of in-cell bullets (>= 4 KPIs)
+    time_trend: [time_comparison]
+    variance_explanation: [contribution_to_change, deviation_from_target, evidence_detail]   # evidence_detail: contribution_table (delta pills in a table)
+    entity_ranking: [compare_categories]
+    exception_list: [evidence_detail]
+    structural_mix: [part_to_whole]
+    distribution_spread: [distribution]
+    detail_matrix: [evidence_detail]
+    root_cause_context: [driver_breakdown, correlation, compare_categories]
+    prescriptive_action: {none: "action block (owner, trigger, steps) - no chart"}
+
 # --- notation profiles (the second axis; see _notation_profiles.yaml) ---
 # An idiom answers a purpose; a profile is the convention it is drawn in. "idiom@profile"
 # in a candidate list means the same idiom under a non-default profile — NOT a new idiom.

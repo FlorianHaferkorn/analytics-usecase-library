@@ -12,6 +12,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -112,3 +113,97 @@ def test_series_palette_mandates_pattern_beyond_cap():
 def test_solid_safe_on_white():
     assert C.solid_safe_on_white("#0072B2") is True
     assert C.solid_safe_on_white("#F0E442") is False  # light yellow, 1.32:1
+
+
+# --- ensure_contrast (hue-kept OKLCH lightness step) --------------------------
+def _hue_drift(a: str, b: str) -> float:
+    ha, hb = C.hex_to_oklch(a)[2], C.hex_to_oklch(b)[2]
+    d = abs(ha - hb) % 360
+    return min(d, 360 - d)
+
+
+def test_ensure_contrast_lifts_brand_accent_on_white_and_keeps_hue():
+    assert C.contrast_ratio("#2ECDE7", "#FFFFFF") < 3.0          # the Design-Lab finding
+    out = C.ensure_contrast("#2ECDE7", "#FFFFFF")
+    assert out != "#2ECDE7" and out == out.upper() and len(out) == 7
+    assert C.contrast_ratio(out, "#FFFFFF") >= 3.0
+    assert C.hex_to_oklch(out)[0] < C.hex_to_oklch("#2ECDE7")[0], "must darken on a light ground"
+    assert _hue_drift("#2ECDE7", out) <= 3.0
+    assert C.contrast_ratio(out, "#FFFFFF") < 3.3, "small steps: first pass, no big overshoot"
+    assert C.ensure_contrast("#2ECDE7", "#FFFFFF") == out         # deterministic
+
+
+def test_ensure_contrast_passes_compliant_colour_through():
+    assert C.ensure_contrast("#0072B2", "#FFFFFF") == "#0072B2"
+    assert C.ensure_contrast("#0072b2", "#FFFFFF", 4.5) == "#0072B2"
+
+
+def test_ensure_contrast_lightens_on_dark_ground():
+    navy = "#1F3864"
+    assert C.contrast_ratio(navy, "#1B1A19") < 3.0
+    out = C.ensure_contrast(navy, "#1B1A19")
+    assert C.contrast_ratio(out, "#1B1A19") >= 3.0
+    assert C.hex_to_oklch(out)[0] > C.hex_to_oklch(navy)[0], "must lighten on a dark ground"
+    assert _hue_drift(navy, out) <= 3.0
+
+
+def test_ensure_contrast_unreachable_raises():
+    with pytest.raises(ValueError):
+        C.ensure_contrast("#1F3864", "#1B1A19", 18.0)             # white on #1B1A19 is 17.38:1
+    with pytest.raises(ValueError):
+        C.ensure_contrast("#808080", "#FFFFFF", 22.0)
+
+
+def test_oklch_round_trip_is_identity_on_governed_palette():
+    for c in C.OKABE_ITO + C.TOL_BRIGHT:
+        assert C.oklch_to_hex(*C.hex_to_oklch(c)) == c
+
+
+# --- reserved semantic colours -------------------------------------------------
+def _semantic() -> dict:
+    return yaml.safe_load(TOKENS.read_text(encoding="utf-8"))["semantic"]
+
+
+def test_reserved_conflicts_flags_bad_colour_and_near_copy():
+    bad = _semantic()["negative"]
+    assert bad == "#A4262C"
+    found = C.reserved_conflicts(["#0072B2", "#A4262C", "#A5282D"], {"bad": bad})
+    assert {f["color"] for f in found} == {"#A4262C", "#A5282D"}
+    for f in found:
+        assert set(f) == {"color", "reserved", "role", "delta_e", "vision"}
+        assert f["role"] == "bad" and f["reserved"] == bad and f["delta_e"] < 10.0
+
+
+def test_reserved_conflicts_spares_okabe_blue():
+    assert C.reserved_conflicts(["#0072B2"], {"bad": "#A4262C"}) == []
+
+
+def test_reserved_conflicts_sees_cvd_only_collisions():
+    """Okabe-Ito vermillion vs ALUCA positive green: far apart for normal vision, one colour
+    for a protanope (measured 0.79 ΔE00) — a normal-vision-only check would miss it."""
+    found = C.reserved_conflicts(["#D55E00"], {"positive": _semantic()["positive"]}, visions=C.ALL_VISIONS)
+    assert C.delta_e("#D55E00", _semantic()["positive"]) > 50
+    assert found and found[0]["vision"] == "protan"
+    # default = normal vision only (status never travels without icon + label)
+    assert C.reserved_conflicts(["#D55E00"], {"positive": _semantic()["positive"]}) == []
+
+
+# --- palette_gate ---------------------------------------------------------------
+def test_palette_gate_okabe_five_on_white_passes():
+    g = C.palette_gate(C.OKABE_ITO[:5], "#FFFFFF", {"bad": _semantic()["negative"]})
+    assert g["ok"], g["failures"]
+    assert g["needs_label_or_outline"] == []
+
+
+def test_palette_gate_on_dark_ground_reports_label_needs():
+    g = C.palette_gate(C.OKABE_ITO[:5], "#1B1A19", {"bad": _semantic()["negative"]})
+    assert g["ok"], "low non-text contrast is a warning, not a failure"
+    assert g["needs_label_or_outline"] == ["#000000"]
+    assert all(w["check"] == "needs_label_or_outline" for w in g["warnings"])
+
+
+def test_palette_gate_fails_on_reserved_conflict_and_cvd_collapse():
+    g = C.palette_gate(["#0072B2", "#A5282D"], "#FFFFFF", {"bad": "#A4262C"})
+    assert not g["ok"] and g["failures"][0]["check"] == "reserved_conflict"
+    g2 = C.palette_gate(["#107C10", "#D55E00"], "#FFFFFF", {})    # protan ΔE 0.79
+    assert not g2["ok"] and g2["failures"][0]["check"] == "cvd_separation"

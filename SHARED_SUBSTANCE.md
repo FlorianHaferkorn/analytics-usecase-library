@@ -77,6 +77,7 @@ Erhoben durch Datei-für-Datei-Vergleich beider Repos (nicht aus READMEs).
 | `products/fabric/orchestrator/sandbox.py` — Sandbox-Lebenszyklus je Lauf (Workspace anlegen, deployen, löschen mit Rücklese-Guard und 404-Nachweis) | ALUCA (E4, 24.09.2026) | `POST`/`GET`/`DELETE /v1/workspaces`; Deploy über `fabric_release.py` (`fabric-cicd`). Baut auf `orchestrator.py` statt einen zweiten Fabric-Client zu führen |
 | Visual Library: Idiome, Notationsprofile, Anti-Patterns, Realisierung je Ziel (PBIR, Deneb, Recharts, SVG-DAX, HTML, Fabric App) | ALUCA (30.09.2026) | Chart-Taxonomien (Munzner, FT Visual Vocabulary), IBCS Standards / ISO 24896, PBIR-/Vega-Lite-/Fabric-Visuals-Schemas. Die Engine (Emission, Validierung) bleibt davon getrennt |
 | Auswahllogik Frage → purpose → Idiom (`index.yaml`, `resolve.py`) | ALUCA (30.09.2026) | Munzner „why before how“, FT Visual Vocabulary; Deny-Liste mit Quelle je Eintrag |
+| Zonen-Vokabular der Page Templates: Zonen-Aufgabe (`task_taxonomy`) und Informationsblock → purpose (`index.yaml` `zone_vocabulary`, `resolve.choose_for_zone`) | ALUCA (30.09.2026, R5) | Munzner-Aufgabentaxonomie (2014); die Zweck-Liste ist die der Auswahllogik |
 | Farbsemantik, IBCS-Szenariofarben, Kontrast- und Farbfehlsicht-Prüfung | ALUCA (30.09.2026) | WCAG 2.2 (1.4.3, 1.4.11), Machado-Simulation, CIEDE2000 |
 | Markenableitung: Marken-Token-Schema → PBI-Theme, CSS-Variablen, Fabric-App-Theme | Meridian (30.09.2026) | Power-BI-Theme-Schema, DTCG 2025.10, Fabric-Apps-Theming (`useCssTheme`) |
 | Sensitivity-Label-/Endorsement-Vollzug | ALUCA (heute defekt, s. §4) | Power-BI-Admin-API `informationprotection/setLabels`; Endorsement hat **keine** dokumentierte Write-API |
@@ -117,8 +118,10 @@ der Wert entstanden ist, nicht mehr, dass er das Repo nie verlässt.
 
 Benennung und Ordnerlayout (`core/dataarch_engine/` vs. `tooling/superversion/`),
 Dokumentationssprache und -ton, Design-Token-**Werte** (eigene Marke, Kunden-Tokens),
-CLI-Oberfläche, Zielkunden-Defaults, Navigations-/Index-Doktrin. *(Klargestellt am 30.09.2026:
-die Token-**Logik** — Ableitung, Rollen, Kontrastregeln, Notationen — ist Klasse A, §2.1.)* Diese Unterschiede werden **nicht** eingeebnet — sie
+CLI-Oberfläche, Zielkunden-Defaults, Navigations-/Index-Doktrin, Page-Template-**Dateien** (Geometrie
+und Familien: Meridian TPL-001…006 für App und HTML, ALUCA T1–T4 im 12×12-Raster für PBIR). *(Klargestellt am 30.09.2026:
+die Token-**Logik** — Ableitung, Rollen, Kontrastregeln, Notationen — ist Klasse A, §2.1; ebenso das
+Zonen-Vokabular, auf das beide Template-Sätze abbilden.)* Diese Unterschiede werden **nicht** eingeebnet — sie
 sind der Grund, warum es zwei Repos gibt und nicht eins.
 
 ---

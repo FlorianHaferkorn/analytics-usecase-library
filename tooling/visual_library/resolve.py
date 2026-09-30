@@ -321,6 +321,34 @@ def choose(purpose: str, roles: "set[str] | list[str]", profile: "str | None" = 
     return None
 
 
+ZONE_KINDS = ("tasks", "information_blocks")
+
+
+def zone_purposes(kind: str, key: str) -> "list[str]":
+    """Purposes a page-template zone must answer (A-31 R5), primary first; [] for a zone that
+    carries no chart (`{none: reason}` in index.yaml). `kind` is `tasks` (Meridian
+    `task_taxonomy`) or `information_blocks` (ALUCA manifest slots). Unknown key -> KeyError:
+    a zone vocabulary without a mapping is a gap to close in index.yaml, never a guess."""
+    if kind not in ZONE_KINDS:
+        raise KeyError(f"unknown zone kind '{kind}' (have {list(ZONE_KINDS)})")
+    vocab = ((_index().get("zone_vocabulary") or {}).get(kind)) or {}
+    if key not in vocab:
+        raise KeyError(f"'{key}' has no entry in index.yaml zone_vocabulary.{kind}")
+    val = vocab[key]
+    return [] if isinstance(val, dict) else list(val)
+
+
+def choose_for_zone(kind: str, key: str, roles: "set[str] | list[str]",
+                    profile: "str | None" = None) -> "dict | None":
+    """`choose` over the zone's purposes in order: the first purpose the data can answer wins.
+    Returns the choose() result plus `purpose`, or None (no chart zone, or no fitting idiom)."""
+    for purpose in zone_purposes(kind, key):
+        got = choose(purpose, roles, profile)
+        if got is not None:
+            return {**got, "purpose": purpose}
+    return None
+
+
 def main(argv: list[str]) -> int:
     if not argv:
         print(__doc__)
