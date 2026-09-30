@@ -1,6 +1,5 @@
 /** Display ranges only: does not change the baseline or impose business constraints. */
-export function driverSliderRange(base: number, unit: string, kpiId: string) {
-  const timeOrCount = /\.(?:days|hours|minutes|units|count)(?:\.|$)/.test(kpiId);
+export function driverSliderRange(base: number, unit: string, timeOrCount = false) {
   const radius = unit === '%' ? 15 : Math.max(Math.abs(base) * (timeOrCount ? 0.5 : 0.3), 1);
   return {
     minRange: timeOrCount && base >= 0 ? Math.max(0, base - radius) : base - radius,

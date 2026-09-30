@@ -13,12 +13,12 @@ use_case_links:
   - XD-002
 kpis:
   trigger_kpis:
-  - svc.sla.attainment.pct
-  - svc.backlog.count
+  - KPI-SVC-004
+  - KPI-SVC-007
   guardrail_kpis:
-  - svc.fcr.pct
+  - KPI-SVC-005
   outcome_kpis:
-  - svc.sla.attainment.pct
+  - KPI-SVC-004
 scope:
   default_grain: queue_day
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 3
       volume_guardrail:
         enabled: true
-        metric_kpi_id: svc.tickets.created.count
+        metric_kpi_id: KPI-SVC-013
         comparator: gte
         value: 100
         unit: count
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: svc.sla.attainment.pct
+        metric_kpi_id: KPI-SVC-004
         comparator: lt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: svc.sla.attainment.pct
+        metric_kpi_id: KPI-SVC-004
         comparator: lt
         threshold:
           basis: absolute
@@ -74,7 +74,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: svc.sla.attainment.pct
+        metric_kpi_id: KPI-SVC-004
         comparator: lt
         threshold:
           basis: absolute
@@ -90,7 +90,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P30D
-    metric_kpi_id: svc.fcr.pct
+    metric_kpi_id: KPI-SVC-005
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -106,7 +106,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: svc.sla.attainment.pct
+    metric_kpi_id: KPI-SVC-004
     value_low: 3.0
     value_high: 8.0
     unit: pp

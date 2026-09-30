@@ -14,13 +14,13 @@ use_case_links:
   - SCM-003
 kpis:
   trigger_kpis:
-  - inv.dio.days
+  - KPI-SCM-001
   guardrail_kpis:
-  - inv.stockout.pct
-  - supply.otif.pct
+  - KPI-SCM-002
+  - KPI-SCM-007
   outcome_kpis:
-  - inv.dio.days
-  - inv.turnover
+  - KPI-SCM-001
+  - KPI-SCM-016
 scope:
   default_grain: sku_location_month
   default_perspective:
@@ -48,7 +48,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: sales.units
+        metric_kpi_id: KPI-COM-012
         comparator: gte
         value: 3000
         unit: units
@@ -56,7 +56,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: inv.dio.days
+        metric_kpi_id: KPI-SCM-001
         comparator: gt
         threshold:
           basis: absolute
@@ -66,7 +66,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: inv.dio.days
+        metric_kpi_id: KPI-SCM-001
         comparator: gt
         threshold:
           basis: absolute
@@ -76,7 +76,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: inv.dio.days
+        metric_kpi_id: KPI-SCM-001
         comparator: gt
         threshold:
           basis: absolute
@@ -92,7 +92,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P60D
-    metric_kpi_id: inv.stockout.pct
+    metric_kpi_id: KPI-SCM-002
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -107,7 +107,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: inv.dio.days
+    metric_kpi_id: KPI-SCM-001
     value_low: -10.0
     value_high: -30.0
     unit: days

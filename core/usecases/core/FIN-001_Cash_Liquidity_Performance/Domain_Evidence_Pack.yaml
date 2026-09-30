@@ -36,7 +36,7 @@ process_scope:
 
 canonical_domain_model:
   outcome_kpis:
-    - id: fin.cash.balance
+    - id: KPI-FIN-007
       name: Cash and Cash Equivalents Balance
       definition: >
         Total cash and cash equivalents per IAS 7. Includes unrestricted bank accounts,
@@ -49,14 +49,14 @@ canonical_domain_model:
       benchmark_source_id: SRC-003
 
   driver_kpis:
-    - id: wc.ccc.days
+    - id: KPI-FIN-006
       name: Cash Conversion Cycle (CCC)
       definition: >
         CCC = DSO + DIO - DPO. Measures the number of days a company's cash is tied up
         in operations. Lower CCC = faster cash cycle = more liquidity.
       unit: days
       direction: minimize
-      drives: fin.cash.balance
+      drives: KPI-FIN-007
       causal_mechanism: >
         Each day of CCC improvement releases cash equal to approximately one day of
         revenue. A 5-day CCC reduction on EUR 100M revenue frees EUR ~1.4M in cash.
@@ -64,24 +64,24 @@ canonical_domain_model:
       benchmark_target: "< 45 days world class (Hackett Group); sector-specific"
       benchmark_source_id: SRC-007
 
-    - id: wc.dso.days
+    - id: KPI-FIN-001
       name: Days Sales Outstanding (DSO)
       definition: "(Accounts Receivable / Revenue) × Days in Period. Measures collection speed."
       unit: days
       direction: minimize
-      drives: wc.ccc.days
+      drives: KPI-FIN-006
       causal_mechanism: >
         DSO is the largest CCC lever in most manufacturing companies. Each 1-day DSO
         reduction on EUR 100M revenue frees EUR ~274k in cash.
       benchmark_target: "< 40 days world class (Hackett Group manufacturing benchmark 2023)"
       benchmark_source_id: SRC-007
 
-    - id: wc.dpo.days
+    - id: KPI-FIN-005
       name: Days Payables Outstanding (DPO)
       definition: "(Accounts Payable / COGS) × Days in Period. Measures payment cycle length."
       unit: days
       direction: maximize
-      drives: wc.ccc.days
+      drives: KPI-FIN-006
       causal_mechanism: >
         Increasing DPO (within supplier contract terms) increases cash held. However,
         exceeding contract terms risks supplier relationship damage and early payment
@@ -89,32 +89,32 @@ canonical_domain_model:
       benchmark_target: "45–60 days manufacturing (Hackett Group)"
       benchmark_source_id: SRC-007
 
-    - id: inv.dio.days
+    - id: KPI-SCM-001
       name: Days Inventory Outstanding (DIO)
       definition: "(Inventory Value / COGS) × 365. See SCM-001 for full definition."
       unit: days
       direction: minimize
-      drives: wc.ccc.days
+      drives: KPI-FIN-006
       causal_mechanism: Inventory is the third CCC component. See SCM-001 for driver analysis.
       benchmark_target: "30–90 days sector-specific (see SCM-001)"
       benchmark_source_id: SRC-007
 
   diagnostic_kpis:
-    - id: fin.cash.ocf
+    - id: KPI-FIN-009
       name: Operating Cash Flow
       definition: >
         Cash generated from operations before investing and financing activities.
         IAS 7 indirect method: Net Income + Non-cash items + Working Capital changes.
       unit: EUR
       direction: maximize
-      diagnoses: fin.cash.balance
+      diagnoses: KPI-FIN-007
 
-    - id: fin.overdue_ar.pct
+    - id: KPI-FIN-008
       name: Overdue Accounts Receivable %
       definition: "Overdue AR (past due date) / Total AR × 100."
       unit: "%"
       direction: minimize
-      diagnoses: wc.dso.days
+      diagnoses: KPI-FIN-001
       causal_mechanism: High overdue AR directly increases DSO. Customer-level overdue analysis enables targeted collection.
 
   guardrails:
@@ -123,14 +123,14 @@ canonical_domain_model:
         DPO optimisation actions must operate within supplier payment terms.
         Exceeding contractual DPO damages supplier relationships, may incur penalties,
         and disqualifies early payment discounts.
-      affected_kpis: [wc.dpo.days]
+      affected_kpis: [KPI-FIN-005]
 
     - description: Minimum liquidity buffer
       condition: >
         CCC and working capital actions must not reduce cash buffer below the minimum
         liquidity threshold (typically 30 days of operating expenses). Cash optimisation
         stops at the liquidity floor.
-      affected_kpis: [fin.cash.balance, wc.ccc.days]
+      affected_kpis: [KPI-FIN-007, KPI-FIN-006]
 
   wrong_interpretations:
     - description: Low DSO as unambiguously good
@@ -285,20 +285,20 @@ source_inventory:
       notes: Classic financial theory reference. Age waiver applies.
 
 action_logic_seeds:
-  - trigger_driver: wc.dso.days
-    trigger_diagnostic: fin.overdue_ar.pct
+  - trigger_driver: KPI-FIN-001
+    trigger_diagnostic: KPI-FIN-008
     trigger_condition: "DSO > benchmark by > 5 days for 2 consecutive months AND overdue AR > 15%"
     guardrail: "Do not pursue aggressive collection on strategically important customers"
     action_description: Accounts receivable collections acceleration and overdue customer follow-up.
-    expected_outcome_kpi: wc.ccc.days
+    expected_outcome_kpi: KPI-FIN-006
     action_code_candidate: F-C1.2
 
-  - trigger_driver: wc.ccc.days
-    trigger_diagnostic: wc.dio.days
+  - trigger_driver: KPI-FIN-006
+    trigger_diagnostic: KPI-FIN-004
     trigger_condition: "CCC > target by > 10 days AND DIO is the primary driver"
     guardrail: "Do not reduce inventory below minimum service level threshold"
     action_description: Inventory reduction program coordinated with SCM-001 action codes.
-    expected_outcome_kpi: fin.cash.balance
+    expected_outcome_kpi: KPI-FIN-007
     action_code_candidate: F-C1.1
 
 required_data_model:
@@ -345,10 +345,10 @@ mapping_readiness:
         affected_artifact: core/usecases/core/FIN-001_Cash_Liquidity_Performance/UseCase_Bracket.yaml
         field: orchestration.supporting_kpi_ids
         description: >
-          fin.overdue_ar.pct and fin.cash.ocf likely missing from supporting_kpi_ids.
+          KPI-FIN-008 and KPI-FIN-009 likely missing from supporting_kpi_ids.
           These are required diagnostic KPIs per the domain model.
         evidence_reference: SRC-003 SRC-007
-        remediation: "Add fin.overdue_ar.pct and fin.cash.ocf to supporting_kpi_ids if not present."
+        remediation: "Add KPI-FIN-008 and KPI-FIN-009 to supporting_kpi_ids if not present."
         status: open
 
       - gap_type: content_gap

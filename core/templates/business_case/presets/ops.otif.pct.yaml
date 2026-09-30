@@ -5,7 +5,7 @@ baseline_range:
   likely: 85
   max: 90
   unit: "%"
-  note: "Operations-side OTIF (manufacturing to DC); differentiates from supply.otif.pct."
+  note: "Operations-side OTIF (manufacturing to DC); differentiates from KPI-SCM-007."
 target_range:
   min: 87
   likely: 92

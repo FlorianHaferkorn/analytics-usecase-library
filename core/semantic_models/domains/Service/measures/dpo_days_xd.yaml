@@ -1,6 +1,6 @@
 measure_name: DPO Days (XD)
 is_kpi_measure: true
-kpi_id_ref: wc.dpo.days
+kpi_id_ref: KPI-FIN-005
 semantic_model: Service_SemanticModel
 display_folder: 04_WorkingCapital
 category: KPI

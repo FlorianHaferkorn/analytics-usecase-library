@@ -121,7 +121,7 @@ In **core** (tool-agnostic), use only logical description; no DAX or format stri
 
 - measure_name: "Gross Margin %"
   is_kpi_measure: true
-  kpi_id_ref: "margin.gm.pct"
+  kpi_id_ref: "KPI-COM-013"
   semantic_model: "Commercial_SemanticModel"
   display_folder: "02_Margin"
   category: "KPI"

@@ -1,0 +1,52 @@
+kpi_id: KPI-SCM-019
+deprecated: true
+deprecation_reason: No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)
+kpi_key: Planned Hours
+kpi_type: supporting
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+use_case_ref:
+- OPS-001
+action_code_ref: []
+calc_type: amount
+business:
+  purpose: Scheduled production time allocated for machines/lines.
+  definition: Sum of planned production hours
+  grain_scope: Machine/line level; per shift/day, aggregated monthly.
+  unit_format: hours_0
+  interpretation: Capacity baseline for utilization and downtime; compare with actual runtime and downtime.
+technical:
+  measure_name: Planned Hours
+  description: Scheduled production time for machines/lines
+  depends_on_measures: []
+  lineage:
+  - fact_ops.Planned Time Minutes
+  calculation:
+    op: ratio
+    numerator:
+      column: Planned Time Minutes
+    denominator:
+      literal: 60
+governance:
+  business_owner: Head of Supply Chain Planning
+  data_owner: Supply Chain BI
+  steward: Demand Planner
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Non-negative; reconcile to planning system within +/- 0.1 h
+  - Planned vs actual variance monitored in OEE context
+  - Reconciles to WMS/OMS order status within +/- 1 pp
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 27.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: Planned busy time (PBT element)
+  url: https://www.iso.org/standard/54497.html
+  alignment: none
+  note: Planned production hours is the ISO 22400-2 Planned Busy Time element (denominator of Availability), an
+    input rather than a KPI.

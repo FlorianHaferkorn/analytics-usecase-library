@@ -98,7 +98,11 @@
       "additionalProperties": true,
       "required": ["id", "name"],
       "properties": {
-        "id": { "type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$" },
+        "id": {
+          "type": "string",
+          "pattern": "^(KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}|[a-z0-9]+(\\.[a-z0-9_]+)*)$",
+          "description": "Katalog-KPI (KPI-<KUERZEL>-<NNN>, D-594) oder ein Forschungskandidat ohne Katalogeintrag (Punktnotation, noch nicht nummeriert; erhaelt eine Nummer erst mit der Aufnahme in core/kpi_catalog)."
+        },
         "name": { "type": "string", "minLength": 1 },
         "direction": { "type": "string" }
       }

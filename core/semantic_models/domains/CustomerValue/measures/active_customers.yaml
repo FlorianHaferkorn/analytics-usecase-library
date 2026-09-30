@@ -1,6 +1,6 @@
 measure_name: Active Customers
 is_kpi_measure: true
-kpi_id_ref: crm.active_customers.count
+kpi_id_ref: KPI-CUS-006
 semantic_model: CustomerValue_SemanticModel
 display_folder: 01_Retention
 category: KPI

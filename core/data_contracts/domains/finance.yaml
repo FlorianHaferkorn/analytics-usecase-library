@@ -181,7 +181,7 @@ fact:
   # Aus Gold und Modell nachgezogen (A-23, 29.09.2026); das Finance-Modell führt die Tabelle.
   - name: fact_supplier_risk
     description: "Daily supplier risk scores (overall, delivery, quality, financial) per supplier."
-    purpose: "Supplier risk monitoring (KPI scm.supplier_risk.score)."
+    purpose: "Supplier risk monitoring (KPI KPI-SCM-022)."
     grain: supplier_day
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}

@@ -1,6 +1,6 @@
 measure_name: Net Promoter Score (NPS)
 is_kpi_measure: true
-kpi_id_ref: crm.nps.index
+kpi_id_ref: KPI-CUS-003
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 03_Customer_Value
 category: KPI

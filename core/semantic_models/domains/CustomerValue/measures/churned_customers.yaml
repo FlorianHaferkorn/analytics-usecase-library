@@ -1,6 +1,6 @@
 measure_name: Churned Customers
 is_kpi_measure: true
-kpi_id_ref: crm.churned_customers.count
+kpi_id_ref: KPI-CUS-004
 semantic_model: CustomerValue_SemanticModel
 display_folder: 01_Retention
 category: KPI

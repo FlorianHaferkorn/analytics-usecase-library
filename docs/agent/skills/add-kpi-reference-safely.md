@@ -6,7 +6,7 @@ Reference KPIs in use case brackets, action codes, or factsheet prose only after
 
 1. **Check KPI catalog first**:
    - KPI definitions live in `core/kpi_catalog/` (SSOT).
-   - Format: `domain.topic.metric` (e.g. `sales.price.realization_pct`, `plan.forecast.accuracy.pct`).
+   - Format: `KPI-<DOMAIN>-<NNN>` (D-594; e.g. `KPI-COM-003`, `KPI-SCM-005`).
 2. **If KPI exists**: Add the `kpi_id` reference in the appropriate artifact:
    - **Bracket:** `orchestration.strategic_kpi_id`, `orchestration.influencing_kpi_ids`, `value_driver_model.primary_driver`
    - **Action code:** `kpis.trigger_kpis`, `kpis.guardrail_kpis`, `kpis.outcome_kpis`

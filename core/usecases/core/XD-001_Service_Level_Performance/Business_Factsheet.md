@@ -51,14 +51,14 @@ escalations and backlog.
 
 | KPI ID | Role |
 |--------|------|
-| svc.sla.attainment.pct | Strategic |
-| svc.fcr.pct | Influencing |
-| svc.aht.minutes | Influencing |
-| svc.backlog.count | Influencing |
-| svc.escalation.pct | Influencing |
-| svc.tickets.created.count | Influencing |
-| svc.tickets.closed.count | Influencing |
-| crm.nps.index | Supporting |
+| KPI-SVC-004 | Strategic |
+| KPI-SVC-005 | Influencing |
+| KPI-SVC-006 | Influencing |
+| KPI-SVC-007 | Influencing |
+| KPI-SVC-008 | Influencing |
+| KPI-SVC-013 | Influencing |
+| KPI-SVC-014 | Influencing |
+| KPI-CUS-003 | Supporting |
 
 **Action Codes:** X-S1.1, X-S1.2, X-S1.3, X-S1.4
 
@@ -70,14 +70,14 @@ escalations and backlog.
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **SLA Attainment %** (`svc.sla.attainment.pct`) → **ISO/IEC 20000-1 8.3.3** (partial): ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets.
-- **Backlog Count** (`svc.backlog.count`) → **ISO/IEC 20000-1 8.6.1** (partial): Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes (8.6.1 incident / 8.6.2 service request).
-- **First Contact Resolution %** (`svc.fcr.pct`) → **ITIL 4** (partial): First Contact Resolution is a de-facto ITIL 4 service-desk / incident-management practice metric (and COPC CX Standard), not formally defined by ISO/IEC 20000.
-- **Average Handling Time (minutes)** (`svc.aht.minutes`) → **ITIL 4** (partial): AHT is a contact-centre / ITIL service-desk practice metric (also COPC CX Standard); not ISO/IEC 20000-defined.
-- **Escalation %** (`svc.escalation.pct`) → **ISO/IEC 20000-1 8.6.1** (partial): Escalation ratio relates to ISO/IEC 20000-1 incident-management escalation (8.6.1, functional/hierarchical) and ITIL practice.
-- **Tickets Created Count** (`svc.tickets.created.count`) → **ISO/IEC 20000-1 8.6.1** (none): Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2), not a named ISO KPI.
-- **Tickets Closed Count** (`svc.tickets.closed.count`) → **ISO/IEC 20000-1 8.6.1** (none): Raw closed-ticket count is a throughput element feeding backlog and closure-rate.
-- **NPS Index** (`crm.nps.index`) → **Bain NPS (proprietary)** (none): NPS is a proprietary Bain & Company methodology, not an open standard; the governed NPS is the Customer-domain `crm.nps.index` (consolidated from the former `svc.nps.index`).
+- **SLA Attainment %** (`KPI-SVC-004`) → **ISO/IEC 20000-1 8.3.3** (partial): ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets.
+- **Backlog Count** (`KPI-SVC-007`) → **ISO/IEC 20000-1 8.6.1** (partial): Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes (8.6.1 incident / 8.6.2 service request).
+- **First Contact Resolution %** (`KPI-SVC-005`) → **ITIL 4** (partial): First Contact Resolution is a de-facto ITIL 4 service-desk / incident-management practice metric (and COPC CX Standard), not formally defined by ISO/IEC 20000.
+- **Average Handling Time (minutes)** (`KPI-SVC-006`) → **ITIL 4** (partial): AHT is a contact-centre / ITIL service-desk practice metric (also COPC CX Standard); not ISO/IEC 20000-defined.
+- **Escalation %** (`KPI-SVC-008`) → **ISO/IEC 20000-1 8.6.1** (partial): Escalation ratio relates to ISO/IEC 20000-1 incident-management escalation (8.6.1, functional/hierarchical) and ITIL practice.
+- **Tickets Created Count** (`KPI-SVC-013`) → **ISO/IEC 20000-1 8.6.1** (none): Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2), not a named ISO KPI.
+- **Tickets Closed Count** (`KPI-SVC-014`) → **ISO/IEC 20000-1 8.6.1** (none): Raw closed-ticket count is a throughput element feeding backlog and closure-rate.
+- **NPS Index** (`KPI-CUS-003`) → **Bain NPS (proprietary)** (none): NPS is a proprietary Bain & Company methodology, not an open standard; the governed NPS is the Customer-domain `KPI-CUS-003` (consolidated from the former `svc.nps.index`).
 
 ---
 

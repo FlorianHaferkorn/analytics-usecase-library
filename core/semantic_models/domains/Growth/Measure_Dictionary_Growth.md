@@ -7,7 +7,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 ```yaml
 - measure_name: Net Sales Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.amount
+  kpi_id_ref: KPI-COM-005
   semantic_model: Growth_SemanticModel
   display_folder: 01_Growth
   category: KPI
@@ -34,7 +34,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Net Sales Delta % vs LY
   is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.delta_pct.ly
+  kpi_id_ref: KPI-COM-008
   semantic_model: Growth_SemanticModel
   display_folder: 01_Growth
   category: KPI
@@ -62,7 +62,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Price Realization %
   is_kpi_measure: true
-  kpi_id_ref: sales.price.realization_pct
+  kpi_id_ref: KPI-COM-003
   semantic_model: Growth_SemanticModel
   display_folder: 03_Pricing
   category: KPI
@@ -117,7 +117,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Sales Units
   is_kpi_measure: true
-  kpi_id_ref: sales.units
+  kpi_id_ref: KPI-COM-012
   semantic_model: Growth_SemanticModel
   display_folder: 01_Growth
   category: KPI

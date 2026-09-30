@@ -80,7 +80,7 @@ No other edge types are considered stable without an explicit constitution updat
 ## Naming & ID invariants
 
 - **Use Case IDs**: `COM-001`, `FIN-001`, `OPS-001`, `SCM-001`, `XD-001`, … (prefix + 3 digits).
-- **KPI IDs**: `domain.topic.metric` (e.g. `sales.net_sales.amount`). IDs are immutable once published.
+- **KPI IDs**: `KPI-<DOMAIN>-<NNN>` (D-594; e.g. `KPI-COM-005`). IDs are immutable once published.
 - **Action Code IDs**: domain prefix + topic + index (e.g. `C-M2.1`, `S-F3.2`, `X-E3.1`). IDs are immutable once published.
 - **Paths**: governed artifacts live only under their canonical roots (`core/kpi_catalog`, `core/action_codes`, `core/usecases`, `core/data_contracts`).
 
@@ -112,7 +112,7 @@ No other edge types are considered stable without an explicit constitution updat
 ## Sources & Grounding
 
 This constitution is **framework-internal by design**: the artifact roles, the Golden Thread
-edge set, the ID schemes (`COM-001`, `domain.topic.metric`, …), and the SSOT boundaries are
+edge set, the ID schemes (`COM-001`, `KPI-COM-005`, …), and the SSOT boundaries are
 **this repository's own invariants** and have no external authority — they should not be
 attributed to a published standard. What *can* be grounded are the general governance practices
 the document leans on:

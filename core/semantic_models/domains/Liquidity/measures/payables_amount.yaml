@@ -1,6 +1,6 @@
 measure_name: Payables Amount
 is_kpi_measure: true
-kpi_id_ref: fin.liquidity.payables.amount
+kpi_id_ref: KPI-FIN-003
 semantic_model: Liquidity_SemanticModel
 display_folder: 02_WorkingCapital
 category: KPI

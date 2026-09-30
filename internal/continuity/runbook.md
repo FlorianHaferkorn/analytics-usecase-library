@@ -178,7 +178,7 @@ fact_tables:
       - name: List_Price_Amount
         type: decimal(18,2)
         lineage: "ERP.SALES_ORDERS_ITEMS.LIST_PRICE"
-        required_for_kpis: [sales.price.list.amount]
+        required_for_kpis: [KPI-COM-001]
       # ... add new columns here
 ```
 

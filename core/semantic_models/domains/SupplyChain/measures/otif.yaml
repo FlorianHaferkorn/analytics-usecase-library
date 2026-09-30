@@ -1,6 +1,6 @@
 measure_name: OTIF %
 is_kpi_measure: true
-kpi_id_ref: supply.otif.pct
+kpi_id_ref: KPI-SCM-007
 semantic_model: SupplyChain_SemanticModel
 display_folder: 02_Service
 category: KPI

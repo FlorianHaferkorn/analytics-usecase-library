@@ -52,7 +52,7 @@ process_scope:
 
 canonical_domain_model:
   outcome_kpis:
-    - id: enterprise.action_outcome_rate.pct
+    - id: KPI-GOV-001
       name: Action Outcome Rate %
       definition: >
         % of closed/executed actions that achieved their intended KPI outcome within
@@ -67,7 +67,7 @@ canonical_domain_model:
         (≈40% lost to execution breakdowns), so an improving outcome rate that closes
         this gap is the target.
       benchmark_source_id: SRC-005
-    - id: enterprise.value_at_risk.index
+    - id: KPI-GOV-004
       name: Enterprise Value-at-Risk Index
       role: guardrail
       definition: >
@@ -83,7 +83,7 @@ canonical_domain_model:
       benchmark_source_id: SRC-002
 
   driver_kpis:
-    - id: enterprise.action_effectiveness_delta.amount
+    - id: KPI-GOV-002
       name: Action Effectiveness Delta
       definition: >
         Average measured EUR impact per achieved action — the realized KPI lift
@@ -91,19 +91,19 @@ canonical_domain_model:
         actions, before/after attribution.
       unit: EUR
       direction: maximize
-      drives: enterprise.action_outcome_rate.pct
+      drives: KPI-GOV-001
       causal_mechanism: >
         Quantifies how much each successful action actually moved its target KPI.
         A high outcome rate with a low effectiveness delta means actions are
         technically successful but immaterial — benefits realization is shallow.
       benchmark_target: "Improvement vs own baseline; positive and material per action family"
       benchmark_source_id: SRC-001
-    - id: enterprise.value_at_risk.index
+    - id: KPI-GOV-004
       name: Enterprise Value-at-Risk Index
       definition: "Composite enterprise risk index (XD-003) that the action loop targets."
       unit: index
       direction: minimize
-      drives: enterprise.action_outcome_rate.pct
+      drives: KPI-GOV-001
       causal_mechanism: >
         The risk the loop exists to reduce. Movement (or lack of movement) of the
         index after action closure is the ultimate benefits-realization signal.
@@ -116,7 +116,7 @@ canonical_domain_model:
       definition: "Elapsed days from action routed to action completed; lateness vs due date."
       unit: days
       direction: minimize
-      diagnoses: enterprise.action_outcome_rate.pct
+      diagnoses: KPI-GOV-001
       causal_mechanism: >
         Late closure (ITIL CSI / Bain decision speed) erodes outcome rate — value
         decays the longer an action sits open. Separates governance failure (latency)
@@ -126,7 +126,7 @@ canonical_domain_model:
       definition: "% of triggered KPI deviations that actually generated a routed action with a clear owner and due date."
       unit: "%"
       direction: maximize
-      diagnoses: enterprise.action_outcome_rate.pct
+      diagnoses: KPI-GOV-001
       causal_mechanism: >
         Low coverage means deviations are detected but not acted on (the BRM 'identify
         but never execute' gap). Coverage must be read before outcome rate to avoid
@@ -136,7 +136,7 @@ canonical_domain_model:
       definition: "Elapsed days from action completion to confirmed KPI outcome evaluation."
       unit: days
       direction: minimize
-      diagnoses: enterprise.action_effectiveness_delta.amount
+      diagnoses: KPI-GOV-002
       causal_mechanism: >
         Distinguishes 'not yet realized' from 'failed'. An action evaluated before
         its review window closes can be wrongly scored ineffective (false negative).
@@ -148,22 +148,22 @@ canonical_domain_model:
         Marking an action ineffective before its time-to-impact window completes
         produces false negatives (ITIL CSI / BRM sustain stage).
       affected_kpis:
-        - enterprise.action_outcome_rate.pct
-        - enterprise.action_effectiveness_delta.amount
+        - KPI-GOV-001
+        - KPI-GOV-002
     - description: Exclude informational / observation-only actions
       condition: >
         Informational or monitoring-only actions must be excluded from the outcome
         denominator to avoid governance noise that depresses the rate artificially.
       affected_kpis:
-        - enterprise.action_outcome_rate.pct
+        - KPI-GOV-001
     - description: Governance evaluates follow-through, not domain logic
       condition: >
         Do not use governance metrics to second-guess or re-tune domain remediation
         logic without domain context — XD-004 evaluates lifecycle/benefit quality
         only (COSO monitoring activities, not control re-design).
       affected_kpis:
-        - enterprise.action_outcome_rate.pct
-        - enterprise.action_effectiveness_delta.amount
+        - KPI-GOV-001
+        - KPI-GOV-002
 
   wrong_interpretations:
     - description: Vanity 'actions taken / routed' count instead of outcome rate
@@ -242,7 +242,7 @@ required_data_model:
       source_id: SRC-003
 
 action_logic_seeds:
-  - trigger_driver: enterprise.action_outcome_rate.pct
+  - trigger_driver: KPI-GOV-001
     trigger_diagnostic: enterprise.action_latency.days
     trigger_condition: "Routed action volume rising while outcome rate flat/falling AND overdue (latency > due window) actions accumulating in specific owners/entities"
     guardrail: "Exclude informational actions; do not re-route actions already under an executive escalation"
@@ -250,9 +250,9 @@ action_logic_seeds:
       Trigger Executive Action Governance — escalate overdue/stalled action instances,
       surface ownership concentration, and force follow-through on routed-but-unclosed
       actions.
-    expected_outcome_kpi: enterprise.action_outcome_rate.pct
+    expected_outcome_kpi: KPI-GOV-001
     action_code_candidate: X-E3.3
-  - trigger_driver: enterprise.action_effectiveness_delta.amount
+  - trigger_driver: KPI-GOV-002
     trigger_diagnostic: enterprise.time_to_impact.days
     trigger_condition: "Closure rate healthy but outcome rate / effectiveness delta low after evaluation windows have closed"
     guardrail: "Only evaluate after the domain-specific review window elapsed; avoid false-negative on not-yet-realized actions"
@@ -260,9 +260,9 @@ action_logic_seeds:
       Force outcome-based (not status-only) follow-up — re-open or re-route closed
       actions that did not move their target KPI, and feed the closed loop back to the
       originating domain code (e.g. C-S1.1, O-O1.1, F-C1.1).
-    expected_outcome_kpi: enterprise.action_effectiveness_delta.amount
+    expected_outcome_kpi: KPI-GOV-002
     action_code_candidate: X-E3.3
-  - trigger_driver: enterprise.action_outcome_rate.pct
+  - trigger_driver: KPI-GOV-001
     trigger_diagnostic: enterprise.action_coverage.pct
     trigger_condition: "Coverage % low — many triggered KPI deviations across Impactful-15 domains never generated an owned, routed action"
     guardrail: "Do not penalise domains where deviations were within normal band or already mitigated by an active action"
@@ -270,7 +270,7 @@ action_logic_seeds:
       Surface the 'identify-but-never-execute' benefits-realization gap to the
       executive forum so detected cross-domain deviations (e.g. via O-O1.1, C-C3.1,
       S-R2.1) are actually routed and owned.
-    expected_outcome_kpi: enterprise.action_outcome_rate.pct
+    expected_outcome_kpi: KPI-GOV-001
     action_code_candidate: X-E3.3
 
 source_inventory:
@@ -454,14 +454,14 @@ mapping_readiness:
         affected_artifact: core/usecases/core/XD-004_Executive_Action_Governance/Business_Factsheet.md
         field: "Section 3 KPI & Action Code Overview"
         description: >
-          Factsheet lists only enterprise.action_routed.count (deprecated) as the
+          Factsheet lists only KPI-GOV-003 (deprecated) as the
           influencing KPI and X-E3.3 as the only action code, but the bracket and
           domain model also use action_effectiveness_delta and value_at_risk plus the
           16 cross-domain Impactful-15 codes.
         evidence_reference: SRC-001 SRC-013
         remediation: "Update Section 3 to reflect action_effectiveness_delta + value_at_risk influencers and the cross-domain action-code set; retire action_routed.count reference."
         status: resolved
-        resolution: "Section 3 now lists enterprise.action_effectiveness_delta.amount + enterprise.value_at_risk.index as influencing KPIs and the full bracket action-code set (X-E3.3 plus the 15 cross-domain Impactful-15 codes); the deprecated action_routed.count reference is retired."
+        resolution: "Section 3 now lists KPI-GOV-002 + KPI-GOV-004 as influencing KPIs and the full bracket action-code set (X-E3.3 plus the 15 cross-domain Impactful-15 codes); the deprecated action_routed.count reference is retired."
       - gap_type: content_gap
         severity: low
         affected_artifact: core/usecases/core/XD-004_Executive_Action_Governance/Business_Factsheet.md

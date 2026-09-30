@@ -14,17 +14,17 @@ CATALOG = REPO_ROOT / "core/kpi_catalog/KPI_Catalog.md"
 catalog_ids = set()
 if CATALOG.exists():
     content = CATALOG.read_text(encoding="utf-8")
-    for m in re.findall(r"kpi_id:\s*[\"']?([a-zA-Z0-9_\.]+)[\"']?", content):
+    for m in re.findall(r"kpi_id:\s*[\"']?(KPI-[A-Z]{3}-\d{3})[\"']?", content):
         catalog_ids.add(m.strip())
 
 missing = []
 for tmdl in sorted(DIST.rglob("_Measures.tmdl")):
     model = tmdl.parent.parent.parent.name
     for line in tmdl.read_text(encoding="utf-8").splitlines():
-        m = re.match(r"\s*///\s+([a-zA-Z][a-zA-Z0-9_\.]+)\s+-", line)
+        m = re.match(r"\s*///\s+(KPI-[A-Z]{3}-\d{3})\s+-", line)
         if m:
             kpi_id = m.group(1)
-            if "." in kpi_id and kpi_id not in catalog_ids:
+            if kpi_id not in catalog_ids:
                 missing.append((kpi_id, model))
 
 unique = sorted(set(missing))

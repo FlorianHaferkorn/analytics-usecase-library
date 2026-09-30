@@ -14,16 +14,16 @@ use_case_links:
   - COM-004
 kpis:
   trigger_kpis:
-  - sales.pvm.mix_effect.amount
+  - KPI-COM-004
   guardrail_kpis:
-  - margin.gm.pct
-  - crm.retention.pct
-  - crm.revenue_at_risk.amount
-  - cost.cogs_per_unit.amount
+  - KPI-COM-013
+  - KPI-CUS-002
+  - KPI-OPS-001
+  - KPI-FIN-013
   outcome_kpis:
-  - margin.gm.pct
-  - sales.pvm.mix_effect.amount
-  - crm.clv.amount
+  - KPI-COM-013
+  - KPI-COM-004
+  - KPI-CUS-001
 scope:
   default_grain: month
   default_perspective:
@@ -51,7 +51,7 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: margin.gm.amount
+        metric_kpi_id: KPI-COM-019
         comparator: gte
         value: 40000
         unit: amount
@@ -59,7 +59,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: sales.pvm.mix_effect.amount
+        metric_kpi_id: KPI-COM-004
         comparator: lt
         threshold:
           basis: absolute
@@ -69,7 +69,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: sales.pvm.mix_effect.amount
+        metric_kpi_id: KPI-COM-004
         comparator: lt
         threshold:
           basis: absolute
@@ -79,7 +79,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: sales.pvm.mix_effect.amount
+        metric_kpi_id: KPI-COM-004
         comparator: lt
         threshold:
           basis: absolute
@@ -97,7 +97,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P30D
-    metric_kpi_id: margin.gm.pct
+    metric_kpi_id: KPI-COM-013
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -111,7 +111,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: margin.gm.pct
+    metric_kpi_id: KPI-COM-013
     value_low: 0.3
     value_high: 1.2
     unit: pp

@@ -1,6 +1,6 @@
 measure_name: Inventory Amount
 is_kpi_measure: true
-kpi_id_ref: fin.liquidity.inventory.amount
+kpi_id_ref: KPI-FIN-002
 semantic_model: Liquidity_SemanticModel
 display_folder: 02_WorkingCapital
 category: KPI

@@ -1,6 +1,6 @@
 measure_name: Baseline Sales Amount
 is_kpi_measure: true
-kpi_id_ref: sales.promo.baseline_sales.amount
+kpi_id_ref: KPI-COM-020
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 04_Promo
 category: Base

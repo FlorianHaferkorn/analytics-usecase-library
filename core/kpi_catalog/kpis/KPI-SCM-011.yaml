@@ -1,0 +1,49 @@
+kpi_id: KPI-SCM-011
+kpi_key: Penalty Amount
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Supply Chain
+- Operational Efficiency
+use_case_ref:
+- SCM-002
+action_code_ref:
+- S-R2.4
+calc_type: amount
+good_is: lower
+business:
+  purpose: Captures penalties for service level breaches.
+  definition: Sum of penalty charges incurred in the period.
+  grain_scope: Order/month.
+  unit_format: eur_2
+  interpretation: Lower is better; high penalties signal delivery or quality issues.
+technical:
+  measure_name: Penalty Amount
+  description: Captures penalties for service level breaches.
+  depends_on_measures: []
+  lineage:
+  - fact_fulfillment.Penalty Amount
+  calculation:
+    op: sum
+    column: Penalty Amount
+governance:
+  business_owner: Head of Supply Chain / Logistics
+  data_owner: Supply Chain BI
+  steward: Logistics Controller
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Penalties reconciled to claims ledger
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: CO.1.1
+  name: Total Supply Chain Management Cost
+  url: https://scor.ascm.org/performance/cost
+  alignment: partial
+  note: Service-failure penalties are a cost component within SCOR's Cost attribute (CO.1.1), not a named standalone
+    SCOR metric.

@@ -13,12 +13,12 @@ use_case_links:
   - OPS-001
 kpis:
   trigger_kpis:
-  - ops.pm_compliance.pct
+  - KPI-OPS-007
   guardrail_kpis:
-  - ops.availability.pct
+  - KPI-OPS-016
   outcome_kpis:
-  - ops.pm_compliance.pct
-  - ops.mtbf.hours
+  - KPI-OPS-007
+  - KPI-OPS-005
 scope:
   default_grain: asset_month
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: ops.pm.task.count
+        metric_kpi_id: KPI-OPS-014
         comparator: gte
         value: 5
         unit: count
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: ops.pm_compliance.pct
+        metric_kpi_id: KPI-OPS-007
         comparator: lt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: ops.pm_compliance.pct
+        metric_kpi_id: KPI-OPS-007
         comparator: lt
         threshold:
           basis: absolute
@@ -74,7 +74,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: ops.pm_compliance.pct
+        metric_kpi_id: KPI-OPS-007
         comparator: lt
         threshold:
           basis: absolute
@@ -90,7 +90,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P60D
-    metric_kpi_id: ops.mttr.hours
+    metric_kpi_id: KPI-OPS-006
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -106,7 +106,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: ops.pm_compliance.pct
+    metric_kpi_id: KPI-OPS-007
     value_low: 5.0
     value_high: 10.0
     unit: pp

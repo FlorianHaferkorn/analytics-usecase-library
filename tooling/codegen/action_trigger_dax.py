@@ -63,7 +63,7 @@ NICHT_ABLEITBAR = {
     "X-E3.3": ("CompositeDeviation, Stufen nur als Prosa", "2026-09-23"),
     # Schluessel mit Modell: nur in diesem Modell nicht ableitbar.
     "Finance.SemanticModel:S-I1.2": (
-        "Trigger-KPI inv.dio.days fehlt im Finance-Modell (dort wc.dio.days); das Measure ist "
+        "Trigger-KPI KPI-SCM-001 fehlt im Finance-Modell (dort KPI-FIN-004); das Measure ist "
         "statischer Text und steht in keiner Active-Actions-Liste", "2026-09-23"),
 }
 _MEASURE_LINE = re.compile(r"^(\tmeasure '(Action_([^']+)_Text)' = )(.*)$", re.M)

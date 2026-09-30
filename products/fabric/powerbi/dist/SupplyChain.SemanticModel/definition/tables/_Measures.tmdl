@@ -9,25 +9,25 @@ table _Measures
 			in
 				Source
 
-	/// enterprise.actions_executed.count - Actions Executed Count
+	/// KPI-GOV-005 - Actions Executed Count
 	/// Number of action codes with a recorded outcome in fact_action_outcome.
 	measure 'Actions Executed Count (XD)' = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.action_outcome_rate.pct - Action Outcome Rate %
+	/// KPI-GOV-001 - Action Outcome Rate %
 	/// Percentage of executed actions with a confirmed achieved outcome.
 	measure 'Action Outcome Rate % (XD)' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
 		formatString: 0.0%
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.avg_time_to_outcome.days - Avg Time-to-Outcome Days
+	/// KPI-GOV-006 - Avg Time-to-Outcome Days
 	/// Average days between action execution and outcome confirmation.
 	measure 'Avg Time-to-Outcome Days (XD)' = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
 		formatString: #,0.0
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.action_roi.pct - Action ROI %
+	/// KPI-GOV-007 - Action ROI %
 	/// Average ROI of executed actions: total impact value / total execution cost - 1.
 	measure 'Action ROI % (XD)' = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
 		formatString: 0.0%
@@ -64,7 +64,7 @@ table _Measures
 		displayFolder: "8_Action_Outcomes"
 
 	/// Purpose: Zielwert von Days in Inventory aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'Days in Inventory Target' = CALCULATE ( SUM ( fact_target[Target Value] ), fact_target[kpi_id] = "inv.dio.days", fact_target[scenario] = "target" )
+	measure 'Days in Inventory Target' = CALCULATE ( SUM ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-SCM-001", fact_target[scenario] = "target" )
 		formatString: "0"
 		displayFolder: 8_Comparison
 		lineageTag: 59e6eb5b-e257-585b-afb2-ffea0377292c
@@ -80,7 +80,7 @@ table _Measures
 		annotation ALUCA_Generated = "comparison_measures"
 
 	/// Purpose: Zielwert von Forecast Accuracy % aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'Forecast Accuracy % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "plan.forecast.accuracy.pct", fact_target[scenario] = "target" )
+	measure 'Forecast Accuracy % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-SCM-005", fact_target[scenario] = "target" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison
 		lineageTag: 4e2ba645-3ab5-55cd-9087-1eae31a11c3a
@@ -96,7 +96,7 @@ table _Measures
 		annotation ALUCA_Generated = "comparison_measures"
 
 	/// Purpose: Zielwert von OTIF % aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'OTIF % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "supply.otif.pct", fact_target[scenario] = "target" )
+	measure 'OTIF % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-SCM-007", fact_target[scenario] = "target" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison
 		lineageTag: 1c9876ce-ec40-58c9-a12b-87811a2fd56a

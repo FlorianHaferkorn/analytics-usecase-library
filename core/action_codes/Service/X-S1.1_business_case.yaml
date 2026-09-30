@@ -1,6 +1,6 @@
 id: X-S1.1
 action_code_id: X-S1.1
-kpi_id: svc.sla.attainment.pct
+kpi_id: KPI-SVC-004
 impact_range_eur_min: 100000
 impact_range_eur_likely: 500000
 impact_range_eur_max: 1500000

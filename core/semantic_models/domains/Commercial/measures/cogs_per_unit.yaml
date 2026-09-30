@@ -1,6 +1,6 @@
 measure_name: COGS per Unit
 is_kpi_measure: true
-kpi_id_ref: cost.cogs_per_unit.amount
+kpi_id_ref: KPI-FIN-013
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 02_Margin
 category: KPI

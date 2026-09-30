@@ -1,6 +1,6 @@
 measure_name: Defect Density
 is_kpi_measure: true
-kpi_id_ref: quality.defect_density
+kpi_id_ref: KPI-QUA-005
 semantic_model: Operations_SemanticModel
 display_folder: 06_Quality
 category: KPI

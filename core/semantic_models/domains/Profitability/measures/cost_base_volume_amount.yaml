@@ -1,6 +1,6 @@
 measure_name: Cost Base Volume Amount
 is_kpi_measure: true
-kpi_id_ref: cost.base_volume.amount
+kpi_id_ref: KPI-FIN-019
 semantic_model: Profitability_SemanticModel
 display_folder: 02_Cost
 category: KPI

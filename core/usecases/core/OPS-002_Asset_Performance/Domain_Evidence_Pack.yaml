@@ -64,7 +64,7 @@ process_scope:
 # ──────────────────────────────────────────
 canonical_domain_model:
   outcome_kpis:
-    - id: ops.mtbf.hours
+    - id: KPI-OPS-005
       name: Mean Time Between Failures (MTBF)
       definition: >
         MTBF = Total Operating Time / Number of Failures. ISO 14224 defines MTBF as
@@ -80,7 +80,7 @@ canonical_domain_model:
       iso_reference: ISO 14224:2016 clause 3 (terms) and Annex C (reliability parameters)
 
   driver_kpis:
-    - id: ops.failure.count
+    - id: KPI-OPS-012
       name: Failure Count
       definition: >
         Number of recorded failure events (loss of required function) for an asset
@@ -90,7 +90,7 @@ canonical_domain_model:
         failures directly extends time between breakdowns.
       unit: count
       direction: minimize
-      drives: ops.mtbf.hours
+      drives: KPI-OPS-005
       causal_mechanism: >
         MTBF = Operating Time / Failure Count. Each eliminated recurring failure mode
         raises MTBF for a fixed operating window. A small number of dominant failure
@@ -99,7 +99,7 @@ canonical_domain_model:
       benchmark_target: "Declining trend on critical assets; near-zero recurrence for top-3 failure modes after RCM"
       benchmark_source_id: SRC-006
 
-    - id: ops.mttr.hours
+    - id: KPI-OPS-006
       name: Mean Time To Repair (MTTR)
       definition: >
         MTTR = Total Repair (restoration) Time / Number of Failures. ISO 14224 /
@@ -107,7 +107,7 @@ canonical_domain_model:
         combining detection, diagnosis, active repair, and restoration to operating state.
       unit: hours
       direction: minimize
-      drives: ops.mtbf.hours
+      drives: KPI-OPS-005
       causal_mechanism: >
         MTTR does not change MTBF arithmetically but governs availability for a given
         MTBF (Availability = MTBF / (MTBF + MTTR)). Elevated MTTR signals spare-parts
@@ -117,7 +117,7 @@ canonical_domain_model:
       benchmark_target: "Asset-class dependent; minimise active repair time; SMRP BMP MTTR benchmarks by criticality"
       benchmark_source_id: SRC-004
 
-    - id: ops.availability.pct
+    - id: KPI-OPS-016
       name: Availability Rate
       definition: >
         Availability = Operating (Run) Time / (Operating Time + Unplanned Downtime),
@@ -126,7 +126,7 @@ canonical_domain_model:
         inherent vs operational availability.
       unit: "%"
       direction: maximize
-      drives: ops.mtbf.hours
+      drives: KPI-OPS-005
       causal_mechanism: >
         Availability is the joint outcome of MTBF (failure frequency) and MTTR (repair
         speed). It is the bridge between reliability and the production plan: an asset
@@ -134,7 +134,7 @@ canonical_domain_model:
       benchmark_target: "90% availability / unplanned downtime ≤ 10% is the world-class threshold (SMRP BMP)"
       benchmark_source_id: SRC-004
 
-    - id: ops.downtime.unplanned.pct
+    - id: KPI-OPS-018
       name: Unplanned Downtime %
       definition: >
         Unplanned Downtime % = Unplanned Downtime Minutes / Planned Production Time.
@@ -142,7 +142,7 @@ canonical_domain_model:
         shutdowns). The dominant availability destroyer in most asset-intensive plants.
       unit: "%"
       direction: minimize
-      drives: ops.mtbf.hours
+      drives: KPI-OPS-005
       causal_mechanism: >
         Unplanned downtime is the visible symptom of low MTBF and/or high MTTR. A
         rising unplanned-downtime trend with a falling MTBF confirms a reliability
@@ -151,7 +151,7 @@ canonical_domain_model:
       benchmark_target: "≤ 10% of planned production time (world-class availability ≥ 90%, SMRP BMP)"
       benchmark_source_id: SRC-004
 
-    - id: ops.pm_compliance.pct
+    - id: KPI-OPS-007
       name: Preventive Maintenance Compliance
       definition: >
         PM Compliance = Completed PM Tasks / Scheduled PM Tasks (within the compliance
@@ -159,7 +159,7 @@ canonical_domain_model:
         — the work being done now that prevents tomorrow's failures.
       unit: "%"
       direction: maximize
-      drives: ops.mtbf.hours
+      drives: KPI-OPS-005
       causal_mechanism: >
         PM compliance below ~90% is a leading indicator of MTBF decline on critical
         assets, typically within 2–4 months as deferred condition-restoration tasks
@@ -168,7 +168,7 @@ canonical_domain_model:
       benchmark_target: "≥ 90% world class (SMRP BMP); ≥ 95% for A-criticality assets"
       benchmark_source_id: SRC-003
 
-    - id: ops.spare_parts.stockout.pct
+    - id: KPI-OPS-008
       name: Spare Parts Stockout %
       definition: >
         Spare Parts Stockout % = Maintenance Orders Delayed by Parts Unavailability /
@@ -176,7 +176,7 @@ canonical_domain_model:
         preventive work. A supply-side constraint on repair speed.
       unit: "%"
       direction: minimize
-      drives: ops.mttr.hours
+      drives: KPI-OPS-006
       causal_mechanism: >
         Stockout of a critical spare extends MTTR (the asset waits for parts, not for
         repair labour), which depresses availability even when failure frequency is
@@ -194,7 +194,7 @@ canonical_domain_model:
         failure-mode Pareto to isolate the dominant recurring failures.
       unit: count
       direction: minimize
-      diagnoses: ops.failure.count
+      diagnoses: KPI-OPS-012
       causal_mechanism: >
         A handful of cause codes usually drive most failures. Ranking failures by
         ISO 14224 cause code points RCM analysis (SAE JA1011) at the highest-leverage
@@ -208,7 +208,7 @@ canonical_domain_model:
         logistic/administrative delay.
       unit: hours
       direction: minimize
-      diagnoses: ops.mttr.hours
+      diagnoses: KPI-OPS-006
       causal_mechanism: >
         High wait time vs active-repair time indicates a logistics problem (spares,
         scheduling) rather than a technical/skill problem. This separation determines
@@ -222,7 +222,7 @@ canonical_domain_model:
         the compliance window. The execution detail behind PM compliance %.
       unit: count
       direction: minimize
-      diagnoses: ops.pm_compliance.pct
+      diagnoses: KPI-OPS-007
       causal_mechanism: >
         Overdue PM tasks concentrated on specific asset clusters precede unplanned
         downtime spikes on those same assets, confirming a PM execution gap (vs a PM
@@ -236,7 +236,7 @@ canonical_domain_model:
         failure modes that PM is not addressing.
       unit: "%"
       direction: minimize
-      diagnoses: ops.failure.count
+      diagnoses: KPI-OPS-012
       causal_mechanism: >
         High recurrence with high PM compliance indicates the PM programme is targeting
         the wrong failure modes — the signal for a maintenance-strategy / RCM review
@@ -250,9 +250,9 @@ canonical_domain_model:
         (ISO 14224 down-time states; EN 13306 planned vs unplanned). Do not trigger
         reliability-recovery actions on planned-maintenance time.
       affected_kpis:
-        - ops.availability.pct
-        - ops.downtime.unplanned.pct
-        - ops.mtbf.hours
+        - KPI-OPS-016
+        - KPI-OPS-018
+        - KPI-OPS-005
 
     - description: Commissioning and infant-mortality period
       condition: >
@@ -261,8 +261,8 @@ canonical_domain_model:
         trigger O-A2.1 reliability recovery on infant-mortality failures; apply
         commissioning-quality actions instead.
       affected_kpis:
-        - ops.mtbf.hours
-        - ops.failure.count
+        - KPI-OPS-005
+        - KPI-OPS-012
 
     - description: Single-failure statistical noise on low-failure assets
       condition: >
@@ -270,7 +270,7 @@ canonical_domain_model:
         — one event can halve reported MTBF. Require a minimum failure count or rolling
         window before triggering action to avoid acting on noise.
       affected_kpis:
-        - ops.mtbf.hours
+        - KPI-OPS-005
 
     - description: Force majeure and external-cause downtime
       condition: >
@@ -278,8 +278,8 @@ canonical_domain_model:
         utility loss, upstream supply stoppage) must be excluded from reliability KPIs
         and must NOT count against MTBF or availability (ISO 14224 maintenance-cause coding).
       affected_kpis:
-        - ops.availability.pct
-        - ops.downtime.unplanned.pct
+        - KPI-OPS-016
+        - KPI-OPS-018
 
   wrong_interpretations:
     - description: "Treating MTBF as a fixed asset property rather than a window-and-taxonomy-dependent statistic"
@@ -414,7 +414,7 @@ required_data_model:
 # 4. ACTION LOGIC SEEDS
 # ──────────────────────────────────────────
 action_logic_seeds:
-  - trigger_driver: ops.failure.count
+  - trigger_driver: KPI-OPS-012
     trigger_diagnostic: ops.failure.count.by_mode
     trigger_condition: "MTBF declining > 20% over 8 weeks on a critical asset AND a single cause code accounts for > 40% of failures"
     guardrail: "Exclude planned-maintenance time, force majeure, and assets in commissioning/infant-mortality period"
@@ -422,40 +422,40 @@ action_logic_seeds:
       Asset reliability recovery: run a failure-mode Pareto (ISO 14224 cause codes),
       execute corrective maintenance on the dominant recurring mode, and update the
       PM task list for that failure mode via RCM logic (SAE JA1011).
-    expected_outcome_kpi: ops.mtbf.hours
+    expected_outcome_kpi: KPI-OPS-005
     action_code_candidate: O-A2.1
 
-  - trigger_driver: ops.pm_compliance.pct
+  - trigger_driver: KPI-OPS-007
     trigger_diagnostic: ops.pm.task.overdue.count
     trigger_condition: "PM Compliance < 90% AND overdue PM tasks concentrated on assets with rising unplanned downtime for 3 consecutive weeks"
     guardrail: "Exclude assets under approved overhaul; require realistic PM plan (no padded schedule)"
     action_description: >
       PM schedule optimization and backlog recovery: restore PM compliance to ≥ 90%,
       reschedule overdue critical-asset PMs first, and review PM frequencies for adequacy.
-    expected_outcome_kpi: ops.pm_compliance.pct
+    expected_outcome_kpi: KPI-OPS-007
     action_code_candidate: O-A2.2
 
-  - trigger_driver: ops.mtbf.hours
+  - trigger_driver: KPI-OPS-005
     trigger_diagnostic: ops.failure.recurrence.pct
     trigger_condition: "PM Compliance ≥ 90% AND MTBF flat/declining AND repeat-failure rate > 25% with failure modes shifting"
     guardrail: "Confirm failures are not external-cause; require minimum failure count for statistical stability"
     action_description: >
       Maintenance strategy / RCM review: failure-mode and effects analysis, score PM
       task relevance against actual failure modes, and re-select tasks per SAE JA1011/JA1012.
-    expected_outcome_kpi: ops.mtbf.hours
+    expected_outcome_kpi: KPI-OPS-005
     action_code_candidate: O-A2.3
 
-  - trigger_driver: ops.mttr.hours
+  - trigger_driver: KPI-OPS-006
     trigger_diagnostic: ops.mttr.repair_wait.hours
     trigger_condition: "MTTR rising AND repair wait time (parts) > active repair time AND spare-parts stockout % > 10% on critical BOM"
     guardrail: "Exclude one-off long-lead-item failures already covered by a CAPEX plan"
     action_description: >
       Spare-parts and inventory review: raise critical-spare service level, adjust
       reorder points / safety stock on A-criticality BOM, and pre-kit high-failure-mode repairs.
-    expected_outcome_kpi: ops.mttr.hours
+    expected_outcome_kpi: KPI-OPS-006
     action_code_candidate: O-A2.4
 
-  - trigger_driver: ops.availability.pct
+  - trigger_driver: KPI-OPS-016
     trigger_diagnostic: ops.failure.count.by_mode
     trigger_condition: "Availability < 90% sustained for 2 months on a critical asset with multiple distinct failure modes (no single dominant cause)"
     guardrail: "Exclude planned shutdown and force majeure; confirm criticality classification is current"
@@ -463,7 +463,7 @@ action_logic_seeds:
       Asset criticality and renewal review (ISO 55001): re-assess asset criticality,
       evaluate repair-vs-replace, and escalate chronic low-availability critical assets
       to the asset-management plan.
-    expected_outcome_kpi: ops.availability.pct
+    expected_outcome_kpi: KPI-OPS-016
     action_code_candidate: O-A2.5
 
 # ──────────────────────────────────────────
@@ -819,14 +819,14 @@ mapping_readiness:
         affected_artifact: core/usecases/core/OPS-002_Asset_Performance/UseCase_Bracket.yaml
         field: ux_layout_rules.page_1_summary.component_30s (Main_1)
         description: >
-          Main_1 trend visual shows ops.availability.pct (a driver KPI). The strategic
-          KPI for OPS-002 is ops.mtbf.hours; the lead trend should answer "Is reliability
+          Main_1 trend visual shows KPI-OPS-016 (a driver KPI). The strategic
+          KPI for OPS-002 is KPI-OPS-005; the lead trend should answer "Is reliability
           (MTBF) on target?" before "Is availability sufficient?". Availability belongs
           alongside MTTR as the availability decomposition.
         evidence_reference: SRC-001 SRC-004
-        remediation: "Set Main_1 to ops.mtbf.hours trend vs asset-class target; move availability to the supporting bar group. Close when DEP approved."
+        remediation: "Set Main_1 to KPI-OPS-005 trend vs asset-class target; move availability to the supporting bar group. Close when DEP approved."
         status: rejected
-        resolution: "By framework convention the strategic KPI (ops.mtbf.hours) is already the 3-second headline card; Main_1 correctly leads with the operational driver (availability), consistent with COM-001. No change."
+        resolution: "By framework convention the strategic KPI (KPI-OPS-005) is already the 3-second headline card; Main_1 correctly leads with the operational driver (availability), consistent with COM-001. No change."
 
       - gap_type: mapping_gap
         severity: medium

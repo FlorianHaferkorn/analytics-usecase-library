@@ -7,7 +7,7 @@ vi.mock('@/lib/store/project-store', () => ({
 }));
 
 const fetchMock = vi.fn();
-const props = { kpiId: 'sales.net_sales.amount', golden20Ids: ['sales.net_sales.amount'], onKpiChange: vi.fn() };
+const props = { kpiId: 'KPI-COM-005', golden20Ids: ['KPI-COM-005'], onKpiChange: vi.fn() };
 const preset = {
   kpi_id: props.kpiId, label: 'Net Sales',
   baseline_range: { min: 1000, likely: 2000, max: 3000, unit: 'units' },
@@ -22,7 +22,7 @@ describe('Value assumptions panel', () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify({ preset }), { status: 200 }));
     render(<RoiPresetPanel {...props} />);
     expect(await screen.findByText('2000 units')).toBeTruthy();
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/core/presets/sales.net_sales.amount');
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/core/presets/KPI-COM-005');
     expect(screen.queryByText(/Industry-benchmarked/)).toBeNull();
     expect(screen.queryByText('€2k')).toBeNull();
   });

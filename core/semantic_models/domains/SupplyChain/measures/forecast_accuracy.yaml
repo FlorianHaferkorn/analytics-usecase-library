@@ -1,6 +1,6 @@
 measure_name: Forecast Accuracy %
 is_kpi_measure: true
-kpi_id_ref: plan.forecast.accuracy.pct
+kpi_id_ref: KPI-SCM-005
 semantic_model: SupplyChain_SemanticModel
 display_folder: 03_Forecast
 category: KPI

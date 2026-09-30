@@ -95,7 +95,7 @@ python3 tooling/validation/check_catalog_tmdl_drift.py 2>&1 | tail -5
 ### 3c. Action-outcome loop — XD-004 (Studio)
 
 Navigate to `/catalog`, open bracket `XD-004`. Verify:
-- `orchestration.strategic_kpi_id: enterprise.action_outcome_rate.pct`
+- `orchestration.strategic_kpi_id: KPI-GOV-001`
 - All 15 Impactful action codes listed under `orchestration.action_code_ids`
 - `readiness.data_availability: available`
 

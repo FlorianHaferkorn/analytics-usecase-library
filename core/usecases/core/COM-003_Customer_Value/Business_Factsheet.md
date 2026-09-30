@@ -45,20 +45,20 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| crm.clv.amount | Strategic |
-| crm.lifetime_revenue.amount | Influencing |
-| crm.retention.pct | Influencing |
-| crm.churned_customers.count | Influencing |
-| crm.active_customers.count | Influencing |
-| crm.nps.index | Influencing |
-| crm.complaint.count | Influencing |
-| crm.revenue_at_risk.amount | Supporting |
-| sales.net_sales.amount | Supporting |
-| cost.cogs.amount | Supporting |
+| KPI-CUS-001 | Strategic |
+| KPI-CUS-005 | Influencing |
+| KPI-CUS-002 | Influencing |
+| KPI-CUS-004 | Influencing |
+| KPI-CUS-006 | Influencing |
+| KPI-CUS-003 | Influencing |
+| KPI-SVC-001 | Influencing |
+| KPI-OPS-001 | Supporting |
+| KPI-COM-005 | Supporting |
+| KPI-FIN-011 | Supporting |
 
 **Action Codes:** C-C3.1, C-C3.2
 
-**CLV Definition:** `crm.clv.amount` represents 12-month forward gross margin per customer, discounted at the company's cost of capital. It combines predicted retention probability, expected purchase volume, and net margin per unit — not lifetime revenue alone. This forward-looking definition allows CLV to be used as both a retention-priority signal and a margin-guardrail input.
+**CLV Definition:** `KPI-CUS-001` represents 12-month forward gross margin per customer, discounted at the company's cost of capital. It combines predicted retention probability, expected purchase volume, and net margin per unit — not lifetime revenue alone. This forward-looking definition allows CLV to be used as both a retention-priority signal and a margin-guardrail input.
 
 > Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
@@ -68,14 +68,14 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **CLV (Customer Lifetime Value)** (`crm.clv.amount`) → **Marketing analytics — CRM (convention)** (none): CLV (discounted expected future gross margin per customer) is a well-established marketing-analytics model, not a governed standard.
-- **Customer Lifetime Revenue Amount** (`crm.lifetime_revenue.amount`) → **IFRS 15** (partial): The revenue base is IFRS 15 (net sales per customer accumulated from first purchase).
-- **Customer Retention %** (`crm.retention.pct`) → **Marketing analytics — CRM (convention)** (none): Retention (end/start active customers) is a CRM-analytics convention.
-- **Churned Customers** (`crm.churned_customers.count`) → **Marketing analytics — CRM (convention)** (none): Churn count (active in look-back, inactive now) is a CRM-analytics convention; churn-window definition must be pinned.
-- **Active Customers** (`crm.active_customers.count`) → **Marketing analytics — CRM (convention)** (none): Active-customer count (distinct customers with a qualifying transaction) is a CRM-analytics convention.
-- **Net Promoter Score (NPS)** (`crm.nps.index`) → **Bain NPS (proprietary)** (none): NPS is a proprietary Bain & Company methodology, not an open standard.
-- **Complaint Count** (`crm.complaint.count`) → **ISO 10002** (partial): Complaint count feeds the ISO 10002:2018 complaints-handling process (the standard governs how complaints are captured/handled, not a specific count formula).
-- **Revenue at Risk Amount** (`crm.revenue_at_risk.amount`) → **Marketing analytics — CRM (convention)** (none): Revenue at risk (net sales x churn rate) is a composite CRM convention built on IFRS 15 revenue and the churn convention.
+- **CLV (Customer Lifetime Value)** (`KPI-CUS-001`) → **Marketing analytics — CRM (convention)** (none): CLV (discounted expected future gross margin per customer) is a well-established marketing-analytics model, not a governed standard.
+- **Customer Lifetime Revenue Amount** (`KPI-CUS-005`) → **IFRS 15** (partial): The revenue base is IFRS 15 (net sales per customer accumulated from first purchase).
+- **Customer Retention %** (`KPI-CUS-002`) → **Marketing analytics — CRM (convention)** (none): Retention (end/start active customers) is a CRM-analytics convention.
+- **Churned Customers** (`KPI-CUS-004`) → **Marketing analytics — CRM (convention)** (none): Churn count (active in look-back, inactive now) is a CRM-analytics convention; churn-window definition must be pinned.
+- **Active Customers** (`KPI-CUS-006`) → **Marketing analytics — CRM (convention)** (none): Active-customer count (distinct customers with a qualifying transaction) is a CRM-analytics convention.
+- **Net Promoter Score (NPS)** (`KPI-CUS-003`) → **Bain NPS (proprietary)** (none): NPS is a proprietary Bain & Company methodology, not an open standard.
+- **Complaint Count** (`KPI-SVC-001`) → **ISO 10002** (partial): Complaint count feeds the ISO 10002:2018 complaints-handling process (the standard governs how complaints are captured/handled, not a specific count formula).
+- **Revenue at Risk Amount** (`KPI-OPS-001`) → **Marketing analytics — CRM (convention)** (none): Revenue at risk (net sales x churn rate) is a composite CRM convention built on IFRS 15 revenue and the churn convention.
 
 ---
 
@@ -244,7 +244,7 @@ These scenarios illustrate how this use case drives decisions in practice. They 
 
 **Who decides:** CCO + Commercial Controlling Lead + Account Manager.
 
-**When NOT to act:** If the account's negative margin is documented within an approved strategic account plan (e.g., anchor customer generating referrals, locking out a competitor, or supporting a market-entry objective), no corrective action should fire. CLV as a forward-looking metric will reflect recovery once the strategic rationale matures. The margin-guardrail trigger in C-C3.1 (`margin.gm.pct` as guardrail KPI) is specifically designed to block retention spend on structurally loss-making accounts — but that gating logic does not override an explicitly approved strategic exception. Verify the strategic account designation before launching any intervention.
+**When NOT to act:** If the account's negative margin is documented within an approved strategic account plan (e.g., anchor customer generating referrals, locking out a competitor, or supporting a market-entry objective), no corrective action should fire. CLV as a forward-looking metric will reflect recovery once the strategic rationale matures. The margin-guardrail trigger in C-C3.1 (`KPI-COM-013` as guardrail KPI) is specifically designed to block retention spend on structurally loss-making accounts — but that gating logic does not override an explicitly approved strategic exception. Verify the strategic account designation before launching any intervention.
 
 **Action Code triggered:** None if within approved strategic account plan. If no strategic designation exists, initiate a repricing and cost-to-serve review with the account before triggering C-C3.1.
 

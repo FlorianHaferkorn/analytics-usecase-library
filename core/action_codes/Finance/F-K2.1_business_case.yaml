@@ -1,6 +1,6 @@
 id: F-K2.1
 action_code_id: F-K2.1
-kpi_id: cost.unit.amount
+kpi_id: KPI-FIN-015
 impact_range_eur_min: 1000000
 impact_range_eur_likely: 3500000
 impact_range_eur_max: 8000000

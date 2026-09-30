@@ -1,6 +1,6 @@
 measure_name: Planned Hours
 is_kpi_measure: true
-kpi_id_ref: ops.planned.hours
+kpi_id_ref: KPI-SCM-019
 semantic_model: Operations_SemanticModel
 display_folder: 01_Ops
 category: KPI

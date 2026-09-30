@@ -1,6 +1,6 @@
 measure_name: Last Year Net Sales Amount
 is_kpi_measure: true
-kpi_id_ref: sales.net_sales.ly.amount
+kpi_id_ref: KPI-COM-007
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 01_Revenue
 category: Base

@@ -28,13 +28,13 @@ use_cases:
     title: "Sales Performance vs Plan & LY"
     purpose: "Explain Net Sales performance vs Plan and vs Last Year by price, volume, mix, and channel/region"
     strategic_kpis:
-      - sales.net_sales.amount
-      - sales.net_sales.delta_pct.plan
-      - sales.net_sales.delta_pct.ly
-      - margin.gm.pct
-      - sales.pvm.price_effect.amount
-      - sales.pvm.volume_effect.amount
-      - sales.pvm.mix_effect.amount
+      - KPI-COM-005
+      - KPI-COM-009
+      - KPI-COM-008
+      - KPI-COM-013
+      - KPI-COM-010
+      - KPI-COM-011
+      - KPI-COM-004
     action_codes: [P2, P4, M3, D1]
     display_folder: "01_Sales Performance"
     reporting_level: Tactical
@@ -45,12 +45,12 @@ use_cases:
     title: "Margin & Price Performance"
     purpose: "Protect and improve gross margin by explaining leakage across price realization, mix, and unit cost"
     strategic_kpis:
-      - margin.gm.pct
-      - margin.gm.amount
-      - sales.price.realization_pct
-      - sales.pvm.mix_effect.amount
-      - cost.cogs_per_unit.amount
-      - margin.gm.vs_plan.pct
+      - KPI-COM-013
+      - KPI-COM-019
+      - KPI-COM-003
+      - KPI-COM-004
+      - KPI-FIN-013
+      - KPI-FIN-017
     action_codes: [P2, M3, D1, PC2]
     display_folder: "02_Margin Analysis"
     reporting_level: Tactical
@@ -61,14 +61,14 @@ use_cases:
     title: "Customer Value"
     purpose: "Maximise customer lifetime value by improving retention, reducing churn, and prioritising profitable segments"
     strategic_kpis:
-      - crm.clv.amount
-      - crm.lifetime_revenue.amount
-      - crm.retention.pct
-      - crm.churned_customers.count
-      - crm.revenue_at_risk.amount
-      - crm.active_customers.count
-      - crm.nps.index
-      - crm.complaint.count
+      - KPI-CUS-001
+      - KPI-CUS-005
+      - KPI-CUS-002
+      - KPI-CUS-004
+      - KPI-OPS-001
+      - KPI-CUS-006
+      - KPI-CUS-003
+      - KPI-SVC-001
     action_codes: [C1, P2, M3, D1]
     display_folder: "03_Customer Analysis"
     reporting_level: Tactical
@@ -79,11 +79,11 @@ use_cases:
     title: "Promotion Effectiveness"
     purpose: "Improve promotion ROI by measuring true incremental sales and margin, controlling leakage"
     strategic_kpis:
-      - sales.promo.roi.pct
-      - sales.promo.incremental.amount
-      - margin.promo.gm.pct
-      - sales.price.realization_pct
-      - sales.promo.cannibalization.pct
+      - KPI-COM-016
+      - KPI-COM-021
+      - KPI-FIN-012
+      - KPI-COM-003
+      - KPI-COM-018
     action_codes: [PC2, P2, M3, D1]
     display_folder: "04_Promotion"
     reporting_level: Tactical
@@ -238,44 +238,44 @@ display_folders:
   - folder_name: "01_Sales Performance"
     description: "COM-001: Sales vs Plan and Last Year, PVM decomposition"
     measures:
-      - sales.net_sales.amount
-      - sales.net_sales.delta_pct.plan
-      - sales.net_sales.delta_pct.ly
-      - margin.gm.pct
-      - sales.pvm.price_effect.amount
-      - sales.pvm.volume_effect.amount
-      - sales.pvm.mix_effect.amount
+      - KPI-COM-005
+      - KPI-COM-009
+      - KPI-COM-008
+      - KPI-COM-013
+      - KPI-COM-010
+      - KPI-COM-011
+      - KPI-COM-004
 
   - folder_name: "02_Margin Analysis"
     description: "COM-002: Gross margin protection and price realization"
     measures:
-      - margin.gm.pct
-      - margin.gm.amount
-      - sales.price.realization_pct
-      - sales.pvm.mix_effect.amount
-      - cost.cogs_per_unit.amount
-      - margin.gm.vs_plan.pct
+      - KPI-COM-013
+      - KPI-COM-019
+      - KPI-COM-003
+      - KPI-COM-004
+      - KPI-FIN-013
+      - KPI-FIN-017
 
   - folder_name: "03_Customer Analysis"
     description: "COM-003: Customer lifetime value and retention"
     measures:
-      - crm.clv.amount
-      - crm.lifetime_revenue.amount
-      - crm.retention.pct
-      - crm.churned_customers.count
-      - crm.revenue_at_risk.amount
-      - crm.active_customers.count
-      - crm.nps.index
-      - crm.complaint.count
+      - KPI-CUS-001
+      - KPI-CUS-005
+      - KPI-CUS-002
+      - KPI-CUS-004
+      - KPI-OPS-001
+      - KPI-CUS-006
+      - KPI-CUS-003
+      - KPI-SVC-001
 
   - folder_name: "04_Promotion"
     description: "COM-004: Promotion ROI and effectiveness"
     measures:
-      - sales.promo.roi.pct
-      - sales.promo.incremental.amount
-      - margin.promo.gm.pct
-      - sales.price.realization_pct
-      - sales.promo.cannibalization.pct
+      - KPI-COM-016
+      - KPI-COM-021
+      - KPI-FIN-012
+      - KPI-COM-003
+      - KPI-COM-018
 
   - folder_name: "Supporting Measures"
     description: "Hidden helper measures used by KPI calculations"

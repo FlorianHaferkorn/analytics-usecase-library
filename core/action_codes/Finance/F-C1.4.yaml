@@ -13,12 +13,12 @@ use_case_links:
   - SCM-002
 kpis:
   trigger_kpis:
-  - wc.dpo.days
+  - KPI-FIN-005
   guardrail_kpis:
-  - scm.supplier_risk.score
+  - KPI-SCM-022
   outcome_kpis:
-  - wc.dpo.days
-  - fin.cash.ocf
+  - KPI-FIN-005
+  - KPI-FIN-009
 scope:
   default_grain: month
   default_perspective:
@@ -45,7 +45,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: fin.liquidity.payables.amount
+        metric_kpi_id: KPI-FIN-003
         comparator: gte
         value: 250000
         unit: amount
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: wc.dpo.days
+        metric_kpi_id: KPI-FIN-005
         comparator: lt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: wc.dpo.days
+        metric_kpi_id: KPI-FIN-005
         comparator: lt
         threshold:
           basis: absolute
@@ -75,7 +75,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: wc.dpo.days
+        metric_kpi_id: KPI-FIN-005
         comparator: lt
         threshold:
           basis: absolute
@@ -94,7 +94,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P90D
-    metric_kpi_id: wc.ccc.days
+    metric_kpi_id: KPI-FIN-006
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -108,7 +108,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: wc.dpo.days
+    metric_kpi_id: KPI-FIN-005
     value_low: 2
     value_high: 6
     unit: days

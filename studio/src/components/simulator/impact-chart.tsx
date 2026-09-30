@@ -6,11 +6,12 @@ import { formatKpiValue } from '@/lib/format/kpi-value';
 interface Props {
   contributions: DriverContribution[];
   impactDirection: 'maximize' | 'minimize';
-  targetKpiId?: string;
   targetUnit?: string;
+  /** Catalog names (`kpi_key`) by KPI ID; the ID itself carries no meaning (D-594). */
+  kpiNames?: Record<string, string>;
 }
 
-export function ImpactChart({ contributions, impactDirection, targetKpiId = '', targetUnit = '' }: Props) {
+export function ImpactChart({ contributions, impactDirection, targetUnit = '', kpiNames = {} }: Props) {
   const maxAbs = Math.max(...contributions.map((c) => Math.abs(c.contribution)), 0.01);
 
   return (
@@ -46,7 +47,7 @@ export function ImpactChart({ contributions, impactDirection, targetKpiId = '', 
                 }}
                 title={c.kpiId}
               >
-                {c.kpiId.split('.').slice(-2).join('.')}
+                {kpiNames[c.kpiId] ?? c.kpiId}
               </span>
               <div style={{ flex: 1, height: '16px', position: 'relative', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-sm)' }}>
                 {isPositive ? (
@@ -76,7 +77,7 @@ export function ImpactChart({ contributions, impactDirection, targetKpiId = '', 
                 <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '1px', backgroundColor: 'var(--line)' }} />
               </div>
               <span style={{ fontSize: 'var(--text-xs)', color: barColor, fontWeight: 600, minWidth: '48px', textAlign: 'right' }}>
-                {c.contribution === 0 ? 'No change' : `${c.contribution > 0 ? '+' : ''}${formatKpiValue(c.contribution, targetKpiId, targetUnit === '%' ? 'pp' : targetUnit)}`}
+                {c.contribution === 0 ? 'No change' : `${c.contribution > 0 ? '+' : ''}${formatKpiValue(c.contribution, targetUnit === '%' ? 'pp' : targetUnit)}`}
               </span>
             </div>
           );

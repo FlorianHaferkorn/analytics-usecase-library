@@ -46,7 +46,7 @@ process_scope:
 
 canonical_domain_model:
   outcome_kpis:
-    - id: cost.unit.amount
+    - id: KPI-FIN-015
       name: Unit Cost Amount
       definition: >
         Fully-loaded cost per good unit produced = (Material Cost + Labor Cost + Overhead/Conversion Cost)
@@ -57,7 +57,7 @@ canonical_domain_model:
       benchmark_target: "Sector-specific; track to plan ±2% and to standard cost; total manufacturing cost trended via APQC OSB total-cost-of-manufacturing-as-%-of-revenue"
       benchmark_source_id: SRC-006
 
-    - id: margin.cogs.pct
+    - id: KPI-FIN-016
       name: COGS % of Sales
       role: guardrail
       definition: "COGS Amount / Net Sales Amount × 100. Margin co-outcome — unit-cost actions must not raise COGS %."
@@ -71,12 +71,12 @@ canonical_domain_model:
       benchmark_source_id: SRC-006
 
   driver_kpis:
-    - id: cost.material.pct
+    - id: KPI-SCM-020
       name: Material Cost %
       definition: "Material Cost Amount / COGS Amount × 100 (share of cost from purchased materials and consumables)."
       unit: "%"
       direction: minimize
-      drives: cost.unit.amount
+      drives: KPI-FIN-015
       causal_mechanism: >
         Material is the largest and fastest-moving cost bucket in most manufacturing. Material cost %
         moves with purchase price (price variance) and consumption efficiency (usage/yield variance).
@@ -84,12 +84,12 @@ canonical_domain_model:
       benchmark_target: "Industry-specific; benchmarked via APQC OSB 'Material costs as a percentage of cost of goods sold'"
       benchmark_source_id: SRC-006
 
-    - id: cost.opex.vs_plan.pct
+    - id: KPI-FIN-014
       name: OpEx vs Plan %
       definition: "(Actual OpEx − Plan OpEx) / Plan OpEx × 100. Overhead/operating-expense overspend against plan."
       unit: "%"
       direction: minimize
-      drives: cost.unit.amount
+      drives: KPI-FIN-015
       causal_mechanism: >
         Overhead and operating expense are absorbed into unit cost through the conversion-cost
         allocation. OpEx running over plan inflates absorbed cost per unit; the gap signals structural
@@ -97,12 +97,12 @@ canonical_domain_model:
       benchmark_target: "Within ±3% of plan; structural overspend escalated above tolerance"
       benchmark_source_id: SRC-002
 
-    - id: ops.labor.productivity.pct
+    - id: KPI-OPS-004
       name: Labor Productivity %
       definition: "Good Output Units per labor hour, indexed vs standard (standard hours earned / actual hours × 100)."
       unit: "%"
       direction: maximize
-      drives: cost.unit.amount
+      drives: KPI-FIN-015
       causal_mechanism: >
         Labor cost per unit = labor rate / units-per-hour. Falling productivity raises conversion cost
         per unit even at constant wage rates. Decomposes into labor rate variance (price) and labor
@@ -110,12 +110,12 @@ canonical_domain_model:
       benchmark_target: "≥100% of standard (earned hours ≥ actual hours); ISO 22400 productivity index"
       benchmark_source_id: SRC-003
 
-    - id: ops.throughput.units
+    - id: KPI-OPS-009
       name: Production Volume
       definition: "Good output units produced in the period. Determines fixed-cost absorption per unit."
       unit: count
       direction: maximize
-      drives: cost.unit.amount
+      drives: KPI-FIN-015
       causal_mechanism: >
         Fixed conversion cost is spread over output volume. Lower volume raises fixed cost per unit
         even when total spend is flat — an absorption effect, not an efficiency loss. Per IAS 2,
@@ -123,12 +123,12 @@ canonical_domain_model:
       benchmark_target: "At or above normal capacity used for overhead absorption (IAS 2 normal capacity)"
       benchmark_source_id: SRC-001
 
-    - id: ops.quality.defect_rate.pct
+    - id: KPI-QUA-006
       name: Defect Rate %
       definition: "Defective (scrap + rework) units / total units produced × 100."
       unit: "%"
       direction: minimize
-      drives: cost.unit.amount
+      drives: KPI-FIN-015
       causal_mechanism: >
         Defects consume material, labor, and overhead that produce no saleable unit, so they re-load
         onto the cost of good units (cost of poor quality). Rising defect rate raises unit cost even
@@ -136,12 +136,12 @@ canonical_domain_model:
       benchmark_target: "Cost of poor quality 15–20% of sales typical; world-class <5% (ASQ)"
       benchmark_source_id: SRC-007
 
-    - id: ops.quality.pct
+    - id: KPI-OPS-003
       name: Yield %
       definition: "Good (saleable) units / total units started × 100. First-pass yield of conversion."
       unit: "%"
       direction: maximize
-      drives: cost.unit.amount
+      drives: KPI-FIN-015
       causal_mechanism: >
         Yield is the inverse driver of scrap-loaded cost: every point of yield loss spreads the full
         input cost of started units over fewer good units, raising cost per good unit. Yield and defect
@@ -155,7 +155,7 @@ canonical_domain_model:
       definition: "Actual Quantity × (Standard Price − Actual Price). Isolates purchase-price effect on material cost."
       unit: EUR
       direction: maximize
-      diagnoses: cost.material.pct
+      diagnoses: KPI-SCM-020
       causal_mechanism: >
         Separates whether material cost % moved because of purchase price (a sourcing/procurement issue)
         rather than consumption. Adverse price variance points to procurement/commodity action, not shopfloor action.
@@ -165,7 +165,7 @@ canonical_domain_model:
       definition: "Standard Price × (Standard Quantity − Actual Quantity). Isolates consumption/yield effect on material cost."
       unit: EUR
       direction: maximize
-      diagnoses: cost.material.pct
+      diagnoses: KPI-SCM-020
       causal_mechanism: >
         Separates whether material cost % moved because more material was consumed per unit (yield/scrap,
         recipe drift, calibration). Adverse usage variance points to shopfloor/quality action, not procurement.
@@ -175,7 +175,7 @@ canonical_domain_model:
       definition: "Actual Hours × (Standard Rate − Actual Rate). Isolates wage-rate effect on labor cost."
       unit: EUR
       direction: maximize
-      diagnoses: ops.labor.productivity.pct
+      diagnoses: KPI-OPS-004
       causal_mechanism: >
         Separates labor cost movement caused by wage rate / overtime / skill-mix from movement caused by efficiency.
         Adverse rate variance points to scheduling, overtime, and shift-mix decisions.
@@ -185,7 +185,7 @@ canonical_domain_model:
       definition: "Standard Rate × (Standard Hours for actual output − Actual Hours). Isolates productivity effect on labor cost."
       unit: EUR
       direction: maximize
-      diagnoses: ops.labor.productivity.pct
+      diagnoses: KPI-OPS-004
       causal_mechanism: >
         Separates labor cost movement caused by hours-per-unit (true productivity) from wage rate.
         Adverse efficiency variance points to line balancing, training, downtime, and changeover action.
@@ -195,7 +195,7 @@ canonical_domain_model:
       definition: "(Actual Volume − Budgeted Normal Volume) × Standard Fixed Overhead Rate. Isolates volume/absorption effect on unit cost."
       unit: EUR
       direction: maximize
-      diagnoses: cost.opex.vs_plan.pct
+      diagnoses: KPI-FIN-014
       causal_mechanism: >
         Distinguishes a unit-cost rise caused by under-absorption (low volume spreading fixed cost over
         fewer units) from a genuine spend overrun. Under-absorption is a demand/scheduling issue, not an overspend.
@@ -205,7 +205,7 @@ canonical_domain_model:
       definition: "Material + labor + overhead consumed by scrapped and reworked units, expressed in EUR and as % of COGS."
       unit: EUR
       direction: minimize
-      diagnoses: ops.quality.pct
+      diagnoses: KPI-OPS-003
       causal_mechanism: >
         Quantifies how much of the unit-cost gap is scrap/rework-driven rather than price or overhead.
         Confirms that the real lever is quality/yield improvement, not headline cost cutting.
@@ -218,9 +218,9 @@ canonical_domain_model:
         cost shifts cost downstream into internal failure (scrap/rework) and external failure (warranty/returns),
         raising total cost of poor quality even as the line item falls.
       affected_kpis:
-        - cost.unit.amount
-        - ops.quality.defect_rate.pct
-        - ops.quality.pct
+        - KPI-FIN-015
+        - KPI-QUA-006
+        - KPI-OPS-003
 
     - description: Do not declare unit-cost improvement that is only a volume/absorption artifact
       condition: >
@@ -228,16 +228,16 @@ canonical_domain_model:
         fixed-overhead absorption variance (volume up or down) rather than by efficiency or price.
         Reading an absorption swing as a real efficiency gain or loss misdirects action.
       affected_kpis:
-        - cost.unit.amount
-        - ops.throughput.units
+        - KPI-FIN-015
+        - KPI-OPS-009
 
     - description: Do not optimise unit cost in a way that raises COGS % or shifts cost to another stage
       condition: >
         Block material-substitution or make-vs-buy actions that reduce one plant's unit cost while raising
         COGS % at the entity level or moving cost into logistics, service, or warranty downstream.
       affected_kpis:
-        - cost.unit.amount
-        - margin.cogs.pct
+        - KPI-FIN-015
+        - KPI-FIN-016
 
   wrong_interpretations:
     - description: Unit cost fell only because volume rose (fixed-cost absorption)
@@ -430,36 +430,36 @@ source_inventory:
       notes: Cost of unused capacity clarifies the volume/absorption misinterpretation; classic age waiver applies.
 
 action_logic_seeds:
-  - trigger_driver: cost.material.pct
+  - trigger_driver: KPI-SCM-020
     trigger_diagnostic: cost.material.usage_variance.amount
     trigger_condition: "Material Cost % above plan by > 2pp for 2 consecutive months AND usage variance is adverse (price variance not the cause)"
     guardrail: "Do not trigger if the gap is a price variance owned by procurement (route to OPS-002), or if volume/absorption explains the move"
     action_description: Cost variance investigation — split material price vs usage/yield variance by plant-line-product and launch yield/recipe corrective action where usage is the driver.
-    expected_outcome_kpi: cost.unit.amount
+    expected_outcome_kpi: KPI-FIN-015
     action_code_candidate: F-K2.1
 
-  - trigger_driver: ops.labor.productivity.pct
+  - trigger_driver: KPI-OPS-004
     trigger_diagnostic: cost.labor.efficiency_variance.amount
     trigger_condition: "Labor Productivity < 95% of standard AND labor efficiency variance adverse for 2 consecutive months"
     guardrail: "Exclude planned training, ramp-up, or new-product qualification periods; do not cut headcount that raises defect rate"
     action_description: Labor productivity recovery — line balancing, changeover reduction, and standard-time re-validation where efficiency (not rate) drives the gap.
-    expected_outcome_kpi: cost.unit.amount
+    expected_outcome_kpi: KPI-FIN-015
     action_code_candidate: F-K2.2
 
-  - trigger_driver: cost.opex.vs_plan.pct
+  - trigger_driver: KPI-FIN-014
     trigger_diagnostic: cost.overhead.absorption_variance.amount
     trigger_condition: "OpEx vs Plan > +5% AND absorption variance confirms structural overspend (not low-volume under-absorption)"
     guardrail: "Do not cut maintenance, inspection, or quality-prevention spend; do not act if the gap is pure volume/absorption"
     action_description: OpEx containment — cost-driver decomposition and overhead variance bridge separating structural overspend from temporary ramp-up or absorption swings.
-    expected_outcome_kpi: cost.unit.amount
+    expected_outcome_kpi: KPI-FIN-015
     action_code_candidate: F-K2.3
 
-  - trigger_driver: ops.quality.pct
+  - trigger_driver: KPI-OPS-003
     trigger_diagnostic: cost.copq.scrap_rework.amount
     trigger_condition: "Yield % below target AND defect rate rising AND scrap/rework cost > 10% of COGS for the line"
     guardrail: "Quality/yield action must increase, not reduce, prevention and appraisal spend (cost of poor quality guardrail)"
     action_description: Yield and quality cost-out — root-cause scrap/rework reduction targeting the cost of poor quality embedded in unit cost.
-    expected_outcome_kpi: cost.unit.amount
+    expected_outcome_kpi: KPI-FIN-015
     action_code_candidate: F-K2.4
 
 required_data_model:

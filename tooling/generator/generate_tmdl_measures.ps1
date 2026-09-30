@@ -231,7 +231,7 @@ function Get-YamlBlockIds {
       $bracketLines = Get-Content -Path $bracketPath
       # strategic_kpi_id (single scalar)
       foreach ($line in $bracketLines) {
-        $stratMatch = [regex]::Match($line, '^\s*strategic_kpi_id\s*:\s*[''"]?([a-z][a-z0-9_.]+)[''"]?\s*$')
+        $stratMatch = [regex]::Match($line, '^\s*strategic_kpi_id\s*:\s*[''"]?(KPI-[A-Z]{3}-\d{3})[''"]?\s*$')
         if ($stratMatch.Success) {
           $stratId = $stratMatch.Groups[1].Value.Trim()
           if ($stratId -and $ids -notcontains $stratId) { $ids += $stratId }
@@ -243,7 +243,7 @@ function Get-YamlBlockIds {
       foreach ($line in $bracketLines) {
         if ($line -match '^\s*influencing_kpi_ids\s*:') { $inInfluencing = $true; continue }
         if ($inInfluencing) {
-          if ($line -match '^\s*-\s*[''"]?([a-z][a-z0-9_.]+)[''"]?\s*$') {
+          if ($line -match '^\s*-\s*[''"]?(KPI-[A-Z]{3}-\d{3})[''"]?\s*$') {
             $infId = $matches[1].Trim()
             if ($infId -and $ids -notcontains $infId) { $ids += $infId }
           } elseif ($line -match '^\s*\w+' -and $line -notmatch '^\s*-') {

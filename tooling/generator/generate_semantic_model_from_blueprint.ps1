@@ -186,7 +186,7 @@ if (-not $SkipMeasures) {
 		$useCasesSection = $useCasesMatch.Groups[1].Value
 		$allKpiIds = @()
 		
-		foreach ($kpiMatch in [regex]::Matches($useCasesSection, '(?m)^\s+-\s+([a-z]+\.[a-z_]+\.[a-z_]+)')) {
+		foreach ($kpiMatch in [regex]::Matches($useCasesSection, '(?m)^\s+-\s+(KPI-[A-Z]{3}-\d{3})')) {
 			$kpiId = $kpiMatch.Groups[1].Value
 			if ($allKpiIds -notcontains $kpiId) {
 				$allKpiIds += $kpiId

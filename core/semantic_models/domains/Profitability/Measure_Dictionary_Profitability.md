@@ -7,7 +7,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 ```yaml
 - measure_name: Gross Margin %
   is_kpi_measure: true
-  kpi_id_ref: margin.gm.pct
+  kpi_id_ref: KPI-COM-013
   semantic_model: Profitability_SemanticModel
   display_folder: 01_Margin
   category: KPI
@@ -35,7 +35,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Gross Margin Amount
   is_kpi_measure: true
-  kpi_id_ref: margin.gm.amount
+  kpi_id_ref: KPI-COM-019
   semantic_model: Profitability_SemanticModel
   display_folder: 01_Margin
   category: KPI
@@ -63,7 +63,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Gross Margin % vs Plan
   is_kpi_measure: true
-  kpi_id_ref: margin.gm.vs_plan.pct
+  kpi_id_ref: KPI-FIN-017
   semantic_model: Profitability_SemanticModel
   display_folder: 01_Margin
   category: KPI
@@ -90,7 +90,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Promotion ROI %
   is_kpi_measure: true
-  kpi_id_ref: sales.promo.roi.pct
+  kpi_id_ref: KPI-COM-016
   semantic_model: Profitability_SemanticModel
   display_folder: 04_Promo
   category: KPI
@@ -118,7 +118,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Promo ROI %
   is_kpi_measure: true
-  kpi_id_ref: sales.promo.roi.pct
+  kpi_id_ref: KPI-COM-016
   semantic_model: Profitability_SemanticModel
   display_folder: 04_Promo
   category: KPI
@@ -239,7 +239,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Promo Cost Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.promo.cost.amount
+  kpi_id_ref: KPI-COM-014
   semantic_model: Profitability_SemanticModel
   display_folder: 04_Promo
   category: Supporting
@@ -317,7 +317,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Incremental GM Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.promo.incremental_gm.amount
+  kpi_id_ref: KPI-COM-015
   semantic_model: Profitability_SemanticModel
   display_folder: 04_Promo
   category: Supporting
@@ -342,7 +342,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Promo Gross Margin %
   is_kpi_measure: true
-  kpi_id_ref: margin.promo.gm.pct
+  kpi_id_ref: KPI-FIN-012
   semantic_model: Profitability_SemanticModel
   display_folder: 04_Promo
   category: KPI
@@ -371,7 +371,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Cost Base Volume Amount
   is_kpi_measure: true
-  kpi_id_ref: cost.base_volume.amount
+  kpi_id_ref: KPI-FIN-019
   semantic_model: Profitability_SemanticModel
   display_folder: 02_Cost
   category: KPI
@@ -398,7 +398,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Opex Base Amount
   is_kpi_measure: true
-  kpi_id_ref: cost.opex.base.amount
+  kpi_id_ref: KPI-SCM-021
   semantic_model: Profitability_SemanticModel
   display_folder: 02_Cost
   category: KPI

@@ -260,10 +260,10 @@ ux_layout_rules:
       evidence_grain: region             # Row level of the detail matrix
       evidence_columns:
         - region
-        - sales.net_sales.amount
+        - KPI-COM-005
         - sales.net_sales.delta_abs.plan
-        - sales.net_sales.delta_pct.plan
-        - margin.gm.pct
+        - KPI-COM-009
+        - KPI-COM-013
       action_panel: true                 # T4 only
       payload_mode: full                 # Include all action code fields
 ```

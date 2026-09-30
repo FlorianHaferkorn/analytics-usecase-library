@@ -74,7 +74,7 @@ By **Friday of Week 2**, you will have:
 - `internal/continuity/architecture_overview.md` (20 min; system design)
 
 **Hands-on (60 min):**
-1. Open `core/kpi_catalog/KPI_Catalog.md` and find the `margin.gm.pct` KPI definition. Read the entire entry:
+1. Open `core/kpi_catalog/KPI_Catalog.md` and find the `KPI-COM-013` KPI definition. Read the entire entry:
    - Purpose
    - Definition & formula
    - Data lineage

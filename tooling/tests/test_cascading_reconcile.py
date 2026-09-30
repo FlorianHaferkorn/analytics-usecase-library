@@ -11,9 +11,9 @@ import pytest
 # Table rows use single pipes (| col | col |), matching rebuildFactsheetSection3 output.
 SAMPLE_BRACKET = """
 orchestration:
-  strategic_kpi_id: margin.gm.pct
+  strategic_kpi_id: KPI-COM-013
   influencing_kpi_ids:
-    - sales.net_sales.amount
+    - KPI-COM-005
   action_code_ids:
     - C-S1.1
 """.strip()
@@ -23,9 +23,9 @@ SAMPLE_FACTSHEET = """
 
 | KPI ID | Role |
 |--------|------|
-| margin.gm.pct | Strategic |
-| sales.net_sales.amount | Influencing |
-| cost.cogs.amount | Influencing |
+| KPI-COM-013 | Strategic |
+| KPI-COM-005 | Influencing |
+| KPI-FIN-011 | Influencing |
 
 **Action Codes:** C-S1.1, C-S1.2
 
@@ -48,7 +48,7 @@ def _extract_kpi_roles(markdown: str) -> list[tuple[str, str]]:
         col1, col2 = m.group(1).strip(), m.group(2).strip()
         if col1.lower() == "kpi id" or col1.startswith("-"):
             continue
-        if "." in col1:
+        if re.fullmatch(r"KPI-[A-Z]{3}-\d{3}", col1):
             rows.append((col1, col2))
     return rows
 
@@ -56,8 +56,8 @@ def _extract_kpi_roles(markdown: str) -> list[tuple[str, str]]:
 def test_extract_factsheet_kpi_roles_finds_influencing():
     roles = _extract_kpi_roles(SAMPLE_FACTSHEET)
     ids = [r[0] for r in roles]
-    assert "cost.cogs.amount" in ids
-    assert "margin.gm.pct" in ids
+    assert "KPI-FIN-011" in ids
+    assert "KPI-COM-013" in ids
 
 
 def _upsert_yaml_list(yaml: str, key: str, values: list[str]) -> str:
@@ -92,12 +92,12 @@ def _list_changed(next_vals: list[str], current: list[str] | None) -> bool:
 
 def test_upsert_yaml_list_clears_items():
     cleared = _upsert_yaml_list(SAMPLE_BRACKET, "influencing_kpi_ids", [])
-    assert "sales.net_sales.amount" not in cleared
+    assert "KPI-COM-005" not in cleared
     assert "influencing_kpi_ids:" in cleared
 
 
 def test_list_changed_detects_empty_vs_populated():
-    assert _list_changed([], ["sales.net_sales.amount"]) is True
+    assert _list_changed([], ["KPI-COM-005"]) is True
     assert _list_changed([], []) is False
 
 

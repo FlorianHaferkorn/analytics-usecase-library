@@ -1,0 +1,233 @@
+# Vorlage D-594: Neuzugaenge der Bibliothek, vorbelegt aus Meridian; null = Leerstelle.
+# Erzeugt von tooling/migration/kpi_id_migration.py --neuzugaenge. validate_kpi_catalog.ps1: 'use_case_ref and action_code_ref both empty' ist ein Fehler; kein ALUCA-Use-Case und kein Action Code referenziert diese KPI. Anlage im Katalog wartet auf Entscheidung (Use Case zuordnen oder Regel fuer Bibliotheks-KPIs ohne Use Case).
+- kpi_id: KPI-COM-032
+  kpi_key: E-Commerce Revenue Share
+  synonyms:
+  - E-Commerce Umsatzanteil
+  kpi_type: null
+  impact_dimension: null
+  domain_tag:
+  - commercial
+  - digital
+  - growth
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: null
+  good_is: higher
+  business:
+    purpose: null
+    definition: E-Commerce Revenue / Total Revenue * 100
+    grain_scope: null
+    unit_format: null
+    interpretation: Channel revenue share calculated daily; attribution relies on clean channel tagging
+      in ERP — tagging errors would understate e-commerce share.
+  technical:
+    measure_name: E-Commerce Revenue Share
+    description: null
+    lineage: []
+    depends_on_measures: []
+  governance:
+    business_owner: CMO
+    data_owner: null
+    steward: null
+  _herkunft:
+    quelle: aurora
+    meridian_id: KPI-COM-001
+    meridian_einheit: '%'
+    zaehler: E-Commerce Channel Revenue
+    nenner: Total Revenue
+    blockiert: 'validate_kpi_catalog.ps1: ''use_case_ref and action_code_ref both empty'' ist ein Fehler;
+      kein ALUCA-Use-Case und kein Action Code referenziert diese KPI. Anlage im Katalog wartet auf Entscheidung
+      (Use Case zuordnen oder Regel fuer Bibliotheks-KPIs ohne Use Case).'
+- kpi_id: KPI-COM-033
+  kpi_key: Private Label Penetration %
+  synonyms:
+  - Private Label Anteil
+  kpi_type: null
+  impact_dimension: null
+  domain_tag:
+  - commercial
+  - margin
+  - assortment
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: null
+  good_is: higher
+  business:
+    purpose: null
+    definition: Private Label Revenue / Total Revenue * 100
+    grain_scope: null
+    unit_format: null
+    interpretation: Private label revenue share is an outcome of category management decisions already
+      executed; category-level split requires consistent SKU tagging in ERP.
+  technical:
+    measure_name: Private Label Penetration %
+    description: null
+    lineage: []
+    depends_on_measures: []
+  governance:
+    business_owner: CCO
+    data_owner: null
+    steward: null
+  _herkunft:
+    quelle: aurora
+    meridian_id: KPI-COM-002
+    meridian_einheit: '%'
+    zaehler: Private Label Sales
+    nenner: Total Sales
+    blockiert: 'validate_kpi_catalog.ps1: ''use_case_ref and action_code_ref both empty'' ist ein Fehler;
+      kein ALUCA-Use-Case und kein Action Code referenziert diese KPI. Anlage im Katalog wartet auf Entscheidung
+      (Use Case zuordnen oder Regel fuer Bibliotheks-KPIs ohne Use Case).'
+- kpi_id: KPI-ESG-001
+  kpi_key: Scope 1+2 CO2 Emissions
+  synonyms:
+  - Scope 1+2 CO2 Emissionen
+  kpi_type: null
+  impact_dimension: null
+  domain_tag:
+  - esg
+  - sustainability
+  - emissions
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: null
+  good_is: lower
+  business:
+    purpose: null
+    definition: Total GHG emissions from direct operations and purchased energy
+    grain_scope: null
+    unit_format: null
+    interpretation: Annual GHG inventory per GHG Protocol; Scope 2 uses market-based method. Annual cadence
+      means in-year emissions trends are invisible until consolidation.
+  technical:
+    measure_name: Scope 1+2 CO2 Emissions
+    description: null
+    lineage: []
+    depends_on_measures: []
+  governance:
+    business_owner: CSO
+    data_owner: null
+    steward: null
+  _herkunft:
+    quelle: aurora
+    meridian_id: KPI-ESG-001
+    meridian_einheit: tCO2e
+    zaehler: Scope 1 tCO2e + Scope 2 tCO2e
+    nenner: '1'
+    blockiert: 'validate_kpi_catalog.ps1: ''use_case_ref and action_code_ref both empty'' ist ein Fehler;
+      kein ALUCA-Use-Case und kein Action Code referenziert diese KPI. Anlage im Katalog wartet auf Entscheidung
+      (Use Case zuordnen oder Regel fuer Bibliotheks-KPIs ohne Use Case).'
+- kpi_id: KPI-ESG-002
+  kpi_key: Supplier ESG Compliance %
+  synonyms:
+  - Lieferant-ESG-Compliance
+  kpi_type: null
+  impact_dimension: null
+  domain_tag:
+  - esg
+  - compliance
+  - sourcing
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: null
+  good_is: higher
+  business:
+    purpose: null
+    definition: Tier-1 Suppliers with ESG audit completion and passing score / Total Tier-1 Suppliers
+      * 100
+    grain_scope: null
+    unit_format: null
+    interpretation: Quarterly audit cadence introduces a 3-month lag in detection; audit pass/fail scoring
+      methodology should be documented in supplier portal to ensure comparability year-over-year.
+  technical:
+    measure_name: Supplier ESG Compliance %
+    description: null
+    lineage: []
+    depends_on_measures: []
+  governance:
+    business_owner: CSO
+    data_owner: null
+    steward: null
+  _herkunft:
+    quelle: aurora
+    meridian_id: KPI-ESG-002
+    meridian_einheit: '%'
+    zaehler: Compliant Tier-1 supplier count
+    nenner: Total Tier-1 supplier count
+    blockiert: 'validate_kpi_catalog.ps1: ''use_case_ref and action_code_ref both empty'' ist ein Fehler;
+      kein ALUCA-Use-Case und kein Action Code referenziert diese KPI. Anlage im Katalog wartet auf Entscheidung
+      (Use Case zuordnen oder Regel fuer Bibliotheks-KPIs ohne Use Case).'
+- kpi_id: KPI-COM-034
+  kpi_key: E-Commerce Conversion Rate
+  synonyms:
+  - E-Commerce Konversionsrate
+  kpi_type: null
+  impact_dimension: null
+  domain_tag:
+  - commercial
+  - digital
+  - conversion
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: null
+  good_is: higher
+  business:
+    purpose: null
+    definition: Sessions with Purchase / Total Sessions * 100
+    grain_scope: null
+    unit_format: null
+    interpretation: Real-time operational driver of e-commerce revenue; daily web analytics from DD-001.
+      Bot traffic filtering methodology must be documented to ensure comparability.
+  technical:
+    measure_name: E-Commerce Conversion Rate
+    description: null
+    lineage: []
+    depends_on_measures: []
+  governance:
+    business_owner: CMO
+    data_owner: null
+    steward: null
+  _herkunft:
+    quelle: aurora
+    meridian_id: KPI-COM-003
+    meridian_einheit: '%'
+    zaehler: Count of conversion sessions
+    nenner: Total sessions
+    blockiert: 'validate_kpi_catalog.ps1: ''use_case_ref and action_code_ref both empty'' ist ein Fehler;
+      kein ALUCA-Use-Case und kein Action Code referenziert diese KPI. Anlage im Katalog wartet auf Entscheidung
+      (Use Case zuordnen oder Regel fuer Bibliotheks-KPIs ohne Use Case).'
+- kpi_id: KPI-OPS-021
+  kpi_key: Energy Consumption per Unit
+  synonyms:
+  - Energieverbrauch pro Einheit
+  kpi_type: null
+  impact_dimension: null
+  domain_tag: null
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: null
+  good_is: null
+  business:
+    purpose: null
+    definition: Gesamter Energieverbrauch / Gut-Stückzahl
+    grain_scope: null
+    unit_format: null
+    interpretation: null
+  technical:
+    measure_name: Energy Consumption per Unit
+    description: null
+    lineage: []
+    depends_on_measures: []
+  governance:
+    business_owner: Operations Director
+    data_owner: null
+    steward: null
+  _herkunft:
+    quelle: pack:manufacturing
+    meridian_id: KPI-ESG-100
+    meridian_einheit: kWh_per_unit
+    zaehler: kWh-Verbrauch im Zeitraum
+    nenner: Gut produzierte Einheiten
+    blockiert: 'validate_kpi_catalog.ps1: ''use_case_ref and action_code_ref both empty'' ist ein Fehler;
+      kein ALUCA-Use-Case und kein Action Code referenziert diese KPI. Anlage im Katalog wartet auf Entscheidung
+      (Use Case zuordnen oder Regel fuer Bibliotheks-KPIs ohne Use Case).'

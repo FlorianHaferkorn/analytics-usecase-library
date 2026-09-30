@@ -31,7 +31,7 @@ def _src(**over):
 
 def _entry(**over):
     base = dict(
-        kpi_id="ops.oee.pct", scope="Manufacturing", benchmark_class="normative",
+        kpi_id="KPI-OPS-011", scope="Manufacturing", benchmark_class="normative",
         metric="world_class", value=85.0, unit="pct", direction="higher_is_better",
         sources=[_src(tier="primary"), _src()],   # ≥2, ≥1 authoritative
     )
@@ -42,7 +42,7 @@ def _entry(**over):
 def _empirical(**over):
     segs = over.pop("segments", [{"industry": "Retail", "value": 45.0},
                                  {"industry": "SaaS", "value": 35.0}])
-    return _entry(benchmark_class="empirical", kpi_id="crm.nps.index", unit="index",
+    return _entry(benchmark_class="empirical", kpi_id="KPI-CUS-003", unit="index",
                   metric="median", value=44.0, segments=segs, **over)
 
 
@@ -98,7 +98,7 @@ def test_resolver_on_committed_nps_across_industries():
     """The committed NPS benchmark resolves peer-relatively — the whole point."""
     from tooling.validation.check_benchmarks import resolve_benchmark
     data = yaml.safe_load(_REGISTRY.read_text(encoding="utf-8"))
-    nps = next(b for b in data["benchmarks"] if b["kpi_id"] == "crm.nps.index")
+    nps = next(b for b in data["benchmarks"] if b["kpi_id"] == "KPI-CUS-003")
     assert resolve_benchmark(nps, "SaaS platform")[0] == 35.0
     assert resolve_benchmark(nps, "Grocery retail")[0] == 45.0
     assert resolve_benchmark(nps, "Mining")[1] == "cross_industry_fallback"
@@ -148,7 +148,7 @@ def test_ops003_hero_opts_into_normative_fpy_benchmark_axis():
     """OPS-003 wires FPY's hero to the world-class quality standard (normative)."""
     ops3 = yaml.safe_load((REPO / "core/usecases/core/OPS-003_Quality_Yield/UseCase_Bracket.yaml").read_text(encoding="utf-8"))
     card = ops3["ux_layout_rules"]["page_1_summary"]["component_3s"]
-    assert card["benchmark"] is True and card["kpi_id"] == "quality.fpy.pct"
+    assert card["benchmark"] is True and card["kpi_id"] == "KPI-QUA-001"
     assert card["kpi_id"] in _benchmarked_kpi_ids()
 
 
@@ -156,8 +156,8 @@ def test_fpy_and_scrap_are_normative_and_resolve_universally():
     """FPY/scrap are defined standards (normative) — one value applies to all, no segments."""
     from tooling.validation.check_benchmarks import resolve_benchmark
     data = yaml.safe_load(_REGISTRY.read_text(encoding="utf-8"))
-    fpy = next(b for b in data["benchmarks"] if b["kpi_id"] == "quality.fpy.pct")
-    scrap = next(b for b in data["benchmarks"] if b["kpi_id"] == "quality.scrap.pct")
+    fpy = next(b for b in data["benchmarks"] if b["kpi_id"] == "KPI-QUA-001")
+    scrap = next(b for b in data["benchmarks"] if b["kpi_id"] == "KPI-QUA-002")
     assert fpy["benchmark_class"] == "normative" and "segments" not in fpy
     assert scrap["benchmark_class"] == "normative" and scrap["direction"] == "lower_is_better"
     assert resolve_benchmark(fpy, "Aerospace") == (98.0, "universal")
@@ -169,7 +169,7 @@ def test_scm001_hero_opts_into_empirical_benchmark_axis():
     whose peer number is sector-relative (proves the resolver produces real captions)."""
     scm = yaml.safe_load((REPO / "core/usecases/core/SCM-001_Inventory_Performance/UseCase_Bracket.yaml").read_text(encoding="utf-8"))
     card = scm["ux_layout_rules"]["page_1_summary"]["component_3s"]
-    assert card["benchmark"] is True and card["kpi_id"] == "inv.dio.days"
+    assert card["benchmark"] is True and card["kpi_id"] == "KPI-SCM-001"
     assert card["kpi_id"] in _benchmarked_kpi_ids()
     assert card["comparison"] == "vs_target"   # additive
 
@@ -179,7 +179,7 @@ def test_dio_benchmark_resolves_unambiguously_by_deployment_industry():
     retail (40d) and an explicit grocer on grocery (15d) — no 'retail' collision."""
     from tooling.validation.check_benchmarks import resolve_benchmark
     data = yaml.safe_load(_REGISTRY.read_text(encoding="utf-8"))
-    dio = next(b for b in data["benchmarks"] if b["kpi_id"] == "inv.dio.days")
+    dio = next(b for b in data["benchmarks"] if b["kpi_id"] == "KPI-SCM-001")
     assert resolve_benchmark(dio, "Omnichannel Retail & Consumer Goods")[0] == 40.0
     assert resolve_benchmark(dio, "Grocery retail chain")[0] == 15.0
     assert resolve_benchmark(dio, "Discrete manufacturing")[0] == 75.0

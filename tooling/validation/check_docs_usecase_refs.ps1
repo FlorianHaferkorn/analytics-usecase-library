@@ -27,7 +27,7 @@ function Get-UseCaseIdsFromInventory {
   $ids = [System.Collections.Generic.HashSet[string]]::new()
   if (-not (Test-Path $Path)) { return $ids }
   Get-Content -Path $Path | ForEach-Object {
-    foreach ($match in [regex]::Matches($_, '\b[A-Z]{3}-\d{3}\b')) {
+    foreach ($match in [regex]::Matches($_, '(?<!KPI-)\b[A-Z]{3}-\d{3}\b')) {
       $null = $ids.Add($match.Value)
     }
   }
@@ -57,7 +57,7 @@ function Get-UseCaseIdsFromDocs {
     $_.Extension -in @(".md",".yaml",".yml") -and $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
   } | ForEach-Object {
     Get-Content -Path $_.FullName | ForEach-Object {
-      foreach ($match in [regex]::Matches($_, '\b[A-Z]{3}-\d{3}\b')) {
+      foreach ($match in [regex]::Matches($_, '(?<!KPI-)\b[A-Z]{3}-\d{3}\b')) {
         $null = $ids.Add($match.Value)
       }
     }

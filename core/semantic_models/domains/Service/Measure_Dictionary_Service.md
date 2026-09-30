@@ -7,7 +7,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 ```yaml
 - measure_name: SLA Attainment %
   is_kpi_measure: true
-  kpi_id_ref: svc.sla.attainment.pct
+  kpi_id_ref: KPI-SVC-004
   semantic_model: Service_SemanticModel
   display_folder: 01_Service
   category: KPI
@@ -37,7 +37,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: FCR %
   is_kpi_measure: true
-  kpi_id_ref: svc.fcr.pct
+  kpi_id_ref: KPI-SVC-005
   semantic_model: Service_SemanticModel
   display_folder: 01_Service
   category: KPI
@@ -67,7 +67,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: AHT Minutes
   is_kpi_measure: true
-  kpi_id_ref: svc.aht.minutes
+  kpi_id_ref: KPI-SVC-006
   semantic_model: Service_SemanticModel
   display_folder: 02_Efficiency
   category: KPI
@@ -97,7 +97,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Backlog Count
   is_kpi_measure: true
-  kpi_id_ref: svc.backlog.count
+  kpi_id_ref: KPI-SVC-007
   semantic_model: Service_SemanticModel
   display_folder: 03_Backlog
   category: KPI
@@ -126,7 +126,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Escalation %
   is_kpi_measure: true
-  kpi_id_ref: svc.escalation.pct
+  kpi_id_ref: KPI-SVC-008
   semantic_model: Service_SemanticModel
   display_folder: 01_Service
   category: KPI
@@ -156,7 +156,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Utilization %
   is_kpi_measure: true
-  kpi_id_ref: res.utilization.pct
+  kpi_id_ref: KPI-SVC-009
   semantic_model: Service_SemanticModel
   display_folder: 05_Workforce
   category: KPI
@@ -187,7 +187,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Occupancy %
   is_kpi_measure: true
-  kpi_id_ref: res.occupancy.pct
+  kpi_id_ref: KPI-SVC-010
   semantic_model: Service_SemanticModel
   display_folder: 05_Workforce
   category: KPI
@@ -219,7 +219,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Overtime %
   is_kpi_measure: true
-  kpi_id_ref: res.overtime.pct
+  kpi_id_ref: KPI-SVC-011
   semantic_model: Service_SemanticModel
   display_folder: 05_Workforce
   category: KPI
@@ -250,7 +250,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Shrinkage %
   is_kpi_measure: true
-  kpi_id_ref: res.shrinkage.pct
+  kpi_id_ref: KPI-SVC-012
   semantic_model: Service_SemanticModel
   display_folder: 05_Workforce
   category: KPI
@@ -554,7 +554,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Tickets Created Count
   is_kpi_measure: true
-  kpi_id_ref: svc.tickets.created.count
+  kpi_id_ref: KPI-SVC-013
   semantic_model: Service_SemanticModel
   display_folder: 01_Service
   category: KPI
@@ -581,7 +581,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Tickets Closed Count
   is_kpi_measure: true
-  kpi_id_ref: svc.tickets.closed.count
+  kpi_id_ref: KPI-SVC-014
   semantic_model: Service_SemanticModel
   display_folder: 01_Service
   category: KPI
@@ -608,7 +608,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Average Handling Time (minutes)
   is_kpi_measure: true
-  kpi_id_ref: svc.aht.minutes
+  kpi_id_ref: KPI-SVC-006
   semantic_model: Service_SemanticModel
   display_folder: 01_Service_Level
   category: KPI
@@ -629,7 +629,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: First Contact Resolution %
   is_kpi_measure: true
-  kpi_id_ref: svc.fcr.pct
+  kpi_id_ref: KPI-SVC-005
   semantic_model: Service_SemanticModel
   display_folder: 01_Service_Level
   category: KPI
@@ -650,7 +650,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: First Pass Yield % (XD)
   is_kpi_measure: true
-  kpi_id_ref: quality.fpy.pct
+  kpi_id_ref: KPI-QUA-001
   semantic_model: Service_SemanticModel
   display_folder: 02_Quality
   category: KPI
@@ -671,7 +671,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Revenue at Risk Amount (XD)
   is_kpi_measure: true
-  kpi_id_ref: crm.revenue_at_risk.amount
+  kpi_id_ref: KPI-OPS-001
   semantic_model: Service_SemanticModel
   display_folder: 03_P&L
   category: KPI
@@ -715,7 +715,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Gross Margin % (XD)
   is_kpi_measure: true
-  kpi_id_ref: margin.gm.pct
+  kpi_id_ref: KPI-COM-013
   semantic_model: Service_SemanticModel
   display_folder: 02_Quality
   category: KPI
@@ -738,7 +738,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Delta% Net Sales (XD)
   is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.delta_pct.ly
+  kpi_id_ref: KPI-COM-008
   semantic_model: Service_SemanticModel
   display_folder: 03_P&L
   category: KPI
@@ -761,7 +761,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: DSO Days (XD)
   is_kpi_measure: true
-  kpi_id_ref: wc.dso.days
+  kpi_id_ref: KPI-FIN-001
   semantic_model: Service_SemanticModel
   display_folder: 04_WorkingCapital
   category: KPI
@@ -782,7 +782,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: DIO Days (XD)
   is_kpi_measure: true
-  kpi_id_ref: wc.dio.days
+  kpi_id_ref: KPI-FIN-004
   semantic_model: Service_SemanticModel
   display_folder: 04_WorkingCapital
   category: KPI
@@ -803,7 +803,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: DPO Days (XD)
   is_kpi_measure: true
-  kpi_id_ref: wc.dpo.days
+  kpi_id_ref: KPI-FIN-005
   semantic_model: Service_SemanticModel
   display_folder: 04_WorkingCapital
   category: KPI
@@ -824,7 +824,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Action Outcome Rate % (XD Log)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_outcome_rate.pct
+  kpi_id_ref: KPI-GOV-001
   semantic_model: Service_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
@@ -845,7 +845,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Actions Executed Count (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.actions_executed.count
+  kpi_id_ref: KPI-GOV-005
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -866,7 +866,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Action Outcome Rate % (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_outcome_rate.pct
+  kpi_id_ref: KPI-GOV-001
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -887,7 +887,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Avg Time-to-Outcome Days (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.avg_time_to_outcome.days
+  kpi_id_ref: KPI-GOV-006
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -908,7 +908,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Action ROI % (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_roi.pct
+  kpi_id_ref: KPI-GOV-007
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -930,7 +930,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Action Effectiveness Delta (XD)
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_effectiveness_delta.amount
+  kpi_id_ref: KPI-GOV-002
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:

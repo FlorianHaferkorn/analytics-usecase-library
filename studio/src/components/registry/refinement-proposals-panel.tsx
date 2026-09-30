@@ -56,7 +56,7 @@ interface AttributeResponse {
 export function RefinementProposalsPanel() {
   const [useCase, setUseCase] = useState('COM-001');
   const [actionCodeId, setActionCodeId] = useState('C-M2.1');
-  const [kpiId, setKpiId] = useState('margin.gm.pct');
+  const [kpiId, setKpiId] = useState('KPI-COM-013');
   const [t1Value, setT1Value] = useState('');
   const [loading, setLoading] = useState(false);
   const [deciding, setDeciding] = useState<string | null>(null);
@@ -134,7 +134,7 @@ export function RefinementProposalsPanel() {
         <StudioFormGrid columns="1fr 1fr 1fr 1fr">
           <StudioFormField label="Use Case"><StudioInput value={useCase} onChange={(e) => setUseCase(e.target.value)} placeholder="COM-001" /></StudioFormField>
           <StudioFormField label="Action Code"><StudioInput value={actionCodeId} onChange={(e) => setActionCodeId(e.target.value)} placeholder="C-M2.1" /></StudioFormField>
-          <StudioFormField label="KPI (after-value for)"><StudioInput value={kpiId} onChange={(e) => setKpiId(e.target.value)} placeholder="margin.gm.pct" /></StudioFormField>
+          <StudioFormField label="KPI (after-value for)"><StudioInput value={kpiId} onChange={(e) => setKpiId(e.target.value)} placeholder="KPI-COM-013" /></StudioFormField>
           <StudioFormField label="t1 value"><StudioInput type="number" step="any" value={t1Value} onChange={(e) => setT1Value(e.target.value)} placeholder="0.45" /></StudioFormField>
         </StudioFormGrid>
         <StudioButton onClick={compute} disabled={loading || !useCase || !actionCodeId} variant="primary" tone="success" style={{ marginTop: '12px' }}>

@@ -1,6 +1,6 @@
 measure_name: Shrinkage %
 is_kpi_measure: true
-kpi_id_ref: res.shrinkage.pct
+kpi_id_ref: KPI-SVC-012
 semantic_model: Service_SemanticModel
 display_folder: 05_Workforce
 category: KPI

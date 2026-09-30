@@ -27,6 +27,7 @@ tooling/
   git-hooks/           # Pre-commit hook + installer
   linters/             # DAX, semantic model, report, encoding rules
   maintenance/         # Evolution, migration, docs checks
+  migration/           # One-off ID migrations (D-594 KPI IDs), --check guards the result
   ontology/            # Registry engine (hard audit suite)
   validation/          # Stage 1 validators, JSON schemas
   run_stage1_checks.ps1
@@ -158,6 +159,16 @@ Note: `validation/schemas/` may still hold copies; prefer `generator/schemas/` a
 - Edit schemas only in `validation/schemas/`.
 - After any schema change, copy the updated file to `ai/schemas/` (or run a future sync script).
 - Stage 1 schema validation runs against `validation/schemas/`.
+
+---
+
+## 9. migration/ (einmalige ID-Migrationen)
+
+- `kpi_id_migration.py` — D-594: semantische KPI-IDs -> `KPI-<KUERZEL>-<NNN>` aus der freigegebenen
+  Meridian-Tabelle (`--mapping`). `--report` zaehlt je Artefaktklasse, `--apply` schreibt um und
+  benennt Katalog/Presets um, `--check` meldet verbliebene alte IDs ausserhalb der Ausnahmeliste
+  (historische Stellen, `AUSNAHMEN` im Werkzeug), `--neuzugaenge` schreibt die blockierten
+  Neuzugaenge als vorbelegte Vorlage. Test: `tooling/tests/test_kpi_id_migration.py`.
 
 ---
 

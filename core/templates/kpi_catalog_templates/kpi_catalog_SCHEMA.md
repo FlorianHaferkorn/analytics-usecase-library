@@ -60,7 +60,7 @@ Section `technical` (required):
 - `technical.description` (required, string)
   One-sentence technical description of the measure calculation.
 - `technical.depends_on_measures` (required, list<string>)
-  **KPI IDs** this KPI depends on, e.g. `["sales.net_sales.amount","cost.cogs.amount"]`.
+  **KPI IDs** this KPI depends on, e.g. `["KPI-COM-005","KPI-FIN-011"]`.
   Use stable kpi_id references for traceability. Base measures without KPI ID should use descriptive names.
 - `technical.lineage` (required, list<string>)
   Source tables/columns, e.g. `fact_sales.Net Sales Amount`.

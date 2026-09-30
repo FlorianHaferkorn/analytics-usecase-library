@@ -52,16 +52,16 @@ cash conversion, and improved resilience.
 
 | KPI ID | Role |
 |--------|------|
-| wc.ccc.days | Strategic |
-| fin.cash.balance | Influencing |
-| fin.cash.ocf | Influencing |
-| fin.cash.vs_plan.pct | Influencing |
-| wc.dso.days | Influencing |
-| wc.dio.days | Influencing |
-| wc.dpo.days | Influencing |
-| fin.liquidity.inventory.amount | Supporting |
-| supply.otif.pct | Supporting |
-| scm.supplier_risk.score | Supporting |
+| KPI-FIN-006 | Strategic |
+| KPI-FIN-007 | Influencing |
+| KPI-FIN-009 | Influencing |
+| KPI-FIN-010 | Influencing |
+| KPI-FIN-001 | Influencing |
+| KPI-FIN-004 | Influencing |
+| KPI-FIN-005 | Influencing |
+| KPI-FIN-002 | Supporting |
+| KPI-SCM-007 | Supporting |
+| KPI-SCM-022 | Supporting |
 
 **Action Codes:** F-C1.1, F-C1.2, S-I1.2, F-C1.4
 
@@ -73,13 +73,13 @@ cash conversion, and improved resilience.
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **CCC Days** (`wc.ccc.days`) → **SCOR-DS AM.1.1** (exact): CCC (DSO + DIO − DPO) is definitionally SCOR AM.1.1 Cash-to-Cash Cycle Time — a cross-domain finance↔supply-chain metric with no single IFRS equivalent.
-- **Cash Balance** (`fin.cash.balance`) → **IFRS IAS 7** (exact): Cash and cash equivalents is defined by IAS 7.6–9 (short-term, highly liquid, insignificant risk of value change, typically ≤3-month maturity).
-- **Operating Cash Flow** (`fin.cash.ocf`) → **IFRS IAS 7** (exact): Maps to the IAS 7 operating-activities cash-flow section.
-- **Cash vs Plan %** (`fin.cash.vs_plan.pct`) → **IFRS IAS 7** (none): Internal budget-variance metric; no external standard defines it.
-- **DSO Days** (`wc.dso.days`) → **SCOR-DS AM.1.1** (partial): Days Sales Outstanding is the receivables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory Days − DPO).
-- **DIO Days** (`wc.dio.days`) → **SCOR-DS AM.1.1** (partial): Duplicate of inv.dio.days; both map to the SCOR inventory-days / Cash-to-Cash (AM.1.1) family.
-- **DPO Days** (`wc.dpo.days`) → **SCOR-DS AM.1.1** (partial): Days Payables Outstanding is the payables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1).
+- **CCC Days** (`KPI-FIN-006`) → **SCOR-DS AM.1.1** (exact): CCC (DSO + DIO − DPO) is definitionally SCOR AM.1.1 Cash-to-Cash Cycle Time — a cross-domain finance↔supply-chain metric with no single IFRS equivalent.
+- **Cash Balance** (`KPI-FIN-007`) → **IFRS IAS 7** (exact): Cash and cash equivalents is defined by IAS 7.6–9 (short-term, highly liquid, insignificant risk of value change, typically ≤3-month maturity).
+- **Operating Cash Flow** (`KPI-FIN-009`) → **IFRS IAS 7** (exact): Maps to the IAS 7 operating-activities cash-flow section.
+- **Cash vs Plan %** (`KPI-FIN-010`) → **IFRS IAS 7** (none): Internal budget-variance metric; no external standard defines it.
+- **DSO Days** (`KPI-FIN-001`) → **SCOR-DS AM.1.1** (partial): Days Sales Outstanding is the receivables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory Days − DPO).
+- **DIO Days** (`KPI-FIN-004`) → **SCOR-DS AM.1.1** (partial): Duplicate of KPI-SCM-001; both map to the SCOR inventory-days / Cash-to-Cash (AM.1.1) family.
+- **DPO Days** (`KPI-FIN-005`) → **SCOR-DS AM.1.1** (partial): Days Payables Outstanding is the payables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1).
 
 ---
 

@@ -387,7 +387,7 @@ When a semantic model references a KPI whose canonical fact table lives in anoth
 **Example:**
 
 ```
-/// Action Outcome Rate % (XD Log) - enterprise.action_outcome_rate.pct
+/// Action Outcome Rate % (XD Log) - KPI-GOV-001
 /// Cross-domain proxy: action outcome rate sourced from fact_action_log.
 /// Canonical measure lives in the domain that owns fact_action_outcome.
 measure 'Action Outcome Rate % (XD Log)' = ...

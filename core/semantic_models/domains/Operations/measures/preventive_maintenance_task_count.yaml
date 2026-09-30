@@ -1,6 +1,6 @@
 measure_name: Preventive Maintenance Task Count
 is_kpi_measure: true
-kpi_id_ref: ops.pm.task.count
+kpi_id_ref: KPI-OPS-014
 semantic_model: Operations_SemanticModel
 display_folder: 01_Ops
 category: KPI

@@ -202,7 +202,7 @@ ux_layout_rules:
             evidence_columns:
                 - entity
                 - period
-                - margin.gm.pct
+                - KPI-COM-013
 """
                 uc_dir = tmp_path / "core" / "usecases" / "core" / "COM-001_Sales_Performance"
                 uc_dir.mkdir(parents=True)

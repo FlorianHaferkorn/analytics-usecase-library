@@ -142,7 +142,7 @@ ux_layout_rules:
         decompose_by: [price, mix, volume]
       - slot: "Support_1"
         visual_type: trend_line
-        kpi_id: margin.gm.pct
+        kpi_id: KPI-COM-013
       - slot: "Support_2"
         visual_type: bar_chart
         kpi_id: margin.gm.delta_abs.plan

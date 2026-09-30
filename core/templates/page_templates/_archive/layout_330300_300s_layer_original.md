@@ -49,10 +49,10 @@ evidence_table:
   columns:
     - entity                 # Dimension key(s) first
     - period
-    - margin.gm.pct          # KPI IDs; mapped to measure names at build time
+    - KPI-COM-013          # KPI IDs; mapped to measure names at build time
   measures:
     - Gross Margin %         # Resolved measure names from semantic model
-  sort_by: margin.gm.pct
+  sort_by: KPI-COM-013
   limit: 500
   data_bars: true            # Show data bars on variance columns
 ```

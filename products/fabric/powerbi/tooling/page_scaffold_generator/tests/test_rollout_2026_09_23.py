@@ -34,13 +34,13 @@ def loader():
 
 @pytest.mark.parametrize("uc, kpi, erwartet", [
     # Katalogname existiert in keinem Modell -> Name aus dem Measure-Dictionary
-    ("COM-001", "sales.net_sales.plan.amount", "Plan Sales Amount"),
-    ("COM-001", "sales.net_sales.ly.amount", "Last Year Net Sales Amount"),
+    ("COM-001", "KPI-COM-006", "Plan Sales Amount"),
+    ("COM-001", "KPI-COM-007", "Last Year Net Sales Amount"),
     # Katalogname existiert, aber nur in einem FREMDEN Modell -> Variante des eigenen
-    ("FIN-001", "supply.otif.pct", "OTIF % (FIN)"),
-    ("XD-003", "margin.gm.pct", "Gross Margin % (XD)"),
+    ("FIN-001", "KPI-SCM-007", "OTIF % (FIN)"),
+    ("XD-003", "KPI-COM-013", "Gross Margin % (XD)"),
     # Dictionary kennt die Variante nicht, das Modell fuehrt genau eine
-    ("XD-004", "enterprise.avg_time_to_outcome.days", "Avg Time-to-Outcome Days (XD)"),
+    ("XD-004", "KPI-GOV-006", "Avg Time-to-Outcome Days (XD)"),
 ])
 def test_measure_names_resolve_against_the_bound_model(loader, uc, kpi, erwartet):
     assert loader.measure_map_for(loader.load_use_case_bracket(uc))[kpi] == erwartet
@@ -60,7 +60,7 @@ def test_customer_token_follows_the_model(loader):
 def test_an_explicit_table_column_is_a_column_not_a_measure(loader):
     b = loader.load_use_case_bracket("COM-001")
     assert loader._table_column("dim_org.Region", b) == ("dim_org", "Region")
-    assert loader._table_column("sales.net_sales.amount", b) is None      # KPI-Kennung
+    assert loader._table_column("KPI-COM-005", b) is None      # KPI-Kennung
     with pytest.raises(ValueError, match="Spalte"):
         loader._table_column("dim_org.Regoin", b)                       # Tippfehler
 
@@ -174,7 +174,7 @@ def test_a_time_axis_is_never_sorted_by_value():
 
 def test_an_evidence_table_sorts_by_its_first_measure():
     sd = _sort_rangfolge(_vis("tableEx", category=False), ["In-Full %", "Stockout Impact %"],
-                         ["supply.in_full.pct", "supply.stockout_impact.pct"], {"supply.in_full.pct": "higher"})
+                         ["KPI-SCM-018", "KPI-SCM-009"], {"KPI-SCM-018": "higher"})
     assert sd["sort"][0]["field"]["Measure"]["Property"] == "In-Full %"
     assert sd["sort"][0]["direction"] == "Ascending"
 

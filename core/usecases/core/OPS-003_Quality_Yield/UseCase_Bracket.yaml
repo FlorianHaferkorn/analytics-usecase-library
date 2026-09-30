@@ -6,17 +6,17 @@ governance:
   owner_role: quality_manager
   steward_role: quality_analytics_ops_bi_lead
 orchestration:
-  strategic_kpi_id: quality.fpy.pct
+  strategic_kpi_id: KPI-QUA-001
   influencing_kpi_ids:
-  - quality.scrap.pct
-  - quality.rework.pct
-  - quality.copq.amount
-  - quality.complaint.pct
-  - quality.defect_density
+  - KPI-QUA-002
+  - KPI-OPS-010
+  - KPI-QUA-003
+  - KPI-QUA-004
+  - KPI-QUA-005
   supporting_kpi_ids:
-  - ops.planned_output.units
-  - sales.units
-  - crm.complaint.count
+  - KPI-OPS-013
+  - KPI-COM-012
+  - KPI-SVC-001
   action_code_ids:
   - O-Q3.1
   - O-Q3.2
@@ -24,14 +24,14 @@ orchestration:
   - O-Q3.4
   - O-Q3.5
 primary_kpi_ids:
-  - quality.fpy.pct
-  - quality.scrap.pct
+  - KPI-QUA-001
+  - KPI-QUA-002
 
 value_driver_model:
-  formula: quality.fpy.pct = f(quality.scrap.pct, quality.rework.pct, quality.copq.amount, quality.complaint.pct, quality.defect_density)
+  formula: KPI-QUA-001 = f(KPI-QUA-002, KPI-OPS-010, KPI-QUA-003, KPI-QUA-004, KPI-QUA-005)
   impact_direction: maximize
-  primary_driver: quality.scrap.pct
-  impact_logic: Improving quality.scrap.pct is the primary lever for maximizing quality.fpy.pct.
+  primary_driver: KPI-QUA-002
+  impact_logic: Improving KPI-QUA-002 is the primary lever for maximizing KPI-QUA-001.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -45,14 +45,14 @@ ux_layout_rules:
     decision_question: "Is product quality yield within acceptable thresholds?"
     big_idea: "Scrap rate is trending above target — yield losses are concentrated in two production lines and require root-cause containment before end of quarter."
     component_3s:
-      kpi_id: quality.fpy.pct
+      kpi_id: KPI-QUA-001
       visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
       benchmark: true
     component_30s:
     - slot_id: Main_1
-      kpi_id: quality.scrap.pct
+      kpi_id: KPI-QUA-002
       visual_type: line_chart
       question: "Is quality loss plant-wide or concentrated on a few lines?"
       message: Rising scrap is concentrated on a couple of lines, not plant-wide
@@ -60,11 +60,11 @@ ux_layout_rules:
       unit: rate
     - slot_id: Main_2
       # R2.4: was 3 KPIs of 2 different calc_types (rate vs. amount) on one
-      # axis -- a ONE_MESSAGE_PER_CHART violation. quality.copq.amount moved
+      # axis -- a ONE_MESSAGE_PER_CHART violation. KPI-QUA-003 moved
       # to the Detail_Matrix.
       kpi_ids:
-      - quality.rework.pct
-      - quality.complaint.pct
+      - KPI-OPS-010
+      - KPI-QUA-004
       visual_type: horizontal_bar_chart
       question: "What are the downstream quality-cost signals?"
       message: Rework and complaint rates — the two downstream quality-cost signals.
@@ -80,25 +80,25 @@ ux_layout_rules:
       evidence_grain: line_day
       # R2.4: curated 12→8. plant/line/shift have no backing dimension table
       # in Operations.SemanticModel (only dim_asset exists) -- replaced with
-      # asset. Cut ops.planned_output.units/sales.units (volume context, less
+      # asset. Cut KPI-OPS-013/KPI-COM-012 (volume context, less
       # central to the quality-yield decision_question).
       evidence_columns:
       - asset
       - product_category
-      - quality.fpy.pct
-      - quality.scrap.pct
-      - quality.rework.pct
-      - quality.copq.amount
-      - quality.complaint.pct
-      - quality.defect_density
+      - KPI-QUA-001
+      - KPI-QUA-002
+      - KPI-OPS-010
+      - KPI-QUA-003
+      - KPI-QUA-004
+      - KPI-QUA-005
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: quality.scrap.pct
+        measure: KPI-QUA-002
         direction: descending
       top_n: 20
       highlight_rule:
-        column: quality.scrap.pct
+        column: KPI-QUA-002
         type: data_bar
 prioritization:
   business_value: high

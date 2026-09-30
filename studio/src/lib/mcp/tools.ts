@@ -17,7 +17,7 @@ import { getDb } from '@/lib/db/sqlite';
 const REPO_ROOT = resolve(process.cwd(), '..');
 const PYTHON = process.env.SUPERVERSION_PYTHON || (process.platform === 'win32' ? 'py' : 'python3');
 const PYTHON_PREFIX = process.env.SUPERVERSION_PYTHON || process.platform !== 'win32' ? [] : ['-3'];
-const KPI_ID = /^[a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+$/;
+const KPI_ID = /^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\d{3}$/;
 const ACTION_ID = /^[A-Z]-[A-Z]\d+\.\d+$/;
 
 function schemaPath(name: 'usecase_bracket' | 'kpi_definition' | 'action_code'): string {
@@ -303,7 +303,7 @@ export function autofixBindings(distPath?: string): {
 
 /**
  * Create or update a KPI definition YAML in core/kpi_catalog/.
- * id: the kpi_id (e.g. com.net_sales.amount), yamlContent: full YAML string.
+ * id: the kpi_id (e.g. KPI-COM-005), yamlContent: full YAML string.
  */
 export function createKpi(kpiId: string, yamlContent: string): { kpiId: string; path?: string; error?: string; details?: unknown } {
   if (!KPI_ID.test(kpiId)) return { kpiId, error: 'Invalid KPI ID' };

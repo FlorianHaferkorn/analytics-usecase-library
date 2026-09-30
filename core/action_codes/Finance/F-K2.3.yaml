@@ -13,12 +13,12 @@ use_case_links:
   - OPS-001
 kpis:
   trigger_kpis:
-  - ops.labor.productivity.pct
+  - KPI-OPS-004
   guardrail_kpis:
-  - ops.quality.defect_rate.pct
+  - KPI-QUA-006
   outcome_kpis:
-  - ops.labor.productivity.pct
-  - cost.unit.amount
+  - KPI-OPS-004
+  - KPI-FIN-015
 scope:
   default_grain: month
   default_perspective:
@@ -45,7 +45,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: ops.throughput.units
+        metric_kpi_id: KPI-OPS-009
         comparator: gte
         value: 100000
         unit: units
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: ops.labor.productivity.pct
+        metric_kpi_id: KPI-OPS-004
         comparator: lt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: ops.labor.productivity.pct
+        metric_kpi_id: KPI-OPS-004
         comparator: lt
         threshold:
           basis: absolute
@@ -75,7 +75,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: ops.labor.productivity.pct
+        metric_kpi_id: KPI-OPS-004
         comparator: lt
         threshold:
           basis: absolute
@@ -94,7 +94,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P60D
-    metric_kpi_id: cost.unit.amount
+    metric_kpi_id: KPI-FIN-015
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -108,7 +108,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: ops.labor.productivity.pct
+    metric_kpi_id: KPI-OPS-004
     value_low: 3.0
     value_high: 8.0
     unit: pp

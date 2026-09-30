@@ -6,7 +6,7 @@ vi.mock('@/lib/hooks/use-domain-filter', () => ({ useDomainFilter: () => ({ doma
 vi.mock('@/components/ai/ai-field', () => ({ AiField: () => <textarea aria-label="Impact logic draft" /> }));
 vi.mock('@/components/compose/spine-context-card', () => ({ SpineContextCard: () => <div>Decision context</div> }));
 
-const bracket = { id: 'EXAMPLE', title: 'Working capital example', domain: 'finance', formula: 'wc.ccc.days = wc.dso.days + wc.dio.days - wc.dpo.days', impactDirection: 'minimize' as const, strategicKpiId: 'wc.ccc.days', influencingKpiIds: ['wc.dso.days', 'wc.dio.days', 'wc.dpo.days'], impactLogic: 'Example logic' };
+const bracket = { id: 'EXAMPLE', title: 'Working capital example', domain: 'finance', formula: 'KPI-FIN-006 = KPI-FIN-001 + KPI-FIN-004 - KPI-FIN-005', impactDirection: 'minimize' as const, strategicKpiId: 'KPI-FIN-006', influencingKpiIds: ['KPI-FIN-001', 'KPI-FIN-004', 'KPI-FIN-005'], impactLogic: 'Example logic' };
 
 describe('Simulator workbench hierarchy', () => {
   it('keeps data limitations visible while putting controls and results before context', () => {
@@ -29,9 +29,9 @@ describe('Simulator workbench hierarchy', () => {
   });
 
   it('presents unchanged results neutrally with consistent target and baseline units', () => {
-    render(<SimulatorClient brackets={[{ ...bracket, formula: 'margin.gm.pct = f(sales.net_sales.amount)', strategicKpiId: 'margin.gm.pct' }]} spines={[]} auroraLinked auroraKpis={{
-      'margin.gm.pct': { value: 37.5, previousValue: 36, target: 40, unit: '%', trend: [] },
-      'sales.net_sales.amount': { value: 901742929.3, previousValue: 800000000, target: 950000000, unit: 'EUR', trend: [] },
+    render(<SimulatorClient brackets={[{ ...bracket, formula: 'KPI-COM-013 = f(KPI-COM-005)', strategicKpiId: 'KPI-COM-013' }]} spines={[]} auroraLinked auroraKpis={{
+      'KPI-COM-013': { value: 37.5, previousValue: 36, target: 40, unit: '%', trend: [] },
+      'KPI-COM-005': { value: 901742929.3, previousValue: 800000000, target: 950000000, unit: 'EUR', trend: [] },
     }} />);
     expect(screen.getAllByText('37,5%')).toHaveLength(2);
     const result = screen.getByRole('heading', { name: 'Simulation Result' }).closest('section');

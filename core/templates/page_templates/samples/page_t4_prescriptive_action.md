@@ -176,7 +176,7 @@ ux_layout_rules:
     decision_question: "What should we do to recover GM% in DACH?"
     component_3s:
       kpi_cards:
-        - kpi_id: margin.gm.pct
+        - kpi_id: KPI-COM-013
           filter: "region == 'DACH'"
           status_logic: "higher_is_better"
           comparison: "vs_target"
@@ -184,7 +184,7 @@ ux_layout_rules:
     component_30s:
       - slot: "Main_1"
         visual_type: line_chart
-        kpi_id: margin.gm.pct
+        kpi_id: KPI-COM-013
         filter: "region == 'DACH'"
         reference_line: "target"
         time_window: "rolling_6m"
@@ -201,7 +201,7 @@ ux_layout_rules:
         filter: "region == 'DACH'"
         columns:
           - field: account_name
-          - field: margin.gm.pct
+          - field: KPI-COM-013
           - field: margin.gm.delta_target
             data_bars: true
           - field: margin.promo_depth_pct
@@ -210,7 +210,7 @@ ux_layout_rules:
     action_panel:
       enabled: true
       action_code_ids: ["AC-COM-001"]
-      trigger_condition: "margin.gm.pct < 0.18 AND consecutive_periods >= 3"
+      trigger_condition: "KPI-COM-013 < 0.18 AND consecutive_periods >= 3"
 ```
 
 ---

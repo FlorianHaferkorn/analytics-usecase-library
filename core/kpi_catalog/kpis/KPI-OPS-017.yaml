@@ -1,0 +1,52 @@
+kpi_id: KPI-OPS-017
+kpi_key: Downtime %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-001
+action_code_ref: []
+calc_type: rate
+good_is: lower
+business:
+  purpose: Measures share of planned production time lost to downtime.
+  definition: Downtime Minutes / Planned Time Minutes.
+  grain_scope: Line/day aggregated to plant and period.
+  unit_format: percent_1
+  interpretation: Lower is better; analyze downtime drivers and loss categories.
+technical:
+  measure_name: Downtime %
+  description: Measures share of planned production time lost to downtime.
+  depends_on_measures: []
+  lineage:
+  - fact_ops.Downtime Minutes
+  - fact_ops.Planned Time Minutes
+  calculation:
+    op: ratio
+    numerator:
+      column: Downtime Minutes
+    denominator:
+      column: Planned Time Minutes
+governance:
+  business_owner: Head of Operations
+  data_owner: Operations BI
+  steward: Operations Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Planned Time Minutes > 0
+  - Value between 0 % and 100 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: Down time element (Availability loss)
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: Downtime ratio is an availability-loss element in the ISO 22400-2 time model (down time within Planned Busy
+    Time), not a standalone named KPI; it feeds Availability (A).

@@ -72,7 +72,7 @@ fact:
     grain: site_month
     # Konformer Fakt (Bus-Matrix, 29.09.2026): die einzige Definition; operations verweist.
     # `Incidents` (esg) und `Incident Count` (operations) waren dieselbe Zählung: eine Spalte,
-    # Name aus der KPI-Lineage (ops.safety.incident.count). Weder Gold noch Modell führen die Tabelle.
+    # Name aus der KPI-Lineage (KPI-OPS-015). Weder Gold noch Modell führen die Tabelle.
     uses_columns: [DateKey, OrgKey, Incident Count, Lost Time Incidents, Hours Worked, Fatalities]
     columns:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}

@@ -16,7 +16,7 @@
   "properties": {
     "kpi_id": {
       "type": "string",
-      "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$"
+      "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$"
     },
     "kpi_key": {
       "type": "string",
@@ -51,6 +51,20 @@
       "items": {
         "type": "string"
       }
+    },
+    "plan_kpi_ref": {
+      "type": "string",
+      "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$",
+      "description": "Die governte Plan-KPI (Pegel) zu dieser Kennzahl. Seit D-594 traegt die ID keine Bedeutung mehr; bis dahin leitete comparison_measures.plan_kpi sie aus <basis>.plan.<einheit> ab."
+    },
+    "plan_variance_kpi_ref": {
+      "type": "string",
+      "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$",
+      "description": "Die governte Plan-Abweichung zu dieser Kennzahl (bisher <basis>.vs_plan.<einheit>). Belegt einen governten Plan, wird aber nie als Referenzreihe neben den Pegel gelegt."
+    },
+    "is_variance": {
+      "type": "boolean",
+      "description": "Die Kennzahl ist eine Abweichung (zu Plan oder Vorjahr) und wird im KPI-Band als eigene, nach Vorzeichen gefaerbte Karte gezeigt. Bis D-594 am Teilstring .vs_plan./.delta_pct. der ID erkannt."
     },
     "calc_type": {
       "type": "string",
@@ -167,7 +181,7 @@
   },
   "$defs": {
     "calc_ref": {
-      "description": "A term inside a governed calculation: another catalog KPI's own measure (resolved via its technical.measure_name, Golden Thread — must exist in the catalog), a raw fact column drawn from THIS KPI's own technical.lineage (resolved by column-name match, table implied), or a nested `calculation` (recursive — for VAR-chain-shaped formulas like `margin.gm.vs_plan.pct`'s Plan GM sub-expression).",
+      "description": "A term inside a governed calculation: another catalog KPI's own measure (resolved via its technical.measure_name, Golden Thread — must exist in the catalog), a raw fact column drawn from THIS KPI's own technical.lineage (resolved by column-name match, table implied), or a nested `calculation` (recursive — for VAR-chain-shaped formulas like `KPI-FIN-017`'s Plan GM sub-expression).",
       "type": "object",
       "oneOf": [
         {
@@ -178,7 +192,7 @@
           "properties": {
             "kpi": {
               "type": "string",
-              "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$"
+              "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$"
             }
           }
         },
@@ -809,7 +823,7 @@
       "properties": {
         "influencing_kpi_id": {
           "type": "string",
-          "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$"
+          "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$"
         },
         "effect": {
           "type": "object",

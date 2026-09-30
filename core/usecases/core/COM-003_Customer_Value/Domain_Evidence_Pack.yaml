@@ -33,7 +33,7 @@ process_scope:
 
 canonical_domain_model:
   outcome_kpis:
-    - id: crm.clv.amount
+    - id: KPI-CUS-001
       name: Customer Lifetime Value
       definition: >
         Present value of future cash flows from a customer relationship.
@@ -44,38 +44,38 @@ canonical_domain_model:
       benchmark_source_id: SRC-004
 
   driver_kpis:
-    - id: crm.retention.pct
+    - id: KPI-CUS-002
       name: Customer Retention Rate
       definition: "(Customers at end of period - New customers) / Customers at start × 100"
       unit: "%"
       direction: maximize
-      drives: crm.clv.amount
+      drives: KPI-CUS-001
       causal_mechanism: >
         A 5% increase in customer retention produces a 25–95% increase in profit
         (Reichheld & Schefter 2000). Retention is the highest-leverage CLV driver.
       benchmark_target: "85–95% for B2B SaaS; 70–80% for B2B distribution (Gartner 2023)"
       benchmark_source_id: SRC-004
 
-    - id: crm.revenue_at_risk.amount
+    - id: KPI-OPS-001
       name: Revenue at Risk
       definition: >
         Net Sales attributed to customers showing churn signals (NPS < threshold,
         purchase frequency decline, or engagement score below floor).
       unit: EUR
       direction: minimize
-      drives: crm.clv.amount
+      drives: KPI-CUS-001
       causal_mechanism: >
         Revenue at risk is the leading indicator for actual churn revenue impact.
         Monitoring enables proactive retention before loss is realised.
       benchmark_target: ""
       benchmark_source_id: ""
 
-    - id: crm.nps.index
+    - id: KPI-CUS-003
       name: Net Promoter Score
       definition: "% Promoters - % Detractors based on 0–10 likelihood to recommend."
       unit: index
       direction: maximize
-      drives: crm.clv.amount
+      drives: KPI-CUS-001
       causal_mechanism: >
         NPS is a leading indicator of retention. NPS < 30 is associated with elevated
         churn risk in B2B relationships (Bain & Company research).
@@ -83,19 +83,19 @@ canonical_domain_model:
       benchmark_source_id: SRC-003
 
   diagnostic_kpis:
-    - id: crm.churned_customers.count
+    - id: KPI-CUS-004
       name: Churned Customers Count
       definition: Customers lost in the period (no purchase or contract lapse).
       unit: count
       direction: minimize
-      diagnoses: crm.retention.pct
+      diagnoses: KPI-CUS-002
 
-    - id: crm.active_customers.count
+    - id: KPI-CUS-006
       name: Active Customers Count
       definition: Customers with at least one purchase/engagement in the measurement period.
       unit: count
       direction: maximize
-      diagnoses: crm.retention.pct
+      diagnoses: KPI-CUS-002
 
   guardrails:
     - description: Low-value customer churn is acceptable
@@ -103,7 +103,7 @@ canonical_domain_model:
         Revenue at risk and churn alerts must be filtered by CLV threshold.
         Churning unprofitable customers (CLV < 0 or below threshold) is a strategic goal,
         not a problem. Do not trigger retention actions for negative-CLV customers.
-      affected_kpis: [crm.revenue_at_risk.amount, crm.retention.pct]
+      affected_kpis: [KPI-OPS-001, KPI-CUS-002]
 
   wrong_interpretations:
     - description: Retention Rate masking profitable churn
@@ -251,12 +251,12 @@ source_inventory:
       supports: [wrong_interpretations]
 
 action_logic_seeds:
-  - trigger_driver: crm.retention.pct
-    trigger_diagnostic: crm.churned_customers.count
+  - trigger_driver: KPI-CUS-002
+    trigger_diagnostic: KPI-CUS-004
     trigger_condition: "Churned customers rising vs prior period AND revenue at risk > 5% of active customer revenue"
     guardrail: "Exclude negative-CLV customers from retention actions"
     action_description: Proactive retention outreach for at-risk high-value customers.
-    expected_outcome_kpi: crm.clv.amount
+    expected_outcome_kpi: KPI-CUS-001
     action_code_candidate: C-C3.1
 
 required_data_model:

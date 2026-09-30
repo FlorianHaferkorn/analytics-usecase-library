@@ -7,6 +7,7 @@
 
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { KPI_ID } from '@/lib/simulation/formula-parser';
 
 const CORE_USECASES_DIR = join(
   process.cwd(),
@@ -69,8 +70,8 @@ function parseKpiTable(
     if (col1.toLowerCase() === 'kpi id' || col1.startsWith('-') || col1.startsWith('=')) {
       continue;
     }
-    // Must look like a KPI ID (contains a dot or is not a plain word header)
-    if (col1.includes('.') || /^[a-z]/.test(col1)) {
+    // Must be a governed KPI ID (D-594: KPI-<KUERZEL>-<NNN>)
+    if (KPI_ID.test(col1)) {
       results.push({ kpi_id: col1, role: col2 });
     }
   }

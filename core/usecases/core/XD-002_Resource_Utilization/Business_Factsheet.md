@@ -52,13 +52,13 @@ service dispatching.
 
 | KPI ID | Role |
 |--------|------|
-| res.utilization.pct | Strategic |
-| res.occupancy.pct | Influencing |
-| svc.sla.attainment.pct | Influencing |
-| res.overtime.pct | Influencing |
-| res.shrinkage.pct | Influencing |
-| svc.backlog.count | Influencing |
-| svc.tickets.created.count | Influencing |
+| KPI-SVC-009 | Strategic |
+| KPI-SVC-010 | Influencing |
+| KPI-SVC-004 | Influencing |
+| KPI-SVC-011 | Influencing |
+| KPI-SVC-012 | Influencing |
+| KPI-SVC-007 | Influencing |
+| KPI-SVC-013 | Influencing |
 
 **Action Codes:** X-R2.1, X-R2.2, X-R2.3, X-R2.4
 
@@ -70,13 +70,13 @@ service dispatching.
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Utilization %** (`res.utilization.pct`) → **ISO 22400-2 UE** (partial): Utilization (productive / paid time) parallels ISO 22400-2 Utilization efficiency UE, but this KPI is applied to a contact-centre workforce, not equipment.
-- **Occupancy %** (`res.occupancy.pct`) → **ISO 22400-2** (none): Occupancy ((Talk+Wrap)/(Talk+Wrap+Idle)) is a contact-centre workforce metric governed by the COPC CX Standard / contact-centre WFM, not ISO 22400-2 manufacturing operations.
-- **SLA Attainment %** (`svc.sla.attainment.pct`) → **ISO/IEC 20000-1 8.3.3** (partial): ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets.
-- **Overtime %** (`res.overtime.pct`) → **ISO 22400-2** (none): Overtime share is a workforce-management metric (COPC CX Standard / WFM), not an ISO 22400-2 operations KPI.
-- **Shrinkage %** (`res.shrinkage.pct`) → **ISO 22400-2** (none): Shrinkage (non-productive / paid time) is a contact-centre WFM metric (COPC CX Standard), not ISO 22400-2.
-- **Backlog Count** (`svc.backlog.count`) → **ISO/IEC 20000-1 8.6.1** (partial): Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes (8.6.1 incident / 8.6.2 service request).
-- **Tickets Created Count** (`svc.tickets.created.count`) → **ISO/IEC 20000-1 8.6.1** (none): Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2), not a named ISO KPI.
+- **Utilization %** (`KPI-SVC-009`) → **ISO 22400-2 UE** (partial): Utilization (productive / paid time) parallels ISO 22400-2 Utilization efficiency UE, but this KPI is applied to a contact-centre workforce, not equipment.
+- **Occupancy %** (`KPI-SVC-010`) → **ISO 22400-2** (none): Occupancy ((Talk+Wrap)/(Talk+Wrap+Idle)) is a contact-centre workforce metric governed by the COPC CX Standard / contact-centre WFM, not ISO 22400-2 manufacturing operations.
+- **SLA Attainment %** (`KPI-SVC-004`) → **ISO/IEC 20000-1 8.3.3** (partial): ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets.
+- **Overtime %** (`KPI-SVC-011`) → **ISO 22400-2** (none): Overtime share is a workforce-management metric (COPC CX Standard / WFM), not an ISO 22400-2 operations KPI.
+- **Shrinkage %** (`KPI-SVC-012`) → **ISO 22400-2** (none): Shrinkage (non-productive / paid time) is a contact-centre WFM metric (COPC CX Standard), not ISO 22400-2.
+- **Backlog Count** (`KPI-SVC-007`) → **ISO/IEC 20000-1 8.6.1** (partial): Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes (8.6.1 incident / 8.6.2 service request).
+- **Tickets Created Count** (`KPI-SVC-013`) → **ISO/IEC 20000-1 8.6.1** (none): Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2), not a named ISO KPI.
 
 ---
 

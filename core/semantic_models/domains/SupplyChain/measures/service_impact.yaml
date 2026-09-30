@@ -1,6 +1,6 @@
 measure_name: Service Impact %
 is_kpi_measure: true
-kpi_id_ref: plan.forecast.service_impact.pct
+kpi_id_ref: KPI-SCM-012
 semantic_model: SupplyChain_SemanticModel
 display_folder: 03_Forecast
 category: KPI

@@ -1,6 +1,6 @@
 measure_name: COGS % of Sales
 is_kpi_measure: true
-kpi_id_ref: margin.cogs.pct
+kpi_id_ref: KPI-FIN-016
 semantic_model: Finance_SemanticModel
 display_folder: 03_Cost
 category: KPI

@@ -30,13 +30,13 @@ use_cases:
     title: "Cash & Liquidity Performance"
     purpose: "Control cash and liquidity by monitoring balances, operating cash flow, and working capital drivers"
     strategic_kpis:
-      - wc.ccc.days
-      - fin.cash.balance
-      - fin.cash.ocf
-      - fin.cash.vs_plan.pct
-      - wc.dso.days
-      - wc.dio.days
-      - wc.dpo.days
+      - KPI-FIN-006
+      - KPI-FIN-007
+      - KPI-FIN-009
+      - KPI-FIN-010
+      - KPI-FIN-001
+      - KPI-FIN-004
+      - KPI-FIN-005
     action_codes: [F-C1.1, F-C1.2, S-I1.2, F-C1.4]
     display_folder: "05_Cash & Liquidity"
     reporting_level: Tactical
@@ -47,11 +47,11 @@ use_cases:
     title: "Cost Performance"
     purpose: "Reduce unit cost and improve margin by controlling material, labor, and OpEx vs plan"
     strategic_kpis:
-      - cost.unit.amount
-      - margin.cogs.pct
-      - cost.opex.vs_plan.pct
-      - cost.material.pct
-      - ops.labor.productivity.pct
+      - KPI-FIN-015
+      - KPI-FIN-016
+      - KPI-FIN-014
+      - KPI-SCM-020
+      - KPI-OPS-004
     action_codes: [F-K2.1, F-K2.2, F-K2.3, F-K2.4]
     display_folder: "06_Cost Performance"
     reporting_level: Tactical
@@ -395,31 +395,31 @@ display_folders:
   - folder_name: "05_Cash & Liquidity"
     description: "FIN-001: Cash position, operating cash flow, and working capital cycle"
     measures:
-      - wc.ccc.days
-      - fin.cash.balance
-      - fin.cash.ocf
-      - fin.cash.vs_plan.pct
-      - wc.dso.days
-      - wc.dio.days
-      - wc.dpo.days
-      - supply.otif.pct
-      - scm.supplier_risk.score
-      - fin.liquidity.inventory.amount
+      - KPI-FIN-006
+      - KPI-FIN-007
+      - KPI-FIN-009
+      - KPI-FIN-010
+      - KPI-FIN-001
+      - KPI-FIN-004
+      - KPI-FIN-005
+      - KPI-SCM-007
+      - KPI-SCM-022
+      - KPI-FIN-002
 
   - folder_name: "06_Cost Performance"
     description: "FIN-002: Unit cost, COGS share, OpEx vs plan, labor productivity"
     measures:
-      - cost.unit.amount
-      - margin.cogs.pct
-      - cost.opex.vs_plan.pct
-      - cost.material.pct
-      - ops.labor.productivity.pct
-      - cost.base_volume.amount
-      - cost.opex.base.amount
-      - ops.throughput.units
-      - ops.quality.defect_rate.pct
-      - ops.quality.pct
-      - sales.net_sales.amount
+      - KPI-FIN-015
+      - KPI-FIN-016
+      - KPI-FIN-014
+      - KPI-SCM-020
+      - KPI-OPS-004
+      - KPI-FIN-019
+      - KPI-SCM-021
+      - KPI-OPS-009
+      - KPI-QUA-006
+      - KPI-OPS-003
+      - KPI-COM-005
 
   - folder_name: "Supporting Measures"
     description: "Hidden helper measures used by KPI calculations"
@@ -478,7 +478,7 @@ notes:
   implementation_status:
     - "FIN-001: COMPLETE — 10 measures with real DAX in _Measures.tmdl"
     - "FIN-002: COMPLETE — 12 measures with real DAX in _Measures.tmdl"
-    - "scm.supplier_risk.score: INTENTIONAL BLANK() — awaiting fact_supplier_risk table"
+    - "KPI-SCM-022: INTENTIONAL BLANK() — awaiting fact_supplier_risk table"
 
   future_enhancements:
     - "Add time intelligence: YTD, QTD, Rolling 12M for cash and cost measures"

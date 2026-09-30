@@ -13,12 +13,12 @@ use_case_links:
   - OPS-002
 kpis:
   trigger_kpis:
-  - cost.material.pct
+  - KPI-SCM-020
   guardrail_kpis:
-  - ops.quality.pct
+  - KPI-OPS-003
   outcome_kpis:
-  - cost.material.pct
-  - cost.unit.amount
+  - KPI-SCM-020
+  - KPI-FIN-015
 scope:
   default_grain: month
   default_perspective:
@@ -45,7 +45,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: cost.base_volume.amount
+        metric_kpi_id: KPI-FIN-019
         comparator: gte
         value: 300000
         unit: amount
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: cost.material.pct
+        metric_kpi_id: KPI-SCM-020
         comparator: gt
         threshold:
           basis: relative
@@ -63,7 +63,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: cost.material.pct
+        metric_kpi_id: KPI-SCM-020
         comparator: gt
         threshold:
           basis: relative
@@ -73,7 +73,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: cost.material.pct
+        metric_kpi_id: KPI-SCM-020
         comparator: gt
         threshold:
           basis: relative
@@ -91,7 +91,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P90D
-    metric_kpi_id: cost.opex.base.amount
+    metric_kpi_id: KPI-SCM-021
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -104,7 +104,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: cost.material.pct
+    metric_kpi_id: KPI-SCM-020
     value_low: 1.0
     value_high: 4.0
     unit: '%'

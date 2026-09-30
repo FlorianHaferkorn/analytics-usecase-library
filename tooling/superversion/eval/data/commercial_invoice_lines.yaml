@@ -1,6 +1,6 @@
 # Synthetic Commercial invoice-line fact for value certification (I-4).
 #
-# Grain = invoice line (matches `sales.net_sales.amount` → grain_scope "Invoice line").
+# Grain = invoice line (matches `KPI-COM-005` → grain_scope "Invoice line").
 # Small, deterministic, checked-in. The expected KPI values under
 # `expected/COM-001.yaml` are derived from THESE rows by the transparent
 # reference aggregation in `refcalc.py` (a self-consistency test enforces it),

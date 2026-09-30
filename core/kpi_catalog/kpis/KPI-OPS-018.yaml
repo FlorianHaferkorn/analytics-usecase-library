@@ -1,0 +1,60 @@
+kpi_id: KPI-OPS-018
+synonyms:
+- Unscheduled Downtime
+- Breakdown Downtime
+- Ungeplante Stillstandszeit
+- ungeplanter Stillstand
+example_question: Which assets cause the most unplanned downtime?
+kpi_key: Unplanned Downtime %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-002
+action_code_ref:
+- O-A2.1
+- O-A2.2
+calc_type: rate
+good_is: lower
+business:
+  purpose: Measures unplanned downtime share of planned time.
+  definition: Unplanned Downtime Minutes / Planned Time Minutes.
+  grain_scope: Line/day aggregated to plant and period.
+  unit_format: percent_1
+  interpretation: Lower is better; track reliability and maintenance effectiveness.
+technical:
+  measure_name: Unplanned Downtime %
+  description: Measures unplanned downtime share of planned time.
+  depends_on_measures: []
+  lineage:
+  - fact_ops_failures.Downtime Minutes
+  - fact_ops.Planned Time Minutes
+  calculation:
+    op: ratio
+    numerator:
+      column: Downtime Minutes
+    denominator:
+      column: Planned Time Minutes
+governance:
+  business_owner: Head of Operations
+  data_owner: Operations BI
+  steward: Maintenance Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Planned Time Minutes > 0
+  - Value between 0 % and 100 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: Unplanned down time (Availability loss)
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: Unplanned downtime is the failure/breakdown share of the ISO 22400-2 down-time element; feeds Availability
+    (A) and the Six Big Losses breakdown category.

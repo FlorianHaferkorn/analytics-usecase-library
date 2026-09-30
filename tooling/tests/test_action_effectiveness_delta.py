@@ -13,7 +13,7 @@ Tests cover:
 8. Non-achieved rows (pending/partial) — should not affect delta or coverage
 9. Action Effectiveness Delta measure present in all 5 domain TMDL files
 10. Action Effectiveness Delta in 8_Action_Outcomes folder
-11. Catalog entry exists for enterprise.action_effectiveness_delta.amount
+11. Catalog entry exists for KPI-GOV-002
 12. Reconciliation validator passes on real fact_action_outcome data
 """
 from __future__ import annotations
@@ -372,8 +372,8 @@ class TestCatalogEntry:
     def test_catalog_has_action_effectiveness_delta_entry(self):
         assert CATALOG_PATH.exists(), f"Catalog not found: {CATALOG_PATH}"
         content = CATALOG_PATH.read_text(encoding="utf-8")
-        assert "enterprise.action_effectiveness_delta.amount" in content, (
-            "KPI catalog missing enterprise.action_effectiveness_delta.amount entry"
+        assert "KPI-GOV-002" in content, (
+            "KPI catalog missing KPI-GOV-002 entry"
         )
 
     def test_catalog_entry_has_correct_measure_name(self):
@@ -382,7 +382,7 @@ class TestCatalogEntry:
         import yaml
         block = CATALOG_PATH.read_text(encoding="utf-8").split("```yaml", 1)[1].rsplit("```", 1)[0]
         entries = {e["kpi_id"]: e for e in yaml.safe_load(block)}
-        entry = entries["enterprise.action_effectiveness_delta.amount"]
+        entry = entries["KPI-GOV-002"]
         assert entry["technical"]["measure_name"] == "Action Effectiveness Delta", (
             "KPI catalog entry for action_effectiveness_delta missing correct measure_name"
         )

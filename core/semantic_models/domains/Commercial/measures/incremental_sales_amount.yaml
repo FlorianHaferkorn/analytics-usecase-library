@@ -1,6 +1,6 @@
 measure_name: Incremental Sales Amount
 is_kpi_measure: true
-kpi_id_ref: sales.promo.incremental.amount
+kpi_id_ref: KPI-COM-021
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 04_Promo
 category: KPI

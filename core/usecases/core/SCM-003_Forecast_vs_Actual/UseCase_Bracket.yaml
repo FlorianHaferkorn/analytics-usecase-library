@@ -6,29 +6,29 @@ governance:
   owner_role: planning_excellence_controlling
   steward_role: planning_s_op_bi_lead
 orchestration:
-  strategic_kpi_id: plan.forecast.accuracy.pct
+  strategic_kpi_id: KPI-SCM-005
   influencing_kpi_ids:
-  - plan.forecast.mape.pct
-  - plan.forecast.bias.pct
-  - plan.forecast.service_impact.pct
-  - plans.count
+  - KPI-SCM-017
+  - KPI-SCM-006
+  - KPI-SCM-012
+  - KPI-SCM-014
   supporting_kpi_ids:
-  - order.lines
-  - sales.units
+  - KPI-SCM-013
+  - KPI-COM-012
   action_code_ids:
   - S-F3.1
   - S-F3.2
   - S-F3.3
   - S-F3.4
 primary_kpi_ids:
-  - plan.forecast.accuracy.pct
-  - plan.forecast.mape.pct
+  - KPI-SCM-005
+  - KPI-SCM-017
 
 value_driver_model:
-  formula: plan.forecast.accuracy.pct = f(plan.forecast.mape.pct, plan.forecast.bias.pct, plan.forecast.service_impact.pct)
+  formula: KPI-SCM-005 = f(KPI-SCM-017, KPI-SCM-006, KPI-SCM-012)
   impact_direction: maximize
-  primary_driver: plan.forecast.mape.pct
-  impact_logic: Improving plan.forecast.mape.pct is the primary lever for maximizing plan.forecast.accuracy.pct.
+  primary_driver: KPI-SCM-017
+  impact_logic: Improving KPI-SCM-017 is the primary lever for maximizing KPI-SCM-005.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -42,13 +42,13 @@ ux_layout_rules:
     decision_question: "Is forecast accuracy sufficient to support production and inventory planning?"
     big_idea: "Forecast error is above threshold — systematic bias in the mid-range SKU cluster is driving overstock in two regions and requires model recalibration."
     component_3s:
-      kpi_id: plan.forecast.accuracy.pct
+      kpi_id: KPI-SCM-005
       visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: plan.forecast.mape.pct
+      kpi_id: KPI-SCM-017
       visual_type: line_chart
       question: "Is forecast error random noise or a systematic bias?"
       message: Forecast error is a systematic bias, not random noise
@@ -59,8 +59,8 @@ ux_layout_rules:
       # axis -- a ONE_MESSAGE_PER_CHART violation. plan.replan.count moved
       # to the Detail_Matrix.
       kpi_ids:
-      - plan.forecast.bias.pct
-      - plan.forecast.service_impact.pct
+      - KPI-SCM-006
+      - KPI-SCM-012
       # R6.3 (23.09.2026): Kennzahlen gegensaetzlicher Richtung auf einer Balkenachse
       # (Knock-out mixed-polarity). Je Einheit eine Zeile, je Signal eine Spalte.
       visual_type: exception_table
@@ -77,26 +77,26 @@ ux_layout_rules:
     template_id: action_matrix
     component_300s:
       evidence_grain: sku_location_month
-      # R2.4: curated 13→8. 'location'/'channel'/order.lines/plans.count/
-      # sales.units dropped ('location' has no backing dimension table in
+      # R2.4: curated 13→8. 'location'/'channel'/KPI-SCM-013/KPI-SCM-014/
+      # KPI-COM-012 dropped ('location' has no backing dimension table in
       # SupplyChain.SemanticModel; product_category+ABC/XYZ is the
       # decision-relevant lens, matching SCM-001's own pattern).
       evidence_columns:
       - product_category
       - abc_class
       - xyz_class
-      - plan.forecast.accuracy.pct
-      - plan.forecast.mape.pct
-      - plan.forecast.bias.pct
-      - plan.forecast.service_impact.pct
+      - KPI-SCM-005
+      - KPI-SCM-017
+      - KPI-SCM-006
+      - KPI-SCM-012
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: plan.forecast.mape.pct
+        measure: KPI-SCM-017
         direction: descending
       top_n: 20
       highlight_rule:
-        column: plan.forecast.mape.pct
+        column: KPI-SCM-017
         type: data_bar
 prioritization:
   business_value: high

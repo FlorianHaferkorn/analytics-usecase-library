@@ -14,12 +14,12 @@ use_case_links:
   - COM-002
 kpis:
   trigger_kpis:
-  - margin.gm.pct
-  - sales.pvm.price_effect.amount
+  - KPI-COM-013
+  - KPI-COM-010
   guardrail_kpis:
-  - sales.net_sales.delta_pct.plan
+  - KPI-COM-009
   outcome_kpis:
-  - margin.gm.pct
+  - KPI-COM-013
 scope:
   default_grain: month
   default_perspective:
@@ -45,7 +45,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: sales.net_sales.amount
+        metric_kpi_id: KPI-COM-005
         comparator: gte
         value: 100000
         unit: amount
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: margin.gm.pct
+        metric_kpi_id: KPI-COM-013
         comparator: lt
         threshold:
           basis: target
@@ -63,7 +63,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: sales.pvm.price_effect.amount
+        metric_kpi_id: KPI-COM-010
         comparator: lt
         threshold:
           basis: absolute
@@ -73,7 +73,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: margin.gm.pct
+        metric_kpi_id: KPI-COM-013
         comparator: lt
         threshold:
           basis: absolute
@@ -90,7 +90,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P30D
-    metric_kpi_id: margin.gm.pct
+    metric_kpi_id: KPI-COM-013
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -104,7 +104,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: margin.gm.pct
+    metric_kpi_id: KPI-COM-013
     value_low: 0.5
     value_high: 1.5
     unit: pp

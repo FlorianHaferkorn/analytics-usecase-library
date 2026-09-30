@@ -6,46 +6,49 @@ governance:
   owner_role: finance_strategy_ops_controlling
   steward_role: enterprise_bi_lead
 orchestration:
-  strategic_kpi_id: enterprise.value_at_risk.index
+  strategic_kpi_id: KPI-GOV-004
   influencing_kpi_ids:
-  - margin.gm.pct
-  - sales.net_sales.delta_pct.ly
-  - crm.clv.amount
-  - svc.sla.attainment.pct
-  - supply.otif.pct
-  - ops.working_capital.ccc.days
-  - people.digital_adoption.pct
-  - people.attrition_risk.pct
+  - KPI-COM-013
+  - KPI-COM-008
+  - KPI-CUS-001
+  - KPI-SVC-004
+  - KPI-SCM-007
+  - KPI-FIN-006
+  - KPI-SVC-002
+  - KPI-SVC-003
   supporting_kpi_ids:
-  - cost.cogs.amount
-  - crm.active_customers.count
-  - crm.churned_customers.count
-  - crm.complaint.count
-  - crm.lifetime_revenue.amount
-  - crm.nps.index
-  - crm.retention.pct
-  - sales.net_sales.amount
-  - supply.otif.pct
-  - supply.on_time.pct
-  - supply.in_full.pct
-  - supply.stockout_impact.pct
-  - svc.fcr.pct
-  - svc.aht.minutes
-  - svc.backlog.count
-  - svc.escalation.pct
-  - svc.tickets.created.count
-  - svc.tickets.closed.count
+  - KPI-FIN-011
+  - KPI-CUS-006
+  - KPI-CUS-004
+  - KPI-SVC-001
+  - KPI-CUS-005
+  - KPI-CUS-003
+  - KPI-CUS-002
+  - KPI-COM-005
+  - KPI-SCM-007
+  - KPI-SCM-008
+  - KPI-SCM-018
+  - KPI-SCM-009
+  - KPI-SVC-005
+  - KPI-SVC-006
+  - KPI-SVC-007
+  - KPI-SVC-008
+  - KPI-SVC-013
+  - KPI-SVC-014
+  - KPI-FIN-001
+  - KPI-FIN-004
+  - KPI-FIN-005
   action_code_ids:
   - X-E3.2
 primary_kpi_ids:
-  - enterprise.value_at_risk.index
-  - margin.gm.pct
+  - KPI-GOV-004
+  - KPI-COM-013
 
 value_driver_model:
-  formula: enterprise.value_at_risk.index = f(margin.gm.pct, sales.net_sales.delta_pct.ly, crm.clv.amount, svc.sla.attainment.pct,
-    supply.otif.pct, ops.working_capital.ccc.days, people.digital_adoption.pct, people.attrition_risk.pct)
+  formula: KPI-GOV-004 = f(KPI-COM-013, KPI-COM-008, KPI-CUS-001, KPI-SVC-004,
+    KPI-SCM-007, KPI-FIN-006, KPI-SVC-002, KPI-SVC-003)
   impact_direction: minimize
-  primary_driver: margin.gm.pct
+  primary_driver: KPI-COM-013
   impact_logic: Enterprise value at risk rises when profitability, service, working-capital, people, or action-effectiveness signals deteriorate.
 ux_layout_rules:
   report_structure: 2-Page-Lead
@@ -60,13 +63,13 @@ ux_layout_rules:
     decision_question: "Are we on track across all strategic KPIs this quarter?"
     big_idea: "Revenue growth is on track but GM% compression and OTIF decline signal execution risk that requires executive intervention."
     component_3s:
-      kpi_id: enterprise.value_at_risk.index
+      kpi_id: KPI-GOV-004
       visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: lower_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: sales.net_sales.delta_pct.ly
+      kpi_id: KPI-COM-008
       visual_type: line_chart
       question: "Are we on track across the strategic KPIs — and is growth holding?"
       message: Net sales growth versus last year is softening quarter to quarter
@@ -76,10 +79,10 @@ ux_layout_rules:
       # R2.4: was slot_id Main_3 but positionally bound to Main_2 (component_30s
       # binds by list position, not by its own slot_id label -- relabeled for
       # clarity). Was also 3 KPIs of 3 different calc_types (amount/ratio/rate)
-      # on one axis -- a ONE_MESSAGE_PER_CHART violation. crm.clv.amount and
-      # svc.sla.attainment.pct moved to the Detail_Matrix; supply.otif.pct kept
+      # on one axis -- a ONE_MESSAGE_PER_CHART violation. KPI-CUS-001 and
+      # KPI-SVC-004 moved to the Detail_Matrix; KPI-SCM-007 kept
       # (matches Main_1's 'rate' family).
-      kpi_id: supply.otif.pct
+      kpi_id: KPI-SCM-007
       visual_type: horizontal_bar_chart
       question: "Where does enterprise delivery risk concentrate across the portfolio?"
       message: OTIF is uneven across the portfolio, flagging where delivery risk concentrates
@@ -94,25 +97,25 @@ ux_layout_rules:
     big_idea: "Two business units are below threshold on both GM% and service level — escalation and resource reallocation required."
     component_300s:
       evidence_grain: entity_month
-      # R2.4: added crm.clv.amount and svc.sla.attainment.pct (moved off
+      # R2.4: added KPI-CUS-001 and KPI-SVC-004 (moved off
       # Main_2, see above) so both are still surfaced in the evidence table.
       evidence_columns:
       - entity
       - period
-      - enterprise.value_at_risk.index
-      - margin.gm.pct
-      - sales.net_sales.delta_pct.ly
-      - supply.otif.pct
-      - crm.clv.amount
-      - svc.sla.attainment.pct
+      - KPI-GOV-004
+      - KPI-COM-013
+      - KPI-COM-008
+      - KPI-SCM-007
+      - KPI-CUS-001
+      - KPI-SVC-004
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: enterprise.value_at_risk.index
+        measure: KPI-GOV-004
         direction: descending
       top_n: 20
       highlight_rule:
-        column: enterprise.value_at_risk.index
+        column: KPI-GOV-004
         type: data_bar
 prioritization:
   business_value: high

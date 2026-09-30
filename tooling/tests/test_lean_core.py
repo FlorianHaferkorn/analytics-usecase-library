@@ -35,7 +35,7 @@ class TestGolden20:
 
     def test_exactly_18_entries(self):
         # Golden spine reduced 20 → 18 by the KPI dedup: svc.nps.index and
-        # ops.otif.pct were removed (their canonicals crm.nps.index / supply.otif.pct
+        # ops.otif.pct were removed (their canonicals KPI-CUS-003 / KPI-SCM-007
         # were already in the spine).
         data = yaml.safe_load(GOLDEN_20.read_text(encoding="utf-8"))
         assert isinstance(data, dict)

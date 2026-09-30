@@ -41,13 +41,13 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| margin.ebitda.pct | Strategic |
-| margin.ebitda.delta_pct.plan | Influencing |
-| sales.net_sales.delta_pct.plan | Influencing |
-| margin.gm.pct | Influencing |
-| cost.opex.vs_plan.pct | Influencing |
-| margin.ebitda.amount | Supporting |
-| fin.cash.ocf | Supporting |
+| KPI-FIN-018 | Strategic |
+| KPI-FIN-021 | Influencing |
+| KPI-COM-009 | Influencing |
+| KPI-COM-013 | Influencing |
+| KPI-FIN-014 | Influencing |
+| KPI-FIN-020 | Supporting |
+| KPI-FIN-009 | Supporting |
 
 **Action Codes:** F-E1.1
 
@@ -59,13 +59,13 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **EBITDA Margin** (`margin.ebitda.pct`) → **ESMA-APM** (none): EBITDA is NOT defined by IFRS. It is an Alternative Performance Measure: under the ESMA APM Guidelines it must be labelled as non-GAAP, reconciled to the most directly reconcilable IFRS line item, and shown with a comparative. Under IFRS 18 (eff. 1 Jan 2027) an EBITDA-type figure used in public communication is a Management-defined Performance Measure (MPM) requiring a dedicated reconciliation note to the nearest IFRS subtotal — IFRS 18's closest defined analogue is OPDAI ('operating profit before depreciation, amortisation and impairments'). Do not present as an IFRS metric.
-- **EBITDA Margin vs Plan** (`margin.ebitda.delta_pct.plan`) → **ESMA-APM** (partial): EBITDA-vs-plan variance is an APM comparison; ESMA APM Guidelines require consistent, reconciled definition period-over-period.
-- **Net Sales % vs Plan** (`sales.net_sales.delta_pct.plan`) → **IFRS 15** (none): Net-sales-vs-plan is an internal budget-variance metric; the actual base is IFRS 15 revenue, the variance is convention.
-- **Gross Margin %** (`margin.gm.pct`) → **ESMA-APM** (partial): A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM. Inputs are IFRS-clean — label the ratio as an APM in external reporting.
-- **OpEx vs Plan %** (`cost.opex.vs_plan.pct`) → **IFRS** (none): Internal budget-variance management metric; no external financial-reporting standard defines it. Actual and plan inputs trace to IAS 1 operating expenses.
-- **EBITDA** (`margin.ebitda.amount`) → **ESMA-APM** (partial): EBITDA is not defined by IFRS; ESMA APM Guidelines govern its disclosure. Reconcile to the nearest IFRS line (operating profit) per ESMA.
-- **Operating Cash Flow** (`fin.cash.ocf`) → **IFRS** (exact): Maps to the IAS 7 operating-activities cash-flow section. Aligns; IAS 7 permits the direct or indirect method — pin which one is used so period-over-period comparisons are stable.
+- **EBITDA Margin** (`KPI-FIN-018`) → **ESMA-APM** (none): EBITDA is NOT defined by IFRS. It is an Alternative Performance Measure: under the ESMA APM Guidelines it must be labelled as non-GAAP, reconciled to the most directly reconcilable IFRS line item, and shown with a comparative. Under IFRS 18 (eff. 1 Jan 2027) an EBITDA-type figure used in public communication is a Management-defined Performance Measure (MPM) requiring a dedicated reconciliation note to the nearest IFRS subtotal — IFRS 18's closest defined analogue is OPDAI ('operating profit before depreciation, amortisation and impairments'). Do not present as an IFRS metric.
+- **EBITDA Margin vs Plan** (`KPI-FIN-021`) → **ESMA-APM** (partial): EBITDA-vs-plan variance is an APM comparison; ESMA APM Guidelines require consistent, reconciled definition period-over-period.
+- **Net Sales % vs Plan** (`KPI-COM-009`) → **IFRS 15** (none): Net-sales-vs-plan is an internal budget-variance metric; the actual base is IFRS 15 revenue, the variance is convention.
+- **Gross Margin %** (`KPI-COM-013`) → **ESMA-APM** (partial): A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM. Inputs are IFRS-clean — label the ratio as an APM in external reporting.
+- **OpEx vs Plan %** (`KPI-FIN-014`) → **IFRS** (none): Internal budget-variance management metric; no external financial-reporting standard defines it. Actual and plan inputs trace to IAS 1 operating expenses.
+- **EBITDA** (`KPI-FIN-020`) → **ESMA-APM** (partial): EBITDA is not defined by IFRS; ESMA APM Guidelines govern its disclosure. Reconcile to the nearest IFRS line (operating profit) per ESMA.
+- **Operating Cash Flow** (`KPI-FIN-009`) → **IFRS** (exact): Maps to the IAS 7 operating-activities cash-flow section. Aligns; IAS 7 permits the direct or indirect method — pin which one is used so period-over-period comparisons are stable.
 
 ---
 

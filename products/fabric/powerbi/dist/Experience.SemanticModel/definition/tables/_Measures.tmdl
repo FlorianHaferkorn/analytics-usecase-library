@@ -9,25 +9,25 @@ table _Measures
 			in
 				Source
 
-	/// enterprise.actions_executed.count - Actions Executed Count
+	/// KPI-GOV-005 - Actions Executed Count
 	/// Number of action codes with a recorded outcome in fact_action_outcome.
 	measure 'Actions Executed Count (XD)' = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.action_outcome_rate.pct - Action Outcome Rate %
+	/// KPI-GOV-001 - Action Outcome Rate %
 	/// Percentage of executed actions with a confirmed achieved outcome.
 	measure 'Action Outcome Rate % (XD)' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
 		formatString: 0.0%
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.avg_time_to_outcome.days - Avg Time-to-Outcome Days
+	/// KPI-GOV-006 - Avg Time-to-Outcome Days
 	/// Average days between action execution and outcome confirmation.
 	measure 'Avg Time-to-Outcome Days (XD)' = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
 		formatString: #,0.0
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.action_roi.pct - Action ROI %
+	/// KPI-GOV-007 - Action ROI %
 	/// Average ROI of executed actions: total impact value / total execution cost - 1.
 	measure 'Action ROI % (XD)' = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
 		formatString: 0.0%
@@ -82,7 +82,7 @@ table _Measures
 		displayFolder: "8_Action_Outcomes"
 
 	/// Purpose: Zielwert von Action Outcome Rate % (XD Log) aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'Action Outcome Rate % (XD Log) Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "enterprise.action_outcome_rate.pct", fact_target[scenario] = "target" )
+	measure 'Action Outcome Rate % (XD Log) Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-GOV-001", fact_target[scenario] = "target" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison
 		lineageTag: 4dab9c41-1a23-5c7d-b1a7-2a47164b1864
@@ -98,7 +98,7 @@ table _Measures
 		annotation ALUCA_Generated = "comparison_measures"
 
 	/// Purpose: Zielwert von Enterprise Value-at-Risk Index aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'Enterprise Value-at-Risk Index Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "enterprise.value_at_risk.index", fact_target[scenario] = "target" )
+	measure 'Enterprise Value-at-Risk Index Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-GOV-004", fact_target[scenario] = "target" )
 		formatString: "0"
 		displayFolder: 8_Comparison
 		lineageTag: 650da056-a5a5-5c60-b8ad-73ccb6c79219
@@ -114,7 +114,7 @@ table _Measures
 		annotation ALUCA_Generated = "comparison_measures"
 
 	/// Purpose: Zielwert von SLA Attainment % aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'SLA Attainment % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "svc.sla.attainment.pct", fact_target[scenario] = "target" )
+	measure 'SLA Attainment % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-SVC-004", fact_target[scenario] = "target" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison
 		lineageTag: 951b6dba-279f-5a42-a41c-ef112b772337
@@ -130,7 +130,7 @@ table _Measures
 		annotation ALUCA_Generated = "comparison_measures"
 
 	/// Purpose: Planwert von Utilization % aus fact_target (comparison: vs_plan); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'Utilization % Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "res.utilization.pct", fact_target[scenario] = "plan" )
+	measure 'Utilization % Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-SVC-009", fact_target[scenario] = "plan" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison
 		lineageTag: 7ba5ce95-54f7-5a00-9125-23a892b7fbd3
@@ -168,7 +168,7 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-001"
 
-	/// FCR % - svc.fcr.pct
+	/// FCR % - KPI-SVC-005
 	/// Shows the share of cases solved on first contact.
 	measure 'FCR %' =
 			VAR FirstContactResolvedCases =
@@ -180,7 +180,7 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-001"
 
-	/// AHT Minutes - svc.aht.minutes
+	/// AHT Minutes - KPI-SVC-006
 	/// Measures average time to handle a contact.
 	measure 'AHT Minutes' = DIVIDE ( SUM ( fact_support_cases[Handle Time Minutes] ), COUNTROWS ( fact_support_cases ) )
 		formatString: "#,0"
@@ -322,7 +322,7 @@ table _Measures
 		displayFolder: "XD-002"
 
 	/// XD-003
-	/// Gross Margin % (XD) - margin.gm.pct
+	/// Gross Margin % (XD) - KPI-COM-013
 	/// Gross Margin % used in Experience domain reporting and P&L reconciliation.
 	measure 'Gross Margin % (XD)' =
 			VAR NetSalesAmount =
@@ -334,7 +334,7 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
-	/// Delta% Net Sales (XD) - sales.net_sales.delta_pct.ly
+	/// Delta% Net Sales (XD) - KPI-COM-008
 	/// Relative variance of Net Sales vs Last Year, Experience domain view.
 	measure 'Delta% Net Sales (XD)' =
 			VAR ActualNetSales =
@@ -348,7 +348,7 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
-	/// CLV - crm.clv.amount
+	/// CLV - KPI-CUS-001
 	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investme...
 	measure 'CLV' =
 			VAR HorizonYears = 3
@@ -419,7 +419,7 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
-	/// Revenue at Risk Amount (XD) - crm.revenue_at_risk.amount
+	/// Revenue at Risk Amount (XD) - KPI-OPS-001
 	/// Net Sales Amount weighted by average of OTIF failure rate and First Pass Yield failure rate.
 	measure 'Revenue at Risk Amount (XD)' =
 			VAR OTIFFailureRate =
@@ -475,7 +475,7 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "XD-003"
 
-	/// Action Outcome Rate % - enterprise.action_outcome_rate.pct
+	/// Action Outcome Rate % - KPI-GOV-001
 	/// Measures share of actions that achieved the intended outcome.
 	measure 'Action Outcome Rate % (XD Log)' =
 			VAR AchievedActions =
@@ -505,19 +505,19 @@ table _Measures
 		formatString: "0"
 		displayFolder: "XD-003"
 
-	/// Cost of Goods Sold Amount (XD) - cost.cogs.amount
+	/// Cost of Goods Sold Amount (XD) - KPI-FIN-011
 	/// Total cost of goods sold; base measure for Experience domain margin calculations.
 	measure 'Cost of Goods Sold Amount (XD)' = SUM ( fact_sales[Cost of Goods Sold Amount] )
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
-	/// Net Sales Amount - sales.net_sales.amount
+	/// Net Sales Amount - KPI-COM-005
 	/// Total invoiced revenue net of discounts and returns.
 	measure 'Net Sales Amount (XD)' = SUM ( fact_sales[Net Sales Amount] )
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
-	/// OTIF % - supply.otif.pct
+	/// OTIF % - KPI-SCM-007
 	/// Measures share of orders delivered on time and in full.
 	measure 'OTIF % (XD)' =
 			VAR OTIFFulfillments =

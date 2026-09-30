@@ -43,7 +43,7 @@ process_scope:
 
 canonical_domain_model:
   outcome_kpis:
-    - id: plan.forecast.accuracy.pct
+    - id: KPI-SCM-005
       name: Forecast Accuracy %
       definition: >
         Accuracy = 1 - MAPE (clamped at 0), expressing how close the forecast is to actual
@@ -55,12 +55,12 @@ canonical_domain_model:
       benchmark_source_id: SRC-004
 
   driver_kpis:
-    - id: plan.forecast.mape.pct
+    - id: KPI-SCM-017
       name: MAPE (Mean Absolute Percentage Error)
       definition: "mean(|Actual - Forecast| / Actual) over the evaluation window; the magnitude of forecast error regardless of direction."
       unit: "%"
       direction: minimize
-      drives: plan.forecast.accuracy.pct
+      drives: KPI-SCM-005
       causal_mechanism: >
         MAPE is the inverse face of accuracy (Accuracy = 1 - MAPE) and the primary lever:
         reducing absolute percentage error directly raises accuracy. It is the magnitude
@@ -68,12 +68,12 @@ canonical_domain_model:
         under-forecasting (Hyndman & Athanasopoulos).
       benchmark_target: "<= 15-20% MAPE for mature/stable demand; volatile SKUs higher (IBF)"
       benchmark_source_id: SRC-004
-    - id: plan.forecast.bias.pct
+    - id: KPI-SCM-006
       name: Forecast Bias %
       definition: "mean((Forecast - Actual) / Actual); positive = systematic over-forecast, negative = systematic under-forecast."
       unit: "%"
       direction: minimize
-      drives: plan.forecast.accuracy.pct
+      drives: KPI-SCM-005
       causal_mechanism: >
         Bias is the directional component of error. A forecast can have acceptable MAPE yet
         a large persistent bias that systematically over- or under-stocks. Bias is the lever
@@ -81,24 +81,24 @@ canonical_domain_model:
         overstock vs stockout (Hyndman & Athanasopoulos; IBF).
       benchmark_target: "Within +/-5% (effectively unbiased); |bias| > 10% signals systematic correction needed (IBF)"
       benchmark_source_id: SRC-004
-    - id: plan.forecast.service_impact.pct
+    - id: KPI-SCM-012
       name: Service Impact %
       definition: "% of demand/orders where forecast error translated into an OTIF miss or stockout; links forecast quality to service outcomes."
       unit: "%"
       direction: minimize
-      drives: plan.forecast.accuracy.pct
+      drives: KPI-SCM-005
       causal_mechanism: >
         Service impact closes the loop between Plan and Deliver: under-forecast bias and high
         MAPE on covered SKUs propagate into stockouts and In-Full failures (SCM-002). It is
         the consequence metric that justifies forecast investment (SCOR Plan-to-Deliver link).
       benchmark_target: "Minimise; forecast-attributable service misses < 2% of demand"
       benchmark_source_id: SRC-008
-    - id: plans.count
+    - id: KPI-SCM-014
       name: Replan Count
       definition: "Number of forecast/plan version changes per SKU-cluster per period; a planning-stability / nervousness signal."
       unit: count
       direction: minimize
-      drives: plan.forecast.accuracy.pct
+      drives: KPI-SCM-005
       causal_mechanism: >
         Frequent replanning indicates plan instability ('nervousness') that itself degrades
         execution and signals an unstable baseline or unmanaged demand inputs. Excessive
@@ -112,21 +112,21 @@ canonical_domain_model:
       definition: "Forecast bias decomposed by product family / input source to localise systematic over- or under-forecast."
       unit: "%"
       direction: minimize
-      diagnoses: plan.forecast.bias.pct
+      diagnoses: KPI-SCM-006
       causal_mechanism: Aggregate bias near zero can hide offsetting family-level biases; family decomposition reveals the systematic over/under clusters.
     - id: plan.forecast.mape_by_horizon.pct
       name: MAPE by Forecast Horizon (lag)
       definition: "MAPE measured at each lag/horizon (e.g., lag-1 vs lag-3 months) to show how error grows with horizon."
       unit: "%"
       direction: minimize
-      diagnoses: plan.forecast.mape.pct
+      diagnoses: KPI-SCM-017
       causal_mechanism: Error that explodes at longer horizons points to model/seasonality limits; flat error points to data or input problems.
     - id: plan.demand_cov.ratio
       name: Demand Volatility (Coefficient of Variation)
       definition: "CoV = stddev(demand) / mean(demand) per SKU; the forecastability signal that contextualises whether high MAPE is fixable."
       unit: ratio
       direction: minimize
-      diagnoses: plan.forecast.mape.pct
+      diagnoses: KPI-SCM-017
       causal_mechanism: >
         High MAPE on a high-CoV (low-forecastability) SKU is largely irreducible; high MAPE
         on a low-CoV SKU is a fixable process failure. CoV separates 'hard to forecast' from
@@ -136,7 +136,7 @@ canonical_domain_model:
       definition: "Accuracy of the statistical/consensus forecast minus accuracy of a naive (random-walk/seasonal-naive) benchmark, in percentage points."
       unit: pp
       direction: maximize
-      diagnoses: plan.forecast.accuracy.pct
+      diagnoses: KPI-SCM-005
       causal_mechanism: >
         FVA quantifies whether the forecasting process beats doing nothing. Negative FVA means
         the process performs worse than a naive forecast and should be simplified — a common,
@@ -148,18 +148,18 @@ canonical_domain_model:
         Do NOT trigger model-refit or bias-correction actions on SKUs in launch (< ~6 months)
         or under active promotion using the statistical baseline accuracy. These need
         analogous/bottom-up methods and a separate evaluation; mixing them inflates aggregate MAPE.
-      affected_kpis: [plan.forecast.accuracy.pct, plan.forecast.mape.pct, plan.forecast.bias.pct]
+      affected_kpis: [KPI-SCM-005, KPI-SCM-017, KPI-SCM-006]
     - description: Forecastability floor (do not chase irreducible error)
       condition: >
         Do NOT set accuracy targets that ignore demand volatility. For high-CoV / intermittent
         SKUs, target Forecast Value Added over a naive benchmark, not an absolute MAPE, to avoid
         wasting effort on irreducible error.
-      affected_kpis: [plan.forecast.mape.pct, plan.fva.pp]
+      affected_kpis: [KPI-SCM-017, plan.fva.pp]
     - description: Plan-stability vs over-reaction
       condition: >
         Do NOT replan on a single-period demand shock that is within normal volatility. Replanning
         on noise increases nervousness without adding accuracy and can reduce FVA.
-      affected_kpis: [plans.count, plan.forecast.accuracy.pct]
+      affected_kpis: [KPI-SCM-014, KPI-SCM-005]
 
   wrong_interpretations:
     - description: Averaging MAPE across SKUs hides bias and small-denominator distortion
@@ -235,33 +235,33 @@ required_data_model:
       source_id: SRC-002
 
 action_logic_seeds:
-  - trigger_driver: plan.forecast.bias.pct
+  - trigger_driver: KPI-SCM-006
     trigger_diagnostic: plan.forecast.bias_by_family.pct
     trigger_condition: "|Bias| > 10% for 3 consecutive cycles on a product family (e.g., persistent +15% over-forecast)"
     guardrail: "Exclude launch (<6 months) and active-promotion SKUs from baseline bias correction"
     action_description: Forecast bias correction — decompose bias by family/input source and recalibrate baseline or consensus inputs.
-    expected_outcome_kpi: plan.forecast.accuracy.pct
+    expected_outcome_kpi: KPI-SCM-005
     action_code_candidate: S-F3.1
-  - trigger_driver: plan.forecast.mape.pct
+  - trigger_driver: KPI-SCM-017
     trigger_diagnostic: plan.fva.pp
     trigger_condition: "MAPE above target AND Forecast Value Added <= 0 (process no better than naive) on a low-CoV cluster"
     guardrail: "Do not refit on high-CoV/intermittent SKUs where error is largely irreducible"
     action_description: Forecast model refit / method review — replace or simplify the model where it underperforms a naive benchmark.
-    expected_outcome_kpi: plan.forecast.mape.pct
+    expected_outcome_kpi: KPI-SCM-017
     action_code_candidate: S-F3.2
-  - trigger_driver: plan.forecast.mape.pct
+  - trigger_driver: KPI-SCM-017
     trigger_diagnostic: plan.demand_cov.ratio
     trigger_condition: "High MAPE concentrated in new-product launches or high-CoV SKUs accounting for the majority of total error"
     guardrail: "Do not apply statistical-baseline targets to launch/intermittent demand"
     action_description: Forecast method segmentation and demand-sensing activation for new/volatile SKUs (analogous/bottom-up, shorter horizon).
-    expected_outcome_kpi: plan.forecast.accuracy.pct
+    expected_outcome_kpi: KPI-SCM-005
     action_code_candidate: S-F3.3
-  - trigger_driver: plan.forecast.service_impact.pct
-    trigger_diagnostic: plan.forecast.bias.pct
+  - trigger_driver: KPI-SCM-012
+    trigger_diagnostic: KPI-SCM-006
     trigger_condition: "Service impact % rising AND traced to negative (under-forecast) bias on covered SKUs"
     guardrail: "Hand off recovery execution to SCM-002; replan only beyond normal volatility"
     action_description: Replan and service-protection trigger — adjust plan and coordinate with OTIF execution (SCM-002) where forecast error is causing stockouts.
-    expected_outcome_kpi: plan.forecast.service_impact.pct
+    expected_outcome_kpi: KPI-SCM-012
     action_code_candidate: S-F3.4
 
 source_inventory:

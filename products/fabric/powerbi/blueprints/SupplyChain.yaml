@@ -29,13 +29,13 @@ use_cases:
     title: "Inventory Performance"
     purpose: "Optimize inventory levels by balancing turnover, stockout risk, and working capital"
     strategic_kpis:
-      - inv.dio.days
-      - inv.turnover
-      - inv.stockout.pct
-      - supply.otif.pct
-      - inv.obsolete.pct
-      - plan.forecast.accuracy.pct
-      - sales.units
+      - KPI-SCM-001
+      - KPI-SCM-016
+      - KPI-SCM-002
+      - KPI-SCM-007
+      - KPI-SCM-004
+      - KPI-SCM-005
+      - KPI-COM-012
     action_codes: [S-I1.1, S-I1.2, S-I1.3, S-I1.4, S-I1.5]
     display_folder: "07_Inventory"
     reporting_level: Tactical / Operational
@@ -46,14 +46,14 @@ use_cases:
     title: "Supply Reliability & OTIF"
     purpose: "Improve on-time in-full delivery performance by eliminating root causes of late or partial shipments"
     strategic_kpis:
-      - supply.otif.pct
-      - supply.on_time.pct
-      - supply.in_full.pct
-      - supply.stockout_impact.pct
-      - supply.penalty.amount
-      - supply.expedite.amount
-      - order.lines
-      - shipments.count
+      - KPI-SCM-007
+      - KPI-SCM-008
+      - KPI-SCM-018
+      - KPI-SCM-009
+      - KPI-SCM-011
+      - KPI-SCM-010
+      - KPI-SCM-013
+      - KPI-SCM-015
     action_codes: [S-R2.1, S-R2.2, S-R2.3, S-R2.4, S-R2.5]
     display_folder: "08_OTIF"
     reporting_level: Tactical / Operational
@@ -64,13 +64,13 @@ use_cases:
     title: "Forecast vs Actual"
     purpose: "Improve demand forecast accuracy to reduce safety stock, stockouts, and supply volatility"
     strategic_kpis:
-      - plan.forecast.accuracy.pct
-      - plan.forecast.mape.pct
-      - plan.forecast.bias.pct
-      - plan.forecast.service_impact.pct
-      - order.lines
-      - plans.count
-      - sales.units
+      - KPI-SCM-005
+      - KPI-SCM-017
+      - KPI-SCM-006
+      - KPI-SCM-012
+      - KPI-SCM-013
+      - KPI-SCM-014
+      - KPI-COM-012
     action_codes: [S-F3.1, S-F3.2, S-F3.3, S-F3.4]
     display_folder: "09_Forecast"
     reporting_level: Tactical
@@ -423,36 +423,36 @@ display_folders:
   - folder_name: "07_Inventory"
     description: "SCM-001: Inventory performance — DIO, turnover, stockout, obsolescence"
     measures:
-      - inv.dio.days
-      - inv.turnover
-      - inv.stockout.pct
-      - supply.otif.pct
-      - inv.obsolete.pct
-      - plan.forecast.accuracy.pct
-      - sales.units
+      - KPI-SCM-001
+      - KPI-SCM-016
+      - KPI-SCM-002
+      - KPI-SCM-007
+      - KPI-SCM-004
+      - KPI-SCM-005
+      - KPI-COM-012
 
   - folder_name: "08_OTIF"
     description: "SCM-002: Supply reliability — OTIF, on-time, in-full, penalties, expedite"
     measures:
-      - supply.otif.pct
-      - supply.on_time.pct
-      - supply.in_full.pct
-      - supply.stockout_impact.pct
-      - supply.penalty.amount
-      - supply.expedite.amount
-      - order.lines
-      - shipments.count
+      - KPI-SCM-007
+      - KPI-SCM-008
+      - KPI-SCM-018
+      - KPI-SCM-009
+      - KPI-SCM-011
+      - KPI-SCM-010
+      - KPI-SCM-013
+      - KPI-SCM-015
 
   - folder_name: "09_Forecast"
     description: "SCM-003: Forecast accuracy — MAPE, bias, service impact, replan frequency"
     measures:
-      - plan.forecast.accuracy.pct
-      - plan.forecast.mape.pct
-      - plan.forecast.bias.pct
-      - plan.forecast.service_impact.pct
-      - plans.count
-      - order.lines
-      - sales.units
+      - KPI-SCM-005
+      - KPI-SCM-017
+      - KPI-SCM-006
+      - KPI-SCM-012
+      - KPI-SCM-014
+      - KPI-SCM-013
+      - KPI-COM-012
 
   - folder_name: "Supporting Measures"
     description: "Hidden helper measures used by KPI calculations"

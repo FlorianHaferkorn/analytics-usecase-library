@@ -4,6 +4,7 @@
  */
 
 import { parseYaml } from '@/lib/core/yaml-loader';
+import { KPI_ID } from '@/lib/simulation/formula-parser';
 
 export type ReconcileEditedSource = 'factsheet' | 'bracket';
 
@@ -53,7 +54,7 @@ export function extractFactsheetKpiRoles(markdown: string): Array<{ kpi_id: stri
     const col1 = m[1].trim();
     const col2 = m[2].trim();
     if (col1.toLowerCase() === 'kpi id' || col1.startsWith('-')) continue;
-    if (col1.includes('.')) rows.push({ kpi_id: col1, role: col2 });
+    if (KPI_ID.test(col1)) rows.push({ kpi_id: col1, role: col2 });
   }
   return rows;
 }

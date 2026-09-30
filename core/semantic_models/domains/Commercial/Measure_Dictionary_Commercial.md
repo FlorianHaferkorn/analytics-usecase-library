@@ -7,7 +7,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 ```yaml
 - measure_name: Net Sales Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.amount
+  kpi_id_ref: KPI-COM-005
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -34,7 +34,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: List Price Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.price.list.amount
+  kpi_id_ref: KPI-COM-001
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -61,7 +61,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Net Price Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.price.net.amount
+  kpi_id_ref: KPI-COM-002
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -88,7 +88,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Net Sales % vs Plan
   is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.delta_pct.plan
+  kpi_id_ref: KPI-COM-009
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -118,7 +118,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Net Sales % vs LY
   is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.delta_pct.ly
+  kpi_id_ref: KPI-COM-008
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -148,7 +148,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Gross Margin Amount
   is_kpi_measure: true
-  kpi_id_ref: margin.gm.amount
+  kpi_id_ref: KPI-COM-019
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
@@ -177,7 +177,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Cost of Goods Sold Amount
   is_kpi_measure: true
-  kpi_id_ref: cost.cogs.amount
+  kpi_id_ref: KPI-FIN-011
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
@@ -204,7 +204,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Gross Margin %
   is_kpi_measure: true
-  kpi_id_ref: margin.gm.pct
+  kpi_id_ref: KPI-COM-013
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
@@ -232,7 +232,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Gross Margin % vs Plan
   is_kpi_measure: true
-  kpi_id_ref: margin.gm.vs_plan.pct
+  kpi_id_ref: KPI-FIN-017
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
@@ -264,7 +264,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Price Effect Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.pvm.price_effect.amount
+  kpi_id_ref: KPI-COM-010
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 03_PVM
   category: Driver
@@ -294,7 +294,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Volume Effect Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.pvm.volume_effect.amount
+  kpi_id_ref: KPI-COM-011
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 03_PVM
   category: Driver
@@ -323,7 +323,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Mix Effect Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.pvm.mix_effect.amount
+  kpi_id_ref: KPI-COM-004
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 03_PVM
   category: Driver
@@ -407,7 +407,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Price Realization %
   is_kpi_measure: true
-  kpi_id_ref: sales.price.realization_pct
+  kpi_id_ref: KPI-COM-003
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 03_Pricing
   category: KPI
@@ -435,7 +435,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Promotion ROI %
   is_kpi_measure: true
-  kpi_id_ref: sales.promo.roi.pct
+  kpi_id_ref: KPI-COM-016
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 04_Promo
   category: KPI
@@ -464,7 +464,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Incremental Sales Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.promo.incremental.amount
+  kpi_id_ref: KPI-COM-021
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 04_Promo
   category: KPI
@@ -492,7 +492,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Cannibalized Sales Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.promo.cannibalized_sales.amount
+  kpi_id_ref: KPI-COM-017
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 04_Promo
   category: Supporting
@@ -521,7 +521,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Cannibalization %
   is_kpi_measure: true
-  kpi_id_ref: sales.promo.cannibalization.pct
+  kpi_id_ref: KPI-COM-018
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 04_Promo
   category: KPI
@@ -552,7 +552,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Promo Gross Margin %
   is_kpi_measure: true
-  kpi_id_ref: margin.promo.gm.pct
+  kpi_id_ref: KPI-FIN-012
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
@@ -580,7 +580,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: COGS per Unit
   is_kpi_measure: true
-  kpi_id_ref: cost.cogs_per_unit.amount
+  kpi_id_ref: KPI-FIN-013
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
@@ -609,7 +609,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Plan Sales Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.plan.amount
+  kpi_id_ref: KPI-COM-006
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: Base
@@ -636,7 +636,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Last Year Net Sales Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.ly.amount
+  kpi_id_ref: KPI-COM-007
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: Base
@@ -912,7 +912,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Baseline Sales Amount
   is_kpi_measure: true
-  kpi_id_ref: sales.promo.baseline_sales.amount
+  kpi_id_ref: KPI-COM-020
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 04_Promo
   category: Base
@@ -1020,7 +1020,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Delta% Net Sales
   is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.delta_pct.ly
+  kpi_id_ref: KPI-COM-008
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -1041,7 +1041,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Net Sales
   is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.amount
+  kpi_id_ref: KPI-COM-005
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -1061,7 +1061,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: GM % During Promo
   is_kpi_measure: true
-  kpi_id_ref: margin.promo.gm.pct
+  kpi_id_ref: KPI-FIN-012
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
@@ -1081,7 +1081,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: CLV (Customer Lifetime Value)
   is_kpi_measure: true
-  kpi_id_ref: crm.clv.amount
+  kpi_id_ref: KPI-CUS-001
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 03_Customer_Value
   category: KPI
@@ -1102,7 +1102,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Net Promoter Score (NPS)
   is_kpi_measure: true
-  kpi_id_ref: crm.nps.index
+  kpi_id_ref: KPI-CUS-003
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 03_Customer_Value
   category: KPI
@@ -1123,7 +1123,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Actions Executed Count
   is_kpi_measure: true
-  kpi_id_ref: enterprise.actions_executed.count
+  kpi_id_ref: KPI-GOV-005
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
@@ -1144,7 +1144,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Avg Time-to-Outcome Days
   is_kpi_measure: true
-  kpi_id_ref: enterprise.avg_time_to_outcome.days
+  kpi_id_ref: KPI-GOV-006
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
@@ -1165,7 +1165,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Action ROI %
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_roi.pct
+  kpi_id_ref: KPI-GOV-007
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
@@ -1187,7 +1187,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Action Effectiveness Delta
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_effectiveness_delta.amount
+  kpi_id_ref: KPI-GOV-002
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
@@ -1209,7 +1209,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Action Outcome Rate %
   is_kpi_measure: true
-  kpi_id_ref: enterprise.action_outcome_rate.pct
+  kpi_id_ref: KPI-GOV-001
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI

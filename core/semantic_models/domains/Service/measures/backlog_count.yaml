@@ -1,6 +1,6 @@
 measure_name: Backlog Count
 is_kpi_measure: true
-kpi_id_ref: svc.backlog.count
+kpi_id_ref: KPI-SVC-007
 semantic_model: Service_SemanticModel
 display_folder: 03_Backlog
 category: KPI

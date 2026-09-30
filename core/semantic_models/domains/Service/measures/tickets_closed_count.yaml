@@ -1,6 +1,6 @@
 measure_name: Tickets Closed Count
 is_kpi_measure: true
-kpi_id_ref: svc.tickets.closed.count
+kpi_id_ref: KPI-SVC-014
 semantic_model: Service_SemanticModel
 display_folder: 01_Service
 category: KPI

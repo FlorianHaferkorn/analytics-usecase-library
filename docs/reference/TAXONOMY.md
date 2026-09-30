@@ -19,18 +19,17 @@ used across ALUCA (Analytics Library of Use Cases).
 
 ### KPI IDs
 
-Format: `<domain>.<entity>.<metric>[.<qualifier>]`
-
-All lowercase, dot-separated (2-5 segments). The domain segment maps to a KPI catalog file.
+Format: `KPI-<KUERZEL>-<NNN>` (Meridian D-594, 30.09.2026) — one numbering space for ALUCA,
+industry packs and Meridian tenants. The ID carries no meaning; name, unit and formula live in the
+catalog entry (`kpi_key`, `business.unit_format`, `technical.calculation`).
 
 | Segment | Rules | Example |
 |---------|-------|---------|
-| domain | Lowercase domain name | `sales`, `crm`, `finance`, `ops` |
-| entity | Business entity or concept | `net_sales`, `clv`, `inventory_turn` |
-| metric | Measurement type | `amount`, `pct`, `count`, `ratio`, `days` |
-| qualifier | Optional: comparison, period, variant | `ly`, `plan`, `vs_plan` |
+| `KPI` | fixed prefix | `KPI` |
+| Kürzel | business ownership of the KPI (lever: owner role of the action codes pointing at it, else `governance.business_owner`); list in `tooling/validation/_index.yaml` `kpi_domains` | `COM`, `FIN`, `OPS`, `SCM`, `SVC`, `CUS`, `GOV`, `PPL`, `QUA`, `ESG` |
+| Nummer | three digits, running per Kürzel from 001 | `005` |
 
-Examples: `sales.net_sales.amount`, `crm.clv.amount`, `sales.net_sales.delta_pct.ly`
+Examples: `KPI-COM-005`, `KPI-CUS-001`, `KPI-FIN-006`
 
 ### Use Case IDs
 
@@ -118,7 +117,7 @@ Each measure in `Measure_Dictionary_<Domain>.md`:
 
 ```yaml
 - measure_name: Net Sales Amount
-  kpi_id_ref: sales.net_sales.amount    # Links to KPI catalog
+  kpi_id_ref: KPI-COM-005    # Links to KPI catalog
   is_kpi_measure: true
   governance:
     status: active                       # active | draft

@@ -1,6 +1,6 @@
 measure_name: Action Effectiveness Delta (XD)
 is_kpi_measure: true
-kpi_id_ref: enterprise.action_effectiveness_delta.amount
+kpi_id_ref: KPI-GOV-002
 display_folder: 08_Action_Outcomes
 category: KPI
 expression:

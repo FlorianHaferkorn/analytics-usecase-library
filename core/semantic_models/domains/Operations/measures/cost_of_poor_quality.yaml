@@ -1,6 +1,6 @@
 measure_name: Cost of Poor Quality
 is_kpi_measure: true
-kpi_id_ref: quality.copq.amount
+kpi_id_ref: KPI-QUA-003
 semantic_model: Operations_SemanticModel
 display_folder: 06_Quality
 category: KPI

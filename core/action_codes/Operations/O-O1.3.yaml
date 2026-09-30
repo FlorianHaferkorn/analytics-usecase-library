@@ -13,12 +13,12 @@ use_case_links:
   - OPS-003
 kpis:
   trigger_kpis:
-  - ops.quality.pct
+  - KPI-OPS-003
   guardrail_kpis:
-  - ops.availability.pct
+  - KPI-OPS-016
   outcome_kpis:
-  - ops.quality.pct
-  - ops.oee.pct
+  - KPI-OPS-003
+  - KPI-OPS-011
 scope:
   default_grain: line_month
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: ops.planned.hours
+        metric_kpi_id: KPI-SCM-019
         comparator: gte
         value: 150
         unit: hours
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: ops.quality.pct
+        metric_kpi_id: KPI-OPS-003
         comparator: lt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: ops.quality.pct
+        metric_kpi_id: KPI-OPS-003
         comparator: lt
         threshold:
           basis: absolute
@@ -74,7 +74,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: ops.quality.pct
+        metric_kpi_id: KPI-OPS-003
         comparator: lt
         threshold:
           basis: absolute
@@ -90,7 +90,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P30D
-    metric_kpi_id: ops.availability.pct
+    metric_kpi_id: KPI-OPS-016
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: ops.quality.pct
+    metric_kpi_id: KPI-OPS-003
     value_low: 1.0
     value_high: 3.0
     unit: pp

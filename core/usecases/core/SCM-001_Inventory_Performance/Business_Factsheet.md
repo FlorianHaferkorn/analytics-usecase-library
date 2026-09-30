@@ -51,13 +51,13 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| inv.dio.days | Strategic |
-| inv.turnover | Influencing |
-| inv.stockout.pct | Influencing |
-| supply.otif.pct | Influencing |
-| inv.obsolete.pct | Influencing |
-| plan.forecast.accuracy.pct | Influencing |
-| sales.units | Supporting |
+| KPI-SCM-001 | Strategic |
+| KPI-SCM-016 | Influencing |
+| KPI-SCM-002 | Influencing |
+| KPI-SCM-007 | Influencing |
+| KPI-SCM-004 | Influencing |
+| KPI-SCM-005 | Influencing |
+| KPI-COM-012 | Supporting |
 
 **Action Codes:** S-I1.1, S-I1.2, S-I1.3, S-I1.4, S-I1.5
 
@@ -69,12 +69,12 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Days in Inventory** (`inv.dio.days`) → **SCOR-DS AM.1.1** (partial): Maps to the inventory-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory Days of Supply − DPO).
-- **Inventory Turnover** (`inv.turnover`) → **SCOR-DS AM.1.1** (partial): Inventory turnover (COGS / average inventory) is the reciprocal of the inventory-days input to SCOR Cash-to-Cash Cycle Time (AM.1.1); a SCOR Asset-Management metric, not ISO 22400-2.
-- **Stockout Rate %** (`inv.stockout.pct`) → **SCOR-DS RL.1.1** (none): No direct SCOR L1–L3 metric.
-- **OTIF %** (`supply.otif.pct`) → **SCOR-DS RL.1.1** (partial): OTIF here = on-time AND in-full — 2 of SCOR Perfect Order's 4 components; omits Documentation Accuracy (RL.2.3) and Perfect Condition (RL.2.4).
-- **Obsolete Inventory %** (`inv.obsolete.pct`) → **SCOR-DS** (none): Obsolete-inventory share is an inventory-health practice concern under SCOR Asset Management, not a named SCOR performance metric and not ISO 22400-2.
-- **Forecast Accuracy %** (`plan.forecast.accuracy.pct`) → **SCOR-DS** (none): Forecast accuracy is a Plan-process ENABLER in SCOR, not a core RL/RS/AG/CO/AM performance metric.
+- **Days in Inventory** (`KPI-SCM-001`) → **SCOR-DS AM.1.1** (partial): Maps to the inventory-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory Days of Supply − DPO).
+- **Inventory Turnover** (`KPI-SCM-016`) → **SCOR-DS AM.1.1** (partial): Inventory turnover (COGS / average inventory) is the reciprocal of the inventory-days input to SCOR Cash-to-Cash Cycle Time (AM.1.1); a SCOR Asset-Management metric, not ISO 22400-2.
+- **Stockout Rate %** (`KPI-SCM-002`) → **SCOR-DS RL.1.1** (none): No direct SCOR L1–L3 metric.
+- **OTIF %** (`KPI-SCM-007`) → **SCOR-DS RL.1.1** (partial): OTIF here = on-time AND in-full — 2 of SCOR Perfect Order's 4 components; omits Documentation Accuracy (RL.2.3) and Perfect Condition (RL.2.4).
+- **Obsolete Inventory %** (`KPI-SCM-004`) → **SCOR-DS** (none): Obsolete-inventory share is an inventory-health practice concern under SCOR Asset Management, not a named SCOR performance metric and not ISO 22400-2.
+- **Forecast Accuracy %** (`KPI-SCM-005`) → **SCOR-DS** (none): Forecast accuracy is a Plan-process ENABLER in SCOR, not a core RL/RS/AG/CO/AM performance metric.
 
 ---
 

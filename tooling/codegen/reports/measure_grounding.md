@@ -15,10 +15,10 @@ _`shared ✓` = already defined once under `shared/measures/` and materialised p
 - **action_roi_xd** ×4 — Finance, Operations, Service, SupplyChain — **shared ✓**
 - **actions_executed_count_xd** ×4 — Finance, Operations, Service, SupplyChain — **shared ✓**
 - **avg_time_to_outcome_days_xd** ×4 — Finance, Operations, Service, SupplyChain — **shared ✓**
-- **digital_adoption** ×2 — InnovationPeople, People — kpi `people.digital_adoption.pct` — **shared ✓**
-- **inventory_turnover** ×2 — Efficiency, SupplyChain — kpi `inv.turnover` — **shared ✓**
-- **operating_cash_flow** ×2 — Finance, Liquidity — kpi `fin.cash.ocf` — **shared ✓**
-- **safety_incident_count** ×2 — ESG, Operations — kpi `ops.safety.incident.count` — **shared ✓**
+- **digital_adoption** ×2 — InnovationPeople, People — kpi `KPI-SVC-002` — **shared ✓**
+- **inventory_turnover** ×2 — Efficiency, SupplyChain — kpi `KPI-SCM-016` — **shared ✓**
+- **operating_cash_flow** ×2 — Finance, Liquidity — kpi `KPI-FIN-009` — **shared ✓**
+- **safety_incident_count** ×2 — ESG, Operations — kpi `KPI-OPS-015` — **shared ✓**
 
 ## DISTINCT — different measures sharing a name (different resources)
 
@@ -28,14 +28,14 @@ _`shared ✓` = already defined once under `shared/measures/` and materialised p
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Commercial | Commercial_Sales_SemanticModel | 08_Action_Outcomes | custom | fact_action_outcome[outcome_status] | — |  |
-| Governance | Governance_SemanticModel | 06_Execution | ratio | fact_action_governance[ActionInstanceId], fact_action_governance[Outcome Success Flag] | enterprise.action_outcome_rate.pct | Measures share of actions that achieved the intended outcome. |
+| Governance | Governance_SemanticModel | 06_Execution | ratio | fact_action_governance[ActionInstanceId], fact_action_governance[Outcome Success Flag] | KPI-GOV-001 | Measures share of actions that achieved the intended outcome. |
 
 ### `availability`
 
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Efficiency | Efficiency_SemanticModel |  | ratio | — | — |  |
-| Operations | Operations_SemanticModel | 01_Ops | ratio | fact_ops[Planned Time Minutes], fact_ops[Run Time Minutes] | ops.availability.pct | Uptime share relative to planned production time. |
+| Operations | Operations_SemanticModel | 01_Ops | ratio | fact_ops[Planned Time Minutes], fact_ops[Run Time Minutes] | KPI-OPS-016 | Uptime share relative to planned production time. |
 
 ### `cogs_amount`
 
@@ -50,14 +50,14 @@ _`shared ✓` = already defined once under `shared/measures/` and materialised p
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | CustomerValue | CustomerValue_SemanticModel | 02_CX | ratio | fact_experience[Complaint ID], fact_experience[Interaction ID] | — |  |
-| Operations | Operations_SemanticModel | 06_Quality | ratio | fact_complaints[Complaints], fact_shipments[Units] | quality.complaint.pct | Measures customer complaints relative to shipped units. |
+| Operations | Operations_SemanticModel | 06_Quality | ratio | fact_complaints[Complaints], fact_shipments[Units] | KPI-QUA-004 | Measures customer complaints relative to shipped units. |
 
 ### `failure_count`
 
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Operations | Operations_SemanticModel | 04_Reliability | count | fact_ops_failures[Failure Start DateTime] | — |  |
-| Operations | Operations_SemanticModel | 01_Ops | count | fact_ops[Failure Count] | ops.failure.count | Counts equipment or process failures in the period. |
+| Operations | Operations_SemanticModel | 01_Ops | count | fact_ops[Failure Count] | KPI-OPS-012 | Counts equipment or process failures in the period. |
 
 ### `forecast_error_qty`
 
@@ -70,7 +70,7 @@ _`shared ✓` = already defined once under `shared/measures/` and materialised p
 
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
-| Commercial | Commercial_Sales_SemanticModel | 02_Margin | ratio | [Cost of Goods Sold Amount], [Net Sales Amount] | margin.gm.pct | Gross margin % for commercial/operational reporting and strategic P&L reconcilia |
+| Commercial | Commercial_Sales_SemanticModel | 02_Margin | ratio | [Cost of Goods Sold Amount], [Net Sales Amount] | KPI-COM-013 | Gross margin % for commercial/operational reporting and strategic P&L reconcilia |
 | CustomerValue | CustomerValue_SemanticModel | 02_Margin | ratio | [Cost of Goods Sold Amount], [Net Sales Amount] | — |  |
 | Profitability | Profitability_SemanticModel | 01_Margin | ratio | fact_sales[Cost of Goods Sold Amount], fact_sales[Net Sales Amount] | — |  |
 
@@ -80,20 +80,20 @@ _`shared ✓` = already defined once under `shared/measures/` and materialised p
 |---|---|---|---|---|---|---|
 | Commercial | Commercial_Sales_SemanticModel | 02_Margin | sum | fact_sales[Cost of Goods Sold Amount] | — |  |
 | InnovationPeople | InnovationPeople_SemanticModel | 04_People | sum | fact_financials[GrossMarginAmount] | — |  |
-| Profitability | Profitability_SemanticModel | 01_Margin | sum | fact_sales[Cost of Goods Sold Amount], fact_sales[Net Sales Amount] | margin.gm.amount | Absolute gross margin in currency. |
+| Profitability | Profitability_SemanticModel | 01_Margin | sum | fact_sales[Cost of Goods Sold Amount], fact_sales[Net Sales Amount] | KPI-COM-019 | Absolute gross margin in currency. |
 
 ### `gross_margin_vs_plan`
 
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Commercial | Commercial_Sales_SemanticModel | 02_Margin | ratio | fact_sales[Plan COGS Amount], fact_sales[Plan Sales Amount] | — |  |
-| Profitability | Profitability_SemanticModel | 01_Margin | ratio | — | margin.gm.vs_plan.pct | Measures gross margin rate variance versus plan. |
+| Profitability | Profitability_SemanticModel | 01_Margin | ratio | — | KPI-FIN-017 | Measures gross margin rate variance versus plan. |
 
 ### `incremental_sales_amount`
 
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
-| Commercial | Commercial_Sales_SemanticModel | 04_Promo | sum | fact_promo[Baseline Sales Amount], fact_sales[Net Sales Amount] | sales.promo.incremental.amount | Additional sales due to promotion. |
+| Commercial | Commercial_Sales_SemanticModel | 04_Promo | sum | fact_promo[Baseline Sales Amount], fact_sales[Net Sales Amount] | KPI-COM-021 | Additional sales due to promotion. |
 | Profitability | Profitability_SemanticModel | 04_Promo | sum | fact_sales[Baseline Non-Promo Sales Amount], fact_sales[Net Sales Amount], fact_sales[Promo Flag] | — |  |
 
 ### `inventory_amount`
@@ -101,13 +101,13 @@ _`shared ✓` = already defined once under `shared/measures/` and materialised p
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Finance | Finance_SemanticModel | 02_WorkingCapital | sum | fact_inventory[Inventory Amount] | — |  |
-| Liquidity | Liquidity_SemanticModel | 02_WorkingCapital | last_value | fact_inventory[Average Inventory Amount] | fin.liquidity.inventory.amount | Provide closing inventory value for working capital and liquidity metrics. |
+| Liquidity | Liquidity_SemanticModel | 02_WorkingCapital | last_value | fact_inventory[Average Inventory Amount] | KPI-FIN-002 | Provide closing inventory value for working capital and liquidity metrics. |
 
 ### `net_sales_amount`
 
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
-| Commercial | Commercial_Sales_SemanticModel | 01_Revenue | sum | fact_sales[Net Sales Amount] | sales.net_sales.amount | Total invoiced revenue net of discounts and returns. |
+| Commercial | Commercial_Sales_SemanticModel | 01_Revenue | sum | fact_sales[Net Sales Amount] | KPI-COM-005 | Total invoiced revenue net of discounts and returns. |
 | CustomerValue | CustomerValue_SemanticModel | 00_Base | sum | fact_sales[Net Sales Amount] | — |  |
 | Efficiency | Efficiency_SemanticModel |  | sum | fact_finance.Net Sales Amount, fact_sales[Net Sales Amount] | — |  |
 | Finance | Finance_SemanticModel | 03_Cost | sum | fact_finance[Net Sales Amount], fact_sales[Net Sales Amount] | — |  |
@@ -119,7 +119,7 @@ _`shared ✓` = already defined once under `shared/measures/` and materialised p
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Efficiency | Efficiency_SemanticModel |  | ratio | fact_ops.Downtime Minutes, fact_ops.Good Units, fact_ops.Output Units, fact_ops.Planned Time Minutes, fact_ops.Run Time Minutes, fact_ops.Standard Rate Units Per Minute | — |  |
-| Operations | Operations_SemanticModel | 01_Ops | ratio | fact_ops[Good Units], fact_ops[Output Units], fact_ops[Planned Time Minutes], fact_ops[Run Time Minutes] | ops.oee.pct | Measures manufacturing performance combining availability, performance, and qual |
+| Operations | Operations_SemanticModel | 01_Ops | ratio | fact_ops[Good Units], fact_ops[Output Units], fact_ops[Planned Time Minutes], fact_ops[Run Time Minutes] | KPI-OPS-011 | Measures manufacturing performance combining availability, performance, and qual |
 
 ### `output_units`
 
@@ -133,42 +133,42 @@ _`shared ✓` = already defined once under `shared/measures/` and materialised p
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Efficiency | Efficiency_SemanticModel |  | ratio | — | — |  |
-| Operations | Operations_SemanticModel | 01_Ops | ratio | fact_ops[Output Units] | ops.performance.pct | Throughput speed versus theoretical maximum. |
+| Operations | Operations_SemanticModel | 01_Ops | ratio | fact_ops[Output Units] | KPI-OPS-002 | Throughput speed versus theoretical maximum. |
 
 ### `price_realization`
 
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Commercial | Commercial_Sales_SemanticModel | 03_Pricing | ratio | fact_sales[List Price Amount], fact_sales[Net Price Amount] | — |  |
-| Growth | Growth_SemanticModel | 03_Pricing | ratio | fact_sales[List Price Amount], fact_sales[Net Price Amount] | sales.price.realization_pct | Shows how much of list price is realized after discounts. |
+| Growth | Growth_SemanticModel | 03_Pricing | ratio | fact_sales[List Price Amount], fact_sales[Net Price Amount] | KPI-COM-003 | Shows how much of list price is realized after discounts. |
 
 ### `promo_gross_margin`
 
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Commercial | Commercial_Sales_SemanticModel | 02_Margin | ratio | fact_sales[Cost of Goods Sold Amount], fact_sales[Net Sales Amount] | — |  |
-| Profitability | Profitability_SemanticModel | 04_Promo | ratio | fact_sales[Cost of Goods Sold Amount], fact_sales[Net Sales Amount], fact_sales[Promo Flag] | margin.promo.gm.pct | Gross margin rate during promo periods. |
+| Profitability | Profitability_SemanticModel | 04_Promo | ratio | fact_sales[Cost of Goods Sold Amount], fact_sales[Net Sales Amount], fact_sales[Promo Flag] | KPI-FIN-012 | Gross margin rate during promo periods. |
 
 ### `promotion_roi`
 
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Commercial | Commercial_Sales_SemanticModel | 04_Promo | ratio | fact_promo[Promo Cost] | — |  |
-| Profitability | Profitability_SemanticModel | 04_Promo | ratio | — | sales.promo.roi.pct | Measures profitability of promotions relative to spend. |
+| Profitability | Profitability_SemanticModel | 04_Promo | ratio | — | KPI-COM-016 | Measures profitability of promotions relative to spend. |
 
 ### `quality`
 
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Efficiency | Efficiency_SemanticModel |  | ratio | — | — |  |
-| Operations | Operations_SemanticModel | 01_Ops | ratio | fact_ops[Good Units], fact_ops[Output Units] | ops.quality.pct | Yield of conforming units relative to total units produced. |
+| Operations | Operations_SemanticModel | 01_Ops | ratio | fact_ops[Good Units], fact_ops[Output Units] | KPI-OPS-003 | Yield of conforming units relative to total units produced. |
 
 ### `service_impact`
 
 | domain | semantic_model | folder | agg | resources | kpi | purpose |
 |---|---|---|---|---|---|---|
 | Efficiency | Efficiency_SemanticModel | 08_SCM_Service | ratio | [Stockout Impact %], [Under-Forecast Lost Demand Share %] | — |  |
-| SupplyChain | SupplyChain_SemanticModel | 03_Forecast | ratio | fact_forecast[Forecast Units], fact_sales[Actual Units], fact_stockout[Demand Units], fact_stockout[Lost Demand Units] | plan.forecast.service_impact.pct | Quantifies how much of the service loss (stockouts or OTIF misses) is attributab |
+| SupplyChain | SupplyChain_SemanticModel | 03_Forecast | ratio | fact_forecast[Forecast Units], fact_sales[Actual Units], fact_stockout[Demand Units], fact_stockout[Lost Demand Units] | KPI-SCM-012 | Quantifies how much of the service loss (stockouts or OTIF misses) is attributab |
 
 ### `talk_wrap_minutes`
 

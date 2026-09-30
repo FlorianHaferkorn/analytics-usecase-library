@@ -60,7 +60,7 @@ process_scope:
 # ──────────────────────────────────────────
 canonical_domain_model:
   outcome_kpis:
-    - id: res.utilization.pct
+    - id: KPI-SVC-009
       name: Resource Utilization %
       definition: >
         Productive (work) time divided by total paid time. The strategic KPI: how much of paid
@@ -72,7 +72,7 @@ canonical_domain_model:
       benchmark_target: "Typically a sustainable band ~60–75% of paid time productive; consistent with ~30–35% shrinkage (SWPP/ICMI/COPC WFM practice)"
       benchmark_source_id: SRC-006
 
-    - id: svc.sla.attainment.pct
+    - id: KPI-SVC-004
       name: SLA Attainment %
       role: service_guardrail
       definition: >
@@ -89,7 +89,7 @@ canonical_domain_model:
       benchmark_source_id: SRC-001
 
   driver_kpis:
-    - id: res.occupancy.pct
+    - id: KPI-SVC-010
       name: Occupancy %
       definition: >
         Handle time (talk + wrap) divided by available/logged-in time — the share of available
@@ -97,7 +97,7 @@ canonical_domain_model:
         rises when available capacity is well matched to demand, but has a hard sustainable ceiling.
       unit: "%"
       direction: maximize
-      drives: res.utilization.pct
+      drives: KPI-SVC-009
       causal_mechanism: >
         Occupancy converts available time into productive handling, lifting utilization. But it is
         bounded: above ~85–90% for sustained periods, agents have no recovery time, errors and
@@ -106,7 +106,7 @@ canonical_domain_model:
       benchmark_target: "Sustainable target ~80–85%; sustained >90% causes burnout/attrition risk"
       benchmark_source_id: SRC-002
 
-    - id: res.shrinkage.pct
+    - id: KPI-SVC-012
       name: Shrinkage %
       definition: >
         Unproductive paid time (training, meetings, coaching, breaks, system downtime, absence)
@@ -114,7 +114,7 @@ canonical_domain_model:
         budgeted, unplanned shrinkage is the actionable gap.
       unit: "%"
       direction: minimize
-      drives: res.utilization.pct
+      drives: KPI-SVC-009
       causal_mechanism: >
         Every point of shrinkage is paid time not on the primary task, directly reducing
         utilization (Utilization ≈ 1 − Shrinkage). Erlang C staffing must inflate headcount to
@@ -122,7 +122,7 @@ canonical_domain_model:
       benchmark_target: "Industry norm ~30–35% on-site (35–40% remote); excess above plan is actionable (SWPP/ICMI)"
       benchmark_source_id: SRC-006
 
-    - id: res.overtime.pct
+    - id: KPI-SVC-011
       name: Overtime %
       definition: >
         Overtime minutes divided by paid minutes. A capacity-stress signal: rising overtime with
@@ -130,7 +130,7 @@ canonical_domain_model:
         and a costly (≈1.5×) substitute for permanent capacity.
       unit: "%"
       direction: minimize
-      drives: res.utilization.pct
+      drives: KPI-SVC-009
       causal_mechanism: >
         Overtime temporarily lifts available capacity but at premium cost and welfare risk.
         Sustained high overtime signals a structural capacity gap that the Erlang C model should
@@ -138,7 +138,7 @@ canonical_domain_model:
       benchmark_target: "Target low single digits (<8%); sustained high overtime signals capacity gap"
       benchmark_source_id: SRC-008
 
-    - id: svc.backlog.count
+    - id: KPI-SVC-007
       name: Case Backlog (Open WIP)
       definition: >
         Count of open/unresolved cases — the demand-pressure context. Growing backlog with low
@@ -146,7 +146,7 @@ canonical_domain_model:
         work); growing backlog with high utilization reveals a genuine capacity shortfall.
       unit: count
       direction: minimize
-      drives: res.utilization.pct
+      drives: KPI-SVC-009
       causal_mechanism: >
         Backlog is the demand signal that should pull idle capacity into productive work. Idle
         capacity alongside rising backlog is a scheduling/skill-routing defect, not a headcount
@@ -154,14 +154,14 @@ canonical_domain_model:
       benchmark_target: "Stable/declining; interpret jointly with utilization to locate the imbalance"
       benchmark_source_id: SRC-003
 
-    - id: svc.tickets.created.count
+    - id: KPI-SVC-013
       name: Tickets Created (Demand)
       definition: >
         New cases created in the period — the inflow/demand input to the capacity model. Step
         changes (product launch, campaign, seasonality) shift required staffing and utilization.
       unit: count
       direction: minimize
-      drives: svc.backlog.count
+      drives: KPI-SVC-007
       causal_mechanism: >
         Demand volume is the Erlang C input that sets required staffing. A sustained volume
         step-change (not a transient spike) requires a permanent capacity adjustment rather than
@@ -178,7 +178,7 @@ canonical_domain_model:
         shrinkage; low adherence depresses utilization even when staffing is adequate.
       unit: "%"
       direction: maximize
-      diagnoses: res.shrinkage.pct
+      diagnoses: KPI-SVC-012
       causal_mechanism: >
         Adherence below target means scheduled capacity is not delivered on task, inflating
         effective shrinkage and lowering utilization independent of headcount. Industry practice
@@ -192,7 +192,7 @@ canonical_domain_model:
         budgeted portion already built into the staffing model.
       unit: "%"
       direction: minimize
-      diagnoses: res.shrinkage.pct
+      diagnoses: KPI-SVC-012
       causal_mechanism: >
         Planned shrinkage is staffed for; unplanned shrinkage is the gap that causes understaffing
         and SLA risk. Targeting unplanned shrinkage (not total) avoids cutting legitimate training
@@ -205,7 +205,7 @@ canonical_domain_model:
         complement of occupancy. High idle alongside backlog signals a routing/skill mismatch.
       unit: "%"
       direction: minimize
-      diagnoses: res.occupancy.pct
+      diagnoses: KPI-SVC-010
       causal_mechanism: >
         Idle available time with queued work is a routing or skill-coverage defect: capacity exists
         but cannot be applied to the demand. This isolates the 'low-utilization-despite-demand'
@@ -218,7 +218,7 @@ canonical_domain_model:
         causes systematic over- or under-staffing, distorting utilization and occupancy.
       unit: "%"
       direction: maximize
-      diagnoses: res.utilization.pct
+      diagnoses: KPI-SVC-009
       causal_mechanism: >
         Erlang C staffing is only as good as its volume/AHT/shrinkage inputs. Low forecast accuracy
         produces structural under/over-staffing that no scheduling action can fix — pointing to the
@@ -231,24 +231,24 @@ canonical_domain_model:
         ~85–90% sustained. Beyond this ceiling agents have no recovery time; AHT inflates, errors and
         attrition rise, and SLA degrades — the apparent efficiency gain reverses (Erlang C / WFM).
       affected_kpis:
-        - res.occupancy.pct
-        - res.utilization.pct
-        - svc.sla.attainment.pct
+        - KPI-SVC-010
+        - KPI-SVC-009
+        - KPI-SVC-004
     - description: Do not raise utilization at the expense of SLA / service quality
       condition: >
         Block utilization-push actions when SLA attainment is at/below target or trending down.
         Utilization is bounded by the service-level guardrail — efficiency must never be bought with
         a service-quality breach (ISO 18295-1; XD-001 linkage).
       affected_kpis:
-        - res.utilization.pct
-        - svc.sla.attainment.pct
+        - KPI-SVC-009
+        - KPI-SVC-004
     - description: Do not cut planned shrinkage that protects quality and welfare
       condition: >
         Do not target budgeted training, coaching, breaks, or compliance time to lift utilization.
         Only unplanned shrinkage is actionable; cutting planned shrinkage harms quality, compliance,
         and agent welfare (COPC CX Standard; ISO 18295-1 agent-welfare requirements).
       affected_kpis:
-        - res.shrinkage.pct
+        - KPI-SVC-012
         - res.shrinkage.unplanned.pct
     - description: Do not substitute sustained overtime for structural capacity
       condition: >
@@ -256,8 +256,8 @@ canonical_domain_model:
         cost and rising attrition must trigger a capacity model re-run (permanent headcount), not be
         normalised as the operating mode.
       affected_kpis:
-        - res.overtime.pct
-        - res.utilization.pct
+        - KPI-SVC-011
+        - KPI-SVC-009
 
   wrong_interpretations:
     - description: "Confusing occupancy with utilization"
@@ -369,7 +369,7 @@ required_data_model:
 # 4. ACTION LOGIC SEEDS
 # ──────────────────────────────────────────
 action_logic_seeds:
-  - trigger_driver: res.utilization.pct
+  - trigger_driver: KPI-SVC-009
     trigger_diagnostic: res.shrinkage.unplanned.pct
     trigger_condition: "Utilization below target band AND unplanned shrinkage above plan AND backlog rising"
     guardrail: "Do not cut planned shrinkage; do not act if SLA is breaching (protect service quality)"
@@ -377,21 +377,21 @@ action_logic_seeds:
       Utilization recovery: decompose shrinkage into planned vs unplanned, run schedule-adherence
       analysis, and recover unplanned shrinkage (absence, system downtime, overrunning meetings)
       without touching budgeted training/coaching time.
-    expected_outcome_kpi: res.utilization.pct
+    expected_outcome_kpi: KPI-SVC-009
     action_code_candidate: X-R2.1
 
-  - trigger_driver: svc.tickets.created.count
-    trigger_diagnostic: res.overtime.pct
+  - trigger_driver: KPI-SVC-013
+    trigger_diagnostic: KPI-SVC-011
     trigger_condition: "Sustained demand step-change (created volume up > X% for 3+ weeks) AND overtime > 8% AND occupancy near ceiling"
     guardrail: "Distinguish transient spike from structural step-change; do not normalise sustained overtime"
     action_description: >
       Capacity adjustment: re-run the Erlang C capacity model with the new volume/AHT/shrinkage
       inputs; convert recurring overtime into a permanent capacity plan where the step-change is
       structural rather than transient.
-    expected_outcome_kpi: res.overtime.pct
+    expected_outcome_kpi: KPI-SVC-011
     action_code_candidate: X-R2.2
 
-  - trigger_driver: res.occupancy.pct
+  - trigger_driver: KPI-SVC-010
     trigger_diagnostic: res.idle.pct
     trigger_condition: "Backlog rising WHILE idle/available-not-occupied is high in some groups and occupancy is high in others (imbalance)"
     guardrail: "Do not push any group's occupancy above the ~85–90% sustainable ceiling"
@@ -399,10 +399,10 @@ action_logic_seeds:
       Capacity reallocation: cross-skill or re-route work from idle-with-capacity groups to
       overloaded queues; rebalance schedules to flatten occupancy peaks and apply idle capacity
       to backlog — a routing/skill fix, not a headcount change.
-    expected_outcome_kpi: res.utilization.pct
+    expected_outcome_kpi: KPI-SVC-009
     action_code_candidate: X-R2.3
 
-  - trigger_driver: res.shrinkage.pct
+  - trigger_driver: KPI-SVC-012
     trigger_diagnostic: res.schedule_adherence.pct
     trigger_condition: "Shrinkage above plan AND schedule adherence < 90% AND SLA at risk"
     guardrail: "Target unplanned shrinkage and adherence only; protect planned training/welfare time"
@@ -410,7 +410,7 @@ action_logic_seeds:
       Shrinkage / adherence control: tighten schedule adherence, reduce unplanned absence and
       off-schedule time, and address system-downtime drivers to release latent productive capacity
       and stabilise SLA.
-    expected_outcome_kpi: res.shrinkage.pct
+    expected_outcome_kpi: KPI-SVC-012
     action_code_candidate: X-R2.4
 
 # ──────────────────────────────────────────
@@ -749,13 +749,13 @@ mapping_readiness:
         affected_artifact: core/usecases/core/XD-002_Resource_Utilization/UseCase_Bracket.yaml
         field: ux_layout_rules.page_1_summary.component_30s (Main_1)
         description: >
-          Main_1 trend shows res.occupancy.pct (the primary driver) rather than the strategic KPI
-          res.utilization.pct. Domain evidence requires the strategic KPI as the lead trend with the
+          Main_1 trend shows KPI-SVC-010 (the primary driver) rather than the strategic KPI
+          KPI-SVC-009. Domain evidence requires the strategic KPI as the lead trend with the
           target band, answering 'Is utilization sustainable?' before 'Why?'. Occupancy belongs in Main_2.
         evidence_reference: SRC-002 SRC-006
-        remediation: "Set Main_1 kpi_id to res.utilization.pct vs target band; move occupancy to Main_2. Close when DEP approved."
+        remediation: "Set Main_1 kpi_id to KPI-SVC-009 vs target band; move occupancy to Main_2. Close when DEP approved."
         status: rejected
-        resolution: "Strategic KPI (res.utilization.pct) is already the 3-second headline card; Main_1 correctly leads with the occupancy driver, consistent with COM-001. No change."
+        resolution: "Strategic KPI (KPI-SVC-009) is already the 3-second headline card; Main_1 correctly leads with the occupancy driver, consistent with COM-001. No change."
 
       - gap_type: mapping_gap
         severity: medium

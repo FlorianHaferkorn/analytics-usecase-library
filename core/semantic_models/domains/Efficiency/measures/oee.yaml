@@ -1,6 +1,6 @@
 measure_name: OEE %
 is_kpi_measure: true
-kpi_id_ref: ops.oee.pct
+kpi_id_ref: KPI-OPS-011
 semantic_model: Efficiency_SemanticModel
 category: KPI
 expression:

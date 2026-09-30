@@ -114,11 +114,11 @@ def build_snapshot() -> dict:
     months = _monthly(con)
     latest = months[-1]
     kpis = {
-        "sales.net_sales.amount": _kpi(months, "net_sales", "EUR", "plan_sales"),
-        "margin.gm.pct": _kpi(months, "gm_pct", "%"),
-        "cost.cogs.amount": _kpi(months, "cogs", "EUR"),
-        "sales.net_sales.delta_pct.plan": _kpi(months, "vs_plan_pct", "%"),
-        "sales.net_sales.delta_pct.ly": _kpi(months, "vs_ly_pct", "%"),
+        "KPI-COM-005": _kpi(months, "net_sales", "EUR", "plan_sales"),
+        "KPI-COM-013": _kpi(months, "gm_pct", "%"),
+        "KPI-FIN-011": _kpi(months, "cogs", "EUR"),
+        "KPI-COM-009": _kpi(months, "vs_plan_pct", "%"),
+        "KPI-COM-008": _kpi(months, "vs_ly_pct", "%"),
     }
     return {
         "_meta": {
@@ -136,8 +136,8 @@ def main() -> int:
     _OUT.parent.mkdir(parents=True, exist_ok=True)
     _OUT.write_text(json.dumps(snapshot, indent=2) + "\n", encoding="utf-8")
     meta = snapshot["_meta"]
-    gm = snapshot["kpis"]["margin.gm.pct"]["value"]
-    ns = snapshot["kpis"]["sales.net_sales.amount"]["value"]
+    gm = snapshot["kpis"]["KPI-COM-013"]["value"]
+    ns = snapshot["kpis"]["KPI-COM-005"]["value"]
     print(f"Wrote {_OUT} ({meta['latestPeriod']}): Net Sales {ns:,.0f} EUR, Gross Margin % {gm}")
     return 0
 

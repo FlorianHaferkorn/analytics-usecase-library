@@ -6,16 +6,16 @@ governance:
   owner_role: supply_chain_controlling_logistics_performance
   steward_role: logistics_supply_chain_bi_lead
 orchestration:
-  strategic_kpi_id: supply.otif.pct
+  strategic_kpi_id: KPI-SCM-007
   influencing_kpi_ids:
-  - supply.on_time.pct
-  - supply.in_full.pct
-  - supply.stockout_impact.pct
-  - supply.penalty.amount
-  - supply.expedite.amount
+  - KPI-SCM-008
+  - KPI-SCM-018
+  - KPI-SCM-009
+  - KPI-SCM-011
+  - KPI-SCM-010
   supporting_kpi_ids:
-  - order.lines
-  - shipments.count
+  - KPI-SCM-013
+  - KPI-SCM-015
   action_code_ids:
   - S-R2.1
   - S-R2.2
@@ -23,14 +23,14 @@ orchestration:
   - S-R2.4
   - S-R2.5
 primary_kpi_ids:
-  - supply.otif.pct
-  - supply.on_time.pct
+  - KPI-SCM-007
+  - KPI-SCM-008
 
 value_driver_model:
-  formula: supply.otif.pct = f(supply.on_time.pct, supply.in_full.pct, supply.stockout_impact.pct)
+  formula: KPI-SCM-007 = f(KPI-SCM-008, KPI-SCM-018, KPI-SCM-009)
   impact_direction: maximize
-  primary_driver: supply.on_time.pct
-  impact_logic: Improving supply.on_time.pct is the primary lever for maximizing supply.otif.pct.
+  primary_driver: KPI-SCM-008
+  impact_logic: Improving KPI-SCM-008 is the primary lever for maximizing KPI-SCM-007.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -44,13 +44,13 @@ ux_layout_rules:
     decision_question: "Are suppliers delivering reliably enough to meet customer commitments?"
     big_idea: "OTIF performance is declining — supplier delivery failures in two key categories are creating downstream stockouts and eroding customer satisfaction."
     component_3s:
-      kpi_id: supply.otif.pct
+      kpi_id: KPI-SCM-007
       visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: supply.on_time.pct
+      kpi_id: KPI-SCM-008
       visual_type: line_chart
       question: "Which OTIF component is dragging reliability — on-time or in-full?"
       message: On-time delivery is the component dragging OTIF below target, not in-full
@@ -58,11 +58,11 @@ ux_layout_rules:
       unit: rate
     - slot_id: Main_2
       # R2.4: was 3 KPIs of 2 different calc_types (rate vs. amount) on one
-      # axis -- a ONE_MESSAGE_PER_CHART violation. supply.penalty.amount moved
+      # axis -- a ONE_MESSAGE_PER_CHART violation. KPI-SCM-011 moved
       # to the Detail_Matrix.
       kpi_ids:
-      - supply.in_full.pct
-      - supply.stockout_impact.pct
+      - KPI-SCM-018
+      - KPI-SCM-009
       # R6.3 (23.09.2026): Kennzahlen gegensaetzlicher Richtung auf einer Balkenachse
       # (Knock-out mixed-polarity). Je Einheit eine Zeile, je Signal eine Spalte.
       visual_type: exception_table
@@ -81,25 +81,25 @@ ux_layout_rules:
       evidence_grain: shipment_line
       # R2.4: curated 12→8. 'location' has no backing dimension table in
       # SupplyChain.SemanticModel -- dropped in favor of customer + lane
-      # (both real). Cut order.lines/shipments.count (volume counts, less
+      # (both real). Cut KPI-SCM-013/KPI-SCM-015 (volume counts, less
       # central to the reliability decision_question).
       evidence_columns:
       - customer
       - lane
-      - supply.otif.pct
-      - supply.on_time.pct
-      - supply.in_full.pct
-      - supply.stockout_impact.pct
-      - supply.penalty.amount
-      - supply.expedite.amount
+      - KPI-SCM-007
+      - KPI-SCM-008
+      - KPI-SCM-018
+      - KPI-SCM-009
+      - KPI-SCM-011
+      - KPI-SCM-010
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: supply.otif.pct
+        measure: KPI-SCM-007
         direction: ascending
       top_n: 20
       highlight_rule:
-        column: supply.otif.pct
+        column: KPI-SCM-007
         type: data_bar
 prioritization:
   business_value: high

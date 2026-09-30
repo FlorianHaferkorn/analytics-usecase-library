@@ -9,19 +9,19 @@ use_case: COM-001
 dataset: commercial_invoice_lines
 expected:
   - measure_name: Net Sales Amount
-    kpi_id: sales.net_sales.amount
+    kpi_id: KPI-COM-005
     formula: sum(net_sales_amount)
     value: 10000.00
     tolerance: 0.01
     unit: EUR
   - measure_name: Gross Margin Amount
-    kpi_id: margin.gm.amount
+    kpi_id: KPI-COM-019
     formula: sum(gross_margin_amount)
     value: 4090.00
     tolerance: 0.01
     unit: EUR
   - measure_name: Gross Margin %
-    kpi_id: margin.gm.pct
+    kpi_id: KPI-COM-013
     formula: sum(gross_margin_amount) / sum(net_sales_amount)
     value: 0.409
     tolerance: 0.0001

@@ -1,6 +1,6 @@
 measure_name: CLV
 is_kpi_measure: true
-kpi_id_ref: crm.clv.amount
+kpi_id_ref: KPI-CUS-001
 semantic_model: CustomerValue_SemanticModel
 display_folder: 04_Customer
 category: KPI

@@ -1,0 +1,66 @@
+kpi_id: KPI-CUS-002
+kpi_key: Customer Retention %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: customer
+domain_tag:
+- Customer & Market
+use_case_ref:
+- COM-003
+action_code_ref:
+- C-C3.1
+calc_type: rate
+good_is: higher
+business:
+  purpose: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+  definition: (Active Customers at end of period) / (Active Customers at start of period).
+  grain_scope: Customer / segment / org; monthly or quarterly.
+  unit_format: percent_1
+  interpretation: Higher retention indicates better loyalty and relationship quality; interpret jointly with churn
+    and CLV.
+technical:
+  measure_name: Customer Retention %
+  description: Measure the share of customers that remain active from one period to the next, as a core loyalty
+    KPI.
+  depends_on_measures: []
+  lineage:
+  - fact_customer_events.CustomerKey
+  - fact_customer_events.Activity Flag
+  - fact_customer_events.Churn Flag
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: distinctcount
+        column: CustomerKey
+        filters:
+        - column: Activity Flag
+          equals: true
+        - column: Churn Flag
+          equals: false
+    denominator:
+      calc:
+        op: distinctcount
+        column: CustomerKey
+        filters:
+        - column: Activity Flag
+          equals: true
+governance:
+  business_owner: Head of Marketing
+  data_owner: CRM BI
+  steward: Customer Insights Analyst
+  review_cycle: quarterly
+  validation_process: automated
+  qa_rules:
+  - Retention % within [0;100]
+  - Active Customers Start > 0 for any reported slice
+  version: v2.0
+metadata_quality:
+  completeness_score: 0.97
+  last_review: 23.01.2026
+standard_ref:
+- standard: Marketing analytics — CRM (convention)
+  name: Customer retention rate
+  alignment: none
+  note: Retention (end/start active customers) is a CRM-analytics convention. Note it is not the complement of churn
+    unless the customer base and windows are defined consistently — pin both.

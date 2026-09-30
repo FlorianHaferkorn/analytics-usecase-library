@@ -104,8 +104,8 @@ For each page in the report:
 #### Visual 1: KPI Cards (KPI Summary Slot)
 - **Type:** KPI Card
 - **Measures:** 
-  - `[Net Sales Amount]` (from `sales.net_sales.amount`)
-  - `[Gross Margin %]` (from `margin.gm.pct`)
+  - `[Net Sales Amount]` (from `KPI-COM-005`)
+  - `[Gross Margin %]` (from `KPI-COM-013`)
 - **Formatting:** 
   - Show delta vs Plan (if available)
   - Color: Green if above target, Red if below target
@@ -170,9 +170,9 @@ For each page in the report:
 
 | Measure Name | KPI ID | Purpose | Source Table |
 |--------------|--------|---------|--------------|
-| Net Sales Amount | sales.net_sales.amount | Core revenue control | fact_sales |
-| Gross Margin % | margin.gm.pct | Profitability quality | Calculated |
-| Price Effect Amount | sales.pvm.price_effect.amount | Driver analysis | Calculated |
+| Net Sales Amount | KPI-COM-005 | Core revenue control | fact_sales |
+| Gross Margin % | KPI-COM-013 | Profitability quality | Calculated |
+| Price Effect Amount | KPI-COM-010 | Driver analysis | Calculated |
 
 **Measure Lineage:**
 - All measures are defined in the semantic model
@@ -204,8 +204,8 @@ For each page in the report:
 
 | Action Code ID | Name | Purpose | Owner | Trigger KPIs |
 |----------------|------|---------|-------|--------------|
-| C-M2.1 | Price Realization Guardrails | Stop Discount Leakage | Pricing Lead | sales.price.realization_pct |
-| C-S1.1 | Price Discipline Enforcement | Protect Gross Margin | Pricing Manager | margin.gm.pct |
+| C-M2.1 | Price Realization Guardrails | Stop Discount Leakage | Pricing Lead | KPI-COM-003 |
+| C-S1.1 | Price Discipline Enforcement | Protect Gross Margin | Pricing Manager | KPI-COM-013 |
 
 **How Actions Are Triggered:**
 

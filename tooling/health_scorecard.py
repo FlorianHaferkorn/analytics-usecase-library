@@ -151,7 +151,7 @@ def _scan_measure_dictionaries_for_kpis(repo_root: Path) -> Set[str]:
     domains_dir = repo_root / "core" / "semantic_models" / "domains"
     if not domains_dir.exists():
         return result
-    kpi_ref_pattern = re.compile(r"kpi_id_ref\s*:\s*[\"']?([a-z][a-z0-9_.]+)")
+    kpi_ref_pattern = re.compile(r"kpi_id_ref\s*:\s*[\"']?(KPI-[A-Z]{3}-\d{3})")
     for md_file in domains_dir.rglob("Measure_Dictionary_*.md"):
         content = md_file.read_text(encoding="utf-8")
         for m in kpi_ref_pattern.finditer(content):

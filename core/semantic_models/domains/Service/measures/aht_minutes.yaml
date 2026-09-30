@@ -1,6 +1,6 @@
 measure_name: AHT Minutes
 is_kpi_measure: true
-kpi_id_ref: svc.aht.minutes
+kpi_id_ref: KPI-SVC-006
 semantic_model: Service_SemanticModel
 display_folder: 02_Efficiency
 category: KPI

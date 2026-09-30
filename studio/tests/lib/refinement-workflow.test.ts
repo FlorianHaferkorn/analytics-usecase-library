@@ -66,7 +66,7 @@ import { proposalKey } from '../../src/lib/governance/refinement-types';
 
 const PROPOSAL = {
   actionCodeId: 'C-M2.1',
-  kpiId: 'margin.gm.pct',
+  kpiId: 'KPI-COM-013',
   triggerKind: 'material_effect' as const,
   relChange: 0.6,
   rationale: 'Materielle Bewegung',
@@ -125,7 +125,7 @@ describe('refinement-workflow', () => {
 
   it('lists all persisted proposals', () => {
     upsertPendingProposal(PROPOSAL);
-    upsertPendingProposal({ ...PROPOSAL, kpiId: 'sales.net_sales.amount' });
+    upsertPendingProposal({ ...PROPOSAL, kpiId: 'KPI-COM-005' });
     expect(listRefinements()).toHaveLength(2);
   });
 

@@ -1,6 +1,6 @@
 measure_name: Cash Conversion Cycle (Days)
 is_kpi_measure: true
-kpi_id_ref: ops.working_capital.ccc.days
+kpi_id_ref: KPI-FIN-006
 semantic_model: Efficiency_SemanticModel
 category: KPI
 expression:

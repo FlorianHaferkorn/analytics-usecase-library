@@ -1,6 +1,6 @@
 measure_name: Complaint Rate %
 is_kpi_measure: true
-kpi_id_ref: quality.complaint.pct
+kpi_id_ref: KPI-QUA-004
 semantic_model: CustomerValue_SemanticModel
 display_folder: 02_CX
 category: KPI

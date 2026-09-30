@@ -45,19 +45,19 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| sales.promo.roi.pct | Strategic |
-| sales.promo.incremental.amount | Influencing |
-| margin.promo.gm.pct | Influencing |
-| sales.price.list.amount | Influencing |
-| sales.price.net.amount | Influencing |
-| sales.price.realization_pct | Influencing |
-| sales.promo.cannibalization.pct | Influencing |
-| cost.cogs.amount | Supporting |
-| sales.promo.baseline_sales.amount | Supporting |
-| sales.promo.cannibalized_sales.amount | Supporting |
-| sales.promo.cost.amount | Supporting |
-| sales.promo.incremental_gm.amount | Supporting |
-| sales.pvm.volume_effect.amount | Supporting |
+| KPI-COM-016 | Strategic |
+| KPI-COM-021 | Influencing |
+| KPI-FIN-012 | Influencing |
+| KPI-COM-001 | Influencing |
+| KPI-COM-002 | Influencing |
+| KPI-COM-003 | Influencing |
+| KPI-COM-018 | Influencing |
+| KPI-FIN-011 | Supporting |
+| KPI-COM-020 | Supporting |
+| KPI-COM-017 | Supporting |
+| KPI-COM-014 | Supporting |
+| KPI-COM-015 | Supporting |
+| KPI-COM-011 | Supporting |
 
 **Action Codes:** C-P4.1, C-M2.1, C-M2.2
 
@@ -69,13 +69,13 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Promo ROI %** (`sales.promo.roi.pct`) → **Trade Promotion Management (convention)** (none): Promo ROI (incremental GM / promo cost) is a TPM convention.
-- **Incremental Sales Amount** (`sales.promo.incremental.amount`) → **Trade Promotion Management (convention)** (none): Incremental (promo − baseline) uplift is a TPM convention.
-- **GM % During Promo** (`margin.promo.gm.pct`) → **ESMA-APM** (none): Internal commercial / trade-promotion metric (incremental GM during promo); not an IFRS or ESMA-named measure.
-- **List Price Amount** (`sales.price.list.amount`) → **IFRS 15** (none): List price is a pre-discount catalogue figure — an input to discount/realization analysis, not an IFRS 15 figure (IFRS 15 measures the transaction price actually expected).
-- **Net Price Amount** (`sales.price.net.amount`) → **IFRS 15** (partial): Net price is the IFRS 15 transaction price after trade discounts and variable consideration.
-- **Price Realization %** (`sales.price.realization_pct`) → **IFRS 15** (none): Price realization (net/list) is a management pricing metric, not IFRS-defined.
-- **Cannibalization %** (`sales.promo.cannibalization.pct`) → **Trade Promotion Management (convention)** (none): Cannibalization (cannibalized / uplift sales) is a TPM analytics concept, not standard-defined.
+- **Promo ROI %** (`KPI-COM-016`) → **Trade Promotion Management (convention)** (none): Promo ROI (incremental GM / promo cost) is a TPM convention.
+- **Incremental Sales Amount** (`KPI-COM-021`) → **Trade Promotion Management (convention)** (none): Incremental (promo − baseline) uplift is a TPM convention.
+- **GM % During Promo** (`KPI-FIN-012`) → **ESMA-APM** (none): Internal commercial / trade-promotion metric (incremental GM during promo); not an IFRS or ESMA-named measure.
+- **List Price Amount** (`KPI-COM-001`) → **IFRS 15** (none): List price is a pre-discount catalogue figure — an input to discount/realization analysis, not an IFRS 15 figure (IFRS 15 measures the transaction price actually expected).
+- **Net Price Amount** (`KPI-COM-002`) → **IFRS 15** (partial): Net price is the IFRS 15 transaction price after trade discounts and variable consideration.
+- **Price Realization %** (`KPI-COM-003`) → **IFRS 15** (none): Price realization (net/list) is a management pricing metric, not IFRS-defined.
+- **Cannibalization %** (`KPI-COM-018`) → **Trade Promotion Management (convention)** (none): Cannibalization (cannibalized / uplift sales) is a TPM analytics concept, not standard-defined.
 
 ---
 

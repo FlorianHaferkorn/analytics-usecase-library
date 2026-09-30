@@ -1,6 +1,6 @@
 measure_name: Scrap Rate %
 is_kpi_measure: true
-kpi_id_ref: quality.scrap.pct
+kpi_id_ref: KPI-QUA-002
 semantic_model: Operations_SemanticModel
 display_folder: 06_Quality
 category: KPI

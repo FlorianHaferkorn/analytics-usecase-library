@@ -12,12 +12,12 @@ use_case_links:
   related_use_cases: []
 kpis:
   trigger_kpis:
-  - sales.pipeline.coverage.ratio
-  - sales.win_rate.pct
+  - KPI-COM-026
+  - KPI-COM-027
   guardrail_kpis:
-  - sales.sales_cycle.days
+  - KPI-COM-029
   outcome_kpis:
-  - sales.pipeline.coverage.ratio
+  - KPI-COM-026
 scope:
   default_grain: segment_week
   default_perspective:
@@ -45,7 +45,7 @@ trigger:
       min_observations: 3
       volume_guardrail:
         enabled: true
-        metric_kpi_id: sales.pipeline.value.amount
+        metric_kpi_id: KPI-COM-031
         comparator: gte
         value: 50
         unit: count
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: sales.pipeline.coverage.ratio
+        metric_kpi_id: KPI-COM-026
         comparator: lt
         threshold:
           basis: absolute
@@ -63,7 +63,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: sales.pipeline.coverage.ratio
+        metric_kpi_id: KPI-COM-026
         comparator: lt
         threshold:
           basis: absolute
@@ -73,7 +73,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: sales.pipeline.coverage.ratio
+        metric_kpi_id: KPI-COM-026
         comparator: lt
         threshold:
           basis: absolute
@@ -89,7 +89,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P30D
-    metric_kpi_id: sales.pipeline.coverage.ratio
+    metric_kpi_id: KPI-COM-026
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: sales.pipeline.coverage.ratio
+    metric_kpi_id: KPI-COM-026
     value_low: 2.0
     value_high: 8.0
     unit: x

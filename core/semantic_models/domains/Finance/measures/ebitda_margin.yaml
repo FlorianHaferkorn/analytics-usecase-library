@@ -1,6 +1,6 @@
 measure_name: EBITDA Margin
 is_kpi_measure: true
-kpi_id_ref: margin.ebitda.pct
+kpi_id_ref: KPI-FIN-018
 semantic_model: Finance_SemanticModel
 display_folder: 06_Profitability
 category: KPI

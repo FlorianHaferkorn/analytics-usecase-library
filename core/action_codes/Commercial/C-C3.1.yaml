@@ -12,13 +12,13 @@ use_case_links:
   - COM-003
 kpis:
   trigger_kpis:
-  - crm.retention.pct
-  - crm.revenue_at_risk.amount
+  - KPI-CUS-002
+  - KPI-OPS-001
   guardrail_kpis:
-  - margin.gm.pct
+  - KPI-COM-013
   outcome_kpis:
-  - crm.retention.pct
-  - crm.clv.amount
+  - KPI-CUS-002
+  - KPI-CUS-001
 scope:
   default_grain: customer_month
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: crm.active_customers.count
+        metric_kpi_id: KPI-CUS-006
         comparator: gte
         value: 50
         unit: count
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: crm.retention.pct
+        metric_kpi_id: KPI-CUS-002
         comparator: lt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: crm.retention.pct
+        metric_kpi_id: KPI-CUS-002
         comparator: lt
         threshold:
           basis: absolute
@@ -74,7 +74,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: crm.retention.pct
+        metric_kpi_id: KPI-CUS-002
         comparator: lt
         threshold:
           basis: absolute
@@ -92,7 +92,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P90D
-    metric_kpi_id: crm.clv.amount
+    metric_kpi_id: KPI-CUS-001
     success_criteria:
       kind: threshold_met
       baseline_window: P90D
@@ -106,7 +106,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: crm.retention.pct
+    metric_kpi_id: KPI-CUS-002
     value_low: 1.0
     value_high: 4.0
     unit: pp
@@ -130,7 +130,7 @@ operational_execution:
   - Customer ownership and outreach playbooks assigned
   steps:
   - IDENTIFY segments or customers with persistent retention deterioration
-  - PRIORITIZE the book of business by crm.revenue_at_risk.amount and crm.clv.amount
+  - PRIORITIZE the book of business by KPI-OPS-001 and KPI-CUS-001
   - ASSIGN targeted recovery actions to account or CRM owners
   - REVIEW retention and CLV recovery for the targeted population monthly
   effort:

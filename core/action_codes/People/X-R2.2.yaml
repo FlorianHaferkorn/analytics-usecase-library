@@ -13,12 +13,12 @@ use_case_links:
   - XD-001
 kpis:
   trigger_kpis:
-  - res.utilization.pct
-  - res.occupancy.pct
+  - KPI-SVC-009
+  - KPI-SVC-010
   guardrail_kpis:
-  - svc.sla.attainment.pct
+  - KPI-SVC-004
   outcome_kpis:
-  - res.utilization.pct
+  - KPI-SVC-009
 scope:
   default_grain: queue_day
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 3
       volume_guardrail:
         enabled: true
-        metric_kpi_id: svc.tickets.created.count
+        metric_kpi_id: KPI-SVC-013
         comparator: gte
         value: 150
         unit: count
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: res.utilization.pct
+        metric_kpi_id: KPI-SVC-009
         comparator: lt_or_gt_band
         threshold:
           basis: band
@@ -65,7 +65,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: res.utilization.pct
+        metric_kpi_id: KPI-SVC-009
         comparator: lt_or_gt_band
         threshold:
           basis: band
@@ -76,7 +76,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: res.utilization.pct
+        metric_kpi_id: KPI-SVC-009
         comparator: lt_or_gt_band
         threshold:
           basis: band
@@ -93,7 +93,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P90D
-    metric_kpi_id: people.digital_adoption.pct
+    metric_kpi_id: KPI-SVC-002
     success_criteria:
       kind: threshold_met
       baseline_window: P90D
@@ -108,7 +108,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: res.utilization.pct
+    metric_kpi_id: KPI-SVC-009
     value_low: 4.0
     value_high: 10.0
     unit: pp

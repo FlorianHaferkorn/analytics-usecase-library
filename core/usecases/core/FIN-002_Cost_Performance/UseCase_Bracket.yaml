@@ -6,39 +6,39 @@ governance:
   owner_role: plant_ops_controllers
   steward_role: finance_bi_lead
 orchestration:
-  strategic_kpi_id: cost.unit.amount
+  strategic_kpi_id: KPI-FIN-015
   influencing_kpi_ids:
-  - margin.cogs.pct
-  - cost.opex.vs_plan.pct
-  - cost.material.pct
-  - ops.labor.productivity.pct
-  - ops.throughput.units
-  - ops.quality.defect_rate.pct
-  - ops.quality.pct
+  - KPI-FIN-016
+  - KPI-FIN-014
+  - KPI-SCM-020
+  - KPI-OPS-004
+  - KPI-OPS-009
+  - KPI-QUA-006
+  - KPI-OPS-003
   supporting_kpi_ids:
-  - sales.net_sales.amount
-  - cost.base_volume.amount
-  - cost.opex.base.amount
-  - supply.otif.pct
-  - supply.on_time.pct
-  - supply.in_full.pct
-  - supply.stockout_impact.pct
-  - margin.ebitda.pct
+  - KPI-COM-005
+  - KPI-FIN-019
+  - KPI-SCM-021
+  - KPI-SCM-007
+  - KPI-SCM-008
+  - KPI-SCM-018
+  - KPI-SCM-009
+  - KPI-FIN-018
   action_code_ids:
   - F-K2.1
   - F-K2.2
   - F-K2.3
   - F-K2.4
 primary_kpi_ids:
-  - cost.unit.amount
-  - cost.material.pct
+  - KPI-FIN-015
+  - KPI-SCM-020
 
 value_driver_model:
-  formula: cost.unit.amount = f(margin.cogs.pct, cost.opex.vs_plan.pct, cost.material.pct, ops.labor.productivity.pct, ops.throughput.units,
-    ops.quality.defect_rate.pct, ops.quality.pct)
+  formula: KPI-FIN-015 = f(KPI-FIN-016, KPI-FIN-014, KPI-SCM-020, KPI-OPS-004, KPI-OPS-009,
+    KPI-QUA-006, KPI-OPS-003)
   impact_direction: minimize
-  primary_driver: cost.material.pct
-  impact_logic: Improving cost.material.pct is the primary lever for minimizing cost.unit.amount because material consumption and purchase discipline are the fastest structural levers before broader labor or overhead redesign is needed.
+  primary_driver: KPI-SCM-020
+  impact_logic: Improving KPI-SCM-020 is the primary lever for minimizing KPI-FIN-015 because material consumption and purchase discipline are the fastest structural levers before broader labor or overhead redesign is needed.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -53,13 +53,13 @@ ux_layout_rules:
     decision_question: "Is unit cost deteriorating, and which entities have the largest OpEx variance?"
     big_idea: "Restore unit-cost performance by locating the worst entities before selecting the material, productivity, or OpEx lever."
     component_3s:
-      kpi_id: cost.unit.amount
+      kpi_id: KPI-FIN-015
       visual_type: kpi_card_with_delta
       comparison: vs_plan
       status_logic: lower_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: cost.unit.amount
+      kpi_id: KPI-FIN-015
       visual_type: line_chart
       comparison: vs_plan
       question: "Is unit cost moving back toward Plan or deteriorating further?"
@@ -69,7 +69,7 @@ ux_layout_rules:
       action_code_id: F-K2.1
       unit: amount
     - slot_id: Main_2
-      kpi_id: cost.opex.vs_plan.pct
+      kpi_id: KPI-FIN-014
       visual_type: variance_bar
       comparison: vs_plan
       question: "Which entities have the largest unfavorable OpEx variance?"
@@ -87,27 +87,27 @@ ux_layout_rules:
     component_300s:
       evidence_grain: plant_line_product_month
       slicer_field: dim_org.Entity
-      # R2.4: deduped repeated cost.unit.amount; dropped plant/line (no
+      # R2.4: deduped repeated KPI-FIN-015; dropped plant/line (no
       # backing dimension table in Finance.SemanticModel -- dim_asset is
-      # Operations-only, not joined here); cut ops.throughput.units/
-      # ops.quality.pct (less central to the cost-recovery decision_question).
+      # Operations-only, not joined here); cut KPI-OPS-009/
+      # KPI-OPS-003 (less central to the cost-recovery decision_question).
       evidence_columns:
       - dim_org.Entity
       - dim_product.Category
-      - cost.unit.amount
-      - margin.cogs.pct
-      - cost.material.pct
-      - cost.opex.vs_plan.pct
-      - ops.labor.productivity.pct
-      - ops.quality.defect_rate.pct
+      - KPI-FIN-015
+      - KPI-FIN-016
+      - KPI-SCM-020
+      - KPI-FIN-014
+      - KPI-OPS-004
+      - KPI-QUA-006
       action_panel: true
       payload_mode: summary
       sort_by:
-        measure: cost.opex.vs_plan.pct
+        measure: KPI-FIN-014
         direction: descending
       top_n: 20
       highlight_rule:
-        column: cost.opex.vs_plan.pct
+        column: KPI-FIN-014
         type: data_bar
 prioritization:
   business_value: high

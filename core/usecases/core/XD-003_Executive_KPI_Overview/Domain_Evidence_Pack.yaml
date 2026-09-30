@@ -50,7 +50,7 @@ process_scope:
 
 canonical_domain_model:
   outcome_kpis:
-    - id: enterprise.value_at_risk.index
+    - id: KPI-GOV-004
       name: Enterprise Value-at-Risk Index
       definition: >
         Weighted, normalized composite index of downside risk aggregated across
@@ -68,7 +68,7 @@ canonical_domain_model:
         methodology and the firm's own materiality model — the methodology, not a
         single number, is what is benchmarked.
       benchmark_source_id: SRC-002
-    - id: margin.gm.pct
+    - id: KPI-COM-013
       name: Gross Margin %
       role: guardrail
       definition: "(Net Sales - COGS) / Net Sales × 100. Co-headline profitability outcome and guardrail."
@@ -82,90 +82,90 @@ canonical_domain_model:
       benchmark_source_id: SRC-007
 
   driver_kpis:
-    - id: margin.gm.pct
+    - id: KPI-COM-013
       name: Gross Margin %
       definition: "(Net Sales - COGS) / Net Sales × 100."
       unit: "%"
       direction: maximize
-      drives: enterprise.value_at_risk.index
+      drives: KPI-GOV-004
       causal_mechanism: >
         Primary driver. Margin compression below target raises the financial-perspective
         risk contribution and lifts the composite index (impact_direction minimize).
       benchmark_target: "25–45% GM% for B2B manufacturing (cross-industry)"
       benchmark_source_id: SRC-007
-    - id: sales.net_sales.delta_pct.ly
+    - id: KPI-COM-008
       name: Net Sales % vs LY
       definition: "(Actual Net Sales - LY Net Sales) / LY Net Sales × 100."
       unit: "%"
       direction: maximize
-      drives: enterprise.value_at_risk.index
+      drives: KPI-GOV-004
       causal_mechanism: >
         Growth-trajectory driver. Sustained negative LY delta signals structural
         revenue decline, increasing strategic (financial-perspective) risk weight.
       benchmark_target: "5–10% YoY growth typical for manufacturing B2B (Gartner CPM/EPM context)"
       benchmark_source_id: SRC-005
-    - id: crm.clv.amount
+    - id: KPI-CUS-001
       name: Customer Lifetime Value
       definition: "Present value of future margin contribution per customer relationship."
       unit: EUR
       direction: maximize
-      drives: enterprise.value_at_risk.index
+      drives: KPI-GOV-004
       causal_mechanism: >
         Customer-perspective driver (Balanced Scorecard). Declining CLV erodes future
         cash-flow base and raises the customer-risk contribution to the index.
       benchmark_target: "CLV:CAC ratio ≥ 3:1 (B2B benchmark)"
       benchmark_source_id: SRC-005
-    - id: svc.sla.attainment.pct
+    - id: KPI-SVC-004
       name: SLA Attainment %
       definition: "% of service interactions meeting the agreed service-level target."
       unit: "%"
       direction: maximize
-      drives: enterprise.value_at_risk.index
+      drives: KPI-GOV-004
       causal_mechanism: >
         Internal-process / service-quality driver. SLA breaches signal experience
         risk and downstream churn, raising the service-risk contribution.
       benchmark_target: "≥ 95% SLA attainment typical world-class target"
       benchmark_source_id: SRC-006
-    - id: supply.otif.pct
+    - id: KPI-SCM-007
       name: OTIF %
       definition: "On-Time-In-Full delivery performance (orders delivered complete and on time)."
       unit: "%"
       direction: maximize
-      drives: enterprise.value_at_risk.index
+      drives: KPI-GOV-004
       causal_mechanism: >
         Internal-process / fulfilment driver. OTIF decline indicates supply
         reliability risk that compounds with cash and customer risk.
       benchmark_target: "≥ 95% OTIF best-in-class (cross-industry)"
       benchmark_source_id: SRC-007
-    - id: ops.working_capital.ccc.days
+    - id: KPI-FIN-006
       name: Cash Conversion Cycle (Days)
       definition: "DSO + DIO - DPO. Days of working capital tied up in operations."
       unit: days
       direction: minimize
-      drives: enterprise.value_at_risk.index
+      drives: KPI-GOV-004
       causal_mechanism: >
         Financial-liquidity driver. A lengthening CCC ties up cash and raises
         liquidity risk weighting in the composite index.
       benchmark_target: "Sector-specific; lower is better — improvement vs own baseline and peer band"
       benchmark_source_id: SRC-007
-    - id: people.digital_adoption.pct
+    - id: KPI-SVC-002
       name: Digital Adoption %
       definition: "% of target users actively adopting the deployed digital tools/capabilities."
       unit: "%"
       direction: maximize
-      drives: enterprise.value_at_risk.index
+      drives: KPI-GOV-004
       causal_mechanism: >
         Learning-&-growth / intangible-capital driver (Skandia Navigator renewal &
         development perspective). Low adoption signals stalled transformation value,
         a leading risk to future performance.
       benchmark_target: "Internally calibrated against rollout plan; renewal & development perspective"
       benchmark_source_id: SRC-008
-    - id: people.attrition_risk.pct
+    - id: KPI-SVC-003
       name: Attrition Risk %
       definition: "% of (key/critical-role) workforce flagged at elevated risk of leaving."
       unit: "%"
       direction: minimize
-      drives: enterprise.value_at_risk.index
+      drives: KPI-GOV-004
       causal_mechanism: >
         Learning-&-growth / human-capital driver. Rising attrition risk in key roles
         threatens capability continuity and raises the people-risk contribution.
@@ -178,35 +178,35 @@ canonical_domain_model:
       definition: "Weighted normalized margin-downside contribution to the Enterprise Value-at-Risk Index."
       unit: index_points
       direction: minimize
-      diagnoses: margin.gm.pct
+      diagnoses: KPI-COM-013
       causal_mechanism: "Decomposes how much of the composite index is driven by margin compression for this entity-period."
     - id: enterprise.var_contribution.growth
       name: Value-at-Risk Contribution — Growth
       definition: "Weighted normalized revenue-growth-downside contribution to the index."
       unit: index_points
       direction: minimize
-      diagnoses: sales.net_sales.delta_pct.ly
+      diagnoses: KPI-COM-008
       causal_mechanism: "Isolates the share of value-at-risk attributable to negative LY growth trajectory."
     - id: enterprise.var_contribution.service
       name: Value-at-Risk Contribution — Service & Fulfilment
       definition: "Combined weighted SLA + OTIF downside contribution to the index."
       unit: index_points
       direction: minimize
-      diagnoses: supply.otif.pct
+      diagnoses: KPI-SCM-007
       causal_mechanism: "Shows when service reliability and fulfilment failures are the dominant risk driver."
     - id: enterprise.var_contribution.working_capital
       name: Value-at-Risk Contribution — Working Capital
       definition: "Weighted CCC-deterioration contribution to the index."
       unit: index_points
       direction: minimize
-      diagnoses: ops.working_capital.ccc.days
+      diagnoses: KPI-FIN-006
       causal_mechanism: "Quantifies the liquidity-risk share so cash and service signals can be read together."
     - id: enterprise.var_contribution.people
       name: Value-at-Risk Contribution — People
       definition: "Combined weighted attrition-risk + low-digital-adoption contribution to the index."
       unit: index_points
       direction: minimize
-      diagnoses: people.attrition_risk.pct
+      diagnoses: KPI-SVC-003
       causal_mechanism: "Surfaces intangible / human-capital risk (Skandia renewal & development) feeding the index."
 
   guardrails:
@@ -217,7 +217,7 @@ canonical_domain_model:
         action. COSO ERM portfolio view requires materiality and double-counting
         checks before executive routing.
       affected_kpis:
-        - enterprise.value_at_risk.index
+        - KPI-GOV-004
     - description: Do not act on transient or low-confidence index movement
       condition: >
         Suppress action when the index movement falls within normal volatility / the
@@ -225,15 +225,15 @@ canonical_domain_model:
         KPIs (data-quality guardrail). ISO 31000 monitoring & review requires
         confidence before treatment.
       affected_kpis:
-        - enterprise.value_at_risk.index
-        - margin.gm.pct
+        - KPI-GOV-004
+        - KPI-COM-013
     - description: Profitability guardrail on growth-led interventions
       condition: >
         Do not endorse pure volume/growth recovery actions when GM% is already below
         target — protect margin while closing the growth gap.
       affected_kpis:
-        - margin.gm.pct
-        - sales.net_sales.delta_pct.ly
+        - KPI-COM-013
+        - KPI-COM-008
 
   wrong_interpretations:
     - description: Treating the composite index as a precise financial VaR
@@ -312,7 +312,7 @@ required_data_model:
       source_id: SRC-007
 
 action_logic_seeds:
-  - trigger_driver: margin.gm.pct
+  - trigger_driver: KPI-COM-013
     trigger_diagnostic: enterprise.var_contribution.margin
     trigger_condition: "Enterprise Value-at-Risk Index in amber/red AND margin contribution is the dominant component for the entity for 2 consecutive months"
     guardrail: "Suppress if margin dip is a known one-off and other domains are green; avoid acting on single non-material signal"
@@ -320,9 +320,9 @@ action_logic_seeds:
       Trigger Cross-Domain Risk Prioritisation — rank entities by aggregated
       value-at-risk, surface margin as the lead contributor, and route a focused
       review to Finance/Commercial leads.
-    expected_outcome_kpi: enterprise.value_at_risk.index
+    expected_outcome_kpi: KPI-GOV-004
     action_code_candidate: X-E3.2
-  - trigger_driver: supply.otif.pct
+  - trigger_driver: KPI-SCM-007
     trigger_diagnostic: enterprise.var_contribution.service
     trigger_condition: "Index rising with service+fulfilment contribution material AND working-capital contribution also rising in same entities"
     guardrail: "Exclude entities whose service risk is already covered by an active domain OTIF action; avoid double-counting"
@@ -330,9 +330,9 @@ action_logic_seeds:
       Prioritise entities where service reliability and cash pressure compound into
       enterprise downside, and route coordinated intervention to Operations/SCM and
       Finance leads.
-    expected_outcome_kpi: enterprise.value_at_risk.index
+    expected_outcome_kpi: KPI-GOV-004
     action_code_candidate: X-E3.2
-  - trigger_driver: people.attrition_risk.pct
+  - trigger_driver: KPI-SVC-003
     trigger_diagnostic: enterprise.var_contribution.people
     trigger_condition: "People (attrition + low digital adoption) contribution becomes a top-3 component of the index for strategic entities"
     guardrail: "Do not escalate when attrition risk concerns non-critical roles or movement is within normal band"
@@ -340,7 +340,7 @@ action_logic_seeds:
       Surface intangible/human-capital risk to executives and route talent-retention
       and adoption-acceleration focus to People leads before capability erosion
       compounds financial risk.
-    expected_outcome_kpi: enterprise.value_at_risk.index
+    expected_outcome_kpi: KPI-GOV-004
     action_code_candidate: X-E3.2
 
 source_inventory:
