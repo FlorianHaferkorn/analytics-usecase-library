@@ -45,6 +45,9 @@
             "axis": {
               "title": null,
               "format": "+.1~%"
+            },
+            "scale": {
+              "padding": 18
             }
           },
           "color": {

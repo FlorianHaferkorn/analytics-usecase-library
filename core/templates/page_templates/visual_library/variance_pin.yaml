@@ -116,7 +116,7 @@ realizations:
           { "mark": { "type": "bar", "width": { "band": {{pin_band}} } },
             "encoding": {
               "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth", "axis": { "title": null, "labelAngle": 0, "format": "%m/%y", "labelOverlap": true, "labelSeparation": 6 } },
-              "y": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null, "format": "{{fmt}}" } },
+              "y": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null, "format": "{{fmt}}" }, "scale": { "padding": 18 } },
               "color": { "condition": { "test": "datum['{{field}}'] < 0", "value": "{{col_neg}}" }, "value": "{{col_pos}}" } } },
           { "mark": { "type": "rule", "color": "{{col_zero}}" }, "encoding": { "y": { "datum": 0 } } },
           { "mark": { "type": "point", "shape": "circle", "filled": true, "color": "{{col_head}}", "size": {{head_size}}, "opacity": 1 },
