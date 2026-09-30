@@ -23,7 +23,7 @@ Two views, one source:
   validator and the showcase proof read this.
 * **domain view** — :func:`resolve_contract`: every reference replaced by a copy of the owner's
   table, columns narrowed to ``uses_columns`` (in that order) and ``conformed_from`` kept, so a
-  per-domain consumer (``generate_semantic_model``, ``ai_description``, ``linguistic_schema``)
+  per-domain consumer (``ai_description``, ``linguistic_schema``, ``enrich_measure_docs``)
   sees the same table list as before, with the owner's column specs.
 
 Validation of the references (owner exists, owner defines the table, columns exist, no second
