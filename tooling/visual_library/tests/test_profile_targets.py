@@ -124,3 +124,35 @@ def test_every_idiom_rasterizes_under_every_profile():
             assert png[:8] == b"\x89PNG\r\n\x1a\n" and len(png) > 1000, f"{idiom}@{pid}: drew nothing"
             drawn += 1
     assert drawn >= 90, f"expected every idiom x profile to draw, got {drawn}"
+
+
+def test_dark_background_lifts_every_colour_but_gridlines():
+    """A-31 R6: the library's inks are chosen for light cards (#0F2430 measures 1.1:1 on the
+    Fabric-App dark card #292929). `background=` lifts each literal to 4.5:1, hue kept."""
+    import contrast
+
+    dark = "#292929"
+    for idiom in ("line", "bar_ranking", "deviation_bar", "waterfall_pvm"):
+        for pid in ("house_default", "ibcs"):
+            if pid not in render.target_profiles(idiom):
+                continue
+            light = json.loads(render.render_target(idiom, "fabric_app", pid)[0])
+            doc = json.loads(render.render_target(idiom, "fabric_app", pid, background=dark)[0])
+            for node, parent in _hex_literals(doc["spec"]) + _hex_literals(doc["configVegaLite"]):
+                if parent != "gridColor" and not (parent == "fill" and node == dark):
+                    assert contrast.contrast_ratio(node, dark) >= 4.5, f"{idiom}@{pid}: {parent}={node}"
+            assert light != doc, f"{idiom}@{pid}: nothing changed on a dark ground"
+            assert '"white"' not in json.dumps(doc), f"{idiom}@{pid}: white hollow fill on a dark ground"
+
+
+def _hex_literals(node, key=None):
+    out = []
+    if isinstance(node, dict):
+        for k, v in node.items():
+            out += _hex_literals(v, k)
+    elif isinstance(node, list):
+        for v in node:
+            out += _hex_literals(v, key)
+    elif isinstance(node, str) and len(node) == 7 and node.startswith("#"):
+        out.append((node, key))
+    return out

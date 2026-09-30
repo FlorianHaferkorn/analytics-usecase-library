@@ -296,13 +296,50 @@ def bind(idiom: str, columns: dict) -> dict:
     return out
 
 
+_HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
+#: Decorative strokes keep their colour on any ground: WCAG 1.4.11 exempts gridlines, and lifting
+#: them to 4.5:1 would make the grid louder than the data.
+_DECORATIVE_COLOR_KEYS = {"gridColor"}
+
+
+def on_background(node, bg: str, min_ratio: float = 4.5, _key: "str | None" = None):
+    """Every colour literal of a spec/config lifted to `min_ratio` against `bg`, hue kept
+    (contrast.ensure_contrast). For a dark ground: the library's colours are chosen for light
+    cards, and a light-mode ink (#0F2430) measures 1.1:1 on a dark card (A-31 R6, 30.09.2026).
+    Colours that already pass stay unchanged; gridlines are exempt; a white `fill` (hollow
+    marker) becomes the ground. Pure, returns a new tree."""
+    if isinstance(node, dict):
+        return {k: on_background(v, bg, min_ratio, k) for k, v in node.items()}
+    if isinstance(node, list):
+        return [on_background(v, bg, min_ratio, _key) for v in node]
+    if _key == "fill" and isinstance(node, str) and node.lower() in ("white", "#ffffff"):
+        return bg   # a white fill is the card showing through (hollow marker), not a colour
+    if isinstance(node, str) and _HEX.match(node) and _key not in _DECORATIVE_COLOR_KEYS:
+        return _contrast().ensure_contrast(node, bg, min_ratio)
+    return node
+
+
+@functools.lru_cache(maxsize=1)
+def _contrast():
+    """contrast.py next to this file, loaded by path: works however render was imported (a
+    mirror may import render and then drop its directory from sys.path)."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("visual_library_contrast", Path(__file__).with_name("contrast.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def render_target(idiom: str, target: str, profile: "str | None" = None,
-                  bindings: "dict | None" = None, params: "dict | None" = None) -> "tuple[str, str]":
+                  bindings: "dict | None" = None, params: "dict | None" = None,
+                  background: "str | None" = None) -> "tuple[str, str]":
     """Derived target output for one idiom x profile. Deterministic JSON.
 
     `bindings` ({role: column}) binds real data columns through `data_slots`; `params` overrides
     any other template parameter (e.g. polarity -1 for a lower-is-better measure). Without both,
-    the frozen canonical sample is used — that is what the goldens freeze."""
+    the frozen canonical sample is used — that is what the goldens freeze. `background` (hex)
+    lifts every colour to 4.5:1 on that ground (`on_background`) — used for a dark mode."""
     if target not in DERIVED_TARGETS:
         raise KeyError(f"unknown derived target '{target}'")
     profile = profile or default_profile()
@@ -321,6 +358,8 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     else:
         spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
     config = vegalite_config(profile)
+    if background:
+        spec, config = on_background(spec, background), on_background(config, background)
     if target == "html_vegalite":
         out = dict(spec)
         out["config"] = config
