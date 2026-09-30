@@ -1,6 +1,6 @@
 # Visual-Stack R1 — Referenzkorpus aus Primärquellen (30.09.2026)
 
-Grundlage für die Runden R2–R6 des gemeinsamen Visual-Stacks (Ledger A-31, Freelancing D-614):
+Grundlage für die Runden R2–R6 des gemeinsamen Visual-Stacks (Ledger A-31, Freelancing D-617):
 Profile (Stil-/Notationsachse), neue Idiome, Auswahllogik Frage → purpose → Idiom, IBCS 1:1.
 Jede Aussage trägt eine Quelle; was nur als Suchauszug vorlag, ist so markiert.
 
@@ -13,6 +13,9 @@ Jede Aussage trägt eine Quelle; was nur als Suchauszug vorlag, ist so markiert.
 | `editorial.yaml` + `editorial_summary.md` | FT Visual Vocabulary, BBC, Urban, ONS, UK Analysis Function, Observable Plot, Reuters, NYT | 56 | FT, Urban, BBC, afcharts, Plot gelesen; ONS, Datawrapper, Economist nur Suchauszug |
 | `product.yaml` + `product_summary.md` | shadcn/ui, Tremor, Carbon, Fluent UI, Radix, Vercel, Apple HIG, Power BI | 51 | 49 aus Quellcode/Doku gelesen (`retrieval: fetched`), 2 Suchauszüge |
 | `fabric.yaml` + `fabric_summary.md` + `fabric_matrix.md` | Machbarkeit je Idiom auf Fabric App, PBIR, HTML | 36 | Typdefinitionen fabric-visuals 4.0.0/4.1.0, flint-chart 0.5.1, vega-lite 6.4.3 (lokal gelesen) |
+| `interaction_pbi.yaml` + `interaction_pbi_summary.md` | Power-BI-Funktionsumfang für Berichtsleser als Untergrenze, dazu was `VegaVisual` (fabric-visuals 4.0/4.1) davon mitbringt | 76 (43 Pflicht für Gleichstand) | Microsoft Learn über den Learn-MCP, npm-Registry |
+| `interaction_market.yaml` + `interaction_market_summary.md` | Interaktionen über Power BI hinaus: Zebra BI, Tableau, ThoughtSpot, Observable Plot, Vega-Lite-Galerie, Metabase, Superset, Grafana | 40 | 18 gelesen, 22 nur Suchauszug |
+| `interaction_users.yaml` + `interaction_users_summary.md` | Was Berichtsnutzer wollen: NN/g, HCI-Studien, BARC, WHU Controller Panel | 30 | nur Suchauszüge (alle Originale gesperrt) |
 | `entscheidungsvorlage.yaml` | Widersprüche W-1…W-6, Lücken L-1…L-3, Kandidaten für Purposes, Idiome, Profile | — | Synthese; alle zitierten IDs existieren (geprüft per Skript) |
 | `FORMAT.md` | gemeinsames Eintragsformat | — | — |
 
