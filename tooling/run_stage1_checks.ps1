@@ -53,6 +53,10 @@ $checks = @(
 $pythonChecks = @(
   @{ Script = "tooling/validation/check_catalog_tmdl_drift.py"; Args = @("--repo-root", $rootPath) },
   @{ Script = "tooling/validation/check_docs_links.py"; Args = @("--repo-root", $rootPath) },
+  # Notebook-Toolkit-Grenze (Meridian D-603, 30.09.2026): das Toolkit ist nur internes
+  # Entwicklerwerkzeug; jede Nennung in products/, core/, tooling/, .github/ oder einer
+  # requirements*.txt macht Stage 1 rot. Exit 2 = nicht geprueft (git ls-files fehlgeschlagen).
+  @{ Script = "tooling/validation/check_fntk_boundary.py"; Args = @("--repo-root", $rootPath) },
   # Semantic Model gegen Gold-Daten (Ledger A-24, 29.09.2026): jede sourceColumn der dist-Modelle
   # steht in der Gold-Tabelle, die ihre Partition liest, oder in der Allowlist. --strict: fehlen
   # die Gold-Daten, endet das Tor mit 2 ("nicht geprueft"), nicht gruen.

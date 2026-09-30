@@ -138,6 +138,17 @@ Learn per MCP gelesen; Fabric-/Power-BI-Blogs, Azure Updates und Roadmap vom Pro
 
 Weitere Punkte (W6.3 Claude Code/Codex in der VS-Code-Extension, W6.6 Git Workspace Relation API, W6.9 Copilot-Lizenz/Data Agent in Copilot Studio, W6.11 Monitor for Data Warehouse) und die neue Watchlist (Business Events, Database Hub, Delegated Shortcuts, OneLake OAP mit externen Shortcuts, Fabric Apps in GitHub Copilot, Power BI September-Update, Operations-Agent-Telemetrie an Agent 365) führt Meridian (`research/upstream_pins.yaml`).
 
+## Welle 7 — Nachlauf 30.09.2026 (Agent-Werkzeuge, Kapazitätsanlage; Quelle: Meridian I-21 Welle 7)
+
+**Entscheidungen (Florian, 30.09.2026):** Meridian D-603 — Skills for Fabric als Entwicklerwerkzeug gepinnt übernehmen (`fabric-skills` an, `powerbi-authoring` aus, weil es `npx @microsoft/powerbi-modeling-mcp@latest` ungepinnt startet); das Fabric Notebook Toolkit nur intern, nie in Kunden-Deliverables, CI oder `requirements*.txt`. Meridian D-604 — Kapazität per `azapi` anlegen. Regeltext ALUCA: `docs/agent/agent-developer-tools.md`.
+
+| ID | Aufgabe | Art | Status | DoD (Out · Prüfung) |
+|---|---|---|---|---|
+| W7.1 | Skills for Fabric gepinnt: Marketplace `fabric-collection` (`ref: v0.3.18`, `autoUpdate: false`), `fabric-skills` an, `powerbi-authoring` aus in `.claude/settings.json`; Pin im vorhandenen Sensor `tooling/quality/check_upstream_sources.py` (Eintrag `ref.skills_for_fabric`, neue Art `github`: Tag fehlt / Tag verschoben / neuerer SemVer-Tag, per `git ls-remote --tags`, Commit `6c11ad58`) | M + A | erledigt (30.09.2026, Branch `runde/2026-09-30-welle7-aluca`; Meridian #522) | Settings + Pin + Peer-Test Settings↔Pin (`test_upstream_sources_pins.py`) |
+| W7.2 | Notebook Toolkit intern + Guard: Pin Art `pypi` 0.0.1a10 im selben Sensor; `tooling/validation/check_fntk_boundary.py` in Stage 1 sperrt Nennungen in `products/**` (samt `dist`), `core/**`, `tooling/**`, `.github/**`, `requirements*.txt` (Token-Grenze wie Meridian Regel 5, Base64-fest; Ausnahmen mit Grund in `EXEMPT`) | M + A | erledigt (30.09.2026, Branch `runde/2026-09-30-welle7-aluca`; Meridian #522) | Guard + Positiv-/Negativprobe (`test_fntk_boundary.py`, Mutation ohne Token-Grenze: 3 Tests rot) |
+| W7.3 | Regel VFS-Modus der Fabric-DE-VS-Code-Extension: nur Dev-Iteration, nie an Git vorbei in Git-verbundene Workspaces; Quelle bleibt Git → PR → fabric-cicd | M + A | erledigt (30.09.2026, `docs/agent/agent-developer-tools.md`, Verweis in `AGENTS.md`) | Absatz im Regeltext |
+| W7.4 | Spiegel D-604 (Kapazität per `azapi_resource` `Microsoft.Fabric/capacities`, `platform.capacities[].provisioning`, F4096/F8192 anlegbar); ALUCA-eigene SKU-Leiter `tooling/superversion/capacity.py` um F4096/F8192 ergänzt (Werte aus Learn, gelesen 30.09.2026) | M→A | erledigt (30.09.2026, Spiegel `1f323b9f`, Meridian #523; Branch `runde/2026-09-30-welle7-aluca`) | `check_dataarch_mirror.py` OK, Peer-Paare Schema + IR-Spec byte-gleich, Peer-Test SKU-Leiter ↔ `F_SKUS` |
+
 ## Beobachten statt bauen
 Die Watchlist liegt in Meridian (`research/upstream_pins.yaml` → `feature_watch`). Der Wochen-Radar
 prüft sie. Ändert sich dort ein Status (Mirroring mit Quellrechten, Copilot im Portal mit Skills,
