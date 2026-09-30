@@ -1773,6 +1773,46 @@
             "entscheidung": {
               "type": "string",
               "description": "Was zu entscheiden ist und woher die Antwort kommt. Pflicht, sobald `zielbild` gesetzt ist."
+            },
+            "onelake_areas": {
+              "type": "array",
+              "description": "OneLake-Sicherheitsrollen fuer Ordner und Tabellen ausserhalb des Domaenen-Lesezugriffs (I-21, Security-Folien FabCon 30.09.2026, Learn onelake/security/data-access-control-model): Lesen eines Ordners unter Files/ oder Schreiben (ReadWrite) fuer Viewer, die nicht Contributor werden sollen. ReadWrite gilt laut Learn nur im Lakehouse, wirkt nur fuer Nutzer mit Read-Recht (Viewer) und darf keine RLS/CLS enthalten; geschrieben wird nur ueber Spark, OneLake-APIs oder den OneLake-Datei-Explorer.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "path",
+                  "access"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+                    "description": "Rollenname-Bestandteil (Rolle heisst area_<name>)."
+                  },
+                  "path": {
+                    "type": "string",
+                    "pattern": "^(Files|Tables)/.+",
+                    "description": "Pfad im Lakehouse, z. B. Files/planung/upload oder Tables/eingabe_budget. Ordnerrechte vererben sich auf Unterordner."
+                  },
+                  "access": {
+                    "enum": [
+                      "read",
+                      "readwrite"
+                    ],
+                    "description": "read = nur lesen; readwrite = lesen und schreiben (Anlegen, Loeschen, Hochladen)."
+                  },
+                  "group": {
+                    "type": "string",
+                    "description": "Name der Entra-Gruppe (die objectId steht als VERIFY-Platzhalter im Rumpf)."
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "description": "Wozu der Bereich dient (erscheint im Runbook)."
+                  }
+                }
+              }
             }
           }
         },

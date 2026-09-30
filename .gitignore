@@ -156,3 +156,9 @@ studio/.e2e/
 # Arbeitsordner der agentischen Schleife (AP-9): Manifest, PBIP-Kopien, Seitenbilder, befunde.json.
 # Ins Repo kommt davon nur, was bewusst uebernommen wird (Plan §5), nie der ganze Lauf.
 /out/agentic_loop/
+
+# Laufprotokolle des PBI-Orchestrators (30.09.2026). Jeder Lauf schreibt sie neu
+# (orchestrate_full_model.ps1, table_ops.ps1 legen out/ selbst an); versioniert trugen
+# sie Heimpfade des Laufrechners ins Repo. Lesen bleibt lokal: fix-pbi-report-errors.
+/products/fabric/powerbi/orchestrator/out/
+/products/fabric/powerbi/orchestrator/last_run_state.json
