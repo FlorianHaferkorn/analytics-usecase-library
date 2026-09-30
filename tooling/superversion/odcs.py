@@ -97,7 +97,7 @@ def _schema_object(product: dict[str, Any], table: dict[str, Any] | None = None,
     if table:
         if "showcase" in table:
             custom.append({"property": "showcase", "value": bool(table["showcase"])})
-        props = _table_properties(table, governed_catalog)
+        props = _table_properties(table, governed_catalog, product.get("kind"))
         if props:
             obj["properties"] = props
     return obj
@@ -115,6 +115,85 @@ def _schema_object(product: dict[str, Any], table: dict[str, Any] | None = None,
 # SQL comes from ``provision_dq.pruef_praedikat`` (one translation for MLV and ODCS).
 _SHORTHAND_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\-]*(\.[A-Za-z_][A-Za-z0-9_\-]*)+$")
 _STABLE_ID_RE = re.compile(r"[\s.#/\\@!%&^]+")
+
+
+# --------------------------------------------------------------------------- semanticType · synonyms (ODCS v3.2)
+# Owner-Entscheidung 30.09.2026: der v3.2-Export schreibt ``semanticType`` und ``synonyms`` aktiv,
+# ``context`` nicht (Meridian D-590). Form laut dem in Meridian vendored Schema
+# ``core/dataeng_engine/sources/vendor/odcs-json-schema-v3.2.json``:
+#   ``$defs.SchemaBaseProperty.properties.semanticType`` (also je *property*, nicht je Objekt):
+#     {"type": "string", "enum": ["column", "measure", "dimension"], "default": "column",
+#      "description": "The semantic role the property plays in the data model. `column` (the default)
+#      is a physical column in the underlying data store; `measure` is an aggregated value (e.g.,
+#      `SUM(revenue)`) whose aggregation expression is held in `transformLogic`; `dimension` is a
+#      categorical attribute used for grouping and filtering. See RFC 0034."}
+#   ``$defs.SchemaElement.properties.synonyms`` → ``$defs.Synonyms`` (je Element, also Objekt *und*
+#     property): {"type": "array", "items": {"$ref": "#/$defs/Synonym"}}; ``$defs.Synonym`` ist ein
+#     Objekt mit Pflichtfeld ``synonym`` (string) und optional ``id``/``description``/``locale``/
+#     ``source``/``status``/``customProperties``, ``additionalProperties: false`` (RFC 0041).
+#     Eine blanke Zeichenkette ist also KEIN gueltiges Synonym — der Katalog traegt Zeichenketten,
+#     der Vertrag ``{"synonym": …}``.
+SEMANTIC_TYPES = ("column", "measure", "dimension")
+
+
+def semantic_type(spec: dict[str, Any], table_kind: str | None) -> str | None:
+    """Die ODCS-``semanticType`` einer Spalte — mechanisch aus dem Katalog, nichts geraten.
+
+    Regel (erste zutreffende Zeile gewinnt):
+
+    1. ``semantic_type`` im Spaltenvertrag gesetzt → dieser Wert (muss in ``SEMANTIC_TYPES``
+       stehen, sonst ``ValueError``). So kommt ein fremder Vertrag verlustfrei zurueck.
+    2. ``agg`` **und** ``ref`` gesetzt → ``None`` (widerspruechlich: Kennzahl oder Fremdschluessel).
+    3. ``agg`` gesetzt (Standard-Aggregation einer Kennzahl) → ``measure``.
+    4. ``ref`` gesetzt (Fremdschluessel auf eine Dimension) → ``dimension``.
+    5. Spalte einer Tabelle ``kind: dimension`` → ``dimension``.
+    6. sonst → ``None`` (Feld weglassen): eine Faktenspalte ohne ``agg``/``ref`` kann ein Datum,
+       eine degenerierte Dimension oder ein Rechenfeld sein — nicht eindeutig. ``column`` wird nie
+       hergeleitet; das Weglassen bedeutet laut Schema ohnehin ``default: column``.
+
+    ``table_kind`` ist das ``kind`` des Schema-Objekts (customProperty ``kind``), damit ein Leser die
+    Ableitung am Vertrag selbst nachpruefen kann.
+    """
+    explicit = spec.get("semantic_type")
+    if explicit is not None:
+        if explicit not in SEMANTIC_TYPES:
+            raise ValueError(f"semantic_type {explicit!r} of column {spec.get('name')!r} "
+                             f"is not one of {SEMANTIC_TYPES}")
+        return str(explicit)
+    agg, ref = bool(spec.get("agg")), bool(spec.get("ref"))
+    if agg and ref:
+        return None
+    if agg:
+        return "measure"
+    if ref:
+        return "dimension"
+    if table_kind == "dimension":
+        return "dimension"
+    return None
+
+
+def _synonyms_to_odcs(values: Any, column: str) -> list[dict[str, Any]]:
+    """Katalog-Synonyme (Zeichenketten; ein Objekt mit ``synonym`` wird durchgereicht) → ODCS."""
+    out: list[dict[str, Any]] = []
+    for v in values or []:
+        if isinstance(v, str):
+            out.append({"synonym": v})
+        elif isinstance(v, dict) and isinstance(v.get("synonym"), str):
+            out.append(dict(v))
+        else:
+            raise ValueError(f"synonym {v!r} of column {column!r} is neither a string nor "
+                             "an object with 'synonym'")
+    return out
+
+
+def _synonyms_from_odcs(values: Any) -> list[Any]:
+    """ODCS ``synonyms`` → Katalogform: ``{"synonym": x}`` allein wird ``x``; traegt ein Eintrag
+    mehr (``locale``, ``source`` …), bleibt er als Objekt stehen (verlustfrei)."""
+    out: list[Any] = []
+    for v in values or []:
+        if isinstance(v, dict) and isinstance(v.get("synonym"), str):
+            out.append(v["synonym"] if set(v) == {"synonym"} else dict(v))
+    return out
 
 
 def _quality_rule(column: str, check: dict[str, Any], n: int) -> dict[str, Any]:
@@ -137,8 +216,12 @@ def _quality_rule(column: str, check: dict[str, Any], n: int) -> dict[str, Any]:
     return rule
 
 
-def _spec_to_property(spec: dict[str, Any], governed_catalog: dict[str, Any] | None) -> dict[str, Any]:
-    """One ``column_specs`` entry → an ODCS property (lossless, see ``_property_to_spec``)."""
+def _spec_to_property(spec: dict[str, Any], governed_catalog: dict[str, Any] | None,
+                      table_kind: str | None = None) -> dict[str, Any]:
+    """One ``column_specs`` entry → an ODCS property (lossless, see ``_property_to_spec``).
+
+    ``semanticType`` follows ``semantic_type`` (rule in its docstring); ``synonyms`` are written
+    only when the column has some (missing → field omitted); ``agg`` travels as customProperty."""
     ref_ziel = _provision_dq().ref_ziel
     name = spec["name"]
     prop: dict[str, Any] = {"name": name}
@@ -149,6 +232,13 @@ def _spec_to_property(spec: dict[str, Any], governed_catalog: dict[str, Any] | N
     if spec.get("type"):
         prop["logicalType"] = _logical_type(str(spec["type"]))
         prop["physicalType"] = str(spec["type"])
+    st = semantic_type(spec, table_kind)
+    if st:
+        prop["semanticType"] = st
+    if spec.get("synonyms"):
+        prop["synonyms"] = _synonyms_to_odcs(spec["synonyms"], name)
+    if spec.get("agg"):
+        custom.append({"property": "agg", "value": spec["agg"]})
     if "unknown_member" in spec:
         prop["required"] = True
         custom.append({"property": "unknownMember", "value": spec["unknown_member"]})
@@ -173,17 +263,27 @@ def _spec_to_property(spec: dict[str, Any], governed_catalog: dict[str, Any] | N
     return prop
 
 
-def _property_to_spec(prop: dict[str, Any]) -> dict[str, Any]:
+def _property_to_spec(prop: dict[str, Any], table_kind: str | None = None) -> dict[str, Any]:
     """An ODCS property → a ``column_specs`` entry (only keys that are set).
 
     One normalisation, not a loss: ``nullable: false`` beside ``unknown_member`` is redundant
     (``unknown_member`` already means "never NULL") and comes back as ``unknown_member`` alone.
+    ``semanticType`` comes back as ``semantic_type`` only where it differs from what
+    ``semantic_type()`` derives from the spec and ``table_kind`` — for the contracts ``to_odcs``
+    writes that is never, so their catalog is unchanged. A property *without* ``semanticType`` whose
+    spec would derive one cannot say "none" in the catalog; re-export then adds the derived value.
     """
     spec: dict[str, Any] = {"name": prop["name"]}
     if prop.get("physicalName") and prop["physicalName"] != prop["name"]:
         spec["source_column"] = prop["physicalName"]
     if prop.get("physicalType"):
         spec["type"] = prop["physicalType"]
+    agg = _custom(prop, "agg")
+    if agg:
+        spec["agg"] = agg
+    synonyms = _synonyms_from_odcs(prop.get("synonyms"))
+    if synonyms:
+        spec["synonyms"] = synonyms
     unknown_set = False
     for cp in prop.get("customProperties") or []:
         if cp.get("property") == "unknownMember":
@@ -213,24 +313,33 @@ def _property_to_spec(prop: dict[str, Any]) -> dict[str, Any]:
         checks = list(_custom(prop, "meridianChecks") or checks)
     if checks:
         spec["checks"] = checks
+    st = prop.get("semanticType")
+    if st is not None and st != semantic_type(spec, table_kind):
+        spec["semantic_type"] = st
     return spec
 
 
-def _table_properties(table: dict[str, Any], governed_catalog: dict[str, Any] | None
-                      ) -> list[dict[str, Any]]:
+def _table_properties(table: dict[str, Any], governed_catalog: dict[str, Any] | None,
+                      table_kind: str | None = None) -> list[dict[str, Any]]:
     """ODCS properties for a catalog table: ``column_specs`` first (in contract order), then the
-    remaining plain column names (sorted) as name-only properties."""
+    remaining plain column names (sorted) as name-only properties (with ``semanticType`` where
+    ``semantic_type`` derives one from ``table_kind`` alone)."""
     specs = [s for s in table.get("column_specs") or [] if isinstance(s, dict) and s.get("name")]
     columns = set(table.get("columns") or [])
     props = []
     for s in specs:
-        prop = _spec_to_property(s, governed_catalog)
+        prop = _spec_to_property(s, governed_catalog, table_kind)
         if columns and s["name"] not in columns:
             # z. B. eine Zielbild-Spalte, die es noch nicht gibt: nicht projizieren
             prop.setdefault("customProperties", []).append({"property": "projected", "value": False})
         props.append(prop)
     seen = {s["name"] for s in specs}
-    props += [{"name": c} for c in sorted(columns) if c not in seen]
+    for c in sorted(columns - seen):
+        prop = {"name": c}
+        st = semantic_type(prop, table_kind)
+        if st:
+            prop["semanticType"] = st
+        props.append(prop)
     return props
 
 
@@ -245,8 +354,11 @@ def to_odcs(blueprint: dict[str, Any], governed_catalog: dict[str, Any] | None =
     """Export the IR's gold/mesh layer as one ODCS ``DataContract`` per domain (sorted, deterministic).
 
     With ``governed_catalog`` each gold product found there carries its columns as ODCS
-    ``properties`` — including the structured ``column_specs`` checks (A-20). Every contract is
-    stamped ``ODCS_API_VERSION`` (v3.2.0), with or without columns. ``odcs_to_catalog`` reads them back.
+    ``properties`` — including the structured ``column_specs`` checks (A-20) and, since v3.2.0,
+    ``semanticType`` (derived, see ``semantic_type``) and ``synonyms`` (from the column's catalog
+    synonyms; missing → omitted). ``context`` is not written (Owner-Entscheidung 30.09.2026). Every
+    contract is stamped ``ODCS_API_VERSION`` (v3.2.0), with or without columns.
+    ``odcs_to_catalog`` reads them back.
     """
     stack = blueprint.get("platform", {}).get("stack", "fabric")
     gold = blueprint.get("medallion", {}).get("gold", {}).get("data_products", [])
@@ -484,7 +596,8 @@ def odcs_to_catalog(contracts: list[dict[str, Any]] | dict[str, Any]) -> dict[st
             entry: dict[str, Any] = {"name": obj.get("physicalName") or obj.get("name"),
                                      "columns": cols}
             # A-20: structured column contract (only properties that say more than their name)
-            specs = [_property_to_spec(p) for p in props]
+            kind = _custom(obj, "kind")
+            specs = [_property_to_spec(p, kind) for p in props]
             specs = [sp for sp in specs if len(sp) > 1]
             if specs:
                 entry["column_specs"] = specs

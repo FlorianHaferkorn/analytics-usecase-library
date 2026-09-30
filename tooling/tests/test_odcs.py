@@ -327,6 +327,43 @@ def test_real_contract_checks_become_executable_quality_rules():
     assert rules == expected > 0
 
 
+def test_real_contracts_carry_semantic_type_and_synonyms():
+    """ODCS v3.2 (Meridian D-590, 30.09.2026): semanticType is derived mechanically (agg → measure,
+    ref or a column of a kind:dimension table → dimension, otherwise omitted), synonyms come from the
+    contract's curated ``synonyms`` as ``{synonym: …}`` objects; ``context`` is not written.
+    Exact ratchet, measured 30.09.2026 on the 109 real tables (750 properties); cross-check by grep
+    over core/data_contracts/domains/*.yaml: 231 column lines with ``agg:``, 63 with ``synonyms:``;
+    dimension = 199 columns of dimension tables + 207 ``ref`` columns of fact tables."""
+    from collections import Counter
+    types: Counter = Counter()
+    with_syn = terms = 0
+    for _, gc, bp in _domain_catalogs():
+        for c in to_odcs(bp, gc):
+            assert "context" not in yaml.safe_dump(c)
+            kinds = {o["name"]: next(cp["value"] for cp in o["customProperties"]
+                                     if cp["property"] == "kind") for o in c["schema"]}
+            specs = {(t["name"], s["name"]): s for t in gc["tables"] for s in t["column_specs"]}
+            for o in c["schema"]:
+                for prop in o.get("properties") or []:
+                    st = prop.get("semanticType")
+                    types[st] += 1
+                    spec = specs[(o["name"], prop["name"])]
+                    if spec.get("agg"):
+                        assert st == "measure", (o["name"], prop["name"])
+                    elif spec.get("ref") or kinds[o["name"]] == "dimension":
+                        assert st == "dimension", (o["name"], prop["name"])
+                    else:
+                        assert "semanticType" not in prop, (o["name"], prop["name"])
+                    if prop.get("synonyms"):
+                        with_syn += 1
+                        terms += len(prop["synonyms"])
+                        assert [s["synonym"] for s in prop["synonyms"]] == spec["synonyms"]
+                    else:
+                        assert not spec.get("synonyms")
+    assert dict(types) == {"measure": 231, "dimension": 406, None: 113}, dict(types)
+    assert (with_syn, terms) == (63, 216)
+
+
 def test_catalog_table_names_are_unique():
     """Exact ratchet on a measured catalog property. Until 29.09.2026 the same table name lived in
     several domain contracts with DIFFERENT column_specs (139 entries under 108 names; dim_customer,
