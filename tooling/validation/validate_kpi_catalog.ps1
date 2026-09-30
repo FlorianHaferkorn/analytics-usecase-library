@@ -27,7 +27,7 @@ function Resolve-RepoPath {
 $allowedTypes = @('strategic','diagnostic','supporting')
 $allowedCalc  = @('amount','rate','ratio','count','percentage','quantity','index')
 $allowedImpact = @('growth','profitability','liquidity','efficiency','customer','esg','governance','innovation & people','service','workforce','experience','risk','innovation','people')
-$idRegex = '^[a-z0-9]+(\.[a-z0-9_]+)*$'
+$idRegex = '^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\d{3}$'
 
 function Get-KpiBlocks {
   param([string]$Root)

@@ -30,11 +30,11 @@ describe('parseFormula', () => {
   });
 
   it('handles single driver', () => {
-    const result = parseFormula('a.b = f(c.d)');
+    const result = parseFormula('KPI-OPS-011 = f(KPI-OPS-016)');
     expect(result).not.toBeNull();
     expect(result!.type).toBe('functional');
     if (result!.type === 'functional') {
-      expect(result!.drivers).toEqual(['c.d']);
+      expect(result!.drivers).toEqual(['KPI-OPS-016']);
     }
   });
 
@@ -47,20 +47,48 @@ describe('parseFormula', () => {
   });
 
   it('returns null for formula with invalid target', () => {
-    expect(parseFormula('123invalid = f(a.b)')).toBeNull();
+    expect(parseFormula('123invalid = f(KPI-OPS-016)')).toBeNull();
+  });
+  it('reads a hyphenated KPI ID as one term, not as a subtraction (D-594)', () => {
+    const result = parseFormula('KPI-FIN-006 = KPI-FIN-001 + KPI-FIN-004 - KPI-FIN-005');
+    expect(result).not.toBeNull();
+    if (result!.type === 'additive') {
+      expect(result!.terms.map((t) => t.kpiId)).toEqual(['KPI-FIN-001', 'KPI-FIN-004', 'KPI-FIN-005']);
+      expect(result!.terms.map((t) => t.operator)).toEqual(['+', '+', '-']);
+    }
+  });
+
+  it('parses additive formulas written without spaces around operators', () => {
+    const result = parseFormula('KPI-FIN-006=KPI-FIN-001+KPI-FIN-004-KPI-FIN-005');
+    expect(result).not.toBeNull();
+    if (result!.type === 'additive') {
+      expect(result!.terms).toEqual([
+        { kpiId: 'KPI-FIN-001', operator: '+' },
+        { kpiId: 'KPI-FIN-004', operator: '+' },
+        { kpiId: 'KPI-FIN-005', operator: '-' },
+      ]);
+    }
+  });
+
+  it('returns null for a multiplicative formula instead of inventing additive terms', () => {
+    expect(parseFormula('KPI-OPS-011 = KPI-OPS-016 × KPI-OPS-002 × KPI-OPS-003')).toBeNull();
+  });
+
+  it('rejects the retired dotted IDs', () => {
+    expect(parseFormula('gm.margin.pct = f(net.sales.amount)')).toBeNull();
   });
 });
 
 describe('getFormulaKpiIds', () => {
   it('returns all KPI IDs from additive formula', () => {
-    const parsed = parseFormula('a.b = c.d + e.f - g.h')!;
+    const parsed = parseFormula('KPI-FIN-006 = KPI-FIN-001 + KPI-FIN-004 - KPI-FIN-005')!;
     const ids = getFormulaKpiIds(parsed);
-    expect(ids).toEqual(['a.b', 'c.d', 'e.f', 'g.h']);
+    expect(ids).toEqual(['KPI-FIN-006', 'KPI-FIN-001', 'KPI-FIN-004', 'KPI-FIN-005']);
   });
 
   it('returns all KPI IDs from functional formula', () => {
-    const parsed = parseFormula('a.b = f(c.d, e.f)')!;
+    const parsed = parseFormula('KPI-COM-013 = f(KPI-COM-005, KPI-COM-010)')!;
     const ids = getFormulaKpiIds(parsed);
-    expect(ids).toEqual(['a.b', 'c.d', 'e.f']);
+    expect(ids).toEqual(['KPI-COM-013', 'KPI-COM-005', 'KPI-COM-010']);
   });
 });

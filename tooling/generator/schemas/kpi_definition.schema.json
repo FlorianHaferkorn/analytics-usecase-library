@@ -16,7 +16,7 @@
   "properties": {
     "kpi_id": {
       "type": "string",
-      "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$"
+      "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$"
     },
     "kpi_key": {
       "type": "string",
@@ -51,6 +51,16 @@
       "items": {
         "type": "string"
       }
+    },
+    "plan_kpi_ref": {
+      "type": "string",
+      "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$",
+      "description": "Die governte Plan-KPI (Pegel) zu dieser Kennzahl. Seit D-594 traegt die ID keine Bedeutung mehr; bis dahin leitete comparison_measures.plan_kpi sie aus <basis>.plan.<einheit> ab."
+    },
+    "plan_variance_kpi_ref": {
+      "type": "string",
+      "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$",
+      "description": "Die governte Plan-Abweichung zu dieser Kennzahl (bisher <basis>.vs_plan.<einheit>). Belegt einen governten Plan, wird aber nie als Referenzreihe neben den Pegel gelegt."
     },
     "calc_type": {
       "type": "string",
@@ -178,7 +188,7 @@
           "properties": {
             "kpi": {
               "type": "string",
-              "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$"
+              "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$"
             }
           }
         },
@@ -809,7 +819,7 @@
       "properties": {
         "influencing_kpi_id": {
           "type": "string",
-          "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$"
+          "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$"
         },
         "effect": {
           "type": "object",
