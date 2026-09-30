@@ -17,8 +17,11 @@ import os
 import re
 import time
 import json
+import random
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+from email.utils import parsedate_to_datetime
+from datetime import datetime, timezone
+from typing import Callable, Dict, Any, List, Mapping, Optional, Tuple
 from pathlib import Path
 from dataclasses import dataclass
 from enum import Enum
@@ -248,13 +251,136 @@ class AuthProvider:
 
 
 # ============================================================================
+# Throttling (HTTP 429)
+# ============================================================================
+# Source: Microsoft Learn `rest/api/fabric/articles/throttling` (read 30.09.2026).
+# Fabric answers 429 for two different reasons, told apart by `errorCode` in the body:
+#   * RequestBlocked        — the caller's identity exhausted its quota (Unified Quota:
+#                             500/min Platform, 200/min Job Scheduler, 500/min LRO, fixed
+#                             60-s window, no gradual recovery). Wait exactly `Retry-After`.
+#   * CapacityLimitExceeded — the Fabric *capacity* is overloaded, independent of the
+#                             caller's request rate. An immediate retry is pointless:
+#                             exponential backoff with jitter, bounded; check capacity.
+# The quota is per identity (user, SPN, managed identity), so separate identities per
+# purpose (deploy, monitoring, agents) do not starve each other — see README "API-Quote".
+
+THROTTLE_REQUEST_BLOCKED = "RequestBlocked"
+THROTTLE_CAPACITY_LIMIT = "CapacityLimitExceeded"
+
+
+@dataclass(frozen=True)
+class RetryPolicy:
+    """Retry settings (config section `retry`). All delays in seconds."""
+    max_retries: int = 3
+    initial_delay: float = 1.0
+    backoff_multiplier: float = 2.0
+    # CapacityLimitExceeded: first backoff step and ceiling of the exponential backoff.
+    capacity_initial_delay: float = 30.0
+    capacity_max_delay: float = 300.0
+    # A Retry-After above this is not slept through; the call fails instead.
+    max_retry_after: float = 300.0
+
+    @classmethod
+    def from_config(cls, retry_config: Mapping[str, Any]) -> "RetryPolicy":
+        d = cls()
+        return cls(
+            max_retries=int(retry_config.get('max_retries', d.max_retries)),
+            initial_delay=float(retry_config.get('initial_delay', d.initial_delay)),
+            backoff_multiplier=float(retry_config.get('backoff_multiplier', d.backoff_multiplier)),
+            capacity_initial_delay=float(retry_config.get('capacity_initial_delay', d.capacity_initial_delay)),
+            capacity_max_delay=float(retry_config.get('capacity_max_delay', d.capacity_max_delay)),
+            max_retry_after=float(retry_config.get('max_retry_after', d.max_retry_after)),
+        )
+
+
+def throttle_error_code(body_text: Optional[str]) -> Optional[str]:
+    """`errorCode` of a Fabric error body (top level, as Learn documents it), else None."""
+    if not body_text:
+        return None
+    try:
+        body = json.loads(body_text)
+    except (ValueError, TypeError):
+        return None
+    if not isinstance(body, dict):
+        return None
+    code = body.get("errorCode")
+    if code is None and isinstance(body.get("error"), dict):
+        code = body["error"].get("code")
+    return code if isinstance(code, str) else None
+
+
+def parse_retry_after(headers: Optional[Mapping[str, str]], now: Optional[datetime] = None) -> Optional[float]:
+    """`Retry-After` in seconds (delta-seconds or HTTP-date, RFC 9110 §10.2.3), else None."""
+    if not headers:
+        return None
+    raw = None
+    for key in ("Retry-After", "retry-after"):
+        if key in headers:
+            raw = headers[key]
+            break
+    if raw is None:
+        return None
+    raw = str(raw).strip()
+    try:
+        return max(0.0, float(raw))
+    except ValueError:
+        pass
+    try:
+        when = parsedate_to_datetime(raw)
+    except (TypeError, ValueError, IndexError):
+        return None
+    if when is None:
+        return None
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=timezone.utc)
+    now = now or datetime.now(timezone.utc)
+    return max(0.0, (when - now).total_seconds())
+
+
+def retry_delay(
+    policy: RetryPolicy,
+    attempt: int,
+    status_code: Optional[int] = None,
+    headers: Optional[Mapping[str, str]] = None,
+    body_text: Optional[str] = None,
+    rand: Optional[Callable[[], float]] = None,
+) -> Tuple[Optional[float], str]:
+    """Seconds to wait before retry number `attempt + 1`, and why.
+
+    Returns ``(None, reason)`` when waiting makes no sense (Retry-After longer than
+    `max_retry_after`). `attempt` counts from 0.
+    """
+    retry_after = parse_retry_after(headers)
+    code = throttle_error_code(body_text) if status_code == 429 else None
+
+    if code == THROTTLE_CAPACITY_LIMIT:
+        # Exponential backoff, capped, with "equal jitter": at least half the step is
+        # always waited, so the retry is never immediate; the other half spreads callers.
+        step = min(policy.capacity_max_delay,
+                   policy.capacity_initial_delay * (policy.backoff_multiplier ** attempt))
+        jitter = (rand or random.random)()
+        delay = step / 2.0 + jitter * step / 2.0
+        if retry_after is not None:
+            delay = max(delay, retry_after)
+        return (delay, "capacity_limit_exceeded")
+
+    if retry_after is not None:
+        if retry_after > policy.max_retry_after:
+            return (None, "retry_after_exceeds_limit")
+        return (retry_after, "request_blocked" if code == THROTTLE_REQUEST_BLOCKED else "retry_after")
+
+    return (policy.initial_delay * (policy.backoff_multiplier ** attempt), "backoff")
+
+
+# ============================================================================
 # Fabric API Client
 # ============================================================================
 
 class FabricApiClient:
     """
     REST API client for Microsoft Fabric.
-    Implements exponential backoff with Retry-After header support.
+    Retries transient errors; 429 by errorCode (RequestBlocked → Retry-After,
+    CapacityLimitExceeded → capped exponential backoff with jitter).
     """
     
     def __init__(self, config: ConfigLoader, auth: AuthProvider, dry_run: bool = False):
@@ -264,10 +390,11 @@ class FabricApiClient:
         self.api_base = config.get('fabric.api_base', 'https://api.fabric.microsoft.com/v1')
         
         # Retry settings
-        retry_config = config.get('retry', {})
-        self.max_retries = retry_config.get('max_retries', 3)
-        self.initial_delay = retry_config.get('initial_delay', 1.0)
-        self.backoff_multiplier = retry_config.get('backoff_multiplier', 2.0)
+        retry_config = config.get('retry', {}) or {}
+        self.retry_policy = RetryPolicy.from_config(retry_config)
+        self.max_retries = self.retry_policy.max_retries
+        self.initial_delay = self.retry_policy.initial_delay
+        self.backoff_multiplier = self.retry_policy.backoff_multiplier
         self.transient_codes = set(retry_config.get('transient_status_codes', [429, 500, 502, 503, 504]))
     
     def _get_headers(self, scopes: Optional[List[str]] = None) -> Dict[str, str]:
@@ -283,16 +410,16 @@ class FabricApiClient:
         """Check if status code indicates transient error."""
         return status_code in self.transient_codes
     
-    def _calculate_retry_delay(self, attempt: int, response: Optional[requests.Response] = None) -> float:
-        """Calculate retry delay with exponential backoff and Retry-After support."""
-        # API CALL ERROR HANDLING: Exponential Backoff with Retry-After header
-        if response and 'Retry-After' in response.headers:
-            try:
-                return float(response.headers['Retry-After'])
-            except (ValueError, TypeError):
-                pass
-        
-        return self.initial_delay * (self.backoff_multiplier ** attempt)
+    def _calculate_retry_delay(
+        self, attempt: int, response: Optional[requests.Response] = None
+    ) -> Tuple[Optional[float], str]:
+        """Retry delay and reason; see `retry_delay` (errorCode-aware 429 handling)."""
+        # `if response` would be False for every 4xx/5xx (Response.__bool__ is `.ok`),
+        # which silently ignored Retry-After on exactly the responses that carry it.
+        if response is None:
+            return retry_delay(self.retry_policy, attempt)
+        return retry_delay(self.retry_policy, attempt, response.status_code,
+                           response.headers, response.text)
     
     def _make_request(
         self,
@@ -344,16 +471,26 @@ class FabricApiClient:
                 
                 # Transient error - retry
                 if self._is_transient_error(response.status_code) and attempt < self.max_retries:
-                    delay = self._calculate_retry_delay(attempt, response)
-                    logging.warning(
-                        f"Transient error {response.status_code}, retrying in {delay}s (attempt {attempt + 1}/{self.max_retries})"
-                    )
-                    time.sleep(delay)
-                    continue
-                
-                # Non-transient error or max retries reached
+                    delay, reason = self._calculate_retry_delay(attempt, response)
+                    if delay is not None:
+                        logging.warning(
+                            f"Transient error {response.status_code} ({reason}), retrying in "
+                            f"{delay:.1f}s (attempt {attempt + 1}/{self.max_retries})"
+                        )
+                        time.sleep(delay)
+                        continue
+
+                # Non-transient error, max retries reached, or a wait not worth taking
+                code = throttle_error_code(response.text) if response.status_code == 429 else None
+                hint = ""
+                if code == THROTTLE_CAPACITY_LIMIT:
+                    hint = (" — Fabric capacity overloaded (CapacityLimitExceeded): check the "
+                            "Capacity Metrics app, scale up/out or retry later")
+                elif code == THROTTLE_REQUEST_BLOCKED:
+                    hint = (" — API quota of this identity exhausted (RequestBlocked): spread "
+                            "calls or use a separate identity per purpose")
                 raise FabricApiError(
-                    f"API request failed: {response.status_code} {response.reason}",
+                    f"API request failed: {response.status_code} {response.reason}{hint}",
                     status_code=response.status_code,
                     response_body=response.text
                 )
@@ -361,7 +498,7 @@ class FabricApiClient:
             except requests.RequestException as e:
                 last_exception = e
                 if attempt < self.max_retries:
-                    delay = self._calculate_retry_delay(attempt)
+                    delay, _ = self._calculate_retry_delay(attempt)
                     logging.warning(f"Request exception, retrying in {delay}s: {e}")
                     time.sleep(delay)
                     continue

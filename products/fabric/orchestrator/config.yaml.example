@@ -144,6 +144,13 @@ retry:
   max_retries: 3
   initial_delay: 1.0  # seconds
   backoff_multiplier: 2.0
+  # HTTP 429 by errorCode (Learn rest/api/fabric/articles/throttling):
+  #   RequestBlocked        -> wait exactly Retry-After; above max_retry_after the call fails
+  #   CapacityLimitExceeded -> exponential backoff with jitter from capacity_initial_delay,
+  #                            capped at capacity_max_delay (never an immediate retry)
+  capacity_initial_delay: 30.0  # seconds
+  capacity_max_delay: 300.0     # seconds
+  max_retry_after: 300.0        # seconds
   transient_status_codes:
     - 429  # Too Many Requests
     - 500  # Internal Server Error

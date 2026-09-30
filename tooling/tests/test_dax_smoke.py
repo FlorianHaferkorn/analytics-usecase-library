@@ -116,3 +116,115 @@ def test_run_without_token_is_not_checkable(monkeypatch):
     r = subprocess.run([sys.executable, "-m", "tooling.codegen.dax_smoke", "run", "--model", "Operations",
                         "--out", "/dev/null"], cwd=REPO, env=env, capture_output=True, text=True, encoding="utf-8")
     assert r.returncode == 2 and "nicht prüfbar" in r.stderr
+
+
+# ------------------------------------------------------------------ RI je Beziehung (I-21 W5.12 b)
+
+def test_every_relationship_of_every_model_has_one_ri_query():
+    """Zweite Zählung: Dateien unter `relationships/` gegen die Einträge im Plan."""
+    for m in sorted(ds.DIST.glob("*.SemanticModel")):
+        dateien = sorted((m / "definition" / "relationships").glob("*.tmdl"))
+        plan = _plan(m.name.removesuffix(".SemanticModel"))
+        assert len(plan["beziehungen"]) == len(dateien) > 0, m.name
+        for b in plan["beziehungen"]:
+            assert b["erwartet"] == 0
+            assert b["abfrage"].count("EXCEPT(DISTINCT(") == 1 and "VALUES" not in b["abfrage"]
+
+
+_REL = """relationship r_sales_customer
+\tfromColumn: fact_sales.CustomerKey
+\ttoColumn: dim_customer.CustomerKey
+
+relationship 'r quoted'
+\tisActive: false
+\tfromColumn: 'fact sales'.'Ship Date'
+\ttoColumn: dim_date.DateKey
+
+relationship r_many
+\ttoCardinality: many
+\tfromColumn: fact_sales.Region
+\ttoColumn: dim_region.Region
+"""
+
+
+def _modell(tmp_path: Path) -> Path:
+    m = tmp_path / "Fix.SemanticModel"
+    (m / "definition" / "tables").mkdir(parents=True)
+    (m / "definition" / "relationships.tmdl").write_text(_REL, encoding="utf-8")
+    return m
+
+
+def test_relationships_are_read_with_quotes_inactive_and_without_many_to_many(tmp_path):
+    rel = {b["name"]: b for b in ds.beziehungen(_modell(tmp_path))}
+    assert set(rel) == {"r_sales_customer", "r quoted"}
+    assert rel["r quoted"]["aktiv"] is False
+    assert rel["r quoted"]["abfrage"] == (
+        "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact sales'[Ship Date]), "
+        "DISTINCT('dim_date'[DateKey]))) + 0)")
+
+
+_RI = re.compile(r"EXCEPT\(DISTINCT\('((?:[^']|'')+)'\[([^\]]+)\]\), DISTINCT\('((?:[^']|'')+)'\[([^\]]+)\]\)\)")
+
+
+def _motor(daten: dict[str, dict[str, list]]):
+    """Rechnet genau die RI-Abfrageform auf Fixture-Daten nach (DISTINCT, EXCEPT, COUNTROWS + 0)."""
+    def werte(q: str):
+        m = _RI.search(q)
+        f = set(daten[m.group(1)][m.group(2)])
+        d = set(daten[m.group(3)][m.group(4)])
+        return [len(f - d) + 0]
+    return werte
+
+
+_DATEN = {
+    "fact_sales": {"CustomerKey": [1, 2, 2, 3]},
+    "dim_customer": {"CustomerKey": [1, 2, 3]},
+    "fact sales": {"Ship Date": [20260101]},
+    "dim_date": {"DateKey": [20260101]},
+}
+
+
+def test_clean_keys_pass_the_ri_check(tmp_path):
+    plan = ds.plan_fuer(_modell(tmp_path))
+    lauf = ds.lauf(plan, "w", "d", "t", transport=_stub(_motor(_DATEN)))
+    assert lauf["abfragen"] == 2
+    assert ds.bewerten(plan, lauf) == []
+
+
+def test_an_orphaned_key_turns_the_ri_check_red(tmp_path):
+    plan = ds.plan_fuer(_modell(tmp_path))
+    daten = {**_DATEN, "fact_sales": {"CustomerKey": [1, 2, 3, 99, 98]}}   # 99, 98 verwaist
+    lauf = ds.lauf(plan, "w", "d", "t", transport=_stub(_motor(daten)))
+    befunde = ds.bewerten(plan, lauf)
+    assert [(b["measure"], b["befund"]) for b in befunde] == [
+        ("fact_sales[CustomerKey] -> dim_customer[CustomerKey]", "verwaiste Schlüssel")]
+    assert befunde[0]["detail"].startswith("2 Wert(e)")
+
+
+def test_a_failed_or_skipped_ri_query_is_a_finding_not_a_pass(tmp_path):
+    plan = ds.plan_fuer(_modell(tmp_path))
+    lauf = ds.lauf(plan, "w", "d", "t", transport=_stub(lambda q: RuntimeError("DAX kaputt")))
+    assert {b["befund"] for b in ds.bewerten(plan, lauf)} == {"RI: fehler"}
+    lauf = ds.lauf(plan, "w", "d", "t", budget=0, transport=_stub(_motor(_DATEN)))
+    assert {b["befund"] for b in ds.bewerten(plan, lauf)} == {"RI: budget"}
+
+
+def test_orphan_fk_on_gold_parquet_agrees_on_the_same_fixture(tmp_path, monkeypatch):
+    """Zweite Messung: `check_data_model.py` ORPHAN-FK liest dieselben Schlüssel aus Parquet."""
+    import importlib.util
+
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+    spec = importlib.util.spec_from_file_location(
+        "_check_data_model_ri", REPO / "tooling" / "validation" / "check_data_model.py")
+    cdm = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cdm)
+    for sub, name, col, vals in (("facts", "fact_sales", "CustomerKey", [1, 2, 3, 99, 98]),
+                                 ("dimensions", "dim_customer", "CustomerKey", [1, 2, 3])):
+        (tmp_path / sub / name).mkdir(parents=True)
+        pq.write_table(pa.table({col: vals}), tmp_path / sub / name / "part-0.parquet")
+    monkeypatch.setattr(cdm, "GOLD", tmp_path)
+    modell = {"facts": [{"domain": "fix", "name": "fact_sales", "refs": [("CustomerKey", "dim_customer")]}],
+              "dims": [{"domain": "fix", "name": "dim_customer", "key": "CustomerKey"}]}
+    orphan = cdm.check_referential_integrity(modell)
+    assert len(orphan) == 1 and orphan[0].startswith("ORPHAN-FK") and ": 2 value(s)" in orphan[0]
