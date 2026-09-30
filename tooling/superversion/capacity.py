@@ -29,19 +29,25 @@ and Fabric Planning figures on 2026-09-29. See
 from __future__ import annotations
 
 # --- SKU limit tables (learn.microsoft.com, verified 2026-08-05) ---------------------
+# F4096/F8192 added 2026-09-30 (Meridian D-604 creates capacities up to F8192), read the same
+# day in service-premium-what-is (CU, memory, refresh parallelism, Direct Lake rows/size),
+# spark-job-concurrency-and-queueing (Spark VCores) and capacity-overage-overview (CU h/day).
+# Same set of 13 F-SKUs as the vendored ``capacity_recommend.F_SKUS`` (peer test).
 # service-premium-what-is#semantic-model-sku-limitation
 SKU_ORDER = ("F2", "F4", "F8", "F16", "F32", "F64",
-             "F128", "F256", "F512", "F1024", "F2048")
+             "F128", "F256", "F512", "F1024", "F2048", "F4096", "F8192")
 
 CU: dict[str, int] = {
     "F2": 2, "F4": 4, "F8": 8, "F16": 16, "F32": 32, "F64": 64,
     "F128": 128, "F256": 256, "F512": 512, "F1024": 1024, "F2048": 2048,
+    "F4096": 4096, "F8192": 8192,
 }
 
 # Max memory per semantic model, GB.
 MAX_MODEL_MEMORY_GB: dict[str, int] = {
     "F2": 3, "F4": 3, "F8": 3, "F16": 5, "F32": 10, "F64": 25,
     "F128": 50, "F256": 100, "F512": 200, "F1024": 400, "F2048": 400,
+    "F4096": 400, "F8192": 400,
 }
 
 # direct-lake-overview#fabric-capacity-requirements
@@ -49,21 +55,25 @@ MAX_MODEL_MEMORY_GB: dict[str, int] = {
 DIRECT_LAKE_ROWS_M: dict[str, int] = {
     "F2": 300, "F4": 300, "F8": 300, "F16": 300, "F32": 300, "F64": 1500,
     "F128": 3000, "F256": 6000, "F512": 12000, "F1024": 24000, "F2048": 24000,
+    "F4096": 24000, "F8192": 24000,
 }
 DIRECT_LAKE_MODEL_GB: dict[str, int | None] = {
     "F2": 10, "F4": 10, "F8": 10, "F16": 20, "F32": 40, "F64": None,
     "F128": None, "F256": None, "F512": None, "F1024": None, "F2048": None,
+    "F4096": None, "F8192": None,
 }
 
 # spark-job-concurrency-and-queueing#spark-capacity-sku-limits (burst factor is 3x)
 SPARK_VCORES_BASELINE: dict[str, int] = {
     "F2": 4, "F4": 8, "F8": 16, "F16": 32, "F32": 64, "F64": 128,
     "F128": 256, "F256": 512, "F512": 1024, "F1024": 2048, "F2048": 4096,
+    "F4096": 8192, "F8192": 16384,
 }
 
 MODEL_REFRESH_PARALLELISM: dict[str, int] = {
     "F2": 1, "F4": 2, "F8": 5, "F16": 10, "F32": 20, "F64": 40,
     "F128": 80, "F256": 160, "F512": 320, "F1024": 640, "F2048": 1280,
+    "F4096": 1280, "F8192": 1280,
 }
 
 # licenses#workspace-types — below F64 every Power BI viewer needs a Pro licence.
@@ -77,6 +87,7 @@ FREE_VIEWER_MIN_SKU = "F64"
 CU_HOURS_PER_DAY: dict[str, int] = {
     "F2": 48, "F4": 96, "F8": 192, "F16": 384, "F32": 768, "F64": 1536,
     "F128": 3072, "F256": 6144, "F512": 12288, "F1024": 24576, "F2048": 49152,
+    "F4096": 98304, "F8192": 196608,
 }
 # Overage CU hours are billed on a separate meter at three times the pay-as-you-go rate.
 OVERAGE_PRICE_MULTIPLIER = 3

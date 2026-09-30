@@ -24,10 +24,12 @@ from tooling.superversion.capacity import (
     recommend,
 )
 
-# Learn capacity-overage-overview, "Capacity overage thresholds" table (F2..F2048).
+# Learn capacity-overage-overview, "Capacity overage thresholds" table (F2..F8192;
+# F4096/F8192 read 2026-09-30).
 _LEARN_CU_HOURS_PER_DAY = {
     "F2": 48, "F4": 96, "F8": 192, "F16": 384, "F32": 768, "F64": 1536,
     "F128": 3072, "F256": 6144, "F512": 12288, "F1024": 24576, "F2048": 49152,
+    "F4096": 98304, "F8192": 196608,
 }
 
 
@@ -35,6 +37,19 @@ def test_daily_cu_hours_match_learn_table_and_cu_times_24():
     assert CU_HOURS_PER_DAY == _LEARN_CU_HOURS_PER_DAY
     # Second, independent source inside the module: the CU table.
     assert all(CU_HOURS_PER_DAY[s] == CU[s] * 24 for s in SKU_ORDER)
+
+
+def test_sku_ladder_matches_mirrored_meridian_f_skus():
+    """Peer check (Meridian D-604): ALUCA's own SKU ladder and the vendored
+    ``capacity_recommend.F_SKUS`` (what ``provisioning: create`` may create) name the same
+    13 F-SKUs in the same order, so neither side can drift to a SKU the other lacks."""
+    from tooling.superversion._dataarch_vendor import available, load_module
+
+    if not available():
+        pytest.skip("Meridian mirror unavailable")
+    f_skus = load_module("capacity_recommend").F_SKUS
+    assert tuple(SKU_ORDER) == tuple(f_skus)
+    assert len(SKU_ORDER) == 13
 
 
 def test_overage_constants_match_learn():

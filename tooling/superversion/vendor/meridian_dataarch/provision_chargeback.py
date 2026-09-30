@@ -158,6 +158,35 @@ def assignment_calls(bp: dict[str, Any]) -> list[dict[str, Any]]:
     return calls
 
 
+#: Die belegte Quelle fuer Zuordnung **je Operation**, falls die taegliche App nicht reicht:
+#: Capacity Operation Events (Learn ``real-time-hub/explore-fabric-capacity-operation-events``,
+#: gelesen 30.09.2026). Feldnamen wie dort; nur die, die eine Kostenzuordnung braucht.
+OPERATION_EVENT_TYPE = "Microsoft.Fabric.CapacityOperationEvents.Operation"
+OPERATION_EVENT_FELDER: tuple[str, ...] = (
+    "capacityUnitMs", "utilizationType", "workspaceId", "workspaceName", "workspaceDomain",
+    "workspaceParentDomain", "itemId", "itemName", "itemKind", "operationName", "identityType",
+    "identityValue", "windowStartTime", "windowEndTime",
+)
+
+
+def _operation_events_lines() -> list[str]:
+    return [
+        "## Operation-level source (when daily app data is not enough)",
+        "",
+        f"**Capacity operation events** (`{OPERATION_EVENT_TYPE}`, Real-Time hub → Fabric events)",
+        "emit one event per operation that consumes CU — not aggregated by time window. The fields",
+        "a cost allocation needs: " + ", ".join(f"`{f}`" for f in OPERATION_EVENT_FELDER) + ".",
+        "`capacityUnitMs` is the CU consumption in the smoothing window (`windowStartTime` to",
+        "`windowEndTime`, 30 s up to 24 h), `workspaceDomain` carries the domain the app also uses,",
+        "and `identityType`/`identityValue` name who ran it. Streaming needs the **capacity admin**",
+        "role on that capacity; route the stream into an Eventhouse for history (Learn",
+        "`real-time-hub/create-streams-fabric-capacity-operation-events`, read 2026-09-30). The",
+        "volume is high on busy capacities — filter by `itemKind` or workspace before storing.",
+        "This is a source, not a second chargeback: the allocation method below still applies.",
+        "",
+    ]
+
+
 def _markdown(bp: dict[str, Any], sku: str, method: str,
               blocking: list[str], orphans: list[str],
               recommended: str | None = None) -> str:
@@ -178,6 +207,12 @@ def _markdown(bp: dict[str, Any], sku: str, method: str,
         "What this layer does instead: make that app able to attribute **at all**, and settle",
         "the decisions it leaves open.",
         "",
+        "The Chargeback app's own semantic model is no way around this either: Microsoft",
+        "supports it \"only for use by the reports provided in the app\" — consuming, using or",
+        "modifying it is unsupported (Learn `enterprise/chargeback-app`, read 2026-09-30). The app",
+        "refreshes daily, not in real time.",
+        "",
+        *_operation_events_lines(),
         "## Blockers",
         "",
     ]
