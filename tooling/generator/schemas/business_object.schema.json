@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fhc/meridian/business-object.schema.json",
+  "title": "BusinessObjectCatalog",
+  "description": "Business-object layer (D-608, I-21 W4.6): the business objects of one catalog (a Meridian organisation or the ALUCA library) with keys, attributes, relationships, the binding to one physical table and the catalog KPIs that read it (Golden Thread). Peer pair: byte-identical in Meridian (meridian/core/schemas/) and ALUCA (tooling/generator/schemas/), guarded by Meridian scripts/check_aluca_mirror.py PEER_PAIRS. Every entry is derived from the existing sources (ontology model, data contracts, star schemas, KPI lineage); what the sources do not carry stays null (a gap to fill, never a guess). null always means unknown, an empty array means none.",
+  "type": "object",
+  "required": [
+    "catalog",
+    "business_objects"
+  ],
+  "additionalProperties": false,
+  "patternProperties": {
+    "^_": {
+      "description": "Provenance fields (_schema, _description, _derived_from, _generated_by, _last_updated)."
+    }
+  },
+  "properties": {
+    "catalog": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Scope of the ids: `aluca-library` or the Meridian organisation id (e.g. `aurora`). A BO id is unique within its catalog."
+    },
+    "business_objects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/business_object"
+      }
+    }
+  },
+  "$defs": {
+    "bo_id": {
+      "type": "string",
+      "pattern": "^BO-\\d{3}$",
+      "description": "BO-<NNN>. Numbered like the KPI ids (D-594) but without a Kuerzel: a business object has no lever domain, and conformed objects belong to several domains. The owning domain is the field `domain`. An id never changes once assigned; new objects get the next free number."
+    },
+    "kpi_id": {
+      "type": "string",
+      "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$",
+      "description": "Catalog KPI id (D-594). Referenced, never defined here."
+    },
+    "text_or_gap": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "description": "Text from the source, or null when the source does not carry it."
+    },
+    "business_object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "description",
+        "kind",
+        "grain",
+        "domain",
+        "used_by_domains",
+        "keys",
+        "attributes",
+        "relationships",
+        "binding",
+        "kpi_ids"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/bo_id"
+        },
+        "name": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "de",
+            "en"
+          ],
+          "properties": {
+            "de": {
+              "$ref": "#/$defs/text_or_gap"
+            },
+            "en": {
+              "$ref": "#/$defs/text_or_gap"
+            }
+          }
+        },
+        "description": {
+          "$ref": "#/$defs/text_or_gap"
+        },
+        "kind": {
+          "enum": [
+            "master_data",
+            "transaction"
+          ],
+          "description": "master_data: bound to a dimension table; transaction: bound to a fact table."
+        },
+        "grain": {
+          "$ref": "#/$defs/text_or_gap",
+          "description": "One row of the bound table is one ... (transaction objects); null for master data or when the source does not declare it."
+        },
+        "domain": {
+          "$ref": "#/$defs/text_or_gap",
+          "description": "Owning data domain as the source names it (the one definition of the table); null for a conformed object the source assigns to no domain."
+        },
+        "used_by_domains": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Every domain that defines or uses the object (Bus-Matrix)."
+        },
+        "keys": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "technical",
+            "natural"
+          ],
+          "properties": {
+            "technical": {
+              "$ref": "#/$defs/key_columns",
+              "description": "Surrogate key (integer column named *Key)."
+            },
+            "natural": {
+              "$ref": "#/$defs/key_columns",
+              "description": "Business key (the identifier the business uses)."
+            }
+          }
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attribute"
+          }
+        },
+        "relationships": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relationship"
+          }
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "kpi_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/kpi_id"
+          },
+          "description": "Catalog KPIs that read the bound table (KPI lineage or data_source.domain_id)."
+        }
+      }
+    },
+    "key_columns": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "attribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type",
+        "description",
+        "column",
+        "target_state",
+        "personal_data",
+        "personal_data_category"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": [
+            "string",
+            "int64",
+            "double",
+            "decimal",
+            "boolean",
+            "dateTime"
+          ],
+          "description": "Fabric IQ ontology property types (ontology-definition, Learn)."
+        },
+        "description": {
+          "$ref": "#/$defs/text_or_gap"
+        },
+        "column": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Physical column in binding.table."
+        },
+        "target_state": {
+          "type": "boolean",
+          "description": "True when the column is target state (declared, not yet physical)."
+        },
+        "personal_data": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "DSGVO Art. 4(1): does the attribute identify a natural person directly or indirectly? null = not assessed."
+        },
+        "personal_data_category": {
+          "enum": [
+            "contact_data",
+            "identification_data",
+            "financial_data",
+            "behavioural_data",
+            "performance_data",
+            "health_data",
+            "special_category_art9",
+            null
+          ],
+          "description": "Vocabulary of usecase_bracket data_protection.personal_data_categories (ALUCA). Set exactly when personal_data is true."
+        }
+      },
+      "if": {
+        "required": [
+          "personal_data"
+        ],
+        "properties": {
+          "personal_data": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "personal_data_category": {
+            "type": "string"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "personal_data_category": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target",
+        "cardinality",
+        "role",
+        "from_column",
+        "to_column"
+      ],
+      "properties": {
+        "target": {
+          "$ref": "#/$defs/bo_id"
+        },
+        "cardinality": {
+          "enum": [
+            "many-to-one",
+            "one-to-one",
+            "one-to-many",
+            "many-to-many",
+            null
+          ],
+          "description": "Seen from this object to the target; null when the source does not declare it."
+        },
+        "role": {
+          "$ref": "#/$defs/text_or_gap",
+          "description": "Business role of the target in this relationship (e.g. ship-to customer)."
+        },
+        "from_column": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Join column in this object's table."
+        },
+        "to_column": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Join column in the target's table; null when the source names only the target table."
+        }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "table",
+        "schema",
+        "layer"
+      ],
+      "properties": {
+        "table": {
+          "type": "string",
+          "pattern": "^(dim|fact)_[a-z0-9_]+$"
+        },
+        "schema": {
+          "$ref": "#/$defs/text_or_gap",
+          "description": "Lakehouse schema of the table."
+        },
+        "layer": {
+          "enum": [
+            "bronze",
+            "silver",
+            "gold",
+            null
+          ]
+        }
+      }
+    }
+  }
+}

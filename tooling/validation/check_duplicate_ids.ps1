@@ -47,7 +47,7 @@ $inventoryPath = Join-Path $rootPath "core\usecases\UseCase_Inventory.md"
 if (Test-Path $inventoryPath) {
   $invCounts = @{}
   Get-Content -Path $inventoryPath | ForEach-Object {
-    foreach ($m in [regex]::Matches($_, '(?<!KPI-)\b[A-Z]{2,3}-\d{3}\b')) {
+    foreach ($m in [regex]::Matches($_, '(?<!KPI-)(?!BO-)\b[A-Z]{2,3}-\d{3}\b')) {
       $id = $m.Value
       if (-not $invCounts.ContainsKey($id)) { $invCounts[$id] = 0 }
       $invCounts[$id]++
