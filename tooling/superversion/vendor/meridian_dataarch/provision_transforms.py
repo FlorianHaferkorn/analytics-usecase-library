@@ -2373,6 +2373,24 @@ def _warehouse_kopf(schemas: bool) -> str:
     return "IF SCHEMA_ID('gold') IS NULL EXEC('CREATE SCHEMA gold');\n" if schemas else ""
 
 
+def _warehouse_platzhalter_spalten(name: str, kind: str, contract_ref: str) -> str:
+    """Kind-abhaengige Platzhalterspalten mit ``TODO(contract:…)``, wenn kein Katalog vorliegt."""
+    if kind == "dimension":
+        cols = (f"    {name}_sk    BIGINT       NOT NULL,   -- surrogate key\n"
+                "    -- TODO(contract:%s): conformed business key + attributes (SCD as required)\n"
+                "    business_key VARCHAR(200) NOT NULL,\n"
+                "    attribute_1  VARCHAR(4000) NULL" % contract_ref)
+    elif kind == "aggregate":
+        cols = (f"    -- TODO(contract:{contract_ref}): grouping grain + rolled-up measures\n"
+                "    group_key    VARCHAR(200) NOT NULL,\n"
+                "    measure_sum  DECIMAL(38,4) NULL")
+    else:  # fact
+        cols = (f"    -- TODO(contract:{contract_ref}): fact grain, dimension foreign keys, additive measures\n"
+                "    dim_fk_1     BIGINT       NULL,\n"
+                "    measure_1    DECIMAL(38,4) NULL")
+    return cols
+
+
 def _warehouse_ddl(name: str, kind: str, contract_ref: str, schemas: bool = False,
                    table: dict | None = None) -> str:
     """T-SQL CREATE TABLE for a gold product in a Fabric Warehouse (Warehouse-endpoint gold pattern).
@@ -2397,19 +2415,7 @@ def _warehouse_ddl(name: str, kind: str, contract_ref: str, schemas: bool = Fals
                 + kopf
                 + f"IF OBJECT_ID('{tbl}', 'U') IS NULL\n"
                   f"CREATE TABLE {tbl} (\n{aus_katalog}\n);\n")
-    if kind == "dimension":
-        cols = (f"    {name}_sk    BIGINT       NOT NULL,   -- surrogate key\n"
-                "    -- TODO(contract:%s): conformed business key + attributes (SCD as required)\n"
-                "    business_key VARCHAR(200) NOT NULL,\n"
-                "    attribute_1  VARCHAR(4000) NULL" % contract_ref)
-    elif kind == "aggregate":
-        cols = (f"    -- TODO(contract:{contract_ref}): grouping grain + rolled-up measures\n"
-                "    group_key    VARCHAR(200) NOT NULL,\n"
-                "    measure_sum  DECIMAL(38,4) NULL")
-    else:  # fact
-        cols = (f"    -- TODO(contract:{contract_ref}): fact grain, dimension foreign keys, additive measures\n"
-                "    dim_fk_1     BIGINT       NULL,\n"
-                "    measure_1    DECIMAL(38,4) NULL")
+    cols = _warehouse_platzhalter_spalten(name, kind, contract_ref)
     return (f"-- gold {kind} '{name}' as a Fabric Warehouse table (T-SQL / Warehouse endpoint).\n"
             f"-- Contract: {contract_ref}\n"
             + kopf
@@ -2417,8 +2423,82 @@ def _warehouse_ddl(name: str, kind: str, contract_ref: str, schemas: bool = Fals
               f"CREATE TABLE {tbl} (\n{cols}\n);\n")
 
 
+# --- D-605 Stufe 1: deklaratives SDK-Style-Projekt aus derselben Quelle -----------------------
+#
+# Die Skripte oben bleiben der Laufweg (``run_sql_ddl``). Das Projekt ist das Offline-Tor: ``dotnet
+# build`` gegen das offizielle Fabric-DW-Modell (``Microsoft.SqlServer.Dacpacs.FabricDw``) prueft
+# die Gold-DDL ohne Tenant (Learn ``fabric/data-warehouse/develop-warehouse-project``, gelesen
+# 30.09.2026: nur SDK-Style-Projekte, DSP ``SqlDwUnifiedDatabaseSchemaProvider``). Deklarativ heisst:
+# ``CREATE SCHEMA``/``CREATE TABLE`` ohne ``IF``-Waechter — DacFx vergleicht Modelle, nicht Stapel.
+# Die Versionen sind Pins in ``research/upstream_pins.yaml`` (``nuget``), gemessen per nuget.org-API
+# am 30.09.2026; der Drift-Sensor ``make check-upstream`` liest sie von dort.
+WAREHOUSE_PROJEKT_DIR = "warehouse/sqlproj"
+WAREHOUSE_PROJEKT_NAME = "GoldWarehouse"
+SQL_SDK_VERSION = "2.3.0"               # Microsoft.Build.Sql, stabil seit 17.09.2026
+FABRIC_DW_DACPAC_VERSION = "170.0.4"    # Microsoft.SqlServer.Dacpacs.FabricDw, seit 03.06.2026
+
+
+def _warehouse_objekt(name: str, schemas: bool) -> tuple[str, str]:
+    """``(schema, tabelle)`` — dieselbe Namensregel wie ``_warehouse_ddl``."""
+    ref = layer_ref("gold", _ident(name), schemas)
+    return tuple(ref.split(".", 1)) if schemas else ("dbo", ref)  # type: ignore[return-value]
+
+
+def _sqlproj_xml(name: str) -> str:
+    return (
+        '<?xml version="1.0" encoding="utf-8"?>\n'
+        '<!-- generated (D-605 Stufe 1) — Offline-Tor fuer die Gold-DDL; der Laufweg bleibt '
+        'warehouse/<domaene>/gold_*.sql. Nicht von Hand aendern. -->\n'
+        '<Project DefaultTargets="Build">\n'
+        f'  <Sdk Name="Microsoft.Build.Sql" Version="{SQL_SDK_VERSION}" />\n'
+        '  <PropertyGroup>\n'
+        f'    <Name>{name}</Name>\n'
+        '    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlDwUnifiedDatabaseSchemaProvider</DSP>\n'
+        '    <ModelCollation>1033, CI</ModelCollation>\n'
+        '  </PropertyGroup>\n'
+        '  <ItemGroup>\n'
+        '    <PackageReference Include="Microsoft.SqlServer.Dacpacs.FabricDw" '
+        f'Version="{FABRIC_DW_DACPAC_VERSION}" />\n'
+        '  </ItemGroup>\n'
+        '  <Target Name="BeforeBuild">\n'
+        '    <Delete Files="$(BaseIntermediateOutputPath)\\project.assets.json" />\n'
+        '  </Target>\n'
+        '</Project>\n')
+
+
+def emit_warehouse_project(blueprint: dict, schemas: bool = False,
+                           governed_catalog: dict | None = None,
+                           name: str = WAREHOUSE_PROJEKT_NAME) -> dict[str, str]:
+    """Gold als deklaratives SDK-Style-Projekt (``path → content``) unter ``warehouse/sqlproj/``.
+
+    Eine Datei je Objekt im Layout Schema/Objekttyp (``<schema>/Tables/<tabelle>.sql``), dazu
+    ``Security/<schema>.sql`` fuer ein echtes Gold-Schema. Spalten aus derselben Quelle wie die
+    Skripte (``_warehouse_columns`` bzw. ``_warehouse_platzhalter_spalten``) — ein Test stellt beide
+    Ausgaben gegeneinander (Tabellen, Spalten, Typen, NULL-barkeit).
+    """
+    med = blueprint.get("medallion", {})
+    contract_ref = med.get("silver", {}).get("data_contract_ref", "<silver-contract>")
+    kinds = _gold_kinds(blueprint)
+    out: dict[str, str] = {f"{WAREHOUSE_PROJEKT_DIR}/{name}.sqlproj": _sqlproj_xml(name)}
+    if schemas:
+        out[f"{WAREHOUSE_PROJEKT_DIR}/Security/gold.sql"] = "CREATE SCHEMA [gold];\n"
+    for d in sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", "")):
+        c_ref = _domain_contract(d, contract_ref)
+        for product in sorted(d.get("data_products", [])):
+            kind = kinds.get(product, "fact")
+            table = _catalog_table(governed_catalog, _ident(product))
+            cols = (_warehouse_columns(table or {}, c_ref)
+                    or _warehouse_platzhalter_spalten(product, kind, c_ref))
+            schema, tabelle = _warehouse_objekt(product, schemas)
+            out[f"{WAREHOUSE_PROJEKT_DIR}/{schema}/Tables/{tabelle}.sql"] = (
+                f"-- gold {kind} '{product}' (Domaene {d['name']}). Contract: {c_ref}\n"
+                f"CREATE TABLE [{schema}].[{tabelle}] (\n{cols}\n);\n")
+    return out
+
+
 def emit_warehouse_gold(blueprint: dict, schemas: bool = False,
-                        governed_catalog: dict | None = None) -> dict[str, str]:
+                        governed_catalog: dict | None = None,
+                        sqlproj: bool = False) -> dict[str, str]:
     """Return gold as **Fabric Warehouse** T-SQL DDL (``path → content``) — the Warehouse-endpoint pattern.
 
     The alternative to lakehouse-Delta gold (research §4 deployment-patterns: Bronze/Silver-Lakehouse +
@@ -2449,6 +2529,18 @@ def emit_warehouse_gold(blueprint: dict, schemas: bool = False,
             out[rel] = _warehouse_ddl(product, kind, c_ref, schemas=schemas,
                                       table=_catalog_table(governed_catalog, _ident(product)))
             doc.append(f"| {d['name']} | `{product}` | {kind} | `{rel}` |")
+    if sqlproj:
+        # D-605 Stufe 1: dieselbe Quelle, zweite Form. Nur unter Flag; Laufweg bleiben die Skripte.
+        out.update(emit_warehouse_project(blueprint, schemas=schemas,
+                                          governed_catalog=governed_catalog))
+        doc += ["", "## Declarative SDK-style project (D-605 stage 1)", "",
+                f"`{WAREHOUSE_PROJEKT_DIR}/{WAREHOUSE_PROJEKT_NAME}.sqlproj` — the same tables as "
+                "declarative `CREATE TABLE` (no `IF` guards), one file per object. It is an "
+                "**offline gate**, not a deploy path: `dotnet build` validates it against "
+                f"`Microsoft.SqlServer.Dacpacs.FabricDw` {FABRIC_DW_DACPAC_VERSION} "
+                f"(`Microsoft.Build.Sql` {SQL_SDK_VERSION}). Run "
+                "`bash scripts/check_warehouse_sqlproj.sh <dir>`: exit 0 built, 1 build failed, "
+                "2 not run (no .NET SDK) — 2 is not green."]
     out["warehouse/_WAREHOUSE_GOLD.md"] = "\n".join(doc) + "\n"
     return out
 

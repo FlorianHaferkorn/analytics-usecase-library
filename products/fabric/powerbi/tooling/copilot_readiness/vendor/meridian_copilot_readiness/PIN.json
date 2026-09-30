@@ -1,7 +1,7 @@
 {
   "source_repo": "Freelancing",
   "source_path": "products/meridian_copilot_readiness/generator",
-  "source_commit": "42ed6a04722ba68d6b5aad1c9d2f7c6bf669da8d",
+  "source_commit": "f0f00bd1dcb48da0d2faa532af39300ad665e129",
   "doctrine": "Meridian products/meridian_copilot_readiness ist die Heimat des Copilot-Readiness-Kerns; ALUCA spiegelt ihn byte-identisch (D-579 Paritaet, I-21 W3.2). Nie hier editieren — in Meridian aendern, committen, dann --write-copilot.",
   "files": [
     {
@@ -10,7 +10,7 @@
     },
     {
       "path": "instructions.py",
-      "sha256": "be1b4375d997db36acf73a9f6f743aea82d4fc2a59c8cbc4f69b21d2923d7592"
+      "sha256": "8d77723175f6fc9a037d5053645bdbb99c836d8ab2d9a1906087bc0f1f71300f"
     },
     {
       "path": "verified_answers.py",

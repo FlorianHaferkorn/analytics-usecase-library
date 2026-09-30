@@ -86,6 +86,26 @@ def kapazitaet_fuer(bp: dict, domain: str, stage: str | None) -> dict | None:
     return None
 
 
+def traegt_produktion(bp: dict, cap: dict) -> bool:
+    """Traegt diese Kapazitaet Produktions-Workspaces (D-607: dann ``prevent_destroy``)?
+
+    Dieselbe Regel wie ``kapazitaet_fuer`` und die Schema-Beschreibung von
+    ``platform.capacities[].stages``: mit ``stages`` entscheidet ``"prod" in stages``; ohne
+    ``stages`` traegt die Kapazitaet jede Stufe, die kein anderer Eintrag beansprucht — sie ist
+    Produktion, sobald ``kapazitaet_fuer`` fuer die Stufe ``prod`` in irgendeiner Domaene bei ihr
+    landet. Geprueft werden die Domaenen des Bauplans und eine unbekannte (leere) Domaene, damit
+    eine ungestufte Einzelkapazitaet auch ohne Mesh als Produktion gilt. Im Zweifel Produktion:
+    ein faelschlicher Schutz kostet eine Zeile im Diff, ein fehlender die Produktivkapazitaet.
+    """
+    stufen = cap.get("stages") or []
+    if stufen:
+        return "prod" in stufen
+    dom = str(cap.get("domain") or "").strip()
+    domaenen = {dom} if dom else (
+        {str(d.get("name") or "") for d in (bp.get("mesh") or {}).get("domains") or []} | {""})
+    return any(kapazitaet_fuer(bp, d, "prod") is cap for d in domaenen)
+
+
 def zuordnung(bp: dict) -> list[dict[str, Any]]:
     """Je Workspace: Domaene, Stufe, Stufengruppe, Kapazitaet (Name oder None), Tier-1-Flag.
 

@@ -80,10 +80,11 @@ DIRECTION_BY_GOOD_IS: dict[str, str] = {
 # KPI's good direction (the kernel words it as "Unterschreitung"/"Überschreitung").
 _COMPARATOR_FOR_DIRECTION = {"higher_is_better": {"lt", "lte"}, "lower_is_better": {"gt", "gte"}}
 
-# The kernel's provenance line names "Meridian Core". In ALUCA the sources are ALUCA files,
-# so exactly this prefix is replaced after rendering (tested: the kernel still emits it).
-KERNEL_PROVENANCE_PREFIX = "Quelle: Meridian Core — "
-ALUCA_PROVENANCE_PREFIX = "Quelle: ALUCA (Adapter über den Meridian-Kern) — "
+# The kernel's provenance line names its source; in ALUCA the sources are ALUCA files. Since
+# Meridian #525 the kernel takes the source as parameter ``herkunft`` (default "Meridian Core"),
+# so no rendered text is rewritten after the fact.
+ALUCA_HERKUNFT = "ALUCA (Adapter über den Meridian-Kern)"
+ALUCA_PROVENANCE_PREFIX = f"Quelle: {ALUCA_HERKUNFT} — "
 
 
 class GoldenThreadError(ValueError):
@@ -378,13 +379,8 @@ def render_all(usecase_id: str, src: AlucaSources | None = None) -> dict[str, st
     src = src or AlucaSources()
     kernel = load_kernel()
     core = build_core(usecase_id, src)
-    md = kernel["instructions"].render_markdown(core)
-    txt = kernel["instructions"].render_plaintext(core)
-    for text in (md, txt):
-        if KERNEL_PROVENANCE_PREFIX not in text:
-            raise RuntimeError("kernel provenance line changed — adapt ALUCA_PROVENANCE_PREFIX")
-    md = md.replace(KERNEL_PROVENANCE_PREFIX, ALUCA_PROVENANCE_PREFIX)
-    txt = txt.replace(KERNEL_PROVENANCE_PREFIX, ALUCA_PROVENANCE_PREFIX)
+    md = kernel["instructions"].render_markdown(core, herkunft=ALUCA_HERKUNFT)
+    txt = kernel["instructions"].render_plaintext(core, herkunft=ALUCA_HERKUNFT)
     candidates = _merge_catalog_synonyms(kernel["verified_answers"].build_verified_answer_candidates(core), src)
     schema = kernel["data_schema"].build_ai_data_schema(core)
     return {

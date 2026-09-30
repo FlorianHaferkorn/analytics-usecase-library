@@ -152,16 +152,22 @@ def build_sections(core: CopilotCore) -> list[Section]:
     return sections
 
 
-def _provenance_line(core: CopilotCore) -> str:
+#: Herkunft in der Quellenzeile. Ein Adapter (ALUCA) nennt seine eigene Quelle ueber den
+#: Parameter ``herkunft`` statt die gerenderte Zeile per String-Ersatz umzuschreiben.
+DEFAULT_HERKUNFT = "Meridian Core"
+
+
+def _provenance_line(core: CopilotCore, herkunft: str = DEFAULT_HERKUNFT) -> str:
     src = ", ".join(
         f"{s.name}" + (f" ({s.last_updated})" if s.last_updated else "")
         for s in core.sources
     )
-    return f"Quelle: Meridian Core — {src}. Deterministisch generiert (kein LLM)."
+    return f"Quelle: {herkunft} — {src}. Deterministisch generiert (kein LLM)."
 
 
-def render_markdown(core: CopilotCore) -> str:
-    lines = [f"# AI Instructions — {core.org_name()}", "", f"> {_provenance_line(core)}", ""]
+def render_markdown(core: CopilotCore, *, herkunft: str = DEFAULT_HERKUNFT) -> str:
+    lines = [f"# AI Instructions — {core.org_name()}", "",
+             f"> {_provenance_line(core, herkunft)}", ""]
     for title, body in build_sections(core):
         lines.append(f"## {title}")
         lines.append("")
@@ -170,9 +176,9 @@ def render_markdown(core: CopilotCore) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
-def render_plaintext(core: CopilotCore) -> str:
+def render_plaintext(core: CopilotCore, *, herkunft: str = DEFAULT_HERKUNFT) -> str:
     """Plaintext-Variante für das AI-instructions-Eingabefeld im Service."""
-    lines = [f"AI INSTRUCTIONS — {core.org_name()}", _provenance_line(core), ""]
+    lines = [f"AI INSTRUCTIONS — {core.org_name()}", _provenance_line(core, herkunft), ""]
     for title, body in build_sections(core):
         lines.append(title.upper())
         for raw in body:

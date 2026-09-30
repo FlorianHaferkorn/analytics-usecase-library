@@ -1,6 +1,6 @@
 {
   "_source": "Meridian products.meridian_copilot_readiness, Aurora core, fresh CLI run",
-  "source_commit": "42ed6a04722ba68d6b5aad1c9d2f7c6bf669da8d",
+  "source_commit": "f0f00bd1dcb48da0d2faa532af39300ad665e129",
   "json_key_paths": {
     "verified_answer_candidates.json": [
       "_artifact",

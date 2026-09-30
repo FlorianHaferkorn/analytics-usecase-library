@@ -151,6 +151,9 @@ MIRRORED_FILES = (
     # Workspace-→-Kapazitaet-Zuordnung darueber auf. Ohne diesen Eintrag braeche der
     # gespiegelte Import beim ersten Aufruf.
     "kapazitaet_stufen.py",
+    # KI-Zugang (Meridian D-606, 30.09.2026): `provision_apply` und `admin_settings` importieren
+    # das Modul; ohne diesen Eintrag braeche der gespiegelte Import.
+    "ki_zugang.py",
     "provision_transforms.py",
     "provision_translations.py",
     "provision_varlib.py",

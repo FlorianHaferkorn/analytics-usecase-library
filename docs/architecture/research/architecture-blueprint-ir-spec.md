@@ -878,6 +878,43 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
               }
             }
           }
+        },
+        "ai_zugang": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "fabric_copilot",
+              "m365_copilot",
+              "byo_agent_mcp",
+              "keiner",
+              "unbekannt"
+            ]
+          },
+          "allOf": [
+            {
+              "if": {
+                "contains": {
+                  "const": "keiner"
+                }
+              },
+              "then": {
+                "maxItems": 1
+              }
+            },
+            {
+              "if": {
+                "contains": {
+                  "const": "unbekannt"
+                }
+              },
+              "then": {
+                "maxItems": 1
+              }
+            }
+          ],
+          "description": "D-606 (30.09.2026): Auf welchen Wegen der Kunde KI auf seine Fabric-Daten laesst; mehrere Wege gleichzeitig moeglich, `keiner` und `unbekannt` stehen allein. Fehlt das Feld, gilt es als `unbekannt`. `fabric_copilot` = Copilot in Fabric und Power BI (Tenant-Schalter der Copilot-Sektion, bezahlte Kapazitaet). `m365_copilot` = Fabric IQ in Microsoft 365 Copilot Chat: GA, Microsoft 365 Copilot Premium fuer jeden Nutzer, die M365-Einstellung Fabric data in Microsoft Copilot steht ab Werk an (Learn `fabric/iq/connectors/microsoft-365-copilot-overview`, gelesen 30.09.2026). `byo_agent_mcp` = eigener Agent ueber Fabric IQ MCP: GA, nur lesend mit DAX, nur delegierte Anmeldung (kein Service Principal, keine App-only-Anmeldung), keine Fabric- oder Premium-Kapazitaet noetig, nur wenn die Heimatregion des Mandanten alle Fabric-Workloads hat (nicht in Power-BI-only-Regionen oder Sovereign Clouds), `ExecuteQuery` liefert ohne `maxRows` 250 Zeilen (Learn `fabric/iq/connectors/fabric-iq-mcp`, gelesen 30.09.2026). `keiner` = bewusst kein KI-Zugang. `unbekannt` = noch nicht gefragt; der Generator stellt dann die Kundenfrage."
         }
       }
     },
