@@ -369,6 +369,79 @@ def _drop_missing_values(spec: dict, idiom: str, missing: "list[str]") -> dict:
     return spec
 
 
+#: Tooltip formats per data role, the same as the data labels (A-31 R6). Time as month/year.
+_TOOLTIP_ROLE = {
+    "time": ("temporal", "%m/%Y"), "period": ("nominal", None), "category": ("nominal", None),
+    "series": ("nominal", None), "step": ("nominal", None),
+    "value": ("quantitative", ",.1~f"), "plan": ("quantitative", ",.1~f"), "prior": ("quantitative", ",.1~f"),
+    "start": ("quantitative", ",.1~f"), "end": ("quantitative", ",.1~f"),
+    "x": ("quantitative", ",.1~f"), "y": ("quantitative", ",.1~f"), "variance": ("quantitative", "+,.1~f"),
+}
+_ORDER = ("category", "step", "series", "period", "time",
+          "value", "plan", "prior", "variance", "start", "end", "x", "y")
+#: Marks that carry data a reader can point at; text labels and reference rules do not.
+_TOOLTIP_MARKS = {"bar", "line", "point", "area", "rect", "circle", "square", "tick", "arc"}
+
+
+def tooltip_fields(idiom: str, eff: dict, spec: dict) -> "list[dict]":
+    """One tooltip entry per bound data column the spec draws, in reading order (dimensions,
+    then measures), formatted like the data labels. A variance shown in percent (`fmt` with %)
+    keeps that format. Only columns the spec actually references are listed."""
+    text = json.dumps(spec)
+    rows = []
+    for param, slot in data_slots(idiom).items():
+        col = eff.get(param)
+        if not col or col == _NO_VALUE or f'"{col}"' not in text:
+            continue
+        typ, fmt = _TOOLTIP_ROLE[slot["role"]]
+        if slot["role"] == "variance" and "%" in str(eff.get("fmt", "")):
+            fmt = str(eff["fmt"])
+        entry = {"field": col, "type": typ, "title": col}
+        if fmt:
+            entry["format"] = fmt
+        rows.append((_ORDER.index(slot["role"]), entry))
+    return [e for _, e in sorted(rows, key=lambda r: r[0])]
+
+
+def with_tooltips(spec: dict, idiom: str, eff: dict) -> dict:
+    """Details on demand for every data mark (A-31 R6): the library states what a hover shows
+    instead of leaving it to the host — measured 30.09.2026, Fabric's VegaVisual filled the gap
+    with raw field names, an English date ("Dec 30, 2024") and unformatted numbers ("27.95").
+    Layers that aggregate or bin (histogram, boxplot) show what they encode instead: their rows are
+    summaries, not the bound columns."""
+    fields = tooltip_fields(idiom, eff, spec)
+
+    def mark_type(node: dict) -> "str | None":
+        m = node.get("mark")
+        return m if isinstance(m, str) else (m or {}).get("type")
+
+    def walk(node: dict) -> dict:
+        node = dict(node)
+        if "layer" in node:
+            node["layer"] = [walk(lay) for lay in node["layer"]]
+        if isinstance(node.get("spec"), dict):          # facet / repeat: the inner unit spec
+            node["spec"] = walk(node["spec"])
+        for key in ("vconcat", "hconcat", "concat"):   # stacked tiers (multi_tier_column)
+            if key in node:
+                node[key] = [walk(part) for part in node[key]]
+        dump = json.dumps({k: node.get(k) for k in ("transform", "encoding")})
+        kind = mark_type(node)
+        if kind in _TOOLTIP_MARKS or kind == "boxplot":
+            if aggregated or '"aggregate"' in dump or '"bin"' in dump or kind == "boxplot":
+                # rows are summaries, not the bound columns: show what the marks encode
+                mark = node["mark"] if isinstance(node["mark"], dict) else {"type": node["mark"]}
+                node["mark"] = {**mark, "tooltip": mark.get("tooltip", {"content": "encoding"})}
+            else:
+                enc = dict(node.get("encoding") or {})
+                enc.setdefault("tooltip", fields)
+                node["encoding"] = enc
+        return node
+
+    top = json.dumps(spec.get("transform", []))
+    aggregated = '"aggregate"' in top or '"bin"' in top
+    return walk(spec)
+
+
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
                   background: "str | None" = None) -> "tuple[str, str]":
@@ -406,6 +479,8 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
             spec = _drop_missing_values(spec, idiom, missing)
     else:
         spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
+        eff = dict(_effective_params(load_entry(idiom), notation))
+    spec = with_tooltips(spec, idiom, eff)
     config = vegalite_config(profile)
     if background:
         spec, config = on_background(spec, background), on_background(config, background)

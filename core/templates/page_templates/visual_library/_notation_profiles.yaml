@@ -50,6 +50,19 @@ profiles:
       scale: {bandPaddingInner: 0.3333}
       # Data labels 11 px, axis labels 11 px: never smaller than the numbers they sit next to (Urban 11/12).
       text: {fontSize: 11}
+      # German number and date formats for labels, axes and tooltips (d3 locale de-DE). Without it
+      # a host renders "1,240.5" and "Dec 30, 2024" (measured in Fabric's VegaVisual 30.09.2026).
+      locale:
+        number: {decimal: ",", thousands: ".", grouping: [3], currency: ["", "\u00a0€"]}
+        time:
+          dateTime: "%A, der %e. %B %Y, %X"
+          date: "%d.%m.%Y"
+          time: "%H:%M:%S"
+          periods: ["AM", "PM"]
+          days: [Sonntag, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag]
+          shortDays: [So, Mo, Di, Mi, Do, Fr, Sa]
+          months: [Januar, Februar, März, April, Mai, Juni, Juli, August, September, Oktober, November, Dezember]
+          shortMonths: [Jan, Feb, Mär, Apr, Mai, Jun, Jul, Aug, Sep, Okt, Nov, Dez]
 
   ibcs:
     name: "IBCS — International Business Communication Standards 2.0"

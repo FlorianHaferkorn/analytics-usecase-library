@@ -59,12 +59,20 @@ def _is_pin(mark: dict) -> bool:
     return mark.get("type") == "bar" and isinstance(mark.get("width"), dict) and "band" in mark["width"]
 
 
+def _without_tooltips(node):
+    if isinstance(node, dict):
+        return {k: _without_tooltips(v) for k, v in node.items() if k != "tooltip"}
+    if isinstance(node, list):
+        return [_without_tooltips(v) for v in node]
+    return node
+
+
 def _svg_bars(idiom: str, rows: list[dict]) -> list[dict]:
     """Render the ibcs fabric_app spec with its own config and return every drawn bar as
     {fields from aria-label, w, h} — the MEASURED geometry, not the spec's intent."""
     vlc = pytest.importorskip("vl_convert")
     app = _app(idiom)
-    spec = dict(app["spec"])
+    spec = _without_tooltips(app["spec"])   # aria-labels name the ENCODED fields; tooltips add all columns
     spec["config"] = app["configVegaLite"]
     spec["data"] = {"values": rows}
     if "vconcat" not in spec:
