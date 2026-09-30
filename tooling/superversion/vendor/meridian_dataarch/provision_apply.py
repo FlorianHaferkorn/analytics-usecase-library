@@ -327,6 +327,14 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
         art = (present("orchestration/pipeline-content.json") if mode == "copy"
                else present("provision.sh")) or present("ingestion_plan.json")
         add("ingest_source", f"{e['source']} ({mode})", tool, "human", rationale, art)
+        if mode == "mirror" and art:
+            # Gespiegelte Datenbanken haben einen eigenen DefaultReader (alle mit ReadAll lesen die
+            # Rohdaten), Learn onelake/security/data-access-control-model, gelesen 30.09.2026.
+            add("restrict_mirror_default_reader", f"{e['source']}.MirroredDatabase — DefaultReader",
+                "portal: Manage OneLake security | rest:/dataAccessRoles", "human-approved",
+                "Vorgabe-Rolle `DefaultReader` der gespiegelten Datenbank einschraenken oder "
+                "entfernen. Sie gibt jedem Nutzer mit ReadAll die gespiegelten Rohdaten frei. "
+                "Berechtigungsaenderung, deshalb freigabepflichtig.", art)
     for gp in gold_products:
         ws = ws_of.get(gp, target_ws)
         add("import_item", f"{ws}.Workspace/{gp}", "core-mcp:create-item | fab import", "human",
