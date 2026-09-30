@@ -1,6 +1,6 @@
 id: F-C1.1
 action_code_id: F-C1.1
-kpi_id: wc.ccc.days
+kpi_id: KPI-FIN-006
 impact_range_eur_min: 500000
 impact_range_eur_likely: 2000000
 impact_range_eur_max: 5000000

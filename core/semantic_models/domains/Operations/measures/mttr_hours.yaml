@@ -1,6 +1,6 @@
 measure_name: MTTR (hours)
 is_kpi_measure: true
-kpi_id_ref: ops.mttr.hours
+kpi_id_ref: KPI-OPS-006
 semantic_model: Operations_SemanticModel
 display_folder: 04_Reliability
 category: KPI

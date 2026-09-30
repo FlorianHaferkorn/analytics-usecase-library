@@ -14,13 +14,13 @@ use_case_links:
   - COM-004
 kpis:
   trigger_kpis:
-  - sales.price.realization_pct
+  - KPI-COM-003
   guardrail_kpis:
-  - margin.gm.pct
-  - sales.promo.cannibalization.pct
+  - KPI-COM-013
+  - KPI-COM-018
   outcome_kpis:
-  - sales.price.realization_pct
-  - margin.gm.pct
+  - KPI-COM-003
+  - KPI-COM-013
 scope:
   default_grain: month
   default_perspective:
@@ -48,7 +48,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: margin.gm.amount
+        metric_kpi_id: KPI-COM-019
         comparator: gte
         value: 50000
         unit: amount
@@ -56,7 +56,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: sales.price.realization_pct
+        metric_kpi_id: KPI-COM-003
         comparator: lt
         threshold:
           basis: absolute
@@ -66,7 +66,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: sales.price.realization_pct
+        metric_kpi_id: KPI-COM-003
         comparator: lt
         threshold:
           basis: absolute
@@ -76,7 +76,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: sales.price.realization_pct
+        metric_kpi_id: KPI-COM-003
         comparator: lt
         threshold:
           basis: absolute
@@ -92,12 +92,12 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P14D
-    metric_kpi_id: margin.gm.amount
+    metric_kpi_id: KPI-COM-019
     success_criteria:
       kind: return_to_baseline
       baseline_window: P28D
   calculation_logic:
-    standardized: RealizedEUR = (Post_margin.gm.amount - Pre_margin.gm.amount)
+    standardized: RealizedEUR = (Post_KPI-COM-019 - Pre_KPI-COM-019)
     latex: EUR = GM_{post} - GM_{pre}
   required_measures:
   - Gross Margin Amount
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: sales.price.realization_pct
+    metric_kpi_id: KPI-COM-003
     value_low: 1.0
     value_high: 3.0
     unit: pp

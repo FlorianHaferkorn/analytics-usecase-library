@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import subprocess
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -13,6 +16,14 @@ def _load():
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+@pytest.fixture(autouse=True)
+def _ohne_git_umgebung(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Im pre-commit-Hook zeigen `GIT_INDEX_FILE`/`GIT_DIR` auf das echte Repository; ohne diese
+    Fixture schriebe `git update-index` unten dorthin (s. test_check_index_gitignore.py)."""
+    for name in [n for n in os.environ if n.startswith("GIT_")]:
+        monkeypatch.delenv(name)
 
 
 def _git(repo: Path, *args: str) -> None:

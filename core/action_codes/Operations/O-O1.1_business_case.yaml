@@ -1,6 +1,6 @@
 id: O-O1.1
 action_code_id: O-O1.1
-kpi_id: ops.availability.pct
+kpi_id: KPI-OPS-016
 impact_range_eur_min: 400000
 impact_range_eur_likely: 1500000
 impact_range_eur_max: 4000000

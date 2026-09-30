@@ -27,7 +27,7 @@ def _kpi(calculation: dict, lineage: list[str]) -> dict:
 
 def test_mul_resolves_two_terms():
     kpi = _kpi(
-        {"op": "mul", "terms": [{"kpi": "sales.net_sales.amount"}, {"column": "Discount Rate"}]},
+        {"op": "mul", "terms": [{"kpi": "KPI-COM-005"}, {"column": "Discount Rate"}]},
         ["fact_sales.Discount Rate"],
     )
     resolved, hitl = _resolve_calculation(kpi, CATALOG)
@@ -39,7 +39,7 @@ def test_mul_resolves_two_terms():
 
 
 def test_mul_unresolvable_term_becomes_hitl():
-    kpi = _kpi({"op": "mul", "terms": [{"kpi": "sales.net_sales.amount"}, {"kpi": "no.such.kpi"}]}, [])
+    kpi = _kpi({"op": "mul", "terms": [{"kpi": "KPI-COM-005"}, {"kpi": "no.such.kpi"}]}, [])
     resolved, hitl = _resolve_calculation(kpi, CATALOG)
     assert resolved is None
     assert "HITL:" in hitl and "terms" in hitl
@@ -49,8 +49,8 @@ def test_delta_chain_resolves_minuend_and_subtrahends():
     kpi = _kpi(
         {
             "op": "delta_chain",
-            "minuend": {"kpi": "sales.net_sales.amount"},
-            "subtrahends": [{"column": "Plan Sales Amount"}, {"kpi": "sales.pvm.price_effect.amount"}],
+            "minuend": {"kpi": "KPI-COM-005"},
+            "subtrahends": [{"column": "Plan Sales Amount"}, {"kpi": "KPI-COM-010"}],
         },
         ["fact_sales.Plan Sales Amount"],
     )
@@ -103,7 +103,7 @@ def test_round_resolves_nested_calc_as_expr_kind():
 
 
 def test_sumx_over_key_resolves():
-    kpi = _kpi({"op": "sumx_over_key", "key_column": "CustomerKey", "value": {"kpi": "sales.net_sales.amount"}}, ["fact_sales.CustomerKey"])
+    kpi = _kpi({"op": "sumx_over_key", "key_column": "CustomerKey", "value": {"kpi": "KPI-COM-005"}}, ["fact_sales.CustomerKey"])
     resolved, hitl = _resolve_calculation(kpi, CATALOG)
     assert hitl is None
     assert resolved == {
@@ -160,7 +160,7 @@ def test_recursive_calc_ref_two_levels_deep():
     kpi = _kpi(
         {
             "op": "delta",
-            "minuend": {"kpi": "sales.net_sales.amount"},
+            "minuend": {"kpi": "KPI-COM-005"},
             "subtrahend": {
                 "calc": {
                     "op": "ratio",
@@ -188,7 +188,7 @@ def test_literal_calc_ref_resolves_to_bare_value():
     """`{"literal": n}` — a bare numeric constant term (e.g. the legacy
     `[Baseline Sales Amount] * 0.15` proxy factor for Cannibalized Sales
     Amount) — resolves without needing any lineage/catalog lookup."""
-    kpi = _kpi({"op": "mul", "terms": [{"kpi": "sales.net_sales.amount"}, {"literal": 0.15}]}, [])
+    kpi = _kpi({"op": "mul", "terms": [{"kpi": "KPI-COM-005"}, {"literal": 0.15}]}, [])
     resolved, hitl = _resolve_calculation(kpi, CATALOG)
     assert hitl is None
     assert resolved == {
@@ -301,7 +301,7 @@ def test_avg_filtered_unresolvable_column_becomes_hitl():
 
 
 def test_add_resolves_kpi_and_column_terms():
-    kpi = _kpi({"op": "add", "terms": [{"kpi": "wc.dso.days"}, {"kpi": "wc.dio.days"}]}, [])
+    kpi = _kpi({"op": "add", "terms": [{"kpi": "KPI-FIN-001"}, {"kpi": "KPI-FIN-004"}]}, [])
     resolved, hitl = _resolve_calculation(kpi, CATALOG)
     assert hitl is None
     assert resolved == {

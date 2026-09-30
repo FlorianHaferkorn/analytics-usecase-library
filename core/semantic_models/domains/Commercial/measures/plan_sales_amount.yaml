@@ -1,6 +1,6 @@
 measure_name: Plan Sales Amount
 is_kpi_measure: true
-kpi_id_ref: sales.net_sales.plan.amount
+kpi_id_ref: KPI-COM-006
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 01_Revenue
 category: Base

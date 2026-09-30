@@ -59,7 +59,7 @@ process_scope:
 # ──────────────────────────────────────────
 canonical_domain_model:
   outcome_kpis:
-    - id: svc.sla.attainment.pct
+    - id: KPI-SVC-004
       name: SLA Attainment %
       definition: >
         Share of cases resolved within the agreed service-level target time, expressed as
@@ -72,7 +72,7 @@ canonical_domain_model:
       benchmark_target: "90–95% of cases within SLA target; <80% triggers SLA-breach risk and penalties (ITIL 4 / ISO/IEC 20000-1 practice)"
       benchmark_source_id: SRC-001
 
-    - id: crm.nps.index
+    - id: KPI-CUS-003
       name: Net Promoter Score (NPS)
       role: experience_outcome
       definition: >
@@ -89,7 +89,7 @@ canonical_domain_model:
       benchmark_source_id: SRC-009
 
   driver_kpis:
-    - id: svc.backlog.count
+    - id: KPI-SVC-007
       name: Case Backlog (Open WIP)
       definition: >
         Count of open/unresolved cases at period end (queue work-in-progress). The primary
@@ -97,7 +97,7 @@ canonical_domain_model:
         because aging cases breach their target time.
       unit: count
       direction: minimize
-      drives: svc.sla.attainment.pct
+      drives: KPI-SVC-004
       causal_mechanism: >
         Backlog is the integral of (tickets_created − tickets_closed). When inflow exceeds
         closure, queue depth and case age rise; older cases breach SLA, pulling attainment down.
@@ -105,7 +105,7 @@ canonical_domain_model:
       benchmark_target: "Stable or declining backlog; created ≈ closed (closure ratio ≈ 100%)"
       benchmark_source_id: SRC-001
 
-    - id: svc.fcr.pct
+    - id: KPI-SVC-005
       name: First Contact Resolution %
       definition: >
         Cases resolved at first contact divided by total contacts. Primary quality-of-resolution
@@ -113,7 +113,7 @@ canonical_domain_model:
         protecting SLA and NPS simultaneously.
       unit: "%"
       direction: maximize
-      drives: svc.sla.attainment.pct
+      drives: KPI-SVC-004
       causal_mechanism: >
         Each repeat/reopened contact is additional inflow competing for SLA-bound capacity.
         Raising FCR removes that downstream volume, improving both SLA and customer effort/NPS.
@@ -121,14 +121,14 @@ canonical_domain_model:
       benchmark_target: "Industry good range 70–79%; world-class service desks ~74%+ (SQM / MetricNet / HDI)"
       benchmark_source_id: SRC-007
 
-    - id: svc.aht.minutes
+    - id: KPI-SVC-006
       name: Average Handle Time (AHT)
       definition: >
         Average minutes to handle a case (talk + wrap, or case work time). Efficiency lever.
         Must be balanced — minimizing AHT in isolation harms FCR and NPS by truncating resolution.
       unit: minutes
       direction: minimize
-      drives: svc.sla.attainment.pct
+      drives: KPI-SVC-004
       causal_mechanism: >
         Lower AHT increases throughput per agent and helps clear backlog, improving SLA. But AHT
         below the quality floor reduces FCR (rushed cases reopen) — a guardrailed, non-monotonic
@@ -136,7 +136,7 @@ canonical_domain_model:
       benchmark_target: "Channel-dependent; optimize to the FCR-preserving level, not absolute minimum"
       benchmark_source_id: SRC-004
 
-    - id: svc.escalation.pct
+    - id: KPI-SVC-008
       name: Escalation Rate %
       definition: >
         Cases escalated to a higher tier divided by total cases. Signals first-line capability
@@ -144,7 +144,7 @@ canonical_domain_model:
         and lengthens resolution, pressuring SLA.
       unit: "%"
       direction: minimize
-      drives: svc.sla.attainment.pct
+      drives: KPI-SVC-004
       causal_mechanism: >
         Escalations add hand-offs and queue time, extending resolution beyond SLA targets and
         signalling capability or knowledge gaps. Rising escalation with stable volume indicates a
@@ -152,14 +152,14 @@ canonical_domain_model:
       benchmark_target: "Low single digits to ~10% depending on tiering model; investigate upward trend"
       benchmark_source_id: SRC-002
 
-    - id: svc.tickets.created.count
+    - id: KPI-SVC-013
       name: Tickets Created
       definition: >
         Count of new cases created in the period (inflow / demand). Demand-side input to the
         backlog balance; spikes (campaigns, incidents, seasonality) drive backlog and SLA risk.
       unit: count
       direction: minimize
-      drives: svc.backlog.count
+      drives: KPI-SVC-007
       causal_mechanism: >
         Inflow is the demand term in the backlog equation. A step-change in created tickets without
         matching closure capacity grows backlog and breaches SLA. Distinguish genuine demand from
@@ -167,14 +167,14 @@ canonical_domain_model:
       benchmark_target: "Monitor vs baseline/forecast; flag >X% deviation from seasonal norm"
       benchmark_source_id: SRC-002
 
-    - id: svc.tickets.closed.count
+    - id: KPI-SVC-014
       name: Tickets Closed
       definition: >
         Count of cases resolved/closed in the period (closure / supply). Supply-side term in the
         backlog balance; closure must keep pace with creation to hold SLA.
       unit: count
       direction: maximize
-      drives: svc.backlog.count
+      drives: KPI-SVC-007
       causal_mechanism: >
         Closure is the supply term in the backlog equation. Closure < creation grows backlog;
         closure ≥ creation drains it. The created-to-closed ratio is the core flow control for SLA.
@@ -189,7 +189,7 @@ canonical_domain_model:
         Isolates which backlog is at or past SLA-breach risk versus newly created in-window cases.
       unit: days
       direction: minimize
-      diagnoses: svc.backlog.count
+      diagnoses: KPI-SVC-007
       causal_mechanism: >
         Not all backlog is equal: cases already past target are breached SLA; near-target cases
         are recoverable. Aging buckets target SLA-recovery action (X-S1.1) to recoverable cases.
@@ -201,7 +201,7 @@ canonical_domain_model:
         true FCR; high reopen indicates "paper-closed" cases inflating closure and harming NPS.
       unit: "%"
       direction: minimize
-      diagnoses: svc.fcr.pct
+      diagnoses: KPI-SVC-005
       causal_mechanism: >
         Reopens are hidden inflow: a closed-then-reopened case was not truly resolved. Reopen rate
         distinguishes genuine FCR from premature closure used to hit SLA (links to the guardrail).
@@ -213,7 +213,7 @@ canonical_domain_model:
         access signal hidden behind SLA measured on answered/handled cases only.
       unit: "%"
       direction: minimize
-      diagnoses: svc.sla.attainment.pct
+      diagnoses: KPI-SVC-004
       causal_mechanism: >
         SLA measured on handled cases ignores customers who gave up. Rising abandonment with stable
         handled-SLA reveals a capacity gap masked by survivorship (ISO 18295-1 access requirements).
@@ -225,7 +225,7 @@ canonical_domain_model:
         precedes handle time; rising ASA precedes abandonment and SLA breach on time-to-respond.
       unit: seconds
       direction: minimize
-      diagnoses: svc.sla.attainment.pct
+      diagnoses: KPI-SVC-004
       causal_mechanism: >
         ASA is the queue-wait component of total resolution time. Rising ASA consumes the SLA budget
         before handling even starts; benchmark service desks report ASA ~38–45s (MetricNet).
@@ -237,25 +237,25 @@ canonical_domain_model:
         or escalation is rising while SLA improves, the SLA gain is artificial — closing tickets to
         beat the clock breaches ISO 10002 complaints-handling intent and destroys NPS.
       affected_kpis:
-        - svc.sla.attainment.pct
+        - KPI-SVC-004
         - svc.reopen.pct
-        - crm.nps.index
+        - KPI-CUS-003
     - description: Do not minimize AHT at the expense of FCR and CSAT/NPS
       condition: >
         Do not trigger AHT-reduction actions when FCR is at/below target or reopen/NPS is degrading.
         Pushing AHT below the quality floor causes reopens and customer-effort damage that outweigh
         the efficiency gain (COPC CX Standard — balance efficiency with effectiveness).
       affected_kpis:
-        - svc.aht.minutes
-        - svc.fcr.pct
-        - crm.nps.index
+        - KPI-SVC-006
+        - KPI-SVC-005
+        - KPI-CUS-003
     - description: Exclude force-majeure and out-of-control SLA breaches
       condition: >
         Breaches caused by factors outside the service org's control (major external outage, supplier
         failure, force majeure) must be excluded from controllable SLA attainment before triggering
         recovery actions, per ITIL 4 SLM (exclusions in the SLA) and ISO/IEC 20000-1.
       affected_kpis:
-        - svc.sla.attainment.pct
+        - KPI-SVC-004
 
   wrong_interpretations:
     - description: "SLA % on answered/handled cases hides abandoned contacts"
@@ -365,44 +365,44 @@ required_data_model:
 # 4. ACTION LOGIC SEEDS
 # ──────────────────────────────────────────
 action_logic_seeds:
-  - trigger_driver: svc.backlog.count
+  - trigger_driver: KPI-SVC-007
     trigger_diagnostic: svc.backlog.aging.days
     trigger_condition: "SLA attainment < 80% for 2 consecutive weeks AND backlog rising > 20% AND share of cases past SLA target increasing"
     guardrail: "Exclude force-majeure breaches; do not resolve by premature closure (watch reopen rate)"
     action_description: >
       SLA recovery: decompose backlog by queue, issue type, and aging bucket; prioritise
       recoverable near-target cases; add temporary closure capacity / re-route to clear queue.
-    expected_outcome_kpi: svc.sla.attainment.pct
+    expected_outcome_kpi: KPI-SVC-004
     action_code_candidate: X-S1.1
 
-  - trigger_driver: svc.tickets.created.count
-    trigger_diagnostic: svc.tickets.closed.count
+  - trigger_driver: KPI-SVC-013
+    trigger_diagnostic: KPI-SVC-014
     trigger_condition: "Closure ratio (closed/created) < 90% for 3 consecutive weeks with rising created volume"
     guardrail: "Distinguish genuine demand from repeat contacts; exclude planned campaign spikes already staffed"
     action_description: >
       Flow rebalancing: align closure capacity to inflow (schedule, routing, surge support);
       escalate to WFM (XD-002) if the imbalance is a structural capacity gap, not a transient spike.
-    expected_outcome_kpi: svc.backlog.count
+    expected_outcome_kpi: KPI-SVC-007
     action_code_candidate: X-S1.2
 
-  - trigger_driver: svc.escalation.pct
+  - trigger_driver: KPI-SVC-008
     trigger_diagnostic: svc.reopen.pct
     trigger_condition: "Escalation rate rising AND reopen rate rising while SLA appears stable/up"
     guardrail: "Confirm the SLA gain is genuine, not produced by premature closure"
     action_description: >
       Service quality review: analyse resolution satisfaction and escalation root cause by issue
       type; address first-line capability/knowledge gaps and routing defects that depress true FCR.
-    expected_outcome_kpi: crm.nps.index
+    expected_outcome_kpi: KPI-CUS-003
     action_code_candidate: X-S1.3
 
-  - trigger_driver: svc.aht.minutes
-    trigger_diagnostic: svc.fcr.pct
+  - trigger_driver: KPI-SVC-006
+    trigger_diagnostic: KPI-SVC-005
     trigger_condition: "AHT above target on specific queues WHILE FCR is at/above target (efficiency headroom, not quality risk)"
     guardrail: "Block if FCR at/below target or reopen/NPS degrading — do not trade quality for speed"
     action_description: >
       Handling-time optimisation: standardise resolution workflows, knowledge-base assist, and
       wrap-time reduction on queues where AHT is high but FCR is healthy — efficiency without quality loss.
-    expected_outcome_kpi: svc.aht.minutes
+    expected_outcome_kpi: KPI-SVC-006
     action_code_candidate: X-S1.4
 
 # ──────────────────────────────────────────
@@ -784,13 +784,13 @@ mapping_readiness:
         affected_artifact: core/usecases/core/XD-001_Service_Level_Performance/UseCase_Bracket.yaml
         field: ux_layout_rules.page_1_summary.component_30s (Main_1)
         description: >
-          Main_1 trend shows svc.backlog.count (the primary driver) rather than the strategic KPI
-          svc.sla.attainment.pct. Domain evidence requires the strategic KPI as the lead trend with
+          Main_1 trend shows KPI-SVC-007 (the primary driver) rather than the strategic KPI
+          KPI-SVC-004. Domain evidence requires the strategic KPI as the lead trend with
           target overlay, answering 'Is SLA on target?' before 'Why?'. Backlog belongs in Main_2.
         evidence_reference: SRC-001 SRC-011
-        remediation: "Set Main_1 kpi_id to svc.sla.attainment.pct vs_target; move backlog to Main_2. Close when DEP approved."
+        remediation: "Set Main_1 kpi_id to KPI-SVC-004 vs_target; move backlog to Main_2. Close when DEP approved."
         status: rejected
-        resolution: "Strategic KPI (svc.sla.attainment.pct) is already the 3-second headline card; Main_1 correctly leads with the backlog driver, consistent with COM-001. No change."
+        resolution: "Strategic KPI (KPI-SVC-004) is already the 3-second headline card; Main_1 correctly leads with the backlog driver, consistent with COM-001. No change."
 
       - gap_type: mapping_gap
         severity: medium

@@ -26,7 +26,15 @@
   One definition per table (Bus-Matrix): a table another domain owns is referenced with
   `conformed_from: <domain>` (+ optional `uses_columns`), never copied — see `data_contracts/domains/README.md`.
 - **Sources:** `data_contracts/sources/*.yaml` — source-level mappings.
-- Schema: `tooling/generator/schemas/data_contract.schema.json` (if used for validation).
+- Schema: `tooling/generator/schemas/data_contract.schema.json` — run on every contract by `tooling/validation/check_validate_data_contracts.py` (Stage 1); tables, columns, `quality_rules` and `settings` are closed, so a new field goes into the schema first.
+
+## Business objects (D-608)
+
+- **Path:** `core/business_objects/business_objects.yaml` — derived by `tooling/generator/business_objects.py --write`
+  from the contracts and the KPI lineage; after a contract or KPI change rerun `--write`, never edit structure by hand.
+  Gaps (`null`) may be curated in the file. Ids `BO-<NNN>` never change.
+- Schema: `tooling/generator/schemas/business_object.schema.json` — peer pair with Meridian (byte-identical,
+  hash pinned in `tooling/tests/test_business_objects.py`); validated in Stage 1 (`check_schema_validation.ps1`).
 
 ## General
 

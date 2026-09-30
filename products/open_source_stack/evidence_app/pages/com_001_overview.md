@@ -10,203 +10,203 @@ _Sales Performance vs Plan & LY — Overview_
 
 ## 3-Second Layer — KPI Headlines
 
-```sql margin_gm_pct
+```sql kpi_com_013
 SELECT
   metric_value AS value,
-  'margin.gm.pct' AS label,
+  'KPI-COM-013' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'margin.gm.pct'
+WHERE kpi_id = 'KPI-COM-013'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'margin.gm.pct'
+    WHERE kpi_id = 'KPI-COM-013'
   )
 ```
 
-<BigValue data={margin_gm_pct} value="value" title=""margin.gm.pct"" />
+<BigValue data={kpi_com_013} value="value" title=""KPI-COM-013"" />
 
-```sql cost_cogs_amount
+```sql kpi_fin_011
 SELECT
   metric_value AS value,
-  'cost.cogs.amount' AS label,
+  'KPI-FIN-011' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'cost.cogs.amount'
+WHERE kpi_id = 'KPI-FIN-011'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'cost.cogs.amount'
+    WHERE kpi_id = 'KPI-FIN-011'
   )
 ```
 
-<BigValue data={cost_cogs_amount} value="value" title=""cost.cogs.amount"" />
+<BigValue data={kpi_fin_011} value="value" title=""KPI-FIN-011"" />
 
-```sql sales_net_sales_amount
+```sql kpi_com_005
 SELECT
   metric_value AS value,
-  'sales.net_sales.amount' AS label,
+  'KPI-COM-005' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.net_sales.amount'
+WHERE kpi_id = 'KPI-COM-005'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.net_sales.amount'
+    WHERE kpi_id = 'KPI-COM-005'
   )
 ```
 
-<BigValue data={sales_net_sales_amount} value="value" title=""sales.net_sales.amount"" />
+<BigValue data={kpi_com_005} value="value" title=""KPI-COM-005"" />
 
-```sql sales_net_sales_delta_pct_plan
+```sql kpi_com_009
 SELECT
   metric_value AS value,
-  'sales.net_sales.delta_pct.plan' AS label,
+  'KPI-COM-009' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.net_sales.delta_pct.plan'
+WHERE kpi_id = 'KPI-COM-009'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.net_sales.delta_pct.plan'
+    WHERE kpi_id = 'KPI-COM-009'
   )
 ```
 
-<BigValue data={sales_net_sales_delta_pct_plan} value="value" title=""sales.net_sales.delta_pct.plan"" />
+<BigValue data={kpi_com_009} value="value" title=""KPI-COM-009"" />
 
-```sql sales_net_sales_delta_pct_ly
+```sql kpi_com_008
 SELECT
   metric_value AS value,
-  'sales.net_sales.delta_pct.ly' AS label,
+  'KPI-COM-008' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.net_sales.delta_pct.ly'
+WHERE kpi_id = 'KPI-COM-008'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.net_sales.delta_pct.ly'
+    WHERE kpi_id = 'KPI-COM-008'
   )
 ```
 
-<BigValue data={sales_net_sales_delta_pct_ly} value="value" title=""sales.net_sales.delta_pct.ly"" />
+<BigValue data={kpi_com_008} value="value" title=""KPI-COM-008"" />
 
-```sql sales_pvm_price_effect_amount
+```sql kpi_com_010
 SELECT
   metric_value AS value,
-  'sales.pvm.price_effect.amount' AS label,
+  'KPI-COM-010' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.pvm.price_effect.amount'
+WHERE kpi_id = 'KPI-COM-010'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.pvm.price_effect.amount'
+    WHERE kpi_id = 'KPI-COM-010'
   )
 ```
 
-<BigValue data={sales_pvm_price_effect_amount} value="value" title=""sales.pvm.price_effect.amount"" />
+<BigValue data={kpi_com_010} value="value" title=""KPI-COM-010"" />
 
-```sql sales_pvm_volume_effect_amount
+```sql kpi_com_011
 SELECT
   metric_value AS value,
-  'sales.pvm.volume_effect.amount' AS label,
+  'KPI-COM-011' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.pvm.volume_effect.amount'
+WHERE kpi_id = 'KPI-COM-011'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.pvm.volume_effect.amount'
+    WHERE kpi_id = 'KPI-COM-011'
   )
 ```
 
-<BigValue data={sales_pvm_volume_effect_amount} value="value" title=""sales.pvm.volume_effect.amount"" />
+<BigValue data={kpi_com_011} value="value" title=""KPI-COM-011"" />
 
-```sql sales_pvm_mix_effect_amount
+```sql kpi_com_004
 SELECT
   metric_value AS value,
-  'sales.pvm.mix_effect.amount' AS label,
+  'KPI-COM-004' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.pvm.mix_effect.amount'
+WHERE kpi_id = 'KPI-COM-004'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.pvm.mix_effect.amount'
+    WHERE kpi_id = 'KPI-COM-004'
   )
 ```
 
-<BigValue data={sales_pvm_mix_effect_amount} value="value" title=""sales.pvm.mix_effect.amount"" />
+<BigValue data={kpi_com_004} value="value" title=""KPI-COM-004"" />
 
-```sql sales_price_list_amount
+```sql kpi_com_001
 SELECT
   metric_value AS value,
-  'sales.price.list.amount' AS label,
+  'KPI-COM-001' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.price.list.amount'
+WHERE kpi_id = 'KPI-COM-001'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.price.list.amount'
+    WHERE kpi_id = 'KPI-COM-001'
   )
 ```
 
-<BigValue data={sales_price_list_amount} value="value" title=""sales.price.list.amount"" />
+<BigValue data={kpi_com_001} value="value" title=""KPI-COM-001"" />
 
-```sql sales_price_net_amount
+```sql kpi_com_002
 SELECT
   metric_value AS value,
-  'sales.price.net.amount' AS label,
+  'KPI-COM-002' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.price.net.amount'
+WHERE kpi_id = 'KPI-COM-002'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.price.net.amount'
+    WHERE kpi_id = 'KPI-COM-002'
   )
 ```
 
-<BigValue data={sales_price_net_amount} value="value" title=""sales.price.net.amount"" />
+<BigValue data={kpi_com_002} value="value" title=""KPI-COM-002"" />
 
 ## 30-Second Layer — Trends
 
-```sql margin_gm_pct_trend
+```sql kpi_com_013_trend
 SELECT
   period,
   metric_value AS metric_value
 FROM gold.metric_observations
-WHERE kpi_id = 'margin.gm.pct'
+WHERE kpi_id = 'KPI-COM-013'
 GROUP BY period, metric_value
 ORDER BY period
 ```
 
-<LineChart data={margin_gm_pct_trend} x="period" y="metric_value" title=""margin.gm.pct"" />
+<LineChart data={kpi_com_013_trend} x="period" y="metric_value" title=""KPI-COM-013"" />
 
-```sql cost_cogs_amount_trend
+```sql kpi_fin_011_trend
 SELECT
   period,
   metric_value AS metric_value
 FROM gold.metric_observations
-WHERE kpi_id = 'cost.cogs.amount'
+WHERE kpi_id = 'KPI-FIN-011'
 GROUP BY period, metric_value
 ORDER BY period
 ```
 
-<LineChart data={cost_cogs_amount_trend} x="period" y="metric_value" title=""cost.cogs.amount"" />
+<LineChart data={kpi_fin_011_trend} x="period" y="metric_value" title=""KPI-FIN-011"" />
 
-```sql sales_net_sales_amount_trend
+```sql kpi_com_005_trend
 SELECT
   period,
   metric_value AS metric_value
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.net_sales.amount'
+WHERE kpi_id = 'KPI-COM-005'
 GROUP BY period, metric_value
 ORDER BY period
 ```
 
-<LineChart data={sales_net_sales_amount_trend} x="period" y="metric_value" title=""sales.net_sales.amount"" />
+<LineChart data={kpi_com_005_trend} x="period" y="metric_value" title=""KPI-COM-005"" />
 
-> Core formula: margin.gm.pct = f(sales.net_sales.amount, sales.net_sales.delta_pct.plan, sales.net_sales.delta_pct.ly, sales.pvm.price_effect.amount, sales.pvm.volume_effect.amount, sales.pvm.mix_effect.amount)
-> Impact logic: Improving sales.net_sales.amount is the primary lever for maximizing margin.gm.pct.
+> Core formula: KPI-COM-013 = f(KPI-COM-005, KPI-COM-009, KPI-COM-008, KPI-COM-010, KPI-COM-011, KPI-COM-004)
+> Impact logic: Improving KPI-COM-005 is the primary lever for maximizing KPI-COM-013.

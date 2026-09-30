@@ -1,0 +1,20 @@
+kpi_id: KPI-COM-019
+label: Gross Margin Amount
+baseline_range:
+  min: 150000000
+  likely: 170000000
+  max: 195000000
+  unit: EUR
+  note: "Gross margin amount (Net Sales - COGS); 30-39% GM% on 500M EUR revenue."
+target_range:
+  min: 162000000
+  likely: 185000000
+  max: 210000000
+  unit: EUR
+  note: "Target: 12-40M EUR GM uplift from combined price discipline, mix, and cost reduction."
+time_horizon_months: 18
+driver_notes:
+  - "Price discipline (C-M2.1) protects existing margin; mix optimization (C-M2.2) expands it."
+  - "COGS reduction (F-K2.1 cost take-out, O-Q3.1 quality) drops directly to gross margin."
+  - "18-month horizon needed to capture full benefit of both commercial and operational levers."
+  - "Target range includes moderate macro headwinds (net of 2% input cost inflation)."

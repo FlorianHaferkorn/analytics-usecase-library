@@ -77,7 +77,8 @@ pip install ms-fabric-cli==1.7.0
 Edit the environment configuration files in `resources/environments/`:
 
 1. **`infrastructure.json`** — Base configuration:
-   - Update `capacity_name` to your Fabric capacity name
+   - Update `capacity_name` to your **non-production** Fabric capacity (dev, tst and feature
+     workspaces). Production runs on a separate capacity (D-596), named in `infrastructure.prd.json`
    - Update `permissions` with your Azure AD group/user IDs
    - Adjust `fabric_connections` if needed
 
@@ -88,6 +89,7 @@ Edit the environment configuration files in `resources/environments/`:
 3. **`infrastructure.tst.json`** and **`infrastructure.prd.json`** — Test and production:
    - Update `git_settings` (usually same repo, different branches)
    - Update `permissions` (more restrictive for prod)
+   - `infrastructure.prd.json`: set `generic.capacity_name` to the **production** capacity
 
 ### Step 2: Configure Azure Pipelines Secrets
 
@@ -265,6 +267,92 @@ After setup, you'll have workspaces per environment:
   - `DM_Core [prd]`
   - `BI_Apps [prd]`
   - `Shared_Datasets [prd]`
+
+## Semantic Model Refresh After a Release
+
+What the release automation does about refresh, and which refresh options exist beyond it.
+Microsoft facts checked on Microsoft Learn on 29.09.2026.
+
+```yaml
+refresh_contract:
+  on_demand_refresh_trigger: none          # no POST .../refreshes in scripts/ or ../orchestrator/
+  schedule: orchestrator/deploy.ps1        # step 6, PATCH datasets/{id}/refreshSchedule
+  schedule_scope: whole_model              # the schedule API has no table or schema option
+  schema_sync_via_api: not_documented      # no refresh `type` for "Sync schema only"
+  table_refresh_via_api: enhanced_refresh  # POST .../refreshes with "objects"
+```
+
+`scripts/tests/test_refresh_contract.py` compares this block with the code. If a script
+starts to trigger a refresh, the test fails until this section describes it.
+
+### What ALUCA triggers
+
+- `scripts/fabric_release.py` publishes items with fabric-cicd and triggers no refresh.
+- `../orchestrator/deploy.ps1` sets a refresh **schedule** (step 6, skip with `-SkipRefresh`).
+  The schedule always covers the whole semantic model: the request body
+  (`RefreshSchedule`) has only `days`, `times`, `enabled`, `localTimeZoneId` and
+  `notifyOption` ([Update Refresh Schedule In Group](https://learn.microsoft.com/rest/api/power-bi/datasets/update-refresh-schedule-in-group)).
+- Nothing in the pipeline starts an on-demand refresh. The first data load after a release
+  comes from the schedule or from a manual step.
+
+### Refresh options in Power BI Desktop and the service
+
+The **Refresh** button in the Home ribbon and the Data pane offers three options
+([Data refresh in Power BI, "Power BI refresh options"](https://learn.microsoft.com/power-bi/connect-data/refresh-data#power-bi-refresh-options)):
+
+| Option | Effect |
+|---|---|
+| Refresh schema and data | Schema sync first, then data refresh (what **Refresh** always did before) |
+| Sync schema only | Updates the model to the source structure (new columns, changed types) |
+| Refresh data only | Loads fresh data and keeps the current model schema |
+
+Each option also works for a single table: select the table and choose schema, data or both.
+Desktop has had the options since the September 2025 update; the service followed with the
+August 2026 update ("More control over semantic model refresh in Power BI Service", listed
+without a preview mark in [What's new in Power BI](https://learn.microsoft.com/power-bi/fundamentals/whats-new)).
+
+When to use which after a release:
+
+- **Direct Lake, Lakehouse table gained a column the model should not show yet:**
+  *Refresh data only*. A schema sync would bring the column into the model.
+- **Release changed a single table:** refresh only that table instead of the whole model.
+- **Source column renamed or removed:** *Sync schema only* removes it from the model and can
+  break measures, relationships and RLS that depend on it. Align the TMDL in the repo first,
+  release, then sync.
+
+### Refresh by API (enhanced refresh)
+
+For automation, the [enhanced refresh API](https://learn.microsoft.com/power-bi/connect-data/asynchronous-refresh)
+(`POST https://api.powerbi.com/v1.0/myorg/groups/{groupId}/datasets/{datasetId}/refreshes`)
+accepts in the request body:
+
+- `type`: `full`, `clearValues`, `calculate`, `dataOnly`, `automatic` or `defragment`
+  (aligned with the TMSL refresh types; `add` is not supported).
+- `objects`: a list of `{"table": "..."}` or `{"table": "...", "partition": "..."}`. Without
+  `objects`, the whole model refreshes.
+- `commitMode`, `maxParallelism`, `retryCount`, `applyRefreshPolicy`, `effectiveDate`, `timeout`.
+
+Limits compared with the UI options:
+
+- No `type` is documented as a schema sync, so **Sync schema only** has no documented API
+  equivalent. Do not equate the UI option **Refresh data only** with `type: dataOnly`;
+  Learn documents no such mapping.
+- `refreshType` is a **response** field of `GET .../refreshes` (`OnDemand`, `Scheduled`,
+  `ViaApi`, `ViaEnhancedApi`), not a request parameter.
+- Requires a Premium, Premium per user or Power BI Embedded model and the
+  `Dataset.ReadWrite.All` scope; the service accepts one refresh per model at a time
+  (`400 Bad Request` otherwise).
+
+Example: refresh one table after a release (token audience as in
+`../docs/references/fabric-api-core.md`, "Refresh triggern"):
+
+```bash
+az rest --method post \
+  --resource "https://analysis.windows.net/powerbi/api" \
+  --url "https://api.powerbi.com/v1.0/myorg/groups/$WS_ID/datasets/$MODEL_ID/refreshes" \
+  --headers "Content-Type=application/json" \
+  --body '{"type":"full","objects":[{"table":"FactSales"}]}'
+```
 
 ## Troubleshooting
 

@@ -1,6 +1,6 @@
 measure_name: Action Outcome Rate %
 is_kpi_measure: true
-kpi_id_ref: enterprise.action_outcome_rate.pct
+kpi_id_ref: KPI-GOV-001
 semantic_model: Governance_SemanticModel
 display_folder: 06_Execution
 category: KPI

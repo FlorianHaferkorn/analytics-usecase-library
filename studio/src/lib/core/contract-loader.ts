@@ -8,7 +8,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseYaml } from './yaml-loader';
-import type { DataContract } from '@/lib/schemas';
+import type { DataContract, DimensionTable, FactTable } from '@/lib/schemas';
 
 const CONTRACTS_DIR = join(
   process.cwd(),
@@ -19,6 +19,20 @@ const CONTRACTS_DIR = join(
 );
 
 type ContractTable = { name: string; columns?: { name: string }[]; conformed_from?: string; uses_columns?: string[] };
+
+/** A dimension of the domain view: the owner's definition; `conformed_from` marks a resolved reference. */
+export type ResolvedDimension = DimensionTable & { conformed_from?: string };
+/** A fact of the domain view; `grain` is missing only on an unresolvable reference. */
+export type ResolvedFact = Omit<FactTable, 'grain'> & { grain?: string; conformed_from?: string };
+/**
+ * A contract after `resolveConformed` (domain view). The raw `DataContract` (generated from
+ * `tooling/generator/schemas/data_contract.schema.json`) types a reference as
+ * `ConformedReference` without columns; after resolution every table carries `columns`.
+ */
+export interface ResolvedContract extends Omit<DataContract, 'dimension' | 'fact'> {
+  dimension: ResolvedDimension[];
+  fact: ResolvedFact[];
+}
 type Section = 'dimension' | 'fact';
 
 /**
@@ -29,7 +43,7 @@ type Section = 'dimension' | 'fact';
  * a definition with `uses_columns` is narrowed the same way. Unresolvable references get
  * `columns: []` so no consumer reads `undefined`.
  */
-export function resolveConformed(contracts: DataContract[]): DataContract[] {
+export function resolveConformed(contracts: DataContract[]): ResolvedContract[] {
   const owners = new Map<string, { domain: string; section: Section; table: ContractTable }>();
   for (const c of contracts) {
     for (const section of ['dimension', 'fact'] as Section[]) {
@@ -46,7 +60,7 @@ export function resolveConformed(contracts: DataContract[]): DataContract[] {
     return { ...t, columns: uses.filter((n) => byName.has(n)).map((n) => byName.get(n)!) };
   };
   return contracts.map((c) => {
-    const out = { ...c } as DataContract;
+    const out = { ...c } as unknown as ResolvedContract;
     for (const section of ['dimension', 'fact'] as Section[]) {
       const tables = (c[section] ?? []) as ContractTable[];
       (out as unknown as Record<Section, ContractTable[]>)[section] = tables.map((t) => {
@@ -63,7 +77,7 @@ export function resolveConformed(contracts: DataContract[]): DataContract[] {
 }
 
 /** Load all Data Contracts from core/data_contracts/domains/ (domain view, see resolveConformed). */
-export async function loadAllContracts(): Promise<DataContract[]> {
+export async function loadAllContracts(): Promise<ResolvedContract[]> {
   let entries: string[];
   try {
     entries = await readdir(CONTRACTS_DIR);
@@ -96,13 +110,13 @@ export async function loadAllContracts(): Promise<DataContract[]> {
 /** Load a single Data Contract by domain name. */
 export async function loadContract(
   domain: string,
-): Promise<DataContract | null> {
+): Promise<ResolvedContract | null> {
   const all = await loadAllContracts();
   return all.find((c) => c.domain.toLowerCase() === domain.toLowerCase()) ?? null;
 }
 
 /** Load contracts as a Map keyed by domain. */
-export async function loadContractMap(): Promise<Map<string, DataContract>> {
+export async function loadContractMap(): Promise<Map<string, ResolvedContract>> {
   const contracts = await loadAllContracts();
   return new Map(contracts.map((c) => [c.domain, c]));
 }

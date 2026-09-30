@@ -14,12 +14,12 @@ use_case_links:
   - OPS-002
 kpis:
   trigger_kpis:
-  - quality.fpy.pct
-  - quality.scrap.pct
+  - KPI-QUA-001
+  - KPI-QUA-002
   guardrail_kpis:
-  - ops.throughput.units
+  - KPI-OPS-009
   outcome_kpis:
-  - quality.fpy.pct
+  - KPI-QUA-001
 scope:
   default_grain: line_month
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: ops.planned_output.units
+        metric_kpi_id: KPI-OPS-013
         comparator: gte
         value: 20000
         unit: units
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: quality.fpy.pct
+        metric_kpi_id: KPI-QUA-001
         comparator: lt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: quality.fpy.pct
+        metric_kpi_id: KPI-QUA-001
         comparator: lt
         threshold:
           basis: absolute
@@ -74,7 +74,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: quality.fpy.pct
+        metric_kpi_id: KPI-QUA-001
         comparator: lt
         threshold:
           basis: absolute
@@ -90,7 +90,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P30D
-    metric_kpi_id: quality.fpy.pct
+    metric_kpi_id: KPI-QUA-001
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -106,7 +106,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: quality.fpy.pct
+    metric_kpi_id: KPI-QUA-001
     value_low: 1.0
     value_high: 3.0
     unit: pp

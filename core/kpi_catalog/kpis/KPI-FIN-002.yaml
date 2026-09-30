@@ -1,0 +1,50 @@
+kpi_id: KPI-FIN-002
+kpi_key: Inventory Amount
+kpi_type: supporting
+kpi_role: supporting
+impact_dimension: Liquidity
+domain_tag:
+- Finance
+use_case_ref:
+- FIN-001
+- OPS-002
+action_code_ref:
+- O-A2.5
+calc_type: amount
+good_is: lower
+business:
+  purpose: Provide closing inventory value for working capital and liquidity metrics.
+  definition: Inventory value at period end at reporting valuation (e.g., standard or average cost).
+  grain_scope: Company/segment; monthly or quarterly closing.
+  unit_format: eur_2
+  interpretation: Higher values increase working capital needs; validate against seasonality and service targets.
+technical:
+  measure_name: Inventory Amount
+  description: Inventory value at period end
+  depends_on_measures: []
+  lineage:
+  - fact_inventory.Average Inventory Amount
+  calculation:
+    op: sum
+    column: Average Inventory Amount
+governance:
+  business_owner: Head of Treasury / Supply Chain Finance
+  data_owner: Finance BI
+  steward: Working Capital Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Inventory value reconciles to balance sheet inventory accounts within +/- 0.5 %.
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 27.01.2026
+standard_ref:
+- standard: IFRS
+  id: IAS 2
+  name: Inventories carrying amount
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+  alignment: exact
+  note: Closing inventory measured at the lower of cost and net realisable value (IAS 2). Our note allows 'standard
+    or average cost' — IAS 2 prohibits LIFO; confirm the cost formula is FIFO or weighted-average and standard cost
+    approximates actual.

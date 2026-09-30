@@ -1,16 +1,16 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "b4ca28c9973882ea92b43cdd8d19170298b30fa6",
+  "source_commit": "623a3b374b3cda9f1466e71de568d350401b9a16",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
       "path": "admin_settings.py",
-      "sha256": "927ef935f6b4375c9e72d4e139616a79a31ae8f7671f7d6739c1d6c115c19cc1"
+      "sha256": "14f6936bde7fbb9712dfeb291f9cef82589460e04e7cfb05c715d2ad2ee79df1"
     },
     {
       "path": "capacity_recommend.py",
-      "sha256": "2a39f607875e11b4cc21be14ee17c3e5d6d89346c9496f87c1507f4b46ef574c"
+      "sha256": "ad89c4983b046f80d6985ffe9278264024a8bda7ba12d680bc3cb0d6a96a3f8d"
     },
     {
       "path": "decision_proposals.py",
@@ -26,23 +26,23 @@
     },
     {
       "path": "provision_connectivity.py",
-      "sha256": "ff4189c73ba2035123027a706401261d179a618d0805c69a39f82e38132e4446"
+      "sha256": "51b6cbe79859e662789da0a6027a73a9c0dec2f491f1dd97485b0cf7978c789a"
     },
     {
       "path": "provision_governance.py",
-      "sha256": "bf0ae537f8e5d191240d25fb8ffb14782cdef392840641b0c9443b502f7ba500"
+      "sha256": "5574f4e4179926efbd007c64762f75768b6d9f8efd126e82aecd2bfc5b5ca731"
     },
     {
       "path": "provision_lifecycle.py",
-      "sha256": "e3927f4902cf49ed4bd0a92868958c8ced5b5bf18d26451347d34fc3fff082cb"
+      "sha256": "123464cc2f859c9c7772b6025d4a932b70a6a8fd21b0725ccfe8748c772816e5"
     },
     {
       "path": "provision_monitoring.py",
-      "sha256": "7fa882c161c69ac10e647ffd00e63112512295dca68873aba8687a4d233b3a96"
+      "sha256": "98c3c04949ae4dbd99cf0e41abac9bcc29bdf42e7c328f37117fbdc98db07728"
     },
     {
       "path": "provision_operability.py",
-      "sha256": "ab0d1a0a40ecb0c9fea1c2631453eebfe692820bef907c5ede99e85c6512fcf6"
+      "sha256": "bae0ed12180d9e5311ca9160dc925615248fc029abfcc084714912870925c31d"
     },
     {
       "path": "provision_source_schema.py",
@@ -58,7 +58,7 @@
     },
     {
       "path": "direct_lake_guardrails.py",
-      "sha256": "34e786c1f75c477680ae2d8d033f380b815fe106bba0d686e9a838918d2d23d8"
+      "sha256": "de521d436abfc4b8968db8b31d3cb45d85126cc891ce9441572b35eae6010fb6"
     },
     {
       "path": "provision_external_sharing.py",
@@ -66,19 +66,19 @@
     },
     {
       "path": "governance_strategy.py",
-      "sha256": "512510874f1e1f089e79530ee53adb3765e7caa3093122419a3e778c69723661"
+      "sha256": "741da4c25efe0e0a3f69874e3ba1a80a8eaa4d94e376cbd37e75c85d2af079de"
     },
     {
       "path": "provision_apply.py",
-      "sha256": "8909217a92fd8981fcf27574942079e5d4c5d505ec405ae7623b24a269321207"
+      "sha256": "06f6a9c7e2a8a4d6cfaabb36d520d652a467e998bb1504753557b0bd26a1f333"
     },
     {
       "path": "provision_chargeback.py",
-      "sha256": "e99c87e3f7345cf39743a0b6e39ead5d1d47680e1174d30f53156d812beee05c"
+      "sha256": "a1bf4f492998f3e070c61aa0aed4553b9aa68cf2f7ff338cb97492da912d0c42"
     },
     {
       "path": "provision_cicd.py",
-      "sha256": "ea19d858877014ad1e9d59b9734b66eec2f881dd2c6cdb35f34b2118b770ff62"
+      "sha256": "a818fa46418d1ab4a9a3490d08260a9ce595c33f9acd9d16a8f5a6862a70e7fe"
     },
     {
       "path": "provision_databricks_cicd.py",
@@ -90,7 +90,7 @@
     },
     {
       "path": "provision_fabric.py",
-      "sha256": "aa2573f98ff8bf6379e5466e09f0fae319924b209c4ef759a7dff8adf5006de7"
+      "sha256": "e52ee1933069838578d396ed70dbd1dc4bff58814c94362430c251e92317ac54"
     },
     {
       "path": "provision_fabric_cicd.py",
@@ -98,11 +98,11 @@
     },
     {
       "path": "provision_gates.py",
-      "sha256": "8283fce87122225d4264b2b505ae7d78f792d4bc2521e36b3843895eb96caec2"
+      "sha256": "edf0a0e4a26e6eff95a73f3f50d261dba6033486d9ec4f25aba335dc1cd0acfe"
     },
     {
       "path": "provision_ingestion.py",
-      "sha256": "94688f9700e40107c426276b87d46530fb69e836ff611420ee7e047d3ee7c0e9"
+      "sha256": "802cb20c87254cee4abfbd3868b2e56ad431571e872ab1159b7589a7a3ef8f1d"
     },
     {
       "path": "provision_lineage.py",
@@ -122,15 +122,23 @@
     },
     {
       "path": "provision_prereq.py",
-      "sha256": "fb1c90ac36f68e6cbc6d44ccde5c83c70c8cfde62a5a22da7350c619cbde8125"
+      "sha256": "48fb3eb79b793778b32096cd533d7ae7d3fb85bbdf1bba6a18d9998459901ece"
     },
     {
       "path": "provision_terraform.py",
-      "sha256": "ca505018146b74b28412a08095be97c059f8ee6834d337ab04d878daf9b7b831"
+      "sha256": "a640126d0e4f64695cad7118ed694bdf4f74f2d19dffa4911eb50a9dee8f04b7"
+    },
+    {
+      "path": "kapazitaet_stufen.py",
+      "sha256": "68b3209602f8cee57dbdf8b7decad2d06eb57cd5e7620121302537f8b525964d"
+    },
+    {
+      "path": "ki_zugang.py",
+      "sha256": "cf81220ffc26e4f99c9295b12e6d4f106b556f9c7286607fb317f02e20e755f7"
     },
     {
       "path": "provision_transforms.py",
-      "sha256": "23857c314fd97ce040dd88c7f2a20048dd954ff9175d776b67bde80617301a5c"
+      "sha256": "bec68ec3ad69763fd986f6796b893ec034be896e11d5e179a8b940e3671c8887"
     },
     {
       "path": "provision_translations.py",
@@ -138,16 +146,25 @@
     },
     {
       "path": "provision_varlib.py",
-      "sha256": "fecdfca24d87c7bafee761c71b1fefca3fdde175bddb6fbb5c940e0140058e62"
+      "sha256": "2c2b2df5e32cbd75110b4f93e7446f2fa48208e1b3a8ae2ae9a4fa3f52427256"
     },
     {
       "path": "sql_validate.py",
       "sha256": "2d39dba0b0ca2b5113f67854cfe94dd2d4dec93dce64f7c19dacbcdf29282557"
     },
     {
+      "path": "storage_mode.py",
+      "sha256": "6345779ff1b42f7cb0e139218e21eee365489968abb057f0eee582029dff7750"
+    },
+    {
       "path": "preis_kanon.py",
       "sha256": "01c6eae5e537fa77adc9616b831b39a2e7df3521590bca1bab44baa9aa6566c1",
       "source": "core/preis_kanon.py"
+    },
+    {
+      "path": "leerstellen_vorlage.py",
+      "sha256": "fe61366e405ad6418a64c5f99f1200ef5126157e2f3e7cc52a59aa3c34c4cb6c",
+      "source": "meridian/semantics/leerstellen_vorlage.py"
     }
   ]
 }

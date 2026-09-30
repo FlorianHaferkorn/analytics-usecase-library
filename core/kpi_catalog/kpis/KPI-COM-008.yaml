@@ -1,0 +1,55 @@
+kpi_id: KPI-COM-008
+kpi_key: Delta% Net Sales
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Growth
+domain_tag:
+- Commercial
+use_case_ref:
+- COM-001
+- XD-003
+action_code_ref: []
+calc_type: rate
+good_is: higher
+is_variance: true
+business:
+  purpose: Relative variance of Net Sales vs Last Year.
+  definition: (Net Sales - LY) / LY
+  grain_scope: Aggregated to reporting period.
+  unit_format: percent_1
+  interpretation: Shows growth rate vs prior year.
+technical:
+  measure_name: Delta% Net Sales
+  description: Relative variance of Net Sales vs Last Year.
+  depends_on_measures:
+  - KPI-COM-005
+  lineage:
+  - fact_sales.Net Sales Amount
+  - fact_sales.Last Year Sales Amount
+  calculation:
+    op: delta_pct
+    minuend:
+      kpi: KPI-COM-005
+    subtrahend:
+      column: Last Year Sales Amount
+governance:
+  business_owner: Head of Sales Controlling
+  data_owner: Commercial BI
+  steward: Sales Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Reconciles to Net Sales and LY revenue within +/- 0.1 pp
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+aliases:
+- Delta% Net Sales
+standard_ref:
+- standard: IFRS 15
+  name: Net sales YoY growth
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+  alignment: none
+  note: Year-over-year growth is a management trend metric; the underlying net-sales base is IFRS 15 revenue but
+    the growth ratio is not standard-defined.

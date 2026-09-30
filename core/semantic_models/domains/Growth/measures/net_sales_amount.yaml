@@ -1,6 +1,6 @@
 measure_name: Net Sales Amount
 is_kpi_measure: true
-kpi_id_ref: sales.net_sales.amount
+kpi_id_ref: KPI-COM-005
 semantic_model: Growth_SemanticModel
 display_folder: 01_Growth
 category: KPI

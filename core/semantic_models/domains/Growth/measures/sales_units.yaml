@@ -1,6 +1,6 @@
 measure_name: Sales Units
 is_kpi_measure: true
-kpi_id_ref: sales.units
+kpi_id_ref: KPI-COM-012
 semantic_model: Growth_SemanticModel
 display_folder: 01_Growth
 category: KPI

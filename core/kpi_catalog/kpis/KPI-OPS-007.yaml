@@ -1,0 +1,65 @@
+kpi_id: KPI-OPS-007
+kpi_key: PM Compliance %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-002
+action_code_ref:
+- O-A2.4
+calc_type: rate
+good_is: higher
+business:
+  purpose: Tracks adherence to preventive maintenance plan.
+  definition: Completed PM Orders / Planned PM Orders.
+  grain_scope: Site/asset; monthly.
+  unit_format: percent_1
+  interpretation: Higher is better; low compliance increases breakdown risk.
+technical:
+  measure_name: PM Compliance %
+  description: Tracks adherence to preventive maintenance plan.
+  depends_on_measures: []
+  lineage:
+  - fact_maintenance.Order Type
+  - fact_maintenance.Order Status
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: count_filtered
+        column: Order Type
+        filters:
+        - column: Order Type
+          equals: PM
+        - column: Order Status
+          equals: Completed
+    denominator:
+      calc:
+        op: count_filtered
+        column: Order Type
+        filters:
+        - column: Order Type
+          equals: PM
+governance:
+  business_owner: Head of Maintenance
+  data_owner: Operations BI
+  steward: Maintenance Planner
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Planned PM Orders > 0
+  - Value between 0 % and 100 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.8
+  last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: (planned-maintenance compliance)
+  url: https://www.iso.org/standard/54497.html
+  alignment: none
+  note: 'PM compliance (completed vs planned PM orders) is a maintenance-management KPI; ISO 22400-2 covers corrective-maintenance
+    ratio and reliability but not PM-schedule compliance. Related external reference: EN 15341 maintenance KPIs.'

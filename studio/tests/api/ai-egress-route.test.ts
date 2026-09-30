@@ -25,7 +25,7 @@ beforeEach(() => {
 describe('projectless AI data egress', () => {
   it.each([
     ['chat with client context', chat, 'chat', { messages: [{ role: 'user', content: 'Customer private data' }], context: 'Secret source data' }],
-    ['chat with entity context', chat, 'chat', { messages: [{ role: 'user', content: 'Analyze this' }], entityContext: { entityType: 'kpi', entityId: 'sales.net_sales.amount' } }],
+    ['chat with entity context', chat, 'chat', { messages: [{ role: 'user', content: 'Analyze this' }], entityContext: { entityType: 'kpi', entityId: 'KPI-COM-005' } }],
     ['wizard with user prompt', wizard, 'wizard', { kind: 'kpi', prompt: 'Customer private data' }],
   ] as const)('denies %s before model construction', async (_, handler, path, body) => {
     const response = await handler(request(path, body));
@@ -49,7 +49,7 @@ describe('projectless AI data egress', () => {
     const response = await factsheet(request('factsheet-draft', {
       mode: 'reconcile', editedSource: 'bracket',
       prose: '# Customer factsheet',
-      bracket: 'orchestration:\n  strategic_kpi_id: sales.net_sales.amount\n  influencing_kpi_ids: []\n  action_code_ids: []',
+      bracket: 'orchestration:\n  strategic_kpi_id: KPI-COM-005\n  influencing_kpi_ids: []\n  action_code_ids: []',
     }));
     expect(response.status).toBe(200);
     expect((await response.json()).engine).toBe('deterministic');

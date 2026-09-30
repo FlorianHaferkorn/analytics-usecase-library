@@ -15,6 +15,15 @@ sagt nur ein Lauf gegen das veröffentlichte Modell. Dieses Modul trennt beides:
   wenn keine Aktion auslöst), `leer_begruendet` (hängt direkt oder über andere Measures an einer
   Tabelle, die im Demo absichtlich leer ist -- heute nur `fact_target`).
 
+  Dazu je Beziehung aus `definition/relationships*.tmdl` eine RI-Abfrage (I-21 W5.12 b):
+  `EVALUATE ROW("v", COUNTROWS(EXCEPT(DISTINCT(f[fk]), DISTINCT(d[key]))) + 0)`, erwartet 0.
+  Ein verwaister Schlüssel zeigt sich im Bericht als Blank-Zeile der Dimension. `DISTINCT`, nicht
+  `VALUES`: `VALUES` enthielte genau diese Blank-Zeile und verdeckte den Befund. `+ 0`, weil
+  `COUNTROWS` einer leeren Tabelle BLANK liefert. Ein leerer Fremdschlüssel zählt mit (er landet
+  ebenfalls auf der Blank-Zeile) -- anders als `check_data_model.py` ORPHAN-FK, das `None`
+  verwirft. Diese Prüfung ist die zweite Messung zu ORPHAN-FK: dort Gold-Parquet, hier das
+  veröffentlichte Modell nach dem Refresh.
+
 * `gegenprobe` (ohne Tenant): für jede Measure der Form `SUM ( tabelle[spalte] )` rechnet pandas
   denselben Wert aus der Datenscheibe (AP-3). Das ist die zweite, unabhängige Messung.
 
@@ -121,8 +130,57 @@ def _quellspalte(modell: Path, tabelle: str, spalte: str) -> str | None:
     return None
 
 
+_REL_SPALTE = re.compile(r"^(?:'((?:[^']|'')+)'|([^.'\s]+))\.(?:'((?:[^']|'')+)'|(\S+))$")
+
+
+def _rel_spalte(wert: str) -> tuple[str, str] | None:
+    m = _REL_SPALTE.match(wert.strip())
+    if not m:
+        return None
+    return ((m.group(1) or m.group(2)).replace("''", "'"), (m.group(3) or m.group(4)).replace("''", "'"))
+
+
+def _dax_spalte(tabelle: str, spalte: str) -> str:
+    return "'" + tabelle.replace("'", "''") + "'" + _dax_name(spalte)
+
+
+def beziehungen(modell: Path) -> list[dict]:
+    """Beziehungen aus `definition/relationships.tmdl` oder `definition/relationships/*.tmdl`.
+
+    `von` ist die n-Seite (Fakt, Fremdschlüssel), `nach` die 1-Seite (Dimension, Schlüssel).
+    m:n-Beziehungen (`toCardinality: many`) haben keine Schlüsselseite und bekommen keine
+    RI-Abfrage; heute kommt keine vor.
+    """
+    d = modell / "definition"
+    dateien = sorted((d / "relationships").glob("*.tmdl")) + (
+        [d / "relationships.tmdl"] if (d / "relationships.tmdl").is_file() else [])
+    out = []
+    for f in dateien:
+        for block in re.split(r"\n(?=relationship )", f.read_text(encoding="utf-8")):
+            kopf = re.match(r"^relationship (?:'((?:[^']|'')+)'|(\S+))", block.lstrip("\n"))
+            von = re.search(r"^\tfromColumn: (.+)$", block, re.M)
+            nach = re.search(r"^\ttoColumn: (.+)$", block, re.M)
+            if not (kopf and von and nach):
+                continue
+            if re.search(r"^\ttoCardinality: many\s*$", block, re.M):
+                continue
+            v, n = _rel_spalte(von.group(1)), _rel_spalte(nach.group(1))
+            if not (v and n):
+                continue
+            out.append({
+                "name": (kopf.group(1) or kopf.group(2)).replace("''", "'"),
+                "von": f"{v[0]}[{v[1]}]", "nach": f"{n[0]}[{n[1]}]",
+                "aktiv": not re.search(r"^\tisActive: false\s*$", block, re.M),
+                "abfrage": ('EVALUATE ROW("v", COUNTROWS(EXCEPT(DISTINCT(' + _dax_spalte(*v)
+                            + "), DISTINCT(" + _dax_spalte(*n) + "))) + 0)"),
+                "erwartet": 0,
+            })
+    return sorted(out, key=lambda b: b["name"])
+
+
 def plan_fuer(modell: Path) -> dict:
     alle = measures(modell)
+    rel = beziehungen(modell)
     ordner = _ordner_je_tabelle(modell)
     messungen, gegenproben = [], []
     for name in sorted(alle):
@@ -146,10 +204,11 @@ def plan_fuer(modell: Path) -> dict:
             quelle = _quellspalte(modell, s.group(1), s.group(2))
             if quelle:
                 gegenproben.append({"measure": name, "ordner": ordner[s.group(1)], "spalte": quelle})
-    quelle = hashlib.sha256(json.dumps({k: alle[k] for k in sorted(alle)}, sort_keys=True,
+    quelle = hashlib.sha256(json.dumps({"measures": {k: alle[k] for k in sorted(alle)},
+                                        "beziehungen": rel}, sort_keys=True,
                                        ensure_ascii=False).encode()).hexdigest()
     return {"modell": modell.name, "quelle_sha256": quelle, "messungen": messungen,
-            "gegenproben": gegenproben}
+            "gegenproben": gegenproben, "beziehungen": rel}
 
 
 def _json(wert) -> str:
@@ -230,8 +289,22 @@ def lauf(plan: dict, workspace: str, dataset: str, token: str, *, budget: int = 
             except Exception as exc:                                        # noqa: BLE001
                 eintrag[art] = {"status": "fehler", "meldung": str(exc)[:300]}
         ergebnisse.append(eintrag)
+    ri = []
+    for b in plan.get("beziehungen", []):
+        eintrag = {"name": b["name"]}
+        if genutzt >= budget:
+            ri.append({**eintrag, "status": "budget"})
+            continue
+        genutzt += 1
+        try:
+            antwort = transport(url, kopf, {"queries": [{"query": b["abfrage"]}],
+                                            "serializerSettings": {"includeNulls": True}})
+            zeilen = antwort["results"][0]["tables"][0].get("rows", [])
+            ri.append({**eintrag, "status": "ok", "werte": [z.get("[v]") for z in zeilen]})
+        except Exception as exc:                                            # noqa: BLE001
+            ri.append({**eintrag, "status": "fehler", "meldung": str(exc)[:300]})
     return {"modell": plan["modell"], "quelle_sha256": plan["quelle_sha256"],
-            "abfragen": genutzt, "ergebnisse": ergebnisse}
+            "abfragen": genutzt, "ergebnisse": ergebnisse, "beziehungen": ri}
 
 
 # ------------------------------------------------------------------ Bewertung
@@ -255,6 +328,18 @@ def bewerten(plan: dict, lauf_ergebnis: dict, erwartet: dict[str, float] | None 
             befunde.append({"measure": m["measure"], "befund": "kein Monat gefüllt"})
         if m["klasse"] == "leer_begruendet" and werte:
             befunde.append({"measure": m["measure"], "befund": "gefüllt, obwohl als leer begründet"})
+    je_rel = {e["name"]: e for e in lauf_ergebnis.get("beziehungen", [])}
+    for b in plan.get("beziehungen", []):
+        r = je_rel.get(b["name"], {"status": "fehlt"})
+        wer = f'{b["von"]} -> {b["nach"]}'
+        if r["status"] != "ok":
+            befunde.append({"measure": wer, "befund": f"RI: {r['status']}",
+                            "detail": r.get("meldung", "")})
+            continue
+        ist = (r.get("werte") or [None])[0]
+        if ist is None or float(ist) != b["erwartet"]:
+            befunde.append({"measure": wer, "befund": "verwaiste Schlüssel",
+                            "detail": f"{ist} Wert(e) ohne Gegenstück in {b['nach']} (Beziehung {b['name']})"})
     for key, soll in (erwartet or {}).items():
         modell, name = key.split("::", 1)
         if modell != plan["modell"]:
@@ -284,8 +369,11 @@ def main(argv: list[str] | None = None) -> int:
         if drift and not a.write:
             print(f"[dax-smoke] Plan veraltet: {', '.join(drift)} -- plan --write", file=sys.stderr)
             return 1
-        n = sum(len(json.loads(f.read_text(encoding="utf-8"))["messungen"]) for f in PLAN.glob("*.json"))
-        print(f"[dax-smoke] {'geschrieben' if drift else 'aktuell'}: {n} Measures in {len(list(PLAN.glob('*.json')))} Plänen")
+        plaene = [json.loads(f.read_text(encoding="utf-8")) for f in PLAN.glob("*.json")]
+        n = sum(len(x["messungen"]) for x in plaene)
+        r = sum(len(x.get("beziehungen", [])) for x in plaene)
+        print(f"[dax-smoke] {'geschrieben' if drift else 'aktuell'}: {n} Measures und {r} "
+              f"RI-Abfragen in {len(plaene)} Plänen")
         return 0
     if a.cmd == "gegenprobe":
         ergebnis = gegenprobe(a.slice)

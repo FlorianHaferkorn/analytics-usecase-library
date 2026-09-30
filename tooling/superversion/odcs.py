@@ -1,8 +1,11 @@
 """odcs — bidirectional mapping between the neutral IR and the Open Data Contract Standard (I-20.3).
 
 Cross-repo mirror of Meridian's `core.dataarch_engine.blueprint.odcs` (contract surface). Official-First
-(ADR-0051): the gold data contract is expressed in **ODCS** (Bitol Open Data Contract Standard v3.0.0),
-not a home-grown format. This module bridges the two directions the Baukasten needs:
+(ADR-0051): the gold data contract is expressed in **ODCS** (Bitol Open Data Contract Standard v3.2.0),
+not a home-grown format. Every contract this module emits carries the **one** ``ODCS_API_VERSION``
+(Meridian D-584, raised to v3.2.0 by Meridian D-586; there it is checked against the vendored
+official v3.2 schema). This module
+bridges the two directions the Baukasten needs:
 
   * **export** ``to_odcs(blueprint)`` — one ODCS ``DataContract`` per mesh domain; each gold product
     becomes a schema object (``kind``/``grain`` preserved via ``customProperties`` so the round-trip is
@@ -13,7 +16,7 @@ not a home-grown format. This module bridges the two directions the Baukasten ne
   * **catalog bridge** ``odcs_to_catalog(contracts)`` — an ODCS contract set → the ``governed_catalog``
     shape the emitters consume (the governed contract drives column projection; Meridian-side consumer).
   * **column contract** ``to_odcs(blueprint, governed_catalog)`` — the ``column_specs`` of
-    ``tooling/generator/export_governed_catalog.py`` (A-20/A-23) become ODCS v3.1 properties
+    ``tooling/generator/export_governed_catalog.py`` (A-20/A-23) become ODCS properties
     (``required``, ``relationships``, ``quality``, ``physicalName``) and come back through
     ``odcs_to_catalog`` unchanged (Meridian D-581). The check → SQL translation and the ref
     resolution are **not** re-implemented here: they come from the mirrored
@@ -33,19 +36,18 @@ import yaml
 
 from tooling.superversion.architecture_blueprint import _slug
 
-ODCS_API_VERSION = "v3.0.0"
-#: Vertraege mit Spalten aus dem governed catalog tragen property-level ``relationships`` und
-#: ``quality``-Regeln mit ``metric``. Beides steht erst in ODCS v3.1.0 (CHANGELOG v3.1.0,
-#: 2025-12-08: "Add `relationships` array field to both `SchemaObject` and `SchemaProperty`";
-#: ``metric`` statt des veralteten ``rule``). Gelesen 29.09.2026 in
-#: github.com/bitol-io/open-data-contract-standard, Tag v3.2.0 (f0bdad9, 08.09.2026 — aktuell;
-#: v3.2.0 bringt ``enum`` dazu, das hier nicht gebraucht wird). Vertraege ohne Spalten bleiben
-#: auf v3.0.0, damit sich bestehende Ausgaben nicht aendern.
-ODCS_API_VERSION_SPALTEN = "v3.1.0"
+#: Eine Version fuer jeden Vertrag, den der Baukasten schreibt (Meridian D-584, 29.09.2026: v3.1.0
+#: statt v3.0.0/v3.1.0 nebeneinander). Am 30.09.2026 mit Meridian D-586 auf v3.2.0 gehoben
+#: (Owner-Entscheidung, Official-First): Tag ``v3.2.0`` von github.com/bitol-io/open-data-contract-standard
+#: (f0bdad9, 08.09.2026), in Meridian vendored als ``odcs-json-schema-v3.2.json`` (sha256 edb41f33…).
+#: v3.2.0 ist gegenueber v3.1.0 rein additiv und fuehrt kein neues Pflichtfeld ein; ``status`` ist im
+#: v3.2-Schema nicht mehr Pflicht, wird hier aber weiter gestempelt (``validate_odcs`` verlangt es).
+ODCS_API_VERSION = "v3.2.0"
 ODCS_KIND = "DataContract"
 _CONTRACT_STANDARD = "odcs"
 
-# ODCS v3 logical types: string · integer · number · boolean · object · array · date.
+# ODCS v3 logical types: string · integer · number · boolean · object · array · date (v3.2 adds
+# map · vector — no SQL type maps onto them here, so the table below is unchanged).
 _SQL_TYPE_TO_LOGICAL = [
     (re.compile(r"^(tinyint|smallint|int|integer|bigint)\b", re.I), "integer"),
     (re.compile(r"^(decimal|numeric|number|float|real|double|money|smallmoney)\b", re.I), "number"),
@@ -95,7 +97,7 @@ def _schema_object(product: dict[str, Any], table: dict[str, Any] | None = None,
     if table:
         if "showcase" in table:
             custom.append({"property": "showcase", "value": bool(table["showcase"])})
-        props = _table_properties(table, governed_catalog)
+        props = _table_properties(table, governed_catalog, product.get("kind"))
         if props:
             obj["properties"] = props
     return obj
@@ -103,7 +105,7 @@ def _schema_object(product: dict[str, Any], table: dict[str, Any] | None = None,
 
 # --------------------------------------------------------------------------- column_specs ⇄ ODCS properties
 # ALUCA-Ledger A-20: the governed catalog carries per table ``column_specs`` with structured checks.
-# Official-First: ODCS v3.1 expresses them natively where it can —
+# Official-First: ODCS (since v3.1) expresses them natively where it can —
 #   nullable/unknown_member → ``required``; ref → property-level ``relationships`` (``to: dim.col``);
 #   ``in`` → library metric ``invalidValues`` (``arguments.validValues``, ``mustBe: 0``);
 #   ranges / column comparisons → ``type: sql`` rule counting violating rows, ``mustBe: 0``.
@@ -113,6 +115,85 @@ def _schema_object(product: dict[str, Any], table: dict[str, Any] | None = None,
 # SQL comes from ``provision_dq.pruef_praedikat`` (one translation for MLV and ODCS).
 _SHORTHAND_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\-]*(\.[A-Za-z_][A-Za-z0-9_\-]*)+$")
 _STABLE_ID_RE = re.compile(r"[\s.#/\\@!%&^]+")
+
+
+# --------------------------------------------------------------------------- semanticType · synonyms (ODCS v3.2)
+# Owner-Entscheidung 30.09.2026: der v3.2-Export schreibt ``semanticType`` und ``synonyms`` aktiv,
+# ``context`` nicht (Meridian D-590). Form laut dem in Meridian vendored Schema
+# ``core/dataeng_engine/sources/vendor/odcs-json-schema-v3.2.json``:
+#   ``$defs.SchemaBaseProperty.properties.semanticType`` (also je *property*, nicht je Objekt):
+#     {"type": "string", "enum": ["column", "measure", "dimension"], "default": "column",
+#      "description": "The semantic role the property plays in the data model. `column` (the default)
+#      is a physical column in the underlying data store; `measure` is an aggregated value (e.g.,
+#      `SUM(revenue)`) whose aggregation expression is held in `transformLogic`; `dimension` is a
+#      categorical attribute used for grouping and filtering. See RFC 0034."}
+#   ``$defs.SchemaElement.properties.synonyms`` → ``$defs.Synonyms`` (je Element, also Objekt *und*
+#     property): {"type": "array", "items": {"$ref": "#/$defs/Synonym"}}; ``$defs.Synonym`` ist ein
+#     Objekt mit Pflichtfeld ``synonym`` (string) und optional ``id``/``description``/``locale``/
+#     ``source``/``status``/``customProperties``, ``additionalProperties: false`` (RFC 0041).
+#     Eine blanke Zeichenkette ist also KEIN gueltiges Synonym — der Katalog traegt Zeichenketten,
+#     der Vertrag ``{"synonym": …}``.
+SEMANTIC_TYPES = ("column", "measure", "dimension")
+
+
+def semantic_type(spec: dict[str, Any], table_kind: str | None) -> str | None:
+    """Die ODCS-``semanticType`` einer Spalte — mechanisch aus dem Katalog, nichts geraten.
+
+    Regel (erste zutreffende Zeile gewinnt):
+
+    1. ``semantic_type`` im Spaltenvertrag gesetzt → dieser Wert (muss in ``SEMANTIC_TYPES``
+       stehen, sonst ``ValueError``). So kommt ein fremder Vertrag verlustfrei zurueck.
+    2. ``agg`` **und** ``ref`` gesetzt → ``None`` (widerspruechlich: Kennzahl oder Fremdschluessel).
+    3. ``agg`` gesetzt (Standard-Aggregation einer Kennzahl) → ``measure``.
+    4. ``ref`` gesetzt (Fremdschluessel auf eine Dimension) → ``dimension``.
+    5. Spalte einer Tabelle ``kind: dimension`` → ``dimension``.
+    6. sonst → ``None`` (Feld weglassen): eine Faktenspalte ohne ``agg``/``ref`` kann ein Datum,
+       eine degenerierte Dimension oder ein Rechenfeld sein — nicht eindeutig. ``column`` wird nie
+       hergeleitet; das Weglassen bedeutet laut Schema ohnehin ``default: column``.
+
+    ``table_kind`` ist das ``kind`` des Schema-Objekts (customProperty ``kind``), damit ein Leser die
+    Ableitung am Vertrag selbst nachpruefen kann.
+    """
+    explicit = spec.get("semantic_type")
+    if explicit is not None:
+        if explicit not in SEMANTIC_TYPES:
+            raise ValueError(f"semantic_type {explicit!r} of column {spec.get('name')!r} "
+                             f"is not one of {SEMANTIC_TYPES}")
+        return str(explicit)
+    agg, ref = bool(spec.get("agg")), bool(spec.get("ref"))
+    if agg and ref:
+        return None
+    if agg:
+        return "measure"
+    if ref:
+        return "dimension"
+    if table_kind == "dimension":
+        return "dimension"
+    return None
+
+
+def _synonyms_to_odcs(values: Any, column: str) -> list[dict[str, Any]]:
+    """Katalog-Synonyme (Zeichenketten; ein Objekt mit ``synonym`` wird durchgereicht) → ODCS."""
+    out: list[dict[str, Any]] = []
+    for v in values or []:
+        if isinstance(v, str):
+            out.append({"synonym": v})
+        elif isinstance(v, dict) and isinstance(v.get("synonym"), str):
+            out.append(dict(v))
+        else:
+            raise ValueError(f"synonym {v!r} of column {column!r} is neither a string nor "
+                             "an object with 'synonym'")
+    return out
+
+
+def _synonyms_from_odcs(values: Any) -> list[Any]:
+    """ODCS ``synonyms`` → Katalogform: ``{"synonym": x}`` allein wird ``x``; traegt ein Eintrag
+    mehr (``locale``, ``source`` …), bleibt er als Objekt stehen (verlustfrei)."""
+    out: list[Any] = []
+    for v in values or []:
+        if isinstance(v, dict) and isinstance(v.get("synonym"), str):
+            out.append(v["synonym"] if set(v) == {"synonym"} else dict(v))
+    return out
 
 
 def _quality_rule(column: str, check: dict[str, Any], n: int) -> dict[str, Any]:
@@ -135,8 +216,12 @@ def _quality_rule(column: str, check: dict[str, Any], n: int) -> dict[str, Any]:
     return rule
 
 
-def _spec_to_property(spec: dict[str, Any], governed_catalog: dict[str, Any] | None) -> dict[str, Any]:
-    """One ``column_specs`` entry → an ODCS v3.1 property (lossless, see ``_property_to_spec``)."""
+def _spec_to_property(spec: dict[str, Any], governed_catalog: dict[str, Any] | None,
+                      table_kind: str | None = None) -> dict[str, Any]:
+    """One ``column_specs`` entry → an ODCS property (lossless, see ``_property_to_spec``).
+
+    ``semanticType`` follows ``semantic_type`` (rule in its docstring); ``synonyms`` are written
+    only when the column has some (missing → field omitted); ``agg`` travels as customProperty."""
     ref_ziel = _provision_dq().ref_ziel
     name = spec["name"]
     prop: dict[str, Any] = {"name": name}
@@ -147,6 +232,13 @@ def _spec_to_property(spec: dict[str, Any], governed_catalog: dict[str, Any] | N
     if spec.get("type"):
         prop["logicalType"] = _logical_type(str(spec["type"]))
         prop["physicalType"] = str(spec["type"])
+    st = semantic_type(spec, table_kind)
+    if st:
+        prop["semanticType"] = st
+    if spec.get("synonyms"):
+        prop["synonyms"] = _synonyms_to_odcs(spec["synonyms"], name)
+    if spec.get("agg"):
+        custom.append({"property": "agg", "value": spec["agg"]})
     if "unknown_member" in spec:
         prop["required"] = True
         custom.append({"property": "unknownMember", "value": spec["unknown_member"]})
@@ -171,17 +263,27 @@ def _spec_to_property(spec: dict[str, Any], governed_catalog: dict[str, Any] | N
     return prop
 
 
-def _property_to_spec(prop: dict[str, Any]) -> dict[str, Any]:
+def _property_to_spec(prop: dict[str, Any], table_kind: str | None = None) -> dict[str, Any]:
     """An ODCS property → a ``column_specs`` entry (only keys that are set).
 
     One normalisation, not a loss: ``nullable: false`` beside ``unknown_member`` is redundant
     (``unknown_member`` already means "never NULL") and comes back as ``unknown_member`` alone.
+    ``semanticType`` comes back as ``semantic_type`` only where it differs from what
+    ``semantic_type()`` derives from the spec and ``table_kind`` — for the contracts ``to_odcs``
+    writes that is never, so their catalog is unchanged. A property *without* ``semanticType`` whose
+    spec would derive one cannot say "none" in the catalog; re-export then adds the derived value.
     """
     spec: dict[str, Any] = {"name": prop["name"]}
     if prop.get("physicalName") and prop["physicalName"] != prop["name"]:
         spec["source_column"] = prop["physicalName"]
     if prop.get("physicalType"):
         spec["type"] = prop["physicalType"]
+    agg = _custom(prop, "agg")
+    if agg:
+        spec["agg"] = agg
+    synonyms = _synonyms_from_odcs(prop.get("synonyms"))
+    if synonyms:
+        spec["synonyms"] = synonyms
     unknown_set = False
     for cp in prop.get("customProperties") or []:
         if cp.get("property") == "unknownMember":
@@ -211,24 +313,33 @@ def _property_to_spec(prop: dict[str, Any]) -> dict[str, Any]:
         checks = list(_custom(prop, "meridianChecks") or checks)
     if checks:
         spec["checks"] = checks
+    st = prop.get("semanticType")
+    if st is not None and st != semantic_type(spec, table_kind):
+        spec["semantic_type"] = st
     return spec
 
 
-def _table_properties(table: dict[str, Any], governed_catalog: dict[str, Any] | None
-                      ) -> list[dict[str, Any]]:
+def _table_properties(table: dict[str, Any], governed_catalog: dict[str, Any] | None,
+                      table_kind: str | None = None) -> list[dict[str, Any]]:
     """ODCS properties for a catalog table: ``column_specs`` first (in contract order), then the
-    remaining plain column names (sorted) as name-only properties."""
+    remaining plain column names (sorted) as name-only properties (with ``semanticType`` where
+    ``semantic_type`` derives one from ``table_kind`` alone)."""
     specs = [s for s in table.get("column_specs") or [] if isinstance(s, dict) and s.get("name")]
     columns = set(table.get("columns") or [])
     props = []
     for s in specs:
-        prop = _spec_to_property(s, governed_catalog)
+        prop = _spec_to_property(s, governed_catalog, table_kind)
         if columns and s["name"] not in columns:
             # z. B. eine Zielbild-Spalte, die es noch nicht gibt: nicht projizieren
             prop.setdefault("customProperties", []).append({"property": "projected", "value": False})
         props.append(prop)
     seen = {s["name"] for s in specs}
-    props += [{"name": c} for c in sorted(columns) if c not in seen]
+    for c in sorted(columns - seen):
+        prop = {"name": c}
+        st = semantic_type(prop, table_kind)
+        if st:
+            prop["semanticType"] = st
+        props.append(prop)
     return props
 
 
@@ -243,8 +354,11 @@ def to_odcs(blueprint: dict[str, Any], governed_catalog: dict[str, Any] | None =
     """Export the IR's gold/mesh layer as one ODCS ``DataContract`` per domain (sorted, deterministic).
 
     With ``governed_catalog`` each gold product found there carries its columns as ODCS
-    ``properties`` — including the structured ``column_specs`` checks (A-20) — and the contract is
-    stamped ``v3.1.0`` (``relationships``/``metric`` need it). ``odcs_to_catalog`` reads them back.
+    ``properties`` — including the structured ``column_specs`` checks (A-20) and, since v3.2.0,
+    ``semanticType`` (derived, see ``semantic_type``) and ``synonyms`` (from the column's catalog
+    synonyms; missing → omitted). ``context`` is not written (Owner-Entscheidung 30.09.2026). Every
+    contract is stamped ``ODCS_API_VERSION`` (v3.2.0), with or without columns.
+    ``odcs_to_catalog`` reads them back.
     """
     stack = blueprint.get("platform", {}).get("stack", "fabric")
     gold = blueprint.get("medallion", {}).get("gold", {}).get("data_products", [])
@@ -261,9 +375,8 @@ def to_odcs(blueprint: dict[str, Any], governed_catalog: dict[str, Any] | None =
             for pn in sorted(dom.get("data_products", []))
             if pn in gold_by_name
         ]
-        mit_spalten = any(o.get("properties") for o in schema)
         contract: dict[str, Any] = {
-            "apiVersion": ODCS_API_VERSION_SPALTEN if mit_spalten else ODCS_API_VERSION,
+            "apiVersion": ODCS_API_VERSION,
             "kind": ODCS_KIND,
             "id": f"{_slug(stack)}-{_slug(name)}",
             "name": name,
@@ -297,7 +410,7 @@ def emit_odcs(blueprint: dict[str, Any]) -> dict[str, str]:
     contracts = to_odcs(blueprint)
     out: dict[str, str] = {}
     index = ["# ODCS data contracts (generated — ADR-0051 / Official-First)", "",
-             "Open Data Contract Standard v3.0.0 · one contract per governance domain "
+             f"Open Data Contract Standard {ODCS_API_VERSION} · one contract per governance domain "
              "(data product = single owning domain).", "",
              "| Domain | Contract | Data products |", "|---|---|---|"]
     for c in contracts:
@@ -313,11 +426,35 @@ def emit_odcs(blueprint: dict[str, Any]) -> dict[str, str]:
 # --------------------------------------------------------------------------- handover boundary (ingestion/silver)
 # Cross-repo mirror of Meridian's Stage-0b ODCS-beyond-gold: govern the inbound SAP→Fabric interface —
 # one boundary contract per ingestion source, carrying handover_layer + connector + access_mode.
-_CONNECTOR_SERVER_TYPE = {
-    "odbc-live": "odbc", "odbc-copy": "odbc", "hana": "sap", "odata": "api",
+#
+# Server type (Meridian D-584, dort gemessen 29.09.2026 gegen das vendored v3.1-Schema): ``odbc`` und
+# ``sap`` stehen nicht in der ``type``-Aufzaehlung, ``api`` verlangt ``location``, ``azure`` verlangt
+# ``location`` + ``format``, und ``host`` ist nur beim Typ ``custom`` erlaubt. Deshalb ist der Server
+# immer ``type: custom`` (das Standard-Ventil fuer nicht gelistete Systeme); der Hinweis unten reist
+# als customProperty ``serverTypeHint`` mit.
+# v3.2.0 (Meridian D-586, gemessen 30.09.2026 am vendored v3.2-Schema): ``sap``/``odbc`` fehlen weiter,
+# ``host`` bleibt ``custom`` vorbehalten; neu ist der Typ ``hana`` (RFC 0045, Pflicht ``host``). Der
+# Hinweis fuer den Konnektor ``hana`` nennt deshalb jetzt diesen Standardwert. Der Server bleibt
+# ``custom``: ``source_system`` ist ein Systemname („SAP S/4HANA“), kein Hostname.
+_CONNECTOR_SERVER_TYPE = {  # connector → server type hint (carried as customProperty, see above)
+    "odbc-live": "odbc", "odbc-copy": "odbc", "hana": "hana", "odata": "api",
     "premium-outbound-shortcut": "azure", "mirroring": "sap", "sap-cdc": "sap",
     "open-mirroring": "custom", "bdc-connect": "sap",
 }
+
+
+def _custom_server(server: str, hint: str, description: str, host: str | None = None
+                   ) -> dict[str, Any]:
+    """An ODCS ``servers`` entry for a system the standard does not enumerate (SAP, ODBC …).
+
+    ``type: custom`` is the schema's own answer; ``host`` is valid there. The system kind
+    travels as customProperty ``serverTypeHint`` (omitted when it is ``custom`` itself)."""
+    out: dict[str, Any] = {"server": server, "type": "custom", "description": description}
+    if host:
+        out["host"] = host
+    if hint and hint != "custom":
+        out["customProperties"] = [{"property": "serverTypeHint", "value": hint}]
+    return out
 
 
 def _handover_schema_object(entry: dict[str, Any]) -> dict[str, Any]:
@@ -344,14 +481,11 @@ def to_odcs_ingestion(blueprint: dict[str, Any]) -> list[dict[str, Any]]:
     contracts: list[dict[str, Any]] = []
     for e in sorted(blueprint.get("ingestion", []), key=lambda e: e.get("source", "")):
         connector = e.get("connector")
-        server: dict[str, Any] = {
-            "server": "sap-source",
-            "type": _CONNECTOR_SERVER_TYPE.get(connector, "custom"),
-            "description": f"handover via {connector or 'unspecified connector'} at the "
-                           f"{e.get('handover_layer') or 'unspecified'} layer",
-        }
-        if e.get("source_system"):
-            server["host"] = e["source_system"]
+        server = _custom_server(
+            "sap-source", _CONNECTOR_SERVER_TYPE.get(connector, "custom"),
+            f"handover via {connector or 'unspecified connector'} at the "
+            f"{e.get('handover_layer') or 'unspecified'} layer",
+            host=e.get("source_system"))
         custom = [{"property": "layer", "value": "ingestion/handover-boundary"},
                   {"property": "handover_layer", "value": e.get("handover_layer") or "unspecified"}]
         if connector:
@@ -379,7 +513,7 @@ def emit_odcs_ingestion(blueprint: dict[str, Any]) -> dict[str, str]:
     contracts = to_odcs_ingestion(blueprint)
     out: dict[str, str] = {}
     index = ["# ODCS handover-boundary contracts (generated — Fahrplan Stage 0b)", "",
-             "Open Data Contract Standard v3.0.0 · one contract per **ingestion source** — governs the "
+             f"Open Data Contract Standard {ODCS_API_VERSION} · one contract per **ingestion source** — governs the "
              "inbound SAP→Fabric interface (raw/conformed/silver), beyond the gold `to_odcs` scope.", "",
              "| Source | Handover layer | Connector | Contract |", "|---|---|---|---|"]
     for c in contracts:
@@ -462,7 +596,8 @@ def odcs_to_catalog(contracts: list[dict[str, Any]] | dict[str, Any]) -> dict[st
             entry: dict[str, Any] = {"name": obj.get("physicalName") or obj.get("name"),
                                      "columns": cols}
             # A-20: structured column contract (only properties that say more than their name)
-            specs = [_property_to_spec(p) for p in props]
+            kind = _custom(obj, "kind")
+            specs = [_property_to_spec(p, kind) for p in props]
             specs = [sp for sp in specs if len(sp) > 1]
             if specs:
                 entry["column_specs"] = specs

@@ -12,7 +12,7 @@
       "kpi_id": {
         "type": "string",
         "description": "Must match a kpi_id value in core/kpi_catalog/KPI_Catalog.md.",
-        "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+        "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$"
       },
       "owner": {
         "type": "string",

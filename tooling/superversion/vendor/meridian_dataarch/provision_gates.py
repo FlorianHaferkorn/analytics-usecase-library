@@ -19,6 +19,13 @@ customer path (a semantic model, a PBIP, the emitted drift check, a DQ runner) a
 **guarded** — skipped with a reason when the input is absent, never faked. A failing
 gate blocks by default (``exit 1``); ``GATES_ADVISORY=1`` downgrades every gate to a
 warning (the documented rollback). Emits only; never executes.
+
+**Wo ein Gate laeuft (R8, 30.09.2026).** Ein Katalogeintrag mit ``needs`` braucht ein
+Werkzeug dieses Repos. Solche Gates laufen beim Lieferanten vor der Uebergabe und stehen
+in ``_GATES.md`` mit diesem Ort; ins gelieferte ``validate.sh`` kommen sie nicht. Bis
+30.09.2026 standen sie dort hinter einer ``have``-Pruefung und wurden beim Kunden immer
+uebersprungen (gemessen 11.08.2026: alle fuenf PR-Gates SKIP) — tote Aufrufe unseres
+Werkzeugs in einer Datei, die ohne unser Werkzeug laufen soll (ADR-0050 §5).
 """
 from __future__ import annotations
 
@@ -131,6 +138,17 @@ def _gates_for_phase(catalog: list[dict], phase: str) -> list[dict]:
     return [g for g in catalog if phase in g["phases"]]
 
 
+def lieferant_gate(g: dict) -> bool:
+    """Wahr, wenn das Gate ein Werkzeug dieses Repos braucht (``needs``) — dann laeuft es beim
+    Lieferanten vor der Uebergabe und nicht in der gelieferten ``validate.sh`` (R8)."""
+    return bool(g.get("needs"))
+
+
+def lieferung_gates(catalog: list[dict]) -> list[dict]:
+    """Die Gates, die ohne dieses Repo laufen koennen — nur sie gehen in die Lieferung."""
+    return [g for g in catalog if not lieferant_gate(g)]
+
+
 def gate_helpers_sh() -> list[str]:
     """Shared bash ``gate()``/``skip()`` helpers — reused by validate.sh (I-19.3) and the
     use-case gate (I-19.8). Expects ``$ADVISORY``, ``$fail``, ``$ran`` und ``$skipped``
@@ -138,6 +156,8 @@ def gate_helpers_sh() -> list[str]:
 
     ``gate <id> <command…>`` runs the command; on failure it blocks (``fail=1``) unless
     ``ADVISORY=1`` (then it only warns). ``skip <id> <reason>`` notes a cleanly-skipped gate.
+    Ein ``have()`` fuer Werkzeuge des Lieferanten-Repos gibt es seit R8 (30.09.2026) nicht
+    mehr: solche Gates stehen gar nicht erst in der gelieferten Datei (``lieferant_gate``).
     Beide zählen mit, damit die Schlusszeile sagen kann, wie viel wirklich geprüft wurde
     (siehe ``gate_summary_sh``).
     """
@@ -158,12 +178,6 @@ def gate_helpers_sh() -> list[str]:
         "  fi",
         "}",
         'skip() { skipped=$((skipped + 1)); echo "▷ gate: $1 — SKIP ($2)"; }',
-        "# Ein Prüfer des Lieferanten-Repos, der hier nicht liegt, ist kein roter Gate —",
-        "# er ist einer, der in dieser Umgebung nicht zuständig ist. Der Unterschied entscheidet,",
-        "# ob die Kette weiterläuft oder in Schritt 1 stehenbleibt.",
-        "have() {  # have <datei> → 0 wenn vorhanden",
-        '  [ -e "$1" ]',
-        "}",
     ]
 
 
@@ -202,11 +216,13 @@ def emit_validate_sh(architecture_path: str = "data_architecture.json", stack: s
     gate); ``GATES_ADVISORY=1`` downgrades to warnings (rollback). Customer-path gates
     are guarded and skip cleanly when their input is absent.
     """
-    catalog = _gate_catalog(architecture_path, stack)
+    catalog = lieferung_gates(_gate_catalog(architecture_path, stack))
     lines = [
         "#!/usr/bin/env bash",
         "# ArchitectureBlueprint → Validierungs-Gates (ADR-0050 / I-19.3). Generated; review before running.",
-        "# Tool-Reuse: jeder Gate ist ein bestehender, grüner Prüfer im Repo — kein neues Checker-Silo.",
+        "# Enthaelt nur Gates, die ohne das Werkzeug des Lieferanten laufen. Die Artefakt-Pruefungen",
+        "# (Stufe 1: conformance, block-f, pbir-validate, tmdl-load, pbi-audit) laufen beim Lieferanten",
+        "# vor der Uebergabe — siehe gates/_GATES.md, Spalte \"Wo\". Eigene Pruefungen: validate.local.sh.",
         "# Aufruf: bash gates/validate.sh <pr|pre-deploy|post-deploy>",
         "# Blockt per Default (exit 1 bei rotem Gate). GATES_ADVISORY=1 → nur Warnung (Rollback).",
         "set -uo pipefail",
@@ -232,14 +248,7 @@ def emit_validate_sh(architecture_path: str = "data_architecture.json", stack: s
             if "guard" in g:
                 test, reason = _GUARDS[g["guard"]]
                 run = f'if {test}; then {run}; else skip "{g["id"]}" "{reason}"; fi'
-            if g.get("needs"):
-                # Der Werkzeug-Test steht AUSSEN: fehlt der Prüfer, ist die Eingabe egal.
-                lines.append(f'  if have "{g["needs"]}"; then {run}; '
-                             f'else skip "{g["id"]}" "Lieferanten-Werkzeug {g["needs"]} nicht '
-                             f'vorhanden — dieser Gate laeuft im Meridian-Repo, nicht in der '
-                             f'Lieferung"; fi')
-            else:
-                lines.append(f"  {run}")
+            lines.append(f"  {run}")
         lines.append("fi")
         lines.append("")
     lines += gate_summary_sh("GATES", "$PHASE")
@@ -255,13 +264,16 @@ def emit_gates_ci(architecture_path: str = "data_architecture.json",
                   stack: str = "fabric", python_version: str = "3.11") -> str:
     """A GitHub Actions workflow that runs the **PR-phase** gates as a merge gate.
 
-    Broader sibling of ``architecture-gate.yml``: instead of conformance alone it runs the
-    full PR gate set via ``gates/validate.sh pr`` (blocking). Part of the delivery pipeline,
-    not a customer-runtime dependency (Official-First boundary).
+    Runs ``gates/validate.sh pr`` (blocking) — the PR gates that can run in the customer's
+    repo, plus the customer's own ``validate.local.sh``. Seit R8 (30.09.2026) ruft die
+    Lieferung kein Werkzeug dieses Repos mehr auf; die Artefakt-Pruefungen der Stufe 1
+    laufen beim Lieferanten vor der Uebergabe. Der Job-Name ``gates`` ist ein Pflicht-Check
+    der Branch-Regel (``provision_cicd.RULESET_STATUS_CHECKS``).
     """
-    return f"""# validation-gates — full PR gate set as a merge gate (ADR-0050 / I-19.3).
-# Runs gates/validate.sh pr: conformance · Block F · PBIR-validate · (TMDL/PBI-audit when present).
-# A red validator fails this check and blocks the merge. GATES_ADVISORY unset → blocking.
+    return f"""# validation-gates — PR merge gate (ADR-0050 / I-19.3).
+# Runs gates/validate.sh pr: the PR gates of this delivery plus your own validate.local.sh.
+# The artifact checks of stage 1 (conformance · Block F · PBIR · TMDL · PBI audit) ran at the
+# supplier before handover (gates/_GATES.md). A red gate fails this check and blocks the merge.
 name: validation-gates
 on:
   pull_request: {{}}
@@ -284,21 +296,57 @@ jobs:
 """
 
 
+def emit_gates_ci_azure(python_version: str = "3.11") -> str:
+    """Azure-Pipelines-Zwilling von ``gates.yml`` (R8, 30.09.2026).
+
+    Bis 30.09.2026 zeigte die Azure-DevOps-Branch-Policy auf
+    ``cicd/azure-pipelines-architecture-gate.yml``, die in der Kunden-CI unser Werkzeug aufrief.
+    Diese Pipeline faehrt stattdessen dasselbe ``validate.sh pr`` wie ``gates.yml``.
+    Ohne ``pr``-Block: in Azure Repos Git startet die Build-Validation der Branch-Policy den
+    Lauf; YAML-``pr``-Trigger gelten nur fuer GitHub/Bitbucket (Learn ``yaml-schema/pr``,
+    gelesen 30.09.2026).
+    """
+    return f"""# validation-gates — PR merge gate (ADR-0050 / I-19.3), Azure Pipelines.
+# Twin of gates/gates.yml (GitHub Actions) — keep whichever matches your CI host.
+# Runs gates/validate.sh pr: the PR gates of this delivery plus your own validate.local.sh.
+trigger: none          # PR-only gate; the branch build does not need to re-run it
+# Azure Repos Git: runs as the branch policy's build validation (cicd/_BRANCH_RULE.md); YAML `pr`
+# triggers apply only to GitHub/Bitbucket (Learn yaml-schema/pr, read 30.09.2026).
+pool:
+  vmImage: ubuntu-latest
+steps:
+  - task: UsePythonVersion@0
+    displayName: Use Python {python_version}
+    inputs:
+      versionSpec: "{python_version}"
+  - script: bash gates/validate.sh pr
+    displayName: Run PR gates (blocking)
+"""
+
+
 def _gates_doc(catalog: list[dict], model_wiring: dict[str, list[str]]) -> str:
     lines = [
         "# Validierungs-Gates (generiert — ADR-0050 / I-19.3)", "",
         "Die Validierungs-Pipeline als **Stage-Gates**: bestehende Prüfer (Tool-Reuse) an drei "
         "Positionen — PR (CI), Pre-Deploy, Post-Deploy. Roter Prüfer → Deploy blockt "
         "(`exit 1`). `GATES_ADVISORY=1` schaltet alle Gates auf Warnung (Rollback).", "",
-        "## Gate × Phase", "| Gate | Stufe | PR | Pre-Deploy | Post-Deploy | Blockt | Prüfer (Tool-Reuse) |",
-        "|---|:--:|:--:|:--:|:--:|:--:|---|",
+        "## Gate × Phase", "| Gate | Stufe | Wo | PR | Pre-Deploy | Post-Deploy | Blockt | Prüfer (Tool-Reuse) |",
+        "|---|:--:|---|:--:|:--:|:--:|:--:|---|",
     ]
     for g in catalog:
         cell = lambda p: "✓" if p in g["phases"] else ""  # noqa: E731
         blk = "ja" if g["blocking"] else "advisory"
-        lines.append(f"| `{g['id']}` | {g.get('stufe') or '—'} | {cell('pr')} | {cell('pre-deploy')} | "
+        wo = "Lieferant, vor Übergabe" if lieferant_gate(g) else "`validate.sh`"
+        lines.append(f"| `{g['id']}` | {g.get('stufe') or '—'} | {wo} | {cell('pr')} | {cell('pre-deploy')} | "
                      f"{cell('post-deploy')} | {blk} | {g['note']} |")
+    lines += [
+        "", "**Wo.** Gates mit „Lieferant, vor Übergabe“ brauchen das Werkzeug des Lieferanten "
+        "und stehen deshalb nicht in `validate.sh`: die Lieferung läuft ohne es (ADR-0050 §5). "
+        "Sie sind vor der Übergabe gelaufen; wer die Lieferung danach ändert, prüft seine Änderung "
+        "mit eigenen Mitteln in `validate.local.sh` oder lässt sie beim Lieferanten neu erzeugen.",
+    ]
     lines += _teststufen_abschnitt()
+    lines += _table_read_smoke_abschnitt()
     lines += [
         "", "## Aufruf", "```bash",
         "bash gates/validate.sh pr            # im PR (CI) — blockt Merge",
@@ -306,18 +354,57 @@ def _gates_doc(catalog: list[dict], model_wiring: dict[str, list[str]]) -> str:
         "bash gates/validate.sh post-deploy   # nach dem Load, vor der nächsten Stage",
         "GATES_ADVISORY=1 bash gates/validate.sh pre-deploy   # Rollback: nur warnen, nicht blocken",
         "```",
-        "Eingaben (sonst SKIP, nie gefälscht): `ARCH` (Architektur-JSON), `STACK`, `MODEL` "
-        "(SemanticModel-Pfad → tmdl-load), `PBIP` (→ pbi-audit/BPA), `DRIFT_CHECK` "
+        "Eingaben (sonst SKIP, nie gefälscht): `DRIFT_CHECK` "
         "(emittierte `drift_check.py`), `DQ_GATE` (DQ-Runner über `governance/data_quality.json`).", "",
         "## Verdrahtung je Deployment-Modell (I-19.1)",
     ]
     for model, where in model_wiring.items():
         lines.append(f"- **{model}:** " + "; ".join(where) + ".")
     lines += [
-        "", "Die PR-Gates laufen zusätzlich als eigener CI-Workflow `gates.yml` "
-        "(`validate.sh pr`) — breiterer Bruder von `architecture-gate.yml`.", "",
+        "", "Die PR-Gates laufen als CI-Workflow `gates.yml` (`validate.sh pr`, GitHub Actions) "
+        "bzw. `azure-pipelines-gates.yml` (Azure Pipelines); der Job `gates` ist Pflicht-Check der "
+        "Branch-Regel (`cicd/_BRANCH_RULE.md`).", "",
     ]
     return "\n".join(lines) + "\n"
+
+
+def _table_read_smoke_abschnitt() -> list[str]:
+    """Optionaler Post-Deploy-Smoke ueber die OneLake Table Read API (I-21 W5.8, **Preview**).
+
+    Kein Katalogeintrag und kein Schritt in ``validate.sh``: die API ist Preview, der Aufruf braucht
+    Token und Tabellen-IDs zur Laufzeit, und der Rumpf der Leseoptionen ist auf Learn nur mit dem
+    Namen ``columns`` beschrieben — ein Gate daraus waere ein geratenes Gate. Belegt per Learn-MCP
+    am 30.09.2026: `fabric/onelake/table-apis/read-table-data-rest-api` (POST ``/read``, GET
+    ``/readStream/{streamId}``, Arrow-IPC, Sitzung 60 Minuten, RLS/CLS, 404 bei fehlendem Recht,
+    keine regionsuebergreifenden Shortcuts, abgerechnet wird ``POST /read``) und
+    `table-apis-overview` (Endpunkt ``onelake.table.fabric.microsoft.com``, Token-Zielgruppe
+    ``https://storage.azure.com/``).
+    """
+    return [
+        "", "## Optionaler Smoke: eine Gold-Tabelle über die OneLake Table Read API (Preview)", "",
+        "Nach dem Load, von Hand oder im eigenen Runner: eine Gold-Tabelle **so lesen, wie ein "
+        "Verbraucher sie liest** — mit dessen Identität und unter OneLake-Security (Zeilen- und "
+        "Spaltenschutz). Das prüft zwei Dinge auf einmal, die kein Gate oben prüft: dass die "
+        "Tabelle eine gültige Delta- bzw. Iceberg-Tabelle ist, und dass die Rollen das zeigen, "
+        "was sie zeigen sollen.", "",
+        "1. `POST {TableReadBaseUrl}/v1.0/workspaces/{WorkspaceID}/items/{ItemID}/schemas/"
+        "{Schema}/tables/{Tabelle}/read` mit der Option `columns`; die Antwort nennt eine oder "
+        "mehrere Stream-IDs.",
+        "2. Je Stream-ID `GET …/tables/{Tabelle}/readStream/{StreamID}` und den Rumpf mit einem "
+        "Apache-Arrow-IPC-Leser öffnen. Alle Streams innerhalb von **60 Minuten** holen.", "",
+        "| Ergebnis | Bedeutung |", "|---|---|",
+        "| Zeilen kommen | Tabelle lesbar, Rechte greifen |",
+        "| leere Arrow-Antwort, Status OK | Zeilenschutz filtert alles — für eine Testidentität "
+        "ohne Rolle richtig, für eine mit Rolle ein Befund |",
+        "| 404 / not found | Tabelle fehlt **oder** keine Berechtigung — die API unterscheidet das "
+        "absichtlich nicht; nicht als „Tabelle fehlt\" lesen |",
+        "", "Grenzen: **Preview** (Verhalten kann sich ändern); keine regionsübergreifenden "
+        "Shortcuts; abgerechnet wird jeder `POST /read`. Token für die Zielgruppe "
+        "`https://storage.azure.com/`, wie für die OneLake-Dateiendpunkte. `{TableReadBaseUrl}` "
+        "nennt die Seite nicht ausgeschrieben; die Übersicht nennt als Endpunkt der Tabellen-APIs "
+        "`https://onelake.table.fabric.microsoft.com` (ANNAHME, ungeprüft, dass `/read` darunter "
+        "liegt).",
+    ]
 
 
 def _teststufen_abschnitt() -> list[str]:
@@ -450,6 +537,7 @@ def emit_gates(architecture_path: str = "data_architecture.json", stack: str = "
     return {
         "gates/validate.sh": emit_validate_sh(architecture_path, stack),
         "gates/gates.yml": emit_gates_ci(architecture_path, stack),
+        "gates/azure-pipelines-gates.yml": emit_gates_ci_azure(),
         "gates/_GATES.md": _gates_doc(catalog, _MODEL_WIRING),
         "gates/_ABNAHME.md": _abnahme_md(blueprint),
     }

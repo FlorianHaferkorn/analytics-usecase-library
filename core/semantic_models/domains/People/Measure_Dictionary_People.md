@@ -7,7 +7,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 ```yaml
 - measure_name: Digital Adoption %
   is_kpi_measure: true
-  kpi_id_ref: people.digital_adoption.pct
+  kpi_id_ref: KPI-SVC-002
   category: KPI
   expression:
     logical: Digital Adoption % = DIVIDE ( SUM ( fact_it[Digital Users] ), SUM ( fact_hr[Headcount] ) )

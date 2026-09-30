@@ -160,6 +160,32 @@ def _operations_runbook(gc: dict) -> str:
         "Zeitpunkte ab, muss das **Framing** selbst angestoßen werden, sonst friert der Stand ein.",
         "- **SQL-Endpunkt-Metadatensync** pausiert nach ~**15 Minuten Inaktivität** — neue Tabellen "
         "erscheinen dann verzögert; bei Bedarf gezielt anstoßen.",
+        "", "## Refresh-Optionen — Schema und Daten getrennt (I-21 W6.7)", "",
+        "Ein Refresh macht standardmäßig erst einen Schema-Sync, dann den Daten-Refresh. Seit August "
+        "2026 lassen sich beide trennen und je Tabelle fahren (Desktop und Service; Power BI What's "
+        "new August 2026 ohne Preview-Kennzeichen; Learn `power-bi/connect-data/refresh-data` → "
+        "*Power BI refresh options* und `power-bi/transform-model/service-edit-data-models` → "
+        "*Refresh*, gelesen 29.09.2026).", "",
+        "| Option | Wann in dieser Lieferung | Wann nicht |", "|---|---|---|",
+        "| **Refresh data only** | Standard nach jedem Laden und nach einem Deploy ohne "
+        "Modelländerung: frische Daten, das Schema bleibt wie in Git (TMDL ist die Quelle) | — |",
+        "| **Sync schema only** | nur im Entwicklungs-Workspace, wenn eine Gold-Tabelle eine Spalte "
+        "bekommen hat und sie ins Modell soll — danach **zurück nach Git committen** | nie in test/"
+        "prod: das Modell weicht sonst still vom Git-Stand ab, und der nächste Deploy überschreibt "
+        "es wieder |",
+        "| **Refresh schema and data** | Desktop-Entwicklung | nicht als Betriebs-Refresh |",
+        "| **Refresh je Tabelle** (Model explorer → Tabelle) | nach dem Nachladen einer einzelnen "
+        "Gold-Tabelle; automatisiert über die Pipeline-Aktivität *Semantic model refresh* "
+        "(Tabellen und Partitionen wählbar, Learn `data-factory/semantic-model-refresh-activity`) | "
+        "wenn berechnete Tabellen oder Spalten von der Tabelle abhängen — dann ganzes Modell "
+        "(ANNAHME, ungeprüft: Learn nennt die Abhängigkeitsregel für den Tabellen-Refresh nicht) |",
+        "",
+        "- Im **Ansichtsmodus** des Service bietet der Refresh nur *Refresh data*; Schema-Optionen "
+        "erst im Bearbeitungsmodus (Learn, dieselbe Seite) — gewollt, verhindert versehentliche "
+        "Schemaänderungen.",
+        "- Direct Lake: der geplante Refresh im Workspace macht nur das **Framing**, keinen "
+        "Schema-Sync (Learn `fabric/fundamentals/direct-lake-power-bi-desktop`). Eine neue Spalte "
+        "in der Lakehouse-Tabelle kommt also nicht von selbst ins Modell; das ist hier gewollt.",
         "", "## Damit AI-Antworten belastbar sind", "",
         "- **Q&A muss aktiviert sein**, sonst ist *Prep data for AI* gesperrt.",
         "- **Prep for AI** konfigurieren: AI-Datenschema (welche Tabellen/Spalten die AI nutzen darf), "

@@ -8,13 +8,13 @@ import type { SpineRule } from '@/lib/governance/spine-enforcer';
 
 describe('spine-enforcer', () => {
   const spineRules: SpineRule[] = [
-    { kpi_id: 'margin.gm.pct', severity: 'RequiredIntervention', threshold: 30, condition: 'lt' },
+    { kpi_id: 'KPI-COM-013', severity: 'RequiredIntervention', threshold: 30, condition: 'lt' },
     { kpi_id: 'cash.dso.days', severity: 'EarlyWarning', threshold: 45, condition: 'gt' },
   ];
 
   it('returns no violations when rules match', () => {
     const bracketRules = [
-      { kpiId: 'margin.gm.pct', condition: 'lt', threshold: 30, severity: 'RequiredIntervention' },
+      { kpiId: 'KPI-COM-013', condition: 'lt', threshold: 30, severity: 'RequiredIntervention' },
       { kpiId: 'cash.dso.days', condition: 'gt', threshold: 45, severity: 'EarlyWarning' },
     ];
     const violations = validateAgainstSpine(bracketRules, spineRules);
@@ -29,7 +29,7 @@ describe('spine-enforcer', () => {
 
   it('detects condition mismatch', () => {
     const bracketRules = [
-      { kpiId: 'margin.gm.pct', condition: 'gt', threshold: 30, severity: 'RequiredIntervention' },
+      { kpiId: 'KPI-COM-013', condition: 'gt', threshold: 30, severity: 'RequiredIntervention' },
       { kpiId: 'cash.dso.days', condition: 'gt', threshold: 45, severity: 'EarlyWarning' },
     ];
     const violations = validateAgainstSpine(bracketRules, spineRules);
@@ -39,7 +39,7 @@ describe('spine-enforcer', () => {
 
   it('detects severity mismatch', () => {
     const bracketRules = [
-      { kpiId: 'margin.gm.pct', condition: 'lt', threshold: 30, severity: 'EarlyWarning' },
+      { kpiId: 'KPI-COM-013', condition: 'lt', threshold: 30, severity: 'EarlyWarning' },
       { kpiId: 'cash.dso.days', condition: 'gt', threshold: 45, severity: 'EarlyWarning' },
     ];
     const violations = validateAgainstSpine(bracketRules, spineRules);
@@ -54,6 +54,6 @@ describe('spine-enforcer', () => {
 
   it('returns kpiId in violations', () => {
     const violations = validateAgainstSpine([], spineRules);
-    expect(violations[0].kpiId).toBe('margin.gm.pct');
+    expect(violations[0].kpiId).toBe('KPI-COM-013');
   });
 });

@@ -93,22 +93,25 @@ def _komponenten(bracket: dict):
             yield c
 
 
+def _katalog_ref(kpi_id: str, katalog: dict, feld: str) -> str | None:
+    ref = (katalog.get(kpi_id) or {}).get(feld)
+    return ref if ref in katalog else None
+
+
 def plan_kpi(kpi_id: str, katalog: dict) -> str | None:
-    """Die governte Plan-KPI zu `kpi_id`, wenn der Katalog eine fuehrt (`<basis>.plan.<einheit>`).
-    Sie ist ein Pegel und darf als Referenzreihe neben der Kennzahl stehen."""
-    basis, _, einheit = kpi_id.rpartition(".")
-    kandidat = f"{basis}.plan.{einheit}"
-    return kandidat if kandidat in katalog else None
+    """Die governte Plan-KPI zu `kpi_id`, wenn der Katalog eine fuehrt (Katalogfeld
+    `plan_kpi_ref`). Sie ist ein Pegel und darf als Referenzreihe neben der Kennzahl stehen.
+    Bis D-594 aus der ID-Syntax `<basis>.plan.<einheit>` abgeleitet; die ID traegt seither
+    keine Bedeutung mehr."""
+    return _katalog_ref(kpi_id, katalog, "plan_kpi_ref")
 
 
 def plan_abweichung_kpi(kpi_id: str, katalog: dict) -> str | None:
-    """Die governte Plan-Abweichung zu `kpi_id` (`<basis>.vs_plan.<einheit>`), etwa
-    margin.gm.vs_plan.pct aus fact_plan_sales. Sie belegt, dass ein Plan governt existiert
-    (Entscheidung Flo 23.09.2026: dann keinen zweiten Plan aus der Vorlage verlangen), ist aber
-    eine Abweichung und wird nie als Referenzreihe neben den Pegel gelegt."""
-    basis, _, einheit = kpi_id.rpartition(".")
-    kandidat = f"{basis}.vs_plan.{einheit}"
-    return kandidat if kandidat in katalog else None
+    """Die governte Plan-Abweichung zu `kpi_id` (Katalogfeld `plan_variance_kpi_ref`), etwa
+    die Bruttomargen-Abweichung zum Plan aus fact_plan_sales. Sie belegt, dass ein Plan governt
+    existiert (Entscheidung Flo 23.09.2026: dann keinen zweiten Plan aus der Vorlage verlangen),
+    ist aber eine Abweichung und wird nie als Referenzreihe neben den Pegel gelegt."""
+    return _katalog_ref(kpi_id, katalog, "plan_variance_kpi_ref")
 
 
 def _governter_plan(kid: str, katalog: dict, namen: dict[str, str], definiert: set[str]) -> bool:
@@ -266,7 +269,10 @@ def measures_fuer(v: Vergleich, calc_type: str, fmt: str | None) -> list[str]:
     ]
 
 
-def tabelle_tmdl(model: str) -> str:
+def tabelle_tmdl(model: str, modus: str | None = None) -> str:
+    """``fact_target`` als TMDL; die Partition folgt dem Speichermodus (D-590, ``None`` = Import)."""
+    from tooling.codegen.speichermodus import gold_partition, konstanten
+    modus = modus or konstanten()[1]
     spalten = [("kpi_id", "string"), ("scenario", "string"), ("DateKey", "int64"), ("Target Value", "double")]
     z = ["/// Purpose: Ziel- und Planwerte je KPI und Monat, vom Kunden beim Onboarding geliefert (R6.1).",
          "/// Leer, solange keine Werte vorliegen: dann zeigt der Report keine Ziellinie statt einer erfundenen.",
@@ -283,15 +289,7 @@ def tabelle_tmdl(model: str) -> str:
               "\t\tsummarizeBy: none",
               f"\t\tsourceColumn: {name}",
               ""]
-    z += [f"\tpartition {TABELLE} = m",
-          "\t\tmode: import",
-          "\t\tsource =",
-          "\t\t\t\tlet",
-          f"\t\t\t\t\tActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & \"/facts/{TABELLE}\"),",
-          "\t\t\t\t\tParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))",
-          "\t\t\t\tin",
-          "\t\t\t\t\tParquetData",
-          ""]
+    z += gold_partition(TABELLE, "facts", modus, einzug="\t\t\t\t") + [""]
     return "\n".join(z)
 
 
@@ -330,15 +328,21 @@ def _einfuegen(text: str, block: str) -> str:
     return basis[:i + 1] + block + "\n" + basis[i + 1:]
 
 
-def pruefe(schreiben: bool = False) -> tuple[list[str], list[str]]:
-    """(abweichende Dateien, Luecken). Mit `schreiben` werden die Abweichungen behoben."""
+def pruefe(schreiben: bool = False, modus: str | None = None) -> tuple[list[str], list[str]]:
+    """(abweichende Dateien, Luecken). Mit `schreiben` werden die Abweichungen behoben.
+
+    ``modus``: Speichermodus des Mandanten (D-590, ``None`` = Import); jedes Zielmodell wird
+    vorher mit ``speichermodus.pruefe_modell`` gegen ihn geprueft."""
+    from tooling.codegen.speichermodus import pruefe_modell
     vs, luecken = vergleiche()
     katalog = _katalog()
     drift = []
     for model_dir in sorted(DIST.glob("*.SemanticModel")):
         d = model_dir / "definition"
+        if modus is not None:
+            pruefe_modell(d, modus)
         soll = {
-            d / "tables" / f"{TABELLE}.tmdl": tabelle_tmdl(model_dir.name),
+            d / "tables" / f"{TABELLE}.tmdl": tabelle_tmdl(model_dir.name, modus),
             d / "relationships" / f"dim_date_{TABELLE}.tmdl": BEZIEHUNG,
         }
         mt = d / "tables" / "_Measures.tmdl"
@@ -475,6 +479,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--vorlage", type=Path, help="CSV-Vorlage fuer Ziel- und Planwerte schreiben")
     ap.add_argument("--laden", type=Path, help="ausgefuellte Vorlage nach fact_target laden")
     ap.add_argument("--ziel", type=Path, default=GOLD_ZIEL, help="Gold-Ordner von fact_target")
+    ap.add_argument("--blueprint", type=Path, default=None,
+                    help="Bauplan des Mandanten; entscheidet den Speichermodus (D-590). "
+                         "Ohne: keine Kapazitaet bekannt → Import (der Modus von dist/)")
     args = ap.parse_args(argv)
     if args.vorlage:
         print(f"{schreibe_vorlage(args.vorlage)} Zeilen -> {args.vorlage}")
@@ -486,7 +493,8 @@ def main(argv: list[str] | None = None) -> int:
             print(exc, file=sys.stderr)
             return 1
         return 0
-    drift, luecken = pruefe(schreiben=args.write)
+    from tooling.codegen.speichermodus import lade_bauplan, mandant_modus
+    drift, luecken = pruefe(schreiben=args.write, modus=mandant_modus(lade_bauplan(args.blueprint)))
     for l in luecken:
         print(f"LUECKE  {l}")
     if not args.write:

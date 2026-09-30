@@ -207,6 +207,15 @@ def _beschaffung_md() -> str:
         "an**, mit einer Schwelle von 25 % (Schieberegler in 5-%-Schritten oder absolut in "
         "CU-Stunden). Wer „drosseln\" entscheidet, muss es **beim Anlegen** ausschalten — sonst "
         "hat er zugekauft, ohne es zu wissen.", "",
+        "**Anlage per Terraform (Entscheidung 30.09.2026).** Traegt die Kapazitaet im Bauplan "
+        "`provisioning: create`, legt `terraform/capacity.tf` sie per `azapi_resource` an "
+        "(`Microsoft.Fabric/capacities`, API `2026-08-01-preview`) und schreibt `overage` in "
+        "dieselbe Anlage — die Antwort auf diese Frage steht dann ab dem ersten `apply` im Code. "
+        "Ohne Antwort schreibt der Emitter die Microsoft-Voreinstellung aus (an, 25 %) und "
+        "markiert sie als nicht entschieden. Dafuer braucht es zusaetzlich: freies Kontingent "
+        "fuer SKU **und** Overage-Schwelle ÷ 24 in der Zielregion (Punkt 3), die "
+        "Ressourcengruppe als ARM-ID und die Kapazitaets-Admins als Entra-UPN oder "
+        "Service-Principal-Objekt-ID.", "",
         "- Abgerechnet wird über einen eigenen Zähler zum **dreifachen** Pay-as-you-go-Satz, und "
         "nur für die CU-Stunden über der SKU. In der Kostenanalyse heißt er "
         "`Capacity Overage Capacity Usage CU`.",

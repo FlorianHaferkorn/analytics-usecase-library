@@ -95,7 +95,7 @@ section, `uses_columns` outside the definition). Two views, one source
 `export_governed_catalog.py` emits exactly one entry per table with `domain` = owner and
 `domains` = every domain that uses it) and the **domain view** (`load_resolved_contract`: references
 replaced by the owner's table narrowed to `uses_columns`) for per-domain consumers
-(`generate_semantic_model`, `ai_description`, `linguistic_schema`, Studio `contract-loader.ts`).
+(`ai_description`, `linguistic_schema`, `enrich_measure_docs`, Studio `contract-loader.ts`).
 
 ### Structured quality fields (A-20/A-23, 29.09.2026)
 
@@ -121,6 +121,11 @@ Semantics: without `when_present`, a NULL value violates a check; with it, only 
 are checked. For `*_column`, a NULL on the compared side cannot be evaluated and does not count
 as a violation. `quality_rules` keeps `freshness_sla` and only what does not structure
 (arithmetic across columns, business meaning of NULL, lineage notes).
+
+JSON Schema: `tooling/generator/schemas/data_contract.schema.json` names every field above and
+closes tables, columns, `quality_rules` (`freshness_sla`, `key_nullability`, `referential_integrity`,
+`value_ranges`) and `settings` (`timezone`, `fiscal_year_start` as `MM-DD`, …) — a misspelled key
+fails. The validator runs it on every contract (since 29.09.2026; `tooling/tests/test_validate_data_contracts.py`).
 
 Proof against Aurora gold: `tooling/tests/test_contract_rules_showcase.py` (counts rules run,
 not in showcase, and column missing in gold).

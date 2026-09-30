@@ -13,14 +13,14 @@ use_case_links:
   - XD-002
 kpis:
   trigger_kpis:
-  - svc.fcr.pct
-  - svc.escalation.pct
+  - KPI-SVC-005
+  - KPI-SVC-008
   guardrail_kpis:
-  - svc.aht.minutes
+  - KPI-SVC-006
   outcome_kpis:
-  - svc.fcr.pct
-  - svc.escalation.pct
-  - crm.nps.index
+  - KPI-SVC-005
+  - KPI-SVC-008
+  - KPI-CUS-003
 scope:
   default_grain: queue_agent_week
   default_perspective:
@@ -48,7 +48,7 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: svc.tickets.closed.count
+        metric_kpi_id: KPI-SVC-014
         comparator: gte
         value: 200
         unit: count
@@ -56,7 +56,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: svc.fcr.pct
+        metric_kpi_id: KPI-SVC-005
         comparator: lt
         threshold:
           basis: absolute
@@ -66,7 +66,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: svc.fcr.pct
+        metric_kpi_id: KPI-SVC-005
         comparator: lt
         threshold:
           basis: absolute
@@ -76,7 +76,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: svc.fcr.pct
+        metric_kpi_id: KPI-SVC-005
         comparator: lt
         threshold:
           basis: absolute
@@ -92,7 +92,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P30D
-    metric_kpi_id: svc.backlog.count
+    metric_kpi_id: KPI-SVC-007
     success_criteria:
       kind: return_to_baseline
       baseline_window: P30D
@@ -107,7 +107,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: svc.fcr.pct
+    metric_kpi_id: KPI-SVC-005
     value_low: 5.0
     value_high: 12.0
     unit: pp

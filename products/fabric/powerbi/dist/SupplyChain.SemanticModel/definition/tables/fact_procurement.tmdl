@@ -6,6 +6,7 @@ table fact_procurement
 		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
+	/// Distribution centre that raised the purchase order line. Type: int · Role: foreign_key · FK->dim_org
 	column OrgKey
 		dataType: Int64
 		isHidden
@@ -21,14 +22,17 @@ table fact_procurement
 		isHidden
 		sourceColumn: CategoryKey
 		summarizeBy: none
+	/// Line spend (= Actual Spend); continuity alias. Type: currency · Unit: EUR · Role: measure
 	column 'Purchase Amount'
 		dataType: Decimal
 		sourceColumn: Procurement Amount
 		summarizeBy: none
+	/// On-contract spend; on-contract % numerator. Type: currency · Unit: EUR · Role: measure
 	column 'Contracted Amount'
 		dataType: Decimal
 		sourceColumn: On-Contract Amount
 		summarizeBy: none
+	/// Price actually paid per unit on the line; the PPV actual leg. Type: currency · Unit: EUR · Role: measure
 	column 'Actual Unit Price'
 		dataType: Decimal
 		sourceColumn: Actual Unit Price Amount

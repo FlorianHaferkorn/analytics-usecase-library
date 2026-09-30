@@ -104,7 +104,7 @@ test('Discovery panels align and loaded conversation uses readable type without 
   await page.screenshot({ path: testInfo.outputPath('discovery-loaded.png'), fullPage: true });
 
   await page.route('**/discovery/chat', (route) => route.fulfill({
-    contentType: 'text/plain', body: 'kpi_id: sales.net_sales.amount\nname: Net sales',
+    contentType: 'text/plain', body: 'kpi_id: KPI-COM-005\nname: Net sales',
   }));
   await page.getByRole('textbox', { name: 'Discovery question' }).fill('Give me a structured candidate');
   await page.getByRole('button', { name: 'Send', exact: true }).click();
@@ -119,7 +119,7 @@ test('saved project sources and chat candidates survive a browser reload', async
   await dialog.getByRole('button', { name: 'Add Source', exact: true }).click();
   await page.route('**/discovery/chat', async (route) => {
     const sourceId = route.request().postDataJSON().sources[0].id;
-    await route.fulfill({ contentType: 'text/plain', body: `Source: ${sourceId}\nQuote: Net sales requires a governed reference.\nkpi_id: sales.net_sales.amount\nname: Net sales` });
+    await route.fulfill({ contentType: 'text/plain', body: `Source: ${sourceId}\nQuote: Net sales requires a governed reference.\nkpi_id: KPI-COM-005\nname: Net sales` });
   });
   await page.getByRole('textbox', { name: 'Discovery question' }).fill('Extract candidate');
   await page.getByRole('button', { name: 'Send', exact: true }).click();

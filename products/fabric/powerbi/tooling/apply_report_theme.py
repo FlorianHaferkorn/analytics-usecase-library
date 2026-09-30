@@ -3,8 +3,15 @@
 """
 Apply a custom theme to a PBIP report: copy theme to RegisteredResources and update definition/report.json.
 
-Base theme stays fixed (e.g. CY25SU10); custom theme is the overlay. Targets PBIP definition format only
-(definition/report.json). Optional: validate theme JSON against pinned schema before copying.
+Base theme stays fixed (name + content from the pinned official CLI, see
+tooling/report_quality/base_theme.py, Meridian D-587); custom theme is the overlay. Targets PBIP
+definition format only (definition/report.json). Optional: validate theme JSON against pinned
+schema before copying.
+
+``--sync-base-theme`` (with ``--batch GLOB`` or a report path) brings existing reports onto the
+current base theme without touching the custom theme: writes ``BaseThemes/<name>.json`` from the
+vendored copy, sets ``themeCollection.baseTheme`` and the SharedResources item, removes base theme
+files no longer referenced. Idempotent; ``--check`` only reports drift (exit 1).
 """
 
 from __future__ import annotations
@@ -16,23 +23,29 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from products.fabric.powerbi.tooling.theme_paths import (
+# Repo root (apply_report_theme.py lives in products/fabric/powerbi/tooling/). On sys.path so the
+# file also runs as a standalone script (the .ps1 wrapper, any cwd), not only via `python -m`.
+REPO_ROOT = Path(__file__).resolve().parents[4]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from products.fabric.powerbi.tooling.theme_paths import (  # noqa: E402
     THEME_DEFAULTS,
     find_theme,
     run_engine,
 )
-from products.fabric.powerbi.tooling.theme_registration import (
+from products.fabric.powerbi.tooling.theme_registration import (  # noqa: E402
     custom_theme_collection_name,
     registered_theme_filename,
     write_registered_theme,
 )
-
-# Repo root (apply_report_theme.py lives in products/fabric/powerbi/tooling/)
-REPO_ROOT = Path(__file__).resolve().parents[4]
+from tooling.report_quality import base_theme as _bt  # noqa: E402
 # Theme sources: see theme_paths.py (vendored engine output + ALUCA-owned local output).
 THEME_GENERATOR_CONFIG = THEME_DEFAULTS
 SHOWCASES_DIR = REPO_ROOT / "showcases"
-DEFAULT_BASE_THEME = "CY25SU10"
+DEFAULT_BASE_THEME = _bt.BASE_THEME_NAME
+# customTheme.reportVersionAtImport (unchanged by D-587; the base theme carries its own,
+# measured from the pinned CLI scaffold -- _bt.BASE_THEME_REPORT_VERSION_AT_IMPORT).
 REPORT_VERSION_AT_IMPORT = {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"}
 
 
@@ -188,9 +201,12 @@ def _ensure_resource_packages(data: Dict[str, Any], base_theme: str, custom_them
             "items": [],
         }
         packages.append(shared)
-    items = shared.get("items") or []
+    # Exactly one BaseTheme item: a previous base theme (the one before D-587) is
+    # replaced, not kept next to the new one.
+    items = [it for it in (shared.get("items") or [])
+             if it.get("type") != "BaseTheme" or it.get("name") == base_theme]
     if not any(it.get("name") == base_theme for it in items):
-        items.append({
+        items.insert(0, {
             "name": base_theme,
             "path": f"BaseThemes/{base_theme}.json",
             "type": "BaseTheme",
@@ -238,9 +254,12 @@ def apply_theme(
     Validates that base theme file exists before applying custom theme.
     """
     definition_path = _ensure_report_structure(report_path)
-    
-    # Validate base theme file exists
+
+    # The default base theme is vendored from the official CLI -> write it; any other
+    # base theme must already be present in the report.
     base_theme_file = report_path / "StaticResources" / "SharedResources" / "BaseThemes" / f"{base_theme_name}.json"
+    if base_theme_name == _bt.BASE_THEME_NAME:
+        _write_base_theme_file(Path(report_path).resolve())
     if not base_theme_file.exists():
         raise FileNotFoundError(
             f"Base theme file not found: {base_theme_file}. "
@@ -270,11 +289,14 @@ def apply_theme(
     if "themeCollection" not in data:
         data["themeCollection"] = {}
     tc = data["themeCollection"]
-    tc["baseTheme"] = {
-        "name": base_theme_name,
-        "reportVersionAtImport": REPORT_VERSION_AT_IMPORT,
-        "type": "SharedResources",
-    }
+    if base_theme_name == _bt.BASE_THEME_NAME:
+        tc["baseTheme"] = _bt.base_theme_entry()
+    else:
+        tc["baseTheme"] = {
+            "name": base_theme_name,
+            "reportVersionAtImport": REPORT_VERSION_AT_IMPORT,
+            "type": "SharedResources",
+        }
     tc["customTheme"] = {
         # PBIR convention: customTheme.name carries the .json extension and matches the
         # RegisteredResources item name + path + the theme file's internal `name`
@@ -287,6 +309,75 @@ def apply_theme(
     _write_report_json(definition_path, data)
     print(f"Theme copied to {dest}", file=sys.stderr)
     print("report.json updated (baseTheme + customTheme + resourcePackages).", file=sys.stderr)
+
+
+def _base_themes_dir(report_path: Path) -> Path:
+    return report_path / "StaticResources" / "SharedResources" / "BaseThemes"
+
+
+def _write_base_theme_file(report_path: Path) -> bool:
+    """Write the vendored base theme into the report. Returns True if bytes changed."""
+    target = _base_themes_dir(report_path) / f"{_bt.BASE_THEME_NAME}.json"
+    content = _bt.vendored_bytes()
+    if target.is_file() and target.read_bytes() == content:
+        return False
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(content)
+    return True
+
+
+def sync_base_theme(report_path: Path, check: bool = False) -> List[str]:
+    """Bring one report onto the current base theme (D-587); custom theme untouched.
+
+    Returns the list of changes (empty = already in sync). With ``check=True`` nothing
+    is written. Removes ``BaseThemes/<old>.json`` only for base themes the report
+    referenced before and no longer references.
+    """
+    report_path = Path(report_path).resolve()
+    definition_path = report_path / "definition"
+    if not (definition_path / "report.json").is_file():
+        raise FileNotFoundError(f"PBIP definition not found: {definition_path / 'report.json'}")
+    data = _read_report_json(definition_path)
+    changes: List[str] = []
+
+    target = _base_themes_dir(report_path) / f"{_bt.BASE_THEME_NAME}.json"
+    if not (target.is_file() and target.read_bytes() == _bt.vendored_bytes()):
+        changes.append(f"write {target.relative_to(report_path).as_posix()}")
+
+    tc = data.setdefault("themeCollection", {})
+    old_names = {(tc.get("baseTheme") or {}).get("name")}
+    for pkg in data.get("resourcePackages") or []:
+        for it in pkg.get("items") or []:
+            if it.get("type") == "BaseTheme":
+                old_names.add(it.get("name"))
+    old_names.discard(None)
+    old_names.discard(_bt.BASE_THEME_NAME)
+
+    if tc.get("baseTheme") != _bt.base_theme_entry():
+        changes.append(f"themeCollection.baseTheme -> {_bt.BASE_THEME_NAME}")
+        tc["baseTheme"] = _bt.base_theme_entry()
+    packages: List[Dict[str, Any]] = data.get("resourcePackages") or []
+    shared = next((p for p in packages if p.get("type") == "SharedResources"), None)
+    if shared is None:
+        shared = {"name": "SharedResources", "type": "SharedResources", "items": []}
+        packages.insert(0, shared)
+    items = shared.get("items") or []
+    new_items = [_bt.shared_resources_item()] + [it for it in items if it.get("type") != "BaseTheme"]
+    if items != new_items or data.get("resourcePackages") is None:
+        changes.append("resourcePackages SharedResources BaseTheme item")
+        shared["items"] = new_items
+        data["resourcePackages"] = packages
+
+    stale = [_base_themes_dir(report_path) / f"{n}.json" for n in sorted(old_names)]
+    stale = [p for p in stale if p.is_file()]
+    changes += [f"remove {p.relative_to(report_path).as_posix()}" for p in stale]
+
+    if changes and not check:
+        _write_base_theme_file(report_path)
+        _write_report_json(definition_path, data)
+        for p in stale:
+            p.unlink()
+    return changes
 
 
 def _collect_report_paths_batch_showcase(showcase_name: str) -> List[Path]:
@@ -427,6 +518,14 @@ def main() -> int:
     parser.add_argument("--base-theme", type=str, default=DEFAULT_BASE_THEME, help=f"Base theme name (default: {DEFAULT_BASE_THEME})")
     parser.add_argument("--no-validate", action="store_true", help="Skip validation against pinned schema")
     parser.add_argument(
+        "--sync-base-theme",
+        action="store_true",
+        help="Only bring reports onto the current base theme (D-587); custom theme untouched. "
+             "Use with a report path or --batch/--batch-file/--batch-showcase.",
+    )
+    parser.add_argument("--check", action="store_true",
+                        help="With --sync-base-theme: write nothing, exit 1 if any report drifts.")
+    parser.add_argument(
         "--continue-on-error",
         action="store_true",
         help="In batch mode, continue applying to remaining reports after a failure.",
@@ -451,6 +550,23 @@ def main() -> int:
             return 1
     else:
         report_paths = []
+
+    if args.sync_base_theme:
+        targets = report_paths or ([Path(args.report)] if args.report else [])
+        if not targets:
+            parser.error("--sync-base-theme needs a report path or a batch option.")
+        drift = 0
+        for rp in targets:
+            changes = sync_base_theme(rp, check=args.check)
+            if changes:
+                drift += 1
+                verb = "DRIFT" if args.check else "SYNCED"
+                print(f"[{verb}] {rp}: " + "; ".join(changes), file=sys.stderr)
+        print(f"Base theme {_bt.BASE_THEME_NAME}: {len(targets)} report(s) checked, "
+              f"{drift} {'drifting' if args.check else 'updated'}.", file=sys.stderr)
+        return 1 if (args.check and drift) else 0
+    if args.check:
+        parser.error("--check is only valid with --sync-base-theme.")
 
     if report_paths:
         # Batch: resolve theme once if provided

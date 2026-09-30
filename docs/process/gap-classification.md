@@ -242,7 +242,7 @@ Format for a single gap entry:
 ```yaml
 - gap_type: content_gap        # content_gap | mapping_gap | schema_gap | generator_gap | model_gap
   severity: high               # critical | high | medium | low
-  affected_artifact: ""        # e.g. core/kpi_catalog/ops.oee.pct.yaml
+  affected_artifact: ""        # e.g. core/kpi_catalog/KPI-OPS-011.yaml
   field: ""                    # Specific field or section affected
   description: ""              # What is missing or wrong
   evidence_reference: ""       # Source ID or extraction field that requires this

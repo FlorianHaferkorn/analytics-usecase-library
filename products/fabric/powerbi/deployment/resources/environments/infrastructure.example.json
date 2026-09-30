@@ -4,8 +4,8 @@
   "_name_note": "Template variables: {layer} = DE/DM/BI/Shared, {environment} = dev/tst/prd",
   
   "generic": {
-    "capacity_name": "MyCapacity",
-    "_capacity_note": "Fabric capacity name (must exist in tenant)",
+    "capacity_name": "MyCapacity-NonProd",
+    "_capacity_note": "Fabric capacity name (must exist in tenant). Base value = NON-PRODUCTION capacity (dev, tst and feature workspaces); infrastructure.prd.json overrides it with the production capacity. Production and non-production run on separate capacities (D-596).",
     
     "permissions": {
       "_permissions_note": "Workspace role assignments. Types: Group, User, ServicePrincipal",

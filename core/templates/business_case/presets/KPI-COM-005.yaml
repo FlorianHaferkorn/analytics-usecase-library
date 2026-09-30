@@ -1,0 +1,20 @@
+kpi_id: KPI-COM-005
+label: Net Sales
+baseline_range:
+  min: 450000000
+  likely: 500000000
+  max: 550000000
+  unit: EUR
+  note: "Annual net revenue for a mid-market company; scale to your fiscal year actuals."
+target_range:
+  min: 467000000
+  likely: 515000000
+  max: 572000000
+  unit: EUR
+  note: "Target assumes 3-4% organic growth from price/volume/mix improvement."
+time_horizon_months: 12
+driver_notes:
+  - "Volume growth from market share gains and channel expansion (1-2 pp)."
+  - "Price realization improvement closes list-to-net-invoice gap (0.5-1.5 pp)."
+  - "Mix shift toward higher-margin SKUs adds 0.5-1 pp on top."
+  - "Primary action codes: C-M2.1 (price realization), C-M2.2 (mix optimization)."

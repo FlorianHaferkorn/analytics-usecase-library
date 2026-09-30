@@ -1,0 +1,184 @@
+{
+  "_artifact": "ai_data_schema_recommendation",
+  "_organisation": "COM-001 Sales Performance vs Plan & LY",
+  "_status": "Empfehlung — im Power-BI-Service unter 'Prep data for AI' → 'AI data schema' manuell an-/abwählen (Preview-Feature, keine dokumentierte public API). 'exclude' = für Copilot ausblenden.",
+  "_derivation": "data_architecture",
+  "_generated_by": "products.meridian_copilot_readiness (deterministisch, kein LLM)",
+  "_sources": [
+    {
+      "file": "core/usecases/core/COM-001_Sales_Performance/UseCase_Bracket.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-013.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-005.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-009.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-008.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-010.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-011.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-004.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-FIN-011.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-006.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-007.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-001.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-002.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/action_codes/Commercial/C-M2.1.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/action_codes/Commercial/C-S1.1.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/action_codes/Commercial/C-S1.2.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/organization/org_roles.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/data_contracts/domains/commercial_sales.yaml",
+      "last_updated": ""
+    }
+  ],
+  "_note": "Dimensionen stehen in data_architecture.json (conformed.dimensions, dimension_tables) und sind unten mit Spaltenempfehlung aufgeführt; die Fremdschlüssel der Fakten sind ausgeblendet, die Anzeigespalten der Dimensionen tragen die Aufschlüsselung der KPI-Fragen.",
+  "tables": [
+    {
+      "name": "fact_sales",
+      "domain": "commercial_sales",
+      "domain_label": "Commercial Data Product",
+      "layer": "gold",
+      "recommendation": "include",
+      "reason": "Gold-Layer-Faktentabelle; Quelle für KPI-COM-013, KPI-COM-005, KPI-COM-009, KPI-COM-008, KPI-COM-010, KPI-COM-011, KPI-COM-004, KPI-FIN-011, KPI-COM-006, KPI-COM-007, KPI-COM-001, KPI-COM-002",
+      "fields": [
+        {
+          "name": "DateKey",
+          "kind": "grain",
+          "recommendation": "exclude",
+          "reason": "Fremd-/technischer Schlüssel (im Modell ausgeblendet); die Dimension trägt die Anzeigespalte"
+        },
+        {
+          "name": "OrgKey",
+          "kind": "grain",
+          "recommendation": "exclude",
+          "reason": "Fremd-/technischer Schlüssel (im Modell ausgeblendet); die Dimension trägt die Anzeigespalte"
+        },
+        {
+          "name": "ProductKey",
+          "kind": "grain",
+          "recommendation": "exclude",
+          "reason": "Fremd-/technischer Schlüssel (im Modell ausgeblendet); die Dimension trägt die Anzeigespalte"
+        },
+        {
+          "name": "CustomerKey",
+          "kind": "grain",
+          "recommendation": "exclude",
+          "reason": "Fremd-/technischer Schlüssel (im Modell ausgeblendet); die Dimension trägt die Anzeigespalte"
+        },
+        {
+          "name": "PromoKey",
+          "kind": "grain",
+          "recommendation": "exclude",
+          "reason": "Fremd-/technischer Schlüssel (im Modell ausgeblendet); die Dimension trägt die Anzeigespalte"
+        },
+        {
+          "name": "Promo Flag",
+          "kind": "grain",
+          "recommendation": "include",
+          "reason": "Grain-Spalte — Breakdown-Dimension für Copilot-Fragen"
+        },
+        {
+          "name": "InvoiceLineID",
+          "kind": "grain",
+          "recommendation": "include",
+          "reason": "Grain-Spalte — Breakdown-Dimension für Copilot-Fragen"
+        },
+        {
+          "name": "Cost of Goods Sold Amount",
+          "kind": "measure_source",
+          "recommendation": "include",
+          "reason": "Measure-Basis der governten KPIs"
+        },
+        {
+          "name": "Net Sales Amount",
+          "kind": "measure_source",
+          "recommendation": "include",
+          "reason": "Measure-Basis der governten KPIs"
+        },
+        {
+          "name": "Plan Sales Amount",
+          "kind": "measure_source",
+          "recommendation": "include",
+          "reason": "Measure-Basis der governten KPIs"
+        },
+        {
+          "name": "Last Year Sales Amount",
+          "kind": "measure_source",
+          "recommendation": "include",
+          "reason": "Measure-Basis der governten KPIs"
+        },
+        {
+          "name": "Plan Quantity",
+          "kind": "measure_source",
+          "recommendation": "include",
+          "reason": "Measure-Basis der governten KPIs"
+        },
+        {
+          "name": "Quantity",
+          "kind": "measure_source",
+          "recommendation": "include",
+          "reason": "Measure-Basis der governten KPIs"
+        },
+        {
+          "name": "List Price Amount",
+          "kind": "measure_source",
+          "recommendation": "include",
+          "reason": "Measure-Basis der governten KPIs"
+        },
+        {
+          "name": "Net Price Amount",
+          "kind": "measure_source",
+          "recommendation": "include",
+          "reason": "Measure-Basis der governten KPIs"
+        }
+      ]
+    }
+  ]
+}

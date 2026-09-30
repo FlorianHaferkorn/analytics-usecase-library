@@ -45,7 +45,7 @@ A "ref" term is one of:
   {"kind": "expr", "op": ..., ...}                 -- a nested resolved formula, rendered
                                                        recursively via `synthesize_dax` and
                                                        parenthesized (recursive `calc_ref`, e.g.
-                                                       the VAR-chain shape of `margin.gm.vs_plan.pct`)
+                                                       the VAR-chain shape of `KPI-FIN-017`)
   {"kind": "literal", "value": ...}                -- a bare numeric constant (e.g. the legacy
                                                        `[Baseline Sales Amount] * 0.15` proxy factor)
 """

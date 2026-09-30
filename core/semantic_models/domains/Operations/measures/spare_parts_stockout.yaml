@@ -1,6 +1,6 @@
 measure_name: Spare Parts Stockout %
 is_kpi_measure: true
-kpi_id_ref: ops.spare_parts.stockout.pct
+kpi_id_ref: KPI-OPS-008
 semantic_model: Operations_SemanticModel
 display_folder: 05_Maintenance
 category: KPI

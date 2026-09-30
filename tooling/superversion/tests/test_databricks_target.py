@@ -83,7 +83,7 @@ CORE_5_BRACKETS = {
 #       0-HITL-gap result.
 #   (b) a sibling-measure reference to a KPI this bracket does NOT itself bind
 #       as its own measure (e.g. COM-001's "Gross Margin %" divides by
-#       [Gross Margin Amount], but COM-001 never binds margin.gm.amount
+#       [Gross Margin Amount], but COM-001 never binds KPI-COM-019
 #       directly — DAX's `[Name]` resolves model-globally so this is invisible
 #       on that side, but Databricks' `MEASURE(...)` is scoped to measures
 #       actually defined in the SAME metric view, so a name absent from this

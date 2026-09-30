@@ -27,7 +27,7 @@ function Resolve-RepoPath {
 $allowedTypes = @('strategic','diagnostic','supporting')
 $allowedCalc  = @('amount','rate','ratio','count','percentage','quantity','index')
 $allowedImpact = @('growth','profitability','liquidity','efficiency','customer','esg','governance','innovation & people','service','workforce','experience','risk','innovation','people')
-$idRegex = '^[a-z0-9]+(\.[a-z0-9_]+)*$'
+$idRegex = '^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\d{3}$'
 
 function Get-KpiBlocks {
   param([string]$Root)
@@ -71,14 +71,14 @@ function Get-DependsOnMeasuresFromChunk {
   if ($Chunk -match "(?m)^\s*$key\s*:\s*\[\s*\]") { return @() }
   $m = [regex]::Match($Chunk, "(?m)^\s*$key\s*:\s*\[(?<inner>[^\]]*)\]")
   if ($m.Success) {
-    foreach ($mm in [regex]::Matches($m.Groups['inner'].Value, '([a-z][a-z0-9_.]+)')) { $list += $mm.Groups[1].Value }
+    foreach ($mm in [regex]::Matches($m.Groups['inner'].Value, '(KPI-[A-Z]{3}-\d{3})')) { $list += $mm.Groups[1].Value }
     return $list
   }
   # Block list after key
   $block = [regex]::Match($Chunk, "(?m)^\s*$key\s*:\s*(?:\r?\n)(?<body>(?:\s{2,}-\s*[^\r\n]+\r?\n?)+)")
   if ($block.Success) {
     foreach ($line in ($block.Groups['body'].Value -split "\r?\n")) {
-      if ($line -match '^\s{2,}-\s*([a-z][a-z0-9_.]+)') { $list += $Matches[1] }
+      if ($line -match '^\s{2,}-\s*(KPI-[A-Z]{3}-\d{3})') { $list += $Matches[1] }
     }
     return $list
   }
@@ -89,13 +89,13 @@ function Get-DependsOnMeasuresFromChunk {
     if ($sub -match "(?m)^\s*$key\s*:\s*\[\s*\]") { return @() }
     $mi = [regex]::Match($sub, "(?m)^\s*$key\s*:\s*\[(?<inner>[^\]]*)\]")
     if ($mi.Success) {
-      foreach ($mm in [regex]::Matches($mi.Groups['inner'].Value, '([a-z][a-z0-9_.]+)')) { $list += $mm.Groups[1].Value }
+      foreach ($mm in [regex]::Matches($mi.Groups['inner'].Value, '(KPI-[A-Z]{3}-\d{3})')) { $list += $mm.Groups[1].Value }
       return $list
     }
     $blk = [regex]::Match($sub, "(?m)^\s*$key\s*:\s*(?:\r?\n)(?<body>(?:\s{2,}-\s*[^\r\n]+\r?\n?)+)")
     if ($blk.Success) {
       foreach ($line in ($blk.Groups['body'].Value -split "\r?\n")) {
-        if ($line -match '^\s{2,}-\s*([a-z][a-z0-9_.]+)') { $list += $Matches[1] }
+        if ($line -match '^\s{2,}-\s*(KPI-[A-Z]{3}-\d{3})') { $list += $Matches[1] }
       }
     }
   }
@@ -192,7 +192,7 @@ $allIds = New-Object System.Collections.Generic.HashSet[string]
 Get-ChildItem -Path $resolvedCatalogRoot -Filter '*.md' | Where-Object { $_.Name -ne 'SCHEMA.md' } | ForEach-Object {
   $r = Get-Content -Raw -Path $_.FullName
   foreach ($m in [regex]::Matches($r, 'kpi_id\s*:\s*"([^"]+)"')) { [void]$allIds.Add($m.Groups[1].Value) }
-  foreach ($m in [regex]::Matches($r, 'kpi_id\s*:\s*([a-z][a-z0-9_.]+)\s*[\r\n#]')) { [void]$allIds.Add($m.Groups[1].Value) }
+  foreach ($m in [regex]::Matches($r, 'kpi_id\s*:\s*(KPI-[A-Z]{3}-\d{3})\s*[\r\n#]')) { [void]$allIds.Add($m.Groups[1].Value) }
 }
 
 Get-KpiBlocks -Root $resolvedCatalogRoot | ForEach-Object {

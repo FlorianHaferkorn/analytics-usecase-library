@@ -28,7 +28,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Operating Cash Flow
   is_kpi_measure: true
-  kpi_id_ref: fin.cash.ocf
+  kpi_id_ref: KPI-FIN-009
   category: KPI
   expression:
     aggregation_method: sum
@@ -49,7 +49,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Inventory Amount
   is_kpi_measure: true
-  kpi_id_ref: fin.liquidity.inventory.amount
+  kpi_id_ref: KPI-FIN-002
   semantic_model: Liquidity_SemanticModel
   display_folder: 02_WorkingCapital
   category: KPI
@@ -67,7 +67,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Payables Amount
   is_kpi_measure: true
-  kpi_id_ref: fin.liquidity.payables.amount
+  kpi_id_ref: KPI-FIN-003
   semantic_model: Liquidity_SemanticModel
   display_folder: 02_WorkingCapital
   category: KPI

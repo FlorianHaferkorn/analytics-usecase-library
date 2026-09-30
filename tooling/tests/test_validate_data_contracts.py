@@ -158,3 +158,77 @@ def test_domain_view_narrows_owner_definition(tmp_path):
     assert dim["conformed_from"] == "a" and [c["name"] for c in dim["columns"]] == ["XKey"]
     (own,) = load_resolved_contract(tmp_path / "a.yaml")["dimension"]
     assert [c["name"] for c in own["columns"]] == ["XKey", "Label"]
+
+
+# ---------------------------------------------------------------------------
+# JSON Schema (29.09.2026): the schema authority knows every field the contracts use
+# ---------------------------------------------------------------------------
+
+import json  # noqa: E402
+
+from tooling.validation.check_validate_data_contracts import SCHEMA_REL, schema_errors  # noqa: E402
+
+_SCHEMA = json.loads((REPO / SCHEMA_REL).read_text(encoding="utf-8"))
+
+
+def test_committed_contracts_match_the_json_schema():
+    # Bis 29.09.2026 rot: das Schema kannte weder `quality_rules` noch `settings.timezone` /
+    # `fiscal_year_start` -- alle 12 Vertraege mit je 2 Befunden, gelesen von keinem Tor.
+    paths = sorted((REPO / "core" / "data_contracts" / "domains").glob("*.yaml"))
+    assert len(paths) == 12
+    for path in paths:
+        errors = schema_errors(yaml.safe_load(path.read_text(encoding="utf-8")), _SCHEMA)
+        assert errors == [], f"{path.name}: {errors}"
+
+
+def _schema_contract(column=None, table=None, top=None):
+    col = {"name": "Good Units", "type": "int", **(column or {})}
+    return {"domain": "t", "version": "1", "owner": "o", "dimension": [],
+            "fact": [{"name": "fact_x", "grain": "row", "columns": [col], **(table or {})}],
+            **(top or {})}
+
+
+def test_schema_accepts_the_documented_fields():
+    doc = _schema_contract(
+        column={"ref": "dim_promo", "unknown_member": -1, "nullable": False, "target_state": True,
+                "source_column": "Qty", "checks": [{"gte": 0}, {"between": [0, 9], "when_present": True},
+                                                   {"lte_column": "Output Units"}, {"in": ["A"]}]},
+        table={"showcase": False, "uses_columns": ["Good Units"], "qa": ["prose"]},
+        top={"quality_rules": {"freshness_sla": {"fact_x": "daily"}, "value_ranges": ["x >= 0"]},
+             "settings": {"timezone": "Europe/Berlin", "fiscal_year_start": "04-01"}})
+    assert schema_errors(doc, _SCHEMA) == []
+    ref = {"domain": "t", "version": "1", "owner": "o", "fact": [],
+           "dimension": [{"name": "dim_date", "conformed_from": "commercial_sales", "uses_columns": ["DateKey"]}]}
+    assert schema_errors(ref, _SCHEMA) == []
+
+
+@pytest.mark.parametrize("doc, fragment", [
+    (_schema_contract(column={"nulable": True}), "'nulable' was unexpected"),
+    (_schema_contract(column={"checks": [{"gte": 0, "lte": 5}]}), "fact/0/columns/0/checks/0"),
+    (_schema_contract(column={"checks": [{"min": 0}]}), "'min' was unexpected"),
+    (_schema_contract(table={"showcase": "no"}), "is not of type 'boolean'"),
+    (_schema_contract(table={"grian": "row"}), "fact/0"),
+    (_schema_contract(top={"quality_rules": {"freshnes_sla": "daily"}}), "'freshnes_sla' was unexpected"),
+    (_schema_contract(top={"settings": {"fiscal_year_start": "2026-01-01"}}), "does not match"),
+    (_schema_contract(top={"settings": {"time_zone": "Europe/Berlin"}}), "'time_zone' was unexpected"),
+])
+def test_schema_rejects_unknown_or_malformed_fields(doc, fragment):
+    errors = schema_errors(doc, _SCHEMA)
+    assert any(fragment in e for e in errors), errors
+
+
+def test_validator_runs_the_schema_on_every_contract(tmp_path):
+    # Das Tor meldet den Schema-Befund als FAIL mit Exit 1 -- nicht nur die Funktion kennt ihn.
+    import shutil
+    import subprocess
+    import sys
+    (tmp_path / SCHEMA_REL).parent.mkdir(parents=True)
+    shutil.copyfile(REPO / SCHEMA_REL, tmp_path / SCHEMA_REL)
+    domains = tmp_path / "core" / "data_contracts" / "domains"
+    domains.mkdir(parents=True)
+    (domains / "t.yaml").write_text(yaml.safe_dump(_schema_contract(column={"nulable": True})),
+                                    encoding="utf-8")
+    r = subprocess.run([sys.executable, str(REPO / "tooling" / "validation" / "check_validate_data_contracts.py"),
+                        "--root", str(tmp_path)], capture_output=True, text=True, encoding="utf-8")
+    assert r.returncode == 1, r.stdout
+    assert "schema fact/0/columns/0" in r.stdout and "nulable" in r.stdout, r.stdout

@@ -6,24 +6,24 @@ governance:
   owner_role: commercial_controlling_revenue_operations
   steward_role: revenue_operations_bi_lead
 orchestration:
-  strategic_kpi_id: sales.pipeline.coverage.ratio
+  strategic_kpi_id: KPI-COM-026
   influencing_kpi_ids:
-  - sales.win_rate.pct
-  - sales.conversion.pct
-  - sales.sales_cycle.days
-  - sales.velocity.amount
+  - KPI-COM-027
+  - KPI-COM-028
+  - KPI-COM-029
+  - KPI-COM-030
   supporting_kpi_ids:
-  - sales.pipeline.value.amount
+  - KPI-COM-031
   action_code_ids:
   - C-P1.1
 primary_kpi_ids:
-- sales.pipeline.coverage.ratio
-- sales.win_rate.pct
+- KPI-COM-026
+- KPI-COM-027
 value_driver_model:
-  formula: sales.pipeline.coverage.ratio = f(sales.win_rate.pct, sales.conversion.pct, sales.sales_cycle.days)
+  formula: KPI-COM-026 = f(KPI-COM-027, KPI-COM-028, KPI-COM-029)
   impact_direction: maximize
-  primary_driver: sales.win_rate.pct
-  impact_logic: Raising sales.win_rate.pct is the primary lever for restoring sales.pipeline.coverage.ratio.
+  primary_driver: KPI-COM-027
+  impact_logic: Raising KPI-COM-027 is the primary lever for restoring KPI-COM-026.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas:
@@ -39,13 +39,13 @@ ux_layout_rules:
     big_idea: Pipeline coverage is below the safe threshold and the gap is a win-rate problem, not a shortage
       of opportunities.
     component_3s:
-      kpi_id: sales.pipeline.coverage.ratio
+      kpi_id: KPI-COM-026
       visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: sales.win_rate.pct
+      kpi_id: KPI-COM-027
       visual_type: line_chart
       question: Is the coverage gap a volume problem or a conversion problem?
       message: Win rate is dragging coverage below plan, not a shortage of open opportunities
@@ -54,7 +54,7 @@ ux_layout_rules:
       unit: rate
     - slot_id: Main_2
       kpi_ids:
-      - sales.conversion.pct
+      - KPI-COM-028
       visual_type: horizontal_bar_chart
       question: Where in the funnel does conversion leak?
       message: The funnel leaks at the mid-stage — deals stall in qualification rather than failing late
@@ -72,20 +72,20 @@ ux_layout_rules:
       evidence_columns:
       - rep
       - segment
-      - sales.pipeline.coverage.ratio
-      - sales.win_rate.pct
-      - sales.conversion.pct
-      - sales.sales_cycle.days
-      - sales.velocity.amount
-      - sales.pipeline.value.amount
+      - KPI-COM-026
+      - KPI-COM-027
+      - KPI-COM-028
+      - KPI-COM-029
+      - KPI-COM-030
+      - KPI-COM-031
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: sales.pipeline.coverage.ratio
+        measure: KPI-COM-026
         direction: ascending
       top_n: 20
       highlight_rule:
-        column: sales.pipeline.coverage.ratio
+        column: KPI-COM-026
         type: data_bar
 prioritization:
   business_value: high

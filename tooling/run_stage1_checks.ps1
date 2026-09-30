@@ -4,19 +4,10 @@ Param(
 
 $ErrorActionPreference = "Stop"
 
-# Ensure powershell-yaml is loaded for check_validate_data_contracts.ps1 (CI and local).
-# Soft-fail: environments without PSGallery access (e.g. sandboxed agents behind a
-# restrictive proxy) can still run every other Stage 1 check; only
-# check_validate_data_contracts.ps1 is skipped (not silently passed) below.
-$yamlAvailable = $true
-if (-not (Get-Command ConvertFrom-Yaml -ErrorAction SilentlyContinue)) {
-  try {
-    Import-Module powershell-yaml -ErrorAction Stop
-  } catch {
-    $yamlAvailable = $false
-    Write-Warning "powershell-yaml unavailable ($($_.Exception.Message)) -- check_validate_data_contracts.ps1 will be SKIPPED, not passed. Install via: Install-Module powershell-yaml -Scope CurrentUser"
-  }
-}
+# No PowerShell module is needed: check_validate_data_contracts.ps1 delegates to Python
+# (PyYAML + jsonschema, tooling/validation/requirements-data-contracts.txt). Until 29.09.2026
+# this runner skipped that check whenever powershell-yaml was missing, although the check
+# never used the module -- in environments without PSGallery the data contracts went unchecked.
 
 function Resolve-RepoPath {
   param([string]$ProvidedPath,[string]$DefaultRelative)
@@ -62,6 +53,10 @@ $checks = @(
 $pythonChecks = @(
   @{ Script = "tooling/validation/check_catalog_tmdl_drift.py"; Args = @("--repo-root", $rootPath) },
   @{ Script = "tooling/validation/check_docs_links.py"; Args = @("--repo-root", $rootPath) },
+  # Notebook-Toolkit-Grenze (Meridian D-603, 30.09.2026): das Toolkit ist nur internes
+  # Entwicklerwerkzeug; jede Nennung in products/, core/, tooling/, .github/ oder einer
+  # requirements*.txt macht Stage 1 rot. Exit 2 = nicht geprueft (git ls-files fehlgeschlagen).
+  @{ Script = "tooling/validation/check_fntk_boundary.py"; Args = @("--repo-root", $rootPath) },
   # Semantic Model gegen Gold-Daten (Ledger A-24, 29.09.2026): jede sourceColumn der dist-Modelle
   # steht in der Gold-Tabelle, die ihre Partition liest, oder in der Allowlist. --strict: fehlen
   # die Gold-Daten, endet das Tor mit 2 ("nicht geprueft"), nicht gruen.
@@ -100,11 +95,6 @@ $checkResults = @()
 $overallStatus = "pass"
 
 foreach ($check in $checks) {
-  if ($check.Path -eq "tooling/validation/check_validate_data_contracts.ps1" -and -not $yamlAvailable) {
-    Write-Host "SKIP $($check.Path) (powershell-yaml unavailable in this environment)" -ForegroundColor Yellow
-    $checkResults += @{ check = $check.Path; status = "skipped"; exit_code = $null }
-    continue
-  }
   $full = Join-Path -Path $rootPath -ChildPath $check.Path
   if (-not (Test-Path $full)) { throw "Missing check: $($check.Path)" }
   Write-Host "START $($check.Path)"

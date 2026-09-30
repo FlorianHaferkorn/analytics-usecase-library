@@ -1,0 +1,49 @@
+kpi_id: KPI-COM-027
+kpi_key: Win Rate %
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: Growth
+domain_tag:
+- Commercial
+- Growth
+use_case_ref:
+- COM-005
+action_code_ref: []
+calc_type: rate
+good_is: higher
+business:
+  purpose: Measures share of decided opportunities won.
+  definition: Opportunities Won / (Opportunities Won + Opportunities Lost).
+  grain_scope: Rep/segment/stage; monthly.
+  unit_format: percent_1
+  interpretation: Higher is better; the primary conversion lever behind coverage and attainment.
+technical:
+  measure_name: Win Rate %
+  description: Measures share of decided opportunities won.
+  depends_on_measures: []
+  lineage:
+  - fact_pipeline.Won Count
+  - fact_pipeline.Decided Count
+  calculation:
+    op: ratio
+    numerator:
+      column: Won Count
+    denominator:
+      column: Decided Count
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: Sales pipeline management (convention)
+  name: Win rate / opportunity conversion
+  alignment: none
+  note: Win rate is a standard commercial-analytics convention; no external standards body defines it.

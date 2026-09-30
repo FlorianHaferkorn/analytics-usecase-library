@@ -1,0 +1,54 @@
+kpi_id: KPI-FIN-012
+kpi_key: GM % During Promo
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Profitability
+domain_tag:
+- Finance
+- Commercial
+use_case_ref:
+- COM-004
+action_code_ref:
+- C-P4.1
+calc_type: ratio
+business:
+  purpose: Gross margin rate during promo periods.
+  definition: Incremental Gross Margin Amount / Incremental Sales Amount
+  grain_scope: Promo period/product
+  unit_format: percent_1
+  interpretation: Profitability of promotions.
+technical:
+  measure_name: GM % During Promo
+  description: Gross margin rate during promo periods.
+  depends_on_measures:
+  - KPI-COM-015
+  - KPI-COM-021
+  lineage:
+  - fact_sales.Cost of Goods Sold Amount
+  - fact_sales.Net Sales Amount
+  - fact_sales.Promo Flag
+  calculation:
+    op: ratio
+    numerator:
+      kpi: KPI-COM-015
+    denominator:
+      kpi: KPI-COM-021
+governance:
+  business_owner: Head of Marketing Controlling
+  data_owner: BI Engineering
+  steward: Trade Marketing Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Promo mapping consistent with finance
+  version: v2.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: ESMA-APM
+  name: Promo gross-margin ratio
+  url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+  alignment: none
+  note: Internal commercial / trade-promotion metric (incremental GM during promo); not an IFRS or ESMA-named measure.
+    Treated as an internal analytic ratio.

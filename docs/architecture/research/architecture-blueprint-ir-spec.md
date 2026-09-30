@@ -210,9 +210,29 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                 "type": "string",
                 "description": "Region der Kapazitaet. Sie entscheidet ueber Datenresidenz und ist deshalb eine Architekturaussage, keine Betriebsnotiz."
               },
+              "provisioning": {
+                "enum": [
+                  "existing",
+                  "create"
+                ],
+                "description": "Entscheidung Florian 30.09.2026: wie die Kapazitaet entsteht. `existing` (gilt, wenn das Feld fehlt): sie besteht schon und wird per Name referenziert (Terraform-Datenquelle `fabric_capacity`). `create`: der Terraform-Emitter legt sie als `azapi_resource` vom Typ `Microsoft.Fabric/capacities` an (API 2026-08-01-preview; `azurerm_fabric_capacity` kennt weder `overage` noch SKUs ueber F2048), damit die Overage-Entscheidung ab Anlage im Code steht. Dann Pflicht: `name` nach dem ARM-Muster (3 bis 63 Zeichen, Kleinbuchstaben und Ziffern, Buchstabe vorn), `sku` als F-SKU F2 bis F8192, `region` als Azure-Region. Fehlt `overage`, schreibt der Emitter die Microsoft-Voreinstellung (Enabled, 25 % der Tages-CU-Stunden) sichtbar aus statt sie wegzulassen; P4 der Conformance warnt weiter (amber)."
+              },
               "domain": {
                 "type": "string",
                 "description": "Name der Domaene, die auf dieser Kapazitaet laeuft. Fehlt er, traegt die Kapazitaet alle Domaenen — der Einzelkapazitaetsfall."
+              },
+              "stages": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "enum": [
+                    "dev",
+                    "test",
+                    "prod"
+                  ]
+                },
+                "description": "D-596 (30.09.2026): Stufen, deren Workspaces auf dieser Kapazitaet laufen (`mesh.domains[].workspaces[].stage`). Produktion und Nicht-Produktion gehoeren auf getrennte Kapazitaeten, innerhalb konsolidiert: typisch ein Eintrag mit `[\"prod\"]` und einer mit `[\"dev\", \"test\"]`. Fehlt das Feld, traegt die Kapazitaet jede Stufe, die kein anderer Eintrag beansprucht; ein ungestufter Workspace zaehlt als Produktion. Aufgeloest in `kapazitaet_stufen.kapazitaet_fuer` (Meridian) und `capacity.split` (ALUCA). Eine eigene Kapazitaet je Tier-1-Workload (D-596 Option c) laeuft ueber `workspaces[].surge_class = mission_critical` und ist ein Angebot, keine Vorgabe."
               },
               "purpose": {
                 "type": "string"
@@ -324,7 +344,50 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                   }
                 }
               }
-            }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "provisioning": {
+                      "const": "create"
+                    }
+                  },
+                  "required": [
+                    "provisioning"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "name",
+                    "sku",
+                    "region"
+                  ],
+                  "properties": {
+                    "name": {
+                      "pattern": "^[a-z][a-z0-9]{2,62}$"
+                    },
+                    "sku": {
+                      "enum": [
+                        "F2",
+                        "F4",
+                        "F8",
+                        "F16",
+                        "F32",
+                        "F64",
+                        "F128",
+                        "F256",
+                        "F512",
+                        "F1024",
+                        "F2048",
+                        "F4096",
+                        "F8192"
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
         },
         "tenant": {
@@ -770,6 +833,88 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
               "description": "Workspaces, die den CMK tragen. Leer bei `customer_managed` = alle."
             }
           }
+        },
+        "planning": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled"
+          ],
+          "description": "D-595 (30.09.2026): Fabric Planning (Item `Plan`, Fabric IQ) als Blueprint-Option. Ein Plan-Item haengt an genau einem Semantikmodell und schreibt Planwerte in eine Fabric-SQL-Datenbank zurueck. Abgerechnet wird je aktiver 30-Tage-Sitzung (Tenant + Nutzer + Kapazitaet) auf der Kapazitaet des Workspace; beim Pausieren oder Loeschen der Kapazitaet werden die Rest-CUs aller aktiven Sitzungen sofort abgerechnet (Learn `iq/plan/resources/billing-fabric-plan`, gelesen 30.09.2026). Fehlen `sessions`, ist die Kostenfrage eine Kundenfrage, keine Annahme.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Planning ist Teil dieser Lieferung."
+            },
+            "workspace": {
+              "type": "string",
+              "description": "Workspace, der die Plan-Items traegt. Er bestimmt die Kapazitaet und damit, wo die Sitzungen abgerechnet werden. Fehlt er, ist er offen."
+            },
+            "semantic_model": {
+              "type": "string",
+              "description": "Das Semantikmodell, an das das Plan-Item bindet. Nach dem Verbinden nicht mehr aenderbar; Umbenennen des Modells bricht die Verbindung."
+            },
+            "writeback_database": {
+              "type": "string",
+              "description": "Fabric-SQL-Datenbank fuer das Zurueckschreiben der Planwerte (die einzige unterstuetzte Zielart)."
+            },
+            "sessions": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Erwartete aktive Nutzer je Rolle in einem 30-Tage-Fenster, vom Kunden genannt. Treibt die CU-Last (Planner 847, Stakeholder 168, Viewer 37 CU-Stunden je Sitzung). Nicht schaetzen: fehlt ein Wert, bleibt er eine Kundenfrage.",
+              "properties": {
+                "planner": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "stakeholder": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "viewer": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        },
+        "ai_zugang": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "fabric_copilot",
+              "m365_copilot",
+              "byo_agent_mcp",
+              "keiner",
+              "unbekannt"
+            ]
+          },
+          "allOf": [
+            {
+              "if": {
+                "contains": {
+                  "const": "keiner"
+                }
+              },
+              "then": {
+                "maxItems": 1
+              }
+            },
+            {
+              "if": {
+                "contains": {
+                  "const": "unbekannt"
+                }
+              },
+              "then": {
+                "maxItems": 1
+              }
+            }
+          ],
+          "description": "D-606 (30.09.2026): Auf welchen Wegen der Kunde KI auf seine Fabric-Daten laesst; mehrere Wege gleichzeitig moeglich, `keiner` und `unbekannt` stehen allein. Fehlt das Feld, gilt es als `unbekannt`. `fabric_copilot` = Copilot in Fabric und Power BI (Tenant-Schalter der Copilot-Sektion, bezahlte Kapazitaet). `m365_copilot` = Fabric IQ in Microsoft 365 Copilot Chat: GA, Microsoft 365 Copilot Premium fuer jeden Nutzer, die M365-Einstellung Fabric data in Microsoft Copilot steht ab Werk an (Learn `fabric/iq/connectors/microsoft-365-copilot-overview`, gelesen 30.09.2026). `byo_agent_mcp` = eigener Agent ueber Fabric IQ MCP: GA, nur lesend mit DAX, nur delegierte Anmeldung (kein Service Principal, keine App-only-Anmeldung), keine Fabric- oder Premium-Kapazitaet noetig, nur wenn die Heimatregion des Mandanten alle Fabric-Workloads hat (nicht in Power-BI-only-Regionen oder Sovereign Clouds), `ExecuteQuery` liefert ohne `maxRows` 250 Zeilen (Learn `fabric/iq/connectors/fabric-iq-mcp`, gelesen 30.09.2026). `keiner` = bewusst kein KI-Zugang. `unbekannt` = noch nicht gefragt; der Generator stellt dann die Kundenfrage."
         }
       }
     },
@@ -1013,11 +1158,18 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
         },
         "platinum": {
           "type": "object",
-          "description": "Meridian-only: the semantic-model/ontology layer above gold.",
+          "description": "The semantic-model/ontology layer above gold. semantic_model_ref is Meridian-only; storage_mode is read by the semantic-model generators of both repos.",
           "additionalProperties": false,
           "properties": {
             "semantic_model_ref": {
               "type": "string"
+            },
+            "storage_mode": {
+              "enum": [
+                "direct_lake_onelake",
+                "import"
+              ],
+              "description": "Storage mode of this tenant's semantic models (Meridian D-590). direct_lake_onelake = Direct Lake on OneLake: entity partitions over the gold Delta tables, shared expression AzureStorage.DataLake (Learn fabric/fundamentals/direct-lake-develop, read 30.09.2026). import = import partitions in M. Absent = the default rule in storage_mode.py (Meridian core/dataarch_engine/blueprint/, mirrored to ALUCA tooling/superversion/vendor/meridian_dataarch/): direct_lake_onelake when the tenant has a Fabric capacity (platform.stack = fabric, or a capacity named or sized), otherwise import. Generators read the resolved value and derive nothing from platform themselves. Direct Lake on OneLake allows calculated columns only with expression context User Context, unmaterialized and never as relationship keys (Learn power-bi/transform-model/desktop-calculated-columns, read 30.09.2026); a model that needs materialized helper columns or calculated keys makes the generator abort in direct_lake_onelake instead of mixing in import tables. Direct Lake on SQL is not offered: not deprecated (Learn direct-lake-overview, read 30.09.2026), but no generator emits it from the blueprint."
             }
           }
         },
@@ -1068,8 +1220,10 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                         "silver",
                         "gold",
                         "reporting",
+                        "data",
                         "mixed"
-                      ]
+                      ],
+                      "description": "What the workspace carries. 'data' is the data workspace of workspace_strategy 'per_domain' (D-600): bronze, silver and gold as separate lakehouses, no consumers — reading happens through the 'reporting' workspace, because OneLake security only grants and cannot restrict a Contributor."
                     },
                     "stage": {
                       "enum": [
@@ -1471,7 +1625,7 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
             "single",
             "per_layer"
           ],
-          "description": "How mesh.domains[].workspaces are cut. Read by derive_blueprint. 'per_layer' gives each medallion layer its own workspace, which is Microsoft's own recommendation for the medallion deployment model ('we recommend that you create each lakehouse in its own, separate workspace') and the only cut that makes the raw layer invisible to business users through workspace membership alone."
+          "description": "How mesh.domains[].workspaces are cut. Read by derive_blueprint. 'per_layer' gives each medallion layer its own workspace, which is Microsoft's own recommendation for the medallion deployment model ('we recommend that you create each lakehouse in its own, separate workspace') and the only cut that makes the raw layer invisible to business users through workspace membership alone. 'per_domain' is the default (D-600, 'standard'): per domain and stage one data workspace (role 'data', bronze/silver/gold lakehouses) and one consumption workspace (role 'reporting'); 'single' is D-600 'compact', 'per_layer' is D-600 'isolated'."
         },
         "workspace_prefix": {
           "type": "string",
@@ -1674,6 +1828,46 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
             "entscheidung": {
               "type": "string",
               "description": "Was zu entscheiden ist und woher die Antwort kommt. Pflicht, sobald `zielbild` gesetzt ist."
+            },
+            "onelake_areas": {
+              "type": "array",
+              "description": "OneLake-Sicherheitsrollen fuer Ordner und Tabellen ausserhalb des Domaenen-Lesezugriffs (I-21, Security-Folien FabCon 30.09.2026, Learn onelake/security/data-access-control-model): Lesen eines Ordners unter Files/ oder Schreiben (ReadWrite) fuer Viewer, die nicht Contributor werden sollen. ReadWrite gilt laut Learn nur im Lakehouse, wirkt nur fuer Nutzer mit Read-Recht (Viewer) und darf keine RLS/CLS enthalten; geschrieben wird nur ueber Spark, OneLake-APIs oder den OneLake-Datei-Explorer.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "path",
+                  "access"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+                    "description": "Rollenname-Bestandteil (Rolle heisst area_<name>)."
+                  },
+                  "path": {
+                    "type": "string",
+                    "pattern": "^(Files|Tables)/.+",
+                    "description": "Pfad im Lakehouse, z. B. Files/planung/upload oder Tables/eingabe_budget. Ordnerrechte vererben sich auf Unterordner."
+                  },
+                  "access": {
+                    "enum": [
+                      "read",
+                      "readwrite"
+                    ],
+                    "description": "read = nur lesen; readwrite = lesen und schreiben (Anlegen, Loeschen, Hochladen)."
+                  },
+                  "group": {
+                    "type": "string",
+                    "description": "Name der Entra-Gruppe (die objectId steht als VERIFY-Platzhalter im Rumpf)."
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "description": "Wozu der Bereich dient (erscheint im Runbook)."
+                  }
+                }
+              }
             }
           }
         },

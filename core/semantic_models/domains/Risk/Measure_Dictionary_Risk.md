@@ -7,7 +7,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 ```yaml
 - measure_name: Enterprise Value-at-Risk Index
   is_kpi_measure: true
-  kpi_id_ref: enterprise.value_at_risk.index
+  kpi_id_ref: KPI-GOV-004
   semantic_model: Risk_SemanticModel
   display_folder: 02_Enterprise
   category: KPI
@@ -34,7 +34,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: Supplier Risk Score
   is_kpi_measure: true
-  kpi_id_ref: scm.supplier_risk.score
+  kpi_id_ref: KPI-SCM-022
   semantic_model: Risk_SemanticModel
   display_folder: 03_Supply
   category: KPI

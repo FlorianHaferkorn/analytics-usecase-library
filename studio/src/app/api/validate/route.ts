@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { validate } from '@/lib/validation/schema-validator';
 import { apiSuccess, apiValidationError } from '@/lib/api/response';
 
-const SCHEMA_DIR = join(process.cwd(), '..', 'tooling', 'ai', 'schemas');
+const SCHEMA_DIR = join(process.cwd(), '..', 'tooling', 'generator', 'schemas');
 
 const SCHEMA_MAP: Record<string, string> = {
   bracket: 'usecase_bracket.schema.json',

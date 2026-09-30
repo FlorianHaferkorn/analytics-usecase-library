@@ -33,7 +33,7 @@ process_scope:
 
 canonical_domain_model:
   outcome_kpis:
-    - id: sales.net_sales.amount
+    - id: KPI-COM-005
       name: Net Sales Amount
       definition: Revenue net of discounts, returns, and rebates. Primary revenue KPI.
       unit: EUR
@@ -41,7 +41,7 @@ canonical_domain_model:
       benchmark_target: "Sector-specific; 5–10% YoY growth for manufacturing B2B (Gartner)"
       benchmark_source_id: SRC-004
 
-    - id: margin.gm.pct
+    - id: KPI-COM-013
       name: Gross Margin %
       role: guardrail
       definition: "(Net Sales - COGS) / Net Sales × 100"
@@ -56,49 +56,49 @@ canonical_domain_model:
       benchmark_source_id: SRC-006
 
   driver_kpis:
-    - id: sales.net_sales.delta_pct.plan
+    - id: KPI-COM-009
       name: Net Sales % vs Plan
       definition: "(Actual Net Sales - Plan Net Sales) / Plan Net Sales × 100"
       unit: "%"
       direction: maximize
-      drives: sales.net_sales.amount
+      drives: KPI-COM-005
       causal_mechanism: Plan gap triggers pricing or volume corrective actions.
       benchmark_target: "Within ±3% of plan (Gartner Sales Performance Benchmark)"
       benchmark_source_id: SRC-004
 
-    - id: sales.net_sales.delta_pct.ly
+    - id: KPI-COM-008
       name: Net Sales % vs LY
       definition: "(Actual Net Sales - LY Net Sales) / LY Net Sales × 100"
       unit: "%"
       direction: maximize
-      drives: sales.net_sales.amount
+      drives: KPI-COM-005
       causal_mechanism: LY comparison signals structural growth or decline trends.
       benchmark_target: ""
       benchmark_source_id: ""
 
   diagnostic_kpis:
-    - id: sales.pvm.price_effect.amount
+    - id: KPI-COM-010
       name: Price Effect (PVM)
       definition: Contribution of price changes to Net Sales variance.
       unit: EUR
       direction: maximize
-      diagnoses: sales.net_sales.delta_pct.plan
+      diagnoses: KPI-COM-009
       causal_mechanism: Positive price effect = realised price increases; negative = price erosion.
 
-    - id: sales.pvm.volume_effect.amount
+    - id: KPI-COM-011
       name: Volume Effect (PVM)
       definition: Contribution of volume changes to Net Sales variance.
       unit: EUR
       direction: maximize
-      diagnoses: sales.net_sales.delta_pct.plan
+      diagnoses: KPI-COM-009
       causal_mechanism: Isolated from mix and price to show pure volume driver.
 
-    - id: sales.pvm.mix_effect.amount
+    - id: KPI-COM-004
       name: Mix Effect (PVM)
       definition: Contribution of product/channel/customer mix changes to Net Sales variance.
       unit: EUR
       direction: maximize
-      diagnoses: sales.net_sales.delta_pct.plan
+      diagnoses: KPI-COM-009
       causal_mechanism: >
         Negative mix effect with positive volume = growth in lower-margin products.
         Requires GM% guardrail to prevent value-destroying volume growth.
@@ -109,8 +109,8 @@ canonical_domain_model:
         Do not trigger volume growth actions if GM% is below target and mix effect is
         already negative. Volume without margin recovery destroys value.
       affected_kpis:
-        - sales.net_sales.amount
-        - margin.gm.pct
+        - KPI-COM-005
+        - KPI-COM-013
 
   wrong_interpretations:
     - description: Revenue growth without margin check
@@ -272,20 +272,20 @@ source_inventory:
       supports: [wrong_interpretations]
 
 action_logic_seeds:
-  - trigger_driver: sales.net_sales.delta_pct.plan
-    trigger_diagnostic: sales.pvm.price_effect.amount
+  - trigger_driver: KPI-COM-009
+    trigger_diagnostic: KPI-COM-010
     trigger_condition: "Net Sales < Plan by > 5% for 2 consecutive months AND price effect is negative"
     guardrail: "Do not trigger if GM% is above target and mix effect is positive"
     action_description: Discount discipline review and price realisation corrective action.
-    expected_outcome_kpi: sales.net_sales.amount
+    expected_outcome_kpi: KPI-COM-005
     action_code_candidate: C-S1.1
 
-  - trigger_driver: sales.net_sales.delta_pct.plan
-    trigger_diagnostic: sales.pvm.volume_effect.amount
+  - trigger_driver: KPI-COM-009
+    trigger_diagnostic: KPI-COM-011
     trigger_condition: "Net Sales < Plan by > 5% AND volume effect is negative with stable prices"
     guardrail: "Exclude periods of planned seasonal dip"
     action_description: Volume recovery actions — pipeline acceleration, channel activation.
-    expected_outcome_kpi: sales.net_sales.amount
+    expected_outcome_kpi: KPI-COM-005
     action_code_candidate: C-S1.2
 
 required_data_model:

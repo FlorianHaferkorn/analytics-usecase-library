@@ -1,6 +1,6 @@
 measure_name: MAPE %
 is_kpi_measure: true
-kpi_id_ref: plan.forecast.mape.pct
+kpi_id_ref: KPI-SCM-017
 semantic_model: SupplyChain_SemanticModel
 display_folder: 03_Forecast
 category: KPI

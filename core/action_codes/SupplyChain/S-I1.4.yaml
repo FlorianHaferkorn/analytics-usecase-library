@@ -13,12 +13,12 @@ use_case_links:
   - FIN-002
 kpis:
   trigger_kpis:
-  - inv.obsolete.pct
+  - KPI-SCM-004
   guardrail_kpis:
-  - inv.stockout.pct
+  - KPI-SCM-002
   outcome_kpis:
-  - inv.obsolete.pct
-  - inv.dio.days
+  - KPI-SCM-004
+  - KPI-SCM-001
 scope:
   default_grain: sku_location_month
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: fin.liquidity.inventory.amount
+        metric_kpi_id: KPI-FIN-002
         comparator: gte
         value: 50000
         unit: currency
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: inv.obsolete.pct
+        metric_kpi_id: KPI-SCM-004
         comparator: gt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: inv.obsolete.pct
+        metric_kpi_id: KPI-SCM-004
         comparator: gt
         threshold:
           basis: absolute
@@ -74,7 +74,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: inv.obsolete.pct
+        metric_kpi_id: KPI-SCM-004
         comparator: gt
         threshold:
           basis: absolute
@@ -90,7 +90,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P60D
-    metric_kpi_id: inv.turnover
+    metric_kpi_id: KPI-SCM-016
     success_criteria:
       kind: threshold_met
       baseline_window: P90D
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: inv.obsolete.pct
+    metric_kpi_id: KPI-SCM-004
     value_low: -2.0
     value_high: -8.0
     unit: pp

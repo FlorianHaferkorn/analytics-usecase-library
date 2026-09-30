@@ -1,0 +1,51 @@
+kpi_id: KPI-COM-016
+kpi_key: Promo ROI %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Profitability
+domain_tag:
+- Commercial
+use_case_ref:
+- COM-004
+action_code_ref:
+- C-P4.1
+calc_type: ratio
+good_is: higher
+business:
+  purpose: Measures profitability of promotions relative to spend.
+  definition: Incremental GM Amount / Promo Cost Amount
+  grain_scope: Promo campaign / product / period.
+  unit_format: percent_1
+  interpretation: Values > 0 indicate promotions adding value.
+technical:
+  measure_name: Promo ROI %
+  description: Measures profitability of promotions relative to spend.
+  depends_on_measures:
+  - KPI-COM-015
+  - KPI-COM-014
+  lineage:
+  - fact_promo.Promo Cost
+  calculation:
+    op: ratio
+    numerator:
+      kpi: KPI-COM-015
+    denominator:
+      kpi: KPI-COM-014
+governance:
+  business_owner: Head of Marketing Controlling
+  data_owner: BI Engineering
+  steward: Trade Marketing Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Promo cost > 0 required
+  - Variance vs finance ROI < 2 pp
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.82
+  last_review: 23.01.2026
+standard_ref:
+- standard: Trade Promotion Management (convention)
+  name: Promo ROI
+  alignment: none
+  note: Promo ROI (incremental GM / promo cost) is a TPM convention; no governing standard.

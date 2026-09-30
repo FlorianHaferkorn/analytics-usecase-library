@@ -13,11 +13,11 @@ use_case_links:
   - FIN-002
 kpis:
   trigger_kpis:
-  - ops.throughput.units
+  - KPI-OPS-009
   guardrail_kpis:
-  - ops.oee.pct
+  - KPI-OPS-011
   outcome_kpis:
-  - ops.throughput.units
+  - KPI-OPS-009
 scope:
   default_grain: plant_month
   default_perspective:
@@ -45,7 +45,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: ops.planned_output.units
+        metric_kpi_id: KPI-OPS-013
         comparator: gte
         value: 50000
         unit: units
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: ops.throughput.units
+        metric_kpi_id: KPI-OPS-009
         comparator: lt
         threshold:
           basis: relative
@@ -63,7 +63,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: ops.throughput.units
+        metric_kpi_id: KPI-OPS-009
         comparator: lt
         threshold:
           basis: relative
@@ -73,7 +73,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: ops.throughput.units
+        metric_kpi_id: KPI-OPS-009
         comparator: lt
         threshold:
           basis: relative
@@ -89,7 +89,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P14D
-    metric_kpi_id: ops.quality.pct
+    metric_kpi_id: KPI-OPS-003
     success_criteria:
       kind: return_to_baseline
       baseline_window: P28D
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: ops.throughput.units
+    metric_kpi_id: KPI-OPS-009
     value_low: 3.0
     value_high: 10.0
     unit: '%'

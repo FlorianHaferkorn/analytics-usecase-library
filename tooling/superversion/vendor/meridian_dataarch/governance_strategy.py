@@ -60,6 +60,9 @@ MS_DOMAINS = ("https://learn.microsoft.com/power-bi/guidance/"
 MS_MEDALLION = "https://learn.microsoft.com/fabric/onelake/onelake-medallion-lakehouse-architecture"
 MS_SEC_SCENARIO = ("https://learn.microsoft.com/fabric/security/"
                    "security-scenario-scenario-with-multiple-workspaces")
+MS_ONELAKE_GRANT = "https://learn.microsoft.com/fabric/onelake/security/table-column-row-security"
+MS_FOLDERS = "https://learn.microsoft.com/fabric/fundamentals/workspaces-folders"
+MS_CICD_SECURITY = "https://learn.microsoft.com/fabric/cicd/cicd-security"
 
 OWNERSHIP_MODELS = ("enterprise_bi", "managed_self_service", "business_led_self_service")
 WORKSPACE_STRATEGIES = ("per_domain", "central_prep_domain_consumption", "single", "per_layer")
@@ -71,6 +74,14 @@ WORKSPACE_STRATEGIES = ("per_domain", "central_prep_domain_consumption", "single
 DEFAULT_WORKSPACE_PREFIX = "ws-"
 DEFAULT_LAYERS: tuple[str, ...] = ("bronze", "silver", "gold", "reporting")
 LIFECYCLE_STAGES: tuple[str, ...] = ("dev", "test", "prod")
+
+#: Workspace-Rollen, die das Lakehouse tragen (D-600). ``data`` ist der Daten-Workspace des
+#: Zuschnitts `per_domain` (Bronze, Silber und Gold in einem Workspace), ``gold`` die Goldschicht
+#: unter `per_layer` und die zentrale Aufbereitung unter `central_prep_domain_consumption`,
+#: ``mixed`` der eine Workspace unter `single`. Eine Stelle statt einer Tupel-Kopie je Emitter:
+#: bis 30.09.2026 stand ``("gold", "mixed")`` in vier Modulen, und eine neue Rolle haette in
+#: jedem einzeln nachgezogen werden muessen.
+LAKEHOUSE_ROLES: tuple[str, ...] = ("gold", "data", "mixed")
 
 # Warum eine Schicht je Workspace ueberhaupt eine eigene Strategie ist — und nicht eine
 # Geschmacksfrage. Drei Belege, alle bei Microsoft, alle am 11.08.2026 nachgelesen:
@@ -84,6 +95,22 @@ PER_LAYER_RATIONALE = (
     "Der Grund ist keine Ordnungsliebe, sondern Berechtigung: die Rohschicht wird fuer "
     "Fachnutzer unsichtbar, ohne dass eine einzige Datenregel geschrieben werden muss. Innerhalb "
     "eines Workspace geht das nicht — die Workspace-Rolle gilt fuer alles darin.")
+
+# Warum `per_domain` die Vorgabe ist (D-600, Entscheidung Florian 30.09.2026): ein
+# Daten-Workspace und ein Consumption-Workspace je Domaene und Umgebung. Belege am 30.09.2026
+# auf Learn gelesen, Fundstellen in MS_ONELAKE_GRANT, MS_FOLDERS, MS_CICD_SECURITY.
+PER_DOMAIN_RATIONALE = (
+    "Zwei Workspaces je Domaene und Umgebung: ein Daten-Workspace mit Bronze, Silber und Gold "
+    "als eigenen Lakehouses und ein Consumption-Workspace mit Semantikmodellen, Berichten und "
+    "Apps. Der Schnitt liegt dort, wo OneLake Security nicht hilft: ihre Rollen gewaehren nur, "
+    "sie kennen kein Deny und schraenken Admin, Member und Contributor nicht ein (\"these "
+    "controls don't restrict access for users in the Admin, Member, and Contributor roles\"). "
+    "Report-Bauende brauchen Contributor und saehen in einem gemeinsamen Workspace Bronze samt "
+    "Rohdaten. Workspace-Ordner helfen nicht: sie erben die Rechte des Workspace, und Git "
+    "unterstuetzt sie nicht. Git-Anbindung, Deployment-Pipeline und Outbound Access Protection "
+    "werden je Workspace gesetzt (\"The Git integration consent is per workspace\"), und "
+    "Berichte haben einen anderen Release-Takt als Pipelines. Der Daten-Workspace hat deshalb "
+    "keine Konsumenten; gelesen wird ueber den Consumption-Workspace.")
 
 # Workshop-Profil -> (Inhaberschaftsmodell, Workspace-Zuschnitt, Begruendung)
 # Die Profile stammen aus dem Governance-Workshop (`recommendation/v1`), die Modelle aus MS'
@@ -133,6 +160,11 @@ _ROLE_PLAN: dict[str, dict[str, str]] = {
                     "Contributor werden: diese Rolle vergibt automatisch Schreibrecht auf OneLake "
                     "und hebt damit jede feingranulare Leseeinschraenkung der OneLake-Sicherheit "
                     "auf."},
+    "data": {"operator": "Contributor", "consumer": "—",
+             "why": "Der Daten-Workspace traegt Bronze, Silber und Gold zugleich (D-600). Eine "
+                    "Viewer-Rolle hier machte die Rohschicht sichtbar, und OneLake Security kann "
+                    "das nicht zuruecknehmen: sie gewaehrt nur. Konsumiert wird ueber den "
+                    "Consumption-Workspace."},
     "reporting": {"operator": "Member", "consumer": "Viewer",
                   "why": "Berichte werden geteilt, und Teilen kann erst die Member-Rolle. "
                          "Konsumenten bleiben Viewer."},
@@ -152,7 +184,7 @@ def strategy_from_governance(profile: str | None, ist_state: str | None = None, 
                              ) -> dict[str, Any]:
     """``{ownership_model, workspace_strategy, rationale, source, ...}`` — Vorschlag mit Herkunft.
 
-    Ohne Profil wird nichts behauptet: der Zuschnitt bleibt der bisherige (`per_domain`) und ist
+    Ohne Profil wird nichts behauptet: der Zuschnitt ist die Vorgabe `per_domain` (D-600) und ist
     als *nicht aus einem Governance-Ergebnis abgeleitet* markiert. Ein stiller Vorgabewert waere
     genau das, was hier fehlte.
 
@@ -166,9 +198,10 @@ def strategy_from_governance(profile: str | None, ist_state: str | None = None, 
         abgeleitet = True
     else:
         modell, zuschnitt = "managed_self_service", "per_domain"
-        begruendung = ("Kein Governance-Profil vorhanden. Der Zuschnitt bleibt der bisherige "
-                       "(ein Workspace-Paar je Domaene) — er ist damit eine Konvention und keine "
-                       "Ableitung, und genau deshalb steht das hier.")
+        begruendung = ("Kein Governance-Profil vorhanden. Der Zuschnitt ist die Vorgabe aus "
+                       "D-600 (ein Daten- und ein Consumption-Workspace je Domaene) — er ist "
+                       "damit eine Konvention und keine Ableitung, und genau deshalb steht das "
+                       "hier.")
         quelle = "kein Governance-Ergebnis"
         abgeleitet = False
 
@@ -193,6 +226,9 @@ def strategy_from_governance(profile: str | None, ist_state: str | None = None, 
     if zuschnitt == "per_layer":
         begruendung = PER_LAYER_RATIONALE
         grundlagen += [MS_MEDALLION, MS_SEC_SCENARIO]
+    elif zuschnitt == "per_domain":
+        begruendung = f"{begruendung} {PER_DOMAIN_RATIONALE}"
+        grundlagen += [MS_ONELAKE_GRANT, MS_FOLDERS, MS_CICD_SECURITY]
 
     out: dict[str, Any] = {
         "profile": profile,
@@ -233,7 +269,9 @@ def workspaces_for(domain_slug: str, strategy: str, shared: str = "analytics",
 
     ``prefix``/``layers``/``stages`` sind die drei Stellschrauben. Ohne sie ist die Ausgabe
     zeichengleich mit der von vorher — die Erweiterung aendert nichts an bestehenden Lieferungen,
-    sie macht nur das ausdrueckbar, was vorher Handarbeit nach der Erzeugung war.
+    sie macht nur das ausdrueckbar, was vorher Handarbeit nach der Erzeugung war. Ausnahme mit
+    Absicht (D-600, 30.09.2026): unter `per_domain` heisst der Daten-Workspace `-data` statt
+    `-gold` und traegt die Rolle `data`.
     """
     p = DEFAULT_WORKSPACE_PREFIX if prefix is None else prefix
     if strategy == "single":
@@ -250,7 +288,10 @@ def workspaces_for(domain_slug: str, strategy: str, shared: str = "analytics",
         # Eine ZENTRALE Aufbereitungsschicht fuer alle Domaenen plus je Domaene der Konsum.
         basis = [(f"{p}{shared}-prep", "gold"), (f"{p}{domain_slug}-reporting", "reporting")]
     else:
-        basis = [(f"{p}{domain_slug}-gold", "gold"), (f"{p}{domain_slug}-reporting", "reporting")]
+        # `per_domain` (D-600 `standard`): ein Daten-Workspace mit allen drei Lakehouses und der
+        # Consumption-Workspace. Bis 30.09.2026 hiess der erste `-gold` mit Rolle `gold` — und
+        # bekam damit den Rollenplan der Goldschicht (Konsument Viewer), obwohl er Bronze traegt.
+        basis = [(f"{p}{domain_slug}-data", "data"), (f"{p}{domain_slug}-reporting", "reporting")]
 
     if not stages:
         return [{"name": n, "role": r} for n, r in basis]

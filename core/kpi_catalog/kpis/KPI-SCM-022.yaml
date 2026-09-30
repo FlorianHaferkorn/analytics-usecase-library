@@ -1,0 +1,52 @@
+kpi_id: KPI-SCM-022
+synonyms:
+- Supplier Risk Rating
+- Vendor Risk Index
+- Lieferantenrisiko-Score
+- Lieferantenrisikobewertung
+example_question: Which suppliers carry the highest risk score?
+kpi_key: Supplier Risk Score
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Risk
+domain_tag:
+- Supply Chain
+use_case_ref:
+- FIN-001
+action_code_ref: []
+calc_type: ratio
+good_is: lower
+business:
+  purpose: Rates suppliers based on risk indicators.
+  definition: Composite risk score derived from supplier risk factors.
+  grain_scope: Supplier; aggregated by period.
+  unit_format: score_1
+  interpretation: Higher scores indicate higher supplier risk.
+technical:
+  measure_name: Supplier Risk Score
+  description: Rates suppliers based on risk indicators.
+  depends_on_measures: []
+  lineage:
+  - fact_supplier_risk.Risk Score
+  calculation:
+    op: avg
+    column: Risk Score
+governance:
+  business_owner: Head of Procurement
+  data_owner: Supply Chain BI
+  steward: Supplier Risk Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules: []
+  version: v0.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: AG
+  name: Agility — Value at Risk
+  url: https://scor.ascm.org/performance/agility
+  alignment: partial
+  note: 'Loose link only: SCOR Agility (AG) measures adaptability and overall value-at-risk, not a supplier-risk
+    composite score. Conceptual neighbour, not the same metric.'

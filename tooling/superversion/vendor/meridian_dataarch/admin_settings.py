@@ -771,4 +771,12 @@ def profile_from_blueprint(bp: dict) -> set[str]:
         caps |= {"data_agents", "copilot"}      # Data Agents reiten auf den Copilot-Schaltern
     if (ai.get("ontology") or {}).get("enabled"):
         caps.add("ontology")
+    # D-606: der Zugangsweg `fabric_copilot` in `platform.ai_zugang` zieht die Copilot-Schalter
+    # (#8, #9, #31). `m365_copilot` braucht keine Faehigkeit: #30 steht ohnehin im Profil
+    # (governance), sein ZIEL haengt am Zugangsweg (`ki_zugang.wirkung` → m365_schalter).
+    # Bewusst ohne Import von `ki_zugang`: dieses Modul reist als Standard-Python in
+    # `readiness/lib/` mit. Dieselbe Regel steht in `ki_zugang.wirkung["tenant_faehigkeiten"]`;
+    # `test_ki_zugang.py` stellt beide gegeneinander.
+    if "fabric_copilot" in ((bp.get("platform") or {}).get("ai_zugang") or []):
+        caps.add("copilot")
     return caps

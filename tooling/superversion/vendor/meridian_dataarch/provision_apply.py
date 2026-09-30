@@ -33,7 +33,7 @@ from core.dataarch_engine.blueprint.fabric_schedule import (
     JOB_TYPE_NOTEBOOK,
     JOB_TYPE_PIPELINE,
 )
-from core.dataarch_engine.blueprint.governance_strategy import LIFECYCLE_STAGES
+from core.dataarch_engine.blueprint.governance_strategy import LAKEHOUSE_ROLES, LIFECYCLE_STAGES
 
 #: Unter wem ein Zeitplan angelegt wird (D-537, O-72 eines Kundenprojekts). Der Satz steht an
 #: JEDEM Zeitplan-Schritt, weil jeder einzeln im Portal angelegt werden kann — und dort legt
@@ -123,7 +123,7 @@ def gold_workspace_of(bp: dict, domain_name: str | None = None,
     # Stufe schlaegt Listenreihenfolge; innerhalb einer Stufe bleibt die Reihenfolge stabil.
     kandidaten.sort(key=_stufenrang)
     for ws in kandidaten:
-        if ws.get("role") in ("gold", "mixed"):
+        if ws.get("role") in LAKEHOUSE_ROLES:
             return ws["name"]
     # keine Gold-Rolle deklariert: der unterstufigste Workspace der Domäne, sonst der Fallback
     return kandidaten[0]["name"] if kandidaten else fallback
@@ -205,7 +205,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     from core.dataarch_engine.blueprint.decision_proposals import entscheidung_fuer
 
     workspaces = _unique_workspaces(bp)
-    gold_ws = [n for n, r in workspaces if r in ("gold", "mixed")]
+    gold_ws = [n for n, r in workspaces if r in LAKEHOUSE_ROLES]
     target_ws = gold_ws[0] if gold_ws else (workspaces[0][0] if workspaces else workspace)
     domains = sorted(bp.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
     ingestion = sorted(bp.get("ingestion", []), key=lambda e: e.get("source", ""))
@@ -279,7 +279,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
             "(MS Learn: fabric/security/security-private-links-overview); nachtraeglich nur mit "
             "Neuaufbau der Quellanbindung zu drehen — deshalb vor dem ersten Lakehouse.")
     for name, role in workspaces:
-        if role in ("gold", "mixed"):
+        if role in LAKEHOUSE_ROLES:
             add("create_lakehouse", f"{name}.Workspace/{lakehouse}.Lakehouse", "core-mcp:create-item | fab mkdir",
                 "human", "gold lakehouse",
                 present("terraform/main.tf") or present("provision.sh"))
@@ -289,7 +289,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     # Warehouse-Schicht (`sql_ddl_layers`), das entscheidet der Aufrufer, nicht dieser Schritt.
     if entscheidung_fuer(entscheidungen, "PLAT-LHTOPO", "") == "gold_warehouse":
         for name, role in workspaces:
-            if role in ("gold", "mixed"):
+            if role in LAKEHOUSE_ROLES:
                 add("create_warehouse", f"{name}.Workspace/{lakehouse}.Warehouse",
                     "core-mcp:create-item | fab mkdir", "human",
                     "Entschieden: PLAT-LHTOPO = gold_warehouse. Gold als Warehouse fuer "
@@ -327,6 +327,14 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
         art = (present("orchestration/pipeline-content.json") if mode == "copy"
                else present("provision.sh")) or present("ingestion_plan.json")
         add("ingest_source", f"{e['source']} ({mode})", tool, "human", rationale, art)
+        if mode == "mirror" and art:
+            # Gespiegelte Datenbanken haben einen eigenen DefaultReader (alle mit ReadAll lesen die
+            # Rohdaten), Learn onelake/security/data-access-control-model, gelesen 30.09.2026.
+            add("restrict_mirror_default_reader", f"{e['source']}.MirroredDatabase — DefaultReader",
+                "portal: Manage OneLake security | rest:/dataAccessRoles", "human-approved",
+                "Vorgabe-Rolle `DefaultReader` der gespiegelten Datenbank einschraenken oder "
+                "entfernen. Sie gibt jedem Nutzer mit ReadAll die gespiegelten Rohdaten frei. "
+                "Berechtigungsaenderung, deshalb freigabepflichtig.", art)
     for gp in gold_products:
         ws = ws_of.get(gp, target_ws)
         add("import_item", f"{ws}.Workspace/{gp}", "core-mcp:create-item | fab import", "human",
@@ -688,6 +696,7 @@ def _tenant_setup_md(bp: dict) -> str:
         lines.append(f"| {s['id']} | {name} ({s['section']}) | {s['scope']} | {s['why']} | "
                      f"{s['who']} · {s['how']} | {s['required']} |")
 
+    lines += _ki_zugang_zeilen(bp)
     summ = _admin.settability_summary(caps)
     lines += ["", "## Within a day: what scripts vs what needs a human", ""]
     if summ["scriptable"]:
@@ -715,6 +724,38 @@ def _tenant_setup_md(bp: dict) -> str:
     lines.append("Also grant the SPN read on each ingestion source. See _MCP_INTEGRATION.md for "
                  "guardrails.")
     return "\n".join(lines) + "\n"
+
+
+def _ki_zugang_zeilen(bp: dict) -> list[str]:
+    """D-606: Ziel von #30 und die Copilot-Schalter aus ``platform.ai_zugang`` (``ki_zugang.wirkung``).
+
+    Bis 30.09.2026 stand #30 fuer jede Lieferung als offene Entscheidung da. Jetzt entscheidet der
+    Zugangsweg: ``m365_copilot`` → an fuer benannte Gruppen, sonst aus (ab Werk an). Fehlt das Feld
+    oder steht ``unbekannt`` darin, ist das Ziel mit aus vorbelegt und die Kundenfrage steht in
+    ``platform/SICHERHEITSBASIS.md``, Abschnitt 7."""
+    from core.dataarch_engine.blueprint.ki_zugang import wirkung
+    w = wirkung(bp)
+    ziel = w["m365_schalter"]["ziel"]
+    zeilen = ["", "## AI access paths (`platform.ai_zugang`, D-606)", "",
+              "Blueprint: " + ", ".join(f"`{z}`" for z in w["zugaenge"])
+              + ("" if w["angegeben"] else " (field missing — treated as `unbekannt`)") + ".", "",
+              "| Effect | Result |", "|---|---|",
+              f"| #30 Fabric data in Microsoft Copilot (M365 admin center) | **{ziel}**"
+              + (" — pre-set until the customer answers (question in `platform/SICHERHEITSBASIS.md` §7)"
+                 if w["m365_schalter"]["vorbelegt"] else "")
+              + (" — named groups, Microsoft 365 Copilot Premium per user" if ziel == "an" else
+                 " — recommended; on by default, so it must be switched off (data protection)")
+              + " |",
+              "| Copilot tenant switches (#8, #9, #31) | "
+              + ("in the table above (`fabric_copilot`)" if w["tenant_faehigkeiten"] else
+                 "not required — no `fabric_copilot`") + " |",
+              "| Copilot preparation (Prep data for AI) | "
+              + ("yes — see `platform/SICHERHEITSBASIS.md` §7" if w["copilot_vorbereitung"] else "no")
+              + " |",
+              "| Fabric IQ MCP setup (delegated only, no service principal) | "
+              + ("yes — see `platform/SICHERHEITSBASIS.md` §7" if w["mcp_einrichtung"] else "no")
+              + " |"]
+    return zeilen
 
 
 def _procedure_and_limits(caps: set[str], bp: dict | None = None) -> list[str]:

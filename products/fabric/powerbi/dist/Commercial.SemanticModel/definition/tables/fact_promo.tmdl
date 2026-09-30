@@ -9,6 +9,7 @@ table fact_promo
 		summarizeBy: none
 		sourceColumn: PromoKey
 
+	/// Total promotional spend for ROI. Type: currency · Unit: EUR · Role: measure · Synonyms: Promo Cost Amount, Trade Spend
 	column 'Promo Cost'
 		dataType: double
 		lineageTag: 840e252e-2338-40cb-8c78-f15d49908ce9
@@ -29,6 +30,7 @@ table fact_promo
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	/// Expected non-promo sales used as the incremental reference level. Type: currency · Unit: EUR · Role: measure
 	column 'Baseline Sales Amount'
 		dataType: double
 		lineageTag: 6bfc4fce-866c-41d3-bcdc-9a2387755825

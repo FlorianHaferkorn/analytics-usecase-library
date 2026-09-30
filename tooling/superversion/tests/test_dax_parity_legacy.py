@@ -9,7 +9,7 @@ synthesizer prefers inline `DIVIDE ( SUM(...), SUM(...) )`), so this test
 normalizes BOTH sides down to the **set of terminal `table[Column]` references**
 they touch and asserts those sets are equal — not full-text equality. Where the
 legacy generator has no counterpart at all (a KPI never emitted historically,
-e.g. `margin.ebitda.pct`), parity is reported as "no legacy counterpart", not a
+e.g. `KPI-FIN-018`), parity is reported as "no legacy counterpart", not a
 failure — the whole point of this test is to catch DIVERGENCE, not to demand a
 legacy measure exist.
 
@@ -34,156 +34,155 @@ DIST = REPO / "products/fabric/powerbi/dist"
 
 # kpi_id -> (legacy dist file, legacy measure name)
 KPI_TO_LEGACY = {
-    "sales.net_sales.amount": ("Commercial.SemanticModel", "Net Sales Amount"),
+    "KPI-COM-005": ("Commercial.SemanticModel", "Net Sales Amount"),
     # 04.09.2026: die zwei Vergleichsbasen von COM-001 standen seit `22b6fd7d` nur in
     # KPI_Catalog.md und hatten keine Datei je Entitaet. Beide Messgroessen liegen im
     # ausgelieferten Modell (Commercial `_Measures.tmdl:54/61`, displayFolder COM-001),
     # der Katalog rechnet sie identisch: SUM(fact_sales[Plan Sales Amount]) bzw.
     # SUM(fact_sales[Last Year Sales Amount]).
-    "sales.net_sales.plan.amount": ("Commercial.SemanticModel", "Plan Sales Amount"),
-    "sales.net_sales.ly.amount": ("Commercial.SemanticModel", "Last Year Net Sales Amount"),
+    "KPI-COM-006": ("Commercial.SemanticModel", "Plan Sales Amount"),
+    "KPI-COM-007": ("Commercial.SemanticModel", "Last Year Net Sales Amount"),
     # Am 05.08.2026 aus `op: hitl` geloest: der Katalog behauptete, die Quelltabelle
     # fehle im Data Contract — das handgebaute Modell liest sie aber. Die Grammatik
     # konnte beide Faelle laengst (count / avg / sum), es fehlte nur die Berechnung.
-    "enterprise.action_routed.count": ("Experience.SemanticModel", "Actions Routed Count"),
-    "scm.supplier_risk.score": ("Finance.SemanticModel", "Supplier Risk Score"),
-    "fin.liquidity.payables.amount": ("Finance.SemanticModel", "Payables Amount"),
+    "KPI-GOV-003": ("Experience.SemanticModel", "Actions Routed Count"),
+    "KPI-SCM-022": ("Finance.SemanticModel", "Supplier Risk Score"),
+    "KPI-FIN-003": ("Finance.SemanticModel", "Payables Amount"),
     # 05.08.2026 aus `op: hitl` geloest, ohne neue Operation: das Muster "Iterator ueber
     # VALUES + mehrere CALCULATE" kommt im Korpus 4x vor (DSO/DIO/DPO/MAPE) und die
     # Grammatik trug es laengst — `value` von avgx_over_key ist ein calc_ref und darf
     # verschachteln. ABS steht im Zaehler statt um den Bruch: fuer nicht-negative Mengen
     # rechnerisch identisch, aber BLANK kommt so direkt aus DIVIDE (Doku: leerer Nenner
     # -> BLANK) und AVERAGEX ueberspringt die Zeile — genau was der Legacy-IF-Guard tat.
-    "plan.forecast.mape.pct": ("SupplyChain.SemanticModel", "Forecast MAPE %"),
+    "KPI-SCM-017": ("SupplyChain.SemanticModel", "Forecast MAPE %"),
     # 05.08.2026 ausformuliert, ohne Legacy-Gegenstueck: distinctcount und die Division
     # durch ein Literal konnte die Grammatik laengst — die frueheren hitl-Begruendungen
     # ("distinctcount fehlt", "keine Einheitenumrechnung") waren schlicht falsch.
-    "retail.basket.items_per_transaction": (None, "Items per Transaction"),
-    "retail.basket.value.average": (None, "Average Basket Value"),
-    "ops.planned.hours": (None, "Planned Hours"),
-    "cost.cogs.amount": ("Commercial.SemanticModel", "Cost of Goods Sold Amount"),
-    "sales.price.list.amount": ("Commercial.SemanticModel", "List Price Amount"),
-    "sales.price.net.amount": ("Commercial.SemanticModel", "Net Price Amount"),
-    "sales.promo.baseline_sales.amount": ("Commercial.SemanticModel", "Baseline Sales Amount"),
-    "sales.promo.cost.amount": ("Commercial.SemanticModel", "Promo Cost"),
-    "quality.copq.amount": ("Operations.SemanticModel", "Cost of Poor Quality"),
-    "margin.gm.amount": ("Commercial.SemanticModel", "Gross Margin Amount"),
-    "sales.promo.incremental.amount": ("Commercial.SemanticModel", "Incremental Sales Amount"),
-    "margin.gm.pct": ("Commercial.SemanticModel", "Gross Margin %"),
-    "sales.price.realization_pct": ("Commercial.SemanticModel", "Price Realization %"),
-    "cost.cogs_per_unit.amount": ("Commercial.SemanticModel", "COGS per Unit"),
-    "cost.unit.amount": ("Finance.SemanticModel", "Unit Cost Amount"),
-    "margin.cogs.pct": ("Finance.SemanticModel", "COGS % of Sales"),
-    "cost.material.pct": ("Finance.SemanticModel", "Material Cost %"),
-    "ops.quality.defect_rate.pct": ("Finance.SemanticModel", "Quality Defect Rate %"),
-    "quality.fpy.pct": ("Operations.SemanticModel", "First Pass Yield %"),
-    "quality.scrap.pct": ("Operations.SemanticModel", "Scrap Rate %"),
-    "quality.rework.pct": ("Operations.SemanticModel", "Rework Rate %"),
-    "quality.complaint.pct": ("Operations.SemanticModel", "Complaint Rate %"),
-    "quality.defect_density": ("Operations.SemanticModel", "Defect Density"),
-    "ops.labor.productivity.pct": ("Finance.SemanticModel", "Labor Productivity %"),
-    "cost.opex.vs_plan.pct": ("Finance.SemanticModel", "OpEx vs Plan %"),
-    "sales.net_sales.delta_pct.plan": ("Commercial.SemanticModel", "Net Sales % vs Plan"),
-    "sales.net_sales.delta_pct.ly": ("Commercial.SemanticModel", "Delta% Net Sales"),
-    "supply.on_time.pct": ("SupplyChain.SemanticModel", "On-Time %"),
-    "supply.in_full.pct": ("SupplyChain.SemanticModel", "In-Full %"),
-    "supply.otif.pct": ("SupplyChain.SemanticModel", "OTIF %"),
-    "order.lines": ("SupplyChain.SemanticModel", "Order Lines Count"),
-    "shipments.count": ("SupplyChain.SemanticModel", "Shipments Count"),
-    "supply.stockout_impact.pct": ("SupplyChain.SemanticModel", "Stockout Impact %"),
-    "supply.penalty.amount": ("SupplyChain.SemanticModel", "Penalty Amount"),
-    "supply.expedite.amount": ("SupplyChain.SemanticModel", "Expedite Cost Amount"),
+    "KPI-COM-023": (None, "Items per Transaction"),
+    "KPI-COM-024": (None, "Average Basket Value"),
+    "KPI-SCM-019": (None, "Planned Hours"),
+    "KPI-FIN-011": ("Commercial.SemanticModel", "Cost of Goods Sold Amount"),
+    "KPI-COM-001": ("Commercial.SemanticModel", "List Price Amount"),
+    "KPI-COM-002": ("Commercial.SemanticModel", "Net Price Amount"),
+    "KPI-COM-020": ("Commercial.SemanticModel", "Baseline Sales Amount"),
+    "KPI-COM-014": ("Commercial.SemanticModel", "Promo Cost"),
+    "KPI-QUA-003": ("Operations.SemanticModel", "Cost of Poor Quality"),
+    "KPI-COM-019": ("Commercial.SemanticModel", "Gross Margin Amount"),
+    "KPI-COM-021": ("Commercial.SemanticModel", "Incremental Sales Amount"),
+    "KPI-COM-013": ("Commercial.SemanticModel", "Gross Margin %"),
+    "KPI-COM-003": ("Commercial.SemanticModel", "Price Realization %"),
+    "KPI-FIN-013": ("Commercial.SemanticModel", "COGS per Unit"),
+    "KPI-FIN-015": ("Finance.SemanticModel", "Unit Cost Amount"),
+    "KPI-FIN-016": ("Finance.SemanticModel", "COGS % of Sales"),
+    "KPI-SCM-020": ("Finance.SemanticModel", "Material Cost %"),
+    "KPI-QUA-006": ("Finance.SemanticModel", "Quality Defect Rate %"),
+    "KPI-QUA-001": ("Operations.SemanticModel", "First Pass Yield %"),
+    "KPI-QUA-002": ("Operations.SemanticModel", "Scrap Rate %"),
+    "KPI-OPS-010": ("Operations.SemanticModel", "Rework Rate %"),
+    "KPI-QUA-004": ("Operations.SemanticModel", "Complaint Rate %"),
+    "KPI-QUA-005": ("Operations.SemanticModel", "Defect Density"),
+    "KPI-OPS-004": ("Finance.SemanticModel", "Labor Productivity %"),
+    "KPI-FIN-014": ("Finance.SemanticModel", "OpEx vs Plan %"),
+    "KPI-COM-009": ("Commercial.SemanticModel", "Net Sales % vs Plan"),
+    "KPI-COM-008": ("Commercial.SemanticModel", "Delta% Net Sales"),
+    "KPI-SCM-008": ("SupplyChain.SemanticModel", "On-Time %"),
+    "KPI-SCM-018": ("SupplyChain.SemanticModel", "In-Full %"),
+    "KPI-SCM-007": ("SupplyChain.SemanticModel", "OTIF %"),
+    "KPI-SCM-013": ("SupplyChain.SemanticModel", "Order Lines Count"),
+    "KPI-SCM-015": ("SupplyChain.SemanticModel", "Shipments Count"),
+    "KPI-SCM-009": ("SupplyChain.SemanticModel", "Stockout Impact %"),
+    "KPI-SCM-011": ("SupplyChain.SemanticModel", "Penalty Amount"),
+    "KPI-SCM-010": ("SupplyChain.SemanticModel", "Expedite Cost Amount"),
     # The 13 KPIs closed by the DSL grammar extension (mul, delta_chain, distinctcount,
     # count_threshold, round, sumx_over_key, avgx_over_key, pvm_volume_effect,
     # pvm_price_effect, recursive calc_ref) — Cut S-1 follow-up, "go for 1".
-    "sales.pvm.volume_effect.amount": ("Commercial.SemanticModel", "Volume Effect Amount"),
-    "sales.pvm.price_effect.amount": ("Commercial.SemanticModel", "Price Effect Amount"),
-    "sales.pvm.mix_effect.amount": ("Commercial.SemanticModel", "Mix Effect Amount"),
-    "margin.gm.vs_plan.pct": ("Commercial.SemanticModel", "Gross Margin % vs Plan"),
-    "sales.promo.incremental_gm.amount": ("Commercial.SemanticModel", "Incremental Gross Margin Amount"),
-    "crm.churned_customers.count": ("Commercial.SemanticModel", "Churned Customers"),
-    "crm.active_customers.count": ("Commercial.SemanticModel", "Active Customers"),
-    "crm.retention.pct": ("Commercial.SemanticModel", "Customer Retention %"),
-    "crm.nps.index": ("Commercial.SemanticModel", "Net Promoter Score (NPS)"),
-    "crm.lifetime_revenue.amount": ("Commercial.SemanticModel", "Customer Lifetime Revenue Amount"),
-    "crm.clv.amount": ("Commercial.SemanticModel", "CLV (Customer Lifetime Value)"),
-    "crm.revenue_at_risk.amount": ("Commercial.SemanticModel", "Revenue at Risk Amount"),
-    "crm.complaint.count": ("Commercial.SemanticModel", "Complaint Count"),
+    "KPI-COM-011": ("Commercial.SemanticModel", "Volume Effect Amount"),
+    "KPI-COM-010": ("Commercial.SemanticModel", "Price Effect Amount"),
+    "KPI-COM-004": ("Commercial.SemanticModel", "Mix Effect Amount"),
+    "KPI-FIN-017": ("Commercial.SemanticModel", "Gross Margin % vs Plan"),
+    "KPI-COM-015": ("Commercial.SemanticModel", "Incremental Gross Margin Amount"),
+    "KPI-CUS-004": ("Commercial.SemanticModel", "Churned Customers"),
+    "KPI-CUS-006": ("Commercial.SemanticModel", "Active Customers"),
+    "KPI-CUS-002": ("Commercial.SemanticModel", "Customer Retention %"),
+    "KPI-CUS-003": ("Commercial.SemanticModel", "Net Promoter Score (NPS)"),
+    "KPI-CUS-005": ("Commercial.SemanticModel", "Customer Lifetime Revenue Amount"),
+    "KPI-CUS-001": ("Commercial.SemanticModel", "CLV (Customer Lifetime Value)"),
+    "KPI-OPS-001": ("Commercial.SemanticModel", "Revenue at Risk Amount"),
+    "KPI-SVC-001": ("Commercial.SemanticModel", "Complaint Count"),
     # COM-004 (Promotion Effectiveness) — not one of the 5 MVP use cases, but
     # this test checks every non-hitl calculation in the whole catalog, not
     # just the 5-UC subset (its docstring undersells its own scope).
-    "sales.promo.cannibalized_sales.amount": ("Commercial.SemanticModel", "Cannibalized Sales Amount"),
-    "sales.promo.roi.pct": ("Commercial.SemanticModel", "Promo ROI %"),
-    "margin.promo.gm.pct": ("Commercial.SemanticModel", "GM % During Promo"),
-    "sales.promo.cannibalization.pct": ("Commercial.SemanticModel", "Cannibalization %"),
+    "KPI-COM-017": ("Commercial.SemanticModel", "Cannibalized Sales Amount"),
+    "KPI-COM-016": ("Commercial.SemanticModel", "Promo ROI %"),
+    "KPI-FIN-012": ("Commercial.SemanticModel", "GM % During Promo"),
+    "KPI-COM-018": ("Commercial.SemanticModel", "Cannibalization %"),
     # Operations domain (OPS-001/002/003) — I-10.0 follow-up, "finish ADR-0011"
     # (extending the grammar closure beyond the 5 MVP use cases).
-    "ops.availability.pct": ("Operations.SemanticModel", "Availability %"),
-    "ops.performance.pct": ("Operations.SemanticModel", "Performance %"),
-    "ops.quality.pct": ("Operations.SemanticModel", "Quality %"),
-    "ops.oee.pct": ("Operations.SemanticModel", "OEE %"),
-    "ops.throughput.units": ("Operations.SemanticModel", "Throughput Units"),
-    "ops.downtime.pct": ("Operations.SemanticModel", "Downtime %"),
-    "ops.planned_output.units": ("Operations.SemanticModel", "Planned Output Units"),
-    "ops.mtbf.hours": ("Operations.SemanticModel", "MTBF (hours)"),
-    "ops.mttr.hours": ("Operations.SemanticModel", "MTTR (hours)"),
-    "ops.downtime.unplanned.pct": ("Operations.SemanticModel", "Unplanned Downtime %"),
-    "ops.failure.count": ("Operations.SemanticModel", "Failure Count"),
-    "ops.pm.task.count": ("Operations.SemanticModel", "Preventive Maintenance Task Count"),
-    "ops.spare_parts.stockout.pct": ("Operations.SemanticModel", "Spare Parts Stockout %"),
-    "ops.pm_compliance.pct": ("Operations.SemanticModel", "PM Compliance %"),
+    "KPI-OPS-016": ("Operations.SemanticModel", "Availability %"),
+    "KPI-OPS-002": ("Operations.SemanticModel", "Performance %"),
+    "KPI-OPS-003": ("Operations.SemanticModel", "Quality %"),
+    "KPI-OPS-011": ("Operations.SemanticModel", "OEE %"),
+    "KPI-OPS-009": ("Operations.SemanticModel", "Throughput Units"),
+    "KPI-OPS-017": ("Operations.SemanticModel", "Downtime %"),
+    "KPI-OPS-013": ("Operations.SemanticModel", "Planned Output Units"),
+    "KPI-OPS-005": ("Operations.SemanticModel", "MTBF (hours)"),
+    "KPI-OPS-006": ("Operations.SemanticModel", "MTTR (hours)"),
+    "KPI-OPS-018": ("Operations.SemanticModel", "Unplanned Downtime %"),
+    "KPI-OPS-012": ("Operations.SemanticModel", "Failure Count"),
+    "KPI-OPS-014": ("Operations.SemanticModel", "Preventive Maintenance Task Count"),
+    "KPI-OPS-008": ("Operations.SemanticModel", "Spare Parts Stockout %"),
+    "KPI-OPS-007": ("Operations.SemanticModel", "PM Compliance %"),
     # Finance domain (FIN-001 Cash/Liquidity) — I-10.0 follow-up, "finish ADR-0011".
-    "wc.dso.days": ("Finance.SemanticModel", "DSO Days"),
-    "wc.dio.days": ("Finance.SemanticModel", "DIO Days"),
-    "wc.dpo.days": ("Finance.SemanticModel", "DPO Days"),
-    "wc.ccc.days": ("Finance.SemanticModel", "CCC Days"),
-    "fin.cash.balance": ("Finance.SemanticModel", "Cash Balance"),
-    "fin.cash.ocf": ("Finance.SemanticModel", "Operating Cash Flow"),
-    "fin.cash.vs_plan.pct": ("Finance.SemanticModel", "Cash vs Plan %"),
-    "fin.liquidity.inventory.amount": ("Finance.SemanticModel", "Inventory Amount"),
-    "fin.overdue_ar.pct": (None, None),  # new-territory, no legacy DAX ever generated
+    "KPI-FIN-001": ("Finance.SemanticModel", "DSO Days"),
+    "KPI-FIN-004": ("Finance.SemanticModel", "DIO Days"),
+    "KPI-FIN-005": ("Finance.SemanticModel", "DPO Days"),
+    "KPI-FIN-006": ("Finance.SemanticModel", "CCC Days"),
+    "KPI-FIN-007": ("Finance.SemanticModel", "Cash Balance"),
+    "KPI-FIN-009": ("Finance.SemanticModel", "Operating Cash Flow"),
+    "KPI-FIN-010": ("Finance.SemanticModel", "Cash vs Plan %"),
+    "KPI-FIN-002": ("Finance.SemanticModel", "Inventory Amount"),
+    "KPI-FIN-008": (None, None),  # new-territory, no legacy DAX ever generated
     # SupplyChain domain (SCM-001 Inventory / SCM-003 Forecast) — I-10.0 follow-up.
-    "inv.dio.days": ("SupplyChain.SemanticModel", "Days in Inventory"),
-    "inv.turnover": ("SupplyChain.SemanticModel", "Inventory Turnover"),
-    "inv.stockout.pct": ("SupplyChain.SemanticModel", "Stockout Rate %"),
-    "inv.obsolete.pct": ("SupplyChain.SemanticModel", "Obsolete Inventory %"),
-    "plan.forecast.accuracy.pct": ("SupplyChain.SemanticModel", "Forecast Accuracy %"),
-    "plan.forecast.bias.pct": ("SupplyChain.SemanticModel", "Forecast Bias %"),
-    "plans.count": ("SupplyChain.SemanticModel", "Plans Count"),
-    # sales.units: the governed calculation matches SupplyChain.SemanticModel's
+    "KPI-SCM-001": ("SupplyChain.SemanticModel", "Days in Inventory"),
+    "KPI-SCM-016": ("SupplyChain.SemanticModel", "Inventory Turnover"),
+    "KPI-SCM-002": ("SupplyChain.SemanticModel", "Stockout Rate %"),
+    "KPI-SCM-004": ("SupplyChain.SemanticModel", "Obsolete Inventory %"),
+    "KPI-SCM-005": ("SupplyChain.SemanticModel", "Forecast Accuracy %"),
+    "KPI-SCM-006": ("SupplyChain.SemanticModel", "Forecast Bias %"),
+    "KPI-SCM-014": ("SupplyChain.SemanticModel", "Plans Count"),
+    # KPI-COM-012: the governed calculation matches SupplyChain.SemanticModel's
     # 'Sales Units' = SUM(fact_sales[Sales Units]) exactly (same as the catalog's
     # own lineage). NOTE: Operations.SemanticModel's alias 'Sales Units (OPS)' =
     # SUM(fact_ops[Output Units]) is a DIFFERENT, deliberate legacy proxy (Output
     # Units standing in for Sales Units where OPS-003 has no transaction-level
     # sales data) — a genuine, pre-existing per-semantic-model divergence this
     # single-formula-per-KPI architecture can't represent; not checked here.
-    "sales.units": ("SupplyChain.SemanticModel", "Sales Units"),
+    "KPI-COM-012": ("SupplyChain.SemanticModel", "Sales Units"),
     # No legacy counterpart was ever generated for these (new-territory KPIs) —
     # parity is vacuous (nothing to diverge from), documented, not asserted.
-    "cost.base_volume.amount": (None, None),
-    "cost.opex.base.amount": (None, None),
-    "margin.ebitda.pct": (None, None),
+    "KPI-FIN-019": (None, None),
+    "KPI-SCM-021": (None, None),
+    "KPI-FIN-018": (None, None),
     # Experience domain (XD-001/002/003/004) — I-10.0 follow-up.
-    "svc.sla.attainment.pct": ("Experience.SemanticModel", "SLA Attainment %"),
-    "svc.fcr.pct": ("Experience.SemanticModel", "FCR %"),
-    "svc.escalation.pct": ("Experience.SemanticModel", "Escalation %"),
-    "svc.aht.minutes": ("Experience.SemanticModel", "AHT Minutes"),
-    "svc.backlog.count": ("Experience.SemanticModel", "Backlog Count"),
-    "svc.tickets.closed.count": ("Experience.SemanticModel", "Tickets Closed Count"),
-    "svc.tickets.created.count": ("Experience.SemanticModel", "Tickets Created Count"),
-    "res.utilization.pct": ("Experience.SemanticModel", "Utilization %"),
-    "res.occupancy.pct": ("Experience.SemanticModel", "Occupancy %"),
-    "res.overtime.pct": ("Experience.SemanticModel", "Overtime %"),
-    "res.shrinkage.pct": ("Experience.SemanticModel", "Shrinkage %"),
-    "ops.working_capital.ccc.days": ("Experience.SemanticModel", "Cash Conversion Cycle (Days)"),
-    "enterprise.value_at_risk.index": ("Experience.SemanticModel", "Enterprise Value-at-Risk Index"),
-    "enterprise.actions_executed.count": ("Experience.SemanticModel", "Actions Executed Count (XD)"),
-    "enterprise.avg_time_to_outcome.days": ("Experience.SemanticModel", "Avg Time-to-Outcome Days (XD)"),
-    "enterprise.action_roi.pct": ("Experience.SemanticModel", "Action ROI % (XD)"),
-    "enterprise.action_effectiveness_delta.amount": ("Experience.SemanticModel", "Action Effectiveness Delta"),
+    "KPI-SVC-004": ("Experience.SemanticModel", "SLA Attainment %"),
+    "KPI-SVC-005": ("Experience.SemanticModel", "FCR %"),
+    "KPI-SVC-008": ("Experience.SemanticModel", "Escalation %"),
+    "KPI-SVC-006": ("Experience.SemanticModel", "AHT Minutes"),
+    "KPI-SVC-007": ("Experience.SemanticModel", "Backlog Count"),
+    "KPI-SVC-014": ("Experience.SemanticModel", "Tickets Closed Count"),
+    "KPI-SVC-013": ("Experience.SemanticModel", "Tickets Created Count"),
+    "KPI-SVC-009": ("Experience.SemanticModel", "Utilization %"),
+    "KPI-SVC-010": ("Experience.SemanticModel", "Occupancy %"),
+    "KPI-SVC-011": ("Experience.SemanticModel", "Overtime %"),
+    "KPI-SVC-012": ("Experience.SemanticModel", "Shrinkage %"),
+    "KPI-GOV-004": ("Experience.SemanticModel", "Enterprise Value-at-Risk Index"),
+    "KPI-GOV-005": ("Experience.SemanticModel", "Actions Executed Count (XD)"),
+    "KPI-GOV-006": ("Experience.SemanticModel", "Avg Time-to-Outcome Days (XD)"),
+    "KPI-GOV-007": ("Experience.SemanticModel", "Action ROI % (XD)"),
+    "KPI-GOV-002": ("Experience.SemanticModel", "Action Effectiveness Delta"),
     # Chosen over the superseded 'Action Outcome Rate % (XD Log)' duplicate — see
     # this KPI's own governance.qa_rules for why.
-    "enterprise.action_outcome_rate.pct": ("Experience.SemanticModel", "Action Outcome Rate % (XD)"),
+    "KPI-GOV-001": ("Experience.SemanticModel", "Action Outcome Rate % (XD)"),
     # Die 4 Use Cases aus `143a984c` (Portfolio-Luecken + Procurement): HR-001,
     # SCM-004, COM-005, FIN-003. Sie haben **keinen** Legacy-Gegenpart — mechanisch
     # geprueft: kein `_Measures.tmdl` unter dist/ fuehrt einen dieser Measure-Namen,
@@ -195,23 +194,23 @@ KPI_TO_LEGACY = {
     # wovon abgewichen werden koennte. Was **nicht** vakuum ist: die Synthese muss
     # aufloesen, und genau das prueft
     # `test_no_legacy_counterpart_kpis_are_still_resolvable` fuer jeden dieser 17.
-    "margin.ebitda.amount": (None, None),
-    "margin.ebitda.delta_pct.plan": (None, None),
-    "people.absence.pct": (None, None),
-    "people.attrition.pct": (None, None),
-    "people.cost.per_fte.amount": (None, None),
-    "people.engagement.index": (None, None),
-    "people.headcount.fte": (None, None),
-    "people.timetofill.days": (None, None),
-    "procurement.oncontract.pct": (None, None),
-    "procurement.ppv.pct": (None, None),
-    "procurement.savings.realized.pct": (None, None),
-    "procurement.spend.managed.amount": (None, None),
-    "procurement.supplier.otd.pct": (None, None),
-    "sales.pipeline.coverage.ratio": (None, None),
-    "sales.pipeline.value.amount": (None, None),
-    "sales.sales_cycle.days": (None, None),
-    "sales.win_rate.pct": (None, None),
+    "KPI-FIN-020": (None, None),
+    "KPI-FIN-021": (None, None),
+    "KPI-PPL-004": (None, None),
+    "KPI-PPL-001": (None, None),
+    "KPI-PPL-005": (None, None),
+    "KPI-PPL-002": (None, None),
+    "KPI-PPL-006": (None, None),
+    "KPI-PPL-003": (None, None),
+    "KPI-SCM-024": (None, None),
+    "KPI-SCM-025": (None, None),
+    "KPI-SCM-023": (None, None),
+    "KPI-SCM-027": (None, None),
+    "KPI-SCM-026": (None, None),
+    "KPI-COM-026": (None, None),
+    "KPI-COM-031": (None, None),
+    "KPI-COM-029": (None, None),
+    "KPI-COM-027": (None, None),
 }
 
 # Documented, deliberate divergences (Review Befund A2 methodology: ledger, not
@@ -222,8 +221,8 @@ KNOWN_DIVERGENCES: dict[str, str] = {
     # Units] (FIN-002 quality data-gap fix; the Finance model has no fact_ops/fact_quality),
     # while the canonical catalog lineage is the Operations grain. Same semantic columns,
     # different physical fact per semantic model - a deliberate per-model divergence like
-    # the documented sales.units case. Only Finance carries this measure.
-    "ops.quality.defect_rate.pct": (
+    # the documented KPI-COM-012 case. Only Finance carries this measure.
+    "KPI-QUA-006": (
         "Finance sources quality from its own fact_output (data-gap fix); canonical is the "
         "Operations grain fact_ops/fact_quality - a deliberate per-semantic-model divergence."
     ),

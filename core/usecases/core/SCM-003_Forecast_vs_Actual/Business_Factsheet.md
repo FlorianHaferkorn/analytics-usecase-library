@@ -49,13 +49,13 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| plan.forecast.accuracy.pct | Strategic |
-| plan.forecast.mape.pct | Influencing |
-| plan.forecast.bias.pct | Influencing |
-| plan.forecast.service_impact.pct | Influencing |
-| order.lines | Supporting |
-| plans.count | Supporting |
-| sales.units | Supporting |
+| KPI-SCM-005 | Strategic |
+| KPI-SCM-017 | Influencing |
+| KPI-SCM-006 | Influencing |
+| KPI-SCM-012 | Influencing |
+| KPI-SCM-013 | Supporting |
+| KPI-SCM-014 | Supporting |
+| KPI-COM-012 | Supporting |
 
 **Action Codes:** S-F3.1, S-F3.2, S-F3.3, S-F3.4
 
@@ -67,10 +67,10 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Forecast Accuracy %** (`plan.forecast.accuracy.pct`) → **SCOR-DS** (none): Forecast accuracy is a Plan-process ENABLER in SCOR, not a core RL/RS/AG/CO/AM performance metric.
-- **Forecast MAPE %** (`plan.forecast.mape.pct`) → **SCOR-DS** (none): As plan.forecast.accuracy.pct.
-- **Forecast Bias %** (`plan.forecast.bias.pct`) → **SCOR-DS** (none): As plan.forecast.accuracy.pct.
-- **Service Impact %** (`plan.forecast.service_impact.pct`) → **SCOR-DS** (none): Forecast service impact is a Plan-process service-loss diagnostic, not a named SCOR performance metric.
+- **Forecast Accuracy %** (`KPI-SCM-005`) → **SCOR-DS** (none): Forecast accuracy is a Plan-process ENABLER in SCOR, not a core RL/RS/AG/CO/AM performance metric.
+- **Forecast MAPE %** (`KPI-SCM-017`) → **SCOR-DS** (none): As KPI-SCM-005.
+- **Forecast Bias %** (`KPI-SCM-006`) → **SCOR-DS** (none): As KPI-SCM-005.
+- **Service Impact %** (`KPI-SCM-012`) → **SCOR-DS** (none): Forecast service impact is a Plan-process service-loss diagnostic, not a named SCOR performance metric.
 
 ---
 

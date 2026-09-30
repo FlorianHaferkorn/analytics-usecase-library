@@ -152,7 +152,7 @@ The KPI band is configured in `ux_layout_rules.page_1_summary.component_3s`:
 ux_layout_rules:
   page_1_summary:
     component_3s:
-      kpi_id: margin.gm.pct        # Strategic KPI (first card, visual priority)
+      kpi_id: KPI-COM-013        # Strategic KPI (first card, visual priority)
       visual_type: kpi_card
       sparkline_field: "GM%_monthly"
       comparison: "vs_plan"

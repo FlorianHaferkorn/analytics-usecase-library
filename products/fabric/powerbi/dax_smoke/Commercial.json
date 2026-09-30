@@ -1,6 +1,6 @@
 {
   "modell": "Commercial.SemanticModel",
-  "quelle_sha256": "3cd4841a81f5a92d139f459b7497101049030172ae156059918d46f435d5236b",
+  "quelle_sha256": "cfc2e02510cddcb34238b058a5a5f460df44d318ebcef4eb8687fb983e363d27",
   "messungen": [
     {
       "measure": "Action Effectiveness Delta",
@@ -588,6 +588,184 @@
       "measure": "Promo Cost",
       "ordner": "facts/fact_promo",
       "spalte": "Promo Cost"
+    }
+  ],
+  "beziehungen": [
+    {
+      "name": "dim_customer_fact_customer_events",
+      "von": "fact_customer_events[CustomerKey]",
+      "nach": "dim_customer[CustomerKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_customer_events'[CustomerKey]), DISTINCT('dim_customer'[CustomerKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_customer_fact_customer_value",
+      "von": "fact_customer_value[CustomerKey]",
+      "nach": "dim_customer[CustomerKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_customer_value'[CustomerKey]), DISTINCT('dim_customer'[CustomerKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_customer_fact_experience",
+      "von": "fact_experience[CustomerKey]",
+      "nach": "dim_customer[CustomerKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_experience'[CustomerKey]), DISTINCT('dim_customer'[CustomerKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_customer_fact_nps",
+      "von": "fact_nps[CustomerKey]",
+      "nach": "dim_customer[CustomerKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_nps'[CustomerKey]), DISTINCT('dim_customer'[CustomerKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_customer_fact_sales",
+      "von": "fact_sales[CustomerKey]",
+      "nach": "dim_customer[CustomerKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales'[CustomerKey]), DISTINCT('dim_customer'[CustomerKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_customer_events",
+      "von": "fact_customer_events[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_customer_events'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_customer_value",
+      "von": "fact_customer_value[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_customer_value'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_experience",
+      "von": "fact_experience[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_experience'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_nps",
+      "von": "fact_nps[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_nps'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_plan_sales",
+      "von": "fact_plan_sales[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_plan_sales'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_sales",
+      "von": "fact_sales[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_target",
+      "von": "fact_target[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_target'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_customer_events",
+      "von": "fact_customer_events[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_customer_events'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_experience",
+      "von": "fact_experience[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_experience'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_nps",
+      "von": "fact_nps[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_nps'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_plan_sales",
+      "von": "fact_plan_sales[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_plan_sales'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_sales",
+      "von": "fact_sales[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_security_user_org",
+      "von": "security_user_org[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('security_user_org'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_product_fact_plan_sales",
+      "von": "fact_plan_sales[ProductKey]",
+      "nach": "dim_product[ProductKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_plan_sales'[ProductKey]), DISTINCT('dim_product'[ProductKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_product_fact_sales",
+      "von": "fact_sales[ProductKey]",
+      "nach": "dim_product[ProductKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales'[ProductKey]), DISTINCT('dim_product'[ProductKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_promo_fact_promo",
+      "von": "fact_promo[PromoKey]",
+      "nach": "dim_promo[PromoKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_promo'[PromoKey]), DISTINCT('dim_promo'[PromoKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_promo_fact_sales",
+      "von": "fact_sales[PromoKey]",
+      "nach": "dim_promo[PromoKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales'[PromoKey]), DISTINCT('dim_promo'[PromoKey]))) + 0)",
+      "erwartet": 0
     }
   ]
 }

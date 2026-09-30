@@ -45,14 +45,14 @@ function Get-DependsOnMeasuresFromChunk {
   if ($Chunk -match "(?m)^\s*$key\s*:\s*\[\s*\]") { return @() }
   $m = [regex]::Match($Chunk, "(?m)^\s*$key\s*:\s*\[(?<inner>[^\]]*)\]")
   if ($m.Success) {
-    foreach ($mm in [regex]::Matches($m.Groups['inner'].Value, '([a-z][a-z0-9_.]+)')) { $list += $mm.Groups[1].Value }
+    foreach ($mm in [regex]::Matches($m.Groups['inner'].Value, '(KPI-[A-Z]{3}-\d{3})')) { $list += $mm.Groups[1].Value }
     return $list
   }
   $block = [regex]::Match($Chunk, "(?m)^\s*$key\s*:\s*(?:\r?\n)(?<body>(?:\s{2,}-\s*[^\r\n]+\r?\n?)+)")
   if ($block.Success) {
     $bodyLines = $block.Groups['body'].Value -split "`n"
     foreach ($line in $bodyLines) {
-      if ($line -match '^\s{2,}-\s*([a-z][a-z0-9_.]+)') { $list += $Matches[1] }
+      if ($line -match '^\s{2,}-\s*(KPI-[A-Z]{3}-\d{3})') { $list += $Matches[1] }
     }
     return $list
   }
@@ -62,14 +62,14 @@ function Get-DependsOnMeasuresFromChunk {
     if ($sub -match "(?m)^\s*$key\s*:\s*\[\s*\]") { return @() }
     $mi = [regex]::Match($sub, "(?m)^\s*$key\s*:\s*\[(?<inner>[^\]]*)\]")
     if ($mi.Success) {
-      foreach ($mm in [regex]::Matches($mi.Groups['inner'].Value, '([a-z][a-z0-9_.]+)')) { $list += $mm.Groups[1].Value }
+      foreach ($mm in [regex]::Matches($mi.Groups['inner'].Value, '(KPI-[A-Z]{3}-\d{3})')) { $list += $mm.Groups[1].Value }
       return $list
     }
     $blk = [regex]::Match($sub, "(?m)^\s*$key\s*:\s*(?:\r?\n)(?<body>(?:\s{2,}-\s*[^\r\n]+\r?\n?)+)")
     if ($blk.Success) {
       $blkLines = $blk.Groups['body'].Value -split "`n"
       foreach ($line in $blkLines) {
-        if ($line -match '^\s{2,}-\s*([a-z][a-z0-9_.]+)') { $list += $Matches[1] }
+        if ($line -match '^\s{2,}-\s*(KPI-[A-Z]{3}-\d{3})') { $list += $Matches[1] }
       }
     }
   }

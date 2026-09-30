@@ -138,7 +138,7 @@ factsheet_type: business
 
 | KPI ID | Role |
 | --- | --- |
-| margin.gm.pct | Strategic |
+| KPI-COM-013 | Strategic |
 
 `;
 }
@@ -155,7 +155,7 @@ function buildBracketYaml(id: string, draft: WizardDraftInput): string {
       steward_role: 'commercial_bi_pricing_analytics_lead',
     },
     orchestration: {
-      strategic_kpi_id: 'margin.gm.pct',
+      strategic_kpi_id: 'KPI-COM-013',
       influencing_kpi_ids: [] as string[],
       action_code_ids: [] as string[],
       supporting_kpi_ids: [] as string[],
@@ -171,7 +171,7 @@ function buildBracketYaml(id: string, draft: WizardDraftInput): string {
       page_1_summary: {
         title: `${draft.name} — Overview`,
         template_id: 'pulse',
-        component_3s: { kpi_id: 'margin.gm.pct', visual_type: 'kpi_card' },
+        component_3s: { kpi_id: 'KPI-COM-013', visual_type: 'kpi_card' },
         component_30s: [],
       },
       page_2_execution: {

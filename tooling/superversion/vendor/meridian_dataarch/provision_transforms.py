@@ -986,6 +986,57 @@ def _projektion(spalte: str, table: dict | None, stack: str) -> str:
     return f"{zitiere(quelle, stack)} AS {zitiert}" if quelle and quelle != spalte else zitiert
 
 
+def _kommentar_text(text: str) -> str:
+    """Ein Beschreibungstext als Spark-SQL-Literalinhalt (siehe ``_spalten_kommentare``)."""
+    return " ".join(str(text or "").split()).replace("\\", "\\\\").replace("'", "\u2019")
+
+
+def _tabellen_kommentar(table: dict | None, dl: dict) -> str:
+    """``COMMENT '…'`` in der CTAS-Klausel der Gold-Tabelle (I-21 W5.6 e, Tabellenebene).
+
+    Quelle ist ausschliesslich ``description`` der Katalogtabelle (ALUCA: die Tabellen-
+    ``description`` des Datenvertrags) — ohne sie keine Klausel, nichts wird erfunden. Learn
+    dokumentiert fuer Fabric nur den Spaltenkommentar (``ALTER COLUMN … COMMENT``); die
+    Tabellenklausel ist die ``CREATE TABLE … [COMMENT table_comment] … AS``-Syntax von Apache
+    Spark (SQL-Referenz „CREATE TABLE", Klauseln in beliebiger Reihenfolge) — ANNAHME,
+    ungeprueft am Tenant. Nicht Snowflake (dort ``COMMENT = '…'``, eigene Syntax).
+    """
+    if dl.get("stack") == "snowflake":
+        return ""
+    text = _kommentar_text((table or {}).get("description") or "")
+    return f"\nCOMMENT '{text}'" if text else ""
+
+
+def _spalten_kommentare(gold_tbl: str, table: dict | None, spalten: list[str], dl: dict) -> str:
+    """``ALTER TABLE … ALTER COLUMN … COMMENT '…'`` je beschriebener Gold-Spalte (I-21 W5.6 e).
+
+    Beschreibungen sind der Hebel fuer Katalog und Copilot. Quelle ist ausschliesslich
+    ``column_descriptions`` des governten Katalogs (SAP: ``meaning`` aus dem Paket; Kalender:
+    ``sap_calendar``) — eine Spalte ohne Beschreibung bekommt keine Anweisung, nichts wird
+    erfunden. Syntax nach MS Learn *Schema evolution for Delta tables* (fabric/data-engineering/
+    delta-lake-schema-evolution, gelesen 29.09.2026): ``ALTER TABLE sales ALTER COLUMN amount
+    COMMENT '…'``. Nach dem ``CREATE OR REPLACE`` gesetzt, damit jeder Vollaufbau sie erneuert.
+    Nur Spark (Fabric/Databricks); Snowflake hat eine eigene Syntax und ist hier nicht Ziel.
+
+    Ein ``'`` im Text wird zum typografischen Apostroph: Spark SQL verkettet ``'a''b'`` zu
+    ``ab`` statt zu escapen, und ``sql_anweisungen`` zaehlt Anfuehrungszeichen ohne Backslash.
+    """
+    if dl.get("stack") == "snowflake":
+        return ""
+    beschr = (table or {}).get("column_descriptions") or {}
+    zeilen = []
+    for sp in spalten:
+        text = _kommentar_text(beschr.get(sp) or "")
+        if text:
+            zeilen.append(f"ALTER TABLE {gold_tbl} ALTER COLUMN {zitiere(sp, dl['stack'])} "
+                          f"COMMENT '{text}';")
+    if not zeilen:
+        return ""
+    return (f"{dl['comment']} Spaltenbeschreibungen aus dem governten Katalog "
+            f"({len(zeilen)} von {len(spalten)}) — Katalog/Copilot lesen sie.\n"
+            + "\n".join(zeilen) + "\n")
+
+
 def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_ref: str,
                     dl: dict, gold_tbl: str = "", table: dict | None = None,
                     kopf_extra: list[str] | None = None,
@@ -1005,7 +1056,8 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
                f"{c} eine Dublette oder zwei Vorgaenge sind, entscheidet der Fachbereich.\n"
                if len(quellen) > 1 else "")
             + "".join(f"{c} {z}\n" for z in (kopf_extra or []))
-            + f"{dl['ctas']} {gold_tbl}{dl['using']}{dl.get('tblprops', '')} AS\n")
+            + f"{dl['ctas']} {gold_tbl}{dl['using']}{dl.get('tblprops', '')}"
+            + f"{_tabellen_kommentar(table, dl)} AS\n")
 
     # Mit governtem Katalog steht hier die ECHTE Projektion. Bis 31.07.2026 lieferte dieser
     # Emitter als einziger noch `SELECT *` plus TODO, obwohl der MLV-Emitter daneben aus demselben
@@ -1042,7 +1094,8 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
                                                 roh_sql=roh_sql, bezuege=bezuege)
         if ctas != dl["ctas"]:
             head = head.replace(f"{dl['ctas']} {gold_tbl}", f"{ctas} {gold_tbl}", 1)
-        return (head + "\n".join(kopf + kopf_h) + "\n" + quell_sql + "\n;\n" + anhang)
+        return (head + "\n".join(kopf + kopf_h) + "\n" + quell_sql + "\n;\n" + anhang
+                + _spalten_kommentare(gold_tbl, table, spalten, dl))
 
     # honest, runnable-shaped skeleton: the modeled projection lives in a TODO *comment* (with a concrete
     # example), the executable statement stays valid SQL (`SELECT *`) — never an un-parseable placeholder.
@@ -1487,8 +1540,10 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple],
     quell_sql = "\nUNION\n".join(blocks)
     kopf_h, ctas, anhang = (_historie_anhang(name, gold_tbl, quell_sql, table, dl, wasserzeichen)
                             if spalten and blocks else ([], dl["ctas"], ""))
-    return (f"{chr(10).join(kopf + kopf_h)}\n{ctas} {gold_tbl}{dl['using']} AS\n"
-            + quell_sql + "\n;\n" + anhang)
+    return (f"{chr(10).join(kopf + kopf_h)}\n{ctas} {gold_tbl}{dl['using']}"
+            f"{_tabellen_kommentar(table, dl)} AS\n"
+            + quell_sql + "\n;\n" + anhang
+            + (_spalten_kommentare(gold_tbl, table, spalten, dl) if blocks else ""))
 
 
 def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = False,
@@ -2341,6 +2396,24 @@ def _warehouse_kopf(schemas: bool) -> str:
     return "IF SCHEMA_ID('gold') IS NULL EXEC('CREATE SCHEMA gold');\n" if schemas else ""
 
 
+def _warehouse_platzhalter_spalten(name: str, kind: str, contract_ref: str) -> str:
+    """Kind-abhaengige Platzhalterspalten mit ``TODO(contract:…)``, wenn kein Katalog vorliegt."""
+    if kind == "dimension":
+        cols = (f"    {name}_sk    BIGINT       NOT NULL,   -- surrogate key\n"
+                "    -- TODO(contract:%s): conformed business key + attributes (SCD as required)\n"
+                "    business_key VARCHAR(200) NOT NULL,\n"
+                "    attribute_1  VARCHAR(4000) NULL" % contract_ref)
+    elif kind == "aggregate":
+        cols = (f"    -- TODO(contract:{contract_ref}): grouping grain + rolled-up measures\n"
+                "    group_key    VARCHAR(200) NOT NULL,\n"
+                "    measure_sum  DECIMAL(38,4) NULL")
+    else:  # fact
+        cols = (f"    -- TODO(contract:{contract_ref}): fact grain, dimension foreign keys, additive measures\n"
+                "    dim_fk_1     BIGINT       NULL,\n"
+                "    measure_1    DECIMAL(38,4) NULL")
+    return cols
+
+
 def _warehouse_ddl(name: str, kind: str, contract_ref: str, schemas: bool = False,
                    table: dict | None = None) -> str:
     """T-SQL CREATE TABLE for a gold product in a Fabric Warehouse (Warehouse-endpoint gold pattern).
@@ -2365,19 +2438,7 @@ def _warehouse_ddl(name: str, kind: str, contract_ref: str, schemas: bool = Fals
                 + kopf
                 + f"IF OBJECT_ID('{tbl}', 'U') IS NULL\n"
                   f"CREATE TABLE {tbl} (\n{aus_katalog}\n);\n")
-    if kind == "dimension":
-        cols = (f"    {name}_sk    BIGINT       NOT NULL,   -- surrogate key\n"
-                "    -- TODO(contract:%s): conformed business key + attributes (SCD as required)\n"
-                "    business_key VARCHAR(200) NOT NULL,\n"
-                "    attribute_1  VARCHAR(4000) NULL" % contract_ref)
-    elif kind == "aggregate":
-        cols = (f"    -- TODO(contract:{contract_ref}): grouping grain + rolled-up measures\n"
-                "    group_key    VARCHAR(200) NOT NULL,\n"
-                "    measure_sum  DECIMAL(38,4) NULL")
-    else:  # fact
-        cols = (f"    -- TODO(contract:{contract_ref}): fact grain, dimension foreign keys, additive measures\n"
-                "    dim_fk_1     BIGINT       NULL,\n"
-                "    measure_1    DECIMAL(38,4) NULL")
+    cols = _warehouse_platzhalter_spalten(name, kind, contract_ref)
     return (f"-- gold {kind} '{name}' as a Fabric Warehouse table (T-SQL / Warehouse endpoint).\n"
             f"-- Contract: {contract_ref}\n"
             + kopf
@@ -2385,8 +2446,82 @@ def _warehouse_ddl(name: str, kind: str, contract_ref: str, schemas: bool = Fals
               f"CREATE TABLE {tbl} (\n{cols}\n);\n")
 
 
+# --- D-605 Stufe 1: deklaratives SDK-Style-Projekt aus derselben Quelle -----------------------
+#
+# Die Skripte oben bleiben der Laufweg (``run_sql_ddl``). Das Projekt ist das Offline-Tor: ``dotnet
+# build`` gegen das offizielle Fabric-DW-Modell (``Microsoft.SqlServer.Dacpacs.FabricDw``) prueft
+# die Gold-DDL ohne Tenant (Learn ``fabric/data-warehouse/develop-warehouse-project``, gelesen
+# 30.09.2026: nur SDK-Style-Projekte, DSP ``SqlDwUnifiedDatabaseSchemaProvider``). Deklarativ heisst:
+# ``CREATE SCHEMA``/``CREATE TABLE`` ohne ``IF``-Waechter — DacFx vergleicht Modelle, nicht Stapel.
+# Die Versionen sind Pins in ``research/upstream_pins.yaml`` (``nuget``), gemessen per nuget.org-API
+# am 30.09.2026; der Drift-Sensor ``make check-upstream`` liest sie von dort.
+WAREHOUSE_PROJEKT_DIR = "warehouse/sqlproj"
+WAREHOUSE_PROJEKT_NAME = "GoldWarehouse"
+SQL_SDK_VERSION = "2.3.0"               # Microsoft.Build.Sql, stabil seit 17.09.2026
+FABRIC_DW_DACPAC_VERSION = "170.0.4"    # Microsoft.SqlServer.Dacpacs.FabricDw, seit 03.06.2026
+
+
+def _warehouse_objekt(name: str, schemas: bool) -> tuple[str, str]:
+    """``(schema, tabelle)`` — dieselbe Namensregel wie ``_warehouse_ddl``."""
+    ref = layer_ref("gold", _ident(name), schemas)
+    return tuple(ref.split(".", 1)) if schemas else ("dbo", ref)  # type: ignore[return-value]
+
+
+def _sqlproj_xml(name: str) -> str:
+    return (
+        '<?xml version="1.0" encoding="utf-8"?>\n'
+        '<!-- generated (D-605 Stufe 1) — Offline-Tor fuer die Gold-DDL; der Laufweg bleibt '
+        'warehouse/<domaene>/gold_*.sql. Nicht von Hand aendern. -->\n'
+        '<Project DefaultTargets="Build">\n'
+        f'  <Sdk Name="Microsoft.Build.Sql" Version="{SQL_SDK_VERSION}" />\n'
+        '  <PropertyGroup>\n'
+        f'    <Name>{name}</Name>\n'
+        '    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlDwUnifiedDatabaseSchemaProvider</DSP>\n'
+        '    <ModelCollation>1033, CI</ModelCollation>\n'
+        '  </PropertyGroup>\n'
+        '  <ItemGroup>\n'
+        '    <PackageReference Include="Microsoft.SqlServer.Dacpacs.FabricDw" '
+        f'Version="{FABRIC_DW_DACPAC_VERSION}" />\n'
+        '  </ItemGroup>\n'
+        '  <Target Name="BeforeBuild">\n'
+        '    <Delete Files="$(BaseIntermediateOutputPath)\\project.assets.json" />\n'
+        '  </Target>\n'
+        '</Project>\n')
+
+
+def emit_warehouse_project(blueprint: dict, schemas: bool = False,
+                           governed_catalog: dict | None = None,
+                           name: str = WAREHOUSE_PROJEKT_NAME) -> dict[str, str]:
+    """Gold als deklaratives SDK-Style-Projekt (``path → content``) unter ``warehouse/sqlproj/``.
+
+    Eine Datei je Objekt im Layout Schema/Objekttyp (``<schema>/Tables/<tabelle>.sql``), dazu
+    ``Security/<schema>.sql`` fuer ein echtes Gold-Schema. Spalten aus derselben Quelle wie die
+    Skripte (``_warehouse_columns`` bzw. ``_warehouse_platzhalter_spalten``) — ein Test stellt beide
+    Ausgaben gegeneinander (Tabellen, Spalten, Typen, NULL-barkeit).
+    """
+    med = blueprint.get("medallion", {})
+    contract_ref = med.get("silver", {}).get("data_contract_ref", "<silver-contract>")
+    kinds = _gold_kinds(blueprint)
+    out: dict[str, str] = {f"{WAREHOUSE_PROJEKT_DIR}/{name}.sqlproj": _sqlproj_xml(name)}
+    if schemas:
+        out[f"{WAREHOUSE_PROJEKT_DIR}/Security/gold.sql"] = "CREATE SCHEMA [gold];\n"
+    for d in sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", "")):
+        c_ref = _domain_contract(d, contract_ref)
+        for product in sorted(d.get("data_products", [])):
+            kind = kinds.get(product, "fact")
+            table = _catalog_table(governed_catalog, _ident(product))
+            cols = (_warehouse_columns(table or {}, c_ref)
+                    or _warehouse_platzhalter_spalten(product, kind, c_ref))
+            schema, tabelle = _warehouse_objekt(product, schemas)
+            out[f"{WAREHOUSE_PROJEKT_DIR}/{schema}/Tables/{tabelle}.sql"] = (
+                f"-- gold {kind} '{product}' (Domaene {d['name']}). Contract: {c_ref}\n"
+                f"CREATE TABLE [{schema}].[{tabelle}] (\n{cols}\n);\n")
+    return out
+
+
 def emit_warehouse_gold(blueprint: dict, schemas: bool = False,
-                        governed_catalog: dict | None = None) -> dict[str, str]:
+                        governed_catalog: dict | None = None,
+                        sqlproj: bool = False) -> dict[str, str]:
     """Return gold as **Fabric Warehouse** T-SQL DDL (``path → content``) — the Warehouse-endpoint pattern.
 
     The alternative to lakehouse-Delta gold (research §4 deployment-patterns: Bronze/Silver-Lakehouse +
@@ -2403,6 +2538,10 @@ def emit_warehouse_gold(blueprint: dict, schemas: bool = False,
            "Gold-Warehouse). One `CREATE TABLE` per gold product; populate via CTAS/`COPY INTO` from "
            "silver. **Honest boundary**: the IR gives product + kind, not the business columns "
            "(those live in the silver data contract → `TODO(contract:…)`).", "",
+           "**Column descriptions are not emitted here** (I-21 W5.6 e): MS Learn *T-SQL surface "
+           "area in Fabric Data Warehouse* (read 2026-09-29) documents neither `COMMENT` nor "
+           "extended properties (`sp_addextendedproperty`) for Warehouse tables. Lakehouse gold "
+           "carries them as `ALTER COLUMN … COMMENT` (documented for Delta tables).", "",
            "| Domain | Product | Kind | DDL |", "|---|---|---|---|"]
     for d in sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", "")):
         c_ref = _domain_contract(d, contract_ref)
@@ -2413,6 +2552,18 @@ def emit_warehouse_gold(blueprint: dict, schemas: bool = False,
             out[rel] = _warehouse_ddl(product, kind, c_ref, schemas=schemas,
                                       table=_catalog_table(governed_catalog, _ident(product)))
             doc.append(f"| {d['name']} | `{product}` | {kind} | `{rel}` |")
+    if sqlproj:
+        # D-605 Stufe 1: dieselbe Quelle, zweite Form. Nur unter Flag; Laufweg bleiben die Skripte.
+        out.update(emit_warehouse_project(blueprint, schemas=schemas,
+                                          governed_catalog=governed_catalog))
+        doc += ["", "## Declarative SDK-style project (D-605 stage 1)", "",
+                f"`{WAREHOUSE_PROJEKT_DIR}/{WAREHOUSE_PROJEKT_NAME}.sqlproj` — the same tables as "
+                "declarative `CREATE TABLE` (no `IF` guards), one file per object. It is an "
+                "**offline gate**, not a deploy path: `dotnet build` validates it against "
+                f"`Microsoft.SqlServer.Dacpacs.FabricDw` {FABRIC_DW_DACPAC_VERSION} "
+                f"(`Microsoft.Build.Sql` {SQL_SDK_VERSION}). Run "
+                "`bash scripts/check_warehouse_sqlproj.sh <dir>`: exit 0 built, 1 build failed, "
+                "2 not run (no .NET SDK) — 2 is not green."]
     out["warehouse/_WAREHOUSE_GOLD.md"] = "\n".join(doc) + "\n"
     return out
 
@@ -2651,8 +2802,7 @@ def emit_dq_gates(blueprint: dict, schemas: bool = False,
         # Ein Job je Gold-Workspace: der Job verbindet genau ein Lakehouse, und jede Domaene
         # haelt ihr Gold im eigenen Workspace (`gold_workspace_of`). Ein Job fuer alle haette
         # die Tabellen der anderen Domaenen gar nicht gesehen.
-        from core.dataarch_engine.blueprint.provision_apply import (
-            PLACEHOLDER_WORKSPACE, gold_workspace_of)
+        from core.dataarch_engine.blueprint.provision_apply import PLACEHOLDER_WORKSPACE, gold_workspace_of
         je_ws: dict[str, list[str]] = {}
         for dom, ms in sorted(je_domaene.items()):
             je_ws.setdefault(gold_workspace_of(blueprint, dom, fallback=PLACEHOLDER_WORKSPACE),

@@ -14,13 +14,13 @@ use_case_links:
   - SCM-002
 kpis:
   trigger_kpis:
-  - wc.ccc.days
-  - fin.cash.vs_plan.pct
+  - KPI-FIN-006
+  - KPI-FIN-010
   guardrail_kpis:
-  - fin.cash.balance
+  - KPI-FIN-007
   outcome_kpis:
-  - wc.ccc.days
-  - wc.dio.days
+  - KPI-FIN-006
+  - KPI-FIN-004
 scope:
   default_grain: month
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: fin.cash.balance
+        metric_kpi_id: KPI-FIN-007
         comparator: gte
         value: 500000
         unit: amount
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: fin.cash.vs_plan.pct
+        metric_kpi_id: KPI-FIN-010
         comparator: lt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: wc.ccc.days
+        metric_kpi_id: KPI-FIN-006
         comparator: gt
         threshold:
           basis: absolute
@@ -75,7 +75,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: wc.ccc.days
+        metric_kpi_id: KPI-FIN-006
         comparator: gt
         threshold:
           basis: absolute
@@ -95,7 +95,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P60D
-    metric_kpi_id: wc.dso.days
+    metric_kpi_id: KPI-FIN-001
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -109,7 +109,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: wc.ccc.days
+    metric_kpi_id: KPI-FIN-006
     value_low: -3
     value_high: -10
     unit: days

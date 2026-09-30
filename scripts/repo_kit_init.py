@@ -37,6 +37,12 @@ STACK_UNKNOWN = "(Stack nicht erkannt — manuell eintragen)"
 
 # ── Detection ────────────────────────────────────────────────────────────────
 
+def _write_lf(p: Path, text: str) -> None:
+    """UTF-8 mit LF-Enden, auch unter Windows. `Path.write_text` kennt `newline` erst ab 3.10."""
+    with open(p, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(text)
+
+
 def repo_name(root: Path) -> str:
     cfg = root / ".git" / "config"
     if cfg.exists():
@@ -239,7 +245,7 @@ def scaffold_stack_rules(root: Path) -> list[str]:
         out = rules_dir / f"{slug}.md"
         if out.exists():
             continue
-        out.write_text(_rule_text(d, stacks), encoding="utf-8", newline="\n")
+        _write_lf(out, _rule_text(d, stacks))
         written.append(out.relative_to(root).as_posix())
     return written
 
@@ -329,7 +335,7 @@ def prefill_claude(claude_md: Path, root: Path) -> None:
     # Compliance-Befehl mit erkanntem Test/Check vorbelegen
     txt = txt.replace("{{befehl der vor jedem commit/PR grün sein muss}}",
                       d.get("test_cmd") or "make check", 1)
-    claude_md.write_text(txt, encoding="utf-8", newline="\n")
+    _write_lf(claude_md, txt)
     print(f"✓ prefilled {claude_md.name}: name={d['name']} stacks={d['stacks']} "
           f"test={d.get('test_cmd') or '—'}")
 
@@ -353,7 +359,8 @@ def _replace_section(text: str, num: int, new_block: str) -> str:
             while i < n and not re.match(r"^## \d", lines[i]):
                 i += 1
         else:
-            out.append(lines[i]); i += 1
+            out.append(lines[i])
+            i += 1
     return "".join(out)
 
 
@@ -368,7 +375,7 @@ def prefill_goi(goi: Path, root: Path) -> None:
                   "Zielgruppe, fester Stack-Kontext}} — ohne ihn zu wiederholen.", text, flags=re.M)
     text = re.sub(r"^- .*(Fabric|Power BI|Nagarro|Freelancer|NGO e\.V\.).*$",
                   "- {{Projekt-Kontext hier eintragen}}", text, flags=re.M)
-    goi.write_text(text, encoding="utf-8", newline="\n")
+    _write_lf(goi, text)
     print(f"✓ GOI §4 gesetzt = {', '.join(d['stacks'])}. §8-Projekt-Kontext bleibt Platzhalter (von dir zu füllen).")
 
 
@@ -435,7 +442,7 @@ def scaffold_index(folder: Path, root: Path) -> None:
         "## Offene Punkte (Ledger — hier abhaken)\n\n"
         "| ID | Punkt | Status | Datum |\n|---|---|---|---|\n| — | — | — | — |\n"
     )
-    out.write_text(body, encoding="utf-8", newline="\n")
+    _write_lf(out, body)
     print(f"✓ {out.relative_to(root)} ({len(rows)} Docs registriert). "
           f"Jetzt nur noch Zweck/lies-wenn füllen.")
 
@@ -542,7 +549,7 @@ SHELL_SHEBANG = re.compile(r"^#!.*\b(sh|bash|dash|zsh|ksh)\b")
 
 def _git_out(root: Path, *args: str) -> str:
     r = subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True,
-        encoding="utf-8", errors="replace")
+                       encoding="utf-8", errors="replace")
     return r.stdout.strip() if r.returncode == 0 else ""
 
 
@@ -634,7 +641,8 @@ def _insert_hook_block(hook: Path, body: str) -> bool | None:
 
 def main(argv: list[str]) -> int:
     if len(argv) < 2:
-        print(__doc__); return 2
+        print(__doc__)
+        return 2
     cmd = argv[1]
     root = Path(argv[3]).resolve() if (cmd in ("prefill-claude", "scaffold-index", "prefill-goi") and len(argv) > 3) \
         else Path(argv[2]).resolve() if (cmd in ("detect", "goi-snippet", "wire-gate", "scaffold-rules", "prune-stub-rules") and len(argv) > 2 and not argv[2].startswith("--")) \
@@ -660,7 +668,8 @@ def main(argv: list[str]) -> int:
     elif cmd == "wire-gate":
         wire_gate(root, "--apply" in argv)
     else:
-        print(__doc__); return 2
+        print(__doc__)
+        return 2
     return 0
 
 

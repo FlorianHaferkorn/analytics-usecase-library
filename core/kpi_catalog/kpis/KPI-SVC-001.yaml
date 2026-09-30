@@ -1,0 +1,47 @@
+kpi_id: KPI-SVC-001
+kpi_key: Complaint Count
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Customer
+domain_tag:
+- Customer & Market
+use_case_ref:
+- COM-003
+action_code_ref:
+- C-C3.2
+calc_type: count
+good_is: lower
+business:
+  purpose: Provide the absolute number of logged complaints.
+  definition: Count of complaint records in the complaint/service system.
+  grain_scope: Complaint / ticket; aggregated to org / channel / product / period.
+  unit_format: count_0
+  interpretation: Higher values indicate more issues; interpret with Complaint Rate % to normalize by volume.
+technical:
+  measure_name: Complaint Count
+  description: Count of logged customer complaints
+  depends_on_measures: []
+  lineage:
+  - fact_complaints.Complaint Count
+  calculation:
+    op: sum
+    column: Complaint Count
+governance:
+  business_owner: Head of Customer Service
+  data_owner: Service BI
+  steward: Service Quality Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Complaints reconciled to service desk reports
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: ISO 10002
+  name: Complaints handling — complaint volume
+  url: https://www.iso.org/standard/71580.html
+  alignment: partial
+  note: Complaint count feeds the ISO 10002:2018 complaints-handling process (the standard governs how complaints
+    are captured/handled, not a specific count formula). Related to crm.nps / svc.* customer-experience measures.

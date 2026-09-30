@@ -14,12 +14,12 @@ use_case_links:
   - OPS-002
 kpis:
   trigger_kpis:
-  - quality.defect_density
+  - KPI-QUA-005
   guardrail_kpis:
-  - ops.availability.pct
+  - KPI-OPS-016
   outcome_kpis:
-  - quality.defect_density
-  - quality.fpy.pct
+  - KPI-QUA-005
+  - KPI-QUA-001
 scope:
   default_grain: line_month
   default_perspective:
@@ -47,7 +47,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: ops.planned_output.units
+        metric_kpi_id: KPI-OPS-013
         comparator: gte
         value: 15000
         unit: units
@@ -55,7 +55,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: quality.defect_density
+        metric_kpi_id: KPI-QUA-005
         comparator: gt
         threshold:
           basis: relative
@@ -65,7 +65,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: quality.defect_density
+        metric_kpi_id: KPI-QUA-005
         comparator: gt
         threshold:
           basis: relative
@@ -75,7 +75,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: quality.defect_density
+        metric_kpi_id: KPI-QUA-005
         comparator: gt
         threshold:
           basis: relative
@@ -91,7 +91,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P14D
-    metric_kpi_id: quality.scrap.pct
+    metric_kpi_id: KPI-QUA-002
     success_criteria:
       kind: return_to_baseline
       baseline_window: P28D
@@ -107,7 +107,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: quality.defect_density
+    metric_kpi_id: KPI-QUA-005
     value_low: -20.0
     value_high: -50.0
     unit: '%'

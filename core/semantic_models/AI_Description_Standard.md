@@ -119,7 +119,7 @@ curated synonyms produces no culture file. Regenerate:
 
 ---
 
-## Aurora worked example — `margin.gm.pct` (COM-001)
+## Aurora worked example — `KPI-COM-013` (COM-001)
 
 Rendered entirely from the governed catalogs (no hand-written text):
 

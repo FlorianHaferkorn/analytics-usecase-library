@@ -1,6 +1,6 @@
 """Tests for the standard AI-description renderer (catalog -> semantic layer + viz).
 
-Proven against Aurora COM-001 / margin.gm.pct.
+Proven against Aurora COM-001 / KPI-COM-013.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ def _repo_root() -> Path:
 
 
 def test_aurora_margin_gm_pct_renders_optimal_depth():
-    d = build_description("margin.gm.pct", _repo_root())
+    d = build_description("KPI-COM-013", _repo_root())
     assert d is not None
     assert d.name == "Gross Margin %"
     # Pulled from the measure dictionary + data contract + catalog.
@@ -127,7 +127,7 @@ def test_generator_emits_standard_doc_block_for_catalog_kpi():
     from generator_core.ir.specs import MeasureSpec
 
     m = MeasureSpec(
-        kpi_id="margin.gm.pct",
+        kpi_id="KPI-COM-013",
         name="Gross Margin %",
         dax="DIVIDE([Gross Margin Amount],[Net Sales Amount])",
         format_string="0.0%",
@@ -181,3 +181,13 @@ def test_enricher_is_idempotent():
 
     once = enrich_text(_SAMPLE_TMDL, _repo_root())
     assert enrich_text(once, _repo_root()) == once
+
+
+def test_domain_tag_matches_dictionary_folder_despite_spacing():
+    """``domain_tag: Supply Chain`` wählt den Eintrag aus ``domains/SupplyChain/`` (30.09.2026),
+    nicht den Rückfall auf den ersten Treffer (Efficiency)."""
+    for kpi_id in ("KPI-SCM-016", "KPI-SCM-012"):
+        d = build_description(kpi_id, _repo_root())
+        assert d is not None
+        assert d.owner == "Supply Chain Analytics", kpi_id
+        assert d.grain and d.unit, kpi_id

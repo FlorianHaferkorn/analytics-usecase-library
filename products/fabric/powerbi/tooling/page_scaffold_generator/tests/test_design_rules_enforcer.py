@@ -51,9 +51,9 @@ class TestBracketRulesGating:
     def test_noop_when_intent_rules_version_not_2(self):
         rules = dre.load_design_rules()
         bracket = {"ux_layout_rules": {"page_1_summary": {"component_30s": [
-            {"slot_id": "Main_1", "unit": "amount", "kpi_id": "margin.gm.pct"},
+            {"slot_id": "Main_1", "unit": "amount", "kpi_id": "KPI-COM-013"},
         ]}}}
-        errors = dre.check_bracket_rules(rules, bracket, {"margin.gm.pct": "ratio"})
+        errors = dre.check_bracket_rules(rules, bracket, {"KPI-COM-013": "ratio"})
         assert errors == []
 
     def test_noop_when_ux_layout_rules_missing(self):
@@ -71,21 +71,21 @@ class TestOneMessagePerChart:
 
     def test_violation_flags_mismatched_calc_type(self):
         component_30s = [
-            {"slot_id": "Main_3", "unit": "amount", "kpi_id": "margin.gm.pct"},
+            {"slot_id": "Main_3", "unit": "amount", "kpi_id": "KPI-COM-013"},
         ]
         errors = dre.check_single_unit_family_per_component(
-            self.RULE, component_30s, {"margin.gm.pct": "ratio"}
+            self.RULE, component_30s, {"KPI-COM-013": "ratio"}
         )
         assert len(errors) == 1
         assert errors[0].startswith("ONE_MESSAGE_PER_CHART:")
-        assert "margin.gm.pct" in errors[0]
+        assert "KPI-COM-013" in errors[0]
 
     def test_conformant_when_calc_type_matches_unit(self):
         component_30s = [
-            {"slot_id": "Main_3", "unit": "ratio", "kpi_id": "margin.gm.pct"},
+            {"slot_id": "Main_3", "unit": "ratio", "kpi_id": "KPI-COM-013"},
         ]
         errors = dre.check_single_unit_family_per_component(
-            self.RULE, component_30s, {"margin.gm.pct": "ratio"}
+            self.RULE, component_30s, {"KPI-COM-013": "ratio"}
         )
         assert errors == []
 
@@ -93,17 +93,17 @@ class TestOneMessagePerChart:
         """kpi_ids not found in the catalog (e.g. a raw measure name) are
         skipped, not treated as violations -- e.g. Main_2's "Plan GM Amount"."""
         component_30s = [
-            {"slot_id": "Main_2", "unit": "amount", "kpi_ids": ["Plan GM Amount", "margin.gm.amount"]},
+            {"slot_id": "Main_2", "unit": "amount", "kpi_ids": ["Plan GM Amount", "KPI-COM-019"]},
         ]
         errors = dre.check_single_unit_family_per_component(
-            self.RULE, component_30s, {"margin.gm.amount": "amount"}
+            self.RULE, component_30s, {"KPI-COM-019": "amount"}
         )
         assert errors == []
 
     def test_entry_without_unit_is_skipped(self):
-        component_30s = [{"slot_id": "Main_1", "kpi_id": "margin.gm.pct"}]
+        component_30s = [{"slot_id": "Main_1", "kpi_id": "KPI-COM-013"}]
         errors = dre.check_single_unit_family_per_component(
-            self.RULE, component_30s, {"margin.gm.pct": "ratio"}
+            self.RULE, component_30s, {"KPI-COM-013": "ratio"}
         )
         assert errors == []
 

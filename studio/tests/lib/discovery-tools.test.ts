@@ -58,8 +58,8 @@ describe('discovery-tools', () => {
         {
           title: 'Test Use Case',
           domain: 'Commercial',
-          strategicKpiId: 'margin.gm.pct',
-          influencingKpiIds: ['sales.net_sales.amount'],
+          strategicKpiId: 'KPI-COM-013',
+          influencingKpiIds: ['KPI-COM-005'],
           actionCodeIds: ['C-M2.1'],
         },
         { toolCallId: 'test', messages: [], abortSignal: undefined as never },
@@ -68,14 +68,14 @@ describe('discovery-tools', () => {
       expect(result).toHaveProperty('yaml');
       expect(result.yaml).toContain('schema_version: "2.0"');
       expect(result.yaml).toContain('Test Use Case');
-      expect(result.yaml).toContain('margin.gm.pct');
+      expect(result.yaml).toContain('KPI-COM-013');
     });
   });
 
   describe('suggest_actions', () => {
     it('returns actions related to a KPI', async () => {
       const result = (await discoveryTools.suggest_actions.execute!(
-        { kpiId: 'margin.gm.pct' },
+        { kpiId: 'KPI-COM-013' },
         { toolCallId: 'test', messages: [], abortSignal: undefined as never },
       )) as ActionResult[];
       expect(Array.isArray(result)).toBe(true);

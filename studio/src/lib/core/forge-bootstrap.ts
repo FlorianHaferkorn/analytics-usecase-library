@@ -39,6 +39,8 @@ export interface ForgeBootstrapPayload {
   brackets: ForgeBracketSummary[];
   actionDetails: ForgeActionDetail[];
   kpiNames: Record<string, string>;
+  /** Catalog `business.unit_format` by KPI ID — the unit no longer lives in the ID (D-594). */
+  kpiUnitFormats: Record<string, string>;
   actionNames: Record<string, string>;
   spines: DecisionSpine[];
   auroraKpis: Record<string, AuroraKpiValue> | null;
@@ -56,8 +58,10 @@ async function buildForgeBootstrapPayload(): Promise<ForgeBootstrapPayload> {
   ]);
 
   const kpiNames: Record<string, string> = {};
+  const kpiUnitFormats: Record<string, string> = {};
   for (const [id, kpi] of kpiMap) {
     kpiNames[id] = kpi.kpi_key || id;
+    if (kpi.business?.unit_format) kpiUnitFormats[id] = kpi.business.unit_format;
   }
 
   const actionNames: Record<string, string> = {};
@@ -92,6 +96,7 @@ async function buildForgeBootstrapPayload(): Promise<ForgeBootstrapPayload> {
     })),
     actionDetails,
     kpiNames,
+    kpiUnitFormats,
     actionNames,
     spines,
     auroraKpis: auroraSnapshot?.kpis ?? null,

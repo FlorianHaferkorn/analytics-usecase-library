@@ -1,0 +1,54 @@
+kpi_id: KPI-OPS-020
+kpi_key: Changeover Time (min)
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-001
+action_code_ref:
+- O-O1.3
+calc_type: duration
+good_is: lower
+business:
+  purpose: Measures time lost to product or format changeovers.
+  definition: Average minutes from last good piece of previous run to first good piece of next run, including mechanical
+    setup, parameter adjustment, and trial run waste. Directly drives Six Big Losses Category 2 (Setup & Adjustment).
+  grain_scope: Changeover event level; aggregated by line and period.
+  unit_format: minutes_1
+  interpretation: Lower is better; SMED methodology targets < 10 minutes for high-mix lines.
+technical:
+  measure_name: Changeover Time Minutes
+  description: Average changeover duration per setup event.
+  depends_on_measures: []
+  lineage:
+  - fact_ops_changeover.Start Timestamp
+  - fact_ops_changeover.End Timestamp
+  calculation:
+    op: hitl
+    blocked_by: authoring
+    reason: New-territory KPI — no legacy DAX counterpart to verify against (not in products/fabric/powerbi/dist/Operations.SemanticModel).
+      Average duration between two timestamp columns (AVERAGEX with a DATEDIFF-style row expression) is beyond the
+      current sum/ratio/delta/count-shaped grammar.
+governance:
+  business_owner: Head of Operations
+  data_owner: Operations BI
+  steward: Production Planner
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Changeover Time >= 0
+  - Outliers > 4 × average require manual review
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.7
+  last_review: 01.06.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: Setup/changeover time element
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: Changeover time maps to the ISO 22400-2 setup-time element (and Six Big Losses setup & adjustment category);
+    it drives Availability loss but is a time element, not a ratio KPI.

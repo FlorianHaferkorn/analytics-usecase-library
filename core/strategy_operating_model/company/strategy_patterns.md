@@ -25,10 +25,10 @@ Companies can adopt one pattern, blend several, or use them as a starting point 
 
 **Strategic KPIs (priority order):**
 
-1. margin.gm.pct, margin.gm.vs_plan.pct  
-2. sales.price.realization_pct  
-3. cost.unit.amount, margin.cogs.pct, cost.opex.vs_plan.pct  
-4. sales.pvm.mix_effect.amount, cost.cogs_per_unit.amount  
+1. KPI-COM-013, KPI-FIN-017  
+2. KPI-COM-003  
+3. KPI-FIN-015, KPI-FIN-016, KPI-FIN-014  
+4. KPI-COM-004, KPI-FIN-013  
 
 **Trade-offs:**
 
@@ -54,10 +54,10 @@ Companies can adopt one pattern, blend several, or use them as a starting point 
 
 **Strategic KPIs (priority order):**
 
-1. fin.cash.balance, fin.cash.ocf, fin.cash.vs_plan.pct  
-2. wc.ccc.days, wc.dso.days, wc.dio.days, wc.dpo.days  
-3. inv.dio.days, inv.turnover, inv.stockout.pct  
-4. margin.gm.pct (guardrail: do not sacrifice margin for volume that hurts cash)  
+1. KPI-FIN-007, KPI-FIN-009, KPI-FIN-010  
+2. KPI-FIN-006, KPI-FIN-001, KPI-FIN-004, KPI-FIN-005  
+3. KPI-SCM-001, KPI-SCM-016, KPI-SCM-002  
+4. KPI-COM-013 (guardrail: do not sacrifice margin for volume that hurts cash)  
 
 **Trade-offs:**
 
@@ -83,10 +83,10 @@ Companies can adopt one pattern, blend several, or use them as a starting point 
 
 **Strategic KPIs (priority order):**
 
-1. sales.net_sales.amount, sales.net_sales.delta_pct.plan, sales.net_sales.delta_pct.ly  
-2. crm.clv.amount, crm.retention.pct, crm.churned_customers.count, crm.revenue_at_risk.amount  
-3. margin.gm.pct (guardrail), sales.pvm.price_effect.amount, sales.pvm.volume_effect.amount, sales.pvm.mix_effect.amount  
-4. sales.promo.roi.pct, sales.promo.incremental.amount (if promotion-heavy)  
+1. KPI-COM-005, KPI-COM-009, KPI-COM-008  
+2. KPI-CUS-001, KPI-CUS-002, KPI-CUS-004, KPI-OPS-001  
+3. KPI-COM-013 (guardrail), KPI-COM-010, KPI-COM-011, KPI-COM-004  
+4. KPI-COM-016, KPI-COM-021 (if promotion-heavy)  
 
 **Trade-offs:**
 

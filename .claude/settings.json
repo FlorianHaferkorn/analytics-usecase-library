@@ -25,7 +25,11 @@
     ],
     "deny": [
       "Read(./**/*.parquet)",
-      "Read(./**/node_modules/**)"
+      "Read(./**/node_modules/**)",
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)"
     ]
   },
   "hooks": {
@@ -87,5 +91,19 @@
         ]
       }
     ]
+  },
+  "extraKnownMarketplaces": {
+    "fabric-collection": {
+      "source": {
+        "source": "github",
+        "repo": "microsoft/skills-for-fabric",
+        "ref": "v0.3.18"
+      },
+      "autoUpdate": false
+    }
+  },
+  "enabledPlugins": {
+    "fabric-skills@fabric-collection": true,
+    "powerbi-authoring@fabric-collection": false
   }
 }

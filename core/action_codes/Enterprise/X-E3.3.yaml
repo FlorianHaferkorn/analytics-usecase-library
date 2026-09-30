@@ -27,10 +27,10 @@ use_case_links:
   - XD-002
 kpis:
   trigger_kpis:
-  - enterprise.action_routed.count
+  - KPI-GOV-003
   guardrail_kpis: []
   outcome_kpis:
-  - enterprise.action_outcome_rate.pct
+  - KPI-GOV-001
 scope:
   default_grain: action_instance
   default_perspective:
@@ -84,7 +84,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P30D
-    metric_kpi_id: enterprise.action_routed.count
+    metric_kpi_id: KPI-GOV-003
     success_criteria:
       kind: threshold_met
       baseline_window: P60D
@@ -100,7 +100,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: enterprise.action_outcome_rate.pct
+    metric_kpi_id: KPI-GOV-001
     value_low: 10.0
     value_high: 25.0
     unit: pp

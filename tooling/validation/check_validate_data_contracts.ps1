@@ -1,5 +1,6 @@
 # Validate domain data contracts (delegates to Python). Used by Stage 1 and registry_builder.
-# Requires: Python with PyYAML (pip install -r tooling/validation/requirements-data-contracts.txt).
+# Requires: Python with PyYAML and jsonschema (pip install -r tooling/validation/requirements-data-contracts.txt).
+# Needs no PowerShell module (no powershell-yaml): the YAML is read by Python.
 
 param(
 	[string]$Root = ".",

@@ -13,13 +13,13 @@ use_case_links:
   - FIN-002
 kpis:
   trigger_kpis:
-  - supply.penalty.amount
-  - supply.expedite.amount
+  - KPI-SCM-011
+  - KPI-SCM-010
   guardrail_kpis:
-  - supply.otif.pct
+  - KPI-SCM-007
   outcome_kpis:
-  - supply.penalty.amount
-  - supply.expedite.amount
+  - KPI-SCM-011
+  - KPI-SCM-010
 scope:
   default_grain: lane_dc_month
   default_perspective:
@@ -47,7 +47,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: shipments.count
+        metric_kpi_id: KPI-SCM-015
         comparator: gte
         value: 200
         unit: count
@@ -55,7 +55,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: supply.penalty.amount
+        metric_kpi_id: KPI-SCM-011
         comparator: gt
         threshold:
           basis: relative
@@ -65,7 +65,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: supply.penalty.amount
+        metric_kpi_id: KPI-SCM-011
         comparator: gt
         threshold:
           basis: relative
@@ -75,7 +75,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: supply.penalty.amount
+        metric_kpi_id: KPI-SCM-011
         comparator: gt
         threshold:
           basis: relative
@@ -91,7 +91,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P60D
-    metric_kpi_id: supply.penalty.amount
+    metric_kpi_id: KPI-SCM-011
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: supply.penalty.amount
+    metric_kpi_id: KPI-SCM-011
     value_low: -10.0
     value_high: -30.0
     unit: '%'

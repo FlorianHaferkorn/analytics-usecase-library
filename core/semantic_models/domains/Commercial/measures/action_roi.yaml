@@ -1,6 +1,6 @@
 measure_name: Action ROI %
 is_kpi_measure: true
-kpi_id_ref: enterprise.action_roi.pct
+kpi_id_ref: KPI-GOV-007
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 08_Action_Outcomes
 category: KPI

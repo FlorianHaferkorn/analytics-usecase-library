@@ -1,6 +1,6 @@
 measure_name: Rework Rate %
 is_kpi_measure: true
-kpi_id_ref: quality.rework.pct
+kpi_id_ref: KPI-OPS-010
 semantic_model: Operations_SemanticModel
 display_folder: 06_Quality
 category: KPI

@@ -33,7 +33,7 @@ def test_diff_flags_each_drifted_field():
     mer = _contract()
     alu = _contract()
     alu["arch_concepts"] = ["medallion", "data-vault"]        # Meridian added a concept, ALUCA didn't
-    alu["odcs"] = {"api_version": "v3.1.0", "public_api": ["to_odcs"]}
+    alu["odcs"] = {"api_version": "v3.2.0", "public_api": ["to_odcs"]}
     lines = sensor._diff(mer, alu)
     assert any("arch_concepts" in ln for ln in lines)
     assert any("odcs" in ln for ln in lines)
@@ -42,7 +42,8 @@ def test_diff_flags_each_drifted_field():
 
 def test_odcs_facts_extract_from_real_source():
     facts = sensor._odcs_facts(_ALUCA_ODCS)
-    assert facts["api_version"] == "v3.0.0"
+    assert facts["api_version"] == "v3.2.0"            # eine Version (Meridian D-584, v3.2 seit D-586)
+    assert facts["api_version_columns"] is None        # ODCS_API_VERSION_SPALTEN entfernt
     for fn in ("to_odcs", "emit_odcs", "from_odcs", "import_sql_table", "validate_odcs"):
         assert fn in facts["public_api"]
 
@@ -446,3 +447,66 @@ def test_local_edit_of_a_vendored_theme_is_a_hard_failure(tmp_path, monkeypatch,
     monkeypatch.setattr(sensor, "_meridian_root", lambda: None)
     assert sensor.main([]) == 1
     assert "vendored themes edited locally" in capsys.readouterr().out
+
+
+# -- copilot-readiness kernel mirror (30.09.2026, I-21 W3.2) ----------------------------
+#
+# Third vendored set: Meridian `products/meridian_copilot_readiness/generator` renders the three
+# "Prep data for AI" contents; ALUCA mirrors the kernel byte-identically and adapts its input.
+
+def _copilot_repo(tmp_path: Path) -> Path:
+    repo = tmp_path / "flc"
+    src = repo / sensor._COPILOT_SRC_REL
+    src.mkdir(parents=True)
+    _git(repo, "init", "-q")
+    for name in sensor.COPILOT_MIRRORED_FILES:
+        (src / name).write_bytes(f"# {name}\n".encode())
+    (src / "anwendung.py").write_bytes(b"# not mirrored\n")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-q", "-m", "kernel")
+    return repo
+
+
+def test_vendored_copilot_kernel_matches_its_pin():
+    pin = sensor.copilot_pin()
+    assert pin is not None
+    assert [e["path"] for e in pin["files"]] == list(sensor.COPILOT_MIRRORED_FILES)
+    assert sensor.vendor_integrity(pin, sensor._COPILOT_VENDOR_REL) == []
+
+
+def test_written_copilot_mirror_is_in_sync_and_takes_only_the_set(tmp_path, monkeypatch):
+    repo = _copilot_repo(tmp_path)
+    alu = tmp_path / "alu"
+    alu.mkdir()
+    monkeypatch.setattr(sensor, "REPO_ROOT", alu)
+    pin = sensor.write_copilot_vendor(repo, "HEAD")
+    vendored = alu / sensor._COPILOT_VENDOR_REL
+    assert sorted(p.name for p in vendored.glob("*.py")) == sorted(sensor.COPILOT_MIRRORED_FILES)
+    assert pin["source_commit"] == _git(repo, "rev-parse", "HEAD")
+    assert sensor.copilot_upstream_drift(pin, repo, "HEAD") == []
+
+
+def test_copilot_kernel_change_and_absence_are_findings(tmp_path, monkeypatch):
+    repo = _copilot_repo(tmp_path)
+    alu = tmp_path / "alu"
+    alu.mkdir()
+    monkeypatch.setattr(sensor, "REPO_ROOT", alu)
+    pin = sensor.write_copilot_vendor(repo, "HEAD")
+    (repo / sensor._COPILOT_SRC_REL / "loader.py").write_bytes(b"# v2\n")
+    _git(repo, "commit", "-q", "-am", "kernel moved on")
+    lines = sensor.copilot_upstream_drift(pin, repo, "HEAD")
+    assert len(lines) == 1 and "loader.py" in lines[0] and "re-mirror" in lines[0]
+    lines = sensor.copilot_upstream_drift(pin, tmp_path / "leer", None)
+    assert len(lines) == len(sensor.COPILOT_MIRRORED_FILES) and "NICHT verglichen" in lines[0]
+
+
+def test_local_edit_of_the_copilot_kernel_is_a_hard_failure(tmp_path, monkeypatch, capsys):
+    repo = _copilot_repo(tmp_path)
+    alu = tmp_path / "alu"
+    alu.mkdir()
+    monkeypatch.setattr(sensor, "REPO_ROOT", alu)
+    sensor.write_copilot_vendor(repo, "HEAD")
+    (alu / sensor._COPILOT_VENDOR_REL / "loader.py").write_bytes(b"# hand edit\n")
+    monkeypatch.setattr(sensor, "_meridian_root", lambda: None)
+    assert sensor.main([]) == 1
+    assert "vendored copilot kernel edited locally" in capsys.readouterr().out

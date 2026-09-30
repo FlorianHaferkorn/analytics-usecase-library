@@ -36,7 +36,7 @@ flowchart LR
 
 ```
 Strategy pattern (Margin-First)
-  └─ Strategic KPI: margin.gm.pct           [core/kpi_catalog/golden_20.yaml]
+  └─ Strategic KPI: KPI-COM-013           [core/kpi_catalog/golden_20.yaml]
        └─ Use Case: COM-001                  [core/usecases/core/COM-001_Sales_Performance/]
             └─ Data contract                 [core/data_contracts/domains/commercial_sales.yaml]
             └─ Measure: Gross Margin %       [products/fabric/powerbi/dist/Commercial.SemanticModel/]

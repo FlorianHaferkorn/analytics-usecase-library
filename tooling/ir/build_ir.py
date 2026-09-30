@@ -130,7 +130,7 @@ def _scan_kpi_catalog(root: Path) -> Dict[str, Dict[str, Any]]:
             for i, part in enumerate(parts):
                 if i == 0 and not re.search(r"(?m)^\s*-\s*kpi_id\s*:\s*", yaml_content):
                     continue
-                kpi_id_m = re.match(r"([a-z][a-z0-9_.]+)\s*[\r\n#]", part)
+                kpi_id_m = re.match(r"(KPI-[A-Z]{3}-\d{3})\s*[\r\n#]", part)
                 if not kpi_id_m:
                     continue
                 kpi_id = kpi_id_m.group(1).strip()

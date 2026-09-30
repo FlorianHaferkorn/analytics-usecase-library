@@ -647,7 +647,7 @@
             "y": 118.0,
             "width": 296.0,
             "height": 930.0,
-            "title": "Recommended actions (from action codes)\n\n• C-M2.1 — Price Realization Guardrails\n  Owner: pricing_lead\n  Trigger: sales.price.realization_pct < 92.0%\n  Impact: High, DirectMarginImprovement\n  Expected: 1.0–3.0 pp\n  Confidence: High\n\n• C-S1.1 — Price Discipline Enforcement\n  Owner: pricing_manager\n  Trigger: sales.pvm.price_effect.amount < 0\n  Impact: High, DirectMarginImprovement\n  Expected: 0.5–1.5 pp\n  Confidence: High\n\n• C-S1.2 — Sales Gap Recovery via Price & Pack Adjustment\n  Owner: sales_director\n  Trigger: sales.net_sales.delta_pct.plan < -5.0%\n  Impact: Medium, RevenueUplift\n  Expected: 1.0–3.0 %\n  Confidence: Medium",
+            "title": "Recommended actions (from action codes)\n\n• C-M2.1 — Price Realization Guardrails\n  Owner: pricing_lead\n  Trigger: KPI-COM-003 < 92.0%\n  Impact: High, DirectMarginImprovement\n  Expected: 1.0–3.0 pp\n  Confidence: High\n\n• C-S1.1 — Price Discipline Enforcement\n  Owner: pricing_manager\n  Trigger: KPI-COM-010 < 0\n  Impact: High, DirectMarginImprovement\n  Expected: 0.5–1.5 pp\n  Confidence: High\n\n• C-S1.2 — Sales Gap Recovery via Price & Pack Adjustment\n  Owner: sales_director\n  Trigger: KPI-COM-009 < -5.0%\n  Impact: Medium, RevenueUplift\n  Expected: 1.0–3.0 %\n  Confidence: Medium",
             "has_title": false,
             "binds_measures": false,
             "has_tooltip_fields": false,

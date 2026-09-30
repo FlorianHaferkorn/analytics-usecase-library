@@ -17,6 +17,7 @@ from products.fabric.powerbi.tooling.schema_registry import (
     DEFINITION_PBIR_SCHEMA as _DEFINITION_PBIR_SCHEMA,
     DEFINITION_PBIR_VERSION as _DEFINITION_PBIR_VERSION,
 )
+from tooling.report_quality import base_theme as _base_theme
 from products.fabric.powerbi.tooling.theme_registration import (
     custom_theme_collection_name,
     registered_theme_filename,
@@ -178,15 +179,8 @@ class PBIPWriter:
         report_data = {
             "$schema": self.REPORT_SCHEMA,
             "themeCollection": {
-                "baseTheme": {
-                    "name": "CY25SU10",
-                    "reportVersionAtImport": {
-                        "visual": "2.1.0",
-                        "report": "3.0.0",
-                        "page": "2.3.0"
-                    },
-                    "type": "SharedResources"
-                }
+                # Name + reportVersionAtImport from the pinned official CLI (D-587).
+                "baseTheme": _base_theme.base_theme_entry()
             },
             "filterConfig": {
                 "filters": []
@@ -254,13 +248,7 @@ class PBIPWriter:
                 {
                     "name": "SharedResources",
                     "type": "SharedResources",
-                    "items": [
-                        {
-                            "name": "CY25SU10",
-                            "path": "BaseThemes/CY25SU10.json",
-                            "type": "BaseTheme"
-                        }
-                    ]
+                    "items": [_base_theme.shared_resources_item()]
                 },
                 {
                     "name": "RegisteredResources",
@@ -279,6 +267,13 @@ class PBIPWriter:
         with open(report_file, 'w', encoding='utf-8') as f:
             json.dump(report_data, f, indent=2, ensure_ascii=False)
             f.write("\n")  # end-of-file-fixer (pre-commit) erwartet den Zeilenumbruch
+
+        # The referenced base theme file ships with the report, as the official scaffold
+        # does (D-587); content vendored byte-for-byte from the pinned CLI.
+        base_theme_file = (self.report_path / "StaticResources" / "SharedResources"
+                           / _base_theme.resource_path())
+        base_theme_file.parent.mkdir(parents=True, exist_ok=True)
+        base_theme_file.write_bytes(_base_theme.vendored_bytes())
 
         # Power BI Desktop (Feb 2026+) requires definition.pbir at report root with definitionProperties schema (not report definition).
         self._write_definition_pbir(

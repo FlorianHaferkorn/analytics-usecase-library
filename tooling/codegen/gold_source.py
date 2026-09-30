@@ -16,6 +16,12 @@ Dieses Modul schreibt deshalb in `expressions.tmdl` jedes Modells:
   Online als nicht unterstuetzt; darum der Container und der Filter.
 
 Mit Vorgabe `folder` aendert sich lokal nichts: derselbe Ausdruck, dieselben Dateien.
+
+`GoldDataPath` selbst traegt im ausgelieferten Modell den Platzhalter `<GOLD_DATA_PATH>`
+(30.09.2026). Vorher stand dort der absolute Pfad des Rechners, auf dem der Orchestrator zuletzt
+lief (`C:/Users/<name>/...`): ein persoenlicher Pfad in versionierten Dateien, der auf keinem
+anderen Rechner stimmt. `Folder.Files` nimmt keinen relativen Pfad; darum ein Platzhalter, den
+jede:r lokal in Power BI Desktop setzt (Anleitung `products/fabric/powerbi/dist/README.md`).
 **ANNAHME, ungeprueft:** dass `AzureStorage.DataLake` ueber OneLake dieselben Spalten liefert
 (`Content`, `Name`, `Folder Path`), die die Funktion danach liest. Belegt wird das erst im
 ersten Sandbox-Lauf (AP-2/AP-5).
@@ -26,12 +32,17 @@ ersten Sandbox-Lauf (AP-2/AP-5).
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 import uuid
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 DIST = REPO / "products" / "fabric" / "powerbi" / "dist"
+
+# Rechnerneutraler Wert von `GoldDataPath`; die Form folgt den Platzhaltern im Repo (`<DOMAIN>`).
+GOLD_PATH_PLATZHALTER = "<GOLD_DATA_PATH>"
+_GOLD_PATH = re.compile(r'^(expression GoldDataPath = )"[^"\n]*"', re.M)
 
 ALT = "\t\tAllFiles = Folder.Files(TableFolderPath),\n"
 NEU = (
@@ -65,6 +76,9 @@ def soll(modell: str, text: str) -> str:
         text = text.replace(ALT, NEU, 1)
     elif NEU not in text:
         raise ValueError(f"{modell}: fn_DeltaCurrentFiles hat eine unbekannte Form")
+    if not _GOLD_PATH.search(text):
+        raise ValueError(f"{modell}: Parameter GoldDataPath fehlt")
+    text = _GOLD_PATH.sub(lambda m: f'{m.group(1)}"{GOLD_PATH_PLATZHALTER}"', text, count=1)
     for name, wert, pflicht in (("GoldSourceKind", "folder", True), ("GoldContainerUrl", "", False)):
         if f"expression {name} =" not in text:
             text = text.rstrip("\n") + "\n\n" + _parameter(modell, name, wert, pflicht)

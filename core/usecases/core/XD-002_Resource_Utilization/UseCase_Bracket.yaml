@@ -6,34 +6,34 @@ governance:
   owner_role: service_operations_workforce_planning
   steward_role: workforce_management_service_ops_bi_lead
 orchestration:
-  strategic_kpi_id: res.utilization.pct
+  strategic_kpi_id: KPI-SVC-009
   influencing_kpi_ids:
-  - res.occupancy.pct
-  - svc.sla.attainment.pct
-  - res.overtime.pct
-  - res.shrinkage.pct
-  - svc.backlog.count
-  - svc.tickets.created.count
+  - KPI-SVC-010
+  - KPI-SVC-004
+  - KPI-SVC-011
+  - KPI-SVC-012
+  - KPI-SVC-007
+  - KPI-SVC-013
   supporting_kpi_ids:
-  - svc.fcr.pct
-  - svc.aht.minutes
-  - svc.escalation.pct
-  - svc.tickets.closed.count
+  - KPI-SVC-005
+  - KPI-SVC-006
+  - KPI-SVC-008
+  - KPI-SVC-014
   action_code_ids:
   - X-R2.1
   - X-R2.2
   - X-R2.3
   - X-R2.4
 primary_kpi_ids:
-  - res.utilization.pct
-  - res.occupancy.pct
+  - KPI-SVC-009
+  - KPI-SVC-010
 
 value_driver_model:
-  formula: res.utilization.pct = f(res.occupancy.pct, svc.sla.attainment.pct, res.overtime.pct, res.shrinkage.pct, svc.backlog.count,
-    svc.tickets.created.count)
+  formula: KPI-SVC-009 = f(KPI-SVC-010, KPI-SVC-004, KPI-SVC-011, KPI-SVC-012, KPI-SVC-007,
+    KPI-SVC-013)
   impact_direction: maximize
-  primary_driver: res.occupancy.pct
-  impact_logic: Improving res.occupancy.pct is the primary capacity lever for maximizing res.utilization.pct while overtime, shrinkage, and backlog remain within acceptable bounds.
+  primary_driver: KPI-SVC-010
+  impact_logic: Improving KPI-SVC-010 is the primary capacity lever for maximizing KPI-SVC-009 while overtime, shrinkage, and backlog remain within acceptable bounds.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -47,13 +47,13 @@ ux_layout_rules:
     decision_question: "Is resource utilization sustainable without degrading service quality?"
     big_idea: "Resource utilization is above sustainable threshold — occupancy peaks in two teams are creating burnout risk and reducing service quality consistency."
     component_3s:
-      kpi_id: res.utilization.pct
+      kpi_id: KPI-SVC-009
       visual_type: kpi_card_with_delta
       comparison: vs_plan
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: res.occupancy.pct
+      kpi_id: KPI-SVC-010
       visual_type: line_chart
       question: "Is resource utilization sustainable, or are teams overloaded?"
       message: Resource occupancy is running at sustained overload in a few teams
@@ -61,9 +61,9 @@ ux_layout_rules:
       unit: ratio
     - slot_id: Main_2
       kpi_ids:
-      - svc.sla.attainment.pct
-      - res.overtime.pct
-      - res.shrinkage.pct
+      - KPI-SVC-004
+      - KPI-SVC-011
+      - KPI-SVC-012
       # R6.3 (23.09.2026): Kennzahlen gegensaetzlicher Richtung auf einer Balkenachse
       # (Knock-out mixed-polarity). Je Einheit eine Zeile, je Signal eine Spalte.
       visual_type: exception_table
@@ -91,18 +91,18 @@ ux_layout_rules:
       - entity
       - queue
       - channel
-      - res.utilization.pct
-      - res.occupancy.pct
-      - res.overtime.pct
-      - res.shrinkage.pct
+      - KPI-SVC-009
+      - KPI-SVC-010
+      - KPI-SVC-011
+      - KPI-SVC-012
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: res.utilization.pct
+        measure: KPI-SVC-009
         direction: descending
       top_n: 20
       highlight_rule:
-        column: res.utilization.pct
+        column: KPI-SVC-009
         type: data_bar
 prioritization:
   business_value: medium

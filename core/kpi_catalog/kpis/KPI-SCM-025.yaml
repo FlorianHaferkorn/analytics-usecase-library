@@ -1,0 +1,50 @@
+kpi_id: KPI-SCM-025
+kpi_key: Purchase Price Variance %
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: Cost
+domain_tag:
+- Supply Chain
+- Sourcing
+use_case_ref:
+- SCM-004
+action_code_ref: []
+calc_type: rate
+good_is: lower
+business:
+  purpose: Measures purchase price variance against baseline/standard price.
+  definition: (Actual Price - Baseline Price) / Baseline Price.
+  grain_scope: Category/material; monthly.
+  unit_format: percent_1
+  interpretation: Lower is better; isolates inflation and negotiation slippage.
+technical:
+  measure_name: Purchase Price Variance %
+  description: Measures purchase price variance against baseline/standard price.
+  depends_on_measures: []
+  lineage:
+  - fact_procurement.PPV Amount
+  - fact_procurement.Baseline Spend Amount
+  calculation:
+    op: ratio
+    numerator:
+      column: PPV Amount
+    denominator:
+      column: Baseline Spend Amount
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: Procurement & spend analytics (convention)
+  name: Purchase price variance (PPV)
+  alignment: none
+  note: PPV is a standard cost-accounting/procurement convention; align the baseline definition to the internal
+    standard-cost policy.

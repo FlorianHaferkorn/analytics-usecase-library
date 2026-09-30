@@ -1,6 +1,6 @@
 measure_name: Overtime %
 is_kpi_measure: true
-kpi_id_ref: res.overtime.pct
+kpi_id_ref: KPI-SVC-011
 semantic_model: Service_SemanticModel
 display_folder: 05_Workforce
 category: KPI

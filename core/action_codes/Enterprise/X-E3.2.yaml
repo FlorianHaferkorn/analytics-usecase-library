@@ -26,16 +26,16 @@ use_case_links:
   - XD-002
 kpis:
   trigger_kpis:
-  - sales.net_sales.delta_pct.ly
-  - margin.gm.pct
-  - svc.sla.attainment.pct
-  - supply.otif.pct
-  - ops.working_capital.ccc.days
-  - people.attrition_risk.pct
-  - people.digital_adoption.pct
+  - KPI-COM-008
+  - KPI-COM-013
+  - KPI-SVC-004
+  - KPI-SCM-007
+  - KPI-FIN-006
+  - KPI-SVC-003
+  - KPI-SVC-002
   guardrail_kpis: []
   outcome_kpis:
-  - enterprise.value_at_risk.index
+  - KPI-GOV-004
 scope:
   default_grain: entity_month
   default_perspective:
@@ -89,7 +89,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P60D
-    metric_kpi_id: enterprise.action_outcome_rate.pct
+    metric_kpi_id: KPI-GOV-001
     success_criteria:
       kind: threshold_met
       baseline_window: P90D
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: enterprise.value_at_risk.index
+    metric_kpi_id: KPI-GOV-004
     value_low: -10.0
     value_high: -30.0
     unit: '%'

@@ -1,6 +1,6 @@
 measure_name: Actions Executed Count (XD)
 is_kpi_measure: true
-kpi_id_ref: enterprise.actions_executed.count
+kpi_id_ref: KPI-GOV-005
 display_folder: 08_Action_Outcomes
 category: KPI
 expression:

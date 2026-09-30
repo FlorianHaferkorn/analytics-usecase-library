@@ -10,7 +10,7 @@ duplicate measures inside the domain models, rebind the affected reports, regene
 **materialised separately in several domain semantic models** under different measure names. And the
 report→model binding uses a PBIR `nativeQueryRef` that can be a **display alias differing from the
 defined measure name** (e.g. XD-003/XD-004 bind `OTIF %` while the Experience model defines it as
-`OTIF % (XD)` — see the `/// OTIF % - supply.otif.pct` comment). So measure resolution cannot be
+`OTIF % (XD)` — see the `/// OTIF % - KPI-SCM-007` comment). So measure resolution cannot be
 certified on Linux: the only authoritative check that a renamed measure / rebound report still loads
 is **Power BI Desktop**. Execute this in the Windows env, opening each edited model + report.
 
@@ -18,13 +18,13 @@ is **Power BI Desktop**. Execute this in the Windows env, opening each edited mo
 
 | Twin KPI | Canonical KPI | Twin measure (model) | Bound in a report? |
 |---|---|---|---|
-| `ops.otif.pct` | `supply.otif.pct` | `Ops OTIF %` (Experience) | no |
-| `scm.service_level.pct` | `supply.otif.pct` | `Supply Chain Service Level %` (Finance) | **FIN-001** Detail_Matrix |
-| `ops.service_level.pct` | `supply.otif.pct` | `Operations Service Level %` (Finance) | no |
-| `ops.inventory.value.amount` | `fin.liquidity.inventory.amount` | `Inventory Value Amount` (Operations) | no |
-| `ops.production.volume` | `ops.throughput.units` | `Production Volume Units` (Finance) | **FIN-002** Detail_Matrix |
-| `ops.yield.pct` | `ops.quality.pct` | `Yield %` (Finance) | **FIN-002** Detail_Matrix |
-| `svc.nps.index` | `crm.nps.index` | *(not materialised)* | no |
+| `ops.otif.pct` | `KPI-SCM-007` | `Ops OTIF %` (Experience) | no |
+| `scm.service_level.pct` | `KPI-SCM-007` | `Supply Chain Service Level %` (Finance) | **FIN-001** Detail_Matrix |
+| `ops.service_level.pct` | `KPI-SCM-007` | `Operations Service Level %` (Finance) | no |
+| `ops.inventory.value.amount` | `KPI-FIN-002` | `Inventory Value Amount` (Operations) | no |
+| `ops.production.volume` | `KPI-OPS-009` | `Production Volume Units` (Finance) | **FIN-002** Detail_Matrix |
+| `ops.yield.pct` | `KPI-OPS-003` | `Yield %` (Finance) | **FIN-002** Detail_Matrix |
+| `svc.nps.index` | `KPI-CUS-003` | *(not materialised)* | no |
 
 Exact report-binding scope (verified via `"nativeQueryRef": "<exact name>"`, word-boundary — beware
 substring matches like `First Pass Yield %` ⊃ `Yield %`): **only FIN-001 and FIN-002** bind a twin
@@ -33,14 +33,14 @@ measure. Everything else is SSOT/doc-only on the report side.
 Measure-rename topology (each canonical measure currently lives in a *different* model than its twin,
 so an in-model rename is collision-free) — **except** the two Finance service-level twins, which both
 collapse to one `OTIF %`: rename one, delete the other, point both consumers at it. Note the
-Experience model already materialises `supply.otif.pct` as `OTIF % (XD)`; reconcile names in Desktop
+Experience model already materialises `KPI-SCM-007` as `OTIF % (XD)`; reconcile names in Desktop
 rather than assuming a fresh `OTIF %`.
 
 ## Per-twin SSOT checklist (Linux-safe, but must land atomically with the dist edits)
 
 1. `core/kpi_catalog/kpis/<twin>.yaml` — delete; remove its line from `kpis/_index.yaml`.
 2. Other KPIs' `technical.depends_on_measures` — replace twin→canonical + **dedupe**
-   (`cost.unit.amount.yaml` lists both `ops.production.volume` and `ops.yield.pct`).
+   (`KPI-FIN-015.yaml` lists both `ops.production.volume` and `ops.yield.pct`).
 3. `core/usecases/**/UseCase_Bracket.yaml` — `orchestration.*_kpi_ids` + `value_driver_model.formula`
    prose: replace + **dedupe the list** (FIN-002 references three twins).
 4. `core/usecases/**/Business_Factsheet.md` — KPI table, `### 3.1 Standards basis`, prose; drop the

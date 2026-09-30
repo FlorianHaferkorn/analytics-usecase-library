@@ -7,14 +7,14 @@
 
 ## Read
 
-ISO 30414:2018 is the genuine standard for human-capital metrics (turnover, retention, workforce cost/skills/availability). `people.attrition_risk.pct` maps to its turnover/retention family as a **predictive overlay** — align the realised-turnover base to ISO 30414. `people.digital_adoption.pct` is a digital-transformation metric outside ISO 30414's scope (marked none with the pointer).
+ISO 30414:2018 is the genuine standard for human-capital metrics (turnover, retention, workforce cost/skills/availability). `KPI-SVC-003` maps to its turnover/retention family as a **predictive overlay** — align the realised-turnover base to ISO 30414. `KPI-SVC-002` is a digital-transformation metric outside ISO 30414's scope (marked none with the pointer).
 
 ## Mapping table
 
 | KPI | Standard / discipline | Alignment | Drift note / recommendation |
 |---|---|---|---|
-| `people.attrition_risk.pct` | `ISO 30414` Human capital — turnover / retention | **partial** | ISO 30414:2018 (human capital reporting) defines turnover and retention-rate metrics. Attrition RISK here is a predicted probability — a modelling variant of the ISO turnover family; align the realised-turnover base to ISO 30414 and treat the risk score as a forward-looking overlay. |
-| `people.digital_adoption.pct` | `ISO 30414` (digital adoption — change management) | **none** | Digital adoption (digital / total transactions for eligible processes) is a digital-transformation / change-management metric, not part of ISO 30414's human-capital areas. No governing HR standard; loosely relates to ISO 30414 workforce skills & capabilities. |
+| `KPI-SVC-003` | `ISO 30414` Human capital — turnover / retention | **partial** | ISO 30414:2018 (human capital reporting) defines turnover and retention-rate metrics. Attrition RISK here is a predicted probability — a modelling variant of the ISO turnover family; align the realised-turnover base to ISO 30414 and treat the risk score as a forward-looking overlay. |
+| `KPI-SVC-002` | `ISO 30414` (digital adoption — change management) | **none** | Digital adoption (digital / total transactions for eligible processes) is a digital-transformation / change-management metric, not part of ISO 30414's human-capital areas. No governing HR standard; loosely relates to ISO 30414 workforce skills & capabilities. |
 
 **Alignment legend:** `exact` = same definition as the standard · `partial` = anchored to a real
 standard with a documented difference · `none` = no governing standard (a named discipline convention

@@ -28,7 +28,7 @@ describe('volume-guard', () => {
   });
 
   it('defaults to any non-zero value for unknown types', () => {
-    expect(isSignificantVolume('margin.gm.pct', 0)).toBe(false);
-    expect(isSignificantVolume('margin.gm.pct', 0.1)).toBe(true);
+    expect(isSignificantVolume('KPI-COM-013', 0)).toBe(false);
+    expect(isSignificantVolume('KPI-COM-013', 0.1)).toBe(true);
   });
 });

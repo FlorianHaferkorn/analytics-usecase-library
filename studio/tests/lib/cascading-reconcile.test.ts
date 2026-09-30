@@ -6,9 +6,9 @@ import {
 
 const SAMPLE_BRACKET = `
 orchestration:
-  strategic_kpi_id: margin.gm.pct
+  strategic_kpi_id: KPI-COM-013
   influencing_kpi_ids:
-    - sales.net_sales.amount
+    - KPI-COM-005
   action_code_ids:
     - C-S1.1
 `.trim();
@@ -18,9 +18,9 @@ const SAMPLE_FACTSHEET = `
 
 | KPI ID | Role |
 |--------|------|
-| margin.gm.pct | Strategic |
-| sales.net_sales.amount | Influencing |
-| cost.cogs.amount | Influencing |
+| KPI-COM-013 | Strategic |
+| KPI-COM-005 | Influencing |
+| KPI-FIN-011 | Influencing |
 
 **Action Codes:** C-S1.1, C-S1.2
 `.trim();
@@ -29,8 +29,8 @@ describe('extractFactsheetKpiRoles', () => {
   it('parses single-pipe markdown table rows', () => {
     const roles = extractFactsheetKpiRoles(SAMPLE_FACTSHEET);
     const ids = roles.map((r) => r.kpi_id);
-    expect(ids).toContain('margin.gm.pct');
-    expect(ids).toContain('cost.cogs.amount');
+    expect(ids).toContain('KPI-COM-013');
+    expect(ids).toContain('KPI-FIN-011');
   });
 });
 
@@ -41,7 +41,7 @@ describe('reconcileDeterministic (factsheet → bracket)', () => {
 
 | KPI ID | Role |
 |--------|------|
-| margin.gm.pct | Strategic |
+| KPI-COM-013 | Strategic |
 
 **Action Codes:** C-S1.1
 `.trim();
@@ -53,7 +53,7 @@ describe('reconcileDeterministic (factsheet → bracket)', () => {
     });
 
     expect(proposal).not.toBeNull();
-    expect(proposal?.patch).not.toContain('sales.net_sales.amount');
+    expect(proposal?.patch).not.toContain('KPI-COM-005');
     expect(proposal?.hints.some((h) => h.includes('Clear influencing_kpi_ids'))).toBe(true);
   });
 
@@ -63,8 +63,8 @@ describe('reconcileDeterministic (factsheet → bracket)', () => {
 
 | KPI ID | Role |
 |--------|------|
-| margin.gm.pct | Strategic |
-| sales.net_sales.amount | Influencing |
+| KPI-COM-013 | Strategic |
+| KPI-COM-005 | Influencing |
 
 **Action Codes:** C-S1.2
 `.trim();

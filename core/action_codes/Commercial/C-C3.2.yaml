@@ -12,14 +12,14 @@ use_case_links:
   - COM-003
 kpis:
   trigger_kpis:
-  - crm.nps.index
-  - crm.complaint.count
+  - KPI-CUS-003
+  - KPI-SVC-001
   guardrail_kpis:
-  - crm.revenue_at_risk.amount
+  - KPI-OPS-001
   outcome_kpis:
-  - crm.nps.index
-  - crm.complaint.count
-  - crm.retention.pct
+  - KPI-CUS-003
+  - KPI-SVC-001
+  - KPI-CUS-002
 scope:
   default_grain: customer_month
   default_perspective:
@@ -47,7 +47,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: crm.complaint.count
+        metric_kpi_id: KPI-SVC-001
         comparator: gte
         value: 10
         unit: count
@@ -55,7 +55,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: crm.nps.index
+        metric_kpi_id: KPI-CUS-003
         comparator: lt
         threshold:
           basis: absolute
@@ -65,7 +65,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: crm.nps.index
+        metric_kpi_id: KPI-CUS-003
         comparator: lt
         threshold:
           basis: absolute
@@ -75,7 +75,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: crm.nps.index
+        metric_kpi_id: KPI-CUS-003
         comparator: lt
         threshold:
           basis: absolute
@@ -93,7 +93,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P90D
-    metric_kpi_id: crm.retention.pct
+    metric_kpi_id: KPI-CUS-002
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -107,7 +107,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: crm.nps.index
+    metric_kpi_id: KPI-CUS-003
     value_low: 5.0
     value_high: 15.0
     unit: index

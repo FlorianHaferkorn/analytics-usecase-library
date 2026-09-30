@@ -20,8 +20,8 @@ _BASELINE_COVERED = 17
 def test_valid_ordering():
     # R2.1 canonical fields: sort_by {measure, direction} + top_n (ascending/descending).
     ok, _ = classify_evidence({
-        "evidence_columns": ["sku", "margin.gm.vs_plan.pct"],
-        "sort_by": {"measure": "margin.gm.vs_plan.pct", "direction": "ascending"},
+        "evidence_columns": ["sku", "KPI-FIN-017"],
+        "sort_by": {"measure": "KPI-FIN-017", "direction": "ascending"},
         "top_n": 20,
     })
     assert ok is True
@@ -34,7 +34,7 @@ def test_missing_sort_is_invalid():
 
 def test_missing_measure_is_invalid():
     ok, reason = classify_evidence({
-        "evidence_columns": ["sku", "margin.gm.pct"],
+        "evidence_columns": ["sku", "KPI-COM-013"],
         "sort_by": {"direction": "ascending"},
         "top_n": 20,
     })
@@ -43,8 +43,8 @@ def test_missing_measure_is_invalid():
 
 def test_bad_direction_is_invalid():
     ok, reason = classify_evidence({
-        "evidence_columns": ["sku", "margin.gm.pct"],
-        "sort_by": {"measure": "margin.gm.pct", "direction": "sideways"},
+        "evidence_columns": ["sku", "KPI-COM-013"],
+        "sort_by": {"measure": "KPI-COM-013", "direction": "sideways"},
         "top_n": 20,
     })
     assert ok is False and "direction" in reason
@@ -52,8 +52,8 @@ def test_bad_direction_is_invalid():
 
 def test_missing_or_bad_top_n_is_invalid():
     base = {
-        "evidence_columns": ["sku", "margin.gm.pct"],
-        "sort_by": {"measure": "margin.gm.pct", "direction": "descending"},
+        "evidence_columns": ["sku", "KPI-COM-013"],
+        "sort_by": {"measure": "KPI-COM-013", "direction": "descending"},
     }
     assert classify_evidence(base)[0] is False                      # missing
     assert classify_evidence({**base, "top_n": 0})[0] is False   # < 1

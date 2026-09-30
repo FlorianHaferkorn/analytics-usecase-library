@@ -51,13 +51,13 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| ops.oee.pct | Strategic |
-| ops.availability.pct | Influencing |
-| ops.performance.pct | Influencing |
-| ops.quality.pct | Influencing |
-| ops.throughput.units | Supporting |
-| ops.downtime.pct | Supporting |
-| ops.planned_output.units | Supporting |
+| KPI-OPS-011 | Strategic |
+| KPI-OPS-016 | Influencing |
+| KPI-OPS-002 | Influencing |
+| KPI-OPS-003 | Influencing |
+| KPI-OPS-009 | Supporting |
+| KPI-OPS-017 | Supporting |
+| KPI-OPS-013 | Supporting |
 
 **Action Codes:** O-O1.1, O-O1.2, O-O1.3, O-O1.4
 
@@ -69,11 +69,11 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Overall Equipment Effectiveness (OEE) %** (`ops.oee.pct`) → **ISO 22400-2 OEE** (exact): OEE = Availability x Effectiveness (Performance) x Quality ratio is defined verbatim by ISO 22400-2.
-- **Availability %** (`ops.availability.pct`) → **ISO 22400-2 A** (partial): ISO 22400-2 Availability = Actual Production Time / Planned Busy Time.
-- **Performance %** (`ops.performance.pct`) → **ISO 22400-2 E** (partial): ISO 22400-2 Effectiveness E = (produced quantity x ideal cycle time) / actual production time.
-- **Quality %** (`ops.quality.pct`) → **ISO 22400-2 QR** (exact): ISO 22400-2 Quality ratio QR = good quantity / produced quantity.
-- **Throughput Units** (`ops.throughput.units`) → **ISO 22400-2 TR** (partial): ISO 22400-2 Throughput rate TR is per-unit-of-time (produced quantity / time); ours is a produced-quantity sum (the PQ element).
+- **Overall Equipment Effectiveness (OEE) %** (`KPI-OPS-011`) → **ISO 22400-2 OEE** (exact): OEE = Availability x Effectiveness (Performance) x Quality ratio is defined verbatim by ISO 22400-2.
+- **Availability %** (`KPI-OPS-016`) → **ISO 22400-2 A** (partial): ISO 22400-2 Availability = Actual Production Time / Planned Busy Time.
+- **Performance %** (`KPI-OPS-002`) → **ISO 22400-2 E** (partial): ISO 22400-2 Effectiveness E = (produced quantity x ideal cycle time) / actual production time.
+- **Quality %** (`KPI-OPS-003`) → **ISO 22400-2 QR** (exact): ISO 22400-2 Quality ratio QR = good quantity / produced quantity.
+- **Throughput Units** (`KPI-OPS-009`) → **ISO 22400-2 TR** (partial): ISO 22400-2 Throughput rate TR is per-unit-of-time (produced quantity / time); ours is a produced-quantity sum (the PQ element).
 
 ---
 

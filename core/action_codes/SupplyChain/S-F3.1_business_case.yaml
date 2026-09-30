@@ -1,6 +1,6 @@
 id: S-F3.1
 action_code_id: S-F3.1
-kpi_id: plan.forecast.accuracy.pct
+kpi_id: KPI-SCM-005
 impact_range_eur_min: 300000
 impact_range_eur_likely: 1500000
 impact_range_eur_max: 4000000

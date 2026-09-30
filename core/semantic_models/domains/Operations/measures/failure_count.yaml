@@ -1,6 +1,6 @@
 measure_name: Failure Count
 is_kpi_measure: true
-kpi_id_ref: ops.failure.count
+kpi_id_ref: KPI-OPS-012
 semantic_model: Operations_SemanticModel
 display_folder: 04_Reliability
 category: KPI
@@ -10,7 +10,7 @@ expression:
 documentation:
   description: Count of recorded equipment or process failure events.
   notes: 'Grain: failure_event. Unit: count. Source: fact_ops_failures (one row per
-    failure event), matching the ops.failure.count lineage. Feeds MTBF/MTTR reliability
+    failure event), matching the KPI-OPS-012 lineage. Feeds MTBF/MTTR reliability
     measures. QA: de-duplicate failure events; confirm consistent failure taxonomy.'
 dependencies:
   columns:

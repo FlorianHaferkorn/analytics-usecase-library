@@ -9,6 +9,10 @@ Turns a blueprint into the CI/CD promotion layer that makes a provisioned medall
    ``data_architecture.json``. The blueprint CLI already exits non-zero (2) when
    conformance is not green, so a non-conformant architecture change fails the PR.
    Pure reuse of the existing, already-green conformance tool — no new rule silo.
+   **Seit R8 (30.09.2026) nicht mehr Teil der Kundenlieferung:** der Workflow ruft unser
+   Werkzeug auf und laeuft deshalb nur in einem Repo, das es traegt (Lieferanten-Seite).
+   ``emit_cicd`` liefert stattdessen ``gates/gates.yml`` + ``gates/azure-pipelines-gates.yml``
+   als PR-Pflicht-Check; die Funktionen bleiben als Vorlage fuer die Lieferanten-Pipeline.
 
 2. **CD promotion** (``emit_cd_promotion``): a ``fab`` script that wires Fabric
    **Git integration** + **Deployment Pipelines** (stages dev/test/prod, one
@@ -56,6 +60,81 @@ _DEPLOYMENT_MODELS = {
     },
 }
 _DEFAULT_MODEL = "deployment-pipelines"
+
+# D-592 (30.09.2026): der Deploy-Weg folgt der Netzhaltung. Quelle ist die vorhandene
+# Entscheidung `PLAT-NET` (Profilfeld `entscheidungen`, dieselbe, die `provision_apply` in
+# Schritte uebersetzt) — kein zweites Feld. Inbound-geschuetzt heisst: der Workspace nimmt
+# eingehend nur noch freigegebene Netze an. Dann erreichen Deployment Pipelines ihn nicht
+# (MS Learn `cicd/cicd-security`: "Deployment pipelines aren't currently supported for workspace
+# with inbound access protection"; `security/security-workspace-level-private-links-support`:
+# eine Pipeline erreicht keinen Workspace mit „deny public access", und ein zugewiesener
+# Workspace laesst sich nicht mehr einschraenken; beide gelesen 30.09.2026).
+NETZ_ENTSCHEIDUNG = "PLAT-NET"
+#: PLAT-NET-Werte mit Inbound-Schutz auf Workspace-Ebene. `ip_firewall` zaehlt dazu: MS fuehrt
+#: die IP-Firewall unter „workspace inbound access protection"
+#: (`security/security-workspace-enable-inbound-access-protection`). Dass Deployment Pipelines
+#: gerade an der IP-Firewall scheitern, steht dort nicht ausdruecklich — ANNAHME, ungeprueft; die
+#: Einordnung ist die vorsichtige. `private_link_tenant` schuetzt den Mandanten, nicht den
+#: Workspace; fuer Pipelines nennt die Tenant-Private-Link-Seite keine Grenze.
+NETZ_INBOUND_GESCHUETZT: frozenset[str] = frozenset({"private_link_workspace", "ip_firewall"})
+#: Deploy-Wege, die den Ziel-Workspace ueber den Pipeline-Dienst erreichen muessen.
+_MODELLE_OHNE_INBOUND: frozenset[str] = frozenset({"deployment-pipelines"})
+#: Git-basiert nach ADR-0050 (zuerst Option 4/1). Option 1 ist der Einzelkunden-Weg; Option 4
+#: faechert auf viele Kunden-Workspaces auf und bleibt die ausdrueckliche Wahl.
+MODELL_GESCHUETZT = "git-integration-gitflow"
+MODELL_UNGESCHUETZT = _DEFAULT_MODEL
+
+
+def netzhaltungen(entscheidungen: dict | None) -> set[str]:
+    """Alle getroffenen PLAT-NET-Werte, Basis-ID und je Domaene aufgefaecherte IDs.
+
+    Eine Pipeline spannt alle Stufen-Workspaces; ist **einer** geschuetzt, erreicht sie ihn
+    nicht. Deshalb zaehlt jede Auffaecherung, nicht nur die Basis-ID."""
+    from core.dataarch_engine.blueprint.decision_proposals import FANOUT_TRENNER
+    return {str(v) for k, v in (entscheidungen or {}).items()
+            if v not in (None, "") and (k == NETZ_ENTSCHEIDUNG
+                                        or str(k).startswith(NETZ_ENTSCHEIDUNG + FANOUT_TRENNER))}
+
+
+def inbound_geschuetzt(entscheidungen: dict | None) -> bool:
+    """True, wenn PLAT-NET einen Workspace eingehend abschirmt (D-592)."""
+    return bool(netzhaltungen(entscheidungen) & NETZ_INBOUND_GESCHUETZT)
+
+
+def deployment_model_fuer(entscheidungen: dict | None, explizit: str | None = None) -> str:
+    """Der Deploy-Weg aus der Netzhaltung (D-592); ``explizit`` gewinnt, ausser im Konflikt.
+
+    Ohne ausdrueckliche Wahl: geschuetzt → ``git-integration-gitflow``, sonst
+    ``deployment-pipelines``. Ausdruecklich Deployment Pipelines bei Inbound-Schutz ist kein
+    Vorrang, sondern ein Widerspruch, den erst der Tenant melden wuerde → ``ValueError``."""
+    if explizit is not None and explizit not in _DEPLOYMENT_MODELS:
+        raise ValueError(f"unknown deployment_model {explizit!r}; "
+                         f"choose one of {sorted(_DEPLOYMENT_MODELS)}")
+    geschuetzt = inbound_geschuetzt(entscheidungen)
+    if explizit is None:
+        return MODELL_GESCHUETZT if geschuetzt else MODELL_UNGESCHUETZT
+    if geschuetzt and explizit in _MODELLE_OHNE_INBOUND:
+        werte = ", ".join(sorted(netzhaltungen(entscheidungen) & NETZ_INBOUND_GESCHUETZT))
+        raise ValueError(
+            f"deployment_model {explizit!r} widerspricht {NETZ_ENTSCHEIDUNG} = {werte} (D-592): "
+            "Deployment Pipelines erreichen keinen Workspace mit Inbound-Schutz, und ein "
+            "Workspace in einer Pipeline laesst sich nicht mehr einschraenken (MS Learn "
+            "cicd/cicd-security). Git-basiert deployen (--deployment-model "
+            f"{MODELL_GESCHUETZT} oder isv-per-customer / items-api-trunk) oder "
+            "--deployment-model weglassen, dann folgt der Weg der Netzhaltung.")
+    return explizit
+
+
+def _herleitung(entscheidungen: dict | None, explizit: str | None) -> str:
+    """Eine Zeile fuer `_DEPLOYMENT_MODEL.md`: woher das Modell kommt (D-592)."""
+    if explizit is not None:
+        return "Herkunft: ausdrücklich gewählt (`--deployment-model`)."
+    if inbound_geschuetzt(entscheidungen):
+        return (f"Herkunft: abgeleitet aus `{NETZ_ENTSCHEIDUNG}` (Inbound-Schutz) nach D-592 — "
+                "Deployment Pipelines erreichen geschützte Workspaces nicht, deshalb Git-basiert "
+                "(ADR-0050).")
+    return (f"Herkunft: abgeleitet aus `{NETZ_ENTSCHEIDUNG}` (kein Inbound-Schutz) nach D-592 — "
+            "Deployment Pipelines, weil sie beim Kunden die geringste Git-Reife verlangen.")
 
 
 def _unique_workspaces(blueprint: dict) -> list[tuple[str, str]]:
@@ -402,12 +481,14 @@ def emit_items_release(stages: tuple[str, ...] = _DEFAULT_STAGES) -> str:
     return "\n".join(lines) + "\n"
 
 
-def _deployment_model_doc(model: str, blueprint: dict, stages: tuple[str, ...]) -> str:
+def _deployment_model_doc(model: str, blueprint: dict, stages: tuple[str, ...],
+                          herkunft: str = "") -> str:
     m = _DEPLOYMENT_MODELS[model]
     n_ws = len(_unique_workspaces(blueprint))
     lines = [
         "# Deployment-Modell (generiert — ADR-0050 / I-19.1)", "",
         f"Gewähltes Modell: **{model}** (MS Fabric CI/CD Option {m['option']}).", "",
+        *([herkunft, ""] if herkunft else []),
         "| Achse | Wert |", "|---|---|",
         f"| Source of Truth | {m['sot']} |",
         f"| Merge-/Branching-Ansatz | {m['branching']} |",
@@ -417,9 +498,15 @@ def _deployment_model_doc(model: str, blueprint: dict, stages: tuple[str, ...]) 
         f"| Workspaces im Blueprint | {n_ws} |", "",
         "Belegt: learn.microsoft.com/fabric/cicd/manage-deployment (Choose the best workflow option).", "",
         "## Wo die Validierungs-Gates sitzen (I-19.3 verdrahtet sie)",
-        "- **PR-Gate (CI):** `architecture-gate.yml` (Conformance) + Modell-/TMDL-/Katalog-Checks → blockt Merge.",
+        "- **PR-Gate (CI):** `gates/gates.yml` bzw. `gates/azure-pipelines-gates.yml` (`validate.sh pr` "
+        "+ eigene Prüfungen in `validate.local.sh`) → blockt Merge. Blueprint-Konformität und die "
+        "übrigen Artefakt-Prüfungen laufen beim Lieferanten vor der Übergabe; eine Änderung an "
+        "`data_architecture.json` wird dort neu erzeugt und geprüft (`CONFORMANCE.md`).",
         "- **Pre-Deploy:** vor `update-from-git`/`fabric-cicd`/Deployment-Pipeline.",
-        "- **Post-Deploy:** Smoke (Modell lädt, Refresh, Lineage-Reconcile) vor der nächsten Stage.", "",
+        "- **Post-Deploy:** Smoke (Modell lädt, Refresh, Lineage-Reconcile) vor der nächsten Stage.",
+        "- **Refresh nach dem Deploy:** *Refresh data only* — das Schema kommt aus Git, nicht aus "
+        "einem Schema-Sync im Ziel; *Sync schema only* nur im Entwicklungs-Workspace mit "
+        "anschließendem Commit (Tabelle in `operability/BETRIEBSBEREITSCHAFT.md`, I-21 W6.7).", "",
     ]
     if model == "git-integration-gitflow":
         lines += ["## GitFlow", f"Je Stage ein Primär-Branch ({', '.join(stages)}); Promotion = PR zwischen "
@@ -633,8 +720,8 @@ def _ruecksprung_doc(model: str, blueprint: dict, stages: tuple[str, ...]) -> st
 #
 # Learn `fundamentals/understand-best-practices-fabric-cicd` (gelesen 29.09.2026): eine Quelle
 # der Wahrheit im Integrations-Branch, Änderungen nur per Pull Request. Ohne Regel kann jeder mit
-# Schreibrecht direkt auf den Branch schieben, und die beiden Tore (Architektur-Gate,
-# Geheimnis-Scan) laufen nur, wenn jemand freiwillig einen PR aufmacht.
+# Schreibrecht direkt auf den Branch schieben, und die beiden Tore (PR-Gates, Geheimnis-Scan)
+# laufen nur, wenn jemand freiwillig einen PR aufmacht.
 #
 # Form: GitHub-Repository-Ruleset (REST `POST /repos/{owner}/{repo}/rulesets`). Feldnamen und
 # Pflichtfelder gemessen am 29.09.2026 gegen die OpenAPI-Beschreibung
@@ -644,7 +731,10 @@ def _ruecksprung_doc(model: str, blueprint: dict, stages: tuple[str, ...]) -> st
 
 #: Die Job-Namen der beiden mitgelieferten Tore. Ein GitHub-Check trägt den Job-Namen als
 #: Kontext; ändert jemand den Job-Namen, läuft die Regel ins Leere — daher hier als Feld.
-RULESET_STATUS_CHECKS = ("conformance", "detect-secrets")
+#: Bis 30.09.2026 stand hier `conformance` (Job aus `architecture-gate.yml`): der rief in der
+#: Kunden-CI unser Werkzeug auf, war ohne es immer rot und hätte so jeden PR blockiert (R8).
+#: `gates` ist der Job aus `gates/gates.yml`.
+RULESET_STATUS_CHECKS = ("gates", "detect-secrets")
 
 
 def _integration_branches(deployment_model: str, stages: tuple[str, ...], git: dict) -> list[str]:
@@ -700,21 +790,21 @@ def _branch_rule_doc(deployment_model: str, stages: tuple[str, ...], git: dict) 
         'gh api "repos/{owner}/{repo}/rulesets" -X POST --input cicd/branch-ruleset.json   '
         "# gh setzt owner/repo aus dem aktuellen Repo",
         "```", "",
-        "Die Check-Namen sind die Job-Namen aus `architecture-gate.yml` und `secret-scan.yml`. Wer "
+        "Die Check-Namen sind die Job-Namen aus `gates/gates.yml` und `secret-scan.yml`. Wer "
         "einen Job umbenennt, muss die Regel mitziehen — sonst wartet jeder PR auf einen Check, der "
         "nie kommt.", "",
         "## Azure DevOps", "",
         "Branch policies je geschütztem Branch (Learn `azure/devops/repos/git/branch-policies`, "
         "gelesen 29.09.2026). Zwei Werte setzt, wer die Regel anlegt, als Umgebungsvariable: "
         "`ADO_REPO_ID` (aus `az repos list`) und `ADO_GATE_PIPELINE_ID` (Build-Definition, die "
-        "`azure-pipelines-architecture-gate.yml` fährt, aus `az pipelines list`).", "",
+        "`gates/azure-pipelines-gates.yml` fährt, aus `az pipelines list`).", "",
         "```bash",
         *[line for b in branches for line in (
             f"az repos policy approver-count create --branch {b} --repository-id \"$ADO_REPO_ID\" "
             "--minimum-approver-count 1 --creator-vote-counts false --allow-downvotes false "
             "--reset-on-source-push true --blocking true --enabled true",
             f"az repos policy build create --branch {b} --repository-id \"$ADO_REPO_ID\" "
-            "--build-definition-id \"$ADO_GATE_PIPELINE_ID\" --display-name architecture-gate "
+            "--build-definition-id \"$ADO_GATE_PIPELINE_ID\" --display-name validation-gates "
             "--manual-queue-only false --queue-on-source-update-only true --valid-duration 0 "
             "--blocking true --enabled true")],
         "```", "",
@@ -771,6 +861,34 @@ def _branch_workspaces_doc(blueprint: dict) -> str:
         "Commit ist laut Learn Preview.",
         "- **Related branches:** der Reiter zeigt Branch-Workspace und Quell-Workspace zueinander.",
         "- Zurück in den Integrations-Branch geht es nur per Pull Request (`_BRANCH_RULE.md`).", "",
+        "## Abzweigen per API statt Portal (I-21 W6.6, Preview)", "",
+        "Für wiederholbares Abzweigen (z. B. je Ticket ein Feature-Workspace) ersetzt eine "
+        "Automatisierung den Portal-Knopf *Branch out*. Learn nennt dafür die Reihenfolge: erst "
+        "Workspace vorbereiten, Git-Branch anlegen und die Git-Verbindung des Workspaces "
+        "einrichten, **danach** die Beziehung setzen (Learn `cicd/git-integration/"
+        "branched-workspace` und REST `core/git/create-workspace-relation`, gelesen 29.09.2026).", "",
+        "| Schritt | Aufruf | Beleg |", "|---|---|---|",
+        "| 1 | Workspace anlegen, Kapazität zuweisen | Fabric REST Core (Workspaces) |",
+        "| 2 | Branch im Git-Provider anlegen (vom Branch des Quell-Workspaces) | Git-Provider |",
+        "| 3 | `POST /v1/workspaces/{branchId}/git/connect`, dann `…/git/initializeConnection` | "
+        "wie das CI/CD-Setup-Skript dieser Lieferung |",
+        "| 4 | `POST /v1/workspaces/{branchId}/git/workspaceRelations` mit "
+        "`{\"relatedWorkspaceId\": \"{baseWorkspaceId}\", \"relationType\": \"Base\"}` → 201 | "
+        "REST `create-workspace-relation` (Preview) |", "",
+        "- **Rechte:** Admin auf dem Branch-Workspace, mindestens Contributor auf dem "
+        "Quell-Workspace; Scope `Workspace.ReadWrite.All`. Service Principal und Managed Identity "
+        "werden unterstützt — die Automatisierung läuft unter dem Deploy-SPN, nicht unter einer "
+        "Person (gleiche Begründung wie beim Admin-Profil).",
+        "- **Fehlercodes, die die Automatisierung auswerten muss:** "
+        "`WorkspaceRelationRootDirectoryMismatch` (nicht dasselbe Repository-Stammverzeichnis — "
+        "Schritt 3 prüfen), `WorkspaceRelationBaseIsBranch` (Quelle ist selbst ein Branch), "
+        "`WorkspaceRelationTargetHasBranches`, `WorkspaceRelationAlreadyExists`; 429 mit "
+        "`Retry-After`.",
+        "- **Was die API nicht ersetzt:** Selective Branching und das Admin-Profil bleiben "
+        "Portal-Schritte; die Beziehung verschwindet, sobald der Branch-Workspace von Git getrennt "
+        "oder der Quell-Workspace gelöscht wird.",
+        "- Die API ist laut Learn Preview („not recommended for production use“) — für "
+        "Entwickler-Workspaces vertretbar, nicht für die Stufen dev/test/prod.", "",
         "**Status UNKLAR:** Learn führt Branched Workspaces, Selective Branching und Compare im "
         "What's-new-Archiv als Preview (März 2026), die FabCon-Folie vom 29.09.2026 als GA. "
         "Nachprüfung 05.10.2026.", "",
@@ -797,6 +915,9 @@ _PLAN_GROUPS_BY_ROLE = {
     "bronze": (("Bronze_Lakehouse", "Lakehouse"),),
     "silver": (("Silver_Lakehouse", "Lakehouse"),),
     "gold": (("Gold_Lakehouse", "Lakehouse"),),
+    # D-600: der Daten-Workspace unter `per_domain` traegt alle drei Lakehouses.
+    "data": (("Bronze_Lakehouse", "Lakehouse"), ("Silver_Lakehouse", "Lakehouse"),
+             ("Gold_Lakehouse", "Lakehouse")),
     "mixed": (("Bronze_Lakehouse", "Lakehouse"), ("Silver_Lakehouse", "Lakehouse"),
               ("Gold_Lakehouse", "Lakehouse")),
     "reporting": (("Semantic_Model", "SemanticModel"),),
@@ -962,7 +1083,7 @@ def _deployment_plan_doc(deployment_model: str, plans: list[tuple[str, str, list
               "im Entwicklungs-Workspace genutzt.", ""]
     z += [
         "Der Plan wirkt auch bei Git-Update und REST, also dort, wo Inbound-Schutz Deployment "
-        "Pipelines ausschließt (Zusammenhang mit Entscheidung E-3).", "",
+        "Pipelines ausschließt (D-592: dort deployt diese Lieferung Git-basiert).", "",
         "## Was der Plan nicht tut", "",
         "- **Kein Rollback:** scheitert ein Item oder eine Aktion, bleibt Deployedes stehen, der "
         "Rest kommt nicht. Rückweg: `_RUECKSPRUNG.md`.",
@@ -1029,11 +1150,12 @@ def _wire_python_gates(script: str) -> str:
 def emit_cicd(blueprint: dict, architecture_path: str = "data_architecture.json",
               stack: str = "fabric", stages: tuple[str, ...] = _DEFAULT_STAGES,
               stage_capacities: dict | None = None, git: dict | None = None,
-              deployment_model: str = _DEFAULT_MODEL,
-              deployment_plan: bool = False) -> dict[str, str]:
+              deployment_model: str | None = None,
+              deployment_plan: bool = False,
+              entscheidungen: dict | None = None) -> dict[str, str]:
     """Return the CI/CD artifact set (path -> content), analogous to ``emit_grounding``.
 
-    ``cicd/architecture-gate.yml`` (stack-agnostic CI gate) + ``cicd/_DEPLOYMENT_MODEL.md`` +
+    ``cicd/secret-scan.yml`` + ``cicd/_DEPLOYMENT_MODEL.md`` +
     ``cicd/_RUECKSPRUNG.md`` (der Rückweg einer einzelnen Beförderung, BK-C05) +
     the validation-gate set (``gates/validate.sh`` · ``gates/gates.yml`` · ``gates/_GATES.md``,
     I-19.3) are always emitted. The Fabric CD script is **model-specific** (``deployment_model``,
@@ -1044,14 +1166,18 @@ def emit_cicd(blueprint: dict, architecture_path: str = "data_architecture.json"
     Immer dazu: ``cicd/branch-ruleset.json`` + ``cicd/_BRANCH_RULE.md`` (I-21 W5.4 d), auf Fabric
     ``cicd/_BRANCH_WORKSPACES.md`` (W2.7 b). ``deployment_plan=True`` ergänzt die Deployment-plan-
     Vorlagen unter ``cicd/deployment_plan/`` (W2.7 a, Preview).
+
+    D-592: ohne ``deployment_model`` folgt der Weg der Netzhaltung (``entscheidungen`` →
+    ``PLAT-NET``, :func:`deployment_model_fuer`); Deployment Pipelines bei Inbound-Schutz →
+    ValueError.
     """
-    if deployment_model not in _DEPLOYMENT_MODELS:
-        raise ValueError(f"unknown deployment_model {deployment_model!r}; "
-                         f"choose one of {sorted(_DEPLOYMENT_MODELS)}")
-    out = {"cicd/architecture-gate.yml": emit_ci_gate(architecture_path, stack),
-           "cicd/azure-pipelines-architecture-gate.yml": emit_ci_gate_azure(architecture_path, stack),
-           "cicd/secret-scan.yml": emit_secret_scan(),
-           "cicd/_DEPLOYMENT_MODEL.md": _deployment_model_doc(deployment_model, blueprint, stages),
+    herkunft = _herleitung(entscheidungen, deployment_model)
+    deployment_model = deployment_model_fuer(entscheidungen, deployment_model)
+    # R8 (30.09.2026): kein `architecture-gate.yml` mehr im Kundenbaum — er rief in der
+    # Kunden-CI `python -m core.dataarch_engine.blueprint.cli`. PR-Tor ist `gates/gates.yml`.
+    out = {"cicd/secret-scan.yml": emit_secret_scan(),
+           "cicd/_DEPLOYMENT_MODEL.md": _deployment_model_doc(deployment_model, blueprint, stages,
+                                                       herkunft),
            "cicd/_RUECKSPRUNG.md": _ruecksprung_doc(deployment_model, blueprint, stages)}
     out.update(emit_gates(architecture_path, stack, blueprint=blueprint))  # I-19.3 + BK-C04
     # I-21 W5.4 d: der Integrations-Branch nimmt nur PRs an; stack-unabhängig wie die Tore.

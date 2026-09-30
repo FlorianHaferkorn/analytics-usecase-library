@@ -6,44 +6,44 @@ governance:
   owner_role: operations_controlling_oee_lead
   steward_role: ops_bi_lead_plant_analytics
 orchestration:
-  strategic_kpi_id: ops.oee.pct
+  strategic_kpi_id: KPI-OPS-011
   influencing_kpi_ids:
-  - ops.availability.pct
-  - ops.performance.pct
-  - ops.quality.pct
-  - ops.throughput.units
+  - KPI-OPS-016
+  - KPI-OPS-002
+  - KPI-OPS-003
+  - KPI-OPS-009
   supporting_kpi_ids:
-  - ops.downtime.pct
-  - ops.downtime.unplanned.pct
-  - ops.planned_output.units
-  - ops.mtbf.hours
-  - ops.mttr.hours
-  - ops.pm_compliance.pct
-  - quality.fpy.pct
-  - crm.complaint.count
-  - ops.failure.count
-  - ops.spare_parts.stockout.pct
-  - quality.complaint.pct
-  - quality.copq.amount
-  - quality.defect_density
-  - quality.rework.pct
-  - quality.scrap.pct
-  - ops.speed_loss.pct
-  - ops.changeover.minutes
+  - KPI-OPS-017
+  - KPI-OPS-018
+  - KPI-OPS-013
+  - KPI-OPS-005
+  - KPI-OPS-006
+  - KPI-OPS-007
+  - KPI-QUA-001
+  - KPI-SVC-001
+  - KPI-OPS-012
+  - KPI-OPS-008
+  - KPI-QUA-004
+  - KPI-QUA-003
+  - KPI-QUA-005
+  - KPI-OPS-010
+  - KPI-QUA-002
+  - KPI-OPS-019
+  - KPI-OPS-020
   action_code_ids:
   - O-O1.1
   - O-O1.2
   - O-O1.3
   - O-O1.4
 primary_kpi_ids:
-  - ops.oee.pct
-  - ops.availability.pct
+  - KPI-OPS-011
+  - KPI-OPS-016
 
 value_driver_model:
-  formula: ops.oee.pct = ops.availability.pct × ops.performance.pct × ops.quality.pct
+  formula: KPI-OPS-011 = KPI-OPS-016 × KPI-OPS-002 × KPI-OPS-003
   impact_direction: maximize
-  primary_driver: ops.availability.pct
-  impact_logic: Improving ops.availability.pct is the primary lever for maximizing ops.oee.pct.
+  primary_driver: KPI-OPS-016
+  impact_logic: Improving KPI-OPS-016 is the primary lever for maximizing KPI-OPS-011.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -58,7 +58,7 @@ ux_layout_rules:
     decision_question: "Is OEE on target and which losses are biggest this week?"
     big_idea: "Recover OEE by isolating asset-level availability losses and routing the right maintenance response."
     component_3s:
-      kpi_id: ops.oee.pct
+      kpi_id: KPI-OPS-011
       visual_type: kpi_card_with_delta
       sparkline_field: OeePct_Daily
       comparison: vs_target
@@ -67,7 +67,7 @@ ux_layout_rules:
     component_30s:
     - slot_id: Main_1
       # OEE trend vs target — strategic KPI must be the primary trend (SQ-V04, mapping_gap fix)
-      kpi_id: ops.oee.pct
+      kpi_id: KPI-OPS-011
       visual_type: line_chart
       comparison: vs_target
       question: "Is OEE on target, and is the gap closing or widening?"
@@ -78,7 +78,7 @@ ux_layout_rules:
       unit: ratio
     - slot_id: Main_2
       # Availability ranking — the dominant OEE driver, compared at asset grain.
-      kpi_id: ops.availability.pct
+      kpi_id: KPI-OPS-016
       visual_type: horizontal_bar_chart
       comparison: vs_target
       question: "Which assets have the weakest availability?"
@@ -89,7 +89,7 @@ ux_layout_rules:
       unit: rate
     - slot_id: Main_3
       # Operational exception queue — threshold breaches at asset grain.
-      kpi_id: ops.downtime.unplanned.pct
+      kpi_id: KPI-OPS-018
       visual_type: exception_table
       question: "Which assets require immediate intervention for unplanned downtime?"
       message: "The exception queue ranks assets with the most critical unplanned-downtime exposure."
@@ -117,20 +117,20 @@ ux_layout_rules:
       evidence_columns:
       - dim_asset.AssetName
       - dim_product.Category
-      - ops.oee.pct
-      - ops.downtime.unplanned.pct
-      - ops.availability.pct
-      - ops.performance.pct
-      - ops.quality.pct
-      - quality.scrap.pct
+      - KPI-OPS-011
+      - KPI-OPS-018
+      - KPI-OPS-016
+      - KPI-OPS-002
+      - KPI-OPS-003
+      - KPI-QUA-002
       action_panel: true
       payload_mode: summary
       sort_by:
-        measure: ops.downtime.unplanned.pct
+        measure: KPI-OPS-018
         direction: descending
       top_n: 20
       highlight_rule:
-        column: ops.downtime.unplanned.pct
+        column: KPI-OPS-018
         type: data_bar
 prioritization:
   business_value: high

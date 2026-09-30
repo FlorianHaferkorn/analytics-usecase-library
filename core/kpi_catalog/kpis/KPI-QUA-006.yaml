@@ -1,0 +1,51 @@
+kpi_id: KPI-QUA-006
+kpi_key: Quality Defect Rate %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- FIN-002
+action_code_ref: []
+calc_type: rate
+good_is: lower
+business:
+  purpose: Measures share of defective units in production.
+  definition: Defective Units / Total Produced Units.
+  grain_scope: Line/shift; aggregated by period.
+  unit_format: percent_1
+  interpretation: Lower values indicate better quality.
+technical:
+  measure_name: Quality Defect Rate %
+  description: Measures share of defective units in production.
+  depends_on_measures: []
+  lineage:
+  - fact_ops.Output Units
+  - fact_quality.Defect Count
+  calculation:
+    op: ratio
+    numerator:
+      column: Defect Count
+    denominator:
+      column: Output Units
+governance:
+  business_owner: Head of Quality
+  data_owner: Quality BI
+  steward: Quality Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules: []
+  version: v0.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: QR
+  name: Quality ratio (complement)
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: Defect rate = 1 − Quality ratio; it is the quality-loss complement of ISO 22400-2 QR, decomposed by the
+    standard into scrap ratio (SR) and rework ratio (RR). Report against QR to align.

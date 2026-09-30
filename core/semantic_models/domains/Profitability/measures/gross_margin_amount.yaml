@@ -1,6 +1,6 @@
 measure_name: Gross Margin Amount
 is_kpi_measure: true
-kpi_id_ref: margin.gm.amount
+kpi_id_ref: KPI-COM-019
 semantic_model: Profitability_SemanticModel
 display_folder: 01_Margin
 category: KPI

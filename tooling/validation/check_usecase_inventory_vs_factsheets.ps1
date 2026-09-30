@@ -27,7 +27,7 @@ function Get-UseCaseIdsFromInventory {
   if (-not (Test-Path $Path)) { return $ids }
   Get-Content -Path $Path | ForEach-Object {
     $line = $_
-    foreach ($match in [regex]::Matches($line, '\b[A-Z]{2,3}-\d{3}\b')) {
+    foreach ($match in [regex]::Matches($line, '(?<!KPI-)(?!BO-)\b[A-Z]{2,3}-\d{3}\b')) {
       $null = $ids.Add($match.Value)
     }
   }

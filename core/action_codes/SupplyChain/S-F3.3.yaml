@@ -13,12 +13,12 @@ use_case_links:
   - SCM-002
 kpis:
   trigger_kpis:
-  - plan.forecast.service_impact.pct
+  - KPI-SCM-012
   guardrail_kpis:
-  - inv.dio.days
+  - KPI-SCM-001
   outcome_kpis:
-  - plan.forecast.service_impact.pct
-  - supply.otif.pct
+  - KPI-SCM-012
+  - KPI-SCM-007
 scope:
   default_grain: sku_location_week
   default_perspective:
@@ -46,7 +46,7 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: order.lines
+        metric_kpi_id: KPI-SCM-013
         comparator: gte
         value: 200
         unit: count
@@ -54,7 +54,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: plan.forecast.service_impact.pct
+        metric_kpi_id: KPI-SCM-012
         comparator: gt
         threshold:
           basis: absolute
@@ -64,7 +64,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: plan.forecast.service_impact.pct
+        metric_kpi_id: KPI-SCM-012
         comparator: gt
         threshold:
           basis: absolute
@@ -74,7 +74,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: plan.forecast.service_impact.pct
+        metric_kpi_id: KPI-SCM-012
         comparator: gt
         threshold:
           basis: absolute
@@ -90,7 +90,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P60D
-    metric_kpi_id: plan.forecast.accuracy.pct
+    metric_kpi_id: KPI-SCM-005
     success_criteria:
       kind: threshold_met
       baseline_window: P90D
@@ -105,7 +105,7 @@ impact_valuation:
 impact:
   category: High
   expected_range:
-    metric_kpi_id: plan.forecast.service_impact.pct
+    metric_kpi_id: KPI-SCM-012
     value_low: -1.0
     value_high: -4.0
     unit: pp

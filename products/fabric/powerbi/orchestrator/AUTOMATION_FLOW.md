@@ -325,7 +325,7 @@ if (-not $validationPassed) {
 #   Input: UseCase_Bracket.yaml ux_layout_rules, core/templates/page_templates/ (Slot_Definitions, Visual_to_Slot_Mapping).
 #   Output: products\fabric\powerbi\dist\<UC>_<Title>.Report (definition/report.json, definition/pages/, definition.pbir).
 #   datasetReference in definition.pbir (nicht in report.json; PBIP/Fabric 3.0). Pfad relativ zum Report, z. B. ..\Commercial.SemanticModel.
-# - StaticResources: falls fehlend, Kopie aus showcases\sample_pbip_report\...\StaticResources (BaseThemes).
+# - Basis-Theme: apply_report_theme.ps1 -SyncBaseTheme (Quelle tooling/report_quality/base_theme.py, D-587), je Report, mit und ohne Custom Theme.
 # - Theme: theme_config.json (defaultThemeName) oder -ThemeName → apply_report_theme.ps1.
 # - Ohne Python: Fallback report_generator.ps1 (nur Struktur, keine Visuals).
 # ===========================================
@@ -530,7 +530,7 @@ function Import-MeasuresFromTMDL {
    - Eingabe: Use Case ID, Bracket **ux_layout_rules**, **core/templates/page_templates/** (Slot_Definitions, Visual_to_Slot_Mapping, page_types T1–T4).
    - Ausgabe: `products/fabric/powerbi/dist/<UC>_<Title>.Report` (z. B. `COM-001_Sales_Performance.Report`) mit `definition/report.json`, `definition/pages/`, **definition.pbir**.
    - **datasetReference** wird in **definition.pbir** gesetzt (nicht in report.json; PBIP/Fabric 3.0). Relativer Pfad zum Domain-Modell im selben dist, z. B. `..\Commercial.SemanticModel` (über `Get-DatasetReferenceRelativeFromReport` in map_aurora_domains.ps1).
-3. **StaticResources:** Fehlen BaseThemes, werden sie aus `showcases/sample_pbip_report/Procurement_Wireframe_Theme.Report/StaticResources` in den Report kopiert.
+3. **Basis-Theme:** `apply_report_theme.ps1 -SyncBaseTheme` schreibt `StaticResources/SharedResources/BaseThemes/<name>.json` aus der vendorten Kopie in `tooling/report_quality/base_theme.py` und setzt `themeCollection.baseTheme` plus den SharedResources-Eintrag (D-587; einziger Bezugsweg, kein fester Theme-Name im Orchestrator). Läuft auch ohne Custom Theme.
 4. **Theme:** Aus `showcases/aurora_group/theme_config.json` (`defaultThemeName`) oder Parameter `-ThemeName`; Anwendung via **apply_report_theme.ps1** (Theme aus `products/fabric/powerbi/themes/`, vendort aus Freelancing `products/pbi_theme`).
 5. **Fallback:** Wenn kein Python gefunden wird → **report_generator.ps1** (nur Report-Struktur/Sections, keine Visuals).
 

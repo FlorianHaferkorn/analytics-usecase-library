@@ -179,7 +179,7 @@ Template Sections:
 
 ```powershell
 # From: core/kpi_catalog/KPI_Catalog.md
-- kpi_id: sales.net_sales.amount
+- kpi_id: KPI-COM-005
   dax_name: "Net Sales Amount"
   dax_expression: "SUM(fact_sales[Net Sales Amount])"
   formatString: "#,0.00"

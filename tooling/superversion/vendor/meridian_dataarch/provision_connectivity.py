@@ -199,10 +199,218 @@ def _plan(bp: dict, specs: list[dict]) -> str:
         "  for endpoint create/approve/delete; rotate credentials + review approvals periodically.",
         "",
         *_network_stance_section(bp),
+        *_service_tags_section(),
         *_gateway_section(bp),
+        *_connection_hygiene_section(),
         *_oap_section(bp),
     ]
     return "\n".join(lines) + "\n"
+
+
+#: Die Service Tags, die Fabric nennt (Learn `fabric/security/security-service-tags`, gelesen
+#: 30.09.2026): (Tag, Zweck, Richtung, regional?, Azure Firewall?). Als Tabelle im Code, weil der
+#: Test sie gegen das Dokument haelt — eine Zeile, die im Text fehlt, faellt dort auf.
+SERVICE_TAGS: tuple[tuple[str, str, str, bool, bool], ...] = (
+    ("DataFactory", "Azure Data Factory / Fabric pipelines", "both", True, True),
+    ("DataFactoryManagement", "on-premises pipeline activity", "outbound", False, True),
+    ("EventHub", "Azure Event Hubs", "outbound", True, True),
+    ("PowerBI", "Power BI and Microsoft Fabric", "both", True, True),
+    ("PowerQueryOnline", "Power Query Online", "both", False, True),
+    ("KustoAnalytics", "Real-Time Analytics", "both", False, False),
+    ("SQL", "Warehouse", "outbound", True, True),
+)
+
+
+def _service_tags_section() -> list[str]:
+    """Service Tags und IP-Allowlist als dritter Verbindungsweg neben MPE und Gateway (I-21 W5.5).
+
+    Bis 30.09.2026 stand der Weg nur als Verweis in ``platform/SICHERHEITSBASIS.md``. Belegt per
+    Learn-MCP am 30.09.2026: `fabric/security/security-service-tags` (Tabelle, Regionsregel),
+    `fabric/security/security-overview` (Abschnitte *Azure service tags* und *IP allowlists*),
+    `fabric/security/fabric-allow-list-urls` (DataFactory regional, z. B. `DataFactory.WestUs`).
+    Den Tag schreibt Learn in der Fabric-Tabelle „Power BI" mit Leerzeichen, in der Azure-Tabelle
+    `PowerBI`; hier steht die Azure-Schreibweise, weil NSG und Firewall sie verlangen.
+    """
+    zeilen = [
+        "## Third path: service tags and IP allow lists (no gateway, no private endpoint)", "",
+        "For a source that sits in an **Azure virtual network** — SQL Server on an Azure VM, Azure SQL "
+        "Managed Instance, a REST API — Fabric can reach it without a data gateway when the source's "
+        "network security group or Azure Firewall admits the Fabric **service tags**. The same tags "
+        "work the other way round: a VM can be allowed out to Fabric SQL connection strings while "
+        "every other internet destination stays blocked.", "",
+        "| Tag | Purpose | Direction | Regional | Azure Firewall |", "|---|---|---|:--:|:--:|",
+    ]
+    for tag, zweck, richtung, regional, firewall in SERVICE_TAGS:
+        zeilen.append(f"| `{tag}` | {zweck} | {richtung} | {'yes' if regional else 'no'} | "
+                      f"{'yes' if firewall else 'no'} |")
+    zeilen += [
+        "",
+        "**Regional tags need three entries, not one:** the tenant's **home region**, the **capacity "
+        "region** if it differs, and the **paired regions**. A rule with only the capacity region "
+        "works until the first request comes from the home region. Example for pipelines: "
+        "`DataFactory.WestEurope` instead of `DataFactory`.", "",
+        "**No tag covers Spark.** MS states there is no service tag for the untrusted code of Data "
+        "Engineering items — notebooks reaching a firewalled source still need the managed private "
+        "endpoint above.", "",
+        "**Sources outside Azure** (on-premises, other clouds) that cannot use tags get an **IP allow "
+        "list** built from the same data: the *Azure IP Ranges and Service Tags* download (JSON), or "
+        "the Service Tag Discovery API through REST, PowerShell or Azure CLI. The ranges change; a "
+        "list copied once is correct on the day it is copied. Refresh it on a schedule, or prefer the "
+        "tag wherever the firewall supports one.", "",
+        "Which of the three paths a source takes is part of `PLAT-NET`: service tags keep the public "
+        "endpoint and narrow who may reach it; a managed private endpoint or a gateway removes the "
+        "public path altogether.", "",
+    ]
+    return zeilen
+
+
+#: Die Pruefung „verwaiste Connections" (I-21 W5.8): Liste der Verbindungen mit ihrem
+#: ``connectionRecency`` gegen einen Stichtag.
+CONNECTIONS_AUDIT_PATH = "connectivity/audit_connections.py"
+#: Vorgabe dieser Lieferung, keine MS-Zahl: ab wie vielen Tagen ohne Credential-Nutzung eine
+#: Verbindung als veraltet gemeldet wird. Das Skript nimmt ``--tage``, damit der Kunde sie setzt.
+VERWAIST_TAGE_VORGABE = 90
+
+
+def _connection_hygiene_section() -> list[str]:
+    """Verwaiste Connections und ODBC→ADBC (I-21 W5.8), belegt per Learn-MCP am 30.09.2026.
+
+    Quellen: REST `core/connections/list-connections` (Objekt ``connectionRecency`` mit
+    ``createdDateTime``, ``lastBoundDateTime``, ``lastCredentialUsedDateTime``, den ``my…``-Varianten;
+    Rueckgabe nur der Verbindungen, fuer die der Aufrufer Rechte hat); `fabric/data-factory/
+    data-source-management` (Connection recency **Preview**; Admin-Connections-APIs **Preview**, die
+    tenantweite Liste „Coming Soon"); `power-query/transition-to-adbc` (Tenant-Einstellung,
+    Arbeitsbereichs-Uebersteuerung, ``Implementation="2.0"``, Gateway bleibt ODBC, ``pq-adbc-advisor``).
+    Official-First: fuer ODBC→ADBC liefert MS den Pruefer selbst — hier wird er benannt, nicht
+    nachgebaut.
+    """
+    name = CONNECTIONS_AUDIT_PATH.split("/")[-1]
+    return [
+        "## Connection hygiene: stale connections and the ODBC→ADBC switch", "",
+        "### Stale connections", "",
+        f"`{name}` lists the connections the calling identity can see "
+        "(`GET /v1/connections`) and reads each one's `connectionRecency` (**preview**): "
+        "`lastBoundDateTime` (last linked to an item — configuration) and "
+        "`lastCredentialUsedDateTime` (last run that used the credentials — execution). It "
+        "reports each connection as:", "",
+        "| Verdict | Meaning |", "|---|---|",
+        "| `ACTIVE` | credentials used within the threshold |",
+        "| `STALE` | credentials last used before the threshold — candidate for rotation or removal |",
+        "| `NEVER_USED` | recency present, credentials never used — defined, not in service |",
+        "| `NO_RECENCY` | the API returned no recency for this connection — not judged |",
+        "",
+        f"The threshold is `--tage` (default **{VERWAIST_TAGE_VORGABE}**, a setting of this "
+        "delivery, not a Microsoft number). Exit code 1 on any `STALE` or `NEVER_USED`, 2 without "
+        "`FABRIC_TOKEN` — a check that did not run is never a pass.", "",
+        "**What it cannot see.** The list endpoint returns only connections the caller has "
+        "permission for. The tenant-wide admin list (`GET /v1/admin/connections`) is documented as "
+        "preview and marked *Coming Soon*; until it ships, run the check under an identity that is "
+        "a user of every delivery connection, and read an empty result as \"nothing visible\", not "
+        "as \"nothing there\". Removing a connection stays a human decision: a stale connection may "
+        "be the one the year-end run needs.", "",
+        "### ODBC→ADBC for Databricks, Snowflake, BigQuery and others", "",
+        "Power BI and Fabric are moving the connectors Databricks, Azure Databricks, Dremio, Google "
+        "BigQuery, Impala, Snowflake and Spark from embedded ODBC drivers to ADBC (Hive is "
+        "deprecated). The switch is the tenant setting *Users can connect to data sources by using "
+        "Apache Arrow database connectivity (ADBC)* — **off by default**, overridable per workspace; "
+        "a query pinned with `Implementation=\"1.0\"` or `\"2.0\"` ignores both.", "",
+        "- **Audit first with Microsoft's `pq-adbc-advisor`** (read-only notebook, per workspace): it "
+        "classifies semantic models, Dataflows Gen2 and pipelines as *Will fail*, *Needs review* or "
+        "*Ready*. *Will fail* means the M query pins `Implementation=\"1.0\"` without a gateway.",
+        "- **Pilot in one workspace** via the override, and validate over a **cloud connection**: "
+        "refreshes through an on-premises gateway keep using the gateway's ODBC driver, so a gateway "
+        "test says nothing about ADBC.",
+        "- The gateway path is a **deferral, not an opt-out** — future gateway builds drop the ODBC "
+        "drivers.", "",
+    ]
+
+
+def _connections_audit_py() -> str:
+    """Selbsttragender Pruefer fuer verwaiste Connections; ``bewerte`` ist rein und wird im Test
+    direkt aus dem emittierten Text ausgefuehrt."""
+    return '''"""audit_connections.py — stale Fabric connections by connectionRecency (generated).
+
+Calls `GET /v1/connections` (only connections the caller has permission for) and reads
+`connectionRecency.lastCredentialUsedDateTime` (preview). Verdicts per connection:
+
+  ACTIVE      credentials used within the threshold
+  STALE       credentials last used before the threshold
+  NEVER_USED  recency present, credentials never used
+  NO_RECENCY  no recency returned for this connection — reported, not judged
+
+Exit 0 only if nothing is STALE or NEVER_USED; 2 without FABRIC_TOKEN (not a pass).
+The token comes from the environment variable FABRIC_TOKEN, never from the command line.
+--tage N sets the threshold (default @@VERWAIST_TAGE@@: a delivery setting, not a
+Microsoft number). The script lists; removing a connection stays a human decision.
+"""
+import argparse
+import datetime as _dt
+import json
+import os
+import sys
+import urllib.request
+
+API = "https://api.fabric.microsoft.com/v1/connections"
+_BEFUND = ("STALE", "NEVER_USED")
+
+
+def _zeit(wert):
+    if not wert:
+        return None
+    return _dt.datetime.fromisoformat(str(wert).replace("Z", "+00:00"))
+
+
+def bewerte(verbindungen, stichtag, tage):
+    """verbindungen: the API's `value` list; stichtag: aware datetime. Pure."""
+    grenze = stichtag - _dt.timedelta(days=tage)
+    zeilen = []
+    for v in sorted(verbindungen, key=lambda x: str(x.get("displayName"))):
+        rec = v.get("connectionRecency")
+        name = v.get("displayName") or v.get("id")
+        if not isinstance(rec, dict):
+            zeilen.append((name, "NO_RECENCY", str(v.get("connectivityType") or "")))
+            continue
+        zuletzt = _zeit(rec.get("lastCredentialUsedDateTime"))
+        if zuletzt is None:
+            zeilen.append((name, "NEVER_USED", "created " + str(rec.get("createdDateTime"))))
+        elif zuletzt < grenze:
+            zeilen.append((name, "STALE", "last credential use " + zuletzt.date().isoformat()))
+        else:
+            zeilen.append((name, "ACTIVE", "last credential use " + zuletzt.date().isoformat()))
+    return zeilen
+
+
+def _alle_seiten(token):
+    url, werte = API, []
+    while url:
+        req = urllib.request.Request(url, headers={"Authorization": "Bearer " + token})
+        with urllib.request.urlopen(req) as r:
+            seite = json.load(r)
+        werte += seite.get("value", [])
+        url = seite.get("continuationUri")
+    return werte
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--tage", type=int, default=@@VERWAIST_TAGE@@)
+    args = ap.parse_args(argv)
+    token = os.environ.get("FABRIC_TOKEN")
+    if not token:
+        print("FABRIC_TOKEN not set — audit NOT RUN (this is not a pass).")
+        return 2
+    jetzt = _dt.datetime.now(_dt.timezone.utc)
+    zeilen = bewerte(_alle_seiten(token), jetzt, args.tage)
+    for name, status, detail in zeilen:
+        print(f"{status:<11} {name}  {detail}")
+    if not zeilen:
+        print("no connections visible to this identity — not the same as none in the tenant")
+    return 1 if any(s in _BEFUND for _, s, _ in zeilen) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'''.replace("@@VERWAIST_TAGE@@", str(VERWAIST_TAGE_VORGABE))
 
 
 #: Der Politik-Rumpf, den `PUT /v1/workspaces/{id}/networking/communicationPolicy` erwartet.
@@ -309,14 +517,21 @@ def _oap_section(bp: dict) -> list[str]:
          "allow lists do not exist |") if shares else
         ("| **External data sharing** | No — this delivery declares none | it stays that way only "
          "while none is added: OAP and Fabric external data sharing are mutually exclusive |"),
-        "| **Deployment pipelines (`cicd/`, code default `deployment-pipelines`)** | Not with OAP, "
+        "| **Deployment pipelines (`cicd/`)** | Not with OAP, "
         "but with **inbound** protection: MS, `cicd/cicd-security` — deployment pipelines are not "
         "supported for a workspace with inbound access protection, and inbound restriction cannot "
-        "be configured on a workspace assigned to a pipeline | a protected workspace needs Git-based "
-        "promotion instead; which one is the open decision E-3 (plan I-21), not this file's |",
+        "be configured on a workspace assigned to a pipeline | decided (D-592): the deployment "
+        "model follows `PLAT-NET` — inbound-protected (`private_link_workspace`, `ip_firewall`) "
+        "promotes Git-based (`git-integration-gitflow`), otherwise deployment pipelines; an "
+        "explicit `deployment-pipelines` with inbound protection is rejected at generation |",
         "| **OneLake Diagnostics** | Partly | only with a lakehouse in the **same** workspace |",
         "| **Warehouse paths from notebooks** | Yes, for `dbo` file paths | query it over T-SQL "
         "instead of over the path |",
+        "| **Data engineering agent (Project Osmos, preview)** | Yes: not available for workspaces "
+        "with OAP enabled (MS Learn, `data-engineering/data-engineering-agent-get-started` → "
+        "Current limitations, read 2026-09-29) | run the agent in an unprotected development "
+        "workspace and promote its output through Git like any other change — never switch OAP "
+        "off on a protected workspace to use it |",
         "",
         "### The limit most easily mistaken for protection", "",
         "OAP restricts **outbound calls**. Where the workspace is the **source** of a copy to the "
@@ -929,6 +1144,8 @@ def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<worksp
         # Netzhaltung je Workspace so ist wie deklariert, als Abfrage statt als Klickstrecke.
         out[NETZ_SOLL_PATH] = _netz_soll_json(bp)
         out[NETZ_AUDIT_PATH] = _netz_audit_py()
+        # Verwaiste Connections (I-21 W5.8): Verbindungen gibt es in jeder Fabric-Lieferung.
+        out[CONNECTIONS_AUDIT_PATH] = _connections_audit_py()
         # Anders als OAP haengt das Gateway an einer Bedingung der Lieferung: einer erkannten
         # privaten Quelle oder einem ausdruecklich deklarierten On-Premises-Gateway. Ein
         # Betriebsskript fuer ein Geraet, das weder gebraucht noch deklariert ist, waere eine

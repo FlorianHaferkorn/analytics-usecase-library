@@ -49,18 +49,18 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| cost.unit.amount | Strategic |
-| margin.cogs.pct | Influencing |
-| cost.opex.vs_plan.pct | Influencing |
-| cost.material.pct | Influencing |
-| ops.labor.productivity.pct | Influencing |
-| ops.throughput.units | Influencing |
-| ops.quality.defect_rate.pct | Influencing |
-| ops.quality.pct | Influencing |
-| sales.net_sales.amount | Supporting |
-| cost.base_volume.amount | Supporting |
-| cost.opex.base.amount | Supporting |
-| supply.otif.pct | Supporting |
+| KPI-FIN-015 | Strategic |
+| KPI-FIN-016 | Influencing |
+| KPI-FIN-014 | Influencing |
+| KPI-SCM-020 | Influencing |
+| KPI-OPS-004 | Influencing |
+| KPI-OPS-009 | Influencing |
+| KPI-QUA-006 | Influencing |
+| KPI-OPS-003 | Influencing |
+| KPI-COM-005 | Supporting |
+| KPI-FIN-019 | Supporting |
+| KPI-SCM-021 | Supporting |
+| KPI-SCM-007 | Supporting |
 
 **Action Codes:** F-K2.1, F-K2.2, F-K2.3, F-K2.4
 
@@ -72,14 +72,14 @@ factsheet_type: business
 
 The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
 
-- **Unit Cost Amount** (`cost.unit.amount`) → **IFRS IAS 2** (none): Internal cost-accounting metric (total cost / units); no external financial-reporting standard.
-- **COGS % of Sales** (`margin.cogs.pct`) → **ESMA-APM** (partial): Inverse of the gross-margin ratio; same APM treatment.
-- **OpEx vs Plan %** (`cost.opex.vs_plan.pct`) → **IFRS IAS 1** (none): Internal budget-variance management metric; no external financial-reporting standard defines it.
-- **Material Cost %** (`cost.material.pct`) → **IFRS IAS 2** (none): Management cost-structure ratio (material cost share of sales); not an IFRS-defined figure.
-- **Labor Productivity %** (`ops.labor.productivity.pct`) → **ISO 22400-2 WE** (partial): ISO 22400-2 Worker efficiency WE = actual personnel work time / actual personnel attendance time.
-- **Throughput Units** (`ops.throughput.units`) → **ISO 22400-2** (partial): Produced-quantity sum is the ISO 22400-2 PQ element feeding Effectiveness, Quality ratio and Throughput rate; not a ratio KPI (governed throughput; consolidated from the former `ops.production.volume`).
-- **Quality Defect Rate %** (`ops.quality.defect_rate.pct`) → **ISO 22400-2 QR** (partial): Defect rate = 1 − Quality ratio; it is the quality-loss complement of ISO 22400-2 QR, decomposed by the standard into scrap ratio (SR) and rework ratio (RR).
-- **Quality %** (`ops.quality.pct`) → **ISO 22400-2 QR** (partial): 'Good units / total produced' is the ISO 22400-2 Quality ratio; overlaps First Pass Yield (FPY) (governed quality; consolidated from the former `ops.yield.pct`).
+- **Unit Cost Amount** (`KPI-FIN-015`) → **IFRS IAS 2** (none): Internal cost-accounting metric (total cost / units); no external financial-reporting standard.
+- **COGS % of Sales** (`KPI-FIN-016`) → **ESMA-APM** (partial): Inverse of the gross-margin ratio; same APM treatment.
+- **OpEx vs Plan %** (`KPI-FIN-014`) → **IFRS IAS 1** (none): Internal budget-variance management metric; no external financial-reporting standard defines it.
+- **Material Cost %** (`KPI-SCM-020`) → **IFRS IAS 2** (none): Management cost-structure ratio (material cost share of sales); not an IFRS-defined figure.
+- **Labor Productivity %** (`KPI-OPS-004`) → **ISO 22400-2 WE** (partial): ISO 22400-2 Worker efficiency WE = actual personnel work time / actual personnel attendance time.
+- **Throughput Units** (`KPI-OPS-009`) → **ISO 22400-2** (partial): Produced-quantity sum is the ISO 22400-2 PQ element feeding Effectiveness, Quality ratio and Throughput rate; not a ratio KPI (governed throughput; consolidated from the former `ops.production.volume`).
+- **Quality Defect Rate %** (`KPI-QUA-006`) → **ISO 22400-2 QR** (partial): Defect rate = 1 − Quality ratio; it is the quality-loss complement of ISO 22400-2 QR, decomposed by the standard into scrap ratio (SR) and rework ratio (RR).
+- **Quality %** (`KPI-OPS-003`) → **ISO 22400-2 QR** (partial): 'Good units / total produced' is the ISO 22400-2 Quality ratio; overlaps First Pass Yield (FPY) (governed quality; consolidated from the former `ops.yield.pct`).
 
 ---
 

@@ -44,10 +44,10 @@ def test_no_target_at_all_is_a_genuine_gap():
 def test_gate_clean_hero_with_benchmark_and_status():
     cvf = _load("check_visual_format", "tooling/validation/check_visual_format.py")
     pol = cvf._policy()
-    # supply.otif.pct has a benchmark; give it a unit → no advisory
-    units = {"supply.otif.pct": "% (1 decimal)"}
+    # KPI-SCM-007 has a benchmark; give it a unit → no advisory
+    units = {"KPI-SCM-007": "% (1 decimal)"}
     bracket = {"id": "TST", "ux_layout_rules": {"page_1_summary": {
-        "component_3s": {"kpi_id": "supply.otif.pct", "comparison": "vs_target",
+        "component_3s": {"kpi_id": "KPI-SCM-007", "comparison": "vs_target",
                          "status_logic": "higher_is_better"},
         "component_30s": []}}}
     assert cvf.check_bracket(bracket, units, pol) == []

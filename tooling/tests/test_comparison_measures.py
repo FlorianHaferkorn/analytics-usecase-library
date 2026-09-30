@@ -55,7 +55,7 @@ def test_generated_names_are_exactly_the_exempted_ones():
 def test_target_reads_the_customer_table_and_py_uses_time_intelligence():
     ops = (cm.DIST / "Operations.SemanticModel/definition/tables/_Measures.tmdl").read_text(encoding="utf-8")
     assert re.search(r"measure 'Overall Equipment Effectiveness \(OEE\) % Target' = CALCULATE \( AVERAGE \( "
-                     r"fact_target\[Target Value\] \), fact_target\[kpi_id\] = \"ops.oee.pct\"", ops)
+                     r"fact_target\[Target Value\] \), fact_target\[kpi_id\] = \"KPI-OPS-011\"", ops)
     com = (cm.DIST / "Commercial.SemanticModel/definition/tables/_Measures.tmdl").read_text(encoding="utf-8")
     # COM-003 CLV vs_py: Monatsindex-Shift um zwoelf, kein SAMEPERIODLASTYEAR (dim_date ist nicht
     # als Datumstabelle markiert, ein Monats-Slicer liefe daneben leer).
@@ -64,13 +64,13 @@ def test_target_reads_the_customer_table_and_py_uses_time_intelligence():
 
 
 def test_a_governed_plan_wins_over_the_target_table():
-    """COM-001 fuehrt `sales.net_sales.plan.amount` -- dafuer entsteht kein zweiter Plan."""
+    """COM-001 fuehrt `KPI-COM-006` -- dafuer entsteht kein zweiter Plan."""
     loader = cm._loader()
     b = loader.load_use_case_bracket("COM-001")
     d = loader._target_model_dir(b)
     refs = cm.referenzen_fuer_bracket(b, loader.measure_map_for_model(d),
                                       set(loader._model_symbols_for_dir(d).measure_names))
-    assert refs.get("sales.net_sales.amount|vs_plan") == "Plan Sales Amount"
+    assert refs.get("KPI-COM-005|vs_plan") == "Plan Sales Amount"
 
 
 def test_the_trend_draws_its_declared_target():
@@ -109,7 +109,7 @@ def _ausfuellen(pfad, werte):
 def test_template_asks_only_for_what_a_report_compares():
     zeilen = cm.vorlage_zeilen()
     schluessel = {(z["kpi_id"], z["scenario"]) for z in zeilen}
-    assert ("ops.oee.pct", "target") in schluessel
+    assert ("KPI-OPS-011", "target") in schluessel
     assert not any(z["scenario"] == "py" for z in zeilen)          # PY rechnet sich selbst
     assert all(z["wert"] == "" and z["angabe_als"] for z in zeilen)
 
@@ -117,7 +117,7 @@ def test_template_asks_only_for_what_a_report_compares():
 def test_a_filled_template_loads_one_value_per_month_end(tmp_path):
     import pyarrow.parquet as pq
     vorlage = tmp_path / "ziele.csv"
-    _ausfuellen(vorlage, {("ops.oee.pct", "target"): {"gilt_ab": "2025-11", "gilt_bis": "2026-02", "wert": "0,85"}})
+    _ausfuellen(vorlage, {("KPI-OPS-011", "target"): {"gilt_ab": "2025-11", "gilt_bis": "2026-02", "wert": "0,85"}})
     assert cm.lade_vorlage(vorlage, tmp_path / "fact_target") == 4
     t = pq.read_table(tmp_path / "fact_target" / "part-00000.parquet").to_pydict()
     assert t["DateKey"] == [20251130, 20251231, 20260131, 20260228]
@@ -125,8 +125,8 @@ def test_a_filled_template_loads_one_value_per_month_end(tmp_path):
 
 
 @pytest.mark.parametrize("werte, meldung", [
-    ({("ops.oee.pct", "target"): {"gilt_ab": "2026-01", "gilt_bis": "2026-01", "wert": "85"}}, "Prozentpunkten"),
-    ({("ops.oee.pct", "target"): {"gilt_ab": "2026-03", "gilt_bis": "2026-01", "wert": "0.8"}}, "leer oder ungueltig"),
+    ({("KPI-OPS-011", "target"): {"gilt_ab": "2026-01", "gilt_bis": "2026-01", "wert": "85"}}, "Prozentpunkten"),
+    ({("KPI-OPS-011", "target"): {"gilt_ab": "2026-03", "gilt_bis": "2026-01", "wert": "0.8"}}, "leer oder ungueltig"),
 ])
 def test_a_wrong_template_is_rejected_as_a_whole(tmp_path, werte, meldung):
     vorlage = tmp_path / "ziele.csv"
@@ -140,9 +140,9 @@ def test_unknown_kpi_and_double_months_are_rejected(tmp_path):
     vorlage = tmp_path / "ziele.csv"
     _ausfuellen(vorlage, {})
     with open(vorlage, "a", encoding="utf-8", newline="") as f:
-        f.write("sales.units;target;Sales Units;x;2026-01;2026-01;5\n")
-        f.write("ops.oee.pct;target;OEE;x;2026-01;2026-02;0.8\n")
-        f.write("ops.oee.pct;target;OEE;x;2026-02;2026-03;0.82\n")
+        f.write("KPI-COM-012;target;Sales Units;x;2026-01;2026-01;5\n")
+        f.write("KPI-OPS-011;target;OEE;x;2026-01;2026-02;0.8\n")
+        f.write("KPI-OPS-011;target;OEE;x;2026-02;2026-03;0.82\n")
     with pytest.raises(ValueError) as exc:
         cm.lade_vorlage(vorlage, tmp_path / "fact_target")
     assert "wird von keinem Report verglichen" in str(exc.value)
@@ -162,14 +162,14 @@ def _band(uc, gold):
 def test_a_target_delta_card_appears_only_once_the_customer_delivered_targets(tmp_path):
     assert _band("OPS-001", tmp_path / "leer") is None                 # keine Werte, keine "(Blank)"-Karte
     vorlage = tmp_path / "ziele.csv"
-    _ausfuellen(vorlage, {("ops.oee.pct", "target"): {"gilt_ab": "2026-01", "gilt_bis": "2026-01", "wert": "0.85"}})
+    _ausfuellen(vorlage, {("KPI-OPS-011", "target"): {"gilt_ab": "2026-01", "gilt_bis": "2026-01", "wert": "0.85"}})
     cm.lade_vorlage(vorlage, tmp_path / "fact_target")
     assert _band("OPS-001", tmp_path / "fact_target") == (
-        "Overall Equipment Effectiveness (OEE) % vs Target", "ops.oee.pct")
+        "Overall Equipment Effectiveness (OEE) % vs Target", "KPI-OPS-011")
 
 
 def test_a_py_delta_needs_no_customer_data(tmp_path):
-    assert _band("COM-003", tmp_path / "leer") == ("CLV (Customer Lifetime Value) vs PY", "crm.clv.amount")
+    assert _band("COM-003", tmp_path / "leer") == ("CLV (Customer Lifetime Value) vs PY", "KPI-CUS-001")
     kpi = json.loads((cm.DIST / "COM-003_Customer_Value.Report/definition/pages/Page_COM003_Overview/"
                       "visuals/KPI_Delta/visual.json").read_text(encoding="utf-8"))
     ys = kpi["visual"]["query"]["queryState"]["Data"]["projections"]
@@ -177,10 +177,10 @@ def test_a_py_delta_needs_no_customer_data(tmp_path):
 
 
 def test_a_governed_plan_deviation_also_counts_as_governed_plan():
-    """COM-002: margin.gm.vs_plan.pct (aus fact_plan_sales) belegt den Plan -- keine zweite
+    """COM-002: KPI-FIN-017 (aus fact_plan_sales) belegt den Plan -- keine zweite
     Planzeile in der Vorlage, keine erzeugte Measure, und die Abweichung wird nie als
     Referenzreihe neben den Pegel gelegt (Entscheidung 23.09.2026)."""
-    assert not any(z["kpi_id"] == "margin.gm.pct" for z in cm.vorlage_zeilen())
+    assert not any(z["kpi_id"] == "KPI-COM-013" for z in cm.vorlage_zeilen())
     com = (cm.DIST / "Commercial.SemanticModel/definition/tables/_Measures.tmdl").read_text(encoding="utf-8")
     assert "Gross Margin % Plan (Target Table)" not in com
     loader = cm._loader()
@@ -188,4 +188,4 @@ def test_a_governed_plan_deviation_also_counts_as_governed_plan():
     d = loader._target_model_dir(b)
     refs = cm.referenzen_fuer_bracket(b, loader.measure_map_for_model(d),
                                       set(loader._model_symbols_for_dir(d).measure_names))
-    assert "margin.gm.pct|vs_plan" not in refs
+    assert "KPI-COM-013|vs_plan" not in refs

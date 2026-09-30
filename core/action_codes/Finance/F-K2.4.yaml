@@ -13,12 +13,12 @@ use_case_links:
   - FIN-001
 kpis:
   trigger_kpis:
-  - cost.opex.vs_plan.pct
+  - KPI-FIN-014
   guardrail_kpis:
-  - supply.otif.pct
+  - KPI-SCM-007
   outcome_kpis:
-  - cost.opex.vs_plan.pct
-  - cost.unit.amount
+  - KPI-FIN-014
+  - KPI-FIN-015
 scope:
   default_grain: month
   default_perspective:
@@ -45,7 +45,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: cost.opex.base.amount
+        metric_kpi_id: KPI-SCM-021
         comparator: gte
         value: 200000
         unit: amount
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: cost.opex.vs_plan.pct
+        metric_kpi_id: KPI-FIN-014
         comparator: gt
         threshold:
           basis: absolute
@@ -63,7 +63,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: cost.opex.vs_plan.pct
+        metric_kpi_id: KPI-FIN-014
         comparator: gt
         threshold:
           basis: absolute
@@ -73,7 +73,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: cost.opex.vs_plan.pct
+        metric_kpi_id: KPI-FIN-014
         comparator: gt
         threshold:
           basis: absolute
@@ -91,7 +91,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P30D
-    metric_kpi_id: cost.base_volume.amount
+    metric_kpi_id: KPI-FIN-019
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D
@@ -104,7 +104,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: cost.opex.vs_plan.pct
+    metric_kpi_id: KPI-FIN-014
     value_low: 2.0
     value_high: 6.0
     unit: pp

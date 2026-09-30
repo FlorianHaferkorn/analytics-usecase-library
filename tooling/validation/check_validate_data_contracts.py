@@ -21,6 +21,13 @@ definition across all contracts; every other domain refers to it with
 fields. The reference must name a domain that defines the table in the same section, and every
 ``uses_columns`` entry must be a column of that definition (``tooling/utils/data_contracts.py``
 resolves the domain view).
+
+JSON Schema (29.09.2026): every contract is also validated against
+``tooling/generator/schemas/data_contract.schema.json`` (the schema authority, AGENTS.md). The
+schema names every field the contracts use and closes tables, columns, ``quality_rules`` and
+``settings`` (``additionalProperties: false``), so a misspelled key fails here instead of being
+ignored by every consumer. A missing ``jsonschema`` package is a failure, not a skip: the gate
+must tell "nothing found" from "not checked".
 """
 
 import argparse
@@ -43,6 +50,39 @@ if __package__ in (None, ""):          # run as a script: make `tooling.` import
 from tooling.utils.data_contracts import (  # noqa: E402
     CONFORMED_FROM, REFERENCE_KEYS, SECTIONS, USES_COLUMNS, is_reference,
 )
+
+
+SCHEMA_REL = Path("tooling") / "generator" / "schemas" / "data_contract.schema.json"
+
+
+def schema_errors(data, schema: dict) -> list[str]:
+    """Errors of one parsed contract against the JSON Schema (empty list = valid)."""
+    try:
+        import jsonschema
+    except ImportError:
+        return ["jsonschema not installed -- JSON Schema not checked (pip install jsonschema)"]
+    validator = jsonschema.Draft202012Validator(schema)
+    errors = []
+    for err in sorted(validator.iter_errors(data), key=lambda e: [str(p) for p in e.absolute_path]):
+        for cause in _causes(err):
+            where = "/".join(str(p) for p in cause.absolute_path) or "<root>"
+            errors.append(f"schema {where}: {cause.message}")
+    return errors
+
+
+def _causes(err) -> list:
+    """The errors worth reporting for one schema error.
+
+    A table is ``anyOf`` (definition | conformed reference); jsonschema then says only "is not
+    valid under any of the given schemas". Report the branch that came closest (fewest errors;
+    on a tie, all tied branches), recursively."""
+    if not err.context:
+        return [err]
+    branches: dict = {}
+    for sub in err.context:
+        branches.setdefault(sub.relative_schema_path[0], []).append(sub)
+    fewest = min(len(v) for v in branches.values())
+    return [c for subs in branches.values() if len(subs) == fewest for sub in subs for c in _causes(sub)]
 
 
 def resolve_root(root_arg: str) -> Path:
@@ -271,6 +311,13 @@ def main() -> int:
         print("check_validate_data_contracts: no core/data_contracts/domains, skipped.")
         return 0
 
+    schema_path = root_path / SCHEMA_REL
+    try:
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        print(f"FAIL {SCHEMA_REL.as_posix()} : not readable ({e}) -- contracts not schema-checked")
+        return 1
+
     yaml_files = sorted(contracts_dir.glob("*.yaml"))
     parsed: dict[str, dict] = {}
     per_file: dict[str, list[str]] = {}
@@ -280,7 +327,7 @@ def main() -> int:
             raw = file_path.read_text(encoding="utf-8")
             doc = yaml.safe_load(raw)
             parsed[contract_path] = doc
-            per_file[contract_path] = validate_contract(doc)
+            per_file[contract_path] = validate_contract(doc) + schema_errors(doc, schema)
         except Exception as e:
             per_file[contract_path] = [str(e)]
     for label, errs in validate_conformance(parsed).items():
@@ -301,7 +348,8 @@ def main() -> int:
     if failed_contracts:
         print(f"check_validate_data_contracts: {len(failed_contracts)} failed contract(s). Results: {out_path}")
         return 1
-    print(f"check_validate_data_contracts: all domain contracts valid. Results: {out_path}")
+    print(f"check_validate_data_contracts: all {len(yaml_files)} domain contracts valid "
+          f"(structure, conformance, JSON Schema). Results: {out_path}")
     return 0
 
 

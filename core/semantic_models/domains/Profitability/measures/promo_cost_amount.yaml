@@ -1,6 +1,6 @@
 measure_name: Promo Cost Amount
 is_kpi_measure: true
-kpi_id_ref: sales.promo.cost.amount
+kpi_id_ref: KPI-COM-014
 semantic_model: Profitability_SemanticModel
 display_folder: 04_Promo
 category: Supporting

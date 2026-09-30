@@ -4,8 +4,8 @@
 # Every Aurora report must reference at least one Golden-spine KPI.
 # Supporting and narrow KPIs are in core/kpi_catalog/extended_playbook.md.
 #
-# v1.1 (KPI dedup): removed svc.nps.index (→ crm.nps.index) and ops.otif.pct
-#   (→ supply.otif.pct); both canonicals were already in the spine, so the two
+# v1.1 (KPI dedup): removed svc.nps.index (→ KPI-CUS-003) and ops.otif.pct
+#   (→ KPI-SCM-007); both canonicals were already in the spine, so the two
 #   twins were redundant. Count reduced 20 → 18.
 #
 # Selection criteria (audit §2A, 2026-04-20):
@@ -19,60 +19,60 @@ published: "2026-04-20"
 
 kpi_ids:
   # ── Commercial / Customer ─────────────────────────────────────
-  - id: sales.net_sales.amount
+  - id: KPI-COM-005
     rationale: Primary revenue KPI; referenced in every commercial and XD use case.
 
-  - id: cost.cogs.amount
+  - id: KPI-FIN-011
     rationale: Anchor cost KPI for margin calculation across Commercial and Finance.
 
-  - id: crm.clv.amount
+  - id: KPI-CUS-001
     rationale: Customer Lifetime Value — strategic north star for retention investment.
 
-  - id: crm.retention.pct
+  - id: KPI-CUS-002
     rationale: Retention rate; leading indicator of CLV trajectory.
 
-  - id: crm.nps.index
+  - id: KPI-CUS-003
     rationale: Net Promoter Score — gold-standard customer advocacy signal.
 
-  - id: crm.revenue_at_risk.amount
+  - id: KPI-OPS-001
     rationale: Revenue at risk from delivery/quality failures; bridges ops and CRM.
 
   # ── Operations / Quality ──────────────────────────────────────
-  - id: ops.performance.pct
+  - id: KPI-OPS-002
     rationale: Overall Equipment Effectiveness (OEE); core manufacturing efficiency.
 
-  - id: quality.fpy.pct
+  - id: KPI-QUA-001
     rationale: First Pass Yield; primary quality output metric.
 
-  - id: quality.copq.amount
+  - id: KPI-QUA-003
     rationale: Cost of Poor Quality; financial impact of quality failures.
 
   # ── Supply Chain ──────────────────────────────────────────────
-  - id: supply.otif.pct
+  - id: KPI-SCM-007
     rationale: Supply-side OTIF; differentiates supplier vs. ops OTIF performance.
 
-  - id: inv.dio.days
+  - id: KPI-SCM-001
     rationale: Days Inventory Outstanding; cash and turns anchor for SCM.
 
-  - id: inv.stockout.pct
+  - id: KPI-SCM-002
     rationale: Stockout %; customer-facing impact of supply failure.
 
-  - id: plan.forecast.accuracy.pct
+  - id: KPI-SCM-005
     rationale: Forecast Accuracy (MAPE inverse); upstream driver of stockouts and OTIF.
 
-  - id: plan.forecast.bias.pct
+  - id: KPI-SCM-006
     rationale: Forecast Bias; directional error signal for demand planning.
 
   # ── Finance ───────────────────────────────────────────────────
-  - id: margin.gm.amount
+  - id: KPI-COM-019
     rationale: Gross Margin Amount; financial reporting anchor for P&L use cases.
 
-  - id: margin.gm.pct
+  - id: KPI-COM-013
     rationale: Gross Margin %; bridges revenue and cost for executive reporting.
 
   # ── Service / Experience ──────────────────────────────────────
-  - id: svc.fcr.pct
+  - id: KPI-SVC-005
     rationale: First Contact Resolution; primary service efficiency and quality KPI.
 
-  - id: svc.escalation.pct
+  - id: KPI-SVC-008
     rationale: Escalation Rate; leading indicator of NPS deterioration in service.

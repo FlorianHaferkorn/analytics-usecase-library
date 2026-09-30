@@ -1,6 +1,6 @@
 {
   "modell": "Operations.SemanticModel",
-  "quelle_sha256": "00a9f3a8a7eb024f9aaddd6e56d2e53e461f995dc9ee469d6be6bf11c13e6649",
+  "quelle_sha256": "aba168be5da3b89fdadf664f3cdc68cfbafbf26d7ca5251ace547dc83e720eec",
   "messungen": [
     {
       "measure": "Action Effectiveness Delta",
@@ -548,6 +548,128 @@
       "measure": "Throughput Units",
       "ordner": "facts/fact_ops",
       "spalte": "Output Units"
+    }
+  ],
+  "beziehungen": [
+    {
+      "name": "dim_asset_fact_maintenance",
+      "von": "fact_maintenance[AssetKey]",
+      "nach": "dim_asset[AssetKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_maintenance'[AssetKey]), DISTINCT('dim_asset'[AssetKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_asset_fact_ops",
+      "von": "fact_ops[AssetKey]",
+      "nach": "dim_asset[AssetKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_ops'[AssetKey]), DISTINCT('dim_asset'[AssetKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_asset_fact_ops_failures",
+      "von": "fact_ops_failures[AssetKey]",
+      "nach": "dim_asset[AssetKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_ops_failures'[AssetKey]), DISTINCT('dim_asset'[AssetKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_inventory_snapshot",
+      "von": "fact_inventory_snapshot[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_inventory_snapshot'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_maintenance",
+      "von": "fact_maintenance[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_maintenance'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_ops",
+      "von": "fact_ops[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_ops'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_ops_failures",
+      "von": "fact_ops_failures[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_ops_failures'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_quality",
+      "von": "fact_quality[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_quality'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_target",
+      "von": "fact_target[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_target'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_inventory_snapshot",
+      "von": "fact_inventory_snapshot[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_inventory_snapshot'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_ops",
+      "von": "fact_ops[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_ops'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_quality",
+      "von": "fact_quality[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_quality'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_security_user_org",
+      "von": "security_user_org[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('security_user_org'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_product_fact_inventory_snapshot",
+      "von": "fact_inventory_snapshot[ProductKey]",
+      "nach": "dim_product[ProductKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_inventory_snapshot'[ProductKey]), DISTINCT('dim_product'[ProductKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_product_fact_quality",
+      "von": "fact_quality[ProductKey]",
+      "nach": "dim_product[ProductKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_quality'[ProductKey]), DISTINCT('dim_product'[ProductKey]))) + 0)",
+      "erwartet": 0
     }
   ]
 }

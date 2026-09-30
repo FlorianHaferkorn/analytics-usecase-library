@@ -1,0 +1,51 @@
+kpi_id: KPI-SVC-003
+kpi_key: Attrition Risk %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: governance
+domain_tag:
+- People & Culture
+use_case_ref:
+- XD-003
+action_code_ref: []
+calc_type: rate
+good_is: lower
+business:
+  purpose: Monitor risk of employee attrition across key roles and segments.
+  definition: Probability of attrition for the selected population in the period.
+  grain_scope: Org/role/segment; monthly.
+  unit_format: percent_1
+  interpretation: Higher values signal retention risk and require targeted actions.
+technical:
+  measure_name: Attrition Risk %
+  description: Probability of employee attrition
+  depends_on_measures: []
+  lineage: []
+  calculation:
+    op: hitl
+    blocked_by: data_contract
+    reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Experience.SemanticModel''s
+      own DAX is a documented placeholder (VAR _pending = "Requires predictive attrition model output table (not
+      yet in data contracts)" RETURN BLANK()) — the source table does not exist yet in the data contract, upstream
+      of any DSL grammar question.'
+governance:
+  business_owner: Head of HR
+  data_owner: People Analytics
+  steward: HR Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Attrition risk bounded between 0 % and 100 %
+  - Headcount > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 27.01.2026
+standard_ref:
+- standard: ISO 30414
+  name: Human capital — turnover / retention
+  url: https://www.iso.org/standard/69338.html
+  alignment: partial
+  note: ISO 30414:2018 (human capital reporting) defines turnover and retention-rate metrics. Attrition RISK here
+    is a predicted probability — a modelling variant of the ISO turnover family; align the realised-turnover base
+    to ISO 30414 and treat the risk score as a forward-looking overlay.

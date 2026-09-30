@@ -1,0 +1,50 @@
+kpi_id: KPI-SCM-014
+kpi_key: Plans Count
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Supply Chain
+- Forecast Planning
+use_case_ref:
+- SCM-003
+- SCM-001
+- FIN-001
+action_code_ref:
+- S-F3.4
+- S-F3.1
+- S-F3.2
+calc_type: count
+good_is: lower
+business:
+  purpose: Counts planning cycles or plan versions in the period.
+  definition: Count of plan records or plan versions.
+  grain_scope: Plan; aggregated by period.
+  unit_format: count_0
+  interpretation: Higher counts indicate more planning activity.
+technical:
+  measure_name: Plans Count
+  description: Counts planning cycles or plan versions in the period.
+  depends_on_measures: []
+  lineage:
+  - fact_forecast.Forecast Version
+  calculation:
+    op: distinctcount
+    column: Forecast Version
+governance:
+  business_owner: Supply Planning Lead
+  data_owner: Supply Chain BI
+  steward: Planner
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules: []
+  version: v0.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  name: Plan volume (element)
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: none
+  note: Plan/version count is a Plan element, not a SCOR performance KPI.

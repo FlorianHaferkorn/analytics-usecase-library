@@ -1,6 +1,6 @@
 measure_name: Attrition Risk %
 is_kpi_measure: true
-kpi_id_ref: people.attrition_risk.pct
+kpi_id_ref: KPI-SVC-003
 semantic_model: InnovationPeople_SemanticModel
 display_folder: 04_People
 category: KPI

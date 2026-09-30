@@ -163,3 +163,9 @@ studio/.e2e/
 /showcases/aurora_group/data/gold/dimensions/
 /showcases/aurora_group/data/gold/facts/
 /showcases/aurora_group/data/gold/security_user_org/
+
+# Laufprotokolle des PBI-Orchestrators (30.09.2026). Jeder Lauf schreibt sie neu
+# (orchestrate_full_model.ps1, table_ops.ps1 legen out/ selbst an); versioniert trugen
+# sie Heimpfade des Laufrechners ins Repo. Lesen bleibt lokal: fix-pbi-report-errors.
+/products/fabric/powerbi/orchestrator/out/
+/products/fabric/powerbi/orchestrator/last_run_state.json

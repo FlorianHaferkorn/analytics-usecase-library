@@ -70,7 +70,7 @@ def test_snapshot_via_refcalc_matches_governed_values():
 def test_one_action_effect_traceably_attributed():
     """DoD: for 1 action the KPI effect is traceably attributed (end-to-end on governed data)."""
     t0 = snapshot_via_refcalc("COM-001")
-    kpi = "sales.net_sales.amount"
+    kpi = "KPI-COM-005"
     assert kpi in t0 and t0[kpi] is not None
     # A later snapshot where the action moved the KPI by +10%.
     t1 = dict(t0)

@@ -57,14 +57,24 @@ For `Divergent` concept: primary at one pole, secondary at other, neutral grey m
 
 ## Typography Mapping
 
-Power BI theme fonts are specified in the `visualStyles` object. There is no global font property; fonts are set per visual type.
+Report-wide fonts are set by the four primary **text classes** (`textClasses.callout`, `title`,
+`header`, `label`); the secondary classes derive from them. `visualStyles` then overrides
+single visual types, each card as `[{"<propertyName>": <value>}]`
+([Create custom report themes](https://learn.microsoft.com/power-bi/create-reports/report-themes-create-custom), checked 29.09.2026).
+
+A custom theme layers on top of the report's base theme; anything it leaves out comes from
+the base theme. New reports start on the **Fluent 2** base theme since August 2026, generated
+ALUCA reports pin `CY26SU10` (from the pinned official CLI, D-587)
+([Visual defaults](https://learn.microsoft.com/power-bi/create-reports/power-bi-reports-visual-defaults)).
+The derivation therefore always writes all four primary text classes, so the brand font does
+not depend on which base theme a report has (`tooling/tests/test_pbi_theme_base_independence.py`).
 
 | BrandSpec property | PBI theme approach | Notes |
 |---|---|---|
-| `typography.font_family.primary` | `visualStyles.*.*.*.fontFamily` | Applied to all visual text via wildcard selector |
-| `typography.tool_minimums.powerbi.body_pt` | `fontSize` in `textboxes`, `tableEx`, `matrix` | Minimum 12pt for body |
-| `typography.tool_minimums.powerbi.label_pt` | `fontSize` in axis labels, legend | Minimum 10pt |
-| `typography.tool_minimums.powerbi.kpi_pt` | `fontSize` in `cardVisual` callout value | Minimum 18pt |
+| `typography.font_family.primary` | `textClasses.{callout,title,header,label}.fontFace` + `fontFamily` in the `visualStyles` overrides | Colour of all four classes: `color.neutral_scale["900"]` |
+| `typography.tool_minimums.powerbi.body_pt` | `textClasses.title`/`header` and `fontSize` in `textbox`, `tableEx`, `matrix` | Minimum 12pt for body |
+| `typography.tool_minimums.powerbi.label_pt` | `textClasses.label` and `fontSize` in axis labels, legend | Minimum 10pt |
+| `typography.tool_minimums.powerbi.kpi_pt` | `textClasses.callout` and `fontSize` in `cardVisual` callout value | Minimum 18pt |
 
 ### Font Size Conversion
 

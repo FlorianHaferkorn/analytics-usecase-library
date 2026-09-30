@@ -4,11 +4,11 @@
 
 ## COM-001 — Sales Performance vs Plan & LY
 
-**Causal thread:** `sales.net_sales.amount` → `margin.gm.pct` (maximize). Improving sales.net_sales.amount is the primary lever for maximizing margin.gm.pct.
+**Causal thread:** `KPI-COM-005` → `KPI-COM-013` (maximize). Improving KPI-COM-005 is the primary lever for maximizing KPI-COM-013.
 
 ### Page 1 Summary · T2_Tactical_Variance
 **Spine question:** Are we on track for our Commercial targets this month?
-- **[3s verdict]** `sales.net_sales.amount` vs_plan (higher_is_better)
+- **[3s verdict]** `KPI-COM-005` vs_plan (higher_is_better)
 - **[30s Q1]** Are we on track versus Plan and last year — and is the lead holding?
     - visual: `line_chart` · `None`
     - answer: Net Sales compared with Plan and prior year reveals whether commercial performance is sustained.
@@ -18,7 +18,7 @@
     - answer: Price, volume, and mix reconcile the movement from Plan to Actual Net Sales.
     - so what → The dominant bridge component determines whether pricing, demand, or portfolio mix needs intervention.
 - **[30s Q3]** Is the Plan gap broad-based or concentrated in a few regions?
-    - visual: `horizontal_bar_chart` · `sales.net_sales.delta_pct.plan`
+    - visual: `horizontal_bar_chart` · `KPI-COM-009`
     - answer: Regional variance ranks where the sales gap and recovery opportunity are concentrated.
     - so what → Worst-first prioritisation focuses commercial capacity where it can close the largest gap.
 
@@ -26,19 +26,19 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which entities explain the revenue and margin gap vs Plan?
-- **[300s evidence]** grain `invoice_line`, worst-first by `sales.net_sales.delta_pct.plan` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `invoice_line`, worst-first by `KPI-COM-009` (ascending), Top-20 · action panel
 **Decision payoff (actions):** C-M2.1, C-S1.1, C-S1.2
 **Connects to use cases:** COM-002, COM-004
 
 ## COM-002 — Margin & Price Performance
 
-**Causal thread:** `margin.gm.amount` → `margin.gm.pct` (maximize). Improving margin.gm.amount is the primary lever for maximizing margin.gm.pct.
+**Causal thread:** `KPI-COM-019` → `KPI-COM-013` (maximize). Improving KPI-COM-019 is the primary lever for maximizing KPI-COM-013.
 
 ### Page 1 Summary · T2_Tactical_Variance
 **Spine question:** Is our gross margin holding against price and mix pressure?
-- **[3s verdict]** `margin.gm.pct` vs_plan (higher_is_better)
+- **[3s verdict]** `KPI-COM-013` vs_plan (higher_is_better)
 - **[30s Q1]** Is gross margin holding against plan?
-    - visual: `line_chart` · `margin.gm.amount`
+    - visual: `line_chart` · `KPI-COM-019`
     - answer: Gross margin has been sliding below plan through the period
     - so what → The erosion compounds month over month — a trend, not a one-off dip.
 - **[30s Q2]** What's pulling gross margin below plan — price, mix, or volume?
@@ -46,7 +46,7 @@
     - answer: Price concessions and adverse mix drive gross margin below plan, not volume
     - so what → The levers are commercial — price discipline and mix — not demand generation.
 - **[30s Q3]** Is the margin shortfall portfolio-wide or concentrated in a few units?
-    - visual: `horizontal_bar_chart` · `margin.gm.pct`
+    - visual: `horizontal_bar_chart` · `KPI-COM-013`
     - answer: Gross margin sits below target in a few business units that drag the portfolio
     - so what → Focused intervention in those units beats a broad, thinly-spread program.
 
@@ -54,27 +54,27 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which business units and SKUs drive the margin gap, and what is the corrective lever?
-- **[300s evidence]** grain `invoice_line`, worst-first by `margin.gm.vs_plan.pct` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `invoice_line`, worst-first by `KPI-FIN-017` (ascending), Top-20 · action panel
 **Decision payoff (actions):** C-M2.2, C-P4.1, C-S1.2
 **Connects to use cases:** COM-001, COM-004
 
 ## COM-003 — Customer Value
 
-**Causal thread:** `crm.retention.pct` → `crm.clv.amount` (maximize). Improving crm.retention.pct is the primary lever for maximizing crm.clv.amount because the use case is designed to protect future profitable revenue before churn becomes realized loss.
+**Causal thread:** `KPI-CUS-002` → `KPI-CUS-001` (maximize). Improving KPI-CUS-002 is the primary lever for maximizing KPI-CUS-001 because the use case is designed to protect future profitable revenue before churn becomes realized loss.
 
 ### Page 1 Summary · T1_Strategic_Overview
 **Spine question:** Are we growing and protecting Customer Lifetime Value?
-- **[3s verdict]** `crm.clv.amount` vs_py (higher_is_better)
+- **[3s verdict]** `KPI-CUS-001` vs_py (higher_is_better)
 - **[30s Q1]** Is customer lifetime value growing or eroding, and where?
-    - visual: `line_chart` · `crm.lifetime_revenue.amount`
+    - visual: `line_chart` · `KPI-CUS-005`
     - answer: Customer lifetime revenue is eroding, with the mid-tier segment driving the decline
     - so what → Retention investment in the mid-tier segment is what stops the erosion before it compounds into lost revenue.
 - **[30s Q2]** Is retention holding evenly across segments?
-    - visual: `horizontal_bar_chart` · `crm.retention.pct`
+    - visual: `horizontal_bar_chart` · `KPI-CUS-002`
     - answer: Retention is slipping unevenly across segments, concentrating the CLV risk
     - so what → Ranking retention by segment pinpoints where to spend before churn compounds into lost CLV.
 - **[30s Q3]** Where is revenue-at-risk concentrated?
-    - visual: `horizontal_bar_chart` · `crm.revenue_at_risk.amount`
+    - visual: `horizontal_bar_chart` · `KPI-OPS-001`
     - answer: Revenue at risk is concentrated in a few customer segments
     - so what → Focusing retention budget on the highest-risk segments protects more CLV per dollar spent.
 
@@ -82,23 +82,23 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which customer segments should retention investment protect first?
-- **[300s evidence]** grain `customer_month`, worst-first by `crm.revenue_at_risk.amount` (descending), Top-20 · action panel
+- **[300s evidence]** grain `customer_month`, worst-first by `KPI-OPS-001` (descending), Top-20 · action panel
 **Decision payoff (actions):** C-C3.1, C-C3.2
-**Cross-domain pull:** Customer & Market (8: `crm.clv.amount`, `crm.lifetime_revenue.amount`, `crm.retention.pct` +5); Operations (6: `quality.complaint.pct`, `quality.copq.amount`, `quality.defect_density` +3); Supply Chain (4: `supply.in_full.pct`, `supply.on_time.pct`, `supply.otif.pct` +1); Commercial (2: `sales.net_sales.amount`, `cost.cogs.amount`)
+**Cross-domain pull:** Customer & Market (8: `KPI-CUS-001`, `KPI-CUS-005`, `KPI-CUS-002` +5); Operations (6: `KPI-QUA-004`, `KPI-QUA-003`, `KPI-QUA-005` +3); Supply Chain (4: `KPI-SCM-018`, `KPI-SCM-008`, `KPI-SCM-007` +1); Commercial (2: `KPI-COM-005`, `KPI-FIN-011`)
 
 ## COM-004 — Promotion Effectiveness
 
-**Causal thread:** `sales.promo.incremental.amount` → `sales.promo.roi.pct` (maximize). Improving sales.promo.incremental.amount is the primary lever for maximizing sales.promo.roi.pct.
+**Causal thread:** `KPI-COM-021` → `KPI-COM-016` (maximize). Improving KPI-COM-021 is the primary lever for maximizing KPI-COM-016.
 
 ### Page 1 Summary · T1_Strategic_Overview
 **Spine question:** Are our promotions generating profitable incremental volume?
-- **[3s verdict]** `sales.promo.roi.pct` vs_plan (higher_is_better)
+- **[3s verdict]** `KPI-COM-016` vs_plan (higher_is_better)
 - **[30s Q1]** Are promotions generating enough incremental lift to justify the spend?
-    - visual: `line_chart` · `sales.promo.incremental.amount`
+    - visual: `line_chart` · `KPI-COM-021`
     - answer: Incremental promo lift is running too low to justify the spend behind it
     - so what → If incremental lift stays this low, promo spend is subsidising sales that would have happened anyway.
 - **[30s Q2]** Why is promo ROI missing target?
-    - visual: `horizontal_bar_chart` · `margin.promo.gm.pct`
+    - visual: `horizontal_bar_chart` · `KPI-FIN-012`
     - answer: Thin promo margins are being eroded by cannibalization, pulling ROI below target
     - so what → High cannibalization eating into thin promo margin is why ROI is missing target — mechanics need redesign, not more spend.
 
@@ -106,19 +106,19 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which promotions should we redesign, pause, or scale?
-- **[300s evidence]** grain `promo_product_period`, worst-first by `sales.promo.roi.pct` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `promo_product_period`, worst-first by `KPI-COM-016` (ascending), Top-20 · action panel
 **Decision payoff (actions):** C-P4.1, C-M2.1, C-M2.2
 **Connects to use cases:** COM-001, COM-002
 
 ## COM-005 — Sales Pipeline & Conversion
 
-**Causal thread:** `sales.win_rate.pct` → `sales.pipeline.coverage.ratio` (maximize). Raising sales.win_rate.pct is the primary lever for restoring sales.pipeline.coverage.ratio.
+**Causal thread:** `KPI-COM-027` → `KPI-COM-026` (maximize). Raising KPI-COM-027 is the primary lever for restoring KPI-COM-026.
 
 ### Page 1 Summary · T3_Operational_Monitoring
 **Spine question:** Is there enough qualified pipeline converting to hit the target?
-- **[3s verdict]** `sales.pipeline.coverage.ratio` vs_target (higher_is_better)
+- **[3s verdict]** `KPI-COM-026` vs_target (higher_is_better)
 - **[30s Q1]** Is the coverage gap a volume problem or a conversion problem?
-    - visual: `line_chart` · `sales.win_rate.pct`
+    - visual: `line_chart` · `KPI-COM-027`
     - answer: Win rate is dragging coverage below plan, not a shortage of open opportunities
     - so what → Because conversion is the lever, deal-qualification and win-rate coaching beat pure lead-volume pushes.
 - **[30s Q2]** Where in the funnel does conversion leak?
@@ -130,22 +130,22 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which reps, segments and stages should the conversion push target first?
-- **[300s evidence]** grain `opportunity`, worst-first by `sales.pipeline.coverage.ratio` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `opportunity`, worst-first by `KPI-COM-026` (ascending), Top-20 · action panel
 **Decision payoff (actions):** C-P1.1
 
 ## FIN-001 — Cash & Liquidity Performance
 
-**Causal thread:** `wc.dso.days` → `wc.ccc.days` (minimize). Reducing wc.dso.days is the primary lever for minimizing wc.ccc.days.
+**Causal thread:** `KPI-FIN-001` → `KPI-FIN-006` (minimize). Reducing KPI-FIN-001 is the primary lever for minimizing KPI-FIN-006.
 
 ### Page 1 Summary · T1_Strategic_Overview
 **Spine question:** Is cash conversion and liquidity on a safe trajectory?
-- **[3s verdict]** `wc.ccc.days` vs_target (lower_is_better)
+- **[3s verdict]** `KPI-FIN-006` vs_target (lower_is_better)
 - **[30s Q1]** Is the cash balance on a safe trajectory?
-    - visual: `line_chart` · `fin.cash.balance`
+    - visual: `line_chart` · `KPI-FIN-007`
     - answer: Cash balance is drifting down toward its safety-margin threshold
     - so what → Without working-capital intervention, this trend erodes the safety margin before quarter-end.
 - **[30s Q2]** Is operating cash flow meeting plan, and what's driving the gap?
-    - visual: `waterfall_chart` · `fin.cash.ocf`
+    - visual: `waterfall_chart` · `KPI-FIN-009`
     - answer: Operating cash flow is trailing plan, driven by collections rather than cost
     - so what → An OCF-versus-Plan gap points at collections and cash conversion, not cost control, as the fix.
 - **[30s Q3]** Which part of the cash conversion cycle is the lever — receivables, inventory, or payables?
@@ -157,24 +157,24 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which receivables and inventory levers will shorten the cash conversion cycle fastest?
-- **[300s evidence]** grain `entity_month`, worst-first by `fin.cash.vs_plan.pct` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `entity_month`, worst-first by `KPI-FIN-010` (ascending), Top-20 · action panel
 **Decision payoff (actions):** F-C1.1, F-C1.2, S-I1.2, F-C1.4
-**Cross-domain pull:** Supply Chain (13: `scm.supplier_risk.score`, `inv.turnover`, `inv.stockout.pct` +10)
+**Cross-domain pull:** Supply Chain (13: `KPI-SCM-022`, `KPI-SCM-016`, `KPI-SCM-002` +10)
 **Connects to use cases:** COM-003, SCM-001, SCM-002, SCM-003
 
 ## FIN-002 — Cost Performance
 
-**Causal thread:** `cost.material.pct` → `cost.unit.amount` (minimize). Improving cost.material.pct is the primary lever for minimizing cost.unit.amount because material consumption and purchase discipline are the fastest structural levers before broader labor or overhead redesign is needed.
+**Causal thread:** `KPI-SCM-020` → `KPI-FIN-015` (minimize). Improving KPI-SCM-020 is the primary lever for minimizing KPI-FIN-015 because material consumption and purchase discipline are the fastest structural levers before broader labor or overhead redesign is needed.
 
 ### Page 1 Summary · T2_Tactical_Variance
 **Spine question:** Is unit cost deteriorating, and which entities have the largest OpEx variance?
-- **[3s verdict]** `cost.unit.amount` vs_plan (lower_is_better)
+- **[3s verdict]** `KPI-FIN-015` vs_plan (lower_is_better)
 - **[30s Q1]** Is unit cost moving back toward Plan or deteriorating further?
-    - visual: `line_chart` · `cost.unit.amount`
+    - visual: `line_chart` · `KPI-FIN-015`
     - answer: Unit-cost trend against Plan shows whether cost recovery is taking hold.
     - so what → A persistent or widening gap requires entity-level diagnosis before a cost action is selected.
 - **[30s Q2]** Which entities have the largest unfavorable OpEx variance?
-    - visual: `variance_bar` · `cost.opex.vs_plan.pct`
+    - visual: `variance_bar` · `KPI-FIN-014`
     - answer: OpEx variance ranking isolates where controllable cost pressure is concentrated.
     - so what → Worst-first prioritisation limits deeper diagnosis to the entities with the largest controllable variance.
 
@@ -182,20 +182,20 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** For the worst cost entities, is material, productivity, or OpEx the primary controllable driver?
-- **[300s evidence]** grain `plant_line_product_month`, worst-first by `cost.opex.vs_plan.pct` (descending), Top-20 · action panel
+- **[300s evidence]** grain `plant_line_product_month`, worst-first by `KPI-FIN-014` (descending), Top-20 · action panel
 **Decision payoff (actions):** F-K2.1, F-K2.2, F-K2.3, F-K2.4
-**Cross-domain pull:** Finance (7: `cost.unit.amount`, `margin.cogs.pct`, `cost.opex.vs_plan.pct` +4); Operations (4: `ops.labor.productivity.pct`, `ops.throughput.units`, `ops.quality.defect_rate.pct` +1); Supply Chain (4: `supply.otif.pct`, `supply.on_time.pct`, `supply.in_full.pct` +1); Commercial (1: `sales.net_sales.amount`)
+**Cross-domain pull:** Finance (7: `KPI-FIN-015`, `KPI-FIN-016`, `KPI-FIN-014` +4); Operations (4: `KPI-OPS-004`, `KPI-OPS-009`, `KPI-QUA-006` +1); Supply Chain (4: `KPI-SCM-007`, `KPI-SCM-008`, `KPI-SCM-018` +1); Commercial (1: `KPI-COM-005`)
 **Connects to use cases:** FIN-001, OPS-001, OPS-002
 
 ## FIN-003 — Earnings Performance vs Plan
 
-**Causal thread:** `cost.opex.vs_plan.pct` → `margin.ebitda.pct` (maximize). Bringing cost.opex.vs_plan.pct back to plan is the primary lever for restoring margin.ebitda.pct.
+**Causal thread:** `KPI-FIN-014` → `KPI-FIN-018` (maximize). Bringing KPI-FIN-014 back to plan is the primary lever for restoring KPI-FIN-018.
 
 ### Page 1 Summary · T3_Operational_Monitoring
 **Spine question:** Is EBITDA tracking plan, and if not, which lever is the cause?
-- **[3s verdict]** `margin.ebitda.pct` vs_plan (higher_is_better)
+- **[3s verdict]** `KPI-FIN-018` vs_plan (higher_is_better)
 - **[30s Q1]** Is the earnings gap a revenue, gross-margin or opex problem?
-    - visual: `line_chart` · `margin.ebitda.delta_pct.plan`
+    - visual: `line_chart` · `KPI-FIN-021`
     - answer: The EBITDA-margin gap versus plan is opex-led, while revenue and gross margin hold
     - so what → Because opex is the driver, cost-base actions recover more earnings than chasing incremental revenue.
 - **[30s Q2]** Is the pressure structural in gross margin or in operating expense?
@@ -207,19 +207,19 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which entities and cost centres should the earnings-recovery effort target first?
-- **[300s evidence]** grain `entity_costcentre_month`, worst-first by `margin.ebitda.delta_pct.plan` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `entity_costcentre_month`, worst-first by `KPI-FIN-021` (ascending), Top-20 · action panel
 **Decision payoff (actions):** F-E1.1
-**Cross-domain pull:** Commercial (3: `sales.net_sales.delta_pct.plan`, `cost.cogs.amount`, `sales.net_sales.amount`)
+**Cross-domain pull:** Commercial (3: `KPI-COM-009`, `KPI-FIN-011`, `KPI-COM-005`)
 
 ## HR-001 — Workforce Performance & Retention
 
-**Causal thread:** `people.engagement.index` → `people.attrition.pct` (minimize). Raising people.engagement.index is the primary lever for lowering people.attrition.pct.
+**Causal thread:** `KPI-PPL-002` → `KPI-PPL-001` (minimize). Raising KPI-PPL-002 is the primary lever for lowering KPI-PPL-001.
 
 ### Page 1 Summary · T3_Operational_Monitoring
 **Spine question:** Is the workforce stable enough to deliver, or is attrition building where it hurts?
-- **[3s verdict]** `people.attrition.pct` vs_target (lower_is_better)
+- **[3s verdict]** `KPI-PPL-001` vs_target (lower_is_better)
 - **[30s Q1]** Is falling engagement the driver behind rising attrition?
-    - visual: `line_chart` · `people.engagement.index`
+    - visual: `line_chart` · `KPI-PPL-002`
     - answer: Attrition is concentrated in the lowest-engagement segments, not spread evenly across the workforce
     - so what → Because engagement is the lever, targeted engagement action in a few teams beats a company-wide retention program.
 - **[30s Q2]** Where is workforce strain compounding beyond exits?
@@ -231,26 +231,26 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which teams and roles should the retention effort target first?
-- **[300s evidence]** grain `month_org_segment`, worst-first by `people.attrition.pct` (descending), Top-20 · action panel
+- **[300s evidence]** grain `month_org_segment`, worst-first by `KPI-PPL-001` (descending), Top-20 · action panel
 **Decision payoff (actions):** X-R1.1
 
 ## OPS-001 — Operations Performance
 
-**Causal thread:** `ops.availability.pct` → `ops.oee.pct` (maximize). Improving ops.availability.pct is the primary lever for maximizing ops.oee.pct.
+**Causal thread:** `KPI-OPS-016` → `KPI-OPS-011` (maximize). Improving KPI-OPS-016 is the primary lever for maximizing KPI-OPS-011.
 
 ### Page 1 Summary · T3_Operational_Monitoring
 **Spine question:** Is OEE on target and which losses are biggest this week?
-- **[3s verdict]** `ops.oee.pct` vs_target (higher_is_better)
+- **[3s verdict]** `KPI-OPS-011` vs_target (higher_is_better)
 - **[30s Q1]** Is OEE on target, and is the gap closing or widening?
-    - visual: `line_chart` · `ops.oee.pct`
+    - visual: `line_chart` · `KPI-OPS-011`
     - answer: OEE trend against target shows whether operational performance is stable, recovering, or deteriorating.
     - so what → A persistent target gap triggers asset-level diagnosis before production output is put at risk.
 - **[30s Q2]** Which assets have the weakest availability?
-    - visual: `horizontal_bar_chart` · `ops.availability.pct`
+    - visual: `horizontal_bar_chart` · `KPI-OPS-016`
     - answer: Asset availability ranking concentrates attention on the lines with the greatest recoverable OEE loss.
     - so what → The worst availability assets are the first candidates for maintenance and reliability action.
 - **[30s Q3]** Which assets require immediate intervention for unplanned downtime?
-    - visual: `exception_table` · `ops.downtime.unplanned.pct`
+    - visual: `exception_table` · `KPI-OPS-018`
     - answer: The exception queue ranks assets with the most critical unplanned-downtime exposure.
     - so what → A worst-first queue converts the OEE signal into an owned maintenance workload.
 
@@ -258,20 +258,20 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which assets and shifts explain the OEE gap this week?
-- **[300s evidence]** grain `line_day`, worst-first by `ops.downtime.unplanned.pct` (descending), Top-20 · action panel
+- **[300s evidence]** grain `line_day`, worst-first by `KPI-OPS-018` (descending), Top-20 · action panel
 **Decision payoff (actions):** O-O1.1, O-O1.2, O-O1.3, O-O1.4
-**Cross-domain pull:** Customer & Market (1: `crm.complaint.count`)
+**Cross-domain pull:** Customer & Market (1: `KPI-SVC-001`)
 **Connects to use cases:** FIN-002, OPS-003
 
 ## OPS-002 — Asset Performance
 
-**Causal thread:** `ops.failure.count` → `ops.mtbf.hours` (maximize). Reducing ops.failure.count is the primary lever for maximizing ops.mtbf.hours because fewer recurring failures directly extend operating time between breakdowns.
+**Causal thread:** `KPI-OPS-012` → `KPI-OPS-005` (maximize). Reducing KPI-OPS-012 is the primary lever for maximizing KPI-OPS-005 because fewer recurring failures directly extend operating time between breakdowns.
 
 ### Page 1 Summary · T1_Strategic_Overview
 **Spine question:** Is asset availability sufficient to meet the production plan?
-- **[3s verdict]** `ops.mtbf.hours` vs_plan (higher_is_better)
+- **[3s verdict]** `KPI-OPS-005` vs_plan (higher_is_better)
 - **[30s Q1]** Is asset availability sufficient to hold the production plan?
-    - visual: `line_chart` · `ops.availability.pct`
+    - visual: `line_chart` · `KPI-OPS-016`
     - answer: Asset availability is trending toward the threshold needed to hold the production plan
     - so what → At this trajectory, availability drops below the threshold needed to hold the production plan.
 - **[30s Q2]** What are the leading failure-risk signals?
@@ -283,20 +283,20 @@
 
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which assets need maintenance intervention to protect the production plan?
-- **[300s evidence]** grain `failure_event`, worst-first by `ops.downtime.unplanned.pct` (descending), Top-20 · action panel
+- **[300s evidence]** grain `failure_event`, worst-first by `KPI-OPS-018` (descending), Top-20 · action panel
 **Decision payoff (actions):** O-A2.1, O-A2.2, O-A2.3, O-A2.4, O-A2.5
-**Cross-domain pull:** Finance (1: `fin.liquidity.inventory.amount`)
+**Cross-domain pull:** Finance (1: `KPI-FIN-002`)
 **Connects to use cases:** OPS-001, SCM-001
 
 ## OPS-003 — Quality & Yield
 
-**Causal thread:** `quality.scrap.pct` → `quality.fpy.pct` (maximize). Improving quality.scrap.pct is the primary lever for maximizing quality.fpy.pct.
+**Causal thread:** `KPI-QUA-002` → `KPI-QUA-001` (maximize). Improving KPI-QUA-002 is the primary lever for maximizing KPI-QUA-001.
 
 ### Page 1 Summary · T3_Operational_Monitoring
 **Spine question:** Is product quality yield within acceptable thresholds?
-- **[3s verdict]** `quality.fpy.pct` vs_target (higher_is_better)
+- **[3s verdict]** `KPI-QUA-001` vs_target (higher_is_better)
 - **[30s Q1]** Is quality loss plant-wide or concentrated on a few lines?
-    - visual: `line_chart` · `quality.scrap.pct`
+    - visual: `line_chart` · `KPI-QUA-002`
     - answer: Rising scrap is concentrated on a couple of lines, not plant-wide
     - so what → Containing the two lines driving the trend is faster than a plant-wide quality program.
 - **[30s Q2]** What are the downstream quality-cost signals?
@@ -308,20 +308,20 @@
 
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which lines and defect modes should containment target first?
-- **[300s evidence]** grain `line_day`, worst-first by `quality.scrap.pct` (descending), Top-20 · action panel
+- **[300s evidence]** grain `line_day`, worst-first by `KPI-QUA-002` (descending), Top-20 · action panel
 **Decision payoff (actions):** O-Q3.1, O-Q3.2, O-Q3.3, O-Q3.4, O-Q3.5
-**Cross-domain pull:** Commercial (1: `sales.units`); Customer & Market (1: `crm.complaint.count`)
+**Cross-domain pull:** Commercial (1: `KPI-COM-012`); Customer & Market (1: `KPI-SVC-001`)
 **Connects to use cases:** FIN-002, OPS-001, OPS-002, XD-001
 
 ## SCM-001 — Inventory Performance
 
-**Causal thread:** `inv.turnover` → `inv.dio.days` (minimize). Improving inv.turnover is the primary lever for minimizing inv.dio.days.
+**Causal thread:** `KPI-SCM-016` → `KPI-SCM-001` (minimize). Improving KPI-SCM-016 is the primary lever for minimizing KPI-SCM-001.
 
 ### Page 1 Summary · T1_Strategic_Overview
 **Spine question:** Is inventory turning efficiently without stockout or obsolescence risk?
-- **[3s verdict]** `inv.dio.days` vs_target (lower_is_better)
+- **[3s verdict]** `KPI-SCM-001` vs_target (lower_is_better)
 - **[30s Q1]** Is inventory turning efficiently, or tying up working capital?
-    - visual: `line_chart` · `inv.turnover`
+    - visual: `line_chart` · `KPI-SCM-016`
     - answer: Inventory turnover is falling, tying up working capital in slow-moving stock
     - so what → Falling turnover ties up working capital that could fund faster-moving SKUs.
 - **[30s Q2]** What are the inventory-health signals telling us?
@@ -329,7 +329,7 @@
     - answer: Stockout, OTIF, and obsolescence risk — the three inventory health signals.
     - so what → Stockouts and obsolescence rising together point to a demand-signal problem, not a capacity one.
 - **[30s Q3]** Is poor forecasting the root cause behind the inventory swings?
-    - visual: `line_chart` · `plan.forecast.accuracy.pct`
+    - visual: `line_chart` · `KPI-SCM-005`
     - answer: Forecast accuracy below target is the root cause behind the stockout-and-obsolescence swing
     - so what → Fixing forecast accuracy addresses the root cause instead of firefighting stockouts and dead stock separately.
 
@@ -337,20 +337,20 @@
 
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which SKUs drive the excess or stockout risk, and what is the rebalancing action?
-- **[300s evidence]** grain `location_sku_month`, worst-first by `inv.obsolete.pct` (descending), Top-20 · action panel
+- **[300s evidence]** grain `location_sku_month`, worst-first by `KPI-SCM-004` (descending), Top-20 · action panel
 **Decision payoff (actions):** S-I1.1, S-I1.2, S-I1.3, S-I1.4, S-I1.5
-**Cross-domain pull:** Commercial (1: `sales.units`)
+**Cross-domain pull:** Commercial (1: `KPI-COM-012`)
 **Connects to use cases:** FIN-001, FIN-002, SCM-002, SCM-003
 
 ## SCM-002 — Supply Reliability & OTIF
 
-**Causal thread:** `supply.on_time.pct` → `supply.otif.pct` (maximize). Improving supply.on_time.pct is the primary lever for maximizing supply.otif.pct.
+**Causal thread:** `KPI-SCM-008` → `KPI-SCM-007` (maximize). Improving KPI-SCM-008 is the primary lever for maximizing KPI-SCM-007.
 
 ### Page 1 Summary · T3_Operational_Monitoring
 **Spine question:** Are suppliers delivering reliably enough to meet customer commitments?
-- **[3s verdict]** `supply.otif.pct` vs_target (higher_is_better)
+- **[3s verdict]** `KPI-SCM-007` vs_target (higher_is_better)
 - **[30s Q1]** Which OTIF component is dragging reliability — on-time or in-full?
-    - visual: `line_chart` · `supply.on_time.pct`
+    - visual: `line_chart` · `KPI-SCM-008`
     - answer: On-time delivery is the component dragging OTIF below target, not in-full
     - so what → Because on-time performance is dragging OTIF down, carrier and lane-level fixes matter more than in-full stock buffers.
 - **[30s Q2]** What's behind the OTIF shortfall beyond timeliness?
@@ -362,19 +362,19 @@
 
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which lanes and suppliers should the reliability push target first?
-- **[300s evidence]** grain `shipment_line`, worst-first by `supply.otif.pct` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `shipment_line`, worst-first by `KPI-SCM-007` (ascending), Top-20 · action panel
 **Decision payoff (actions):** S-R2.1, S-R2.2, S-R2.3, S-R2.4, S-R2.5
 **Connects to use cases:** FIN-002, OPS-001, SCM-001, SCM-003
 
 ## SCM-003 — Forecast vs Actual
 
-**Causal thread:** `plan.forecast.mape.pct` → `plan.forecast.accuracy.pct` (maximize). Improving plan.forecast.mape.pct is the primary lever for maximizing plan.forecast.accuracy.pct.
+**Causal thread:** `KPI-SCM-017` → `KPI-SCM-005` (maximize). Improving KPI-SCM-017 is the primary lever for maximizing KPI-SCM-005.
 
 ### Page 1 Summary · T2_Tactical_Variance
 **Spine question:** Is forecast accuracy sufficient to support production and inventory planning?
-- **[3s verdict]** `plan.forecast.accuracy.pct` vs_target (higher_is_better)
+- **[3s verdict]** `KPI-SCM-005` vs_target (higher_is_better)
 - **[30s Q1]** Is forecast error random noise or a systematic bias?
-    - visual: `line_chart` · `plan.forecast.mape.pct`
+    - visual: `line_chart` · `KPI-SCM-017`
     - answer: Forecast error is a systematic bias, not random noise
     - so what → A systematic bias, not random noise, means model recalibration fixes more of the gap than manual overrides.
 - **[30s Q2]** What are the forecast-quality signals, and where do they hurt service?
@@ -386,20 +386,20 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which SKU clusters need forecast-model recalibration versus manual override?
-- **[300s evidence]** grain `sku_location_month`, worst-first by `plan.forecast.mape.pct` (descending), Top-20 · action panel
+- **[300s evidence]** grain `sku_location_month`, worst-first by `KPI-SCM-017` (descending), Top-20 · action panel
 **Decision payoff (actions):** S-F3.1, S-F3.2, S-F3.3, S-F3.4
-**Cross-domain pull:** Supply Chain (5: `plan.forecast.accuracy.pct`, `plan.forecast.mape.pct`, `plan.forecast.bias.pct` +2); Commercial (2: `order.lines`, `sales.units`)
+**Cross-domain pull:** Supply Chain (5: `KPI-SCM-005`, `KPI-SCM-017`, `KPI-SCM-006` +2); Commercial (2: `KPI-SCM-013`, `KPI-COM-012`)
 **Connects to use cases:** SCM-001, SCM-002
 
 ## SCM-004 — Procurement & Supplier Performance
 
-**Causal thread:** `procurement.oncontract.pct` → `procurement.savings.realized.pct` (maximize). Raising procurement.oncontract.pct is the primary lever for realising procurement.savings.realized.pct.
+**Causal thread:** `KPI-SCM-024` → `KPI-SCM-023` (maximize). Raising KPI-SCM-024 is the primary lever for realising KPI-SCM-023.
 
 ### Page 1 Summary · T3_Operational_Monitoring
 **Spine question:** Are procurement savings being realised, or is value leaking through off-contract buying?
-- **[3s verdict]** `procurement.savings.realized.pct` vs_target (higher_is_better)
+- **[3s verdict]** `KPI-SCM-023` vs_target (higher_is_better)
 - **[30s Q1]** Is the savings shortfall a target problem or a compliance problem?
-    - visual: `line_chart` · `procurement.oncontract.pct`
+    - visual: `line_chart` · `KPI-SCM-024`
     - answer: Off-contract buying in a few categories is where realised savings leak, not weak targets
     - so what → Because on-contract share is the lever, tightening compliance in those categories recovers savings fastest.
 - **[30s Q2]** Is price variance or supplier reliability eroding value beyond compliance?
@@ -411,22 +411,22 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which categories and suppliers should the savings-recovery effort target first?
-- **[300s evidence]** grain `purchase_order_line`, worst-first by `procurement.savings.realized.pct` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `purchase_order_line`, worst-first by `KPI-SCM-023` (ascending), Top-20 · action panel
 **Decision payoff (actions):** S-P1.1
 
 ## XD-001 — Service Level Performance
 
-**Causal thread:** `svc.backlog.count` → `svc.sla.attainment.pct` (maximize). Reducing queue backlog is the primary operational lever for maximizing svc.sla.attainment.pct while FCR, AHT, and escalation remain in guardrail balance.
+**Causal thread:** `KPI-SVC-007` → `KPI-SVC-004` (maximize). Reducing queue backlog is the primary operational lever for maximizing KPI-SVC-004 while FCR, AHT, and escalation remain in guardrail balance.
 
 ### Page 1 Summary · T3_Operational_Monitoring
 **Spine question:** Is the service organization resolving cases fast enough to prevent backlog growth?
-- **[3s verdict]** `svc.sla.attainment.pct` vs_target (higher_is_better)
+- **[3s verdict]** `KPI-SVC-004` vs_target (higher_is_better)
 - **[30s Q1]** Is the service org keeping pace, or is backlog building toward SLA breaches?
-    - visual: `line_chart` · `svc.backlog.count`
+    - visual: `line_chart` · `KPI-SVC-007`
     - answer: Case backlog is building unchecked toward SLA breaches next cycle
     - so what → An unchecked backlog trend converts into missed SLAs within the next reporting cycle.
 - **[30s Q2]** Which service-quality signals explain the backlog?
-    - visual: `horizontal_bar_chart` · `svc.fcr.pct`
+    - visual: `horizontal_bar_chart` · `KPI-SVC-005`
     - answer: First-contact resolution, handle time, and escalation — the three service-quality signals.
     - so what → Ranking FCR by case type shows where a capability fix cuts escalations and backlog at once.
 
@@ -434,20 +434,20 @@
 
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which case types and queues should recovery effort prioritise first?
-- **[300s evidence]** grain `case`, worst-first by `svc.sla.attainment.pct` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `case`, worst-first by `KPI-SVC-004` (ascending), Top-20 · action panel
 **Decision payoff (actions):** X-S1.1, X-S1.2, X-S1.3, X-S1.4
-**Cross-domain pull:** Service & Experience (7: `svc.sla.attainment.pct`, `svc.backlog.count`, `svc.fcr.pct` +4); Customer & Market (1: `crm.nps.index`)
+**Cross-domain pull:** Service & Experience (7: `KPI-SVC-004`, `KPI-SVC-007`, `KPI-SVC-005` +4); Customer & Market (1: `KPI-CUS-003`)
 **Connects to use cases:** XD-002
 
 ## XD-002 — Resource Utilization
 
-**Causal thread:** `res.occupancy.pct` → `res.utilization.pct` (maximize). Improving res.occupancy.pct is the primary capacity lever for maximizing res.utilization.pct while overtime, shrinkage, and backlog remain within acceptable bounds.
+**Causal thread:** `KPI-SVC-010` → `KPI-SVC-009` (maximize). Improving KPI-SVC-010 is the primary capacity lever for maximizing KPI-SVC-009 while overtime, shrinkage, and backlog remain within acceptable bounds.
 
 ### Page 1 Summary · T1_Strategic_Overview
 **Spine question:** Is resource utilization sustainable without degrading service quality?
-- **[3s verdict]** `res.utilization.pct` vs_plan (higher_is_better)
+- **[3s verdict]** `KPI-SVC-009` vs_plan (higher_is_better)
 - **[30s Q1]** Is resource utilization sustainable, or are teams overloaded?
-    - visual: `line_chart` · `res.occupancy.pct`
+    - visual: `line_chart` · `KPI-SVC-010`
     - answer: Resource occupancy is running at sustained overload in a few teams
     - so what → Sustained overload in those teams threatens the service-quality consistency the SLA depends on.
 - **[30s Q2]** What are utilization's quality trade-offs?
@@ -459,24 +459,24 @@
 
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Where should we rebalance capacity to relieve overload without breaching SLA?
-- **[300s evidence]** grain `agent_day`, worst-first by `res.utilization.pct` (descending), Top-20 · action panel
+- **[300s evidence]** grain `agent_day`, worst-first by `KPI-SVC-009` (descending), Top-20 · action panel
 **Decision payoff (actions):** X-R2.1, X-R2.2, X-R2.3, X-R2.4
-**Cross-domain pull:** Service & Experience (7: `svc.sla.attainment.pct`, `svc.backlog.count`, `svc.tickets.created.count` +4); Operations (4: `res.utilization.pct`, `res.occupancy.pct`, `res.overtime.pct` +1)
+**Cross-domain pull:** Service & Experience (7: `KPI-SVC-004`, `KPI-SVC-007`, `KPI-SVC-013` +4); Operations (4: `KPI-SVC-009`, `KPI-SVC-010`, `KPI-SVC-011` +1)
 **Connects to use cases:** XD-001
 
 ## XD-003 — Executive KPI Overview
 
-**Causal thread:** `margin.gm.pct` → `enterprise.value_at_risk.index` (minimize). Enterprise value at risk rises when profitability, service, working-capital, people, or action-effectiveness signals deteriorate.
+**Causal thread:** `KPI-COM-013` → `KPI-GOV-004` (minimize). Enterprise value at risk rises when profitability, service, working-capital, people, or action-effectiveness signals deteriorate.
 
 ### Page 1 Summary · T1_Strategic_Overview
 **Spine question:** Are we on track across all strategic KPIs this quarter?
-- **[3s verdict]** `enterprise.value_at_risk.index` vs_target (lower_is_better)
+- **[3s verdict]** `KPI-GOV-004` vs_target (lower_is_better)
 - **[30s Q1]** Are we on track across the strategic KPIs — and is growth holding?
-    - visual: `line_chart` · `sales.net_sales.delta_pct.ly`
+    - visual: `line_chart` · `KPI-COM-008`
     - answer: Net sales growth versus last year is softening quarter to quarter
     - so what → A softening growth rate is the first sign the on-track story could reverse next quarter.
 - **[30s Q2]** Where does enterprise delivery risk concentrate across the portfolio?
-    - visual: `horizontal_bar_chart` · `supply.otif.pct`
+    - visual: `horizontal_bar_chart` · `KPI-SCM-007`
     - answer: OTIF is uneven across the portfolio, flagging where delivery risk concentrates
     - so what → A normalized index makes the strategic KPIs comparable, so attention goes to the biggest exposure.
 
@@ -484,24 +484,24 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which business units require executive intervention this quarter?
-- **[300s evidence]** grain `entity_month`, worst-first by `enterprise.value_at_risk.index` (descending), Top-20 · action panel
+- **[300s evidence]** grain `entity_month`, worst-first by `KPI-GOV-004` (descending), Top-20 · action panel
 **Decision payoff (actions):** X-E3.2
-**Cross-domain pull:** Customer & Market (7: `crm.clv.amount`, `crm.active_customers.count`, `crm.churned_customers.count` +4); Service & Experience (7: `svc.sla.attainment.pct`, `svc.fcr.pct`, `svc.aht.minutes` +4); Supply Chain (5: `supply.otif.pct`, `supply.otif.pct`, `supply.on_time.pct` +2); Commercial (3: `sales.net_sales.delta_pct.ly`, `cost.cogs.amount`, `sales.net_sales.amount`); People & Culture (2: `people.digital_adoption.pct`, `people.attrition_risk.pct`); Enterprise & Governance (1: `enterprise.value_at_risk.index`); Finance (1: `margin.gm.pct`); Operations (1: `ops.working_capital.ccc.days`)
+**Cross-domain pull:** Customer & Market (7: `KPI-CUS-001`, `KPI-CUS-006`, `KPI-CUS-004` +4); Service & Experience (7: `KPI-SVC-004`, `KPI-SVC-005`, `KPI-SVC-006` +4); Finance (5: `KPI-COM-013`, `KPI-FIN-006`, `KPI-FIN-001` +2); Supply Chain (5: `KPI-SCM-007`, `KPI-SCM-007`, `KPI-SCM-008` +2); Commercial (3: `KPI-COM-008`, `KPI-FIN-011`, `KPI-COM-005`); People & Culture (2: `KPI-SVC-002`, `KPI-SVC-003`); Enterprise & Governance (1: `KPI-GOV-004`)
 **Connects to use cases:** COM-001, COM-002, COM-003, COM-004, FIN-001, FIN-002, OPS-001, OPS-002, OPS-003, SCM-001, SCM-002, SCM-003, XD-001, XD-002
 
 ## XD-004 — Executive Action Governance
 
-**Headline KPI:** `enterprise.action_outcome_rate.pct`.
+**Headline KPI:** `KPI-GOV-001`.
 
 ### Page 1 Summary · T1_Strategic_Overview
 **Spine question:** Is the action governance cycle delivering verified business impact?
-- **[3s verdict]** `enterprise.action_outcome_rate.pct` vs_target (higher_is_better)
+- **[3s verdict]** `KPI-GOV-001` vs_target (higher_is_better)
 - **[30s Q1]** Is the action-governance cycle delivering verified business impact?
-    - visual: `line_chart` · `enterprise.action_outcome_rate.pct`
+    - visual: `line_chart` · `KPI-GOV-001`
     - answer: Outcome-rate trend separates verified business impact from administrative action closure.
     - so what → A weak or deteriorating outcome rate triggers governance intervention before more activity is mistaken for progress.
 - **[30s Q2]** Which domains fail to convert actions into verified impact?
-    - visual: `horizontal_bar_chart` · `enterprise.action_effectiveness_delta.amount`
+    - visual: `horizontal_bar_chart` · `KPI-GOV-002`
     - answer: Domain-level effectiveness ranks where governed actions deliver or fail to deliver verified value.
     - so what → Executive attention should first address domains combining weak outcomes with material impact exposure.
 
@@ -509,20 +509,20 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which action domains need governance intervention to convert into verified outcomes?
-- **[300s evidence]** grain `action_outcome`, worst-first by `enterprise.avg_time_to_outcome.days` (descending), Top-20 · action panel
+- **[300s evidence]** grain `action_outcome`, worst-first by `KPI-GOV-006` (descending), Top-20 · action panel
 **Decision payoff (actions):** C-M2.1, C-M2.2, C-S1.1, C-S1.2, C-C3.1, F-C1.1, F-C1.2, F-K2.1, O-A2.1, O-O1.1, O-O1.2, O-O1.3, O-Q3.1, S-I1.1, S-R2.1, X-E3.3
-**Cross-domain pull:** Operations (15: `ops.downtime.unplanned.pct`, `ops.failure.count`, `ops.labor.productivity.pct` +12); Supply Chain (11: `inv.obsolete.pct`, `inv.stockout.pct`, `inv.turnover` +8); Commercial (11: `sales.net_sales.amount`, `sales.net_sales.delta_pct.ly`, `sales.price.list.amount` +8); Finance (8: `cost.material.pct`, `cost.opex.vs_plan.pct`, `fin.liquidity.inventory.amount` +5); Customer & Market (7: `crm.churned_customers.count`, `crm.lifetime_revenue.amount`, `crm.active_customers.count` +4); Service & Experience (7: `svc.aht.minutes`, `svc.backlog.count`, `svc.escalation.pct` +4); Enterprise & Governance (3: `enterprise.action_outcome_rate.pct`, `enterprise.action_effectiveness_delta.amount`, `enterprise.value_at_risk.index`); ActionReady (3: `enterprise.actions_executed.count`, `enterprise.avg_time_to_outcome.days`, `enterprise.action_roi.pct`); People & Culture (2: `people.attrition_risk.pct`, `people.digital_adoption.pct`)
+**Cross-domain pull:** Operations (14: `KPI-OPS-018`, `KPI-OPS-012`, `KPI-OPS-004` +11); Supply Chain (11: `KPI-SCM-004`, `KPI-SCM-002`, `KPI-SCM-016` +8); Commercial (11: `KPI-COM-005`, `KPI-COM-008`, `KPI-COM-001` +8); Finance (9: `KPI-SCM-020`, `KPI-FIN-014`, `KPI-FIN-002` +6); Customer & Market (7: `KPI-CUS-004`, `KPI-CUS-005`, `KPI-CUS-006` +4); Service & Experience (7: `KPI-SVC-006`, `KPI-SVC-007`, `KPI-SVC-008` +4); Enterprise & Governance (3: `KPI-GOV-001`, `KPI-GOV-002`, `KPI-GOV-004`); ActionReady (3: `KPI-GOV-005`, `KPI-GOV-006`, `KPI-GOV-007`); People & Culture (2: `KPI-SVC-003`, `KPI-SVC-002`)
 **Connects to use cases:** COM-001, COM-002, COM-003, COM-004, FIN-001, FIN-002, OPS-001, OPS-002, OPS-003, SCM-001, SCM-002, SCM-003, XD-001, XD-002, XD-003
 
 ## COM-IND-R001 — Basket & Category Cross-Sell
 
-**Causal thread:** `retail.promotion.attachment_rate.pct` → `retail.category.crosssell_rate.pct` (maximize). Lifting retail.promotion.attachment_rate.pct is the primary lever for maximizing retail.category.crosssell_rate.pct because margin-accretive attachment on promoted baskets is the fastest, lowest-cost path to broader category capture before placement or campaign investment.
+**Causal thread:** `KPI-COM-025` → `KPI-COM-022` (maximize). Lifting KPI-COM-025 is the primary lever for maximizing KPI-COM-022 because margin-accretive attachment on promoted baskets is the fastest, lowest-cost path to broader category capture before placement or campaign investment.
 
 ### Page 1 Summary · T1_Strategic_Overview
 **Spine question:** Are we growing basket breadth and category cross-sell?
-- **[3s verdict]** `retail.category.crosssell_rate.pct` vs_plan (higher_is_better)
+- **[3s verdict]** `KPI-COM-022` vs_plan (higher_is_better)
 - **[30s Q1]** Is average basket value growing, or has the cross-sell stall reached revenue?
-    - visual: `line_chart` · `retail.basket.value.average`
+    - visual: `line_chart` · `KPI-COM-024`
     - answer: Average basket value is flat, confirming the cross-sell stall is reaching revenue per visit
     - so what → A flat basket value confirms the cross-sell stall is already showing up in revenue per visit.
 - **[30s Q2]** Are cross-sell and promotion-attachment moving together, and what's the fix?
@@ -530,7 +530,7 @@
     - answer: Cross-sell and promotion attachment are falling short together, pointing at activation not assortment
     - so what → Two related levers falling short together means the fix is activation, not assortment.
 - **[30s Q3]** Which categories carry the basket-size upside?
-    - visual: `horizontal_bar_chart` · `retail.basket.items_per_transaction`
+    - visual: `horizontal_bar_chart` · `KPI-COM-023`
     - answer: A few product categories carry most of the basket-size upside
     - so what → Activating these pairs first captures basket breadth without waiting on a full assortment redesign.
 
@@ -538,7 +538,7 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which category pairs and stores should cross-sell activation target first?
-- **[300s evidence]** grain `invoice_line`, worst-first by `retail.category.crosssell_rate.pct` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `invoice_line`, worst-first by `KPI-COM-022` (ascending), Top-20 · action panel
 **Decision payoff (actions):** C-M3.1
-**Cross-domain pull:** Commercial (5: `retail.category.crosssell_rate.pct`, `retail.basket.items_per_transaction`, `retail.basket.value.average` +2)
+**Cross-domain pull:** Commercial (5: `KPI-COM-022`, `KPI-COM-023`, `KPI-COM-024` +2)
 **Connects to use cases:** COM-004

@@ -69,6 +69,9 @@ if (Test-Path $deployRoot) {
   $triggerMapDeployFiles += Get-ChildItem -Path $deployRoot -Recurse -Filter "*trigger_map*.yaml"
 }
 $designRulesFile = Join-Path -Path $rootPath -ChildPath "core\templates\page_templates\design_rules.yaml"
+# D-608: business-object layer (peer-pair schema with Meridian)
+$businessObjectSchema = Join-Path -Path $aiSchemaDir -ChildPath "business_object.schema.json"
+$businessObjectFile = Join-Path -Path $rootPath -ChildPath "core\business_objects\business_objects.yaml"
 
 $hadIssues = $false
 
@@ -98,6 +101,9 @@ Invoke-Validation -Schema $triggerMapTemplateSchema -Targets ($triggerMapTemplat
 Invoke-Validation -Schema $triggerMapDeploySchema -Targets ($triggerMapDeployFiles | Select-Object -ExpandProperty FullName)
 if (Test-Path $designRulesFile) {
   Invoke-Validation -Schema $designRulesSchema -Targets @($designRulesFile)
+}
+if (Test-Path $businessObjectFile) {
+  Invoke-Validation -Schema $businessObjectSchema -Targets @($businessObjectFile)
 }
 
 if ($hadIssues) {

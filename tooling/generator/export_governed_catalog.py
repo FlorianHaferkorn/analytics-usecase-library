@@ -16,8 +16,10 @@ MEASURE_UNDOCUMENTED / TABLE_MISSING / COLUMN_MISSING. Read-only; emits JSON, ru
 Per table, additively (older consumers read only ``name/kind/domain/columns``, which stay as they
 were): ``showcase`` (bool, default true: the Aurora showcase has data for the table) and
 ``column_specs`` — one object per column with only the keys the contract sets out of
-``name, source_column, type, nullable, ref, unknown_member, checks, target_state`` (A-23; the structured
-quality fields are described in ``core/data_contracts/domains/README.md``).
+``name, source_column, type, nullable, ref, unknown_member, checks, target_state, agg, synonyms`` (A-23; the
+structured quality fields are described in ``core/data_contracts/domains/README.md``). ``agg`` (default
+aggregation of a measure column) and ``synonyms`` (curated names) since 30.09.2026: ODCS v3.2 writes them
+as ``semanticType: measure`` and ``synonyms`` (Meridian D-590, ``tooling/superversion/odcs.py``).
 
 **Exactly one entry per table name** (Bus-Matrix, 29.09.2026): a conformed table is defined once,
 in its owning domain; other domains refer to it (``conformed_from``). ``domain`` is the owning
@@ -72,7 +74,8 @@ def _load_measures(kpi_dir: Path) -> list[dict]:
     return measures
 
 
-SPEC_KEYS = ("name", "source_column", "type", "nullable", "ref", "unknown_member", "checks", "target_state")
+SPEC_KEYS = ("name", "source_column", "type", "nullable", "ref", "unknown_member", "checks", "target_state",
+             "agg", "synonyms")
 
 
 def _column_spec(col: dict) -> dict:
@@ -108,6 +111,11 @@ def _load_tables(contracts_dir: Path) -> list[dict]:
                     "columns": sorted(seen),
                     "showcase": tbl.get("showcase", True) is not False,
                     "column_specs": specs,
+                    # Tabellenbeschreibung des Vertrags (Meridian I-21 W5.6 e, 30.09.2026): der
+                    # Gold-Emitter schreibt sie als `COMMENT` in die CTAS-Klausel. Nur wenn der
+                    # Vertrag eine hat — nichts wird erfunden.
+                    **({"description": " ".join(str(tbl["description"]).split())}
+                       if str(tbl.get("description") or "").strip() else {}),
                 })
     return tables
 

@@ -1,6 +1,6 @@
 measure_name: Incremental GM Amount
 is_kpi_measure: true
-kpi_id_ref: sales.promo.incremental_gm.amount
+kpi_id_ref: KPI-COM-015
 semantic_model: Profitability_SemanticModel
 display_folder: 04_Promo
 category: Supporting

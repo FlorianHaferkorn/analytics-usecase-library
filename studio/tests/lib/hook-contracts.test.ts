@@ -27,7 +27,7 @@ describe('hook-contracts', () => {
 
     const payload: HookPayloadMap['onBracketLoad'] = {
       bracketId: 'UC001',
-      kpiIds: ['margin.gm.pct'],
+      kpiIds: ['KPI-COM-013'],
       status: 'draft',
     };
     pluginRegistry.emit('onBracketLoad', payload);
@@ -39,7 +39,7 @@ describe('hook-contracts', () => {
     pluginRegistry.onHook('onKpiEvaluate', handler);
 
     const payload: HookPayloadMap['onKpiEvaluate'] = {
-      kpiId: 'margin.gm.pct',
+      kpiId: 'KPI-COM-013',
       value: 28.5,
       previousValue: 30.0,
       delta: -1.5,

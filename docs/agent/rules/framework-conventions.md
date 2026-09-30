@@ -26,7 +26,7 @@
 
 - Use case IDs: `COM-001`, `FIN-001`, `OPS-001`, `SCM-001`, `XD-001`, etc. (prefix + number).
 - Action code IDs: e.g. `C-M2.1`, `F-C1.1`, `O-A2.1` — domain prefix + topic + index.
-- KPI IDs: `domain.topic.metric` (e.g. `sales.price.realization_pct`). Must exist in KPI catalog before referencing in use cases or action codes.
+- KPI IDs: `KPI-<DOMAIN>-<NNN>` (D-594; e.g. `KPI-COM-003`). Must exist in KPI catalog before referencing in use cases or action codes.
 - Domains: Commercial, Finance, Operations, Supply Chain, XD (Experience/Enterprise).
 
 ## Invariants

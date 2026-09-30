@@ -1,6 +1,6 @@
 measure_name: First Pass Yield % (XD)
 is_kpi_measure: true
-kpi_id_ref: quality.fpy.pct
+kpi_id_ref: KPI-QUA-001
 semantic_model: Service_SemanticModel
 display_folder: 02_Quality
 category: KPI

@@ -9,25 +9,25 @@ table _Measures
 			in
 				Source
 
-	/// enterprise.actions_executed.count - Actions Executed Count
+	/// KPI-GOV-005 - Actions Executed Count
 	/// Number of action codes with a recorded outcome in fact_action_outcome.
 	measure 'Actions Executed Count (XD)' = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.action_outcome_rate.pct - Action Outcome Rate %
+	/// KPI-GOV-001 - Action Outcome Rate %
 	/// Percentage of executed actions with a confirmed achieved outcome.
 	measure 'Action Outcome Rate % (XD)' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
 		formatString: 0.0%
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.avg_time_to_outcome.days - Avg Time-to-Outcome Days
+	/// KPI-GOV-006 - Avg Time-to-Outcome Days
 	/// Average days between action execution and outcome confirmation.
 	measure 'Avg Time-to-Outcome Days (XD)' = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
 		formatString: #,0.0
 		displayFolder: "8_Action_Outcomes"
 
-	/// enterprise.action_roi.pct - Action ROI %
+	/// KPI-GOV-007 - Action ROI %
 	/// Average ROI of executed actions: total impact value / total execution cost - 1.
 	measure 'Action ROI % (XD)' = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
 		formatString: 0.0%
@@ -57,14 +57,14 @@ table _Measures
 		lineageTag: 0cf48a68-c720-4ae5-882f-a9ed0a8e47cd
 	/// Average EUR impact per achieved action execution.
 	/// Formula: AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
-	/// Grain: month · Unit: EUR
+	/// Grain: month · Unit: EUR · Good: higher_is_better
 	/// Owner: Commercial BI · Status: active
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
 	/// Purpose: Zielwert von CCC Days aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'CCC Days Target' = CALCULATE ( SUM ( fact_target[Target Value] ), fact_target[kpi_id] = "wc.ccc.days", fact_target[scenario] = "target" )
+	measure 'CCC Days Target' = CALCULATE ( SUM ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-FIN-006", fact_target[scenario] = "target" )
 		formatString: "0"
 		displayFolder: 8_Comparison
 		lineageTag: 28768637-77d3-5f48-8fcd-15134bdd387d
@@ -80,7 +80,7 @@ table _Measures
 		annotation ALUCA_Generated = "comparison_measures"
 
 	/// Purpose: Planwert von Unit Cost Amount aus fact_target (comparison: vs_plan); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'Unit Cost Amount Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "cost.unit.amount", fact_target[scenario] = "plan" )
+	measure 'Unit Cost Amount Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-FIN-015", fact_target[scenario] = "plan" )
 		formatString: "#,0"
 		displayFolder: 8_Comparison
 		lineageTag: f33a32b4-acea-5406-9b30-7fb3fcb15de0
@@ -244,7 +244,7 @@ table _Measures
 
 	/// Working capital cycle time.
 	/// Formula: [DSO Days] + [DIO Days] - [DPO Days]
-	/// Grain: month · Unit: days
+	/// Grain: month · Unit: days · Good: lower_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.1
 	/// Synonyms: Cash Conversion Cycle, Net Operating Cycle, Cash Cycle, Geldumschlagsdauer
 	/// Example question: What pushed the cash conversion cycle higher this month?
@@ -337,7 +337,7 @@ table _Measures
 
 	/// Cash and cash equivalents.
 	/// Formula: SUM(fact_cash_position[Cash Balance Amount]) at MAX(DateKey) in filter context
-	/// Grain: day · Unit: EUR
+	/// Grain: day · Unit: EUR · Good: higher_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.1, F-C1.2
 	/// Synonyms: Cash and Cash Equivalents, Cash Position, Liquide Mittel, Kassenbestand
 	/// Example question: How has our cash balance tracked versus plan this year?
@@ -346,8 +346,8 @@ table _Measures
 		displayFolder: "FIN-001"
 
 	/// Cash generated from operating activities.
-	/// Formula: Net cash flows from operations for the period.
-	/// Grain: month · Unit: EUR
+	/// Formula: SUM(fact_cashflow[Operating Cash Flow Amount]) for the reporting period
+	/// Grain: month · Unit: EUR · Good: higher_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.2, S-I1.2, F-C1.4
 	/// Synonyms: Operating Cash Flow, Cash Flow from Operations, OCF, Operativer Cashflow
 	/// Example question: Why did operating cash flow fall short of plan in Q2?
@@ -357,7 +357,7 @@ table _Measures
 
 	/// Performance vs plan for cash position.
 	/// Formula: (Cash Balance - Cash Plan) / Cash Plan.
-	/// Grain: month · Unit: %
+	/// Grain: month · Unit: % · Good: higher_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.1
 	/// Synonyms: Cash Plan Variance %, Cash Budget Variance, Liquiditätsplanabweichung
 	/// Example question: How far is cash tracking from the liquidity plan this month?
@@ -375,7 +375,7 @@ table _Measures
 
 	/// Receivables efficiency: AR / (Revenue/365).
 	/// Formula: SUM(fact_ar[AR Amount]) / (SUM(fact_ar[Revenue Amount]) / 365)
-	/// Grain: month · Unit: days
+	/// Grain: month · Unit: days · Good: lower_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.2
 	/// Synonyms: Days Sales Outstanding, Receivables Days, Average Collection Period, Debitorenlaufzeit, Forderungslaufzeit
 	/// Example question: Why did DSO increase in the Nordics region last quarter?
@@ -391,7 +391,7 @@ table _Measures
 
 	/// Inventory efficiency: Inventory / (COGS/365).
 	/// Formula: SUM(fact_inventory[Inventory Amount]) / (SUM(fact_ap[COGS Amount]) / 365)
-	/// Grain: month · Unit: days
+	/// Grain: month · Unit: days · Good: lower_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: S-I1.2
 	/// Synonyms: Days Inventory Outstanding, Days Sales of Inventory, Inventory Days, Lagerreichweite, Bestandsreichweite
 	/// Example question: Which product categories are driving up DIO this quarter?
@@ -407,7 +407,7 @@ table _Measures
 
 	/// Payables efficiency: AP / (COGS/365).
 	/// Formula: SUM(fact_ap[AP Amount]) / (SUM(fact_ap[COGS Amount]) / 365)
-	/// Grain: month · Unit: days
+	/// Grain: month · Unit: days · Good: higher_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.4
 	/// Synonyms: Days Payable Outstanding, Payables Days, Creditor Days, Kreditorenlaufzeit
 	/// Example question: Are we extending DPO with our largest suppliers this year?
@@ -421,7 +421,7 @@ table _Measures
 		formatString: "0"
 		displayFolder: "FIN-001"
 
-	/// OTIF % - supply.otif.pct
+	/// OTIF % - KPI-SCM-007
 	/// On-time in-full rate for customer fulfillment (governed OTIF, Finance view).
 	/// Formula: On-Time In-Full Orders / Total Orders.
 	/// Grain: order_line_day · Unit: %
@@ -438,7 +438,7 @@ table _Measures
 
 	/// Average supplier risk score across the selected scope.
 	/// Formula: Composite risk score derived from supplier risk factors.
-	/// Grain: supplier_month · Unit: score
+	/// Grain: supplier_month · Unit: score · Good: lower_is_better
 	/// Owner: Risk Analytics · Status: active
 	/// Synonyms: Supplier Risk Rating, Vendor Risk Index, Lieferantenrisiko-Score, Lieferantenrisikobewertung
 	/// Example question: Which suppliers carry the highest risk score?
@@ -469,14 +469,15 @@ table _Measures
 
 	/// Inventory balance used in DIO calculations.
 	/// Formula: SUM(fact_inventory[Inventory Amount])
-	/// Owner: Finance Analytics · Status: active
+	/// Good: lower_is_better
+	/// Owner: Finance Analytics · Status: active · Actions: O-A2.5
 	measure 'Inventory Amount' = SUM ( fact_inventory[Average Inventory Amount] )
 		formatString: "#,0.00"
 		displayFolder: "FIN-001"
 
 	/// Total COGS / units produced or sold.
 	/// Formula: SUM(fact_cost[COGS Amount]) / SUM(fact_output[Output Units])
-	/// Grain: plant_line_product_month · Unit: EUR per unit
+	/// Grain: plant_line_product_month · Unit: EUR per unit · Good: lower_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: F-K2.1, F-K2.2, F-K2.3, F-K2.4
 	/// Synonyms: Cost per Unit, Average Cost per Unit, Stückkosten, Selbstkosten je Stück
 	/// Example question: How did unit cost change after the plant ramp-up?
@@ -486,7 +487,7 @@ table _Measures
 
 	/// Cost share: COGS / Net Sales.
 	/// Formula: SUM(fact_finance[COGS Amount]) / SUM(fact_finance[Net Sales Amount])
-	/// Grain: month · Unit: %
+	/// Grain: month · Unit: % · Good: lower_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: F-K2.1
 	/// Synonyms: COGS Ratio, Cost of Sales %, Umsatzkostenquote, Materialaufwandsquote
 	/// Example question: Why did COGS % of sales rise in Consumer Electronics?
@@ -496,7 +497,7 @@ table _Measures
 
 	/// Overhead control: (OpEx - Plan) / Plan.
 	/// Formula: (OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.
-	/// Grain: month · Unit: %
+	/// Grain: month · Unit: % · Good: lower_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: F-K2.4
 	/// Synonyms: OpEx Budget Variance %, Operating Expense Variance, Betriebskostenabweichung
 	/// Example question: Where is OpEx running over plan this quarter?
@@ -514,7 +515,7 @@ table _Measures
 
 	/// Material cost / Net Sales.
 	/// Formula: Material Cost Amount / Net Sales Amount.
-	/// Grain: month · Unit: %
+	/// Grain: month · Unit: % · Good: lower_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: F-K2.2
 	/// Synonyms: Material Cost Ratio, Material Intensity, Materialkostenquote, Materialintensität
 	/// Example question: Which products have the highest material cost ratio?
@@ -524,7 +525,7 @@ table _Measures
 
 	/// Output vs labor hours (or revenue per labor hour).
 	/// Formula: Output Units or Net Sales divided by Labor Hours (normalized to % baseline).
-	/// Grain: month · Unit: % / index
+	/// Grain: month · Unit: % / index · Good: higher_is_better
 	/// Owner: Finance Analytics · Status: active · Actions: F-K2.3
 	measure 'Labor Productivity %' =
 			VAR OutputUnits =
@@ -555,7 +556,7 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "FIN-002"
 
-	/// Throughput Units - ops.throughput.units
+	/// Throughput Units - KPI-OPS-009
 	/// Total produced units in the period (governed throughput, Finance view).
 	/// Formula: Sum of produced units for the period.
 	/// Grain: line_day · Unit: units
@@ -566,13 +567,13 @@ table _Measures
 
 	/// Defect count divided by total output units.
 	/// Formula: Defective Units / Total Produced Units.
-	/// Grain: line_day · Unit: %
+	/// Grain: line_day · Unit: % · Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active
 	measure 'Quality Defect Rate %' = VAR Defects = SUM ( fact_output[Defect Count] ) VAR TotalUnits = SUM ( fact_output[Output Units] ) RETURN DIVIDE ( Defects, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
-	/// Quality % - ops.quality.pct
+	/// Quality % - KPI-OPS-003
 	/// Good units divided by total output (governed quality/yield, Finance view).
 	/// Formula: Good Units / Total Units Produced.
 	/// Grain: line_day · Unit: %
@@ -586,7 +587,7 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
-	/// Net Sales Amount (FIN) - sales.net_sales.amount
+	/// Net Sales Amount (FIN) - KPI-COM-005
 	/// Total invoiced revenue net of discounts and returns, Finance domain view.
 	measure 'Net Sales Amount (FIN)' = SUM ( fact_sales[Net Sales Amount] )
 		formatString: "#,0.00"

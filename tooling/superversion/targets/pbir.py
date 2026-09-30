@@ -29,6 +29,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 
+from tooling.report_quality import base_theme as _base_theme
 from tooling.superversion.canonical_contract import CanonicalModel
 
 # --- Official PBIR format constants (copy $schema URLs from same-type files) -- #
@@ -433,19 +434,20 @@ def _build(canonical: CanonicalModel) -> tuple[dict[str, str], list[str]]:
     out[f"{base}/definition/version.json"] = _dumps({
         "$schema": _SCHEMA["version"], "version": "2.0.0",
     })
-    # The shared Microsoft base theme is the official, deterministic fallback.
-    # Customer themes remain optional packaging owned by the delivery connector.
+    # The shared Microsoft base theme is the official, deterministic fallback -- name
+    # and reportVersionAtImport from the pinned CLI (D-587). Customer themes remain
+    # optional packaging owned by the delivery connector.
     out[f"{base}/definition/report.json"] = _dumps({
         "$schema": _SCHEMA["report"],
         "themeCollection": {
-            "baseTheme": {
-                "name": "CY25SU10",
-                "reportVersionAtImport": {
-                    "visual": "2.1.0", "report": "3.0.0", "page": "2.3.0",
-                },
-                "type": "SharedResources",
-            },
+            "baseTheme": _base_theme.base_theme_entry(),
         },
+        # Registered and shipped like the official ``scaffold`` does (D-587).
+        "resourcePackages": [{
+            "name": "SharedResources",
+            "type": "SharedResources",
+            "items": [_base_theme.shared_resources_item()],
+        }],
         "settings": {
             "useStylableVisualContainerHeader": True,
             "exportDataMode": "AllowSummarized",
@@ -456,6 +458,8 @@ def _build(canonical: CanonicalModel) -> tuple[dict[str, str], list[str]]:
             "useDefaultAggregateDisplayName": True,
         },
     })
+    out[f"{base}/StaticResources/SharedResources/{_base_theme.resource_path()}"] = (
+        _base_theme.vendored_bytes().decode("utf-8"))
     if report.theme:
         gaps.append(f"report theme '{report.theme}' not emitted (theme packaging deferred)")
 

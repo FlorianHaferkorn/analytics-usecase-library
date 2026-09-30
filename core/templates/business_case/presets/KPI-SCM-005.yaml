@@ -1,0 +1,20 @@
+kpi_id: KPI-SCM-005
+label: Forecast Accuracy %
+baseline_range:
+  min: 78
+  likely: 82
+  max: 88
+  unit: "%"
+  note: "Forecast accuracy = 100% - MAPE; 78-88% is mid-market range."
+target_range:
+  min: 85
+  likely: 89
+  max: 93
+  unit: "%"
+  note: "Target: 5-10 pp accuracy improvement through model upgrade and S&OP discipline."
+time_horizon_months: 12
+driver_notes:
+  - "S-F3.1 (Forecast Quality Orchestration): statistical model and process intervention."
+  - "Each 1 pp forecast accuracy improvement reduces safety stock requirement by ~2% of inventory value."
+  - "Ripple effects: better accuracy leads to lower DIO, lower CCC, higher OCF."
+  - "S&OP alignment with commercial team is the highest-leverage non-model improvement."

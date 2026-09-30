@@ -201,7 +201,7 @@ ux_layout_rules:
     decision_question: "Are we on track for our Commercial targets this month?"
     big_idea: "Net Sales is +8.2% vs Plan but GM% is -1.1pp — adverse Mix in DACH requires attention."
     component_3s:
-      kpi_id: sales.net_sales.amount
+      kpi_id: KPI-COM-005
       visual_type: kpi_card
       sparkline_field: "NetSales_Monthly"
       comparison: "vs_plan"
@@ -209,12 +209,12 @@ ux_layout_rules:
     component_30s:
       - slot_id: "Main_1"
         visual_type: line_chart
-        kpi_id: sales.net_sales.amount
+        kpi_id: KPI-COM-005
       - slot_id: "Main_2"
         visual_type: waterfall
         kpi_ids: [sales.net_sales.delta_abs.plan]
       - slot_id: "Main_3"
         visual_type: bar_chart_horizontal
-        kpi_id: sales.net_sales.amount
+        kpi_id: KPI-COM-005
         segment_by: region
 ```

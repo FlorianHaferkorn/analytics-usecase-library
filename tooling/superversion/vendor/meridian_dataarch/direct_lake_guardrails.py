@@ -214,7 +214,7 @@ def measurement_sql(bp: dict, schemas: bool = True) -> str:
 # Rollen, in denen das Semantikmodell wohnt bzw. die Delta-Tabellen liegen — in dieser
 # Reihenfolge, erster Treffer gewinnt.
 _MODEL_ROLES = ("reporting", "serving", "gold")
-_SOURCE_ROLES = ("gold", "silver", "lakehouse")
+_SOURCE_ROLES = ("gold", "data", "silver", "lakehouse")
 
 
 def _workspace_by_role(domain: dict, roles: tuple[str, ...]) -> str:

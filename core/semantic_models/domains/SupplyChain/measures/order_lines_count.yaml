@@ -1,6 +1,6 @@
 measure_name: Order Lines Count
 is_kpi_measure: true
-kpi_id_ref: order.lines
+kpi_id_ref: KPI-SCM-013
 semantic_model: SupplyChain_SemanticModel
 display_folder: 02_Service
 category: KPI

@@ -1533,8 +1533,8 @@ def _validate_referential_integrity(
         try:
             lhs_part, rhs_part = formula.split("=", 1)
             lhs = lhs_part.strip().strip(".").strip()
-            # Extract tokens from f(...) - simple regex for kpi-like ids (word.word.word)
-            rhs_tokens = set(re.findall(r"[a-z]+\.[a-z0-9_.]+", rhs_part))
+            # Extract KPI IDs from f(...) (D-594: KPI-<KUERZEL>-<NNN>, the hyphens belong to the ID)
+            rhs_tokens = set(re.findall(r"KPI-[A-Z]{3}-\d{3}", rhs_part))
             if sk and lhs != sk.strip():
                 issues.append(
                     Issue("WARN", "value_driver.lhs_mismatch", f"UseCase '{uc_id}' formula LHS '{lhs}' != strategic_kpi_id '{sk}'.", SourceLocation(rec.get("source", ""), 1))

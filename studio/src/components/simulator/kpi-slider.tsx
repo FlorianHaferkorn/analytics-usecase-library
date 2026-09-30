@@ -17,7 +17,7 @@ interface Props {
 export function KpiSlider({ kpiId, label, baseValue, value, unit, minRange, maxRange, onChange }: Props) {
   const { min, max } = normalizeSliderRange(baseValue, minRange, maxRange);
   const delta = value - baseValue;
-  const format = (amount: number, displayUnit = unit) => formatKpiValue(amount, kpiId, displayUnit);
+  const format = (amount: number, displayUnit = unit) => formatKpiValue(amount, displayUnit);
 
   /** T2.4: Position of baseline tick as a percentage along the slider track */
   const baselinePct = Math.max(0, Math.min(100, ((baseValue - min) / (max - min)) * 100));

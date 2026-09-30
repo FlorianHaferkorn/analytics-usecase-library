@@ -10,262 +10,262 @@ _Promotion Effectiveness — Detail_
 
 ## 3-Second Layer — KPI Headlines
 
-```sql sales_promo_roi_pct
+```sql kpi_com_016
 SELECT
   metric_value AS value,
-  'sales.promo.roi.pct' AS label,
+  'KPI-COM-016' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.promo.roi.pct'
+WHERE kpi_id = 'KPI-COM-016'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.promo.roi.pct'
+    WHERE kpi_id = 'KPI-COM-016'
   )
 ```
 
-<BigValue data={sales_promo_roi_pct} value="value" title=""sales.promo.roi.pct"" />
+<BigValue data={kpi_com_016} value="value" title=""KPI-COM-016"" />
 
-```sql sales_promo_incremental_amount
+```sql kpi_com_021
 SELECT
   metric_value AS value,
-  'sales.promo.incremental.amount' AS label,
+  'KPI-COM-021' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.promo.incremental.amount'
+WHERE kpi_id = 'KPI-COM-021'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.promo.incremental.amount'
+    WHERE kpi_id = 'KPI-COM-021'
   )
 ```
 
-<BigValue data={sales_promo_incremental_amount} value="value" title=""sales.promo.incremental.amount"" />
+<BigValue data={kpi_com_021} value="value" title=""KPI-COM-021"" />
 
-```sql margin_promo_gm_pct
+```sql kpi_fin_012
 SELECT
   metric_value AS value,
-  'margin.promo.gm.pct' AS label,
+  'KPI-FIN-012' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'margin.promo.gm.pct'
+WHERE kpi_id = 'KPI-FIN-012'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'margin.promo.gm.pct'
+    WHERE kpi_id = 'KPI-FIN-012'
   )
 ```
 
-<BigValue data={margin_promo_gm_pct} value="value" title=""margin.promo.gm.pct"" />
+<BigValue data={kpi_fin_012} value="value" title=""KPI-FIN-012"" />
 
-```sql sales_price_list_amount
+```sql kpi_com_001
 SELECT
   metric_value AS value,
-  'sales.price.list.amount' AS label,
+  'KPI-COM-001' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.price.list.amount'
+WHERE kpi_id = 'KPI-COM-001'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.price.list.amount'
+    WHERE kpi_id = 'KPI-COM-001'
   )
 ```
 
-<BigValue data={sales_price_list_amount} value="value" title=""sales.price.list.amount"" />
+<BigValue data={kpi_com_001} value="value" title=""KPI-COM-001"" />
 
-```sql sales_price_net_amount
+```sql kpi_com_002
 SELECT
   metric_value AS value,
-  'sales.price.net.amount' AS label,
+  'KPI-COM-002' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.price.net.amount'
+WHERE kpi_id = 'KPI-COM-002'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.price.net.amount'
+    WHERE kpi_id = 'KPI-COM-002'
   )
 ```
 
-<BigValue data={sales_price_net_amount} value="value" title=""sales.price.net.amount"" />
+<BigValue data={kpi_com_002} value="value" title=""KPI-COM-002"" />
 
-```sql sales_price_realization_pct
+```sql kpi_com_003
 SELECT
   metric_value AS value,
-  'sales.price.realization_pct' AS label,
+  'KPI-COM-003' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.price.realization_pct'
+WHERE kpi_id = 'KPI-COM-003'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.price.realization_pct'
+    WHERE kpi_id = 'KPI-COM-003'
   )
 ```
 
-<BigValue data={sales_price_realization_pct} value="value" title=""sales.price.realization_pct"" />
+<BigValue data={kpi_com_003} value="value" title=""KPI-COM-003"" />
 
-```sql sales_promo_cannibalization_pct
+```sql kpi_com_018
 SELECT
   metric_value AS value,
-  'sales.promo.cannibalization.pct' AS label,
+  'KPI-COM-018' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.promo.cannibalization.pct'
+WHERE kpi_id = 'KPI-COM-018'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.promo.cannibalization.pct'
+    WHERE kpi_id = 'KPI-COM-018'
   )
 ```
 
-<BigValue data={sales_promo_cannibalization_pct} value="value" title=""sales.promo.cannibalization.pct"" />
+<BigValue data={kpi_com_018} value="value" title=""KPI-COM-018"" />
 
-```sql cost_cogs_amount
+```sql kpi_fin_011
 SELECT
   metric_value AS value,
-  'cost.cogs.amount' AS label,
+  'KPI-FIN-011' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'cost.cogs.amount'
+WHERE kpi_id = 'KPI-FIN-011'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'cost.cogs.amount'
+    WHERE kpi_id = 'KPI-FIN-011'
   )
 ```
 
-<BigValue data={cost_cogs_amount} value="value" title=""cost.cogs.amount"" />
+<BigValue data={kpi_fin_011} value="value" title=""KPI-FIN-011"" />
 
-```sql sales_promo_baseline_sales_amount
+```sql kpi_com_020
 SELECT
   metric_value AS value,
-  'sales.promo.baseline_sales.amount' AS label,
+  'KPI-COM-020' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.promo.baseline_sales.amount'
+WHERE kpi_id = 'KPI-COM-020'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.promo.baseline_sales.amount'
+    WHERE kpi_id = 'KPI-COM-020'
   )
 ```
 
-<BigValue data={sales_promo_baseline_sales_amount} value="value" title=""sales.promo.baseline_sales.amount"" />
+<BigValue data={kpi_com_020} value="value" title=""KPI-COM-020"" />
 
-```sql sales_promo_cannibalized_sales_amount
+```sql kpi_com_017
 SELECT
   metric_value AS value,
-  'sales.promo.cannibalized_sales.amount' AS label,
+  'KPI-COM-017' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.promo.cannibalized_sales.amount'
+WHERE kpi_id = 'KPI-COM-017'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.promo.cannibalized_sales.amount'
+    WHERE kpi_id = 'KPI-COM-017'
   )
 ```
 
-<BigValue data={sales_promo_cannibalized_sales_amount} value="value" title=""sales.promo.cannibalized_sales.amount"" />
+<BigValue data={kpi_com_017} value="value" title=""KPI-COM-017"" />
 
-```sql sales_promo_cost_amount
+```sql kpi_com_014
 SELECT
   metric_value AS value,
-  'sales.promo.cost.amount' AS label,
+  'KPI-COM-014' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.promo.cost.amount'
+WHERE kpi_id = 'KPI-COM-014'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.promo.cost.amount'
+    WHERE kpi_id = 'KPI-COM-014'
   )
 ```
 
-<BigValue data={sales_promo_cost_amount} value="value" title=""sales.promo.cost.amount"" />
+<BigValue data={kpi_com_014} value="value" title=""KPI-COM-014"" />
 
-```sql sales_promo_incremental_gm_amount
+```sql kpi_com_015
 SELECT
   metric_value AS value,
-  'sales.promo.incremental_gm.amount' AS label,
+  'KPI-COM-015' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.promo.incremental_gm.amount'
+WHERE kpi_id = 'KPI-COM-015'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.promo.incremental_gm.amount'
+    WHERE kpi_id = 'KPI-COM-015'
   )
 ```
 
-<BigValue data={sales_promo_incremental_gm_amount} value="value" title=""sales.promo.incremental_gm.amount"" />
+<BigValue data={kpi_com_015} value="value" title=""KPI-COM-015"" />
 
-```sql sales_pvm_volume_effect_amount
+```sql kpi_com_011
 SELECT
   metric_value AS value,
-  'sales.pvm.volume_effect.amount' AS label,
+  'KPI-COM-011' AS label,
   period
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.pvm.volume_effect.amount'
+WHERE kpi_id = 'KPI-COM-011'
   AND period = (
     SELECT MAX(period)
     FROM gold.metric_observations
-    WHERE kpi_id = 'sales.pvm.volume_effect.amount'
+    WHERE kpi_id = 'KPI-COM-011'
   )
 ```
 
-<BigValue data={sales_pvm_volume_effect_amount} value="value" title=""sales.pvm.volume_effect.amount"" />
+<BigValue data={kpi_com_011} value="value" title=""KPI-COM-011"" />
 
 ## 30-Second Layer — Trends
 
-```sql sales_promo_roi_pct_trend
+```sql kpi_com_016_trend
 SELECT
   period,
   metric_value AS metric_value
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.promo.roi.pct'
+WHERE kpi_id = 'KPI-COM-016'
 GROUP BY period, metric_value
 ORDER BY period
 ```
 
-<LineChart data={sales_promo_roi_pct_trend} x="period" y="metric_value" title=""sales.promo.roi.pct"" />
+<LineChart data={kpi_com_016_trend} x="period" y="metric_value" title=""KPI-COM-016"" />
 
-```sql sales_promo_incremental_amount_trend
+```sql kpi_com_021_trend
 SELECT
   period,
   metric_value AS metric_value
 FROM gold.metric_observations
-WHERE kpi_id = 'sales.promo.incremental.amount'
+WHERE kpi_id = 'KPI-COM-021'
 GROUP BY period, metric_value
 ORDER BY period
 ```
 
-<LineChart data={sales_promo_incremental_amount_trend} x="period" y="metric_value" title=""sales.promo.incremental.amount"" />
+<LineChart data={kpi_com_021_trend} x="period" y="metric_value" title=""KPI-COM-021"" />
 
-```sql margin_promo_gm_pct_trend
+```sql kpi_fin_012_trend
 SELECT
   period,
   metric_value AS metric_value
 FROM gold.metric_observations
-WHERE kpi_id = 'margin.promo.gm.pct'
+WHERE kpi_id = 'KPI-FIN-012'
 GROUP BY period, metric_value
 ORDER BY period
 ```
 
-<LineChart data={margin_promo_gm_pct_trend} x="period" y="metric_value" title=""margin.promo.gm.pct"" />
+<LineChart data={kpi_fin_012_trend} x="period" y="metric_value" title=""KPI-FIN-012"" />
 
-> Core formula: sales.promo.roi.pct = f(sales.promo.incremental.amount, margin.promo.gm.pct, sales.price.realization_pct, sales.promo.cannibalization.pct)
-> Impact logic: Improving sales.promo.incremental.amount is the primary lever for maximizing sales.promo.roi.pct.
+> Core formula: KPI-COM-016 = f(KPI-COM-021, KPI-FIN-012, KPI-COM-003, KPI-COM-018)
+> Impact logic: Improving KPI-COM-021 is the primary lever for maximizing KPI-COM-016.
 
 ## 300-Second Layer — Diagnostics
 
 ```sql detail_data
 SELECT
-  entity, period, sales.promo.roi.pct
+  entity, period, KPI-COM-016
 FROM gold.metric_evidence
-WHERE kpi_id = 'sales.promo.roi.pct'
+WHERE kpi_id = 'KPI-COM-016'
 ORDER BY period DESC
 LIMIT 500
 ```

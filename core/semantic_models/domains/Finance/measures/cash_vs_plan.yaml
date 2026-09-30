@@ -1,6 +1,6 @@
 measure_name: Cash vs Plan %
 is_kpi_measure: true
-kpi_id_ref: fin.cash.vs_plan.pct
+kpi_id_ref: KPI-FIN-010
 semantic_model: Finance_SemanticModel
 display_folder: 01_Liquidity
 category: KPI

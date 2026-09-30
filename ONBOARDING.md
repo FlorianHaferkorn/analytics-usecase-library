@@ -105,7 +105,7 @@ Open [`core/usecases/core/COM-001_Sales_Performance/Business_Factsheet.md`](core
 Notice:
 - It is prose only. No YAML, no formulas.
 - It describes the business question ("Where do Net Sales deviate vs Plan?") and the KPIs that answer it.
-- KPIs are listed by ID (`margin.gm.pct`, `sales.net_sales.amount`). They are *referenced* here, never *defined*.
+- KPIs are listed by ID (`KPI-COM-013`, `KPI-COM-005`). They are *referenced* here, never *defined*.
 - Domain shorthand you will see: `GM%` = Gross Margin Percentage, `LY` = Last Year, `PVM` = Price-Volume-Mix analysis, `L12M` = Last 12 Months. Full definitions in [`GLOSSARY.md`](docs/reference/GLOSSARY.md).
 
 **Step 2 — The machine-readable counterpart (5 min)**
@@ -113,32 +113,32 @@ Notice:
 Open [`core/usecases/core/COM-001_Sales_Performance/UseCase_Bracket.yaml`](core/usecases/core/COM-001_Sales_Performance/UseCase_Bracket.yaml).
 
 Look at the `orchestration` block. You will see:
-- `strategic_kpi_id: margin.gm.pct` — the top-level outcome this use case protects.
-- `influencing_kpi_ids` — KPIs (including `sales.net_sales.amount`) that drive the strategic KPI.
+- `strategic_kpi_id: KPI-COM-013` — the top-level outcome this use case protects.
+- `influencing_kpi_ids` — KPIs (including `KPI-COM-005`) that drive the strategic KPI.
 - `action_code_ids: [C-M2.1, C-S1.1, C-S1.2]` — the actions triggered when the KPI deviates.
 
 When a generator or validator runs, it reads this file — not the Factsheet.
 
 **Step 3 — Where KPIs are defined (3 min)**
 
-Open [`core/kpi_catalog/golden_20.yaml`](core/kpi_catalog/golden_20.yaml) and search for `margin.gm.pct`.
+Open [`core/kpi_catalog/golden_20.yaml`](core/kpi_catalog/golden_20.yaml) and search for `KPI-COM-013`.
 
 That entry is the single source of truth for that KPI: definition, unit, owner, DAX expression stub.
 The Factsheet references it. The Bracket lists it as `strategic_kpi_id`. The measure dictionary implements it. Nothing else defines it.
 
-While you are in the file, also find `sales.net_sales.amount` — it is there too, as an influencing KPI. You can see the distinction between `strategic` and `influencing` roles.
+While you are in the file, also find `KPI-COM-005` — it is there too, as an influencing KPI. You can see the distinction between `strategic` and `influencing` roles.
 
 **Step 4 — Where actions are defined (2 min)**
 
 Open [`core/action_codes/Commercial/C-M2.1.yaml`](core/action_codes/Commercial/C-M2.1.yaml).
 
-Read the `operational_execution.steps` block. That plain text is what "action-ready" means: when `margin.gm.pct` deviates, the system knows which concrete steps to recommend.
+Read the `operational_execution.steps` block. That plain text is what "action-ready" means: when `KPI-COM-013` deviates, the system knows which concrete steps to recommend.
 
 **The Golden Thread for COM-001, top to bottom:**
 
 ```
 Strategy pattern (Margin-First)
-  └─ Strategic KPI: margin.gm.pct           [core/kpi_catalog/golden_20.yaml]
+  └─ Strategic KPI: KPI-COM-013           [core/kpi_catalog/golden_20.yaml]
        └─ Use Case: COM-001                  [core/usecases/core/COM-001_Sales_Performance/]
             └─ Data contract                 [core/data_contracts/domains/commercial_sales.yaml]
             └─ Measure: Gross Margin %       [products/fabric/powerbi/dist/Commercial.SemanticModel/]
@@ -146,7 +146,7 @@ Strategy pattern (Margin-First)
                       └─ Actions: C-M2.1, C-S1.1, C-S1.2  [core/action_codes/Commercial/]
 ```
 
-The strategic KPI (`margin.gm.pct`) is the top-level outcome COM-001 protects. `sales.net_sales.amount` is one of several influencing KPIs that drive it — you will see this split in the Bracket's `orchestration` section.
+The strategic KPI (`KPI-COM-013`) is the top-level outcome COM-001 protects. `KPI-COM-005` is one of several influencing KPIs that drive it — you will see this split in the Bracket's `orchestration` section.
 
 ---
 

@@ -8,76 +8,76 @@ governance:
   steward_role: executive_office_pmo_bi_lead
 
 orchestration:
-  strategic_kpi_id: enterprise.action_outcome_rate.pct
+  strategic_kpi_id: KPI-GOV-001
   influencing_kpi_ids:
-    - enterprise.action_effectiveness_delta.amount
-    - enterprise.value_at_risk.index
+    - KPI-GOV-002
+    - KPI-GOV-004
   supporting_kpi_ids:
     # Cross-domain KPIs pulled into closure via Impactful 15 action code trigger chains
-    - cost.material.pct
-    - cost.opex.vs_plan.pct
-    - crm.churned_customers.count
-    - crm.lifetime_revenue.amount
-    - fin.liquidity.inventory.amount
-    - inv.obsolete.pct
-    - inv.stockout.pct
-    - inv.turnover
-    - margin.cogs.pct
-    - ops.downtime.unplanned.pct
-    - ops.failure.count
-    - ops.labor.productivity.pct
-    - ops.mttr.hours
-    - ops.pm_compliance.pct
-    - ops.throughput.units
-    - ops.quality.defect_rate.pct
-    - ops.spare_parts.stockout.pct
-    - ops.working_capital.ccc.days
-    - ops.quality.pct
-    - people.attrition_risk.pct
-    - people.digital_adoption.pct
-    - plan.forecast.mape.pct
-    - plan.forecast.accuracy.pct
-    - plan.forecast.bias.pct
-    - plan.forecast.service_impact.pct
-    - quality.complaint.pct
-    - quality.copq.amount
-    - quality.defect_density
-    - quality.rework.pct
-    - quality.scrap.pct
-    - sales.net_sales.amount
-    - sales.net_sales.delta_pct.ly
-    - sales.price.list.amount
-    - sales.price.net.amount
-    - sales.promo.baseline_sales.amount
-    - sales.promo.cost.amount
-    - sales.promo.incremental_gm.amount
-    - sales.pvm.price_effect.amount
-    - sales.pvm.volume_effect.amount
-    - supply.in_full.pct
-    - supply.on_time.pct
-    - supply.stockout_impact.pct
-    - cost.cogs.amount
-    - crm.active_customers.count
-    - crm.clv.amount
-    - crm.complaint.count
-    - crm.nps.index
-    - crm.retention.pct
-    - margin.gm.pct
-    - sales.promo.incremental.amount
-    - supply.otif.pct
-    - svc.aht.minutes
-    - svc.backlog.count
-    - svc.escalation.pct
-    - svc.fcr.pct
-    - svc.sla.attainment.pct
-    - svc.tickets.closed.count
-    - svc.tickets.created.count
-    - wc.dio.days
-    - wc.dpo.days
-    - wc.dso.days
-    - enterprise.actions_executed.count
-    - enterprise.avg_time_to_outcome.days
-    - enterprise.action_roi.pct
+    - KPI-SCM-020
+    - KPI-FIN-014
+    - KPI-CUS-004
+    - KPI-CUS-005
+    - KPI-FIN-002
+    - KPI-SCM-004
+    - KPI-SCM-002
+    - KPI-SCM-016
+    - KPI-FIN-016
+    - KPI-OPS-018
+    - KPI-OPS-012
+    - KPI-OPS-004
+    - KPI-OPS-006
+    - KPI-OPS-007
+    - KPI-OPS-009
+    - KPI-QUA-006
+    - KPI-OPS-008
+    - KPI-FIN-006
+    - KPI-OPS-003
+    - KPI-SVC-003
+    - KPI-SVC-002
+    - KPI-SCM-017
+    - KPI-SCM-005
+    - KPI-SCM-006
+    - KPI-SCM-012
+    - KPI-QUA-004
+    - KPI-QUA-003
+    - KPI-QUA-005
+    - KPI-OPS-010
+    - KPI-QUA-002
+    - KPI-COM-005
+    - KPI-COM-008
+    - KPI-COM-001
+    - KPI-COM-002
+    - KPI-COM-020
+    - KPI-COM-014
+    - KPI-COM-015
+    - KPI-COM-010
+    - KPI-COM-011
+    - KPI-SCM-018
+    - KPI-SCM-008
+    - KPI-SCM-009
+    - KPI-FIN-011
+    - KPI-CUS-006
+    - KPI-CUS-001
+    - KPI-SVC-001
+    - KPI-CUS-003
+    - KPI-CUS-002
+    - KPI-COM-013
+    - KPI-COM-021
+    - KPI-SCM-007
+    - KPI-SVC-006
+    - KPI-SVC-007
+    - KPI-SVC-008
+    - KPI-SVC-005
+    - KPI-SVC-004
+    - KPI-SVC-014
+    - KPI-SVC-013
+    - KPI-FIN-004
+    - KPI-FIN-005
+    - KPI-FIN-001
+    - KPI-GOV-005
+    - KPI-GOV-006
+    - KPI-GOV-007
   action_code_ids:
     - C-M2.1
     - C-M2.2
@@ -97,13 +97,13 @@ orchestration:
     - X-E3.3
 
 primary_kpi_ids:
-  - enterprise.action_outcome_rate.pct
+  - KPI-GOV-001
 
 value_driver_model:
   formula: >
-    enterprise.action_outcome_rate.pct = achieved_actions / total_executed_actions
+    KPI-GOV-001 = achieved_actions / total_executed_actions
   impact_direction: maximize
-  primary_driver: enterprise.action_outcome_rate.pct
+  primary_driver: KPI-GOV-001
   impact_logic: >
     Executive action effectiveness improves when Impactful 15 action codes are
     executed on time, owned clearly, and produce confirmed outcomes tracked
@@ -121,13 +121,13 @@ ux_layout_rules:
     decision_question: "Is the action governance cycle delivering verified business impact?"
     big_idea: "Govern actions to verified outcomes by focusing executive attention where weak follow-through and material impact intersect."
     component_3s:
-      kpi_id: enterprise.action_outcome_rate.pct
+      kpi_id: KPI-GOV-001
       visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
     component_30s:
       - slot_id: Main_1
-        kpi_id: enterprise.action_outcome_rate.pct
+        kpi_id: KPI-GOV-001
         visual_type: line_chart
         question: "Is the action-governance cycle delivering verified business impact?"
         message: "Outcome-rate trend separates verified business impact from administrative action closure."
@@ -136,7 +136,7 @@ ux_layout_rules:
         action_code_id: X-E3.3
         unit: rate
       - slot_id: Main_2
-        kpi_id: enterprise.action_effectiveness_delta.amount
+        kpi_id: KPI-GOV-002
         visual_type: horizontal_bar_chart
         # Wortlaut 23.09.2026 an so_what und Sortierung (schwaechste zuerst) angeglichen (Entscheidung Flo).
         question: "Which domains fail to convert actions into verified impact?"
@@ -163,16 +163,16 @@ ux_layout_rules:
         - fact_action_outcome.domain
         - fact_action_outcome.outcome_status
         - fact_action_outcome.action_code_id
-        - enterprise.avg_time_to_outcome.days
-        - enterprise.action_effectiveness_delta.amount
-        - enterprise.action_roi.pct
+        - KPI-GOV-006
+        - KPI-GOV-002
+        - KPI-GOV-007
       # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N (R2.1 sort_by/top_n).
       sort_by:
-        measure: enterprise.avg_time_to_outcome.days
+        measure: KPI-GOV-006
         direction: descending
       top_n: 20
       highlight_rule:
-        column: enterprise.avg_time_to_outcome.days
+        column: KPI-GOV-006
         type: data_bar
       action_panel: true
       payload_mode: minimal

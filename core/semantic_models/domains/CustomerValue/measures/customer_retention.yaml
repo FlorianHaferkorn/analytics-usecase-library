@@ -1,6 +1,6 @@
 measure_name: Customer Retention %
 is_kpi_measure: true
-kpi_id_ref: crm.retention.pct
+kpi_id_ref: KPI-CUS-002
 semantic_model: CustomerValue_SemanticModel
 display_folder: 01_Retention
 category: KPI

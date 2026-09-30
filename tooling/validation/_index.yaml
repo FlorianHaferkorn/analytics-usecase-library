@@ -54,14 +54,31 @@ domains:
     kpi_domain_keys: [enterprise, governance]
     action_prefix: "E"
 
+# KPI-Kuerzel (D-594 Nachtrag 2/3): Fachverantwortung, abgeleitet aus dem Hebel (Owner-Rolle der
+# Action Codes) bzw. governance.business_owner. Die Alternation in id_patterns.kpi.regex muss
+# genau diese Schluessel fuehren (tooling/tests/test_kpi_id_migration.py).
+kpi_domains:
+  COM: Commercial (Vertrieb, Pricing, Retail, Marketing mit Umsatzhebel)
+  FIN: Finanzen
+  OPS: Operations
+  SCM: Supply Chain (Planung, Einkauf, Bestand, Logistik)
+  SVC: Service
+  CUS: Kunde (Kundenbindung, Retention, NPS, Churn)
+  GOV: Steuerung/Governance der Geschaeftsfuehrung
+  PPL: Personal
+  QUA: Qualitaetswesen
+  ESG: Nachhaltigkeit
+
 id_patterns:
   kpi:
-    format: "<domain>.<entity>.<metric>[.<qualifier>]"
-    regex: "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*){1,4}$"
+    # D-594 (30.09.2026): ein Nummernraum fuer ALUCA und Meridian. Die Bedeutung steht im
+    # Katalogfeld, nicht in der ID; das Kuerzel folgt der Fachverantwortung (kpi_domains).
+    format: "KPI-<KUERZEL>-<NNN>"
+    regex: "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$"
     examples:
-      - sales.net_sales.amount
-      - crm.clv.amount
-      - finance.cash_flow.amount
+      - KPI-COM-005
+      - KPI-FIN-006
+      - KPI-SCM-007
 
   use_case:
     # Core + extension tiers ratified in ADR-0004 (industry-variant use-case tier).

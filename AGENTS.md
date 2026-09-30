@@ -43,6 +43,12 @@ Use cases and reports **reference** governed definitions — they do not define 
 > authoritative gate is the **local** test suite: `python3 -m pytest -q` (must be green before
 > commit). History and commands: `docs/agent/ci-usage-limit.md`.
 
+> **Agent developer tools (Meridian D-603):** Skills for Fabric are pinned in
+> `.claude/settings.json` (`fabric-collection`, `ref: v0.3.18`, `powerbi-authoring` off); the
+> Fabric Notebook Toolkit is an internal dev tool only and is blocked from `products/`, `core/`,
+> `tooling/`, `.github/` and `requirements*.txt` by Stage 1. Details and the VFS rule:
+> `docs/agent/agent-developer-tools.md`.
+
 Run all scripts from the **repository root**.
 
 **PowerShell (Windows / CI):**

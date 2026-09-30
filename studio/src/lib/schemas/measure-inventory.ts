@@ -1,7 +1,7 @@
 /**
  * AUTO-GENERATED — DO NOT EDIT
  *
- * Generated from tooling/ai/schemas/ by scripts/generate-types.mjs
+ * Generated from tooling/generator/schemas/ by scripts/generate-types.mjs
  * Re-generate with: npm run generate:types
  */
 

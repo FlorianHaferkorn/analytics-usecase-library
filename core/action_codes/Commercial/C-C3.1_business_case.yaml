@@ -1,6 +1,6 @@
 id: C-C3.1
 action_code_id: C-C3.1
-kpi_id: crm.retention.pct
+kpi_id: KPI-CUS-002
 impact_range_eur_min: 600000
 impact_range_eur_likely: 2500000
 impact_range_eur_max: 6000000

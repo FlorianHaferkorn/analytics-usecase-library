@@ -1,6 +1,6 @@
 measure_name: NPS Score
 is_kpi_measure: true
-kpi_id_ref: crm.nps.index
+kpi_id_ref: KPI-CUS-003
 semantic_model: CustomerValue_SemanticModel
 display_folder: 02_CX
 category: KPI
