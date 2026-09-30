@@ -152,5 +152,7 @@
       }
     }
   },
-  "capabilities": {}
+  "capabilities": {
+    "disableLineChartCrosshairTooltip": true
+  }
 }

@@ -126,7 +126,8 @@
           "dy": {
             "expr": "datum['delta_pl_pct'] < 0 ? 16 : -6"
           },
-          "color": "#201F1E"
+          "color": "#201F1E",
+          "tooltip": null
         },
         "encoding": {
           "x": {
@@ -244,5 +245,7 @@
       }
     }
   },
-  "capabilities": {}
+  "capabilities": {
+    "disableLineChartCrosshairTooltip": true
+  }
 }

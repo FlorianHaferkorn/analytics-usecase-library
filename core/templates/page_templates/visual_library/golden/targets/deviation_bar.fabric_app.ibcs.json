@@ -77,7 +77,8 @@
           },
           "dx": {
             "expr": "datum['gm_vs_plan'] < 0 ? -4 : 4"
-          }
+          },
+          "tooltip": null
         },
         "encoding": {
           "x": {
@@ -194,6 +195,7 @@
   },
   "capabilities": {
     "disableCompactNumberFormatting": true,
+    "disableLineChartCrosshairTooltip": true,
     "disableMinBarSize": true,
     "disableNiceAxisBounds": true,
     "disableStackedDataLabels": true

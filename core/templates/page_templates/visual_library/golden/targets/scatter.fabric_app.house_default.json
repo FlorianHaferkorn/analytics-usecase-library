@@ -135,5 +135,7 @@
       }
     }
   },
-  "capabilities": {}
+  "capabilities": {
+    "disableLineChartCrosshairTooltip": true
+  }
 }

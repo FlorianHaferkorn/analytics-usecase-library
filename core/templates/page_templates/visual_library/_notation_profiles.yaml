@@ -63,6 +63,10 @@ profiles:
           shortDays: [So, Mo, Di, Mi, Do, Fr, Sa]
           months: [Januar, Februar, März, April, Mai, Juni, Juli, August, September, Oktober, November, Dezember]
           shortMonths: [Jan, Feb, Mär, Apr, Mai, Jun, Jul, Aug, Sep, Okt, Nov, Dez]
+    # The library states its own tooltips (render.with_tooltips, line: nearest-date hover); the host's
+    # crosshair tooltip would add a second, differently formatted one. Styles inherit this.
+    vegavisual_capabilities:
+      disableLineChartCrosshairTooltip: true
 
   ibcs:
     name: "IBCS — International Business Communication Standards 2.0"

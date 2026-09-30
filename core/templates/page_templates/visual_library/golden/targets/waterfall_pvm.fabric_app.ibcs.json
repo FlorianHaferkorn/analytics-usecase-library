@@ -130,7 +130,8 @@
           "color": "#201F1E",
           "dy": {
             "expr": "datum['value'] < 0 ? 12 : -6"
-          }
+          },
+          "tooltip": null
         },
         "encoding": {
           "y": {
@@ -247,6 +248,7 @@
   },
   "capabilities": {
     "disableCompactNumberFormatting": true,
+    "disableLineChartCrosshairTooltip": true,
     "disableMinBarSize": true,
     "disableNiceAxisBounds": true,
     "disableStackedDataLabels": true

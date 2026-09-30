@@ -108,7 +108,8 @@
           "color": "#201F1E",
           "align": "left",
           "dx": 4,
-          "yOffset": 2
+          "yOffset": 2,
+          "tooltip": null
         },
         "encoding": {
           "x": {
@@ -225,6 +226,7 @@
   },
   "capabilities": {
     "disableCompactNumberFormatting": true,
+    "disableLineChartCrosshairTooltip": true,
     "disableMinBarSize": true,
     "disableNiceAxisBounds": true,
     "disableStackedDataLabels": true

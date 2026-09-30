@@ -135,7 +135,8 @@
           "align": "left",
           "dx": 4,
           "dy": -8,
-          "color": "#94A0AC"
+          "color": "#94A0AC",
+          "tooltip": null
         },
         "encoding": {
           "y": {
@@ -198,6 +199,98 @@
         }
       },
       {
+        "params": [
+          {
+            "name": "hover",
+            "select": {
+              "type": "point",
+              "fields": [
+                "month"
+              ],
+              "nearest": true,
+              "on": "pointerover",
+              "clear": "pointerout"
+            }
+          }
+        ],
+        "mark": {
+          "type": "rule",
+          "color": "#94A0AC"
+        },
+        "encoding": {
+          "opacity": {
+            "condition": {
+              "param": "hover",
+              "empty": false,
+              "value": 0.8
+            },
+            "value": 0
+          },
+          "tooltip": [
+            {
+              "field": "month",
+              "type": "temporal",
+              "title": "month",
+              "format": "%m/%Y"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_plan",
+              "type": "quantitative",
+              "title": "gm_plan",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "point",
+          "filled": true,
+          "size": 50,
+          "color": "#0F2430"
+        },
+        "encoding": {
+          "y": {
+            "field": "gm",
+            "type": "quantitative"
+          },
+          "opacity": {
+            "condition": {
+              "param": "hover",
+              "empty": false,
+              "value": 1
+            },
+            "value": 0
+          },
+          "tooltip": [
+            {
+              "field": "month",
+              "type": "temporal",
+              "title": "month",
+              "format": "%m/%Y"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_plan",
+              "type": "quantitative",
+              "title": "gm_plan",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
         "transform": [
           {
             "window": [
@@ -222,7 +315,8 @@
           "align": "right",
           "dx": -8,
           "dy": -10,
-          "color": "#201F1E"
+          "color": "#201F1E",
+          "tooltip": null
         },
         "encoding": {
           "y": {
@@ -328,5 +422,7 @@
       }
     }
   },
-  "capabilities": {}
+  "capabilities": {
+    "disableLineChartCrosshairTooltip": true
+  }
 }

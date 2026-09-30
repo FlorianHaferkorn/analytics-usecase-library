@@ -15,6 +15,12 @@
     { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
       "mark": { "type": "point", "filled": true, "size": 60, "color": "#F7630C" },
       "encoding": { "y": { "field": "gm", "type": "quantitative" } } },
+    { "params": [ { "name": "hover", "select": { "type": "point", "fields": ["month"], "nearest": true, "on": "pointerover", "clear": "pointerout" } } ],
+      "mark": { "type": "rule", "color": "#94A0AC" },
+      "encoding": { "opacity": { "condition": { "param": "hover", "empty": false, "value": 0.8 }, "value": 0 } } },
+    { "mark": { "type": "point", "filled": true, "size": 50, "color": "#0F2430" },
+      "encoding": { "y": { "field": "gm", "type": "quantitative" },
+                    "opacity": { "condition": { "param": "hover", "empty": false, "value": 1 }, "value": 0 } } },
     { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
       "mark": { "type": "text", "align": "right", "dx": -8, "dy": -10, "color": "#201F1E" },
       "encoding": { "y": { "field": "gm", "type": "quantitative" }, "text": { "field": "gm", "type": "quantitative", "format": ",.1~f" } } }

@@ -79,3 +79,23 @@ def test_numbers_and_dates_render_in_german():
     assert re.search(r">1\.240,5<", svg), "data label not in de-DE format"
     for pid in render.all_profiles():
         assert render.vegalite_config(pid)["locale"]["number"]["decimal"] == ",", pid
+
+
+def test_line_hover_follows_the_nearest_date_and_shows_actual_and_plan():
+    """Power BI shows all series of the hovered date; the line carries a nearest-date hover whose
+    tooltip lists period, actual and plan (no host crosshair on top: capability disabled)."""
+    for pid in ("house_default", "fluent", "editorial"):
+        doc = json.loads(render.render_target("line", "fabric_app", pid,
+                                              bindings={"time": "Monat", "value": "Ist", "plan": "Plan"})[0])
+        hover = [n for n in _layers(doc["spec"]) if n.get("params")]
+        assert hover and hover[0]["params"][0]["select"].get("nearest") is True, pid
+        assert [t["field"] for t in hover[0]["encoding"]["tooltip"]] == ["Monat", "Ist", "Plan"], pid
+        assert doc["capabilities"].get("disableLineChartCrosshairTooltip") is True, pid
+
+
+def test_labels_carry_no_tooltip():
+    for idiom in ("bar_ranking", "waterfall_pvm", "line"):
+        spec = json.loads(render.render_target(idiom, "fabric_app", "house_default")[0])["spec"]
+        for node in _layers(spec):
+            if _mark(node) == "text":
+                assert node["mark"].get("tooltip", "missing") is None, idiom

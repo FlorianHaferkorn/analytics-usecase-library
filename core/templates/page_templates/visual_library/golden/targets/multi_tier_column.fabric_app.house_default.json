@@ -191,7 +191,8 @@
               },
               "dy": {
                 "expr": "datum.d_rel < 0 ? 6 : -6"
-              }
+              },
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -222,7 +223,8 @@
               "align": "right",
               "baseline": "middle",
               "dx": -8,
-              "text": "ΔPY%"
+              "text": "ΔPY%",
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -333,7 +335,8 @@
               "color": "#0F2430",
               "baseline": "bottom",
               "dy": -4,
-              "xOffset": 2
+              "xOffset": 2,
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -420,7 +423,8 @@
               },
               "dy": {
                 "expr": "datum.d_abs < 0 ? 4 : -4"
-              }
+              },
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -451,7 +455,8 @@
               "align": "right",
               "baseline": "middle",
               "dx": -8,
-              "text": "ΔPY"
+              "text": "ΔPY",
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -475,7 +480,8 @@
               "align": "right",
               "baseline": "middle",
               "dx": -8,
-              "text": "AC"
+              "text": "AC",
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -581,5 +587,7 @@
       }
     }
   },
-  "capabilities": {}
+  "capabilities": {
+    "disableLineChartCrosshairTooltip": true
+  }
 }

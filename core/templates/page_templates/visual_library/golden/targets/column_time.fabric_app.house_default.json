@@ -63,7 +63,8 @@
           "type": "text",
           "baseline": "bottom",
           "dy": -4,
-          "color": "#201F1E"
+          "color": "#201F1E",
+          "tooltip": null
         },
         "encoding": {
           "text": {
@@ -172,5 +173,7 @@
       }
     }
   },
-  "capabilities": {}
+  "capabilities": {
+    "disableLineChartCrosshairTooltip": true
+  }
 }

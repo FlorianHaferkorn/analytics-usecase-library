@@ -207,7 +207,8 @@
               },
               "dy": {
                 "expr": "datum.d_rel < 0 ? 6 : -6"
-              }
+              },
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -237,7 +238,8 @@
               "color": "#201F1E",
               "baseline": "bottom",
               "dy": -6,
-              "text": "N/A"
+              "text": "N/A",
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -262,7 +264,8 @@
               "align": "right",
               "baseline": "middle",
               "dx": -8,
-              "text": "ΔPY%"
+              "text": "ΔPY%",
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -375,7 +378,8 @@
               "color": "#201F1E",
               "baseline": "bottom",
               "dy": -4,
-              "xOffset": 2
+              "xOffset": 2,
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -474,7 +478,8 @@
               },
               "dy": {
                 "expr": "datum.d_abs < 0 ? 4 : -4"
-              }
+              },
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -505,7 +510,8 @@
               "align": "right",
               "baseline": "middle",
               "dx": -8,
-              "text": "ΔPY"
+              "text": "ΔPY",
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -529,7 +535,8 @@
               "align": "right",
               "baseline": "middle",
               "dx": -8,
-              "text": "AC"
+              "text": "AC",
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -554,7 +561,8 @@
               "baseline": "top",
               "dx": -8,
               "dy": 4,
-              "text": "PY"
+              "text": "PY",
+              "tooltip": null
             },
             "encoding": {
               "x": {
@@ -671,6 +679,7 @@
   },
   "capabilities": {
     "disableCompactNumberFormatting": true,
+    "disableLineChartCrosshairTooltip": true,
     "disableMinBarSize": true,
     "disableNiceAxisBounds": true,
     "disableStackedDataLabels": true

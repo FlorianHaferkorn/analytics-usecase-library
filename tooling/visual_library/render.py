@@ -426,7 +426,13 @@ def with_tooltips(spec: dict, idiom: str, eff: dict) -> dict:
                 node[key] = [walk(part) for part in node[key]]
         dump = json.dumps({k: node.get(k) for k in ("transform", "encoding")})
         kind = mark_type(node)
-        if kind in _TOOLTIP_MARKS or kind == "boxplot":
+        if kind == "text":
+            mark = node["mark"] if isinstance(node["mark"], dict) else {"type": node["mark"]}
+            node["mark"] = {**mark, "tooltip": None}   # a label is the value already; no host tooltip
+            return node
+        if kind == "rule" and node.get("params"):
+            kind = "hover_rule"                             # the nearest-date hover carries the tooltip
+        if kind in _TOOLTIP_MARKS or kind in ("boxplot", "hover_rule"):
             if aggregated or '"aggregate"' in dump or '"bin"' in dump or kind == "boxplot":
                 # rows are summaries, not the bound columns: show what the marks encode
                 mark = node["mark"] if isinstance(node["mark"], dict) else {"type": node["mark"]}
@@ -488,7 +494,8 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         out = dict(spec)
         out["config"] = config
     else:
-        caps = profile_def(profile).get("vegavisual_capabilities") or {}
+        caps = {**(profile_def(default_profile()).get("vegavisual_capabilities") or {}),
+                **(profile_def(profile).get("vegavisual_capabilities") or {})}
         unknown = sorted(set(caps) - set(VEGAVISUAL_CAPABILITIES))
         if unknown:
             raise KeyError(f"profile '{profile}' sets unknown VegaVisual capabilities {unknown}")

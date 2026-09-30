@@ -152,7 +152,8 @@
           },
           "dy": {
             "expr": "datum['delta_pl_pct'] < 0 ? 6 : -6"
-          }
+          },
+          "tooltip": null
         },
         "encoding": {
           "x": {
@@ -182,7 +183,8 @@
           "color": "#201F1E",
           "baseline": "bottom",
           "dy": -6,
-          "text": "N/A"
+          "text": "N/A",
+          "tooltip": null
         },
         "encoding": {
           "x": {
@@ -298,6 +300,7 @@
   },
   "capabilities": {
     "disableCompactNumberFormatting": true,
+    "disableLineChartCrosshairTooltip": true,
     "disableMinBarSize": true,
     "disableNiceAxisBounds": true,
     "disableStackedDataLabels": true

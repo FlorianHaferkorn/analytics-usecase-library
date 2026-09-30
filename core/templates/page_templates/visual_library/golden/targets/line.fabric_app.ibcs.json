@@ -147,7 +147,8 @@
         "mark": {
           "type": "text",
           "color": "#201F1E",
-          "dy": -10
+          "dy": -10,
+          "tooltip": null
         },
         "encoding": {
           "y": {
@@ -264,6 +265,7 @@
   },
   "capabilities": {
     "disableCompactNumberFormatting": true,
+    "disableLineChartCrosshairTooltip": true,
     "disableMinBarSize": true,
     "disableNiceAxisBounds": true,
     "disableStackedDataLabels": true
