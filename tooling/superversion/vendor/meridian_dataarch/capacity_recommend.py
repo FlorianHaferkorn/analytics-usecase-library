@@ -87,6 +87,13 @@ for _i, _s in enumerate(_SKUS):
 for _j, _s in enumerate(_ABOVE_LADDER):
     _RANK_ALIAS[_s["sku"].upper()] = len(_SKUS) + _j
 
+#: Alle F-SKUs, die sich **anlegen** lassen (F2 … F8192), aufsteigend. Anders als ``sku_rank`` ohne
+#: P/EM/A-Aliasse: eine Kapazitaets-Anlage per ARM (``Microsoft.Fabric/capacities``, ``sku.tier =
+#: Fabric``) kennt nur F-Namen. Gegenprobe: Learn ``enterprise/capacity-overage-overview``, Tabelle
+#: „Capacity overage thresholds" (gelesen 30.09.2026), fuehrt genau diese 13 SKUs. F512 und groesser
+#: gibt es nicht in jeder Region (``enterprise/licenses``) — das prueft erst Azure beim Anlegen.
+F_SKUS: tuple[str, ...] = tuple(s["sku"] for s in (*_SKUS, *_ABOVE_LADDER))
+
 
 def sku_ceilings(sku: str) -> dict[str, Any] | None:
     """The published per-SKU ceilings for ``sku`` — ladder **or** above it — or None if unrecognised.

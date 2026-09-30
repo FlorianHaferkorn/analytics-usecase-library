@@ -326,6 +326,62 @@ def _capacity_alerts_md(capacity: str, alerts: dict, politik: dict) -> str:
     return "\n".join(z) + "\n"
 
 
+#: Entscheidungen am Monitoring-Item, die nach der Anlage nicht mehr zu aendern sind oder die
+#: Anlage selbst binden (Learn ``fundamentals/enable-workspace-monitoring`` und
+#: ``workspace-monitoring-overview``, beide gelesen 30.09.2026). Als Feld, damit ein Test sie
+#: zaehlen kann und das Runbook sie nicht nur im Fliesstext traegt.
+MONITORING_UNVERAENDERLICH: tuple[dict, ...] = (
+    {"punkt": "ziel", "regel": "Ziel (this vs. another Monitoring Item) ist nach der Anlage nicht "
+     "aenderbar", "beleg": "„You can't change the destination after you configure workspace "
+     "monitoring.\""},
+    {"punkt": "region", "regel": "Ziel in einem anderen Monitoring Item nur bei gleicher Azure-"
+     "Region beider Workspaces", "beleg": "„Both workspaces must be in the same Azure region.\""},
+    {"punkt": "item_limit", "regel": "je Quell-Workspace eine KQL-Datenbank im Ziel-Workspace, "
+     f"zaehlt gegen dessen {WORKSPACE_ITEM_LIMIT}-Item-Grenze", "beleg": "„Each database counts "
+     "toward the destination workspace's item limit.\""},
+    {"punkt": "custom_endpoint", "regel": "Custom Endpoint nur bei der Anlage aktivierbar (Preview)",
+     "beleg": "„Through the preview period, this setting can only be enabled at creation time.\""},
+    {"punkt": "operations_agent", "regel": "Operations Agent nach Aktivierung nicht abschaltbar — "
+     "erst nach Freigabe (DSGVO/Copilot) anlegen", "beleg": "„If you enable the Operations "
+     "Agent, you can't disable it later.\""},
+)
+
+
+def region_pruefung(bp: dict, politik: dict) -> dict:
+    """Gleiche Azure-Region fuer ``topologie: zentral`` — gemessen an den Kapazitaeten im Bauplan.
+
+    Ein Workspace liegt in der Region seiner Kapazitaet (Kapazitaet je Workspace aus
+    ``kapazitaet_stufen.zuordnung``, Region aus ``platform.capacities[].region``). Liegt der
+    zentrale Monitoring-Workspace im Bauplan, zaehlt seine Kapazitaet mit; sonst ist seine Region
+    offen. ``status``: ``gleich`` | ``abweichend`` | ``unbekannt`` | ``nicht_anwendbar``.
+    """
+    from core.dataarch_engine.blueprint.kapazitaet_stufen import zuordnung
+
+    if politik["topologie"] != "zentral":
+        return {"status": "nicht_anwendbar", "regionen": {}, "ohne_region": []}
+    kaps = {str(k.get("name")): str(k.get("region") or "").strip()
+            for k in (bp.get("platform") or {}).get("capacities") or [] if k.get("name")}
+    regionen: dict[str, list[str]] = {}
+    ohne: list[str] = []
+    for r in zuordnung(bp):
+        reg = kaps.get(r["kapazitaet"] or "", "")
+        if reg:
+            regionen.setdefault(re.sub(r"\s+", "", reg).lower(), []).append(r["workspace"])
+        else:
+            ohne.append(r["workspace"])
+    zentral_ws = politik.get("zentral_workspace")
+    zentral_bekannt = any(r["workspace"] == zentral_ws for r in zuordnung(bp))
+    if len(regionen) > 1:
+        status = "abweichend"
+    elif ohne or not regionen or not zentral_bekannt:
+        status = "unbekannt"
+    else:
+        status = "gleich"
+    return {"status": status, "regionen": {k: sorted(v) for k, v in sorted(regionen.items())},
+            "ohne_region": sorted(ohne),
+            "zentral_workspace_im_bauplan": zentral_bekannt}
+
+
 def _monitoring_item_spec(bp: dict, politik: dict) -> dict:
     """``workspace_monitoring_item.json`` — das Monitoring-Item als Spezifikation (I-21 W1.6).
 
@@ -384,6 +440,7 @@ def _monitoring_item_spec(bp: dict, politik: dict) -> dict:
             "kql_datenbanken_im_ziel": len(quellen) if zentral else 1,
             "item_limit_ziel_workspace": WORKSPACE_ITEM_LIMIT,
             "gleiche_azure_region": zentral,
+            "region_pruefung": region_pruefung(bp, politik),
             "begruendung": ("Learn empfiehlt ein zentrales Monitoring-Eventhouse auf eigener "
                             "Kapazitaet: schuetzt das Monitoring vor Drosselung der Last und die "
                             "Last vor dem Monitoring.") if zentral else
@@ -391,6 +448,7 @@ def _monitoring_item_spec(bp: dict, politik: dict) -> dict:
                            "Learn-Empfehlung, bewusst gewaehlt).",
         },
         "ziel_aenderbar": False,
+        "unveraenderlich": [dict(u) for u in MONITORING_UNVERAENDERLICH],
         "optionen": opt,
         "offene_entscheidungen": offen,
         "aufbewahrung": {
@@ -1174,6 +1232,31 @@ def _activity_log_lines() -> list[str]:
     ]
 
 
+def _region_zeilen(rp: dict) -> list[str]:
+    """Schritt 1d: Ergebnis der Regionspruefung fuer die zentrale Topologie."""
+    if rp["status"] == "nicht_anwendbar":
+        return []
+    if rp["status"] == "abweichend":
+        teile = "; ".join(f"`{reg}`: " + ", ".join(f"`{w}`" for w in ws)
+                          for reg, ws in rp["regionen"].items())
+        return ["1d. **BLOCKER — regions differ.** *Send data to Eventhouse in another Monitoring "
+                "Item* needs source and destination workspace in the **same Azure region** (Learn, "
+                f"read 2026-09-30), and the blueprint's capacities span several: {teile}. One "
+                "central monitoring item per region, or move the capacities — decide before step 1; "
+                "the destination cannot be changed afterwards."]
+    if rp["status"] == "unbekannt":
+        offen = ", ".join(f"`{w}`" for w in rp["ohne_region"]) or "—"
+        return ["1d. **Region check open.** The central topology needs every source workspace in "
+                "the destination's Azure region. Not decidable from the blueprint: capacities "
+                f"without `region` for {offen}"
+                + ("" if rp.get("zentral_workspace_im_bauplan") else
+                   "; the central monitoring workspace is not in the blueprint")
+                + ". Check the region of each capacity (Monitor hub → Capacities, column *Region*) "
+                "before step 1."]
+    return ["1d. Region check: all source workspaces and the central monitoring workspace sit on "
+            "capacities in `" + next(iter(rp["regionen"])) + "` — the same-region condition holds."]
+
+
 def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspace>",
                     capacity: str = "<CAPACITY_NAME>", alerts: dict | None = None,
                     stages: tuple[str, ...] = ("dev", "test", "prod"),
@@ -1263,6 +1346,7 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "The **custom endpoint** (export via Event Hubs/Kafka/AMQP) can only be enabled at "
         "creation during the preview. Untick whatever is still open in "
         f"`{MONITORING_ITEM_PATH.split('/')[-1]}` → `offene_entscheidungen`.",
+        *_region_zeilen(region_pruefung(bp, politik)),
         "1b. **Capacity notifications** (Admin portal → Capacity settings → Notifications): a "
         "percentage threshold and *capacity exceeded*, to the capacity admins. Five clicks, no "
         "infrastructure, and independent of everything below — it is the only signal in this list "
