@@ -109,7 +109,12 @@ def add_key_column(text: str, spalte: str, nach: str) -> str:
     return text[:anker.end()] + block + text[anker.end():]
 
 
-def dimension_tmdl(modell: str, name: str, vertrag: dict) -> str:
+def dimension_tmdl(modell: str, name: str, vertrag: dict, modus: str | None = None) -> str:
+    """Neue Dimension als TMDL; die Partition folgt dem Speichermodus des Mandanten (D-590).
+
+    ``modus=None`` heisst Import — der Modus von ``dist/`` (kein Bauplan, keine Kapazitaet)."""
+    from tooling.codegen.speichermodus import gold_partition, konstanten
+    modus = modus or konstanten()[1]
     dim = next(d for d in vertrag["dimension"] if d["name"] == name)
     zeilen = [f"/// {' '.join(dim['description'].split())}", f"table {name}", f"\tlineageTag: {_tag(modell, name)}"]
     for c in dim["columns"]:
@@ -117,10 +122,7 @@ def dimension_tmdl(modell: str, name: str, vertrag: dict) -> str:
                    f"\t\tsourceColumn: {c['name']}", "\t\tsummarizeBy: none"]
         if c.get("role") == "key":
             zeilen += ["\t\tisHidden", "\t\tisAvailableInMDX: false"]
-    zeilen += [f"\tpartition {name} = m", "\t\tmode: import", "\t\tsource =", "\t\t\tlet",
-               f'\t\t\t\tActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/dimensions/{name}"),',
-               "\t\t\t\tParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))",
-               "\t\t\tin", "\t\t\t\tParquetData"]
+    zeilen += gold_partition(name, "dimensions", modus, einzug="\t\t\t")
     return "\n".join(zeilen) + "\n"
 
 
@@ -153,8 +155,13 @@ def _nutzungen(modell: str, tabelle: str, spalte: str) -> list[str]:
     return treffer
 
 
-def soll() -> dict[Path, str | None]:
-    """Zielinhalt je betroffener Datei; ``None`` heißt: Datei soll nicht existieren."""
+def soll(modus: str | None = None) -> dict[Path, str | None]:
+    """Zielinhalt je betroffener Datei; ``None`` heißt: Datei soll nicht existieren.
+
+    ``modus`` ist der Speichermodus des Mandanten (D-590); ``None`` = Import. Vor jeder neuen
+    Tabelle prueft ``speichermodus.pruefe_modell``, ob das Zielmodell ihn tragen kann."""
+    from tooling.codegen.speichermodus import konstanten, pruefe_modell
+    modus = modus or konstanten()[1]
     dateien: dict[Path, str | None] = {}
 
     def lesen(p: Path) -> str:
@@ -178,7 +185,8 @@ def soll() -> dict[Path, str | None]:
     for modell, dim, vertrag, fakt, schluessel in NEW_DIMENSIONS:
         v = vertraege.setdefault(vertrag, yaml.safe_load((CONTRACTS / vertrag).read_text(encoding="utf-8")))
         d = _defn(modell)
-        dateien[d / "tables" / f"{dim}.tmdl"] = dimension_tmdl(modell, dim, v)
+        pruefe_modell(d, modus)
+        dateien[d / "tables" / f"{dim}.tmdl"] = dimension_tmdl(modell, dim, v, modus)
         p = d / "tables" / f"{fakt}.tmdl"
         dateien[p] = add_key_column(lesen(p), schluessel, "OrgKey")
         name = f"{dim}_{fakt}"
@@ -188,9 +196,9 @@ def soll() -> dict[Path, str | None]:
     return dateien
 
 
-def pruefe(schreiben: bool = False) -> list[str]:
+def pruefe(schreiben: bool = False, modus: str | None = None) -> list[str]:
     drift = []
-    for p, inhalt in sorted(soll().items()):
+    for p, inhalt in sorted(soll(modus).items()):
         ist = p.read_text(encoding="utf-8") if p.exists() else None
         if ist == inhalt:
             continue
@@ -206,8 +214,12 @@ def pruefe(schreiben: bool = False) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--write", action="store_true")
+    ap.add_argument("--blueprint", type=Path, default=None,
+                    help="Bauplan des Mandanten; entscheidet den Speichermodus (D-590). "
+                         "Ohne: keine Kapazitaet bekannt → Import (der Modus von dist/)")
     a = ap.parse_args(argv)
-    drift = pruefe(a.write)
+    from tooling.codegen.speichermodus import lade_bauplan, mandant_modus
+    drift = pruefe(a.write, mandant_modus(lade_bauplan(a.blueprint)))
     if drift and not a.write:
         print(f"[model-alignment] weicht ab ({len(drift)}): {', '.join(drift)} -- --write", file=sys.stderr)
         return 1
