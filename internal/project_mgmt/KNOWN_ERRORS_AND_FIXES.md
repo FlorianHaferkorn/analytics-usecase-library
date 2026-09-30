@@ -16,7 +16,7 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 
 | Source | Path |
 |--------|------|
-| Pipeline (orchestrator) | `products/fabric_powerbi/orchestrator/last_run_state.json` (`validateErrors`), `products/fabric_powerbi/orchestrator/out/build_errors.json` |
+| Pipeline (orchestrator) | `products/fabric/powerbi/orchestrator/last_run_state.json` (`validateErrors`), `products/fabric/powerbi/orchestrator/out/build_errors.json` |
 | Quality Checks failures | `internal/reviews/run_all_checks_failures.json` |
 | Power BI Desktop (live) | `.local/pbi_errors.log` |
 
