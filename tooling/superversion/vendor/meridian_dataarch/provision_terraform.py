@@ -723,8 +723,9 @@ def _schutz_md(bp: dict, anlage: dict[str, dict]) -> str:
         "replace a protected capacity — stops with an error instead of deleting production. "
         "This holds for the **whole** run: a plain `terraform destroy` (and so `platform_down.sh`) "
         "deletes nothing while a protected capacity is in the configuration.\n\n"
-        + (("Tear down only non-production: target it — dependants (the workspaces on it and what "
-            "hangs on them) are included:\n\n```bash\n"
+        + (("Tear down only non-production: `bash platform/platform_down.sh --stufe dev,test` "
+            "(D-609; `--dry-run` shows the targeted plan). By hand, target the capacity — "
+            "dependants (the workspaces on it and what hangs on them) are included:\n\n```bash\n"
             + "".join(f"terraform destroy -target=azapi_resource.{x}\n" for x in rest)
             + "```\n\n") if rest else "") +
         "Deliberate production teardown: remove the `lifecycle` block of that capacity in "
@@ -802,6 +803,36 @@ def _anlage(bp: dict, slots: list[tuple[str, str, str]]) -> dict[str, dict]:
     if fehler:
         raise ValueError("capacity creation (provisioning: create) not possible: " + "; ".join(fehler))
     return aus
+
+
+def rueckbau_ziele(bp: dict) -> dict[str, list[tuple[str, list[str]]]]:
+    """Terraform-Adressen fuer den Rueckbau je Nicht-Produktions-Stufe (D-609).
+
+    ``{"workspaces": [(adresse, [stufe])], "kapazitaeten": [(adresse, [stufen])]}``. Ein Workspace
+    steht mit seiner Stufe da; eine hier angelegte Kapazitaet nur, wenn sie keine Produktion traegt
+    (D-607), mit **allen** Stufen, deren Workspaces auf ihr laufen — ``platform_down.sh`` nimmt sie
+    erst mit, wenn jede davon gewaehlt ist, sonst risse der Rueckbau von ``dev`` die Testumgebung
+    mit. Dieselbe Slot-Ableitung wie ``emit_terraform`` (``_capacity_slots``/``_anlage``), damit
+    die Adressen die sind, die ``capacity.tf`` und ``workspaces.tf`` tatsaechlich tragen.
+    """
+    from core.dataarch_engine.blueprint.kapazitaet_stufen import traegt_produktion, zuordnung
+
+    slots, ws_slot = _capacity_slots(bp, "", "")
+    anlage = _anlage(bp, slots)
+    ws_stufe: dict[str, str] = {}
+    for r in zuordnung(bp):
+        ws_stufe.setdefault(r["workspace"], r["stage"] or "prod")
+    workspaces = [(f"fabric_workspace.{_tf_name(ws)}", [st])
+                  for ws, st in sorted(ws_stufe.items()) if st != "prod"]
+    kapazitaeten: list[tuple[str, list[str]]] = []
+    for slot, cap in anlage.items():
+        if traegt_produktion(bp, cap):
+            continue
+        stufen = sorted({ws_stufe[w] for w, s in ws_slot.items() if s == slot}
+                        or {str(s) for s in cap.get("stages") or []})
+        if stufen and "prod" not in stufen:
+            kapazitaeten.append((f"azapi_resource.{slot}", stufen))
+    return {"workspaces": workspaces, "kapazitaeten": kapazitaeten}
 
 
 def _tfvars_kopf(git: bool) -> str:

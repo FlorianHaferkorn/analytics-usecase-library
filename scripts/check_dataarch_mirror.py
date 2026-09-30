@@ -190,6 +190,10 @@ MIRRORED_FILES = (
     # Mandanten als Parameter, und `satzklassen` traegt hier Rolle × Standort statt einer
     # Person (ADR-0019 §2.2).
     ("core/preis_kanon.py", "preis_kanon.py"),
+    # Leerstellen der Geschaeftsobjekt-Schicht als Vorlage und zurueck (Meridian D-610,
+    # 30.09.2026). Das Schema ist schon Peer-Paar; die Vorlage arbeitet auf dessen Form und
+    # waere als zweite Fassung in beiden Repos gleich zu pflegen. Nur Standardbibliothek.
+    ("meridian/semantics/leerstellen_vorlage.py", "leerstellen_vorlage.py"),
 )
 
 
