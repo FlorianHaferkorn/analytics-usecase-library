@@ -126,3 +126,12 @@ def test_choose_respects_available_roles():
     assert resolve.choose("time_comparison", set(), "house_default") is None
     with pytest.raises(KeyError):
         resolve.choose("no_such_purpose", {"value"})
+
+
+def test_choose_never_collapses_a_dimension():
+    """A list of causes (category + value) must not become a single bullet: every dimension
+    role in the data has to be consumed by the chosen idiom, or the purpose has no answer."""
+    assert resolve.choose("deviation_from_target", {"category", "value"}, "house_default") is None
+    assert resolve.choose("deviation_from_target", {"value"}, "house_default")["idiom"] == "bullet"
+    got = resolve.choose("compare_categories", {"category", "value"}, "ibcs")
+    assert got and "category" in {s["role"] for s in render.data_slots(got["idiom"]).values()}

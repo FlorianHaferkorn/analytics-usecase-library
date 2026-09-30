@@ -286,13 +286,18 @@ def _parse_shape(tokens: "list[str]") -> dict:
 
 
 
+DIMENSION_ROLES = frozenset({"category", "time", "series", "step", "period"})
+
+
 def choose(purpose: str, roles: "set[str] | list[str]", profile: "str | None" = None) -> "dict | None":
     """The governed idiom for a purpose that the available data can fill (A-31 R4).
 
     Walks the purpose's candidates in governed order (`best` first) and returns the first idiom
-    that (a) has a derived Vega-Lite target under `profile` and (b) whose REQUIRED data_slots
-    roles are all in `roles`. Returns {idiom, profile, notation, reason} or None — never a guess
-    outside the purpose's candidate list. Deterministic: same inputs, same answer."""
+    that (a) has a derived Vega-Lite target under `profile`, (b) whose REQUIRED data_slots roles
+    are all in `roles`, and (c) that consumes every DIMENSION role the data carries (category,
+    time, series, step, period) — otherwise it would silently collapse the rows (a bullet fed a
+    list of causes shows one bar). Returns {idiom, profile, notation, reason} or None — never a
+    guess outside the purpose's candidate list. Deterministic: same inputs, same answer."""
     idx = _index()
     pur = (idx.get("purposes") or {}).get(purpose)
     if pur is None:
@@ -307,8 +312,10 @@ def choose(purpose: str, roles: "set[str] | list[str]", profile: "str | None" = 
         seen.append(iid)
         if iid not in idx.get("implemented", []) or profile not in render.target_profiles(iid):
             continue
-        need = {s["role"] for s in render.data_slots(iid).values() if s.get("required", True)}
-        if need and need <= have:
+        slots = render.data_slots(iid).values()
+        need = {s["role"] for s in slots if s.get("required", True)}
+        takes = {s["role"] for s in slots}
+        if need and need <= have and (have & DIMENSION_ROLES) <= takes:
             reason = f"first candidate of '{purpose}' with a {profile} target and roles {sorted(need)}"
             return {"idiom": iid, "profile": profile, "notation": render.notation_of(profile), "reason": reason}
     return None
