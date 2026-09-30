@@ -29,8 +29,9 @@ norecursedirs = ["products/fabric/powerbi/deployment/scripts/modules/tests"]
 [tool.ruff]
 line-length = 120
 target-version = "py311"
-# Vendored Meridian canonical-core (ADR-0005) is third-party; not linted by ALUCA rules.
-extend-exclude = ["tooling/superversion/vendor"]
+# Vendored Meridian code (ADR-0005 canonical-core, dataarch emitters, copilot-readiness kernel)
+# is mirrored byte-identically; not linted by ALUCA rules (a fix would break the PIN).
+extend-exclude = ["tooling/superversion/vendor", "products/fabric/powerbi/tooling/copilot_readiness/vendor"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W"]
