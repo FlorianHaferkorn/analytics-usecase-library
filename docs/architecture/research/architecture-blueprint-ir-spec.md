@@ -214,6 +214,19 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                 "type": "string",
                 "description": "Name der Domaene, die auf dieser Kapazitaet laeuft. Fehlt er, traegt die Kapazitaet alle Domaenen — der Einzelkapazitaetsfall."
               },
+              "stages": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "enum": [
+                    "dev",
+                    "test",
+                    "prod"
+                  ]
+                },
+                "description": "D-596 (30.09.2026): Stufen, deren Workspaces auf dieser Kapazitaet laufen (`mesh.domains[].workspaces[].stage`). Produktion und Nicht-Produktion gehoeren auf getrennte Kapazitaeten, innerhalb konsolidiert: typisch ein Eintrag mit `[\"prod\"]` und einer mit `[\"dev\", \"test\"]`. Fehlt das Feld, traegt die Kapazitaet jede Stufe, die kein anderer Eintrag beansprucht; ein ungestufter Workspace zaehlt als Produktion. Aufgeloest in `kapazitaet_stufen.kapazitaet_fuer` (Meridian) und `capacity.split` (ALUCA). Eine eigene Kapazitaet je Tier-1-Workload (D-596 Option c) laeuft ueber `workspaces[].surge_class = mission_critical` und ist ein Angebot, keine Vorgabe."
+              },
               "purpose": {
                 "type": "string"
               },
@@ -768,6 +781,51 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                 "type": "string"
               },
               "description": "Workspaces, die den CMK tragen. Leer bei `customer_managed` = alle."
+            }
+          }
+        },
+        "planning": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled"
+          ],
+          "description": "D-595 (30.09.2026): Fabric Planning (Item `Plan`, Fabric IQ) als Blueprint-Option. Ein Plan-Item haengt an genau einem Semantikmodell und schreibt Planwerte in eine Fabric-SQL-Datenbank zurueck. Abgerechnet wird je aktiver 30-Tage-Sitzung (Tenant + Nutzer + Kapazitaet) auf der Kapazitaet des Workspace; beim Pausieren oder Loeschen der Kapazitaet werden die Rest-CUs aller aktiven Sitzungen sofort abgerechnet (Learn `iq/plan/resources/billing-fabric-plan`, gelesen 30.09.2026). Fehlen `sessions`, ist die Kostenfrage eine Kundenfrage, keine Annahme.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Planning ist Teil dieser Lieferung."
+            },
+            "workspace": {
+              "type": "string",
+              "description": "Workspace, der die Plan-Items traegt. Er bestimmt die Kapazitaet und damit, wo die Sitzungen abgerechnet werden. Fehlt er, ist er offen."
+            },
+            "semantic_model": {
+              "type": "string",
+              "description": "Das Semantikmodell, an das das Plan-Item bindet. Nach dem Verbinden nicht mehr aenderbar; Umbenennen des Modells bricht die Verbindung."
+            },
+            "writeback_database": {
+              "type": "string",
+              "description": "Fabric-SQL-Datenbank fuer das Zurueckschreiben der Planwerte (die einzige unterstuetzte Zielart)."
+            },
+            "sessions": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Erwartete aktive Nutzer je Rolle in einem 30-Tage-Fenster, vom Kunden genannt. Treibt die CU-Last (Planner 847, Stakeholder 168, Viewer 37 CU-Stunden je Sitzung). Nicht schaetzen: fehlt ein Wert, bleibt er eine Kundenfrage.",
+              "properties": {
+                "planner": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "stakeholder": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "viewer": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
             }
           }
         }

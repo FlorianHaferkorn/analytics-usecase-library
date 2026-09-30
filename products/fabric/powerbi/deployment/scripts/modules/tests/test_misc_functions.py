@@ -105,3 +105,23 @@ class TestFormatWorkspaceName:
     def test_format_workspace(self):
         result = misc.format_workspace_name("{layer}_{environment}", "BI", "prod")
         assert result == "BI_prod"
+
+
+class TestCapacityPerStageGroup:
+    """D-596: production and non-production run on separate capacities."""
+
+    @staticmethod
+    def _merged(env: str) -> dict:
+        from pathlib import Path
+        root = Path(__file__).resolve().parents[3] / "resources" / "environments"
+        base = json.loads((root / "infrastructure.json").read_text(encoding="utf-8"))
+        over = json.loads((root / f"infrastructure.{env}.json").read_text(encoding="utf-8"))
+        return misc.merge_json(base, over)
+
+    def test_dev_and_tst_share_the_non_production_capacity(self):
+        assert (self._merged("dev")["generic"]["capacity_name"]
+                == self._merged("tst")["generic"]["capacity_name"])
+
+    def test_production_has_its_own_capacity(self):
+        assert (self._merged("prd")["generic"]["capacity_name"]
+                != self._merged("dev")["generic"]["capacity_name"])

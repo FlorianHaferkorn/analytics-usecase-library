@@ -145,6 +145,10 @@ MIRRORED_FILES = (
     "provision_orchestration.py",
     "provision_prereq.py",
     "provision_terraform.py",
+    # Kapazitaet je Stufengruppe (D-596, 30.09.2026): `provision_terraform` loest die
+    # Workspace-→-Kapazitaet-Zuordnung darueber auf. Ohne diesen Eintrag braeche der
+    # gespiegelte Import beim ersten Aufruf.
+    "kapazitaet_stufen.py",
     "provision_transforms.py",
     "provision_translations.py",
     "provision_varlib.py",

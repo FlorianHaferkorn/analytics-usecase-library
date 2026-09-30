@@ -3,6 +3,7 @@
     "merge_type": 2,
     "is_primary": false,
     "environment_name": "prd",
+    "capacity_name": "MyCapacity-Prod",
     "permissions": {
       "Admin": [
         {"type": "Group", "id": "00000000-0000-0000-0000-000000000000"}
