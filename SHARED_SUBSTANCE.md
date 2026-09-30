@@ -12,6 +12,9 @@
 > **Fortgeschrieben 30.09.2026 (Owner-Entscheidung E3):** Klasse B darf zwischen Meridian
 > und ALUCA geteilt werden, wenn es die Qualität hebt — Heimat eindeutig, Spiegel mit PIN
 > und Sensor. Die alte Regel „nie portiert" steht in §1, §2.2 und §5 als abgelöst markiert.
+> **Fortgeschrieben 30.09.2026 (Visual-Stack, Meridian D-603, ALUCA A-31):** Visual Library,
+> Auswahllogik Frage → Form, Farbsemantik/Kontrast und Markenableitung sind Klasse A mit je
+> einer Heimat (§2.1). Bei Design-Tokens ist die Logik Klasse A, die Werte bleiben Klasse C (§2.3).
 
 ---
 
@@ -72,6 +75,10 @@ Erhoben durch Datei-für-Datei-Vergleich beider Repos (nicht aus READMEs).
 | `products/fabric/orchestrator/orchestrator.py` — MSAL + Fabric REST, idempotent, dry-run | ALUCA | Fabric-REST-v1-Referenz; MSAL Client-Credentials |
 | `deployment/scripts/fabric_release.py` u. a. — fabric-cicd-Vollzug | ALUCA | `fabric-cicd`-Bibliothek (offiziell, Microsoft) |
 | `products/fabric/orchestrator/sandbox.py` — Sandbox-Lebenszyklus je Lauf (Workspace anlegen, deployen, löschen mit Rücklese-Guard und 404-Nachweis) | ALUCA (E4, 24.09.2026) | `POST`/`GET`/`DELETE /v1/workspaces`; Deploy über `fabric_release.py` (`fabric-cicd`). Baut auf `orchestrator.py` statt einen zweiten Fabric-Client zu führen |
+| Visual Library: Idiome, Notationsprofile, Anti-Patterns, Realisierung je Ziel (PBIR, Deneb, Recharts, SVG-DAX, HTML, Fabric App) | ALUCA (30.09.2026) | Chart-Taxonomien (Munzner, FT Visual Vocabulary), IBCS Standards / ISO 24896, PBIR-/Vega-Lite-/Fabric-Visuals-Schemas. Die Engine (Emission, Validierung) bleibt davon getrennt |
+| Auswahllogik Frage → purpose → Idiom (`index.yaml`, `resolve.py`) | ALUCA (30.09.2026) | Munzner „why before how“, FT Visual Vocabulary; Deny-Liste mit Quelle je Eintrag |
+| Farbsemantik, IBCS-Szenariofarben, Kontrast- und Farbfehlsicht-Prüfung | ALUCA (30.09.2026) | WCAG 2.2 (1.4.3, 1.4.11), Machado-Simulation, CIEDE2000 |
+| Markenableitung: Marken-Token-Schema → PBI-Theme, CSS-Variablen, Fabric-App-Theme | Meridian (30.09.2026) | Power-BI-Theme-Schema, DTCG 2025.10, Fabric-Apps-Theming (`useCssTheme`) |
 | Sensitivity-Label-/Endorsement-Vollzug | ALUCA (heute defekt, s. §4) | Power-BI-Admin-API `informationprotection/setLabels`; Endorsement hat **keine** dokumentierte Write-API |
 
 **Kern der Klasse A in einem Satz:** Meridian *kompiliert* die Architektur, ALUCA
@@ -109,8 +116,9 @@ der Wert entstanden ist, nicht mehr, dass er das Repo nie verlässt.
 ### 2.3 Klasse C — bewusste Eigenheiten (beide Repos, verschieden)
 
 Benennung und Ordnerlayout (`core/dataarch_engine/` vs. `tooling/superversion/`),
-Dokumentationssprache und -ton, Design-Tokens, CLI-Oberfläche, Zielkunden-Defaults,
-Navigations-/Index-Doktrin. Diese Unterschiede werden **nicht** eingeebnet — sie
+Dokumentationssprache und -ton, Design-Token-**Werte** (eigene Marke, Kunden-Tokens),
+CLI-Oberfläche, Zielkunden-Defaults, Navigations-/Index-Doktrin. *(Klargestellt am 30.09.2026:
+die Token-**Logik** — Ableitung, Rollen, Kontrastregeln, Notationen — ist Klasse A, §2.1.)* Diese Unterschiede werden **nicht** eingeebnet — sie
 sind der Grund, warum es zwei Repos gibt und nicht eins.
 
 ---
