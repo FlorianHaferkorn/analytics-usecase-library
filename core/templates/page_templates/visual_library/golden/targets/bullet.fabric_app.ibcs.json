@@ -1,0 +1,76 @@
+{
+  "idiom": "bullet",
+  "profile": "ibcs",
+  "notation": "ibcs",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "bar",
+          "color": "#404040",
+          "height": 8
+        },
+        "encoding": {
+          "x": {
+            "field": "sla",
+            "type": "quantitative",
+            "axis": {
+              "title": null
+            }
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "tick",
+          "color": "#201F1E",
+          "thickness": 2,
+          "size": 20
+        },
+        "encoding": {
+          "x": {
+            "datum": 95
+          }
+        }
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#404040",
+      "labelColor": "#201F1E",
+      "title": null,
+      "grid": false,
+      "ticks": false
+    },
+    "axisX": {
+      "grid": false
+    },
+    "bar": {
+      "cornerRadius": 0
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333,
+      "zero": true
+    },
+    "legend": {
+      "disable": true
+    }
+  },
+  "capabilities": {
+    "disableCompactNumberFormatting": true,
+    "disableMinBarSize": true,
+    "disableNiceAxisBounds": true,
+    "disableStackedDataLabels": true
+  }
+}

@@ -1,13 +1,123 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "data": { "name": "dataset" },
+  "data": {
+    "name": "dataset"
+  },
   "transform": [
-    { "window": [ { "op": "sum", "field": "value", "as": "cum" } ], "frame": [null, 0] },
-    { "calculate": "datum.cum - datum['value']", "as": "prev" }
+    {
+      "window": [
+        {
+          "op": "sum",
+          "field": "value",
+          "as": "cum"
+        }
+      ],
+      "frame": [
+        null,
+        0
+      ]
+    },
+    {
+      "calculate": "datum.cum - datum['value']",
+      "as": "prev"
+    },
+    {
+      "window": [
+        {
+          "op": "lead",
+          "field": "driver",
+          "as": "next"
+        }
+      ]
+    },
+    {
+      "calculate": "datum['value'] * 1 > 0 ? 'good' : (datum['value'] * 1 < 0 ? 'bad' : 'neutral')",
+      "as": "rating"
+    }
   ],
-  "encoding": { "x": { "field": "driver", "type": "ordinal", "sort": null, "axis": { "title": null } } },
+  "encoding": {
+    "x": {
+      "field": "driver",
+      "type": "ordinal",
+      "sort": null,
+      "axis": {
+        "title": null,
+        "ticks": false,
+        "domainColor": "#404040"
+      }
+    }
+  },
   "layer": [
-    { "mark": { "type": "bar" }, "encoding": { "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } }, "y2": { "field": "cum" }, "color": { "condition": { "test": "datum['value'] < 0", "value": "#A4262C" }, "value": "#107C10" } } },
-    { "mark": { "type": "text", "dy": -6, "fontWeight": "bold", "color": "#0F2430" }, "encoding": { "y": { "field": "cum", "type": "quantitative" }, "text": { "field": "value", "type": "quantitative", "format": ".0f" } } }
+    {
+      "mark": {
+        "type": "bar"
+      },
+      "encoding": {
+        "y": {
+          "field": "prev",
+          "type": "quantitative",
+          "axis": null,
+          "scale": {
+            "zero": true
+          }
+        },
+        "y2": {
+          "field": "cum"
+        },
+        "color": {
+          "field": "rating",
+          "type": "nominal",
+          "legend": null,
+          "scale": {
+            "domain": [
+              "good",
+              "bad",
+              "neutral"
+            ],
+            "range": [
+              "#5B9A35",
+              "#A4262C",
+              "#1F6FB5"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "rule",
+        "color": "#201F1E",
+        "strokeWidth": 0.75
+      },
+      "encoding": {
+        "y": {
+          "field": "cum",
+          "type": "quantitative"
+        },
+        "x2": {
+          "field": "next"
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "color": "#201F1E",
+        "dy": {
+          "expr": "datum['value'] < 0 ? 12 : -6"
+        }
+      },
+      "encoding": {
+        "y": {
+          "field": "cum",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "value",
+          "type": "quantitative",
+          "format": "+.0f"
+        }
+      }
+    }
   ]
 }

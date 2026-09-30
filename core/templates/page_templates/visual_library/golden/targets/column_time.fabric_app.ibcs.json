@@ -1,0 +1,93 @@
+{
+  "idiom": "column_time",
+  "profile": "ibcs",
+  "notation": "ibcs",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "encoding": {
+      "x": {
+        "field": "month",
+        "type": "ordinal",
+        "axis": {
+          "title": null,
+          "labelAngle": 0,
+          "ticks": false,
+          "domainColor": "#404040"
+        }
+      }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "bar",
+          "color": "#404040"
+        },
+        "encoding": {
+          "y": {
+            "field": "count",
+            "type": "quantitative",
+            "axis": null,
+            "scale": {
+              "zero": true
+            }
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "dy": -6,
+          "color": "#201F1E"
+        },
+        "encoding": {
+          "y": {
+            "field": "count",
+            "type": "quantitative"
+          },
+          "text": {
+            "field": "count",
+            "type": "quantitative",
+            "format": ".0f"
+          }
+        }
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#404040",
+      "labelColor": "#201F1E",
+      "title": null,
+      "grid": false,
+      "ticks": false
+    },
+    "axisX": {
+      "grid": false
+    },
+    "bar": {
+      "cornerRadius": 0
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333,
+      "zero": true
+    },
+    "legend": {
+      "disable": true
+    }
+  },
+  "capabilities": {
+    "disableCompactNumberFormatting": true,
+    "disableMinBarSize": true,
+    "disableNiceAxisBounds": true,
+    "disableStackedDataLabels": true
+  }
+}

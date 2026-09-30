@@ -1,0 +1,77 @@
+{
+  "idiom": "waterfall_variance",
+  "profile": "house_default",
+  "notation": "house_default",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "transform": [
+      {
+        "window": [
+          {
+            "op": "sum",
+            "field": "value",
+            "as": "cum"
+          }
+        ],
+        "frame": [
+          null,
+          0
+        ]
+      },
+      {
+        "calculate": "datum.cum - datum['value']",
+        "as": "prev"
+      }
+    ],
+    "mark": {
+      "type": "bar"
+    },
+    "encoding": {
+      "x": {
+        "field": "driver",
+        "type": "ordinal",
+        "sort": null,
+        "axis": {
+          "title": null
+        }
+      },
+      "y": {
+        "field": "prev",
+        "type": "quantitative",
+        "axis": {
+          "title": null
+        }
+      },
+      "y2": {
+        "field": "cum"
+      },
+      "color": {
+        "condition": {
+          "test": "datum['value'] < 0",
+          "value": "#A4262C"
+        },
+        "value": "#107C10"
+      }
+    }
+  },
+  "configVegaLite": {
+    "font": "Segoe UI",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#E1DFDD",
+      "labelColor": "#605E5C",
+      "title": null
+    },
+    "axisX": {
+      "grid": false
+    }
+  },
+  "capabilities": {}
+}

@@ -13,12 +13,20 @@ in golden/ (see tooling/visual_library/tests/test_visual_library.py).
 At real generation time the same templates are filled from the semantic-model measure
 names + governed tokens instead of canonical_params — identical mechanism.
 
+Derived targets (A-31 R2): `fabric_app` and `html_vegalite` are not a fifth template per
+idiom. They take the `deneb_vegalite` realization under the profile's notation and add the
+profile's Vega-Lite `config` (style) — one Vega-Lite source, three runtimes (Deneb, Fabric
+App `VegaVisual`, HTML via vega-embed). Colours of the brand are not part of a profile.
+
 CLI:
     py -3 tooling/visual_library/render.py write <idiom>     # (re)freeze goldens
-    py -3 tooling/visual_library/render.py show  <idiom> <tool>
+    py -3 tooling/visual_library/render.py show  <idiom> <tool> [profile]
+    py -3 tooling/visual_library/render.py target <idiom> fabric_app|html_vegalite [profile]
 """
 from __future__ import annotations
 
+import copy
+import json
 import re
 import sys
 from pathlib import Path
@@ -186,9 +194,123 @@ def write_goldens(idiom: str) -> "list[Path]":
     return written
 
 
+DERIVED_TARGETS = ("fabric_app", "html_vegalite")
+
+# The capability flags `VegaVisual` accepts (@microsoft/fabric-visuals 4.0.0, dist/index.d.ts,
+# interface VegaVisualCapabilities). A profile may only set these.
+VEGAVISUAL_CAPABILITIES = (
+    "disableStackedDataLabels", "disableArcDataLabels", "disableNiceAxisBounds",
+    "disableLineChartCrosshairTooltip", "disableTextTruncation", "disableLegendTruncation",
+    "disableLegendScroll", "disableCategoricalScroll", "disableMinBarSize",
+    "disableDonutInnerRadius", "disableDynamicAxisLabelOverlap",
+    "disableNonZeroQuantitativeBaseline", "disablePointMarkClip", "disablePointRangeInset",
+    "disableSelfHighlight", "disableCompactNumberFormatting",
+)
+
+
+def profile_def(profile: str) -> dict:
+    """One entry of _notation_profiles.yaml; KeyError if unknown."""
+    profs = _registry().get("profiles") or {}
+    if profile not in profs:
+        raise KeyError(f"unknown profile '{profile}'")
+    return profs[profile]
+
+
+def all_profiles(kind: "str | None" = None) -> "list[str]":
+    """Registered profile ids, optionally only one kind (notation | style)."""
+    profs = _registry().get("profiles") or {}
+    return [p for p, d in profs.items() if kind is None or d.get("kind", "notation") == kind]
+
+
+def notation_of(profile: str) -> str:
+    """The notation profile a (notation or style) profile draws the idiom in."""
+    d = profile_def(profile)
+    return profile if d.get("kind", "notation") == "notation" else d.get("base_notation", default_profile())
+
+
+def _deep_merge(base: dict, over: dict) -> dict:
+    out = copy.deepcopy(base)
+    for k, v in (over or {}).items():
+        out[k] = _deep_merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else copy.deepcopy(v)
+    return out
+
+
+def vegalite_config(profile: str) -> dict:
+    """house_default's config overlaid by the profile's own (a style inherits the baseline)."""
+    base = profile_def(default_profile()).get("vegalite_config") or {}
+    if profile == default_profile():
+        return copy.deepcopy(base)
+    return _deep_merge(base, profile_def(profile).get("vegalite_config") or {})
+
+
+def target_profiles(idiom: str) -> "list[str]":
+    """Profiles under which an idiom has a derived target: every style profile, plus the
+    notation profiles the idiom opts into — each only where its Vega-Lite track runs."""
+    out = []
+    for p in all_profiles():
+        n = notation_of(p)
+        if n != default_profile() and n not in profiles(idiom):
+            continue
+        if "deneb_vegalite" in tools(idiom, n):
+            out.append(p)
+    return out
+
+
+def render_target(idiom: str, target: str, profile: "str | None" = None) -> "tuple[str, str]":
+    """Derived target output for one idiom x profile. Deterministic JSON."""
+    if target not in DERIVED_TARGETS:
+        raise KeyError(f"unknown derived target '{target}'")
+    profile = profile or default_profile()
+    notation = notation_of(profile)
+    if notation != default_profile() and notation not in profiles(idiom):
+        raise KeyError(f"{idiom} has no '{notation}' reading")
+    spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
+    config = vegalite_config(profile)
+    if target == "html_vegalite":
+        out = dict(spec)
+        out["config"] = config
+    else:
+        caps = profile_def(profile).get("vegavisual_capabilities") or {}
+        unknown = sorted(set(caps) - set(VEGAVISUAL_CAPABILITIES))
+        if unknown:
+            raise KeyError(f"profile '{profile}' sets unknown VegaVisual capabilities {unknown}")
+        out = {"idiom": idiom, "profile": profile, "notation": notation,
+               "data_name": (spec.get("data") or {}).get("name"),
+               "spec": spec, "configVegaLite": config, "capabilities": dict(sorted(caps.items()))}
+    return json.dumps(out, indent=2, ensure_ascii=False) + "\n", "json"
+
+
+def target_golden_path(idiom: str, target: str, profile: "str | None" = None) -> Path:
+    profile = profile or default_profile()
+    return LIB / "golden" / "targets" / f"{idiom}.{target}.{profile}.json"
+
+
+def write_target_goldens(idiom: str) -> "list[Path]":
+    """Freeze fabric_app for every NOTATION profile of the idiom. Style profiles only swap the
+    config (a pure merge of the registry, tested directly) and html_vegalite only moves the
+    config into the spec — both are proven by rendering, not frozen a second time."""
+    written = []
+    for profile in [p for p in target_profiles(idiom) if profile_def(p).get("kind", "notation") == "notation"]:
+        out, _ = render_target(idiom, "fabric_app", profile)
+        p = target_golden_path(idiom, "fabric_app", profile)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(out, encoding="utf-8", newline="\n")
+        written.append(p)
+    return written
+
+
 def main() -> int:
     if len(sys.argv) >= 3 and sys.argv[1] == "write":
         for p in write_goldens(sys.argv[2]):
+            print("wrote", p.relative_to(REPO_ROOT).as_posix())
+        return 0
+    if len(sys.argv) >= 4 and sys.argv[1] == "target":
+        prof = sys.argv[4] if len(sys.argv) >= 5 else None
+        out, _ = render_target(sys.argv[2], sys.argv[3], prof)
+        print(out)
+        return 0
+    if len(sys.argv) >= 3 and sys.argv[1] == "write-targets":
+        for p in write_target_goldens(sys.argv[2]):
             print("wrote", p.relative_to(REPO_ROOT).as_posix())
         return 0
     if len(sys.argv) >= 4 and sys.argv[1] == "show":

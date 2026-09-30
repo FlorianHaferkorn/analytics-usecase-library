@@ -1,0 +1,84 @@
+{
+  "idiom": "dumbbell",
+  "profile": "house_default",
+  "notation": "house_default",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "encoding": {
+      "y": {
+        "field": "unit",
+        "type": "nominal",
+        "axis": {
+          "title": null
+        }
+      }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "rule",
+          "color": "#C8CED5",
+          "size": 3
+        },
+        "encoding": {
+          "x": {
+            "field": "gm_py",
+            "type": "quantitative",
+            "axis": {
+              "title": null
+            }
+          },
+          "x2": {
+            "field": "gm"
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "circle",
+          "size": 90,
+          "color": "#94A0AC"
+        },
+        "encoding": {
+          "x": {
+            "field": "gm_py",
+            "type": "quantitative"
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "circle",
+          "size": 90,
+          "color": "#0F2430"
+        },
+        "encoding": {
+          "x": {
+            "field": "gm",
+            "type": "quantitative"
+          }
+        }
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#E1DFDD",
+      "labelColor": "#605E5C",
+      "title": null
+    },
+    "axisX": {
+      "grid": false
+    }
+  },
+  "capabilities": {}
+}

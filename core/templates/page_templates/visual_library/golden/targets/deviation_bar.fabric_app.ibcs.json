@@ -1,0 +1,121 @@
+{
+  "idiom": "deviation_bar",
+  "profile": "ibcs",
+  "notation": "ibcs",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "transform": [
+      {
+        "calculate": "datum['gm_vs_plan'] * 1 > 0 ? 'good' : (datum['gm_vs_plan'] * 1 < 0 ? 'bad' : 'neutral')",
+        "as": "rating"
+      }
+    ],
+    "layer": [
+      {
+        "mark": {
+          "type": "bar",
+          "height": 12
+        },
+        "encoding": {
+          "x": {
+            "field": "gm_vs_plan",
+            "type": "quantitative",
+            "axis": null,
+            "scale": {
+              "zero": true
+            }
+          },
+          "color": {
+            "field": "rating",
+            "type": "nominal",
+            "legend": null,
+            "scale": {
+              "domain": [
+                "good",
+                "bad",
+                "neutral"
+              ],
+              "range": [
+                "#5B9A35",
+                "#A4262C",
+                "#1F6FB5"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "rule",
+          "color": "#201F1E",
+          "strokeWidth": 1.5
+        },
+        "encoding": {
+          "x": {
+            "datum": 0
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "color": "#201F1E",
+          "align": {
+            "expr": "datum['gm_vs_plan'] < 0 ? 'right' : 'left'"
+          },
+          "dx": {
+            "expr": "datum['gm_vs_plan'] < 0 ? -4 : 4"
+          }
+        },
+        "encoding": {
+          "x": {
+            "field": "gm_vs_plan",
+            "type": "quantitative"
+          },
+          "text": {
+            "field": "gm_vs_plan",
+            "type": "quantitative",
+            "format": "+.1f"
+          }
+        }
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#404040",
+      "labelColor": "#201F1E",
+      "title": null,
+      "grid": false,
+      "ticks": false
+    },
+    "axisX": {
+      "grid": false
+    },
+    "bar": {
+      "cornerRadius": 0
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333,
+      "zero": true
+    },
+    "legend": {
+      "disable": true
+    }
+  },
+  "capabilities": {
+    "disableCompactNumberFormatting": true,
+    "disableMinBarSize": true,
+    "disableNiceAxisBounds": true,
+    "disableStackedDataLabels": true
+  }
+}

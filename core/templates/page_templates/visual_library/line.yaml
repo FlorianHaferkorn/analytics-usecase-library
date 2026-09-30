@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "1.0.0"
+version: "1.1.0"
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -126,10 +126,20 @@ realizations:
 # STRUCTURAL — native gets a second Y measure; Vega/Recharts get a second line series.
 profiles:
   ibcs:
-    note: "IBCS scenario lines: AC solid over PL (plan) as a lighter dashed line over time, instead of a flat target rule."
+    note: 'IBCS 2.0: AC and PL in the same colour, scenario on the markers — AC solid, PL outlined (UN 3.2); value axis from zero (CH 1.1), replaced by labels (SI 3.1).'
+    rule_refs:
+    - CH 1.1
+    - SI 3.1
+    - UN 3.2
     param_overrides:
-      plan_field: "gm_plan"
-      col_pl: "#94A0AC"
+      plan_field: gm_plan
+      col_pl: '#94A0AC'
+      col_ac: '#404040'
+      col_good: '#5B9A35'
+      col_bad: '#A4262C'
+      col_neutral: '#1F6FB5'
+      col_ink: '#201F1E'
+      polarity: '1'
     realizations:
       powerbi_native:
         ext: json
@@ -147,18 +157,88 @@ profiles:
           }
       powerbi_svg_dax:
         applicable: false
-        reason: "two scenario lines (AC + PL) in a single table cell are too cramped to read"
-        use: "powerbi_native (two Y measures) or deneb_vegalite"
+        reason: two scenario lines (AC + PL) in a single table cell are too cramped to read
+        use: powerbi_native (two Y measures) or deneb_vegalite
       deneb_vegalite:
         ext: json
         template: |
           {
             "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-            "data": { "name": "dataset" },
-            "encoding": { "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } } },
+            "data": {
+              "name": "dataset"
+            },
+            "encoding": {
+              "x": {
+                "field": "{{field_date}}",
+                "type": "temporal",
+                "axis": {
+                  "title": null,
+                  "grid": false,
+                  "ticks": false,
+                  "domainColor": "{{col_ac}}"
+                }
+              }
+            },
             "layer": [
-              { "mark": { "type": "line", "color": "{{col_pl}}", "strokeWidth": 1.5, "strokeDash": [4, 3] }, "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
-              { "mark": { "type": "line", "color": "{{col_line}}", "strokeWidth": 2.5 }, "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } }
+              {
+                "mark": {
+                  "type": "line",
+                  "color": "{{col_ac}}",
+                  "strokeWidth": 1.5,
+                  "point": {
+                    "filled": false,
+                    "fill": "white",
+                    "stroke": "{{col_ac}}",
+                    "size": 30
+                  }
+                },
+                "encoding": {
+                  "y": {
+                    "field": "{{plan_field}}",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "line",
+                  "color": "{{col_ac}}",
+                  "strokeWidth": 1.5,
+                  "point": {
+                    "filled": true,
+                    "color": "{{col_ac}}",
+                    "size": 30
+                  }
+                },
+                "encoding": {
+                  "y": {
+                    "field": "{{field}}",
+                    "type": "quantitative"
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "text",
+                  "color": "{{col_ink}}",
+                  "dy": -10
+                },
+                "encoding": {
+                  "y": {
+                    "field": "{{field}}",
+                    "type": "quantitative"
+                  },
+                  "text": {
+                    "field": "{{field}}",
+                    "type": "quantitative",
+                    "format": ".1f"
+                  }
+                }
+              }
             ]
           }
       web_recharts:

@@ -1,7 +1,7 @@
 # Visual Library entry — waterfall_variance  (schema: _schema.yaml)
 id: waterfall_variance
 name: Waterfall (variance bridge)
-version: "1.0.0"
+version: "1.1.0"
 status: active        # active | deprecated | experimental
 purpose: [contribution_to_change]
 zone: [analysis]
@@ -120,14 +120,174 @@ determinism:
 
 profiles:
   ibcs:
-    note: 'IBCS bridge: every column carries its value label (IBCS always shows the numbers), sign carries good/bad.'
+    note: 'IBCS 2.0: variance waterfall, bars coloured by rating (UN 4.1), connector lines (EX 1.1), labels outside with ''+'' (UN 4.1), no value axis (SI 3.1).'
+    rule_refs:
+    - EX 1.1
+    - SI 3.1
+    - UN 4.1
+    param_overrides:
+      col_ac: '#404040'
+      col_good: '#5B9A35'
+      col_bad: '#A4262C'
+      col_neutral: '#1F6FB5'
+      col_ink: '#201F1E'
+      polarity: '1'
     realizations:
       powerbi_native:
         ext: json
-        template: "{\n  \"visualType\": \"waterfallChart\",\n  \"query\": { \"queryState\": {\n    \"Category\": { \"projections\": [ { \"field\": { \"Column\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{category_entity}}\" } }, \"Property\": \"{{category_prop}}\" } }, \"queryRef\": \"{{category_entity}}.{{category_prop}}\" } ] },\n    \"Y\": { \"projections\": [ { \"field\": { \"Measure\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{entity}}\" } }, \"Property\": \"{{measure}}\" } }, \"queryRef\": \"{{entity}}.{{measure}}\" } ] }\n  } },\n  \"objects\": {\n    \"sentimentColors\": [ { \"properties\": {\n      \"increaseFill\": { \"solid\": { \"color\": { \"expr\": { \"Literal\": { \"Value\": \"'{{col_inc}}'\" } } } } },\n      \"decreaseFill\": { \"solid\": { \"color\": { \"expr\": { \"Literal\": { \"Value\": \"'{{col_dec}}'\" } } } } },\n      \"totalFill\": { \"solid\": { \"color\": { \"expr\": { \"Literal\": { \"Value\": \"'{{col_total}}'\" } } } } }\n    } } ],\n    \"labels\": [ { \"properties\": { \"show\": { \"expr\": { \"Literal\": { \"Value\": \"true\" } } } } } ]\n  }\n}\n"
+        template: |
+          {
+            "visualType": "waterfallChart",
+            "query": { "queryState": {
+              "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+              "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+            } },
+            "objects": {
+              "sentimentColors": [ { "properties": {
+                "increaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_inc}}'" } } } } },
+                "decreaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_dec}}'" } } } } },
+                "totalFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_total}}'" } } } } }
+              } } ],
+              "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ]
+            }
+          }
       deneb_vegalite:
         ext: json
-        template: "{\n  \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.json\",\n  \"data\": { \"name\": \"dataset\" },\n  \"transform\": [\n    { \"window\": [ { \"op\": \"sum\", \"field\": \"{{field_val}}\", \"as\": \"cum\" } ], \"frame\": [null, 0] },\n    { \"calculate\": \"datum.cum - datum['{{field_val}}']\", \"as\": \"prev\" }\n  ],\n  \"encoding\": { \"x\": { \"field\": \"{{field}}\", \"type\": \"ordinal\", \"sort\": null, \"axis\": { \"title\": null } } },\n  \"layer\": [\n    { \"mark\": { \"type\": \"bar\" }, \"encoding\": { \"y\": { \"field\": \"prev\", \"type\": \"quantitative\", \"axis\": { \"title\": null } }, \"y2\": { \"field\": \"cum\" }, \"color\": { \"condition\": { \"test\": \"datum['{{field_val}}'] < 0\", \"value\": \"{{col_dec}}\" }, \"value\": \"{{col_inc}}\" } } },\n    { \"mark\": { \"type\": \"text\", \"dy\": -6, \"fontWeight\": \"bold\", \"color\": \"{{col_total}}\" }, \"encoding\": { \"y\": { \"field\": \"cum\", \"type\": \"quantitative\" }, \"text\": { \"field\": \"{{field_val}}\", \"type\": \"quantitative\", \"format\": \".0f\" } } }\n  ]\n}\n"
+        template: |
+          {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "data": {
+              "name": "dataset"
+            },
+            "transform": [
+              {
+                "window": [
+                  {
+                    "op": "sum",
+                    "field": "{{field_val}}",
+                    "as": "cum"
+                  }
+                ],
+                "frame": [
+                  null,
+                  0
+                ]
+              },
+              {
+                "calculate": "datum.cum - datum['{{field_val}}']",
+                "as": "prev"
+              },
+              {
+                "window": [
+                  {
+                    "op": "lead",
+                    "field": "{{field}}",
+                    "as": "next"
+                  }
+                ]
+              },
+              {
+                "calculate": "datum['{{field_val}}'] * {{polarity}} > 0 ? 'good' : (datum['{{field_val}}'] * {{polarity}} < 0 ? 'bad' : 'neutral')",
+                "as": "rating"
+              }
+            ],
+            "encoding": {
+              "x": {
+                "field": "{{field}}",
+                "type": "ordinal",
+                "sort": null,
+                "axis": {
+                  "title": null,
+                  "ticks": false,
+                  "domainColor": "{{col_ac}}"
+                }
+              }
+            },
+            "layer": [
+              {
+                "mark": {
+                  "type": "bar"
+                },
+                "encoding": {
+                  "y": {
+                    "field": "prev",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  },
+                  "y2": {
+                    "field": "cum"
+                  },
+                  "color": {
+                    "field": "rating",
+                    "type": "nominal",
+                    "legend": null,
+                    "scale": {
+                      "domain": [
+                        "good",
+                        "bad",
+                        "neutral"
+                      ],
+                      "range": [
+                        "{{col_good}}",
+                        "{{col_bad}}",
+                        "{{col_neutral}}"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "rule",
+                  "color": "{{col_ink}}",
+                  "strokeWidth": 0.75
+                },
+                "encoding": {
+                  "y": {
+                    "field": "cum",
+                    "type": "quantitative"
+                  },
+                  "x2": {
+                    "field": "next"
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "text",
+                  "color": "{{col_ink}}",
+                  "dy": {
+                    "expr": "datum['{{field_val}}'] < 0 ? 12 : -6"
+                  }
+                },
+                "encoding": {
+                  "y": {
+                    "field": "cum",
+                    "type": "quantitative"
+                  },
+                  "text": {
+                    "field": "{{field_val}}",
+                    "type": "quantitative",
+                    "format": "+.0f"
+                  }
+                }
+              }
+            ]
+          }
       web_recharts:
         ext: jsx
-        template: "<BarChart data={varianceData} width={640} height={300}>\n  <XAxis dataKey=\"{{field}}\" />\n  <YAxis />\n  <Bar dataKey=\"base\" stackId=\"a\" fill=\"transparent\" />\n  <Bar dataKey=\"delta\" stackId=\"a\">\n    {varianceData.map((e, i) => (\n      <Cell key={i} fill={e.delta < 0 ? \"{{col_dec}}\" : \"{{col_inc}}\"} />\n    ))}\n    <LabelList dataKey=\"delta\" position=\"top\" />\n  </Bar>\n</BarChart>\n"
+        template: |
+          <BarChart data={varianceData} width={640} height={300}>
+            <XAxis dataKey="{{field}}" />
+            <YAxis />
+            <Bar dataKey="base" stackId="a" fill="transparent" />
+            <Bar dataKey="delta" stackId="a">
+              {varianceData.map((e, i) => (
+                <Cell key={i} fill={e.delta < 0 ? "{{col_dec}}" : "{{col_inc}}"} />
+              ))}
+              <LabelList dataKey="delta" position="top" />
+            </Bar>
+          </BarChart>

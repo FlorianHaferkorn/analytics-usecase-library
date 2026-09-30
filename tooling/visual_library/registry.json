@@ -62,7 +62,7 @@
     {
       "id": "bar_ranking",
       "name": "Bar ranking",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -87,7 +87,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:3cf67b53d6154cf5313fd32d1c63d899798e4b5756f40cbe8dddcae665d72c13"
+      "checksum": "sha256:95c97dbd4119c145e6cf2df43b2e6743571c53f5cf6948bf35a0859212f3f3f7"
     },
     {
       "id": "bar_stacked",
@@ -144,7 +144,7 @@
     {
       "id": "bullet",
       "name": "Bullet graph",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -169,12 +169,12 @@
         "cols": 3,
         "rows": 2
       },
-      "checksum": "sha256:6140db072ff215c485c942cdee0be5ce61a18fdd185cc570602b12c8b9febd79"
+      "checksum": "sha256:7dea0c09cc94b31ae9cbf1355ba9afa270e78a375ae17640475fe907322358ee"
     },
     {
       "id": "column_time",
       "name": "Column chart over time",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -197,7 +197,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:4942fdc25360a1ee7b1d927678dfe850fed739934057f389a89d0b2d32cb9e38"
+      "checksum": "sha256:7aff3212b09edee8c7786549f8b9cd28e6aecc43a2163bb21b182528bd3478ed"
     },
     {
       "id": "decomposition_tree",
@@ -227,7 +227,7 @@
     {
       "id": "deviation_bar",
       "name": "Deviation bar",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -254,7 +254,7 @@
         "cols": 3,
         "rows": 2
       },
-      "checksum": "sha256:36bf5879fdcebdb3cb39f6b878c844093286fc57c231a4c7854767ffc696df57"
+      "checksum": "sha256:8c1ecef5ae7ee9d6f9b7596215930b0261abacfcac6b92ce68a906da1e47fc3d"
     },
     {
       "id": "donut",
@@ -442,7 +442,7 @@
     {
       "id": "line",
       "name": "Trend line",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -467,7 +467,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:93777fe5dd73b6416428b0cccf1001f589dc55537221faa30aef801a6df0bfe3"
+      "checksum": "sha256:5f6c04bd209639eafa5aac0cac2efc569bf2ddd263aa290ddd1fde4f7942d3da"
     },
     {
       "id": "lollipop",
@@ -734,7 +734,7 @@
     {
       "id": "waterfall_buildup",
       "name": "Waterfall (buildup to total)",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -757,12 +757,12 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:1e1ba9a7ba67397676254bacd03b5d7b1ded5014194b57c49a3c45f0f69b9593"
+      "checksum": "sha256:404e40ad6aa602f6e37f31a08b810755f990f3f6f338b48c4770f47ae1b6313f"
     },
     {
       "id": "waterfall_pvm",
       "name": "Waterfall bridge (PVM)",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -786,12 +786,12 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:a73c27ded3e85d91181d5af8455916ee3ebb3b5a9562a542324a3d05ee619a74"
+      "checksum": "sha256:6dfda0a5bdd823614bad4b9e4ad88e60746c54b470895e4dcef37acb7a26e014"
     },
     {
       "id": "waterfall_variance",
       "name": "Waterfall (variance bridge)",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -814,7 +814,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:c7a6a8f3ee94f22e4bd80e94ab5129d8645916d00c1e8d3296f910d2c406594a"
+      "checksum": "sha256:8e898047b8088faae553dea2bdf8bac9c0c84ada26d74d157480530144c66d81"
     }
   ]
 }

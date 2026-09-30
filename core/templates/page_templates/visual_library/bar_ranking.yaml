@@ -1,7 +1,7 @@
 # Visual Library entry — bar_ranking  (schema: _schema.yaml)
 id: bar_ranking
 name: Bar ranking
-version: "1.0.0"
+version: "1.1.0"
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
@@ -125,30 +125,102 @@ realizations:
 # adds a PY series and replaces the templates (vs the token overlay of deviation_bar@ibcs).
 profiles:
   ibcs:
-    note: "IBCS overlapped bar: solid AC over a lighter, wider PY reference; reads AC-vs-PY directly instead of AC-vs-target-line."
+    note: 'IBCS 2.0: overlapped bars, PY lighter solid behind AC dark solid (UN 3.2, UN 4.1); bar width from the band (UN 3.1); labels instead of value axis (SI 3.1).'
+    rule_refs:
+    - SI 3.1
+    - UN 3.1
+    - UN 3.2
+    - UN 4.1
     param_overrides:
-      py_field: "gm_py"
-      col_ac: "#0F2430"
-      col_py: "#C8CED5"
+      py_field: gm_py
+      col_ac: '#404040'
+      col_py: '#C8CED5'
+      col_good: '#5B9A35'
+      col_bad: '#A4262C'
+      col_neutral: '#1F6FB5'
+      col_ink: '#201F1E'
+      polarity: '1'
     realizations:
       powerbi_native:
         applicable: false
-        reason: "native clusteredBar cannot overlay a narrower AC bar on a wider PY reference bar"
-        use: "PowerofBI.IBCS overlapped-bar UDF (daxlib.org) or Inforiver"
+        reason: native clusteredBar cannot overlay a narrower AC bar on a wider PY reference bar
+        use: PowerofBI.IBCS overlapped-bar UDF (daxlib.org) or Inforiver
       powerbi_svg_dax:
         applicable: false
-        reason: "overlapped AC/PY bars across all categories is a full chart, not a single-cell micro-chart"
-        use: "deneb_vegalite, or PowerofBI.IBCS"
+        reason: overlapped AC/PY bars across all categories is a full chart, not a single-cell micro-chart
+        use: deneb_vegalite, or PowerofBI.IBCS
       deneb_vegalite:
         ext: json
         template: |
           {
             "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-            "data": { "name": "dataset" },
-            "encoding": { "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "-x", "axis": { "title": null } } },
+            "data": {
+              "name": "dataset"
+            },
+            "encoding": {
+              "y": {
+                "field": "{{field_cat}}",
+                "type": "nominal",
+                "sort": "-x",
+                "axis": {
+                  "title": null,
+                  "ticks": false,
+                  "domainColor": "{{col_ac}}"
+                }
+              }
+            },
             "layer": [
-              { "mark": { "type": "bar", "color": "{{col_py}}", "size": 18 }, "encoding": { "x": { "field": "{{py_field}}", "type": "quantitative", "axis": { "title": null } } } },
-              { "mark": { "type": "bar", "color": "{{col_ac}}", "size": 9 }, "encoding": { "x": { "field": "{{field}}", "type": "quantitative" } } }
+              {
+                "mark": {
+                  "type": "bar",
+                  "color": "{{col_ac}}",
+                  "opacity": 0.5,
+                  "yOffset": -4
+                },
+                "encoding": {
+                  "x": {
+                    "field": "{{py_field}}",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "bar",
+                  "color": "{{col_ac}}",
+                  "yOffset": 2
+                },
+                "encoding": {
+                  "x": {
+                    "field": "{{field}}",
+                    "type": "quantitative"
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "text",
+                  "color": "{{col_ink}}",
+                  "align": "left",
+                  "dx": 4,
+                  "yOffset": 2
+                },
+                "encoding": {
+                  "x": {
+                    "field": "{{field}}",
+                    "type": "quantitative"
+                  },
+                  "text": {
+                    "field": "{{field}}",
+                    "type": "quantitative",
+                    "format": ".1f"
+                  }
+                }
+              }
             ]
           }
       web_recharts:

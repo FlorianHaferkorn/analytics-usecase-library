@@ -1,7 +1,7 @@
 # Visual Library entry — waterfall_buildup  (schema: _schema.yaml)
 id: waterfall_buildup
 name: Waterfall (buildup to total)
-version: "1.0.0"
+version: "1.1.0"
 status: active        # active | deprecated | experimental
 purpose: [contribution_to_change]
 zone: [analysis]
@@ -111,14 +111,150 @@ determinism:
 
 profiles:
   ibcs:
-    note: 'IBCS build-up: cumulative steps in one scenario colour, closing total in ink, every column labelled with its value.'
+    note: 'IBCS 2.0: growth waterfall in AC dark solid (UN 3.2), connector lines (EX 1.1), labels instead of value axis (SI 3.1).'
+    rule_refs:
+    - EX 1.1
+    - SI 3.1
+    - UN 3.2
+    param_overrides:
+      col_ac: '#404040'
+      col_good: '#5B9A35'
+      col_bad: '#A4262C'
+      col_neutral: '#1F6FB5'
+      col_ink: '#201F1E'
+      polarity: '1'
     realizations:
       powerbi_native:
         ext: json
-        template: "{\n  \"visualType\": \"waterfallChart\",\n  \"query\": { \"queryState\": {\n    \"Category\": { \"projections\": [ { \"field\": { \"Column\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{category_entity}}\" } }, \"Property\": \"{{category_prop}}\" } }, \"queryRef\": \"{{category_entity}}.{{category_prop}}\" } ] },\n    \"Y\": { \"projections\": [ { \"field\": { \"Measure\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{entity}}\" } }, \"Property\": \"{{measure}}\" } }, \"queryRef\": \"{{entity}}.{{measure}}\" } ] }\n  } },\n  \"objects\": {\n    \"sentimentColors\": [ { \"properties\": {\n      \"increaseFill\": { \"solid\": { \"color\": { \"expr\": { \"Literal\": { \"Value\": \"'{{col_step}}'\" } } } } },\n      \"totalFill\": { \"solid\": { \"color\": { \"expr\": { \"Literal\": { \"Value\": \"'{{col_total}}'\" } } } } }\n    } } ],\n    \"labels\": [ { \"properties\": { \"show\": { \"expr\": { \"Literal\": { \"Value\": \"true\" } } } } } ]\n  }\n}\n"
+        template: |
+          {
+            "visualType": "waterfallChart",
+            "query": { "queryState": {
+              "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+              "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+            } },
+            "objects": {
+              "sentimentColors": [ { "properties": {
+                "increaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_step}}'" } } } } },
+                "totalFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_total}}'" } } } } }
+              } } ],
+              "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ]
+            }
+          }
       deneb_vegalite:
         ext: json
-        template: "{\n  \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.json\",\n  \"data\": { \"name\": \"dataset\" },\n  \"transform\": [\n    { \"window\": [ { \"op\": \"sum\", \"field\": \"{{field_val}}\", \"as\": \"cum\" } ], \"frame\": [null, 0] },\n    { \"calculate\": \"datum.cum - datum['{{field_val}}']\", \"as\": \"prev\" }\n  ],\n  \"encoding\": { \"x\": { \"field\": \"{{field}}\", \"type\": \"ordinal\", \"sort\": null, \"axis\": { \"title\": null } } },\n  \"layer\": [\n    { \"mark\": { \"type\": \"bar\", \"color\": \"{{col_step}}\" }, \"encoding\": { \"y\": { \"field\": \"prev\", \"type\": \"quantitative\", \"axis\": { \"title\": null } }, \"y2\": { \"field\": \"cum\" } } },\n    { \"mark\": { \"type\": \"text\", \"dy\": -6, \"fontWeight\": \"bold\", \"color\": \"{{col_total}}\" }, \"encoding\": { \"y\": { \"field\": \"cum\", \"type\": \"quantitative\" }, \"text\": { \"field\": \"{{field_val}}\", \"type\": \"quantitative\", \"format\": \".0f\" } } }\n  ]\n}\n"
+        template: |
+          {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "data": {
+              "name": "dataset"
+            },
+            "transform": [
+              {
+                "window": [
+                  {
+                    "op": "sum",
+                    "field": "{{field_val}}",
+                    "as": "cum"
+                  }
+                ],
+                "frame": [
+                  null,
+                  0
+                ]
+              },
+              {
+                "calculate": "datum.cum - datum['{{field_val}}']",
+                "as": "prev"
+              },
+              {
+                "window": [
+                  {
+                    "op": "lead",
+                    "field": "{{field}}",
+                    "as": "next"
+                  }
+                ]
+              }
+            ],
+            "encoding": {
+              "x": {
+                "field": "{{field}}",
+                "type": "ordinal",
+                "sort": null,
+                "axis": {
+                  "title": null,
+                  "ticks": false,
+                  "domainColor": "{{col_ac}}"
+                }
+              }
+            },
+            "layer": [
+              {
+                "mark": {
+                  "type": "bar",
+                  "color": "{{col_ac}}"
+                },
+                "encoding": {
+                  "y": {
+                    "field": "prev",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  },
+                  "y2": {
+                    "field": "cum"
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "rule",
+                  "color": "{{col_ink}}",
+                  "strokeWidth": 0.75
+                },
+                "encoding": {
+                  "y": {
+                    "field": "cum",
+                    "type": "quantitative"
+                  },
+                  "x2": {
+                    "field": "next"
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "text",
+                  "color": "{{col_ink}}",
+                  "dy": {
+                    "expr": "datum['{{field_val}}'] < 0 ? 12 : -6"
+                  }
+                },
+                "encoding": {
+                  "y": {
+                    "field": "cum",
+                    "type": "quantitative"
+                  },
+                  "text": {
+                    "field": "{{field_val}}",
+                    "type": "quantitative",
+                    "format": ".0f"
+                  }
+                }
+              }
+            ]
+          }
       web_recharts:
         ext: jsx
-        template: "<BarChart data={buildupData} width={640} height={300}>\n  <XAxis dataKey=\"{{field}}\" />\n  <YAxis />\n  <Bar dataKey=\"base\" stackId=\"a\" fill=\"transparent\" />\n  <Bar dataKey=\"delta\" stackId=\"a\" fill=\"{{col_step}}\">\n    <LabelList dataKey=\"delta\" position=\"top\" />\n  </Bar>\n</BarChart>\n"
+        template: |
+          <BarChart data={buildupData} width={640} height={300}>
+            <XAxis dataKey="{{field}}" />
+            <YAxis />
+            <Bar dataKey="base" stackId="a" fill="transparent" />
+            <Bar dataKey="delta" stackId="a" fill="{{col_step}}">
+              <LabelList dataKey="delta" position="top" />
+            </Bar>
+          </BarChart>

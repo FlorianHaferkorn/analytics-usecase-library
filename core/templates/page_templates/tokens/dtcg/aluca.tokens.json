@@ -192,6 +192,7 @@
     },
     "fc": {
       "fill": "hatched",
+      "outline": true,
       "opacity": 1.0,
       "abbreviation": "FC"
     },

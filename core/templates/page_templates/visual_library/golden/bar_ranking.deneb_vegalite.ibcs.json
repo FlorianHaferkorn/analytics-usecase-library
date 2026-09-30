@@ -1,9 +1,71 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "data": { "name": "dataset" },
-  "encoding": { "y": { "field": "unit", "type": "nominal", "sort": "-x", "axis": { "title": null } } },
+  "data": {
+    "name": "dataset"
+  },
+  "encoding": {
+    "y": {
+      "field": "unit",
+      "type": "nominal",
+      "sort": "-x",
+      "axis": {
+        "title": null,
+        "ticks": false,
+        "domainColor": "#404040"
+      }
+    }
+  },
   "layer": [
-    { "mark": { "type": "bar", "color": "#C8CED5", "size": 18 }, "encoding": { "x": { "field": "gm_py", "type": "quantitative", "axis": { "title": null } } } },
-    { "mark": { "type": "bar", "color": "#0F2430", "size": 9 }, "encoding": { "x": { "field": "gm", "type": "quantitative" } } }
+    {
+      "mark": {
+        "type": "bar",
+        "color": "#404040",
+        "opacity": 0.5,
+        "yOffset": -4
+      },
+      "encoding": {
+        "x": {
+          "field": "gm_py",
+          "type": "quantitative",
+          "axis": null,
+          "scale": {
+            "zero": true
+          }
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "bar",
+        "color": "#404040",
+        "yOffset": 2
+      },
+      "encoding": {
+        "x": {
+          "field": "gm",
+          "type": "quantitative"
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "color": "#201F1E",
+        "align": "left",
+        "dx": 4,
+        "yOffset": 2
+      },
+      "encoding": {
+        "x": {
+          "field": "gm",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "gm",
+          "type": "quantitative",
+          "format": ".1f"
+        }
+      }
+    }
   ]
 }

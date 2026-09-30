@@ -1,7 +1,7 @@
 # Visual Library entry — column_time  (schema: _schema.yaml)
 id: column_time
 name: Column chart over time
-version: "1.0.0"
+version: "1.1.0"
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -92,17 +92,96 @@ determinism:
 
 profiles:
   ibcs:
-    note: 'IBCS columns: single dark AC scenario fill (not a brand hue) with every column labelled; PY/PL would overlay as outlined/tinted where present.'
+    note: 'IBCS 2.0: AC dark solid columns, width 2/3 of the category via the profile config (UN 3.1), labels instead of value axis (SI 3.1), axis from zero (CH 1.1).'
+    rule_refs:
+    - CH 1.1
+    - SI 3.1
+    - UN 3.1
     param_overrides:
       col_bar: '#0F2430'
       col_label: '#201F1E'
+      col_ac: '#404040'
+      col_good: '#5B9A35'
+      col_bad: '#A4262C'
+      col_neutral: '#1F6FB5'
+      col_ink: '#201F1E'
+      polarity: '1'
     realizations:
       powerbi_native:
         ext: json
-        template: "{\n  \"visualType\": \"clusteredColumnChart\",\n  \"query\": { \"queryState\": {\n    \"Category\": { \"projections\": [ { \"field\": { \"Column\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{category_entity}}\" } }, \"Property\": \"{{category_prop}}\" } }, \"queryRef\": \"{{category_entity}}.{{category_prop}}\" } ] },\n    \"Y\": { \"projections\": [ { \"field\": { \"Measure\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{entity}}\" } }, \"Property\": \"{{measure}}\" } }, \"queryRef\": \"{{entity}}.{{measure}}\" } ] }\n  } },\n  \"objects\": { \"labels\": [ { \"properties\": { \"show\": { \"expr\": { \"Literal\": { \"Value\": \"true\" } } } } } ] }\n}\n"
+        template: |
+          {
+            "visualType": "clusteredColumnChart",
+            "query": { "queryState": {
+              "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+              "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+            } },
+            "objects": { "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ] }
+          }
       deneb_vegalite:
         ext: json
-        template: "{\n  \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.json\",\n  \"data\": { \"name\": \"dataset\" },\n  \"encoding\": { \"x\": { \"field\": \"{{field_date}}\", \"type\": \"ordinal\", \"axis\": { \"title\": null, \"labelAngle\": 0 } } },\n  \"layer\": [\n    { \"mark\": { \"type\": \"bar\", \"color\": \"{{col_bar}}\" }, \"encoding\": { \"y\": { \"field\": \"{{field}}\", \"type\": \"quantitative\", \"axis\": { \"title\": null } } } },\n    { \"mark\": { \"type\": \"text\", \"dy\": -6, \"fontWeight\": \"bold\", \"color\": \"{{col_label}}\" }, \"encoding\": { \"y\": { \"field\": \"{{field}}\", \"type\": \"quantitative\" }, \"text\": { \"field\": \"{{field}}\", \"type\": \"quantitative\", \"format\": \".0f\" } } }\n  ]\n}\n"
+        template: |
+          {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "data": {
+              "name": "dataset"
+            },
+            "encoding": {
+              "x": {
+                "field": "{{field_date}}",
+                "type": "ordinal",
+                "axis": {
+                  "title": null,
+                  "labelAngle": 0,
+                  "ticks": false,
+                  "domainColor": "{{col_ac}}"
+                }
+              }
+            },
+            "layer": [
+              {
+                "mark": {
+                  "type": "bar",
+                  "color": "{{col_ac}}"
+                },
+                "encoding": {
+                  "y": {
+                    "field": "{{field}}",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "text",
+                  "dy": -6,
+                  "color": "{{col_ink}}"
+                },
+                "encoding": {
+                  "y": {
+                    "field": "{{field}}",
+                    "type": "quantitative"
+                  },
+                  "text": {
+                    "field": "{{field}}",
+                    "type": "quantitative",
+                    "format": ".0f"
+                  }
+                }
+              }
+            ]
+          }
       web_recharts:
         ext: jsx
-        template: "<BarChart data={data} width={480} height={280}>\n  <XAxis dataKey=\"{{field_date}}\" />\n  <YAxis />\n  <Bar dataKey=\"{{field}}\" fill=\"{{col_bar}}\">\n    <LabelList dataKey=\"{{field}}\" position=\"top\" />\n  </Bar>\n</BarChart>\n"
+        template: |
+          <BarChart data={data} width={480} height={280}>
+            <XAxis dataKey="{{field_date}}" />
+            <YAxis />
+            <Bar dataKey="{{field}}" fill="{{col_bar}}">
+              <LabelList dataKey="{{field}}" position="top" />
+            </Bar>
+          </BarChart>

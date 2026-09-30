@@ -1,0 +1,49 @@
+{
+  "idiom": "boxplot",
+  "profile": "house_default",
+  "notation": "house_default",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "mark": {
+      "type": "boxplot",
+      "extent": 1.5,
+      "color": "#0078D4"
+    },
+    "encoding": {
+      "y": {
+        "field": "category",
+        "type": "nominal",
+        "axis": {
+          "title": null
+        }
+      },
+      "x": {
+        "field": "margin",
+        "type": "quantitative",
+        "axis": {
+          "title": null
+        }
+      }
+    }
+  },
+  "configVegaLite": {
+    "font": "Segoe UI",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#E1DFDD",
+      "labelColor": "#605E5C",
+      "title": null
+    },
+    "axisX": {
+      "grid": false
+    }
+  },
+  "capabilities": {}
+}

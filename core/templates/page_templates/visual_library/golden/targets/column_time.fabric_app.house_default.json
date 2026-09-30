@@ -1,0 +1,49 @@
+{
+  "idiom": "column_time",
+  "profile": "house_default",
+  "notation": "house_default",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "mark": {
+      "type": "bar",
+      "color": "#0078D4"
+    },
+    "encoding": {
+      "x": {
+        "field": "month",
+        "type": "ordinal",
+        "axis": {
+          "title": null,
+          "labelAngle": 0
+        }
+      },
+      "y": {
+        "field": "count",
+        "type": "quantitative",
+        "axis": {
+          "title": null
+        }
+      }
+    }
+  },
+  "configVegaLite": {
+    "font": "Segoe UI",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#E1DFDD",
+      "labelColor": "#605E5C",
+      "title": null
+    },
+    "axisX": {
+      "grid": false
+    }
+  },
+  "capabilities": {}
+}
