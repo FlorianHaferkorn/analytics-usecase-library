@@ -1,7 +1,7 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "e6f4d9f32e6ffeeee3315faa1f54319791f9bd7e",
+  "source_commit": "b4b5989409c247f04944e041d17a50d2b18eefaf",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
@@ -30,7 +30,7 @@
     },
     {
       "path": "provision_governance.py",
-      "sha256": "bf0ae537f8e5d191240d25fb8ffb14782cdef392840641b0c9443b502f7ba500"
+      "sha256": "87cc909ed6689324c6ef537572345b409a2702627cabb138db35ec5fc7caa626"
     },
     {
       "path": "provision_lifecycle.py",
@@ -58,7 +58,7 @@
     },
     {
       "path": "direct_lake_guardrails.py",
-      "sha256": "34e786c1f75c477680ae2d8d033f380b815fe106bba0d686e9a838918d2d23d8"
+      "sha256": "de521d436abfc4b8968db8b31d3cb45d85126cc891ce9441572b35eae6010fb6"
     },
     {
       "path": "provision_external_sharing.py",
@@ -66,11 +66,11 @@
     },
     {
       "path": "governance_strategy.py",
-      "sha256": "512510874f1e1f089e79530ee53adb3765e7caa3093122419a3e778c69723661"
+      "sha256": "741da4c25efe0e0a3f69874e3ba1a80a8eaa4d94e376cbd37e75c85d2af079de"
     },
     {
       "path": "provision_apply.py",
-      "sha256": "8909217a92fd8981fcf27574942079e5d4c5d505ec405ae7623b24a269321207"
+      "sha256": "6d2c334411ef8f72209a247177ed789bc10aed4387239722a2cf11aca003eebc"
     },
     {
       "path": "provision_chargeback.py",
@@ -78,7 +78,7 @@
     },
     {
       "path": "provision_cicd.py",
-      "sha256": "e0013a1e215b8fedab4f41582361e5c10db128d523ed81aea47d4357dacc3891"
+      "sha256": "a818fa46418d1ab4a9a3490d08260a9ce595c33f9acd9d16a8f5a6862a70e7fe"
     },
     {
       "path": "provision_databricks_cicd.py",
@@ -90,7 +90,7 @@
     },
     {
       "path": "provision_fabric.py",
-      "sha256": "aa2573f98ff8bf6379e5466e09f0fae319924b209c4ef759a7dff8adf5006de7"
+      "sha256": "e52ee1933069838578d396ed70dbd1dc4bff58814c94362430c251e92317ac54"
     },
     {
       "path": "provision_fabric_cicd.py",
@@ -126,7 +126,7 @@
     },
     {
       "path": "provision_terraform.py",
-      "sha256": "3b5247fe454f8c54e0ff0d96ed4557cde5c935db97ecf206a67475ccf010ad8c"
+      "sha256": "fe837f1a19851ea5b68eb26fc77aa86d4f9497986931804afdaafabb670f3541"
     },
     {
       "path": "kapazitaet_stufen.py",
@@ -142,7 +142,7 @@
     },
     {
       "path": "provision_varlib.py",
-      "sha256": "e1c38d0a35995ff539e9e89b645a7fb51373591f3ad712fdbe335be641d32b70"
+      "sha256": "2c2b2df5e32cbd75110b4f93e7446f2fa48208e1b3a8ae2ae9a4fa3f52427256"
     },
     {
       "path": "sql_validate.py",

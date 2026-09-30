@@ -1078,8 +1078,10 @@
                         "silver",
                         "gold",
                         "reporting",
+                        "data",
                         "mixed"
-                      ]
+                      ],
+                      "description": "What the workspace carries. 'data' is the data workspace of workspace_strategy 'per_domain' (D-600): bronze, silver and gold as separate lakehouses, no consumers — reading happens through the 'reporting' workspace, because OneLake security only grants and cannot restrict a Contributor."
                     },
                     "stage": {
                       "enum": [
@@ -1481,7 +1483,7 @@
             "single",
             "per_layer"
           ],
-          "description": "How mesh.domains[].workspaces are cut. Read by derive_blueprint. 'per_layer' gives each medallion layer its own workspace, which is Microsoft's own recommendation for the medallion deployment model ('we recommend that you create each lakehouse in its own, separate workspace') and the only cut that makes the raw layer invisible to business users through workspace membership alone."
+          "description": "How mesh.domains[].workspaces are cut. Read by derive_blueprint. 'per_layer' gives each medallion layer its own workspace, which is Microsoft's own recommendation for the medallion deployment model ('we recommend that you create each lakehouse in its own, separate workspace') and the only cut that makes the raw layer invisible to business users through workspace membership alone. 'per_domain' is the default (D-600, 'standard'): per domain and stage one data workspace (role 'data', bronze/silver/gold lakehouses) and one consumption workspace (role 'reporting'); 'single' is D-600 'compact', 'per_layer' is D-600 'isolated'."
         },
         "workspace_prefix": {
           "type": "string",

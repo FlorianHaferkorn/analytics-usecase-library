@@ -33,7 +33,7 @@ from core.dataarch_engine.blueprint.fabric_schedule import (
     JOB_TYPE_NOTEBOOK,
     JOB_TYPE_PIPELINE,
 )
-from core.dataarch_engine.blueprint.governance_strategy import LIFECYCLE_STAGES
+from core.dataarch_engine.blueprint.governance_strategy import LAKEHOUSE_ROLES, LIFECYCLE_STAGES
 
 #: Unter wem ein Zeitplan angelegt wird (D-537, O-72 eines Kundenprojekts). Der Satz steht an
 #: JEDEM Zeitplan-Schritt, weil jeder einzeln im Portal angelegt werden kann — und dort legt
@@ -123,7 +123,7 @@ def gold_workspace_of(bp: dict, domain_name: str | None = None,
     # Stufe schlaegt Listenreihenfolge; innerhalb einer Stufe bleibt die Reihenfolge stabil.
     kandidaten.sort(key=_stufenrang)
     for ws in kandidaten:
-        if ws.get("role") in ("gold", "mixed"):
+        if ws.get("role") in LAKEHOUSE_ROLES:
             return ws["name"]
     # keine Gold-Rolle deklariert: der unterstufigste Workspace der Domäne, sonst der Fallback
     return kandidaten[0]["name"] if kandidaten else fallback
@@ -205,7 +205,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     from core.dataarch_engine.blueprint.decision_proposals import entscheidung_fuer
 
     workspaces = _unique_workspaces(bp)
-    gold_ws = [n for n, r in workspaces if r in ("gold", "mixed")]
+    gold_ws = [n for n, r in workspaces if r in LAKEHOUSE_ROLES]
     target_ws = gold_ws[0] if gold_ws else (workspaces[0][0] if workspaces else workspace)
     domains = sorted(bp.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
     ingestion = sorted(bp.get("ingestion", []), key=lambda e: e.get("source", ""))
@@ -279,7 +279,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
             "(MS Learn: fabric/security/security-private-links-overview); nachtraeglich nur mit "
             "Neuaufbau der Quellanbindung zu drehen — deshalb vor dem ersten Lakehouse.")
     for name, role in workspaces:
-        if role in ("gold", "mixed"):
+        if role in LAKEHOUSE_ROLES:
             add("create_lakehouse", f"{name}.Workspace/{lakehouse}.Lakehouse", "core-mcp:create-item | fab mkdir",
                 "human", "gold lakehouse",
                 present("terraform/main.tf") or present("provision.sh"))
@@ -289,7 +289,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     # Warehouse-Schicht (`sql_ddl_layers`), das entscheidet der Aufrufer, nicht dieser Schritt.
     if entscheidung_fuer(entscheidungen, "PLAT-LHTOPO", "") == "gold_warehouse":
         for name, role in workspaces:
-            if role in ("gold", "mixed"):
+            if role in LAKEHOUSE_ROLES:
                 add("create_warehouse", f"{name}.Workspace/{lakehouse}.Warehouse",
                     "core-mcp:create-item | fab mkdir", "human",
                     "Entschieden: PLAT-LHTOPO = gold_warehouse. Gold als Warehouse fuer "
