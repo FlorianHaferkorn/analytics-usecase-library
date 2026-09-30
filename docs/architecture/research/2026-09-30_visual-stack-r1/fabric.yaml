@@ -1,0 +1,902 @@
+# R1d — Strang fabric: technische Grenzen der Zielplattformen (Fabric App / PBIR / HTML)
+# Stand 30.09.2026. Lokale Primärbelege: Scaffold-Cache
+#   Freelancing-Checkout .cache/fabric_app/1.36.0/scaffold/ (fabric-visuals 4.0.0, flint-chart 0.5.1,
+#   vega-lite 6.4.3, vega 6.4.0) und npm-Tarball @microsoft/fabric-visuals 4.1.0 (Scratchpad fv41/).
+# Plattform-Status je Eintrag in parameters: fabric_app / pbir / html
+#   = native | flint | vega_lite | custom_svg | deneb | svg_measure | nicht_moeglich | unklar
+
+# ---------------------------------------------------------------- Fabric App: Spec-Eingang
+- id: fabric-001
+  pattern: VegaVisual nimmt Vega-Lite oder Flint, nicht Vega
+  description: >-
+    Der Typ VisualizationSpec ist eine Union aus Vega-Lite-TopLevelSpec (data optional) und
+    Flint-Spec. Volle Vega-Specs (Sankey per linkpath, Baum-Layouts) sind im Typ nicht vorgesehen;
+    Vega-Lite-Specs gehen vollständig durch (layer, facet, concat, params, transforms).
+  source:
+    title: "@microsoft/fabric-visuals 4.0.0 dist/index.d.ts (lokal: .cache/fabric_app/1.36.0/scaffold/node_modules)"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.0.0
+    date_published: 2026-09-09
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "type VisualizationSpec = VegaLiteSpecWithOptionalData | FlintSpec;"
+  parameters:
+    fabric_app_vega_lite_version: "6.4.3 (installiert), ^6.4.2 (Dependency)"
+    fabric_app_vega_version: "6.4.0 (installiert)"
+    fabric_app_vega_full_spec: nicht_moeglich
+  applies_to:
+    purposes: [flow_between_stages, driver_breakdown]
+    idioms: [sankey, decomposition_tree]
+    style_pack: fluent
+    layer: idiom
+  confidence: from_source
+
+- id: fabric-002
+  pattern: Flint-Katalog mit 34 chartTypes und festen Kanälen
+  description: >-
+    Flint-Specs bestehen aus chartType plus encodings. Der Katalog nennt u. a. Bar, Grouped Bar,
+    Stacked Bar, Waterfall, Bullet (goal Pflicht), Ranged Dot Plot (Dumbbell), Lollipop, Slope,
+    Bump, Sparkline, KPI Card, Bar Table, Boxplot, Histogram, Heatmap, Range Area. Kein Sankey,
+    keine Treemap im VegaVisual-Katalog, kein Zerlegungsbaum.
+  source:
+    title: "Rayfin-Template-Skill visuals/references/flint-authoring.md (Scaffold 1.36.0) + flint-chart 0.5.1 dist/vegalite/index.js"
+    publisher: Microsoft
+    url: https://github.com/microsoft/flint-chart/blob/main/agent-skills/flint-chart-author/SKILL.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Use one of the registered names **exactly**:"
+  parameters:
+    flint_version: "0.5.1"
+    flint_chart_types: 34
+    flint_bullet_channels: "y, x, goal, color, column, row"
+    flint_waterfall_channels: "x, y, color, column, row (color reserviert für Typ-Spalte)"
+    flint_ranged_dot_plot_channels: "x, y, color"
+    flint_kpi_card_channels: "metric, value, goal"
+    flint_range_area_channels: "x, y, y2, color, column, row"
+  applies_to:
+    purposes: [compare_categories, time_comparison, deviation_from_target, contribution_to_change, distribution, correlation, value_verdict]
+    idioms: [bar_absolute, bar_ranking, bar_stacked, waterfall_buildup, bullet, dumbbell, lollipop, slope, kpi_card_spark, kpi_card_bullet, boxplot, histogram, scatter, line, column_time, small_multiples]
+    style_pack: fluent
+    layer: idiom
+  confidence: from_source
+
+- id: fabric-003
+  pattern: Flint chartProperties werden ignoriert (Widerspruch zur Skill-Doku)
+  description: >-
+    In 4.0.0 und 4.1.0 entfernt der Typ FlintSpec chartProperties; das README sagt, sie würden
+    ignoriert. Der mitgelieferte Skill flint-authoring.md dokumentiert sie trotzdem (innerRadius für
+    Donut, stackMode normalize, waterfall totals, cornerRadius). Donut und 100%-Stapel daher über
+    Vega-Lite, nicht Flint.
+  source:
+    title: "@microsoft/fabric-visuals 4.1.0 dist/index.d.ts"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.1.0
+    date_published: 2026-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "NOTE: customizing `chartProperties` via Flint is not currently supported. This behavior may change in the future."
+  parameters:
+    fabric_app_flint_chartProperties: nicht_moeglich
+    betroffen: "Donut innerRadius, stackMode normalize, Waterfall totals, cornerRadius, Sparkline baseline"
+  applies_to:
+    purposes: [part_to_whole, contribution_to_change]
+    idioms: [donut, stacked_100, waterfall_buildup, kpi_card_spark]
+    style_pack: fluent
+    layer: idiom
+  confidence: from_source
+
+- id: fabric-004
+  pattern: Flint verlangt semanticType je Spalte
+  description: >-
+    Ohne semanticType in den DataTable-Spaltenmetadaten bricht Flint ab. Der semanticType steuert
+    Formatierung, Nullbasis und Farbschema (z. B. Profit/PercentageChange = divergierend,
+    Rank = umgekehrte Achse).
+  source:
+    title: "@microsoft/fabric-visuals 4.0.0 README.md"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.0.0
+    date_published: 2026-09-09
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "If these semantic types are missing on the input data, the component will error."
+  parameters: {}
+  applies_to:
+    purposes: [deviation_from_target, compare_categories]
+    idioms: [deviation_bar, bar_ranking]
+    style_pack: fluent
+    layer: selection_logic
+  confidence: from_source
+
+- id: fabric-005
+  pattern: Small Multiples über Flint column/row oder Vega-Lite facet
+  description: >-
+    Fast alle Flint-Typen führen die Kanäle column und row (Facettierung), dazu independentYAxis.
+    Vega-Lite 6.4.3 kennt TopLevelFacetSpec, Repeat und Concat vollständig.
+  source:
+    title: "vega-lite 6.4.3 build/vega-lite-schema.json (lokal) + flint-authoring.md"
+    publisher: Vega / Microsoft
+    url: https://www.npmjs.com/package/vega-lite/v/6.4.3
+    date_published: 2026-04-24
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    fabric_app: flint
+    html: vega_lite
+    vl_toplevel_specs: "TopLevelFacetSpec, TopLevelRepeatSpec, TopLevelConcatSpec, TopLevelLayerSpec"
+  applies_to:
+    purposes: [time_comparison, compare_categories]
+    idioms: [small_multiples]
+    style_pack: fluent
+    layer: layout
+  confidence: from_source
+
+# ---------------------------------------------------------------- Fabric App: Laufzeit-Eingriffe
+- id: fabric-006
+  pattern: VegaVisual überschreibt config im Spec
+  description: >-
+    Das eingebaute Theme hat Vorrang; ein config-Block im Spec wird überschrieben. Strukturelle
+    Abweichungen (Achsen, Schrift, Eckenradius) gehen nur über die Prop configVegaLite.
+  source:
+    title: "@microsoft/fabric-visuals 4.0.0 README.md, Common pitfalls"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.0.0
+    date_published: 2026-09-09
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "VegaVisual always applies its built-in theme. A custom `config` defined within the the given spec is overridden."
+  parameters:
+    kanal: configVegaLite
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+
+- id: fabric-007
+  pattern: Optimistische Laufzeit-Transformationen (capabilities, Opt-out)
+  description: >-
+    VegaVisual verändert Specs zur Laufzeit: Nullbasis bei Balken, nice-Achsen, kompakte Zahlen
+    (10K), Mindestbalkengröße, Datenlabels auf Stapeln und Ringen, Kategorien-Scroll ab 15,
+    Crosshair-Tooltip auf Linien, Self-Highlight per Klick. Jedes ist per Flag abschaltbar; eine
+    IBCS-Library muss die meisten explizit abschalten, sonst weicht das Bild vom Spec ab.
+  source:
+    title: "@microsoft/fabric-visuals 4.0.0 dist/index.d.ts, interface VegaVisualCapabilities"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.0.0
+    date_published: 2026-09-09
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Controls which optimistic behaviors the VegaVisual compilation pipeline applies. Most behaviors are on by default. Set a key to `true` to disable it."
+  parameters:
+    categorical_scroll_threshold: 15
+    categorical_scroll_window: 10
+    capability_flags: 15
+    default_disableLegendScroll: true
+  applies_to:
+    purposes: [compare_categories, time_comparison, part_to_whole]
+    idioms: [bar_absolute, bar_ranking, bar_stacked, column_time, donut, line, scatter]
+    style_pack: fluent
+    layer: style
+  confidence: from_source
+
+- id: fabric-008
+  pattern: Standard-Eckenradius 4 an Balken, Wasserfall-Farben grün/rot/primär
+  description: >-
+    Der Template-Skill setzt cornerRadiusEnd 4 (aus --radius-md) als Balkenvorgabe und färbt
+    Wasserfälle nach Typ grün/rot/primär. Für eckige IBCS-Balken muss cornerRadiusEnd 0 gesetzt
+    werden; gemischte Vorzeichen brauchen zwei Layer, weil ein Radius sonst auf der falschen Seite rundet.
+  source:
+    title: "Rayfin-Template-Skill app-design/references/visual-style-recipes.md (Scaffold 1.36.0)"
+    publisher: Microsoft
+    url: https://learn.microsoft.com/fabric/apps/create-app
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The default `cornerRadiusEnd` is `4` (from `--radius-md`). Use `0` for sharp aesthetics or higher for rounder feels."
+  parameters:
+    default_bar_corner_radius_px: 4
+    waterfall_default_colors: "increase green, decrease red, subtotal primary"
+  applies_to:
+    purposes: [contribution_to_change, compare_categories]
+    idioms: [waterfall_buildup, waterfall_pvm, waterfall_variance, bar_absolute, deviation_bar]
+    style_pack: fluent
+    layer: style
+  confidence: from_source
+
+# ---------------------------------------------------------------- Fabric App: Theming
+- id: fabric-009
+  pattern: useCssTheme liest nur Farben (8 Variablen + 10 Datenfarben)
+  description: >-
+    readCssTheme bildet foreground, background(--color-card), stroke(--color-border),
+    foregroundSecondary, backgroundSecondary, backgroundHover, brandBackground, brandForeground
+    sowie --color-data-1..10 ab (stoppt an der ersten Lücke), dazu isDark (.dark) und
+    isHighContrast. Schrift, Größen und Abstände liest der Hook nicht.
+  source:
+    title: "@microsoft/fabric-visuals-core 4.0.0 dist/index.d.ts + dist/index.js readCssTheme"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals-core/v/4.0.0
+    date_published: 2026-09-09
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Ordered CSS custom properties used to build the default categorical series palette. Hosts may define a contiguous prefix beginning at `--color-data-1`"
+  parameters:
+    css_color_vars: ["--color-foreground", "--color-card", "--color-border", "--color-muted-foreground", "--color-muted", "--color-hover", "--color-brand", "--color-brand-foreground"]
+    categorical_palette_max: 10
+    dark_trigger: ".dark auf <html>"
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+
+- id: fabric-010
+  pattern: Diagrammschrift kommt aus Token-Konstante oder theme.typography, nicht aus --font-base
+  description: >-
+    Der Vega-Theme-Bau nutzt theme.typography.label/heading, sonst die feste Konstante
+    fontFamily.base (Segoe-UI-Stack). Da useCssTheme typography nicht füllt, folgt die
+    Diagrammschrift einer geänderten --font-base nicht von selbst; die Skill-Tabelle behauptet das
+    Gegenteil. Weg: theme = {...useCssTheme(), typography: {...}} oder configVegaLite.font.
+  source:
+    title: "@microsoft/fabric-visuals 4.0.0 dist/chunk-HIKZQ6YR.js (Theme-Bau) vs. visuals/references/formatting.md"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.0.0
+    date_published: 2026-09-09
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "const bodyFamily = theme.typography?.label?.family ?? fontFamily.base;"
+  parameters:
+    default_font_stack: "'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif"
+    default_numeric_font: "Bahnschrift, 'Segoe UI', …"
+    widerspruch: "formatting.md nennt --font-base als Stellschraube für Charts"
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+
+- id: fabric-011
+  pattern: Benannte Textstile für Labels und KPI-Karten
+  description: >-
+    Das Basistheme liefert die Mark-Stile labelHorizontal (dx 8), labelVertical (dy -4),
+    labelSubtitle (fontSize 16, dy 32) und labelCallout (fontSize 32, bold) für Datenlabels und
+    Einzelwert-Karten.
+  source:
+    title: "Rayfin-Template-Skill visuals/references/formatting.md (Scaffold 1.36.0)"
+    publisher: Microsoft
+    url: https://learn.microsoft.com/fabric/apps/create-app
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "These styles are built into the base theme and can be referenced via the `style` property on marks"
+  parameters:
+    labelCallout_font_px: 32
+    labelSubtitle_font_px: 16
+    labelHorizontal_dx_px: 8
+    labelVertical_dy_px: -4
+  applies_to:
+    purposes: [value_verdict]
+    idioms: [kpi_card_spark, kpi_card_bullet, kpi_card_sparkbar, bar_absolute, column_time]
+    style_pack: fluent
+    layer: style
+  confidence: from_source
+
+- id: fabric-012
+  pattern: Datenfarben mindestens 3:1 gegen Hintergrund, Nachbarn im Kontrast abwechseln
+  description: >-
+    Eigene Datenfarben müssen 3:1 gegen den Diagrammhintergrund halten; benachbarte Serien sollen
+    im Kontrast um etwa ±2 alternieren (z. B. 7:1, 5:1, 3:1). Alle zehn --color-data-* setzen.
+  source:
+    title: "Rayfin-Template-Skill visuals/references/formatting.md (Scaffold 1.36.0)"
+    publisher: Microsoft
+    url: https://learn.microsoft.com/fabric/apps/create-app
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Every data color must maintain at least a **3:1 contrast ratio** against the chart background."
+  parameters:
+    min_contrast_ratio: 3.0
+    alternating_contrast_step: 2
+  applies_to:
+    purposes: [compare_categories, part_to_whole]
+    idioms: [bar_stacked, area_stacked, stacked_100, donut, line]
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+
+# ---------------------------------------------------------------- Vega-Lite-Grenzen (alle Ziele mit VL)
+- id: fabric-013
+  pattern: Füllung ist Farbe oder Verlauf; Muster nur über SVG-url()-Referenz
+  description: >-
+    Vega-Lite 6.4.3 typisiert fill als Color | Gradient (linear/radial) | null | ExprRef; Color
+    akzeptiert jeden String. Der Vega-SVG-Renderer schreibt den String als fill-Attribut, daher
+    greift "url(#schraffur)", wenn ein <pattern> mit dieser id im selben Dokument liegt. VegaVisual
+    rendert SVG. Nicht getestet in Fabric; Canvas-Renderer und Export verlieren das Muster.
+  source:
+    title: "vega-lite 6.4.3 build/vega-lite-schema.json (MarkDef.fill, Color) + vega-scenegraph (lokal)"
+    publisher: Vega
+    url: https://www.npmjs.com/package/vega-lite/v/6.4.3
+    date_published: 2026-04-24
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Default fill color. This property has higher precedence than `config.color`. Set to `null` to remove fill."
+  parameters:
+    fabric_app: custom_svg
+    pbir: deneb
+    html: vega_lite
+    fabric_app_renderer: svg
+    vl_gradient_types: [linear, radial]
+  applies_to:
+    purposes: [time_comparison, deviation_from_target]
+    idioms: [column_time, bar_absolute, waterfall_buildup, matrix_bullet, bullet]
+    style_pack: ibcs
+    layer: style
+  confidence: inferred
+
+- id: fabric-014
+  pattern: Zusammengesetzte Marks boxplot, errorbar, errorband
+  description: >-
+    Vega-Lite kennt 14 Primitiv-Marks (arc, area, bar, circle, geoshape, image, line, point, rect,
+    rule, square, text, tick, trail) und drei zusammengesetzte (boxplot, errorbar, errorband).
+    Kein Sankey-, Treemap- oder Wasserfall-Mark; Wasserfall entsteht aus window-Transform + bar/rule.
+  source:
+    title: "vega-lite 6.4.3 build/vega-lite-schema.json, definitions Mark und CompositeMark"
+    publisher: Vega
+    url: https://www.npmjs.com/package/vega-lite/v/6.4.3
+    date_published: 2026-04-24
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    vl_primitive_marks: 14
+    vl_composite_marks: [boxplot, errorbar, errorband]
+    sankey_in_vega_lite: nicht_moeglich
+  applies_to:
+    purposes: [distribution, flow_between_stages, contribution_to_change]
+    idioms: [boxplot, sankey, waterfall_buildup, waterfall_pvm, waterfall_variance]
+    style_pack: fluent
+    layer: idiom
+  confidence: from_source
+
+- id: fabric-015
+  pattern: Mehrere benannte Datentabellen für Layer (Ziel-/Referenzlinien, Overlays)
+  description: >-
+    data kann ein Record<string, DataTable> sein; jede Tabelle wird als datasets[name] ausgegeben
+    und ein Layer bindet sie per data:{name}. Trägt Soll-Marker, Vorjahres-Overlays und
+    Achsen-Spines. Auto-Transformationen (Stapel-Labels, Crosshair) laufen dann nicht.
+  source:
+    title: "Rayfin-Template-Skill visuals/references/multi-data-input.md (Scaffold 1.36.0)"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.0.0
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Auto-injected transforms (stacked data labels, crosshair tooltips) run only on the single-`DataTable` path."
+  parameters: {}
+  applies_to:
+    purposes: [deviation_from_target, time_comparison]
+    idioms: [bullet, column_time, line, matrix_bullet]
+    style_pack: ibcs
+    layer: idiom
+  confidence: from_source
+
+# ---------------------------------------------------------------- Fabric App: Interaktion, A11y
+- id: fabric-016
+  pattern: onInteraction liefert Prädikate, Host entscheidet über Cross-Filter
+  description: >-
+    VegaVisual und DataGrid melden select (Prädikate über alle Felder des Datums) und clear. Einen
+    eingebauten Cross-Filter zwischen Visuals gibt es nicht; der Host filtert. Innerhalb eines
+    Visuals dimmt Self-Highlight per Klick, Shift/Ctrl/Cmd erweitert die Auswahl. Hover-Events
+    sind im Typ als TODO markiert.
+  source:
+    title: "@microsoft/fabric-visuals-core 4.0.0 dist/index.d.ts (InteractionEvent) + visuals/SKILL.md"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals-core/v/4.0.0
+    date_published: 2026-09-09
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The component only emits the selection; the host app decides what it does"
+  parameters:
+    interaction_actions: [select, clear]
+    hover_event: nicht_moeglich
+  applies_to:
+    purposes: [driver_breakdown, evidence_detail]
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+
+- id: fabric-017
+  pattern: Tastaturnavigation im Diagramm erst ab fabric-visuals 4.1.0
+  description: >-
+    4.0.0 (im Scaffold gepinnt) listet data-navigator als Dependency, importiert es aber nicht;
+    im Bundle findet sich kein Keydown-Handler. 4.1.0 (23.09.2026) integriert ein zugängliches
+    Overlay: Enter betritt das Diagramm, Tab/Pfeile bewegen, Escape verlässt Ebene.
+  source:
+    title: "@microsoft/fabric-visuals 4.1.0 README.md, Accessible navigation + CHANGELOG"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.1.0
+    date_published: 2026-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "`VegaVisual` provides keyboard exploration of Vega-Lite charts through an accessible overlay."
+  parameters:
+    min_version_keyboard: "4.1.0"
+    scaffold_pinned_version: "4.0.0"
+    grep_keydown_4_0_0_bundle: 0
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+
+- id: fabric-018
+  pattern: DataGrid als Tabellen-Idiom mit Sortierung, Filter, cellRenderer, tabellarischen Ziffern
+  description: >-
+    DataGrid sortiert (Mehrfach per Shift), filtert je Spalte, virtualisiert oder paginiert,
+    richtet Zahlen rechts mit tabular digits aus (numericStyling) und nimmt je Spalte einen
+    cellRenderer (React-Knoten, also Inline-SVG für Balken, Sparklines, Pillen). aria-sort und
+    Tastaturbehandlung sind im Bundle vorhanden.
+  source:
+    title: "@microsoft/fabric-datagrid 4.0.0 README.md"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-datagrid/v/4.0.0
+    date_published: 2026-09-09
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Right-aligns cells (headers stay left-aligned) and uses tabular digits so numbers line up by place."
+  parameters:
+    fabric_app: native
+    cellRenderer: "(value, row) => ReactNode"
+  applies_to:
+    purposes: [evidence_detail, deviation_from_target, time_comparison]
+    idioms: [matrix_evidence, matrix_bullet, matrix_delta_pill, matrix_sparkline]
+    style_pack: fluent
+    layer: idiom
+  confidence: from_source
+
+- id: fabric-019
+  pattern: VisualContainer-Rahmen mit Titel, Untertitel und Kopieraktion
+  description: >-
+    VegaVisual und DataGrid rahmen sich selbst (Rand, Kopf mit title/subtitle, Aktion Copy
+    Visual). chromeless entfernt den Rahmen vollständig; ein explizites VisualContainer außen
+    unterdrückt den inneren Rahmen.
+  source:
+    title: "@microsoft/fabric-visuals 4.0.0 README.md, VisualContainer framing"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.0.0
+    date_published: 2026-09-09
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "`chromeless` is set | No container at all — the chart renders on its own."
+  parameters:
+    header_fields: [title, subtitle]
+  applies_to:
+    purposes: []
+    idioms: [kpi_card_spark, kpi_card_bullet, kpi_card_sparkbar]
+    style_pack: fluent
+    layer: layout
+  confidence: from_source
+
+- id: fabric-020
+  pattern: EmbeddableVegaVisual für CSP ohne unsafe-eval
+  description: >-
+    VegaVisual braucht new Function() (unsafe-eval) und zeigt bei blockierender CSP eine
+    Fehlermeldung. EmbeddableVegaVisual nutzt vega-interpreter, gleiche Props, etwa 6 KB gzip
+    mehr. Das Scaffold nutzt VegaVisual, was auf erlaubtes unsafe-eval im Fabric-Hosting hindeutet.
+  source:
+    title: "@microsoft/fabric-visuals 4.0.0 README.md, Embeddable (CSP-Safe) Variant"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.0.0
+    date_published: 2026-09-09
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "`VegaVisual` relies on Vega's default expression compiler which uses `new Function()`. This is blocked in CSP environments that disallow `unsafe-eval`."
+  parameters:
+    embeddable_extra_gzip_kb: 6
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+
+- id: fabric-021
+  pattern: Headless-SVG-Render derselben Spec (renderVisualToSvg)
+  description: >-
+    Ab 4.1.0 rendert @microsoft/fabric-visuals/headless eine VegaVisual-Spec ohne Browser zu SVG,
+    mit denselben Daten, configVegaLite und capabilities. Damit lassen sich Fabric-Bild und
+    HTML-Ausgabe aus einer Spec ziehen und per Golden prüfen.
+  source:
+    title: "@microsoft/fabric-visuals 4.1.0 README.md"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.1.0
+    date_published: 2026-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The [headless rendering API](#headless-rendering) is used for browserless SVG output."
+  parameters:
+    html: vega_lite
+    entry: "@microsoft/fabric-visuals/headless"
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: layout
+  confidence: from_source
+
+# ---------------------------------------------------------------- Fabric App: Hosting, Schriften, CSP
+- id: fabric-022
+  pattern: Statisches Hosting bis 100 MB ZIP
+  description: >-
+    rayfin up baut, packt das Ausgabeverzeichnis maximal komprimiert als ZIP und lädt es hoch.
+    Obergrenze 100 MB komprimiert. Selbst gehostete Schriftdateien (woff2) passen weit darunter.
+  source:
+    title: Static content hosting for Fabric Apps
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/fabric/apps/hosting
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The compressed ZIP archive must not exceed **100 MB**."
+  parameters:
+    max_zip_mb: 100
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+
+- id: fabric-023
+  pattern: Webfonts laut Template per CDN-Link; CSP des Hostings undokumentiert
+  description: >-
+    Der mitgelieferte app-design-Skill weist an, Schriften per Google-Fonts-Link in index.html zu
+    laden und die --font-*-Tokens zu setzen. Microsoft Learn dokumentiert keine CSP-Header des
+    Fabric-Apps-Hostings. Die App läuft im Portal als verschachteltes iframe; CSP-Meldungen dort
+    stammen laut Skill vom Portal.
+  source:
+    title: "Rayfin-Template-Skill app-design/SKILL.md und app-validation/references/fabric-embed.md (Scaffold 1.36.0)"
+    publisher: Microsoft
+    url: https://learn.microsoft.com/fabric/apps/create-app
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Load fonts via Google Fonts (or another CDN) as `<link>` tags in `index.html`, then update the font family tokens"
+  parameters:
+    fabric_app_external_webfont: unklar
+    fabric_app_self_hosted_font: unklar
+    csp_header_documented: false
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+
+# ---------------------------------------------------------------- Power BI (PBIR)
+- id: fabric-024
+  pattern: Fehlerbalken und Fehlerband nativ in Balken-, Säulen-, Linien- und Kombi-Diagrammen
+  description: >-
+    Das Analytics-Pane trägt Fehlerbalken (per Feld absolut/relativ oder Prozent) für Clustered
+    Bar/Column, Line und Line-and-clustered-column; Linien zusätzlich ein Fehlerband (Fläche,
+    Linie oder beides). Der Visual-Katalog 0.1.1 führt das Objekt error zusätzlich an columnChart,
+    barChart, 100%-Typen, ribbonChart und beiden Kombis.
+  source:
+    title: Use the Analytics pane in Power BI
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/transform-model/desktop-analytics-pane
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Error bars display the variability or uncertainty in your measurements."
+  parameters:
+    pbir: native
+    pbir_object: error
+    catalog_pin: "@microsoft/powerbi-core-visual-schema 0.1.1"
+    error_band: "nur lineChart (shadeShow, shadeBandStyle)"
+  applies_to:
+    purposes: [time_comparison, deviation_from_target]
+    idioms: [line, column_time, bar_absolute]
+    style_pack: ibcs
+    layer: style
+  confidence: from_source
+
+- id: fabric-025
+  pattern: Keine Musterfüllung in Kernvisuals; Umriss-Balken über Transparenz und Rand
+  description: >-
+    dataPoint der Säulen trägt fill, fillTransparency und borderShow/borderSize/borderColor, aber
+    keine Musterfüllung. IBCS-Plan (Umriss) ist nativ baubar, Prognose-Schraffur nicht; dafür
+    Deneb oder SVG-Measure.
+  source:
+    title: "@microsoft/powerbi-core-visual-schema 0.1.1 data/capabilities.json (lokal, clusteredColumnChart.dataPoint)"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/powerbi-core-visual-schema
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    pbir_hatch: deneb
+    pbir_outline_bar: native
+    dataPoint_properties: [defaultColor, fill, fillRule, fillTransparency, borderShow, borderSize, borderColorMatchFill, borderColor, borderTransparency]
+  applies_to:
+    purposes: [time_comparison, deviation_from_target]
+    idioms: [column_time, bar_absolute, waterfall_buildup]
+    style_pack: ibcs
+    layer: style
+  confidence: from_source
+
+- id: fabric-026
+  pattern: Gestrichelte Serien und Prognoseband in lineChart
+  description: >-
+    lineStyles trägt lineStyle, strokeDashArray, strokeDashCap und Marker je Serie; forecast trägt
+    Stil, dashArray, bandLinePattern und Bandfläche. Damit ist eine gestrichelte Forecast-Linie
+    nativ; die eingebaute Prognose rechnet Power BI selbst.
+  source:
+    title: "@microsoft/powerbi-core-visual-schema 0.1.1 data/capabilities.json (lokal, lineChart)"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/powerbi-core-visual-schema
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    pbir: native
+    lineStyles_props: [lineStyle, strokeDashArray, strokeDashCap, showMarker, markerShape]
+    forecast_props: [style, dashArray, bandLinePattern, bandAreaShow]
+  applies_to:
+    purposes: [time_comparison]
+    idioms: [line, indexed_line]
+    style_pack: ibcs
+    layer: style
+  confidence: from_source
+
+- id: fabric-027
+  pattern: Native Small Multiples in 14 Typen, Sparklines in Tabelle und Matrix
+  description: >-
+    14 Visualtypen tragen smallMultiplesLayout; tableEx und pivotTable tragen sparklines.
+    Gemessen im Repo gegen den gepinnten offiziellen Katalog.
+  source:
+    title: "ALUCA ADR-0021 Die native Spur hat Vorrang (docs/architecture/adr/0021-…md)"
+    publisher: Florian Haferkorn (intern, Messung gegen Microsoft-Katalog)
+    url: https://github.com/florianhaferkorn/analytics-usecase-library/blob/main/docs/architecture/adr/0021-native-spur-vor-eigenbau-in-der-visual-library.md
+    date_published: 2026-09-07
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: "**14** Typen tragen **`smallMultiplesLayout`**"
+  parameters:
+    pbir: native
+    small_multiples_types: 14
+    sparkline_types: [tableEx, pivotTable]
+  applies_to:
+    purposes: [time_comparison, evidence_detail]
+    idioms: [small_multiples, matrix_sparkline]
+    style_pack: fluent
+    layer: idiom
+  confidence: from_source
+
+- id: fabric-028
+  pattern: SVG-Measures nur als Bild in Tabelle, Matrix, Karte, Slicer
+  description: >-
+    Image-URL-Daten (BMP/JPG/GIF/PNG/SVG) erscheinen in Tabelle, Matrix, Slicer, Multi-Row-Card
+    und der Kartenvisualisierung (Callout-Bild, Hover-Zustand). Microsoft zeigt selbst eine
+    TrendSVG-DAX-UDF für Karten. Die SVG ist ein Bild: keine Selektion einzelner Marks, kein
+    eigener Tooltip je Mark.
+  source:
+    title: Create a card visual in Power BI / Display images in a table, matrix, or slicer
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-card
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "call the reusable `TrendSVG`[DAX user-defined function](https://learn.microsoft.com/power-bi/transform-model/desktop-user-defined-functions-overview) to render an SVG line chart"
+  parameters:
+    pbir: svg_measure
+    image_formats: [BMP, JPG, JPEG, GIF, PNG, SVG]
+    card_image_states: [Default, Hover]
+    mark_level_interaction: nicht_moeglich
+  applies_to:
+    purposes: [value_verdict, deviation_from_target, time_comparison]
+    idioms: [kpi_card_spark, kpi_card_bullet, kpi_card_sparkbar, matrix_bullet, matrix_delta_pill, matrix_sparkline]
+    style_pack: ibcs
+    layer: idiom
+  confidence: from_source
+
+- id: fabric-029
+  pattern: Textlänge beim Laden 32.766 Zeichen, in DAX etwa 2,1 Mio.
+  description: >-
+    Beim Laden ins Modell wird Text über 32.766 Zeichen still abgeschnitten; in DAX-Funktionen
+    liegt die Grenze bei rund 2,1 Mio. Zeichen. SVG-Measures bauen den String zur Abfragezeit und
+    fallen unter die DAX-Grenze; die in Blogs genannte 32k-Grenze je Measure ist nicht offiziell belegt.
+  source:
+    title: What Is The Maximum Length Of A Text Value In Power BI?
+    publisher: Chris Webb (crossjoin.co.uk)
+    url: https://blog.crossjoin.co.uk/2019/05/17/maximum-length-text-value-power-bi/
+    date_published: 2019-05-17
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: null
+  parameters:
+    text_load_limit_chars: 32766
+  applies_to:
+    purposes: []
+    idioms: [matrix_sparkline, kpi_card_spark, matrix_bullet]
+    style_pack: ibcs
+    layer: idiom
+  confidence: inferred
+
+- id: fabric-030
+  pattern: Power BI bettet keine Schriften ein
+  description: >-
+    Die Berichtsschrift muss auf jedem Betrachter-Rechner installiert sein; Server-Export
+    (PDF, PowerPoint, Abo-Bilder) rendert eigene Schriften unter Umständen falsch. Webfonts per
+    URL sind im Theme nicht vorgesehen.
+  source:
+    title: Troubleshoot visualizations in Power BI, Fonts
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-troubleshoot#fonts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The font that a Power BI report uses must be installed on the local machine of each user."
+  parameters:
+    pbir_custom_webfont: nicht_moeglich
+    pbir_default_text_font: "Segoe UI"
+    pbir_default_number_font: "DIN"
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+
+- id: fabric-031
+  pattern: Deneb 2.0.0 mit Vega 6, Zeilenfenster 30.000, zertifiziert ohne Fernzugriff
+  description: >-
+    Tag 2.0.0.0 vom 03.09.2026 (Release 08.09.2026). Die Release-Notes nennen Vega 6.3.0 und 6.4.0
+    im Entwicklungszyklus, das Zeilenfenster steigt von 10.000 auf 30.000. Die AppSource-Fassung
+    lädt keine externen URLs (Bilder, Daten), also auch keine Webfonts.
+  source:
+    title: deneb-viz/deneb Release 2.0.0.0
+    publisher: Deneb (Coacervo)
+    url: https://github.com/deneb-viz/deneb/releases/tag/2.0.0.0
+    date_published: 2026-09-08
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "raise data-reduction row-window limit 10000 -> 30000"
+  parameters:
+    deneb_version: "2.0.0.0"
+    deneb_row_window: 30000
+    deneb_certified_remote_fetch: nicht_moeglich
+  applies_to:
+    purposes: []
+    idioms: [boxplot, histogram, sankey, dumbbell, lollipop, bullet, small_multiples]
+    style_pack: ibcs
+    layer: idiom
+  confidence: from_source
+
+- id: fabric-032
+  pattern: Deneb-Musterfüllungen per url(#id)
+  description: >-
+    Deneb stellt vordefinierte SVG-Muster bereit, die in fill als url(#diagonal-stripe-1),
+    url(#circles-1) u. a. referenziert und per Ausdruck bedingt gesetzt werden. Offizielle Liste
+    (deneb.guide) war im Abruf gesperrt.
+  source:
+    title: Creating a striped bar chart (Fabric Community)
+    publisher: Microsoft Fabric Community
+    url: https://community.fabric.microsoft.com/t5/Desktop/Creating-a-striped-bar-chart/m-p/2833314
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: null
+  parameters:
+    pbir: deneb
+    pattern_ids_belegt: ["diagonal-stripe-1", "circles-1", "houndstooth"]
+  applies_to:
+    purposes: [time_comparison]
+    idioms: [column_time, bar_absolute, waterfall_buildup]
+    style_pack: ibcs
+    layer: style
+  confidence: from_source
+
+- id: fabric-033
+  pattern: Deneb-Interaktion mit Power BI
+  description: >-
+    Deneb bindet Tooltips, Kontextmenü, Cross-Filter (Klick, Ctrl/Shift für Mehrfachauswahl) und
+    Cross-Highlight an Power BI an.
+  source:
+    title: "Deneb docs: Cross-Filtering (Selection) / Interactivity Features"
+    publisher: Deneb
+    url: https://deneb.guide/docs/interactivity-overview
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    pbir: deneb
+  applies_to:
+    purposes: [driver_breakdown, evidence_detail]
+    idioms: []
+    style_pack: ibcs
+    layer: interaction
+  confidence: from_source
+
+- id: fabric-034
+  pattern: Kein Kernvisual für Boxplot und Sankey
+  description: >-
+    Gegen den Katalog 0.1.1 (59 Typen) trägt kein Kernvisual Boxplot- oder Sankey-Rollen.
+    Boxplot geht über Deneb (boxplot-Mark), Sankey über eine volle Vega-Spec in Deneb oder das
+    Microsoft-Sankey-Custom-Visual.
+  source:
+    title: "ALUCA core/templates/page_templates/visual_library/sankey.yaml, boxplot.yaml (realizations.powerbi_native.reason)"
+    publisher: Florian Haferkorn (intern, Messung gegen Microsoft-Katalog)
+    url: https://github.com/florianhaferkorn/analytics-usecase-library/blob/main/core/templates/page_templates/visual_library/sankey.yaml
+    date_published: 2026-09-07
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: "kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026)"
+  parameters:
+    pbir_boxplot: deneb
+    pbir_sankey: deneb
+  applies_to:
+    purposes: [distribution, flow_between_stages]
+    idioms: [boxplot, sankey]
+    style_pack: fluent
+    layer: idiom
+  confidence: from_source
+
+# ---------------------------------------------------------------- Stilgrenzen aus dem Template
+- id: fabric-035
+  pattern: Flächen ohne Deckkraftänderung, Linie oben an
+  description: >-
+    Der Template-Skill verlangt bei Flächendiagrammen die Randlinie und verbietet opacity bzw.
+    fillOpacity auf area-Marks. Eine blasse Prognosefläche (IBCS-Szenario) muss daher über eine
+    eigene Farbe statt Transparenz laufen.
+  source:
+    title: "Rayfin-Template-Skill visuals/references/formatting.md (Scaffold 1.36.0)"
+    publisher: Microsoft
+    url: https://learn.microsoft.com/fabric/apps/create-app
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Do NOT set `opacity` or `fillOpacity` on area marks."
+  parameters: {}
+  applies_to:
+    purposes: [part_to_whole, time_comparison]
+    idioms: [area_stacked]
+    style_pack: fluent
+    layer: style
+  confidence: from_source
+
+- id: fabric-036
+  pattern: Aktuelle Paketversionen
+  description: >-
+    npm latest am 30.09.2026: @microsoft/fabric-visuals 4.1.0 und @microsoft/fabric-datagrid
+    4.1.0 (je 23.09.2026), flint-chart 0.5.1, vega-lite 6.4.3. Das Rayfin-Scaffold 1.36.0 pinnt
+    fabric-visuals 4.0.0, React ^19.2.7, Tailwind ^4.3.0.
+  source:
+    title: npm registry (registry.npmjs.org, dist-tags)
+    publisher: npm
+    url: https://registry.npmjs.org/@microsoft/fabric-visuals
+    date_published: 2026-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    fabric_visuals_latest: "4.1.0"
+    fabric_datagrid_latest: "4.1.0"
+    flint_chart_latest: "0.5.1"
+    vega_lite_latest: "6.4.3"
+    scaffold_fabric_visuals: "4.0.0"
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source

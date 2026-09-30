@@ -1,0 +1,913 @@
+# R1a IBCS-Regelkatalog. Zugriff 30.09.2026.
+# WICHTIG: ibcs.com, ISO-Mirror, Wikipedia und Archive waren per Egress-Proxy fuer WebFetch gesperrt.
+# Alle Belege stammen aus WebSearch-Treffern (Suchindex-Auszuege von ibcs.com-Seiten), nicht aus
+# direkt abgerufenen Seiten. Daher: evidence_access: search_index = Wortlaut nicht am Original
+# gegengeprueft. Regel-IDs (SA/ST/EX/SI/CO/CH/UN) stammen aus der SUCCESS-Struktur bis Version 1.2;
+# Version 2.0 (11.06.2026) gliedert neu in Notation + Composition — deren Nummerierung ist nicht gesehen.
+
+- id: ibcs-001
+  pattern: "Quelle und Version — IBCS Standards 2.0, Notation-Teil an ISO 24896 ausgerichtet"
+  description: "IBCS Standards Version 2.0 wurde am 11.06.2026 von der IBCS Association freigegeben, am selben Tag wie ISO 24896 \"Notation for business reporting\". Neu ist die Gliederung in Notation und Composition statt konzeptionell/perzeptuell/semantisch."
+  rule_id: null
+  source:
+    title: "IBCS Standards 2.0 / IBCS Version 2.0 - aligned with ISO 24896"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/ibcs-version-2-0/
+    date_published: 2026-06-11
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The IBCS Standards are now structured into two complementary parts: Notation and Composition."
+  evidence_access: search_index
+  parameters:
+    version: "2.0"
+    release_date: 2026-06-11
+    aligned_standard: ISO 24896
+    pdf_pages: 160
+    pdf_figures_min: 180
+    editors: [Rolf Hichert, Juergen Faisst]
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "nicht automatisierbar — Metadatum; Profil `ibcs` sollte `ibcs_version: \"2.0\"` als Feld tragen und im Test gegen diesen Eintrag verglichen werden."
+
+- id: ibcs-002
+  pattern: "Lizenz CC BY-SA 4.0"
+  description: "Die IBCS Standards stehen unter Creative Commons Attribution-ShareAlike 4.0 International; freie Nutzung bei Namensnennung und Weitergabe unter gleichen Bedingungen. Die 2.0-PDF ist fuer Mitglieder kostenlos, sonst Kauf (Amazon Paperback/Kindle)."
+  rule_id: null
+  source:
+    title: "Creative Commons FAQ"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/creative-commons-faq/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The IBCS Standards are published under the Creative Commons Attribution Share-Alike 4.0 International License (CC BY-SA)."
+  evidence_access: search_index
+  parameters:
+    license: CC-BY-SA-4.0
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "nicht automatisierbar — Lizenzfrage; ein Repo-Test kann pruefen, dass uebernommene IBCS-Texte eine Attribution-Zeile mit CC BY-SA 4.0 tragen."
+
+- id: ibcs-003
+  pattern: "ISO 24896 als normative Notationsbasis (UNIFY + CHECK)"
+  description: "ISO 24896 legt Anforderungen an das Erscheinungsbild wiederkehrender Aspekte fest (Beschriftung, Layout von Charts und Tabellen, Darstellung von Werten). Sie basiert hauptsaechlich auf den IBCS-Teilen UNIFY und CHECK."
+  rule_id: null
+  source:
+    title: "ISO 24896 Notation for business reporting"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/iso-24896/
+    date_published: 2026-06-11
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "based on suggestions for consistent business reporting notation developed by the IBCS Association (mainly the UNIFY and CHECK parts"
+  evidence_access: search_index
+  parameters:
+    iso_number: "24896"
+    iso_catalog_url: https://www.iso.org/standard/88366.html
+    scope: [written reports, live presentations, analytic dashboards]
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "nicht automatisierbar — ISO-Text kostenpflichtig und nicht eingesehen; Prueffaelle sollten spaeter auf ISO-Klauselnummern gemappt werden."
+
+- id: ibcs-004
+  pattern: "SUCCESS-Formel — sieben Regelbereiche"
+  description: "Konformitaet verlangt die sieben Regelbereiche SAY, UNIFY, CONDENSE, CHECK, EXPRESS, SIMPLIFY, STRUCTURE mit Kuerzeln SA, UN, CO, CH, EX, SI, ST."
+  rule_id: SUCCESS
+  source:
+    title: "IBCS Standards 2.0"
+    publisher: IBCS Association
+    url: https://ibcs.com/standards/
+    date_published: 2026-06-11
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Business Communication meets the IBCS Standards if it complies with the seven rules of the SUCCESS formula"
+  evidence_access: search_index
+  parameters:
+    areas:
+      SA: SAY – Convey a message
+      UN: UNIFY – Apply semantic notation
+      CO: CONDENSE – Increase information density
+      CH: CHECK – Ensure visual integrity
+      EX: EXPRESS – Choose proper visualization
+      SI: SIMPLIFY – Avoid clutter
+      ST: STRUCTURE – Organize content
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "nicht automatisierbar — Rahmen; jede Profil-Regel traegt ein Feld `ibcs_area` aus {SA,UN,CO,CH,EX,SI,ST}, ein Test prueft die Wertemenge."
+
+- id: ibcs-005
+  pattern: "Regelgliederung SAY (SA 1–SA 5)"
+  description: "SA 1 Know objectives, SA 2 Introduce message, SA 3 Deliver message, SA 4 Support message, SA 5 Summarize message. Botschaft gehoert oben auf jede Seite/Folie."
+  rule_id: SA
+  source:
+    title: "IBCS Standards (Regeluebersicht)"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/standards/page/3/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  evidence_access: search_index
+  parameters:
+    SA_1: Know objectives
+    SA_2: Introduce message
+    SA_3: Deliver message
+    SA_4: Support message
+    SA_5: Summarize message
+    message_position: top_of_page
+  applies_to:
+    purposes: [value_verdict]
+    idioms: []
+    style_pack: ibcs
+    layer: layout
+  confidence: from_source
+  test: "Seiten-Spec muss ein Element `message` oberhalb aller Visuals haben (y-Position minimal); Inhalt der Aussage nicht automatisierbar."
+
+- id: ibcs-006
+  pattern: "Regelgliederung STRUCTURE (ST 1–ST 5)"
+  description: "ST 1 Use consistent elements, ST 2 Build non-overlapping elements, ST 3 Build collectively exhaustive elements, ST 4 Build hierarchical structures, ST 5 Visualize structure. In 2.0 explizit Teil der Composition."
+  rule_id: ST
+  source:
+    title: "IBCS Standards 2.0"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/ibcs-version-2-0/
+    date_published: 2026-06-11
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "ST 1 Use consistent elements; ST 2 Build non-overlapping elements; ST 3 Build collectively exhaustive elements"
+  evidence_access: search_index
+  parameters:
+    ST_1: Use consistent elements
+    ST_2: Build non-overlapping elements
+    ST_3: Build collectively exhaustive elements
+    ST_4: Build hierarchical structures
+    ST_5: Visualize structure
+  applies_to:
+    purposes: [part_to_whole, driver_breakdown]
+    idioms: []
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "ST 3 teilautomatisierbar — bei part_to_whole muss Summe der Teile == Total (Toleranz Rundung) bzw. ein Rest-Element (\"Other\") existieren; ST 1/2/4/5 nicht automatisierbar (semantisch)."
+
+- id: ibcs-007
+  pattern: "Regelgliederung EXPRESS (EX 1–EX 5)"
+  description: "EX 1 Use appropriate object types, EX 2 Replace inappropriate chart types, EX 3 Replace inappropriate representations, EX 4 Add comparisons, EX 5 Explain causes."
+  rule_id: EX
+  source:
+    title: "IBCS Standards (Regeluebersicht)"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/standards/page/3/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  evidence_access: search_index
+  parameters:
+    EX_1: Use appropriate object types
+    EX_2: Replace inappropriate chart types
+    EX_3: Replace inappropriate representations
+    EX_4: Add comparisons
+    EX_5: Explain causes
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "siehe ibcs-020 (EX 2 Deny-List) und ibcs-021 (EX 4 Vergleichsszenario vorhanden)."
+
+- id: ibcs-008
+  pattern: "Regelgliederung SIMPLIFY (SI 1–SI 5)"
+  description: "SI 1 Avoid unnecessary components, SI 2 Avoid decorative styles, SI 3 Replace with cleaner layout, SI 4 Avoid redundancies, SI 5 Avoid distracting details."
+  rule_id: SI
+  source:
+    title: "IBCS Standards (Regeluebersicht)"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/standards/page/2/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  evidence_access: search_index
+  parameters:
+    SI_1: Avoid unnecessary components
+    SI_2: Avoid decorative styles
+    SI_3: Replace with cleaner layout
+    SI_4: Avoid redundancies
+    SI_5: Avoid distracting details
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: style
+  confidence: inferred
+  test: "siehe ibcs-024 (Gridlines/Value-Axis) und ibcs-025 (keine 3D/Schatten/Verlaeufe)."
+  note: "Zwei Suchauszuege widersprachen sich (einmal \"SI 1 Avoid clutter\"); hier die haeufigere Fassung. Vor Uebernahme am PDF pruefen."
+
+- id: ibcs-009
+  pattern: "Regelgliederung CONDENSE (CO) und CHECK (CH 1–CH 5)"
+  description: "CO 1 Use small components, CO 2 Maximize use of space, CO 3 Add data (weitere CO-Regeln nicht gesehen). CH 1 Avoid manipulated axes, CH 2 Avoid manipulated visualization elements, CH 3 Avoid misleading representations, CH 4 Use the same scales, CH 5 Show data adjustments."
+  rule_id: CO/CH
+  source:
+    title: "IBCS Standards (Regeluebersicht)"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/standards/page/2/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  evidence_access: search_index
+  parameters:
+    CO_1: Use small components
+    CO_2: Maximize use of space
+    CO_3: Add data
+    CH_1: Avoid manipulated axes
+    CH_2: Avoid manipulated visualization elements
+    CH_3: Avoid misleading representations
+    CH_4: Use the same scales
+    CH_5: Show data adjustments
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "siehe ibcs-015..017 fuer CH 1/CH 4."
+
+- id: ibcs-010
+  pattern: "Regelgliederung UNIFY (UN 1–UN 5)"
+  description: "UN 1 Unify terminology, UN 2 Unify descriptions, UN 3 Unify dimensions, UN 4 Unify analyses, UN 5 Unify indicators. Unterregeln gesehen - UN 1.1 Terms and abbreviations, UN 3.1 Unify measures, UN 3.2 Unify scenarios, UN 3.3 Unify time periods."
+  rule_id: UN
+  source:
+    title: "CHART CERTIFICATION CRITERIA VERSION 1.9b (chart template 01)"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/wp-content/uploads/2018/01/IBCS_chart_template_01_2018-01-24_rh.pdf
+    date_published: 2018-01-24
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "UNIFY rule UN 3.3 \"Unify time periods\""
+  evidence_access: search_index
+  parameters:
+    UN_1: Unify terminology
+    UN_2: Unify descriptions
+    UN_3: Unify dimensions
+    UN_4: Unify analyses
+    UN_5: Unify indicators
+    UN_1_1: Unify terms and abbreviations
+    UN_3_1: Unify measures
+    UN_3_2: Unify scenarios
+    UN_3_3: Unify time periods
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: token
+  confidence: from_source
+  test: "nicht automatisierbar als Ganzes; Unterregeln siehe ibcs-011..014."
+  note: "Ein Suchauszug nannte \"UN 3.3\" fuer Varianzen — Widerspruch zur Zertifizierungs-PDF; hier gilt die PDF."
+
+- id: ibcs-011
+  pattern: "Szenario-Notation AC/PY/PL/FC"
+  description: "Ist (AC) solide dunkle Fuellung (z. B. schwarz/dunkelgrau); Vorperiode (PY) hellere solide Fuellung, nur im Vergleich; Plan/Budget (PL/BU) umrandet/hohl; Forecast (FC) schraffiert."
+  rule_id: UN 3.2
+  source:
+    title: "IBCS Standards — Unify scenarios (u. a. Branger/Honegger 2018 zu UN 3.2)"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/wp-content/uploads/2018/06/IBCS-2018_Branger-and-Honegger.pdf
+    date_published: 2018
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Scenarios with measured data are identified by a solid dark fill (e.g. black or dark gray)"
+  evidence_access: search_index
+  parameters:
+    AC: {fill: solid, fill_tone: dark, examples: [black, dark_gray]}
+    PY: {fill: solid, fill_tone: lighter_than_AC, only_when: comparison}
+    PL: {fill: none, stroke: outlined}
+    BU: {fill: none, stroke: outlined}
+    FC: {fill: hatched}
+    hex_values: nicht in Quelle gesehen
+    abbreviations: [AC, PY, PL, BU, FC]
+  applies_to:
+    purposes: [time_comparison, deviation_from_target]
+    idioms: [column_time, bar_absolute, line, waterfall_variance, small_multiples]
+    style_pack: ibcs
+    layer: token
+  confidence: from_source
+  test: "Im SVG/Vega-Spec je Mark das Feld `scenario` lesen und pruefen — AC fill Luminanz < PY fill Luminanz; PL fill none/transparent mit stroke; FC fill ist ein Pattern (url(#...)); keine Szenariofarbe ist bunt (Saettigung ~0)."
+
+- id: ibcs-012
+  pattern: "Varianzfarben gut/schlecht (Gruen/Rot nur fuer Abweichungen)"
+  description: "Rot und Gruen nur fuer Varianzen - gruen = gut, rot = schlecht bezogen auf ein Ziel (nicht positiv/negativ im Vorzeichen). Pin-Koepfe relativer Varianzen werden entsprechend eingefaerbt."
+  rule_id: UN 4
+  source:
+    title: "Top and bottom 5 of International Business Communication Standards"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/resource/top-and-bottom-5-of-international-business-communication-standards/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "IBCS suggests using red and green color for variances only, where green is good and red is bad with respect to a given target."
+  evidence_access: search_index
+  parameters:
+    good_variance_color: green
+    bad_variance_color: red
+    color_meaning: business_impact_not_sign
+    red_green_allowed_on: [variance_marks]
+    hex_values: nicht in Quelle gesehen
+  applies_to:
+    purposes: [deviation_from_target, contribution_to_change, time_comparison]
+    idioms: [deviation_bar, waterfall_variance, waterfall_pvm, matrix_delta_pill]
+    style_pack: ibcs
+    layer: token
+  confidence: from_source
+  test: "Jedes Mark mit rotem/gruenem Fill muss `role: variance` tragen, sonst Fehler; Farbe muss aus sign(delta) * polarity(KPI) folgen (Kosten-KPI - positive Abweichung rot)."
+  note: "Genaue Unterregel-ID (UN 4.x) nicht gesehen; nur Bereich UN 4 Unify analyses."
+
+- id: ibcs-013
+  pattern: "Messgroessen ueber Saeulen-/Balkenbreite unterscheiden"
+  description: "Basismessgroessen nutzen 2/3 der Kategoriebreite als Saeulen-/Balkenbreite; Verhaeltniskennzahlen (Ratios) 1/3 der Kategoriebreite (= 50 % der Basisbreite). Ratios in Liniencharts mit duennen Linien (50 % der dicken Linie)."
+  rule_id: UN 3.1
+  source:
+    title: "IBCS Standards — Unify measures (IBCS v1.1 Auszug S. 125–131)"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/wp-content/uploads/2021/02/IBCSv1-1_p125-131.pdf
+    date_published: 2021
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "the width of bars and columns representing ratios is 1/3 of the category width"
+  evidence_access: search_index
+  parameters:
+    column_width_to_category_width_basic: 0.667
+    column_width_to_category_width_ratio_measure: 0.333
+    line_width_ratio_to_basic_line: 0.5
+  applies_to:
+    purposes: [time_comparison, compare_categories]
+    idioms: [column_time, bar_absolute, bar_ranking, line]
+    style_pack: ibcs
+    layer: token
+  confidence: from_source
+  test: "Im SVG je Kategorie rect.width / band.step messen; Basismass 0.667±0.02, Ratio-Mass 0.333±0.02 (Vega - paddingInner = 1/3 bzw. 2/3)."
+  note: "Quelle ist v1.1-Auszug; Uebernahme in 2.0 nicht verifiziert."
+
+- id: ibcs-014
+  pattern: "Zeit horizontal, Struktur vertikal; Periodentyp ueber Kategoriebreite"
+  description: "Zeitreihen horizontal (Saeulen/Linien, Kategorieachse horizontal), Strukturvergleiche vertikal (Balken, Kategorieachse vertikal). Periodentypen wie Jahre und Monate werden durch unterschiedliche Kategoriebreiten kenntlich."
+  rule_id: UN 3.3
+  source:
+    title: "CHART CERTIFICATION CRITERIA VERSION 1.9b (chart template 01)"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/wp-content/uploads/2018/01/IBCS_chart_template_01_2018-01-24_rh.pdf
+    date_published: 2018-01-24
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The category width is used for identifying the period type according to IBCS semantic rules"
+  evidence_access: search_index
+  parameters:
+    time_axis_orientation: horizontal
+    structure_axis_orientation: vertical
+    period_type_encoding: category_width
+    width_ratio_year_vs_month: nicht in Quelle gesehen
+  applies_to:
+    purposes: [time_comparison, compare_categories]
+    idioms: [column_time, line, bar_absolute, bar_ranking, waterfall_buildup]
+    style_pack: ibcs
+    layer: idiom
+  confidence: from_source
+  test: "Vega-Spec - Feld mit type temporal/Periodenrolle liegt auf x (nicht y); Strukturdimension (nominal) bei Balken auf y; Mischcharts mit Jahr+Monat haben unterschiedliche Bandbreiten je Periodentyp."
+
+- id: ibcs-015
+  pattern: "Achsen nicht abschneiden (Nulllinie)"
+  description: "Vergleiche verlangen konsistente Skalierung; Achsen nicht kuerzen, gleiche Skala fuer gleiche Einheiten, bei Bedarf Skalierungsindikatoren."
+  rule_id: CH 1
+  source:
+    title: "IBCS Standards — CHECK (Charts with scaling indicators)"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/IBCS/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Comparisons require consistent scaling. Don't cut axes. Use the same scale for the same units. Add scaling indicators if necessary."
+  evidence_access: search_index
+  parameters:
+    value_axis_origin: 0
+    truncated_axis_allowed: false
+  applies_to:
+    purposes: [time_comparison, compare_categories, deviation_from_target]
+    idioms: [column_time, bar_absolute, bar_ranking, bar_stacked, deviation_bar, waterfall_buildup, waterfall_variance, small_multiples]
+    style_pack: ibcs
+    layer: idiom
+  confidence: from_source
+  test: "Vega-Spec - fuer bar/rect-Marks muss scale.zero != false und domain[0] <= 0 <= domain[1]; im SVG liegt die Basis jedes Rechtecks auf der y-Koordinate des Werts 0."
+
+- id: ibcs-016
+  pattern: "Gleiche Skala fuer gleiche Einheiten (auch ueber Charts hinweg)"
+  description: "Charts mit derselben Einheit auf einer Seite/in Small Multiples nutzen dieselbe Skala (Chart Templates 07, 11, 13 \"proper scaling of charts with the same unit\")."
+  rule_id: CH 4
+  source:
+    title: "Chart template 11"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/resource/chart-template-11/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "proper scaling of charts with the same unit"
+  evidence_access: search_index
+  parameters:
+    shared_scale_scope: same_unit_on_page
+  applies_to:
+    purposes: [compare_categories, time_comparison]
+    idioms: [small_multiples, column_time, bar_absolute]
+    style_pack: ibcs
+    layer: layout
+  confidence: from_source
+  test: "Alle Visuals einer Seite mit gleicher `unit` - Pixel pro Werteinheit (range/domain) identisch (Toleranz 1 %); Vega facet mit resolve.scale.y == shared."
+
+- id: ibcs-017
+  pattern: "Skalierungsindikatoren (Vergroesserung x2, x4)"
+  description: "Wenn Werte unterschiedlicher Groesse gemeinsam gezeigt werden, Vergroesserungsskalen (x2, x4) mit grauem Hintergrundbereich statt abgeschnittener Achsen; auch fuer Ausreisser."
+  rule_id: UN 5
+  source:
+    title: "Charts with scaling indicators"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/?attachment_id=4083
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "enlargement scales (x2, x4) – visualized with gray background areas"
+  evidence_access: search_index
+  parameters:
+    enlargement_factors_examples: [2, 4]
+    enlargement_background: gray
+  applies_to:
+    purposes: [compare_categories, time_comparison]
+    idioms: [column_time, bar_absolute, small_multiples]
+    style_pack: ibcs
+    layer: interaction
+  confidence: from_source
+  test: "Wenn zwei Visuals gleicher Einheit unterschiedliche Pixel/Einheit haben, muss das groessere ein Element `role: scaling_indicator` mit Faktor-Label (xN) und grauem Hintergrund tragen."
+  note: "Zuordnung zu UN 5 Unify indicators ist eigene Ableitung; Hichert-Vortrag \"Notation concept for scales\" (2018) diskutiert das Konzept als offen."
+
+- id: ibcs-018
+  pattern: "Absolute Varianzen als Balken/Saeulen, relative Varianzen als Pins"
+  description: "Absolute Abweichungen als Varianzbalken (rot/gruen), relative Abweichungen (%) als Pins - sehr duenner Balken mit Kopf, ein Pin je Element von der Kategorieachse aus. Horizontale Pins fuer Zeitreihen, vertikale fuer Strukturanalysen."
+  rule_id: EX 4
+  source:
+    title: "Multi-tier bar charts"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/resource/multi-tier-bar-charts/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Pins should be used for relative variances."
+  evidence_access: search_index
+  parameters:
+    absolute_variance_mark: bar
+    relative_variance_mark: pin
+    pin_shaft: very_thin_bar
+    pin_origin: category_axis
+    positive_variance_label_prefix: "+"
+  applies_to:
+    purposes: [deviation_from_target, time_comparison]
+    idioms: [deviation_bar, NEU:variance_pin]
+    style_pack: ibcs
+    layer: idiom
+  confidence: from_source
+  test: "Vega-Spec - Feld mit format Prozent und role variance muss als rule+point (Pin) gerendert werden, nicht als bar; absolutes Delta als bar mit Basis 0; Labels positiver Varianzen beginnen mit \"+\"."
+
+- id: ibcs-019
+  pattern: "Vergleiche hinzufuegen (PY, PL) — Standard-Szenarien"
+  description: "Plan und Vorjahr sind die haeufigsten Vergleichsreferenzen; wo verfuegbar hinzufuegen und mit standardisierter Szenarionotation zeigen."
+  rule_id: EX 4
+  source:
+    title: "Table template 01 / IBCS Standards"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/resource/table-template-01/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Scenarios such as \"plan\" and \"previous year\" are the most common references for comparison purposes. Add them whenever available."
+  evidence_access: search_index
+  parameters:
+    default_reference_scenarios: [PL, PY]
+  applies_to:
+    purposes: [time_comparison, deviation_from_target]
+    idioms: [column_time, bar_absolute, matrix_delta_pill, kpi_card_bullet]
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "Wenn Datenmodell PL oder PY fuer die Kennzahl liefert, muss das Visual mindestens ein Vergleichsszenario oder eine Varianz zeigen (Spec enthaelt scenario in {PL,PY} oder role variance)."
+
+- id: ibcs-020
+  pattern: "Ungeeignete Charttypen ersetzen (Torte, Tacho, Radar, Spaghetti, Ampel)"
+  description: "Tortendiagramme, Tachos, Radar- und Spaghetti-Charts durch geeignetere Typen ersetzen; Saeulen, Balken und Linien bevorzugen. Ausnahmen - Torten auf Landkarten fuer Marktanteile; Ampeln nur fuer Ja/Nein-Entscheidungen."
+  rule_id: EX 2
+  source:
+    title: "5 Charts / IBCS Standards EXPRESS"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/ibcs/topten_05_charts_1315x985/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Prefer columns, bars, and lines to pies and gauges."
+  evidence_access: search_index
+  parameters:
+    deny: [pie, gauge, speedometer, radar, spaghetti_line, traffic_light]
+    exceptions:
+      pie: market_share_on_map
+      traffic_light: yes_no_decision
+  applies_to:
+    purposes: [part_to_whole, value_verdict]
+    idioms: [donut]
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "Profil ibcs - Visual-Typ in deny-Liste = Fehler (donut eingeschlossen, eigene Ableitung); Ausnahmen nur mit Feld `ibcs_exception`."
+
+- id: ibcs-021
+  pattern: "Titel mit Berichtseinheit, Messgroesse, Zeitraum"
+  description: "Titel identifizieren Seiten, Charts und Tabellen und nennen mindestens Organisationseinheit(en), Messgroesse(n) und Zeitraum/-raeume; Titel und Untertitel gemeinsam muessen diese enthalten."
+  rule_id: UN 2
+  source:
+    title: "2 Titles"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/ibcs/topten_02_titles_1315x985/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Titles identify pages, charts, and tables and should name at least organizational unit(s), measure(s), and time period(s)."
+  evidence_access: search_index
+  parameters:
+    required_title_elements: [reporting_unit, measure, time_period]
+    unit_in_title_block: true
+  applies_to:
+    purposes: []
+    idioms: [column_time, bar_absolute, bar_ranking, line, waterfall_variance, small_multiples, deviation_bar]
+    style_pack: ibcs
+    layer: layout
+  confidence: from_source
+  test: "Spec-Titelblock hat die Felder reporting_unit, measure (inkl. Einheit), time_period nicht leer; im SVG existieren drei Textknoten im Titelbereich."
+  note: "Zuordnung zu UN 2 Unify descriptions ist eigene Ableitung."
+
+- id: ibcs-022
+  pattern: "Integrierte Beschriftung statt Legende"
+  description: "Datenreihen und Werte in Charts werden direkt beschriftet (eingebettete Legenden). Legendentexte stehen links vom ersten Datenpunkt (rechtsbuendig) oder rechts vom letzten (linksbuendig)."
+  rule_id: UN 2
+  source:
+    title: "6 Labels"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/ibcs/topten_06_labels_1315x985/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Labels name data and should be integrated for data series and values in charts."
+  evidence_access: search_index
+  parameters:
+    legend_box_allowed: false
+    series_label_position: [left_of_first_point_right_aligned, right_of_last_point_left_aligned]
+  applies_to:
+    purposes: []
+    idioms: [line, column_time, bar_stacked, area_stacked, indexed_line]
+    style_pack: ibcs
+    layer: style
+  confidence: from_source
+  test: "Vega-Spec darf keine `legend` enthalten (encoding.*.legend == null); je Serie existiert ein text-Mark am ersten oder letzten Punkt."
+  note: "Die Arbeitsgruppe zu 1.2 stufte eingebettete Labels als \"required notation\" ein; Unterregel-ID nicht gesehen."
+
+- id: ibcs-023
+  pattern: "Datenlabel-Position"
+  description: "Labels positiver Werte ueber der Saeule, negativer darunter; bei genuegend Platz innerhalb der Saeule, sonst unterdruecken (Zertifizierungskriterien)."
+  rule_id: null
+  source:
+    title: "CHART CERTIFICATION CRITERIA VERSION 1.9b / Data Label Position (Proposal 2.3)"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/wp-content/uploads/2018/09/IBCS-Proposals-2.3-DataLabelPosition.pdf
+    date_published: 2018
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Position the labels of positive values above their respective columns, the labels of negative values below."
+  evidence_access: search_index
+  parameters:
+    positive_label: above
+    negative_label: below
+  applies_to:
+    purposes: [time_comparison, deviation_from_target]
+    idioms: [column_time, deviation_bar, waterfall_buildup]
+    style_pack: ibcs
+    layer: style
+  confidence: from_source
+  test: "Im SVG fuer jedes rect mit Wert<0 liegt das zugehoerige Label unterhalb der unteren Kante, fuer Wert>=0 oberhalb der oberen Kante."
+  note: "Proposal-Dokument (Jens Herrmann) — Status als Standardtext nicht belegt."
+
+- id: ibcs-024
+  pattern: "Werteachsen und Gitternetzlinien vermeiden"
+  description: "Werteachsen und Gitternetzlinien moeglichst weglassen; Werte direkt beschriften."
+  rule_id: SI
+  source:
+    title: "IBCS Standards — SIMPLIFY"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/IBCS/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "try to avoid value axes and grid lines"
+  evidence_access: search_index
+  parameters:
+    value_axis: avoid
+    gridlines: avoid
+  applies_to:
+    purposes: []
+    idioms: [column_time, bar_absolute, bar_ranking, deviation_bar, waterfall_buildup, waterfall_variance]
+    style_pack: ibcs
+    layer: style
+  confidence: from_source
+  test: "Vega-Spec - axis.grid == false und Werteachse orient ohne labels/ticks (oder fehlend); im SVG keine Linien parallel zur Kategorieachse ausser der Nulllinie."
+
+- id: ibcs-025
+  pattern: "Keine dekorativen Stile"
+  description: "Dekorative Elemente (3D, Schatten, Verlaeufe, Farbe ohne Bedeutung) vermeiden; Farbe nur zur Hervorhebung, Umgebung nicht bunt."
+  rule_id: SI 2
+  source:
+    title: "Top and bottom 5 of International Business Communication Standards"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/resource/top-and-bottom-5-of-international-business-communication-standards/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "IBCS suggests to use color for highlighting purposes only."
+  evidence_access: search_index
+  parameters:
+    color_usage: highlighting_and_variance_only
+    effects_allowed: false
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: style
+  confidence: from_source
+  test: "SVG ohne filter/feDropShadow/linearGradient; jede bunte Fuellung (Saettigung > Schwelle) muss role highlight oder variance tragen."
+  note: "Konkrete Liste 3D/Schatten/Verlauf ist eigene Ableitung aus \"decorative styles\"."
+
+- id: ibcs-026
+  pattern: "Hervorhebungsindikatoren (Ellipse, Trendpfeil, Differenzmarker, Kommentarnummern)"
+  description: "Hervorhebung ueber einheitliche Indikatoren - Hervorhebungsellipse, Trendpfeile, Differenzmarker (Abweichungslinien zwischen Summen); seitenbezogene Kommentare nummeriert und per Kommentarmarker verknuepft."
+  rule_id: UN 5
+  source:
+    title: "10 Highlighting"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/ibcs/topten_10_highlighting_1315x985/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Highlighting accelerates comprehension and uses unified indicators such as ellipses, trend arrows, and difference markers."
+  evidence_access: search_index
+  parameters:
+    indicators: [highlighting_ellipse, trend_arrow, difference_marker, comment_number]
+    comments_numbered: true
+    company_may_define_own_notation: true
+  applies_to:
+    purposes: [value_verdict, deviation_from_target]
+    idioms: [column_time, waterfall_buildup, bar_absolute]
+    style_pack: ibcs
+    layer: interaction
+  confidence: from_source
+  test: "Teilautomatisierbar - Elemente mit role highlight muessen Typ aus indicators haben; Kommentarmarker-Nummern im Chart und im Kommentartext muessen 1:1 matchen."
+
+- id: ibcs-027
+  pattern: "Tabellen-Notation (Spaltentypen, Trennlinien, Summenzeilen)"
+  description: "Spaltentypen Zeit-, Szenario- und Varianzspalten (ΔPL, ΔPY). Vertikale Trennlinien sehr hell oder weglassen (weisse Luecken). Ergebniszeilen durch durchgehende Linien trennen, fett oder hellgrau hinterlegt."
+  rule_id: null
+  source:
+    title: "Table template 01"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/resource/table-template-01/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Display results rows in bold font or highlight them with light gray background."
+  evidence_access: search_index
+  parameters:
+    column_types: [time, scenario, variance]
+    variance_column_labels: [ΔPL, ΔPY]
+    vertical_separators: very_light_or_none
+    totals_row_separator: solid_line
+    totals_row_style: [bold, light_gray_background]
+  applies_to:
+    purposes: [evidence_detail, deviation_from_target]
+    idioms: [matrix_delta_pill, matrix_evidence, matrix_bullet]
+    style_pack: ibcs
+    layer: style
+  confidence: from_source
+  test: "Tabellen-Spec - Zeilen mit role total haben font-weight bold oder Hellgrau-Hintergrund und border-top solid; keine dunklen vertikalen Rahmen; Varianzspalten-Header beginnen mit \"Δ\"."
+
+- id: ibcs-028
+  pattern: "Zahlenformat und Einheiten"
+  description: "Einheiten (z. B. \"Million USD\") in die Kopf-/Unterzeile statt in jede Zelle. Positive Varianzlabels mit \"+\" sind Pflichtnotation; Darstellung negativer Werte (Minus oder Klammern) legt das Unternehmen fest, dann konsistent."
+  rule_id: UN 1
+  source:
+    title: "Work group 3 for IBCS Version 1.2 — Mandatory vs. optional"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/wp-content/uploads/2018/12/IBCSWorkingGroup-Mandatory-vs-optional_2018-12-13_jf.pdf
+    date_published: 2018-12-13
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "the use of \"+\" to emphasis the variance when labelling a positive variance remains required IBCS notation"
+  evidence_access: search_index
+  parameters:
+    positive_variance_prefix: "+"
+    negative_number_style: company_defined
+    unit_placement: header_or_subtitle
+    scale_abbreviations_examples: [kEUR, mEUR, bEUR]
+  applies_to:
+    purposes: [deviation_from_target, evidence_detail]
+    idioms: [deviation_bar, matrix_delta_pill, waterfall_variance]
+    style_pack: ibcs
+    layer: token
+  confidence: from_source
+  test: "Alle Varianzlabels mit Wert>0 beginnen mit \"+\"; Zellwerte enthalten kein Einheitenkuerzel, wenn Titel/Header eine Einheit traegt."
+  note: "Quelle ist Arbeitsgruppenpapier zu 1.2, nicht Standardtext; kEUR/mEUR aus Suchauszug, Herkunftsseite unklar."
+
+- id: ibcs-029
+  pattern: "Wasserfall horizontal (Zeit) und vertikal (Struktur/Rechenschema)"
+  description: "Horizontale Wasserfaelle erklaeren Veraenderung ueber die Zeit - Basis- und Summensaeulen mit Beitragssaeulen dazwischen. Vertikale Wasserfaelle zeigen strukturelle Ursachen bzw. Rechenschemata (GuV), bis ca. 25 Strukturelemente."
+  rule_id: EX 5
+  source:
+    title: "Horizontal waterfall chart / Vertical waterfall chart (Chart template 06)"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/resource/chart-template-06/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Vertical waterfalls analyze structural root causes for the difference between two or more statuses."
+  evidence_access: search_index
+  parameters:
+    horizontal_waterfall: time_or_status_change
+    vertical_waterfall: structure_or_calculation_scheme
+    max_structure_elements: 25
+  applies_to:
+    purposes: [contribution_to_change, driver_breakdown]
+    idioms: [waterfall_buildup, waterfall_variance, waterfall_pvm, NEU:waterfall_vertical_calc]
+    style_pack: ibcs
+    layer: idiom
+  confidence: from_source
+  test: "Waterfall mit Strukturdimension muss vertikal (Kategorie auf y) sein, mit Zeit/Status horizontal; Anzahl Elemente <= 25."
+  note: "Zuordnung zu EX 5 Explain causes ist eigene Ableitung."
+
+- id: ibcs-030
+  pattern: "Chart-Template-Katalog C01–C13 (explizit definierte Charttypen)"
+  description: "IBCS-Zertifizierungsvorlagen - C01 Saeulen-Zeitreihe (bis 5–6 Reihen, bis 25 Perioden), C06 vertikaler Wasserfall, C07 Linien mit integrierten Legenden, C08 gestapelte Flaechen, C09 Punktwolke mit zwei Werteachsen, C10 Blasen, C11 Skalierung gleicher Einheiten, C12 zwei vertikale GuV-Wasserfaelle plus Tiers fuer absolute und relative Varianzen, C13 Small Multiples (16 Standorte, absolute Varianzen). Tabellenvorlagen T01 Zahlen, T02 mit Balken/Pins, T04 mit Wasserfallbalken/Pins."
+  rule_id: null
+  source:
+    title: "Chart templates"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/resource_category/chart-templates/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Template 13 consists of small multiples for 16 locations representing yearly absolute variances"
+  evidence_access: search_index
+  parameters:
+    mapping:
+      C01: column_time
+      C06: NEU:waterfall_vertical_calc
+      C07: line
+      C08: area_stacked
+      C09: scatter
+      C10: NEU:bubble
+      C11: small_multiples
+      C12: NEU:multi_tier_waterfall_variance
+      C13: small_multiples
+      T01: NEU:table_ibcs_variance
+      T02: NEU:table_variance_bars_pins
+      T04: NEU:table_variance_bars_pins
+      multi_tier_column: NEU:multi_tier_column
+      multi_tier_bar: NEU:multi_tier_bar
+      absolute_variance_bar: deviation_bar
+      relative_variance_pin: NEU:variance_pin
+      horizontal_waterfall: waterfall_buildup
+      stacked_columns: bar_stacked
+    templates_02_03_04_05: nicht gesehen
+  applies_to:
+    purposes: [time_comparison, deviation_from_target, contribution_to_change, compare_categories, correlation]
+    idioms: [column_time, line, area_stacked, scatter, small_multiples, deviation_bar, waterfall_buildup, bar_stacked]
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "Jedes Idiom im Profil ibcs muss auf ein Template/Chart-Typ dieses Katalogs verweisen (Feld ibcs_template); Idiome ohne Verweis sind kein IBCS-Bestand."
+  note: "Mapping auf Idiom-IDs ist eigene Zuordnung; C11-Inhalt nur als \"proper scaling of charts with the same unit\" gesehen."
+
+- id: ibcs-031
+  pattern: "Mehrstufige Charts (Multi-tier) fuer Szenarien und Varianzen"
+  description: "Szenariowerte, absolute und relative Varianzen werden in nebeneinander/uebereinander liegenden Tiers mit gleicher Kategorieachse kombiniert (Multi-tier column/bar charts, Chart template 12)."
+  rule_id: CO
+  source:
+    title: "Multi-tier column chart"
+    publisher: IBCS Association
+    url: https://www.ibcs.com/resource/multi-tier-column-chart/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  evidence_access: search_index
+  parameters:
+    tiers_typical: [scenario_values, absolute_variance, relative_variance]
+  applies_to:
+    purposes: [deviation_from_target, time_comparison]
+    idioms: [NEU:multi_tier_column, NEU:multi_tier_bar, deviation_bar, NEU:variance_pin]
+    style_pack: ibcs
+    layer: layout
+  confidence: inferred
+  test: "Vega vconcat/hconcat mit shared Kategorie-Scale; Tier-Reihenfolge Werte -> ΔAbs -> Δ%."
+  note: "Zuordnung zu CONDENSE und die Tier-Reihenfolge sind eigene Ableitung."
+
+- id: ibcs-032
+  pattern: "IBCS-Zertifizierung Software (Certified Charts/Tables)"
+  description: "Anbieter bauen 5 vordefinierte Chart-Templates (C12 und C13 Pflicht) und fuer Tabellen 4 Table-Templates; bewertet werden Notation und Bedienbarkeit. Nicht bestanden, wenn >30 % der benoetigten Funktionen nicht als Standardfunktion verfuegbar sind. Siegel gilt fuer die zertifizierte Version; nach Major-Release Rezertifizierung, bei kleinen Aenderungen max. 24 Monate."
+  rule_id: null
+  source:
+    title: "Software certification process"
+    publisher: IBCS Association / IBCS Institute
+    url: https://www.ibcs.com/software-certification-process/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The software does not pass the examination if over 30 percent of the functions needed to create the template are not available"
+  evidence_access: search_index
+  parameters:
+    chart_templates_required: 5
+    mandatory_templates: [C12, C13]
+    table_templates_required: 4
+    fail_threshold_missing_standard_functions_pct: 30
+    seal_validity_months_minor_changes: 24
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "nicht automatisierbar — externe Pruefung; intern als Selbsttest nachstellbar - C12 und C13 aus der Library rendern und gegen ibcs-011..018 pruefen."
+
+- id: ibcs-033
+  pattern: "Markenrecht — \"IBCS certified\"/\"IBCS compliant\"-Aussagen"
+  description: "IBCS ist eingetragene Marke. Logos nur mit Zertifizierung, Lizenzvertrag oder schriftlicher Zustimmung; keine Nutzung als Produkt-/Projektname. Nicht behaupten oder nahelegen, ein Produkt sei von einer IBCS-Organisation erstellt, zertifiziert oder autorisiert (Beispiel \"powered by IBCS\"). Neutrale Erwaehnung der Wortmarke ist erlaubt."
+  rule_id: null
+  source:
+    title: "Terms of use"
+    publisher: IBCS Association / IBCS Institute
+    url: https://www.ibcs.com/terms-of-use/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Use of the IBCS® logos is always subject to a certification, license agreement or other form of prior written consent."
+  evidence_access: search_index
+  parameters:
+    logo_use_requires: [certification, license_agreement, written_consent]
+    product_name_use_allowed: false
+    implied_certification_allowed: false
+    neutral_mention_allowed: true
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "Repo-Grep auf \"IBCS certified\", \"IBCS-zertifiziert\", \"powered by IBCS\", IBCS-Logo-Dateien in Deliverables = Fehler ohne Nachweis; Profilname `ibcs` intern unkritisch, Kundentext \"an IBCS angelehnt\" statt \"IBCS-konform\" (eigene Ableitung)."
+
+- id: ibcs-034
+  pattern: "Personen-Zertifizierung und Werkproben"
+  description: "IBCS Certified Analyst/Professional/Consultant sind Personenzertifikate des IBCS Institute; Consultants muessen mindestens zwei IBCS-konforme eigene Werkproben veroeffentlichen."
+  rule_id: null
+  source:
+    title: "Consultant certification process"
+    publisher: IBCS Institute
+    url: https://www.ibcs.com/consultant-certification-process/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Publication of at least two IBCS compliant own work samples is required"
+  evidence_access: search_index
+  parameters:
+    consultant_work_samples_min: 2
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  test: "nicht automatisierbar — Personenzertifikat."
