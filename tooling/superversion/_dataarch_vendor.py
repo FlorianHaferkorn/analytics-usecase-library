@@ -93,6 +93,9 @@ PUBLIC_API: dict[str, tuple[str, ...]] = {
     # D-610 (Meridian, 30.09.2026): Leerstellen der Geschaeftsobjekt-Schicht als Vorlage und
     # zurueck; `tooling/generator/business_objects.py --template/--apply`.
     "leerstellen_vorlage": ("zeilen", "als_csv", "uebernehme"),
+    # Meridian D-617 (30.09.2026): Ontologie aus der Geschaeftsobjekt-Schicht als Turtle fuer den
+    # Fabric-IQ-Import; `tooling/generator/ontology_ttl.py`.
+    "ontologie_kern": ("modell_aus_geschaeftsobjekten", "emit_ttl", "profil_befunde"),
 
     # -- Die Vollzugshälfte (26.08.2026) ------------------------------------------------
     #
