@@ -98,7 +98,7 @@ function Get-KpiTokensFromText {
   param([string]$Text)
   if (-not $Text) { return @() }
   $tokens = [System.Collections.Generic.HashSet[string]]::new()
-  foreach ($match in [regex]::Matches($Text, '\b[a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+\b')) {
+  foreach ($match in [regex]::Matches($Text, '\bKPI-[A-Z]{3}-\d{3}\b')) {
     $null = $tokens.Add($match.Value)
   }
   return $tokens

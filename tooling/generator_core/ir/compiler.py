@@ -220,11 +220,9 @@ def _find_action_code_file(ac_id: str, action_codes_root: Path) -> Optional[Path
 
 
 def _format_threshold_value(val: Any, unit: str, metric: str = "") -> str:
-    """Format threshold for display; avoid redundant units (e.g. metric ending in .amount)."""
+    """Format threshold for display. Until D-594 the unit was dropped when the dotted KPI ID
+    already ended in it (`margin.gm.pct`); a numbered ID carries no unit, so it is always shown."""
     unit = (unit or "").strip()
-    metric = (metric or "").strip()
-    if unit and metric and (metric.endswith(f".{unit}") or metric.split(".")[-1] == unit):
-        unit = ""
     if unit in ("%", "pp"):
         return f"{val}{unit}"
     if unit:

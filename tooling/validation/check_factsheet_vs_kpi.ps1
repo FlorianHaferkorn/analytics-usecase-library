@@ -106,7 +106,7 @@ function Get-RequiredIdsFromBody {
   $body = if ($m.Success) { $content.Substring($m.Length) } else { $content }
   $ids = New-Object System.Collections.Generic.List[string]
   foreach ($line in ($body -split "\r?\n")) {
-    if ($line -match '^\s*-\s*(?:id|kpi_id)\s*:\s*([a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+)') {
+    if ($line -match '^\s*-\s*(?:id|kpi_id)\s*:\s*(KPI-[A-Z]{3}-\d{3})\b') {
       $ids.Add($matches[1])
     }
   }

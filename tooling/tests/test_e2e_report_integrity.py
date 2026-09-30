@@ -219,10 +219,10 @@ class TestNoBlankStubs:
 class TestNoKpiIdNames:
     """
     Measure names must be human-readable display names, not kpi_id strings.
-    kpi_ids look like 'margin.gm.pct' or 'crm.clv.amount' — dots with lowercase words.
+    kpi_ids look like 'KPI-COM-013' (D-594); the retired dotted form is still caught.
     """
 
-    KPI_ID_RE = re.compile(r"^[a-z][a-z_]+\.[a-z][a-z_.]+$")
+    KPI_ID_RE = re.compile(r"^(KPI-[A-Z]{3}-\d{3}|[a-z][a-z_]+\.[a-z][a-z_.]+)$")
 
     @pytest.mark.parametrize("model_name", list(DOMAIN_MAP.values()))
     def test_no_kpi_id_names(self, model_name):

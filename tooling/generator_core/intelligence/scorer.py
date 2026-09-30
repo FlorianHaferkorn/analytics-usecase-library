@@ -95,6 +95,18 @@ _WEIGHTS: Dict[str, float] = {
     "tmdl_cleanliness":     0.10,
 }
 
+_KPI_CATALOG = Path(__file__).resolve().parents[3] / "core" / "kpi_catalog" / "kpis"
+
+
+def _catalog_measure_name(kpi_id: str, catalog: Path = _KPI_CATALOG) -> Optional[str]:
+    """`technical.measure_name` (else `kpi_key`) of a catalog KPI, None when it is not governed."""
+    path = catalog / f"{kpi_id}.yaml"
+    if not path.is_file():
+        return None
+    doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    return (doc.get("technical") or {}).get("measure_name") or doc.get("kpi_key")
+
+
 _REQUIRED_OVERVIEW_VISUALS = {"KPI_Cards", "Main_1", "Slicer_Date"}
 _REQUIRED_DETAIL_VISUALS   = {"Smart_Narrative", "Slicer_Pane"}
 
@@ -244,10 +256,16 @@ class QualityScorer:
 
         missing = 0
         for kpi_id in kpi_ids:
-            # Check if any measure name contains the KPI ID fragment
-            kpi_short = kpi_id.split(".")[-1].replace("_", " ")
-            if not any(kpi_short.lower() in n.lower() for n in measure_names):
-                findings.append(f"No measure found for KPI: {kpi_id}")
+            # The measure is named by the catalog (technical.measure_name), not by the ID:
+            # since D-594 an ID carries no meaning (KPI-COM-013). A domain model may carry the
+            # name with a suffix (`DSO Days (FIN)`).
+            name = _catalog_measure_name(kpi_id)
+            if not name:
+                findings.append(f"KPI not in catalog: {kpi_id}")
+                missing += 1
+            elif not any(n == name or (n.startswith(name + " (") and n.endswith(")"))
+                         for n in measure_names):
+                findings.append(f"No measure found for KPI: {kpi_id} ({name})")
                 missing += 1
 
         score = max(0.0, 1.0 - missing / len(kpi_ids))

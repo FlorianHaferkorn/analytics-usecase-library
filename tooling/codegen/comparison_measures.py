@@ -93,22 +93,25 @@ def _komponenten(bracket: dict):
             yield c
 
 
+def _katalog_ref(kpi_id: str, katalog: dict, feld: str) -> str | None:
+    ref = (katalog.get(kpi_id) or {}).get(feld)
+    return ref if ref in katalog else None
+
+
 def plan_kpi(kpi_id: str, katalog: dict) -> str | None:
-    """Die governte Plan-KPI zu `kpi_id`, wenn der Katalog eine fuehrt (`<basis>.plan.<einheit>`).
-    Sie ist ein Pegel und darf als Referenzreihe neben der Kennzahl stehen."""
-    basis, _, einheit = kpi_id.rpartition(".")
-    kandidat = f"{basis}.plan.{einheit}"
-    return kandidat if kandidat in katalog else None
+    """Die governte Plan-KPI zu `kpi_id`, wenn der Katalog eine fuehrt (Katalogfeld
+    `plan_kpi_ref`). Sie ist ein Pegel und darf als Referenzreihe neben der Kennzahl stehen.
+    Bis D-594 aus der ID-Syntax `<basis>.plan.<einheit>` abgeleitet; die ID traegt seither
+    keine Bedeutung mehr."""
+    return _katalog_ref(kpi_id, katalog, "plan_kpi_ref")
 
 
 def plan_abweichung_kpi(kpi_id: str, katalog: dict) -> str | None:
-    """Die governte Plan-Abweichung zu `kpi_id` (`<basis>.vs_plan.<einheit>`), etwa
-    margin.gm.vs_plan.pct aus fact_plan_sales. Sie belegt, dass ein Plan governt existiert
-    (Entscheidung Flo 23.09.2026: dann keinen zweiten Plan aus der Vorlage verlangen), ist aber
-    eine Abweichung und wird nie als Referenzreihe neben den Pegel gelegt."""
-    basis, _, einheit = kpi_id.rpartition(".")
-    kandidat = f"{basis}.vs_plan.{einheit}"
-    return kandidat if kandidat in katalog else None
+    """Die governte Plan-Abweichung zu `kpi_id` (Katalogfeld `plan_variance_kpi_ref`), etwa
+    die Bruttomargen-Abweichung zum Plan aus fact_plan_sales. Sie belegt, dass ein Plan governt
+    existiert (Entscheidung Flo 23.09.2026: dann keinen zweiten Plan aus der Vorlage verlangen),
+    ist aber eine Abweichung und wird nie als Referenzreihe neben den Pegel gelegt."""
+    return _katalog_ref(kpi_id, katalog, "plan_variance_kpi_ref")
 
 
 def _governter_plan(kid: str, katalog: dict, namen: dict[str, str], definiert: set[str]) -> bool:

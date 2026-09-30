@@ -14,7 +14,7 @@ import { filterByDomain } from '@/lib/studio/domain-filter';
 import type { AuroraKpiValue } from '@/lib/aurora/kpi-snapshot';
 import type { DecisionSpine } from '@/lib/schemas/decision-spine';
 import styles from './simulator-client.module.css';
-import { formatKpiValue, kpiUnit } from '@/lib/format/kpi-value';
+import { formatKpiValue, isTimeOrCountFormat, unitFromFormat } from '@/lib/format/kpi-value';
 import { driverSliderRange } from '@/lib/simulation/slider-range';
 
 interface BracketSummary {
@@ -34,24 +34,28 @@ interface Props {
   spines: DecisionSpine[];
   auroraKpis?: Record<string, AuroraKpiValue> | null;
   auroraLinked?: boolean;
+  /** Catalog `kpi_key` by KPI ID (labels). */
+  kpiNames?: Record<string, string>;
+  /** Catalog `business.unit_format` by KPI ID (units, synthetic ranges). */
+  kpiUnitFormats?: Record<string, string>;
 }
 
-/** Seeded baseline — Aurora snapshot first, then KPI-id heuristics. */
-function seedBaseValue(kpiId: string, auroraKpis?: Record<string, AuroraKpiValue> | null): number {
+/** Seeded baseline — Aurora snapshot first, then a repeatable value in the catalog unit's range. */
+function seedBaseValue(kpiId: string, unitFormat: string, auroraKpis?: Record<string, AuroraKpiValue> | null): number {
   const aurora = auroraKpis?.[kpiId];
   if (aurora) return aurora.value;
 
   const seed = kpiId.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
   const pseudo = ((seed * 9301 + 49297) % 233280) / 233280;
-  if (kpiId.includes('.pct')) return 30 + pseudo * 50;
-  if (kpiId.includes('.days')) return 20 + pseudo * 30;
-  if (kpiId.includes('.amount')) return 1000 + pseudo * 5000;
+  if (unitFormat.startsWith('percent')) return 30 + pseudo * 50;
+  if (unitFormat.startsWith('days')) return 20 + pseudo * 30;
+  if (unitFormat.startsWith('eur')) return 1000 + pseudo * 5000;
   return 50 + pseudo * 100;
 }
 
-function getUnit(kpiId: string, auroraKpis?: Record<string, AuroraKpiValue> | null): string {
-  // Currency comes from the supplied data, not from a large number or an amount ID.
-  return auroraKpis?.[kpiId]?.unit ?? (kpiId.includes('.amount') ? '' : kpiUnit(kpiId));
+function getUnit(kpiId: string, unitFormat: string, auroraKpis?: Record<string, AuroraKpiValue> | null): string {
+  // Currency comes from the supplied data, not from a large number or an amount format.
+  return auroraKpis?.[kpiId]?.unit ?? unitFromFormat(unitFormat);
 }
 
 /** Dispatch studio:open-chat event with a pre-filled context message. */
@@ -63,7 +67,7 @@ function openChatWithContext(message: string) {
   }
 }
 
-export function SimulatorClient({ brackets, spines, auroraKpis = null, auroraLinked = false }: Props) {
+export function SimulatorClient({ brackets, spines, auroraKpis = null, auroraLinked = false, kpiNames = {}, kpiUnitFormats = {} }: Props) {
   const { domainFilter } = useDomainFilter();
   const visibleBrackets = useMemo(
     () => filterByDomain(brackets, domainFilter, (b) => b.domain),
@@ -96,10 +100,10 @@ export function SimulatorClient({ brackets, spines, auroraKpis = null, auroraLin
       ? [parsed.target, ...parsed.terms.map((t) => t.kpiId)]
       : [parsed.target, ...parsed.drivers];
     for (const id of allIds) {
-      map.set(id, seedBaseValue(id, auroraKpis));
+      map.set(id, seedBaseValue(id, kpiUnitFormats[id] ?? '', auroraKpis));
     }
     return map;
-  }, [parsed, auroraKpis]);
+  }, [parsed, auroraKpis, kpiUnitFormats]);
 
   const result = useMemo(() => {
     if (!parsed || !bracket) return null;
@@ -111,18 +115,19 @@ export function SimulatorClient({ brackets, spines, auroraKpis = null, auroraLin
     const ids = parsed.type === 'additive' ? parsed.terms.map((t) => t.kpiId) : parsed.drivers;
     return ids.map((id) => {
       const base = baseValues.get(id) ?? 0;
-      const unit = getUnit(id, auroraKpis);
-      const { minRange, maxRange } = driverSliderRange(base, unit, id);
+      const format = kpiUnitFormats[id] ?? '';
+      const unit = getUnit(id, format, auroraKpis);
+      const { minRange, maxRange } = driverSliderRange(base, unit, isTimeOrCountFormat(format));
       return {
         kpiId: id,
-        label: id.split('.').slice(-2).join('.'),
+        label: kpiNames[id] ?? id,
         baseValue: base,
         unit,
         minRange,
         maxRange,
       };
     });
-  }, [parsed, baseValues, auroraKpis]);
+  }, [parsed, baseValues, auroraKpis, kpiNames, kpiUnitFormats]);
 
   const handleOverride = useCallback((kpiId: string, value: number) => {
     setOverrides((prev) => new Map(prev).set(kpiId, value));
@@ -131,7 +136,7 @@ export function SimulatorClient({ brackets, spines, auroraKpis = null, auroraLin
   const handleReset = useCallback(() => setOverrides(new Map()), []);
   const overriddenDrivers = overrides.size;
   const resultUnchanged = result ? Math.abs(result.delta) <= Number.EPSILON * Math.max(1, Math.abs(result.baselineValue)) * 8 : true;
-  const resultUnit = result ? getUnit(result.target, auroraKpis) : '';
+  const resultUnit = result ? getUnit(result.target, kpiUnitFormats[result.target] ?? '', auroraKpis) : '';
 
   const handleWhyTarget = useCallback((kpiId: string) => {
     if (!bracket) return;
@@ -188,17 +193,17 @@ export function SimulatorClient({ brackets, spines, auroraKpis = null, auroraLin
           <div>
             <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>Strategic KPI</p>
             <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--ink)' }}>
-              {formatKpiValue(result.adjustedValue, result.target, resultUnit)}
+              {formatKpiValue(result.adjustedValue, resultUnit)}
             </p>
           </div>
           <div>
             <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>Baseline</p>
-            <p style={{ fontSize: '1rem', color: 'var(--ink-2)' }}>{formatKpiValue(result.baselineValue, result.target, resultUnit)}</p>
+            <p style={{ fontSize: '1rem', color: 'var(--ink-2)' }}>{formatKpiValue(result.baselineValue, resultUnit)}</p>
           </div>
           <div>
             <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>Delta</p>
             <p style={{ fontSize: '1rem', fontWeight: 600, color: resultUnchanged ? 'var(--ink-3)' : result.isImprovement ? 'var(--accent)' : 'var(--danger)' }}>
-              {resultUnchanged ? 'No change' : <>{result.delta > 0 ? '+' : ''}{formatKpiValue(result.delta, result.target, resultUnit === '%' ? 'pp' : resultUnit)} ({result.deltaPercent > 0 ? '+' : ''}{formatKpiValue(result.deltaPercent, 'relative.pct')})</>}
+              {resultUnchanged ? 'No change' : <>{result.delta > 0 ? '+' : ''}{formatKpiValue(result.delta, resultUnit === '%' ? 'pp' : resultUnit)} ({result.deltaPercent > 0 ? '+' : ''}{formatKpiValue(result.deltaPercent, '%')})</>}
             </p>
           </div>
           </div>
@@ -218,8 +223,8 @@ export function SimulatorClient({ brackets, spines, auroraKpis = null, auroraLin
             <ImpactChart
               contributions={result.driverContributions}
               impactDirection={result.impactDirection}
-              targetKpiId={result.target}
               targetUnit={resultUnit}
+              kpiNames={kpiNames}
             />
           )}
         </div>
@@ -230,7 +235,7 @@ export function SimulatorClient({ brackets, spines, auroraKpis = null, auroraLin
         <div className={styles.detailsBody}>
           <p>This is a sensitivity analysis of the configured formula, not a prediction of customer performance. {auroraLinked
             ? 'Linked driver values use the Aurora showcase snapshot; missing values use the synthetic fallback.'
-            : 'The fallback derives repeatable example values from KPI identifiers: percentage drivers use 30–80% and day-based drivers use 20–50 days.'} Validate the baseline, units, formula and driver ranges with customer evidence before using results in a business case.</p>
+            : 'The fallback derives repeatable example values from the catalog unit: percentage drivers use 30–80% and day-based drivers use 20–50 days.'} Validate the baseline, units, formula and driver ranges with customer evidence before using results in a business case.</p>
           {spines.length > 0 && bracket && <SpineContextCard spines={spines} bracketId={bracket.id} />}
           {bracket && (
             <StudioPanel title="Impact logic" description="Describe why the drivers affect this KPI. This explanation does not change the calculation formula." compactHeader>

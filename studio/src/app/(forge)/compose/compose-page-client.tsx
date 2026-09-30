@@ -40,6 +40,8 @@ export function ComposePageClient() {
         spines={data.spines}
         auroraKpis={data.auroraKpis}
         auroraLinked={data.auroraLinked}
+        kpiNames={data.kpiNames}
+        kpiUnitFormats={data.kpiUnitFormats}
       />
     </>
   );

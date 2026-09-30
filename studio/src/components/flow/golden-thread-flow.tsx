@@ -16,9 +16,9 @@ function domainColor(domain: string, index: Map<string, number>): string {
   return DOMAIN_PALETTE[index.get(domain)! % DOMAIN_PALETTE.length]!;
 }
 
+/** Fallback label when the catalog has no name: the ID itself (it carries no meaning, D-594). */
 function fmtKpiId(id: string): string {
-  const part = id.split('.').pop() ?? id;
-  return part.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  return id;
 }
 
 export interface GoldenThreadData {
