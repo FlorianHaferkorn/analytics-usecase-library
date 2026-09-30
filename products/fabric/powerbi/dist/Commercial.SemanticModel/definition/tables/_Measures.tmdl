@@ -98,7 +98,7 @@ table _Measures
 
 	/// Variance of net sales versus plan as a percentage.
 	/// Formula: ([Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] )) / (SUM ( fact_sales[Plan Sales Amount] ))
-	/// Grain: month · Unit: %
+	/// Grain: month · Unit: % · Good: higher_is_better
 	/// Owner: Commercial BI · Status: active · Actions: C-S1.2
 	measure 'Net Sales % vs Plan' = DIVIDE ( [Net Sales Amount] - [Plan Sales Amount], ABS ( [Plan Sales Amount] ) )
 		formatString: "0.0%"
@@ -125,6 +125,7 @@ table _Measures
 
 	/// Alias for Net Sales % vs LY (TMDL display name).
 	/// Formula: ([Net Sales Amount] - SUM ( fact_sales[Last Year Sales Amount] )) / (SUM ( fact_sales[Last Year Sales Amount] ))
+	/// Good: higher_is_better
 	/// Owner: Commercial BI · Status: active
 	measure 'Delta% Net Sales' = DIVIDE ( [Net Sales Amount] - [Last Year Net Sales Amount], ABS ( [Last Year Net Sales Amount] ) )
 		formatString: "0.0%"
@@ -133,7 +134,7 @@ table _Measures
 
 	/// PVM driver quantifying the net sales impact from price change.
 	/// Formula: ( (fact_sales[Net Sales Amount]) / (fact_sales[Quantity]) - (fact_sales[Plan Sales Amount]) / (fact_sales[Plan Quantity]) ) * fact_sales[Quantity] )
-	/// Grain: invoice_line aggregated monthly · Unit: EUR
+	/// Grain: invoice_line aggregated monthly · Unit: EUR · Good: higher_is_better
 	/// Owner: Commercial BI · Status: active · Actions: C-S1.1
 	measure 'Price Effect Amount' = SUMX ( fact_sales, ( DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] ) - DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) ) * fact_sales[Quantity] )
 		formatString: "#,0"
@@ -154,7 +155,7 @@ table _Measures
 
 	/// Residual PVM driver capturing mix impact after price and volume effects.
 	/// Formula: [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ) - [Price Effect Amount] - [Volume Effect Amount]
-	/// Grain: month · Unit: EUR
+	/// Grain: month · Unit: EUR · Good: higher_is_better
 	/// Owner: Commercial BI · Status: active · Actions: C-M2.2
 	measure 'Mix Effect Amount' = [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ) - [Price Effect Amount] - [Volume Effect Amount]
 		formatString: "#,0"
@@ -198,7 +199,7 @@ table _Measures
 
 	/// Unit cost calculated as COGS divided by quantity sold.
 	/// Formula: ([Cost of Goods Sold Amount]) / (SUM ( fact_sales[Quantity] ))
-	/// Grain: invoice_line, reported monthly · Unit: EUR per unit
+	/// Grain: invoice_line, reported monthly · Unit: EUR per unit · Good: lower_is_better
 	/// Owner: Commercial BI · Status: active
 	measure 'COGS per Unit' = DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )
 		formatString: "#,0"
@@ -207,17 +208,17 @@ table _Measures
 
 	/// Discount discipline metric comparing net price to list price.
 	/// Formula: ([Net Price Amount]) / ([List Price Amount])
-	/// Grain: month or promo · Unit: %
+	/// Grain: month or promo · Unit: % · Good: higher_is_better
 	/// Owner: Commercial BI · Status: active · Actions: C-M2.1
 	measure 'Price Realization %' = DIVIDE ( [Net Price Amount], [List Price Amount] )
 		formatString: "0.0%"
 		displayFolder: "COM-002"
 		annotation ActionReady_TrustScore = "1"
 
-	/// Gross margin amount for the selected period.
+	/// Profit pool calculated as net sales minus cost of goods sold.
 	/// Formula: [Net Sales Amount] - [Cost of Goods Sold Amount]
-	/// Grain: month · Unit: EUR
-	/// Owner: Innovation Analytics · Status: active · Actions: C-M2.1, C-M2.2
+	/// Grain: invoice_line, reported monthly · Unit: EUR
+	/// Owner: Commercial BI · Status: active · Actions: C-M2.1, C-M2.2
 	/// Synonyms: Gross Profit, Gross Income, Rohertrag, Bruttoergebnis vom Umsatz
 	/// Example question: What drove the change in gross margin amount this month?
 	measure 'Gross Margin Amount' = [Net Sales Amount] - [Cost of Goods Sold Amount]
@@ -225,10 +226,10 @@ table _Measures
 		displayFolder: "COM-002"
 		annotation ActionReady_TrustScore = "1"
 
-	/// Relative variance of GM% versus plan.
-	/// Formula: (Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.
-	/// Grain: month · Unit: percentage-point
-	/// Owner: Profitability Analytics · Status: active
+	/// Relative variance of gross margin rate versus plan.
+	/// Formula: (([Net Sales Amount] - [Cost of Goods Sold Amount]) / ([Net Sales Amount]) - (SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )) / (SUM ( fact_sales[Plan Sales Amount] ))) / ((SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )) / (SUM ( fact_sales[Plan Sales Amount] )))
+	/// Grain: month · Unit: percentage-point · Good: higher_is_better
+	/// Owner: Commercial BI · Status: active
 	measure 'Gross Margin % vs Plan' =
 			VAR ActualGM =
 				[Gross Margin Amount]
@@ -242,6 +243,7 @@ table _Measures
 
 	/// Alias for Churned Customers Count (TMDL display name).
 	/// Formula: Distinct customers with no qualifying transactions in the current period but active in the look-back window.
+	/// Good: lower_is_better
 	/// Owner: CRM BI · Status: active
 	measure 'Churned Customers' = CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Churn Flag] = TRUE () )
 		formatString: "#,0"
@@ -250,6 +252,7 @@ table _Measures
 
 	/// Retained customers as share of opening active base in the period.
 	/// Formula: (Active Customers at end of period) / (Active Customers at start of period).
+	/// Good: higher_is_better
 	/// Owner: CRM BI · Status: active · Actions: C-C3.1
 	measure 'Customer Retention %' =
 			VAR ActiveRetained =
@@ -264,8 +267,8 @@ table _Measures
 
 	/// Measures customer advocacy and likelihood to recommend.
 	/// Formula: VAR Promoters = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 ) VAR Detractors = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] <= 6 ) VAR TotalResponses = COUNTROWS ( fact_nps ) RETURN ROUND ( DIVIDE ( Promoters - Detractors, TotalResponses ) * 100, 0 )
-	/// Grain: month · Unit: NPS index (-100 to +100)
-	/// Owner: Commercial BI · Status: active · Actions: C-C3.2
+	/// Grain: month · Unit: NPS index (-100 to +100) · Good: higher_is_better
+	/// Owner: Commercial BI · Status: active · Actions: C-C3.2, X-S1.3
 	/// Synonyms: Net Promoter Score, Promoter Score, Weiterempfehlungsrate, NPS
 	/// Example question: Which segments are driving the change in NPS this quarter?
 	measure 'Net Promoter Score (NPS)' =
@@ -283,6 +286,7 @@ table _Measures
 
 	/// Number of complaints in the selected context.
 	/// Formula: COUNTROWS ( fact_experience )
+	/// Good: lower_is_better
 	/// Owner: Operations Analytics · Status: active · Actions: C-C3.2
 	measure 'Complaint Count' = SUM ( fact_complaints[Complaint Count] )
 		formatString: "#,0"
@@ -307,7 +311,7 @@ table _Measures
 
 	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
 	/// Formula: AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )
-	/// Grain: customer · Unit: EUR
+	/// Grain: customer · Unit: EUR · Good: higher_is_better
 	/// Owner: Commercial BI · Status: active · Actions: C-C3.1
 	measure 'CLV (Customer Lifetime Value)' = AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )
 		formatString: "#,0"
@@ -316,6 +320,7 @@ table _Measures
 
 	/// Exposure sizing from churn-risk customers based on CLV remaining and attrition risk.
 	/// Formula: CLV Remaining Amount * Attrition Risk %.
+	/// Good: lower_is_better
 	/// Owner: CRM BI · Status: active · Actions: C-C3.1
 	measure 'Revenue at Risk Amount' =
 			VAR ChurnedCount =
@@ -355,7 +360,7 @@ table _Measures
 
 	/// Sales amount lost on non-promoted items versus baseline (cannibalization in value).
 	/// Formula: MAX ( 0, SUM ( fact_promo[Baseline Non-Promo Sales Amount] ) - SUM ( fact_sales[Net Sales Amount] ) WHERE fact_sales[Promo Flag] = FALSE )
-	/// Grain: promotion · Unit: EUR
+	/// Grain: promotion · Unit: EUR · Good: lower_is_better
 	/// Owner: Commercial BI · Status: active
 	measure 'Cannibalized Sales Amount' = [Baseline Sales Amount] * 0.15
 		formatString: "#,0"
@@ -371,6 +376,7 @@ table _Measures
 
 	/// Alias for Promotion ROI % (TMDL display name).
 	/// Formula: (Incremental GM Amount - Promo Cost Amount) / Promo Cost Amount
+	/// Good: higher_is_better
 	/// Owner: Profitability Analytics · Status: active · Actions: C-P4.1
 	measure 'Promo ROI %' = DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
 		formatString: "0.0%"
@@ -387,7 +393,7 @@ table _Measures
 
 	/// Share of promotional uplift offset by losses in non-promoted items.
 	/// Formula: ([Cannibalized Sales Amount]) / ([Incremental Sales Amount])
-	/// Grain: promotion · Unit: %
+	/// Grain: promotion · Unit: % · Good: lower_is_better
 	/// Owner: Commercial BI · Status: active
 	measure 'Cannibalization %' = DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
 		formatString: "0.0%"
@@ -461,7 +467,7 @@ table _Measures
 
 	/// Share of routed actions that achieved the intended outcome.
 	/// Formula: Successful Actions / Routed Actions.
-	/// Grain: action_instance · Unit: %
+	/// Grain: action_instance · Unit: % · Good: higher_is_better
 	/// Owner: Executive Office · Status: active
 	measure 'Action Outcome Rate %' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
 		formatString: 0.0%
@@ -470,7 +476,7 @@ table _Measures
 
 	/// Average days between action execution and outcome confirmation.
 	/// Formula: AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
-	/// Grain: month · Unit: days
+	/// Grain: month · Unit: days · Good: lower_is_better
 	/// Owner: Commercial BI · Status: active
 	measure 'Avg Time-to-Outcome Days' = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
 		formatString: #,0.0
@@ -479,7 +485,7 @@ table _Measures
 
 	/// Average ROI of executed actions: total impact value / total execution cost - 1.
 	/// Formula: DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
-	/// Grain: month · Unit: %
+	/// Grain: month · Unit: % · Good: higher_is_better
 	/// Owner: Commercial BI · Status: active
 	measure 'Action ROI %' = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
 		formatString: 0.0%
@@ -495,7 +501,7 @@ table _Measures
 
 	/// Average EUR impact per achieved action execution.
 	/// Formula: AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
-	/// Grain: month · Unit: EUR
+	/// Grain: month · Unit: EUR · Good: higher_is_better
 	/// Owner: Commercial BI · Status: active
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
