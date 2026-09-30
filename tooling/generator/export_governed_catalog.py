@@ -111,6 +111,11 @@ def _load_tables(contracts_dir: Path) -> list[dict]:
                     "columns": sorted(seen),
                     "showcase": tbl.get("showcase", True) is not False,
                     "column_specs": specs,
+                    # Tabellenbeschreibung des Vertrags (Meridian I-21 W5.6 e, 30.09.2026): der
+                    # Gold-Emitter schreibt sie als `COMMENT` in die CTAS-Klausel. Nur wenn der
+                    # Vertrag eine hat — nichts wird erfunden.
+                    **({"description": " ".join(str(tbl["description"]).split())}
+                       if str(tbl.get("description") or "").strip() else {}),
                 })
     return tables
 

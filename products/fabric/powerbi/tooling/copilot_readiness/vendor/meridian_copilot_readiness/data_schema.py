@@ -5,7 +5,10 @@ Fallback:   governance.json (Datendomänen) + kpi.json (data_source-Felder),
             wenn keine data_architecture.json vorliegt.
 
 Empfehlungslogik (deterministisch):
-  - Gold-Layer-Faktentabellen  → include (Quelle der governten KPIs)
+  - Gold-Layer-Faktentabellen  → include (Quelle der governten KPIs), je Stern eine
+    (Galaxy-Schema, D-611: ``star_schemas[].fact_table`` mit ``columns``)
+  - Dimensionen der Sterne     → include; Schlüssel- und ausgeblendete Spalten exclude,
+    Anzeige-/Attributspalten include (dort liegen Region, Kategorie, DC … für Copilot)
   - Bronze-/Silver-Tabellen    → exclude (Rohdaten, ais_context.no_raw_data)
   - is_hidden-Spalten          → exclude (technische Schlüssel)
 """
@@ -18,9 +21,9 @@ from products.meridian_copilot_readiness.generator.loader import (
 )
 
 _NOTE_DIMENSIONS = (
-    "Datums-/Dimensionstabellen des Semantic Models (z.B. dim_date) sind nicht "
-    "Teil von data_architecture.json — im Service sichtbar lassen, sie tragen "
-    "die Grain-Auflösung der KPI-Fragen."
+    "Dimensionen stehen in data_architecture.json (conformed.dimensions, dimension_tables) "
+    "und sind unten mit Spaltenempfehlung aufgeführt; die Fremdschlüssel der Fakten sind "
+    "ausgeblendet, die Anzeigespalten der Dimensionen tragen die Aufschlüsselung der KPI-Fragen."
 )
 
 
@@ -41,7 +44,8 @@ def _fields_from_columns(columns: dict) -> list[dict]:
             "kind": "grain",
             "recommendation": "exclude" if hidden else "include",
             "reason": (
-                "technischer Schlüssel (im Modell ausgeblendet)" if hidden
+                "Fremd-/technischer Schlüssel (im Modell ausgeblendet); die Dimension trägt "
+                "die Anzeigespalte" if hidden
                 else "Grain-Spalte — Breakdown-Dimension für Copilot-Fragen"
             ),
         })
@@ -77,6 +81,19 @@ def _tables_from_architecture(core: CopilotCore) -> list[dict]:
                 ),
                 "fields": _fields_from_columns(domain.get("columns") or {}),
             })
+        for stern in (core.architecture or {}).get("star_schemas") or []:
+            fakt = stern.get("fact_table")
+            if stern.get("domain_id") != domain_id or not fakt or fakt == gold or not stern.get("columns"):
+                continue
+            tables.append({
+                "name": fakt,
+                "domain": domain_id,
+                "domain_label": label,
+                "layer": "gold",
+                "recommendation": "include",
+                "reason": f"Gold-Layer-Faktentabelle (weiterer Stern {stern.get('id')})",
+                "fields": _fields_from_columns(stern["columns"]),
+            })
         for layer in ("bronze", "silver"):
             name = layer_tables.get(layer)
             if name:
@@ -92,7 +109,40 @@ def _tables_from_architecture(core: CopilotCore) -> list[dict]:
                     ),
                     "fields": [],
                 })
+    tables.extend(_dimension_tables(core.architecture or {}))
     return tables
+
+
+def _dimension_tables(arch: dict) -> list[dict]:
+    """Dimensionen, die ein Stern referenziert (conformed + dimension_tables), mit Spaltenwahl."""
+    genutzt = {r.get("dimension_table") for s in arch.get("star_schemas") or []
+               for r in s.get("relationships") or []}
+    dims = [d for d in (arch.get("conformed") or {}).get("dimensions") or [] if isinstance(d, dict)]
+    dims += list(arch.get("dimension_tables") or [])
+    out: list[dict] = []
+    for dim in dims:
+        if dim.get("table") not in genutzt:
+            continue
+        felder = []
+        for col in dim.get("columns") or []:
+            technisch = bool(col.get("is_key") or col.get("is_hidden"))
+            felder.append({
+                "name": col.get("name"),
+                "kind": "attribute",
+                "recommendation": "exclude" if technisch else "include",
+                "reason": ("Schlüssel-/Sortierspalte (ausgeblendet)" if technisch
+                           else "Anzeige-/Attributspalte — Aufschlüsselung für Copilot-Fragen"),
+            })
+        out.append({
+            "name": dim["table"],
+            "domain": dim.get("domain_id") or "conformed",
+            "domain_label": dim.get("label") or dim["table"],
+            "layer": "gold",
+            "recommendation": "include",
+            "reason": "Dimension eines Sterns" + (" (konform)" if dim.get("scope") == "conformed" else ""),
+            "fields": felder,
+        })
+    return out
 
 
 def _tables_from_fallback(core: CopilotCore) -> list[dict]:

@@ -78,7 +78,7 @@
       "last_updated": ""
     }
   ],
-  "_note": "Datums-/Dimensionstabellen des Semantic Models (z.B. dim_date) sind nicht Teil von data_architecture.json — im Service sichtbar lassen, sie tragen die Grain-Auflösung der KPI-Fragen.",
+  "_note": "Dimensionen stehen in data_architecture.json (conformed.dimensions, dimension_tables) und sind unten mit Spaltenempfehlung aufgeführt; die Fremdschlüssel der Fakten sind ausgeblendet, die Anzeigespalten der Dimensionen tragen die Aufschlüsselung der KPI-Fragen.",
   "tables": [
     {
       "name": "fact_sales",
@@ -92,31 +92,31 @@
           "name": "DateKey",
           "kind": "grain",
           "recommendation": "exclude",
-          "reason": "technischer Schlüssel (im Modell ausgeblendet)"
+          "reason": "Fremd-/technischer Schlüssel (im Modell ausgeblendet); die Dimension trägt die Anzeigespalte"
         },
         {
           "name": "OrgKey",
           "kind": "grain",
           "recommendation": "exclude",
-          "reason": "technischer Schlüssel (im Modell ausgeblendet)"
+          "reason": "Fremd-/technischer Schlüssel (im Modell ausgeblendet); die Dimension trägt die Anzeigespalte"
         },
         {
           "name": "ProductKey",
           "kind": "grain",
           "recommendation": "exclude",
-          "reason": "technischer Schlüssel (im Modell ausgeblendet)"
+          "reason": "Fremd-/technischer Schlüssel (im Modell ausgeblendet); die Dimension trägt die Anzeigespalte"
         },
         {
           "name": "CustomerKey",
           "kind": "grain",
           "recommendation": "exclude",
-          "reason": "technischer Schlüssel (im Modell ausgeblendet)"
+          "reason": "Fremd-/technischer Schlüssel (im Modell ausgeblendet); die Dimension trägt die Anzeigespalte"
         },
         {
           "name": "PromoKey",
           "kind": "grain",
           "recommendation": "exclude",
-          "reason": "technischer Schlüssel (im Modell ausgeblendet)"
+          "reason": "Fremd-/technischer Schlüssel (im Modell ausgeblendet); die Dimension trägt die Anzeigespalte"
         },
         {
           "name": "Promo Flag",

@@ -152,3 +152,26 @@ def test_column_specs_from_synthetic_contract(tmp_path):
         {"name": "A", "type": "int", "checks": [{"between": [0, 1]}], "agg": "sum"},   # first wins, extra keys dropped
         {"name": "B", "type": "int", "nullable": False, "ref": "dim_y", "unknown_member": -1, "target_state": True},
     ]
+
+
+def test_table_description_travels_only_when_the_contract_has_one():
+    """Meridian I-21 W5.6 e (30.09.2026): der Gold-Emitter macht daraus die `COMMENT`-Klausel.
+    Ohne Vertragstext kein Feld; zweite Messung direkt gegen die Vertrags-YAMLs."""
+    import yaml
+    from pathlib import Path
+    from tooling.generator.export_governed_catalog import build_governed_catalog
+
+    repo = Path(__file__).resolve().parents[2]
+    tabellen = build_governed_catalog(repo)["tables"]
+    mit = {t["name"] for t in tabellen if "description" in t}
+    erwartet = set()
+    for f in sorted((repo / "core" / "data_contracts" / "domains").glob("*.yaml")):
+        doc = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        for key in ("dimension", "fact"):
+            for t in doc.get(key) or []:
+                if isinstance(t, dict) and str(t.get("description") or "").strip() \
+                        and t.get("name") in {x["name"] for x in tabellen}:
+                    erwartet.add(t["name"])
+    assert mit and mit <= erwartet
+    assert all(t["description"] == " ".join(t["description"].split()) for t in tabellen
+               if "description" in t)
