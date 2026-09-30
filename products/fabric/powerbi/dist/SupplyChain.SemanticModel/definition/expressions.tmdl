@@ -44,7 +44,7 @@ expression fn_DeltaCurrentFiles =
 	in
 		Result
 
-expression GoldDataPath = "C:/Users/florianhaferkorn/VSCode/analytics-usecase-library/showcases/aurora_group/data/gold" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression GoldDataPath = "<GOLD_DATA_PATH>" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: a9667736-21ab-5704-a6bf-ab22f9dcf3e8
 	annotation PBI_NavigationStepName = GoldDataPath
 	annotation PBI_ResultType = Text

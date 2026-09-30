@@ -65,8 +65,10 @@ _ODCS_PUBLIC = ("to_odcs", "emit_odcs", "to_odcs_ingestion", "emit_odcs_ingestio
 # The column-contract half (A-20/A-23, Meridian D-581, mirrored 29.09.2026): private in both
 # repos, but it is the mapping `column_specs ⇄ ODCS property`. A function added or dropped on
 # one side only means the round-trip means different things here and there.
+# ODCS v3.2 semanticType/synonyms (Meridian D-590, 30.09.2026) belong to the same mapping.
 _ODCS_COLUMN_SPECS = ("_quality_rule", "_spec_to_property", "_property_to_spec",
-                      "_table_properties", "_catalog_table_for")
+                      "_table_properties", "_catalog_table_for",
+                      "semantic_type", "_synonyms_to_odcs", "_synonyms_from_odcs")
 
 # Zweite, stärkere Hälfte des Sensors (SHARED_SUBSTANCE.md Klasse A): die offiziell
 # belegten Emitter werden nicht per Hand nachgezogen, sondern **byte-identisch**

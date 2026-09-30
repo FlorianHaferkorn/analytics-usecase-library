@@ -32,7 +32,7 @@ Orchestration and report generation for semantic models and reports (PBIP) from 
 .\products\fabric/powerbi\orchestrator\orchestrate_full_model.ps1 -Domain Commercial
 ```
 
-**Mit Aurora-Daten (gefüllte Tabellen):** Ohne `-UseAuroraData` erhalten Tabellen eine leere Partition (Blank). Für Bezug zu den Aurora-Gold-Parquet-Daten den Lauf mit `-UseAuroraData` ausführen; dann werden die Partitionen auf `GoldDataPath` umgestellt, `expressions.tmdl` enthält den Parameter `GoldDataPath`, und die Reports zeigen Daten, sofern der Gold-Pfad (`showcases/aurora_group/data/gold`) und die Parquet-Dateien verfügbar sind:
+**Mit Aurora-Daten (gefüllte Tabellen):** Ohne `-UseAuroraData` erhalten Tabellen eine leere Partition (Blank). Für Bezug zu den Aurora-Gold-Parquet-Daten den Lauf mit `-UseAuroraData` ausführen; dann werden die Partitionen auf `GoldDataPath` umgestellt, `expressions.tmdl` enthält den Parameter `GoldDataPath`, und die Reports zeigen Daten, sofern der Gold-Pfad (`showcases/aurora_group/data/gold`) und die Parquet-Dateien verfügbar sind. `GoldDataPath` erhält den Platzhalter `<GOLD_DATA_PATH>`, nicht den Pfad dieses Rechners (seit 30.09.2026); den eigenen Pfad setzt man in Power BI Desktop unter *Parameter bearbeiten*, Anleitung in [`dist/README.md`](../dist/README.md#local-gold-path-golddatapath):
 ```powershell
 .\products\fabric/powerbi\orchestrator\orchestrate_full_model.ps1 -UseCase COM-001 -UseAuroraData
 ```
