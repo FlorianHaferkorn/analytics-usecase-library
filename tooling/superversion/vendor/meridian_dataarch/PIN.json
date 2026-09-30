@@ -1,7 +1,7 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "f0f00bd1dcb48da0d2faa532af39300ad665e129",
+  "source_commit": "1464619bd4d7890952abe9792e2f8067bebb7cc7",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
@@ -126,7 +126,7 @@
     },
     {
       "path": "provision_terraform.py",
-      "sha256": "322ba6b32f9e2af89006ad37fcaf15b0e383605bd89344b0dfaafabe65f0ae2e"
+      "sha256": "a640126d0e4f64695cad7118ed694bdf4f74f2d19dffa4911eb50a9dee8f04b7"
     },
     {
       "path": "kapazitaet_stufen.py",
@@ -160,6 +160,11 @@
       "path": "preis_kanon.py",
       "sha256": "01c6eae5e537fa77adc9616b831b39a2e7df3521590bca1bab44baa9aa6566c1",
       "source": "core/preis_kanon.py"
+    },
+    {
+      "path": "leerstellen_vorlage.py",
+      "sha256": "fe61366e405ad6418a64c5f99f1200ef5126157e2f3e7cc52a59aa3c34c4cb6c",
+      "source": "meridian/semantics/leerstellen_vorlage.py"
     }
   ]
 }

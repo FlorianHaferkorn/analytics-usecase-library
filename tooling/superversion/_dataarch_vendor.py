@@ -90,6 +90,9 @@ PUBLIC_API: dict[str, tuple[str, ...]] = {
     "admin_settings": ("required_settings",),
     "decision_proposals": ("propose_all", "emit_decisions", "decisions_markdown"),
     "naming": ("NamingConvention",),
+    # D-610 (Meridian, 30.09.2026): Leerstellen der Geschaeftsobjekt-Schicht als Vorlage und
+    # zurueck; `tooling/generator/business_objects.py --template/--apply`.
+    "leerstellen_vorlage": ("zeilen", "als_csv", "uebernehme"),
 
     # -- Die Vollzugshälfte (26.08.2026) ------------------------------------------------
     #

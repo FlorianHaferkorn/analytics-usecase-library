@@ -36,6 +36,8 @@ referential integrity, physical binding).
 Usage:
     python3 tooling/generator/business_objects.py --write
     python3 tooling/generator/business_objects.py --check
+    python3 tooling/generator/business_objects.py --template gaps.csv   # one row per gap
+    python3 tooling/generator/business_objects.py --apply gaps.csv      # filled template → file
 """
 from __future__ import annotations
 
@@ -279,14 +281,56 @@ def load(repo: Path = REPO) -> dict[str, Any] | None:
     return yaml.safe_load(p.read_text(encoding="utf-8")) if p.is_file() else None
 
 
+def _template_main(a: argparse.Namespace, existing: dict[str, Any] | None) -> int:
+    """Write / apply the gap template (Meridian D-610, mirrored ``leerstellen_vorlage``).
+
+    Works on the file, which must exist and equal the derivation (``--check`` clean) — otherwise
+    one would fill gaps of a state the next ``--write`` discards. Applying fills ``null`` fields
+    only, all or nothing; curated values survive the next ``--write`` via :func:`merge`.
+    """
+    from tooling.superversion._dataarch_vendor import load_module
+
+    lv = load_module("leerstellen_vorlage")
+    if existing is None:
+        print(f"ERROR: {DATA} missing (run --write first)", file=sys.stderr)
+        return 1
+    if dump(merge(derive(a.repo_root), existing)) != dump(existing):
+        print(f"ERROR: {DATA} differs from the derivation (run --write first)", file=sys.stderr)
+        return 1
+    if a.template:
+        rows = lv.zeilen(existing)
+        a.template.parent.mkdir(parents=True, exist_ok=True)
+        a.template.write_text(lv.als_csv(rows), encoding="utf-8", newline="")
+        per: dict[str, int] = {}
+        for r in rows:
+            per[r["zustaendig"]] = per.get(r["zustaendig"], 0) + 1
+        print(f"[OK] template {a.template}: {len(rows)} gaps ("
+              + ", ".join(f"{k} {v}" for k, v in sorted(per.items())) + ")")
+        return 0
+    new, problems, n = lv.uebernehme(existing, a.apply.read_text(encoding="utf-8-sig"))
+    problems = problems or check(new, catalog_kpi_ids(a.repo_root), physical_columns(a.repo_root))
+    if problems:
+        print("ERROR (nothing applied):\n  " + "\n  ".join(problems), file=sys.stderr)
+        return 1
+    (a.repo_root / DATA).write_text(dump(new), encoding="utf-8", newline="\n")
+    print(f"[OK] {n} values applied, {sum(gaps(new).values())} gaps open")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Derive/check the business-object layer (D-608)")
     ap.add_argument("--repo-root", type=Path, default=REPO)
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--write", action="store_true")
     mode.add_argument("--check", action="store_true")
+    mode.add_argument("--template", type=Path, metavar="CSV",
+                      help="write the gaps as a template, one row per gap (Meridian D-610)")
+    mode.add_argument("--apply", type=Path, metavar="CSV",
+                      help="apply a filled template to the null fields (Meridian D-610)")
     a = ap.parse_args(argv)
     existing = load(a.repo_root)
+    if a.template or a.apply:
+        return _template_main(a, existing)
     doc = merge(derive(a.repo_root), existing)
     kpis, cols = catalog_kpi_ids(a.repo_root), physical_columns(a.repo_root)
     problems = check(doc, kpis, cols)
