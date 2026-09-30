@@ -11,9 +11,9 @@ widersprueche:
       - {ort: "Meridian TPL-001 chart_standards", wert: "PY grau, PL umrandet"}
       - {ort: "Meridian core/report_design/ibcs.py", wert: "PL weiß mit Umriss, PY hell"}
       - {ort: "ALUCA _notation_profiles.yaml / color_semantics.yaml", wert: "PY solide 50 %, PL umrandet, FC schraffiert"}
-    quelle_sagt: "AC solide dunkel, PY heller solide, PL/BU umrandet hohl, FC schraffiert; keine Hex-Werte"
-    belege: [ibcs-011]
-    zugang: search_index
+    quelle_sagt: "UN 3.2 (S. 44–45): AC solide dunkel (z. B. dunkelgrau), PY heller solide, PL/BU nur umrandet, FC umrandet und schraffiert in AC-Farbe; bei Stapeln Szenarionotation nur im untersten Segment; keine Farbwerte"
+    belege: [ibcs2-un-3-2, ibcs-011]
+    zugang: original
     vorschlag: "Rollen fest nach Quelle (Klasse A), Helligkeitswerte aus der Marke (Klasse C). Meridians Style-Pack ibcs ist falsch (PY ohne Füllung) und wird mit R2 ersetzt."
     status: vorgeschlagen
   - id: W-2
@@ -23,8 +23,8 @@ widersprueche:
       - {ort: "Meridian DESIGN_SYSTEM.md", wert: "erlaubt bis 4 Teile"}
       - {ort: "KONZEPT_Cockpit_Design_System", wert: "erlaubt bis 3 Teile"}
       - {ort: "ALUCA index.yaml", wert: "best für part_to_whole bis 4 Teile"}
-    quelle_sagt: "IBCS: Torte auf der Deny-Liste (Ausnahme auf Karten); FT Visual Vocabulary führt Donut unter part-to-whole"
-    belege: [ibcs-020, editorial-006, editorial-022]
+    quelle_sagt: "IBCS EX 2.1 (S. 136): Torte und Ring ersetzen, Ausnahme auf Karten mit höchstens 2–3 Werten; FT Visual Vocabulary führt Donut unter part-to-whole"
+    belege: [ibcs2-ex-2-1, editorial-006, editorial-022]
     zugang: gemischt
     vorschlag: "Profilparameter statt globale Regel: Profil ibcs verbietet, übrige Profile erlauben bis 4 Teile (ALUCA-Stand)."
     status: vorgeschlagen
@@ -34,9 +34,9 @@ widersprueche:
       - {ort: ALUCA, wert: "#A4262C"}
       - {ort: "Meridian tokens.py, neutral_demo", wert: "#D13438"}
       - {ort: "Meridian _fhc_base, contoso", wert: "#8B1E24"}
-    quelle_sagt: "IBCS: Rot = schlecht gegenüber Ziel, nicht nach Vorzeichen; kein Hex-Wert. WCAG 1.4.11 verlangt 3:1 für Grafik."
-    belege: [ibcs-012]
-    zugang: search_index
+    quelle_sagt: "IBCS UN 4.1 (S. 52): gut hellgrün, schlecht dunkelrot, neutral blau; ohne Farbe dunkelgrau/mittelgrau/hellgrau; bei Farbsehschwäche Blaugrün statt Grün; ausdrücklich keine Farbcodes. WCAG 1.4.11 verlangt 3:1 für Grafik."
+    belege: [ibcs2-un-4-1, ibcs-012]
+    zugang: original
     vorschlag: "Eine Rolle `bad` (Klasse A), Wert je Marke (Klasse C); Default ALUCA #A4262C; Kontrasttor erzwingt 3:1 bzw. 4.5:1 für Text."
     status: vorgeschlagen
   - id: W-4
@@ -53,8 +53,8 @@ widersprueche:
     thema: Achsenschnitt
     fassungen:
       - {ort: "Design Lab 30.09.2026", wert: "Säulen ab 80 bzw. 86"}
-    quelle_sagt: "IBCS CH 1: Achsen nicht abschneiden; FT: Nullbasis für Längen-Encodings; ONS erlaubt gekappte Achse bei Linien mit sichtbarer Markierung; Urban verlangt immer Null."
-    belege: [ibcs-015, editorial-011, editorial-036]
+    quelle_sagt: "IBCS CH 1.1 (S. 68): Achsen nicht abschneiden, Ausnahme indexierte Daten; FT: Nullbasis für Längen-Encodings; ONS erlaubt gekappte Achse bei Linien mit sichtbarer Markierung; Urban verlangt immer Null."
+    belege: [ibcs2-ch-1-1, editorial-011, editorial-036]
     zugang: gemischt
     vorschlag: "Säulen/Balken/Flächen: Nullbasis in allen Profilen (Test am Spec). Linie: Profilparameter (ibcs: Null oder Skalierungsindikator; editorial: Kappung mit Markierung)."
     status: vorgeschlagen
@@ -64,8 +64,9 @@ widersprueche:
       - {ort: Carbon, wert: unten}
       - {ort: "Fluent / Power BI", wert: "oben links"}
       - {ort: Tremor, wert: rechts}
-      - {ort: "IBCS, Urban, BBC", wert: "Direktbeschriftung; falls Legende: oben"}
-    belege: [product-028, product-038, editorial-030, ibcs-022]
+      - {ort: "IBCS UN 2.3 (S. 34)", wert: "Direktbeschriftung bevorzugt, Legende erlaubt (z. B. bei zwei Werteachsen), Position je Charttyp"}
+      - {ort: "Urban, BBC", wert: "Direktbeschriftung; falls Legende: oben"}
+    belege: [product-028, product-038, editorial-030, ibcs2-un-2-3]
     zugang: gemischt
     vorschlag: "Direktbeschriftung Standard bis 4 Serien in allen Profilen; Legende nur darüber, Position als Profilparameter."
     status: vorgeschlagen
@@ -75,6 +76,9 @@ luecken:
     thema: "IBCS 2.0 Original (Regelnummern, UN 4.x/5.x, Templates C02–C05) nicht gelesen"
     grund: "Egress-Proxy sperrt ibcs.com; PDF nur für Mitglieder"
     folge: "Kein IBCS-Eintrag bekommt Test-Autorität (R3), bevor evidence am Original steht"
+    status: geschlossen 2026-09-30
+    ergebnis: "Original (Mitglieder-PDF, 169 S.) abgeglichen: ibcs_v2.yaml mit 105 Regeln, alle Zitate wörtlich auf der angegebenen Seite (Skriptprüfung); Chart-Templates C01–C13 und Software-Zertifizierung stehen nicht im Standard (ibcs_abgleich.md)"
+    rest: "Zahlenwerte (Grau-/Farbwerte, Strichstärken, Pinbreite, Schraffur, Schriftgrößen) nennt das Original nicht — das Profil legt sie fest, Tests prüfen Relationen"
   - id: L-2
     thema: "Fabric-Apps: Schraffur per url(#pattern), CSP-Header, Bundle-Größe ungemessen"
     grund: "kein Rendertest, kein Deployment in R1"
