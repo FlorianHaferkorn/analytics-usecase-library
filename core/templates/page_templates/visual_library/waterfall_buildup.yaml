@@ -207,7 +207,8 @@ profiles:
                     "type": "quantitative",
                     "axis": null,
                     "scale": {
-                      "zero": true
+                      "zero": true,
+                      "padding": 16
                     }
                   },
                   "y2": {

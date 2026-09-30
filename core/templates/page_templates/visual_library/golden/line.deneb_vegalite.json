@@ -9,6 +9,9 @@
       "encoding": { "y": { "datum": 44.1 } } },
     { "mark": { "type": "line", "color": "#94A0AC", "strokeDash": [5, 4], "strokeWidth": 1.5 },
       "encoding": { "y": { "field": "gm_plan", "type": "quantitative" } } },
+    { "transform": [ { "window": [ { "op": "row_number", "as": "_p" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._p == 1" } ],
+      "mark": { "type": "text", "text": "Plan", "align": "right", "dx": -6, "dy": 12, "color": "#94A0AC" },
+      "encoding": { "y": { "field": "gm_plan", "type": "quantitative" } } },
     { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
       "mark": { "type": "point", "filled": true, "size": 60, "color": "#A4262C" },
       "encoding": { "y": { "field": "gm", "type": "quantitative" } } }

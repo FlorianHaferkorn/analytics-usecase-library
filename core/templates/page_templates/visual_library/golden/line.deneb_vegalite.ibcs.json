@@ -71,7 +71,7 @@
         "text": {
           "field": "gm",
           "type": "quantitative",
-          "format": ".1f"
+          "format": ",.1~f"
         }
       }
     }

@@ -467,7 +467,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:49a88d6ffb1bb0d3254666c7fccd5f81d5a4750185bbadf2b6cfaae7ae034ed5"
+      "checksum": "sha256:8ec01a72fb79205c734951a60e6a726e9e584b446bff3ffafa4767ca9f59c445"
     },
     {
       "id": "lollipop",
@@ -812,7 +812,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:5a50b091b5cdefd4b948a3d4018c5a3237b0bbc94feba8848abe95286f2ef718"
+      "checksum": "sha256:367b817fdfe29741ad9f8a1436fe1d6b79f40424253f9e7955b8bbe304a75645"
     },
     {
       "id": "waterfall_pvm",
@@ -841,7 +841,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:78572b8e18afa791cbab892e56139b82f15fa1638f01d43ad292e8d269e11711"
+      "checksum": "sha256:402a86107d2e6df544983979a3b92078975922d951e3f7427ab1dd1334394487"
     },
     {
       "id": "waterfall_variance",
@@ -869,7 +869,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:c1911ff3c67e5d983ec00ff95ddf8b9c9fd9d9afee2587900febb819aa8d3d52"
+      "checksum": "sha256:92d0b844e996985be9c055c511429ae81807ca980843826e0ffc2b99827de119"
     }
   ]
 }
