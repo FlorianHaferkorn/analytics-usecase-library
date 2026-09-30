@@ -2,7 +2,7 @@
   "registry": "aluca-visual-library",
   "schema_version": 1,
   "generated_by": "tooling/visual_library/registry.py",
-  "count": 30,
+  "count": 32,
   "idioms": [
     {
       "id": "area_stacked",
@@ -599,6 +599,33 @@
       "checksum": "sha256:649bb7ff2bbdd5a624e931811254aa34dda3aea03cf3747a2ccfd206103dafcc"
     },
     {
+      "id": "multi_tier_column",
+      "name": "Multi-tier column chart (values, ΔPY, ΔPY%)",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "time_comparison",
+        "deviation_from_target"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "deneb_vegalite"
+      ],
+      "profiles": [
+        "house_default",
+        "ibcs"
+      ],
+      "min_size": {
+        "cols": 6,
+        "rows": 6
+      },
+      "checksum": "sha256:e537949b68c163b249162d5ed6bf20d8da3a6bd31e7cab85335d6a0a82c51600"
+    },
+    {
       "id": "sankey",
       "name": "Sankey",
       "version": "1.0.0",
@@ -732,6 +759,34 @@
       "checksum": "sha256:484bd6d15e7a4c5dda7e2e7254e5e8ee245633f5fba50d9d87417922446bf2f8"
     },
     {
+      "id": "variance_pin",
+      "name": "Variance pins (relative variance)",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "deviation_from_target"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "powerbi_svg_dax",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default",
+        "ibcs"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 3
+      },
+      "checksum": "sha256:139445545839bc8939b4b26439acd501daf80dc7d1c19ebf34bb731e96111848"
+    },
+    {
       "id": "waterfall_buildup",
       "name": "Waterfall (buildup to total)",
       "version": "1.1.0",
@@ -757,7 +812,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:c3b46e362459ff22bcd9a717f31d9c65f61cc367afe558123c0472439f76a4f8"
+      "checksum": "sha256:5b4d2acf3a9f3fd4434162145f14ab2d698b7fb75d4a735f834644868c870c2b"
     },
     {
       "id": "waterfall_pvm",
@@ -786,7 +841,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:c2c2dda6af1dc439f63efbce07e41f5af16c06fd8708bc5a7e0834a79ebd9f89"
+      "checksum": "sha256:caf9ae87503c4938945125478f46076911b05a41e60563e8e7c3d2cbf5c473bb"
     },
     {
       "id": "waterfall_variance",
@@ -814,7 +869,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:5aab31071d71687bb6c4e7f3827a513d3f6f0bbd8ca4c9e348a68f67800da580"
+      "checksum": "sha256:3553506821fd69d47b02db40f51a21912b75363c79ec55cdf7befe1ecc7f285c"
     }
   ]
 }

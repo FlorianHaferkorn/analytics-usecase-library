@@ -243,6 +243,11 @@ profiles:
                 }
               },
               {
+                "transform": [
+                  {
+                    "filter": "datum.next != null"
+                  }
+                ],
                 "mark": {
                   "type": "rule",
                   "color": "{{col_ink}}",

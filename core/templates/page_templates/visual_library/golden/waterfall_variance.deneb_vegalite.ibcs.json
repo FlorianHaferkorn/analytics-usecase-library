@@ -84,6 +84,11 @@
       }
     },
     {
+      "transform": [
+        {
+          "filter": "datum.next != null"
+        }
+      ],
       "mark": {
         "type": "rule",
         "color": "#201F1E",

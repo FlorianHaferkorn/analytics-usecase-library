@@ -11,13 +11,13 @@ purposes:
     question: "How is X developing over time — and against plan?"
     zone: analysis
     best: line
-    candidates: [line, column_time, area_stacked, small_multiples, indexed_line, slope]
+    candidates: [line, column_time, area_stacked, small_multiples, indexed_line, slope, "multi_tier_column@ibcs"]   # multi-tier: IBCS CO 4.2 values + ΔPY + ΔPY% on one category axis
 
   deviation_from_target:
     question: "Are we above/below plan or target — by how much?"
     zone: [pulse, analysis]
     best: deviation_bar
-    candidates: [deviation_bar, bullet, "deviation_bar@ibcs"]   # @ibcs = the IBCS notation profile of the same idiom
+    candidates: [deviation_bar, bullet, "deviation_bar@ibcs", "variance_pin@ibcs", "multi_tier_column@ibcs"]   # @ibcs = the IBCS notation profile of the same idiom; variance_pin = RELATIVE variance (UN 4.1 pins)
 
   compare_categories:
     question: "Which categories lead or lag — where should attention focus?"
@@ -80,7 +80,7 @@ purposes:
 notation_profiles:
   registry: _notation_profiles.yaml
   available: [house_default, ibcs, print_safe]
-  implemented_ibcs: [deviation_bar, bar_ranking, line, waterfall_pvm, bullet, waterfall_variance, waterfall_buildup, column_time]   # idioms that carry an `ibcs` profile
+  implemented_ibcs: [deviation_bar, bar_ranking, line, waterfall_pvm, bullet, waterfall_variance, waterfall_buildup, column_time, variance_pin, multi_tier_column]   # idioms that carry an `ibcs` profile
   pending_ibcs: []   # IBCS applied where the notation genuinely maps (comparison/bridge/scenario idioms); distribution idioms (histogram/boxplot) intentionally have no IBCS reading
   implemented_print_safe: [deviation_bar, bar_ranking, line, waterfall_pvm, bullet]   # idioms that carry a CVAA/print-safe overlay
 
@@ -88,4 +88,4 @@ notation_profiles:
 deny: [pie_gt_4, three_d, gauge, radar, dual_axis_no_reason, color_as_decoration, powerbi_smart_narrative]
 
 # realised so far (rest scaffolded per increment)
-implemented: [deviation_bar, line, bar_ranking, waterfall_pvm, area_stacked, indexed_line, matrix_evidence, scatter, donut, bullet, slope, stacked_100, lollipop, histogram, boxplot, small_multiples, sankey, decomposition_tree, bar_absolute, waterfall_buildup, waterfall_variance, kpi_card_spark, kpi_card_bullet, kpi_card_sparkbar, matrix_sparkline, matrix_bullet, matrix_delta_pill, column_time, dumbbell, bar_stacked]
+implemented: [deviation_bar, line, bar_ranking, waterfall_pvm, area_stacked, indexed_line, matrix_evidence, scatter, donut, bullet, slope, stacked_100, lollipop, histogram, boxplot, small_multiples, sankey, decomposition_tree, bar_absolute, waterfall_buildup, waterfall_variance, kpi_card_spark, kpi_card_bullet, kpi_card_sparkbar, matrix_sparkline, matrix_bullet, matrix_delta_pill, column_time, dumbbell, bar_stacked, variance_pin, multi_tier_column]

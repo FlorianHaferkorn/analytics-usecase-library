@@ -22,8 +22,12 @@ import render  # noqa: E402
 
 CATALOG = REPO_ROOT / "docs" / "architecture" / "research" / "2026-09-30_visual-stack-r1" / "ibcs_v2.yaml"
 TOK = render.profile_def("ibcs")["tokens"]
-RATED = ("deviation_bar", "waterfall_pvm", "waterfall_variance")   # idioms that show variances
-BANDED_BARS = ("column_time", "bar_ranking", "waterfall_pvm", "waterfall_variance", "waterfall_buildup")
+RATED = ("deviation_bar", "waterfall_pvm", "waterfall_variance", "variance_pin",
+         "multi_tier_column")   # idioms that show variances
+BANDED_BARS = ("column_time", "bar_ranking", "waterfall_pvm", "waterfall_variance", "waterfall_buildup",
+               "multi_tier_column")
+PINNED = ("variance_pin", "multi_tier_column")   # idioms that show relative variances as pins (UN 4.1)
+PIN_BAND_MAX = 0.25   # a pin takes at most 1/4 of the absolute bar's band (the original says only "very thin")
 
 
 def _ibcs_idioms() -> list[str]:
@@ -48,6 +52,30 @@ def _walk(node):
 def _marks(spec: dict) -> list[dict]:
     return [n["mark"] if isinstance(n["mark"], dict) else {"type": n["mark"]}
             for n in _walk(spec) if "mark" in n]
+
+
+def _is_pin(mark: dict) -> bool:
+    """A pin is a bar whose width is a fraction of the band (UN 4.1: a very thin column)."""
+    return mark.get("type") == "bar" and isinstance(mark.get("width"), dict) and "band" in mark["width"]
+
+
+def _svg_bars(idiom: str, rows: list[dict]) -> list[dict]:
+    """Render the ibcs fabric_app spec with its own config and return every drawn bar as
+    {fields from aria-label, w, h} — the MEASURED geometry, not the spec's intent."""
+    vlc = pytest.importorskip("vl_convert")
+    app = _app(idiom)
+    spec = dict(app["spec"])
+    spec["config"] = app["configVegaLite"]
+    spec["data"] = {"values": rows}
+    if "vconcat" not in spec:
+        spec["width"], spec["height"] = 400, 200
+    svg = vlc.vegalite_to_svg(spec)
+    out = []
+    for label, d in re.findall(r'<path aria-label="([^"]*)"[^>]*aria-roledescription="bar" d="([^"]*)"', svg):
+        m = re.match(r"M[-\d.e]+,[-\d.e]+h([-\d.e]+)v([-\d.e]+)h", d)
+        fields = dict(kv.split(": ", 1) for kv in label.split("; "))
+        out.append({**fields, "w": abs(float(m.group(1))), "h": abs(float(m.group(2)))})
+    return out
 
 
 def test_rule_refs_exist_in_the_catalog():
@@ -122,7 +150,7 @@ def test_un_3_1_absolute_bars_take_two_thirds_of_the_category():
     assert abs(cfg["scale"]["bandPaddingInner"] - 1 / 3) < 0.01
     for idiom in BANDED_BARS:
         for m in _marks(_app(idiom)["spec"]):
-            if m.get("type") == "bar":
+            if m.get("type") == "bar" and not _is_pin(m):   # pins are thin by rule (UN 4.1), tested below
                 for k in ("size", "width", "height"):
                     assert k not in m, f"{idiom}: bar sets {k}, overriding the 2/3 band (UN 3.1)"
 
@@ -178,3 +206,75 @@ def test_fabric_app_switches_off_runtime_rewrites():
     caps = _app("column_time")["capabilities"]
     for flag in ("disableNiceAxisBounds", "disableMinBarSize", "disableCompactNumberFormatting"):
         assert caps.get(flag) is True, f"ibcs must set {flag}"
+
+
+def test_un_4_1_relative_variances_are_thin_pins_with_a_head():
+    """UN 4.1 (p. 54-55) / EX 1.1 (p. 102): a relative variance is a very thin column (pin) with a
+    head marker in the minuend's notation (AC = solid dark); pins carry no value axis (SI 3.1).
+    Checked on the spec: a pin exists, is at most PIN_BAND_MAX of the band, and has a solid
+    square AC head drawn on the same field."""
+    for idiom in PINNED:
+        spec = _app(idiom)["spec"]
+        layers = [n for n in _walk(spec) if isinstance(n.get("mark"), dict)]
+        pins = [n for n in layers if _is_pin(n["mark"])]
+        assert pins, f"{idiom}: no pin layer (UN 4.1)"
+        for pin in pins:
+            band = pin["mark"]["width"]["band"]
+            assert 0 < band <= PIN_BAND_MAX, f"{idiom}: pin width {band} of the band is not thin (UN 4.1)"
+            assert pin["encoding"]["y"].get("axis", {}) is None, f"{idiom}: pin with a value axis (SI 3.1)"
+            field = pin["encoding"]["y"]["field"]
+            heads = [n["mark"] for n in layers if n["mark"].get("type") == "point"
+                     and n.get("encoding", {}).get("y", {}).get("field") == field]
+            assert heads, f"{idiom}: pin without a head marker (UN 4.1)"
+            head = heads[0]
+            assert head.get("filled") is True and head.get("color") == TOK["ac"], \
+                f"{idiom}: pin head does not show AC solid dark (UN 4.1 minuend notation)"
+
+
+def test_un_4_1_pins_measured_thinner_than_the_base_bar():
+    """The same rule, measured in the rendered SVG: every pin is at most PIN_BAND_MAX of the
+    width of an absolute bar in the same band (multi_tier_column: the AC column next to it;
+    variance_pin: the 2/3 band an absolute column would take, from the pin spacing)."""
+    mt = _svg_bars("multi_tier_column", [{"month": f"2026-0{i + 1}", "sales": a, "sales_py": p}
+                                         for i, (a, p) in enumerate([(6.5, 5.9), (5.2, 4.9), (4.9, 5.6)])])
+    col = [b["w"] for b in mt if "sales" in b and "d_rel" not in b]
+    pins = [b["w"] for b in mt if "d_rel" in b]
+    assert col and len(pins) == 3, "multi_tier_column: columns or pins missing in the SVG"
+    assert max(pins) <= PIN_BAND_MAX * min(col) + 0.01, f"pins {pins} not thin against columns {col}"
+    vp = _svg_bars("variance_pin", [{"month": f"2026-0{i + 1}", "delta_pl_pct": v}
+                                    for i, v in enumerate([0.12, -0.08, 0.3, -0.2])])
+    assert len(vp) == 4, "variance_pin: pins missing in the SVG"
+    step = 400 / 4          # four categories across the 400 px plot, band = (1 - 1/3) of the step
+    base_bar = step * (1 - render.vegalite_config("ibcs")["scale"]["bandPaddingInner"])
+    assert max(b["w"] for b in vp) <= PIN_BAND_MAX * base_bar + 0.01, "variance_pin: pins not thin"
+
+
+def test_un_4_1_co_4_2_absolute_variance_tier_same_width_and_scale():
+    """UN 4.1 / CO 4.2 (p. 149): absolute variances as bars of the same width and on the same
+    scale as the values they compare. Measured: ΔPY bar width == AC column width, and pixels
+    per unit are equal for AC and ΔPY."""
+    rows = [{"month": f"2026-0{i + 1}", "sales": a, "sales_py": p}
+            for i, (a, p) in enumerate([(6.5, 5.9), (5.2, 4.9), (4.9, 5.6)])]
+    bars = _svg_bars("multi_tier_column", rows)
+    ac = [b for b in bars if set(b) >= {"sales"} and "tier_end" not in b and "d_rel" not in b]
+    var = [b for b in bars if "tier_end" in b]
+    assert len(ac) == 3 and len(var) == 3, "multi_tier_column: AC columns or ΔPY bars missing"
+    assert {round(b["w"], 3) for b in ac} == {round(b["w"], 3) for b in var}, "ΔPY width != AC width"
+    px_ac = ac[0]["h"] / 6.5
+    for b, r in zip(var, rows):
+        assert abs(b["h"] / abs(r["sales"] - r["sales_py"]) - px_ac) < 0.02 * px_ac, \
+            "ΔPY drawn on another scale than AC (CO 4.2 same unit, same scale)"
+
+
+def test_ex_1_1_waterfall_connectors_end_at_the_last_step():
+    """EX 1.1 — connector lines between steps; the last step has no successor, so its
+    connector must be filtered, not drawn to a 'null' category (found in R3, 30.09.2026)."""
+    vlc = pytest.importorskip("vl_convert")
+    for idiom in ("waterfall_pvm", "waterfall_variance", "waterfall_buildup"):
+        app = _app(idiom)
+        spec = dict(app["spec"], config=app["configVegaLite"],
+                    data={"values": [{"driver": "A", "part": "A", "value": 5},
+                                     {"driver": "B", "part": "B", "value": -2}]})
+        vega = vlc.vegalite_to_vega(spec)
+        svg = vlc.vega_to_svg(vega)
+        assert ">null<" not in svg, f"{idiom}: a 'null' category on the axis (EX 1.1 connector)"

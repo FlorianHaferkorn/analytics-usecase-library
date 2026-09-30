@@ -1,0 +1,159 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "name": "dataset"
+  },
+  "transform": [
+    {
+      "calculate": "datum['delta_pl_pct'] * 1 > 0 ? 'good' : (datum['delta_pl_pct'] * 1 < 0 ? 'bad' : 'neutral')",
+      "as": "rating"
+    }
+  ],
+  "layer": [
+    {
+      "mark": {
+        "type": "bar",
+        "width": {
+          "band": 0.1
+        }
+      },
+      "encoding": {
+        "x": {
+          "field": "month",
+          "type": "ordinal",
+          "axis": {
+            "title": null,
+            "labelAngle": 0,
+            "ticks": false,
+            "domain": false,
+            "labelPadding": 6
+          }
+        },
+        "y": {
+          "field": "delta_pl_pct",
+          "type": "quantitative",
+          "axis": null,
+          "scale": {
+            "zero": true,
+            "padding": 18
+          }
+        },
+        "color": {
+          "field": "rating",
+          "type": "nominal",
+          "legend": null,
+          "scale": {
+            "domain": [
+              "good",
+              "bad",
+              "neutral"
+            ],
+            "range": [
+              "#5B9A35",
+              "#A4262C",
+              "#1F6FB5"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "rule",
+        "color": "#404040",
+        "strokeWidth": 1,
+        "opacity": 1,
+        "yOffset": -1.5
+      },
+      "encoding": {
+        "y": {
+          "datum": 0
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "rule",
+        "color": "#404040",
+        "strokeWidth": 1,
+        "opacity": 1,
+        "yOffset": 1.5
+      },
+      "encoding": {
+        "y": {
+          "datum": 0
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "point",
+        "shape": "square",
+        "filled": true,
+        "color": "#404040",
+        "size": 36,
+        "opacity": 1
+      },
+      "encoding": {
+        "x": {
+          "field": "month",
+          "type": "ordinal"
+        },
+        "y": {
+          "field": "delta_pl_pct",
+          "type": "quantitative"
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "color": "#201F1E",
+        "baseline": {
+          "expr": "datum['delta_pl_pct'] < 0 ? 'top' : 'bottom'"
+        },
+        "dy": {
+          "expr": "datum['delta_pl_pct'] < 0 ? 6 : -6"
+        }
+      },
+      "encoding": {
+        "x": {
+          "field": "month",
+          "type": "ordinal"
+        },
+        "y": {
+          "field": "delta_pl_pct",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "delta_pl_pct",
+          "type": "quantitative",
+          "format": "+.0%"
+        }
+      }
+    },
+    {
+      "transform": [
+        {
+          "filter": "!isValid(datum['delta_pl_pct']) || !isFinite(datum['delta_pl_pct'])"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "color": "#201F1E",
+        "baseline": "bottom",
+        "dy": -6,
+        "text": "N/A"
+      },
+      "encoding": {
+        "x": {
+          "field": "month",
+          "type": "ordinal"
+        },
+        "y": {
+          "datum": 0
+        }
+      }
+    }
+  ]
+}

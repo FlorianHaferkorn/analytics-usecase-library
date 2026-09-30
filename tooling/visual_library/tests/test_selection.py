@@ -135,3 +135,11 @@ def test_choose_never_collapses_a_dimension():
     assert resolve.choose("deviation_from_target", {"value"}, "house_default")["idiom"] == "bullet"
     got = resolve.choose("compare_categories", {"category", "value"}, "ibcs")
     assert got and "category" in {s["role"] for s in render.data_slots(got["idiom"]).values()}
+
+
+def test_column_names_vega_would_misread_are_refused():
+    """A dot in a column name is a nested-field access in Vega-Lite: the bar silently vanishes
+    (measured 30.09.2026, R3). bind() refuses such names instead of drawing nothing."""
+    with pytest.raises(ValueError):
+        render.bind("deviation_bar", {"variance": "Marge vs. PL"})
+    assert render.bind("deviation_bar", {"variance": "Marge vs PL"}) == {"field": "Marge vs PL"}

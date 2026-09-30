@@ -272,7 +272,13 @@ def bind(idiom: str, columns: dict) -> dict:
     for param, slot in data_slots(idiom).items():
         role = slot["role"]
         if role in columns:
-            out[param] = columns[role]
+            name = str(columns[role])
+            # Vega-Lite reads "." and "[" in a field name as a nested-field access — the chart would
+            # stay empty without an error. Fail loudly instead of drawing nothing.
+            if any(c in name for c in ".[]\\'\""):
+                raise ValueError(f"{idiom}: column name {name!r} for role '{role}' contains . [ ] \\ or a quote; "
+                                 "rename the column (Vega-Lite would read it as a nested field)")
+            out[param] = name
         elif slot.get("required", True):
             raise KeyError(f"{idiom}: required role '{role}' ({param}) not bound")
     return out
