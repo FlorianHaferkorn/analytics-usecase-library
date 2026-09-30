@@ -49,10 +49,17 @@
       "gridColor": "#E1DFDD",
       "domainColor": "#E1DFDD",
       "labelColor": "#605E5C",
-      "title": null
+      "title": null,
+      "labelFontSize": 11
     },
     "axisX": {
       "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333
+    },
+    "text": {
+      "fontSize": 11
     }
   },
   "capabilities": {}

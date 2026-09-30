@@ -43,8 +43,13 @@ profiles:
     vegalite_config:
       font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
       view: {stroke: null}
-      axis: {gridColor: "#E1DFDD", domainColor: "#E1DFDD", labelColor: "#605E5C", title: null}
+      axis: {gridColor: "#E1DFDD", domainColor: "#E1DFDD", labelColor: "#605E5C", title: null, labelFontSize: 11}
       axisX: {grid: false}
+      # Bar/column = 2/3 of the category, gap 1/3 (IBCS UN 3.1 ibcs2-un-3-1; Urban "bar ~2x the gap"
+      # editorial corpus). Vega-Lite's default 0.1 drew 0.9 (measured 30.09.2026). Styles inherit it.
+      scale: {bandPaddingInner: 0.3333}
+      # Data labels 11 px, axis labels 11 px: never smaller than the numbers they sit next to (Urban 11/12).
+      text: {fontSize: 11}
 
   ibcs:
     name: "IBCS — International Business Communication Standards 2.0"

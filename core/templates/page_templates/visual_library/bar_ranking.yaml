@@ -42,6 +42,7 @@ data_slots:
   py_field: {role: prior, required: false}
 
 canonical_params:
+  col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
   entity: "_Measures"
   measure: "Gross Margin %"
   category_entity: "dim_org"
@@ -100,6 +101,7 @@ realizations:
     template: |
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "padding": { "right": 40 },
         "data": { "name": "dataset" },
         "layer": [
           { "mark": { "type": "bar" },
@@ -107,7 +109,13 @@ realizations:
               "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "x", "axis": { "title": null } },
               "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } },
               "color": { "condition": { "test": "datum['{{field}}'] < {{target_val}}", "value": "{{col_below}}" }, "value": "{{col_above}}" } } },
-          { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [4, 3] }, "encoding": { "x": { "datum": {{target_val}} } } }
+          { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [4, 3] }, "encoding": { "x": { "datum": {{target_val}} } } },
+          { "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] }, { "filter": "datum._n < 10" } ],
+            "mark": { "type": "text", "align": "left", "dx": 4, "color": "{{col_label}}" },
+            "encoding": {
+              "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "x" },
+              "x": { "field": "{{field}}", "type": "quantitative" },
+              "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" } } }
         ]
       }
 

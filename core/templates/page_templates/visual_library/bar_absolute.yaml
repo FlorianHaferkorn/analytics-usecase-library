@@ -36,6 +36,7 @@ data_slots:
   field_cat: {role: category, required: true}
 
 canonical_params:
+  col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
   entity: "_Measures"
   measure: "Net Sales Amount"
   category_entity: "dim_org"
@@ -90,11 +91,17 @@ realizations:
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "data": { "name": "dataset" },
-        "mark": { "type": "bar", "color": "{{col_bar}}" },
+        "padding": { "right": 40 },
         "encoding": {
           "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "-x", "axis": { "title": null } },
           "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null }, "scale": { "zero": true } }
-        }
+        },
+        "layer": [
+          { "mark": { "type": "bar", "color": "{{col_bar}}" } },
+          { "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] }, { "filter": "datum._n < 10" } ],
+            "mark": { "type": "text", "align": "left", "dx": 4, "color": "{{col_label}}" },
+            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" } } }
+        ]
       }
 
   web_recharts:

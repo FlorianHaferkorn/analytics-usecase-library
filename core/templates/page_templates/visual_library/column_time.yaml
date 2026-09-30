@@ -32,6 +32,7 @@ data_slots:
   field_date: {role: time, required: true}
 
 canonical_params:
+  col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
   entity: "_Measures"
   measure: "Orders Count"
   category_entity: "dim_date"
@@ -75,11 +76,16 @@ realizations:
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "data": { "name": "dataset" },
-        "mark": { "type": "bar", "color": "{{col_bar}}" },
         "encoding": {
           "x": { "field": "{{field_date}}", "type": "ordinal", "axis": { "title": null, "labelAngle": 0 } },
           "y": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } }
-        }
+        },
+        "layer": [
+          { "mark": { "type": "bar", "color": "{{col_bar}}" } },
+          { "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] }, { "filter": "datum._n < 10" } ],
+            "mark": { "type": "text", "baseline": "bottom", "dy": -4, "color": "{{col_label}}" },
+            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" } } }
+        ]
       }
 
   web_recharts:

@@ -27,9 +27,6 @@
         "as": "prev"
       }
     ],
-    "mark": {
-      "type": "bar"
-    },
     "encoding": {
       "x": {
         "field": "driver",
@@ -39,25 +36,68 @@
           "title": null,
           "labelAngle": 0
         }
-      },
-      "y": {
-        "field": "prev",
-        "type": "quantitative",
-        "axis": {
-          "title": null
+      }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "bar"
+        },
+        "encoding": {
+          "y": {
+            "field": "prev",
+            "type": "quantitative",
+            "axis": {
+              "title": null
+            }
+          },
+          "y2": {
+            "field": "cum"
+          },
+          "color": {
+            "condition": {
+              "test": "datum['value'] < 0",
+              "value": "#F7630C"
+            },
+            "value": "#0078D4"
+          }
         }
       },
-      "y2": {
-        "field": "cum"
-      },
-      "color": {
-        "condition": {
-          "test": "datum['value'] < 0",
-          "value": "#F7630C"
+      {
+        "transform": [
+          {
+            "joinaggregate": [
+              {
+                "op": "count",
+                "as": "_n"
+              }
+            ]
+          },
+          {
+            "filter": "datum._n < 10"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "baseline": "bottom",
+          "dy": {
+            "expr": "datum['value'] < 0 ? 12 : -4"
+          },
+          "color": "#201F1E"
         },
-        "value": "#0078D4"
+        "encoding": {
+          "y": {
+            "field": "cum",
+            "type": "quantitative"
+          },
+          "text": {
+            "field": "value",
+            "type": "quantitative",
+            "format": "+,.1~f"
+          }
+        }
       }
-    }
+    ]
   },
   "configVegaLite": {
     "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
@@ -68,10 +108,17 @@
       "gridColor": "#E1DFDD",
       "domainColor": "#E1DFDD",
       "labelColor": "#605E5C",
-      "title": null
+      "title": null,
+      "labelFontSize": 11
     },
     "axisX": {
       "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333
+    },
+    "text": {
+      "fontSize": 11
     }
   },
   "capabilities": {}

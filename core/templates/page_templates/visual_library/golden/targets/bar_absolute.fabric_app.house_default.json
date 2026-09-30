@@ -8,9 +8,8 @@
     "data": {
       "name": "dataset"
     },
-    "mark": {
-      "type": "bar",
-      "color": "#0F2430"
+    "padding": {
+      "right": 40
     },
     "encoding": {
       "y": {
@@ -31,7 +30,43 @@
           "zero": true
         }
       }
-    }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "bar",
+          "color": "#0F2430"
+        }
+      },
+      {
+        "transform": [
+          {
+            "joinaggregate": [
+              {
+                "op": "count",
+                "as": "_n"
+              }
+            ]
+          },
+          {
+            "filter": "datum._n < 10"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "align": "left",
+          "dx": 4,
+          "color": "#201F1E"
+        },
+        "encoding": {
+          "text": {
+            "field": "net_sales",
+            "type": "quantitative",
+            "format": ",.1~f"
+          }
+        }
+      }
+    ]
   },
   "configVegaLite": {
     "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
@@ -42,10 +77,17 @@
       "gridColor": "#E1DFDD",
       "domainColor": "#E1DFDD",
       "labelColor": "#605E5C",
-      "title": null
+      "title": null,
+      "labelFontSize": 11
     },
     "axisX": {
       "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333
+    },
+    "text": {
+      "fontSize": 11
     }
   },
   "capabilities": {}

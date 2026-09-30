@@ -90,18 +90,22 @@
       "domainColor": "#404040",
       "labelColor": "#201F1E",
       "title": null,
+      "labelFontSize": 11,
       "grid": false,
       "ticks": false
     },
     "axisX": {
       "grid": false
     },
-    "bar": {
-      "cornerRadius": 0
-    },
     "scale": {
       "bandPaddingInner": 0.3333,
       "zero": true
+    },
+    "text": {
+      "fontSize": 11
+    },
+    "bar": {
+      "cornerRadius": 0
     },
     "legend": {
       "disable": true

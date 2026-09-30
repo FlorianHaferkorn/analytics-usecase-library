@@ -58,11 +58,52 @@
         "encoding": {
           "y": {
             "field": "gm",
-            "type": "quantitative"
+            "type": "quantitative",
+            "axis": null,
+            "scale": {
+              "zero": true
+            }
           }
         }
       },
       {
+        "transform": [
+          {
+            "joinaggregate": [
+              {
+                "op": "min",
+                "field": "gm",
+                "as": "_min"
+              },
+              {
+                "op": "max",
+                "field": "gm",
+                "as": "_max"
+              },
+              {
+                "op": "count",
+                "as": "_n"
+              }
+            ]
+          },
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_i"
+              }
+            ],
+            "sort": [
+              {
+                "field": "month",
+                "order": "ascending"
+              }
+            ]
+          },
+          {
+            "filter": "datum._n <= 6 || datum._i == 1 || datum._i == datum._n || datum['gm'] == datum._min || datum['gm'] == datum._max"
+          }
+        ],
         "mark": {
           "type": "text",
           "color": "#201F1E",
@@ -92,18 +133,22 @@
       "domainColor": "#404040",
       "labelColor": "#201F1E",
       "title": null,
+      "labelFontSize": 11,
       "grid": false,
       "ticks": false
     },
     "axisX": {
       "grid": false
     },
-    "bar": {
-      "cornerRadius": 0
-    },
     "scale": {
       "bandPaddingInner": 0.3333,
       "zero": true
+    },
+    "text": {
+      "fontSize": 11
+    },
+    "bar": {
+      "cornerRadius": 0
     },
     "legend": {
       "disable": true

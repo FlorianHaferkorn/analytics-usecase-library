@@ -57,7 +57,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:41df8a50cd6f426f9442b6c3702c1e60f0bb1f9977d37443ed78bb9b841a42d6"
+      "checksum": "sha256:007395e258158dbf9487dec9481aed22efcd015f4b416ec5ae11da9a854233de"
     },
     {
       "id": "bar_ranking",
@@ -87,7 +87,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:cf800f4756f1ccf03a416cd7b67df45644f2313b404bbe00f06c5fffc712d3d6"
+      "checksum": "sha256:fdfc80e911ac2ea63172136c5d1112af25f5e8371a89c795a4585c0653b3f496"
     },
     {
       "id": "bar_stacked",
@@ -197,7 +197,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:d5da0ab4b193bfac489b72f6e4cb636cce2f90e0f44599311632a15a37cd958b"
+      "checksum": "sha256:6f2c4e3489240e0c4cff16ce44d42794dbb7848a396518e4af54e61ffd7792e6"
     },
     {
       "id": "decomposition_tree",
@@ -467,7 +467,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:26f8d46a2fd503a23d17fceede6380f14c9f34accc3c80c7ec5f8bd3491dd579"
+      "checksum": "sha256:cd28c1933c465cf506a992998aef945f80607fac66345f1bbc640815d9b538d8"
     },
     {
       "id": "lollipop",
@@ -812,7 +812,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:367b817fdfe29741ad9f8a1436fe1d6b79f40424253f9e7955b8bbe304a75645"
+      "checksum": "sha256:6c503b9cf9072f3cba856209baf6c08e238a290db97895c0b00e8b49565e45b3"
     },
     {
       "id": "waterfall_pvm",
@@ -841,7 +841,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:402a86107d2e6df544983979a3b92078975922d951e3f7427ab1dd1334394487"
+      "checksum": "sha256:5ff790a1b72566928c2dce6fde82abd48ef598cd59858171bf81efdda832158b"
     },
     {
       "id": "waterfall_variance",
@@ -869,7 +869,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:92d0b844e996985be9c055c511429ae81807ca980843826e0ffc2b99827de119"
+      "checksum": "sha256:82795e0c256df7fcf4d199a558f447663c38095aeb35529b0d4f3668c8746ed8"
     }
   ]
 }

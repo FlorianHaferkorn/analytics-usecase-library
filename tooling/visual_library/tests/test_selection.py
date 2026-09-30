@@ -164,4 +164,5 @@ def test_sample_target_never_reaches_real_data():
 def test_bar_ranking_without_target_has_no_red():
     spec = json.loads(render.render_target("bar_ranking", "fabric_app", "house_default",
                                            bindings={"category": "Ursache", "value": "Beitrag"})[0])["spec"]
-    assert "condition" not in json.dumps(spec) and len(spec["layer"]) == 1
+    assert "condition" not in json.dumps(spec)
+    assert not any((lay.get("mark") or {}).get("type") == "rule" for lay in spec["layer"]), "sample target line drawn"

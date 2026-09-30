@@ -40,6 +40,7 @@ data_slots:
   field_val: {role: variance, required: true}
 
 canonical_params:
+  col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
   entity: "_Measures"
   measure: "PVM Bridge Value"
   category_entity: "dim_pvm_driver"
@@ -95,13 +96,19 @@ realizations:
           { "window": [ { "op": "sum", "field": "{{field_val}}", "as": "cum" } ], "frame": [null, 0] },
           { "calculate": "datum.cum - datum['{{field_val}}']", "as": "prev" }
         ],
-        "mark": { "type": "bar" },
         "encoding": {
-          "x": { "field": "{{field}}", "type": "ordinal", "sort": null, "axis": { "title": null, "labelAngle": 0 } },
-          "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } },
-          "y2": { "field": "cum" },
-          "color": { "condition": { "test": "datum['{{field_val}}'] < 0", "value": "{{col_dec}}" }, "value": "{{col_inc}}" }
-        }
+          "x": { "field": "{{field}}", "type": "ordinal", "sort": null, "axis": { "title": null, "labelAngle": 0 } }
+        },
+        "layer": [
+          { "mark": { "type": "bar" },
+            "encoding": {
+            "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } },
+            "y2": { "field": "cum" },
+            "color": { "condition": { "test": "datum['{{field_val}}'] < 0", "value": "{{col_dec}}" }, "value": "{{col_inc}}" } } },
+          { "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] }, { "filter": "datum._n < 10" } ],
+            "mark": { "type": "text", "baseline": "bottom", "dy": { "expr": "datum['{{field_val}}'] < 0 ? 12 : -4" }, "color": "{{col_label}}" },
+            "encoding": { "y": { "field": "cum", "type": "quantitative" }, "text": { "field": "{{field_val}}", "type": "quantitative", "format": "+,.1~f" } } }
+        ]
       }
 
   web_recharts:

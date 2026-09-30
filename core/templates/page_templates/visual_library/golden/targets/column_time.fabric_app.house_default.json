@@ -8,10 +8,6 @@
     "data": {
       "name": "dataset"
     },
-    "mark": {
-      "type": "bar",
-      "color": "#0078D4"
-    },
     "encoding": {
       "x": {
         "field": "month",
@@ -28,7 +24,43 @@
           "title": null
         }
       }
-    }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "bar",
+          "color": "#0078D4"
+        }
+      },
+      {
+        "transform": [
+          {
+            "joinaggregate": [
+              {
+                "op": "count",
+                "as": "_n"
+              }
+            ]
+          },
+          {
+            "filter": "datum._n < 10"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "baseline": "bottom",
+          "dy": -4,
+          "color": "#201F1E"
+        },
+        "encoding": {
+          "text": {
+            "field": "count",
+            "type": "quantitative",
+            "format": ",.1~f"
+          }
+        }
+      }
+    ]
   },
   "configVegaLite": {
     "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
@@ -39,10 +71,17 @@
       "gridColor": "#E1DFDD",
       "domainColor": "#E1DFDD",
       "labelColor": "#605E5C",
-      "title": null
+      "title": null,
+      "labelFontSize": 11
     },
     "axisX": {
       "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333
+    },
+    "text": {
+      "fontSize": 11
     }
   },
   "capabilities": {}

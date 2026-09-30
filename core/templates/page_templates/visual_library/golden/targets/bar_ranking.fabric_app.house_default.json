@@ -5,6 +5,9 @@
   "data_name": "dataset",
   "spec": {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "padding": {
+      "right": 40
+    },
     "data": {
       "name": "dataset"
     },
@@ -52,6 +55,43 @@
             "datum": 44.1
           }
         }
+      },
+      {
+        "transform": [
+          {
+            "joinaggregate": [
+              {
+                "op": "count",
+                "as": "_n"
+              }
+            ]
+          },
+          {
+            "filter": "datum._n < 10"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "align": "left",
+          "dx": 4,
+          "color": "#201F1E"
+        },
+        "encoding": {
+          "y": {
+            "field": "unit",
+            "type": "nominal",
+            "sort": "x"
+          },
+          "x": {
+            "field": "gm",
+            "type": "quantitative"
+          },
+          "text": {
+            "field": "gm",
+            "type": "quantitative",
+            "format": ",.1~f"
+          }
+        }
       }
     ]
   },
@@ -64,10 +104,17 @@
       "gridColor": "#E1DFDD",
       "domainColor": "#E1DFDD",
       "labelColor": "#605E5C",
-      "title": null
+      "title": null,
+      "labelFontSize": 11
     },
     "axisX": {
       "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333
+    },
+    "text": {
+      "fontSize": 11
     }
   },
   "capabilities": {}
