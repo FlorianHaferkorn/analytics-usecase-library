@@ -26,6 +26,7 @@ CLI:
 from __future__ import annotations
 
 import copy
+import functools
 import json
 import re
 import sys
@@ -76,11 +77,22 @@ def min_grid_rows(height_px: float) -> int:
     return r
 
 
+@functools.lru_cache(maxsize=256)
+def _yaml_cached(path: str, mtime_ns: int, size: int) -> object:
+    """Parsed YAML keyed by path and file state — a changed file is re-read, never served stale."""
+    return yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+
+
+def _yaml(path: Path) -> object:
+    """A private copy of the parsed file (callers may mutate what they get)."""
+    st = path.stat()
+    return copy.deepcopy(_yaml_cached(str(path), st.st_mtime_ns, st.st_size))
+
+
 def load_entry(idiom: str) -> dict:
     """Load and lightly validate an idiom entry against the required schema keys."""
-    path = LIB / f"{idiom}.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    schema = yaml.safe_load((LIB / "_schema.yaml").read_text(encoding="utf-8"))
+    data = _yaml(LIB / f"{idiom}.yaml")
+    schema = _yaml(LIB / "_schema.yaml")
     missing = [k for k in schema["required_keys"] if k not in data]
     if missing:
         raise ValueError(f"{idiom}.yaml missing required keys: {missing}")
@@ -89,7 +101,7 @@ def load_entry(idiom: str) -> dict:
 
 def _registry() -> dict:
     """The notation-profile registry (the second axis). See _notation_profiles.yaml."""
-    return yaml.safe_load(NOTATION.read_text(encoding="utf-8"))
+    return _yaml(NOTATION)
 
 
 def default_profile() -> str:
