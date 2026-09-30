@@ -81,7 +81,7 @@
             "sort": [
               {
                 "field": "month",
-                "order": "descending"
+                "order": "ascending"
               }
             ]
           },
@@ -92,9 +92,9 @@
         "mark": {
           "type": "text",
           "text": "Plan",
-          "align": "right",
-          "dx": -6,
-          "dy": 12,
+          "align": "left",
+          "dx": 4,
+          "dy": -8,
           "color": "#94A0AC"
         },
         "encoding": {
