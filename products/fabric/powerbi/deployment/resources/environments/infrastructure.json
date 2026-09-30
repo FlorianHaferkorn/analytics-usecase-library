@@ -1,7 +1,7 @@
 {
   "name": "ActionReady - {layer} [{environment}]",
   "generic": {
-    "capacity_name": "MyCapacity",
+    "capacity_name": "MyCapacity-NonProd",
     "permissions": {
       "Admin": [
         {"type": "Group", "id": "00000000-0000-0000-0000-000000000000"}

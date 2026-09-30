@@ -208,20 +208,27 @@ def emit_variable_library(bp: dict, stack: str = "fabric",
 def emit_item_reference_library(lib_name: str, refs: list[dict], workspace: str,
                                 stages: tuple[str, ...] = ("dev", "test", "prod"),
                                 env_config: dict | None = None,
-                                prefix: str = "") -> dict[str, str]:
+                                prefix: str = "",
+                                workspaces_je_stufe: dict[str, str] | None = None
+                                ) -> dict[str, str]:
     """Eine kleine Bibliothek aus ``ItemReference``-Variablen (I-21 W6.4: ``vl_monitoring``).
 
     ``refs`` = ``[{name, cat, key, note}]``. Werte kommen wie bei ``emit_variable_library`` aus
     ``env_config[cat][key]`` (``{workspaceId, itemId}`` je Stufe oder stufenübergreifend), sonst
     Platzhalter + „Fehlende Werte“. ``workspace`` ist der Workspace, in dem die Bibliothek liegen
-    muss — Referenzen ``$(/<workspace>/<lib>/<var>)`` lösen nur dort auf."""
+    muss — Referenzen ``$(/<workspace>/<lib>/<var>)`` lösen nur dort auf.
+
+    ``workspaces_je_stufe`` (D-597): heisst der Workspace je Stufe anders, nennt die
+    Referenzspalte die Referenz **je Stufe** statt der einen mit ``workspace``."""
     env_config = env_config or {}
     specs = [dict(r, type="ItemReference") for r in refs]
     missing: list[str] = []
     base = f"{prefix}{lib_name}.VariableLibrary"
     out = _library_parts(base, specs, stages, env_config, missing)
+    ws_anzeige = (", ".join(f"{st}: {ws}" for st, ws in workspaces_je_stufe.items())
+                  if workspaces_je_stufe else workspace)
     lines = [f"# Variable Library `{lib_name}` (generiert — I-21 W6.4)", "",
-             f"Workspace: **{workspace}**  ·  Stages: **{' → '.join(stages)}**  ·  "
+             f"Workspace: **{ws_anzeige}**  ·  Stages: **{' → '.join(stages)}**  ·  "
              f"Variablen: **{len(specs)}**", "",
              "Typ `ItemReference` (Vorschau; Wert `{workspaceId, itemId}`, Learn *Variable "
              "library definition*, gelesen 29.09.2026). Beim Speichern prüft Fabric, dass jedes "
@@ -230,8 +237,12 @@ def emit_item_reference_library(lib_name: str, refs: list[dict], workspace: str,
              "scheitern, statt still falsch zu binden.", "",
              "| Variable | Typ | Referenz | Zweck |", "|---|---|---|---|"]
     for s in specs:
-        lines.append(f"| `{s['name']}` | `ItemReference` | `$(/{workspace}/{lib_name}/"
-                     f"{s['name']})` | {s['note']} |")
+        if workspaces_je_stufe:
+            ref = " · ".join(f"{st}: `$(/{ws}/{lib_name}/{s['name']})`"
+                             for st, ws in workspaces_je_stufe.items())
+        else:
+            ref = f"`$(/{workspace}/{lib_name}/{s['name']})`"
+        lines.append(f"| `{s['name']}` | `ItemReference` | {ref} | {s['note']} |")
     lines.append("")
     if missing:
         lines += ["## Fehlende Werte (Platzhalter — in `--varlib-config` füllen)"]

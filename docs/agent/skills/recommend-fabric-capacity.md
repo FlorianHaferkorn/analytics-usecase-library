@@ -21,7 +21,7 @@ Fills `platform.capacity_sku` in the architecture blueprint IR, or states a reco
 
 4. **Choose the region.** Same discount everywhere; only the base rate differs.
 
-5. **Choose the split.** One larger capacity or several smaller ones.
+5. **Choose the split.** Production and non-production always separate (R6, D-596); within each, one larger capacity or several smaller ones.
 
 6. **Ask the overage question** (see *Capacity overage*): off, or threshold X CU hours per rolling 24 h. Never leave the Microsoft default unmentioned.
 
@@ -56,7 +56,7 @@ Two conclusions that come up in almost every conversation:
 
 **R5 — Only discuss region below F16 if the customer raises it.** European regions differ by up to 13.6 % in base rate. On small capacities that is one to two thousand USD per year, less than the cost of deviating from a corporate standard region. At F64 it is around ten thousand USD, which is worth the discussion. Cross-region egress is 0.02 USD/GB and negligible at typical volumes; do **not** use it as an argument without doing the arithmetic first.
 
-**R6 — Separate capacities only for chargeback or genuine isolation.** The Azure invoice breaks down per capacity resource, not per workspace: Fabric workspaces are not ARM resources and cannot carry tags. Customers who charge costs back to business units need separate capacities. Everyone else is better served by one larger capacity, because parallelism limits and burst budget apply per capacity. Workspace-level surge protection is a soft cap checked every five minutes, not a substitute for separation.
+**R6 — Production and non-production on separate capacities; beyond that, separate only for chargeback.** Smoothing and throttling act per capacity, so development and test load on a shared capacity throttles production. Microsoft recommends a capacity per environment (Learn `enterprise/capacity-planning-*` and the CI/CD best-practice guide, read 2026-09-29); D-596 (30.09.2026) adopts the middle way: **one production and one non-production capacity**, dev and test consolidated on the non-production one, which can be paused and sized small (its price is an extra line, quoted from current prices only). Within each stage group the chargeback rule decides: the Azure invoice breaks down per capacity resource, not per workspace (Fabric workspaces are not ARM resources and cannot carry tags), so customers who charge costs back to business units need a capacity per unit; everyone else keeps one capacity per stage group, because parallelism limits and burst budget apply per capacity. A dedicated capacity per Tier-1 workload (D-596 option c) is an offer, surfaced for workspaces with `surge_class = mission_critical`, never a default. Workspace-level surge protection is a soft cap checked every five minutes, not a substitute for separation. In the blueprint, `platform.capacities[].stages` assigns a capacity to stages; `split()` in `capacity.py` returns `stage_groups`, `per_group` and `tier1_option`. In the deployment configuration, `infrastructure.json` names the non-production capacity and `infrastructure.prd.json` overrides it with the production one.
 
 **R7 — Always cost storage separately.** OneLake storage is billed per GB, is **not** covered by the reservation, and keeps running while the capacity is paused. It never changes the reserved-vs-PAYG decision but is added on top in every scenario. Mirroring includes 1 TB free per CU, and the replication itself consumes no CU.
 
@@ -74,7 +74,7 @@ Learn `enterprise/capacity-overage-overview` and `enable-capacity-overage`, read
 
 ## Fabric Planning sessions
 
-Learn `iq/plan/resources/billing-fabric-plan`, read 2026-09-29: a session lasts 30 days (730 h), cannot be ended early and is counted per tenant + user + capacity. It consumes CU of the capacity: **Planner 847, Stakeholder 168, Viewer 37 CU hours** per session. Keep an estimated **30 % buffer** for the other workloads a planning deployment uses. Automation jobs are billed per successful job (“2 CU”, time unit not stated — do not quote a number). Pausing or deleting the capacity bills the remaining session CU at once. `planning_load()` in `capacity.py` returns load and share of a SKU; planning as a blueprint option waits for decision E-7.
+Learn `iq/plan/resources/billing-fabric-plan`, read 2026-09-29: a session lasts 30 days (730 h), cannot be ended early and is counted per tenant + user + capacity. It consumes CU of the capacity: **Planner 847, Stakeholder 168, Viewer 37 CU hours** per session. Keep an estimated **30 % buffer** for the other workloads a planning deployment uses. Automation jobs are billed per successful job (“2 CU”, time unit not stated — do not quote a number). Pausing or deleting the capacity bills the remaining session CU at once. `planning_load()` in `capacity.py` returns load and share of a SKU. Since D-595 (30.09.2026) planning is a blueprint option (`platform.planning`); `recommend()` computes the load from `platform.planning.sessions` and turns missing role counts into a customer question. Plan sessions on only one stage group: a user working on both capacities has two sessions. Release status read 2026-09-30: Learn lists Plan as generally available since July 2026 while the IQ workload is still marked preview — state both in an offer.
 
 ## Guardrails
 

@@ -147,6 +147,10 @@ MIRRORED_FILES = (
     "provision_orchestration.py",
     "provision_prereq.py",
     "provision_terraform.py",
+    # Kapazitaet je Stufengruppe (D-596, 30.09.2026): `provision_terraform` loest die
+    # Workspace-→-Kapazitaet-Zuordnung darueber auf. Ohne diesen Eintrag braeche der
+    # gespiegelte Import beim ersten Aufruf.
+    "kapazitaet_stufen.py",
     "provision_transforms.py",
     "provision_translations.py",
     "provision_varlib.py",
@@ -155,6 +159,12 @@ MIRRORED_FILES = (
     # nur die eigenen Regeln. Mitgespiegelt, damit die Zusage identisch ist, sobald die
     # Abhängigkeit da ist — nicht, damit sie hier heute etwas beweist.
     "sql_validate.py",
+    # Speichermodus der Semantikmodelle als Mandanten-Parameter (Meridian D-590, 30.09.2026):
+    # Feld, Vorgaberegel (Fabric-Kapazitaet → Direct Lake on OneLake, sonst Import) und die
+    # Direct-Lake-Grenze fuer berechnete Spalten. Gespiegelt statt nachgebaut, damit beide
+    # Repos dieselbe Vorgabe ziehen; ALUCAs dist-Codegen liest sie ueber
+    # `tooling/codegen/speichermodus.py`. Nur Standardbibliothek.
+    "storage_mode.py",
 
     # -- Der Preis-Rechenkern (03.09.2026, ADR-0019 N-3) ---------------------------------
     #
