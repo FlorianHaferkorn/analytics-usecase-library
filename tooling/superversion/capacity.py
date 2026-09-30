@@ -234,27 +234,68 @@ def procurement(sizing: dict) -> dict:
                       "the outage risk usually outweighs the saving."}
 
 
-def split(sizing: dict, domain_count: int) -> dict:
-    """One capacity or several, from the chargeback requirement."""
+#: D-596 (Meridian decision register, 30.09.2026): stage -> stage group. Production and
+#: non-production run on separate capacities, consolidated within each group.
+STAGE_GROUP: dict[str, str] = {"prod": "prod", "test": "non_prod", "dev": "non_prod"}
+
+
+def split(sizing: dict, domain_count: int, stages: list[str] | None = None,
+          tier1_workspaces: list[str] | None = None) -> dict:
+    """How many capacities: stage separation (D-596) times the chargeback requirement.
+
+    Two independent axes. **Stages** decide the stage groups: with production and at least
+    one non-production stage there are two groups (``prod`` and ``non_prod``), because
+    smoothing and throttling act per capacity and development and test load would
+    otherwise throttle production (Learn ``enterprise/capacity-planning-*`` and the CI/CD
+    best-practice guide recommend a capacity per environment; D-596 consolidates dev and
+    test into one pausable non-production capacity). **Chargeback** decides the count
+    within a group: one per domain when costs are charged back, otherwise one. Tier-1
+    workspaces (``surge_class = mission_critical``) are reported as an option for a
+    dedicated capacity (D-596 option c), never added to the count.
+    """
+    groups = sorted({STAGE_GROUP[s] for s in (stages or []) if s in STAGE_GROUP},
+                    key=("prod", "non_prod").index) or ["prod"]
+    if "non_prod" in groups and "prod" not in groups:
+        groups = ["non_prod"]
+    stage_note = ("Production and non-production run on separate capacities (D-596): "
+                  "smoothing and throttling act per capacity, so development and test load "
+                  "cannot throttle production. The non-production capacity can be paused "
+                  "and sized small; its price is an extra line, quoted from current prices "
+                  "only.") if len(groups) == 2 else (
+                  "One stage group only (no staged workspaces), so there is nothing to "
+                  "separate by stage.")
     chargeback = sizing.get("chargeback_per_use_case")
+    base: dict = {"stage_groups": groups, "stage_separation": stage_note}
+    if tier1_workspaces:
+        base["tier1_option"] = {
+            "workspaces": sorted(tier1_workspaces),
+            "note": "Mission-critical workspaces may get a capacity of their own (D-596 "
+                    "option c). That is an offer with extra cost and a customer decision, "
+                    "not part of the count."}
     if chargeback is None:
-        return {"capacities": None,
+        return {**base, "capacities": None, "per_group": None,
                 "unknown": "chargeback_per_use_case — are costs charged back per use case?",
                 "note": "The Azure invoice breaks down per capacity resource only. Fabric "
                         "workspaces are not ARM resources and cannot carry tags, so "
                         "per-workspace attribution needs the Fabric Chargeback app."}
+    per_group = max(1, domain_count) if chargeback else 1
+    out = {**base, "capacities": per_group * len(groups),
+           "per_group": {g: per_group for g in groups}}
     if chargeback:
-        return {"capacities": max(1, domain_count),
-                "reason": "Costs are charged back per use case, and only separate capacities "
-                          "appear separately on the Azure invoice",
-                "cost": "Parallelism limits and burst budget apply per capacity, so several "
-                        "small capacities have less headroom than one large one of the same "
-                        "total size."}
-    return {"capacities": 1,
-            "reason": "No chargeback requirement, so one capacity is preferable",
-            "cost": "All workspaces share one throttling budget; a runaway workload can "
-                    "slow the others. Workspace-level surge protection is a soft cap "
-                    "checked every five minutes, not isolation."}
+        out.update({
+            "reason": "Costs are charged back per use case, and only separate capacities "
+                      "appear separately on the Azure invoice",
+            "cost": "Parallelism limits and burst budget apply per capacity, so several "
+                    "small capacities have less headroom than one large one of the same "
+                    "total size."})
+    else:
+        out.update({
+            "reason": "No chargeback requirement, so one capacity per stage group is "
+                      "preferable",
+            "cost": "All workspaces of a stage group share one throttling budget; a runaway "
+                    "workload can slow the others. Workspace-level surge protection is a soft "
+                    "cap checked every five minutes, not isolation."})
+    return out
 
 
 OVERAGE_CUSTOMER_QUESTION = (
@@ -346,10 +387,14 @@ def recommend(blueprint: dict, prices: dict | None = None) -> dict:
     sizing = platform.get("sizing", {}) or {}
     assigned = platform.get("capacity_sku")
     domains = blueprint.get("mesh", {}).get("domains", [])
+    stages = (blueprint.get("governance") or {}).get("stages") or []
+    tier1 = sorted({ws.get("name", "") for d in domains for ws in d.get("workspaces", []) or []
+                    if ws.get("surge_class") == "mission_critical"
+                    and STAGE_GROUP.get(ws.get("stage") or "prod", "prod") == "prod"})
 
     floor, reasons, unknowns = sizing_floor(sizing)
     proc = procurement(sizing)
-    spl = split(sizing, len(domains))
+    spl = split(sizing, len(domains), stages, tier1)
     for section in (proc, spl):
         if section.get("unknown"):
             unknowns.append(section["unknown"])
@@ -371,6 +416,23 @@ def recommend(blueprint: dict, prices: dict | None = None) -> dict:
         out["overage"] = overage_profile(overage_sku, None, payg)
         if out["overage"].get("customer_question"):
             out["customer_questions"] = [out["overage"]["customer_question"]]
+    # D-595: Fabric Planning as a blueprint option. Sessions come from the customer; a
+    # missing role count is an open question, never a default.
+    planning = platform.get("planning") or {}
+    if planning.get("enabled"):
+        sessions = planning.get("sessions") or {}
+        missing = [r for r in sorted(PLANNING_SESSION_CU_HOURS) if sessions.get(r) is None]
+        if missing:
+            unknowns.append("platform.planning.sessions — active users per role in 30 days: "
+                            + ", ".join(missing))
+            out["customer_questions"] = out.get("customer_questions", []) + [
+                "Fabric Planning: how many people work as planner, stakeholder and viewer "
+                "in a 30-day window? Their sessions consume capacity CU; the euro amount "
+                "follows from the capacity price and is not stated without it."]
+        else:
+            out["planning"] = planning_load(
+                {r: int(sessions[r]) for r in PLANNING_SESSION_CU_HOURS},
+                assigned if assigned in CU else (floor if floor in CU else None))
     if floor:
         out["licence_breakeven"] = licence_breakeven(floor, prices)
         out["headroom_at_floor"] = {

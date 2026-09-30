@@ -77,7 +77,8 @@ pip install ms-fabric-cli==1.7.0
 Edit the environment configuration files in `resources/environments/`:
 
 1. **`infrastructure.json`** — Base configuration:
-   - Update `capacity_name` to your Fabric capacity name
+   - Update `capacity_name` to your **non-production** Fabric capacity (dev, tst and feature
+     workspaces). Production runs on a separate capacity (D-596), named in `infrastructure.prd.json`
    - Update `permissions` with your Azure AD group/user IDs
    - Adjust `fabric_connections` if needed
 
@@ -88,6 +89,7 @@ Edit the environment configuration files in `resources/environments/`:
 3. **`infrastructure.tst.json`** and **`infrastructure.prd.json`** — Test and production:
    - Update `git_settings` (usually same repo, different branches)
    - Update `permissions` (more restrictive for prod)
+   - `infrastructure.prd.json`: set `generic.capacity_name` to the **production** capacity
 
 ### Step 2: Configure Azure Pipelines Secrets
 

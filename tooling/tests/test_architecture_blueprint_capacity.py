@@ -134,6 +134,49 @@ def test_no_chargeback_prefers_one_capacity():
     assert split({"chargeback_per_use_case": False}, 3)["capacities"] == 1
 
 
+def test_stages_split_production_from_non_production():
+    """D-596: prod and non-prod on separate capacities, consolidated within."""
+    out = split({"chargeback_per_use_case": False}, 3, ["dev", "test", "prod"])
+    assert out["stage_groups"] == ["prod", "non_prod"]
+    assert out["capacities"] == 2 and out["per_group"] == {"prod": 1, "non_prod": 1}
+
+
+def test_chargeback_multiplies_per_stage_group():
+    out = split({"chargeback_per_use_case": True}, 2, ["dev", "prod"])
+    assert out["capacities"] == 4
+
+
+def test_unstaged_blueprint_has_one_stage_group():
+    assert split({"chargeback_per_use_case": False}, 1, None)["stage_groups"] == ["prod"]
+
+
+def test_tier1_is_an_option_not_part_of_the_count():
+    out = split({"chargeback_per_use_case": False}, 1, ["dev", "prod"], ["WS [Prod]"])
+    assert out["capacities"] == 2
+    assert out["tier1_option"]["workspaces"] == ["WS [Prod]"]
+
+
+def test_recommend_reads_stages_and_planning_sessions_as_question():
+    bp = {"platform": {"sizing": {"chargeback_per_use_case": False},
+                       "planning": {"enabled": True}},
+          "governance": {"stages": ["dev", "test", "prod"]},
+          "mesh": {"domains": [{"name": "D", "workspaces": []}]}}
+    out = recommend(bp)
+    assert out["split"]["capacities"] == 2
+    assert any("planning" in u for u in out["unknowns"])
+    assert any("Fabric Planning" in q for q in out["customer_questions"])
+    assert "planning" not in out                       # no load without the customer's numbers
+
+
+def test_recommend_computes_planning_load_from_sessions():
+    bp = {"platform": {"sizing": {}, "capacity_sku": "F64",
+                       "planning": {"enabled": True,
+                                    "sessions": {"planner": 1, "stakeholder": 0, "viewer": 0}}}}
+    out = recommend(bp)
+    assert out["planning"]["cu_hours_per_session_window"] == 847
+    assert out["planning"]["sku"] == "F64"
+
+
 # --- licence break-even -------------------------------------------------------------
 
 def test_licence_breakeven_without_prices_returns_the_formula_not_a_number():

@@ -6,8 +6,11 @@ Fabric-automation research (2026-07-15 landscape doc §1/§5) recommends for inf
 the imperative `fab` scripts (provision_fabric). Both come from the same IR.
 
 Emits HCL for the objects the provider manages declaratively:
-- `fabric_workspace` (one per de-duplicated workspace; capacity via a `fabric_capacity` data
-  source — the provider does NOT create capacity, that is an Azure ARM resource),
+- `fabric_workspace` (one per de-duplicated workspace; capacity via `fabric_capacity` data
+  sources — the provider does NOT create capacity, that is an Azure ARM resource). Since D-596
+  (30.09.2026) production and non-production workspaces reference **separate** capacities
+  (one per stage group, consolidated within); the assignment comes from
+  `kapazitaet_stufen.zuordnung` (workspace stage + `platform.capacities[].stages`),
 - `fabric_domain` (+ workspace assignment) per mesh domain — domain resources are GA,
 - `fabric_workspace_role_assignment` (principals from a local governance map / variables),
 - `fabric_workspace_git` (optional, from a git config).
@@ -91,12 +94,15 @@ def _providers_tf() -> str:
     )
 
 
-def _variables_tf() -> str:
+def _variables_tf(slots: list[tuple[str, str, str]]) -> str:
     return (
-        "variable \"capacity_name\" {\n"
-        "  type        = string\n"
-        "  description = \"Existing Fabric capacity display name (this provider does NOT create capacity).\"\n"
-        "}\n\n"
+        ""
+        + "".join(
+            f"variable \"capacity_name_{slot}\" {{\n"
+            "  type        = string\n"
+            f"  description = \"Existing Fabric capacity display name — {label} (D-596; this provider does NOT create capacity).\"\n"
+            "}\n\n"
+            for slot, label, _wert in slots) +
         "variable \"stages\" {\n"
         "  description = \"Promotion stages for the deployment pipeline (dev -> test -> prod).\"\n"
         "  type        = list(string)\n"
@@ -202,23 +208,65 @@ def _variable_library_tf() -> str:
     )
 
 
-def _capacity_tf() -> str:
-    return (
-        "# Capacity is an Azure ARM resource — reference the existing one (e.g. a trial capacity).\n"
+def _capacity_slots(bp: dict, capacity: str, capacity_non_prod: str
+                    ) -> tuple[list[tuple[str, str, str]], dict[str, str]]:
+    """Capacity data-source slots and the workspace → slot map (D-596).
+
+    A slot is one ``data "fabric_capacity"`` source. A named capacity is its own slot when it
+    declares ``stages`` or carries production; otherwise the workspace falls into its stage
+    group's slot (``prod`` / ``non_prod``, per capacity domain if the capacity has one). So a
+    blueprint that names only ONE capacity without ``stages`` still gets a separate
+    non-production slot — setting ``capacity_name_non_prod`` to the production name in
+    ``terraform.tfvars`` is how a deliberate consolidation (D-596 option b) is expressed, visibly.
+    Returns ``([(slot, label, tfvars value)], {workspace: slot})``.
+    """
+    from core.dataarch_engine.blueprint.kapazitaet_stufen import GRUPPEN_LABEL, kapazitaet_fuer, zuordnung
+
+    slots: dict[str, tuple[str, str]] = {}
+    ws_slot: dict[str, str] = {}
+    for r in zuordnung(bp):
+        if r["workspace"] in ws_slot:
+            continue
+        kap = kapazitaet_fuer(bp, r["domain"], r["stage"] or None) or {}
+        name = str(kap.get("name") or "").strip()
+        dom = str(kap.get("domain") or "").strip()
+        label = GRUPPEN_LABEL[r["gruppe"]] + (f", Domaene {dom}" if dom else "")
+        if name and (kap.get("stages") or r["gruppe"] == "prod"):
+            slot, wert = _tf_name(name), name
+            label = f"{name} ({label})"
+        else:
+            slot = r["gruppe"] + (f"_{_tf_name(dom)}" if dom else "")
+            wert = capacity if r["gruppe"] == "prod" else capacity_non_prod
+        slots.setdefault(slot, (label, wert))
+        ws_slot[r["workspace"]] = slot
+    if not slots:
+        slots["prod"] = (GRUPPEN_LABEL["prod"], capacity)
+    # insertion order = zuordnung order (production first) — deterministic
+    return [(s, lab, w) for s, (lab, w) in slots.items()], ws_slot
+
+
+def _capacity_tf(slots: list[tuple[str, str, str]]) -> str:
+    out = [
+        "# Capacity is an Azure ARM resource — reference the existing ones (e.g. a trial capacity).\n"
         "# To CREATE an F-SKU instead, use azurerm_fabric_capacity in a separate azurerm config.\n"
-        "data \"fabric_capacity\" \"this\" {\n"
-        "  display_name = var.capacity_name\n"
-        "}\n"
-    )
+        "# D-596: production and non-production run on separate capacities (smoothing and\n"
+        "# throttling act per capacity); the non-production one is pausable and can be small.\n"
+        "# Tier-1 workloads (surge_class = mission_critical) may get their own — see CAPACITY_RUNBOOK.md."]
+    for slot, label, _wert in slots:
+        out.append(f'# {label}\n'
+                   f'data "fabric_capacity" "{slot}" {{\n'
+                   f'  display_name = var.capacity_name_{slot}\n'
+                   f'}}')
+    return "\n\n".join(out) + "\n"
 
 
-def _workspaces_tf(workspaces: list[tuple[str, str]]) -> str:
-    out = ["# Workspaces (one per blueprint workspace; capacity via the data source)."]
+def _workspaces_tf(workspaces: list[tuple[str, str]], ws_slot: dict[str, str]) -> str:
+    out = ["# Workspaces (one per blueprint workspace; capacity per stage group, D-596)."]
     for name, role in workspaces:
         out.append(
             f'resource "fabric_workspace" "{_tf_name(name)}" {{\n'
             f'  display_name = "{name}"\n'
-            f'  capacity_id  = data.fabric_capacity.this.id\n'
+            f'  capacity_id  = data.fabric_capacity.{ws_slot.get(name, "prod")}.id\n'
             f'  description  = "{role} workspace (generated from ArchitectureBlueprint)"\n'
             f'}}')
     return "\n\n".join(out) + "\n"
@@ -286,18 +334,18 @@ def _git_tf(bp: dict, git: dict) -> str:
     )
 
 
-def _terraform_md(capacity: str, git: dict | None) -> str:
+def _terraform_md(slots: list[tuple[str, str, str]], git: dict | None) -> str:
     git_cov = "✓ `git.tf`" if git else "— (pass `--git` to emit `git.tf`)"
     return (
         "# Terraform platform skeleton (generated — ADR-0015 / I-19.5)\n\n"
         "Declarative Fabric **landing zone** via the `microsoft/fabric` provider (research §1/§5). "
         "Complementary to the imperative `fab` `provision.sh` — use Terraform for the stateful, "
         "drift-detected skeleton, `fab` for imperative content ops.\n\n"
-        "```bash\nterraform init -backend-config=backend.hcl   # remote state; -backend=false for a local try-out\nterraform plan -var capacity_name=" + capacity + "\nterraform apply\n"
+        "```bash\nterraform init -backend-config=backend.hcl   # remote state; -backend=false for a local try-out\nterraform plan    # capacity names from terraform.tfvars (" + ", ".join(f"capacity_name_{s}" for s, _l, _w in slots) + ")\nterraform apply\n"
         "terraform plan   # re-run = drift detection (provider drift shows as a diff)\n```\n\n"
         "## Automation-Target-Abdeckung (Landing-Zone-Vollständigkeit, I-19.5)\n"
         "| Target | Datei | Status |\n|---|---|---|\n"
-        "| Kapazität | `capacity.tf` | ✓ (data source — bestehende referenzieren) |\n"
+        "| Kapazität | `capacity.tf` | ✓ (data sources — bestehende referenzieren; Produktion und Nicht-Produktion getrennt, D-596) |\n"
         "| Stage-Workspaces | `workspaces.tf` + `deployment_pipeline.tf` | ✓ (Stages über die Pipeline) |\n"
         "| Git-Binding | `git.tf` | " + git_cov + " |\n"
         "| Deployment-Pipeline | `deployment_pipeline.tf` | ✓ |\n"
@@ -315,34 +363,39 @@ def _terraform_md(capacity: str, git: dict | None) -> str:
 
 def emit_terraform(bp: dict, capacity: str = "<CAPACITY_NAME>", git: dict | None = None,
                    stages: tuple[str, ...] = ("dev", "test", "prod"),
-                   connections: dict | None = None) -> dict[str, str]:
+                   connections: dict | None = None,
+                   capacity_non_prod: str = "<CAPACITY_NAME_NON_PROD>") -> dict[str, str]:
     """Return the Terraform landing-zone skeleton as ``path → HCL`` (relative to ``terraform/``).
 
     Covers the full automation-target set (I-19.5): capacity, workspaces, git, domains, RBAC
     (existing) + connections/gateways, deployment-pipeline (stage mechanism), variable-library.
     Values that carry ids/secrets live in ``terraform.tfvars`` (``var.connections`` /
-    ``var.role_assignments``), never in the checked-in ``.tf``.
+    ``var.role_assignments``), never in the checked-in ``.tf``. ``capacity`` names the production
+    capacity and ``capacity_non_prod`` the non-production one (D-596) where the blueprint does
+    not name them in ``platform.capacities[]``.
     """
     workspaces = _unique_workspaces(bp)
+    slots, ws_slot = _capacity_slots(bp, capacity, capacity_non_prod)
+    cap_vars = "".join(f'capacity_name_{s} = "{w}"\n' for s, _l, w in slots)
     stages_hcl = ", ".join(f'"{s}"' for s in stages)
     out = {
         "terraform/providers.tf": _providers_tf(),
         "terraform/backend.tf": _backend_tf(),
         "terraform/backend.hcl.example": _backend_hcl_example(),
-        "terraform/variables.tf": _variables_tf(),
-        "terraform/capacity.tf": _capacity_tf(),
-        "terraform/workspaces.tf": _workspaces_tf(workspaces),
+        "terraform/variables.tf": _variables_tf(slots),
+        "terraform/capacity.tf": _capacity_tf(slots),
+        "terraform/workspaces.tf": _workspaces_tf(workspaces, ws_slot),
         "terraform/domains.tf": _domains_tf(bp),
         "terraform/roles.tf": _roles_tf(workspaces),
         "terraform/connections.tf": _connections_tf(bp),
         "terraform/deployment_pipeline.tf": _deployment_pipeline_tf(bp),
         "terraform/variable_library.tf": _variable_library_tf(),
         "terraform/terraform.tfvars": (
-            f'capacity_name    = "{capacity}"\n'
+            cap_vars +
             f'stages           = [{stages_hcl}]\n'
             "role_assignments = []\n"
             "connections      = []\n"),
-        "terraform/_TERRAFORM.md": _terraform_md(capacity, git),
+        "terraform/_TERRAFORM.md": _terraform_md(slots, git),
     }
     if git:
         out["terraform/git.tf"] = _git_tf(bp, git)
