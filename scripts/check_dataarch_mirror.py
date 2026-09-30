@@ -568,6 +568,98 @@ def write_theme_vendor(meridian_root: Path, ref: str = "HEAD") -> dict:
     return fresh
 
 
+# ------------------------------------------------------ Copilot-Readiness-Kern (30.09.2026)
+# Dritter vendorter Satz, gleiche Doktrin (I-21 W3.2, Meridian D-579 funktionale Paritaet):
+# Meridians `products/meridian_copilot_readiness/generator` erzeugt deterministisch die drei
+# Inhalte von Power BI „Prep data for AI“ (AI instructions, Verified-Answer-Kandidaten, AI data
+# schema) aus einer Zwischenform (`CopilotCore`). Diese Zwischenform und ihre Renderer sind
+# eingabeunabhaengig; ALUCA befuellt sie mit einem eigenen Adapter aus Katalog, Bracket und
+# Action Codes (`products/fabric/powerbi/tooling/copilot_readiness/adapter.py`).
+#
+# **Spiegel statt Kopie, weil nur der Spiegel Drift messbar macht:** eine Kopie mit
+# umgeschriebenen Importen wuerde von keinem Hash mehr erkannt; der Spiegel bleibt
+# byte-identisch, die Importe `products.meridian_copilot_readiness.generator.*` beantwortet die
+# Bruecke in `copilot_readiness/_vendor.py`.
+#
+# **Die Menge ist gemessen, nicht gegriffen:** transitive Huelle der drei Renderer. Sie
+# importieren nur `loader` und die Standardbibliothek. Nicht im Spiegel: `anwendung.py` (Text
+# nennt „Meridian Core“ als Quelle, ALUCA fuehrt die Anleitung in `tmdl_best_practices.md`) und
+# `mcp_grounding.py` (kein „Prep data for AI“-Inhalt).
+_COPILOT_SRC_REL = "products/meridian_copilot_readiness/generator"
+_COPILOT_VENDOR_REL = "products/fabric/powerbi/tooling/copilot_readiness/vendor/meridian_copilot_readiness"
+COPILOT_MIRRORED_FILES = (
+    "loader.py",
+    "instructions.py",
+    "verified_answers.py",
+    "data_schema.py",
+)
+
+
+def copilot_pin() -> dict | None:
+    pin = REPO_ROOT / _COPILOT_VENDOR_REL / "PIN.json"
+    return json.loads(pin.read_text(encoding="utf-8")) if pin.is_file() else None
+
+
+def copilot_upstream_drift(pin: dict, meridian_root: Path, ref: str | None = None) -> list[str]:
+    """Meridian-seitige Aenderungen am Copilot-Kern, die der Spiegel noch nicht hat. Pure.
+
+    Eine fehlende Quelle ist kein bestandener Vergleich: sie wird als Befund gemeldet.
+    """
+    pinned = {e["path"]: e["sha256"] for e in pin.get("files", [])}
+    out: list[str] = []
+    for name in COPILOT_MIRRORED_FILES:
+        quelle = f"{_COPILOT_SRC_REL}/{name}"
+        inhalt = _quelle_bytes(meridian_root, quelle, ref)
+        if inhalt is None:
+            out.append(f"  copilot/{name}: in Meridian ({ref or 'Arbeitsbaum'}) nicht lesbar — "
+                       f"Copilot-Kern NICHT verglichen")
+        elif name not in pinned:
+            out.append(f"  copilot/{name}: deklariert, aber nicht gespiegelt — --write-copilot")
+        elif hashlib.sha256(inhalt).hexdigest() != pinned[name]:
+            out.append(f"  copilot/{name}: " + pin_direction(
+                meridian_root, quelle, REPO_ROOT / _COPILOT_VENDOR_REL / name))
+    for name in sorted(set(pinned) - set(COPILOT_MIRRORED_FILES)):
+        out.append(f"  copilot/{name}: gespiegelt, aber nicht mehr in COPILOT_MIRRORED_FILES — --write-copilot")
+    return out
+
+
+def write_copilot_vendor(meridian_root: Path, ref: str = "HEAD") -> dict:
+    """Copilot-Kern aus dem Commit ``ref`` neu spiegeln (manuell, nie in CI).
+
+    Der Zielordner gehoert ganz dem Spiegel: eine ``*.py``, die nicht mehr in der Menge ist,
+    wird entfernt.
+    """
+    commit = _git(meridian_root, "rev-parse", ref)
+    if not commit:
+        raise SystemExit(f"[check-dataarch-mirror] --write-copilot: {ref} ist in {meridian_root} kein Commit")
+    root = REPO_ROOT / _COPILOT_VENDOR_REL
+    root.mkdir(parents=True, exist_ok=True)
+    inhalte: dict[str, bytes] = {}
+    for name in COPILOT_MIRRORED_FILES:
+        inhalt = _quelle_bytes(meridian_root, f"{_COPILOT_SRC_REL}/{name}", commit)
+        if inhalt is None:
+            raise SystemExit(f"[check-dataarch-mirror] --write-copilot: {name} nicht im Commit {commit[:8]}")
+        inhalte[name] = inhalt
+    for alt in root.glob("*.py"):
+        if alt.name not in inhalte:
+            alt.unlink()
+    for name, inhalt in inhalte.items():
+        (root / name).write_bytes(inhalt)
+    fresh = {
+        "source_repo": "Freelancing",
+        "source_path": _COPILOT_SRC_REL,
+        "source_commit": commit,
+        "doctrine": "Meridian products/meridian_copilot_readiness ist die Heimat des Copilot-"
+                    "Readiness-Kerns; ALUCA spiegelt ihn byte-identisch (D-579 Paritaet, I-21 "
+                    "W3.2). Nie hier editieren — in Meridian aendern, committen, dann "
+                    "--write-copilot.",
+        "files": [{"path": n, "sha256": _sha256(root / n)} for n in COPILOT_MIRRORED_FILES],
+    }
+    (root / "PIN.json").write_text(json.dumps(fresh, indent=2, ensure_ascii=False) + "\n",
+                                   encoding="utf-8", newline="\n")
+    return fresh
+
+
 # ------------------------------------------------------ counterpart freshness (D-341)
 # This sensor diffs against a WORKING TREE, not against `origin`. A stale tree makes both
 # sides look identical — because both are old. Measured instead of trusted; the German
@@ -666,6 +758,7 @@ def main(argv: list[str] | None = None) -> int:
     strict = "--strict" in argv
     write = "--write" in argv
     write_themes = "--write-themes" in argv
+    write_copilot = "--write-copilot" in argv
     fetch = "--fetch" in argv
     # `--skip-freshness` exists for exactly one caller: Meridian's `check_aluca_mirror.py`
     # delegates the reverse direction to this script. In that call the "counterpart" is
@@ -682,7 +775,23 @@ def main(argv: list[str] | None = None) -> int:
 
     pin = vendor_pin()
     tpin = theme_pin()
+    cpin = copilot_pin()
     mer = _meridian_root()
+
+    if write_copilot:
+        if mer is None:
+            print("[check-dataarch-mirror] --write-copilot needs a Freelancing checkout "
+                  "($MERIDIAN_ROOT or ../Freelancing)")
+            return 1
+        ref = "HEAD"
+        if "--ref" in argv:
+            i = argv.index("--ref") + 1
+            if i < len(argv):
+                ref = argv[i]
+        fresh = write_copilot_vendor(mer, ref)
+        print(f"[check-dataarch-mirror] re-mirrored {len(fresh['files'])} copilot kernel file(s) "
+              f"from {mer} at {fresh['source_commit'][:8]}")
+        return 0
 
     if write_themes:
         if mer is None:
@@ -736,6 +845,14 @@ def main(argv: list[str] | None = None) -> int:
             for line in local:
                 print(line)
             return 1
+    if cpin is not None:
+        local = vendor_integrity(cpin, _COPILOT_VENDOR_REL)
+        if local:
+            print("[check-dataarch-mirror] vendored copilot kernel edited locally — change it in "
+                  "Meridian (products/meridian_copilot_readiness) and re-mirror (--write-copilot):")
+            for line in local:
+                print(line)
+            return 1
 
     if mer is None:
         # D-341: DID NOT RUN is not a passed comparison. Without --strict this stays a named
@@ -747,6 +864,9 @@ def main(argv: list[str] | None = None) -> int:
         if tpin is not None:
             print(f"[check-dataarch-mirror] vendored themes OK ({len(tpin['files'])} file(s), "
                   f"local integrity)")
+        if cpin is not None:
+            print(f"[check-dataarch-mirror] vendored copilot kernel OK ({len(cpin['files'])} "
+                  f"file(s), local integrity)")
         print("[check-dataarch-mirror] Meridian checkout not reachable "
               "($MERIDIAN_ROOT or ../Freelancing) — the cross-repo diff DID NOT RUN")
         if strict:
@@ -781,12 +901,16 @@ def main(argv: list[str] | None = None) -> int:
         drift += vendor_upstream_drift(pin, mer, None if skip_freshness else "HEAD")
     if tpin is not None:
         drift += theme_upstream_drift(tpin, mer, None if skip_freshness else "HEAD")
+    if cpin is not None:
+        drift += copilot_upstream_drift(cpin, mer, None if skip_freshness else "HEAD")
 
     if not drift:
         vendored = len(pin["files"]) if pin else 0
         themes = len(tpin["files"]) if tpin else 0
+        copilot = len(cpin["files"]) if cpin else 0
         print(f"[check-dataarch-mirror] OK — mirror in sync with Meridian ({mer}); "
-              f"contract surface + {vendored} vendored file(s) + {themes} vendored theme(s)")
+              f"contract surface + {vendored} vendored file(s) + {themes} vendored theme(s) "
+              f"+ {copilot} copilot kernel file(s)")
         print(f"[check-dataarch-mirror] diffed against: {freshness_line(freshness)}")
         if uncertain and strict:
             print("[check-dataarch-mirror] --strict: in sync with a state of uncertain freshness "

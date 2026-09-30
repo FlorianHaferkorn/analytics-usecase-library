@@ -1,0 +1,70 @@
+{
+  "_source": "Meridian products.meridian_copilot_readiness, Aurora core, fresh CLI run",
+  "source_commit": "42ed6a04722ba68d6b5aad1c9d2f7c6bf669da8d",
+  "json_key_paths": {
+    "verified_answer_candidates.json": [
+      "_artifact",
+      "_generated_by",
+      "_organisation",
+      "_sources",
+      "_sources[].file",
+      "_sources[].last_updated",
+      "_status",
+      "candidates",
+      "candidates[].approval",
+      "candidates[].approval.approved",
+      "candidates[].approval.approved_by",
+      "candidates[].approval.approved_date",
+      "candidates[].decision_forums",
+      "candidates[].kpi_id",
+      "candidates[].kpi_label_de",
+      "candidates[].kpi_label_en",
+      "candidates[].status",
+      "candidates[].synonyms",
+      "candidates[].target",
+      "candidates[].target.consuming_roles",
+      "candidates[].target.recommended_report",
+      "candidates[].target.recommended_report.format",
+      "candidates[].target.recommended_report.frequency",
+      "candidates[].target.recommended_report.level",
+      "candidates[].target.recommended_report.role",
+      "candidates[].trigger_phrases",
+      "candidates[].visual_hint"
+    ],
+    "ai_data_schema.json": [
+      "_artifact",
+      "_derivation",
+      "_generated_by",
+      "_note",
+      "_organisation",
+      "_sources",
+      "_sources[].file",
+      "_sources[].last_updated",
+      "_status",
+      "tables",
+      "tables[].domain",
+      "tables[].domain_label",
+      "tables[].fields",
+      "tables[].fields[].kind",
+      "tables[].fields[].name",
+      "tables[].fields[].reason",
+      "tables[].fields[].recommendation",
+      "tables[].layer",
+      "tables[].name",
+      "tables[].reason",
+      "tables[].recommendation"
+    ]
+  },
+  "md_sections": [
+    "Geschäftskontext",
+    "Verbindliche Begriffsdefinitionen (Glossar)",
+    "KPI-Definitionen und Schwellenwerte",
+    "Antwortregeln"
+  ],
+  "txt_sections": [
+    "GESCHÄFTSKONTEXT",
+    "VERBINDLICHE BEGRIFFSDEFINITIONEN (GLOSSAR)",
+    "KPI-DEFINITIONEN UND SCHWELLENWERTE",
+    "ANTWORTREGELN"
+  ]
+}

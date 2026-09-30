@@ -1,0 +1,469 @@
+{
+  "_artifact": "verified_answer_candidates",
+  "_organisation": "COM-001 Sales Performance vs Plan & LY",
+  "_status": "ALLE Einträge sind KANDIDATEN. Verified answers sind per Definition menschlich freigegebene Antworten — Freigabe erfolgt im Power-BI-Service (Report im Edit-Modus → Visual → 'Set up a verified answer'), nicht durch dieses Tool. Kein automatischer Import: 'Prep data for AI' ist Preview und hat keine dokumentierte public API.",
+  "_generated_by": "products.meridian_copilot_readiness (deterministisch, kein LLM)",
+  "_sources": [
+    {
+      "file": "core/usecases/core/COM-001_Sales_Performance/UseCase_Bracket.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-013.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-005.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-009.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-008.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-010.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-011.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-004.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-FIN-011.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-006.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-007.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-001.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/kpi_catalog/kpis/KPI-COM-002.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/action_codes/Commercial/C-M2.1.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/action_codes/Commercial/C-S1.1.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/action_codes/Commercial/C-S1.2.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/organization/org_roles.yaml",
+      "last_updated": ""
+    },
+    {
+      "file": "core/data_contracts/domains/commercial_sales.yaml",
+      "last_updated": ""
+    }
+  ],
+  "candidates": [
+    {
+      "kpi_id": "KPI-COM-013",
+      "kpi_label_de": "Gross Margin %",
+      "kpi_label_en": "Gross Margin %",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von Gross Margin %?",
+        "Liegt Gross Margin % im Ziel?",
+        "Zeig mir Gross Margin % im Zeitverlauf."
+      ],
+      "synonyms": [
+        "GM%",
+        "Gross Margin Rate",
+        "Bruttomarge %"
+      ],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'Gross Margin %'",
+      "decision_forums": [
+        "C-M2.1 Price Realization Guardrails (monthly)",
+        "C-S1.1 Price Discipline Enforcement (monthly)",
+        "C-S1.2 Sales Gap Recovery via Price & Pack Adjustment (monthly)"
+      ],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    },
+    {
+      "kpi_id": "KPI-COM-005",
+      "kpi_label_de": "Net Sales Amount",
+      "kpi_label_en": "Net Sales Amount",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von Net Sales Amount?",
+        "Liegt Net Sales Amount im Ziel?",
+        "Zeig mir Net Sales Amount im Zeitverlauf."
+      ],
+      "synonyms": [],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'Net Sales Amount'",
+      "decision_forums": [
+        "C-S1.2 Sales Gap Recovery via Price & Pack Adjustment (monthly)"
+      ],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    },
+    {
+      "kpi_id": "KPI-COM-009",
+      "kpi_label_de": "Net Sales % vs Plan",
+      "kpi_label_en": "Net Sales % vs Plan",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von Net Sales % vs Plan?",
+        "Liegt Net Sales % vs Plan im Ziel?",
+        "Zeig mir Net Sales % vs Plan im Zeitverlauf."
+      ],
+      "synonyms": [],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'Net Sales % vs Plan'",
+      "decision_forums": [
+        "C-S1.1 Price Discipline Enforcement (monthly)",
+        "C-S1.2 Sales Gap Recovery via Price & Pack Adjustment (monthly)"
+      ],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    },
+    {
+      "kpi_id": "KPI-COM-008",
+      "kpi_label_de": "Delta% Net Sales",
+      "kpi_label_en": "Delta% Net Sales",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von Delta% Net Sales?",
+        "Liegt Delta% Net Sales im Ziel?",
+        "Zeig mir Delta% Net Sales im Zeitverlauf."
+      ],
+      "synonyms": [],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'Delta% Net Sales'",
+      "decision_forums": [],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    },
+    {
+      "kpi_id": "KPI-COM-010",
+      "kpi_label_de": "Price Effect Amount",
+      "kpi_label_en": "Price Effect Amount",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von Price Effect Amount?",
+        "Liegt Price Effect Amount im Ziel?",
+        "Zeig mir Price Effect Amount im Zeitverlauf."
+      ],
+      "synonyms": [],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'Price Effect Amount'",
+      "decision_forums": [
+        "C-S1.1 Price Discipline Enforcement (monthly)"
+      ],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    },
+    {
+      "kpi_id": "KPI-COM-011",
+      "kpi_label_de": "Volume Effect Amount",
+      "kpi_label_en": "Volume Effect Amount",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von Volume Effect Amount?",
+        "Liegt Volume Effect Amount im Ziel?",
+        "Zeig mir Volume Effect Amount im Zeitverlauf."
+      ],
+      "synonyms": [],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'Volume Effect Amount'",
+      "decision_forums": [],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    },
+    {
+      "kpi_id": "KPI-COM-004",
+      "kpi_label_de": "Mix Effect Amount",
+      "kpi_label_en": "Mix Effect Amount",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von Mix Effect Amount?",
+        "Liegt Mix Effect Amount im Ziel?",
+        "Zeig mir Mix Effect Amount im Zeitverlauf."
+      ],
+      "synonyms": [],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'Mix Effect Amount'",
+      "decision_forums": [],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    },
+    {
+      "kpi_id": "KPI-FIN-011",
+      "kpi_label_de": "Cost of Goods Sold Amount",
+      "kpi_label_en": "Cost of Goods Sold Amount",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von Cost of Goods Sold Amount?",
+        "Liegt Cost of Goods Sold Amount im Ziel?",
+        "Zeig mir Cost of Goods Sold Amount im Zeitverlauf."
+      ],
+      "synonyms": [],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'Cost of Goods Sold Amount'",
+      "decision_forums": [],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    },
+    {
+      "kpi_id": "KPI-COM-006",
+      "kpi_label_de": "Plan Net Sales Amount",
+      "kpi_label_en": "Plan Net Sales Amount",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von Plan Net Sales Amount?",
+        "Liegt Plan Net Sales Amount im Ziel?",
+        "Zeig mir Plan Net Sales Amount im Zeitverlauf."
+      ],
+      "synonyms": [],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'Plan Sales Amount'",
+      "decision_forums": [],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    },
+    {
+      "kpi_id": "KPI-COM-007",
+      "kpi_label_de": "Prior-Year Net Sales Amount",
+      "kpi_label_en": "Prior-Year Net Sales Amount",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von Prior-Year Net Sales Amount?",
+        "Liegt Prior-Year Net Sales Amount im Ziel?",
+        "Zeig mir Prior-Year Net Sales Amount im Zeitverlauf."
+      ],
+      "synonyms": [],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'Last Year Net Sales Amount'",
+      "decision_forums": [],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    },
+    {
+      "kpi_id": "KPI-COM-001",
+      "kpi_label_de": "List Price Amount",
+      "kpi_label_en": "List Price Amount",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von List Price Amount?",
+        "Liegt List Price Amount im Ziel?",
+        "Zeig mir List Price Amount im Zeitverlauf."
+      ],
+      "synonyms": [],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'List Price Amount'",
+      "decision_forums": [],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    },
+    {
+      "kpi_id": "KPI-COM-002",
+      "kpi_label_de": "Net Price Amount",
+      "kpi_label_en": "Net Price Amount",
+      "status": "KANDIDAT — Freigabe durch Mensch im Power-BI-Service erforderlich (HITL)",
+      "trigger_phrases": [
+        "Wie ist der aktuelle Stand von Net Price Amount?",
+        "Liegt Net Price Amount im Ziel?",
+        "Zeig mir Net Price Amount im Zeitverlauf."
+      ],
+      "synonyms": [],
+      "target": {
+        "recommended_report": {
+          "role": "Commercial Controlling Lead",
+          "level": null,
+          "format": "COM-001_Sales_Performance.Report",
+          "frequency": null
+        },
+        "consuming_roles": [
+          "Commercial Controlling Lead",
+          "Sales BI Lead"
+        ]
+      },
+      "visual_hint": "KPI-Visual für Measure 'Net Price Amount'",
+      "decision_forums": [],
+      "approval": {
+        "approved": false,
+        "approved_by": null,
+        "approved_date": null
+      }
+    }
+  ]
+}
