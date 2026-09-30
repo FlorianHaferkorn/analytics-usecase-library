@@ -111,7 +111,7 @@ features:
     area: chart
     name: Trend, Forecast und Anomalie im Liniendiagramm
     user_need: Sehen, wohin sich eine Kennzahl entwickelt und welcher Monat aus der Reihe fällt.
-    sources: [pbi-075, pbi-076, market-015]
+    sources: [pbi-075, pbi-076, market-015, di-024, di-026, di-027]
     pbi_status: native
     must_have: false
     beyond_pbi: false
@@ -477,15 +477,15 @@ features:
     area: alerting
     name: Abos und Datenalarme
     user_need: Benachrichtigt werden, wenn eine Kennzahl eine Schwelle reißt, statt nachzusehen.
-    sources: [pbi-040, pbi-041, users-027, market-015]
+    sources: [pbi-040, pbi-041, users-027, market-015, di-021, di-022, di-023, di-025]
     pbi_status: fabric_feature
     must_have: true
     beyond_pbi: true
     home: fabric_platform
     meridian_module: null
-    gap_reason: Kein Cockpit-Modul besitzt Push; offen, ob Fabric Activator konfiguriert oder M3 erweitert wird.
+    gap_reason: Kein Cockpit-Modul besitzt Push; offen, ob Fabric Activator konfiguriert oder M3 erweitert wird. Activator auf Berichten laut Power-BI-Doku F64+/Premium, laut Activator-Doku jede Fabric-Kapazität (UNKLAR, di-022).
     status: gap
-    user_value: medium
+    user_value: high
     priority: 2
   # --- trust ---------------------------------------------------------------------------------
   - id: feat-060
@@ -505,7 +505,7 @@ features:
     area: trust
     name: KPI-Steckbrief und Glossar am Chart
     user_need: Nachlesen, wie eine Kennzahl definiert ist, direkt aus dem Chart heraus.
-    sources: [users-028, users-011, pbi-006]
+    sources: [users-028, users-011, pbi-006, di-015]
     pbi_status: absent
     must_have: true
     beyond_pbi: true
@@ -547,7 +547,7 @@ features:
     area: collaboration
     name: Kommentare am Datenpunkt mit Erwähnung
     user_need: Eine Abweichung kommentieren und die verantwortliche Person darauf hinweisen.
-    sources: [pbi-039, users-023, users-008]
+    sources: [pbi-039, users-023, users-008, di-036]
     pbi_status: native
     must_have: false
     beyond_pbi: true
@@ -560,7 +560,7 @@ features:
     area: decision
     name: Erklären, warum sich eine Kennzahl verändert hat
     user_need: Nach einem Einbruch die Treiber der Veränderung genannt bekommen.
-    sources: [pbi-042, market-016]
+    sources: [pbi-042, market-016, di-016, di-017, di-018]
     pbi_status: native
     must_have: true
     beyond_pbi: true
@@ -575,7 +575,7 @@ features:
     area: decision
     name: Fragen in natürlicher Sprache und Chart-Zusammenfassung
     user_need: Eine Frage eintippen oder mir einen Chart in zwei Sätzen erklären lassen.
-    sources: [pbi-043, pbi-044]
+    sources: [pbi-043, pbi-044, di-019, di-020]
     pbi_status: premium
     must_have: false
     beyond_pbi: true
@@ -589,7 +589,7 @@ features:
     area: decision
     name: Was-wäre-wenn-Parameter
     user_need: Einen Preis um 3 Prozent verschieben und die Wirkung auf die Marge sehen.
-    sources: [pbi-056, market-001]
+    sources: [pbi-056, market-001, di-030, di-032]
     pbi_status: native
     must_have: true
     beyond_pbi: false
@@ -654,3 +654,125 @@ features:
     status: planned
     user_value: high
     priority: 2
+  # --- decision intelligence: decision, loop, planning ---------------------------------------
+  - id: feat-090
+    area: decision
+    name: Entscheidung als Objekt, an Kennzahl und Maßnahme gebunden
+    user_need: Zu jeder roten Kennzahl sehen, welche Entscheidung ansteht und welche Maßnahme dazugehört.
+    sources: [di-001, di-002, di-003, di-005, di-037]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 1
+    note: Andocken an core/action_codes (Golden Thread), nicht neu definieren.
+  - id: feat-091
+    area: decision_loop
+    name: Entscheidungslog
+    user_need: Nachlesen, wer wann was entschieden hat, mit welcher Begründung und Datenlage.
+    sources: [di-006, di-007]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 1
+  - id: feat-092
+    area: decision_loop
+    name: Wirkungsmessung der Maßnahme
+    user_need: Nach drei Monaten sehen, ob die Maßnahme die Kennzahl bewegt hat.
+    sources: [di-008, di-009]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M3
+    status: gap
+    user_value: high
+    priority: 2
+    note: Plan M3 nennt Maßnahmen und Log, aber keine Vorher-nachher-Messung; ohne sie schließt der Kreis nicht.
+  - id: feat-093
+    area: decision_loop
+    name: Erklärbare Handlungsempfehlung, anpassbar
+    user_need: Einen Vorschlag bekommen, sehen warum und wie sicher, und ihn selbst anpassen können.
+    sources: [di-010, di-013, di-014]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 2
+    note: Action-Brief aus Plan M3.
+  - id: feat-094
+    area: decision_loop
+    name: Freigabe durch den Menschen vor der Ausführung
+    user_need: Eine automatisch vorbereitete Aktion prüfen und freigeben oder ablehnen.
+    sources: [di-011, di-012]
+    pbi_status: fabric_feature
+    must_have: true
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 2
+  - id: feat-095
+    area: decision_loop
+    name: Maßnahme direkt aus dem Bericht erfassen
+    user_need: Aus dem Chart heraus eine Maßnahme mit Verantwortlichem und Frist anlegen.
+    sources: [di-035]
+    pbi_status: fabric_feature
+    must_have: true
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 1
+    note: Translytical task flows; GA-Stand widersprüchlich (Update März 2026 vs. Anleitung Preview).
+  - id: feat-096
+    area: planning
+    name: Werttreiberbaum und Kausalkette mit Simulation
+    user_need: Sehen, welche Treiber eine Zielgröße bestimmen, und einen Treiber probeweise verändern.
+    sources: [di-004, di-028]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 2
+  - id: feat-097
+    area: planning
+    name: Planung mit Szenarien, Versionen und Freigabe
+    user_need: Planwerte eingeben, Szenarien vergleichen und den Plan freigeben lassen.
+    sources: [di-031, di-033, di-034]
+    pbi_status: fabric_feature
+    must_have: true
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 2
+  - id: feat-098
+    area: planning
+    name: Ziele mit Verantwortlichen und Check-ins
+    user_need: Ziele je Verantwortlichem verfolgen, mit Status und regelmäßigem Update.
+    sources: [di-029]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: M3
+    status: gap
+    user_value: high
+    priority: 3

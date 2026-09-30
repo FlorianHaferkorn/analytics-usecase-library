@@ -16,6 +16,7 @@ Jede Aussage trägt eine Quelle; was nur als Suchauszug vorlag, ist so markiert.
 | `interaction_pbi.yaml` + `interaction_pbi_summary.md` | Power-BI-Funktionsumfang für Berichtsleser als Untergrenze, dazu was `VegaVisual` (fabric-visuals 4.0/4.1) davon mitbringt | 76 (43 Pflicht für Gleichstand) | Microsoft Learn über den Learn-MCP, npm-Registry |
 | `interaction_market.yaml` + `interaction_market_summary.md` | Interaktionen über Power BI hinaus: Zebra BI, Tableau, ThoughtSpot, Observable Plot, Vega-Lite-Galerie, Metabase, Superset, Grafana | 40 | 18 gelesen, 22 nur Suchauszug |
 | `interaction_users.yaml` + `interaction_users_summary.md` | Was Berichtsnutzer wollen: NN/g, HCI-Studien, BARC, WHU Controller Panel | 30 | nur Suchauszüge (alle Originale gesperrt) |
+| `capability_di.yaml` + `capability_di_summary.md` | Decision Intelligence: Entscheidung als Objekt, Log, Wirkungsmessung, Alerting, Planung; Fabric-Stand je Fähigkeit | 37 | 22 über Microsoft Learn abgerufen, 15 nur Suchauszüge (Gartner, SAP, Aera, Tableau gesperrt) |
 | `entscheidungsvorlage.yaml` | Widersprüche W-1…W-6, Lücken L-1…L-3, Kandidaten für Purposes, Idiome, Profile | — | Synthese; alle zitierten IDs existieren (geprüft per Skript) |
 | `FORMAT.md` | gemeinsames Eintragsformat | — | — |
 
