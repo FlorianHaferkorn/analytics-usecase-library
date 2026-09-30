@@ -194,6 +194,10 @@ MIRRORED_FILES = (
     # 30.09.2026). Das Schema ist schon Peer-Paar; die Vorlage arbeitet auf dessen Form und
     # waere als zweite Fassung in beiden Repos gleich zu pflegen. Nur Standardbibliothek.
     ("meridian/semantics/leerstellen_vorlage.py", "leerstellen_vorlage.py"),
+    # Ontologie-Kern (Meridian D-617, 30.09.2026): Modell, Import-Profil und Turtle aus der
+    # Geschaeftsobjekt-Schicht (Peer-Schema). ALUCA liefert damit seine Bibliothek nach Fabric IQ
+    # (I-21 W4.3), ohne zweiten Emitter. Nur Standardbibliothek.
+    ("meridian/semantics/ontologie_kern.py", "ontologie_kern.py"),
 )
 
 

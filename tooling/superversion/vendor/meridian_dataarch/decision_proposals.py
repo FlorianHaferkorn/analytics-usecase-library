@@ -593,6 +593,42 @@ _KUNDENFASSUNG: dict[str, dict[str, str]] = {
                  "Kontrolle über Reihenfolge und Zeitpunkt, und sie brauchen jemanden, der sie "
                  "betreibt.",
     },
+    # I-21 (FabCon Europe 2026, 30.09.2026): die fuenf Entscheidungen aus Kundeninput.
+    "SEC-MIRROR": {
+        "warum": "Eine gespiegelte Datenbank kommt ohne ihre Zeilen- und Spaltenrechte in der "
+                 "Plattform an. Wer das nicht weiß, gibt geschützte Zeilen an jeden Leser frei.",
+    },
+    "OPS-MONITORING": {
+        "frage": "Soll der Betrieb aller Arbeitsbereiche an einer Stelle überwacht werden, und "
+                 "darf eine KI Auffälligkeiten dort selbst untersuchen?",
+        "folge": "Wir legen keine Überwachung an, bis Sie antworten. Fehler fallen dann erst "
+                 "auf, wenn ein Bericht leer bleibt.",
+        "warum": "Zwei Einstellungen gibt es nur bei der Anlage, und eine KI-Funktion ist ab "
+                 "Werk an. Was dort einmal steht, bleibt.",
+    },
+    "PLAT-OVERAGE": {
+        "frage": "Soll die Plattform bei Lastspitzen Rechenleistung zukaufen, und bis zu welcher "
+                 "Grenze?",
+        "folge": "Die Kapazität kauft ab Werk zu, mit der Grenze von Microsoft. Die Kosten "
+                 "dafür sehen Sie erst auf der Rechnung.",
+        "warum": "Neue Kapazitäten kaufen ab Werk zu, zum dreifachen Preis. Ohne Entscheidung "
+                 "zahlen Sie Lastspitzen, die niemand bestellt hat.",
+    },
+    "OUT-REPORT": {
+        "frage": "Sollen Nutzer im Bericht nur lesen, oder auch Werte eingeben und "
+                 "zurückschreiben?",
+        "folge": "Wir bauen reine Berichte. Eingaben und Rückschreiben kommen später als eigene "
+                 "Anwendung dazu.",
+        "warum": "Eingaben brauchen eine andere Art von Anwendung als ein Bericht. Sie ist nicht "
+                 "in jeder Region verfügbar und verlangt eine eigene Datenbank.",
+    },
+    "AI-DE-COPILOT": {
+        "frage": "Darf ein KI-Assistent beim Bau der Datenstrecken mitarbeiten, und in welchen "
+                 "Umgebungen?",
+        "folge": "Der Assistent bleibt ausgeschaltet. Wir bauen die Datenstrecken wie bisher.",
+        "warum": "Der Assistent schreibt Code, der wie jeder andere geprüft werden muss. Ob er "
+                 "Daten außerhalb Ihrer Region verarbeiten darf, regelt Ihre KI-Richtlinie.",
+    },
 }
 
 
@@ -627,6 +663,15 @@ _FAELLIGKEIT: dict[str, str] = {
     # fuer #24 bis zu 24 Stunden bis zur Wirkung. Wer sie am Umsetzungstag umlegt, hat sie nicht
     # rechtzeitig umgelegt.
     "SEC-SHARE": "vor Produktivsetzung",
+    # I-21 (30.09.2026): die Ueberwachung und das Report-Ziel bestimmen, was gebaut wird; zwei
+    # Schalter der Ueberwachung gibt es nur bei der Anlage.
+    "OPS-MONITORING": "blockiert den Aufbau",
+    "OUT-REPORT": "blockiert den Aufbau",
+    "SEC-MIRROR": "vor Produktivsetzung",
+    "PLAT-OVERAGE": "vor Produktivsetzung",
+    # Ohne Antwort bleibt der Assistent aus; das blockiert nichts, gehoert aber vor den
+    # produktiven Betrieb, weil erst dort Code aus zwei Quellen zusammenkommt.
+    "AI-DE-COPILOT": "vor Produktivsetzung",
 }
 
 
@@ -1312,6 +1357,136 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "nachteile": ["Vertragsgegenstand, Mehrkosten"],
          "limitierungen": [{"text": "Eine Stufenänderung ist ein Einkaufsvorgang, kein Schalter", "quelle": "eigene Einschaetzung"}],
          "implikation": "Einkauf entscheidet vor P5."},
+    ],
+    # I-21 (FabCon Europe 2026, 30.09.2026) -------------------------------------------------
+    "SEC-MIRROR": [
+        {"wert": "onelake_rollen", "empfohlen": True,
+         "text": "Spiegeln und die Rechte der Quelle als OneLake-Security-Rollen nachbilden",
+         "vorteile": ["Der Spiegel bleibt aktuell, ohne eigene Ladestrecke",
+                      "Zeilen- und Spaltenfilter wirken für jeden Leser über OneLake"],
+         "nachteile": ["Die Rechte existieren zweimal, in der Quelle und in Fabric",
+                       "Rollen auf gespiegelten Items sind Preview"],
+         "limitierungen": [{"text": "Mirroring übernimmt Zeilen-, Spaltenrechte und Maskierung der Quelle nicht",
+                            "quelle": "MS Learn: fabric/mirroring/azure-sql-database-how-to-data-security"},
+                           {"text": "OneLake-Security-Rollen auf gespiegelten Items erlauben nur Read",
+                            "quelle": "MS Learn: fabric/onelake/security/data-access-control-model"}],
+         "implikation": "Je Quelle mit Rechten ein Arbeitspaket Rechte-Nachbau und ein Abnahmetest mit einem Leser ohne Rolle."},
+        {"wert": "kopie",
+         "text": "In ein gesteuertes Lakehouse kopieren und dort absichern",
+         "vorteile": ["Lesen und Schreiben in OneLake, Transformation vor dem ersten Lesen"],
+         "nachteile": ["Eine Ladestrecke mehr; der Stand hängt am Ladezyklus"],
+         "limitierungen": [{"text": "Copy verlangt nach P1 eine Begründung (Leistung, Isolation, Compliance)",
+                            "quelle": "architecture_blueprint.schema.json ingestion[].rationale"}],
+         "implikation": "access_mode wird copy statt mirror."},
+        {"wert": "teilweise",
+         "text": "Nur Tabellen ohne schutzbedürftige Inhalte spiegeln, den Rest kopieren",
+         "vorteile": ["Spiegel dort, wo er nichts preisgibt"],
+         "nachteile": ["Zwei Ladewege für eine Quelle"],
+         "limitierungen": [{"text": "Die Auswahl eines Spiegels greift je Tabelle, nicht je Spalte",
+                            "quelle": "eigene Einschaetzung"}],
+         "implikation": "Je Tabelle steht fest, ob sie gespiegelt oder kopiert wird."},
+    ],
+    "OPS-MONITORING": [
+        {"wert": "zentral", "empfohlen": True,
+         "text": "Ein Monitoring-Eventhouse in einem eigenen Workspace auf der Nicht-Produktionskapazität",
+         "vorteile": ["Eine Stelle für Abfragen und Alarme über alle Workspaces",
+                      "Die Ingestion belastet nicht die Produktionskapazität (D-596)"],
+         "nachteile": ["Ein Workspace mehr mit eigenem Eigentümer"],
+         "limitierungen": [{"text": "Den eigenen Endpoint gibt es nur bei der Anlage des Monitoring-Items",
+                            "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring"},
+                           {"text": "Ein aktivierter Operations Agent lässt sich nicht abschalten",
+                            "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring"}],
+         "implikation": "Monitoring-Workspace und Eventhouse stehen im Bauplan; KI-Untersuchungen folgen der KI-Richtlinie."},
+        {"wert": "je_workspace",
+         "text": "Monitoring je Workspace",
+         "vorteile": ["Jeder Workspace-Eigentümer sieht nur seinen Betrieb"],
+         "nachteile": ["Keine übergreifende Sicht; Alarme je Workspace gepflegt"],
+         "limitierungen": [{"text": "Workspace-Monitoring wird je Workspace aktiviert",
+                            "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring"}],
+         "implikation": "Auswertungen über Workspaces hinweg brauchen eine eigene Zusammenführung."},
+        {"wert": "monitor_hub",
+         "text": "Kein Monitoring-Item, nur Monitor hub und Capacity Metrics",
+         "vorteile": ["Keine zusätzliche Ingestion, nichts Unumkehrbares"],
+         "nachteile": ["Kurze Historie, keine eigenen Abfragen"],
+         "limitierungen": [{"text": "Monitor hub zeigt Aktivitäten nur über ein begrenztes Zeitfenster",
+                            "quelle": "MS Learn: fabric/admin/monitoring-hub"}],
+         "implikation": "Fehleranalysen beginnen beim Alarm, nicht in einer Abfrage."},
+    ],
+    "PLAT-OVERAGE": [
+        {"wert": "schwelle_prod", "empfohlen": True,
+         "text": "Overage nur auf der Produktionskapazität, Schwelle unter einem Drittel der Tages-CU-Stunden; Nicht-Produktion aus",
+         "vorteile": ["Produktion wird bei Spitzen nicht gedrosselt",
+                      "Die Schwelle begrenzt den Zukauf je 24 Stunden"],
+         "nachteile": ["Zugekaufte CU kosten den dreifachen PAYG-Satz"],
+         "limitierungen": [{"text": "Overage ist bei neuen F-Kapazitäten ab Werk an (Schwelle 25 %)",
+                            "quelle": "MS Learn: fabric/enterprise/capacity-overage-overview"},
+                           {"text": "Die Schwelle ist keine harte Kostengrenze: Prüfung alle fünf Minuten, laufende Operationen werden weiter abgerechnet",
+                            "quelle": "MS Learn: fabric/enterprise/capacity-overage-overview"}],
+         "implikation": "platform.capacities[].overage ist je Kapazität gesetzt; P4 der Conformance meldet nichts mehr."},
+        {"wert": "aus",
+         "text": "Overage überall aus, Drosselung wird akzeptiert",
+         "vorteile": ["Keine Kosten über die SKU hinaus"],
+         "nachteile": ["Spitzen werden gedrosselt; Berichte und Läufe warten"],
+         "limitierungen": [{"text": "Drosselung trifft interaktive Nutzung, sobald die Glättung aufgebraucht ist",
+                            "quelle": "MS Learn: fabric/enterprise/throttling"}],
+         "implikation": "Surge Protection und Alarme tragen die Last allein."},
+        {"wert": "groesser",
+         "text": "Größere SKU statt Overage",
+         "vorteile": ["Planbare Kosten, die Reserve ist dauerhaft da"],
+         "nachteile": ["Bezahlt die Spitze auch in ruhigen Stunden"],
+         "limitierungen": [{"text": "Eine Kapazität wird nach bereitgestellter Größe abgerechnet, nicht nach Last",
+                            "quelle": "architecture_blueprint.schema.json platform.sizing.hours_per_week"}],
+         "implikation": "Die SKU-Empfehlung steigt um eine Stufe."},
+    ],
+    "OUT-REPORT": [
+        {"wert": "pbir",
+         "text": "Power-BI-Bericht (PBIR) für die Analyse",
+         "vorteile": ["GA und in allen Fabric-Regionen verfügbar", "Versionierbar im Git-Format"],
+         "nachteile": ["Keine Eingaben, kein Rückschreiben"],
+         "limitierungen": [{"text": "Rückschreiben aus einem Bericht braucht eine eigene Anwendung",
+                            "quelle": "eigene Einschaetzung"}],
+         "implikation": "Der Report-Emitter bleibt PBIR."},
+        {"wert": "app",
+         "text": "Fabric App mit Eingaben, Rückschreiben und Workflows",
+         "vorteile": ["Eingabe und Auswertung in einer Oberfläche"],
+         "nachteile": ["Preview", "Braucht eine Fabric SQL Database für das Rückschreiben"],
+         "limitierungen": [{"text": "Fabric Apps sind nicht in jeder Region verfügbar, etwa nicht in Germany West Central",
+                            "quelle": "MS Learn: fabric/admin/region-availability"},
+                           {"text": "Der Weg über Pro/PPU ohne Kapazität ist angekündigt, aber nicht dokumentiert",
+                            "quelle": "eigene Einschaetzung"}],
+         "implikation": "Ausgabe-Ziel fabric_app (D-583) und eine SQL Database je Anwendung."},
+        {"wert": "beides", "empfohlen": True,
+         "text": "PBIR für die Analyse, Fabric App nur für die Eingabe (D-583: zwei gleichrangige Ziele)",
+         "vorteile": ["Jede Oberfläche tut, wofür sie gebaut ist"],
+         "nachteile": ["Zwei Artefakttypen im Betrieb"],
+         "limitierungen": [{"text": "Fabric Apps sind nicht in jeder Region verfügbar",
+                            "quelle": "MS Learn: fabric/admin/region-availability"}],
+         "implikation": "Beide Ausgaben laufen; Konsumenten brauchen nur Read."},
+    ],
+    "AI-DE-COPILOT": [
+        {"wert": "nicht_prod", "empfohlen": True,
+         "text": "Nur in Entwicklung und Test; Ergebnisse über den normalen Release-Weg",
+         "vorteile": ["Schneller in der Entwicklung; Produktion bleibt im Release-Prozess"],
+         "nachteile": ["CU-Verbrauch auf der Nicht-Produktionskapazität"],
+         "limitierungen": [{"text": "Copilot und die Verarbeitung außerhalb der Geo sind Tenant-Schalter",
+                            "quelle": "MS Learn: fabric/fundamentals/copilot-fabric-overview"},
+                           {"text": "Der Data engineering agent läuft nicht in Workspaces mit Outbound Access Protection",
+                            "quelle": "MS Learn: fabric/data-engineering/data-engineering-agent-get-started"}],
+         "implikation": "Tenant-Schalter in der Admin-Liste; Copilot-CU auf der Nicht-Produktionskapazität eingeplant."},
+        {"wert": "aus",
+         "text": "Nicht verwenden",
+         "vorteile": ["Keine KI-Verarbeitung, keine Tenant-Freigabe nötig"],
+         "nachteile": ["Kein Beschleuniger in der Entwicklung"],
+         "limitierungen": [{"text": "Der Data engineering agent ist Preview",
+                            "quelle": "MS Learn: fabric/data-engineering/data-engineering-agent-get-started"}],
+         "implikation": "Nichts zu tun."},
+        {"wert": "ueberall",
+         "text": "Auch in Produktions-Workspaces",
+         "vorteile": ["Auch Betriebskorrekturen mit Assistenz"],
+         "nachteile": ["Code entsteht an der Release-Kontrolle vorbei"],
+         "limitierungen": [{"text": "Erzeugter Code durchläuft nur die Prüfungen, die im Prozess stehen",
+                            "quelle": "eigene Einschaetzung"}],
+         "implikation": "Änderungen in Produktion brauchen eine nachträgliche Prüfung."},
     ],
 }
 
@@ -2130,6 +2305,214 @@ def propose_network_stance(bp: dict) -> dict:
         status="vorbelegt")
 
 
+# -- I-21: Entscheidungen aus Kundeninput nach der FabCon Europe 2026 (30.09.2026) -----------
+#
+# Fuenf Plattformfragen, deren Antwort sich mit den Meldungen der FabCon verschoben hat. Jede
+# liest nur Felder, die der Bauplan schon fuehrt; was er nicht fuehrt (KI-Richtlinie,
+# Eingaben im Bericht, Lizenzbasis), steht als Frage in der Vorlage und wird nicht vermutet
+# (D-340). Ein Entscheidungsmodell mit eigenen Eingabefeldern daneben waere eine zweite
+# Wahrheit neben dem Bauplan gewesen; deshalb sitzen die Regeln hier.
+
+#: Regionen, in denen Fabric Apps laut Learn (`admin/region-availability`, gelesen
+#: 29.09.2026) nicht verfuegbar sind. Unvollstaendig und deshalb nur als Sperrliste gefuehrt:
+#: eine Region, die hier fehlt, ist nicht als verfuegbar belegt.
+FABRIC_APPS_NICHT_IN = ("germanywestcentral",)
+
+
+def _regionen(bp: dict) -> set[str]:
+    """Alle Zielregionen des Bauplans, normalisiert (`Germany West Central` -> `germanywestcentral`)."""
+    plat = bp.get("platform") or {}
+    roh = [(plat.get("sizing") or {}).get("region")]
+    roh += [c.get("region") for c in plat.get("capacities") or [] if isinstance(c, dict)]
+    return {str(r).lower().replace(" ", "") for r in roh if r}
+
+
+def propose_mirror_security(bp: dict) -> dict:
+    """Rechte gespiegelter Quellen. Mirroring nimmt RLS, CLS und Maskierung der Quelle nicht mit.
+
+    Wie `PLAT-NET` immer da, auch ohne Spiegel: dann vorbelegt mit dem Satz, der beim ersten
+    Spiegel gilt. Eine Entscheidung, die nur bei Bedarf erscheint, fehlt genau in dem Workshop,
+    in dem jemand den ersten Spiegel vorschlaegt.
+    """
+    gespiegelt = [e for e in bp.get("ingestion", []) or [] if e.get("access_mode") == "mirror"]
+    vertraulich = [e for e in gespiegelt if e.get("sensitivity") in ("confidential", "restricted")]
+    namen = ", ".join(f"`{e.get('source')}`" for e in (vertraulich or gespiegelt))
+    if not gespiegelt:
+        vorschlag = ("Diese Lieferung spiegelt keine Quelle, die Frage stellt sich heute nicht. Beim "
+                     "ersten Spiegel gilt: **die Rechte der Quelle als OneLake-Security-Rollen neu "
+                     "aufbauen**, weil Mirroring sie nicht mitnimmt.")
+        status, konfidenz = "vorbelegt", "hoch"
+    else:
+        vorschlag = (f"**Die Rechte als OneLake-Security-Rollen neu aufbauen** für {namen}. Mirroring "
+                     "übernimmt Zeilen- und Spaltenrechte sowie die Maskierung der Quelle nicht; ohne "
+                     "Neuaufbau liest jeder Leser des gespiegelten Items alle Zeilen. Rollen auf "
+                     "gespiegelten Items erlauben nur Read (Preview). Wer vor dem Lesen schreiben oder "
+                     "transformieren muss, kopiert stattdessen in ein gesteuertes Lakehouse."
+                     + ("" if vertraulich else
+                        " Keine gespiegelte Quelle ist als vertraulich markiert; ob sie Rechte trägt, "
+                        "weiß nur ihr Eigentümer."))
+        status, konfidenz = "offen", ("hoch" if vertraulich else "mittel")
+    return _rec(
+        "SEC-MIRROR", "Rechte bei gespiegelten Quellen",
+        "Tragen die gespiegelten Quellen Zeilen-, Spaltenrechte oder Maskierung, und wie gelten sie "
+        "in Fabric?",
+        vorschlag,
+        f"{len(gespiegelt)} Quelle(n) mit access_mode `mirror`, davon {len(vertraulich)} vertraulich; "
+        "MS Learn: mirroring/azure-sql-database-how-to-data-security, onelake/security/"
+        "data-access-control-model (gelesen 29.09.2026)",
+        konfidenz,
+        ["In ein gesteuertes Lakehouse kopieren und dort absichern (Kopie statt Spiegel)",
+         "Nur Tabellen ohne schutzbedürftige Inhalte spiegeln, den Rest kopieren"],
+        "Quelleigentümer:in + Informationssicherheit",
+        "Jeder Leser des gespiegelten Items sieht alle Zeilen, auch die, die die Quelle schützt.",
+        status=status)
+
+
+def propose_monitoring_topology(bp: dict) -> dict:
+    """Workspace-Monitoring: wo die Betriebsdaten landen, und ob eine KI darin sucht.
+
+    `offen` trotz Vorschlag, weil zwei Festlegungen nur bei der Anlage moeglich sind (eigener
+    Endpoint; der Operations Agent laesst sich nach Aktivierung nicht abschalten) und die
+    KI-Untersuchungen ab Werk an sind. Eine Vorbelegung haette hier eine KI-Richtlinie des
+    Kunden unterstellt.
+    """
+    # D-596: eine Kapazitaet mit Stufen, aber ohne `prod`, ist die Nicht-Produktionskapazitaet.
+    getrennt = any(isinstance(c, dict) and c.get("stages") and "prod" not in c["stages"]
+                   for c in (bp.get("platform") or {}).get("capacities") or [])
+    ort = ("auf der Nicht-Produktionskapazität" if getrennt else
+           "auf der Nicht-Produktionskapazität, sobald es sie gibt (D-596)")
+    return _rec(
+        "OPS-MONITORING", "Workspace-Monitoring (vor der Anlage entscheiden)",
+        "Zentrales oder dezentrales Workspace-Monitoring, KI-Untersuchungen an oder aus, eigener "
+        "Endpoint?",
+        (f"**Ein zentrales Monitoring-Eventhouse** in einem eigenen Workspace {ort}, Alarme an die "
+         "Rollen-Postfächer aus OPS-ALERT. **Vor der Anlage** entscheiden: den eigenen Endpoint "
+         "gibt es nur bei der Anlage, ein aktivierter Operations Agent lässt sich nicht "
+         "abschalten, und die KI-Untersuchungen sind ab Werk an. Sie bleiben aus, bis die "
+         "KI-Richtlinie des Kunden sie freigibt. Activator-Alarme je Jobtyp kosten CU; nur die "
+         "Jobtypen wählen, auf die jemand reagiert."),
+        "MS Learn: fundamentals/enable-workspace-monitoring, admin/monitoring-hub-alerts "
+        "(gelesen 29.09.2026); D-596 Kapazität je Umgebung",
+        "mittel",
+        ["Monitoring je Workspace (jeder Eigentümer sieht nur seinen Betrieb)",
+         "Kein Monitoring-Item, nur Monitor hub und Capacity Metrics"],
+        "Plattform-Verantwortliche:r + KI-Verantwortliche:r des Kunden",
+        "Es wird kein Monitoring-Item angelegt. Fehler fallen im Monitor hub auf, ohne eigene "
+        "Abfragen und ohne Historie über dessen Fenster hinaus.",
+        status="offen")
+
+
+def propose_overage(bp: dict) -> dict:
+    """Capacity Overage je Kapazitaet. Ab Werk an, zum dreifachen PAYG-Satz.
+
+    Vorbelegt erst, wenn jede benannte Kapazitaet `overage` fuehrt - dann ist entschieden,
+    und die Vorlage sagt nur noch, was gilt. Das Feld und die P4-Warnung gibt es seit W1.1.
+    """
+    caps = [c for c in (bp.get("platform") or {}).get("capacities") or []
+            if isinstance(c, dict) and c.get("name")]
+    offen = [c["name"] for c in caps if not c.get("overage")]
+    if caps and not offen:
+        stand = ", ".join(f"`{c['name']}`: {c['overage'].get('state')}" for c in caps)
+        vorschlag, status = f"**Festgelegt je Kapazität:** {stand}.", "vorbelegt"
+    else:
+        vorschlag = (
+            "**Overage nur auf der Produktionskapazität, mit Schwelle unter einem Drittel der "
+            "Tages-CU-Stunden** (SKU-CU x 24 / 3); auf der Nicht-Produktionskapazität aus. "
+            "Overage ist bei neuen F-Kapazitäten ab Werk an (Schwelle 25 %) und kauft zum "
+            "dreifachen PAYG-Satz zu. Die Schwelle ist keine harte Kostengrenze: geprüft wird alle "
+            "fünf Minuten, laufende Operationen werden weiter abgerechnet."
+            + (f" Ohne Festlegung: {', '.join(f'`{n}`' for n in offen)}." if offen else ""))
+        status = "offen"
+    return _rec(
+        "PLAT-OVERAGE", "Capacity Overage je Kapazität",
+        "Kauft die Kapazität bei Lastspitzen CU zu, und bis zu welcher Schwelle?",
+        vorschlag,
+        "platform.capacities[].overage (I-21 W1.1); MS Learn: enterprise/capacity-overage-overview "
+        "(gelesen 29.09.2026)",
+        "hoch",
+        ["Overage überall aus, Drosselung wird akzeptiert",
+         "Größere SKU statt Overage (planbar, bezahlt die Spitze dauerhaft)"],
+        "Einkauf + Plattform-Verantwortliche:r",
+        "Overage bleibt ab Werk an (Schwelle 25 %). Lastspitzen werden zum dreifachen PAYG-Satz "
+        "zugekauft, ohne dass es jemand bestellt hat.",
+        status=status)
+
+
+def propose_report_target(bp: dict) -> dict:
+    """Report-Ziel: PBIR, Fabric App oder beides. Region und Lizenzbasis entscheiden mit."""
+    regionen = _regionen(bp)
+    gesperrt = sorted(regionen & set(FABRIC_APPS_NICHT_IN))
+    if gesperrt:
+        vorschlag = (f"**PBIR.** Fabric Apps sind in {', '.join(gesperrt)} laut Learn nicht "
+                     "verfügbar. Braucht der Kunde Eingaben oder Rückschreiben, ist die Region "
+                     "selbst die Entscheidung.")
+        konfidenz = "hoch"
+    else:
+        vorschlag = ("**PBIR für die Analyse**, eine Fabric App nur dort, wo Nutzer Werte eingeben "
+                     "oder zurückschreiben (Rückschreiben in eine Fabric SQL Database, keine anonyme "
+                     "Rolle). Fabric Apps sind Preview; der Weg über Pro/PPU ohne Kapazität ist "
+                     "angekündigt, aber nicht dokumentiert."
+                     + ("" if regionen else
+                        " Die Zielregion steht nicht im Bauplan; vor einer App klären."))
+        konfidenz = "mittel"
+    return _rec(
+        "OUT-REPORT", "Report-Ziel: PBIR, Fabric App oder beides",
+        "Brauchen Nutzer Eingaben, Rückschreiben oder Workflows im Bericht, und auf welcher "
+        "Lizenzbasis?",
+        vorschlag,
+        "platform.sizing.region / platform.capacities[].region; MS Learn: admin/region-availability, "
+        "power-bi/create-reports/fabric-apps-analytics (gelesen 29.09.2026)",
+        konfidenz,
+        ["Fabric App mit Eingaben, Rückschreiben und Workflows (Preview, nicht in jeder Region)",
+         "PBIR für die Analyse, Fabric App nur für die Eingabe"],
+        "Fachbereich (Eingaben ja oder nein) + Einkauf (Lizenzbasis)",
+        "Wir bauen reine Berichte. Eingaben und Rückschreiben kommen später als eigene Anwendung "
+        "dazu.",
+        status="offen")
+
+
+def propose_de_copilot(bp: dict) -> dict:
+    """KI-Assistenz im Data Engineering: Data engineering agent (Project Osmos, Preview).
+
+    Auf Learn seit September 2026 (`data-engineering/data-engineering-agent-get-started`),
+    auf der FabCon Europe 2026 vorgestellt. Die Messung gegen die Meridian-Emitter ist W2.5;
+    bis dahin ist die Empfehlung eine Grenze (nicht in Produktion), keine Bewertung.
+
+    Kundeninput ist `platform.ai_zugang` (D-606): fehlt `fabric_copilot` in einer angegebenen
+    Liste, ist der Weg nicht freigegeben und die Empfehlung heisst "nicht verwenden". Ohne
+    Angabe (oder `unbekannt`) bleibt die Hausempfehlung stehen, und die Freigabe ist die
+    Vorbedingung.
+    """
+    werte = {str(w) for w in (bp.get("platform") or {}).get("ai_zugang") or []}
+    grenze = ("Code, den der Agent erzeugt, durchläuft dieselben Prüfungen wie handgeschriebener: "
+              "Tests, Review, CI/CD. In Workspaces mit Outbound Access Protection läuft der Agent "
+              "laut Learn nicht. **Der Agent ist Preview**; ob sein Ergebnis unseren Standards "
+              "entspricht, messen wir vor einer Freigabe.")
+    if werte and werte != {"unbekannt"} and "fabric_copilot" not in werte:
+        vorschlag = ("**Nicht verwenden.** `platform.ai_zugang` gibt Fabric Copilot nicht frei "
+                     f"({', '.join(sorted(werte))}); der Data engineering agent ist ein Copilot-Weg.")
+        konfidenz = "hoch"
+    else:
+        vorschlag = ("**Nur in Entwicklung und Test**, auf der Nicht-Produktionskapazität (D-596). "
+                     + grenze
+                     + ("" if "fabric_copilot" in werte else
+                        " **Vorbedingung:** der KI-Zugangsweg `fabric_copilot` (D-606) ist noch "
+                        "nicht freigegeben; ohne ihn bleibt der Agent aus."))
+        konfidenz = "hoch" if "fabric_copilot" in werte else "mittel"
+    return _rec(
+        "AI-DE-COPILOT", "KI-Assistenz im Data Engineering (Project Osmos)",
+        "Darf der Data engineering agent beim Bau der Datenstrecken mitarbeiten, und in welchen "
+        "Umgebungen?",
+        vorschlag,
+        "platform.ai_zugang (D-606); MS Learn: data-engineering/data-engineering-agent-get-started "
+        "(Preview, gelesen 29.09.2026), fundamentals/copilot-fabric-overview",
+        konfidenz,
+        ["Nicht verwenden", "Auch in Produktions-Workspaces (an der Release-Kontrolle vorbei)"],
+        "KI-Verantwortliche:r + Datenschutz des Kunden",
+        "Der Assistent bleibt aus. Gebaut wird wie bisher.",
+        status="offen")
+
+
 def propose_ground_truth(gc: dict) -> dict:
     """Evaluation ground truth for the Data Agent — derivable as question skeletons."""
     ms = [m["measure_name"] for m in gc.get("measures", []) if m.get("measure_name")][:4]
@@ -2382,7 +2765,10 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
                 propose_sharing_policy(bp),
                 propose_user_data_visibility(bp),
                 propose_lakehouse_schemas(bp), propose_lakehouse_topology(bp),
-                propose_transform_engine(bp), propose_silver_load(bp)])
+                propose_transform_engine(bp), propose_silver_load(bp),
+                # I-21 (FabCon Europe 2026, 30.09.2026)
+                propose_mirror_security(bp), propose_monitoring_topology(bp),
+                propose_overage(bp), propose_report_target(bp), propose_de_copilot(bp)])
     _tier = propose_platform_tier(bp)      # nur auf Stacks mit Stufen-Achse und nur solange offen
     if _tier:
         out.append(_tier)

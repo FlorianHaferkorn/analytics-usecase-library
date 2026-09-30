@@ -1,7 +1,7 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "623a3b374b3cda9f1466e71de568d350401b9a16",
+  "source_commit": "48d1d1cce06ff7c1b80968920522d59897544b48",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
@@ -14,7 +14,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "4fdd0f89a0b447d102c3bac00a0d789abb21b48ff18ff275b8831fbf27cec305"
+      "sha256": "0019885d68e66319208a971a1bada3d93d90690979befd4a0dea069e0463482b"
     },
     {
       "path": "fabric_schedule.py",
@@ -165,6 +165,11 @@
       "path": "leerstellen_vorlage.py",
       "sha256": "fe61366e405ad6418a64c5f99f1200ef5126157e2f3e7cc52a59aa3c34c4cb6c",
       "source": "meridian/semantics/leerstellen_vorlage.py"
+    },
+    {
+      "path": "ontologie_kern.py",
+      "sha256": "c25b4c628dadbc5df2ac33d874d507534a5ee392b59cc98e695c3f6d586e8916",
+      "source": "meridian/semantics/ontologie_kern.py"
     }
   ]
 }
