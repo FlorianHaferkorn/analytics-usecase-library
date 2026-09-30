@@ -1,4 +1,4 @@
-"""Kein persoenlicher Home-Pfad in `products/fabric/powerbi/dist/` (30.09.2026).
+"""Kein persoenlicher Home-Pfad in `dist/` und `orchestrator/` (30.09.2026).
 
 Anlass: alle fuenf ausgelieferten Semantic Models trugen im Parameter `GoldDataPath` den
 absoluten Windows-Pfad des Rechners, auf dem der Orchestrator zuletzt lief. Heute steht dort
@@ -91,3 +91,37 @@ def test_ohne_gold_data_path_bricht_der_generator_ab() -> None:
     ohne = text.replace("expression GoldDataPath =", "expression AndererName =", 1)
     with pytest.raises(ValueError, match="GoldDataPath fehlt"):
         gs.soll(m.name, ohne)
+
+
+ORCHESTRATOR = REPO / "products" / "fabric" / "powerbi" / "orchestrator"
+
+
+def _versioniert(pfad: Path) -> list[str]:
+    """Versionierte Dateien unter `pfad`; ohne Git-Checkout wird der Test uebersprungen, nicht gruen."""
+    import subprocess
+
+    lauf = subprocess.run(["git", "ls-files", "--", pfad.relative_to(REPO).as_posix()],
+                          cwd=REPO, capture_output=True, text=True, encoding="utf-8")
+    if lauf.returncode != 0:
+        pytest.skip(f"kein Git-Checkout: {lauf.stderr.strip()}")
+    return [z for z in lauf.stdout.splitlines() if z]
+
+
+def test_orchestrator_laufprotokolle_sind_nicht_versioniert() -> None:
+    """Die Laufprotokolle trugen Heimpfade ins Repo (30.09.2026); `.gitignore` sperrt sie."""
+    versioniert = _versioniert(ORCHESTRATOR)
+    assert versioniert, "orchestrator/ ohne versionierte Datei -- der Test haette nichts geprueft"
+    protokolle = [f for f in versioniert
+                  if "/orchestrator/out/" in f or f.endswith("/last_run_state.json")]
+    assert protokolle == [], "Laufprotokolle versioniert -- git rm --cached:\n" + "\n".join(protokolle)
+
+
+def test_orchestrator_traegt_keinen_persoenlichen_home_pfad() -> None:
+    funde = []
+    for f in _versioniert(ORCHESTRATOR):
+        p = REPO / f
+        if p.suffix.lower() in BINAER:
+            continue
+        for nr, zeile in enumerate(p.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+            funde += [f"{f}:{nr}: {t}" for t in heimpfade(zeile)]
+    assert funde == [], "persoenliche Pfade in orchestrator/:\n" + "\n".join(funde)
