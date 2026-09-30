@@ -330,6 +330,7 @@ def emit_ingestion(bp: dict[str, Any], stack: str = "fabric", schemas: bool = Fa
     unfilled: list[str] = []
     unsupported: list[tuple[str, str]] = []
     abgeleitet: list[tuple[str, str, str]] = []
+    typ_offen: list[tuple[str, str, list[str]]] = []
 
     for entry in sorted(entries, key=lambda e: str(e.get("source") or "")):
         src = str(entry["source"])
@@ -357,6 +358,15 @@ def emit_ingestion(bp: dict[str, Any], stack: str = "fabric", schemas: bool = Fa
             },
             "activities": [_activity(src, t, mode, schemas) for t in tables],
         }
+        # R9 (30.09.2026): jede Quelle, deren JSON den Konnektor-Marker traegt, steht mit Feld
+        # in INGESTION.md — vorher stand der Marker nur im JSON (gemessen 29.09.2026: 23 bzw. 1
+        # Copy jobs mit Marker, 0 Nennungen in INGESTION.md).
+        quelle_json = content["properties"]["source"]
+        felder = [f for f, w in (("type", quelle_json["type"]),
+                                 ("connectionSettings.type", quelle_json["connectionSettings"]["type"]))
+                  if w == _UNVERIFIED]
+        if felder:
+            typ_offen.append((src, f"{job}.CopyJob", felder))
         out[f"{job}.CopyJob/copyjob-content.json"] = json.dumps(content, indent=2) + "\n"
         out[f"{job}.CopyJob/.platform"] = _platform(job)
 
@@ -367,13 +377,18 @@ def emit_ingestion(bp: dict[str, Any], stack: str = "fabric", schemas: bool = Fa
         rows.append(f"| `{src}` | `{entry.get('source_system', '')}` | {mode} | "
                     f"{len(tables)} | `{job}.CopyJob` |")
 
-    out["INGESTION.md"] = _readme(rows, unresolved, unfilled, unsupported, abgeleitet)
+    out["INGESTION.md"] = _readme(rows, unresolved, unfilled, unsupported, abgeleitet, typ_offen)
     return out
+
+
+#: Beleg fuer die Handlung im VERIFY-Abschnitt der Konnektor-Typen (R9).
+CONNECTOR_DOC = "learn.microsoft.com/fabric/data-factory/copy-job-connectors"
 
 
 def _readme(rows: list[str], unresolved: list[str], unfilled: list[str],
             unsupported: list[tuple[str, str]],
-            abgeleitet: list[tuple[str, str, str]]) -> str:
+            abgeleitet: list[tuple[str, str, str]],
+            typ_offen: list[tuple[str, str, list[str]]] | None = None) -> str:
     """Was der Emitter wissen konnte — und was der Tenant beisteuern muss."""
     lines = [
         "# Ingestion — Copy jobs",
@@ -429,6 +444,22 @@ def _readme(rows: list[str], unresolved: list[str], unfilled: list[str],
             "anlegen, **View -> View JSON code**, die echten Strings gegen",
             "`_CONNECTOR_TYPES` halten. `partial` heisst: einer der beiden Strings ist noch",
             f"`{_UNVERIFIED}` und MUSS vor dem Import ersetzt werden.",
+            "",
+        ]
+    if typ_offen:
+        lines += [
+            "## VERIFY: Konnektor-Typ offen",
+            "",
+            f"Fuer diese Quellen steht im Copy job `{_UNVERIFIED}` statt eines Typs — es gibt",
+            "kein belegtes Typ-Paar. Der Import scheitert daran absichtlich. **Handlung: Typ-Paar",
+            "vor dem Import pruefen** und den Marker ersetzen (Quelle: Learn „Connectors for Copy",
+            f"Job“, {CONNECTOR_DOC}; die echten Strings zeigt ein im Portal angelegter Copy job",
+            "unter **View -> View JSON code**).",
+            "",
+            "| Quelle | Item | Feld mit Marker |",
+            "|---|---|---|",
+            *[f"| `{s}` | `{item}` | " + ", ".join(f"`{f}`" for f in felder) + " |"
+              for s, item, felder in typ_offen],
             "",
         ]
     if unresolved:
