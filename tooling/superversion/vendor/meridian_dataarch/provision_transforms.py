@@ -986,6 +986,27 @@ def _projektion(spalte: str, table: dict | None, stack: str) -> str:
     return f"{zitiere(quelle, stack)} AS {zitiert}" if quelle and quelle != spalte else zitiert
 
 
+def _kommentar_text(text: str) -> str:
+    """Ein Beschreibungstext als Spark-SQL-Literalinhalt (siehe ``_spalten_kommentare``)."""
+    return " ".join(str(text or "").split()).replace("\\", "\\\\").replace("'", "\u2019")
+
+
+def _tabellen_kommentar(table: dict | None, dl: dict) -> str:
+    """``COMMENT '…'`` in der CTAS-Klausel der Gold-Tabelle (I-21 W5.6 e, Tabellenebene).
+
+    Quelle ist ausschliesslich ``description`` der Katalogtabelle (ALUCA: die Tabellen-
+    ``description`` des Datenvertrags) — ohne sie keine Klausel, nichts wird erfunden. Learn
+    dokumentiert fuer Fabric nur den Spaltenkommentar (``ALTER COLUMN … COMMENT``); die
+    Tabellenklausel ist die ``CREATE TABLE … [COMMENT table_comment] … AS``-Syntax von Apache
+    Spark (SQL-Referenz „CREATE TABLE", Klauseln in beliebiger Reihenfolge) — ANNAHME,
+    ungeprueft am Tenant. Nicht Snowflake (dort ``COMMENT = '…'``, eigene Syntax).
+    """
+    if dl.get("stack") == "snowflake":
+        return ""
+    text = _kommentar_text((table or {}).get("description") or "")
+    return f"\nCOMMENT '{text}'" if text else ""
+
+
 def _spalten_kommentare(gold_tbl: str, table: dict | None, spalten: list[str], dl: dict) -> str:
     """``ALTER TABLE … ALTER COLUMN … COMMENT '…'`` je beschriebener Gold-Spalte (I-21 W5.6 e).
 
@@ -1005,7 +1026,7 @@ def _spalten_kommentare(gold_tbl: str, table: dict | None, spalten: list[str], d
     beschr = (table or {}).get("column_descriptions") or {}
     zeilen = []
     for sp in spalten:
-        text = " ".join(str(beschr.get(sp) or "").split()).replace("\\", "\\\\").replace("'", "\u2019")
+        text = _kommentar_text(beschr.get(sp) or "")
         if text:
             zeilen.append(f"ALTER TABLE {gold_tbl} ALTER COLUMN {zitiere(sp, dl['stack'])} "
                           f"COMMENT '{text}';")
@@ -1035,7 +1056,8 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
                f"{c} eine Dublette oder zwei Vorgaenge sind, entscheidet der Fachbereich.\n"
                if len(quellen) > 1 else "")
             + "".join(f"{c} {z}\n" for z in (kopf_extra or []))
-            + f"{dl['ctas']} {gold_tbl}{dl['using']}{dl.get('tblprops', '')} AS\n")
+            + f"{dl['ctas']} {gold_tbl}{dl['using']}{dl.get('tblprops', '')}"
+            + f"{_tabellen_kommentar(table, dl)} AS\n")
 
     # Mit governtem Katalog steht hier die ECHTE Projektion. Bis 31.07.2026 lieferte dieser
     # Emitter als einziger noch `SELECT *` plus TODO, obwohl der MLV-Emitter daneben aus demselben
@@ -1518,7 +1540,8 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple],
     quell_sql = "\nUNION\n".join(blocks)
     kopf_h, ctas, anhang = (_historie_anhang(name, gold_tbl, quell_sql, table, dl, wasserzeichen)
                             if spalten and blocks else ([], dl["ctas"], ""))
-    return (f"{chr(10).join(kopf + kopf_h)}\n{ctas} {gold_tbl}{dl['using']} AS\n"
+    return (f"{chr(10).join(kopf + kopf_h)}\n{ctas} {gold_tbl}{dl['using']}"
+            f"{_tabellen_kommentar(table, dl)} AS\n"
             + quell_sql + "\n;\n" + anhang
             + (_spalten_kommentare(gold_tbl, table, spalten, dl) if blocks else ""))
 
