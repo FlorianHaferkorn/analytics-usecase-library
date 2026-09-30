@@ -181,3 +181,13 @@ def test_enricher_is_idempotent():
 
     once = enrich_text(_SAMPLE_TMDL, _repo_root())
     assert enrich_text(once, _repo_root()) == once
+
+
+def test_domain_tag_matches_dictionary_folder_despite_spacing():
+    """``domain_tag: Supply Chain`` wählt den Eintrag aus ``domains/SupplyChain/`` (30.09.2026),
+    nicht den Rückfall auf den ersten Treffer (Efficiency)."""
+    for kpi_id in ("inv.turnover", "plan.forecast.service_impact.pct"):
+        d = build_description(kpi_id, _repo_root())
+        assert d is not None
+        assert d.owner == "Supply Chain Analytics", kpi_id
+        assert d.grain and d.unit, kpi_id
