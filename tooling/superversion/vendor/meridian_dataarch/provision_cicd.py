@@ -9,6 +9,10 @@ Turns a blueprint into the CI/CD promotion layer that makes a provisioned medall
    ``data_architecture.json``. The blueprint CLI already exits non-zero (2) when
    conformance is not green, so a non-conformant architecture change fails the PR.
    Pure reuse of the existing, already-green conformance tool — no new rule silo.
+   **Seit R8 (30.09.2026) nicht mehr Teil der Kundenlieferung:** der Workflow ruft unser
+   Werkzeug auf und laeuft deshalb nur in einem Repo, das es traegt (Lieferanten-Seite).
+   ``emit_cicd`` liefert stattdessen ``gates/gates.yml`` + ``gates/azure-pipelines-gates.yml``
+   als PR-Pflicht-Check; die Funktionen bleiben als Vorlage fuer die Lieferanten-Pipeline.
 
 2. **CD promotion** (``emit_cd_promotion``): a ``fab`` script that wires Fabric
    **Git integration** + **Deployment Pipelines** (stages dev/test/prod, one
@@ -417,7 +421,10 @@ def _deployment_model_doc(model: str, blueprint: dict, stages: tuple[str, ...]) 
         f"| Workspaces im Blueprint | {n_ws} |", "",
         "Belegt: learn.microsoft.com/fabric/cicd/manage-deployment (Choose the best workflow option).", "",
         "## Wo die Validierungs-Gates sitzen (I-19.3 verdrahtet sie)",
-        "- **PR-Gate (CI):** `architecture-gate.yml` (Conformance) + Modell-/TMDL-/Katalog-Checks → blockt Merge.",
+        "- **PR-Gate (CI):** `gates/gates.yml` bzw. `gates/azure-pipelines-gates.yml` (`validate.sh pr` "
+        "+ eigene Prüfungen in `validate.local.sh`) → blockt Merge. Blueprint-Konformität und die "
+        "übrigen Artefakt-Prüfungen laufen beim Lieferanten vor der Übergabe; eine Änderung an "
+        "`data_architecture.json` wird dort neu erzeugt und geprüft (`CONFORMANCE.md`).",
         "- **Pre-Deploy:** vor `update-from-git`/`fabric-cicd`/Deployment-Pipeline.",
         "- **Post-Deploy:** Smoke (Modell lädt, Refresh, Lineage-Reconcile) vor der nächsten Stage.",
         "- **Refresh nach dem Deploy:** *Refresh data only* — das Schema kommt aus Git, nicht aus "
@@ -636,8 +643,8 @@ def _ruecksprung_doc(model: str, blueprint: dict, stages: tuple[str, ...]) -> st
 #
 # Learn `fundamentals/understand-best-practices-fabric-cicd` (gelesen 29.09.2026): eine Quelle
 # der Wahrheit im Integrations-Branch, Änderungen nur per Pull Request. Ohne Regel kann jeder mit
-# Schreibrecht direkt auf den Branch schieben, und die beiden Tore (Architektur-Gate,
-# Geheimnis-Scan) laufen nur, wenn jemand freiwillig einen PR aufmacht.
+# Schreibrecht direkt auf den Branch schieben, und die beiden Tore (PR-Gates, Geheimnis-Scan)
+# laufen nur, wenn jemand freiwillig einen PR aufmacht.
 #
 # Form: GitHub-Repository-Ruleset (REST `POST /repos/{owner}/{repo}/rulesets`). Feldnamen und
 # Pflichtfelder gemessen am 29.09.2026 gegen die OpenAPI-Beschreibung
@@ -647,7 +654,10 @@ def _ruecksprung_doc(model: str, blueprint: dict, stages: tuple[str, ...]) -> st
 
 #: Die Job-Namen der beiden mitgelieferten Tore. Ein GitHub-Check trägt den Job-Namen als
 #: Kontext; ändert jemand den Job-Namen, läuft die Regel ins Leere — daher hier als Feld.
-RULESET_STATUS_CHECKS = ("conformance", "detect-secrets")
+#: Bis 30.09.2026 stand hier `conformance` (Job aus `architecture-gate.yml`): der rief in der
+#: Kunden-CI unser Werkzeug auf, war ohne es immer rot und hätte so jeden PR blockiert (R8).
+#: `gates` ist der Job aus `gates/gates.yml`.
+RULESET_STATUS_CHECKS = ("gates", "detect-secrets")
 
 
 def _integration_branches(deployment_model: str, stages: tuple[str, ...], git: dict) -> list[str]:
@@ -703,21 +713,21 @@ def _branch_rule_doc(deployment_model: str, stages: tuple[str, ...], git: dict) 
         'gh api "repos/{owner}/{repo}/rulesets" -X POST --input cicd/branch-ruleset.json   '
         "# gh setzt owner/repo aus dem aktuellen Repo",
         "```", "",
-        "Die Check-Namen sind die Job-Namen aus `architecture-gate.yml` und `secret-scan.yml`. Wer "
+        "Die Check-Namen sind die Job-Namen aus `gates/gates.yml` und `secret-scan.yml`. Wer "
         "einen Job umbenennt, muss die Regel mitziehen — sonst wartet jeder PR auf einen Check, der "
         "nie kommt.", "",
         "## Azure DevOps", "",
         "Branch policies je geschütztem Branch (Learn `azure/devops/repos/git/branch-policies`, "
         "gelesen 29.09.2026). Zwei Werte setzt, wer die Regel anlegt, als Umgebungsvariable: "
         "`ADO_REPO_ID` (aus `az repos list`) und `ADO_GATE_PIPELINE_ID` (Build-Definition, die "
-        "`azure-pipelines-architecture-gate.yml` fährt, aus `az pipelines list`).", "",
+        "`gates/azure-pipelines-gates.yml` fährt, aus `az pipelines list`).", "",
         "```bash",
         *[line for b in branches for line in (
             f"az repos policy approver-count create --branch {b} --repository-id \"$ADO_REPO_ID\" "
             "--minimum-approver-count 1 --creator-vote-counts false --allow-downvotes false "
             "--reset-on-source-push true --blocking true --enabled true",
             f"az repos policy build create --branch {b} --repository-id \"$ADO_REPO_ID\" "
-            "--build-definition-id \"$ADO_GATE_PIPELINE_ID\" --display-name architecture-gate "
+            "--build-definition-id \"$ADO_GATE_PIPELINE_ID\" --display-name validation-gates "
             "--manual-queue-only false --queue-on-source-update-only true --valid-duration 0 "
             "--blocking true --enabled true")],
         "```", "",
@@ -1064,7 +1074,7 @@ def emit_cicd(blueprint: dict, architecture_path: str = "data_architecture.json"
               deployment_plan: bool = False) -> dict[str, str]:
     """Return the CI/CD artifact set (path -> content), analogous to ``emit_grounding``.
 
-    ``cicd/architecture-gate.yml`` (stack-agnostic CI gate) + ``cicd/_DEPLOYMENT_MODEL.md`` +
+    ``cicd/secret-scan.yml`` + ``cicd/_DEPLOYMENT_MODEL.md`` +
     ``cicd/_RUECKSPRUNG.md`` (der Rückweg einer einzelnen Beförderung, BK-C05) +
     the validation-gate set (``gates/validate.sh`` · ``gates/gates.yml`` · ``gates/_GATES.md``,
     I-19.3) are always emitted. The Fabric CD script is **model-specific** (``deployment_model``,
@@ -1079,9 +1089,9 @@ def emit_cicd(blueprint: dict, architecture_path: str = "data_architecture.json"
     if deployment_model not in _DEPLOYMENT_MODELS:
         raise ValueError(f"unknown deployment_model {deployment_model!r}; "
                          f"choose one of {sorted(_DEPLOYMENT_MODELS)}")
-    out = {"cicd/architecture-gate.yml": emit_ci_gate(architecture_path, stack),
-           "cicd/azure-pipelines-architecture-gate.yml": emit_ci_gate_azure(architecture_path, stack),
-           "cicd/secret-scan.yml": emit_secret_scan(),
+    # R8 (30.09.2026): kein `architecture-gate.yml` mehr im Kundenbaum — er rief in der
+    # Kunden-CI `python -m core.dataarch_engine.blueprint.cli`. PR-Tor ist `gates/gates.yml`.
+    out = {"cicd/secret-scan.yml": emit_secret_scan(),
            "cicd/_DEPLOYMENT_MODEL.md": _deployment_model_doc(deployment_model, blueprint, stages),
            "cicd/_RUECKSPRUNG.md": _ruecksprung_doc(deployment_model, blueprint, stages)}
     out.update(emit_gates(architecture_path, stack, blueprint=blueprint))  # I-19.3 + BK-C04
