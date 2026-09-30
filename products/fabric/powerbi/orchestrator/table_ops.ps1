@@ -513,9 +513,11 @@ switch ($Operation) {
             $repoRoot = (Get-Location).Path
             if ([System.IO.Path]::IsPathRooted($DefinitionPath)) { $DefinitionPath } else { Join-Path $repoRoot $DefinitionPath }
         } else { throw "DefinitionPath required for WriteExpressionsTmdl." }
-        $repoRoot = (Get-Location).Path
-        $goldRelative = "showcases\aurora_group\data\gold"
-        $goldDefault = (Join-Path $repoRoot $goldRelative) -replace "\\", "/"
+        # Placeholder instead of the absolute path of this machine (30.09.2026): the value lands
+        # in versioned dist/ files, and C:/Users/<name>/... was a personal path that fits no other
+        # machine. Same value as tooling/codegen/gold_source.py (GOLD_PATH_PLATZHALTER); set the
+        # local path in Power BI Desktop, see products/fabric/powerbi/dist/README.md.
+        $goldDefault = "<GOLD_DATA_PATH>"
         $exprPath = Join-Path $defPath "expressions.tmdl"
         $content = @"
 expression GoldDataPath = "$goldDefault" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
