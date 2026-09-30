@@ -1,6 +1,6 @@
 {
   "modell": "Experience.SemanticModel",
-  "quelle_sha256": "5d924eda6c2cc940012e19a8ae63d0bd7dec50e9ff4b36b2f37618b1ebf6a404",
+  "quelle_sha256": "f11a08bc7e06c0633f17506df6fc1d398814cb6699e5166a2adfd33e9fdd70f7",
   "messungen": [
     {
       "measure": "AHT Minutes",
@@ -573,6 +573,96 @@
       "measure": "Net Sales Amount (XD)",
       "ordner": "facts/fact_sales",
       "spalte": "Net Sales Amount"
+    }
+  ],
+  "beziehungen": [
+    {
+      "name": "dim_case_queue_fact_support_cases",
+      "von": "fact_support_cases[QueueKey]",
+      "nach": "dim_case_queue[QueueKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_support_cases'[QueueKey]), DISTINCT('dim_case_queue'[QueueKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_case_queue_fact_workforce_management",
+      "von": "fact_workforce_management[QueueKey]",
+      "nach": "dim_case_queue[QueueKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_workforce_management'[QueueKey]), DISTINCT('dim_case_queue'[QueueKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_nps",
+      "von": "fact_nps[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_nps'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_support_cases",
+      "von": "fact_support_cases[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_support_cases'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_target",
+      "von": "fact_target[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_target'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_workforce_management",
+      "von": "fact_workforce_management[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_workforce_management'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_issue_type_fact_support_cases",
+      "von": "fact_support_cases[IssueKey]",
+      "nach": "dim_issue_type[IssueKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_support_cases'[IssueKey]), DISTINCT('dim_issue_type'[IssueKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_nps",
+      "von": "fact_nps[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_nps'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_support_cases",
+      "von": "fact_support_cases[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_support_cases'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_workforce_management",
+      "von": "fact_workforce_management[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_workforce_management'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_security_user_org",
+      "von": "security_user_org[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('security_user_org'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
     }
   ]
 }
