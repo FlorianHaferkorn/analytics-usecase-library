@@ -12,6 +12,7 @@
 - action codes and decision spines (`action_codes/`)
 - semantic model definitions (`semantic_models/`)
 - data contracts (`data_contracts/`)
+- business objects (`business_objects/`, D-608) — derived from contracts + KPI lineage
 - reusable templates (`templates/`)
 - implementation playbooks (`implementation_guides/`)
 
