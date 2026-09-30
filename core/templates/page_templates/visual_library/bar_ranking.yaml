@@ -161,6 +161,7 @@ profiles:
         template: |
           {
             "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "padding": { "right": 40 },
             "data": {
               "name": "dataset"
             },
@@ -168,7 +169,7 @@ profiles:
               "y": {
                 "field": "{{field_cat}}",
                 "type": "nominal",
-                "sort": "-x",
+                "sort": { "field": "{{field}}", "order": "descending" },
                 "axis": {
                   "title": null,
                   "ticks": false,
@@ -224,7 +225,7 @@ profiles:
                   "text": {
                     "field": "{{field}}",
                     "type": "quantitative",
-                    "format": ".1f"
+                    "format": ",.1~f"
                   }
                 }
               }

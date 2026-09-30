@@ -129,4 +129,8 @@ tools:
 # real columns, render_target takes the value from `params` or, when none is given, removes what
 # depends on it (the reference layer, the below-target colour condition). Never the sample value.
 #
-#   data_values: [target_val]
+#   data_values: [target_val]                        # list: each is removed when not supplied
+#   data_values: {target_val: null, col_end: col_line}  # dict: null = remove, name = fall back to
+#                                                        # that param (the endpoint keeps the ink,
+#                                                        # never the sample's "below target" red)
+# Optional data_slots that are not bound are removed the same way (no sample column name).

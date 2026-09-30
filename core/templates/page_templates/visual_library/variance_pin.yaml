@@ -59,7 +59,7 @@ canonical_params:
   col_head: "#0F2430"
   pin_band: "0.1"        # pin width = 10 % of the band (the band is the 2/3 absolute-bar width) -> ~7 % of the category
   head_size: "36"        # point area in px² -> a 6 px head
-  fmt: "+.0%"
+  fmt: "+.1~%"
   viewbox: "0 0 340 60"
   zero_x: "170"
   zero_x_lo: "168.5"     # the two parallel lines of a PL/BU reference axis (IBCS form), 3 px apart
@@ -113,13 +113,13 @@ realizations:
         "layer": [
           { "mark": { "type": "bar", "width": { "band": {{pin_band}} } },
             "encoding": {
-              "x": { "field": "{{field_date}}", "type": "ordinal", "axis": { "title": null, "labelAngle": 0 } },
+              "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth", "axis": { "title": null, "labelAngle": 0, "format": "%m/%y", "labelOverlap": true } },
               "y": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null, "format": "{{fmt}}" } },
               "color": { "condition": { "test": "datum['{{field}}'] < 0", "value": "{{col_neg}}" }, "value": "{{col_pos}}" } } },
           { "mark": { "type": "rule", "color": "{{col_zero}}" }, "encoding": { "y": { "datum": 0 } } },
           { "mark": { "type": "point", "shape": "circle", "filled": true, "color": "{{col_head}}", "size": {{head_size}}, "opacity": 1 },
             "encoding": {
-              "x": { "field": "{{field_date}}", "type": "ordinal" },
+              "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth" },
               "y": { "field": "{{field}}", "type": "quantitative" } } }
         ]
       }
@@ -206,10 +206,12 @@ profiles:
                 "encoding": {
                   "x": {
                     "field": "{{field_date}}",
-                    "type": "ordinal",
+                    "type": "ordinal", "timeUnit": "yearmonth",
                     "axis": {
                       "title": null,
                       "labelAngle": 0,
+                      "format": "%m/%y",
+                      "labelOverlap": true,
                       "ticks": false,
                       "domain": false,
                       "labelPadding": 6
@@ -283,7 +285,7 @@ profiles:
                 "encoding": {
                   "x": {
                     "field": "{{field_date}}",
-                    "type": "ordinal"
+                    "type": "ordinal", "timeUnit": "yearmonth"
                   },
                   "y": {
                     "field": "{{field}}",
@@ -305,7 +307,7 @@ profiles:
                 "encoding": {
                   "x": {
                     "field": "{{field_date}}",
-                    "type": "ordinal"
+                    "type": "ordinal", "timeUnit": "yearmonth"
                   },
                   "y": {
                     "field": "{{field}}",
@@ -334,7 +336,7 @@ profiles:
                 "encoding": {
                   "x": {
                     "field": "{{field_date}}",
-                    "type": "ordinal"
+                    "type": "ordinal", "timeUnit": "yearmonth"
                   },
                   "y": {
                     "datum": 0

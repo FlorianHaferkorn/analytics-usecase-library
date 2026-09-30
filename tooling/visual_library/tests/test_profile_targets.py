@@ -126,23 +126,42 @@ def test_every_idiom_rasterizes_under_every_profile():
     assert drawn >= 90, f"expected every idiom x profile to draw, got {drawn}"
 
 
-def test_dark_background_lifts_every_colour_but_gridlines():
+def test_dark_background_keeps_salience_and_contrast():
     """A-31 R6: the library's inks are chosen for light cards (#0F2430 measures 1.1:1 on the
-    Fabric-App dark card #292929). `background=` lifts each literal to 4.5:1, hue kept."""
+    Fabric-App dark card #292929). `background=` maps each colour by salience (contrast.for_dark_ground):
+    marks >= 3:1, text >= 4.5:1, gridlines stay quieter than the data, PY stays quieter than AC."""
     import contrast
 
     dark = "#292929"
     for idiom in ("line", "bar_ranking", "deviation_bar", "waterfall_pvm"):
-        for pid in ("house_default", "ibcs"):
+        for pid in ("house_default", "ibcs", "editorial"):
             if pid not in render.target_profiles(idiom):
                 continue
             light = json.loads(render.render_target(idiom, "fabric_app", pid)[0])
             doc = json.loads(render.render_target(idiom, "fabric_app", pid, background=dark)[0])
-            for node, parent in _hex_literals(doc["spec"]) + _hex_literals(doc["configVegaLite"]):
-                if parent != "gridColor" and not (parent == "fill" and node == dark):
-                    assert contrast.contrast_ratio(node, dark) >= 4.5, f"{idiom}@{pid}: {parent}={node}"
             assert light != doc, f"{idiom}@{pid}: nothing changed on a dark ground"
             assert '"white"' not in json.dumps(doc), f"{idiom}@{pid}: white hollow fill on a dark ground"
+            for node, parent in _hex_literals(doc["spec"]) + _hex_literals(doc["configVegaLite"]):
+                if parent == "gridColor" or (parent == "fill" and node == dark):
+                    continue
+                assert contrast.contrast_ratio(node, dark) >= 3.0, f"{idiom}@{pid}: {parent}={node}"
+            for key in ("labelColor", "titleColor"):
+                for node, parent in _hex_literals(doc["configVegaLite"]):
+                    if parent == key:
+                        assert contrast.contrast_ratio(node, dark) >= 4.5, f"{idiom}@{pid}: {key}={node}"
+
+
+def test_dark_mapping_keeps_the_order_of_emphasis():
+    """Measured 30.09.2026: lifting to a floor only made the #E1DFDD grid brighter than the data."""
+    import contrast
+
+    dark = "#292929"
+    ink, grid = contrast.for_dark_ground("#0F2430", dark), contrast.for_dark_ground("#E1DFDD", dark)
+    assert contrast.contrast_ratio(ink, dark) > 2 * contrast.contrast_ratio(grid, dark)
+    ac, py = contrast.for_dark_ground("#404040", dark, min_ratio=3.0), contrast.for_dark_ground("#A0A0A0", dark, min_ratio=3.0)
+    assert contrast.contrast_ratio(ac, dark) > contrast.contrast_ratio(py, dark), "PY louder than AC"
+    red = contrast.hex_to_oklch(contrast.for_dark_ground("#A4262C", dark))[2]
+    assert abs(red - contrast.hex_to_oklch("#A4262C")[2]) < 3.0
 
 
 def _hex_literals(node, key=None):

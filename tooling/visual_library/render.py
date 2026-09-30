@@ -297,25 +297,33 @@ def bind(idiom: str, columns: dict) -> dict:
 
 
 _HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
-#: Decorative strokes keep their colour on any ground: WCAG 1.4.11 exempts gridlines, and lifting
-#: them to 4.5:1 would make the grid louder than the data.
+#: Decorative strokes: salience kept, no contrast floor (WCAG 1.4.11 exempts gridlines).
 _DECORATIVE_COLOR_KEYS = {"gridColor"}
+#: Keys that colour TEXT (axis labels, titles): contrast floor 4.5 instead of 3.0.
+_TEXT_COLOR_KEYS = {"labelColor", "titleColor", "subtitleColor"}
 
 
-def on_background(node, bg: str, min_ratio: float = 4.5, _key: "str | None" = None):
-    """Every colour literal of a spec/config lifted to `min_ratio` against `bg`, hue kept
-    (contrast.ensure_contrast). For a dark ground: the library's colours are chosen for light
-    cards, and a light-mode ink (#0F2430) measures 1.1:1 on a dark card (A-31 R6, 30.09.2026).
-    Colours that already pass stay unchanged; gridlines are exempt; a white `fill` (hollow
-    marker) becomes the ground. Pure, returns a new tree."""
+def _is_text_mark(node: dict) -> bool:
+    m = node.get("mark")
+    return m == "text" or (isinstance(m, dict) and m.get("type") == "text")
+
+
+def on_background(node, bg: str, _key: "str | None" = None, _text: bool = False):
+    """A light-card spec/config redrawn for a dark ground `bg` (A-31 R6): every colour literal
+    mapped by `contrast.for_dark_ground`, which keeps its salience (ink stays loudest, gridlines
+    stay quiet, PY stays quieter than AC), then floored — text 4.5:1, marks 3:1, gridlines none.
+    A white `fill` (hollow marker) becomes the ground. Pure, returns a new tree."""
     if isinstance(node, dict):
-        return {k: on_background(v, bg, min_ratio, k) for k, v in node.items()}
+        text = _text or _is_text_mark(node)
+        return {k: on_background(v, bg, k, text) for k, v in node.items()}
     if isinstance(node, list):
-        return [on_background(v, bg, min_ratio, _key) for v in node]
+        return [on_background(v, bg, _key, _text) for v in node]
     if _key == "fill" and isinstance(node, str) and node.lower() in ("white", "#ffffff"):
         return bg   # a white fill is the card showing through (hollow marker), not a colour
-    if isinstance(node, str) and _HEX.match(node) and _key not in _DECORATIVE_COLOR_KEYS:
-        return _contrast().ensure_contrast(node, bg, min_ratio)
+    if isinstance(node, str) and _HEX.match(node):
+        floor = None if _key in _DECORATIVE_COLOR_KEYS else (
+            4.5 if (_text or _key in _TEXT_COLOR_KEYS) else 3.0)
+        return _contrast().for_dark_ground(node, bg, min_ratio=floor)
     return node
 
 
@@ -338,7 +346,7 @@ _NO_VALUE = "-987654321.123"
 def _drop_missing_values(spec: dict, idiom: str, missing: "list[str]") -> dict:
     """Remove what depends on a data value the caller did not supply (A-31 R6): a colour
     `condition` that tests against it falls back to its plain `value`, a layer that draws it (the
-    reference rule) goes. The sample's target (44.1 in the canonical bar_ranking) must never reach
+    reference rule, an unbound optional series) goes. The sample's target (44.1 in the canonical bar_ranking) must never reach
     real data — measured 30.09.2026: the Cockpit coloured contribution bars red below 44.1."""
     def walk(node):
         if isinstance(node, dict):
@@ -365,7 +373,7 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     `bindings` ({role: column}) binds real data columns through `data_slots`; `params` overrides
     any other template parameter (e.g. polarity -1 for a lower-is-better measure). Without both,
     the frozen canonical sample is used — that is what the goldens freeze. `background` (hex)
-    lifts every colour to 4.5:1 on that ground (`on_background`) — used for a dark mode."""
+    redraws the colours for that dark ground (`on_background`, salience kept)."""
     if target not in DERIVED_TARGETS:
         raise KeyError(f"unknown derived target '{target}'")
     profile = profile or default_profile()
@@ -378,10 +386,17 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         if real is None or not real.get("applicable", True):
             raise KeyError(f"{idiom}.deneb_vegalite is not applicable under '{notation}'")
         eff = dict(_effective_params(entry, notation))
-        eff.update(bind(idiom, bindings or {}) if bindings else {})
-        missing = [v for v in entry.get("data_values") or [] if v not in (params or {})]
+        bound = bind(idiom, bindings or {}) if bindings else {}
+        eff.update(bound)
+        dv = entry.get("data_values") or {}
+        dv = dict.fromkeys(dv) if isinstance(dv, list) else dict(dv)
+        given = params or {}
+        missing = [v for v, fb in dv.items() if v not in given and fb is None]
+        missing += [p for p, slot in data_slots(idiom).items()
+                    if p not in bound and not slot.get("required", True) and p not in given]
         eff.update({v: _NO_VALUE for v in missing})
-        eff.update({k: str(v) for k, v in (params or {}).items()})
+        eff.update({v: eff[fb] for v, fb in dv.items() if v not in given and fb is not None})
+        eff.update({k: str(v) for k, v in given.items()})
         spec = json.loads(fill(real["template"], eff))
         if missing:
             spec = _drop_missing_values(spec, idiom, missing)

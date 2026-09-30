@@ -5,6 +5,9 @@
   "data_name": "dataset",
   "spec": {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "padding": {
+      "right": 40
+    },
     "data": {
       "name": "dataset"
     },
@@ -12,7 +15,10 @@
       "y": {
         "field": "unit",
         "type": "nominal",
-        "sort": "-x",
+        "sort": {
+          "field": "gm",
+          "order": "descending"
+        },
         "axis": {
           "title": null,
           "ticks": false,
@@ -68,14 +74,14 @@
           "text": {
             "field": "gm",
             "type": "quantitative",
-            "format": ".1f"
+            "format": ",.1~f"
           }
         }
       }
     ]
   },
   "configVegaLite": {
-    "font": "Segoe UI",
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
     "view": {
       "stroke": null
     },

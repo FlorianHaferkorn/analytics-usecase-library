@@ -37,7 +37,8 @@
         "type": "ordinal",
         "sort": null,
         "axis": {
-          "title": null
+          "title": null,
+          "labelAngle": 0
         }
       },
       "y": {
@@ -53,7 +54,7 @@
     }
   },
   "configVegaLite": {
-    "font": "Segoe UI",
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
     "view": {
       "stroke": null
     },

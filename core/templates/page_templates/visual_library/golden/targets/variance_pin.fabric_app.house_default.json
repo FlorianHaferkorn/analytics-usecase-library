@@ -20,9 +20,12 @@
           "x": {
             "field": "month",
             "type": "ordinal",
+            "timeUnit": "yearmonth",
             "axis": {
               "title": null,
-              "labelAngle": 0
+              "labelAngle": 0,
+              "format": "%m/%y",
+              "labelOverlap": true
             }
           },
           "y": {
@@ -30,7 +33,7 @@
             "type": "quantitative",
             "axis": {
               "title": null,
-              "format": "+.0%"
+              "format": "+.1~%"
             }
           },
           "color": {
@@ -65,7 +68,8 @@
         "encoding": {
           "x": {
             "field": "month",
-            "type": "ordinal"
+            "type": "ordinal",
+            "timeUnit": "yearmonth"
           },
           "y": {
             "field": "delta_pl_pct",
@@ -76,7 +80,7 @@
     ]
   },
   "configVegaLite": {
-    "font": "Segoe UI",
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
     "view": {
       "stroke": null
     },

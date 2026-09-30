@@ -87,7 +87,7 @@
           "encoding": {
             "x": {
               "field": "month",
-              "type": "ordinal",
+              "type": "ordinal", "timeUnit": "yearmonth",
               "axis": null
             },
             "y": {
@@ -143,7 +143,7 @@
           "encoding": {
             "x": {
               "field": "month",
-              "type": "ordinal"
+              "type": "ordinal", "timeUnit": "yearmonth"
             },
             "y": {
               "field": "d_rel",
@@ -165,7 +165,7 @@
           "encoding": {
             "x": {
               "field": "month",
-              "type": "ordinal"
+              "type": "ordinal", "timeUnit": "yearmonth"
             },
             "y": {
               "field": "d_rel",
@@ -174,7 +174,7 @@
             "text": {
               "field": "d_rel",
               "type": "quantitative",
-              "format": "+.0%"
+              "format": "+.1~%"
             }
           }
         },
@@ -194,7 +194,7 @@
           "encoding": {
             "x": {
               "field": "month",
-              "type": "ordinal"
+              "type": "ordinal", "timeUnit": "yearmonth"
             },
             "y": {
               "datum": 0
@@ -240,10 +240,12 @@
           "encoding": {
             "x": {
               "field": "month",
-              "type": "ordinal",
+              "type": "ordinal", "timeUnit": "yearmonth",
               "axis": {
                 "title": null,
                 "labelAngle": 0,
+                "format": "%m/%y",
+                "labelOverlap": true,
                 "ticks": false,
                 "domainColor": "#404040"
               }
@@ -267,7 +269,7 @@
           "encoding": {
             "x": {
               "field": "month",
-              "type": "ordinal"
+              "type": "ordinal", "timeUnit": "yearmonth"
             },
             "y": {
               "field": "sales",
@@ -286,7 +288,7 @@
           "encoding": {
             "x": {
               "field": "month",
-              "type": "ordinal"
+              "type": "ordinal", "timeUnit": "yearmonth"
             },
             "y": {
               "field": "sales",
@@ -321,7 +323,7 @@
           "encoding": {
             "x": {
               "field": "month",
-              "type": "ordinal"
+              "type": "ordinal", "timeUnit": "yearmonth"
             },
             "y": {
               "field": "tier_end",
@@ -363,7 +365,7 @@
           "encoding": {
             "x": {
               "field": "month",
-              "type": "ordinal"
+              "type": "ordinal", "timeUnit": "yearmonth"
             },
             "y": {
               "field": "tier_end",

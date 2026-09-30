@@ -53,6 +53,23 @@
         }
       },
       {
+        "mark": {
+          "type": "line",
+          "color": "#94A0AC",
+          "strokeDash": [
+            5,
+            4
+          ],
+          "strokeWidth": 1.5
+        },
+        "encoding": {
+          "y": {
+            "field": "gm_plan",
+            "type": "quantitative"
+          }
+        }
+      },
+      {
         "transform": [
           {
             "window": [
@@ -88,7 +105,7 @@
     ]
   },
   "configVegaLite": {
-    "font": "Segoe UI",
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
     "view": {
       "stroke": null
     },

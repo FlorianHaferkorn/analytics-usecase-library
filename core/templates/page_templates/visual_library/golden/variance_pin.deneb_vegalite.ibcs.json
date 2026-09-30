@@ -20,10 +20,12 @@
       "encoding": {
         "x": {
           "field": "month",
-          "type": "ordinal",
+          "type": "ordinal", "timeUnit": "yearmonth",
           "axis": {
             "title": null,
             "labelAngle": 0,
+            "format": "%m/%y",
+            "labelOverlap": true,
             "ticks": false,
             "domain": false,
             "labelPadding": 6
@@ -97,7 +99,7 @@
       "encoding": {
         "x": {
           "field": "month",
-          "type": "ordinal"
+          "type": "ordinal", "timeUnit": "yearmonth"
         },
         "y": {
           "field": "delta_pl_pct",
@@ -119,7 +121,7 @@
       "encoding": {
         "x": {
           "field": "month",
-          "type": "ordinal"
+          "type": "ordinal", "timeUnit": "yearmonth"
         },
         "y": {
           "field": "delta_pl_pct",
@@ -128,7 +130,7 @@
         "text": {
           "field": "delta_pl_pct",
           "type": "quantitative",
-          "format": "+.0%"
+          "format": "+.1~%"
         }
       }
     },
@@ -148,7 +150,7 @@
       "encoding": {
         "x": {
           "field": "month",
-          "type": "ordinal"
+          "type": "ordinal", "timeUnit": "yearmonth"
         },
         "y": {
           "datum": 0

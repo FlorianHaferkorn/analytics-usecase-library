@@ -45,7 +45,7 @@
     }
   },
   "configVegaLite": {
-    "font": "Segoe UI",
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
     "view": {
       "stroke": null
     },

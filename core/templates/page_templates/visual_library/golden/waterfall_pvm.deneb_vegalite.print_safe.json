@@ -7,7 +7,7 @@
   ],
   "mark": { "type": "bar" },
   "encoding": {
-    "x": { "field": "driver", "type": "ordinal", "sort": null, "axis": { "title": null } },
+    "x": { "field": "driver", "type": "ordinal", "sort": null, "axis": { "title": null, "labelAngle": 0 } },
     "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } },
     "y2": { "field": "cum" },
     "color": { "condition": { "test": "datum['value'] < 0", "value": "#F7630C" }, "value": "#0078D4" }

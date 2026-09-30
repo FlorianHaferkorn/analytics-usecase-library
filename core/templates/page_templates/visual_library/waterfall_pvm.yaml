@@ -97,7 +97,7 @@ realizations:
         ],
         "mark": { "type": "bar" },
         "encoding": {
-          "x": { "field": "{{field}}", "type": "ordinal", "sort": null, "axis": { "title": null } },
+          "x": { "field": "{{field}}", "type": "ordinal", "sort": null, "axis": { "title": null, "labelAngle": 0 } },
           "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } },
           "y2": { "field": "cum" },
           "color": { "condition": { "test": "datum['{{field_val}}'] < 0", "value": "{{col_dec}}" }, "value": "{{col_inc}}" }
@@ -202,6 +202,7 @@ profiles:
                 "axis": {
                   "title": null,
                   "ticks": false,
+                  "labelAngle": 0,
                   "domainColor": "{{col_ac}}"
                 }
               }
@@ -279,7 +280,7 @@ profiles:
                   "text": {
                     "field": "{{field_val}}",
                     "type": "quantitative",
-                    "format": "+.0f"
+                    "format": "+.1~f"
                   }
                 }
               }

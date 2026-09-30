@@ -41,7 +41,7 @@ profiles:
       reference_axis:  "muted neutral zero/plan line (recedes behind the data)"
       emphasis:        "size and position only; grey to recede; a single accent per page"
     vegalite_config:
-      font: "Segoe UI"
+      font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
       view: {stroke: null}
       axis: {gridColor: "#E1DFDD", domainColor: "#E1DFDD", labelColor: "#605E5C", title: null}
       axisX: {grid: false}
@@ -84,7 +84,7 @@ profiles:
       bar: {cornerRadius: 0}
       scale: {bandPaddingInner: 0.3333, zero: true}
       legend: {disable: true}
-      font: "Segoe UI"
+      font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
     vegavisual_capabilities:
       disableNiceAxisBounds: true
       disableMinBarSize: true
@@ -137,7 +137,7 @@ profiles:
       grid:       "light grey horizontal grid, no vertical grid"
       legend:     "top-left"
     vegalite_config:
-      font: "Segoe UI"
+      font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
       axis: {gridColor: "#E1DFDD", domainColor: "#C8C6C4", tickColor: "#C8C6C4", labelFontSize: 12, titleFontSize: 12}
       axisX: {grid: false}
       legend: {orient: top, direction: horizontal, labelFontSize: 12}
@@ -164,7 +164,7 @@ profiles:
       grid:    "horizontal major grid only, zero line emphasised"
       labels:  "direct labels up to 3 series, legend on top otherwise"
     vegalite_config:
-      font: "Segoe UI"
+      font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
       view: {stroke: null}
       axis: {title: null, ticks: false, domain: false, gridColor: "#CBCBCB", labelFontSize: 12}
       axisX: {grid: false, domain: true, domainColor: "#333333"}
@@ -187,7 +187,7 @@ profiles:
       data_ink: "no frame, ticks, grid or axis lines unless they carry data"
       focus:    "one focus colour, everything else grey"
     vegalite_config:
-      font: "Segoe UI"
+      font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
       view: {stroke: null}
       axis: {grid: false, ticks: false, domain: false, title: null, labelFontSize: 11}
       legend: {disable: true}

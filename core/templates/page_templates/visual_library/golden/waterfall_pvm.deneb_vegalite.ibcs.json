@@ -43,6 +43,7 @@
       "axis": {
         "title": null,
         "ticks": false,
+        "labelAngle": 0,
         "domainColor": "#404040"
       }
     }
@@ -120,7 +121,7 @@
         "text": {
           "field": "value",
           "type": "quantitative",
-          "format": "+.0f"
+          "format": "+.1~f"
         }
       }
     }

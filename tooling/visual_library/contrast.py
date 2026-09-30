@@ -343,6 +343,24 @@ def ensure_contrast(color: str, bg: str, min_ratio: float = 3.0) -> str:
                      f"{'darkening' if step < 0 else 'lightening'} (max {contrast_ratio(end, bg)}:1)")
 
 
+def for_dark_ground(color: str, dark_bg: str, light_bg: str = "#FFFFFF",
+                    min_ratio: "float | None" = None) -> str:
+    """The same colour role on a dark ground, keeping its SALIENCE (A-31 R6).
+
+    On a light card salience is distance below the card's lightness (ink is dark, a gridline is
+    near-white); on a dark card it is distance above. Mapping OKLab L so that distance is kept —
+    L' = L_dark + (L_light - L) / L_light * (1 - L_dark) — keeps hue, chroma and the ORDER of
+    emphasis: ink stays the loudest, a gridline stays recessive, a lighter PY stays quieter than AC.
+    Measured 30.09.2026: lifting every colour only to a minimum contrast turned the #E1DFDD grid
+    brighter than the lifted data ink. `min_ratio` then lifts the result to a floor (text 4.5,
+    marks 3.0); leave it None for decoration."""
+    L, C, h = hex_to_oklch(color)
+    Ll, Ld = hex_to_oklch(light_bg)[0], hex_to_oklch(dark_bg)[0]
+    distance = max(0.0, (Ll - L) / Ll) if Ll > 0 else 0.0
+    out = oklch_to_hex(min(1.0, Ld + distance * (1 - Ld)), C, h)
+    return ensure_contrast(out, dark_bg, min_ratio) if min_ratio else out
+
+
 # --------------------------------------------------------------------------- #
 # Reserved semantic colours + palette gate
 # --------------------------------------------------------------------------- #

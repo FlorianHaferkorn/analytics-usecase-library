@@ -34,7 +34,7 @@ tokens:
   col_end:  color_semantics.negative# endpoint (semantic by sign at gen time)
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
-data_values: [target_val]   # a target, not a style: from params or removed (A-31 R6)
+data_values: {target_val: null, col_end: col_line}   # data, not style: from params; else removed (null) or the named fallback (A-31 R6)
 data_slots:
   field: {role: value, required: true}
   field_date: {role: time, required: true}
@@ -52,6 +52,7 @@ canonical_params:
   col_line: "#0F2430"
   col_ref: "#94A0AC"
   col_end: "#A4262C"
+  plan_field: "gm_plan"
 
 preview_svg: |
   <svg viewBox="0 0 340 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Trend line">
@@ -111,6 +112,8 @@ realizations:
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
           { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [5, 4] },
             "encoding": { "y": { "datum": {{target_val}} } } },
+          { "mark": { "type": "line", "color": "{{col_ref}}", "strokeDash": [5, 4], "strokeWidth": 1.5 },
+            "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
           { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
             "mark": { "type": "point", "filled": true, "size": 60, "color": "{{col_end}}" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } }
