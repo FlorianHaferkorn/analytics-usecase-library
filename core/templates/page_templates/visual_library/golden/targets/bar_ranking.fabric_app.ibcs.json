@@ -11,6 +11,12 @@
     "data": {
       "name": "dataset"
     },
+    "transform": [
+      {
+        "calculate": "max(datum['gm'], isValid(datum['gm_py']) ? datum['gm_py'] : datum['gm'])",
+        "as": "_lx"
+      }
+    ],
     "encoding": {
       "y": {
         "field": "unit",
@@ -68,7 +74,7 @@
         },
         "encoding": {
           "x": {
-            "field": "gm",
+            "field": "_lx",
             "type": "quantitative"
           },
           "text": {

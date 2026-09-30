@@ -173,6 +173,9 @@ profiles:
             "data": {
               "name": "dataset"
             },
+            "transform": [
+              { "calculate": "max(datum['{{field}}'], isValid(datum['{{py_field}}']) ? datum['{{py_field}}'] : datum['{{field}}'])", "as": "_lx" }
+            ],
             "encoding": {
               "y": {
                 "field": "{{field_cat}}",
@@ -227,7 +230,7 @@ profiles:
                 },
                 "encoding": {
                   "x": {
-                    "field": "{{field}}",
+                    "field": "_lx",
                     "type": "quantitative"
                   },
                   "text": {

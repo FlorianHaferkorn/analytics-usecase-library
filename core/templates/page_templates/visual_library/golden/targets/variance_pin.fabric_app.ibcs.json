@@ -32,6 +32,7 @@
               "labelAngle": 0,
               "format": "%m/%y",
               "labelOverlap": true,
+              "labelSeparation": 6,
               "ticks": false,
               "domain": false,
               "labelPadding": 6

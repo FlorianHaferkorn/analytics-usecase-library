@@ -135,3 +135,19 @@ def test_ranking_stays_sorted_by_value_with_a_label_layer():
         widths = [b[2] for b in ac if b[2] > 0]
         order = widths[:5] if pid == "house_default" else widths[1::2][:5]
         assert order == sorted(order) or order == sorted(order, reverse=True), f"{pid}: not sorted {order}"
+
+
+def test_ibcs_bar_label_sits_right_of_the_longer_of_ac_and_py():
+    """UN 2.3: a label must not sit on the PY bar where PY is longer than AC."""
+    rows = [{"Region": "Ost", "Umsatz": 760, "Vorjahr": 820}, {"Region": "Nord", "Umsatz": 1240, "Vorjahr": 1180}]
+    spec = _spec("bar_ranking", "ibcs", {"category": "Region", "value": "Umsatz", "prior": "Vorjahr"}, rows)
+    assert any(t.get("as") == "_lx" for t in spec.get("transform", []))
+    no_py = _spec("bar_ranking", "ibcs", {"category": "Region", "value": "Umsatz"}, rows)
+    texts = [lay for lay in no_py["layer"] if (lay.get("mark") or {}).get("type") == "text"]
+    assert texts, "without PY the value labels must stay"
+    assert "null" in json.dumps(no_py.get("transform", [])), "missing PY must read as null in the expression"
+
+
+def test_house_pins_are_labelled():
+    spec = json.loads(render.render_target("variance_pin", "fabric_app", "house_default")[0])["spec"]
+    assert any((lay.get("mark") or {}).get("type") == "text" for lay in spec["layer"])

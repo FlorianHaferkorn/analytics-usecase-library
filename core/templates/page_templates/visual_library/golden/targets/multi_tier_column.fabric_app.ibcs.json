@@ -256,6 +256,7 @@
                   "labelAngle": 0,
                   "format": "%m/%y",
                   "labelOverlap": true,
+                  "labelSeparation": 6,
                   "ticks": false,
                   "domainColor": "#404040"
                 }

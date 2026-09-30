@@ -87,7 +87,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:a536d716b7aea7d0e1597b7de4bb492fed0b54fc55ca074aa4b6db2ac51c5291"
+      "checksum": "sha256:c33bbec7c8c98ca0246706bd0d2ff6e7b9adeda96992c469c506682d41551186"
     },
     {
       "id": "bar_stacked",
@@ -623,7 +623,7 @@
         "cols": 6,
         "rows": 6
       },
-      "checksum": "sha256:465acb15b947c36b9dcb66cd6e9a56de4ec4853f3206f786899a202afb6e3522"
+      "checksum": "sha256:0c6fdabb5b22aa58945c4f86044d4bd983cd6e26ce134abd8742a88ba4caf214"
     },
     {
       "id": "sankey",
@@ -784,7 +784,7 @@
         "cols": 4,
         "rows": 3
       },
-      "checksum": "sha256:4e2ce462b60895da69ed09bf8094529c284eb7f70997bf24a3f4554c5a3b8984"
+      "checksum": "sha256:7cf7d5f444dfd959d83dc1195ff90458077b93041ae3ba48e24e1aa8bcc0f51e"
     },
     {
       "id": "waterfall_buildup",

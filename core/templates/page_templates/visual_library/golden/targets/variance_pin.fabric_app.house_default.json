@@ -8,6 +8,16 @@
     "data": {
       "name": "dataset"
     },
+    "transform": [
+      {
+        "joinaggregate": [
+          {
+            "op": "count",
+            "as": "_n"
+          }
+        ]
+      }
+    ],
     "layer": [
       {
         "mark": {
@@ -25,7 +35,8 @@
               "title": null,
               "labelAngle": 0,
               "format": "%m/%y",
-              "labelOverlap": true
+              "labelOverlap": true,
+              "labelSeparation": 6
             }
           },
           "y": {
@@ -74,6 +85,39 @@
           "y": {
             "field": "delta_pl_pct",
             "type": "quantitative"
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "baseline": "bottom",
+          "dy": {
+            "expr": "datum['delta_pl_pct'] < 0 ? 16 : -6"
+          },
+          "color": "#201F1E"
+        },
+        "encoding": {
+          "x": {
+            "field": "month",
+            "type": "ordinal",
+            "timeUnit": "yearmonth"
+          },
+          "y": {
+            "field": "delta_pl_pct",
+            "type": "quantitative"
+          },
+          "text": {
+            "field": "delta_pl_pct",
+            "type": "quantitative",
+            "format": "+.1~%"
+          },
+          "opacity": {
+            "condition": {
+              "test": "datum._n < 10",
+              "value": 1
+            },
+            "value": 0
           }
         }
       }

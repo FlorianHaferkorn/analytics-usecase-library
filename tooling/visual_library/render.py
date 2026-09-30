@@ -346,9 +346,13 @@ _NO_VALUE = "-987654321.123"
 def _drop_missing_values(spec: dict, idiom: str, missing: "list[str]") -> dict:
     """Remove what depends on a data value the caller did not supply (A-31 R6): a colour
     `condition` that tests against it falls back to its plain `value`, a layer that draws it (the
-    reference rule, an unbound optional series) goes. The sample's target (44.1 in the canonical bar_ranking) must never reach
+    reference rule, an unbound optional series) goes. The sample's target (44.1 in the canonical
+    bar_ranking) must never reach
     real data — measured 30.09.2026: the Cockpit coloured contribution bars red below 44.1."""
     def walk(node):
+        if isinstance(node, str) and _NO_VALUE in node and "datum[" in node:
+            # an expression reading a missing column reads null (guard it with isValid in the template)
+            return re.sub(r"datum\[(['\"])" + re.escape(_NO_VALUE) + r"\1\]", "null", node)
         if isinstance(node, dict):
             out = {k: walk(v) for k, v in node.items()
                    if not (k == "condition" and _NO_VALUE in json.dumps(v))}
