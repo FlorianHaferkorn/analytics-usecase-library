@@ -688,6 +688,7 @@ def _tenant_setup_md(bp: dict) -> str:
         lines.append(f"| {s['id']} | {name} ({s['section']}) | {s['scope']} | {s['why']} | "
                      f"{s['who']} · {s['how']} | {s['required']} |")
 
+    lines += _ki_zugang_zeilen(bp)
     summ = _admin.settability_summary(caps)
     lines += ["", "## Within a day: what scripts vs what needs a human", ""]
     if summ["scriptable"]:
@@ -715,6 +716,38 @@ def _tenant_setup_md(bp: dict) -> str:
     lines.append("Also grant the SPN read on each ingestion source. See _MCP_INTEGRATION.md for "
                  "guardrails.")
     return "\n".join(lines) + "\n"
+
+
+def _ki_zugang_zeilen(bp: dict) -> list[str]:
+    """D-606: Ziel von #30 und die Copilot-Schalter aus ``platform.ai_zugang`` (``ki_zugang.wirkung``).
+
+    Bis 30.09.2026 stand #30 fuer jede Lieferung als offene Entscheidung da. Jetzt entscheidet der
+    Zugangsweg: ``m365_copilot`` → an fuer benannte Gruppen, sonst aus (ab Werk an). Fehlt das Feld
+    oder steht ``unbekannt`` darin, ist das Ziel mit aus vorbelegt und die Kundenfrage steht in
+    ``platform/SICHERHEITSBASIS.md``, Abschnitt 7."""
+    from core.dataarch_engine.blueprint.ki_zugang import wirkung
+    w = wirkung(bp)
+    ziel = w["m365_schalter"]["ziel"]
+    zeilen = ["", "## AI access paths (`platform.ai_zugang`, D-606)", "",
+              "Blueprint: " + ", ".join(f"`{z}`" for z in w["zugaenge"])
+              + ("" if w["angegeben"] else " (field missing — treated as `unbekannt`)") + ".", "",
+              "| Effect | Result |", "|---|---|",
+              f"| #30 Fabric data in Microsoft Copilot (M365 admin center) | **{ziel}**"
+              + (" — pre-set until the customer answers (question in `platform/SICHERHEITSBASIS.md` §7)"
+                 if w["m365_schalter"]["vorbelegt"] else "")
+              + (" — named groups, Microsoft 365 Copilot Premium per user" if ziel == "an" else
+                 " — recommended; on by default, so it must be switched off (data protection)")
+              + " |",
+              "| Copilot tenant switches (#8, #9, #31) | "
+              + ("in the table above (`fabric_copilot`)" if w["tenant_faehigkeiten"] else
+                 "not required — no `fabric_copilot`") + " |",
+              "| Copilot preparation (Prep data for AI) | "
+              + ("yes — see `platform/SICHERHEITSBASIS.md` §7" if w["copilot_vorbereitung"] else "no")
+              + " |",
+              "| Fabric IQ MCP setup (delegated only, no service principal) | "
+              + ("yes — see `platform/SICHERHEITSBASIS.md` §7" if w["mcp_einrichtung"] else "no")
+              + " |"]
+    return zeilen
 
 
 def _procedure_and_limits(caps: set[str], bp: dict | None = None) -> list[str]:

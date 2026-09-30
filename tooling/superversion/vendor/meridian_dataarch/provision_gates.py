@@ -346,6 +346,7 @@ def _gates_doc(catalog: list[dict], model_wiring: dict[str, list[str]]) -> str:
         "mit eigenen Mitteln in `validate.local.sh` oder lässt sie beim Lieferanten neu erzeugen.",
     ]
     lines += _teststufen_abschnitt()
+    lines += _table_read_smoke_abschnitt()
     lines += [
         "", "## Aufruf", "```bash",
         "bash gates/validate.sh pr            # im PR (CI) — blockt Merge",
@@ -365,6 +366,45 @@ def _gates_doc(catalog: list[dict], model_wiring: dict[str, list[str]]) -> str:
         "Branch-Regel (`cicd/_BRANCH_RULE.md`).", "",
     ]
     return "\n".join(lines) + "\n"
+
+
+def _table_read_smoke_abschnitt() -> list[str]:
+    """Optionaler Post-Deploy-Smoke ueber die OneLake Table Read API (I-21 W5.8, **Preview**).
+
+    Kein Katalogeintrag und kein Schritt in ``validate.sh``: die API ist Preview, der Aufruf braucht
+    Token und Tabellen-IDs zur Laufzeit, und der Rumpf der Leseoptionen ist auf Learn nur mit dem
+    Namen ``columns`` beschrieben — ein Gate daraus waere ein geratenes Gate. Belegt per Learn-MCP
+    am 30.09.2026: `fabric/onelake/table-apis/read-table-data-rest-api` (POST ``/read``, GET
+    ``/readStream/{streamId}``, Arrow-IPC, Sitzung 60 Minuten, RLS/CLS, 404 bei fehlendem Recht,
+    keine regionsuebergreifenden Shortcuts, abgerechnet wird ``POST /read``) und
+    `table-apis-overview` (Endpunkt ``onelake.table.fabric.microsoft.com``, Token-Zielgruppe
+    ``https://storage.azure.com/``).
+    """
+    return [
+        "", "## Optionaler Smoke: eine Gold-Tabelle über die OneLake Table Read API (Preview)", "",
+        "Nach dem Load, von Hand oder im eigenen Runner: eine Gold-Tabelle **so lesen, wie ein "
+        "Verbraucher sie liest** — mit dessen Identität und unter OneLake-Security (Zeilen- und "
+        "Spaltenschutz). Das prüft zwei Dinge auf einmal, die kein Gate oben prüft: dass die "
+        "Tabelle eine gültige Delta- bzw. Iceberg-Tabelle ist, und dass die Rollen das zeigen, "
+        "was sie zeigen sollen.", "",
+        "1. `POST {TableReadBaseUrl}/v1.0/workspaces/{WorkspaceID}/items/{ItemID}/schemas/"
+        "{Schema}/tables/{Tabelle}/read` mit der Option `columns`; die Antwort nennt eine oder "
+        "mehrere Stream-IDs.",
+        "2. Je Stream-ID `GET …/tables/{Tabelle}/readStream/{StreamID}` und den Rumpf mit einem "
+        "Apache-Arrow-IPC-Leser öffnen. Alle Streams innerhalb von **60 Minuten** holen.", "",
+        "| Ergebnis | Bedeutung |", "|---|---|",
+        "| Zeilen kommen | Tabelle lesbar, Rechte greifen |",
+        "| leere Arrow-Antwort, Status OK | Zeilenschutz filtert alles — für eine Testidentität "
+        "ohne Rolle richtig, für eine mit Rolle ein Befund |",
+        "| 404 / not found | Tabelle fehlt **oder** keine Berechtigung — die API unterscheidet das "
+        "absichtlich nicht; nicht als „Tabelle fehlt\" lesen |",
+        "", "Grenzen: **Preview** (Verhalten kann sich ändern); keine regionsübergreifenden "
+        "Shortcuts; abgerechnet wird jeder `POST /read`. Token für die Zielgruppe "
+        "`https://storage.azure.com/`, wie für die OneLake-Dateiendpunkte. `{TableReadBaseUrl}` "
+        "nennt die Seite nicht ausgeschrieben; die Übersicht nennt als Endpunkt der Tabellen-APIs "
+        "`https://onelake.table.fabric.microsoft.com` (ANNAHME, ungeprüft, dass `/read` darunter "
+        "liegt).",
+    ]
 
 
 def _teststufen_abschnitt() -> list[str]:

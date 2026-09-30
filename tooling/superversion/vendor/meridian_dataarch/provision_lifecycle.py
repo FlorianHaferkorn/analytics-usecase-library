@@ -227,8 +227,71 @@ def _bcdr_runbook(bp: dict, capacity: str) -> str:
         "",
         "Both numbers are estimates until the drill in `RECOVERY_DRILL.md` has run once. An RTO "
         "that was never measured still gets read as a commitment, which is the expensive part.",
+        *_item_recovery_lines(),
         *_git_blind_spots_lines(),
     ])
+
+
+#: Elementarten ohne Item Recovery, die DIESE Lieferung erzeugt — gegen die Liste der
+#: unterstuetzten Arten auf Learn `fabric/admin/retention-recovery` (gelesen 30.09.2026) gelesen.
+#: Semantikmodell und Bericht stehen dort nicht; alles andere, was wir erzeugen (Lakehouse,
+#: Warehouse, Notebook, Pipeline, Copy job, Variable Library, Environment), steht dort.
+OHNE_ITEM_RECOVERY: tuple[str, ...] = ("Semantic model", "Report")
+
+
+def _item_recovery_lines() -> list[str]:
+    """Item Recovery im BCDR-Runbook (I-21 W5.5). Bis 30.09.2026 nur ein Verweis in
+    ``platform/SICHERHEITSBASIS.md``; ``platform_down.sh`` behauptete bis dahin noch den Stand
+    07.08.2026 („ab Werk AUS"). Belegt per Learn-MCP am 30.09.2026: `fabric/admin/retention-recovery`
+    und `fabric/admin/item-recovery` (Standard, Spanne, Rechte, REST, Grenzen, Git-Falle). Learn
+    sagt „now enabled by default" ohne Datum; der 16.08.2026 stammt aus dem Plan I-21 und steht
+    deshalb nicht im Runbook (ANNAHME, ungeprueft).
+
+    **Widerspruch auf Learn, benannt:** `item-recovery` nennt in Schritt 2 der Einrichtung
+    „7 to 90 days", dieselbe Seite und `retention-recovery` sagen „3 to 90". Hier steht 3–90, weil
+    der Standardwert selbst 3 ist und 7 als Untergrenze ihn ausschloesse.
+    """
+    fehlt = " and ".join(f"**{t}s**" if i == 0 else f"**{t.lower()}s**"
+                         for i, t in enumerate(OHNE_ITEM_RECOVERY))
+    return [
+        "",
+        "## Deleted items: item recovery (soft delete per item)",
+        "",
+        "Fabric now keeps deleted items for **three days** by default "
+        "(tenant setting *Fabric Item Recovery*, 3–90 days). Two conditions decide whether that "
+        "default applies to this tenant:",
+        "",
+        "- It applies only to tenants that **never set the switch explicitly**. A tenant whose "
+        "admin once turned item recovery off keeps it off. Check the setting before relying on it.",
+        f"- It covers only the supported item types. {fehlt} are **not** "
+        "on the list — deleted, they are gone at once. Git carries their definitions (see below); "
+        "their data and refresh history do not come back.",
+        "",
+        "| Step | How | Who |",
+        "|---|---|---|",
+        "| Restore | workspace → **Recycle bin** → Restore, or "
+        "`POST /v1/workspaces/{workspaceId}/recoverableItems/{itemId}/recover` | contributor, member "
+        "or admin |",
+        "| Purge early (stops the storage cost) | Recycle bin → Delete permanently, or "
+        "`DELETE /v1/workspaces/{workspaceId}/recoverableItems/{itemId}` | workspace admin only |",
+        "| Change the retention | tenant setting *Fabric Item Recovery* | tenant admin only |",
+        "",
+        "What catches people out:",
+        "",
+        "- **Restore fails** while a new item with the same name exists in the workspace — rename "
+        "that one first.",
+        "- **Share permissions are not restored.** The item comes back with its properties, but "
+        "anyone it was shared with must be re-shared.",
+        "- **Warehouse:** metadata and data return, **snapshots do not** — deleting a warehouse "
+        "deletes its snapshots for good.",
+        "- **Soft-deleted items cost like live data** (OneLake storage at the normal rate, plus a "
+        "little CU for background maintenance) until purged or expired.",
+        "- **Git sync or a pipeline deployment can re-create a soft-deleted item** — as a definition "
+        "without data. To get the data back: recover from the recycle bin, delete the Git copy, "
+        "sync again.",
+        "- After a permanent delete OneLake holds the data seven more days, but it **cannot be "
+        "restored** from there.",
+    ]
 
 
 #: Die Uebung, die aus einer geschaetzten RTO eine gemessene macht. Eigene Datei und nicht ein
@@ -509,6 +572,18 @@ def _workspace_export_doc() -> str:
         "`POST /v1/workspaces/{id}/items/bulkImportDefinitions?beta=true` mit den "
         "`definitionParts` aus der Datei, `options.allowPairingByName: false` (Zuordnung über "
         "`logicalId`). Abhängigkeiten zwischen Items bindet der Import über `logicalId` neu.", "",
+        "**Erst prüfen, dann schreiben.** Der Import nimmt je Item Optionen über "
+        "`options.itemOptionsByLogicalId` (`logicalId` + `options`); mit "
+        "`{\"validateOnly\": true}` wird das Item geprüft, nicht angelegt. Welche Optionen ein "
+        "Item-Typ kennt, steht bei dessen `Update-Definition`-API. Ein erster Lauf mit "
+        "`validateOnly` für alle Items zeigt Fehler, bevor der Ziel-Workspace halb befüllt ist.", "",
+        "Grenzen des Aufrufs: **höchstens 128 MB** Nutzlast je Anfrage — ein größerer Export wird "
+        "in mehreren Anfragen eingespielt, Abhängigkeiten zuerst. Enthält die Anfrage Fabric-Items "
+        "(nicht nur Power-BI-Items), muss der Ziel-Workspace auf einer Fabric-Kapazität liegen "
+        "(F-SKU, Trial eingeschlossen). Aufrufer: Mitwirkender oder höher. Beleg: REST-Referenz "
+        "`core/items/bulk-import-item-definitions` (gelesen 30.09.2026) — sie zeigt den Aufruf "
+        "**ohne** `?beta=true`; ob der Parameter noch nötig ist, gehört in die Nachprüfung vom "
+        "05.10.2026.", "",
         "Was der Import **nicht** zurückbringt und ein eigener Schritt bleibt:", "",
         "| Nicht enthalten | Folgeschritt |", "|---|---|",
         "| Daten in Lakehouses/Warehouses | Ladeläufe fahren bzw. OneLake-DR (`BCDR_RUNBOOK.md`) |",
@@ -552,6 +627,8 @@ def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_N
         "| Point-in-time / audit | Delta **time travel** (`delta.logRetentionDuration`) | built-in; full CTAS "
         "copy for long-term | GA |",
         "| Accidental deletion | OneLake **soft delete** (7-day recovery) | built-in | GA |",
+        "| Accidentally deleted item | **item recovery** (recycle bin, 3 days by default; not for "
+        "semantic models or reports) | tenant setting, see `BCDR_RUNBOOK.md` | GA |",
         "| Region outage | `BCDR_RUNBOOK.md` | DR capacity setting (geo-replication) + failover runbook | admin toggle |",
         "",
         "> Retention days + personal-data classification are **DSGVO policy** (from the compliance register), not",

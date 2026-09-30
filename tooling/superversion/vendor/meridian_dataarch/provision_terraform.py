@@ -23,6 +23,10 @@ Emits HCL for the objects the provider manages declaratively:
   type carries `properties.overage` from API `2026-08-01-preview` (Learn
   `azure/templates/microsoft.fabric/change-log/capacities`, read 30.09.2026). So the overage
   decision stands in code from the moment the capacity exists, and F4096/F8192 can be created.
+- D-607 (30.09.2026, decision Florian): a created capacity of stage **prod** carries
+  ``lifecycle { prevent_destroy = true }`` (stage via ``kapazitaet_stufen.traegt_produktion``);
+  dev/test stay destroyable. Connection and Git credentials are ``sensitive`` variables without a
+  default, filled via ``TF_VAR_…`` / CI secrets — never in ``terraform.tfvars`` or the repo.
 
 Honest by construction: resource shapes are grounded in the provider docs; the provider is
 beta overall (some resources lack service-principal support, `fabric_domain` needs a Fabric
@@ -65,6 +69,32 @@ CAPACITY_ARM_NAME_RE = re.compile(r"^[a-z][a-z0-9]{2,62}$")
 #: overage``: „enabled by default", „The default threshold is 25%"). Worauf sich die 25 % beziehen,
 #: fuehrt ``capacity_recommend.OVERAGE_VOREINSTELLUNG_PCT`` als ANNAHME (Tages-CU-Stunden der SKU).
 ANLAGE_WERTE = ("existing", "create")
+#: Pin des microsoft/fabric-Providers. ``~> 1.14``: gemessen 30.09.2026 mit ``terraform validate``
+#: gegen 1.14.0 aus einem lokalen Mirror; das Schema von ``fabric_connection`` (write-only
+#: ``*_wo``) und ``fabric_workspace_git`` (``git_credentials``, ``initialization_strategy``) stammt
+#: aus ``microsoft/terraform-provider-fabric`` Tag v1.14.0, ``docs/resources/*.md``.
+FABRIC_PROVIDER_VERSION = "~> 1.14"
+#: Mindestversion von Terraform. 1.11 fuehrt write-only-Argumente ein (``password_wo``,
+#: ``key_wo``, ``client_secret_wo``, ``token_wo`` in ``fabric_connection``): nur sie halten ein
+#: Geheimnis aus dem State. Aeltere Kerne kennen die Eigenschaft nicht.
+TERRAFORM_MIN_VERSION = "1.11"
+#: Anmeldearten, die ``connections.tf`` abbildet (microsoft/fabric 1.14.0, ``docs/resources/
+#: connection.md``), je mit dem Attributblock und dem write-only-Geheimnisfeld. ``Anonymous`` und
+#: ``WorkspaceIdentity`` brauchen kein Geheimnis. Nicht abgebildet: ``KeyPair`` (Kennung + privater
+#: Schluessel + Passphrase, drei Felder), ``Windows*`` (der Provider fuehrt keinen Block dafuer).
+CONNECTION_GEHEIMNIS_ARTEN: dict[str, tuple[str, str]] = {
+    "Basic": ("basic_credentials", "password_wo"),
+    "Key": ("key_credentials", "key_wo"),
+    "ServicePrincipal": ("service_principal_credentials", "client_secret_wo"),
+    "SharedAccessSignature": ("shared_access_signature_credentials", "token_wo"),
+}
+CONNECTION_OHNE_GEHEIMNIS = ("Anonymous", "WorkspaceIdentity")
+#: Initialisierung der Git-Anbindung (``fabric_workspace_git.initialization_strategy``, ForceNew).
+#: ``PreferRemote``: das Repo ist die Quelle — der Workspace entsteht im selben Lauf leer, seine
+#: Items kommen aus dem Branch. Die Wahl greift nur, wenn beide Seiten Inhalt haben (Learn
+#: ``cicd/git-integration/git-get-started``: ist eine Seite leer, wird von der vollen kopiert);
+#: dann gewinnt Git, und Workspace-Aenderungen gehen den Weg ueber Commit und Review.
+GIT_INITIALISIERUNG = "PreferRemote"
 
 
 def _tf_name(name: str) -> str:
@@ -79,6 +109,11 @@ def _hcl_map(paare, einzug: str = "    ") -> str:
     paare = list(paare)
     breite = max((len(k) for k, _v in paare), default=0)
     return "\n".join(f"{einzug}{k.ljust(breite)} = {v}" for k, v in paare)
+
+
+def _hcl_liste(werte) -> str:
+    """``["a", "b"]`` — eine HCL-Liste von Zeichenketten."""
+    return "[" + ", ".join(f'"{w}"' for w in werte) + "]"
 
 
 def _unique_workspaces(bp: dict) -> list[tuple[str, str]]:
@@ -129,11 +164,11 @@ def _providers_tf(azapi: bool = False) -> str:
     return (
         "# Terraform providers — Fabric platform skeleton (ADR-0015; research 2026-07-15 §1).\n"
         "terraform {\n"
-        "  required_version = \">= 1.8\"\n"
+        f"  required_version = \">= {TERRAFORM_MIN_VERSION}\" # write-only credential arguments (connections.tf)\n"
         "  required_providers {\n"
         "    fabric = {\n"
         "      source  = \"microsoft/fabric\"\n"
-        "      version = \"~> 1.0\" # provider is beta; pin + re-validate on upgrade\n"
+        f"      version = \"{FABRIC_PROVIDER_VERSION}\" # validated with 1.14.0 (connection/git schema, D-607); re-validate on upgrade\n"
         "    }\n"
         + azapi_req +
         "  }\n"
@@ -184,8 +219,43 @@ def _anlage_variables_tf() -> str:
         "}\n\n")
 
 
-def _variables_tf(slots: list[tuple[str, str, str]], anlage: dict[str, dict] | None = None) -> str:
+def _secret_variables_tf(git: bool) -> str:
+    """Anmeldedaten (D-607): ``sensitive``, **ohne Default**, befuellt ueber ``TF_VAR_…``.
+
+    Ohne Default fragt Terraform nach, statt still leer zu laufen; ``sensitive`` haelt den Wert
+    aus Plan- und Log-Ausgabe. In den State gelangt er nicht, weil ``connections.tf`` ihn nur in
+    write-only-Argumente (``*_wo``) schreibt.
+    """
+    arten = ", ".join(CONNECTION_OHNE_GEHEIMNIS)
+    out = (
+        "# Credentials (D-607): sensitive, NO default, never in terraform.tfvars or the repo.\n"
+        "# Set via environment / CI secret: TF_VAR_connection_secrets = map of connection name -> secret\n"
+        "# (an empty map '{}' when no connection needs one).\n"
+        "variable \"connection_secrets\" {\n"
+        "  type        = map(string)\n"
+        "  sensitive   = true\n"
+        "  description = \"Secret per connection name (password, key, client secret or SAS token). Set via TF_VAR_connection_secrets.\"\n"
+        "  validation {\n"
+        f"    condition     = alltrue([for c in var.connections : contains({_hcl_liste(CONNECTION_OHNE_GEHEIMNIS)}, c.credential_type) || contains(keys(var.connection_secrets), c.name)])\n"
+        f"    error_message = \"Every connection except {arten} needs an entry in TF_VAR_connection_secrets.\"\n"
+        "  }\n"
+        "}\n")
+    if git:
+        out += (
+            "\n# Git credentials (D-607): id of the Fabric connection that holds the Git provider\n"
+            "# credential (GitHub PAT or Azure DevOps service principal). Set via TF_VAR_git_connection_id.\n"
+            "variable \"git_connection_id\" {\n"
+            "  type        = string\n"
+            "  sensitive   = true\n"
+            "  description = \"Fabric connection id (GUID) with the Git provider credential. Set via TF_VAR_git_connection_id.\"\n"
+            "}\n")
+    return out
+
+
+def _variables_tf(slots: list[tuple[str, str, str]], anlage: dict[str, dict] | None = None,
+                  git: bool = False) -> str:
     anlage = anlage or {}
+    arten = " | ".join((*CONNECTION_GEHEIMNIS_ARTEN, *CONNECTION_OHNE_GEHEIMNIS))
     return (
         ""
         + "".join(_capacity_variable(slot, label, slot in anlage) for slot, label, _wert in slots)
@@ -205,39 +275,85 @@ def _variables_tf(slots: list[tuple[str, str, str]], anlage: dict[str, dict] | N
         "  }))\n"
         "  default = []\n"
         "}\n\n"
+        "# Connections: everything EXCEPT the secret (that is var.connection_secrets). Schema per\n"
+        "# microsoft/fabric 1.14.0 docs/resources/connection.md:\n"
+        "#   connectivity_type  ShareableCloud | VirtualNetworkGateway (gateway_id then required)\n"
+        "#   type, creation_method, parameters  connector-specific, e.g. SQL / SQL / { server, database }\n"
+        f"#   credential_type    {arten}\n"
+        "#   username (Basic), client_id + tenant_id (ServicePrincipal) — identifiers, not secrets\n"
+        "#   secret_version     raise it to push a rotated secret (write-only arguments are not diffed)\n"
+        "#   connection_encryption  provider default NotEncrypted; set Encrypted where the source supports it\n"
         "variable \"connections\" {\n"
-        "  description = \"Source connections/gateways: list of {name, connectivity_type, gateway_id, details...}.\"\n"
+        "  description = \"Source connections: connector type, creation method, parameters and credential type (no secrets).\"\n"
         "  type = list(object({\n"
-        "    name              = string\n"
-        "    connectivity_type = string           # ShareableCloud | OnPremisesGateway | VirtualNetworkGateway\n"
-        "    gateway_id        = optional(string) # for on-prem / VNet gateways\n"
+        + _hcl_map([("name", "string"), ("connectivity_type", "string"),
+                    ("gateway_id", "optional(string)"),
+                    ("privacy_level", 'optional(string, "Organizational")'),
+                    ("type", "string"), ("creation_method", "string"),
+                    ("parameters", "optional(map(string), {})"), ("credential_type", "string"),
+                    ("username", "optional(string)"), ("client_id", "optional(string)"),
+                    ("tenant_id", "optional(string)"), ("secret_version", "optional(number, 1)"),
+                    ("connection_encryption", "optional(string)"),
+                    ("skip_test_connection", "optional(bool, false)")]) + "\n"
         "  }))\n"
         "  default = []\n"
-        "}\n"
+        "  validation {\n"
+        f"    condition     = alltrue([for c in var.connections : contains({_hcl_liste((*CONNECTION_GEHEIMNIS_ARTEN, *CONNECTION_OHNE_GEHEIMNIS))}, c.credential_type)])\n"
+        "    error_message = \"credential_type must be one the emitter maps (KeyPair/Windows are not mapped).\"\n"
+        "  }\n"
+        "}\n\n"
+        + _secret_variables_tf(git)
     )
 
 
 def _connections_tf(bp: dict) -> str:
-    """`fabric_connection` per source connection (driven by var.connections; secrets in tfvars).
+    """`fabric_connection` per source connection (microsoft/fabric 1.14.0 schema, D-607).
 
+    Non-secret details come from ``var.connections`` (tfvars); the secret comes from the sensitive
+    ``var.connection_secrets`` (``TF_VAR_connection_secrets``) and lands only in the write-only
+    ``*_wo`` argument of the block that matches ``credential_type`` — the other blocks are null.
+    ``lookup(…, null)`` instead of an index: HCL evaluates both branches of a conditional, and the
+    presence of the secret is enforced by the variable validation with a readable message.
     The blueprint's ingestion sources are listed as a comment so the operator knows which
-    connections the platform needs; the actual connection details/credentials stay local.
+    connections the platform needs.
     """
     srcs = sorted({e.get("source", "") for e in bp.get("ingestion", []) if e.get("source")})
     src_note = ("#   sources needing a connection: " + ", ".join(srcs)) if srcs else \
         "#   (no ingestion sources in the blueprint)"
+    bloecke = []
+    for art, (block, feld) in CONNECTION_GEHEIMNIS_ARTEN.items():
+        zeilen = {"Basic": [("username", "each.value.username")],
+                  "ServicePrincipal": [("client_id", "each.value.client_id"),
+                                       ("tenant_id", "each.value.tenant_id")]}.get(art, [])
+        zeilen = [*zeilen, (feld, "lookup(var.connection_secrets, each.key, null)"),
+                   (f"{feld}_version", "each.value.secret_version")]
+        bloecke.append(
+            f'    {block} = each.value.credential_type == "{art}" ? {{\n'
+            + _hcl_map(zeilen, einzug="      ") + "\n    } : null\n")
     return (
-        "# Connections / gateways — one fabric_connection per source (research §5).\n"
-        "# Driven by var.connections; connection_details + credentials stay in your tfvars (never here).\n"
+        "# Connections — one fabric_connection per source (research §5; schema microsoft/fabric 1.14.0).\n"
+        "# Details from var.connections (tfvars); the secret ONLY from var.connection_secrets\n"
+        "# (sensitive, TF_VAR_connection_secrets) into a write-only *_wo argument — never in state (D-607).\n"
         f"{src_note}\n"
-        "# VERIFY the exact connection_details/credential_details schema per connector at:\n"
-        "#   registry.terraform.io/providers/microsoft/fabric/latest/docs/resources/connection\n"
+        "# Connector type / creation method / parameter names per source: Fabric REST\n"
+        "#   GET /v1/connections/supportedConnectionTypes (the provider passes them through).\n"
         "resource \"fabric_connection\" \"this\" {\n"
         "  for_each          = { for c in var.connections : c.name => c }\n"
         "  display_name      = each.value.name\n"
         "  connectivity_type = each.value.connectivity_type\n"
-        "  gateway_id        = try(each.value.gateway_id, null)\n"
-        "  # connection_details { ... }   # per-connector; fill from your local tfvars\n"
+        "  gateway_id        = each.value.gateway_id\n"
+        "  privacy_level     = each.value.privacy_level\n"
+        "  connection_details = {\n"
+        "    type            = each.value.type\n"
+        "    creation_method = each.value.creation_method\n"
+        "    parameters      = length(each.value.parameters) > 0 ? [for k, v in each.value.parameters : { name = k, value = v }] : null\n"
+        "  }\n"
+        "  credential_details = {\n"
+        "    credential_type       = each.value.credential_type\n"
+        "    connection_encryption = each.value.connection_encryption\n"
+        "    skip_test_connection  = each.value.skip_test_connection\n"
+        + "".join(bloecke) +
+        "  }\n"
         "}\n"
     )
 
@@ -352,7 +468,7 @@ def _overage_body(cap: dict) -> tuple[str, str]:
             "ASSUMPTION). Conformance P4 warns. Decide platform.capacities[].overage before apply.")
 
 
-def _azapi_capacity_tf(slot: str, cap: dict) -> str:
+def _azapi_capacity_tf(slot: str, cap: dict, schutz: bool = False) -> str:
     """Ein ``azapi_resource`` fuer eine anzulegende Kapazitaet + die Fabric-Datenquelle darauf.
 
     Die Datenquelle bleibt: ``fabric_workspace.capacity_id`` erwartet die Fabric-Kapazitaets-ID,
@@ -360,6 +476,12 @@ def _azapi_capacity_tf(slot: str, cap: dict) -> str:
     implizit — Terraform liest die Datenquelle erst nach der Anlage.
     """
     ov_hcl, ov_note = _overage_body(cap)
+    lifecycle = (
+        "  # D-607: production capacity — `terraform destroy` (and any replacing change) is refused.\n"
+        "  # Deliberate teardown: remove this lifecycle block in a reviewed commit, then destroy.\n"
+        "  lifecycle {\n"
+        "    prevent_destroy = true\n"
+        "  }\n") if schutz else ""
     sku = str(cap["sku"]).strip().upper()
     return (
         f'# {cap["name"]} — CREATED here ({FABRIC_CAPACITY_ARM_TYPE}; preview API, switch at GA).\n'
@@ -385,6 +507,7 @@ def _azapi_capacity_tf(slot: str, cap: dict) -> str:
         f"{ov_hcl}"
         "    }\n"
         "  }\n"
+        f"{lifecycle}"
         "}\n\n"
         f'data "fabric_capacity" "{slot}" {{\n'
         f"  display_name = azapi_resource.{slot}.name\n"
@@ -429,7 +552,9 @@ def _capacity_slots(bp: dict, capacity: str, capacity_non_prod: str
     return [(s, lab, w) for s, (lab, w) in slots.items()], ws_slot
 
 
-def _capacity_tf(slots: list[tuple[str, str, str]], anlage: dict[str, dict] | None = None) -> str:
+def _capacity_tf(bp: dict, slots: list[tuple[str, str, str]], anlage: dict[str, dict] | None = None) -> str:
+    from core.dataarch_engine.blueprint.kapazitaet_stufen import traegt_produktion
+
     anlage = anlage or {}
     out = [
         "# Capacity is an Azure ARM resource. Existing ones are referenced by name (data source);\n"
@@ -441,7 +566,7 @@ def _capacity_tf(slots: list[tuple[str, str, str]], anlage: dict[str, dict] | No
         "# Tier-1 workloads (surge_class = mission_critical) may get their own — see CAPACITY_RUNBOOK.md."]
     for slot, label, _wert in slots:
         if slot in anlage:
-            out.append(_azapi_capacity_tf(slot, anlage[slot]))
+            out.append(_azapi_capacity_tf(slot, anlage[slot], traegt_produktion(bp, anlage[slot])))
             continue
         out.append(f'# {label}\n'
                    f'data "fabric_capacity" "{slot}" {{\n'
@@ -504,26 +629,111 @@ def _roles_tf(workspaces: list[tuple[str, str]]) -> str:
     )
 
 
+def _git_provider_details(git: dict) -> list[tuple[str, str]]:
+    """``git_provider_details`` je Anbieter (microsoft/fabric 1.14.0, ``workspace_git.md``):
+    GitHub traegt ``owner_name`` und muss ``organization_name``/``project_name`` NULL lassen,
+    Azure DevOps umgekehrt. ``repository: "owner/repo"`` wird bei GitHub zerlegt."""
+    anbieter = git.get("provider", "AzureDevOps")
+    repo = str(git.get("repository", "<repo>"))
+    if anbieter == "GitHub":
+        owner = git.get("owner") or git.get("organization")
+        if not owner and "/" in repo:
+            owner, repo = repo.split("/", 1)
+        kopf = [("git_provider_type", '"GitHub"'), ("owner_name", f'"{owner or "<owner>"}"')]
+    else:
+        kopf = [("git_provider_type", f'"{anbieter}"'),
+                ("organization_name", f'"{git.get("organization", "<org>")}"'),
+                ("project_name", f'"{git.get("project", "<project>")}"')]
+    return kopf + [("repository_name", f'"{repo}"'),
+                   ("branch_name", f'"{git.get("branch", "<branch>")}"'),
+                   ("directory_name", f'"{git.get("directory", "/")}"')]
+
+
 def _git_tf(bp: dict, git: dict) -> str:
     gold = [n for n, r in _unique_workspaces(bp) if r in LAKEHOUSE_ROLES]
     target = _tf_name(gold[0]) if gold else _tf_name(_unique_workspaces(bp)[0][0])
     return (
         "# Git integration — connect the gold/dev workspace to a repo branch.\n"
+        f"# initialization_strategy = {GIT_INITIALISIERUNG}: the repo is the source; the workspace is\n"
+        "# created empty in the same run and filled from the branch. Only matters when both sides hold\n"
+        "# content — then Git wins. ForceNew: changing it later reconnects the workspace.\n"
+        "# git_credentials: ConfiguredConnection (works for GitHub and Azure DevOps and with a service\n"
+        "# principal; 'Automatic' is Azure DevOps with a user identity only). The connection id comes\n"
+        "# from TF_VAR_git_connection_id (D-607).\n"
         f'resource "fabric_workspace_git" "{target}" {{\n'
-        f'  workspace_id = fabric_workspace.{target}.id\n'
+        f"  workspace_id            = fabric_workspace.{target}.id\n"
+        f'  initialization_strategy = "{GIT_INITIALISIERUNG}"\n'
         "  git_provider_details = {\n"
-        f'    git_provider_type = "{git.get("provider", "AzureDevOps")}"\n'
-        f'    organization_name = "{git.get("organization", "<org>")}"\n'
-        f'    project_name      = "{git.get("project", "<project>")}"\n'
-        f'    repository_name   = "{git.get("repository", "<repo>")}"\n'
-        f'    branch_name       = "{git.get("branch", "<branch>")}"\n'
-        f'    directory_name    = "{git.get("directory", "/")}"\n'
+        + _hcl_map(_git_provider_details(git)) + "\n"
+        "  }\n"
+        "  git_credentials = {\n"
+        '    source        = "ConfiguredConnection"\n'
+        "    connection_id = var.git_connection_id\n"
         "  }\n"
         "}\n"
     )
 
 
-def _terraform_md(slots: list[tuple[str, str, str]], git: dict | None,
+def _credentials_md(git: dict | None) -> str:
+    """Runbook-Abschnitt Anmeldedaten (D-607): wie die sensiblen Variablen befuellt werden."""
+    git_zeile = ("export TF_VAR_git_connection_id=\"$FABRIC_GIT_CONNECTION_ID\"   # CI secret\n"
+                 if git else "")
+    git_text = (
+        "`git_connection_id` is the id of the Fabric connection that holds the Git provider "
+        "credential (GitHub: personal access token; Azure DevOps: service principal) — create it "
+        "once under *Manage connections and gateways* or via the Git connection REST API. "
+        f"`initialization_strategy = \"{GIT_INITIALISIERUNG}\"`: the repository is the source of the "
+        "workspace content. The workspace is created empty in the same run, and when both sides "
+        "already hold content the branch wins, so workspace edits go through commit and review. "
+        "The value is ForceNew — changing it reconnects the workspace.\n\n") if git else ""
+    return (
+        "## Anmeldedaten (D-607)\n"
+        "Credentials are **sensitive variables without a default** — never in `terraform.tfvars`, "
+        "`backend.hcl` or the repository, never as a command-line argument. Fill them from the "
+        "environment (CI: pipeline secrets mapped to `TF_VAR_…`):\n\n"
+        "```bash\n"
+        "# values come from the CI secret store / your password manager — not typed into the command\n"
+        "export TF_VAR_connection_secrets=\"$FABRIC_CONNECTION_SECRETS\"   # map: connection name -> secret\n"
+        + git_zeile +
+        "terraform plan\n"
+        "```\n\n"
+        "`var.connections` in `terraform.tfvars` carries everything else (connector type, creation "
+        "method, parameters, `credential_type`, user name / client id). The secret reaches only the "
+        "write-only `*_wo` argument of `fabric_connection`, so it is not stored in the state "
+        f"(write-only arguments need Terraform ≥ {TERRAFORM_MIN_VERSION}). Rotation: new secret in "
+        "the secret store, raise `secret_version` of that connection, `apply`. Without connections "
+        "set `TF_VAR_connection_secrets='{}'`.\n\n"
+        + git_text)
+
+
+def _schutz_md(bp: dict, anlage: dict[str, dict]) -> str:
+    """Runbook-Abschnitt Prod-Schutz (D-607): welche Kapazitaet geschuetzt ist, wie man sie bewusst
+    zurueckbaut."""
+    from core.dataarch_engine.blueprint.kapazitaet_stufen import traegt_produktion
+
+    if not anlage:
+        return ""
+    prod = [s for s, c in anlage.items() if traegt_produktion(bp, c)]
+    rest = [s for s in anlage if s not in prod]
+    liste = lambda xs: ", ".join(f"`azapi_resource.{x}`" for x in xs) or "—"  # noqa: E731
+    return (
+        "## Produktionskapazität zurückbauen (D-607)\n"
+        f"Protected (`lifecycle {{ prevent_destroy = true }}`, stage prod): {liste(prod)}. "
+        f"Destroyable (dev/test): {liste(rest)}. `terraform destroy` — and any change that would "
+        "replace a protected capacity — stops with an error instead of deleting production. "
+        "This holds for the **whole** run: a plain `terraform destroy` (and so `platform_down.sh`) "
+        "deletes nothing while a protected capacity is in the configuration.\n\n"
+        + (("Tear down only non-production: target it — dependants (the workspaces on it and what "
+            "hangs on them) are included:\n\n```bash\n"
+            + "".join(f"terraform destroy -target=azapi_resource.{x}\n" for x in rest)
+            + "```\n\n") if rest else "") +
+        "Deliberate production teardown: remove the `lifecycle` block of that capacity in "
+        "`capacity.tf` in its own reviewed commit (the removal is visible in the diff), then run "
+        "`terraform destroy` (or `terraform apply` for a replacement). Regenerating from the "
+        "blueprint brings the block back as long as the capacity carries stage prod.\n\n")
+
+
+def _terraform_md(bp: dict, slots: list[tuple[str, str, str]], git: dict | None,
                   anlage: dict[str, dict] | None = None) -> str:
     anlage = anlage or {}
     git_cov = "✓ `git.tf`" if git else "— (pass `--git` to emit `git.tf`)"
@@ -538,8 +748,9 @@ def _terraform_md(slots: list[tuple[str, str, str]], git: dict | None,
             "approved), the `Microsoft.Fabric` resource provider registered, `capacity_admins` "
             "existing in Entra. A capacity bills from creation until paused or deleted. Overage is "
             "written out in `capacity.tf` — where the blueprint did not decide, Microsoft's default "
-            "(enabled, 25 %) is spelled out and marked NOT DECIDED. `terraform destroy` deletes these "
-            "capacities too; ")
+            "(enabled, 25 %) is spelled out and marked NOT DECIDED. Dev/test capacities stay "
+            "destroyable (targeted, see above); production ones are protected (`prevent_destroy`, "
+            "D-607); ")
     else:
         kap_cov = "✓ (data sources — bestehende referenzieren; Produktion und Nicht-Produktion getrennt, D-596) |"
         kap_caveat = (
@@ -559,15 +770,18 @@ def _terraform_md(slots: list[tuple[str, str, str]], git: dict | None,
         "| Stage-Workspaces | `workspaces.tf` + `deployment_pipeline.tf` | ✓ (Stages über die Pipeline) |\n"
         "| Git-Binding | `git.tf` | " + git_cov + " |\n"
         "| Deployment-Pipeline | `deployment_pipeline.tf` | ✓ |\n"
-        "| Connections/Gateways | `connections.tf` | ✓ (via `var.connections`) |\n"
+        "| Connections/Gateways | `connections.tf` | ✓ (via `var.connections`, Geheimnis per `TF_VAR_connection_secrets`) |\n"
         "| Domains | `domains.tf` | ✓ |\n"
         "| Variable-Library | `variable_library.tf` | ✓ VERIFY (Provider-abhängig; sonst Item-Deploy) |\n"
         "| RBAC | `roles.tf` | ✓ (via `var.role_assignments`) |\n\n"
+        + _credentials_md(git) + _schutz_md(bp, anlage) +
         "**Caveats (preview-gate):** provider is **beta** — pin the version; some resources lack "
         "service-principal support; " + kap_caveat +
         "`fabric_domain` needs a **Fabric admin user** context; the deployment-pipeline stage "
-        "assignment, `fabric_connection` details and `fabric_variable_library` are annotated "
-        "**VERIFY** against the registry (version-dependent). Rollback: `terraform destroy`.\n")
+        "assignment and `fabric_variable_library` are annotated **VERIFY** against the registry "
+        "(version-dependent); `fabric_connection` follows the provider 1.14.0 schema (connector "
+        "type and parameter names per source from `GET /v1/connections/supportedConnectionTypes`). "
+        "Rollback: `terraform destroy` (production capacities excepted, see above).\n")
 
 
 def _anlage(bp: dict, slots: list[tuple[str, str, str]]) -> dict[str, dict]:
@@ -588,6 +802,14 @@ def _anlage(bp: dict, slots: list[tuple[str, str, str]]) -> dict[str, dict]:
     if fehler:
         raise ValueError("capacity creation (provisioning: create) not possible: " + "; ".join(fehler))
     return aus
+
+
+def _tfvars_kopf(git: bool) -> str:
+    """Kopf der Beispiel-tfvars (D-607): die Anmeldedaten stehen hier nie, nur der Hinweis, wie
+    sie gesetzt werden. Ohne Gleichheitszeichen, damit kein Leser sie fuer eine Zuweisung haelt."""
+    namen = "TF_VAR_connection_secrets" + (" and TF_VAR_git_connection_id" if git else "")
+    return ("# Credentials are NOT set here (D-607): set per " + namen + "\n"
+            "# from the CI secret store / environment. See _TERRAFORM.md, section Anmeldedaten.\n")
 
 
 def emit_terraform(bp: dict, capacity: str = "<CAPACITY_NAME>", git: dict | None = None,
@@ -616,16 +838,16 @@ def emit_terraform(bp: dict, capacity: str = "<CAPACITY_NAME>", git: dict | None
         "terraform/providers.tf": _providers_tf(azapi=bool(anlage)),
         "terraform/backend.tf": _backend_tf(),
         "terraform/backend.hcl.example": _backend_hcl_example(),
-        "terraform/variables.tf": _variables_tf(slots, anlage),
-        "terraform/capacity.tf": _capacity_tf(slots, anlage),
+        "terraform/variables.tf": _variables_tf(slots, anlage, git=bool(git)),
+        "terraform/capacity.tf": _capacity_tf(bp, slots, anlage),
         "terraform/workspaces.tf": _workspaces_tf(workspaces, ws_slot),
         "terraform/domains.tf": _domains_tf(bp),
         "terraform/roles.tf": _roles_tf(workspaces),
         "terraform/connections.tf": _connections_tf(bp),
         "terraform/deployment_pipeline.tf": _deployment_pipeline_tf(bp),
         "terraform/variable_library.tf": _variable_library_tf(),
-        "terraform/terraform.tfvars": _hcl_map(tfvars, einzug="") + "\n",
-        "terraform/_TERRAFORM.md": _terraform_md(slots, git, anlage),
+        "terraform/terraform.tfvars": _tfvars_kopf(bool(git)) + _hcl_map(tfvars, einzug="") + "\n",
+        "terraform/_TERRAFORM.md": _terraform_md(bp, slots, git, anlage),
     }
     if git:
         out["terraform/git.tf"] = _git_tf(bp, git)

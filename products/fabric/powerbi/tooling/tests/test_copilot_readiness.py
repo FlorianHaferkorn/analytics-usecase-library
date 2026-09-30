@@ -124,7 +124,10 @@ def test_catalog_synonyms_reach_the_candidates(com001):
 def test_provenance_names_aluca_not_the_meridian_core(com001):
     kernel = _vendor.load_kernel()
     core = adapter.build_core("COM-001")
-    assert adapter.KERNEL_PROVENANCE_PREFIX in kernel["instructions"].render_markdown(core)
+    # the kernel still defaults to Meridian and takes the source as parameter
+    assert "Quelle: Meridian Core — " in kernel["instructions"].render_markdown(core)
+    assert adapter.ALUCA_PROVENANCE_PREFIX in kernel["instructions"].render_markdown(
+        core, herkunft=adapter.ALUCA_HERKUNFT)
     for name in ("ai_instructions.md", "ai_instructions.txt"):
         assert "Meridian Core" not in com001[name]
         assert adapter.ALUCA_PROVENANCE_PREFIX in com001[name]

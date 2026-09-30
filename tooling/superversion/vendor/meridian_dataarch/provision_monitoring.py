@@ -1201,6 +1201,66 @@ def _warehouse_monitor_lines() -> list[str]:
         "incident itself |", "",
         "It raises no alerts. Failed warehouse *jobs* are covered by the job alerts (step 2, job "
         "type *Warehouse*); a slow or failing *query* is only visible here or in the views.",
+        *_result_set_cache_lines(),
+        *_activator_sql_lines(),
+    ]
+
+
+def _result_set_cache_lines() -> list[str]:
+    """Result set caching (I-21 W5.8): ab Werk an, Folgen fuer Kosten, Frische und Messung.
+
+    Belegt per Learn-MCP am 30.09.2026: `fabric/data-warehouse/result-set-caching` (ab Werk an fuer
+    Warehouses und SQL-Analyseendpunkte; Abschalten je Item per ``ALTER DATABASE``, je Abfrage per
+    Hint; Invalidierung bei Aenderung; Ausschluesse; 24 Stunden ohne Nutzung) und „What's new"
+    September 2026 („Result set caching is enabled by default"). **GA** sagt keine der beiden Seiten
+    woertlich; die Seite traegt keinen Preview-Hinweis. GA steht im Plan I-21 — hier deshalb nur
+    „ab Werk an".
+    """
+    return [
+        "", "### Result set caching is on by default", "",
+        "Warehouses and SQL analytics endpoints cache the final result of eligible `SELECT` "
+        "queries and answer repeats from that cache. Three consequences for operations:", "",
+        "| Concern | What happens | What to do |", "|---|---|---|",
+        "| **Freshness** | any change to a referenced table invalidates the cache; queries with "
+        "`GETDATE()`, `CURRENT_USER`, row-level security, dynamic data masking or time travel are "
+        "never cached | nothing — a cache hit is not stale data |",
+        "| **Cost** | a hit skips compilation and data processing, so repeated report queries use "
+        "less capacity | read capacity figures of repeated queries as cached cost, not as the "
+        "cost of the query itself |",
+        "| **Measurement** | a repeated query can be answered from the cache, so its runtime says "
+        "nothing about the query | for timing comparisons and load tests add `OPTION ( USE HINT "
+        "('DISABLE_RESULT_SET_CACHE') )`; the Monitor's *result cache hit* column shows which "
+        "runs were hits |",
+        "",
+        "Check per item: `SELECT name, is_result_set_caching_on FROM sys.databases WHERE "
+        "database_id = db_id();` — off with `ALTER DATABASE {item} SET RESULT_SET_CACHING OFF;`. "
+        "A cache unused for 24 hours is dropped, and cross-database queries never use it.",
+    ]
+
+
+def _activator_sql_lines() -> list[str]:
+    """Activator-Regel auf eine Warehouse-SQL-Abfrage als Option (I-21 W5.8, **Preview**).
+
+    Belegt per Learn-MCP am 30.09.2026: `real-time-intelligence/data-activator/set-alerts-
+    warehouse-sql-query` (nur ``SELECT``, Takt „Run query every", Alarm wenn die Abfrage Zeilen
+    liefert, Bedingung „On each event") und `activator-introduction` (Preview-Kennzeichnung).
+    Kein Emitter: die Regel entsteht im SQL-Editor; eine Regeldatei ohne dokumentierte Definition
+    waere eine geratene.
+    """
+    return [
+        "", "### Option: an Activator rule on a warehouse SQL query (preview)", "",
+        "For checks that live in the warehouse rather than in a job log — a gold table that did "
+        "not grow today, a reconciliation difference above zero — Activator can run a SQL query on "
+        "a schedule and alert when it **returns rows**. In the warehouse's SQL query editor: run a "
+        "`SELECT`, then **Create rule**; set *Run query every*, keep *On each event*, choose email, "
+        "Teams or a Fabric item as action, and save the rule to the monitoring workspace's "
+        "Activator item.", "",
+        "- Write the query so that **an empty result means healthy**: every returned row is one "
+        "alert, on every run.",
+        "- Each run is a warehouse query on the capacity; choose the interval to match how often "
+        "the data changes, not as short as possible.",
+        "- Preview: keep the job alerts and the KQL rule above as the primary signal; this rule "
+        "adds a data condition, it does not replace them.",
     ]
 
 
