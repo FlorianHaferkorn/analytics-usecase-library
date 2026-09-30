@@ -64,7 +64,7 @@ single visual types, each card as `[{"<propertyName>": <value>}]`
 
 A custom theme layers on top of the report's base theme; anything it leaves out comes from
 the base theme. New reports start on the **Fluent 2** base theme since August 2026, generated
-ALUCA reports pin `CY25SU10`
+ALUCA reports pin `CY26SU10` (from the pinned official CLI, D-587)
 ([Visual defaults](https://learn.microsoft.com/power-bi/create-reports/power-bi-reports-visual-defaults)).
 The derivation therefore always writes all four primary text classes, so the brand font does
 not depend on which base theme a report has (`tooling/tests/test_pbi_theme_base_independence.py`).

@@ -1,5 +1,5 @@
 {
-  "name": "CY25SU10",
+  "name": "CY26SU10",
   "dataColors": [
     "#118DFF",
     "#12239E",
@@ -50,9 +50,9 @@
   "backgroundLight": "#F3F2F1",
   "backgroundNeutral": "#C8C6C4",
   "tableAccent": "#118DFF",
-  "good": "#1AAB40",
-  "neutral": "#D9B300",
-  "bad": "#D64554",
+  "good": "#9FD89F",
+  "neutral": "#FDCFB4",
+  "bad": "#EEACB2",
   "maximum": "#118DFF",
   "center": "#D9B300",
   "minimum": "#DEEFFF",
@@ -61,7 +61,7 @@
   "visitedHyperlink": "#0078d4",
   "textClasses": {
     "callout": {
-      "fontSize": 45,
+      "fontSize": 24,
       "fontFace": "DIN",
       "color": "#252423"
     },
@@ -125,6 +125,13 @@
         "title": [
           {
             "titleWrap": true
+          }
+        ],
+        "spacing": [
+          {
+            "spaceAboveSubtitle": 2,
+            "spaceAboveDivider": 16,
+            "spaceAbovePlotArea": 16
           }
         ],
         "lineStyles": [
@@ -193,6 +200,7 @@
         "bubbles": [
           {
             "bubbleSize": -10,
+            "preventOverflow": true,
             "markerRangeType": "auto"
           }
         ],
@@ -230,6 +238,13 @@
           {
             "matchSeriesInterpolation": true
           }
+        ],
+        "seriesLabels": [
+          {
+            "enableBackground": true,
+            "leaderLines": true,
+            "seriesMatchColor": true
+          }
         ]
       }
     },
@@ -249,13 +264,24 @@
           {
             "bubbleRadius": 8,
             "minBubbleRadius": 8,
-            "maxRadius": 40
+            "maxRadius": 28,
+            "clusteredBubbleRadius": 16
           }
         ],
         "barChart": [
           {
             "barHeight": 3,
             "thickness": 3
+          }
+        ],
+        "mapControls": [
+          {
+            "showSelectionControl": true
+          }
+        ],
+        "commonDataOptions": [
+          {
+            "unselectedTransparency": 40
           }
         ]
       }
@@ -287,14 +313,15 @@
           {
             "labelStyle": "Data value, percent of total"
           }
-        ]
-      }
-    },
-    "tableEx": {
-      "*": {
-        "columnHeaders": [
+        ],
+        "slices": [
           {
-            "columnAdjustment": "growToFit"
+            "innerRadiusRatio": 80
+          }
+        ],
+        "centerValue": [
+          {
+            "show": true
           }
         ]
       }
@@ -334,6 +361,13 @@
         "layout": [
           {
             "maxTiles": 3
+          },
+          {
+            "$id": "default",
+            "cellPadding": 12,
+            "paddingIndividual": false,
+            "paddingUniform": 12,
+            "backgroundShow": true
           }
         ],
         "overflow": [
@@ -343,10 +377,168 @@
         ],
         "image": [
           {
+            "$id": "default",
+            "position": "Left",
+            "imageAreaSize": 20,
+            "padding": 12,
+            "rectangleRoundedCurve": 4,
+            "fit": "Normal",
             "fixedSize": false
-          },
+          }
+        ],
+        "referenceLabel": [
           {
-            "imageAreaSize": 50
+            "$id": "default",
+            "backgroundColor": {
+              "solid": {
+                "color": "backgroundLight"
+              }
+            },
+            "paddingUniform": 12,
+            "rectangleRoundedCurveCustomStyle": true,
+            "rectangleRoundedCurveLeftBottom": 4,
+            "rectangleRoundedCurveRightBottom": 4
+          }
+        ],
+        "referenceLabelDetail": [
+          {
+            "$id": "default",
+            "detailBackgroundColor": {
+              "solid": {
+                "color": "foreground"
+              }
+            },
+            "detailFontColor": {
+              "solid": {
+                "color": "background"
+              }
+            }
+          }
+        ],
+        "referenceLabelTitle": [
+          {
+            "$id": "default",
+            "titleFontColor": {
+              "solid": {
+                "color": "foregroundNeutralSecondary"
+              }
+            }
+          }
+        ],
+        "referenceLabelValue": [
+          {
+            "$id": "default",
+            "valueFontFamily": "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif",
+            "fontColor": {
+              "solid": {
+                "color": "foreground"
+              }
+            }
+          }
+        ],
+        "value": [
+          {
+            "$id": "default",
+            "fontFamily": "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif"
+          }
+        ],
+        "label": [
+          {
+            "$id": "default",
+            "position": "belowValue",
+            "fontColor": {
+              "solid": {
+                "color": "foregroundNeutralSecondary"
+              }
+            }
+          }
+        ],
+        "spacing": [
+          {
+            "$id": "default",
+            "verticalSpacing": 2
+          }
+        ],
+        "outline": [
+          {
+            "$id": "default",
+            "lineColor": {
+              "solid": {
+                "color": "backgroundLight"
+              }
+            }
+          }
+        ],
+        "divider": [
+          {
+            "$id": "default",
+            "dividerColor": {
+              "solid": {
+                "color": "backgroundLight"
+              }
+            }
+          }
+        ],
+        "shapeCustomRectangle": [
+          {
+            "$id": "default",
+            "tileShape": "rectangleRoundedByPixel",
+            "rectangleRoundedCurve": 4
+          }
+        ],
+        "smallMultiplesOuterShape": [
+          {
+            "$id": "default",
+            "rectangleRoundedCurveCustomStyle": false,
+            "rectangleRoundedCurve": 4
+          }
+        ],
+        "smallMultiplesHeader": [
+          {
+            "$id": "default",
+            "paddingIndividual": false,
+            "paddingUniform": 12,
+            "backgroundColor": {
+              "solid": {
+                "color": "backgroundLight"
+              }
+            }
+          }
+        ],
+        "smallMultiplesLayout": [
+          {
+            "style": "Table",
+            "cellPadding": 12,
+            "rowCount": 3,
+            "orientation": 1,
+            "titleOrientation": 1,
+            "headerPosition": "Top"
+          }
+        ],
+        "smallMultiplesGrid": [
+          {
+            "gridlineColor": {
+              "solid": {
+                "color": "foregroundNeutralTertiary"
+              }
+            }
+          }
+        ],
+        "smallMultiplesBorder": [
+          {
+            "$id": "default",
+            "gridlineColor": {
+              "solid": {
+                "color": "foregroundNeutralTertiary"
+              }
+            }
+          }
+        ],
+        "padding": [
+          {
+            "$id": "default",
+            "paddingUniform": 12,
+            "paddingIndividual": false
           }
         ]
       }
@@ -379,11 +571,31 @@
         ]
       }
     },
+    "listSlicer": {
+      "*": {
+        "layout": [
+          {
+            "showFixedSize": true
+          }
+        ]
+      }
+    },
     "slicer": {
       "*": {
         "general": [
           {
             "responsive": true
+          }
+        ],
+        "dropdown": [
+          {
+            "borderColor": {
+              "solid": {
+                "color": "backgroundNeutral"
+              }
+            },
+            "accentBarShow": true,
+            "borderRadius": 4
           }
         ],
         "date": [
@@ -480,6 +692,11 @@
             "showGradientLegend": true
           }
         ],
+        "categoryAxis": [
+          {
+            "autoExpand": true
+          }
+        ],
         "smallMultiplesLayout": [
           {
             "backgroundTransparency": 0,
@@ -498,6 +715,11 @@
         "legend": [
           {
             "showGradientLegend": true
+          }
+        ],
+        "categoryAxis": [
+          {
+            "autoExpand": true
           }
         ],
         "smallMultiplesLayout": [
@@ -520,6 +742,11 @@
             "showGradientLegend": true
           }
         ],
+        "categoryAxis": [
+          {
+            "autoExpand": true
+          }
+        ],
         "smallMultiplesLayout": [
           {
             "backgroundTransparency": 0,
@@ -540,6 +767,13 @@
             "backgroundTransparency": 0,
             "gridLineType": "inner"
           }
+        ],
+        "seriesLabels": [
+          {
+            "enableBackground": true,
+            "leaderLines": true,
+            "seriesMatchColor": true
+          }
         ]
       }
     },
@@ -554,6 +788,13 @@
           {
             "backgroundTransparency": 0,
             "gridLineType": "inner"
+          }
+        ],
+        "seriesLabels": [
+          {
+            "enableBackground": true,
+            "leaderLines": true,
+            "seriesMatchColor": true
           }
         ]
       }
@@ -570,6 +811,14 @@
             "backgroundTransparency": 0,
             "gridLineType": "inner"
           }
+        ],
+        "seriesLabels": [
+          {
+            "backgroundTransparency": 0.9,
+            "enableBackground": true,
+            "leaderLines": true,
+            "seriesMatchColor": true
+          }
         ]
       }
     },
@@ -584,6 +833,14 @@
           {
             "backgroundTransparency": 0,
             "gridLineType": "inner"
+          }
+        ],
+        "seriesLabels": [
+          {
+            "backgroundTransparency": 0.9,
+            "enableBackground": true,
+            "leaderLines": true,
+            "seriesMatchColor": true
           }
         ]
       }
@@ -619,6 +876,13 @@
           {
             "backgroundTransparency": 0,
             "gridLineType": "inner"
+          }
+        ],
+        "seriesLabels": [
+          {
+            "enableBackground": true,
+            "leaderLines": true,
+            "seriesMatchColor": true
           }
         ]
       }
@@ -687,9 +951,12 @@
             "show": false
           }
         ],
-        "lockAspect": [
+        "padding": [
           {
-            "show": true
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0
           }
         ]
       }

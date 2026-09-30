@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from tooling.generator_core.adapters.base import GeneratorAdapter, RenderResult
+from tooling.report_quality import base_theme as _base_theme
 from products.fabric.powerbi.tooling.theme_registration import (
     custom_theme_collection_name,
     prepare_registered_theme_bytes,
@@ -255,11 +256,8 @@ def _build_report_json(spec: DashboardSpec) -> Dict[str, Any]:
         theme_stem = custom_theme_collection_name(Path(spec.theme_path).stem)
         theme_filename = registered_theme_filename(theme_stem)
     theme_collection: Dict[str, Any] = {
-        "baseTheme": {
-            "name": "CY25SU10",
-            "reportVersionAtImport": {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"},
-            "type": "SharedResources",
-        }
+        # Name + reportVersionAtImport from the pinned official CLI (D-587).
+        "baseTheme": _base_theme.base_theme_entry()
     }
     resource_packages: list = []
     if theme_stem and theme_filename:
@@ -275,7 +273,7 @@ def _build_report_json(spec: DashboardSpec) -> Dict[str, Any]:
             {
                 "name": "SharedResources",
                 "type": "SharedResources",
-                "items": [{"name": "CY25SU10", "path": "BaseThemes/CY25SU10.json", "type": "BaseTheme"}],
+                "items": [_base_theme.shared_resources_item()],
             },
             {
                 "name": "RegisteredResources",
@@ -569,6 +567,10 @@ class PBIPAdapter(GeneratorAdapter):
                 measures_key = f"{spec.semantic_model}/definition/tables/_Measures.tmdl"
                 files[measures_key] = _build_tmdl_measures(spec.measures).encode("utf-8")
                 no_overwrite.add(measures_key)
+
+        # Ship the referenced base theme like the official scaffold (D-587).
+        files[f"{report_name}/StaticResources/SharedResources/{_base_theme.resource_path()}"] = (
+            _base_theme.vendored_bytes())
 
         # Embed custom theme file into StaticResources/RegisteredResources/
         if spec.theme_path:

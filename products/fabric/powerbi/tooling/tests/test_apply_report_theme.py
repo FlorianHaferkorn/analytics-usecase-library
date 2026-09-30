@@ -7,12 +7,20 @@ identical. (This is unlike the SharedResources/BaseTheme item, whose `name` is t
 id.) A bare-stem CustomTheme name is flagged PBIR_THEME_NAME_MISSING_JSON_EXT; a name
 that mismatches the referenced file is flagged PBIR_THEME_FILE_NAME_MISMATCH.
 """
-from products.fabric.powerbi.tooling.apply_report_theme import _ensure_resource_packages
+import json
+from pathlib import Path
+
+from products.fabric.powerbi.tooling.apply_report_theme import (
+    DEFAULT_BASE_THEME,
+    _ensure_resource_packages,
+    sync_base_theme,
+)
+from tooling.report_quality import base_theme as bt
 
 
 def test_registered_custom_theme_item_name_matches_json_filename():
     data: dict = {}
-    _ensure_resource_packages(data, base_theme="CY25SU10", custom_theme_filename="Aurora_Theme.json")
+    _ensure_resource_packages(data, base_theme=DEFAULT_BASE_THEME, custom_theme_filename="Aurora_Theme.json")
 
     shared = next(p for p in data["resourcePackages"] if p["type"] == "SharedResources")
     registered = next(p for p in data["resourcePackages"] if p["type"] == "RegisteredResources")
@@ -20,8 +28,8 @@ def test_registered_custom_theme_item_name_matches_json_filename():
     custom_item = next(i for i in registered["items"] if i["type"] == "CustomTheme")
 
     # SharedResources/BaseTheme item: name is the bare id, path has the extension.
-    assert base_item["name"] == "CY25SU10"
-    assert base_item["path"] == "BaseThemes/CY25SU10.json"
+    assert base_item["name"] == DEFAULT_BASE_THEME
+    assert base_item["path"] == f"BaseThemes/{DEFAULT_BASE_THEME}.json"
 
     # RegisteredResources/CustomTheme item: name == path == the .json filename.
     assert custom_item["name"] == "Aurora_Theme.json"
@@ -30,8 +38,8 @@ def test_registered_custom_theme_item_name_matches_json_filename():
 
 def test_reapplying_theme_replaces_the_existing_entry_not_duplicates_it():
     data: dict = {}
-    _ensure_resource_packages(data, base_theme="CY25SU10", custom_theme_filename="Aurora_Theme.json")
-    _ensure_resource_packages(data, base_theme="CY25SU10", custom_theme_filename="Aurora_Theme.json")
+    _ensure_resource_packages(data, base_theme=DEFAULT_BASE_THEME, custom_theme_filename="Aurora_Theme.json")
+    _ensure_resource_packages(data, base_theme=DEFAULT_BASE_THEME, custom_theme_filename="Aurora_Theme.json")
 
     registered = next(p for p in data["resourcePackages"] if p["type"] == "RegisteredResources")
     custom_items = [i for i in registered["items"] if i["type"] == "CustomTheme"]
@@ -53,9 +61,67 @@ def test_reapplying_over_a_pre_fix_buggy_entry_replaces_it_by_path_not_name():
             }
         ]
     }
-    _ensure_resource_packages(data, base_theme="CY25SU10", custom_theme_filename="Aurora_Theme.json")
+    _ensure_resource_packages(data, base_theme=DEFAULT_BASE_THEME, custom_theme_filename="Aurora_Theme.json")
 
     registered = next(p for p in data["resourcePackages"] if p["type"] == "RegisteredResources")
     custom_items = [i for i in registered["items"] if i["type"] == "CustomTheme"]
     assert len(custom_items) == 1
     assert custom_items[0]["name"] == "Aurora_Theme.json"
+
+
+def test_default_base_theme_is_the_pinned_cli_theme():
+    assert DEFAULT_BASE_THEME == bt.BASE_THEME_NAME
+
+
+def test_new_base_theme_replaces_the_previous_base_item():
+    data = {"resourcePackages": [{"name": "SharedResources", "type": "SharedResources",
+                                  "items": [{"name": "CY25SU10", "path": "BaseThemes/CY25SU10.json",
+                                             "type": "BaseTheme"}]}]}
+    _ensure_resource_packages(data, base_theme=DEFAULT_BASE_THEME, custom_theme_filename="A.json")
+    shared = next(p for p in data["resourcePackages"] if p["type"] == "SharedResources")
+    assert [i["name"] for i in shared["items"] if i["type"] == "BaseTheme"] == [DEFAULT_BASE_THEME]
+
+
+def _old_report(root: Path) -> Path:
+    """A report as dist carried it before D-587 (CY25SU10 + a custom theme)."""
+    report = root / "X.Report"
+    (report / "definition").mkdir(parents=True)
+    base_dir = report / "StaticResources" / "SharedResources" / "BaseThemes"
+    base_dir.mkdir(parents=True)
+    (base_dir / "CY25SU10.json").write_text('{"name": "CY25SU10"}\n', encoding="utf-8")
+    (base_dir / "Unrelated.json").write_text("{}\n", encoding="utf-8")
+    old = {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"}
+    data = {
+        "themeCollection": {
+            "baseTheme": {"name": "CY25SU10", "reportVersionAtImport": old, "type": "SharedResources"},
+            "customTheme": {"name": "A.json", "reportVersionAtImport": old, "type": "RegisteredResources"},
+        },
+        "resourcePackages": [
+            {"name": "SharedResources", "type": "SharedResources",
+             "items": [{"name": "CY25SU10", "path": "BaseThemes/CY25SU10.json", "type": "BaseTheme"}]},
+            {"name": "RegisteredResources", "type": "RegisteredResources",
+             "items": [{"name": "A.json", "path": "A.json", "type": "CustomTheme"}]},
+        ],
+    }
+    (report / "definition" / "report.json").write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    return report
+
+
+def test_sync_base_theme_moves_report_onto_pinned_theme_and_is_idempotent(tmp_path):
+    report = _old_report(tmp_path)
+    assert sync_base_theme(report, check=True), "check must see the drift"
+    assert (report / "StaticResources/SharedResources/BaseThemes/CY25SU10.json").exists(), "check wrote"
+
+    assert sync_base_theme(report)
+    data = json.loads((report / "definition" / "report.json").read_text(encoding="utf-8"))
+    assert data["themeCollection"]["baseTheme"] == bt.base_theme_entry()
+    assert data["themeCollection"]["customTheme"]["name"] == "A.json"  # untouched
+    shared = next(p for p in data["resourcePackages"] if p["type"] == "SharedResources")
+    assert shared["items"] == [bt.shared_resources_item()]
+    base_dir = report / "StaticResources" / "SharedResources" / "BaseThemes"
+    assert (base_dir / f"{bt.BASE_THEME_NAME}.json").read_bytes() == bt.vendored_bytes()
+    assert not (base_dir / "CY25SU10.json").exists(), "old referenced base theme must go"
+    assert (base_dir / "Unrelated.json").exists(), "only formerly referenced files are removed"
+
+    assert sync_base_theme(report) == []
+    assert sync_base_theme(report, check=True) == []

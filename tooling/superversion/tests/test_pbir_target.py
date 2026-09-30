@@ -84,7 +84,13 @@ def test_format_version_constants(model):
 def test_report_uses_official_base_theme_and_interaction_defaults(model):
     out = pbir.emit(model)
     report = json.loads(out[f"{model.report.name}.Report/definition/report.json"])
-    assert report["themeCollection"]["baseTheme"]["name"] == "CY25SU10"
+    from tooling.report_quality import base_theme as bt
+
+    assert report["themeCollection"]["baseTheme"] == bt.base_theme_entry()
+    items = [it for pkg in report["resourcePackages"] for it in pkg["items"]]
+    assert items == [bt.shared_resources_item()]
+    shipped = out[f"{model.report.name}.Report/StaticResources/SharedResources/{bt.resource_path()}"]
+    assert shipped.encode("utf-8") == bt.vendored_bytes()
     assert report["settings"]["useEnhancedTooltips"] is True
     assert report["settings"]["defaultDrillFilterOtherVisuals"] is True
 

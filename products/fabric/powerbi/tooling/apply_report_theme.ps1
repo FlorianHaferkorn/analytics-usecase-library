@@ -15,7 +15,7 @@ param(
     [string] $Brand = "Generic",
     [string] $Secondary,
     [string] $CustomName,
-    [string] $BaseTheme = "CY25SU10",
+    [string] $BaseTheme,  # leer = Default aus tooling/report_quality/base_theme.py (D-587)
     [switch] $NoValidate
 )
 
