@@ -25,7 +25,11 @@
     ],
     "deny": [
       "Read(./**/*.parquet)",
-      "Read(./**/node_modules/**)"
+      "Read(./**/node_modules/**)",
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)"
     ]
   },
   "hooks": {
