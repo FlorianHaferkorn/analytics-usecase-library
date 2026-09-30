@@ -1,6 +1,6 @@
 {
   "modell": "SupplyChain.SemanticModel",
-  "quelle_sha256": "6718ddb0b1e22c1c942106406083eae30f259ce1fc1a8266a12de65ec3e8b131",
+  "quelle_sha256": "6bb2f2eb4deae72a2713a0785b1a9190e073751c151e828d67fa916d510c23e3",
   "messungen": [
     {
       "measure": "Action Effectiveness Delta",
@@ -478,6 +478,208 @@
       "measure": "Sales Units",
       "ordner": "facts/fact_sales",
       "spalte": "Quantity"
+    }
+  ],
+  "beziehungen": [
+    {
+      "name": "dim_category_fact_procurement",
+      "von": "fact_procurement[CategoryKey]",
+      "nach": "dim_category[CategoryKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_procurement'[CategoryKey]), DISTINCT('dim_category'[CategoryKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_cogs",
+      "von": "fact_cogs[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_cogs'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_forecast",
+      "von": "fact_forecast[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_forecast'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_fulfillment",
+      "von": "fact_fulfillment[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_fulfillment'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_inventory",
+      "von": "fact_inventory[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_inventory'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_procurement",
+      "von": "fact_procurement[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_procurement'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_sales",
+      "von": "fact_sales[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_stockout",
+      "von": "fact_stockout[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_stockout'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_target",
+      "von": "fact_target[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_target'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_lane_fact_fulfillment",
+      "von": "fact_fulfillment[LaneKey]",
+      "nach": "dim_lane[LaneKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_fulfillment'[LaneKey]), DISTINCT('dim_lane'[LaneKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_cogs",
+      "von": "fact_cogs[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_cogs'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_forecast",
+      "von": "fact_forecast[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_forecast'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_fulfillment",
+      "von": "fact_fulfillment[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_fulfillment'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_inventory",
+      "von": "fact_inventory[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_inventory'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_procurement",
+      "von": "fact_procurement[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_procurement'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_sales",
+      "von": "fact_sales[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_stockout",
+      "von": "fact_stockout[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_stockout'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_security_user_org",
+      "von": "security_user_org[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('security_user_org'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_product_fact_cogs",
+      "von": "fact_cogs[ProductKey]",
+      "nach": "dim_product[ProductKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_cogs'[ProductKey]), DISTINCT('dim_product'[ProductKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_product_fact_forecast",
+      "von": "fact_forecast[ProductKey]",
+      "nach": "dim_product[ProductKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_forecast'[ProductKey]), DISTINCT('dim_product'[ProductKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_product_fact_fulfillment",
+      "von": "fact_fulfillment[ProductKey]",
+      "nach": "dim_product[ProductKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_fulfillment'[ProductKey]), DISTINCT('dim_product'[ProductKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_product_fact_inventory",
+      "von": "fact_inventory[ProductKey]",
+      "nach": "dim_product[ProductKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_inventory'[ProductKey]), DISTINCT('dim_product'[ProductKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_product_fact_sales",
+      "von": "fact_sales[ProductKey]",
+      "nach": "dim_product[ProductKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales'[ProductKey]), DISTINCT('dim_product'[ProductKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_product_fact_stockout",
+      "von": "fact_stockout[ProductKey]",
+      "nach": "dim_product[ProductKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_stockout'[ProductKey]), DISTINCT('dim_product'[ProductKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_vendor_fact_procurement",
+      "von": "fact_procurement[VendorKey]",
+      "nach": "dim_vendor[VendorKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_procurement'[VendorKey]), DISTINCT('dim_vendor'[VendorKey]))) + 0)",
+      "erwartet": 0
     }
   ]
 }

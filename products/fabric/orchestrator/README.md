@@ -275,18 +275,35 @@ token = app.acquire_token_for_client(scopes=["https://api.fabric.microsoft.com/.
 
 ## Error Handling (429 Retry)
 
-Alle Fabric API-Calls implementieren Exponential Backoff mit `Retry-After` Header Support:
+Quelle: Microsoft Learn `rest/api/fabric/articles/throttling` (gelesen 30.09.2026). Fabric
+antwortet mit 429 aus zwei Gründen, unterschieden am `errorCode` im Antwortkörper; der
+Orchestrator (`retry_delay` in `orchestrator.py`) behandelt sie getrennt:
 
-```python
-# Kommentar im Code: Exponential Backoff mit Retry-After
-if response.status_code == 429:
-    retry_after = int(response.headers.get("Retry-After", 1))
-    time.sleep(retry_after)
-```
+| `errorCode` | Ursache | Verhalten |
+|---|---|---|
+| `RequestBlocked` | Quote der aufrufenden Identität erschöpft | genau `Retry-After` warten (Sekunden oder HTTP-Datum); liegt der Wert über `retry.max_retry_after`, bricht der Aufruf ab statt zu schlafen |
+| `CapacityLimitExceeded` | Fabric-Kapazität überlastet, unabhängig von der Aufrufrate | exponentieller Backoff ab `retry.capacity_initial_delay`, gedeckelt bei `retry.capacity_max_delay`, mit Jitter (mindestens die halbe Stufe, nie sofort); ein längeres `Retry-After` gewinnt. Nach dem letzten Versuch nennt die Fehlermeldung die Ursache: Capacity Metrics App prüfen, skalieren |
+| anderer 429 / 500, 502, 503, 504 | vorübergehend | `Retry-After`, falls gesendet, sonst `initial_delay * backoff_multiplier^n` |
 
-Transient Failures (429, 500, 502, 503, 504) werden automatisch retried (max 3 Versuche).
+Maximal `retry.max_retries` Wiederholungen (Standard 3). Tests mit gemockten 429 beider Arten:
+`tests/test_throttling.py`.
 
----
+### API-Quote je Identität: getrennte Dienstprinzipale
+
+Die Unified Quota gilt je Identität (User, SPN, Managed Identity): 500 Aufrufe/min für
+Platform-APIs, 200/min für Job-Scheduler-APIs, 500/min für Long-Running Operations, in einem
+festen 60-s-Fenster ohne anteilige Erholung. API-spezifische Limits gelten zusätzlich. Teilen
+sich Deploy, Monitoring und Agenten einen SPN, bremst ein Monitoring-Burst den Deploy aus.
+Deshalb je Zweck eine eigene Identität:
+
+| Zweck | Identität | Wo gesetzt |
+|---|---|---|
+| Provisionierung (dieser Orchestrator) | eigener SPN | `FABRIC_CLIENT_ID`/`FABRIC_CLIENT_SECRET` in der Umgebung des Orchestrator-Laufs |
+| Deploy (`deployment/scripts/fabric_release.py`, fabric-cicd) | eigener SPN | `--client_id`/`--client_secret` bzw. `TENANT_ID`/`CLIENT_ID`/`CLIENT_SECRET` der Release-Pipeline |
+| Monitoring, Agenten | je ein eigener SPN oder eine Managed Identity | in der jeweiligen Laufumgebung |
+
+Die Trennung ist eine Konfigurationsfrage der Laufumgebungen; der Code liest die Identität je
+Prozess aus der Umgebung. Die Rollen der Identitäten im Blueprint pflegt Meridian.
 
 ## API-Call-Übersicht (für CI/CD Transparenz)
 

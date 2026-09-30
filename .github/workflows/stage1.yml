@@ -107,7 +107,10 @@ jobs:
           # nur unter -n — dann lokal seriell gegenstellen.
           # ruff: gepinnt, weil die Sperrklinke Befunde je Regel zaehlt und eine neue
           # Ruff-Version Regeln anders zaehlen kann (Baseline gemessen mit 0.16.9).
-          pip install pyyaml jsonschema pytest pytest-xdist typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow ruff==0.16.9
+          # requests UND msal: die Orchestrator-Tests (`products/fabric/orchestrator/tests/`,
+          # u. a. die 429-errorCode-Behandlung aus I-21 W2.8) ueberspringen sich ohne sie —
+          # bis 30.09.2026 liefen hier test_governance und der Verdrahtungstest nie.
+          pip install pyyaml jsonschema pytest pytest-xdist typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow requests msal ruff==0.16.9
 
       # Ruff lief bis 29.09.2026 nirgends (2768 Befunde in 15 Regeln). Sperrklinke statt
       # Tor: je Regel eingefroren in scripts/lint_baseline.json, darf nur sinken.
