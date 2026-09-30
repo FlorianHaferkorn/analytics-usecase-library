@@ -87,7 +87,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:8949822c6446440a1484b70d3cc3902bf9b29fabd1397e7feb26b2d5fe1ef60f"
+      "checksum": "sha256:7f1e58d60793b2689d259be4fc19faf85b6f6a4100b13a3c004a32556e59081f"
     },
     {
       "id": "bar_stacked",
@@ -169,7 +169,7 @@
         "cols": 3,
         "rows": 2
       },
-      "checksum": "sha256:e90284e360787971ec7a183f7afb76091ff94625bf10870d03a3f2818480e716"
+      "checksum": "sha256:5f9c97a116b5aa590bc37c932d768ac0ea67382cc5b4fbc665d9240c85c1fa4e"
     },
     {
       "id": "column_time",
@@ -467,7 +467,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:140a42a0b694ff858e011fbd85380b7ecbef7d6582d03fdddc2ac31f35e92bf3"
+      "checksum": "sha256:10512a1574ae8c181c40faa13b8d843264f014f85729e70097f81ca4c68f8ba8"
     },
     {
       "id": "lollipop",
@@ -494,7 +494,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:781093dd36f83e77032b371410f3bf5441426e782a1c1aa80bfaa2e1c179ce7f"
+      "checksum": "sha256:654e4ccb3c4b239813fa0518390825e9480346ac203222974461c8b226eaf76e"
     },
     {
       "id": "matrix_bullet",

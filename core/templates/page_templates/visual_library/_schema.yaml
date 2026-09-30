@@ -122,3 +122,11 @@ tools:
 # Roles: value, variance, time, category, series, step, period, plan, prior, x, y, start, end.
 # render.bind(idiom, {role: column}) fills them; resolve.choose() picks the best idiom for a
 # purpose among those whose REQUIRED roles are available. Enforced by test_selection.py.
+
+# --- data_values (OPTIONAL; A-31 R6) ---
+# Template params that carry a DATA VALUE rather than a column or a style (a target, a threshold).
+# The canonical sample value (e.g. target_val 44.1) is only right for the frozen sample: bound to
+# real columns, render_target takes the value from `params` or, when none is given, removes what
+# depends on it (the reference layer, the below-target colour condition). Never the sample value.
+#
+#   data_values: [target_val]

@@ -29,6 +29,7 @@ tokens:
   col_target: color_semantics.negative # #A4262C tick
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_values: [target_val]   # a target, not a style: from params or removed (A-31 R6)
 data_slots:
   field: {role: value, required: true}
 

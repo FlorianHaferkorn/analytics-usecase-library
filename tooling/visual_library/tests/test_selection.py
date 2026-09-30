@@ -143,3 +143,25 @@ def test_column_names_vega_would_misread_are_refused():
     with pytest.raises(ValueError):
         render.bind("deviation_bar", {"variance": "Marge vs. PL"})
     assert render.bind("deviation_bar", {"variance": "Marge vs PL"}) == {"field": "Marge vs PL"}
+
+
+def test_sample_target_never_reaches_real_data():
+    """A-31 R6: bound to real columns, a target comes from params or is removed — never the
+    canonical sample value (bar_ranking/line/lollipop 44.1, bullet 95)."""
+    for idiom, cols in (("bar_ranking", {"category": "Region", "value": "Umsatz"}),
+                        ("line", {"time": "Monat", "value": "Umsatz"}),
+                        ("lollipop", {"category": "Region", "value": "Umsatz"}),
+                        ("bullet", {"value": "Umsatz"})):
+        sample = render._effective_params(render.load_entry(idiom), "house_default")["target_val"]
+        for pid in render.target_profiles(idiom):
+            text = render.render_target(idiom, "fabric_app", pid, bindings=cols)[0]
+            assert sample not in text and render._NO_VALUE not in text, f"{idiom}@{pid}"
+            json.loads(text)
+        given = render.render_target(idiom, "fabric_app", "house_default", bindings=cols, params={"target_val": 77})[0]
+        assert "77" in given, f"{idiom}: a supplied target must be drawn"
+
+
+def test_bar_ranking_without_target_has_no_red():
+    spec = json.loads(render.render_target("bar_ranking", "fabric_app", "house_default",
+                                           bindings={"category": "Ursache", "value": "Beitrag"})[0])["spec"]
+    assert "condition" not in json.dumps(spec) and len(spec["layer"]) == 1

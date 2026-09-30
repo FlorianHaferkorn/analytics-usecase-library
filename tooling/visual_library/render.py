@@ -331,6 +331,32 @@ def _contrast():
     return mod
 
 
+#: Stand-in for a data value (a target) that real data did not supply; never drawn.
+_NO_VALUE = "-987654321.123"
+
+
+def _drop_missing_values(spec: dict, idiom: str, missing: "list[str]") -> dict:
+    """Remove what depends on a data value the caller did not supply (A-31 R6): a colour
+    `condition` that tests against it falls back to its plain `value`, a layer that draws it (the
+    reference rule) goes. The sample's target (44.1 in the canonical bar_ranking) must never reach
+    real data — measured 30.09.2026: the Cockpit coloured contribution bars red below 44.1."""
+    def walk(node):
+        if isinstance(node, dict):
+            out = {k: walk(v) for k, v in node.items()
+                   if not (k == "condition" and _NO_VALUE in json.dumps(v))}
+            if "layer" in out:
+                out["layer"] = [lay for lay in out["layer"] if _NO_VALUE not in json.dumps(lay)]
+            return out
+        if isinstance(node, list):
+            return [walk(v) for v in node]
+        return node
+
+    spec = walk(spec)
+    if _NO_VALUE in json.dumps(spec):
+        raise KeyError(f"{idiom}: needs params {missing} (the template cannot drop them)")
+    return spec
+
+
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
                   background: "str | None" = None) -> "tuple[str, str]":
@@ -353,8 +379,12 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
             raise KeyError(f"{idiom}.deneb_vegalite is not applicable under '{notation}'")
         eff = dict(_effective_params(entry, notation))
         eff.update(bind(idiom, bindings or {}) if bindings else {})
+        missing = [v for v in entry.get("data_values") or [] if v not in (params or {})]
+        eff.update({v: _NO_VALUE for v in missing})
         eff.update({k: str(v) for k, v in (params or {}).items()})
         spec = json.loads(fill(real["template"], eff))
+        if missing:
+            spec = _drop_missing_values(spec, idiom, missing)
     else:
         spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
     config = vegalite_config(profile)
