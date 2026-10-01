@@ -1,0 +1,20 @@
+measure_name: Cash Balance Delta
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Finance_SemanticModel
+display_folder: 0_Vergleich
+category: Supporting
+expression:
+  aggregation_method: custom
+  logical: Cash Balance Delta = SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 1, [Cash
+    Balance] - [Cash Balance PM], [Cash Balance] - [Cash Plan] )
+documentation:
+  description: Cash Balance Δ je Vergleichsmodus. Höher = besser.
+  notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist,
+    ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem
+    TMDL übernommen.'
+governance:
+  owner: Finance Analytics
+  status: active
+  version: v1.0
+  last_review: '2026-10-01'

@@ -857,5 +857,473 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     last_review: 28.04.2026
     owner: Finance BI
   semantic_model: Finance_SemanticModel
+
+- measure_name: _NowIdx
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Helper
+  expression:
+    aggregation_method: custom
+    logical: _NowIdx = CALCULATE ( MAXX ( FILTER ( ALL ( dim_date ), NOT ISBLANK ( CALCULATE ( SUM ( fact_cash_position[Cash Balance Amount] ) ) ) ), dim_date[Year] * 12 + dim_date[MonthNumber] ), REMOVEFILTERS ( dim_date ) )
+  documentation:
+    description: 'Letzter Datenmonat als Monatsindex (Jahr*12+Monat) mit Cash-Daten — Anker aller (Now)-Measures. Macht die Headline-KPIs slicer-unabhaengig: Cards zeigen immer den aktuellen Stand.'
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Cash Balance (Now)
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Cash Balance (Now) = VAR _n = [_NowIdx] RETURN CALCULATE ( [Cash Balance], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+  documentation:
+    description: Cash Balance im letzten Datenmonat (bereits semi-additiv; hier explizit gepinnt).
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Cash Balance Delta
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 0_Vergleich
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Cash Balance Delta = SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 1, [Cash Balance] - [Cash Balance PM], [Cash Balance] - [Cash Plan] )
+  documentation:
+    description: Cash Balance Δ je Vergleichsmodus. Höher = besser.
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Cash Balance Delta (Now)
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Cash Balance Delta (Now) = VAR _n = [_NowIdx] VAR _now = [Cash Balance (Now)] VAR _pm = CALCULATE ( [Cash Balance], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n - 1 ) ) VAR _plan = CALCULATE ( [Cash Plan], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) ) RETURN SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 1, _now - _pm, _now - _plan )
+  documentation:
+    description: Cash Balance Delta je Vergleichsmodus, auf letzten Datenmonat gepinnt. Hoeher = besser.
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Cash Balance PM
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 0_Vergleich
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Cash Balance PM = VAR _idx = MAX ( dim_date[Year] ) * 12 + MAX ( dim_date[MonthNumber] ) RETURN CALCULATE ( [Cash Balance], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _idx - 1 ) )
+  documentation:
+    description: Cash Balance im Vormonat.
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Cash Health
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Cash Health = [Cash vs Plan % (Now)]
+  documentation:
+    description: 'Cash-Gesundheit (numerisch): Cash vs Plan % im letzten Datenmonat. >0 = ueber Plan = gut.'
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Cash Plan
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 0_Vergleich
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Cash Plan = LASTNONBLANKVALUE ( dim_date[Date], SUM ( fact_cash_position[Plan Cash Amount] ) )
+  documentation:
+    description: Cash-Plan-Referenz (letzter Datenmonat) — Basis für 'vs Plan'.
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Cash vs Plan % (Now)
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Cash vs Plan % (Now) = VAR _n = [_NowIdx] RETURN CALCULATE ( [Cash vs Plan %], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+  documentation:
+    description: Cash vs Plan % im letzten Datenmonat (slicer-unabhaengig).
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Cash vs Plan Ampel
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 0_Vergleich
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Cash vs Plan Ampel = SWITCH ( TRUE ( ), ISBLANK ( [Cash vs Plan %] ), "#98A2B3", [Cash vs Plan %] < -0.10, "#EF4444", [Cash vs Plan %] < -0.05, "#F59E0B", "#16A34A" )
+  documentation:
+    description: 'Cash-vs-Plan Ampel (Hex): ≥−5% grün · −5..−10% amber · <−10% rot.'
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: CCC Ampel
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 0_Vergleich
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: CCC Ampel = SWITCH ( TRUE ( ), ISBLANK ( [CCC Days] ), "#98A2B3", [CCC Days] > 60, "#EF4444", [CCC Days] > 45, "#F59E0B", "#16A34A" )
+  documentation:
+    description: 'CCC Ampel (Hex): <45 grün · 45–60 amber · >60 rot.'
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: CCC Bridge Value
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: CCC Bridge Value = SWITCH ( SELECTEDVALUE ( _CCC_Bridge[Step] ), "DSO", [DSO Days], "DIO", [DIO Days], "DPO", -[DPO Days], [CCC Days] )
+  documentation:
+    description: 'Signed CCC bridge step value: DSO (+), DIO (+), DPO (−); falls back to total CCC Days when no step is in context. Drives the Main_3 CCC decomposition waterfall over the disconnected _CCC_Bridge[Step] dimension. Grain: bridge_step · Unit: days · Owner: Finance Analytics · Status: active'
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: CCC Bridge Value (Now)
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: CCC Bridge Value (Now) = SWITCH ( SELECTEDVALUE ( _CCC_Bridge[Step] ), "DSO", [DSO Days (Now)], "DIO", [DIO Days (Now)], "DPO", -[DPO Days (Now)], [CCC Days (Now)] )
+  documentation:
+    description: CCC-Bridge-Wert im letzten Datenmonat (Bridge-Total = Headline-CCC, konsistent).
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: CCC Days (Now)
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: CCC Days (Now) = VAR _n = [_NowIdx] RETURN CALCULATE ( [CCC Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+  documentation:
+    description: CCC im letzten Datenmonat (slicer-unabhaengig). Headline-KPI der Overview-Cards.
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: CCC Days PM
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 0_Vergleich
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: CCC Days PM = VAR _idx = MAX ( dim_date[Year] ) * 12 + MAX ( dim_date[MonthNumber] ) RETURN CALCULATE ( [CCC Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _idx - 1 ) )
+  documentation:
+    description: CCC im Vormonat (rastersicherer Monatsindex-Shift statt DATEADD).
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: CCC Delta
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 0_Vergleich
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: CCC Delta = SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 0, BLANK ( ), 2, [CCC Days] - 45, [CCC Days] - [CCC Days PM] )
+  documentation:
+    description: CCC Δ je Vergleichsmodus (Feldparameter 'Vergleich'). Niedriger = besser.
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: CCC Delta (Now)
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: CCC Delta (Now) = VAR _n = [_NowIdx] VAR _now = [CCC Days (Now)] VAR _pm = CALCULATE ( [CCC Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n - 1 ) ) RETURN SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 0, BLANK ( ), 2, _now - 45, _now - _pm )
+  documentation:
+    description: CCC Delta je Vergleichsmodus, auf letzten Datenmonat gepinnt. Niedriger = besser.
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: CCC Health
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: CCC Health = 45 - [CCC Days (Now)]
+  documentation:
+    description: 'CCC-Gesundheit (numerisch fuer Karten-Ampel): 45 - CCC(Now). >0 = unter Ziel = gut.'
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: DIO Days (Now)
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: DIO Days (Now) = VAR _n = [_NowIdx] RETURN CALCULATE ( [DIO Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+  documentation:
+    description: DIO im letzten Datenmonat (slicer-unabhaengig).
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: DPO Days (Now)
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: DPO Days (Now) = VAR _n = [_NowIdx] RETURN CALCULATE ( [DPO Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+  documentation:
+    description: DPO im letzten Datenmonat (slicer-unabhaengig).
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: DSO Days (Now)
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: DSO Days (Now) = VAR _n = [_NowIdx] RETURN CALCULATE ( [DSO Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+  documentation:
+    description: DSO im letzten Datenmonat (slicer-unabhaengig).
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: OCF Health
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: OCF Health = VAR _n = [_NowIdx] VAR _ocf = [Operating Cash Flow (Now)] VAR _plan = CALCULATE ( [OCF Plan], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) ) RETURN _ocf - _plan
+  documentation:
+    description: 'OCF-Gesundheit (numerisch): OCF(Now) - OCF-Plan(Now). >0 = ueber Plan = gut.'
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: OCF Plan
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 0_Vergleich
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: OCF Plan = SUM ( fact_cash_flow[Plan OCF Amount] )
+  documentation:
+    description: Geplanter operativer Cashflow (Summe Plan OCF Amount aus fact_cash_flow), Vergleichsgröße für OCF Health.
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Operating Cash Flow (Now)
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Operating Cash Flow (Now) = VAR _n = [_NowIdx] RETURN CALCULATE ( [Operating Cash Flow], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+  documentation:
+    description: Operating Cash Flow im letzten Datenmonat (Monatswert statt Lifetime-Summe).
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Operating Cash Flow Delta
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 0_Vergleich
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Operating Cash Flow Delta = SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 1, [Operating Cash Flow] - [Operating Cash Flow PM], [Operating Cash Flow] - [OCF Plan] )
+  documentation:
+    description: Operating Cash Flow Δ je Vergleichsmodus.
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Operating Cash Flow Delta (Now)
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001 (Now)
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Operating Cash Flow Delta (Now) = VAR _n = [_NowIdx] VAR _now = [Operating Cash Flow (Now)] VAR _pm = CALCULATE ( [Operating Cash Flow], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n - 1 ) ) VAR _plan = CALCULATE ( [OCF Plan], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) ) RETURN SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 1, _now - _pm, _now - _plan )
+  documentation:
+    description: Operating Cash Flow Delta je Vergleichsmodus, auf letzten Datenmonat gepinnt.
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
+
+- measure_name: Operating Cash Flow PM
+  is_kpi_measure: false
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 0_Vergleich
+  category: Supporting
+  expression:
+    aggregation_method: custom
+    logical: Operating Cash Flow PM = VAR _idx = MAX ( dim_date[Year] ) * 12 + MAX ( dim_date[MonthNumber] ) RETURN CALCULATE ( [Operating Cash Flow], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _idx - 1 ) )
+  documentation:
+    description: Operating Cash Flow im Vormonat.
+    notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist, ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem TMDL übernommen.'
+  governance:
+    owner: Finance Analytics
+    status: active
+    version: v1.0
+    last_review: '2026-10-01'
 ```
 
