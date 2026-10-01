@@ -34,6 +34,12 @@ tokens:
   col_start: color_semantics.neutral # #94A0AC baseline dot
   col_end:   ink                     # #0F2430 current dot
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field_cat: {role: category, required: true}
+  field_start: {role: start, required: true}
+  field_end: {role: end, required: true}
+
 canonical_params:
   entity: "_Measures"
   start_measure: "Gross Margin % PY"

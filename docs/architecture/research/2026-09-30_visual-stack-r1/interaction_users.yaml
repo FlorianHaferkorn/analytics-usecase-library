@@ -1,0 +1,769 @@
+# R1-Strang "users" — was Business-Nutzer von Dashboards/Management-Reports wollen und bemängeln
+# Stand 30.09.2026. Format: FORMAT.md + Zusatzfelder user_value, frequency_evidence, default_on, zugang.
+# zugang: search_index = Primärseite vom Egress-Proxy geblockt, Inhalt nur aus Suchauszug
+#         (vor Test-Autorität am Original prüfen). Kein Eintrag wurde im Original gelesen.
+# evidence: nur gesetzt, wo der Suchauszug die Formulierung als Zitat/Definition wiedergibt; sonst null.
+# frequency_evidence: nur Zahlen, die der Suchauszug nennt; Zuordnungsunsicherheit steht im Feld.
+
+- id: users-001
+  pattern: Auf einen Blick lesbar, minimale Interaktion
+  description: Ein Dashboard ist eine Einseitenansicht, deren Kernaussage ohne Interaktion und mit minimaler
+    kognitiver Verarbeitung erfasst wird; Exploration ist nicht sein Zweck. Konsequenz für das Cockpit - alle
+    Steuerungsaussagen der Startseite ohne Klick, Hover oder Scrollen lesbar.
+  source:
+    title: Dashboards - Making Charts and Graphs Easier to Understand
+    publisher: Nielsen Norman Group
+    url: https://www.nngroup.com/articles/dashboards-preattentive/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "provide information that can be consumed fast, with a minimum of interaction or cognitive processing"
+  parameters: {}
+  applies_to:
+    purposes: [value_verdict, deviation_from_target]
+    idioms: [kpi_card_bullet, kpi_card_spark, matrix_delta_pill]
+    style_pack: fluent
+    layer: layout
+  confidence: from_source
+  user_value: high
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-002
+  pattern: Eine Seite, ein Bildschirm
+  description: Few definiert das Dashboard über die Einbildschirm-Grenze; das Überschreiten eines Bildschirms steht
+    als erster seiner 13 häufigen Fehler. Für das Cockpit - Startseite ohne Scrollen auf Standard-Viewport.
+  source:
+    title: Information Dashboard Design (Buchbesprechung)
+    publisher: UXmatters (Sekundärquelle zu Stephen Few, Analytics Press)
+    url: https://uxmatters.com/mt/archives/2007/04/book-review-information-dashboard-design.php
+    date_published: 2007-04
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: "consolidated and arranged on a single screen so the information can be monitored at a glance"
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: tufte
+    layer: layout
+  confidence: from_source
+  user_value: high
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-003
+  pattern: Jede Zahl mit Vergleich (Vorperiode, Plan, Vorjahr)
+  description: Few nennt "unzureichenden Kontext für die Daten" als zweiten der 13 Dashboard-Fehler. Eine
+    Kennzahl ohne Bezugswert (PY, PL/BU, FC) ist nicht bewertbar; das Cockpit zeigt den Vergleich ungefragt.
+  source:
+    title: Are You Making These 13 Dashboard Design Mistakes? (Part 1)
+    publisher: The Data School (Sekundärquelle zu Stephen Few)
+    url: https://www.thedataschool.co.uk/anh-vu/are-you-making-these-13-dashboard-design-mistakes/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, deviation_from_target, value_verdict]
+    idioms: [kpi_card_bullet, matrix_delta_pill, bullet, waterfall_variance, deviation_bar]
+    style_pack: ibcs
+    layer: layout
+  confidence: from_source
+  user_value: high
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-004
+  pattern: Standardisierte Szenarien AC/PY/BU/FC als Vergleichsbasis
+  description: IBCS führt feste Szenario-Kürzel (Actual, Previous Year, Budget/Plan, Forecast); der Vergleich
+    gegen diese Szenarien ist der Default des Management-Reportings im DACH-Controlling. Notation selbst siehe ibcs.yaml.
+  source:
+    title: IBCS Version 2.0 - aligned with ISO 24896
+    publisher: IBCS Association
+    url: https://ibcs.com/standards/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, deviation_from_target]
+    idioms: [column_time, waterfall_variance, matrix_delta_pill, deviation_bar]
+    style_pack: ibcs
+    layer: style
+  confidence: from_source
+  user_value: high
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-005
+  pattern: Die Zahlen hinter dem Chart sehen (Tabelle als Idiom)
+  description: Qualitative Studie mit Data Workern - Nutzer wollen die zugrunde liegenden Daten über den ganzen
+    Analyseprozess sehen und "in die Hand nehmen", umformen und ergänzen; Tabellen sind ein eigenständiges Idiom.
+    Für das Cockpit - zu jedem Chart eine Tabellensicht (Matrix mit Werten) erreichbar.
+  source:
+    title: "Untidy Data: The Unreasonable Effectiveness of Tables"
+    publisher: IEEE TVCG (Bartram, Correll, Tory; Tableau Research)
+    url: https://www.tableau.com/research/publications/untidy-data-unreasonable-effectiveness-tables
+    date_published: 2021
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: [matrix_evidence, matrix_delta_pill]
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-006
+  pattern: Export nach Excel, der dem Visual entspricht
+  description: Wiederkehrende Community-Anfragen - Export aus Tabelle/Matrix verliert Matrix-Struktur und
+    bedingte Formatierung, Export soll "dem Visual entsprechen"; das Basis-Idea "Export direkt nach Excel" ist
+    als Completed markiert, Nutzer halten es für unzureichend gegenüber anderen BI-Tools.
+  source:
+    title: Export to Excel Improvements for Table and Matrix Visuals
+    publisher: Microsoft Fabric Community
+    url: https://community.fabric.microsoft.com/t5/Issues/Export-to-Excel-Improvements-for-Table-and-Matrix-Visuals/idc-p/2213377
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: [matrix_evidence]
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  frequency_evidence: "keine Stimmenzahl ermittelt (Ideas-Seiten geblockt)"
+  default_on: true
+  zugang: search_index
+
+- id: users-007
+  pattern: Excel bleibt Arbeits- und Berichtsmedium im Mittelstand
+  description: WHU Controller Panel (ca. 1.000 Controller/CFOs) - mittlere und kleine Unternehmen erstellen den
+    Standardbericht oft in Excel, nur etwa ein Drittel der Unternehmen mit Dashboard-Lösung erstellt den Bericht
+    aus dem Dashboard. Stützt Export und tabellarische Sichten als Pflicht, nicht als Extra.
+  source:
+    title: WHU Controller Panel Highlights - Management Reporting
+    publisher: WHU - Otto Beisheim School of Management, Institut für Management Accounting and Control
+    url: https://whu.edu/fileadmin/CONTENT/whu.edu/2_Faculty___Research/2.7_Management_Group/2.7.1_Institute_of_Management_Accounting_and_Control/222_WHU_Controller_Panel_Highlights_Management_Reporting.pdf
+    date_published: 2022
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: [matrix_evidence]
+    style_pack: ibcs
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  frequency_evidence: "ca. 1/3 der Unternehmen mit Dashboard-Lösung erstellen den Bericht daraus; Stichprobe ca. 1.000 (Suchauszug)"
+  default_on: true
+  zugang: search_index
+
+- id: users-008
+  pattern: Monatlicher Standardbericht mit Kommentar zu Abweichungen
+  description: WHU Controller Panel - über 80 % erstellen den Standardbericht monatlich, im Mittel 8 Arbeitstage;
+    80 % der Berichte enthalten Kommentare, nur 12 % Handlungsempfehlungen, 24 % externe Informationen.
+    Controller sind mit der grafischen Darstellung am wenigsten zufrieden. Mit BI/Dashboard verschiebt sich
+    Arbeitszeit zu Analyse und Kommentar.
+  source:
+    title: WHU Controller Panel Highlights - Management Reporting
+    publisher: WHU - Otto Beisheim School of Management
+    url: https://whu.edu/fileadmin/CONTENT/whu.edu/2_Faculty___Research/2.7_Management_Group/2.7.1_Institute_of_Management_Accounting_and_Control/222_WHU_Controller_Panel_Highlights_Management_Reporting.pdf
+    date_published: 2022
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    report_share_monthly_pct_min: 80
+    creation_working_days_mean: 8
+    reports_with_comments_pct: 80
+    comments_with_action_recommendation_pct: 12
+    reports_with_external_info_pct: 24
+  applies_to:
+    purposes: [deviation_from_target, contribution_to_change]
+    idioms: [waterfall_variance, matrix_delta_pill, NEU:comment_panel]
+    style_pack: ibcs
+    layer: layout
+  confidence: from_source
+  user_value: high
+  frequency_evidence: "80 % Kommentare, 12 % Handlungsempfehlungen, 8 Arbeitstage, n ca. 1.000 (Suchauszug)"
+  default_on: true
+  zugang: search_index
+
+- id: users-009
+  pattern: Botschaft statt Beschriftung (Aktionstitel / IBCS SAY)
+  description: Seiten- und Charttitel formulieren die Aussage ("Umsatz 4 % unter Plan, getrieben von Region Nord"),
+    nicht das Thema; liest man nur die Titel, soll sich die Geschichte ergeben. IBCS SAY - eine Botschaft vermitteln.
+  source:
+    title: Book Review - Storytelling with Data
+    publisher: SEP (Sekundärquelle zu Cole Nussbaumer Knaflic, Wiley 2015)
+    url: https://sep.com/blog/book-review-storytelling-with-data/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: "If you read the slide titles alone, it should summarize your story."
+  parameters: {}
+  applies_to:
+    purposes: [value_verdict, deviation_from_target]
+    idioms: []
+    style_pack: swd
+    layer: layout
+  confidence: from_source
+  user_value: high
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-010
+  pattern: Aktualität sichtbar (Stand der Daten)
+  description: Bach et al. führen "Update Information" als Meta-Information-Muster; Power-BI-Nutzer fordern
+    wiederholt die letzte Aktualisierungszeit direkt im Bericht, weil der Report-Stand sonst nur über
+    Einstellungen/View Related sichtbar ist.
+  source:
+    title: Display Last Dataset Refresh On Report
+    publisher: Microsoft Fabric Community
+    url: https://community.fabric.microsoft.com/t5/Report-Server/Display-Last-Dataset-Refresh-On-Report/m-p/1047544
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: [NEU:freshness_stamp]
+    style_pack: fluent
+    layer: layout
+  confidence: from_source
+  user_value: high
+  frequency_evidence: "mehrere Community-Threads (Report-Server, Service, Desktop); keine Stimmenzahl"
+  default_on: true
+  zugang: search_index
+
+- id: users-011
+  pattern: Meta-Information - Quelle, Beschreibung, Disclaimer, Annotation
+  description: Systematische Analyse von 144 Dashboards, 42 Muster in 8 Gruppen; die Meta-Information-Gruppe
+    umfasst Data Source, Data Description, Update Information, Disclaimer (was nicht enthalten ist / nicht
+    geschlossen werden soll) und Annotations. Ergänzt durch 2-wöchigen Design-Workshop mit 23 Teilnehmenden.
+  source:
+    title: Dashboard Design Patterns
+    publisher: IEEE TVCG 29(1) (Bach, Freeman, Abdul-Rahman, Turkay, Khan, Fan, Chen)
+    url: https://wrap.warwick.ac.uk/id/eprint/170047/1/WRAP-dashboard-design-patterns-Turkay-2022.pdf
+    date_published: 2022-09-26
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    dashboards_analysed: 144
+    patterns: 42
+    pattern_groups: 8
+    workshop_participants: 23
+  applies_to:
+    purposes: []
+    idioms: [NEU:freshness_stamp, NEU:source_footer]
+    style_pack: fluent
+    layer: layout
+  confidence: from_source
+  user_value: medium
+  frequency_evidence: "Korpus 144 Dashboards (Muster-Häufigkeit je Muster nicht ermittelt)"
+  default_on: true
+  zugang: search_index
+
+- id: users-012
+  pattern: Vertrauen durch prüfbare Daten (Data Guards)
+  description: Interviews mit Produzenten und Konsumenten von Spreadsheets, Charts, Dashboards - wiederkehrender
+    Bedarf nach Validierung/Verifikation besonders bei Konsumenten, ohne Standard dafür; Hindernisse u. a.
+    Kontextabhängigkeit und fehlende Transparenz über Pipeline-Änderungen. Für das Cockpit - sichtbare
+    Plausibilitäts-/Abstimmungssignale (Zeilen-/Summenabgleich, Änderungshinweise).
+  source:
+    title: "Data Guards: Challenges and Solutions for Fostering Trust in Data"
+    publisher: IEEE VIS 2024 (Sultanum, Bromley, Correll)
+    url: https://www.ieeevis.org/year/2024/program/paper_v-short-1040.html
+    date_published: 2024
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: [NEU:data_quality_badge]
+    style_pack: fluent
+    layer: layout
+  confidence: from_source
+  user_value: high
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-013
+  pattern: Datenqualität ist Thema Nr. 1
+  description: BARC Trend Monitor 2026 - Data Quality Management auf Platz 1 (Wichtigkeit 7,9 von 10, gleichauf
+    mit Security/Privacy), seit fünf Jahren unter den Top 2. Stützt Qualitäts- und Vollständigkeitsanzeige am Bericht.
+  source:
+    title: "Data Quality Beats AI Hype: BARC publishes the Data, BI and Analytics Trend Monitor 2026"
+    publisher: BARC
+    url: https://barc.com/news/barc-publishes-the-data-bi-and-analytics-trend-monitor-2026/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    importance_score_of_10: 7.9
+    respondents: 1579
+  applies_to:
+    purposes: []
+    idioms: [NEU:data_quality_badge]
+    style_pack: fluent
+    layer: layout
+  confidence: from_source
+  user_value: high
+  frequency_evidence: "Rang 1, 7,9/10, n = 1.579 (Suchauszug)"
+  default_on: true
+  zugang: search_index
+
+- id: users-014
+  pattern: Langsame Abfragen sind das häufigste BI-Problem
+  description: BARC nennt langsame Query-Performance, fehlendes Interesse der Fachanwender und schlechte
+    Datenqualität als die drei häufigsten Probleme in BI-Projekten. Cockpit-Seiten brauchen ein Ladezeit-Budget.
+  source:
+    title: Avoiding The Most Frequent Problems in BI Projects
+    publisher: BARC
+    url: https://barc.com/avoiding-problems-bi-projects/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  frequency_evidence: "Suchauszug nennt aus einer älteren BARC-Befragung 18,1 % (Query zu langsam) und 16,4 % (schlechte Datenqualität), bis zu 3 Nennungen; Zuordnung zu Survey-Jahr und Seite ungeprüft"
+  default_on: true
+  zugang: search_index
+
+- id: users-015
+  pattern: Antwortzeit-Grenzen 0,1 / 1 / 10 s
+  description: 0,1 s wirkt sofort, 1 s hält den Gedankenfluss, 10 s hält die Aufmerksamkeit; darüber brauchen
+    Nutzer Fortschrittsanzeige. Als Test - Seitenwechsel und Filterreaktion im Cockpit unter 1 s Ziel, harte Grenze 10 s.
+  source:
+    title: The 3 Response Time Limits in Interaction Design
+    publisher: Nielsen Norman Group
+    url: https://www.nngroup.com/videos/3-response-time-limits-interaction-design/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "about the limit for the user's flow of thought to stay uninterrupted"
+  parameters:
+    instant_s: 0.1
+    flow_s: 1.0
+    attention_s: 10
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-016
+  pattern: Aktive Filter sichtbar, Live- vs. Batch-Filter nach Latenz
+  description: Angewandte Filter an Ort und Stelle und in einer Zusammenfassung zeigen; bei eingeklapptem
+    Filterbereich Anzahl aktiver Filter plus "alle löschen". Live-Filterung nur bei Ergebnis unter 1 s, sonst
+    Batch mit Übernehmen-Knopf ab 1-2 s. Für das Cockpit - Filterzustand im Seitenkopf ausgeschrieben.
+  source:
+    title: Filter UI Design (Zusammenfassung, beruft sich auf NN/g)
+    publisher: Aufait UX
+    url: https://www.aufaitux.com/blog/filter-ui-design/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: null
+  parameters:
+    live_filter_max_latency_s: 1
+    batch_filter_from_latency_s: 1-2
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-017
+  pattern: Tooltips nur ergänzend, nie tragend
+  description: Tooltips enthalten ergänzende, nicht aufgabenkritische Information (NN/g Tooltip Guidelines,
+    Joyce 2019, nach Sekundärquellen). Auf Touch-Geräten gibt es kein Hover - Information nur im Tooltip ist
+    mobil unerreichbar. Kernwerte gehören als Datenbeschriftung ins Chart.
+  source:
+    title: Tooltip guidelines - best practices and common mistakes
+    publisher: UX Planet (Sekundärquelle zu NN/g)
+    url: https://uxplanet.org/tooltip-guidelines-best-practices-and-common-mistakes-with-examples-bde5993048f0
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-018
+  pattern: Hover existiert auf Touch nicht
+  description: Touch-Oberflächen erzeugen kein Hover-Ereignis; Hover-only-Tooltips sind mobil unbenutzbar.
+    Alternative Tap auf Info-Symbol oder Long-Press. Folgt für Fabric-App mobil - kein Wert nur im Tooltip.
+  source:
+    title: Why you should not use the hover event
+    publisher: Bootcamp (UX Collective)
+    url: https://bootcamp.uxdesign.cc/why-you-should-not-use-the-hover-event-d68bda7cc8b9
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-019
+  pattern: Direktbeschriftung statt Legende
+  description: Separate Legenden zwingen zum Blickwechsel zwischen Chart und Legende; Direktbeschriftung an der
+    Linie/Säule vermeidet geteilte Aufmerksamkeit. Grenze - viele eng liegende Elemente überlappen.
+  source:
+    title: Direct labelling (Data Visualisation Guide)
+    publisher: data.europa.eu (Publications Office of the EU)
+    url: https://data.europa.eu/apps/data-visualisation-guide/direct-labelling
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, compare_categories]
+    idioms: [line, indexed_line, slope, small_multiples, column_time]
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+  user_value: medium
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-020
+  pattern: Keine übertriebene Genauigkeit
+  description: Few Fehler Nr. 3 "Displaying excessive detail or precision". Default im Cockpit - Tausender/Mio.
+    mit 0-1 Nachkommastelle, volle Genauigkeit nur in der Detailtabelle.
+  source:
+    title: Are You Making These 13 Dashboard Design Mistakes? (Part 1)
+    publisher: The Data School (Sekundärquelle zu Stephen Few)
+    url: https://www.thedataschool.co.uk/anh-vu/are-you-making-these-13-dashboard-design-mistakes/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: "Displaying excessive detail or precision"
+  parameters: {}
+  applies_to:
+    purposes: [value_verdict]
+    idioms: [kpi_card_bullet, kpi_card_spark, matrix_delta_pill]
+    style_pack: tufte
+    layer: style
+  confidence: from_source
+  user_value: medium
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-021
+  pattern: Tabellen für Finden, Vergleichen, Detail, Handeln
+  description: NN/g - Datentabellen unterstützen vier Aufgaben - Datensätze nach Kriterien finden, Daten
+    vergleichen, eine Zeile ansehen/bearbeiten, Aktionen auf Datensätzen auslösen. Benachbarte Werte sind
+    ohne Arbeitsgedächtnis vergleichbar. Detailtabellen im Cockpit - sortierbar, filterbar, fixierte Kopfzeile.
+  source:
+    title: Data Tables - Four Major User Tasks
+    publisher: Nielsen Norman Group
+    url: https://nngroup.com/articles/data-tables
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail, compare_categories]
+    idioms: [matrix_evidence, matrix_delta_pill]
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-022
+  pattern: Drill zum Detail ohne Experten
+  description: Interviewstudie - Dashboard-Nutzer haben weit vielfältigere Bedürfnisse als reinen Konsum
+    ("Gespräch mit den Daten"); Barrieren sind sporadische Nutzung, Abhängigkeit von Experten und ein mühsames
+    Zusammenstückeln von Werkzeugen. Abgeleitet - Drillthrough von jeder Cockpit-Kennzahl auf eine Detailseite.
+  source:
+    title: "Finding Their Data Voice: Practices and Challenges of Dashboard Users"
+    publisher: IEEE CG&A (Tory, Bartram, Fiore-Gartland, Crisan)
+    url: https://vis.khoury.northeastern.edu/pubs/Tory2021FindingTheirData
+    date_published: 2021
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [driver_breakdown, evidence_detail]
+    idioms: [decomposition_tree, matrix_evidence]
+    style_pack: fluent
+    layer: interaction
+  confidence: inferred
+  user_value: high
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-023
+  pattern: Gespräch über Daten - teilen, kommentieren, weiterverwenden
+  description: Gleiche Studie - "Gespräche durch und um Daten" (Darstellungen und Narrative für andere bauen)
+    gehören zur Nutzung. Power-BI-Nutzer wollen Kommentare zusätzlich strukturiert per API auslesen statt eine
+    Nebenliste in Excel zu führen.
+  source:
+    title: Comments Data API (Idea)
+    publisher: Microsoft Fabric Community
+    url: https://community.fabric.microsoft.com/idea/fbc_ideas/comments-data-api/4498063
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: [NEU:comment_panel]
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  frequency_evidence: "keine Stimmenzahl ermittelt"
+  default_on: false
+  zugang: search_index
+
+- id: users-024
+  pattern: Annotationen für Ereignisse und Kontext
+  description: Interviewstudie mit 10 Praktikern/Lehrenden - alle nutzen Annotationen, um wichtige Werte,
+    Ereignisse oder Bereiche hervorzuheben und genug Kontext zu geben, damit ein Chart ohne Begleittext
+    verstanden wird; reduziert Fehldeutung, wenn Charts weitergereicht werden.
+  source:
+    title: "Designing Annotations in Visualization: Considerations from Visualization Practitioners and Educators"
+    publisher: arXiv
+    url: https://arxiv.org/pdf/2604.07691
+    date_published: 2026
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    interviewees: 10
+  applies_to:
+    purposes: [time_comparison, contribution_to_change]
+    idioms: [line, column_time, NEU:event_annotation]
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+  user_value: medium
+  frequency_evidence: "10 von 10 Befragten nutzen Annotationen (Suchauszug)"
+  default_on: true
+  zugang: search_index
+
+- id: users-025
+  pattern: Barrierefreiheit - Tabellen- und Textalternative
+  description: Screenreader-Nutzer entnehmen Online-Visualisierungen 61,48 % weniger genau Information und
+    brauchen 210,96 % mehr Zeit; sie schlagen tabellarische und textuelle Darstellung vor. Für das Cockpit -
+    Alt-Text je Visual und Tabellensicht (siehe users-005).
+  source:
+    title: "Understanding Screen-Reader Users' Experiences with Online Data Visualizations"
+    publisher: ACM ASSETS 2021 (Sharif et al.)
+    url: https://wildlab.cs.washington.edu/Publications_files/Sharif_ASSETS2021.pdf
+    date_published: 2021-10
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    accuracy_gap_pct: 61.48
+    time_overhead_pct: 210.96
+    n_screen_reader: 36
+    n_non_screen_reader: 36
+    n_qualitative: 9
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: [matrix_evidence]
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  frequency_evidence: "n = 36 + 36 (quantitativ), 9 (qualitativ)"
+  default_on: true
+  zugang: search_index
+
+- id: users-026
+  pattern: Mobil lesen
+  description: Dresner Mobile BI Market Study 2012 - 61 % halten Mobile BI für kritisch oder sehr wichtig (2010 52 %).
+    Alte Zahl; aktuelle Werte nicht gefunden. Für das Cockpit - Mobile-Layout der Startseite.
+  source:
+    title: Yellowfin achieves a top score in 2012 Dresner Mobile BI market study
+    publisher: Yellowfin (Sekundärquelle zu Dresner Advisory Services)
+    url: https://www.yellowfinbi.com/blog/yellowfin-achieves-a-top-score-in-2012-dresner-mobile-bi-market-study
+    date_published: 2012
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: [kpi_card_bullet, kpi_card_spark]
+    style_pack: fluent
+    layer: layout
+  confidence: from_source
+  user_value: medium
+  frequency_evidence: "61 % kritisch/sehr wichtig (2012), 52 % (2010); Stand über 10 Jahre alt"
+  default_on: true
+  zugang: search_index
+
+- id: users-027
+  pattern: Push statt Pull - Abos und Alerts
+  description: Praktikerquelle - Entscheider wollen kein weiteres Werkzeug öffnen, sondern Inhalte dort, wo sie
+    ohnehin lesen (E-Mail, Chat); Ausnahmeberichte per Push wirken stärker als Dashboards allein. Keine
+    Primärstudie gefunden. Abo/Alert pro Nutzer aktivierbar, nicht erzwungen.
+  source:
+    title: Dumbest thing in data science
+    publisher: The Art of Data Science (Substack)
+    url: https://artofdatascience.substack.com/p/dumbest-thing-in-data-science
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [deviation_from_target]
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: inferred
+  user_value: medium
+  frequency_evidence: null
+  default_on: false
+  zugang: search_index
+
+- id: users-028
+  pattern: Einheitliche KPI-Definitionen (Glossar)
+  description: Praktikerquelle - Metrik-Drift (gleiche Kennzahl, unterschiedliche Logik in verschiedenen Berichten)
+    führt dazu, dass Meetings Zahlen abgleichen statt handeln. Keine Umfragezahl gefunden. Für das Cockpit -
+    Definition je KPI aus dem Katalog per Info-Symbol/Glossarseite erreichbar.
+  source:
+    title: Metrics drift - trust breaks - analytics and AI need consistent semantics
+    publisher: Data Management Blog
+    url: https://www.datamanagementblog.com/metrics-drift-trust-breaks-analytics-ai-need-consistent-semantics/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: [NEU:kpi_glossary]
+    style_pack: fluent
+    layer: layout
+  confidence: inferred
+  user_value: high
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-029
+  pattern: Dashboards sind kein Explorationswerkzeug
+  description: Literaturreview und Design-Space - Dashboards unterscheiden sich in Zielen, Interaktionsgrad und
+    Nutzungspraxis deutlich von explorativen Werkzeugen. Folge - Interaktionsgrad je Seite bewusst wählen
+    (Cockpit = Monitoring, Detailseiten = Analyse).
+  source:
+    title: What Do We Talk About When We Talk About Dashboards?
+    publisher: IEEE InfoVis 2018 (Sarikaya, Bartram, Tory, Fisher u. a.)
+    url: https://tableau.com/research/publications/what-do-we-talk-about-when-we-talk-about-dashboards
+    date_published: 2018
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: layout
+  confidence: from_source
+  user_value: medium
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index
+
+- id: users-030
+  pattern: Druck/PDF für Sitzungen
+  description: Abgeleitet aus users-007/-008 - der monatliche Standardbericht mit Kommentar ist im DACH-Controlling
+    Sitzungsvorlage; wenn nur ein Drittel ihn aus dem Dashboard erzeugt, fehlt eine druck-/PDF-taugliche Fassung.
+    Keine direkte Nutzerstudie zu Druck/PDF gefunden.
+  source:
+    title: WHU Controller Panel Highlights - Management Reporting
+    publisher: WHU - Otto Beisheim School of Management
+    url: https://whu.edu/fileadmin/CONTENT/whu.edu/2_Faculty___Research/2.7_Management_Group/2.7.1_Institute_of_Management_Accounting_and_Control/222_WHU_Controller_Panel_Highlights_Management_Reporting.pdf
+    date_published: 2022
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: layout
+  confidence: inferred
+  user_value: medium
+  frequency_evidence: null
+  default_on: true
+  zugang: search_index

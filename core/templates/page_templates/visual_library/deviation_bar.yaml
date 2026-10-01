@@ -1,7 +1,7 @@
 # Visual Library entry — deviation_bar  (schema: _schema.yaml)
 id: deviation_bar
 name: Deviation bar
-version: "1.0.0"
+version: "1.1.0"
 status: active        # active | deprecated | experimental
 purpose: [deviation_from_target, compare_categories]
 zone: [pulse, analysis]
@@ -32,6 +32,10 @@ tokens:
   col_track: surface.row_alt              # #EFF2F5
 
 # frozen sample that fills the templates for the golden test (same in -> same out)
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field: {role: variance, required: true}
+
 canonical_params:
   entity: "_Measures"
   measure: "Gross Margin % vs Plan"
@@ -125,14 +129,108 @@ realizations:
 # slice — so it is marked n/a here (use the PowerofBI.IBCS UDF meanwhile).
 profiles:
   ibcs:
-    note: "IBCS: prominent ink reference (plan/target) instead of the muted house zero line; sign + length carry good/bad."
+    note: 'IBCS 2.0: variance bar coloured by rating good/bad/neutral via polarity, not by sign (UN 4.1); label outside with ''+'' (UN 4.1); no value axis (SI 3.1); ink reference line.'
+    rule_refs:
+    - SI 3.1
+    - UN 4.1
     param_overrides:
-      col_zero: "#201F1E"          # text.primary ink — the prominent IBCS reference
+      col_zero: '#201F1E'
+      col_ac: '#404040'
+      col_good: '#5B9A35'
+      col_bad: '#A4262C'
+      col_neutral: '#1F6FB5'
+      col_ink: '#201F1E'
+      polarity: '1'
     realizations:
       powerbi_native:
         applicable: false
-        reason: "native clusteredBar has no stroked reference line to emphasise; the IBCS form is the overlapped AC-on-PY ± column (structural), not a token swap."
-        use: "PowerofBI.IBCS overlapped-bar UDF (daxlib.org), or deviation_bar@ibcs in deneb_vegalite"
+        reason: native clusteredBar has no stroked reference line to emphasise; the IBCS form is the overlapped AC-on-PY ± column (structural), not a token swap.
+        use: PowerofBI.IBCS overlapped-bar UDF (daxlib.org), or deviation_bar@ibcs in deneb_vegalite
+      deneb_vegalite:
+        ext: json
+        template: |
+          {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "data": {
+              "name": "dataset"
+            },
+            "transform": [
+              {
+                "calculate": "datum['{{field}}'] * {{polarity}} > 0 ? 'good' : (datum['{{field}}'] * {{polarity}} < 0 ? 'bad' : 'neutral')",
+                "as": "rating"
+              }
+            ],
+            "layer": [
+              {
+                "mark": {
+                  "type": "bar",
+                  "height": 12
+                },
+                "encoding": {
+                  "x": {
+                    "field": "{{field}}",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  },
+                  "color": {
+                    "field": "rating",
+                    "type": "nominal",
+                    "legend": null,
+                    "scale": {
+                      "domain": [
+                        "good",
+                        "bad",
+                        "neutral"
+                      ],
+                      "range": [
+                        "{{col_good}}",
+                        "{{col_bad}}",
+                        "{{col_neutral}}"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "rule",
+                  "color": "{{col_ink}}",
+                  "strokeWidth": 1.5
+                },
+                "encoding": {
+                  "x": {
+                    "datum": 0
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "text",
+                  "color": "{{col_ink}}",
+                  "align": {
+                    "expr": "datum['{{field}}'] < 0 ? 'right' : 'left'"
+                  },
+                  "dx": {
+                    "expr": "datum['{{field}}'] < 0 ? -4 : 4"
+                  }
+                },
+                "encoding": {
+                  "x": {
+                    "field": "{{field}}",
+                    "type": "quantitative"
+                  },
+                  "text": {
+                    "field": "{{field}}",
+                    "type": "quantitative",
+                    "format": "+.1f"
+                  }
+                }
+              }
+            ]
+          }
 
   print_safe:
     note: "CVAA / print-safe: the colour-blind-safe blue/orange variance pair replaces red/green so direction survives colour-vision-deficiency and greyscale print (always pair with an icon or sign)."

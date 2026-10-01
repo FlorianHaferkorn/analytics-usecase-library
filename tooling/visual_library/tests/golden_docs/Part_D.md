@@ -8,8 +8,8 @@
 
 | Purpose | Question | Best idiom | Zone | Candidates |
 |---|---|---|---|---|
-| **time_comparison** | How is X developing over time — and against plan? | `line` | analysis | `line` · `column_time` · `area_stacked` · `small_multiples` · `indexed_line` · `slope` |
-| **deviation_from_target** | Are we above/below plan or target — by how much? | `deviation_bar` | pulse / analysis | `deviation_bar` · `bullet` · `deviation_bar@ibcs` |
+| **time_comparison** | How is X developing over time — and against plan? | `line` | analysis | `line` · `column_time` · `area_stacked` · `small_multiples` · `indexed_line` · `slope` · `multi_tier_column@ibcs` |
+| **deviation_from_target** | Are we above/below plan or target — by how much? | `deviation_bar` | pulse / analysis | `deviation_bar` · `bullet` · `deviation_bar@ibcs` · `variance_pin@ibcs` · `multi_tier_column@ibcs` |
 | **compare_categories** | Which categories lead or lag — where should attention focus? | `bar_ranking` | analysis | `bar_ranking` · `lollipop` · `bar_absolute` · `dumbbell` |
 | **contribution_to_change** | What moved the number from A to B — which drivers? | `waterfall_pvm` | analysis | `waterfall_pvm` · `waterfall_buildup` · `waterfall_variance` · `waterfall_pvm@ibcs` |
 | **part_to_whole** | What is the share of the whole (<= 4 parts)? | `donut` | analysis | `donut` · `stacked_100` · `bar_stacked` |
@@ -62,6 +62,8 @@
 | `column_time` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
 | `dumbbell` | — | rendered ✓ | rendered ✓ 5/5 | — |
 | `bar_stacked` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
+| `variance_pin` | — | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
+| `multi_tier_column` | — | — | rendered ✓ 5/5 | — |
 
 **Legend.** `rendered ✓` = actually rendered headlessly (Deneb shows the scenario count) · `structural · gated` = deterministic + structurally valid, live render needs its host (Desktop) · `—` = tool n/a.
 
@@ -254,3 +256,17 @@
 - **Avoid:** too_many_series, stack_when_comparing_parts, normalize_when_totals_matter
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (multi-series absolute stacking is not a single-cell micro-chart → powerbi_native (stackedColumnChart) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/bar_stacked.yaml` (+ `golden/bar_stacked.*`)
+
+#### `variance_pin` — Variance pins (relative variance)
+- **Purpose:** deviation_from_target · **zone:** analysis · **min size:** 4×3 grid (395×152px @1280, 592×228px @1920)
+- **Avoid:** relative_variance_as_wide_column, color_beyond_semantic, mixed_polarity_on_one_axis
+- **Tools:** Power BI · native n/a (keine native Saeule mit Kopfmarker. Gemessen 30.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `clusteredColumnChart` und `lineClusteredColumnComboChart` steuern die Saeulenbreite nur ueber `layout.clusteredGapSize` (ein Kategorieabstand fuer alle Reihen), `dataPoint` fuehrt keine Breite; einen Kopfmarker gibt es nur an Linien (`lineStyles.markerShape`) und an Fehlerbalken (`error.barWidth`, `error.markerShape`). Ein Pin waere also nur als Kombination Saeule + strichlose Markerlinie oder als zweckentfremdeter Fehlerbalken moeglich — keine der beiden Varianten ist in Desktop geprueft, deshalb keine native Spur → deneb_vegalite (Pin-Chart ueber die Zeit); in Tabellen powerbi_svg_dax (ein Pin je Zeile, IBCS CO 4.4)) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
+- **Code:** `visual_library/variance_pin.yaml` (+ `golden/variance_pin.*`)
+
+#### `multi_tier_column` — Multi-tier column chart (values, ΔPY, ΔPY%)
+- **Purpose:** time_comparison, deviation_from_target · **zone:** analysis · **min size:** 6×6 grid (600×320px @1280, 900×480px @1920)
+- **Avoid:** variance_tier_on_its_own_scale, relative_variance_as_wide_column, dual_axis_no_reason, color_beyond_semantic
+- **Tools:** Power BI · native n/a (keine native Stufenform. Gemessen 30.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `clusteredColumnChart` (Rollen Category, Series, Y, Rows, Tooltips) und `lineClusteredColumnComboChart` (zusaetzlich Y2) zeichnen alle Kennzahlen in EINEN Plotbereich — die Combo mit hoechstens einer zweiten Wertachse (`valueAxis.sec*`), nicht mit einer zweiten Stufe. `smallMultiplesLayout` (Rolle Rows) teilt nach einer Dimension, jede Kachel zeigt dieselben Kennzahlen; eine Stufe je Kennzahl ueber derselben Kategorieachse ist damit nicht einstellbar. Drei gestapelte native Visuals waeren drei Dateien mit je eigener Achse und eigener Skala — genau der Fall, den `variance_tier_on_its_own_scale` ausschliesst → deneb_vegalite (eine Spec, geteilte x-Skala, eine y-Skala fuer Werte und ΔPY)) · Power BI · SVG-DAX n/a (a three-tier chart over all periods is a full chart, not a single-cell micro-chart → deneb_vegalite; per table row use variance_pin (svg_dax) next to the value) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (three tiers on one category axis need three synchronised charts (syncId) inside a wrapper element; the Recharts track holds single-root charts, and the ΔPY tier would lose the shared value scale → deneb_vegalite; in React render the Vega-Lite spec (react-vega) instead of three Recharts charts)
+- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
+- **Code:** `visual_library/multi_tier_column.yaml` (+ `golden/multi_tier_column.*`)

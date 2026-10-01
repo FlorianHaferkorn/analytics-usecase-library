@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "1.0.0"
+version: "1.1.2"
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -33,7 +33,16 @@ tokens:
   col_ref:  color_semantics.neutral # #94A0AC target reference
   col_end:  color_semantics.negative# endpoint (semantic by sign at gen time)
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_values: {target_val: null, col_end: col_line}   # data, not style: from params; else removed (null) or the named fallback (A-31 R6)
+data_slots:
+  field: {role: value, required: true}
+  field_date: {role: time, required: true}
+  plan_field: {role: plan, required: false}
+  fc_field: {role: forecast, required: false}   # FC (IBCS UN 3.2): dashed, never drawn as plan (BO-021)
+
 canonical_params:
+  col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
   entity: "_Measures"
   measure: "Gross Margin %"
   target_measure: "Plan Gross Margin %"
@@ -45,6 +54,8 @@ canonical_params:
   col_line: "#0F2430"
   col_ref: "#94A0AC"
   col_end: "#A4262C"
+  plan_field: "gm_plan"
+  fc_field: "gm_fc"
 
 preview_svg: |
   <svg viewBox="0 0 340 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Trend line">
@@ -104,9 +115,25 @@ realizations:
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
           { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [5, 4] },
             "encoding": { "y": { "datum": {{target_val}} } } },
-          { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
+          { "mark": { "type": "line", "color": "{{col_ref}}", "strokeDash": [5, 4], "strokeWidth": 1.5 },
+            "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
+          { "mark": { "type": "line", "color": "{{col_line}}", "strokeDash": [2, 3], "strokeWidth": 2 },
+            "encoding": { "y": { "field": "{{fc_field}}", "type": "quantitative" } } },
+          { "transform": [ { "window": [ { "op": "row_number", "as": "_p" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._p == 1" } ],
+            "mark": { "type": "text", "text": "Plan", "align": "left", "dx": 4, "dy": -8, "color": "{{col_ref}}" },
+            "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
+          { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
             "mark": { "type": "point", "filled": true, "size": 60, "color": "{{col_end}}" },
-            "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } }
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } },
+          { "params": [ { "name": "hover", "select": { "type": "point", "fields": ["{{field_date}}"], "nearest": true, "on": "pointerover", "clear": "pointerout" } } ],
+            "mark": { "type": "rule", "color": "{{col_ref}}" },
+            "encoding": { "opacity": { "condition": { "param": "hover", "empty": false, "value": 0.8 }, "value": 0 } } },
+          { "mark": { "type": "point", "filled": true, "size": 50, "color": "{{col_line}}" },
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative" },
+                          "opacity": { "condition": { "param": "hover", "empty": false, "value": 1 }, "value": 0 } } },
+          { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
+            "mark": { "type": "text", "align": "right", "dx": -8, "dy": -10, "color": "{{col_label}}" },
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative" }, "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" } } }
         ]
       }
 
@@ -126,10 +153,20 @@ realizations:
 # STRUCTURAL — native gets a second Y measure; Vega/Recharts get a second line series.
 profiles:
   ibcs:
-    note: "IBCS scenario lines: AC solid over PL (plan) as a lighter dashed line over time, instead of a flat target rule."
+    note: 'IBCS 2.0: AC and PL in the same colour, scenario on the markers — AC solid, PL outlined (UN 3.2); value axis from zero (CH 1.1), replaced by labels (SI 3.1).'
+    rule_refs:
+    - CH 1.1
+    - SI 3.1
+    - UN 3.2
     param_overrides:
-      plan_field: "gm_plan"
-      col_pl: "#94A0AC"
+      plan_field: gm_plan
+      col_pl: '#94A0AC'
+      col_ac: '#404040'
+      col_good: '#5B9A35'
+      col_bad: '#A4262C'
+      col_neutral: '#1F6FB5'
+      col_ink: '#201F1E'
+      polarity: '1'
     realizations:
       powerbi_native:
         ext: json
@@ -147,18 +184,125 @@ profiles:
           }
       powerbi_svg_dax:
         applicable: false
-        reason: "two scenario lines (AC + PL) in a single table cell are too cramped to read"
-        use: "powerbi_native (two Y measures) or deneb_vegalite"
+        reason: two scenario lines (AC + PL) in a single table cell are too cramped to read
+        use: powerbi_native (two Y measures) or deneb_vegalite
       deneb_vegalite:
         ext: json
         template: |
           {
             "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-            "data": { "name": "dataset" },
-            "encoding": { "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } } },
+            "data": {
+              "name": "dataset"
+            },
+            "encoding": {
+              "x": {
+                "field": "{{field_date}}",
+                "type": "temporal",
+                "axis": {
+                  "title": null,
+                  "grid": false,
+                  "ticks": false,
+                  "domainColor": "{{col_ac}}"
+                }
+              }
+            },
             "layer": [
-              { "mark": { "type": "line", "color": "{{col_pl}}", "strokeWidth": 1.5, "strokeDash": [4, 3] }, "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
-              { "mark": { "type": "line", "color": "{{col_line}}", "strokeWidth": 2.5 }, "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } }
+              {
+                "mark": {
+                  "type": "line",
+                  "color": "{{col_ac}}",
+                  "strokeWidth": 1.5,
+                  "point": {
+                    "filled": false,
+                    "fill": "white",
+                    "stroke": "{{col_ac}}",
+                    "size": 30
+                  }
+                },
+                "encoding": {
+                  "y": {
+                    "field": "{{plan_field}}",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "line",
+                  "color": "{{col_ac}}",
+                  "strokeWidth": 1.5,
+                  "point": {
+                    "filled": true,
+                    "color": "{{col_ac}}",
+                    "size": 30
+                  }
+                },
+                "encoding": {
+                  "y": {
+                    "field": "{{field}}",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "line",
+                  "color": "{{col_ac}}",
+                  "strokeWidth": 1.5,
+                  "strokeDash": [3, 2]
+                },
+                "encoding": {
+                  "y": {
+                    "field": "{{fc_field}}",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  }
+                }
+              },
+              {
+                "transform": [
+                  { "filter": "isValid(datum['{{field}}'])" },
+                  { "joinaggregate": [ { "op": "min", "field": "{{field}}", "as": "_min" }, { "op": "max", "field": "{{field}}", "as": "_max" }, { "op": "count", "as": "_n" } ] },
+                  { "window": [ { "op": "row_number", "as": "_i" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] },
+                  { "calculate": "datum['{{field}}'] == datum._min ? datum._i : null", "as": "_at_min" },
+                  { "calculate": "datum['{{field}}'] == datum._max ? datum._i : null", "as": "_at_max" },
+                  { "calculate": "datum._i == 1 ? datum['{{field}}'] : null", "as": "_at_first" },
+                  { "calculate": "datum._i == datum._n ? datum['{{field}}'] : null", "as": "_at_last" },
+                  { "joinaggregate": [ { "op": "min", "field": "_at_min", "as": "_imin" }, { "op": "min", "field": "_at_max", "as": "_imax" }, { "op": "max", "field": "_at_first", "as": "_v1" }, { "op": "max", "field": "_at_last", "as": "_vn" } ] },
+                  { "calculate": "max(abs(datum._max), abs(datum._min), 1e-9)", "as": "_top" },
+                  { "calculate": "width / max(datum._n - 1, 1)", "as": "_step" },
+                  { "calculate": "abs(datum._imax - 1) * datum._step < 34 && abs(datum._max - datum._v1) / datum._top * height < 14 || abs(datum._n - datum._imax) * datum._step < 34 && abs(datum._max - datum._vn) / datum._top * height < 14", "as": "_max_hidden" },
+                  { "calculate": "abs(datum._imin - 1) * datum._step < 34 && abs(datum._min - datum._v1) / datum._top * height < 14 || abs(datum._n - datum._imin) * datum._step < 34 && abs(datum._min - datum._vn) / datum._top * height < 14 || !datum._max_hidden && abs(datum._imin - datum._imax) * datum._step < 34 && abs(datum._min - datum._max) / datum._top * height < 14", "as": "_min_hidden" },
+                  { "filter": "datum._n <= 6 || datum._i == 1 || datum._i == datum._n || datum._i == datum._imax && !datum._max_hidden || datum._i == datum._imin && !datum._min_hidden" }
+                ],
+                "mark": {
+                  "type": "text",
+                  "color": "{{col_ink}}",
+                  "dy": -10
+                },
+                "encoding": {
+                  "y": {
+                    "field": "{{field}}",
+                    "type": "quantitative"
+                  },
+                  "text": {
+                    "field": "{{field}}",
+                    "type": "quantitative",
+                    "format": ",.1~f"
+                  }
+                }
+              }
             ]
           }
       web_recharts:

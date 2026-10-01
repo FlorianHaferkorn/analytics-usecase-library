@@ -33,6 +33,12 @@ tokens:
   col_2: brand.teal                 # #008575
   col_3: brand.coral                # #EF6950
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field: {role: value, required: true}
+  field_date: {role: time, required: true}
+  field_series: {role: series, required: true}
+
 canonical_params:
   entity: "_Measures"
   measure: "Net Sales Amount"

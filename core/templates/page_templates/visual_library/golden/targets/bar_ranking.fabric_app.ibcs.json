@@ -1,0 +1,235 @@
+{
+  "idiom": "bar_ranking",
+  "profile": "ibcs",
+  "notation": "ibcs",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "padding": {
+      "right": 40
+    },
+    "data": {
+      "name": "dataset"
+    },
+    "transform": [
+      {
+        "calculate": "max(datum['gm'], isValid(datum['gm_py']) ? datum['gm_py'] : datum['gm'])",
+        "as": "_lx"
+      }
+    ],
+    "encoding": {
+      "y": {
+        "field": "unit",
+        "type": "nominal",
+        "sort": {
+          "field": "gm",
+          "order": "descending"
+        },
+        "axis": {
+          "title": null,
+          "ticks": false,
+          "domainColor": "#404040"
+        }
+      }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "bar",
+          "color": "#404040",
+          "opacity": 0.5,
+          "yOffset": -4
+        },
+        "encoding": {
+          "x": {
+            "field": "gm_py",
+            "type": "quantitative",
+            "axis": null,
+            "scale": {
+              "zero": true
+            }
+          },
+          "tooltip": [
+            {
+              "field": "unit",
+              "type": "nominal",
+              "title": "unit"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "bar",
+          "color": "#404040",
+          "yOffset": 2
+        },
+        "encoding": {
+          "x": {
+            "field": "gm",
+            "type": "quantitative"
+          },
+          "tooltip": [
+            {
+              "field": "unit",
+              "type": "nominal",
+              "title": "unit"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "color": "#201F1E",
+          "align": "left",
+          "dx": 4,
+          "yOffset": 2,
+          "tooltip": null
+        },
+        "encoding": {
+          "x": {
+            "field": "_lx",
+            "type": "quantitative"
+          },
+          "text": {
+            "field": "gm",
+            "type": "quantitative",
+            "format": ",.1~f"
+          }
+        }
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#404040",
+      "labelColor": "#201F1E",
+      "title": null,
+      "labelFontSize": 11,
+      "grid": false,
+      "ticks": false
+    },
+    "axisX": {
+      "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333,
+      "zero": true
+    },
+    "text": {
+      "fontSize": 11
+    },
+    "locale": {
+      "number": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [
+          3
+        ],
+        "currency": [
+          "",
+          " €"
+        ]
+      },
+      "time": {
+        "dateTime": "%A, der %e. %B %Y, %X",
+        "date": "%d.%m.%Y",
+        "time": "%H:%M:%S",
+        "periods": [
+          "AM",
+          "PM"
+        ],
+        "days": [
+          "Sonntag",
+          "Montag",
+          "Dienstag",
+          "Mittwoch",
+          "Donnerstag",
+          "Freitag",
+          "Samstag"
+        ],
+        "shortDays": [
+          "So",
+          "Mo",
+          "Di",
+          "Mi",
+          "Do",
+          "Fr",
+          "Sa"
+        ],
+        "months": [
+          "Januar",
+          "Februar",
+          "März",
+          "April",
+          "Mai",
+          "Juni",
+          "Juli",
+          "August",
+          "September",
+          "Oktober",
+          "November",
+          "Dezember"
+        ],
+        "shortMonths": [
+          "Jan",
+          "Feb",
+          "Mär",
+          "Apr",
+          "Mai",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Okt",
+          "Nov",
+          "Dez"
+        ]
+      }
+    },
+    "bar": {
+      "cornerRadius": 0
+    },
+    "legend": {
+      "disable": true
+    }
+  },
+  "capabilities": {
+    "disableCompactNumberFormatting": true,
+    "disableLineChartCrosshairTooltip": true,
+    "disableMinBarSize": true,
+    "disableNiceAxisBounds": true,
+    "disableStackedDataLabels": true,
+    "disableTextTruncation": true
+  }
+}
