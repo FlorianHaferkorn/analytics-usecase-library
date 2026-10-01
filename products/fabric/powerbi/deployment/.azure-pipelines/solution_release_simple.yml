@@ -40,23 +40,30 @@ stages:
     # manual run on another branch. The `pr:` trigger above is for Build only.
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), ne(variables['Build.Reason'], 'PullRequest'))
     jobs:
-      - job: ReleaseTest
-        displayName: 'Deploy to TEST'
-        pool:
-          vmImage: 'windows-latest'
+      # ManualValidation@0 runs only in an agentless job (`pool: server`); the job timeout
+      # must exceed the task timeout (job default 60 min). Learn manual-validation-v0, 01.10.2026.
+      - job: ApproveTest
+        displayName: 'Approve TEST Deployment'
+        pool: server
+        timeoutInMinutes: 1500
         steps:
           - task: ManualValidation@0
             displayName: 'Approve TEST Deployment'
+            timeoutInMinutes: 1440  # 24 hours; common task property, not an input
             inputs:
               notifyUsers: |
                 $(APPROVAL_NOTIFY_USERS)
               onTimeout: 'reject'
-              timeoutInMinutes: 1440  # 24 hours
-          
+
+      - job: ReleaseTest
+        displayName: 'Deploy to TEST'
+        dependsOn: ApproveTest
+        pool:
+          vmImage: 'windows-latest'
+        steps:
           - template: _template_release_solution.yml
             parameters:
               environment: 'tst'
-              requireManualApproval: false  # Already handled above
   
   - stage: ReleaseProd
     displayName: 'Release to PRODUCTION'
@@ -65,20 +72,27 @@ stages:
     # manual run on another branch. The `pr:` trigger above is for Build only.
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), ne(variables['Build.Reason'], 'PullRequest'))
     jobs:
-      - job: ReleaseProd
-        displayName: 'Deploy to PRODUCTION'
-        pool:
-          vmImage: 'windows-latest'
+      # ManualValidation@0 runs only in an agentless job (`pool: server`); the job timeout
+      # must exceed the task timeout (job default 60 min). Learn manual-validation-v0, 01.10.2026.
+      - job: ApproveProd
+        displayName: 'Approve PRODUCTION Deployment'
+        pool: server
+        timeoutInMinutes: 1500
         steps:
           - task: ManualValidation@0
             displayName: 'Approve PRODUCTION Deployment'
+            timeoutInMinutes: 1440  # 24 hours; common task property, not an input
             inputs:
               notifyUsers: |
                 $(APPROVAL_NOTIFY_USERS)
               onTimeout: 'reject'
-              timeoutInMinutes: 1440  # 24 hours
-          
+
+      - job: ReleaseProd
+        displayName: 'Deploy to PRODUCTION'
+        dependsOn: ApproveProd
+        pool:
+          vmImage: 'windows-latest'
+        steps:
           - template: _template_release_solution.yml
             parameters:
               environment: 'prd'
-              requireManualApproval: false  # Already handled above

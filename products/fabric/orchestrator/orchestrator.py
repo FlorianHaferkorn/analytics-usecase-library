@@ -744,6 +744,37 @@ class GovernanceManager:
 
     # -- sensitivity labels -------------------------------------------------------
 
+    @classmethod
+    def _manual_label_step(cls, label: str, environment: str, payload: Dict[str, Any]) -> str:
+        """The manual bulkSetLabels step for a Fabric admin: endpoint, ready JSON body, who may
+        call it, the limits, and how success is read. Never carries a token.
+
+        Source: Learn rest/api/fabric/admin/labels/bulk-set-labels (read 01.10.2026) —
+        Fabric Administrator, scope Tenant.ReadWrite.All, users only, max. 25 requests per
+        hour, up to 2,000 items per request, per-item status in ``itemsChangeLabelStatus``.
+        """
+        body = json.dumps(payload, indent=2)
+        delegated = ("" if "delegatedPrincipal" in payload else
+                     ' Optional: add "delegatedPrincipal": {"id": "<Entra object ID of the user '
+                     'to be marked as label issuer>", "type": "User"}.')
+        return (
+            f"Sensitivity label {label} (env={environment}) on {len(payload['items'])} "
+            f"item(s) was NOT applied: bulkSetLabels supports user identities only (no service "
+            f"principal / managed identity, Learn 01.10.2026). A Fabric Administrator applies "
+            f"it by hand:\n"
+            f"  POST https://api.fabric.microsoft.com/v1/{_BULK_SET_LABELS_ENDPOINT}\n"
+            f"  Sign in as a user with the Fabric Administrator role, scope "
+            f"Tenant.ReadWrite.All; the label must be in that user's label policy (and the "
+            f"delegated user's, if given).\n"
+            f"  Limits: max. 25 requests per hour, up to {_BULK_SET_LABELS_MAX_ITEMS} items "
+            f"per request.\n"
+            f"  Success only when every item in itemsChangeLabelStatus reports "
+            f"'{_BULK_SET_LABELS_SUCCEEDED}' — a 200 alone is not success.\n"
+            f"  Body:{delegated}\n{body}\n"
+            f"  Alternative without the API: mode={cls.MODE_PURVIEW} (Purview label policy)."
+        )
+
+
     def declare_workspace_labeling(self, workspace_id: str, environment: str) -> bool:
         """Declare the label requirement for a freshly created workspace.
 
@@ -850,21 +881,6 @@ class GovernanceManager:
                 f"(GUID); bulkSetLabels' delegatedPrincipal only supports type 'User'."
             )
 
-        # Learn: Service principal and Managed identities — "No". The SP token of this
-        # orchestrator would be rejected; say so instead of issuing a doomed call.
-        if self._identity_kind() != "user":
-            console.print("[red]bulkSetLabels does not support service principals or "
-                          "managed identities; label not applied.[/red]")
-            self._record(
-                f"Sensitivity label {label} (env={environment}) on {len(items)} item(s) was "
-                f"NOT applied: POST https://api.fabric.microsoft.com/v1/{_BULK_SET_LABELS_ENDPOINT} "
-                f"supports user identities only (no service principal / managed identity, "
-                f"Learn 01.10.2026). Run it as a Fabric Administrator user with scope "
-                f"Tenant.ReadWrite.All and the label in that user's label policy, or use "
-                f"mode={self.MODE_PURVIEW}."
-            )
-            return False
-
         payload: Dict[str, Any] = {
             "items": items,
             "labelId": label,
@@ -873,6 +889,16 @@ class GovernanceManager:
         }
         if delegated_user_id:
             payload["delegatedPrincipal"] = {"id": delegated_user_id, "type": "User"}
+
+        # Learn: Service principal and Managed identities — "No". The SP token of this
+        # orchestrator would be rejected; say so instead of issuing a doomed call. Owner
+        # decision 01.10.2026: no user sign-in is built — the step goes to a Fabric admin
+        # with everything needed to make the call by hand (body included, no token).
+        if self._identity_kind() != "user":
+            console.print("[red]bulkSetLabels does not support service principals or "
+                          "managed identities; label not applied.[/red]")
+            self._record(self._manual_label_step(label, environment, payload))
+            return False
 
         console.print(f"[yellow]Applying sensitivity label[/yellow] {label} to {len(items)} item(s)")
 

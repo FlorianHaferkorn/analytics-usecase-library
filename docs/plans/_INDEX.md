@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-09-29
+last-reviewed: 2026-10-01
 shelf-life-days: 90
 ---
 # Pläne und Konzepte — Zentraler Anlaufpunkt (_INDEX)

@@ -51,7 +51,7 @@ environments: 'dev,tst,prd'
 **Stages**: Same as multi-stage pipeline
 
 **Approval Gates**:
-- Uses `ManualValidation@0` tasks embedded in pipeline
+- Uses `ManualValidation@0` in an agentless job (`pool: server`) ahead of each release job
 - Approvers configured via pipeline variables
 - **Advantages**: No environment setup required, simpler for small teams
 - **Disadvantages**: Less flexible, harder to reuse across pipelines
@@ -88,7 +88,8 @@ Reusable template for release steps:
 - Downloads artifacts
 - Installs Python dependencies
 - Executes `fabric_release.py` to deploy items
-- Optional manual approval fallback
+- No approval step of its own: it runs in an agent job, and `ManualValidation@0` needs an
+  agentless job (see *Manual Approval Fallback*)
 - Post-deployment validation
 
 ---
@@ -164,15 +165,35 @@ Ensure service connections are configured:
 
 ### Manual Approval Fallback
 
-If environment approvals are not configured, you can use manual approval tasks by modifying the pipeline:
+If environment approvals are not configured, use `solution_release_simple.yml` or add an
+agentless approval job before the release job. `ManualValidation@0` runs only in an agentless
+job (`pool: server`), and the job timeout must exceed the task timeout (job default 60 minutes;
+Learn `azure/devops/pipelines/tasks/reference/manual-validation-v0`, read 01.10.2026):
 
 ```yaml
-- template: _template_release_solution.yml
-  parameters:
-    environment: 'prd'
-    requireManualApproval: true
-    approvalTimeoutMinutes: 1440
+jobs:
+  - job: ApproveProd
+    pool: server
+    timeoutInMinutes: 1500
+    steps:
+      - task: ManualValidation@0
+        timeoutInMinutes: 1440   # common task property, not an input
+        inputs:
+          notifyUsers: |
+            $(APPROVAL_NOTIFY_USERS)
+          onTimeout: 'reject'
+  - job: ReleaseProd
+    dependsOn: ApproveProd
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      - template: _template_release_solution.yml
+        parameters:
+          environment: 'prd'
 ```
+
+The template's former parameters `requireManualApproval` and `approvalTimeoutMinutes` were
+removed on 01.10.2026: their step sat in an agent job and could not run there.
 
 ---
 
@@ -231,20 +252,25 @@ findings; 1 = findings; 2 = the scan did not run (tool missing, tool error, empt
 - Measured 01.10.2026 (local `detect-secrets 1.5.0`): scope 0 findings in 26 files; a planted
   AWS key in a test copy gives exit 1. The whole repository has 630 findings in 50 files
   without a baseline, which is why the gate is scoped and not repo-wide.
+- Open: a repo-wide `.secrets.baseline`. Re-measured 01.10.2026 (`detect-secrets scan`,
+  1.5.0, git-tracked files): still 630 findings in 50 files, gate scope still 0 in 26. Writing
+  the baseline is one command, but it would accept all 630 unreviewed; it is created only
+  together with a per-finding review (`detect-secrets audit`).
 - First choice on Azure Repos is **GitHub Advanced Security for Azure DevOps** secret scanning
   with push protection (repository setting; Learn `azure/devops/repos/security/
   github-advanced-security-secret-scanning`). The gate covers repositories without it.
 
 ### Known Defects (not fixed in this round)
 
-- `ManualValidation@0` runs only in an **agentless** job (Learn `manual-validation-v0`,
-  read 01.10.2026). `solution_release_simple.yml` and the fallback step in
-  `_template_release_solution.yml` place it in agent jobs, so the task-based approval path
-  does not run as written. Use `solution_release_multistages.yml` (environment approvals)
-  until the simple pipeline gets a `pool: server` job.
 - `solution_setup.yml` and `feature_fabric_branch.yml` still use `script:` with `pwsh: true`;
   `pwsh` is not a property of a `script` step. The release template was switched to a `pwsh:`
   step on 01.10.2026; the two other files are unchanged.
+- Fixed 01.10.2026: `ManualValidation@0` ran in agent jobs (`solution_release_simple.yml`,
+  fallback step in `_template_release_solution.yml`) with `timeoutInMinutes` under `inputs`.
+  It now runs in its own `pool: server` job per stage (job timeout 1500 > task timeout 1440),
+  the release job depends on it, and the template no longer carries an approval step (Learn
+  `manual-validation-v0`, read 01.10.2026: agentless job only; `timeoutInMinutes` is a common
+  task property). Pinned by `scripts/tests/test_release_plan_and_pipeline_rules.py`.
 - Fixed 01.10.2026: `--unpublish_items` was parsed with `type=bool`, so `false` also yielded `True`; it now accepts only true/false (`_parse_bool`).
 
 ### Branch Protection
