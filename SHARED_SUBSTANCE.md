@@ -65,7 +65,7 @@ Erhoben durch Datei-für-Datei-Vergleich beider Repos (nicht aus READMEs).
 | `provision_connectivity.py` — Managed Private Endpoints | Meridian | `POST /v1/workspaces/{ws}/managedPrivateEndpoints` |
 | `provision_operability.py` — Metadaten-Vollständigkeit als Funktionsbedingung | Meridian | Data-Agent-DAX-Generierung nutzt ausschließlich Modell-Metadaten; ≤25 Tabellen/Quelle |
 | `capacity_recommend.py` — SKU-Guardrails inkl. Direct Lake | Meridian | Per-SKU-Guardrails (`dl_mem_gb`, `rows_m`, `dq_conn`) |
-| `admin_settings.py` — Tenant-Settings-Vorbedingungen | Meridian | Fabric-Admin-Portal-Tenant-Settings |
+| `admin_settings.py` — Tenant-Settings-Vorbedingungen | Meridian | Fabric-Tenant-Settings (OneLake catalog → Govern → Configurations; Admin-Portal als Fallback, z. B. bei Private Link) |
 | `decision_proposals.py` — RLS/CLS/Retention/Endorsement-Vorbelegungen | Meridian | Jede Vorbelegung trägt ihre Quelle im Kommentar; die Heuristik selbst ist begründet, nicht geraten |
 | `concepts.py` / `governance_concepts.py` / `odcs.py` — Konzept-Registries | beide (bereits gespiegelt) | ODCS-Spec; Medallion/Data-Vault als publizierte Muster |
 | `architecture_blueprint.schema.json` + IR-Spec | beide (bereits gespiegelt) | eigenes Schema, aber Feld-für-Feld gegen offizielle Constraints belegt |

@@ -1053,8 +1053,50 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                 ],
                 "default": "APPEND_ONLY",
                 "description": "APPEND_ONLY keeps bronze append-only (the medallion contract); FULL and MIRROR rewrite it and are reported by conformance."
+              },
+              "trigger": {
+                "enum": [
+                  "zeitplan",
+                  "onelake_event"
+                ],
+                "default": "zeitplan",
+                "description": "What starts the refresh (D-621). `zeitplan` (default): the time-based schedule in file_mlv/refresh_schedule.json. `onelake_event`: an event-triggered refresh on OneLake events for this folder (MS Learn schedule-lineage-run, Event-triggered (Preview), read 01.10.2026) - set up in the portal, no REST form on Learn; the time schedule stays as the reproducible fallback."
+              },
+              "dateipfad_spalte": {
+                "type": "boolean",
+                "default": false,
+                "description": "Project the `__filepath__` source metadata column (source file per row) via a FROM-less `AS SELECT *, __filepath__` appended after TBLPROPERTIES (MS Learn create-materialized-lake-view, section 'Ingest files with USING OneLake_Files', read 01.10.2026: 'optionally project the __filepath__ source metadata column when you need per-row file traceability'). Default false = no projection, DDL unchanged. ASSUMPTION, unverified: `*` returns the file columns without __filepath__."
+              },
+              "defekte_zeilen_spalte": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+                "not": {
+                  "const": "__filepath__"
+                },
+                "description": "CSV only. Name of the string column that receives the raw text of malformed rows; sets OPTIONS 'columnNameOfCorruptRecord' and projects the column in the FROM-less `AS SELECT` (MS Learn create-materialized-lake-view, section 'Ingest files with USING OneLake_Files', read 01.10.2026: 'Valid rows contain NULL in this column. Include the column in the AS SELECT output.'). Plain identifier; the Spark CSV `mode` option stays unset (Learn: Fabric manages malformed-row handling)."
               }
-            }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "format": {
+                      "const": "parquet"
+                    }
+                  },
+                  "required": [
+                    "format"
+                  ]
+                },
+                "then": {
+                  "not": {
+                    "required": [
+                      "defekte_zeilen_spalte"
+                    ]
+                  }
+                }
+              }
+            ]
           }
         },
         "allOf": [
