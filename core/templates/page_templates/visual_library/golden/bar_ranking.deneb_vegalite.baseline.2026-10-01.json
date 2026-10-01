@@ -8,7 +8,7 @@
       "encoding": {
         "y": { "field": "unit", "type": "nominal", "sort": { "field": "gm", "order": "ascending" }, "axis": { "title": null } },
         "x": { "field": "gm", "type": "quantitative", "axis": { "title": null } },
-        "color": { "condition": { "test": "(datum['gm'] - 44.1) * 1 < 0", "value": "#F7630C" }, "value": "#0F2430" } } },
+        "color": { "condition": { "test": "datum['gm'] < 44.1", "value": "#A4262C" }, "value": "#0F2430" } } },
     { "mark": { "type": "rule", "color": "#94A0AC", "strokeDash": [4, 3] }, "encoding": { "x": { "datum": 44.1 } } },
     { "mark": { "type": "text", "align": "left", "dx": 4, "color": "#201F1E" },
       "encoding": {

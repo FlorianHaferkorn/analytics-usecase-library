@@ -448,6 +448,88 @@ def with_tooltips(spec: dict, idiom: str, eff: dict) -> dict:
     return walk(spec)
 
 
+#: Rest modes for Top N (A-31 R7): `sum` folds the rest into one summed bar — only valid for an
+#: additive measure (amounts, contributions); `none` keeps the rest as a labelled category without a
+#: value, because the sum of rates or days is a wrong number, not an imprecise one.
+REST_MODES = ("none", "sum")
+REST_LABEL = "Übrige"
+
+
+def _slot_column(idiom: str, eff: dict, role: str) -> "str | None":
+    for param, slot in data_slots(idiom).items():
+        col = eff.get(param)
+        if slot["role"] == role and col and col != _NO_VALUE:
+            return col
+    return None
+
+
+def with_top_n(spec: dict, idiom: str, eff: dict, n: int, rest: str) -> dict:
+    """Keep the first `n` categories in display order and fold the others into one rest row
+    ("Übrige (k)"), drawn last (A-31 R7, BC-CHART-10). Silent truncation hides data; a rest row
+    says how much is folded. Applies to the top-level data, so every layer (bar, label, reference)
+    reads the same rows; sorts on the value field are redirected so the rest stays at the end."""
+    if rest not in REST_MODES:
+        raise ValueError(f"rest must be one of {REST_MODES}, not {rest!r}")
+    cat, val = _slot_column(idiom, eff, "category"), _slot_column(idiom, eff, "value")
+    if not cat or not val:
+        raise KeyError(f"{idiom}: Top N needs a bound category and value column")
+    measures = [val] + [c for c in (_slot_column(idiom, eff, r) for r in ("prior", "plan")) if c]
+
+    order = "descending"
+
+    def find_order(node):
+        nonlocal order
+        if isinstance(node, dict):
+            s = node.get("sort")
+            if isinstance(s, dict) and s.get("field") == val and s.get("order"):
+                order = s["order"]
+                return True
+            return any(find_order(v) for v in node.values())
+        if isinstance(node, list):
+            return any(find_order(v) for v in node)
+        return False
+
+    find_order(spec)
+    last = 1e300 if order == "ascending" else -1e300
+    fold = [
+        {"window": [{"op": "row_number", "as": "_rank"}], "sort": [{"field": val, "order": order}]},
+        {"joinaggregate": [{"op": "count", "as": "_rows"}]},
+        {"calculate": f"datum._rank > {n}", "as": "_rest"},
+        {"calculate": f"datum._rest ? '{REST_LABEL} (' + (datum._rows - {n}) + ')' : datum['{cat}']", "as": cat},
+    ]
+    if rest == "none":
+        fold += [{"calculate": f"datum._rest ? null : datum['{m}']", "as": m} for m in measures]
+    fold += [
+        {"aggregate": [{"op": "sum" if rest == "sum" else "max", "field": m, "as": m} for m in measures],
+         "groupby": [cat, "_rest"]},
+        {"calculate": f"datum._rest ? {last} : datum['{val}']", "as": "_ord"},
+    ]
+
+    # A rest is not an item: rating it against a per-item target says nothing, so it takes the
+    # idiom's neutral colour where the colour encodes a rating.
+    neutral = next((eff[k] for k in ("col_ref", "col_neutral") if eff.get(k) and eff[k] != _NO_VALUE), None)
+
+    def redirect(node):
+        if isinstance(node, dict):
+            out = {k: redirect(v) for k, v in node.items()}
+            s = out.get("sort")
+            if isinstance(s, dict) and s.get("field") == val:
+                out["sort"] = {**s, "field": "_ord"}
+            color = out.get("color")
+            if neutral and isinstance(color, dict) and "condition" in color and "field" not in color:
+                cond = color["condition"]
+                out["color"] = {**color, "condition": [{"test": "datum._rest", "value": neutral}]
+                                + (cond if isinstance(cond, list) else [cond])}
+            return out
+        if isinstance(node, list):
+            return [redirect(v) for v in node]
+        return node
+
+    spec = redirect(spec)
+    spec["transform"] = fold + list(spec.get("transform") or [])
+    return spec
+
+
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
                   background: "str | None" = None) -> "tuple[str, str]":
@@ -479,10 +561,18 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
                     if p not in bound and not slot.get("required", True) and p not in given]
         eff.update({v: _NO_VALUE for v in missing})
         eff.update({v: eff[fb] for v, fb in dv.items() if v not in given and fb is not None})
-        eff.update({k: str(v) for k, v in given.items()})
+        eff.update({k: str(v) for k, v in given.items() if k not in ("top_n", "rest")})
+        if (entry.get("encoding") or {}).get("order") == "worst_first" and "worst_first" not in given:
+            # worst first: for a lower-is-better measure the worst value is the highest (A-31 R7)
+            eff["worst_first"] = "descending" if float(eff.get("polarity", 1)) < 0 else "ascending"
         spec = json.loads(fill(real["template"], eff))
         if missing:
             spec = _drop_missing_values(spec, idiom, missing)
+        limit = (entry.get("params") or {}).get("top_n")
+        if bindings and isinstance(limit, dict) and limit.get("role") == "limit":
+            # real data always gets the limit the idiom declares; the caller may lower or raise it
+            spec = with_top_n(spec, idiom, eff, int(given.get("top_n", limit.get("default", 20))),
+                              str(given.get("rest", "none")))
     else:
         spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
         eff = dict(_effective_params(load_entry(idiom), notation))

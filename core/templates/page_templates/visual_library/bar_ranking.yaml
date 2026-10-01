@@ -1,7 +1,7 @@
 # Visual Library entry — bar_ranking  (schema: _schema.yaml)
 id: bar_ranking
 name: Bar ranking
-version: "1.1.0"
+version: "1.2.0"
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
@@ -50,6 +50,8 @@ canonical_params:
   field: "gm"
   field_cat: "unit"
   target_val: "44.1"
+  polarity: "1"                    # -1 = lower is better: below target turns good (A-31 R7)
+  worst_first: "ascending"        # derived from polarity by render_target unless given
   col_above: "#0F2430"
   col_below: "#A4262C"
   col_ref: "#94A0AC"
@@ -107,13 +109,13 @@ realizations:
         "layer": [
           { "mark": { "type": "bar" },
             "encoding": {
-              "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "ascending" }, "axis": { "title": null } },
+              "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "{{worst_first}}" }, "axis": { "title": null } },
               "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } },
-              "color": { "condition": { "test": "datum['{{field}}'] < {{target_val}}", "value": "{{col_below}}" }, "value": "{{col_above}}" } } },
+              "color": { "condition": { "test": "(datum['{{field}}'] - {{target_val}}) * {{polarity}} < 0", "value": "{{col_below}}" }, "value": "{{col_above}}" } } },
           { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [4, 3] }, "encoding": { "x": { "datum": {{target_val}} } } },
           { "mark": { "type": "text", "align": "left", "dx": 4, "color": "{{col_label}}" },
             "encoding": {
-              "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "ascending" } },
+              "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "{{worst_first}}" } },
               "x": { "field": "{{field}}", "type": "quantitative" },
               "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "datum._n < 10", "value": 1 }, "value": 0 } } }
         ]

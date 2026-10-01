@@ -62,7 +62,7 @@
     {
       "id": "bar_ranking",
       "name": "Bar ranking",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -87,7 +87,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:c33bbec7c8c98ca0246706bd0d2ff6e7b9adeda96992c469c506682d41551186"
+      "checksum": "sha256:44b99a9394792ca2e5ae18dd5dcf5018d360e07984ff06836c79195be18be284"
     },
     {
       "id": "bar_stacked",
