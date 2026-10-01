@@ -66,8 +66,45 @@ def payg_usd_per_cu_hour(drivers: dict[str, Any], sku: str) -> float:
     return _price_by_sku(drivers, sku) / (_CAPACITY.CU[sku] * _HOURS_PER_MONTH)
 
 
+def region_key(region: str | None) -> str:
+    """'West Europe', 'west-europe' and 'westeurope' name the same Azure region."""
+    return "".join(ch for ch in str(region or "").lower() if ch.isalnum())
+
+
+def regional_rates(drivers: dict[str, Any], region: str | None, currency: str = "USD") -> dict[str, float] | None:
+    """PAYG per CU hour and OneLake hot per GB-month for one region and currency, or None if unknown."""
+    row = ((drivers.get("fabric_regions") or {}).get("regions") or {}).get(region_key(region))
+    cur = currency.lower()
+    if not row or f"payg_{cur}_per_cu_hour" not in row:
+        return None
+    return {"payg_per_cu_hour": float(row[f"payg_{cur}_per_cu_hour"]),
+            "onelake_hot_per_gb_month": float(row[f"onelake_hot_{cur}_per_gb_month"])}
+
+
+def capacity_price_per_month(drivers: dict[str, Any], sku: str, *, region: str | None = None,
+                             currency: str = "USD", use_reservation: bool = False) -> tuple[float, str]:
+    """Monthly list price of one capacity and where it came from.
+
+    With a known region: CU x regional PAYG rate x 730 h, reservation discount from the SKU table.
+    Without one: the SKU table (US price, USD only). Raises KeyError when neither applies.
+    """
+    rates = regional_rates(drivers, region, currency) if region else None
+    if rates is None:
+        if currency.upper() != "USD":
+            raise KeyError(f"No {currency.upper()} price for region {region!r}")
+        return _price_by_sku(drivers, sku, use_reservation=use_reservation), "sku_table_us"
+    price = _CAPACITY.CU[sku] * rates["payg_per_cu_hour"] * _HOURS_PER_MONTH
+    if use_reservation:
+        row = next((r for r in drivers.get("fabric_capacity", []) if r.get("sku") == sku), None)
+        if row is None:
+            raise KeyError(f"No reservation discount for {sku}")
+        price *= 1 - float(row.get("reservation_discount_pct", 0)) / 100.0
+    return price, f"region:{region_key(region)}"
+
+
 def compute_overage(drivers: dict[str, Any], sku: str, enabled: bool | None = None,
-                    threshold_cu_hours: float | None = None) -> dict[str, Any]:
+                    threshold_cu_hours: float | None = None,
+                    payg_per_cu_hour: float | None = None) -> dict[str, Any]:
     """Capacity-overage line for the production SKU.
 
     enabled False: overage is off, no cost line. Otherwise the threshold is either the
@@ -80,7 +117,8 @@ def compute_overage(drivers: dict[str, Any], sku: str, enabled: bool | None = No
         return {"sku": sku, "enabled": False, "max_usd_per_day": 0.0,
                 "threshold_source": "customer"}
     prof = _CAPACITY.overage_profile(sku, threshold_cu_hours,
-                                     payg_usd_per_cu_hour(drivers, sku))
+                                     payg_per_cu_hour if payg_per_cu_hour is not None
+                                     else payg_usd_per_cu_hour(drivers, sku))
     return {
         "sku": sku,
         "enabled": True,  # on by default for new F capacities unless switched off

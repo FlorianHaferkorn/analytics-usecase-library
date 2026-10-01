@@ -302,6 +302,8 @@ def _reference_architecture(baseline: str, stages: list[str], with_alternative_r
     if layout:
         architecture["capacities"] = [dict(row) for row in layout["capacities"]]
         architecture["report_audience"] = {"authors": 5, "viewers": 200}
+        # Central monitoring Eventhouse on the dev capacity (Meridian D-615 OPS-MONITORING), 40 GB retained.
+        architecture["monitoring"] = {"capacity_id": CAPACITY_BY_STAGE["dev"], "retained_gb": 40}
     return architecture
 
 

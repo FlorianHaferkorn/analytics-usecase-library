@@ -5,22 +5,26 @@ import { isAbsolute, join, resolve } from 'node:path';
 import type { PackageRepositoryResult } from './project-package-repository';
 
 export interface RunCostCapacity {
-  capacity_id: string; sku: string; billing: 'payg' | 'reservation'; environments: string[]; usd_per_month: number;
-  overage: { enabled: boolean; threshold_source: string; max_usd_per_month: number };
+  capacity_id: string; sku: string; billing: 'payg' | 'reservation'; price_basis: string; environments: string[]; per_month: number;
+  overage: { enabled: boolean; threshold_source: string; max_per_month: number };
 }
 export interface RunCostLicences {
   authors: number; viewers: number; production_sku: string | null; viewers_need_pro: boolean; pro_users: number;
-  pro_usd_per_user_month: number; usd_per_month: number; basis: string;
+  /** Null when the licence list price is not available in the result currency. */
+  pro_per_user_month: number | null; per_month: number | null; basis: string;
 }
+export interface RunCostMonitoringStorage { retained_gb: number; per_gb_month: number | null; per_month: number | null }
 export interface RunCostSide {
+  currency: 'USD' | 'EUR';
   capacities: RunCostCapacity[];
-  capacity_usd_per_month: number;
+  capacity_per_month: number;
   licences: RunCostLicences | null;
-  usd_per_month: number;
-  /** Derived overage maximum; billed only when used, never part of usd_per_month. */
-  overage_ceiling_usd_per_month: number;
+  monitoring_storage: RunCostMonitoringStorage | null;
+  per_month: number;
+  /** Derived overage maximum; billed only when used, never part of per_month. */
+  overage_ceiling_per_month: number;
   priced_capacities: number;
-  unpriced: Array<{ capacity_id: string; reason: string }>;
+  unpriced: Array<{ item: string; reason: string }>;
 }
 /** Result of tooling/superversion/project_package/run_cost_delta.py: public list prices, no tenant values. */
 export interface RunCostDelta {
@@ -32,14 +36,16 @@ export interface RunCostDelta {
   status: 'evaluated' | 'not_evaluated';
   reason?: string;
   persist: false;
-  currency?: 'USD';
+  currency?: 'USD' | 'EUR';
+  region?: string;
   price_basis?: string;
   price_valid_from?: string;
   baseline?: RunCostSide;
   alternative?: RunCostSide;
   delta?: {
-    usd_per_month: number; usd_per_year: number; capacity_usd_per_month: number; licence_usd_per_month: number;
-    overage_ceiling_usd_per_month: number; capacities_removed: string[]; capacities_added: string[];
+    per_month: number; per_year: number; capacity_per_month: number; licence_per_month: number;
+    monitoring_storage_per_month: number; overage_ceiling_per_month: number;
+    capacities_removed: string[]; capacities_added: string[];
   };
   comparable?: boolean;
   limitations?: string[];

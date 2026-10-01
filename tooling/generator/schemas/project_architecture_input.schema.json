@@ -96,6 +96,18 @@
         }
       }
     },
+    "cost_currency": {
+      "enum": ["USD", "EUR"],
+      "description": "Optional: currency of the run-cost view (default USD). EUR uses Microsoft's own EUR list price per region, not a converted USD value."
+    },
+    "monitoring": {
+      "description": "Optional: workspace monitoring for the run cost. capacity_id names the capacity that hosts the central monitoring Eventhouse (priced even if no workload workspace uses it); retained_gb is the stored monitoring data at the retention you set (default retention 30 days).",
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "capacity_id": {"type": "string", "format": "uuid"},
+        "retained_gb": {"type": "number", "minimum": 0}
+      }
+    },
     "report_audience": {
       "description": "Optional: who uses the reports, for the licence part of the run cost. Authors always need Power BI Pro; viewers only below an F64 production capacity.",
       "type": "object", "additionalProperties": false, "required": ["authors", "viewers"],

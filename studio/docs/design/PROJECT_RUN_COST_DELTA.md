@@ -12,6 +12,10 @@ WB-008 shows what an alternative changes in structure, WB-009 what it changes in
 
 `architecture_input.report_audience` (optional): `authors`, `viewers`. With it the run cost includes Power BI Pro licences, coupled to the production SKU: authors always need Pro, viewers only below F64 (Learn `enterprise/licenses`; same boundary as Meridian OUT-REPORT). An alternative that moves production across F64 therefore shows its licence effect next to the capacity price.
 
+Region and currency: `architecture_input.region` selects the regional PAYG rate per CU hour from `cost_drivers.yaml` `fabric_regions` (Azure Retail Prices API, fetched 2026-10-01; westeurope and germanywestcentral 0.22 USD, eastus 0.18 USD). `cost_currency` (`USD` default, `EUR`) selects Microsoft's own EUR list, which is not a converted USD value (germanywestcentral 0.1936 EUR vs westeurope 0.1889 EUR at the same USD price). A region without a rate falls back to the US SKU table, in USD only. Power BI licences have a USD list price only; in EUR they are counted but listed as unpriced.
+
+`architecture_input.monitoring` (optional): `capacity_id` of the capacity hosting the central monitoring Eventhouse (priced even if no workload workspace uses it) and `retained_gb` (monitoring data at the chosen retention, OneLake hot rate). Monitoring compute is CU on that capacity and already inside its price (Learn `real-time-intelligence-consumption`).
+
 ## Behavior
 
 `compare_run_cost(repository, project_ref, baseline_revision, decision_ref, option_ref)`:
@@ -33,8 +37,8 @@ WB-008 shows what an alternative changes in structure, WB-009 what it changes in
 
 ## Limits
 
-- USD list prices; region and currency are not applied.
+- List prices only; no negotiated or enterprise-agreement discount. Regional rates are a snapshot (`fetched` in `cost_drivers.yaml`) and must be refreshed.
 - Paused hours are not modelled.
 - Licences only for a declared `report_audience`; PPU is not modelled.
-- OneLake storage and workspace-monitoring ingestion are outside this delta.
+- OneLake storage of workload data is outside this delta; only monitoring storage is priced.
 - Studio: the route needs the **viewer** role, unlike WB-009 (editor, price: admin). The result carries list prices only, which is what the customer's own Azure bill shows; no rate, margin or staffing. Fetched on explicit request, `private, no-store`, rejected unless `persist: false`.

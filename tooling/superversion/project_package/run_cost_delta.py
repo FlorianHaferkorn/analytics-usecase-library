@@ -3,18 +3,22 @@
 WB-008 compares structure, WB-009 the delivery effort and its price. Neither answers the question a
 customer asks about an environment or capacity decision: *what does running it cost?* This module
 evaluates the same hypothetical selection (`evaluate_alternative`) and prices the Fabric capacities
-that the selected environments actually use.
+that the selected environments actually use, the Power BI licences of the report audience and the
+workspace-monitoring storage.
 
 Rules, deliberately narrow:
 
-* **Public list prices only.** Capacity prices come from `internal/proposal_costing` through its own
-  `cost_engine` (Microsoft list price, USD). No tenant rate, no margin, nothing from the price canon
-  (ADR-0019, ADR-0020): the run cost is the customer's Azure bill, not our offer.
-* **The engine prices, this module sums.** SKU price, reservation discount and the overage ceiling
-  come from `cost_engine`; the module adds them per side and subtracts.
-* **No silent zero.** A workspace whose capacity is not declared in `architecture_input.capacities`,
-  or a SKU without a list price, is listed under ``unpriced``; the totals say how many capacities
-  they cover.
+* **Public list prices only.** Prices come from `internal/proposal_costing` through its own
+  `cost_engine` (Microsoft list price; regional rates from the Azure Retail Prices API). No tenant
+  rate, no margin, nothing from the price canon (ADR-0019, ADR-0020): the run cost is the customer's
+  Azure bill, not our offer.
+* **Region and currency from the package.** `architecture_input.region` selects the regional rate;
+  `cost_currency` (USD default, EUR) selects Microsoft's own price list in that currency. A region
+  without a rate falls back to the US table, in USD only; the result says which basis it used.
+* **The engine prices, this module sums.** Capacity price, reservation discount, overage ceiling and
+  storage rate come from `cost_engine`; the module adds them per side and subtracts.
+* **No silent zero.** Undeclared capacities, SKUs or currencies without a price are listed under
+  ``unpriced``, and ``comparable`` is false.
 * **The overage ceiling stays a ceiling.** Overage is billed only when used; its derived maximum
   (threshold x 3 x PAYG) is reported separately and never added to the monthly total.
 * **Nothing is written.** The result is a read-only comparison like WB-008.
@@ -28,12 +32,11 @@ import re
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
 
 from .alternative_impact import _fingerprint, evaluate_alternative
 from .repository import ProjectPackageRevisionRepository
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 _COST_ENGINE = Path(__file__).resolve().parents[3] / "internal" / "proposal_costing" / "tooling" / "cost_engine.py"
 #: Monthly view of the daily overage ceiling; Azure list prices use 730 h per month.
 _DAYS_PER_MONTH = 730 / 24
@@ -48,81 +51,123 @@ def _engine():
     return module
 
 
+def _price_capacity(engine, drivers: dict, row: dict, region: str | None, currency: str) -> dict:
+    """One declared capacity at list price, with its overage ceiling. Raises KeyError if unpriced."""
+    reservation = row.get("billing") == "reservation"
+    price, basis = engine.capacity_price_per_month(drivers, row["sku"], region=region, currency=currency,
+                                                   use_reservation=reservation)
+    rates = engine.regional_rates(drivers, region, currency) if region else None
+    overage = row.get("overage") or {}
+    enabled = None if not overage else overage["state"] == "enabled"
+    line = engine.compute_overage(drivers, row["sku"], enabled, overage.get("threshold_cu_hours"),
+                                  rates["payg_per_cu_hour"] if rates else None)
+    return {"capacity_id": row["id"], "sku": row["sku"], "billing": "reservation" if reservation else "payg",
+            "price_basis": basis, "per_month": round(price, 2),
+            "overage": {"enabled": line["enabled"], "threshold_source": line["threshold_source"],
+                        "max_per_month": round(float(line["max_usd_per_day"]) * _DAYS_PER_MONTH, 2)}}
+
+
 def run_cost_side(architecture: dict, drivers: dict | None = None) -> dict:
-    """Monthly run cost of the capacities used by the selected environments. Pure."""
+    """Monthly run cost of one package state. Pure."""
     engine = _engine()
     drivers = drivers if drivers is not None else engine.load_cost_drivers()
+    currency = architecture.get("cost_currency", "USD")
+    region = architecture.get("region")
     selected = set(architecture["environments"]["recommended"])
     declared: dict[str, dict] = {}
     unpriced: list[dict] = []
     for row in architecture.get("capacities") or []:
         if row["id"] in declared:
-            unpriced.append({"capacity_id": row["id"], "reason": "Capacity is declared twice; neither declaration is priced."})
+            unpriced.append({"item": row["id"], "reason": "Capacity is declared twice; neither declaration is priced."})
         declared[row["id"]] = row
-    duplicate = {row["capacity_id"] for row in unpriced}
+    duplicate = {row["item"] for row in unpriced}
     used: dict[str, list[str]] = {}
     for ws in architecture.get("physical_workspaces") or []:
         if ws["environment"] in selected:
-            used.setdefault(ws["capacity_id"], [])
-            if ws["environment"] not in used[ws["capacity_id"]]:
-                used[ws["capacity_id"]].append(ws["environment"])
+            envs = used.setdefault(ws["capacity_id"], [])
+            if ws["environment"] not in envs:
+                envs.append(ws["environment"])
+    monitoring = architecture.get("monitoring") or {}
+    if monitoring.get("capacity_id"):
+        used.setdefault(monitoring["capacity_id"], []).append("monitoring")
     rows, total, ceiling = [], 0.0, 0.0
     for capacity_id in sorted(used):
         if capacity_id in duplicate:
             continue
         row = declared.get(capacity_id)
         if row is None:
-            unpriced.append({"capacity_id": capacity_id,
-                             "reason": "Used by a selected workspace but not declared in architecture_input.capacities."})
+            unpriced.append({"item": capacity_id,
+                             "reason": "Used by a selected workspace or by monitoring but not declared in architecture_input.capacities."})
             continue
-        reservation = row.get("billing") == "reservation"
         try:
-            price = engine._price_by_sku(drivers, row["sku"], use_reservation=reservation)
-        except KeyError:
-            unpriced.append({"capacity_id": capacity_id, "reason": f"No list price for {row['sku']} in cost_drivers.yaml."})
+            priced = _price_capacity(engine, drivers, row, region, currency)
+        except KeyError as error:
+            unpriced.append({"item": capacity_id, "reason": f"{row['sku']}: {error.args[0] if error.args else 'no list price'}."})
             continue
-        overage = row.get("overage") or {}
-        enabled = None if not overage else overage["state"] == "enabled"
-        line = engine.compute_overage(drivers, row["sku"], enabled, overage.get("threshold_cu_hours"))
-        cap = round(float(line["max_usd_per_day"]) * _DAYS_PER_MONTH, 2)
-        rows.append({"capacity_id": capacity_id, "sku": row["sku"], "billing": "reservation" if reservation else "payg",
-                     "environments": sorted(used[capacity_id]), "usd_per_month": round(price, 2),
-                     "overage": {"enabled": line["enabled"], "threshold_source": line["threshold_source"],
-                                 "max_usd_per_month": cap}})
-        total += price
-        ceiling += cap
-    licences = _licences(architecture, rows, drivers)
-    licence_total = licences["usd_per_month"] if licences else 0.0
-    return {"capacities": rows, "capacity_usd_per_month": round(total, 2), "licences": licences,
-            "usd_per_month": round(total + licence_total, 2), "overage_ceiling_usd_per_month": round(ceiling, 2),
-            "priced_capacities": len(rows), "unpriced": unpriced}
+        priced["environments"] = sorted(used[capacity_id])
+        rows.append(priced)
+        total += priced["per_month"]
+        ceiling += priced["overage"]["max_per_month"]
+    licences = _licences(architecture, rows, drivers, currency, unpriced)
+    storage = _monitoring_storage(monitoring, drivers, region, currency, unpriced)
+    extra = (licences or {}).get("per_month") or 0.0
+    extra += (storage or {}).get("per_month") or 0.0
+    return {"currency": currency, "capacities": rows, "capacity_per_month": round(total, 2), "licences": licences,
+            "monitoring_storage": storage, "per_month": round(total + extra, 2),
+            "overage_ceiling_per_month": round(ceiling, 2), "priced_capacities": len(rows), "unpriced": unpriced}
 
 
-def _licences(architecture: dict, capacity_rows: list[dict], drivers: dict) -> dict | None:
+def _licences(architecture: dict, capacity_rows: list[dict], drivers: dict, currency: str,
+              unpriced: list[dict]) -> dict | None:
     """Power BI licences for the report audience, coupled to the production SKU.
 
     Authors always need Pro. Viewers read without a licence when the production capacity is F64
     or larger (Learn ``enterprise/licenses``; same boundary as Meridian OUT-REPORT and
     ``capacity.FREE_VIEWER_MIN_SKU``); below it every viewer needs Pro. Without a declared
-    ``report_audience`` no licence cost is evaluated, and without a priced production capacity the
-    boundary is unknown, so viewers are counted as Pro and the row says so.
+    ``report_audience`` no licence cost is evaluated. The licence list price exists in USD only;
+    in another currency the licences are counted but not priced.
     """
     audience = architecture.get("report_audience")
     if not audience:
         return None
     engine = _engine()
-    pro, _ppu = engine._license_prices(drivers)
     prod = [row for row in capacity_rows if "prod" in row["environments"]]
     sku = max((row["sku"] for row in prod), key=lambda s: int(s[1:]), default=None)
     free_viewers = sku is not None and engine._sku_at_least_f64(sku)
     authors, viewers = int(audience.get("authors", 0)), int(audience.get("viewers", 0))
     pro_users = authors + (0 if free_viewers else viewers)
-    return {"authors": authors, "viewers": viewers, "production_sku": sku,
-            "viewers_need_pro": not free_viewers, "pro_users": pro_users,
-            "pro_usd_per_user_month": pro, "usd_per_month": round(pro_users * pro, 2),
-            "basis": ("production SKU F64 or larger: viewers without licence" if free_viewers else
-                      "production SKU below F64: every viewer needs Pro" if sku else
-                      "no priced production capacity: viewers counted as Pro")}
+    result = {"authors": authors, "viewers": viewers, "production_sku": sku, "viewers_need_pro": not free_viewers,
+              "pro_users": pro_users,
+              "basis": ("production SKU F64 or larger: viewers without licence" if free_viewers else
+                        "production SKU below F64: every viewer needs Pro" if sku else
+                        "no priced production capacity: viewers counted as Pro")}
+    if currency != "USD":
+        unpriced.append({"item": "power_bi_licences", "reason": f"No {currency} list price for Power BI Pro in cost_drivers.yaml."})
+        return {**result, "pro_per_user_month": None, "per_month": None}
+    pro, _ppu = engine._license_prices(drivers)
+    return {**result, "pro_per_user_month": pro, "per_month": round(pro_users * pro, 2)}
+
+
+def _monitoring_storage(monitoring: dict, drivers: dict, region: str | None, currency: str,
+                        unpriced: list[dict]) -> dict | None:
+    """OneLake storage of the workspace-monitoring Eventhouse (retained GB x hot storage rate).
+
+    Monitoring compute is CU on the capacity that hosts the Eventhouse and is already inside that
+    capacity's price; only storage is billed on its own (Learn ``real-time-intelligence-consumption``).
+    """
+    if monitoring.get("retained_gb") is None:
+        return None
+    engine = _engine()
+    rates = engine.regional_rates(drivers, region, currency) if region else None
+    if rates is None:
+        if currency != "USD":
+            unpriced.append({"item": "monitoring_storage", "reason": f"No {currency} storage price for region {region!r}."})
+            return {"retained_gb": monitoring["retained_gb"], "per_gb_month": None, "per_month": None}
+        rate = float(drivers["onelake_storage"]["usd_per_gb_month"])
+    else:
+        rate = rates["onelake_hot_per_gb_month"]
+    return {"retained_gb": monitoring["retained_gb"], "per_gb_month": rate,
+            "per_month": round(float(monitoring["retained_gb"]) * rate, 2)}
 
 
 def compare_run_cost(repository: ProjectPackageRevisionRepository, project_ref: str, baseline_revision: str,
@@ -135,38 +180,43 @@ def compare_run_cost(repository: ProjectPackageRevisionRepository, project_ref: 
     engine = _engine()
     drivers = drivers if drivers is not None else engine.load_cost_drivers()
     base_arch = state["compiler"]["modules"]["architecture_input"]
+    common = {"schema_version": VERSION, "project_ref": project_ref, "baseline_revision_hash": baseline_revision,
+              "decision_ref": decision_ref, "alternative_option_ref": option_ref,
+              "persist": False, "approval_granted": False}
     if not base_arch.get("capacities"):
-        return {"schema_version": VERSION, "project_ref": project_ref, "baseline_revision_hash": baseline_revision,
-                "decision_ref": decision_ref, "alternative_option_ref": option_ref, "status": "not_evaluated",
-                "reason": "architecture_input declares no capacities; the run cost is not guessed from workspaces.",
-                "persist": False, "approval_granted": False}
+        return {**common, "status": "not_evaluated",
+                "reason": "architecture_input declares no capacities; the run cost is not guessed from workspaces."}
     base = run_cost_side(base_arch, drivers)
     alt = run_cost_side(state["projected"]["architecture_input"], drivers)
     if state["before_fingerprint"] != _fingerprint(repository):
         raise RuntimeError("Baseline repository changed during a read-only comparison")
-    return {"schema_version": VERSION, "project_ref": project_ref, "baseline_revision_hash": baseline_revision,
-            "decision_ref": decision_ref, "alternative_option_ref": option_ref, "status": "evaluated",
-            "currency": "USD", "price_basis": "Microsoft list price", "price_valid_from": str(drivers.get("valid_from")),
+    part = lambda side, key: ((side.get(key) or {}).get("per_month") or 0.0)  # noqa: E731
+    region = base_arch.get("region")
+    regional = engine.regional_rates(drivers, region, base["currency"]) is not None
+    fetched = (drivers.get("fabric_regions") or {}).get("fetched")
+    return {**common, "status": "evaluated", "currency": base["currency"], "region": region,
+            "price_basis": ("Microsoft list price, regional rate (Azure Retail Prices API)" if regional
+                            else "Microsoft list price, US table (region not in cost_drivers.yaml)"),
+            "price_valid_from": str(fetched if regional else drivers.get("valid_from")),
             "baseline": base, "alternative": alt,
-            "delta": {"usd_per_month": round(alt["usd_per_month"] - base["usd_per_month"], 2),
-                      "capacity_usd_per_month": round(alt["capacity_usd_per_month"] - base["capacity_usd_per_month"], 2),
-                      "licence_usd_per_month": round((alt["licences"] or {}).get("usd_per_month", 0.0)
-                                                     - (base["licences"] or {}).get("usd_per_month", 0.0), 2),
-                      "usd_per_year": round(12 * (alt["usd_per_month"] - base["usd_per_month"]), 2),
-                      "overage_ceiling_usd_per_month": round(alt["overage_ceiling_usd_per_month"]
-                                                             - base["overage_ceiling_usd_per_month"], 2),
+            "delta": {"per_month": round(alt["per_month"] - base["per_month"], 2),
+                      "per_year": round(12 * (alt["per_month"] - base["per_month"]), 2),
+                      "capacity_per_month": round(alt["capacity_per_month"] - base["capacity_per_month"], 2),
+                      "licence_per_month": round(part(alt, "licences") - part(base, "licences"), 2),
+                      "monitoring_storage_per_month": round(part(alt, "monitoring_storage") - part(base, "monitoring_storage"), 2),
+                      "overage_ceiling_per_month": round(alt["overage_ceiling_per_month"] - base["overage_ceiling_per_month"], 2),
                       "capacities_removed": sorted({r["capacity_id"] for r in base["capacities"]}
                                                    - {r["capacity_id"] for r in alt["capacities"]}),
                       "capacities_added": sorted({r["capacity_id"] for r in alt["capacities"]}
                                                  - {r["capacity_id"] for r in base["capacities"]})},
             "comparable": not base["unpriced"] and not alt["unpriced"],
-            "persist": False, "approval_granted": False, "tenant_actions_performed": False,
+            "tenant_actions_performed": False,
             "limitations": [
-                "Capacity list prices in USD from cost_drivers.yaml; regional price differences and currency are not applied.",
+                "List prices from cost_drivers.yaml: regional PAYG rates fetched from the Azure Retail Prices API, reservation discount from the SKU table; no negotiated discount.",
                 "Paused hours are not modelled: a pay-as-you-go capacity is priced for the full month.",
                 "Overage is a ceiling derived from the threshold (threshold x 3 x PAYG), billed only when used; it is not in the monthly total.",
-                "Licences only for a declared report_audience: authors always Pro, viewers Pro below an F64 production capacity; PPU is not modelled.",
-                "OneLake storage and workspace-monitoring ingestion are not part of this delta.",
+                "Licences only for a declared report_audience and only in USD: authors always Pro, viewers Pro below an F64 production capacity; PPU is not modelled.",
+                "Workspace monitoring: compute runs on the hosting capacity (priced there), storage only for a declared retained_gb at the OneLake hot rate.",
                 "A capacity shared by several environments costs the same whether one or all of them run on it."]}
 
 

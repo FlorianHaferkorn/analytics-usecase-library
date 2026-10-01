@@ -495,3 +495,31 @@ def test_planning_sessions_as_capacity_share_not_added_to_total():
     assert with_plan["total_month"] == base["total_month"]
     text = fill_template(with_plan, "{{ planning }}")
     assert "847 CU hours per 730 h" in text
+
+
+
+def test_regional_capacity_price_uses_the_retail_rate():
+    """F2 in eastus is the SKU table price; germanywestcentral is 0.22 USD per CU hour."""
+    import cost_engine as ce
+    drivers = load_cost_drivers()
+    us, source = ce.capacity_price_per_month(drivers, "F2", region="East US")
+    assert round(us, 2) == 262.80 and source == "region:eastus"
+    de, _ = ce.capacity_price_per_month(drivers, "F64", region="germanywestcentral")
+    assert round(de, 2) == round(64 * 0.22 * 730, 2)
+    eur, _ = ce.capacity_price_per_month(drivers, "F64", region="Germany West Central", currency="EUR")
+    assert round(eur, 2) == round(64 * 0.1936 * 730, 2)
+
+
+def test_unknown_region_falls_back_to_usd_table_only():
+    import cost_engine as ce
+    drivers = load_cost_drivers()
+    price, source = ce.capacity_price_per_month(drivers, "F8", region="mars")
+    assert source == "sku_table_us" and price == 1051.20
+    with pytest.raises(KeyError):
+        ce.capacity_price_per_month(drivers, "F8", region="mars", currency="EUR")
+
+
+def test_overage_takes_the_regional_rate():
+    drivers = load_cost_drivers()
+    ov = compute_overage(drivers, "F8", threshold_cu_hours=20, payg_per_cu_hour=0.22)
+    assert round(ov["max_usd_per_day"], 2) == round(20 * 3 * 0.22, 2)

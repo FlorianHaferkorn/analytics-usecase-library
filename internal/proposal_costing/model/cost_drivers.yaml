@@ -66,3 +66,23 @@ power_bi_licenses:
     name: Power BI Premium Per User
     price_usd_per_month: 24
     note: "No Fabric capacity; no Lakehouse/Warehouse; full Fabric needs F capacity"
+
+# Regional PAYG prices per CU hour and OneLake hot storage per GB-month, USD and EUR, from the Azure
+# Retail Prices API (serviceName 'Microsoft Fabric', meters 'Compute Pool Capacity Usage CU' and
+# 'OneLake Storage Hot Data Stored', type Consumption), fetched 2026-10-01. A capacity costs
+# CU x rate x 730 h. EUR is Microsoft's own EUR list price, not a converted USD value, and therefore
+# differs between regions with the same USD price (westeurope vs germanywestcentral).
+# The fabric_capacity table above is the US price (eastus, 0.18 USD); it stays the fallback for a
+# region missing here, in USD only.
+fabric_regions:
+  source_url: "https://prices.azure.com/api/retail/prices"
+  fetched: "2026-10-01"
+  regions:
+    eastus:             {payg_usd_per_cu_hour: 0.18, payg_eur_per_cu_hour: 0.1584, onelake_hot_usd_per_gb_month: 0.026,  onelake_hot_eur_per_gb_month: 0.0229}
+    northeurope:        {payg_usd_per_cu_hour: 0.19, payg_eur_per_cu_hour: 0.1672, onelake_hot_usd_per_gb_month: 0.023,  onelake_hot_eur_per_gb_month: 0.0202}
+    swedencentral:      {payg_usd_per_cu_hour: 0.19, payg_eur_per_cu_hour: 0.1631, onelake_hot_usd_per_gb_month: 0.023,  onelake_hot_eur_per_gb_month: 0.0197}
+    francecentral:      {payg_usd_per_cu_hour: 0.20, payg_eur_per_cu_hour: 0.1717, onelake_hot_usd_per_gb_month: 0.024,  onelake_hot_eur_per_gb_month: 0.0206}
+    uksouth:            {payg_usd_per_cu_hour: 0.21, payg_eur_per_cu_hour: 0.1848, onelake_hot_usd_per_gb_month: 0.024,  onelake_hot_eur_per_gb_month: 0.0211}
+    westeurope:         {payg_usd_per_cu_hour: 0.22, payg_eur_per_cu_hour: 0.1889, onelake_hot_usd_per_gb_month: 0.024,  onelake_hot_eur_per_gb_month: 0.0206}
+    germanywestcentral: {payg_usd_per_cu_hour: 0.22, payg_eur_per_cu_hour: 0.1936, onelake_hot_usd_per_gb_month: 0.024,  onelake_hot_eur_per_gb_month: 0.0211}
+    switzerlandnorth:   {payg_usd_per_cu_hour: 0.23, payg_eur_per_cu_hour: 0.1975, onelake_hot_usd_per_gb_month: 0.0264, onelake_hot_eur_per_gb_month: 0.0227}
