@@ -208,6 +208,45 @@ If environment approvals are not configured, you can use manual approval tasks b
    - Triggers full release pipeline
    - Build → Test (with approval) → Prod (with approval)
 
+**Branch rule in the pipeline (I-21 W5.4, 01.10.2026).** Until 01.10.2026 the "no deployment"
+in point 2 was only prose: both release pipelines trigger on PRs to `main`, and their release
+stages had `condition: succeeded()`, so a PR build ran into `ReleaseTest`/`ReleaseProd`.
+`ReleaseTest` and `ReleaseProd` now carry
+
+```yaml
+condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), ne(variables['Build.Reason'], 'PullRequest'))
+```
+
+so only a run on `releases/*` that is not a PR build deploys; a manual run from another branch
+builds and stops. Pinned by `scripts/tests/test_release_plan_and_pipeline_rules.py`.
+
+### Secret Scan (Build Stage)
+
+`_template_build_solution.yml` installs `detect-secrets==1.5.0` and runs
+`scripts/secret_scan_gate.py` before any artifact is published. Scope: the release automation
+(`deployment/scripts`, `deployment/resources`, without `tests/`). Exit 0 = scanned, no
+findings; 1 = findings; 2 = the scan did not run (tool missing, tool error, empty scope) — both
+1 and 2 fail the build.
+
+- Measured 01.10.2026 (local `detect-secrets 1.5.0`): scope 0 findings in 26 files; a planted
+  AWS key in a test copy gives exit 1. The whole repository has 630 findings in 50 files
+  without a baseline, which is why the gate is scoped and not repo-wide.
+- First choice on Azure Repos is **GitHub Advanced Security for Azure DevOps** secret scanning
+  with push protection (repository setting; Learn `azure/devops/repos/security/
+  github-advanced-security-secret-scanning`). The gate covers repositories without it.
+
+### Known Defects (not fixed in this round)
+
+- `ManualValidation@0` runs only in an **agentless** job (Learn `manual-validation-v0`,
+  read 01.10.2026). `solution_release_simple.yml` and the fallback step in
+  `_template_release_solution.yml` place it in agent jobs, so the task-based approval path
+  does not run as written. Use `solution_release_multistages.yml` (environment approvals)
+  until the simple pipeline gets a `pool: server` job.
+- `solution_setup.yml` and `feature_fabric_branch.yml` still use `script:` with `pwsh: true`;
+  `pwsh` is not a property of a `script` step. The release template was switched to a `pwsh:`
+  step on 01.10.2026; the two other files are unchanged.
+- Fixed 01.10.2026: `--unpublish_items` was parsed with `type=bool`, so `false` also yielded `True`; it now accepts only true/false (`_parse_bool`).
+
 ### Branch Protection
 
 Configure branch protection rules in Azure DevOps:

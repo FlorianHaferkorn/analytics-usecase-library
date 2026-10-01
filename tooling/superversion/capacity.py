@@ -118,6 +118,19 @@ PLANNING_WORKLOAD_BUFFER_PCT = 30
 RESERVATION_BREAKEVEN_HOURS_PER_WEEK = 100.0
 HOURS_PER_WEEK = 168.0
 
+# --- Measured sizing and mixed procurement (learn.microsoft.com, read 2026-10-01) -----
+# enterprise/capacity-planning-manage-capacity-growth-governance + optimize-capacity: measure
+# on a trial or pay-as-you-go capacity, then size by the peak 30-second CU in the Capacity
+# Metrics app. A capacity offers CU x 30 CU-seconds per 30-second timepoint.
+TIMEPOINT_SECONDS = 30
+# Same guide: "if a single capacity runs consistently above ~80% during peak times" → scale up
+# or split; the default head-room below the budget is therefore 20 %.
+PEAK_HEADROOM_PCT = 20
+# Same guide, "Combine RI / Pay Go": scaling up with pay-as-you-go for occasional peaks can be
+# cheaper than more reservation, "if added capacity is needed more than four days a week, RI
+# can offer better value".
+RESERVE_EXTRA_ABOVE_DAYS_PER_WEEK = 4
+
 
 def _rank(sku: str) -> int:
     return SKU_ORDER.index(sku)
@@ -216,6 +229,58 @@ def licence_breakeven(floor: str, prices: dict | None) -> dict:
             "basis": f"({CU[FREE_VIEWER_MIN_SKU]} - {CU[floor]}) CU x {cu_year}/CU/year "
                      f"/ {pro_year} per Pro licence/year",
             "prices_are_inputs": True}
+
+
+def peak_floor(peak_cu_seconds: float, headroom_pct: int = PEAK_HEADROOM_PCT) -> dict:
+    """Smallest SKU whose 30-second budget covers a measured peak with head-room (W5.3).
+
+    ``peak_cu_seconds`` is the highest 30-second timepoint in the Capacity Metrics app on a
+    trial or pay-as-you-go capacity. The budget of a SKU is ``CU x 30`` CU-seconds; the peak
+    must stay below ``(100 - headroom_pct) %`` of it. This is a measured input, not a schema
+    field: the blueprint ``platform.sizing`` block is closed (peer schema with Meridian).
+    """
+    if peak_cu_seconds is None or peak_cu_seconds <= 0:
+        raise ValueError("peak_cu_seconds must be a positive measurement")
+    usable = (100 - headroom_pct) / 100
+    for sku in SKU_ORDER:
+        budget = CU[sku] * TIMEPOINT_SECONDS
+        if peak_cu_seconds <= budget * usable:
+            return {"sku": sku, "budget_cu_seconds": budget,
+                    "utilisation_pct": round(peak_cu_seconds / budget * 100, 1),
+                    "reason": f"{sku}: peak {peak_cu_seconds:g} CU-s fits {usable:.0%} of "
+                              f"{budget} CU-s per 30-second timepoint"}
+    return {"sku": None, "budget_cu_seconds": None, "utilisation_pct": None,
+            "reason": f"peak {peak_cu_seconds:g} CU-s exceeds {usable:.0%} of every F-SKU's "
+                      "30-second budget — split the workload across capacities"}
+
+
+def surge_procurement(extra_sku: str, days_per_week: float) -> dict:
+    """Reservation for the base plus pay-as-you-go for predictable surges (W5.3).
+
+    Learn's example: an F64 reservation, scaled to F128 on Mondays by adding pay-as-you-go
+    F64. Above four surge days a week the extra capacity is better reserved as well. Scaling
+    below a reservation does not change the bill (Learn ``enterprise/scale-capacity``).
+    """
+    if extra_sku not in CU:
+        raise ValueError(f"unknown SKU {extra_sku!r}")
+    if not 0 <= days_per_week <= 7:
+        raise ValueError("days_per_week must be between 0 and 7")
+    if days_per_week > RESERVE_EXTRA_ABOVE_DAYS_PER_WEEK:
+        return {"model": "reservation+reservation",
+                "extra": extra_sku,
+                "reason": f"extra {extra_sku} needed {days_per_week:g} days/week, more than "
+                          f"{RESERVE_EXTRA_ABOVE_DAYS_PER_WEEK} — reserve it as well"}
+    return {"model": "reservation+pay-as-you-go",
+            "extra": extra_sku,
+            "reason": f"extra {extra_sku} needed {days_per_week:g} days/week, at most "
+                      f"{RESERVE_EXTRA_ABOVE_DAYS_PER_WEEK} — scale up with pay-as-you-go on "
+                      "those days",
+            "requires": "Scheduled resize (Fabric CLI, Azure Automation or the capacities REST "
+                        "API) in a low-activity window; resizing across F256/F512 briefly "
+                        "interrupts the capacity.",
+            "caveat": "Background load is smoothed over 24 hours: before scaling back down, "
+                      "the smoothed usage must fit the smaller size (Learn: F128 below 40 % "
+                      "to land at 80 % on F64)."}
 
 
 def procurement(sizing: dict) -> dict:
@@ -410,8 +475,13 @@ def region_features(blueprint: dict, features: set[str] | None = None) -> dict:
 
 
 def recommend(blueprint: dict, prices: dict | None = None,
-              features: set[str] | None = None) -> dict:
-    """Full capacity recommendation for a blueprint. Deterministic, no network access."""
+              features: set[str] | None = None, measured: dict | None = None) -> dict:
+    """Full capacity recommendation for a blueprint. Deterministic, no network access.
+
+    ``measured`` carries what a trial or pay-as-you-go run measured (W5.3), outside the
+    blueprint because ``platform.sizing`` is a closed peer schema: ``peak_cu_seconds`` (peak
+    30-second timepoint, Capacity Metrics app) and ``surge`` = ``{"extra_sku", "days_per_week"}``.
+    """
     platform = blueprint.get("platform", {})
     sizing = platform.get("sizing", {}) or {}
     assigned = platform.get("capacity_sku")
@@ -422,7 +492,17 @@ def recommend(blueprint: dict, prices: dict | None = None,
                     and STAGE_GROUP.get(ws.get("stage") or "prod", "prod") == "prod"})
 
     floor, reasons, unknowns = sizing_floor(sizing)
+    measured = measured or {}
+    if measured.get("peak_cu_seconds") is not None:
+        peak = peak_floor(float(measured["peak_cu_seconds"]))
+        reasons.append(peak["reason"])
+        if peak["sku"]:
+            floor = _max_sku(floor, peak["sku"])
     proc = procurement(sizing)
+    surge = measured.get("surge")
+    if surge:
+        proc = {**proc, "surge": surge_procurement(surge["extra_sku"],
+                                                   float(surge["days_per_week"]))}
     spl = split(sizing, len(domains), stages, tier1)
     for section in (proc, spl):
         if section.get("unknown"):

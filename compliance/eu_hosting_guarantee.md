@@ -5,7 +5,7 @@
 **Version:** 1.0  
 **Effective Date:** (to be completed by legal team)  
 **Last Updated:** 2026-04-22  
-**Inhaltliche Durchsicht (ohne Legal-Sign-off):** 2026-09-25 – siehe Abschnitt 13
+**Inhaltliche Durchsicht (ohne Legal-Sign-off):** 2026-09-25 – siehe Abschnitt 13; Abschnitt 4.4 (Fabric/Power BI: Schlüssel und Customer Lockbox) ergänzt 2026-10-01
 
 ---
 
@@ -242,6 +242,17 @@ Following the Schrems II judgment (C-311/18), any transfer to the US or countrie
 Example supplementary measures language:
 
 > "Importer shall not disclose personal data to any third-country government authority (including law enforcement) without first seeking to obtain a court order, legal authorization, or explicit written consent from the Controller. Importer shall notify Controller immediately if any data is disclosed and shall challenge any demand it deems unlawful."
+
+### 4.4 Microsoft Fabric / Power BI: Speicherort, Schlüssel, Supportzugriff (Optionen; ergänzt 2026-10-01, C-24)
+
+Gilt für Kunden, die ALUCA-Modelle in ihrem eigenen Fabric-/Power-BI-Tenant betreiben. Alle Plattformaussagen sind gegen Microsoft Learn gelesen am 01.10.2026; die Eignung als zusätzliche Maßnahme im Sinne von 4.3 bewertet Legal.
+
+| Thema | Stand laut Learn | Option für den Kunden | Grenze, die für 4.3 zählt |
+|---|---|---|---|
+| **Speicherort** | Ruhende OneLake-Daten liegen in der Heimatregion des Tenants oder in der Region einer Kapazität nach Wahl des Kunden; bei Multi-Geo bleiben einige Metadaten und Verarbeitungen in der Heimat-Geografie (`fabric/security/security-overview`, „Secure Data“) | Kapazität in einer genehmigten EU-Region (Abschnitt 2.1), Heimatregion prüfen | Ob Power BI/Fabric von der EU Data Boundary erfasst sind, bleibt ⚠️ UNKLAR (C-06) |
+| **Kundenverwaltete Schlüssel (Workspace-CMK)** | Schlüssel im Azure Key Vault oder Managed HSM des Kunden verschlüsselt die Datenschlüssel aller OneLake-Daten eines Workspace (Hüllverschlüsselung); Widerruf sperrt Lese- und Schreibzugriffe binnen 60 Minuten (`fabric/security/workspace-customer-managed-keys`) | Tenant-Einstellung „Apply customer-managed keys“, dann je Workspace; Verfahren in `DPIA.md` 12.1 | Key Vault ist ein Microsoft-Dienst; der Schlüssel liegt damit nicht außerhalb des Anbieters. Ob das „keys held outside the jurisdiction“ (4.3) erfüllt, bewertet Legal |
+| **BYOK für Import-Semantikmodelle** | Kapazitätsebene; nur importierte Modelldaten; einmal im Tenant eingeführt, nicht mehr abschaltbar (`fabric/enterprise/powerbi/service-encryption-byok`) | Für Import-Modelle mit Personenbezug; Direct-Lake-Daten deckt der Workspace-CMK des Lakehouse ab | wie Workspace-CMK |
+| **Customer Lockbox** | Zugriff eines Microsoft-Technikers auf Kundendaten nur nach Freigabe; Anfrage verfällt nach vier Tagen, Freigabe gilt acht Stunden (`fabric/security/security-lockbox`) | Einschalten durch Entra Global Administrator; Checkliste in `DPIA.md` 12.2 | **Keine** Lockbox-Anfrage bei behördlichen Herausgabeverlangen und Notfällen außerhalb der Standardverfahren; deckt den Zugriff nach 4.3 („government access“) also nicht ab |
 
 ---
 
@@ -505,6 +516,7 @@ If a critical clause is missing, DO NOT sign. Negotiate amendment or select alte
 | 1.0 | 2026-04-22 | Analytics & Legal Teams | Initial EU hosting guarantee skeleton; 6 approved regions, 5 prohibited services, SCC framework, quarterly audit process |
 | 1.1 | 2026-09-25 | Inhaltliche Durchsicht (kein Legal-Sign-off) | DPF ergänzt, SCC-/BCR-/Art.-46-Fehlzitate korrigiert, EU Data Boundary präzisiert, unbelegte Angaben und nicht existente Pfade markiert |
 | 1.2 | 2026-09-25 | Inhaltliche Durchsicht (kein Legal-Sign-off) | Abschnitt 3.4 LLM-Anbieter der Studio-KI (aus Code-Stand PR #478; nicht freigegeben) und Zeile in Abschnitt 10 |
+| 1.3 | 2026-10-01 | Inhaltliche Durchsicht (kein Legal-Sign-off) | Abschnitt 4.4: Speicherort, kundenverwaltete Schlüssel (Workspace-CMK, BYOK) und Customer Lockbox als Optionen auf Fabric/Power BI, Quellen Microsoft Learn (C-24) |
 
 **Last reviewed by:** (to be completed by DPO)  
 **Next review date:** (to be completed by DPO – Q2 2026) — ⚠️ Stand 2026-09-25: überfällig (C-19)
@@ -518,7 +530,7 @@ If a critical clause is missing, DO NOT sign. Negotiate amendment or select alte
 
 ## 13. Offene Punkte (Durchsicht 2026-09-25)
 
-IDs = Ledger in `_INDEX.md`. C-01 (LLM-Anbieter der Studio-KI: am 2026-09-25 als Kategorie in 3.4 erfasst; Standort, Transfergrundlage und DPF-Nachweis offen → C-21), C-06 (Power BI/Fabric: Region des Kunden-Tenants und EU Data Boundary – ⚠️ UNKLAR: Power BI und Fabric werden auf der EUDB-Übersichtsseite nicht ausdrücklich genannt[^2]), C-08 (Terraform/CI nicht implementiert), C-09 (unbelegte Freigaben), C-14 (Regionsangaben inkonsistent), C-20 (DPF-Rechtsmittel). Die „AI data handling policy“ liegt im Code-Stand PR #478 vor (nicht gemergt); sie ist in 3.4 berücksichtigt.
+IDs = Ledger in `_INDEX.md`. C-01 (LLM-Anbieter der Studio-KI: am 2026-09-25 als Kategorie in 3.4 erfasst; Standort, Transfergrundlage und DPF-Nachweis offen → C-21), C-06 (Power BI/Fabric: Region des Kunden-Tenants und EU Data Boundary – ⚠️ UNKLAR: Power BI und Fabric werden auf der EUDB-Übersichtsseite nicht ausdrücklich genannt[^2]), C-08 (Terraform/CI nicht implementiert), C-09 (unbelegte Freigaben), C-14 (Regionsangaben inkonsistent), C-20 (DPF-Rechtsmittel), C-24 (Fabric/Power BI: kundenverwaltete Schlüssel und Customer Lockbox als Optionen in 4.4, Entscheidung des Kunden und Bewertung durch Legal offen). Die „AI data handling policy“ liegt im Code-Stand PR #478 vor (nicht gemergt); sie ist in 3.4 berücksichtigt.
 
 [^1]: DSGVO (EUR-Lex): https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu — Wortlaut Art. 28, 33, 46, 47 abgeglichen über https://dsgvo-gesetz.de/art-46-dsgvo/ u. a.
 [^2]: Microsoft, 26.02.2025: https://blogs.microsoft.com/on-the-issues/2025/02/26/microsoft-completes-landmark-eu-data-boundary-offering-enhanced-data-residency-and-transparency/ ; Microsoft Learn: https://learn.microsoft.com/en-us/privacy/eudb/eu-data-boundary-learn

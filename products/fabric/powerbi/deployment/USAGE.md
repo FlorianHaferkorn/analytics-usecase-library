@@ -152,9 +152,12 @@ python scripts/fabric_release.py --environment prd --item_types SemanticModel,Re
 1. Import pipeline: `.azure-pipelines/solution_release_multistages.yml`
 2. **Configure Approval Gates** (see [Approval Configuration](#approval-configuration) below)
 3. Pipeline triggers on:
-   - PR to `main` (builds and validates)
+   - PR to `main` (builds and validates; the release stages are skipped)
    - Push to `releases/release*` (builds → releases to test → releases to prod)
-4. Manual runs also supported
+4. Manual runs also supported; they deploy only when started on a `releases/*` branch
+   (branch rule in the stage conditions, see `.azure-pipelines/README.md`)
+5. The build stage runs a secret scan over the release automation before publishing
+   artifacts (`scripts/secret_scan_gate.py`)
 
 **Option B: Task-Based Approvals** (Simpler)
 1. Import pipeline: `.azure-pipelines/solution_release_simple.yml`
@@ -267,6 +270,84 @@ After setup, you'll have workspaces per environment:
   - `DM_Core [prd]`
   - `BI_Apps [prd]`
   - `Shared_Datasets [prd]`
+
+## Workspace Target Picture (Network, Surge Protection, Item Types)
+
+`fabric_setup.py` declares per workspace type what the setup itself does **not** apply, and
+prints it after the workspaces are created. `--target-picture` prints the same as JSON without
+authentication:
+
+```powershell
+python scripts/fabric_setup.py --environment prd --target-picture
+```
+
+Sources: Microsoft Learn, read 01.10.2026 (pages named per row). Declared in
+`NETWORK_STANCE_BY_LAYER`, `SURGE_CLASS_BY_ENVIRONMENT`, `ALLOWED_ITEM_TYPES_BY_LAYER`; pinned
+by `scripts/tests/test_workspace_target_picture.py` (golden files in `scripts/tests/fixtures/`).
+
+| Workspace | Outbound access protection (OAP) | Allowed item types (target picture) |
+|---|---|---|
+| DE | open decision (lakehouse, notebooks, pipelines support OAP) | Lakehouse, Notebook, DataPipeline |
+| DM | **on, with rules**: SQL Server rule for the DE lakehouse SQL endpoint FQDN, ADLS Gen2 rule for the DE OneLake URL; without them the refresh fails | SemanticModel |
+| BI | **off**: reports bind to models in DM; under OAP a report binds only to a model in the same workspace (preview), and the OAP overview still lists reports as unsupported | Report |
+| Shared | open decision | not restricted |
+
+- **OAP preconditions** (`workspace-outbound-access-protection-overview`, `…-semantic-models`,
+  `cicd/cicd-security`): tenant setting *Configure workspace-level outbound network rules*,
+  F SKU (no trial), no unsupported item in the workspace, **Allow Git integration** on before
+  any Git operation (setup connects the workspaces to Git), and a
+  `PUT …/networking/communicationPolicy` must also send `inbound`, else it resets to Allow.
+- **Release path**: `fabric_release.py` publishes through fabric-cicd (Items APIs), not through
+  Fabric deployment pipelines, so "deployment pipelines are not supported with workspace
+  inbound access protection" does not block it. With inbound protection the build agent must
+  still reach Fabric from an allowed network.
+- **Surge protection** (`enterprise/surge-protection`, workspace level in preview): prd
+  workspaces `Mission critical`; dev/tst `Available` under the workspace CU limit of the
+  non-production capacity. That limit is **one percentage per capacity** (rolling 24 h), held
+  in `generic.surge_protection.workspace_cu_limit_pct`; it is `null` until the capacity admin
+  sets it. Learn documents portal steps only, no API: OneLake catalog → Govern → Capacities.
+  Learn contradicts itself on whether *Mission critical* is exempt from capacity-level surge
+  protection (state table: yes; limitations: "doesn't override") — plan with "no".
+- **Item creation policy** (`governance/fabric-policies-overview`, `fabric-policies-item-creation`,
+  preview, capacity scope): one allow rule per restricted workspace plus a catch-all rule
+  "all other workspaces", otherwise every other workspace on the capacity is blocked. Workspace
+  conditions take workspace IDs (the JSON shows names as placeholders). **Not available in
+  West Europe, North Europe and West US.** ANNAHME, ungeprüft: whether the policy also
+  evaluates item creation by a service principal through the Items API (fabric-cicd), and
+  whether the policy UI uses the same item-type spelling as the REST item types listed here.
+
+## Deployment Plan (Preview)
+
+A deployment plan orders items and runs pre-/post-deploy actions. Learn
+(`cicd/deployment-plan/deployment-plan-automation`, read 01.10.2026): it is attached by adding
+`options.deploymentPlan` to **Update From Git**, **Deploy Stage Content** or **Bulk Import Item
+Definitions**, each with `?beta=true` and the additional scope `Item.Execute.All`; the same page
+states that **the fabric-cicd library does not support deployment plans**.
+
+`fabric_release.py --deployment_plan_logical_id <guid>` (off by default) therefore only works
+with `--dry_run`: it prints the documented Bulk Import request per workspace
+(`POST /v1/workspaces/{id}/items/bulkImportDefinitions?beta=true`,
+`{"options": {"allowPairingByName": false, "deploymentPlan": {"logicalId": "<guid>",
+"referenceType": "ByLogicalId"}}}`). A live release with the flag stops with exit 1 instead of
+publishing without the plan. Take the logical ID from the plan's `.platform` file.
+
+## Branch Workspace Admin Profile (Preview)
+
+Learn `cicd/git-integration/branch-workspace-admin-profile` (read 01.10.2026): on a
+Git-connected workspace, *Workspace settings → Git integration → Branch workspaces → Allow
+branch workspace admin profile*. Branch-out then creates the workspace, assigns the capacity,
+connects Git and adds members on the admin's behalf, so developers need no right to create
+workspaces. It is an alternative to `feature_fabric_branch.yml` /
+`fabric_feature_maintenance.py`.
+
+- **Admins**: enter a **security group** (the field accepts users or groups), not a person,
+  so branch workspaces keep an admin when someone leaves.
+- **Consented identity is always a person**: every branch-out runs under the identity of the
+  workspace admin who **last saved** the profile. Save it from a long-lived admin account, and
+  re-check it after staff changes: a profile becomes invalid when that admin leaves the tenant
+  or loses a permission.
+- Not configurable on a branch workspace itself; the capacity and the Git repository must be in
+  the same geography unless the tenant allows cross-region operations.
 
 ## Semantic Model Refresh After a Release
 

@@ -2,6 +2,10 @@
   "name": "ActionReady - {layer} [{environment}]",
   "generic": {
     "capacity_name": "MyCapacity-NonProd",
+    "surge_protection": {
+      "workspace_cu_limit_pct": null,
+      "block_hours": null
+    },
     "permissions": {
       "Admin": [
         {"type": "Group", "id": "00000000-0000-0000-0000-000000000000"}

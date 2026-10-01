@@ -118,16 +118,20 @@ def _ordner_je_tabelle(modell: Path) -> dict[str, str]:
     return out
 
 
-def _quellspalte(modell: Path, tabelle: str, spalte: str) -> str | None:
+def _spalten_eigenschaft(modell: Path, tabelle: str, spalte: str, feld: str) -> str | None:
     f = modell / "definition" / "tables" / f"{tabelle}.tmdl"
     if not f.is_file():
         return None
     for block in _bloecke(f.read_text(encoding="utf-8")):
         m = re.match(r"^\tcolumn (?:'((?:[^']|'')+)'|(\S+))", block.lstrip("\n"))
         if m and (m.group(1) or m.group(2)).replace("''", "'") == spalte:
-            q = re.search(r"^\t\tsourceColumn: (.*)$", block, re.M)
+            q = re.search(rf"^\t\t{feld}: (.*)$", block, re.M)
             return q.group(1).strip() if q else None
     return None
+
+
+def _quellspalte(modell: Path, tabelle: str, spalte: str) -> str | None:
+    return _spalten_eigenschaft(modell, tabelle, spalte, "sourceColumn")
 
 
 _REL_SPALTE = re.compile(r"^(?:'((?:[^']|'')+)'|([^.'\s]+))\.(?:'((?:[^']|'')+)'|(\S+))$")
@@ -230,15 +234,42 @@ def pruefe_plan(schreiben: bool = False) -> list[str]:
 
 # ------------------------------------------------------------------ Gegenprobe (pandas)
 
+#: Grenze des Abgleichs DAX gegen pandas: max(10**-ABGLEICH_STELLEN, TOLERANZ_REL * |soll|),
+#: dazu je Measure das Raster einer Festkommaspalte (siehe `gegenprobe`). Eine Differenz ab der
+#: 5. Nachkommastelle ist Engine-Rundung, kein Befund: DAX- und SQL-Engine weichen dort ab
+#: (Meridian I-21 W5.16, `ABGLEICH_STELLEN`; ANNAHME, ungeprüft gegen Learn). `Decimal number`
+#: hat 15 signifikante Stellen (Learn `power-bi/connect-data/desktop-data-types`, gelesen
+#: 01.10.2026); die Reihenfolge der Summation verschiebt dort weit weniger als 1e-6 relativ.
+ABGLEICH_STELLEN = 4
+TOLERANZ_REL = 1e-6
+#: `Fixed decimal number` (TMDL `dataType: decimal`) schneidet jeden Wert nach der 4.
+#: Nachkommastelle ab (Learn `power-bi/connect-data/desktop-data-types`, gelesen 01.10.2026).
+FESTKOMMA_STELLEN = 4
+
+
+def datentyp(modell: Path, measure: str) -> str | None:
+    """`dataType` der Spalte unter `SUM ( t[s] )`, kleingeschrieben; sonst None."""
+    m = measures(modell).get(measure) if modell.is_dir() else None
+    s = _SUM.match(m["ausdruck"]) if m else None
+    typ = _spalten_eigenschaft(modell, s.group(1), s.group(2), "dataType") if s else None
+    return typ.lower() if typ else None
+
+
 def gegenprobe(slice_root: Path) -> dict:
     """Summen aus der Datenscheibe, je Modell und Measure. Unabhängig vom DAX-Motor.
 
     Fehlt die Quellspalte in den Dateien, ist das kein Wert, sondern ein Befund
     (`spalte_fehlt`): das Modell liest dann eine Spalte, die es nicht gibt. Gemessen am
     24.09.2026, als genau das `fact_sales[Sales Units]` im SupplyChain-Modell traf.
+
+    `raster`: liegt die Spalte im Modell als Festkomma (`dataType: decimal`), schneidet die
+    Engine jeden Wert nach der 4. Stelle ab, pandas summiert ungekürzt. Die Summen dürfen dann
+    um bis zu Zeilen x 1e-4 auseinanderliegen (hergeleitet, nicht gemessen); `bewerten`
+    rechnet das der Grenze zu. Am 01.10.2026 traf das 13 der 24 Gegenproben.
     """
     import pyarrow.parquet as pq
     werte: dict[str, float] = {}
+    raster: dict[str, float] = {}
     fehlt: list[str] = []
     for f in sorted(PLAN.glob("*.json")):
         plan = json.loads(f.read_text(encoding="utf-8"))
@@ -250,10 +281,12 @@ def gegenprobe(slice_root: Path) -> dict:
             if any(g["spalte"] not in pq.read_schema(str(d)).names for d in dateien):
                 fehlt.append(f'{key} ({g["ordner"]}[{g["spalte"]}])')
                 continue
-            summe = sum(pq.read_table(str(d), columns=[g["spalte"]])[g["spalte"]].to_pandas().sum()
-                        for d in dateien)
-            werte[key] = float(summe)
-    return {"werte": werte, "spalte_fehlt": fehlt}
+            reihen = [pq.read_table(str(d), columns=[g["spalte"]])[g["spalte"]].to_pandas()
+                      for d in dateien]
+            werte[key] = float(sum(r.sum() for r in reihen))
+            if datentyp(DIST / plan["modell"], g["measure"]) == "decimal":
+                raster[key] = sum(int(r.count()) for r in reihen) * 10.0 ** -FESTKOMMA_STELLEN
+    return {"werte": werte, "raster": raster, "spalte_fehlt": fehlt}
 
 
 # ------------------------------------------------------------------ Lauf (Tenant)
@@ -310,8 +343,13 @@ def lauf(plan: dict, workspace: str, dataset: str, token: str, *, budget: int = 
 # ------------------------------------------------------------------ Bewertung
 
 def bewerten(plan: dict, lauf_ergebnis: dict, erwartet: dict[str, float] | None = None,
-             toleranz: float = 1e-6) -> list[dict]:
-    """Befunde. Leere Liste heisst: jede Measure verhielt sich wie ihre Klasse verlangt."""
+             toleranz: float = TOLERANZ_REL, *, stellen: int = ABGLEICH_STELLEN,
+             raster: dict[str, float] | None = None) -> list[dict]:
+    """Befunde. Leere Liste heisst: jede Measure verhielt sich wie ihre Klasse verlangt.
+
+    Gegenprobe: Befund, wenn |DAX - pandas| > max(10**-stellen, toleranz * |pandas|)
+    + raster[key]. `raster` kommt aus `gegenprobe` (Festkommaspalten), sonst 0.
+    """
     if lauf_ergebnis.get("quelle_sha256") != plan["quelle_sha256"]:
         return [{"measure": "*", "befund": "Lauf passt nicht zum Plan (Modell seither geändert)"}]
     befunde = []
@@ -345,9 +383,10 @@ def bewerten(plan: dict, lauf_ergebnis: dict, erwartet: dict[str, float] | None 
         if modell != plan["modell"]:
             continue
         ist = (je.get(name, {}).get("gesamt", {}).get("werte") or [None])[0]
-        if ist is None or abs(float(ist) - soll) > toleranz * max(1.0, abs(soll)):
+        grenze = max(10.0 ** -stellen, toleranz * abs(soll)) + (raster or {}).get(key, 0.0)
+        if ist is None or abs(float(ist) - soll) > grenze:
             befunde.append({"measure": name, "befund": "Gegenprobe weicht ab",
-                            "detail": f"DAX {ist} gegen pandas {soll}"})
+                            "detail": f"DAX {ist} gegen pandas {soll} (Grenze {grenze:g})"})
     return befunde
 
 
@@ -362,6 +401,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--budget", type=int, default=1000)
     b = sub.add_parser("bewerten"); b.add_argument("--lauf", type=Path, required=True)
     b.add_argument("--erwartet", type=Path)
+    b.add_argument("--stellen", type=int, default=ABGLEICH_STELLEN,
+                   help="Differenzen unter 10**-STELLEN gelten als Engine-Rundung")
+    b.add_argument("--toleranz", type=float, default=TOLERANZ_REL, help="relative Grenze")
     a = ap.parse_args(argv)
 
     if a.cmd == "plan":
@@ -396,8 +438,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     lauf_ergebnis = json.loads(a.lauf.read_text(encoding="utf-8"))
     plan = json.loads((PLAN / f"{lauf_ergebnis['modell'].removesuffix('.SemanticModel')}.json").read_text(encoding="utf-8"))
-    erwartet = json.loads(a.erwartet.read_text(encoding="utf-8"))["werte"] if a.erwartet else None
-    befunde = bewerten(plan, lauf_ergebnis, erwartet)
+    gp = json.loads(a.erwartet.read_text(encoding="utf-8")) if a.erwartet else {}
+    befunde = bewerten(plan, lauf_ergebnis, gp.get("werte"), a.toleranz, stellen=a.stellen,
+                       raster=gp.get("raster"))
     for x in befunde:
         print(f"  {x['measure']}: {x['befund']} {x.get('detail', '')}")
     print(f"[dax-smoke] {len(befunde)} Befund(e)")

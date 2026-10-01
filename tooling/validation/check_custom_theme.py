@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -61,21 +60,23 @@ def check_report(report_dir: Path) -> Optional[bool]:
 
 
 def active_theme(report_dir: Path) -> Optional[str]:
-    """The report's ACTIVE custom theme name (report.json themeCollection.customTheme.name).
+    """The report's ACTIVE custom theme name (definition/report.json themeCollection.customTheme.name).
 
     Distinct from classify_theme, which only asks whether *a* composed theme is registered;
     a report can register several resources but applies exactly one. Filesystem read only.
+    PBIR only: a PBIR-Legacy root `report.json` is not read (PBIR is GA and the default,
+    Learn power-bi/developer/projects/projects-report, read 2026-10-01; I-21 W5.8).
     """
-    for rj in (report_dir / "definition" / "report.json", report_dir / "report.json"):
-        if rj.is_file():
-            try:
-                data = json.loads(rj.read_text(encoding="utf-8"))
-            except (json.JSONDecodeError, OSError):
-                return None
-            ct = (data.get("themeCollection", {}) or {}).get("customTheme", {}) or {}
-            name = ct.get("name")
-            return str(name) if name else None
-    return None
+    rj = report_dir / "definition" / "report.json"
+    if not rj.is_file():
+        return None
+    try:
+        data = json.loads(rj.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+    ct = (data.get("themeCollection", {}) or {}).get("customTheme", {}) or {}
+    name = ct.get("name")
+    return str(name) if name else None
 
 
 def check_consistency(dist: Path = _DIST) -> tuple[dict[str, str], bool]:

@@ -31,6 +31,17 @@ jobs:
           pip install -r products/fabric/powerbi/deployment/resources/requirements.txt
         displayName: 'Install Python dependencies'
         workingDirectory: products/fabric/powerbi/deployment
+
+      # Secret scan (I-21 W5.4): fail the build when a credential-like string is committed in
+      # the release automation. Exit 2 = scan did not run, also red. Scope and measurement:
+      # scripts/secret_scan_gate.py. First choice on Azure Repos: Advanced Security push protection.
+      - script: python -m pip install detect-secrets==1.5.0
+        displayName: 'Install detect-secrets (pinned)'
+
+      - script: python products/fabric/powerbi/deployment/scripts/secret_scan_gate.py
+        displayName: 'Secret scan (release automation)'
+        workingDirectory: $(System.DefaultWorkingDirectory)
+        continueOnError: false
       
       - task: PowerShell@2
         displayName: 'Run Stage 1 validation'
