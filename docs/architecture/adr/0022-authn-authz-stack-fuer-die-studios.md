@@ -7,7 +7,7 @@
 | Kontext | Flo, 01.10.2026: „aktuell nicht, aber es sollte künftig mehrere Rollen geben, die darauf zugreifen“; Frage, ob die Juli-Entscheidung noch die beste Lösung ist |
 | Schreibt fort | ADR-0016-Entwurf „AuthN/AuthZ-Stack für die Studios“ (PR #401, am 15.07.2026 als Option A akzeptiert, **nie gemergt**; Stand im Archiv-Branch `archive/verwaiste-branches-2026-10-01`, Commit `4a538af5`). Die Nummer 0016 trägt in `main` heute ein anderes ADR. |
 | Betrifft | `studio/src/lib/auth/config.ts` · `studio/src/lib/auth/require-role.ts` · `studio/src/lib/db/rbac-repo.ts` · `studio/src/lib/auth/rbac-types.ts` · `studio/package.json` |
-| Bezug | ADR-0014 (Org-Schicht über lokal-first) · ADR-0007 (lokal-first/BYOK) · `../../compliance/_INDEX.md` (EU-Hosting, AVV) · Meridian Charter §3.2 (SaaS-Pfad offen) und §3.3 (kein Login, kein Backend) · Meridian-Spiegel D-623 |
+| Bezug | ADR-0014 (Org-Schicht über lokal-first) · ADR-0007 (lokal-first/BYOK) · `../../compliance/_INDEX.md` (EU-Hosting, AVV) · Meridian Charter §3.2 (SaaS-Pfad offen) und §3.3 (kein Login, kein Backend) · Meridian-Spiegel D-630 |
 
 ## 1. Kontext
 
@@ -88,7 +88,7 @@ Wartungsmodus widerspricht dem Endprodukt-Anspruch (Meridian Charter §3.3, D-15
   auf die Organisation, Tests `auth-session`, `rbac-repo`, `org-rbac` nachziehen.
 - Abhängigkeit von Vercel als Träger: Die Bibliothek läuft vollständig bei uns; ein Wechsel des Trägers
   ändert den Betrieb nicht, wohl aber die Pflege. Beobachtet über T-4.
-- Meridian bleibt ohne Login, bis der SaaS-Pfad entschieden ist (Spiegel-Eintrag D-623).
+- Meridian bleibt ohne Login, bis der SaaS-Pfad entschieden ist (Spiegel-Eintrag D-630).
 
 ## 5. Offene Punkte
 
