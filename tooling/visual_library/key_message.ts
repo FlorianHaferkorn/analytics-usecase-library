@@ -12,7 +12,7 @@ export interface Segment { text: string; strong: boolean }
 export interface Highlight { field: string; values: unknown[]; temporal: boolean }
 export interface KeyMessage { rule: string; segments: Segment[]; highlight: Highlight }
 export interface Table { columns: { name: string }[]; rows: unknown[][] }
-export interface KeyOptions { polarity?: number; additive?: boolean; unit?: string; weekly?: boolean }
+export interface KeyOptions { polarity?: number; additive?: boolean; unit?: string; weekly?: boolean; top_n?: number | null }
 export type Roles = Record<string, string | undefined>;
 
 const MINUS = "−";
@@ -103,36 +103,45 @@ function seg(...parts: (string | [string])[]): Segment[] {
   return parts.map((p) => (Array.isArray(p) ? { text: p[0], strong: true } : { text: p, strong: false }));
 }
 
-function categories(table: Table, roles: Roles, polarity: number, additive: boolean, unit: string): KeyMessage | null {
+/** Zusatz, wenn ein genannter Wert im Chart in der Restzeile steckt (BO-007, wie key_message.py). */
+export const FOLDED = " (in „Übrige“)";
+
+function categories(table: Table, roles: Roles, polarity: number, additive: boolean, unit: string,
+  topN: number | null): KeyMessage | null {
   const cat = roles.category!, val = roles.value!;
   const vals = column(table, val).map(num);
   const pairs = column(table, cat).map((c, i) => [c, vals[i]] as [unknown, number | null])
     .filter((p): p is [unknown, number] => p[1] !== null);
   if (pairs.length < 2) return null;
   const n = places(pairs.map((p) => p[1]));
+  // stabil sortiert wie Python sorted(..., reverse=...): gleiche Werte in ursprünglicher Reihenfolge
+  const ranked = pairs.map((p, i) => [p, i] as const)
+    .sort((a, b) => (polarity < 0 ? b[0][1] - a[0][1] : a[0][1] - b[0][1]) || a[1] - b[1]).map((x) => x[0]);
+  const shown = new Set(topN && pairs.length > topN ? ranked.slice(0, topN) : pairs);
+  const where = (p: [unknown, number]) => (shown.has(p) ? "" : FOLDED);
   if (additive) {
     const total = pairs.reduce((s, p) => s + p[1], 0);
     // erster Treffer bei Gleichstand, wie Python max()
-    const [name, top] = pairs.reduce((a, b) => (Math.abs(b[1]) > Math.abs(a[1]) ? b : a));
-    if (!total) return null;
-    const share = roundHalfEven((100 * top) / total);
+    const biggest = pairs.reduce((a, b) => (Math.abs(b[1]) > Math.abs(a[1]) ? b : a));
+    const [name, top] = biggest;
+    // Gemischte Vorzeichen: Anteil an der Summe der Beträge (wie key_message.py).
+    const mixed = pairs.some((p) => p[1] < 0) && pairs.some((p) => p[1] > 0);
+    const base = mixed ? pairs.reduce((s, p) => s + Math.abs(p[1]), 0) : total;
+    if (!base) return null;
+    const share = roundHalfEven((100 * Math.abs(top)) / Math.abs(base));
     return {
       rule: "größter Beitrag",
-      segments: seg("Größter Beitrag: ", [String(name)], " mit ", [withUnit(deNumber(top, n), unit)],
-        ", das sind ", [`${share}${NBSP}%`], " der Summe."),
+      segments: seg("Größter Beitrag: ", [String(name)], where(biggest), " mit ", [withUnit(deNumber(top, n), unit)],
+        ", das sind ", [`${share}${NBSP}%`], mixed ? " der Summe der Beträge." : " der Summe."),
       highlight: { field: cat, values: [name], temporal: false },
     };
   }
-  // stabil sortiert wie Python sorted(..., reverse=...)
-  const idx = pairs.map((p, i) => [p, i] as const);
-  idx.sort((a, b) => (polarity < 0 ? b[0][1] - a[0][1] : a[0][1] - b[0][1]) || a[1] - b[1]);
-  const ordered = idx.map((x) => x[0]);
-  const [worst, wv] = ordered[0], [best, bv] = ordered[ordered.length - 1];
+  const [worst, wv] = ranked[0], [best, bv] = ranked[ranked.length - 1];
   if (wv === bv) return null;
   return {
     rule: "schwächster Wert",
-    segments: seg("Am schwächsten: ", [String(worst)], " mit ", [withUnit(deNumber(wv, n), unit)],
-      ", am stärksten: ", [String(best)], " mit ", [withUnit(deNumber(bv, n), unit)], "."),
+    segments: seg("Am schwächsten: ", [String(worst)], where(ranked[0]), " mit ", [withUnit(deNumber(wv, n), unit)],
+      ", am stärksten: ", [String(best)], where(ranked[ranked.length - 1]), " mit ", [withUnit(deNumber(bv, n), unit)], "."),
     highlight: { field: cat, values: [worst], temporal: false },
   };
 }
@@ -177,9 +186,9 @@ function time(table: Table, roles: Roles, unit: string, weekly: boolean): KeyMes
 
 /** Kernaussage für die Tabelle eines Visuals; null, wenn keine Regel passt (Argumente wie key_message.py). */
 export function keyMessage(table: Table, roles: Roles, opts: KeyOptions = {}): KeyMessage | null {
-  const { polarity = 1, additive = false, unit = "", weekly = false } = opts;
+  const { polarity = 1, additive = false, unit = "", weekly = false, top_n = null } = opts;
   if (roles.time && roles.value) return time(table, roles, unit, weekly);
-  if (roles.category && roles.value) return categories(table, roles, polarity, additive, unit);
+  if (roles.category && roles.value) return categories(table, roles, polarity, additive, unit, top_n);
   return null;
 }
 

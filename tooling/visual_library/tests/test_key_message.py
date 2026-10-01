@@ -60,6 +60,17 @@ def test_eine_nachkommastelle_wie_am_chart_und_unveraendert_statt_null():
     assert K.plain_text(flat) == "KW 52 bis KW 02: unverändert bei 27,9\u00a0%."
 
 
+def test_genannte_werte_in_uebrige_tragen_den_hinweis():
+    """BO-007 (Entscheidung Florian 01.10.2026): das Chart zeigt Top 3, „am stärksten“ steckt in „Übrige“."""
+    t = {"columns": REGIONS["columns"], "rows": [["Nordics", 43.41], ["Benelux", 38.36], ["DACH", 32.99],
+                                                 ["Southern Europe", 24.49], ["CEE", 22.42]]}
+    m = K.key_message(t, {"category": "Region", "value": "Wert"}, unit="%", top_n=3)
+    assert K.plain_text(m) == ("Am schwächsten: CEE mit 22,4\u00a0%, am stärksten: Nordics (in „Übrige“) "
+                               "mit 43,4\u00a0%.")
+    alle = K.key_message(t, {"category": "Region", "value": "Wert"}, unit="%", top_n=5)
+    assert "Übrige" not in K.plain_text(alle), "Gegenprobe: alle sichtbar, kein Hinweis"
+
+
 def test_keine_regel_keine_aussage():
     assert K.key_message(REGIONS, {"value": "Wert"}) is None
     flat = {"columns": REGIONS["columns"], "rows": [["A", 1], ["B", 1]]}

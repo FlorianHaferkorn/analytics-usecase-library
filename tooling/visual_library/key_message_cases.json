@@ -615,6 +615,176 @@
     "value": "Wert"
    },
    "opts": {}
+  },
+  {
+   "name": "top_n_staerkster_in_uebrige",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "Nordics",
+      43.41
+     ],
+     [
+      "Benelux",
+      38.36
+     ],
+     [
+      "DACH",
+      32.99
+     ],
+     [
+      "Southern Europe",
+      24.49
+     ],
+     [
+      "CEE",
+      22.42
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%",
+    "top_n": 3
+   }
+  },
+  {
+   "name": "top_n_alle_sichtbar",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "Nordics",
+      43.41
+     ],
+     [
+      "Benelux",
+      38.36
+     ],
+     [
+      "DACH",
+      32.99
+     ],
+     [
+      "Southern Europe",
+      24.49
+     ],
+     [
+      "CEE",
+      22.42
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%",
+    "top_n": 5
+   }
+  },
+  {
+   "name": "top_n_richtung_minus",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "Nordics",
+      43.41
+     ],
+     [
+      "Benelux",
+      38.36
+     ],
+     [
+      "DACH",
+      32.99
+     ],
+     [
+      "Southern Europe",
+      24.49
+     ],
+     [
+      "CEE",
+      22.42
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%",
+    "top_n": 2,
+    "polarity": -1
+   }
+  },
+  {
+   "name": "top_n_beitrag_negativ_gefaltet",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      -40
+     ],
+     [
+      "B",
+      25
+     ],
+     [
+      "C",
+      15
+     ],
+     [
+      "D",
+      10
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true,
+    "polarity": -1,
+    "top_n": 2
+   }
   }
  ]
 }

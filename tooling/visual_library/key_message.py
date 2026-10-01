@@ -89,29 +89,45 @@ def _seg(*parts: "str | tuple[str]") -> list[dict]:
             for p in parts]
 
 
-def _categories(table: dict, roles: dict, polarity: float, additive: bool, unit: str) -> "dict | None":
+#: Zusatz, wenn ein genannter Wert im Chart in der Restzeile steckt (Entscheidung Florian 01.10.2026, BO-007).
+FOLDED = " (in „Übrige“)"
+
+
+def _categories(table: dict, roles: dict, polarity: float, additive: bool, unit: str,
+                top_n: "int | None") -> "dict | None":
     cat, val = roles["category"], roles["value"]
     pairs = [(c, v) for c, v in zip(_column(table, cat), map(_num, _column(table, val))) if v is not None]
     if len(pairs) < 2:
         return None
     n = places([v for _, v in pairs])
+    # Sichtbar sind wie in render.with_top_n die schwächsten top_n nach Richtung; der Rest ist „Übrige“.
+    ranked = sorted(pairs, key=lambda p: p[1], reverse=polarity < 0)
+    shown = {id(p) for p in ranked[:top_n]} if top_n and len(pairs) > top_n else {id(p) for p in pairs}
+
+    def where(p) -> str:
+        return "" if id(p) in shown else FOLDED
     if additive:
         total = sum(v for _, v in pairs)
-        name, top = max(pairs, key=lambda p: abs(p[1]))
-        if not total:
+        biggest = max(pairs, key=lambda p: abs(p[1]))
+        name, top = biggest
+        # Gemischte Vorzeichen: Anteil an der Summe der Beträge, sonst stünde „−40, das sind −400 % der Summe“.
+        mixed = any(v < 0 for _, v in pairs) and any(v > 0 for _, v in pairs)
+        base = sum(abs(v) for _, v in pairs) if mixed else total
+        if not base:
             return None
-        share = round(100 * top / total)
+        share = round(100 * abs(top) / abs(base))
         return {"rule": "größter Beitrag",
-                "segments": _seg("Größter Beitrag: ", (str(name),), " mit ", (_with_unit(de_number(top, n), unit),),
-                                 ", das sind ", (f"{share} %",), " der Summe."),
+                "segments": _seg("Größter Beitrag: ", (str(name),), where(biggest), " mit ",
+                                 (_with_unit(de_number(top, n), unit),), ", das sind ", (f"{share}\u00a0%",),
+                                 " der Summe der Beträge." if mixed else " der Summe."),
                 "highlight": {"field": cat, "values": [name], "temporal": False}}
-    ordered = sorted(pairs, key=lambda p: p[1], reverse=polarity < 0)
-    (worst, wv), (best, bv) = ordered[0], ordered[-1]
+    (worst, wv), (best, bv) = ranked[0], ranked[-1]
     if wv == bv:
         return None
     return {"rule": "schwächster Wert",
-            "segments": _seg("Am schwächsten: ", (str(worst),), " mit ", (_with_unit(de_number(wv, n), unit),),
-                             ", am stärksten: ", (str(best),), " mit ", (_with_unit(de_number(bv, n), unit),), "."),
+            "segments": _seg("Am schwächsten: ", (str(worst),), where(ranked[0]), " mit ",
+                             (_with_unit(de_number(wv, n), unit),), ", am stärksten: ", (str(best),), where(ranked[-1]),
+                             " mit ", (_with_unit(de_number(bv, n), unit),), "."),
             "highlight": {"field": cat, "values": [worst], "temporal": False}}
 
 
@@ -152,18 +168,20 @@ def _time(table: dict, roles: dict, unit: str, weekly: bool) -> "dict | None":
 
 
 def key_message(table: dict, roles: dict, *, polarity: float = 1, additive: bool = False, unit: str = "",
-                weekly: bool = False) -> "dict | None":
+                weekly: bool = False, top_n: "int | None" = None) -> "dict | None":
     """Kernaussage für die Tabelle eines Visuals.
 
     table     {"columns": [{"name"}...], "rows": [[...]...]} — dieselbe Tabelle, die das Visual zeichnet
     roles     {Rolle: Spalte} wie bei `render_target(bindings=)`: time/value/plan oder category/value
     polarity  1 = mehr ist besser, −1 = weniger ist besser (Richtung der Kennzahl)
     additive  Werte summieren sich (Beiträge), sonst Quote oder Stand
+    top_n     so viele Kategorien zeigt das Chart, der Rest steckt in „Übrige“; genannte Werte von dort
+              tragen den Zusatz „(in „Übrige“)“
     """
     if roles.get("time") and roles.get("value"):
         return _time(table, roles, unit, weekly)
     if roles.get("category") and roles.get("value"):
-        return _categories(table, roles, polarity, additive, unit)
+        return _categories(table, roles, polarity, additive, unit, top_n)
     return None
 
 
