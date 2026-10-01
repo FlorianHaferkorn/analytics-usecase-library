@@ -1,0 +1,471 @@
+# Vorgänge: je Signal und Artefakt ein Eintrag (research/signale/README.md, „Lifecycle“).
+# `python3 scripts/signale.py vorgaenge <deklaration> --fortschreiben` legt fehlende an und
+# setzt abgelaufene Wiedervorlagen zurück. Statuswechsel: `status` setzen UND eine Zeile an
+# `verlauf` anhängen (am, status, von, notiz); ältere Zeilen nie ändern.
+version: 1
+vorgaenge:
+- signal: SIG-2609-001
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-002
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-002
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-003
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-004
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-004
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-004
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-005
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-08'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-005
+  artefakt: ALUCA-PBI-BERICHTE
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-005
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-006
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-08'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-006
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-008
+  artefakt: ALUCA-PBI-BERICHTE
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-008
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-009
+  artefakt: ALUCA-COPILOT
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-010
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-010
+  artefakt: ALUCA-KAPAZITAET
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-011
+  artefakt: ALUCA-COPILOT
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-011
+  artefakt: ALUCA-PBI-BERICHTE
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-015
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-017
+  artefakt: ALUCA-KAPAZITAET
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-018
+  artefakt: ALUCA-KAPAZITAET
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-019
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-019
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-020
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-021
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-021
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-021
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-023
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-023
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-026
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: triage
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration

@@ -1,0 +1,52 @@
+# Deklaration der ALUCA-Artefakte für das Signal-Register.
+#
+# Das Register (Signale, Themen, Lifecycle) liegt im Freelancing-Repo unter research/signale/
+# (D-602, D-622). Hier steht nur, welche ALUCA-Artefakte sich auf welche Fabric-/Power-BI-Themen
+# stützen. Abgleich aus einem Freelancing-Checkout:
+#   python3 scripts/signale.py vorgaenge ../analytics-usecase-library/signale/deklaration.yaml --fortschreiben
+#   make check-signale-aluca            # Form, Ausgang 2 ohne ALUCA-Checkout
+# Klasse bestimmt die Risikostufe: doku T0, werkzeug T1, deliverable T2.
+#
+# stand leer = Erstabgleich gegen alle Signale (01.10.2026).
+stand: null
+vorgaenge: vorgaenge.yaml
+artefakte:
+  - id: ALUCA-PBI-GENERATOR
+    titel: Generator für Semantic Models und Berichte (TMDL, PBIR, PBIP, Themes)
+    klasse: werkzeug
+    themen: [pbi.pbir, pbi.tmdl, pbi.pbip, pbi.semantic_model]
+    pfade: [tooling/generator/**, tooling/generator_core/**, tooling/codegen/**,
+            products/fabric/powerbi/tooling/**, products/fabric/powerbi/themes/**,
+            products/fabric/powerbi/templates/**]
+  - id: ALUCA-PBI-BERICHTE
+    titel: Ausgelieferte Berichte und Modelle je Use Case (dist, Blueprints)
+    klasse: deliverable
+    themen: [pbi.reporting, pbi.pbir, fabric.direct_lake]
+    pfade: [products/fabric/powerbi/dist/**, products/fabric/powerbi/blueprints/**]
+  - id: ALUCA-DEPLOY
+    titel: Deployment nach Fabric (Skripte, Orchestrator, Identitäten)
+    klasse: werkzeug
+    themen: [fabric.cicd, governance.identity]
+    pfade: [products/fabric/powerbi/deployment/**, products/fabric/orchestrator/**,
+            products/fabric/powerbi/orchestrator/**]
+  - id: ALUCA-COPILOT
+    titel: Copilot-Readiness der Modelle (Beschreibungen, linguistisches Schema, KI-Zugriff)
+    klasse: werkzeug
+    themen: [pbi.copilot, pbi.qa, fabric.iq, fabric.data_agent, governance.ai_access]
+    pfade: [products/fabric/powerbi/tooling/copilot_readiness/**]
+  - id: ALUCA-AGENT-SKILLS
+    titel: Agenten-Skills und Regeln für die Arbeit an ALUCA
+    klasse: doku
+    themen: [pbi.agentic]
+    pfade: [docs/agent/**, .claude/skills/**, AGENTS.md]
+  - id: ALUCA-KAPAZITAET
+    titel: Capacity-Empfehlung (Skill und Rechenkern)
+    klasse: werkzeug
+    themen: [lizenz.capacity, lizenz.kosten]
+    pfade: [docs/agent/skills/recommend-fabric-capacity.md, .claude/skills/recommend-fabric-capacity/**,
+            tooling/superversion/capacity.py]
+  - id: ALUCA-COMPLIANCE
+    titel: DSGVO-Compliance-Paket (DPIA, AVV, Retention, KI-Egress)
+    klasse: deliverable
+    themen: [governance.purview, governance.dlp, governance.ai_access, governance.data_export]
+    pfade: [compliance/**]
