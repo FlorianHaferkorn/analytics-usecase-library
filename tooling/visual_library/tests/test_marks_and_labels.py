@@ -165,10 +165,65 @@ def test_no_profile_lets_the_host_shorten_data_labels():
         assert doc["capabilities"].get("disableTextTruncation") is True, pid
 
 
-def _ibcs_line_labels(vals: list[float]) -> list[str]:
+def _ibcs_line_texts(vals: list[float], width: int = 300) -> list[tuple[str, float, float]]:
+    """(label, x, y) of the IBCS line's data labels from Vega's scenegraph at a given width."""
+    vlc = pytest.importorskip("vl_convert")
     rows = [{"Monat": f"2026-{i // 28 + 1:02d}-{i % 28 + 1:02d}", "Wert": v} for i, v in enumerate(vals)]
-    svg = _svg("line", "ibcs", {"time": "Monat", "value": "Wert"}, rows)
-    return re.findall(r'aria-roledescription="text mark"[^>]*>([^<]+)<', svg)
+    spec = _spec("line", "ibcs", {"time": "Monat", "value": "Wert"}, rows)
+    spec["width"] = width
+    out: list[tuple[str, float, float]] = []
+
+    def walk(node, ox=0.0, oy=0.0):
+        if isinstance(node, dict):
+            if node.get("marktype") == "text" and node.get("role") == "mark":
+                out.extend((it["text"], ox + it.get("x", 0), oy + it.get("y", 0)) for it in node.get("items", [])
+                           if it.get("text") not in (None, ""))
+                return
+            if node.get("marktype") == "group":
+                for it in node.get("items", []):
+                    walk({"_g": it.get("items", [])}, ox + it.get("x", 0), oy + it.get("y", 0))
+                return
+            for v in node.values():
+                walk(v, ox, oy)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v, ox, oy)
+
+    walk(vlc.vegalite_to_scenegraph(spec).get("scenegraph"))
+    return out
+
+
+def _ibcs_line_labels(vals: list[float], width: int = 300) -> list[str]:
+    return [t for t, _, _ in _ibcs_line_texts(vals, width)]
+
+
+def _overlaps(texts: list[tuple[str, float, float]]) -> list[tuple[str, str]]:
+    """Centred labels, 11 px font: about 6.2 px per character wide, 12 px high (G14 in Freelancing
+    measures the same on the rendered page)."""
+    hits = []
+    for a in range(len(texts)):
+        for b in range(a + 1, len(texts)):
+            (ta, xa, ya), (tb, xb, yb) = texts[a], texts[b]
+            if abs(xa - xb) < 3.1 * (len(ta) + len(tb)) and abs(ya - yb) < 12:
+                hits.append((ta, tb))
+    return hits
+
+
+# Diagnosis series of the Aurora cockpit (01.10.2026): near-flat on a zero-based IBCS axis, where
+# extrema sit next to the first point or each other — G14 found their labels on top of each other.
+COCKPIT_SERIES = {
+    "COM-001": [28.0, 28.24, 28.1, 27.95, 28.05, 27.85] + [28.0 + 0.01 * (i % 5) for i in range(14)] + [27.95],
+    "FIN-001": [38.28, 38.2, 38.33, 38.13] + [38.2 + 0.01 * (i % 4) for i in range(16)] + [38.3],
+    "OPS-002": [75.84, 75.9, 76.0, 76.1, 76.2, 76.3, 76.53, 75.66] + [76.0 + 0.02 * (i % 5) for i in range(12)] + [76.08],
+}
+
+
+@pytest.mark.parametrize("width", [300, 900])
+@pytest.mark.parametrize("name", sorted(COCKPIT_SERIES))
+def test_ibcs_line_labels_never_cover_each_other(name, width):
+    texts = _ibcs_line_texts(COCKPIT_SERIES[name], width)
+    assert len(texts) >= 2, f"first and last always labelled: {texts}"
+    assert not _overlaps(texts), f"{name} @ {width}px: {_overlaps(texts)}"
 
 
 def test_ibcs_line_labels_a_tied_extremum_once():
@@ -180,8 +235,8 @@ def test_ibcs_line_labels_a_tied_extremum_once():
     assert len(labels) == 3, f"first, max, last: {labels}"
 
 
-def test_ibcs_line_skips_an_extremum_that_repeats_its_neighbouring_label():
-    """Cockpit 01.10.2026 (COM-001): the minimum 28 right after the first point 28,2 covered it."""
-    vals = [28.2, 28.0, 31.0, 33.0, 35.0, 36.0, 34.0, 37.0, 40.0, 38.0]
-    labels = _ibcs_line_labels(vals)
-    assert "28" not in labels and "28,2" in labels and "40" in labels, labels
+def test_ibcs_line_keeps_extrema_that_stand_apart():
+    """The rule drops only what would collide: a clear peak in the middle stays labelled."""
+    vals = [28.2, 28.0, 31.0, 33.0, 35.0, 36.0, 34.0, 40.0, 37.0, 36.0]
+    labels = _ibcs_line_labels(vals, 600)
+    assert "28,2" in labels and "40" in labels and "36" in labels, labels

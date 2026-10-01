@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "1.1.1"
+version: "1.1.2"
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -257,8 +257,11 @@ profiles:
                   { "calculate": "datum._i == 1 ? datum['{{field}}'] : null", "as": "_at_first" },
                   { "calculate": "datum._i == datum._n ? datum['{{field}}'] : null", "as": "_at_last" },
                   { "joinaggregate": [ { "op": "min", "field": "_at_min", "as": "_imin" }, { "op": "min", "field": "_at_max", "as": "_imax" }, { "op": "max", "field": "_at_first", "as": "_v1" }, { "op": "max", "field": "_at_last", "as": "_vn" } ] },
-                  { "calculate": "0.05 * (datum._max - datum._min)", "as": "_near" },
-                  { "filter": "datum._n <= 6 || datum._i == 1 || datum._i == datum._n || ((datum._i == datum._imin || datum._i == datum._imax) && !(datum._i == 2 && abs(datum['{{field}}'] - datum._v1) < datum._near) && !(datum._i == datum._n - 1 && abs(datum['{{field}}'] - datum._vn) < datum._near))" }
+                  { "calculate": "max(abs(datum._max), abs(datum._min), 1e-9)", "as": "_top" },
+                  { "calculate": "width / max(datum._n - 1, 1)", "as": "_step" },
+                  { "calculate": "abs(datum._imax - 1) * datum._step < 34 && abs(datum._max - datum._v1) / datum._top * height < 14 || abs(datum._n - datum._imax) * datum._step < 34 && abs(datum._max - datum._vn) / datum._top * height < 14", "as": "_max_hidden" },
+                  { "calculate": "abs(datum._imin - 1) * datum._step < 34 && abs(datum._min - datum._v1) / datum._top * height < 14 || abs(datum._n - datum._imin) * datum._step < 34 && abs(datum._min - datum._vn) / datum._top * height < 14 || !datum._max_hidden && abs(datum._imin - datum._imax) * datum._step < 34 && abs(datum._min - datum._max) / datum._top * height < 14", "as": "_min_hidden" },
+                  { "filter": "datum._n <= 6 || datum._i == 1 || datum._i == datum._n || datum._i == datum._imax && !datum._max_hidden || datum._i == datum._imin && !datum._min_hidden" }
                 ],
                 "mark": {
                   "type": "text",
