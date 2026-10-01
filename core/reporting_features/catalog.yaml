@@ -928,3 +928,18 @@ features:
     status: gap
     user_value: low
     priority: 3
+  - id: feat-109
+    area: chart
+    name: Kernaussage je Visual hervorheben
+    user_need: Auf Knopfdruck sehen, was ein Visual für die anstehende Entscheidung aussagt, und die tragenden Werte hervorgehoben.
+    sources: [users-009]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: aluca_spec
+    meridian_module: M2
+    status: partial
+    tests: [tooling/visual_library/tests/test_key_message.py]
+    user_value: high
+    priority: 1
+    note: "D-623 Nachtrag (Freelancing), 01.10.2026: regelbasiert je Zweck (key_message.py), Hervorhebung als Vega-Parameter kernaussage in render_target; Knopf je Visual und je Seite im Cockpit, Verweis auf die Handlungsempfehlung. Offen: Story- und Marken-Gestaltung, Zwecke ohne Regel (Verteilung, Zusammenhang). Verwandt feat-013, feat-014."

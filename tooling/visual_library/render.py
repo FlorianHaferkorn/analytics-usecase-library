@@ -26,6 +26,7 @@ CLI:
 from __future__ import annotations
 
 import copy
+import datetime as dt
 import functools
 import json
 import re
@@ -555,6 +556,56 @@ def with_time_axis(spec: dict, fmt: str, ticks: "list | None") -> dict:
     return walk(spec)
 
 
+KEY_PARAM = "kernaussage"
+KEY_DIM = 0.25
+
+
+def with_highlight(spec: dict, field: str, values: list, temporal: bool = False) -> dict:
+    """Kernaussage hervorheben (D-623 Nachtrag, feat-109): ein Vega-Parameter `kernaussage` (Standard
+    aus) dämpft jede Marke, deren Zeile `field` trägt und nicht zu `values` gehört. Marken ohne das
+    Feld (Referenzlinie, Zielwert) bleiben unberührt, ebenso die Restzeile nicht — sie ist kein Treffer
+    und wird gedämpft. Die Oberfläche schaltet nur den Parameterwert um; die Spec bleibt eine.
+    Zeitwerte werden als Zeitpunkt (ms, UTC) verglichen, weil Vega-Lite Zeitfelder zu Datum parst."""
+    if temporal:
+        keys = []
+        for v in values:
+            d = dt.date.fromisoformat(str(v)[:10])
+            keys.append(int(dt.datetime(d.year, d.month, d.day, tzinfo=dt.timezone.utc).timestamp() * 1000))
+        probe = f"time(datum[{json.dumps(field)}])"
+    else:
+        keys, probe = list(values), f"datum[{json.dumps(field)}]"
+    test = (f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && "
+            f"indexof({json.dumps(keys, ensure_ascii=False)}, {probe}) < 0")
+    dim = {"test": test, "value": KEY_DIM}
+
+    def mark_unit(node: dict) -> dict:
+        enc = dict(node.get("encoding") or {})
+        old = enc.get("opacity")
+        if isinstance(old, dict) and "condition" in old:
+            conds = old["condition"] if isinstance(old["condition"], list) else [old["condition"]]
+            enc["opacity"] = {**old, "condition": [dim, *conds]}
+        elif isinstance(old, dict):
+            enc["opacity"] = {"condition": dim, **old}
+        else:
+            enc["opacity"] = {"condition": dim, "value": 1}
+        return {**node, "encoding": enc}
+
+    def walk(node):
+        if isinstance(node, dict):
+            out = {k: walk(v) for k, v in node.items() if k not in ("encoding",)}
+            if "encoding" in node:
+                out["encoding"] = node["encoding"]
+            return mark_unit(out) if "mark" in out else out
+        if isinstance(node, list):
+            return [walk(v) for v in node]
+        return node
+
+    out = walk(spec)
+    out["params"] = [p for p in out.get("params") or [] if p.get("name") != KEY_PARAM] + [
+        {"name": KEY_PARAM, "value": False}]
+    return out
+
+
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
                   background: "str | None" = None) -> "tuple[str, str]":
@@ -586,7 +637,7 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
                     if p not in bound and not slot.get("required", True) and p not in given]
         eff.update({v: _NO_VALUE for v in missing})
         eff.update({v: eff[fb] for v, fb in dv.items() if v not in given and fb is not None})
-        eff.update({k: str(v) for k, v in given.items() if k not in ("top_n", "rest", "time_format", "time_ticks")})
+        eff.update({k: str(v) for k, v in given.items() if k not in ("top_n", "rest", "time_format", "time_ticks", "highlight")})
         if (entry.get("encoding") or {}).get("order") == "worst_first" and "worst_first" not in given:
             # worst first: for a lower-is-better measure the worst value is the highest (A-31 R7)
             eff["worst_first"] = "descending" if float(eff.get("polarity", 1)) < 0 else "ascending"
@@ -604,6 +655,9 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     spec = with_tooltips(spec, idiom, eff)
     if params and params.get("time_format"):
         spec = with_time_axis(spec, str(params["time_format"]), params.get("time_ticks"))
+    if params and params.get("highlight"):
+        h = params["highlight"]
+        spec = with_highlight(spec, h["field"], list(h["values"]), bool(h.get("temporal")))
     config = vegalite_config(profile)
     if background:
         spec, config = on_background(spec, background), on_background(config, background)
