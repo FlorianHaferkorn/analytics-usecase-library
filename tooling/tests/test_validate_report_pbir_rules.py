@@ -154,19 +154,39 @@ def test_layout_grid_canvases_are_the_two_governed_ones() -> None:
 
 @needs_pwsh
 def test_canvas_pages_pass_and_rules_report_as_evaluated(tmp_path: Path) -> None:
+    alt = {"Literal": {"Value": "'Net Sales Amount by Region'"}}
     rep = _report(
-        tmp_path, [_page("P1", visuals=[_visual("V1")]), _page("P2", 1280, 720, "FitToWidth", visuals=[_visual("V2")])]
+        tmp_path,
+        [
+            _page("P1", visuals=[_visual("V1", alt=alt)]),
+            _page("P2", 1280, 720, "FitToWidth", visuals=[_visual("V2", alt=alt)]),
+        ],
     )
     rc, res, log = _run(rep)
     assert rc == 0, log
     assert not res["Errors"] and not res["Warnings"] and not res["Info"], log
+    # ENSURE_ALTTEXT is active in the shipped bpa-rules-report.json since 01.10.2026
     assert sorted(_ids(res, "Evaluated")) == [
+        "ENSURE_ALTTEXT",
         "ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY",
         "REDUCE_PAGES",
         "REDUCE_VISUALS_ON_PAGE",
     ]
-    # shipped bpa-rules-report.json disables ENSURE_ALTTEXT: listed as disabled, not as "0 findings"
-    assert _ids(res, "Disabled") == ["ENSURE_ALTTEXT"]
+    assert _ids(res, "Disabled") == []
+
+
+@needs_pwsh
+def test_disabled_rule_is_listed_as_disabled_not_as_zero_findings(tmp_path: Path) -> None:
+    rep = _report(tmp_path, [_page("P1", visuals=[_visual("NoAlt")])])
+    _, res, log = _run(rep, "-BpaRulesPath", str(_bpa(tmp_path, alt_enabled=False)))
+    assert _ids(res, "Disabled") == ["ENSURE_ALTTEXT"], log
+    assert "ENSURE_ALTTEXT" not in _ids(res, "Info")
+
+
+def test_alt_text_rule_is_enabled_in_shipped_bpa() -> None:
+    """Decision 01.10.2026: alt text comes from the generator, the rule is on (severity stays Info)."""
+    rule = next(r for r in json.loads(BPA.read_text(encoding="utf-8"))["rules"] if r["id"] == "ENSURE_ALTTEXT")
+    assert rule["disabled"] is False
 
 
 # --- ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY --------------------------------------------------------

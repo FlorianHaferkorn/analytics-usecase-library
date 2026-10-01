@@ -20,7 +20,7 @@ Lesbare Übersicht der Regeln aus `bpa-rules-report.json`. `validate_report.ps1`
 | HIDE_TOOLTIP_DRILLTROUGH_PAGES | Tooltip- und Drillthrough-Seiten ausblenden | — | Ja |
 | ENSURE_THEME_COLOURS | Charts nutzen Theme-Farben (keine Hardcodierung) | — | Ja |
 | ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY | Keine vertikale Scroll-Seiten | Leinwände aus `layout_grid.yaml` (1280×720, 1920×1080) | Ja |
-| ENSURE_ALTTEXT | Alt-Text für alle Visuals (Barrierefreiheit) | — | **Nein** (disabled) |
+| ENSURE_ALTTEXT | Alt-Text für alle Visuals (Barrierefreiheit) | ausgenommen `shape`; max. 250 Zeichen (Learn) | Ja (seit 01.10.2026) |
 
 ---
 
@@ -85,7 +85,9 @@ Lesbare Übersicht der Regeln aus `bpa-rules-report.json`. `validate_report.ps1`
 ### ENSURE_ALTTEXT
 - **Was:** Alle Visuals (außer Shapes) sollen **alternativeText** für Screenreader gesetzt haben.
 - **Warum:** Barrierefreiheit.
-- **Status:** In der Standard-Konfiguration **deaktiviert** (`disabled: true`). Kann in `bpa-rules-report.json` aktiviert werden.
+- **Status:** **Aktiv** seit 01.10.2026 (`disabled: false`, Entscheidung Florian), Schwere Info. Vorher deaktiviert; aktiviert meldete die Regel 220 von 220 Visuals der 17 dist-Reports.
+- **Woher der Alt-Text kommt:** `products/fabric/powerbi/tooling/page_scaffold_generator/alt_text.py`, beim Generieren (Kennzahlen, Achse, Vergleichsreihe; Textbox = ihr Text). Reports ohne Generatorpfad: `python -m products.fabric.powerbi.tooling.page_scaffold_generator.alt_text <X.Report>`.
+- **Learn** (*Design Power BI reports for accessibility*, gelesen 01.10.2026): „Ensure alt text is added to all non-decorative visuals on the page.“ · „The Alt Text textbox has a limit of 250 characters.“ · „Because a screen reader reads out the title and type of a visual, you only need to fill in a description.“ Der Titel ersetzt den Alt-Text also nicht (`Design_Spec_3_30_300.md §9`).
 
 ---
 

@@ -170,6 +170,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'SLA Attainment %, Overtime % and Shrinkage % by Org Name'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

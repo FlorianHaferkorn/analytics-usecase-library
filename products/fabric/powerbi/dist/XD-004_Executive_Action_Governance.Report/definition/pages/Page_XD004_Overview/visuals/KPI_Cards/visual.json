@@ -89,6 +89,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Action Outcome Rate % (XD Log), Action Effectiveness Delta and Enterprise Value-at-Risk Index'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -92,6 +92,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Scrap Rate % by Calendar Year Month'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

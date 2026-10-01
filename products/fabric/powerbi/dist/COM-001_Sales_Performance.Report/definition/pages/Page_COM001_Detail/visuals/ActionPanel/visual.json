@@ -32,6 +32,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Active Actions Text (COM)'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

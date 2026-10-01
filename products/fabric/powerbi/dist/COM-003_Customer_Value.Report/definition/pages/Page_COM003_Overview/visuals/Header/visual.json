@@ -25,6 +25,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Are we growing and protecting Customer Lifetime Value? · Expected finding — Customer Lifetime Value growth has stalled — churn acceleration in the mid-tier segment is eroding the base and requires targeted retention investment.'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -239,6 +239,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Gross Margin Amount, Gross Margin % vs Plan, Price Realization %, Mix Effect Amount and Gross Margin % by Category and Product Code'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

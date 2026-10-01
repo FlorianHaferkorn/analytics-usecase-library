@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Overall Equipment Effectiveness (OEE) %, Availability %, Performance % and Quality %'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

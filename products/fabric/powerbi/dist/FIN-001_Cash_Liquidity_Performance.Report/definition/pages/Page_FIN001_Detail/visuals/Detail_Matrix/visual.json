@@ -285,6 +285,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Cash Balance, Cash vs Plan %, DSO Days, DIO Days, DPO Days, CCC Days, Inventory Amount, OTIF % (FIN) and Supplier Risk Score (Entity) by Org Name and Region'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

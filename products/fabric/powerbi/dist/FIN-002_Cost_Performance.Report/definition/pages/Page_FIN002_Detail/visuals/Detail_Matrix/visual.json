@@ -253,6 +253,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Unit Cost Amount, COGS % of Sales, Material Cost %, OpEx vs Plan %, Labor Productivity % and Quality Defect Rate % by Entity and Category'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

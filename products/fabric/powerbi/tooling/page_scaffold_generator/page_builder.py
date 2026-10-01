@@ -12,6 +12,7 @@ from .grid_calculator import GridCalculator, GridPosition, ZONE0_HEADER_HEIGHT, 
 from .visual_builder import VisualBuilder
 from .slicer_builder import SlicerBuilder
 from .title_policy import resolve_header
+from .alt_text import apply_alt_text
 from products.fabric.powerbi.tooling.schema_registry import PAGE_SCHEMA as _PAGE_SCHEMA
 
 logger = logging.getLogger(__name__)
@@ -152,8 +153,10 @@ class PageBuilder:
             # Darstellung, die hier nicht entschieden ist. Fehlt die Referenz im Modell, bleibt
             # die Linie allein (comparison_measures meldet die Luecke).
             _ref = (comparison_refs or {}).get(f"{_kids[0]}|{_c_item.get('comparison')}") if _kids else None
+            _vergleich: List[str] = []
             if _ref and _vt in _LINIEN_TYPEN and _ref not in _measures:
                 _measures.append(_ref)
+                _vergleich.append(_ref)
             # category_field from bracket: "table.Column" → split into entity/property
             _cat_field = _c_item.get("category_field")
             _cat_entity, _cat_prop = None, None
@@ -165,6 +168,8 @@ class PageBuilder:
                 "kpi_ids": [k for k in _kids if isinstance(k, str) and k.strip()],
                 "category_entity": _cat_entity,
                 "category_property": _cat_prop,
+                # Als Vergleichsreihe gezeichnete Measures: der Alt-Text sagt "compared with".
+                "comparison_measures": _vergleich,
                 # BC-NARR-01 (K2): the governed exhibit statement + the question it answers.
                 # title_policy decides which becomes the static header (question by default).
                 "message": (_c_item.get("message") or "").strip() or None,
@@ -316,6 +321,9 @@ class PageBuilder:
                                         kpi_good_is or {}, ranking_slot=(slot_id == "Main_3"))
                 if _rang:
                     vis.setdefault("visual", {}).setdefault("query", {})["sortDefinition"] = _rang
+                # Alt-Text hier, weil nur hier bekannt ist, welche Reihe der Vergleich ist;
+                # alle uebrigen Visuals bekommen ihn in PageScaffoldGenerator.generate().
+                apply_alt_text(vis, _binding.get("comparison_measures") or ())
             elif slot_id in _MAIN_SLOTS_ORDER:
                 # Ungebundener Main-Slot -> KEIN Visual. Bis 01.08.2026 stand hier ein
                 # Fallback, der die ersten vier KPI-Card-Measures auf eine Balkenachse

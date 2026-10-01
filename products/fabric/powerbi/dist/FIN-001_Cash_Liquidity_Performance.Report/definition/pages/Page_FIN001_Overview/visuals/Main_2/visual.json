@@ -94,6 +94,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Operating Cash Flow by Calendar Year Month'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   },

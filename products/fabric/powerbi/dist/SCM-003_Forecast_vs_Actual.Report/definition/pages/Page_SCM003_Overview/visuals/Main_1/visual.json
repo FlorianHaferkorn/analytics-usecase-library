@@ -92,6 +92,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Forecast MAPE % by Calendar Year Month'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }
