@@ -321,15 +321,20 @@ vorgaenge:
 - signal: SIG-2609-009
   artefakt: ALUCA-COPILOT
   risiko: T2
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-15'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen: Q&A endet 02/2027; README Z.97 verweist auf linguistic_schema.py.
-    Prüfungen auf „Prep data for AI“ (AI instructions, verified answers, AI data schema) ausrichten, Q&A-Teile
-    als auslaufend markieren. Entscheidung T2 mit ADR.'
-  d_eintrag: null
-  belege: []
+  begruendung: Q&A-Oberflächen enden 02/2027; der Q&A-Schalter am Modell bleibt laut Learn (gelesen 01.10.2026,
+    copilot-prepare-data-ai) Voraussetzung von Prep data for AI. Anleitung präzisiert statt gestrichen
+    (D-624).
+  d_eintrag: D-624
+  belege:
+  - 'products/fabric/powerbi/tooling/copilot_readiness/README.md: Checklistenpunkt Q&A-Schalter am Modell
+    (D-624)'
+  - 'bereits vorher umgesetzt: products/fabric/powerbi/tooling/linguistic_schema.py Docstring und tooling/health_scorecard.py
+    H8_CONSUMERS = (''copilot'',), Learn 29.09.2026'
+  - 'scripts/check_index.py --strict: 0 harte Befunde, 01.10.2026'
   verlauf:
   - am: '2026-10-01'
     status: triage
@@ -339,6 +344,18 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-624
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün
 - signal: SIG-2609-010
   artefakt: ALUCA-COPILOT
   risiko: T1

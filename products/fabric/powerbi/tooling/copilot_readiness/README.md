@@ -88,6 +88,9 @@ Checkliste je veröffentlichtem Modell:
       festgehalten (`compliance/DPIA.md` 12.3, Ledger C-25).
 - [ ] Aus gewählt: in den Modelleinstellungen ausgeschaltet; abgeleitete Modelle einzeln geprüft.
 - [ ] An gewählt: Prep data for AI (diese Ausgabe) eingetragen, bevor Leser Zugriff erhalten.
+- [ ] Q&A am Semantic Model eingeschaltet: ohne den Schalter sind die Reiter von Prep data for AI
+      gesperrt (Learn `copilot-prepare-data-ai`, gelesen 01.10.2026). Die Q&A-Oberflächen enden im
+      Februar 2027, der Schalter bleibt Voraussetzung, bis Microsoft einen Ersatz nennt (D-624).
 
 ## Bekannte Grenzen
 
