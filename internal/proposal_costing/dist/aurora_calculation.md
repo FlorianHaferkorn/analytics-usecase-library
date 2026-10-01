@@ -6,17 +6,17 @@
 
 | Item | USD/month | USD/year |
 |------|-----------|----------|
-| Fabric capacity | 1839.60 | 22075.20 |
+| Fabric capacity | 2248.40 | 26980.80 |
 | Power BI licenses | 42.00 | 504.00 |
 | OneLake Storage (estimate) | — | — |
-| **Total** | **1881.60** | **22579.20** |
+| **Total** | **2290.40** | **27484.80** |
 
 *Warum:* Diese Übersicht bildet die monatlichen und jährlichen Plattformkosten (Capacity + Lizenzen) ab; optional ergänzt um Storage. Implementierung und Wartung erscheinen in den Bausteinen und in der TCO.
 
 ## Kosten nach Bausteinen
 | Baustein | Kategorie | USD/month | USD/year |
 |----------|-----------|-----------|----------|
-| Fabric Capacity | Operating | 1839.60 | 22075.20 |
+| Fabric Capacity | Operating | 2248.40 | 26980.80 |
 | Power BI (Pro / PPU) | Operating | 42.00 | 504.00 |
 | OneLake Storage | Operating | 0.00 | 0.00 |
 | Implementation (one-time) | Acquisition | 0.00 | 0.00 |
@@ -72,7 +72,7 @@ With production capacity below F64, report viewers require Power BI Pro.
 ## Capacity-Overage
 - SKU F8: 192 CU hours per day
 - Rolling 24-hour threshold: 48 CU hours (Microsoft default at capacity creation (25 %), not yet confirmed by the customer); Microsoft recommends staying below 64 (one third of the daily CU hours)
-- Maximum overage cost per day ≈ threshold × 3 × PAYG price per CU hour ≈ 25.92 USD (derived, not measured; can be exceeded because the threshold is checked every 5 minutes and running operations continue)
+- Maximum overage cost per day ≈ threshold × 3 × PAYG price per CU hour ≈ 31.68 USD (derived, not measured; can be exceeded because the threshold is checked every 5 minutes and running operations continue)
 - Additional Fabric quota required: 2 CU
 
 *Warum:* Microsoft schaltet Overage bei neuen F-Kapazitäten standardmäßig ein und rechnet Last über der Kapazität zum dreifachen Pay-as-you-go-Satz ab. Die Tagesobergrenze ist hergeleitet und keine harte Grenze.
@@ -86,7 +86,7 @@ With production capacity below F64, report viewers require Power BI Pro.
 - Capacity overage: switch it off, or set a rolling 24-hour threshold of X CU hours? It is on by default for new F capacities (threshold 25 % = 48 CU hours/day on F8) and is billed at 3x the pay-as-you-go rate.
 
 ## Capacity breakdown
-dev: F2 262.80 USD/mo | test: F4 525.60 USD/mo | prod: F8 1051.20 USD/mo
+dev: F2 321.20 USD/mo | test: F4 642.40 USD/mo | prod: F8 1284.80 USD/mo
 
 ## License breakdown
 PRO: 3 users, 42.00 USD/mo
@@ -96,15 +96,15 @@ PRO: 3 users, 42.00 USD/mo
 ## Cost projection (horizons)
 | Horizon | Years | USD/year (platform) | USD/year (maintenance) |
 |---------|-------|---------------------|------------------------|
-| Year 1 (short-term) | 1 | 22579.20 | 36000.00 |
-| Year 2–3 (medium-term) | 2 | 35529.60 | 36000.00 |
-| Year 4–5 (long-term) | 2 | 61262.40 | 36000.00 |
+| Year 1 (short-term) | 1 | 27484.80 | 36000.00 |
+| Year 2–3 (medium-term) | 2 | 43238.40 | 36000.00 |
+| Year 4–5 (long-term) | 2 | 74577.60 | 36000.00 |
 
 *Warum:* Die Projektion zeigt die erwartete Kostenentwicklung bei Skalierung (z. B. mehr Nutzer, größere Capacity). Sie dient der mittel- bis langfristigen Planung.
 
 ## TCO
-- TCO (3 years): 201638.40 USD
-- TCO (5 years): 396163.20 USD
+- TCO (3 years): 221961.60 USD
+- TCO (5 years): 443116.80 USD
 
 *Warum:* TCO über 3 bzw. 5 Jahre unterstützt die Investitionsentscheidung und den Vergleich mit Alternativen; inkl. einmaliger Implementierung und laufender Wartung.
 

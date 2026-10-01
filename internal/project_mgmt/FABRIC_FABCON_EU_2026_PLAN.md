@@ -156,6 +156,11 @@ prüft sie. Ändert sich dort ein Status (Mirroring mit Quellrechten, Copilot im
 Deployment plan, Fabric policies, Capacity Operation Events, Prep data for AI API, Fabric Apps mit Power BI Pro, Semantic views in OneLake), wird hier eine
 Zeile ergänzt.
 
+- 01.10.2026, `fabric-on-demand-meters-rti` (Meridian #539): neue "OD On-Demand Usage CU"-Meter für
+  Eventhouse und Activator in der Azure-Preisliste, auf Learn nur für Spark belegt. Betrifft
+  `run_cost_delta` (Monitoring-Compute gilt als Teil der Kapazität) und `cost_drivers.yaml`
+  `fabric_regions`. Wiedervorlage 31.10.2026.
+
 ## Ablauf für eine übernehmende Sitzung
 1. Diese Datei lesen, dann `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md`, wenn validiert wird.
 2. Erste Aufgabe mit Status `offen` in der niedrigsten Welle wählen. `blockiert` überspringen.

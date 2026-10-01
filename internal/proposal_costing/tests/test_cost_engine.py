@@ -54,9 +54,11 @@ def test_load_scenarios():
 
 
 def test_compute_compact():
+    # Default region West Europe (proposal_defaults): 0.22 USD per CU hour x 730 h (Azure Retail
+    # Prices API, 01.10.2026). F2 321.20 + F4 642.40 + F8 1284.80 = 2248.40; 3 Pro = 42.
+    # Until 01.10.2026 every region was priced at the US table (1839.60) - 22 % too low for Europe.
     result = compute("compact", product_root=_product_root)
-    # F2 262.80 + F4 525.60 + F8 1051.20 = 1839.60; 3 Pro = 42
-    expected_capacity = 262.80 + 525.60 + 1051.20
+    expected_capacity = 321.20 + 642.40 + 1284.80
     expected_license = 3 * 14
     assert result["capacity_month"] == pytest.approx(expected_capacity)
     assert result["license_month"] == pytest.approx(expected_license)
@@ -97,8 +99,8 @@ def test_compute_with_overrides():
         overrides={"capacities": {"prod": "F64"}, "pro_users": 5},
         product_root=_product_root,
     )
-    # F2 + F4 + F64 = 262.80 + 525.60 + 8409.60 = 9198; 5 Pro = 70
-    expected_cap = 262.80 + 525.60 + 8409.60
+    # West Europe: F2 + F4 + F64 = 321.20 + 642.40 + 10278.40 = 11242; 5 Pro = 70
+    expected_cap = 321.20 + 642.40 + 10278.40
     expected_lic = 5 * 14
     assert result2["capacity_month"] == expected_cap
     assert result2["license_month"] == expected_lic
@@ -178,11 +180,11 @@ def test_viewer_note_f64_plus():
 
 def test_compute_storage_gb():
     result = compute("compact", product_root=_product_root, storage_gb=500)
-    # 500 * 0.023 = 11.50 USD/mo
-    assert result["storage_month"] == pytest.approx(11.50)
+    # West Europe OneLake hot: 500 * 0.024 = 12.00 USD/mo
+    assert result["storage_month"] == pytest.approx(12.00)
     assert result["storage_breakdown"] is not None
     assert result["storage_breakdown"]["gb"] == 500
-    assert result["total_month"] == pytest.approx(1839.60 + 42 + 11.50)
+    assert result["total_month"] == pytest.approx(2248.40 + 42 + 12.00)
     assert result["total_year"] == pytest.approx(result["total_month"] * 12)
 
 
@@ -523,3 +525,17 @@ def test_overage_takes_the_regional_rate():
     drivers = load_cost_drivers()
     ov = compute_overage(drivers, "F8", threshold_cu_hours=20, payg_per_cu_hour=0.22)
     assert round(ov["max_usd_per_day"], 2) == round(20 * 3 * 0.22, 2)
+
+
+
+def test_compute_us_region_keeps_the_us_table_price():
+    """East US is the region the SKU table was taken from: same numbers as before 01.10.2026."""
+    result = compute("compact", product_root=_product_root, region="East US")
+    assert result["capacity_month"] == pytest.approx(262.80 + 525.60 + 1051.20)
+    assert {row["price_basis"] for row in result["capacity_breakdown"]} == {"region:eastus"}
+
+
+def test_compute_unknown_region_falls_back_and_says_so():
+    result = compute("compact", product_root=_product_root, region="Mars Central")
+    assert result["capacity_month"] == pytest.approx(262.80 + 525.60 + 1051.20)
+    assert {row["price_basis"] for row in result["capacity_breakdown"]} == {"sku_table_us"}

@@ -302,16 +302,23 @@ def _parse_valid_from(valid_from: str | None) -> datetime:
     return datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
 
-def _compute_capacity_costs(capacities: dict[str, Any], drivers: dict[str, Any], use_reservation: bool) -> tuple[float, list]:
-    """Return (total_cost, building_blocks_list) for capacity."""
+def _compute_capacity_costs(capacities: dict[str, Any], drivers: dict[str, Any], use_reservation: bool,
+                            region: str | None = None) -> tuple[float, list]:
+    """Return (total_cost, building_blocks_list) for capacity.
+
+    Priced at the regional PAYG rate when the region is in ``fabric_regions`` (01.10.2026: until
+    then every region was priced at the US table, about 22 % below West Europe); otherwise the
+    US SKU table, and the row says so.
+    """
     capacity_month = 0.0
     capacity_breakdown: list[dict[str, Any]] = []
     for env, sku in capacities.items():
         if not sku:
             continue
-        price = _price_by_sku(drivers, sku, use_reservation=use_reservation)
+        price, basis = capacity_price_per_month(drivers, sku, region=region, use_reservation=use_reservation)
+        price = round(price, 2)
         capacity_month += price
-        capacity_breakdown.append({"environment": env, "sku": sku, "usd_per_month": price})
+        capacity_breakdown.append({"environment": env, "sku": sku, "usd_per_month": price, "price_basis": basis})
     return capacity_month, capacity_breakdown
 
 
@@ -455,14 +462,17 @@ def compute(
     impl_months = float(impl_months) if impl_months is not None else 0.0
     maint_fte = float(maint_fte) if maint_fte is not None else 0.0
 
-    capacity_month, capacity_breakdown = _compute_capacity_costs(capacities, drivers, use_reservation)
+    effective_region = region or defaults.get("default_region", _INLINE_DEFAULTS["default_region"])
+    regional = regional_rates(drivers, effective_region, "USD")
+    capacity_month, capacity_breakdown = _compute_capacity_costs(capacities, drivers, use_reservation, effective_region)
 
     license_month, license_breakdown = _compute_license_costs(pro_users, ppu_users, drivers)
 
     storage_month = 0.0
     storage_breakdown: dict[str, Any] | None = None
     if storage_gb is not None and storage_gb > 0:
-        onelake = (drivers.get("onelake_storage") or {}).get("usd_per_gb_month") or 0.023
+        onelake = (regional["onelake_hot_per_gb_month"] if regional else
+                   (drivers.get("onelake_storage") or {}).get("usd_per_gb_month") or 0.023)
         storage_month = round(storage_gb * float(onelake), 2)
         storage_breakdown = {"gb": storage_gb, "usd_per_month": storage_month}
 
@@ -477,7 +487,8 @@ def compute(
     customer_questions: list[str] = []
     if prod_sku:
         overage = compute_overage(drivers, prod_sku, overrides.get("overage_enabled"),
-                                  overrides.get("overage_threshold_cu_hours"))
+                                  overrides.get("overage_threshold_cu_hours"),
+                                  regional["payg_per_cu_hour"] if regional else None)
         if overage.get("customer_question"):
             customer_questions.append(overage["customer_question"])
         if overrides.get("planning_sessions"):
