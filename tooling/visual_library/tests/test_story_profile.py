@@ -1,4 +1,4 @@
-"""Profil story (D-631 in Freelancing, BO-001): Datenmarken grau, nur die Treffer der Kernaussage im Akzent.
+"""Profil story (D-638 in Freelancing, BO-001): Datenmarken grau, nur die Treffer der Kernaussage im Akzent.
 
 Gemessen am Vega-Szenengraph (vl-convert). Gegenprobe: dieselbe Spec unter house_default trägt die
 Bewertungsfarben, und ohne eingeschaltete Kernaussage ist keine Marke im Akzent.
