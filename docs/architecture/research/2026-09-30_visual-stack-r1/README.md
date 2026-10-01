@@ -1,6 +1,6 @@
 # Visual-Stack R1 — Referenzkorpus aus Primärquellen (30.09.2026)
 
-Grundlage für die Runden R2–R6 des gemeinsamen Visual-Stacks (Ledger A-31, Freelancing D-620):
+Grundlage für die Runden R2–R6 des gemeinsamen Visual-Stacks (Ledger A-31, Freelancing D-624):
 Profile (Stil-/Notationsachse), neue Idiome, Auswahllogik Frage → purpose → Idiom, IBCS 1:1.
 Jede Aussage trägt eine Quelle; was nur als Suchauszug vorlag, ist so markiert.
 

@@ -622,7 +622,7 @@ def with_focus(spec: dict, grey: str) -> dict:
 
 def with_highlight(spec: dict, field: str, values: "list | None" = None, temporal: bool = False,
                    accent: "str | None" = None) -> dict:
-    """Kernaussage hervorheben (D-623 Nachtrag, feat-109): zwei Vega-Parameter, `kernaussage` (an/aus,
+    """Kernaussage hervorheben (D-627 Nachtrag, feat-109): zwei Vega-Parameter, `kernaussage` (an/aus,
     Standard aus) und `kernaussage_werte` (die Treffer). Gedämpft wird jede Marke, deren Zeile `field`
     trägt und nicht zu den Treffern gehört; Marken ohne das Feld (Referenzlinie, Zielwert) bleiben
     unberührt, die Restzeile ist kein Treffer. Die Treffer sind ein Parameter, keine Konstante im Test:

@@ -1,4 +1,4 @@
-"""Kernaussage je Visual (D-623 Nachtrag in Freelancing, feat-109): Regeln und Hervorhebung.
+"""Kernaussage je Visual (D-627 Nachtrag in Freelancing, feat-109): Regeln und Hervorhebung.
 
 Gemessen wird am gezeichneten Chart (Vega-Szenengraph): mit `kernaussage` aus ist jede Marke voll
 deckend, mit an nur die Treffer. Gegenprobe: ohne den Parameter bleibt die Spec unverändert.
