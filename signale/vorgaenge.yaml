@@ -465,13 +465,11 @@ vorgaenge:
 - signal: SIG-2609-015
   artefakt: ALUCA-COMPLIANCE
   risiko: T2
-  status: bewerten
+  status: entschieden
   faellig: '2026-10-15'
-  entscheidung: null
-  wiedervorlage: null
-  begruendung: 'Paket B, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-B-Governance-Kontrollen.md
-    (Freelancing). Vorher: Vorschlag umsetzen: DLP „Restrict Access“ (GA) als technische Maßnahme in DPIA.md
-    aufnehmen. ADR nötig.'
+  entscheidung: beobachten
+  wiedervorlage: '2026-11-01'
+  begruendung: 'Learn: Restrict access Preview; bei GA als technische Maßnahme in DPIA 6.1.'
   d_eintrag: null
   belege: []
   verlauf:
@@ -483,6 +481,10 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket B, beobachten bis 2026-11-01'
 - signal: SIG-2609-017
   artefakt: ALUCA-KAPAZITAET
   risiko: T1
@@ -736,15 +738,15 @@ vorgaenge:
 - signal: SIG-2609-026
   artefakt: ALUCA-COMPLIANCE
   risiko: T2
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-15'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Paket B, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-B-Governance-Kontrollen.md
-    (Freelancing). Vorher: Vorschlag prüfen: retention_policy.md und data_processing_record.md auf Exportgrenzen
-    durchsehen; 500.000 Zeilen erhöhen das Abflussrisiko.'
-  d_eintrag: null
-  belege: []
+  begruendung: 'DPIA: Export nach Format und Label (ADR-0023, C-27).'
+  d_eintrag: D-627
+  belege: &id002
+  - compliance/DPIA.md Abschnitt 5 und 6.1, compliance/_INDEX.md C-27, docs/architecture/adr/0023; check_index
+    --strict 0 harte Befunde, markdownlint-cli2 0 issues, 01.10.2026
   verlauf:
   - am: '2026-10-01'
     status: triage
@@ -754,18 +756,28 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket B umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-627
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün
 - signal: SIG-2610-002
   artefakt: ALUCA-COMPLIANCE
   risiko: T2
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-15'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Paket B, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-B-Governance-Kontrollen.md
-    (Freelancing). Vorschlag umsetzen: DPIA Abschnitt 5, Zeile Accidental data export um Formate und Labelvererbung
-    ergänzen (ADR).'
-  d_eintrag: null
-  belege: []
+  begruendung: 'DPIA: Export nach Format und Label (ADR-0023, C-27).'
+  d_eintrag: D-627
+  belege: *id002
   verlauf:
   - am: '2026-10-01'
     status: triage
@@ -775,3 +787,15 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: Triage, Paket B
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket B umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-627
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün

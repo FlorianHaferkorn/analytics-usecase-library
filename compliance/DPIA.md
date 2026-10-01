@@ -109,7 +109,7 @@ If ANY special categories are present, Art. 9 restrictions apply (explicit conse
 | **Data breach:** Unauthorized access to pseudonymized user IDs | Medium | High | Encryption (AES-256); TLS; access logging | Medium |
 | **Unauthorized re-identification:** Malicious actor links IDs to real identities | Medium | High | Encryption keys (HSM); RBAC; key separation | Medium |
 | **Cross-dataset inference:** Re-identification via aggregated cohort data | Low–Med | Medium | Differential privacy; minimum n-size (n≥5) | Low |
-| **Accidental data export:** Unmasked PII in exports | Low | High | PII detection; export governance; DLP | Low |
+| **Accidental data export:** Unmasked PII in exports | Low | High | PII detection; export governance; DLP; Exportwege nach Label: Excel mit Live-Verbindung erbt das Label des Semantikmodells (bis 500.000 Zeilen), statisches Excel das des Berichts (bis 150.000), CSV trägt kein Label (bis 30.000) und wird bei Labelnutzung auf eine Sicherheitsgruppe beschränkt (ergänzt 2026-10-01, C-27) | Low |
 | **Retention violation:** Data not deleted after expiry | Medium | Medium | Automated prune job; audit trail — ⚠️ Prune-Job existiert im Repo nicht (C-08) | Medium |
 | **Unauthorized international transfer:** Data moved to non-EU region | Low (with constraints) | Critical | Terraform enforcement; subprocessor audit | Low — ⚠️ UNKLAR: Terraform-Enforcement ist im Repo nicht implementiert (nur Platzhalter-Ordner, Stand 2026-09-25); Bewertung „Low“ derzeit nicht belegt (C-08) |
 | **Studio-KI: Übermittlung an LLM-Anbieter** (ergänzt 2026-09-25) | im Code-Stand PR #478 sehr gering (Egress technisch gesperrt) | High | Default-deny-Egress-Gate, Payload-Scanner, Datenklassen-Policy, Vier-Augen-Review – Details und Pfade in Abschnitt 11.4 | Low, solange der Egress gesperrt bleibt; nach einer Öffnung offen (R-KI-2 bis R-KI-6 in Abschnitt 11.7; C-21 bis C-23) |
@@ -132,6 +132,8 @@ If ANY special categories are present, Art. 9 restrictions apply (explicit conse
 | **Kundenverwaltete Schlüssel (Option, Fabric/Power BI)** | Workspace-CMK für OneLake-Items, BYOK auf Kapazitätsebene für Import-Semantikmodelle; Entscheidung des Kunden, Verfahren und Grenzen in Abschnitt 12.1 (ergänzt 2026-10-01, C-24) |
 | **Supportzugriff Microsoft (Option)** | Customer Lockbox: Zugriff eines Microsoft-Technikers auf Kundendaten nur nach Freigabe; Abschnitt 12.2 (ergänzt 2026-10-01, C-24) |
 | **KI-Zugriff je Semantikmodell** | Modelleinstellung „Allow any person with only read permissions to use AI …“, ab Werk an, nicht vererbt; Abschnitt 12.3 (ergänzt 2026-10-01, C-25) |
+| **KI-Clients über Fabric IQ MCP** | Zustimmungsrichtlinie des Tenants für die drei delegierten Berechtigungen, Modelleinstellung je Semantikmodell; Label-DLP auf Copilot erst ab Microsoft 365 E5; Abschnitt 12.4 (ergänzt 2026-10-01, C-26) |
+| **Exportwege Fabric/Power BI** | Tenant-Einstellungen „Export to Excel“, „Users can work with semantic models in Excel using a live connection“, „Export to .csv“, „Download reports“; CSV ohne Label nur für eine Sicherheitsgruppe, wenn Labels genutzt werden; Quelle Learn `fabric/admin/service-admin-portal-export-sharing`, `power-bi/visuals/power-bi-visualization-export-data`, gelesen 2026-10-01 (C-27, ADR-0023) |
 | **Automated deletion** | Nightly prune job: `tooling/generator/maintenance/prune_expired_rows.py` — ⚠️ Datei existiert im Repo nicht (Stand 2026-09-25, C-08) |
 
 ### 6.2 Organizational Measures
