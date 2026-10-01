@@ -1387,16 +1387,27 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "implikation": "Je Tabelle steht fest, ob sie gespiegelt oder kopiert wird."},
     ],
     "OPS-MONITORING": [
-        {"wert": "zentral", "empfohlen": True,
-         "text": "Ein Monitoring-Eventhouse in einem eigenen Workspace auf der Nicht-Produktionskapazität",
+        {"wert": "eigene_kapazitaet", "empfohlen": True,
+         "text": "Ein zentrales Monitoring-Eventhouse in einem eigenen Workspace auf einer eigenen, kleinen Kapazität",
          "vorteile": ["Eine Stelle für Abfragen und Alarme über alle Workspaces",
-                      "Die Ingestion belastet nicht die Produktionskapazität (D-596)"],
-         "nachteile": ["Ein Workspace mehr mit eigenem Eigentümer"],
+                      "Drosselung einer Arbeitskapazität trifft die Überwachung nicht, und die Überwachung belastet keine Arbeitskapazität"],
+         "nachteile": ["Eine Kapazität mehr in der Rechnung (kleinste F-SKU genügt meist)"],
+         "limitierungen": [{"text": "Learn empfiehlt, den Workspace mit dem zentralen Monitoring-Eventhouse auf eine eigene Kapazität zu isolieren",
+                            "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring#recommended-architecture"},
+                           {"text": "Den eigenen Endpoint gibt es nur bei der Anlage des Monitoring-Items",
+                            "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring"},
+                           {"text": "Ein aktivierter Operations Agent lässt sich nicht abschalten",
+                            "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring"}],
+         "implikation": "Monitoring-Kapazität, Workspace und Eventhouse stehen im Bauplan; KI-Untersuchungen folgen der KI-Richtlinie."},
+        {"wert": "nicht_prod",
+         "text": "Ein zentrales Monitoring-Eventhouse in einem eigenen Workspace auf der Nicht-Produktionskapazität",
+         "vorteile": ["Keine weitere Kapazität", "Die Ingestion belastet nicht die Produktionskapazität (D-596)"],
+         "nachteile": ["Ist Dev/Test gedrosselt, werden Berichte und Activator-Alarme auf den Monitoring-Daten mitgedrosselt; Ingestion und Abfragen laufen weiter"],
          "limitierungen": [{"text": "Den eigenen Endpoint gibt es nur bei der Anlage des Monitoring-Items",
                             "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring"},
                            {"text": "Ein aktivierter Operations Agent lässt sich nicht abschalten",
                             "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring"}],
-         "implikation": "Monitoring-Workspace und Eventhouse stehen im Bauplan; KI-Untersuchungen folgen der KI-Richtlinie."},
+         "implikation": "Alarme aus der Überwachung sind so verlässlich wie die Dev/Test-Kapazität."},
         {"wert": "je_workspace",
          "text": "Monitoring je Workspace",
          "vorteile": ["Jeder Workspace-Eigentümer sieht nur seinen Betrieb"],
@@ -2377,24 +2388,33 @@ def propose_monitoring_topology(bp: dict) -> dict:
     Kunden unterstellt.
     """
     # D-596: eine Kapazitaet mit Stufen, aber ohne `prod`, ist die Nicht-Produktionskapazitaet.
+    # 01.10.2026: Learn empfiehlt eine eigene Kapazitaet fuer das zentrale Monitoring-Eventhouse;
+    # die Nicht-Produktionskapazitaet ist die guenstigere Alternative mit benanntem Nachteil.
     getrennt = any(isinstance(c, dict) and c.get("stages") and "prod" not in c["stages"]
                    for c in (bp.get("platform") or {}).get("capacities") or [])
-    ort = ("auf der Nicht-Produktionskapazität" if getrennt else
-           "auf der Nicht-Produktionskapazität, sobald es sie gibt (D-596)")
+    alternative = ("die vorhandene Nicht-Produktionskapazität" if getrennt else
+                   "die Nicht-Produktionskapazität, sobald es sie gibt (D-596)")
     return _rec(
         "OPS-MONITORING", "Workspace-Monitoring (vor der Anlage entscheiden)",
         "Zentrales oder dezentrales Workspace-Monitoring, KI-Untersuchungen an oder aus, eigener "
         "Endpoint?",
-        (f"**Ein zentrales Monitoring-Eventhouse** in einem eigenen Workspace {ort}, Alarme an die "
-         "Rollen-Postfächer aus OPS-ALERT. **Vor der Anlage** entscheiden: den eigenen Endpoint "
+        ("**Ein zentrales Monitoring-Eventhouse** in einem eigenen Workspace auf einer **eigenen, "
+         "kleinen Kapazität**, wie Learn es empfiehlt: Drosselung einer Arbeitskapazität trifft die "
+         "Überwachung dann nicht, und die Überwachung belastet keine Arbeitskapazität. Günstiger ist "
+         f"{alternative}; dann werden Berichte und Activator-Alarme auf den Monitoring-Daten "
+         "mitgedrosselt, wenn Dev/Test gedrosselt ist (Ingestion und Abfragen laufen weiter). "
+         "Alarme an die Rollen-Postfächer aus OPS-ALERT. **Vor der Anlage** entscheiden: den eigenen Endpoint "
          "gibt es nur bei der Anlage, ein aktivierter Operations Agent lässt sich nicht "
          "abschalten, und die KI-Untersuchungen sind ab Werk an. Sie bleiben aus, bis die "
          "KI-Richtlinie des Kunden sie freigibt. Activator-Alarme je Jobtyp kosten CU; nur die "
          "Jobtypen wählen, auf die jemand reagiert."),
-        "MS Learn: fundamentals/enable-workspace-monitoring, admin/monitoring-hub-alerts "
-        "(gelesen 29.09.2026); D-596 Kapazität je Umgebung",
+        "MS Learn: fundamentals/enable-workspace-monitoring (Recommended architecture, gelesen "
+        "01.10.2026), fundamentals/workspace-monitoring-overview (Verhalten bei Drosselung), "
+        "admin/monitoring-hub-alerts; D-596 Kapazität je Umgebung",
         "mittel",
-        ["Monitoring je Workspace (jeder Eigentümer sieht nur seinen Betrieb)",
+        ["Zentrales Eventhouse auf der Nicht-Produktionskapazität (keine weitere Kapazität, "
+         "Berichte und Alarme darauf werden mit Dev/Test gedrosselt)",
+         "Monitoring je Workspace (jeder Eigentümer sieht nur seinen Betrieb)",
          "Kein Monitoring-Item, nur Monitor hub und Capacity Metrics"],
         "Plattform-Verantwortliche:r + KI-Verantwortliche:r des Kunden",
         "Es wird kein Monitoring-Item angelegt. Fehler fallen im Monitor hub auf, ohne eigene "
