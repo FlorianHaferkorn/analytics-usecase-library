@@ -1,0 +1,23 @@
+measure_name: _NowIdx
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Finance_SemanticModel
+display_folder: FIN-001 (Now)
+category: Helper
+expression:
+  aggregation_method: custom
+  logical: _NowIdx = CALCULATE ( MAXX ( FILTER ( ALL ( dim_date ), NOT ISBLANK ( CALCULATE
+    ( SUM ( fact_cash_position[Cash Balance Amount] ) ) ) ), dim_date[Year] * 12 +
+    dim_date[MonthNumber] ), REMOVEFILTERS ( dim_date ) )
+documentation:
+  description: 'Letzter Datenmonat als Monatsindex (Jahr*12+Monat) mit Cash-Daten
+    — Anker aller (Now)-Measures. Macht die Headline-KPIs slicer-unabhaengig: Cards
+    zeigen immer den aktuellen Stand.'
+  notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist,
+    ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem
+    TMDL übernommen.'
+governance:
+  owner: Finance Analytics
+  status: active
+  version: v1.0
+  last_review: '2026-10-01'

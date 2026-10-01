@@ -1,0 +1,20 @@
+measure_name: CCC Ampel
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Finance_SemanticModel
+display_folder: 0_Vergleich
+category: Supporting
+expression:
+  aggregation_method: custom
+  logical: CCC Ampel = SWITCH ( TRUE ( ), ISBLANK ( [CCC Days] ), "#98A2B3", [CCC
+    Days] > 60, "#EF4444", [CCC Days] > 45, "#F59E0B", "#16A34A" )
+documentation:
+  description: 'CCC Ampel (Hex): <45 grün · 45–60 amber · >60 rot.'
+  notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist,
+    ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem
+    TMDL übernommen.'
+governance:
+  owner: Finance Analytics
+  status: active
+  version: v1.0
+  last_review: '2026-10-01'

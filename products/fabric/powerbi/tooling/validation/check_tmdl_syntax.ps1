@@ -42,7 +42,11 @@ foreach ($f in $tmdlFiles) {
       continue
     }
 
-    if ($line -match '^(\t*)(table|column|partition|measure|hierarchy|level|annotation)\b') {
+    # -cmatch statt -match, \s statt \b (01.10.2026): ohne Gross-/Kleinschreibung und mit \b traf
+    # das Muster `Table.SelectRows(` im M-Code einer `expression` (fn_DeltaCurrentFiles, #470) — der
+    # Punkt ist eine Wortgrenze. Danach galt jede flacher eingerueckte `X = …`-Zeile als Fehler:
+    # 115 Fehlalarme in fuenf gueltigen expressions.tmdl.
+    if ($line -cmatch '^(\t*)(table|column|partition|measure|hierarchy|level|annotation|expression)\s') {
       $currentObjectIndent = $matches[1].Length
     } elseif ($null -ne $currentObjectIndent -and $line -match '^(\t*)([^\s].*?)(:|\s*=)') {
       $propertyIndent = $matches[1].Length
