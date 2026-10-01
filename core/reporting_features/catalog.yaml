@@ -363,9 +363,11 @@ features:
     beyond_pbi: true
     home: cockpit_shell
     meridian_module: M1
-    status: planned
+    status: done
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: medium
     priority: 2
+    note: "R8: Fragen-Navigation und Suche (⌘K) aus W1, dazu Favoriten und „Zuletzt geöffnet“ je App."
   # --- time and filters ----------------------------------------------------------------------
   - id: feat-040
     area: time
@@ -391,9 +393,11 @@ features:
     beyond_pbi: false
     home: cockpit_shell
     meridian_module: M1
-    status: planned
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: high
     priority: 1
+    note: "R8: relative Zeiträume 4 Wochen, 3, 6, 12 Monate (im Link); Wochenachse in KW. Offen: laufendes Jahr, freie Datumsauswahl."
   - id: feat-042
     area: self_service
     name: Slicer und Filterbereich mit sichtbaren aktiven Filtern
@@ -404,11 +408,11 @@ features:
     beyond_pbi: false
     home: cockpit_shell
     meridian_module: M1
-    status: partial
+    status: done
     tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: high
     priority: 1
-    note: "R7: Auswahlleiste zeigt aktive Filter, Reichweite und Aufheben; Filter in der URL. Offen: Slicer-Visuals, Filterbereich, globale Filter (R8)."
+    note: "R7: Auswahlleiste mit Reichweite und Aufheben; R8: Filterbereich je Seite mit Slicer je Dimension, aktive Anzahl am Slicer, Filter im Link."
   - id: feat-043
     area: self_service
     name: Kennzahl oder Dimension wechseln (Field Parameters)
@@ -432,9 +436,11 @@ features:
     beyond_pbi: false
     home: cockpit_shell
     meridian_module: M1
-    status: planned
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: medium
     priority: 2
+    note: "R8: Zustand (Seite, Filter, Zeitraum) im Link teilbar, Favoriten gemerkt. Offen: benannte Lesezeichen mit Filterstand."
   - id: feat-045
     area: self_service
     name: Visual personalisieren und sortieren
@@ -629,10 +635,11 @@ features:
     beyond_pbi: false
     home: cockpit_shell
     meridian_module: M1
-    status: gap
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: high
     priority: 1
-    note: VegaVisual 4.1.0 bringt ein Accessible Overlay; nicht gemessen.
+    note: "R8: Skip-Link, Fokus auf den Seitentitel, aria-live, Dialog mit Fokusrückgabe; axe-core 4.13.0 WCAG 2.1 AA 0 Verstöße auf 3 Seiten (Tor G8). Offen: Tastaturbedienung innerhalb der Vega-Charts (Ersatz: Als Tabelle)."
   - id: feat-081
     area: accessibility
     name: Farben unterscheidbar für Farbsehschwäche
@@ -671,9 +678,11 @@ features:
     beyond_pbi: false
     home: cockpit_shell
     meridian_module: M2
-    status: planned
+    status: done
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: high
     priority: 2
+    note: "R8: Kopfleiste aus dem VisualContainer der Pakete plus Als Tabelle, Export, Vergrößern (Dialog, Esc)."
   # --- decision intelligence: decision, loop, planning ---------------------------------------
   - id: feat-090
     area: decision
