@@ -469,8 +469,9 @@ vorgaenge:
   faellig: '2026-10-15'
   entscheidung: null
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen: DLP „Restrict Access“ (GA) als technische Maßnahme in DPIA.md aufnehmen.
-    ADR nötig.'
+  begruendung: 'Paket B, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-B-Governance-Kontrollen.md
+    (Freelancing). Vorher: Vorschlag umsetzen: DLP „Restrict Access“ (GA) als technische Maßnahme in DPIA.md
+    aufnehmen. ADR nötig.'
   d_eintrag: null
   belege: []
   verlauf:
@@ -739,7 +740,8 @@ vorgaenge:
   faellig: '2026-10-15'
   entscheidung: null
   wiedervorlage: null
-  begruendung: 'Vorschlag prüfen: retention_policy.md und data_processing_record.md auf Exportgrenzen
+  begruendung: 'Paket B, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-B-Governance-Kontrollen.md
+    (Freelancing). Vorher: Vorschlag prüfen: retention_policy.md und data_processing_record.md auf Exportgrenzen
     durchsehen; 500.000 Zeilen erhöhen das Abflussrisiko.'
   d_eintrag: null
   belege: []
@@ -752,3 +754,24 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: erste Triage
+- signal: SIG-2610-002
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: bewerten
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: 'Paket B, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-B-Governance-Kontrollen.md
+    (Freelancing). Vorschlag umsetzen: DPIA Abschnitt 5, Zeile Accidental data export um Formate und Labelvererbung
+    ergänzen (ADR).'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: Triage, Paket B
