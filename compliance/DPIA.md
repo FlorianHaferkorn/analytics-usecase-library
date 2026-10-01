@@ -383,7 +383,7 @@ Empfehlung (Vorschlag, Entscheidung Kunde/DSB): Für jedes Modell mit personenbe
 
 Quelle (gelesen 01.10.2026): Learn `power-bi/create-reports/copilot-semantic-models`, Abschnitt „Control Copilot access for semantic models“.
 
-### 12.4 KI-Clients über Fabric IQ MCP und Microsoft 365 Copilot (C-26, ADR-0022)
+### 12.4 KI-Clients über Fabric IQ MCP und Microsoft 365 Copilot (C-26, ADR-0024)
 
 Fabric IQ MCP ist ein entfernter, nur lesender MCP-Server von Microsoft. Jeder MCP-fähige
 KI-Client (z. B. GitHub Copilot, eigene Agenten) kann darüber Power-BI-Berichte und
