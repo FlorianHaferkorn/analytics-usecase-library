@@ -1,7 +1,7 @@
 {
   "idiom": "line",
-  "profile": "print_safe",
-  "notation": "print_safe",
+  "profile": "house_default",
+  "notation": "house_default",
   "data_name": "dataset",
   "spec": {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
@@ -52,12 +52,6 @@
               "field": "gm_plan",
               "type": "quantitative",
               "title": "gm_plan",
-              "format": ",.1~f"
-            },
-            {
-              "field": "gm_fc",
-              "type": "quantitative",
-              "title": "gm_fc",
               "format": ",.1~f"
             }
           ]
@@ -110,55 +104,6 @@
               "field": "gm_plan",
               "type": "quantitative",
               "title": "gm_plan",
-              "format": ",.1~f"
-            },
-            {
-              "field": "gm_fc",
-              "type": "quantitative",
-              "title": "gm_fc",
-              "format": ",.1~f"
-            }
-          ]
-        }
-      },
-      {
-        "mark": {
-          "type": "line",
-          "color": "#0F2430",
-          "strokeDash": [
-            2,
-            3
-          ],
-          "strokeWidth": 2
-        },
-        "encoding": {
-          "y": {
-            "field": "gm_fc",
-            "type": "quantitative"
-          },
-          "tooltip": [
-            {
-              "field": "month",
-              "type": "temporal",
-              "title": "month",
-              "format": "%m/%Y"
-            },
-            {
-              "field": "gm",
-              "type": "quantitative",
-              "title": "gm",
-              "format": ",.1~f"
-            },
-            {
-              "field": "gm_plan",
-              "type": "quantitative",
-              "title": "gm_plan",
-              "format": ",.1~f"
-            },
-            {
-              "field": "gm_fc",
-              "type": "quantitative",
-              "title": "gm_fc",
               "format": ",.1~f"
             }
           ]
@@ -224,7 +169,7 @@
           "type": "point",
           "filled": true,
           "size": 60,
-          "color": "#F7630C"
+          "color": "#A4262C"
         },
         "encoding": {
           "y": {
@@ -248,12 +193,6 @@
               "field": "gm_plan",
               "type": "quantitative",
               "title": "gm_plan",
-              "format": ",.1~f"
-            },
-            {
-              "field": "gm_fc",
-              "type": "quantitative",
-              "title": "gm_fc",
               "format": ",.1~f"
             }
           ]
@@ -305,12 +244,6 @@
               "type": "quantitative",
               "title": "gm_plan",
               "format": ",.1~f"
-            },
-            {
-              "field": "gm_fc",
-              "type": "quantitative",
-              "title": "gm_fc",
-              "format": ",.1~f"
             }
           ]
         }
@@ -352,12 +285,6 @@
               "field": "gm_plan",
               "type": "quantitative",
               "title": "gm_plan",
-              "format": ",.1~f"
-            },
-            {
-              "field": "gm_fc",
-              "type": "quantitative",
-              "title": "gm_fc",
               "format": ",.1~f"
             }
           ]

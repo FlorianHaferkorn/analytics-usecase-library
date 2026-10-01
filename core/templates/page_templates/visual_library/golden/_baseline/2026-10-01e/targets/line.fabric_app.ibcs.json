@@ -60,12 +60,6 @@
               "type": "quantitative",
               "title": "gm_plan",
               "format": ",.1~f"
-            },
-            {
-              "field": "gm_fc",
-              "type": "quantitative",
-              "title": "gm_fc",
-              "format": ",.1~f"
             }
           ]
         }
@@ -107,59 +101,6 @@
               "field": "gm_plan",
               "type": "quantitative",
               "title": "gm_plan",
-              "format": ",.1~f"
-            },
-            {
-              "field": "gm_fc",
-              "type": "quantitative",
-              "title": "gm_fc",
-              "format": ",.1~f"
-            }
-          ]
-        }
-      },
-      {
-        "mark": {
-          "type": "line",
-          "color": "#404040",
-          "strokeWidth": 1.5,
-          "strokeDash": [
-            3,
-            2
-          ]
-        },
-        "encoding": {
-          "y": {
-            "field": "gm_fc",
-            "type": "quantitative",
-            "axis": null,
-            "scale": {
-              "zero": true
-            }
-          },
-          "tooltip": [
-            {
-              "field": "month",
-              "type": "temporal",
-              "title": "month",
-              "format": "%m/%Y"
-            },
-            {
-              "field": "gm",
-              "type": "quantitative",
-              "title": "gm",
-              "format": ",.1~f"
-            },
-            {
-              "field": "gm_plan",
-              "type": "quantitative",
-              "title": "gm_plan",
-              "format": ",.1~f"
-            },
-            {
-              "field": "gm_fc",
-              "type": "quantitative",
-              "title": "gm_fc",
               "format": ",.1~f"
             }
           ]

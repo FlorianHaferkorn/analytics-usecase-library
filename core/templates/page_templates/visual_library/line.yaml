@@ -39,6 +39,7 @@ data_slots:
   field: {role: value, required: true}
   field_date: {role: time, required: true}
   plan_field: {role: plan, required: false}
+  fc_field: {role: forecast, required: false}   # FC (IBCS UN 3.2): dashed, never drawn as plan (BO-021)
 
 canonical_params:
   col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
@@ -54,6 +55,7 @@ canonical_params:
   col_ref: "#94A0AC"
   col_end: "#A4262C"
   plan_field: "gm_plan"
+  fc_field: "gm_fc"
 
 preview_svg: |
   <svg viewBox="0 0 340 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Trend line">
@@ -115,6 +117,8 @@ realizations:
             "encoding": { "y": { "datum": {{target_val}} } } },
           { "mark": { "type": "line", "color": "{{col_ref}}", "strokeDash": [5, 4], "strokeWidth": 1.5 },
             "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
+          { "mark": { "type": "line", "color": "{{col_line}}", "strokeDash": [2, 3], "strokeWidth": 2 },
+            "encoding": { "y": { "field": "{{fc_field}}", "type": "quantitative" } } },
           { "transform": [ { "window": [ { "op": "row_number", "as": "_p" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._p == 1" } ],
             "mark": { "type": "text", "text": "Plan", "align": "left", "dx": 4, "dy": -8, "color": "{{col_ref}}" },
             "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
@@ -240,6 +244,24 @@ profiles:
                 "encoding": {
                   "y": {
                     "field": "{{field}}",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "line",
+                  "color": "{{col_ac}}",
+                  "strokeWidth": 1.5,
+                  "strokeDash": [3, 2]
+                },
+                "encoding": {
+                  "y": {
+                    "field": "{{fc_field}}",
                     "type": "quantitative",
                     "axis": null,
                     "scale": {

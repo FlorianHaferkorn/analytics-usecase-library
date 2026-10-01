@@ -62,24 +62,6 @@
       }
     },
     {
-      "mark": {
-        "type": "line",
-        "color": "#404040",
-        "strokeWidth": 1.5,
-        "strokeDash": [3, 2]
-      },
-      "encoding": {
-        "y": {
-          "field": "gm_fc",
-          "type": "quantitative",
-          "axis": null,
-          "scale": {
-            "zero": true
-          }
-        }
-      }
-    },
-    {
       "transform": [
         { "joinaggregate": [ { "op": "min", "field": "gm", "as": "_min" }, { "op": "max", "field": "gm", "as": "_max" }, { "op": "count", "as": "_n" } ] },
         { "window": [ { "op": "row_number", "as": "_i" } ], "sort": [ { "field": "month", "order": "ascending" } ] },

@@ -269,7 +269,7 @@ def target_profiles(idiom: str) -> "list[str]":
 
 
 SLOT_ROLES = ("value", "variance", "time", "category", "series", "step", "period",
-              "plan", "prior", "x", "y", "start", "end")
+              "plan", "prior", "forecast", "x", "y", "start", "end")
 
 
 def data_slots(idiom: str) -> dict:
@@ -374,11 +374,12 @@ _TOOLTIP_ROLE = {
     "time": ("temporal", "%m/%Y"), "period": ("nominal", None), "category": ("nominal", None),
     "series": ("nominal", None), "step": ("nominal", None),
     "value": ("quantitative", ",.1~f"), "plan": ("quantitative", ",.1~f"), "prior": ("quantitative", ",.1~f"),
+    "forecast": ("quantitative", ",.1~f"),
     "start": ("quantitative", ",.1~f"), "end": ("quantitative", ",.1~f"),
     "x": ("quantitative", ",.1~f"), "y": ("quantitative", ",.1~f"), "variance": ("quantitative", "+,.1~f"),
 }
 _ORDER = ("category", "step", "series", "period", "time",
-          "value", "plan", "prior", "variance", "start", "end", "x", "y")
+          "value", "plan", "forecast", "prior", "variance", "start", "end", "x", "y")
 #: Marks that carry data a reader can point at; text labels and reference rules do not.
 _TOOLTIP_MARKS = {"bar", "line", "point", "area", "rect", "circle", "square", "tick", "arc"}
 

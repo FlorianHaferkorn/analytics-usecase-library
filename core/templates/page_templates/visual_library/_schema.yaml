@@ -119,7 +119,8 @@ tools:
 #     field_date: {role: time,  required: true}
 #     plan_field: {role: plan,  required: false}    # used only by a profile (e.g. ibcs)
 #
-# Roles: value, variance, time, category, series, step, period, plan, prior, x, y, start, end.
+# Roles: value, variance, time, category, series, step, period, plan, prior, forecast, x, y, start, end.
+#   forecast (FC, IBCS UN 3.2): a projected series, drawn dashed — never as plan (BO-021, 01.10.2026).
 # render.bind(idiom, {role: column}) fills them; resolve.choose() picks the best idiom for a
 # purpose among those whose REQUIRED roles are available. Enforced by test_selection.py.
 
