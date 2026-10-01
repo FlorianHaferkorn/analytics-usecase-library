@@ -1,0 +1,687 @@
+{
+  "idiom": "multi_tier_column",
+  "profile": "ibcs",
+  "notation": "ibcs",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "transform": [
+      {
+        "calculate": "datum['sales'] - datum['sales_py']",
+        "as": "d_abs"
+      },
+      {
+        "calculate": "datum['sales_py'] > 0 ? (datum['sales'] - datum['sales_py']) / datum['sales_py'] : null",
+        "as": "d_rel"
+      },
+      {
+        "calculate": "datum.d_abs * 1 > 0 ? 'good' : (datum.d_abs * 1 < 0 ? 'bad' : 'neutral')",
+        "as": "rating"
+      },
+      {
+        "window": [
+          {
+            "op": "row_number",
+            "as": "rn"
+          }
+        ]
+      },
+      {
+        "joinaggregate": [
+          {
+            "op": "max",
+            "field": "sales",
+            "as": "ac_max"
+          },
+          {
+            "op": "min",
+            "field": "sales",
+            "as": "ac_min"
+          },
+          {
+            "op": "max",
+            "field": "sales_py",
+            "as": "py_max"
+          },
+          {
+            "op": "min",
+            "field": "sales_py",
+            "as": "py_min"
+          },
+          {
+            "op": "min",
+            "field": "d_abs",
+            "as": "d_min"
+          }
+        ]
+      },
+      {
+        "calculate": "max(datum.ac_max, datum.py_max, 0)",
+        "as": "v_top"
+      },
+      {
+        "calculate": "datum.v_top + 0.3 * (datum.v_top - min(datum.ac_min, datum.py_min, 0)) + max(0, -datum.d_min)",
+        "as": "tier_base"
+      },
+      {
+        "calculate": "datum.tier_base + datum.d_abs",
+        "as": "tier_end"
+      }
+    ],
+    "resolve": {
+      "scale": {
+        "x": "shared"
+      }
+    },
+    "spacing": 4,
+    "vconcat": [
+      {
+        "width": 480,
+        "height": 70,
+        "layer": [
+          {
+            "mark": {
+              "type": "bar",
+              "width": {
+                "band": 0.1
+              }
+            },
+            "encoding": {
+              "x": {
+                "field": "month",
+                "type": "ordinal",
+                "timeUnit": "yearmonth",
+                "axis": null
+              },
+              "y": {
+                "field": "d_rel",
+                "type": "quantitative",
+                "axis": null,
+                "scale": {
+                  "zero": true,
+                  "padding": 16
+                }
+              },
+              "color": {
+                "field": "rating",
+                "type": "nominal",
+                "legend": null,
+                "scale": {
+                  "domain": [
+                    "good",
+                    "bad",
+                    "neutral"
+                  ],
+                  "range": [
+                    "#5B9A35",
+                    "#A4262C",
+                    "#1F6FB5"
+                  ]
+                }
+              },
+              "tooltip": [
+                {
+                  "field": "month",
+                  "type": "temporal",
+                  "title": "month",
+                  "format": "%m/%Y"
+                },
+                {
+                  "field": "sales",
+                  "type": "quantitative",
+                  "title": "sales",
+                  "format": ",.1~f"
+                },
+                {
+                  "field": "sales_py",
+                  "type": "quantitative",
+                  "title": "sales_py",
+                  "format": ",.1~f"
+                }
+              ]
+            }
+          },
+          {
+            "mark": {
+              "type": "rule",
+              "color": "#404040",
+              "opacity": 0.5,
+              "strokeWidth": 3
+            },
+            "encoding": {
+              "y": {
+                "datum": 0
+              }
+            }
+          },
+          {
+            "mark": {
+              "type": "point",
+              "shape": "square",
+              "filled": true,
+              "color": "#404040",
+              "size": 36,
+              "opacity": 1
+            },
+            "encoding": {
+              "x": {
+                "field": "month",
+                "type": "ordinal",
+                "timeUnit": "yearmonth"
+              },
+              "y": {
+                "field": "d_rel",
+                "type": "quantitative"
+              },
+              "tooltip": [
+                {
+                  "field": "month",
+                  "type": "temporal",
+                  "title": "month",
+                  "format": "%m/%Y"
+                },
+                {
+                  "field": "sales",
+                  "type": "quantitative",
+                  "title": "sales",
+                  "format": ",.1~f"
+                },
+                {
+                  "field": "sales_py",
+                  "type": "quantitative",
+                  "title": "sales_py",
+                  "format": ",.1~f"
+                }
+              ]
+            }
+          },
+          {
+            "mark": {
+              "type": "text",
+              "color": "#201F1E",
+              "baseline": {
+                "expr": "datum.d_rel < 0 ? 'top' : 'bottom'"
+              },
+              "dy": {
+                "expr": "datum.d_rel < 0 ? 6 : -6"
+              },
+              "tooltip": null
+            },
+            "encoding": {
+              "x": {
+                "field": "month",
+                "type": "ordinal",
+                "timeUnit": "yearmonth"
+              },
+              "y": {
+                "field": "d_rel",
+                "type": "quantitative"
+              },
+              "text": {
+                "field": "d_rel",
+                "type": "quantitative",
+                "format": "+.1~%"
+              }
+            }
+          },
+          {
+            "transform": [
+              {
+                "filter": "datum.d_rel === null"
+              }
+            ],
+            "mark": {
+              "type": "text",
+              "color": "#201F1E",
+              "baseline": "bottom",
+              "dy": -6,
+              "text": "N/A",
+              "tooltip": null
+            },
+            "encoding": {
+              "x": {
+                "field": "month",
+                "type": "ordinal",
+                "timeUnit": "yearmonth"
+              },
+              "y": {
+                "datum": 0
+              }
+            }
+          },
+          {
+            "transform": [
+              {
+                "filter": "datum.rn === 1"
+              }
+            ],
+            "mark": {
+              "type": "text",
+              "color": "#201F1E",
+              "align": "right",
+              "baseline": "middle",
+              "dx": -8,
+              "text": "ΔPY%",
+              "tooltip": null
+            },
+            "encoding": {
+              "x": {
+                "value": 0
+              },
+              "y": {
+                "datum": 0
+              }
+            }
+          }
+        ]
+      },
+      {
+        "width": 480,
+        "height": 230,
+        "layer": [
+          {
+            "mark": {
+              "type": "bar",
+              "color": "#404040",
+              "opacity": 0.5,
+              "xOffset": -4
+            },
+            "encoding": {
+              "x": {
+                "field": "month",
+                "type": "ordinal",
+                "timeUnit": "yearmonth",
+                "axis": {
+                  "title": null,
+                  "labelAngle": 0,
+                  "format": "%m/%y",
+                  "labelOverlap": true,
+                  "labelSeparation": 6,
+                  "ticks": false,
+                  "domainColor": "#404040"
+                }
+              },
+              "y": {
+                "field": "sales_py",
+                "type": "quantitative",
+                "axis": null,
+                "scale": {
+                  "zero": true
+                }
+              },
+              "tooltip": [
+                {
+                  "field": "month",
+                  "type": "temporal",
+                  "title": "month",
+                  "format": "%m/%Y"
+                },
+                {
+                  "field": "sales",
+                  "type": "quantitative",
+                  "title": "sales",
+                  "format": ",.1~f"
+                },
+                {
+                  "field": "sales_py",
+                  "type": "quantitative",
+                  "title": "sales_py",
+                  "format": ",.1~f"
+                }
+              ]
+            }
+          },
+          {
+            "mark": {
+              "type": "bar",
+              "color": "#404040",
+              "xOffset": 2
+            },
+            "encoding": {
+              "x": {
+                "field": "month",
+                "type": "ordinal",
+                "timeUnit": "yearmonth"
+              },
+              "y": {
+                "field": "sales",
+                "type": "quantitative"
+              },
+              "tooltip": [
+                {
+                  "field": "month",
+                  "type": "temporal",
+                  "title": "month",
+                  "format": "%m/%Y"
+                },
+                {
+                  "field": "sales",
+                  "type": "quantitative",
+                  "title": "sales",
+                  "format": ",.1~f"
+                },
+                {
+                  "field": "sales_py",
+                  "type": "quantitative",
+                  "title": "sales_py",
+                  "format": ",.1~f"
+                }
+              ]
+            }
+          },
+          {
+            "mark": {
+              "type": "text",
+              "color": "#201F1E",
+              "baseline": "bottom",
+              "dy": -4,
+              "xOffset": 2,
+              "tooltip": null
+            },
+            "encoding": {
+              "x": {
+                "field": "month",
+                "type": "ordinal",
+                "timeUnit": "yearmonth"
+              },
+              "y": {
+                "field": "sales",
+                "type": "quantitative"
+              },
+              "text": {
+                "field": "sales",
+                "type": "quantitative",
+                "format": ",.1f"
+              }
+            }
+          },
+          {
+            "mark": {
+              "type": "rule",
+              "color": "#404040",
+              "opacity": 0.5,
+              "strokeWidth": 3
+            },
+            "encoding": {
+              "y": {
+                "field": "tier_base",
+                "aggregate": "max",
+                "type": "quantitative"
+              }
+            }
+          },
+          {
+            "mark": {
+              "type": "bar"
+            },
+            "encoding": {
+              "x": {
+                "field": "month",
+                "type": "ordinal",
+                "timeUnit": "yearmonth"
+              },
+              "y": {
+                "field": "tier_end",
+                "type": "quantitative"
+              },
+              "y2": {
+                "field": "tier_base"
+              },
+              "color": {
+                "field": "rating",
+                "type": "nominal",
+                "legend": null,
+                "scale": {
+                  "domain": [
+                    "good",
+                    "bad",
+                    "neutral"
+                  ],
+                  "range": [
+                    "#5B9A35",
+                    "#A4262C",
+                    "#1F6FB5"
+                  ]
+                }
+              },
+              "tooltip": [
+                {
+                  "field": "month",
+                  "type": "temporal",
+                  "title": "month",
+                  "format": "%m/%Y"
+                },
+                {
+                  "field": "sales",
+                  "type": "quantitative",
+                  "title": "sales",
+                  "format": ",.1~f"
+                },
+                {
+                  "field": "sales_py",
+                  "type": "quantitative",
+                  "title": "sales_py",
+                  "format": ",.1~f"
+                }
+              ]
+            }
+          },
+          {
+            "mark": {
+              "type": "text",
+              "color": "#201F1E",
+              "baseline": {
+                "expr": "datum.d_abs < 0 ? 'top' : 'bottom'"
+              },
+              "dy": {
+                "expr": "datum.d_abs < 0 ? 4 : -4"
+              },
+              "tooltip": null
+            },
+            "encoding": {
+              "x": {
+                "field": "month",
+                "type": "ordinal",
+                "timeUnit": "yearmonth"
+              },
+              "y": {
+                "field": "tier_end",
+                "type": "quantitative"
+              },
+              "text": {
+                "field": "d_abs",
+                "type": "quantitative",
+                "format": "+,.1f"
+              }
+            }
+          },
+          {
+            "transform": [
+              {
+                "filter": "datum.rn === 1"
+              }
+            ],
+            "mark": {
+              "type": "text",
+              "color": "#201F1E",
+              "align": "right",
+              "baseline": "middle",
+              "dx": -8,
+              "text": "ΔPY",
+              "tooltip": null
+            },
+            "encoding": {
+              "x": {
+                "value": 0
+              },
+              "y": {
+                "field": "tier_base",
+                "type": "quantitative"
+              }
+            }
+          },
+          {
+            "transform": [
+              {
+                "filter": "datum.rn === 1"
+              }
+            ],
+            "mark": {
+              "type": "text",
+              "color": "#201F1E",
+              "align": "right",
+              "baseline": "middle",
+              "dx": -8,
+              "text": "AC",
+              "tooltip": null
+            },
+            "encoding": {
+              "x": {
+                "value": 0
+              },
+              "y": {
+                "field": "sales",
+                "type": "quantitative"
+              }
+            }
+          },
+          {
+            "transform": [
+              {
+                "filter": "datum.rn === 1"
+              }
+            ],
+            "mark": {
+              "type": "text",
+              "color": "#201F1E",
+              "align": "right",
+              "baseline": "top",
+              "dx": -8,
+              "dy": 4,
+              "text": "PY",
+              "tooltip": null
+            },
+            "encoding": {
+              "x": {
+                "value": 0
+              },
+              "y": {
+                "field": "sales_py",
+                "type": "quantitative"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#404040",
+      "labelColor": "#201F1E",
+      "title": null,
+      "labelFontSize": 11,
+      "grid": false,
+      "ticks": false
+    },
+    "axisX": {
+      "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333,
+      "zero": true
+    },
+    "text": {
+      "fontSize": 11
+    },
+    "locale": {
+      "number": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [
+          3
+        ],
+        "currency": [
+          "",
+          " €"
+        ]
+      },
+      "time": {
+        "dateTime": "%A, der %e. %B %Y, %X",
+        "date": "%d.%m.%Y",
+        "time": "%H:%M:%S",
+        "periods": [
+          "AM",
+          "PM"
+        ],
+        "days": [
+          "Sonntag",
+          "Montag",
+          "Dienstag",
+          "Mittwoch",
+          "Donnerstag",
+          "Freitag",
+          "Samstag"
+        ],
+        "shortDays": [
+          "So",
+          "Mo",
+          "Di",
+          "Mi",
+          "Do",
+          "Fr",
+          "Sa"
+        ],
+        "months": [
+          "Januar",
+          "Februar",
+          "März",
+          "April",
+          "Mai",
+          "Juni",
+          "Juli",
+          "August",
+          "September",
+          "Oktober",
+          "November",
+          "Dezember"
+        ],
+        "shortMonths": [
+          "Jan",
+          "Feb",
+          "Mär",
+          "Apr",
+          "Mai",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Okt",
+          "Nov",
+          "Dez"
+        ]
+      }
+    },
+    "bar": {
+      "cornerRadius": 0
+    },
+    "legend": {
+      "disable": true
+    }
+  },
+  "capabilities": {
+    "disableCompactNumberFormatting": true,
+    "disableLineChartCrosshairTooltip": true,
+    "disableMinBarSize": true,
+    "disableNiceAxisBounds": true,
+    "disableStackedDataLabels": true
+  }
+}

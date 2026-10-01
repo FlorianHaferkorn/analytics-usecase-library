@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |---|---|
-| Status | **Proposed** (01.10.2026) |
+| Status | **Accepted** (01.10.2026; vorgeschlagen und vom Entscheider ratifiziert am selben Tag) |
 | Entscheider | Florian Haferkorn |
 | Kontext | Flo, 01.10.2026: „aktuell nicht, aber es sollte künftig mehrere Rollen geben, die darauf zugreifen“; Frage, ob die Juli-Entscheidung noch die beste Lösung ist |
 | Schreibt fort | ADR-0016-Entwurf „AuthN/AuthZ-Stack für die Studios“ (PR #401, am 15.07.2026 als Option A akzeptiert, **nie gemergt**; Stand im Archiv-Branch `archive/verwaiste-branches-2026-10-01`, Commit `4a538af5`). Die Nummer 0016 trägt in `main` heute ein anderes ADR. |
@@ -43,7 +43,7 @@ Folge für die Juli-Entscheidung: Der Rahmen (keine Managed-US-CIAM-Cloud, self-
 beide Studios) trägt weiter. Die AuthN-Hälfte von Option A (Auth.js) nicht: Eine Beta im
 Wartungsmodus widerspricht dem Endprodukt-Anspruch (Meridian Charter §3.3, D-155).
 
-## 2. Entscheidung (vorgeschlagen)
+## 2. Entscheidung
 
 1. **Rahmen unverändert aus dem Juli-Entwurf:** keine Managed-CIAM-Cloud als Laufzeit-Abhängigkeit,
    alles self-hosted in EU-Infrastruktur, Daten in eigener Datenbank, ein Stack für ALUCA und den
@@ -95,4 +95,4 @@ Wartungsmodus widerspricht dem Endprodukt-Anspruch (Meridian Charter §3.3, D-15
 - O-1: Welche Rollen konkret? Heute fachlich offen; Startpunkt sind die vorhandenen drei Projekt- und
   drei Org-Rollen.
 - O-2: Betrieb der Datenbank für Sitzungen und Organisationen (SQLite lokal vs. Postgres beim Kunden).
-- O-3: Ratifizierung dieser ADR (Status Proposed).
+- ~~O-3: Ratifizierung dieser ADR~~ — erledigt 01.10.2026, Florian Haferkorn („mach das“).

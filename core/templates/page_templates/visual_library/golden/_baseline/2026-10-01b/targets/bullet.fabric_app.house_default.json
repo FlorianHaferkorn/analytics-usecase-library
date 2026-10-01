@@ -1,0 +1,152 @@
+{
+  "idiom": "bullet",
+  "profile": "house_default",
+  "notation": "house_default",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "bar",
+          "color": "#0F2430",
+          "height": 8
+        },
+        "encoding": {
+          "x": {
+            "field": "sla",
+            "type": "quantitative",
+            "axis": {
+              "title": null
+            }
+          },
+          "tooltip": [
+            {
+              "field": "sla",
+              "type": "quantitative",
+              "title": "sla",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "tick",
+          "color": "#A4262C",
+          "thickness": 2,
+          "size": 20
+        },
+        "encoding": {
+          "x": {
+            "datum": 95
+          },
+          "tooltip": [
+            {
+              "field": "sla",
+              "type": "quantitative",
+              "title": "sla",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#E1DFDD",
+      "labelColor": "#605E5C",
+      "title": null,
+      "labelFontSize": 11
+    },
+    "axisX": {
+      "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333
+    },
+    "text": {
+      "fontSize": 11
+    },
+    "locale": {
+      "number": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [
+          3
+        ],
+        "currency": [
+          "",
+          " €"
+        ]
+      },
+      "time": {
+        "dateTime": "%A, der %e. %B %Y, %X",
+        "date": "%d.%m.%Y",
+        "time": "%H:%M:%S",
+        "periods": [
+          "AM",
+          "PM"
+        ],
+        "days": [
+          "Sonntag",
+          "Montag",
+          "Dienstag",
+          "Mittwoch",
+          "Donnerstag",
+          "Freitag",
+          "Samstag"
+        ],
+        "shortDays": [
+          "So",
+          "Mo",
+          "Di",
+          "Mi",
+          "Do",
+          "Fr",
+          "Sa"
+        ],
+        "months": [
+          "Januar",
+          "Februar",
+          "März",
+          "April",
+          "Mai",
+          "Juni",
+          "Juli",
+          "August",
+          "September",
+          "Oktober",
+          "November",
+          "Dezember"
+        ],
+        "shortMonths": [
+          "Jan",
+          "Feb",
+          "Mär",
+          "Apr",
+          "Mai",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Okt",
+          "Nov",
+          "Dez"
+        ]
+      }
+    }
+  },
+  "capabilities": {
+    "disableLineChartCrosshairTooltip": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "visualType": "lineChart",
+  "query": { "queryState": {
+    "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_date" } }, "Property": "Date" } }, "queryRef": "dim_date.Date" } ] },
+    "Y": { "projections": [
+      { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } }, "queryRef": "_Measures.Gross Margin %" },
+      { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Plan Gross Margin %" } }, "queryRef": "_Measures.Plan Gross Margin %" }
+    ] }
+  } },
+  "objects": { "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ] }
+}

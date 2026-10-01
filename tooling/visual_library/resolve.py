@@ -285,6 +285,70 @@ def _parse_shape(tokens: "list[str]") -> dict:
     return shape
 
 
+
+DIMENSION_ROLES = frozenset({"category", "time", "series", "step", "period"})
+
+
+def choose(purpose: str, roles: "set[str] | list[str]", profile: "str | None" = None) -> "dict | None":
+    """The governed idiom for a purpose that the available data can fill (A-31 R4).
+
+    Walks the purpose's candidates in governed order (`best` first) and returns the first idiom
+    that (a) has a derived Vega-Lite target under `profile`, (b) whose REQUIRED data_slots roles
+    are all in `roles`, and (c) that consumes every DIMENSION role the data carries (category,
+    time, series, step, period) — otherwise it would silently collapse the rows (a bullet fed a
+    list of causes shows one bar). Returns {idiom, profile, notation, reason} or None — never a
+    guess outside the purpose's candidate list. Deterministic: same inputs, same answer."""
+    idx = _index()
+    pur = (idx.get("purposes") or {}).get(purpose)
+    if pur is None:
+        raise KeyError(f"unknown purpose '{purpose}'")
+    profile = profile or render.default_profile()
+    have = set(roles)
+    seen = []
+    for cand in [pur.get("best")] + list(pur.get("candidates") or []):
+        iid = str(cand).split("@")[0] if cand else None
+        if not iid or iid in seen:
+            continue
+        seen.append(iid)
+        if iid not in idx.get("implemented", []) or profile not in render.target_profiles(iid):
+            continue
+        slots = render.data_slots(iid).values()
+        need = {s["role"] for s in slots if s.get("required", True)}
+        takes = {s["role"] for s in slots}
+        if need and need <= have and (have & DIMENSION_ROLES) <= takes:
+            reason = f"first candidate of '{purpose}' with a {profile} target and roles {sorted(need)}"
+            return {"idiom": iid, "profile": profile, "notation": render.notation_of(profile), "reason": reason}
+    return None
+
+
+ZONE_KINDS = ("tasks", "information_blocks")
+
+
+def zone_purposes(kind: str, key: str) -> "list[str]":
+    """Purposes a page-template zone must answer (A-31 R5), primary first; [] for a zone that
+    carries no chart (`{none: reason}` in index.yaml). `kind` is `tasks` (Meridian
+    `task_taxonomy`) or `information_blocks` (ALUCA manifest slots). Unknown key -> KeyError:
+    a zone vocabulary without a mapping is a gap to close in index.yaml, never a guess."""
+    if kind not in ZONE_KINDS:
+        raise KeyError(f"unknown zone kind '{kind}' (have {list(ZONE_KINDS)})")
+    vocab = ((_index().get("zone_vocabulary") or {}).get(kind)) or {}
+    if key not in vocab:
+        raise KeyError(f"'{key}' has no entry in index.yaml zone_vocabulary.{kind}")
+    val = vocab[key]
+    return [] if isinstance(val, dict) else list(val)
+
+
+def choose_for_zone(kind: str, key: str, roles: "set[str] | list[str]",
+                    profile: "str | None" = None) -> "dict | None":
+    """`choose` over the zone's purposes in order: the first purpose the data can answer wins.
+    Returns the choose() result plus `purpose`, or None (no chart zone, or no fitting idiom)."""
+    for purpose in zone_purposes(kind, key):
+        got = choose(purpose, roles, profile)
+        if got is not None:
+            return {**got, "purpose": purpose}
+    return None
+
+
 def main(argv: list[str]) -> int:
     if not argv:
         print(__doc__)

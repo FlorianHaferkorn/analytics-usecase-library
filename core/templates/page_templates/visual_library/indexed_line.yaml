@@ -28,6 +28,11 @@ tokens:
   col_line: brand.primary           # #0078D4
   col_base: color_semantics.neutral # #94A0AC the 100 base line
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field: {role: value, required: true}
+  field_date: {role: time, required: true}
+
 canonical_params:
   entity: "_Measures"
   measure: "Net Sales Index"

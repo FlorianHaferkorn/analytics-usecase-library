@@ -687,13 +687,13 @@ def _foundations_html() -> str:
     scen = ('<div class="scen">'
             '<figure><span class="box solid"></span>AC<em>solid</em></figure>'
             '<figure><span class="box outlined"></span>PL<em>outlined</em></figure>'
-            '<figure><span class="box hatched"></span>FC<em>hatched</em></figure>'
-            '<figure><span class="box py"></span>PY<em>solid 50%</em></figure></div>')
+            '<figure><span class="box hatched"></span>FC<em>outlined + hatched</em></figure>'
+            '<figure><span class="box py"></span>PY<em>lighter solid</em></figure></div>')
     palette = (
         '<div class="fcard"><h3>Palette &amp; scenario tokens</h3>'
         '<p class="dlabel">Semantic — reserved, never the brand colour</p><div class="swatches">' + sw + '</div>'
         '<p class="dlabel" style="margin:16px 0 0">Series — brand data colours</p><div class="swatches">' + dat + '</div>'
-        '<p class="dlabel" style="margin:16px 0 0">IBCS scenario — pattern distinguishes, colour is shared</p>' + scen + '</div>'
+        '<p class="dlabel" style="margin:16px 0 0">IBCS scenario (Standards 2.0, UN 3.2) — fill distinguishes, colour is shared</p>' + scen + '</div>'
     )
     return f'<div class="founds">{prin}{"".join(profs)}{palette}</div>'
 

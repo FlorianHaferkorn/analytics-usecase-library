@@ -1,0 +1,204 @@
+{
+  "idiom": "deviation_bar",
+  "profile": "ibcs",
+  "notation": "ibcs",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "transform": [
+      {
+        "calculate": "datum['gm_vs_plan'] * 1 > 0 ? 'good' : (datum['gm_vs_plan'] * 1 < 0 ? 'bad' : 'neutral')",
+        "as": "rating"
+      }
+    ],
+    "layer": [
+      {
+        "mark": {
+          "type": "bar",
+          "height": 12
+        },
+        "encoding": {
+          "x": {
+            "field": "gm_vs_plan",
+            "type": "quantitative",
+            "axis": null,
+            "scale": {
+              "zero": true
+            }
+          },
+          "color": {
+            "field": "rating",
+            "type": "nominal",
+            "legend": null,
+            "scale": {
+              "domain": [
+                "good",
+                "bad",
+                "neutral"
+              ],
+              "range": [
+                "#5B9A35",
+                "#A4262C",
+                "#1F6FB5"
+              ]
+            }
+          },
+          "tooltip": [
+            {
+              "field": "gm_vs_plan",
+              "type": "quantitative",
+              "title": "gm_vs_plan",
+              "format": "+,.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "rule",
+          "color": "#201F1E",
+          "strokeWidth": 1.5
+        },
+        "encoding": {
+          "x": {
+            "datum": 0
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "color": "#201F1E",
+          "align": {
+            "expr": "datum['gm_vs_plan'] < 0 ? 'right' : 'left'"
+          },
+          "dx": {
+            "expr": "datum['gm_vs_plan'] < 0 ? -4 : 4"
+          },
+          "tooltip": null
+        },
+        "encoding": {
+          "x": {
+            "field": "gm_vs_plan",
+            "type": "quantitative"
+          },
+          "text": {
+            "field": "gm_vs_plan",
+            "type": "quantitative",
+            "format": "+.1f"
+          }
+        }
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#404040",
+      "labelColor": "#201F1E",
+      "title": null,
+      "labelFontSize": 11,
+      "grid": false,
+      "ticks": false
+    },
+    "axisX": {
+      "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333,
+      "zero": true
+    },
+    "text": {
+      "fontSize": 11
+    },
+    "locale": {
+      "number": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [
+          3
+        ],
+        "currency": [
+          "",
+          " €"
+        ]
+      },
+      "time": {
+        "dateTime": "%A, der %e. %B %Y, %X",
+        "date": "%d.%m.%Y",
+        "time": "%H:%M:%S",
+        "periods": [
+          "AM",
+          "PM"
+        ],
+        "days": [
+          "Sonntag",
+          "Montag",
+          "Dienstag",
+          "Mittwoch",
+          "Donnerstag",
+          "Freitag",
+          "Samstag"
+        ],
+        "shortDays": [
+          "So",
+          "Mo",
+          "Di",
+          "Mi",
+          "Do",
+          "Fr",
+          "Sa"
+        ],
+        "months": [
+          "Januar",
+          "Februar",
+          "März",
+          "April",
+          "Mai",
+          "Juni",
+          "Juli",
+          "August",
+          "September",
+          "Oktober",
+          "November",
+          "Dezember"
+        ],
+        "shortMonths": [
+          "Jan",
+          "Feb",
+          "Mär",
+          "Apr",
+          "Mai",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Okt",
+          "Nov",
+          "Dez"
+        ]
+      }
+    },
+    "bar": {
+      "cornerRadius": 0
+    },
+    "legend": {
+      "disable": true
+    }
+  },
+  "capabilities": {
+    "disableCompactNumberFormatting": true,
+    "disableLineChartCrosshairTooltip": true,
+    "disableMinBarSize": true,
+    "disableNiceAxisBounds": true,
+    "disableStackedDataLabels": true,
+    "disableTextTruncation": true
+  }
+}

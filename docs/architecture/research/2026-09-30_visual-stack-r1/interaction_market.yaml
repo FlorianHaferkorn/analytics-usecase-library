@@ -1,0 +1,1030 @@
+# R1 Referenzkorpus — Strang "market": Interaktionsmuster jenseits Power BI (Stand 30.09.2026)
+# Format: FORMAT.md; Zusatzfelder dieses Strangs:
+#   retrieval: fetched (Primärdatei gelesen, meist über raw.githubusercontent.com) | search_excerpt
+#              (Seite per Egress-Proxy gesperrt; nur Suchmaschinen-Auszug, deshalb evidence: null)
+#   user_value: high|medium|low         — immer eigene Einschätzung (inferred) für Steuerungs-Dashboards im DE-Mittelstand
+#   vegalite_native: yes|partial|no     — yes = Vega-Lite-Spec allein reicht; partial = Spec + Host-Code (Fabric-App-Shell)
+#   vegalite_example_url                — Galerie-URL nur, wenn der Beispielname in vega-lite/site/_data/examples.json
+#                                         (fetched) steht; Galerieseite selbst war gesperrt, URL-Muster
+#                                         https://vega.github.io/vega-lite/examples/<name>.html. Sonst Doku-Permalink oder null.
+#   beyond_pbi: true|false              — Vergleich gegen den Power-BI-Standardumfang ohne Custom Visuals; eigene Ableitung
+#                                         (keine Power-BI-Quelle in diesem Strang gelesen), siehe beyond_pbi_note.
+# Gesperrt (Egress): vega.github.io, observablehq.com, help.tableau.com, docs.thoughtspot.com, help.sigmacomputing.com,
+#   learn.hex.tech, docs.omni.co, cloud.google.com/docs.cloud.google.com, preset.io, superset.apache.org, metabase.com,
+#   grafana.com, docs.evidence.dev, datawrapper.de, flourish.studio, help.zebrabi.com, zebrabi.com, cds.coinbase.com,
+#   developer.apple.com, tremor.so, ui.shadcn.com, nytimes.com.
+
+# ---------------------------------------------------------------- Vega-Lite (Grammatik, Primärquelle)
+- id: market-001
+  pattern: Hover-Rebasing (Index-Chart) — Bezugspunkt folgt dem Zeiger
+  description: Beim Überfahren der Zeitachse wird der nächstgelegene Zeitpunkt zum Index 0; alle Reihen werden live als prozentuale Veränderung seit diesem Punkt neu gerechnet (lookup + calculate). Beantwortet "wie viel seit Monat X?" ohne Slicer.
+  source:
+    title: Interactive Index Chart (examples/specs/interactive_index_chart.vl.json)
+    publisher: Vega (GitHub vega/vega-lite)
+    url: https://raw.githubusercontent.com/vega/vega-lite/main/examples/specs/interactive_index_chart.vl.json
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "\"on\": \"pointerover\", \"nearest\": true"
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, contribution_to_change]
+    idioms: [indexed_line, line]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: high
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_index_chart.html
+  beyond_pbi: true
+  beyond_pbi_note: Power BI kennt keinen zeigergetriebenen Bezugspunkt; Rebasing nur über Slicer/DAX (inferred).
+
+- id: market-002
+  pattern: Brush-Mittelwert — Zeitraum markieren, Referenzlinie rechnet neu
+  description: Nutzer zieht über Monate einen Bereich; eine Regel-Linie zeigt sofort den Durchschnitt nur dieses Bereichs, ungewählte Balken bleiben im Kontext sichtbar.
+  source:
+    title: Vega-Lite Example Gallery index (site/_data/examples.json) — "Interactive Average"
+    publisher: Vega (GitHub vega/vega-lite)
+    url: https://raw.githubusercontent.com/vega/vega-lite/main/site/_data/examples.json
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, deviation_from_target]
+    idioms: [column_time]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: medium
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/selection_layer_bar_month.html
+  beyond_pbi: true
+  beyond_pbi_note: Power-BI-Durchschnittslinie (Analytics-Pane) reagiert nicht auf eine Bereichsauswahl im selben Visual (inferred).
+
+- id: market-003
+  pattern: Overview + Detail (Minimap-Brush)
+  description: Kleine Übersichtsleiste mit Brush steuert die x-Domäne des großen Detail-Charts; Kontext (Gesamtverlauf) bleibt sichtbar, während im Detail ein Ausschnitt gelesen wird.
+  source:
+    title: Vega-Lite Example Gallery index — "Overview and Detail", "Bar Chart with a Minimap"
+    publisher: Vega (GitHub vega/vega-lite)
+    url: https://raw.githubusercontent.com/vega/vega-lite/main/site/_data/examples.json
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, evidence_detail]
+    idioms: [line, column_time, bar_ranking]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: medium
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_overview_detail.html
+  beyond_pbi: true
+  beyond_pbi_note: Power BI hat den Zoom-Slider an der Achse, aber keine separate Übersichtsansicht mit Brush (inferred).
+
+- id: market-004
+  pattern: Scale-Binding — Pan & Zoom direkt im Plot, synchron über geteilte Skalen
+  description: Eine Intervall-Selektion mit bind "scales" macht den Plot zieh- und zoombar; bei geteilter x-Skala in vconcat bewegen sich alle Teilansichten mit.
+  source:
+    title: Binding a Parameter (site/docs/parameter/bind.md, Permalink /docs/bind.html)
+    publisher: Vega (GitHub vega/vega-lite)
+    url: https://raw.githubusercontent.com/vega/vega-lite/main/site/docs/parameter/bind.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "In multi-view displays, binding shared scales will keep the views synchronized."
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, correlation]
+    idioms: [line, scatter, small_multiples]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: medium
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/selection_translate_scatterplot_drag.html
+  beyond_pbi: true
+  beyond_pbi_note: Synchronzoom mehrerer Visuals gibt es in Power BI nicht (inferred). Spec-Beispiel für den Synchronfall interactive_panzoom_vconcat_shared liegt als Spec vor, steht aber nicht in der Galerie.
+
+- id: market-005
+  pattern: Legenden-Binding — Klick auf Legende isoliert Reihe
+  description: Punkt-Selektion über ein Feld wird an die Symbol-Legende gebunden; Klick hebt eine Reihe hervor, Rest wird abgeblendet. Nur Symbol-Legenden unterstützt.
+  source:
+    title: Binding a Parameter (site/docs/parameter/bind.md)
+    publisher: Vega (GitHub vega/vega-lite)
+    url: https://raw.githubusercontent.com/vega/vega-lite/main/site/docs/parameter/bind.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "the `bind` property can be set to `\"legend\"` to populate the selection by interacting with the corresponding legend."
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories, time_comparison]
+    idioms: [line, area_stacked, bar_stacked, scatter]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: medium
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_legend.html
+  beyond_pbi: false
+  beyond_pbi_note: Power BI hebt bei Legendenklick ebenfalls hervor; Parität, kein Vorsprung (inferred).
+
+- id: market-006
+  pattern: Vertikale Hover-Regel mit Pivot-Tooltip über alle Reihen
+  description: Eine Regel folgt dem nächstgelegenen x-Wert; der Tooltip zeigt die Werte aller Reihen an diesem Zeitpunkt gleichzeitig (pivot-Transform), statt nur der getroffenen Linie.
+  source:
+    title: Multi Series Line Chart with Tooltip via Pivot (examples/specs/interactive_multi_line_pivot_tooltip.vl.json)
+    publisher: Vega (GitHub vega/vega-lite)
+    url: https://raw.githubusercontent.com/vega/vega-lite/main/examples/specs/interactive_multi_line_pivot_tooltip.vl.json
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "\"nearest\": true"
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, compare_categories]
+    idioms: [line, area_stacked, small_multiples]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: high
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_multi_line_pivot_tooltip.html
+  beyond_pbi: true
+  beyond_pbi_note: Power-BI-Tooltips sind an den getroffenen Datenpunkt gebunden; ein Zeitpunkt-Querschnitt über alle Reihen ist nicht Standard (inferred, gegen PBI-Doku ungeprüft).
+
+- id: market-007
+  pattern: Brush → verknüpfte Detailtabelle
+  description: Rechteck-Brush im Scatterplot filtert eine daneben als Text-Marks gerenderte Tabelle; Beleg-Zeilen erscheinen ohne Seitenwechsel.
+  source:
+    title: Vega-Lite Example Gallery index — "Brushing Scatter Plot to show data on a table"
+    publisher: Vega (GitHub vega/vega-lite)
+    url: https://raw.githubusercontent.com/vega/vega-lite/main/site/_data/examples.json
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail, correlation]
+    idioms: [scatter, matrix_evidence]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: medium
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/brush_table.html
+  beyond_pbi: false
+  beyond_pbi_note: Power BI filtert per Rechteckauswahl/Kreuzfilter ebenfalls eine Tabelle (inferred).
+
+- id: market-008
+  pattern: Variablen-Parameter an Eingabe-Widgets (Suchfeld, Slider, Dropdown)
+  description: Parameter sind Variablen oder Selektionen, die Encoding, Filter, Domänen und Ausdrücke steuern und an HTML-Inputs gebunden werden können — Szenario-/Schwellen-Regler im Chart selbst.
+  source:
+    title: Dynamic Behaviors with Parameters (site/docs/parameter/parameter.md)
+    publisher: Vega (GitHub vega/vega-lite)
+    url: https://raw.githubusercontent.com/vega/vega-lite/main/site/docs/parameter/parameter.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Parameters are the basic building block in Vega-Lite's _grammar of interaction._"
+  parameters: {}
+  applies_to:
+    purposes: [deviation_from_target, compare_categories]
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: medium
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/param_search_input.html
+  beyond_pbi: false
+  beyond_pbi_note: Power BI hat What-if-Parameter und Slicer; Vorteil nur, dass das Widget im Chart-Artefakt selbst lebt (inferred).
+
+- id: market-009
+  pattern: Top-N + "Übrige" als aggregierte Restzeile
+  description: Rang per window-Transform, alles jenseits Top-K wird zu einer Kategorie "Others" summiert, damit die Gesamtsumme erhalten bleibt.
+  source:
+    title: Vega-Lite Example Gallery index — 'Top-K Plot with "Others"'
+    publisher: Vega (GitHub vega/vega-lite)
+    url: https://raw.githubusercontent.com/vega/vega-lite/main/site/_data/examples.json
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories, part_to_whole]
+    idioms: [bar_ranking, bar_absolute]
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  retrieval: fetched
+  user_value: high
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/window_top_k_others.html
+  beyond_pbi: true
+  beyond_pbi_note: Power-BI-Top-N-Filter verwirft den Rest statt ihn zu summieren (so auch Zebra BI, market-027).
+
+- id: market-010
+  pattern: Mark-Link (href) als Drill-Ziel
+  description: Klick auf eine Mark öffnet eine URL aus einem Datenfeld; Grundmechanismus, um aus einem Chart in eine Detailseite der App zu springen.
+  source:
+    title: Scatterplot with External Links and Tooltips (examples/specs/point_href.vl.json)
+    publisher: Vega (GitHub vega/vega-lite)
+    url: https://raw.githubusercontent.com/vega/vega-lite/main/examples/specs/point_href.vl.json
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "\"href\": {\"field\": \"url\""
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: medium
+  vegalite_native: partial
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/point_href.html
+  beyond_pbi: false
+  beyond_pbi_note: Entspricht Drillthrough/URL-Feld in Power BI. partial, weil App-interne Navigation (Kontext mitgeben) Host-Code braucht.
+
+# ---------------------------------------------------------------- Observable Plot
+- id: market-011
+  pattern: Eindimensionales Pointing (pointerX) auf dominanter Achse
+  description: Bei Zeitreihen/Histogrammen/Balken wird nur der Abstand auf der dominanten Achse gemessen; der Nutzer muss die Linie nicht treffen, jede x-Position liefert einen Wert.
+  source:
+    title: Pointer transform (docs/interactions/pointer.md)
+    publisher: Observable (GitHub observablehq/plot)
+    url: https://raw.githubusercontent.com/observablehq/plot/main/docs/interactions/pointer.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "this is desirable when a chart has a “dominant” dimension, such as time in a time-series chart"
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, distribution, compare_categories]
+    idioms: [line, column_time, histogram, bar_ranking]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: high
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_histogram_full_height_hover.html
+  beyond_pbi: true
+  beyond_pbi_note: Power BI verlangt Treffen des Datenpunkts; volle-Höhe-Hoverziele sind nicht Standard (inferred). VL-Entsprechung nearest + encodings [x].
+
+- id: market-012
+  pattern: Crosshair mit Achsenwert-Labels
+  description: Crosshair zeigt x- und y-Wert des nächsten Punkts direkt an unterer und linker Rahmenkante; crosshairX für Zeitreihen.
+  source:
+    title: Crosshair mark (docs/interactions/crosshair.md)
+    publisher: Observable (GitHub observablehq/plot)
+    url: https://raw.githubusercontent.com/observablehq/plot/main/docs/interactions/crosshair.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "shows the *x* (horizontal↔︎ position) and *y* (vertical↕︎ position) value of the point closest to the pointer"
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, correlation]
+    idioms: [line, scatter]
+    style_pack: tufte
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: medium
+  vegalite_native: partial
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_multi_line_tooltip.html
+  beyond_pbi: true
+  beyond_pbi_note: Regel + Punkt nativ (Beispiel); Achsen-Wertlabels am Rahmen müssen als zusätzliche text-Layer gebaut werden (inferred).
+
+- id: market-013
+  pattern: Tip-Mark als statische Annotation im Stil des Hover-Tooltips
+  description: Dieselbe Box, die beim Hover erscheint, kann dauerhaft an ausgewählte Punkte gesetzt werden; Hinweise und Details on demand haben eine Formsprache. pool sorgt dafür, dass höchstens ein Tip gleichzeitig sichtbar ist.
+  source:
+    title: Tip mark (docs/marks/tip.md)
+    publisher: Observable (GitHub observablehq/plot)
+    url: https://raw.githubusercontent.com/observablehq/plot/main/docs/marks/tip.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The tip mark can also be used for static annotations, say to draw attention to elements of interest or to add context."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail, value_verdict]
+    idioms: [line, column_time, scatter]
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+  retrieval: fetched
+  user_value: medium
+  vegalite_native: partial
+  vegalite_example_url: null
+  beyond_pbi: true
+  beyond_pbi_note: VL hat keine Callout-Box-Mark; nachbaubar aus rect+text-Layer (inferred). Power BI hat keine datengebundene Annotation (inferred).
+
+# ---------------------------------------------------------------- Tableau
+- id: market-014
+  pattern: Viz in Tooltip — gefiltertes Mini-Chart im Tooltip
+  description: Beim Hover über eine Mark erscheint ein zweites Arbeitsblatt, auf diese Mark gefiltert (standardmäßig über alle Felder, einstellbar).
+  source:
+    title: Create Views in Tooltips (Viz in Tooltip)
+    publisher: Tableau (Salesforce)
+    url: https://help.tableau.com/current/pro/desktop/en-us/viz_in_tooltip.htm
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail, time_comparison]
+    idioms: [kpi_card_spark, bar_ranking]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: medium
+  vegalite_native: "no"
+  vegalite_example_url: null
+  beyond_pbi: false
+  beyond_pbi_note: Power BI hat Berichtsseiten-Tooltips (Parität). Vega-Tooltip rendert HTML-Text, kein eingebettetes Chart; bräuchte Host-Overlay mit zweiter View (inferred).
+
+- id: market-015
+  pattern: Metrik-Insights als Push (Pulse) — Periodenvergleich, ungewöhnliche Veränderung, Top-Treiber
+  description: Pulse erkennt pro Metrik Treiber, Trends, Beitragende und Ausreißer; Insight-Typen u. a. Period over Period Change, Unusual Change, Top/Bottom Contributors, Top Drivers, Forecast (Tableau+); Zusammenfassungen ziehen aus PoP und Unusual Change.
+  source:
+    title: The Insights Platform and Insight Types in Tableau Pulse
+    publisher: Tableau (Salesforce)
+    url: https://help.tableau.com/current/online/en-us/pulse_insights_platform_insight_types.htm
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [value_verdict, driver_breakdown, contribution_to_change, time_comparison]
+    idioms: [kpi_card_spark, kpi_card_bullet, bar_ranking]
+    style_pack: modern_product
+    layer: selection_logic
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: high
+  vegalite_native: "no"
+  vegalite_example_url: null
+  beyond_pbi: true
+  beyond_pbi_note: Power BI hat Smart Narrative/Anomalieerkennung je Visual, aber keine metrikzentrierte Insight-Rangfolge als Feed (inferred). Insight-Berechnung ist Pipeline/Host, Anzeige als KPI-Karte + Satz ist Spec.
+
+- id: market-016
+  pattern: Explain Data — statistische Erklärungskandidaten für eine gewählte Mark
+  description: Je gewählter Mark läuft eine neue statistische Analyse; mögliche Erklärungen erscheinen aufklappbar im Data-Guide-Bereich.
+  source:
+    title: Explanation Types in Explain Data
+    publisher: Tableau (Salesforce)
+    url: https://help.tableau.com/current/pro/desktop/en-us/explain_data_explanation_types.htm
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [driver_breakdown, evidence_detail]
+    idioms: []
+    style_pack: modern_product
+    layer: selection_logic
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: medium
+  vegalite_native: "no"
+  vegalite_example_url: null
+  beyond_pbi: false
+  beyond_pbi_note: Power BI bietet "Analysieren > Anstieg erklären" (Parität, inferred).
+
+- id: market-017
+  pattern: Klick auf Mark setzt Parameter und blendet Zonen ein (Parameter Actions + Dynamic Zone Visibility)
+  description: Klick auf eine Mark schreibt deren Wert in einen Parameter; Layout-Container werden abhängig davon ein-/ausgeblendet (DZV seit Tableau 2022.3) — Detail erscheint erst bei Bedarf.
+  source:
+    title: Use Dynamic Zone Visibility
+    publisher: Tableau (Salesforce)
+    url: https://help.tableau.com/current/pro/desktop/en-us/dynamic_zone_visibility.htm
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail, driver_breakdown]
+    idioms: []
+    style_pack: modern_product
+    layer: layout
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: high
+  vegalite_native: partial
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_bar_select_highlight.html
+  beyond_pbi: true
+  beyond_pbi_note: Klick→Parameter ist in VL nativ (Selektion ist Parameter); Zonen ein-/ausblenden ist Host-Layout. Power BI nur über Bookmarks/Buttons, nicht datengetrieben per Mark-Klick (inferred).
+
+# ---------------------------------------------------------------- ThoughtSpot, Sigma, Superset, Metabase, Omni, Hex, Looker Studio
+- id: market-018
+  pattern: Drill anywhere — Rechtsklick, Aufschlüsselung nach beliebigem Attribut ohne vordefinierte Hierarchie
+  description: Rechtsklick auf Datenpunkt → Drill down → Liste aller Attribute und Measures; Daten werden auf den Punkt eingeschränkt, Zurück-Pfeil und Reset führen zurück.
+  source:
+    title: Drill down into your data
+    publisher: ThoughtSpot
+    url: https://docs.thoughtspot.com/cloud/latest/search-drill-down
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [driver_breakdown, contribution_to_change]
+    idioms: [bar_ranking, column_time, decomposition_tree]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: high
+  vegalite_native: "no"
+  vegalite_example_url: null
+  beyond_pbi: true
+  beyond_pbi_note: Power-BI-Drill braucht eine im Visual angelegte Hierarchie (Zerlegungsbaum ausgenommen). Neuabfrage je Drill ist Host-Aufgabe; VL rendert nur das Ergebnis (inferred).
+
+- id: market-019
+  pattern: Drill mit Achsentausch und Filterpfad (Sigma Drill Anywhere)
+  description: Klick auf Wert → Drill down → Spalte wählen; Sigma setzt einen Filter (z. B. Jahr 2023) und tauscht die x-Achse (Jahr → Store Region). Für reine Leser gibt es eine Drill-down-Control statt freiem Drill.
+  source:
+    title: Drill into data (Drill Anywhere)
+    publisher: Sigma Computing
+    url: https://help.sigmacomputing.com/docs/drill-into-data
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [driver_breakdown]
+    idioms: [bar_ranking, column_time]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: medium
+  vegalite_native: "no"
+  vegalite_example_url: null
+  beyond_pbi: true
+  beyond_pbi_note: Wie market-018; die Leser-Variante (vorgegebene Drill-Control) passt besser zu governten Steuerungs-Dashboards (inferred).
+
+- id: market-020
+  pattern: Drill-through-Kontextmenü mit Absichten (See these records / Break out by / Zoom in / This period by smaller period)
+  description: Klick auf Datenpunkt öffnet Menü; jede Option erzeugt eine neue Abfrage, das Original bleibt unverändert. Optionen hängen vom Datentyp ab (Zeitreihe → "See this month by week", Histogramm/Karte → Zoom in).
+  source:
+    title: Drill-through (docs/questions/visualizations/drill-through.md)
+    publisher: Metabase (GitHub metabase/metabase)
+    url: https://raw.githubusercontent.com/metabase/metabase/master/docs/questions/visualizations/drill-through.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Each click opens a menu with options like **Filter by this value**, **See these records**, **Break out by**, and **Zoom in**."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail, driver_breakdown, time_comparison]
+    idioms: [column_time, bar_ranking, line, histogram]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: high
+  vegalite_native: partial
+  vegalite_example_url: null
+  beyond_pbi: true
+  beyond_pbi_note: VL liefert den geklickten Datensatz per Selektion/Signal an den Host; Menü und Neuabfrage sind Host-Code. Power BI kennt Drillthrough, aber kein typabhängiges "Break out by"-Menü (inferred).
+
+- id: market-021
+  pattern: Klickverhalten je Karte konfigurierbar (Dashboard-Filter setzen oder Ziel anspringen)
+  description: Pro Dashboard-Karte wählt der Autor, ob ein Klick das Drill-Menü öffnet, einen Dashboard-Filter aktualisiert oder zu Dashboard/Frage/URL navigiert.
+  source:
+    title: Dashboard interactivity (docs/dashboards/interactive.md)
+    publisher: Metabase (GitHub metabase/metabase)
+    url: https://raw.githubusercontent.com/metabase/metabase/master/docs/dashboards/interactive.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "You can set up a dashboard card to: - Send the user to a custom destination"
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: medium
+  vegalite_native: partial
+  vegalite_example_url: null
+  beyond_pbi: false
+  beyond_pbi_note: Power BI deckt Filter + Drillthrough + Button-Navigation ab (Parität). Relevanz für uns = deklaratives Klick-Ziel je Chart im Bracket statt im Code (inferred).
+
+- id: market-022
+  pattern: Drill by + Drill to detail als Modal mit Export
+  description: Drill by wechselt die Granularität ohne vorher festgelegte Hierarchie; Drill to detail zeigt die Zeilen hinter Chart oder gewähltem Punkt im Modal, mit CSV/XLSX-Download des ganzen Ergebnisses.
+  source:
+    title: Exploring data (docs/docs/using-superset/exploring-data.mdx)
+    publisher: Apache Superset (GitHub apache/superset)
+    url: https://raw.githubusercontent.com/apache/superset/master/docs/docs/using-superset/exploring-data.mdx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "show the row-level data behind a chart (or behind a specific data point, when one is selected)"
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: [matrix_evidence]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: high
+  vegalite_native: "no"
+  vegalite_example_url: null
+  beyond_pbi: false
+  beyond_pbi_note: Power BI hat "Datenpunkt als Tabelle anzeigen"/Drillthrough; Drill by ohne Hierarchie ist der Vorsprung (siehe market-018).
+
+- id: market-023
+  pattern: Kuratierte Drill-Felder je Measure im semantischen Modell
+  description: drill_fields legt pro Measure fest, welche Spalten beim Drill erscheinen (Felder, Tags, Field-Sets; leer = kein Drill). Measure-Filter werden beim Drill in Query-Filter umgewandelt. Ohne Kuratierung erscheinen die ersten 10 Spalten der View.
+  source:
+    title: drill_fields (Measure-Parameter)
+    publisher: Omni Analytics
+    url: https://docs.omni.co/modeling/measures/parameters/drill-fields
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    default_drill_columns: 10
+  applies_to:
+    purposes: [evidence_detail, driver_breakdown]
+    idioms: []
+    style_pack: modern_product
+    layer: selection_logic
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: high
+  vegalite_native: "no"
+  vegalite_example_url: null
+  beyond_pbi: true
+  beyond_pbi_note: Power BI hat "Detailzeilen"-Ausdruck am Measure (nur Excel-Analyse) – Kuratierung je Measure für den Report-Drill fehlt (inferred). Passt zum Golden Thread (Drill-Spalten im KPI-Katalog). Wert 10 aus Suchauszug, nicht am Original geprüft.
+
+- id: market-024
+  pattern: View data / Explore von jedem veröffentlichten Chart; Drill up/down per Klick
+  description: App-Betrachter öffnen Rohdaten hinter aggregierten Charts; Klick auf Balken/Punkt → Aufschlüsselung wählen → Drill-Exploration mit Drill up zurück.
+  source:
+    title: Hex Changelog 2025-04-23
+    publisher: Hex Technologies
+    url: https://learn.hex.tech/changelog/2025-04-23
+    date_published: 2025-04-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail, driver_breakdown]
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: medium
+  vegalite_native: "no"
+  vegalite_example_url: null
+  beyond_pbi: false
+  beyond_pbi_note: Power-BI-Service hat "Diese Daten erkunden"/Datenpunkt anzeigen (Parität, inferred). Zuordnung Zitat→Changelog-Datum aus Suchauszug, nicht am Original geprüft.
+
+- id: market-025
+  pattern: Zeitbereich per Ziehen auf Zeitreihe als Kreuzfilter
+  description: Bei aktivem Cross-filtering filtert der Nutzer den Bericht per Klick auf Dimensionswerte oder per Ziehen eines Bereichs auf Zeitreihen-, Linien- oder Flächendiagramm.
+  source:
+    title: Chart cross-filtering
+    publisher: Google (Looker Studio)
+    url: https://docs.cloud.google.com/looker/docs/studio/chart-cross-filtering
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison]
+    idioms: [line, area_stacked, column_time]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: high
+  vegalite_native: partial
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_area_brush.html
+  beyond_pbi: true
+  beyond_pbi_note: Brush ist nativ; Weitergabe an andere Charts der Seite nur innerhalb einer Spec nativ (interactive_crossfilter), spec-übergreifend Host. Power BI hat keinen Zeitbereichs-Brush auf Linien (inferred, gegen neuere PBI-Releases ungeprüft).
+
+- id: market-026
+  pattern: Optionale Metriken — Leser wählt, welche Kennzahlen ein Chart zeigt
+  description: Autor hinterlegt je Chart eine Liste optionaler Metriken; Leser schaltet sie zu/ab, das Chart passt sich an. Hält Charts im Default schlank.
+  source:
+    title: Looker Studio Masterclass — Optional Metrics (Kapitel 13)
+    publisher: lookerstudiomasterclass.super.site
+    url: https://lookerstudiomasterclass.super.site/lsm-cohort-6/13-08-optional-metrics
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories, time_comparison]
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: medium
+  vegalite_native: partial
+  vegalite_example_url: https://vega.github.io/vega-lite/docs/bind.html
+  beyond_pbi: false
+  beyond_pbi_note: Power BI Feldparameter decken das ab (Parität). VL über an Dropdown gebundenen Parameter + fold/filter; keine Galerie-Vorlage (inferred). Suchauszug nannte bis zu 10 optionale Metriken je Chart – nicht an Primärquelle geprüft, daher nicht in parameters.
+
+# ---------------------------------------------------------------- Zebra BI (IBCS in Power BI)
+- id: market-027
+  pattern: Top N + Others in Tabellen und Charts (auch nach Abweichung)
+  description: Top-N-Elemente nach Wert oder nach Abweichung, Rest wird zur Zeile "Others" summiert; in Hierarchien je Ebene aktivierbar.
+  source:
+    title: Using Top N + Others in Zebra BI
+    publisher: Zebra BI
+    url: https://help.zebrabi.com/using-top-n-others-in-zebra-bi
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories, deviation_from_target, part_to_whole]
+    idioms: [bar_ranking, deviation_bar, matrix_delta_pill]
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: high
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/window_top_k_others.html
+  beyond_pbi: true
+  beyond_pbi_note: Zebra BI ist ein Power-BI-Custom-Visual; "beyond" bezieht sich auf Power-BI-Standard. Ranking nach Abweichung = window-sort auf berechnetem Delta (inferred).
+
+- id: market-028
+  pattern: Invert — Kosten-KPIs drehen die Abweichungsfarbe
+  description: Pro Measure/Gruppe (z. B. Kosten) per Menü "Invert"; steigende Kosten erscheinen als negativer Beitrag, Farben werden automatisch gedreht, gemischte KPIs in einer Tabelle.
+  source:
+    title: How to invert and rename groups in your tables
+    publisher: Zebra BI
+    url: https://help.zebrabi.com/kb/power-bi/how-to-invert-and-rename-groups-in-your-tables/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [deviation_from_target, value_verdict]
+    idioms: [deviation_bar, matrix_delta_pill, waterfall_variance, kpi_card_bullet]
+    style_pack: ibcs
+    layer: selection_logic
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: high
+  vegalite_native: "yes"
+  vegalite_example_url: null
+  beyond_pbi: true
+  beyond_pbi_note: In VL eine color-Bedingung mit Ausdruck auf Delta×Polarität; keine Galerie-Vorlage. Polarität gehört als Feld in den KPI-Katalog, nicht als Leser-Schalter (inferred).
+
+- id: market-029
+  pattern: Szenario-Schalter AC vs. PL / PY / FC
+  description: Leser schaltet die Vergleichsbasis (Plan, Vorjahr, Forecast) um; Abweichungen absolut/relativ werden automatisch neu berechnet.
+  source:
+    title: Advanced Financial Charts for Power BI
+    publisher: Zebra BI
+    url: https://zebrabi.com/power-bi-custom-visuals/charts/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [deviation_from_target, time_comparison]
+    idioms: [deviation_bar, waterfall_variance, column_time, matrix_delta_pill]
+    style_pack: ibcs
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: high
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/docs/bind.html
+  beyond_pbi: true
+  beyond_pbi_note: Radio-/Dropdown-gebundener Parameter + calculate; Muster wie Beispiel selection_bind_origin (bind.md). Power BI braucht Feldparameter/Berechnungsgruppen (inferred).
+
+- id: market-030
+  pattern: Datengebundene Kommentare als Marker + Tooltip, periodenabhängig
+  description: Kommentar-Marker an Datenpunkten, Text im Tooltip oder in einer Comment-Box neben dem Chart; beim Periodenwechsel erscheinen nur die passenden Kommentare.
+  source:
+    title: Zebra BI Charts visual (Produktseite)
+    publisher: Zebra BI
+    url: https://zebrabi.com/zebra-bi-charts-visual/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [value_verdict, evidence_detail, deviation_from_target]
+    idioms: [column_time, deviation_bar, waterfall_variance]
+    style_pack: ibcs
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: high
+  vegalite_native: partial
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/layer_falkensee.html
+  beyond_pbi: true
+  beyond_pbi_note: Anzeige (Marker/Text-Layer aus Kommentar-Datensatz, gefiltert per Periodenparameter) ist Spec; Erfassen/Speichern der Kommentare ist Host (inferred).
+
+- id: market-031
+  pattern: Responsive Visuals — Layout ändert sich mit der Größe
+  description: Visuals passen Layout (Beschriftung, Abweichungsbalken integriert) an die Größe an, statt nur zu skalieren; für Großbildschirm und Mobile.
+  source:
+    title: Zebra BI Charts visual (Produktseite)
+    publisher: Zebra BI
+    url: https://zebrabi.com/zebra-bi-charts-visual/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: ibcs
+    layer: layout
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: medium
+  vegalite_native: partial
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/bar_size_responsive.html
+  beyond_pbi: true
+  beyond_pbi_note: VL kann width "container"; Breakpoint-Logik (Labels weglassen, Varianzleiste integrieren) braucht Host oder generierte Spec-Varianten (inferred).
+
+# ---------------------------------------------------------------- Grafana, Evidence, Tremor, Fintech, Apple
+- id: market-032
+  pattern: Geteiltes Crosshair / geteilter Tooltip über alle Panels
+  description: Hover in einem Panel zeigt das Crosshair (oder zusätzlich die Tooltips) in allen Graph-Panels des Dashboards zum selben Zeitpunkt.
+  source:
+    title: Modify dashboard settings (docs/sources/visualizations/dashboards/build-dashboards/modify-dashboard-settings/index.md)
+    publisher: Grafana Labs (GitHub grafana/grafana)
+    url: https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/visualizations/dashboards/build-dashboards/modify-dashboard-settings/index.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "When you hover the cursor over one graph panel in the dashboard, the crosshair is also displayed on all other graph panels in the dashboard."
+  parameters:
+    modes: 3
+  applies_to:
+    purposes: [time_comparison, driver_breakdown]
+    idioms: [line, column_time, small_multiples]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: high
+  vegalite_native: partial
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_seattle_weather.html
+  beyond_pbi: true
+  beyond_pbi_note: Innerhalb einer concat-Spec nativ; über getrennt eingebettete Charts nur per Host (Signal-Listener der Vega-View weiterreichen). Power BI hat kein seitenweites Crosshair (inferred).
+
+- id: market-033
+  pattern: Ziehen zum Zoomen setzt Dashboard-Zeitraum; Doppelklick zoomt heraus; Achse ziehen verschiebt
+  description: Drag im Panel setzt den Zeitraum des ganzen Dashboards; Doppelklick verdoppelt den Zeitraum; Ziehen an der x-Achse verschiebt ihn.
+  source:
+    title: Panel overview
+    publisher: Grafana Labs
+    url: https://grafana.com/docs/grafana/next/visualizations/panels-visualizations/panel-overview/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison]
+    idioms: [line, column_time]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: medium
+  vegalite_native: partial
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_brush.html
+  beyond_pbi: true
+  beyond_pbi_note: Brush im Chart nativ; Rückschreiben in einen seitenweiten Zeitraum-Zustand ist Host (inferred).
+
+- id: market-034
+  pattern: Eingaben als Seitenzustand, der in Abfragen einfließt (Dropdown, DateRange, ButtonGroup)
+  description: Input-Komponenten liefern Werte über ein inputs-Objekt, die in SQL-Abfragen und Chart-Filter eingesetzt werden; Dropdowns lassen sich kaskadieren.
+  source:
+    title: Evidence components — inputs (Button Group, Dropdown, Date Input)
+    publisher: Evidence
+    url: https://docs.evidence.dev/components/button_group
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: medium
+  vegalite_native: partial
+  vegalite_example_url: https://vega.github.io/vega-lite/docs/bind.html
+  beyond_pbi: false
+  beyond_pbi_note: Slicer-Parität. Relevant als Architekturmuster (Seitenzustand im Host, Spec erhält ihn als Parameter) (inferred).
+
+- id: market-035
+  pattern: Aktive Reihe per Klick, Rest abgeblendet, Ereignis an Host
+  description: Klick auf Punkt oder Legende setzt eine aktive Reihe; andere Linien auf strokeOpacity 0.3, Flächenverlauf von 0.3 auf 0.1, Legendeneinträge opacity-40; onValueChange meldet die Auswahl an die Anwendung.
+  source:
+    title: Tremor AreaChart.tsx
+    publisher: Tremor (GitHub tremorlabs/tremor)
+    url: https://raw.githubusercontent.com/tremorlabs/tremor/main/src/components/AreaChart/AreaChart.tsx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "activeDot || (activeLegend && activeLegend !== category) ? 0.1 : 0.3"
+  parameters:
+    inactive_stroke_opacity: 0.3
+    active_stroke_opacity: 1
+    inactive_gradient_stop_opacity: 0.1
+    active_gradient_stop_opacity: 0.3
+    inactive_legend_opacity_pct: 40
+  applies_to:
+    purposes: [time_comparison, compare_categories]
+    idioms: [line, area_stacked]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+  user_value: medium
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_line_hover.html
+  beyond_pbi: false
+  beyond_pbi_note: Hervorheben ist Parität; übertragbar sind die konkreten Opazitätswerte und der Host-Event-Vertrag (VL view.addSignalListener).
+
+- id: market-036
+  pattern: Scrubber mit Beacon auf allen Reihen und Referenzlinie
+  description: Beim Überfahren folgen eine Linie und ein Beacon je Reihe dem Zeiger; seriesIds begrenzt die Reihen; idlePulse lässt Beacons im Ruhezustand pulsieren.
+  source:
+    title: Scrubber (CDS web visualization)
+    publisher: Coinbase Design System
+    url: https://cds.coinbase.com/components/charts/Scrubber/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison]
+    idioms: [line, kpi_card_spark]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: medium
+  vegalite_native: partial
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/interactive_multi_line_tooltip.html
+  beyond_pbi: true
+  beyond_pbi_note: Regel + Punkt je Reihe nativ; Puls-Animation nicht (inferred). Fintech-Kombination mit Hover-Rebasing = market-001.
+
+- id: market-037
+  pattern: Audio-Graphs und VoiceOver-Navigation über Datenpunkte
+  description: Swift Charts liefern Barrierefreiheits-Labels je Mark und Audio-Graphs; Nutzer scrubben durch die Tonhöhe, um z. B. das Maximum zu finden.
+  source:
+    title: WWDC21 Session 10122 (Bring accessibility to charts in your app)
+    publisher: Apple
+    url: https://developer.apple.com/videos/play/wwdc2021/10122
+    date_published: 2021
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: low
+  vegalite_native: "no"
+  vegalite_example_url: null
+  beyond_pbi: true
+  beyond_pbi_note: Außerhalb 2024–2026 (2021), aufgenommen als Barrierefreiheits-Referenz. Vega erzeugt ARIA-Beschreibungen; Sonifikation wäre Host (inferred).
+
+# ---------------------------------------------------------------- Datawrapper, Flourish, Newsrooms
+- id: market-038
+  pattern: Responsive Annotationen — auf Mobil nummeriert und unter das Chart verschoben
+  description: Auf kleinen Bildschirmen werden Annotationen nummeriert und unter das Chart gesetzt (Reihenfolge änderbar); Breite skaliert relativ zum Chart, Text bricht automatisch.
+  source:
+    title: Create better, more responsive text annotations (yes, also on maps)
+    publisher: Datawrapper
+    url: https://blog.datawrapper.de/better-more-responsive-annotations-in-datawrapper-data-visualizations/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [value_verdict, time_comparison]
+    idioms: [line, column_time, scatter]
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: high
+  vegalite_native: partial
+  vegalite_example_url: null
+  beyond_pbi: true
+  beyond_pbi_note: VL-Text-Layer nativ; Umschalten Inline↔Fußnoten-Nummern nach Breite braucht Host oder zwei generierte Spec-Varianten (inferred).
+
+- id: market-039
+  pattern: Scrollytelling — Chart-Zustand wechselt schrittweise beim Scrollen
+  description: Story-Folien werden zu Scroll-Schritten; das Chart animiert, filtert oder zoomt zwischen Zuständen, statt zwei Einzelcharts zu vergleichen.
+  source:
+    title: How to create a scrolly using the story editor
+    publisher: Flourish
+    url: https://helpcenter.flourish.studio/hc/en-us/articles/8761522702991-How-to-create-a-scrolly-using-the-story-editor
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: [contribution_to_change, time_comparison]
+    idioms: []
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: low
+  vegalite_native: partial
+  vegalite_example_url: null
+  beyond_pbi: true
+  beyond_pbi_note: Für Steuerungs-Dashboards selten passend; für Monatsbericht/Management-Summary denkbar. Spec-Parameter per Host setzen (view.signal) (inferred).
+
+- id: market-040
+  pattern: Annotation Layer als Aussageträger (Newsroom-Praxis NYT/WSJ/WaPo)
+  description: Die Datenschicht zeigt, was passiert ist, die Annotationsschicht, was es bedeutet; Analyse von 72 annotierten Newsroom-Charts fand Muster wie Hervorhebung plus beschreibenden Text und Annotations-Ensembles.
+  source:
+    title: Exploring Annotation Strategies in Professional Visualizations (IEEE VIS 2023, VisComm Workshop)
+    publisher: IEEE VIS
+    url: https://content.ieeevis.org/year/2023/paper_w-viscomm-1005.html
+    date_published: 2023
+    date_accessed: 2026-09-30
+    kind: secondary
+  evidence: null
+  parameters:
+    charts_analysed: 72
+  applies_to:
+    purposes: [value_verdict, deviation_from_target, time_comparison]
+    idioms: [line, column_time, deviation_bar]
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+  retrieval: search_excerpt
+  user_value: high
+  vegalite_native: "yes"
+  vegalite_example_url: https://vega.github.io/vega-lite/examples/layer_falkensee.html
+  beyond_pbi: true
+  beyond_pbi_note: VL-Layer (rect/rule/text) nativ. Power BI kennt keine datenverankerten Textannotationen im Standard (inferred). Zahl 72 aus Suchauszug, nicht am Paper geprüft.

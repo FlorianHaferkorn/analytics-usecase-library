@@ -1,11 +1,82 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "data": { "name": "dataset" },
+  "data": {
+    "name": "dataset"
+  },
+  "transform": [
+    {
+      "calculate": "datum['gm_vs_plan'] * 1 > 0 ? 'good' : (datum['gm_vs_plan'] * 1 < 0 ? 'bad' : 'neutral')",
+      "as": "rating"
+    }
+  ],
   "layer": [
-    { "mark": { "type": "bar", "height": 12, "cornerRadius": 3 },
+    {
+      "mark": {
+        "type": "bar",
+        "height": 12
+      },
       "encoding": {
-        "x": { "field": "gm_vs_plan", "type": "quantitative", "axis": { "title": null }, "scale": { "domainMid": 0 } },
-        "color": { "condition": { "test": "datum['gm_vs_plan'] < 0", "value": "#A4262C" }, "value": "#107C10" } } },
-    { "mark": { "type": "rule", "color": "#201F1E" }, "encoding": { "x": { "datum": 0 } } }
+        "x": {
+          "field": "gm_vs_plan",
+          "type": "quantitative",
+          "axis": null,
+          "scale": {
+            "zero": true
+          }
+        },
+        "color": {
+          "field": "rating",
+          "type": "nominal",
+          "legend": null,
+          "scale": {
+            "domain": [
+              "good",
+              "bad",
+              "neutral"
+            ],
+            "range": [
+              "#5B9A35",
+              "#A4262C",
+              "#1F6FB5"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "rule",
+        "color": "#201F1E",
+        "strokeWidth": 1.5
+      },
+      "encoding": {
+        "x": {
+          "datum": 0
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "color": "#201F1E",
+        "align": {
+          "expr": "datum['gm_vs_plan'] < 0 ? 'right' : 'left'"
+        },
+        "dx": {
+          "expr": "datum['gm_vs_plan'] < 0 ? -4 : 4"
+        }
+      },
+      "encoding": {
+        "x": {
+          "field": "gm_vs_plan",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "gm_vs_plan",
+          "type": "quantitative",
+          "format": "+.1f"
+        }
+      }
+    }
   ]
 }
