@@ -32,12 +32,18 @@ def _num(v: Any) -> "float | None":
     return None if math.isnan(f) else f
 
 
-def places(values: list[float]) -> int:
-    """Nachkommastellen, die die Daten führen (höchstens zwei)."""
+#: Höchstens eine Nachkommastelle, wie die Datenbeschriftung der Charts: der Satz nennt dieselbe Zahl,
+#: die am Balken steht (Cockpit 01.10.2026: vorher „27,95 %“ im Satz). Gerundet wird wie Vega (`toFixed`
+#: auf der Binärzahl): 27,95 wird 27,9.
+MAX_PLACES = 1
+
+
+def places(values: list[float], cap: int = MAX_PLACES) -> int:
+    """Nachkommastellen, die die Daten führen (höchstens `cap`)."""
     out = 0
     for v in values:
         if not float(v).is_integer():
-            out = max(out, min(2, len(repr(float(v)).split(".")[1])))
+            out = max(out, min(cap, len(repr(float(v)).split(".")[1])))
     return out
 
 
@@ -131,6 +137,11 @@ def _time(table: dict, roles: dict, unit: str, weekly: bool) -> "dict | None":
         return None
     a0, a1 = actual[first], actual[last]
     n = places([a0, a1])
+    span = f"{period_label(periods[first], weekly)} bis {period_label(periods[last], weekly)}: "
+    if de_number(a1 - a0, n) in ("0", "0," + "0" * n):
+        return {"rule": "Veränderung im Zeitraum",
+                "segments": _seg(span, "unverändert bei ", (_with_unit(de_number(a1, n), unit),), "."),
+                "highlight": {"field": time, "values": [periods[first], periods[last]], "temporal": True}}
     return {"rule": "Veränderung im Zeitraum",
             "segments": _seg(f"{period_label(periods[first], weekly)} bis {period_label(periods[last], weekly)}: ",
                              (_with_unit(de_number(a0, n), unit),), " auf ", (_with_unit(de_number(a1, n), unit),),

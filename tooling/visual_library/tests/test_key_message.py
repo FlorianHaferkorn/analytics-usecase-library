@@ -52,6 +52,14 @@ def test_zeit_ohne_plan_erste_gegen_letzte_periode():
     assert K.plain_text(m) == "KW 52 bis KW 02: 33,5 % auf 33,6 %, +0,1 PP."
 
 
+def test_eine_nachkommastelle_wie_am_chart_und_unveraendert_statt_null():
+    t = {"columns": WEEKS["columns"], "rows": [["2025-12-22", 27.95, 35.0], ["2026-01-05", 27.95, 35.0]]}
+    m = K.key_message(t, {"time": "Periode", "value": "Ist", "plan": "Plan"}, unit="%", weekly=True)
+    assert "Ist 27,9\u00a0% gegen Plan 35,0\u00a0%, 7,1\u00a0PP" in K.plain_text(m), "eine Stelle, gerundet wie Vega"
+    flat = K.key_message(t, {"time": "Periode", "value": "Ist"}, unit="%", weekly=True)
+    assert K.plain_text(flat) == "KW 52 bis KW 02: unverändert bei 27,9\u00a0%."
+
+
 def test_keine_regel_keine_aussage():
     assert K.key_message(REGIONS, {"value": "Wert"}) is None
     flat = {"columns": REGIONS["columns"], "rows": [["A", 1], ["B", 1]]}
