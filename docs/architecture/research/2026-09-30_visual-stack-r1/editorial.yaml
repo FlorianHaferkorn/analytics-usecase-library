@@ -1251,3 +1251,25 @@
     style_pack: tufte
     layer: idiom
   confidence: from_source
+- id: editorial-057
+  pattern: 'PitchSide Pro: Datengeschichte mit einem Akzent gegen Grau'
+  description: 'Power-BI-Bericht der Contest Gallery. Alle Balken grau, nur das aktuelle Element in einer
+    Akzentfarbe; Seitentitel leicht mit einem fett gesetzten Schlüsselwort; Erzählsatz mit fetten Zahlen;
+    Empfehlung als Anmerkung neben dem Chart; schwarze Segment-Schalter; Urteils-Pillen in Tabellen.
+    [Zugriff: Seite egress-blockiert; gelesen aus fünf Screenshots, die Florian Haferkorn am 01.10.2026
+    geschickt hat. Übernommen wird das Muster, nicht die Farbe (Rosé), D-623.]'
+  source:
+    title: PitchSide Pro — The Story Behind the Sales
+    publisher: Microsoft Fabric Community (Contests Gallery)
+    url: https://community.fabric.microsoft.com/discussions/pbi_contestsgallery/pitchside-pro---the-story-behind-the-sales/5240460
+    date_published: unbekannt
+    date_accessed: '2026-10-01'
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: story
+    layer: style
+  confidence: from_source

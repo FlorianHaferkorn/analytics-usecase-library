@@ -559,24 +559,100 @@ def with_time_axis(spec: dict, fmt: str, ticks: "list | None") -> dict:
     return walk(spec)
 
 
+#: Grau der Datenmarken unter einem focus-Profil, wenn der Aufrufer keines gibt: 3,4:1 auf Weiß (WCAG 1.4.11).
+FOCUS_GREY = "#8C8C8C"
 KEY_PARAM = "kernaussage"
 KEY_VALUES = "kernaussage_werte"
 KEY_DIM = 0.25
 
 
-def with_highlight(spec: dict, field: str, values: "list | None" = None, temporal: bool = False) -> dict:
+def _mark_kind(node: dict) -> "str | None":
+    m = node.get("mark")
+    return m if isinstance(m, str) else (m or {}).get("type") if isinstance(m, dict) else None
+
+
+def with_focus(spec: dict, grey: str) -> dict:
+    """Profil mit `focus` (story): jede Datenmarke grau (Farben aus dem Template, ob fest oder als Bedingung
+    der Bewertung). Textmarken behalten ihre Farbe — Beschriftung trägt Textfarbe, nie Serienfarbe. Feldbasierte
+    Farbskalen (Serien mit Legende) bleiben: ihre Unterscheidung trägt Information. Die Akzentfarbe vergibt
+    erst die Kernaussage (with_highlight mit accent)."""
+    hexa = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+    def grey_of(v):
+        return grey if isinstance(v, str) and hexa.match(v) else v
+
+    def channel(enc_val):
+        if not isinstance(enc_val, dict) or "field" in enc_val:
+            return enc_val
+        out = {k: grey_of(v) for k, v in enc_val.items()}
+        if "condition" in enc_val:
+            conds = enc_val["condition"] if isinstance(enc_val["condition"], list) else [enc_val["condition"]]
+            fixed = [{**c, "value": grey_of(c.get("value"))} if isinstance(c, dict) else c for c in conds]
+            out["condition"] = fixed if isinstance(enc_val["condition"], list) else fixed[0]
+        return out
+
+    def walk(node):
+        if isinstance(node, dict):
+            out = {k: walk(v) for k, v in node.items() if k != "encoding"}
+            if "encoding" in node:
+                out["encoding"] = node["encoding"]
+            if "mark" in out and _mark_kind(out) != "text":
+                if isinstance(out["mark"], dict):
+                    out["mark"] = {k: (grey_of(v) if k in ("color", "fill", "stroke") else v) for k, v in out["mark"].items()}
+                enc = dict(out.get("encoding") or {})
+                for ch in ("color", "fill", "stroke"):
+                    if ch in enc:
+                        enc[ch] = channel(enc[ch])
+                if enc:
+                    out["encoding"] = enc
+            return out
+        if isinstance(node, list):
+            return [walk(v) for v in node]
+        return node
+
+    return walk(spec)
+
+
+def with_highlight(spec: dict, field: str, values: "list | None" = None, temporal: bool = False,
+                   accent: "str | None" = None) -> dict:
     """Kernaussage hervorheben (D-623 Nachtrag, feat-109): zwei Vega-Parameter, `kernaussage` (an/aus,
     Standard aus) und `kernaussage_werte` (die Treffer). Gedämpft wird jede Marke, deren Zeile `field`
     trägt und nicht zu den Treffern gehört; Marken ohne das Feld (Referenzlinie, Zielwert) bleiben
     unberührt, die Restzeile ist kein Treffer. Die Treffer sind ein Parameter, keine Konstante im Test:
     die Oberfläche rechnet die Aussage auf der gefilterten Tabelle neu (key_message.ts) und setzt nur die
     Werte — die Spec bleibt eine. Zeitwerte als Zeitpunkt (ms, UTC), weil Vega-Lite Zeitfelder zu Datum
-    parst (`key_message.highlight_keys`)."""
+    parst (`key_message.highlight_keys`).
+
+    `accent` (Profil mit focus, story): statt die übrigen Marken zu dämpfen, bekommen die Treffer die
+    Akzentfarbe; Textmarken bleiben in Textfarbe."""
     probe = f"time(datum[{json.dumps(field)}])" if temporal else f"datum[{json.dumps(field)}]"
+    hit = f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && indexof({KEY_VALUES}, {probe}) >= 0"
     test = (f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && indexof({KEY_VALUES}, {probe}) < 0")
     dim = {"test": test, "value": KEY_DIM}
 
+    def accent_unit(node: dict) -> dict:
+        # Nur diskrete Marken: eine Linie, Fläche oder Hilfslinie ist eine Marke über alle Zeilen und würde
+        # ganz akzentfarben (gemessen 01.10.2026: beide Linien und die Hover-Regel); Text bleibt Textfarbe.
+        if _mark_kind(node) in ("text", "line", "area", "trail", "rule"):
+            return node
+        enc = dict(node.get("encoding") or {})
+        cond = {"test": hit, "value": accent}
+        old = enc.get("color")
+        base = (node["mark"].get("color") if isinstance(node.get("mark"), dict) else None)
+        if isinstance(old, dict) and "condition" in old:
+            conds = old["condition"] if isinstance(old["condition"], list) else [old["condition"]]
+            enc["color"] = {**old, "condition": [cond, *conds]}
+        elif isinstance(old, dict):
+            enc["color"] = {"condition": cond, **old}
+        elif base:
+            enc["color"] = {"condition": cond, "value": base}
+        else:
+            return node
+        return {**node, "encoding": enc}
+
     def mark_unit(node: dict) -> dict:
+        if accent:
+            return accent_unit(node)
         enc = dict(node.get("encoding") or {})
         old = enc.get("opacity")
         if isinstance(old, dict) and "condition" in old:
@@ -638,7 +714,8 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
                     if p not in bound and not slot.get("required", True) and p not in given]
         eff.update({v: _NO_VALUE for v in missing})
         eff.update({v: eff[fb] for v, fb in dv.items() if v not in given and fb is not None})
-        eff.update({k: str(v) for k, v in given.items() if k not in ("top_n", "rest", "time_format", "time_ticks", "highlight")})
+        eff.update({k: str(v) for k, v in given.items()
+                    if k not in ("top_n", "rest", "time_format", "time_ticks", "highlight", "accent", "focus_grey")})
         if (entry.get("encoding") or {}).get("order") == "worst_first" and "worst_first" not in given:
             # worst first: for a lower-is-better measure the worst value is the highest (A-31 R7)
             eff["worst_first"] = "descending" if float(eff.get("polarity", 1)) < 0 else "ascending"
@@ -656,9 +733,13 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     spec = with_tooltips(spec, idiom, eff)
     if params and params.get("time_format"):
         spec = with_time_axis(spec, str(params["time_format"]), params.get("time_ticks"))
+    if profile_def(profile).get("focus"):
+        # story: Daten grau; das Grau kommt vom Aufrufer (Brand-Tokens, Klasse C), sonst ein Grau mit 3,4:1 auf Weiß
+        spec = with_focus(spec, str((params or {}).get("focus_grey") or FOCUS_GREY))
     if params and params.get("highlight"):
         h = params["highlight"]
-        spec = with_highlight(spec, h["field"], list(h.get("values") or []), bool(h.get("temporal")))
+        accent = params.get("accent") if profile_def(profile).get("focus") else None
+        spec = with_highlight(spec, h["field"], list(h.get("values") or []), bool(h.get("temporal")), accent)
     config = vegalite_config(profile)
     if background:
         spec, config = on_background(spec, background), on_background(config, background)

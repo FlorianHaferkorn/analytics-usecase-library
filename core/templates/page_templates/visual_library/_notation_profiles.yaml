@@ -216,3 +216,32 @@ profiles:
       view: {stroke: null}
       axis: {grid: false, ticks: false, domain: false, title: null, labelFontSize: 11}
       legend: {disable: true}
+
+  story:
+    name: "Story — one accent against grey, statements next to the chart"
+    kind: style
+    base_notation: house_default
+    is_default: false
+    status: experimental   # pattern from one reference report, see source
+    focus: true            # data marks grey; the key message's hits take the accent (render.with_focus)
+    description: >
+      Data story in the manner of a magazine page: no frame, ticks or axis titles, light
+      horizontal grid, direct labels; every data mark grey, only what the key message names
+      in the one accent colour. Merges editorial (grammar of axes and titles) and minimal
+      (data-ink); the accent comes from the brand tokens (Klasse C), never from the profile.
+    source:
+      - "editorial-027 (via editorial: light horizontal grid)"
+      - "editorial-026 (via editorial: no axis titles or ticks)"
+      - "editorial-057 (PitchSide Pro: grey marks, one accent for the current item, statement next to the chart)"
+      - "editorial summary R1: one focus colour against grey (via minimal, search excerpts)"
+    rules:
+      focus:   "every data mark grey; only the key message's hits in the accent"
+      grid:    "light horizontal grid, no vertical grid, no frame"
+      labels:  "no axis titles or ticks, direct labels"
+    vegalite_config:
+      font: "Inter, Segoe UI, system-ui, -apple-system, sans-serif"
+      view: {stroke: null}
+      axis: {title: null, ticks: false, domain: false, gridColor: "#E6E6E6", labelFontSize: 11}
+      axisX: {grid: false}
+      legend: {orient: top, labelFontSize: 11}
+      title: {fontSize: 16, subtitleFontSize: 13, anchor: start}
