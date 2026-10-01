@@ -942,4 +942,4 @@ features:
     tests: [tooling/visual_library/tests/test_key_message.py]
     user_value: high
     priority: 1
-    note: "D-627 Nachtrag (Freelancing), 01.10.2026: regelbasiert je Zweck (key_message.py), Hervorhebung als Vega-Parameter kernaussage in render_target; Knopf je Visual und je Seite im Cockpit, Verweis auf die Handlungsempfehlung. Offen: Story- und Marken-Gestaltung, Zwecke ohne Regel (Verteilung, Zusammenhang). Verwandt feat-013, feat-014."
+    note: "D-631 Nachtrag (Freelancing), 01.10.2026: regelbasiert je Zweck (key_message.py), Hervorhebung als Vega-Parameter kernaussage in render_target; Knopf je Visual und je Seite im Cockpit, Verweis auf die Handlungsempfehlung. Offen: Story- und Marken-Gestaltung, Zwecke ohne Regel (Verteilung, Zusammenhang). Verwandt feat-013, feat-014."

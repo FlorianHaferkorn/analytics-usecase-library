@@ -2,7 +2,7 @@
 
 What report and cockpit users expect from **reporting, business intelligence and decision
 intelligence**, one entry per feature (`catalog.yaml`, schema
-`tooling/generator/schemas/reporting_feature_catalog.schema.json`). Ledger A-31 R7, Freelancing D-624.
+`tooling/generator/schemas/reporting_feature_catalog.schema.json`). Ledger A-31 R7, Freelancing D-628.
 
 Each feature carries, as fields:
 

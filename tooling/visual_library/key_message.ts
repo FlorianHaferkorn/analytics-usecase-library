@@ -1,4 +1,4 @@
-// Kernaussage je Visual — TypeScript-Fassung von key_message.py (feat-109, D-627 Nachtrag in Freelancing).
+// Kernaussage je Visual — TypeScript-Fassung von key_message.py (feat-109, D-631 Nachtrag in Freelancing).
 //
 // Warum zweimal: Die Oberfläche filtert die Tabelle zur Laufzeit (Slicer, Zeitraum, Kreuzfilter); die
 // Aussage muss auf genau der gezeigten Tabelle entstehen, sonst widerspricht sie dem Chart. Python erzeugt
