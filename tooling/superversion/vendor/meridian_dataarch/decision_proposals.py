@@ -2438,6 +2438,40 @@ def propose_overage(bp: dict) -> dict:
         status=status)
 
 
+#: Ab dieser F-SKU lesen Berichtskonsumenten ohne eigene Pro-Lizenz (Learn
+#: `enterprise/licenses`: Inhalte auf F64 und groesser sind fuer Free-Nutzer lesbar). Autoren
+#: brauchen Pro immer. Dieselbe Grenze fuehrt ALUCA als `capacity.FREE_VIEWER_MIN_SKU`.
+FREE_VIEWER_MIN_F = 64
+
+
+def _produktions_sku(bp: dict) -> str | None:
+    """Die SKU, auf der Produktion laeuft: eine Kapazitaet mit `prod` in `stages` oder ohne
+    Stufenangabe (D-596), sonst `platform.capacity_sku`. Bei mehreren die groesste."""
+    plat = bp.get("platform") or {}
+    kandidaten = [c.get("sku") for c in plat.get("capacities") or []
+                  if isinstance(c, dict) and c.get("sku")
+                  and (not c.get("stages") or "prod" in c["stages"])]
+    if not kandidaten and plat.get("capacity_sku"):
+        kandidaten = [plat["capacity_sku"]]
+    rang = [(int(m.group(1)), str(k)) for k in kandidaten
+            if (m := re.fullmatch(r"[Ff](\d+)", str(k).strip()))]
+    return max(rang)[1].upper() if rang else None
+
+
+def _lizenz_satz(bp: dict) -> str:
+    sku = _produktions_sku(bp)
+    if sku is None:
+        return (" **Lizenz:** Die Produktionskapazität ist nicht benannt. Unter F64 braucht jede "
+                "Person, die einen Bericht liest, Power BI Pro oder PPU; ab F64 lesen "
+                "Konsumenten ohne eigene Lizenz.")
+    if int(sku[1:]) >= FREE_VIEWER_MIN_F:
+        return (f" **Lizenz:** Auf {sku} lesen Konsumenten ohne eigene Lizenz; Autoren brauchen "
+                "Power BI Pro.")
+    return (f" **Lizenz:** Auf {sku} braucht jede Person, die einen Bericht liest, Power BI Pro "
+            "oder PPU. Ab F64 entfällt das; bei vielen Lesern ist das die Rechnung, die "
+            "PLAT-CAP entscheidet.")
+
+
 def propose_report_target(bp: dict) -> dict:
     """Report-Ziel: PBIR, Fabric App oder beides. Region und Lizenzbasis entscheiden mit."""
     regionen = _regionen(bp)
@@ -2445,7 +2479,7 @@ def propose_report_target(bp: dict) -> dict:
     if gesperrt:
         vorschlag = (f"**PBIR.** Fabric Apps sind in {', '.join(gesperrt)} laut Learn nicht "
                      "verfügbar. Braucht der Kunde Eingaben oder Rückschreiben, ist die Region "
-                     "selbst die Entscheidung.")
+                     "selbst die Entscheidung." + _lizenz_satz(bp))
         konfidenz = "hoch"
     else:
         vorschlag = ("**PBIR für die Analyse**, eine Fabric App nur dort, wo Nutzer Werte eingeben "
@@ -2453,15 +2487,18 @@ def propose_report_target(bp: dict) -> dict:
                      "Rolle). Fabric Apps sind Preview; der Weg über Pro/PPU ohne Kapazität ist "
                      "angekündigt, aber nicht dokumentiert."
                      + ("" if regionen else
-                        " Die Zielregion steht nicht im Bauplan; vor einer App klären."))
+                        " Die Zielregion steht nicht im Bauplan; vor einer App klären.")
+                     + _lizenz_satz(bp))
         konfidenz = "mittel"
     return _rec(
         "OUT-REPORT", "Report-Ziel: PBIR, Fabric App oder beides",
         "Brauchen Nutzer Eingaben, Rückschreiben oder Workflows im Bericht, und auf welcher "
         "Lizenzbasis?",
         vorschlag,
-        "platform.sizing.region / platform.capacities[].region; MS Learn: admin/region-availability, "
-        "power-bi/create-reports/fabric-apps-analytics (gelesen 29.09.2026)",
+        "platform.sizing.region / platform.capacities[].region, Produktions-SKU aus "
+        "platform.capacities[].sku (D-596) bzw. platform.capacity_sku; MS Learn: "
+        "admin/region-availability, power-bi/create-reports/fabric-apps-analytics, "
+        "enterprise/licenses (gelesen 29.09.2026)",
         konfidenz,
         ["Fabric App mit Eingaben, Rückschreiben und Workflows (Preview, nicht in jeder Region)",
          "PBIR für die Analyse, Fabric App nur für die Eingabe"],
