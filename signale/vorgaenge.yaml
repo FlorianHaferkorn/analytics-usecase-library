@@ -32,7 +32,7 @@ vorgaenge:
   entscheidung: umsetzen
   wiedervorlage: null
   begruendung: 'DPIA 12.4: Gesprächslabel, Exportvererbung, Label-DLP erst ab E5 (ADR-0022, C-26).'
-  d_eintrag: D-626
+  d_eintrag: D-641
   belege: &id001
   - 'compliance/DPIA.md 12.4, compliance/_INDEX.md C-26, docs/architecture/adr/0022: check_index --strict
     0 harte Befunde, markdownlint-cli2 0 issues, 01.10.2026'
@@ -52,7 +52,7 @@ vorgaenge:
   - am: '2026-10-01'
     status: in_umsetzung
     von: agent
-    notiz: Umsetzung D-626
+    notiz: Umsetzung D-641
   - am: '2026-10-01'
     status: verifiziert
     von: agent
@@ -620,7 +620,7 @@ vorgaenge:
   wiedervorlage: null
   begruendung: 'DPIA 12.4: neuer Abfluss an KI-Clients, Zustimmungsrichtlinie, Modelleinstellung (ADR-0022,
     C-26).'
-  d_eintrag: D-626
+  d_eintrag: D-641
   belege: *id001
   verlauf:
   - am: '2026-10-01'
@@ -638,7 +638,7 @@ vorgaenge:
   - am: '2026-10-01'
     status: in_umsetzung
     von: agent
-    notiz: Umsetzung D-626
+    notiz: Umsetzung D-641
   - am: '2026-10-01'
     status: verifiziert
     von: agent
@@ -652,7 +652,7 @@ vorgaenge:
   wiedervorlage: null
   begruendung: 'README Bekannte Grenzen: Fabric IQ MCP, Verified Answers bei aktiviertem Fabric IQ, Verweis
     DPIA 12.4.'
-  d_eintrag: D-626
+  d_eintrag: D-641
   belege:
   - products/fabric/powerbi/tooling/copilot_readiness/README.md, markdownlint-cli2 0 issues, 01.10.2026
   verlauf:
@@ -671,7 +671,7 @@ vorgaenge:
   - am: '2026-10-01'
     status: in_umsetzung
     von: agent
-    notiz: Umsetzung D-626
+    notiz: Umsetzung D-641
   - am: '2026-10-01'
     status: verifiziert
     von: agent
