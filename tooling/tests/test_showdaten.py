@@ -73,3 +73,16 @@ def test_failed_download_names_tag_asset_and_upload_command(tmp_path, monkeypatc
         raise AssertionError("fehlender Release darf nicht als geladen gelten")
     assert "showdaten-aurora-test" in text and "aurora_gold_test.tar" in text
     assert "release not found" in text and "gh release create" in text
+
+
+def test_reihenfolge_ist_auf_jedem_betriebssystem_gleich():
+    """Anlass 01.10.2026: unter Windows gepackt ergab dieselben Dateien in anderer Reihenfolge
+    (sorted() auf WindowsPath ignoriert Gross-/Kleinschreibung) und damit einen anderen SHA-256."""
+    from pathlib import PurePosixPath, PureWindowsPath
+
+    namen = ["facts/fact_b/x.parquet", "facts/Fact_C/x.parquet", "facts/fact_a/x.parquet"]
+    erwartet = ["facts/Fact_C/x.parquet", "facts/fact_a/x.parquet", "facts/fact_b/x.parquet"]
+    for art in (PurePosixPath, PureWindowsPath):
+        assert [PurePosixPath(p.as_posix()).as_posix() for p in sd.ordnen(art(n) for n in namen)] == erwartet, art
+    # Gegenprobe: das alte sorted() auf WindowsPath ergibt eine andere Reihenfolge.
+    assert [p.as_posix() for p in sorted(PureWindowsPath(n) for n in namen)] != erwartet

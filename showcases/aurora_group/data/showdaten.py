@@ -43,7 +43,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
-from pathlib import Path
+from pathlib import Path, PurePath, PurePosixPath
 
 HIER = Path(__file__).resolve().parent
 REPO = HIER.parents[2]
@@ -85,6 +85,17 @@ def _tabellen(gold: Path) -> list[Path]:
     return out
 
 
+def ordnen(dateien) -> list:
+    """Archiv-Reihenfolge, auf jedem Betriebssystem gleich: Pfadteile mit Gross-/Kleinschreibung.
+
+    ``sorted()`` auf ``Path`` vergleicht unter Windows ohne Gross-/Kleinschreibung. Das Release
+    ``showdaten-aurora-2026-09-29c`` wurde am 01.10.2026 unter Windows gepackt: gleiche 460
+    Dateien, gleiche Bytes, aber 350 Positionen in anderer Reihenfolge, also ein anderer SHA-256
+    (gemessen per Nachbau in Windows-Reihenfolge = GitHub-Digest des Assets).
+    """
+    return sorted(set(dateien), key=lambda p: PurePosixPath(PurePath(p).as_posix()))
+
+
 def aktive_dateien(gold: Path = GOLD) -> list[Path]:
     """Alle Dateien, die ein Leser braucht: aktive Parquet + ``_delta_log``, sortiert."""
     dateien: list[Path] = []
@@ -95,7 +106,7 @@ def aktive_dateien(gold: Path = GOLD) -> list[Path]:
             dateien += [tab / rel for rel in _active_paths(log)]
         else:
             dateien += sorted(Path(p) for p in glob.glob(str(tab / "**" / "*.parquet"), recursive=True))
-    return sorted(set(dateien))
+    return ordnen(dateien)
 
 
 def _sha256(pfad: Path) -> str:

@@ -3,7 +3,8 @@
  "tag": "showdaten-aurora-2026-09-29c",
  "asset": "aurora_gold_2026-09-29c.tar",
  "repo": "FlorianHaferkorn/analytics-usecase-library",
- "sha256": "e92c6bda86b74db6a36c5125f3bb3898a026812d6ce86593d0c3e4aa45982d2d",
+ "sha256": "fde95e84aa694bcd2c00eda9ff472264585d244efe9e10b7c7dd6f6b37ab353d",
+ "sha256_hinweis": "SHA-256 des veroeffentlichten Assets (GitHub-Digest, 01.10.2026). Unter Windows gepackt, vor showdaten.ordnen(): gleiche 460 Dateien und Bytes wie 'dateien', andere Reihenfolge. Gemessen per Nachbau in Windows-Reihenfolge (= Digest). packen ergibt heute e92c6bda86b74db6a36c5125f3bb3898a026812d6ce86593d0c3e4aa45982d2d.",
  "bytes": 615075840,
  "inhalt_bytes": 614442829,
  "dateien": {
