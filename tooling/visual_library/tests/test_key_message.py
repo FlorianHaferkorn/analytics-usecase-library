@@ -75,7 +75,8 @@ def test_genannte_werte_in_uebrige_tragen_den_hinweis():
 
 def test_verteilung_nennt_median_quartile_und_ausreisser():
     t = {"columns": [{"name": "Filiale"}, {"name": "Marge"}],
-         "rows": [["A", 31.2], ["B", 28.4], ["C", 30.1], ["D", 29.7], ["E", 12.5], ["F", 30.8], ["G", 29.9], ["H", 31.0]]}
+         "rows": [["A", 31.2], ["B", 28.4], ["C", 30.1], ["D", 29.7], ["E", 12.5], ["F", 30.8], ["G", 29.9],
+                  ["H", 31.0]]}
     m = K.key_message(t, {"category": "Filiale", "value": "Marge"}, unit="%", purpose="distribution")
     assert K.plain_text(m).startswith("Median 30,0\u00a0%, die mittlere Hälfte liegt zwischen 29,4\u00a0%")
     assert "Auffällig: E mit 12,5\u00a0%" in K.plain_text(m) and m["highlight"]["values"] == ["E"]

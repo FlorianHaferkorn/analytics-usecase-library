@@ -28,7 +28,8 @@ def _dashed_lines(profile: str, roles: dict) -> list:
 
     def walk(n):
         if isinstance(n, dict):
-            if n.get("role") == "mark" and n.get("marktype") == "line" and any(it.get("strokeDash") for it in n.get("items", [])):
+            dashed = any(it.get("strokeDash") for it in n.get("items", []))
+            if n.get("role") == "mark" and n.get("marktype") == "line" and dashed:
                 out.append(n.get("name"))   # eine gestrichelte Linie je Linienmarke, nicht je Punkt
             for v in n.values():
                 walk(v)

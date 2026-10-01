@@ -158,7 +158,8 @@ def test_dark_mapping_keeps_the_order_of_emphasis():
     dark = "#292929"
     ink, grid = contrast.for_dark_ground("#0F2430", dark), contrast.for_dark_ground("#E1DFDD", dark)
     assert contrast.contrast_ratio(ink, dark) > 2 * contrast.contrast_ratio(grid, dark)
-    ac, py = contrast.for_dark_ground("#404040", dark, min_ratio=3.0), contrast.for_dark_ground("#A0A0A0", dark, min_ratio=3.0)
+    ac = contrast.for_dark_ground("#404040", dark, min_ratio=3.0)
+    py = contrast.for_dark_ground("#A0A0A0", dark, min_ratio=3.0)
     assert contrast.contrast_ratio(ac, dark) > contrast.contrast_ratio(py, dark), "PY louder than AC"
     red = contrast.hex_to_oklch(contrast.for_dark_ground("#A4262C", dark))[2]
     assert abs(red - contrast.hex_to_oklch("#A4262C")[2]) < 3.0

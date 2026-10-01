@@ -605,7 +605,8 @@ def with_focus(spec: dict, grey: str) -> dict:
                 out["encoding"] = node["encoding"]
             if "mark" in out and _mark_kind(out) != "text":
                 if isinstance(out["mark"], dict):
-                    out["mark"] = {k: (grey_of(v) if k in ("color", "fill", "stroke") else v) for k, v in out["mark"].items()}
+                    out["mark"] = {k: (grey_of(v) if k in ("color", "fill", "stroke") else v)
+                                   for k, v in out["mark"].items()}
                 enc = dict(out.get("encoding") or {})
                 for ch in ("color", "fill", "stroke"):
                     if ch in enc:
