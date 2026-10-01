@@ -126,7 +126,9 @@ categorical_cvd_safe:
     - {hex: "#F0E442", name: yellow,         contrast_on_white: 1.32, solid_safe_on_white: false}
 
 # IBCS Scenario Encoding — fill/shape rules for AC/PL/FC/PY on the same visual.
-# Authority: HICHERT, Rolf; FAISST, Jürgen — Solid, Outlined, Hatched (IBCS Institute, 2020)
+# Authority: IBCS Standards Version 2.0, IBCS Association 2026, CC BY-SA 4.0 — UN 3.2 (S. 44–45);
+# vorher: HICHERT/FAISST, Solid, Outlined, Hatched (IBCS Institute, 2020). Farbwerte schreibt IBCS nicht vor.
+# Varianzfarben gut/schlecht/neutral: Profil ibcs in visual_library/_notation_profiles.yaml (UN 4.1).
 # Color is shared; fill pattern distinguishes scenarios — never use a second color for scenarios.
 # Connector implementation notes:
 #   PBI: custom SVG marker / theme.json pattern for hatching; heavier stroke for outlined
@@ -142,10 +144,11 @@ ibcs_scenario:
     opacity: 1.0
     abbreviation: "PL"
   fc:               # Forecast
-    fill: hatched    # Crosshatch pattern at 45°
+    fill: hatched    # diagonal hatch, stripes in AC colour (UN 3.2)
+    outline: true    # IBCS 2.0: FC is outlined AND hatched
     opacity: 1.0
     abbreviation: "FC"
   py:               # Prior Year
     fill: solid
-    opacity: 0.5     # Tint: 50% alpha overlay of AC fill color
+    opacity: 0.5     # lighter solid than AC (UN 3.2); only in scenario comparisons, not in time series
     abbreviation: "PY"

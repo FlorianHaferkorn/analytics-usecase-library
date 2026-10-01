@@ -1,0 +1,1170 @@
+# R1c Referenzkorpus — Produkt-Dashboards und Design-Systeme (Stand 30.09.2026)
+# Zusatzfeld je Eintrag: retrieval = fetched (Primärdatei/-seite gelesen) | search_excerpt
+# (Seite war per Egress-Proxy gesperrt; nur Suchmaschinen-Auszug, Zitat nicht am Original geprüft).
+
+- id: product-001
+  pattern: Fünf Chart-Farbtoken als CSS-Variablen, im Dunkelmodus eigene Werte
+  description: shadcn/ui definiert genau fünf Chart-Token --chart-1..--chart-5 in oklch; `.dark` überschreibt alle fünf mit anderen Farbtönen (nicht nur heller/dunkler). Hell ist warm (Orange/Teal/Blau/Gelb), dunkel startet mit Blau-Violett.
+  source:
+    title: shadcn/ui Theming (theming.mdx, apps/v4)
+    publisher: shadcn-ui (GitHub)
+    url: https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/content/docs/(root)/theming.mdx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "--chart-1: oklch(0.646 0.222 41.116);"
+  parameters:
+    chart_token_count: 5
+    light_chart_1: oklch(0.646 0.222 41.116)
+    light_chart_2: oklch(0.6 0.118 184.704)
+    light_chart_3: oklch(0.398 0.07 227.392)
+    light_chart_4: oklch(0.828 0.189 84.429)
+    light_chart_5: oklch(0.769 0.188 70.08)
+    dark_chart_1: oklch(0.488 0.243 264.376)
+    dark_chart_2: oklch(0.696 0.17 162.48)
+    dark_chart_3: oklch(0.769 0.188 70.08)
+    dark_chart_4: oklch(0.627 0.265 303.9)
+    dark_chart_5: oklch(0.645 0.246 16.439)
+  applies_to:
+    purposes: [compare_categories, time_comparison, part_to_whole]
+    idioms: []
+    style_pack: modern_product
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-002
+  pattern: Radius-Skala aus einem Basis-Token abgeleitet
+  description: shadcn/ui setzt --radius 0.625rem (10 px) und leitet sm/md/lg/xl/2xl.. multiplikativ ab; Komponenten referenzieren nur die Ableitungen.
+  source:
+    title: shadcn/ui Theming (theming.mdx, apps/v4)
+    publisher: shadcn-ui (GitHub)
+    url: https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/content/docs/(root)/theming.mdx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "--radius-xl: calc(var(--radius) * 1.4);"
+  parameters:
+    radius_base_rem: 0.625
+    radius_sm_factor: 0.6
+    radius_md_factor: 0.8
+    radius_lg_factor: 1.0
+    radius_xl_factor: 1.4
+    radius_2xl_factor: 1.8
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-003
+  pattern: Karte = Rahmen plus leiser Schatten, großzügiger Innenabstand
+  description: shadcn/ui-Card (new-york-v4) kombiniert 1-px-Rahmen (--border), rounded-xl, shadow-sm und vertikal py-6/horizontal px-6 bei gap-6 zwischen Header und Inhalt. Rahmen trägt die Kante, Schatten nur Andeutung.
+  source:
+    title: card.tsx (registry new-york-v4)
+    publisher: shadcn-ui (GitHub)
+    url: https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/card.tsx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm"
+  parameters:
+    radius_class: rounded-xl
+    padding_px: 24
+    gap_px: 24
+    border: 1px var(--border)
+    shadow_class: shadow-sm
+    dark_border: oklch(1 0 0 / 10%)
+  applies_to:
+    purposes: []
+    idioms: [kpi_card_spark, kpi_card_bullet]
+    style_pack: modern_product
+    layer: style
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-004
+  pattern: KPI-Kachel-Anatomie (Label, große Zahl tabular, Trend-Badge, zweizeiliger Fußtext)
+  description: Der shadcn-Dashboard-Block section-cards baut die KPI-Kachel aus CardDescription (Label), CardTitle mit text-2xl→3xl tabular-nums, einer Outline-Badge mit Trend-Icon und Prozent in CardAction sowie einem Footer mit Aussagezeile (font-medium) und Kontextzeile (muted).
+  source:
+    title: dashboard-01 section-cards.tsx
+    publisher: shadcn-ui (GitHub)
+    url: https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/blocks/dashboard-01/components/section-cards.tsx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "text-2xl font-semibold tabular-nums @[250px]/card:text-3xl"
+  parameters:
+    value_class: text-2xl → text-3xl ab Kartenbreite 250px (Container-Query)
+    value_numeric: tabular-nums
+    delta_badge_variant: outline
+    footer_gap_class: gap-1.5
+  applies_to:
+    purposes: [value_verdict, time_comparison]
+    idioms: [kpi_card_spark, NEU:kpi_card_delta_badge]
+    style_pack: modern_product
+    layer: idiom
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-005
+  pattern: KPI-Reihe responsiv per Container-Query 1→2→4 Spalten
+  description: Die KPI-Reihe im shadcn-Dashboard-Block ist ein Grid mit gap-4, das über Container-Queries des Hauptbereichs (nicht Viewport) von 1 auf 2 und 4 Spalten wechselt; Karten tragen einen dezenten Verlauf from-primary/5.
+  source:
+    title: dashboard-01 section-cards.tsx
+    publisher: shadcn-ui (GitHub)
+    url: https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/blocks/dashboard-01/components/section-cards.tsx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "@xl/main:grid-cols-2 @5xl/main:grid-cols-4"
+  parameters:
+    gap_px: 16
+    columns: [1, 2, 4]
+    breakpoint_basis: container (@container/main)
+  applies_to:
+    purposes: []
+    idioms: [kpi_card_spark]
+    style_pack: modern_product
+    layer: layout
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-006
+  pattern: Chart-Tooltip kompakt mit Indikator-Varianten und tabular Werten
+  description: ChartTooltipContent ist eine kleine Karte (rounded-lg, border/50, shadow-xl, text-xs, min-w 8rem). Serienmarker wählbar als dot, line oder dashed; Label und Indikator abschaltbar. Werte in font-mono tabular-nums, locale-formatiert.
+  source:
+    title: chart.tsx (registry new-york-v4)
+    publisher: shadcn-ui (GitHub)
+    url: https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/chart.tsx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl"
+  parameters:
+    tooltip_min_width_rem: 8
+    tooltip_padding: px-2.5 py-1.5
+    indicator_options: [dot, line, dashed]
+    value_font: font-mono font-medium tabular-nums
+  applies_to:
+    purposes: [time_comparison, compare_categories]
+    idioms: [line, column_time, area_stacked, bar_absolute]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-007
+  pattern: Crosshair als Linie in Rahmenfarbe, Balken-Cursor als Muted-Fläche
+  description: ChartContainer überschreibt Recharts-Defaults — Gitterlinien auf border/50, Linien-Cursor (Crosshair) in --border, Balken-Hover-Cursor als Fläche in --muted; Chart-Text text-xs; Standard-Seitenverhältnis aspect-video.
+  source:
+    title: chart.tsx (registry new-york-v4)
+    publisher: shadcn-ui (GitHub)
+    url: https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/chart.tsx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "[&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted"
+  parameters:
+    grid_stroke: border/50
+    crosshair_stroke: var(--border)
+    bar_cursor_fill: var(--muted)
+    aspect_ratio: 16/9
+    font_size_class: text-xs
+  applies_to:
+    purposes: [time_comparison, compare_categories]
+    idioms: [line, column_time, bar_absolute]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-008
+  pattern: Recharts v3, Farben direkt als var(--chart-n), ChartConfig mit light/dark
+  description: shadcn-Charts laufen auf Recharts v3; Farben werden als var(--chart-1) statt hsl(var(..)) referenziert. ChartConfig erlaubt je Serie ein theme-Objekt mit getrennter Hell-/Dunkelfarbe; accessibilityLayer schaltet Tastatur und Screenreader-Unterstützung zu. Container braucht feste Höhe/min-h/aspect.
+  source:
+    title: Chart (chart.mdx, apps/v4)
+    publisher: shadcn-ui (GitHub)
+    url: https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/content/docs/components/radix/chart.mdx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Keep a height, min-h-*, or aspect-* on ChartContainer so ResponsiveContainer can measure on first render."
+  parameters:
+    recharts_major: 3
+    a11y_prop: accessibilityLayer
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-009
+  pattern: Skeleton als pulsierende Akzentfläche
+  description: shadcn-Skeleton ist ein Block mit animate-pulse, rounded-md und bg-accent; Form entsteht durch die Größe, die der Aufrufer setzt.
+  source:
+    title: skeleton.tsx (registry new-york-v4)
+    publisher: shadcn-ui (GitHub)
+    url: https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/skeleton.tsx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "animate-pulse rounded-md bg-accent"
+  parameters:
+    animation: animate-pulse
+    fill: var(--accent)
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: style
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-010
+  pattern: Leerzustand als eigene Komponente (Icon, Titel, Beschreibung, Aktion)
+  description: shadcn `Empty` zentriert Media (Icon in 40-px-Kachel bg-muted), Titel text-lg, Beschreibung text-sm muted und einen Aktionsbereich; gestrichelter Rahmen, p-6 bzw. md:p-12.
+  source:
+    title: empty.tsx (registry new-york-v4)
+    publisher: shadcn-ui (GitHub)
+    url: https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/empty.tsx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "flex min-w-0 flex-1 flex-col items-center justify-center gap-6 rounded-lg border-dashed p-6 text-center text-balance md:p-12"
+  parameters:
+    icon_tile_px: 40
+    icon_px: 24
+    padding_px: [24, 48]
+    border_style: dashed
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: style
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-011
+  pattern: Command-Palette über cmdk
+  description: shadcn `Command`/`CommandDialog` kapselt die Bibliothek cmdk mit Input, Gruppen, Items, Leerzeile (CommandEmpty) und rechtsbündigen Tastenkürzeln (CommandShortcut).
+  source:
+    title: command.tsx (registry new-york-v4)
+    publisher: shadcn-ui (GitHub)
+    url: https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/command.tsx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "ml-auto text-xs tracking-widest text-muted-foreground"
+  parameters:
+    library: cmdk
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-012
+  pattern: Tremor-Karte mit Rahmen, shadow-xs, eigener Dunkelgrund
+  description: Tremor (Raw, Copy-&-Paste) Card nutzt rounded-lg, 1-px-Rahmen gray-200 (dunkel gray-900), p-6 und shadow-xs; Dunkelhintergrund ist ein eigener Blau-Schwarzton #090E1A statt reinem Grau.
+  source:
+    title: Card.tsx
+    publisher: Tremor (tremorlabs/tremor, GitHub, Apache-2.0)
+    url: https://raw.githubusercontent.com/tremorlabs/tremor/main/src/components/Card/Card.tsx
+    date_published: 2025
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "relative w-full rounded-lg border p-6 text-left shadow-xs"
+  parameters:
+    radius_class: rounded-lg
+    padding_px: 24
+    shadow_class: shadow-xs
+    dark_bg: '#090E1A'
+    border_light: gray-200
+    border_dark: gray-900
+  applies_to:
+    purposes: []
+    idioms: [kpi_card_spark]
+    style_pack: modern_product
+    layer: style
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-013
+  pattern: Tremor-Charts nur horizontale Gitterlinien, keine Datenanimation
+  description: Tremor-AreaChart zeigt nur horizontale Gitterlinien (vertical=false) in gray-200/gray-800, Y-Achse 56 px breit, Legende rechts; Area-Animation ist abgeschaltet, Tooltip blendet in 100 ms ein; Standardfüllung Verlauf.
+  source:
+    title: AreaChart.tsx
+    publisher: Tremor (tremorlabs/tremor, GitHub)
+    url: https://raw.githubusercontent.com/tremorlabs/tremor/main/src/components/AreaChart/AreaChart.tsx
+    date_published: 2025
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "isAnimationActive={false}"
+  parameters:
+    grid_vertical: false
+    y_axis_width_px: 56
+    tooltip_animation_ms: 100
+    fill_default: gradient
+    legend_position: right
+    auto_min_value: false
+  applies_to:
+    purposes: [time_comparison]
+    idioms: [line, area_stacked, column_time]
+    style_pack: modern_product
+    layer: style
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-014
+  pattern: Hover/Klick dimmt andere Serien auf 30 %, großzügige unsichtbare Trefferzone
+  description: Bei aktiver Serie reduziert Tremor die strokeOpacity der übrigen auf 0.3, Legendeneinträge auf opacity-40; transparente 12-px-Linien vergrößern die Klickfläche. Crosshair 1 px #d1d5db.
+  source:
+    title: AreaChart.tsx
+    publisher: Tremor (tremorlabs/tremor, GitHub)
+    url: https://raw.githubusercontent.com/tremorlabs/tremor/main/src/components/AreaChart/AreaChart.tsx
+    date_published: 2025
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "{ stroke: \"#d1d5db\", strokeWidth: 1 }"
+  parameters:
+    inactive_series_opacity: 0.3
+    inactive_legend_opacity: 0.4
+    hit_stroke_px: 12
+    crosshair_stroke: '#d1d5db'
+    crosshair_width_px: 1
+  applies_to:
+    purposes: [time_comparison, compare_categories]
+    idioms: [line, area_stacked]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-015
+  pattern: Tooltip-Karte mit Kopfzeile und Wert-Zeilen
+  description: Tremor-Tooltip rounded-md, 1-px-Rahmen, shadow-md, text-sm; Kopfzeile (Kategorie) durch border-b getrennt, darunter Zeilen Name links/Wert rechts (justify-between, space-x-8).
+  source:
+    title: AreaChart.tsx
+    publisher: Tremor (tremorlabs/tremor, GitHub)
+    url: https://raw.githubusercontent.com/tremorlabs/tremor/main/src/components/AreaChart/AreaChart.tsx
+    date_published: 2025
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "rounded-md border text-sm shadow-md"
+  parameters:
+    header_padding: px-4 py-2
+  applies_to:
+    purposes: [time_comparison]
+    idioms: [line, area_stacked, column_time]
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-016
+  pattern: Sparkline 112×48 px ohne Achsen, Tooltip, Punkte, Animation
+  description: Tremor SparkArea/Line/BarChart haben Standardgröße h-12 w-28, beide Achsen versteckt, keine Tooltips, dot=false, Strich 2 px mit runden Enden, Verlauf ab 40 % Deckkraft.
+  source:
+    title: SparkChart.tsx
+    publisher: Tremor (tremorlabs/tremor, GitHub)
+    url: https://raw.githubusercontent.com/tremorlabs/tremor/main/src/components/SparkChart/SparkChart.tsx
+    date_published: 2025
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "className={cx(\"h-12 w-28\", className)}"
+  parameters:
+    width_px: 112
+    height_px: 48
+    stroke_px: 2
+    linecap: round
+    gradient_top_opacity: 0.4
+    axes: hidden
+    tooltip: none
+    animation: false
+  applies_to:
+    purposes: [time_comparison]
+    idioms: [kpi_card_spark, kpi_card_sparkbar, matrix_sparkline]
+    style_pack: modern_product
+    layer: idiom
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-017
+  pattern: Neun benannte Chart-Farben, zyklisch zugewiesen
+  description: Tremor bildet Kategorien reihum auf neun Tailwind-Farbnamen ab (blue, emerald, violet, amber, gray, cyan, pink, lime, fuchsia), je als bg/stroke/fill/text-Klasse; Fallback gray-500.
+  source:
+    title: chartColors.ts
+    publisher: Tremor (tremorlabs/tremor, GitHub)
+    url: https://raw.githubusercontent.com/tremorlabs/tremor/main/src/utils/chartColors.ts
+    date_published: 2025
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    categorical_count: 9
+    order: [blue, emerald, violet, amber, gray, cyan, pink, lime, fuchsia]
+    fallback: gray-500
+  applies_to:
+    purposes: [compare_categories]
+    idioms: []
+    style_pack: modern_product
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-018
+  pattern: Tabellarische Ziffern für jede verglichene Zahl
+  description: Vercels Web Interface Guidelines verlangen tabular-nums oder eine Monospace (Geist Mono) für Zahlenvergleiche, Zahl und Einheit mit (geschütztem) Leerzeichen, locale-gerechte Formatierung.
+  source:
+    title: Web Interface Guidelines (README)
+    publisher: Vercel Labs (GitHub)
+    url: https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/README.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Use `font-variant-numeric: tabular-nums` or a monospace like Geist Mono"
+  parameters:
+    font_variant_numeric: tabular-nums
+  applies_to:
+    purposes: [value_verdict, compare_categories]
+    idioms: [kpi_card_spark, matrix_delta_pill, matrix_sparkline]
+    style_pack: modern_product
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-019
+  pattern: Skeleton mit Einblendverzögerung und Mindestdauer, layoutgleich
+  description: Lade-Indikatoren erst nach ~150–300 ms zeigen und dann mindestens ~300–500 ms stehen lassen (kein Flackern); Skeletons bilden den finalen Inhalt exakt ab, damit kein Layout-Sprung entsteht.
+  source:
+    title: Web Interface Guidelines (README)
+    publisher: Vercel Labs (GitHub)
+    url: https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/README.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Skeletons mirror final content exactly to avoid layout shift."
+  parameters:
+    show_delay_ms: [150, 300]
+    min_visible_ms: [300, 500]
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-020
+  pattern: Alle Zustände gestalten (leer, dünn, dicht, Fehler)
+  description: Jeder Bildschirm braucht gestaltete Leer-, Spärlich-, Dicht- und Fehlerzustände mit nächstem Schritt oder Rückweg.
+  source:
+    title: Web Interface Guidelines (README)
+    publisher: Vercel Labs (GitHub)
+    url: https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/README.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "All states designed. Empty, sparse, dense, & error states."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: style
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-021
+  pattern: Filterzustand in der URL
+  description: Filter, Tabs und Paginierung werden in der URL gehalten, damit Teilen, Neuladen und Zurück funktionieren — für Cockpits die Grundlage teilbarer Cross-Filter-Zustände.
+  source:
+    title: Web Interface Guidelines (README)
+    publisher: Vercel Labs (GitHub)
+    url: https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/README.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Persist state in the URL so share, refresh, Back/Forward navigation work"
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-022
+  pattern: Reduced Motion, nur transform/opacity animieren, unterbrechbar
+  description: prefers-reduced-motion respektieren und eine reduzierte Variante liefern; bevorzugt transform/opacity animieren; Animationen müssen durch Nutzereingabe abbrechbar sein; Bewegung über 5 s braucht Pause/Stop.
+  source:
+    title: Web Interface Guidelines (README)
+    publisher: Vercel Labs (GitHub)
+    url: https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/README.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Honor `prefers-reduced-motion`. Provide a reduced-motion variant."
+  parameters:
+    max_motion_without_controls_s: 5
+    animated_properties: [transform, opacity]
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-023
+  pattern: Geschachtelte Radien konzentrisch, Schatten zweilagig, halbtransparente Rahmen
+  description: Kindradius ≤ Elternradius und konzentrisch; Schatten aus mindestens zwei Lagen (Umgebungs- und Direktlicht); Rahmen und Schatten kombinieren, halbtransparente Rahmen für Kantenschärfe. Kontrast bevorzugt nach APCA statt WCAG 2.
+  source:
+    title: Web Interface Guidelines (README)
+    publisher: Vercel Labs (GitHub)
+    url: https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/README.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Combine borders & shadows; semi-transparent borders improve edge clarity."
+  parameters:
+    shadow_layers_min: 2
+    contrast_model: APCA
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: style
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-024
+  pattern: Tooltip-Verzögerung nur beim ersten in einer Gruppe
+  description: Erster Tooltip einer Gruppe verzögert, benachbarte danach ohne Verzögerung — passt auf Kachelreihen mit Hilfe-Tooltips.
+  source:
+    title: Web Interface Guidelines (README)
+    publisher: Vercel Labs (GitHub)
+    url: https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/README.md
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Delay the first tooltip in a group; subsequent peers have no delay"
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-025
+  pattern: Radix-12-Stufen-Skala mit festen Rollen
+  description: Radix Colors ordnet jeder der 12 Stufen eine Rolle zu (1–2 App-/Kartenhintergrund, 3–5 Komponentenflächen normal/hover/aktiv, 6–8 Rahmen und Fokus, 9–10 Vollfarbe, 11–12 Text); Stufe 11/12 garantieren APCA Lc 60/90 auf Stufe 2.
+  source:
+    title: Understanding the scale
+    publisher: Radix UI / WorkOS (radix-ui/website, GitHub)
+    url: https://raw.githubusercontent.com/radix-ui/website/main/data/colors/docs/palette-composition/understanding-the-scale.mdx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Steps 11 and 12—which are designed for text—are guaranteed to Lc 60 and Lc 90 APCA contrast ratio on top of a step 2 background"
+  parameters:
+    steps: 12
+    text_low_contrast_apca_lc: 60
+    text_high_contrast_apca_lc: 90
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-026
+  pattern: Carbon 14-Farben-Kategorialpalette mit fester Reihenfolge und Gruppenpaletten 1–5
+  description: Carbon-Kategorialfarben werden strikt in Sequenz vergeben (Nachbarkontrast kuratiert); ist die Kategorienzahl bekannt, ersetzen gruppierte Paletten (1- bis 5-farbig, mehrere Varianten) die Sequenz. Carbon Charts führt 4/5/5/3/2 Varianten für 1–5 Farben und eine 14-Farben-Variante.
+  source:
+    title: configuration-non-customizable.ts (Carbon Charts) + color-palettes/index.mdx (Carbon website)
+    publisher: IBM Carbon Design System (GitHub)
+    url: https://raw.githubusercontent.com/carbon-design-system/carbon-charts/master/packages/core/src/configuration-non-customizable.ts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The sequence is carefully curated to maximize contrast between neighboring colors to help with visual differentiation."
+  parameters:
+    categorical_max: 14
+    grouped_variants: {'1-color': 4, '2-color': 5, '3-color': 5, '4-color': 3, '5-color': 2, '14-color': 1}
+    first_four_hex_search_excerpt: ['#6929c4', '#1192e8', '#005d5d', '#9f1853']
+  applies_to:
+    purposes: [compare_categories, part_to_whole]
+    idioms: []
+    style_pack: carbon
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-027
+  pattern: Sequenziell im Dunkelmodus invertiert, divergierend nicht
+  description: In monochromen Sequenzpaletten steht hell für große Werte im Dark Theme (umgekehrt zum Light Theme); divergierende Paletten unterscheiden nicht zwischen Themes. Alert-Palette rot/orange/gelb/grün nach Schwere.
+  source:
+    title: Color palettes (color-palettes/index.mdx)
+    publisher: IBM Carbon Design System (GitHub)
+    url: https://raw.githubusercontent.com/carbon-design-system/carbon-website/main/src/pages/data-visualization/color-palettes/index.mdx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "In dark themes, the lightest color denotes the largest values."
+  parameters: {}
+  applies_to:
+    purposes: [distribution, deviation_from_target]
+    idioms: [matrix_bullet, matrix_delta_pill]
+    style_pack: carbon
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-028
+  pattern: Legende unten, Klick isoliert, Hover senkt andere auf 30 %
+  description: Carbon-Legenden stehen standardmäßig unten, max. zwei Zeilen und ≤30 % der Charthöhe; Klick isoliert eine Kategorie (Checkmarken), Hover dimmt übrige auf 30 % Deckkraft; Direktbeschriftung vorziehen, bei einer Serie keine Legende.
+  source:
+    title: Legends (legends/index.mdx)
+    publisher: IBM Carbon Design System (GitHub)
+    url: https://raw.githubusercontent.com/carbon-design-system/carbon-website/main/src/pages/data-visualization/legends/index.mdx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "A legend should not be taller than 30 percent of the chart's height"
+  parameters:
+    legend_position_default: bottom
+    legend_max_lines: 2
+    legend_max_height_pct: 30
+    hover_dim_opacity: 0.3
+  applies_to:
+    purposes: [compare_categories, time_comparison]
+    idioms: [line, bar_stacked, area_stacked]
+    style_pack: carbon
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-029
+  pattern: Chart-Toolbar mit Tabellenansicht, Vollbild, Export
+  description: Carbon Charts schaltet standardmäßig eine Toolbar ein (Daten als Tabelle, Vollbild, CSV/PNG/JPG-Export, 3 sichtbare Icons), Legende klickbar, Tooltip zeigt Summe; Transition-Standard 300 ms, Hover-Füllwechsel 100 ms.
+  source:
+    title: configuration.ts / configuration-non-customizable.ts (Carbon Charts)
+    publisher: IBM Carbon Design System (GitHub)
+    url: https://raw.githubusercontent.com/carbon-design-system/carbon-charts/master/packages/core/src/configuration.ts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "SHOW_AS_DATATABLE, MAKE_FULLSCREEN, EXPORT_CSV, EXPORT_PNG, EXPORT_JPG"
+  parameters:
+    toolbar_visible_icons: 3
+    transition_default_ms: 300
+    hover_fill_ms: 100
+    tooltip_show_total: true
+    y_grid_ticks: 5
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: carbon
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-030
+  pattern: Dashboard-Hierarchie nach Kontrast und Fläche, F-Muster, gespiegelte Filter
+  description: Wichtigste Daten bekommen höchsten Kontrast und größte Fläche; Anordnung im F-Muster oben links beginnend; in Explorations-Dashboards spiegeln verbundene Charts Filter und Zoom; Farbzuordnung über das ganze Dashboard konstant.
+  source:
+    title: Dashboards (dashboards/index.mdx)
+    publisher: IBM Carbon Design System (GitHub)
+    url: https://raw.githubusercontent.com/carbon-design-system/carbon-website/main/src/pages/data-visualization/dashboards/index.mdx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The most important data should have the highest contrast and occupy the largest area."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: carbon
+    layer: layout
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-031
+  pattern: Nullbasis für Balken/Flächen, keine Interpolation über Datenlücken
+  description: Numerische Achsen bei Teil-vom-Ganzen- und Vergleichscharts bei null beginnen (Linie/Scatter dürfen abweichen); Lücken nie interpolieren, Beginn und Ende markieren; Achsenbruch 16 px; Zeitachsen-Landmarken (neuer Monat/Jahr) halbfett.
+  source:
+    title: Axes and labels (axes-and-labels/index.mdx)
+    publisher: IBM Carbon Design System (GitHub)
+    url: https://raw.githubusercontent.com/carbon-design-system/carbon-website/main/src/pages/data-visualization/axes-and-labels/index.mdx
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Never interpolate between periods when data is unavailable"
+  parameters:
+    axis_break_px: 16
+  applies_to:
+    purposes: [time_comparison, compare_categories, part_to_whole]
+    idioms: [line, column_time, bar_absolute, area_stacked]
+    style_pack: carbon
+    layer: selection_logic
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-032
+  pattern: Fluent-Karte = Schatten statt Rahmen (filled), Rahmen nur bei outline
+  description: Fluent-v9-Card nutzt in der Variante filled colorNeutralBackground1 mit shadow4 (Hover shadow8) und transparentem Strich; outline hat keinen Schatten, dafür colorNeutralStroke1. Innenabstand 8/12/16 px (small/medium/large), Radius borderRadiusSmall/Medium/Large (2/4/6 px).
+  source:
+    title: useCardStyles.styles.ts (react-card)
+    publisher: Microsoft Fluent UI (GitHub)
+    url: https://raw.githubusercontent.com/microsoft/fluentui/master/packages/react-components/react-card/library/src/components/Card/useCardStyles.styles.ts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "boxShadow: tokens.shadow4"
+  parameters:
+    padding_px: {small: 8, medium: 12, large: 16}
+    radius_px: {small: 2, medium: 4, large: 6}
+    shadow_rest: shadow4
+    shadow_hover: shadow8
+    variants: [filled, filled-alternative, outline, subtle]
+  applies_to:
+    purposes: []
+    idioms: [kpi_card_spark, kpi_card_bullet]
+    style_pack: fluent
+    layer: style
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-033
+  pattern: Fluent-Schatten zweilagig (ambient + key)
+  description: Fluent-Schatten bestehen aus Umgebungsschatten (0 0 2px) plus gerichtetem Schatten mit wachsendem Versatz; shadow4 = 0 0 2px ambient, 0 2px 4px key.
+  source:
+    title: shadows.ts (tokens)
+    publisher: Microsoft Fluent UI (GitHub)
+    url: https://raw.githubusercontent.com/microsoft/fluentui/master/packages/tokens/src/utils/shadows.ts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "0 0 2px ${ambientColor}, 0 2px 4px ${keyColor}"
+  parameters:
+    shadow2: 0 0 2px ambient, 0 1px 2px key
+    shadow4: 0 0 2px ambient, 0 2px 4px key
+    shadow8: 0 0 2px ambient, 0 4px 8px key
+    shadow16: 0 0 2px ambient, 0 8px 16px key
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-034
+  pattern: Fluent-Radius-Skala 2–40 px
+  description: Globale Fluent-Radien - Small 2, Medium 4, Large 6, XLarge 8, 2XLarge 12, 3XLarge 16 px usw.; kleine Radien sind das Erkennungsmerkmal gegenüber shadcn (10 px Basis).
+  source:
+    title: borderRadius.ts (tokens/global)
+    publisher: Microsoft Fluent UI (GitHub)
+    url: https://raw.githubusercontent.com/microsoft/fluentui/master/packages/tokens/src/global/borderRadius.ts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    radius_px: {small: 2, medium: 4, large: 6, xlarge: 8, 2xlarge: 12, 3xlarge: 16, 4xlarge: 24}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-035
+  pattern: Fluent-Motion - acht Dauern, benannte Kurven
+  description: Fluent-Dauer-Token von 50 bis 500 ms (normal 200 ms) und Easing-Kurven, u. a. curveDecelerateMid cubic-bezier(0,0,0,1) und curveEasyEase cubic-bezier(0.33,0,0.67,1).
+  source:
+    title: durations.ts / curves.ts (tokens/global)
+    publisher: Microsoft Fluent UI (GitHub)
+    url: https://raw.githubusercontent.com/microsoft/fluentui/master/packages/tokens/src/global/durations.ts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    duration_ms: {ultraFast: 50, faster: 100, fast: 150, normal: 200, gentle: 250, slow: 300, slower: 400, ultraSlow: 500}
+    curveDecelerateMid: cubic-bezier(0,0,0,1)
+    curveDecelerateMax: cubic-bezier(0.1,0.9,0.2,1)
+    curveAccelerateMid: cubic-bezier(1,0,1,1)
+    curveEasyEase: cubic-bezier(0.33,0,0.67,1)
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-036
+  pattern: Eigene Numerik-Schrift (Bahnschrift) im Fluent-Token-Set
+  description: Fluent führt neben Segoe UI eine fontFamilyNumeric mit Bahnschrift an erster Stelle; Typrampe 10/12/14/16/20/24/28/32/40/68 px mit festen Zeilenhöhen (z. B. body1 14/20, subtitle1 20/28 semibold, largeTitle 40/52).
+  source:
+    title: fonts.ts / typographyStyles.ts (tokens/global)
+    publisher: Microsoft Fluent UI (GitHub)
+    url: https://raw.githubusercontent.com/microsoft/fluentui/master/packages/tokens/src/global/fonts.ts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "fontFamilyNumeric: \"Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif\""
+  parameters:
+    font_base: Segoe UI
+    font_numeric: Bahnschrift
+    type_ramp_px: [10, 12, 14, 16, 20, 24, 28, 32, 40, 68]
+    body1: 14/20 regular
+    subtitle1: 20/28 semibold
+    title3: 24/32 semibold
+    largeTitle: 40/52 semibold
+  applies_to:
+    purposes: [value_verdict]
+    idioms: [kpi_card_spark, kpi_card_bullet]
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-037
+  pattern: Fluent-Charts DataVizPalette - 40 qualitative Farben plus 7 semantische
+  description: '@fluentui/react-charts vergibt Serienfarben zyklisch aus 40 qualitativen Farben (color1 cornflower #637cef, color2 hotPink #e3008c, color3 teal #2aa0a4, color4 orchid #9373c0, color5 lightGreen #13a10e …) und semantische Token info/error/warning/success mit Hell-/Dunkelwerten.'
+  source:
+    title: colors.ts (react-charts utilities)
+    publisher: Microsoft Fluent UI (GitHub)
+    url: https://raw.githubusercontent.com/microsoft/fluentui/master/packages/charts/react-charts/library/src/utilities/colors.ts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    categorical_count: 40
+    first_five: ['#637cef', '#e3008c', '#2aa0a4', '#9373c0', '#13a10e']
+    error: {light: '#c50f1f', dark: '#dc626d'}
+    warning: {light: '#f7630c', dark: '#f87528'}
+    success: {light: '#107c10', dark: '#54b054'}
+  applies_to:
+    purposes: [compare_categories, deviation_from_target]
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-038
+  pattern: Office-Datavis - Legende oben links, Achsen/Gitter hellgrau, Tooltip kollisionsfrei
+  description: Microsoft-Leitlinie für Office/Fluent - Legende standardmäßig bündig links über dem Plot (sonst oben rechts, scrollbar), Legendenmarker in Form des Marks; Achsenbeschriftung und Gitter hellgrau; keine Schlagschatten/Outlines; Tooltip weicht an Rändern auf die andere Seite aus.
+  source:
+    title: Data visualization style guidelines for Office Add-ins
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/en-us/office/dev/add-ins/design/data-visualization-guidelines
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Flush left above the plot area by default, if all legend items fit above the chart."
+  parameters:
+    legend_position_default: top-left
+    gridline_color: light gray (Fluent neutrals)
+  applies_to:
+    purposes: [time_comparison, compare_categories]
+    idioms: [line, column_time, bar_absolute, scatter]
+    style_pack: fluent
+    layer: style
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-039
+  pattern: Chart-Motion - Achsen vor Daten, Gruppen ≤4–5 Objekte
+  description: Animation einzeln staffeln, Achsenänderungen vor Daten-Ink animieren, Datenobjekte in Gruppen von höchstens 4–5 bewegen, Flächen-Mappings in der Transition erhalten, keine Zieranimation.
+  source:
+    title: Data visualization style guidelines for Office Add-ins
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/en-us/office/dev/add-ins/design/data-visualization-guidelines
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Stage changes to axes before changes to data ink."
+  parameters:
+    max_objects_per_group: 5
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-040
+  pattern: Power BI Fluent-2-Basisthema - 1920×1080, graue Seite, runde Ecken, Titel an, Achsentitel aus
+  description: Neue Power-BI-Berichte nutzen das Fluent-2-Basisthema - Seiten 1920×1080, Grau-Hintergrund, mehr Padding mit runden Ecken, Titel/Untertitel an, Achsentitel aus; Linien standardmäßig geglättet; Small Multiples starten 1×4/4×1.
+  source:
+    title: Visual defaults in Power BI reports
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/create-reports/power-bi-reports-visual-defaults
+    date_published: 2026
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Titles and subtitles are on by default; axis titles are off by default"
+  parameters:
+    canvas_px: [1920, 1080]
+    line_default: smooth
+    small_multiples_start: 1x4 or 4x1
+    base_themes: [Fluent 2, Classic 2026, Classic 2018]
+  applies_to:
+    purposes: []
+    idioms: [small_multiples, line]
+    style_pack: fluent
+    layer: layout
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-041
+  pattern: Modern visual defaults GA (August 2026) mit Theme-Pane und Farbrollen
+  description: Die modernen Visual-Defaults und der Theme-Pane sind seit dem Power-BI-Update August 2026 GA; Farben in Rollen Daten/Strukturell/Sentiment (positiv, neutral, negativ)/Divergent, Paletten u. a. Versa und Accessible Default; Rahmen, Schatten, Padding reportweit.
+  source:
+    title: What's new in Power BI? August 2026 update / Visual defaults in Power BI reports
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/fundamentals/whats-new
+    date_published: 2026-08
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Highlights include modern visual defaults and the Theme pane reaching general availability"
+  parameters:
+    color_roles: [data, structural, sentiment, divergent]
+    palettes_named: [Versa, Sunset, Accessible Default, Electric]
+  applies_to:
+    purposes: [deviation_from_target]
+    idioms: []
+    style_pack: fluent
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-042
+  pattern: Power-BI-Karte (GA Nov 2025) mit Padding 12 px und Referenzlabel-Bereich 50 %
+  description: Das neue Card-Visual (GA November 2025) hat Standard-Padding 12 px; Referenzlabels haben eigenen Bereich, der standardmäßig 50 % der Karte einnimmt; Fluent-2-Basisthema reduziert Padding und entfernt den Referenzlabel-Hintergrund.
+  source:
+    title: Create a card visual in Power BI
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-card
+    date_published: 2025-11
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "They also now take up 50% of the card by default."
+  parameters:
+    card_padding_px_ga: 12
+    reference_label_area_pct: 50
+  applies_to:
+    purposes: [value_verdict, deviation_from_target]
+    idioms: [kpi_card_bullet, kpi_card_spark]
+    style_pack: fluent
+    layer: idiom
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-043
+  pattern: Cross-Filter vs. Cross-Highlight als Standardinteraktion
+  description: In Power BI filtern bzw. heben ausgewählte Datenpunkte standardmäßig alle anderen Visuals der Seite hervor; Highlight dimmt Nicht-Zutreffendes, Filter entfernt es; Drill wirkt standardmäßig nicht auf andere Visuals.
+  source:
+    title: Change how visuals interact in a Power BI report
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/create-reports/service-reports-visual-interactions
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "By default, visualizations on a report page cross-filter and cross-highlight the other visualizations on the page."
+  parameters:
+    drill_filters_others_default: false
+  applies_to:
+    purposes: [driver_breakdown, compare_categories]
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-044
+  pattern: Power-BI-Barrierefreiheits-Checkliste (4.5:1, keine Info nur im Tooltip)
+  description: Text-/Label-Kontrast mindestens 4.5:1, Farbe nie alleiniger Träger, Alt-Text für Visuals, Sortierung bewusst setzen (Show-Data-Tabelle übernimmt sie), wichtige Aussagen nicht nur per Interaktion oder Tooltip erreichbar; problematische Paare (rot/grün, blau/lila …) meiden.
+  source:
+    title: Design Power BI reports for accessibility
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/create-reports/desktop-accessibility-creating-reports
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Don't use tooltips to convey important information."
+  parameters:
+    text_contrast_min: 4.5
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: selection_logic
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-045
+  pattern: Achsenbereich fest vs. dynamisch bewusst wählen
+  description: Apple HIG unterscheidet feste Achsen (Grenzen mit Bedeutung, z. B. 0–100 %) und dynamische (an Daten angepasst); vertraute Tickfolgen bevorzugen.
+  source:
+    title: Human Interface Guidelines - Charts
+    publisher: Apple
+    url: https://developer.apple.com/design/human-interface-guidelines/charts
+    date_published: 2022-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Prefer familiar sequences of values in the tick and grid-line labels for an axis."
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, deviation_from_target]
+    idioms: [line, column_time, kpi_card_spark]
+    style_pack: modern_product
+    layer: selection_logic
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-046
+  pattern: Interaktion optional, nie Voraussetzung; Trefferfläche = ganze Plotfläche
+  description: Interaktion anbieten, aber Kerninformation nie hinter Interaktion verstecken; bei kleinen Marks die Trefferfläche auf die gesamte Plotfläche erweitern; Tastatur/Switch Control unterstützen.
+  source:
+    title: Human Interface Guidelines - Charts
+    publisher: Apple
+    url: https://developer.apple.com/design/human-interface-guidelines/charts
+    date_published: 2022-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Let people interact with the data when it makes sense, but don't require interaction to reveal critical information."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: interaction
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-047
+  pattern: Barrierefreie Chart-Labels mit Werten statt Adjektiven
+  description: Accessibility-Labels nennen Werte mit Kontext (Datum, Ort), keine subjektiven Wörter („rapidly“), eindeutige Formate („June 6“ statt 6/6), beschreiben Bedeutung statt Farbe, Achsen immer in gleicher Reihenfolge; Audio Graphs mit Titel und Zusammenfassung.
+  source:
+    title: Human Interface Guidelines - Charts
+    publisher: Apple
+    url: https://developer.apple.com/design/human-interface-guidelines/charts
+    date_published: 2022-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Avoid relying solely on color to differentiate between different pieces of data."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: modern_product
+    layer: selection_logic
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-048
+  pattern: Kleine Charts als Vorschau, Details auf Anforderung, ein Datensatz = ein Stil
+  description: Chartgröße an Funktion und Detailgrad anpassen; kleine Charts als Snapshot mit Weg zur größeren Ansicht; Details schrittweise freigeben; mehrere Charts desselben Datensatzes mit gleichem Typ, Farben und Layout.
+  source:
+    title: Human Interface Guidelines - Charting data
+    publisher: Apple
+    url: https://developer.apple.com/design/human-interface-guidelines/charting-data
+    date_published: 2022-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Keep a chart simple, letting people choose when they want additional details."
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, evidence_detail]
+    idioms: [kpi_card_spark, small_multiples]
+    style_pack: modern_product
+    layer: layout
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-049
+  pattern: Material-3-Motion als Federn (Standard vs. Expressive, räumlich vs. Effekt)
+  description: Material 3 (Compose-Tokens) definiert Motion als Federphysik - räumliche Federn für Position/Größe, Effektfedern (Dämpfung 1.0, kein Überschwingen) für Farbe/Deckkraft; Expressive schwingt über (Dämpfung 0.6–0.8), Standard kaum (0.9).
+  source:
+    title: StandardMotionTokens.kt / ExpressiveMotionTokens.kt (Compose Material 3)
+    publisher: Google AndroidX (GitHub-Spiegel)
+    url: https://raw.githubusercontent.com/androidx/androidx/androidx-main/compose/material3/material3/src/commonMain/kotlin/androidx/compose/material3/tokens/ExpressiveMotionTokens.kt
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    standard_spatial_default: {damping: 0.9, stiffness: 700}
+    standard_effects_default: {damping: 1.0, stiffness: 1600}
+    expressive_spatial_default: {damping: 0.8, stiffness: 380}
+    expressive_spatial_fast: {damping: 0.6, stiffness: 800}
+    expressive_effects_default: {damping: 1.0, stiffness: 1600}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: material
+    layer: token
+  confidence: from_source
+  retrieval: fetched
+
+- id: product-050
+  pattern: Atlassian Chart-Token mit Sequenznummern, brand und neutral
+  description: Atlassian führt eigene Chart-Farbtoken (color.chart.*) mit Hell-/Dunkelwert je Token; kategoriale Token werden in der Reihenfolge ihrer Nummern vergeben; color.chart.neutral für weniger wichtige Daten, color.chart.brand wenn nur eine Farbe nötig.
+  source:
+    title: Data visualization color
+    publisher: Atlassian Design System
+    url: https://atlassian.design/foundations/color/data-visualization-color
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Follow the same sequence as the numbers in the token names."
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories]
+    idioms: []
+    style_pack: modern_product
+    layer: token
+  confidence: from_source
+  retrieval: search_excerpt
+
+- id: product-051
+  pattern: Linear 2026 - gedimmte Navigation, Logskala in Zeit-Charts, LCH-Themes
+  description: Linear dimmt seit dem UI-Refresh vom 12.03.2026 die Navigationsleiste zugunsten des Inhalts; Timing-Charts in Insights/Dashboards nutzen standardmäßig eine logarithmische Skala, damit Ausreißer den Rest nicht plattdrücken; Themes werden im LCH-Farbraum generiert.
+  source:
+    title: UI refresh (Changelog 2026-03-12) / How we redesigned the Linear UI
+    publisher: Linear
+    url: https://linear.app/changelog/2026-03-12-ui-refresh
+    date_published: 2026-03-12
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters:
+    timing_chart_scale_default: log
+    theme_color_space: LCH
+  applies_to:
+    purposes: [distribution, time_comparison]
+    idioms: [NEU:log_timing_chart]
+    style_pack: modern_product
+    layer: style
+  confidence: from_source
+  retrieval: search_excerpt

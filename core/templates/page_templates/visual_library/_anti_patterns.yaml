@@ -94,6 +94,14 @@ patterns:
     message: "Small-multiple panels with independent y-scales cannot be compared across panels."
     fix: "Share one y-scale across all panels."
     source: "Cleveland; Tufte (small multiples)"
+  variance_tier_on_its_own_scale:
+    message: "An absolute-variance tier scaled apart from its base values makes a small variance look as large as the values themselves — same unit, different scale."
+    fix: "Draw the absolute variance on the scale of the values it compares (multi_tier_column keeps AC, PY and ΔPY on one y scale)."
+    source: "IBCS 2.0 CO 4.2 (p. 149), UN 4.1 (p. 52)"
+  relative_variance_as_wide_column:
+    message: "A relative variance (ΔPL%, ΔPY%) drawn as a full-width column reads as an amount and competes with the absolute columns and variance bars."
+    fix: "Draw relative variances as very thin pins with a head marker (variance_pin); keep full columns for values and absolute variances."
+    source: "IBCS 2.0 UN 4.1 (p. 54), EX 1.1 (p. 102)"
   dual_axis_no_reason:
     message: "A second y-axis lets any two series be made to 'correlate' — a classic spurious reading."
     fix: "Use two aligned panels, or index both to a common base; only dual-axis with a stated reason."

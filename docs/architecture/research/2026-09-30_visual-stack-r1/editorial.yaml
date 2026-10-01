@@ -1,0 +1,1275 @@
+- id: editorial-001
+  pattern: FT-Kategorie Deviation
+  description: 'Abweichung (+/-) von einem festen Bezugspunkt (Null, Ziel oder Langfristmittel), auch Stimmungsdaten.
+    Chart-Typen: Diverging bar, Diverging stacked bar, Spine, Surplus/deficit filled line. Abbildung: deviation_from_target;
+    Diverging bar = deviation_bar vorhanden, übrige neu.'
+  source: &id001
+    title: Visual Vocabulary (Poster, EN)
+    publisher: Financial Times Visual Journalism Team
+    url: https://github.com/Financial-Times/chart-doctor/blob/main/visual-vocabulary/Visual-vocabulary-en.pdf
+    date_published: '2019'
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: Emphasise variations (+/-) from a fixed reference point. Typically the reference point is zero but it
+    can also be a target or a long-term average.
+  parameters: {}
+  applies_to:
+    purposes:
+    - deviation_from_target
+    - value_verdict
+    idioms:
+    - deviation_bar
+    - NEU:diverging_stacked_bar
+    - NEU:spine
+    - NEU:surplus_deficit_line
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-002
+  pattern: FT-Kategorie Correlation
+  description: 'Beziehung zwischen zwei oder mehr Variablen, mit Warnhinweis, dass Leser Kausalität unterstellen.
+    Chart-Typen: Scatterplot, Column + line timeline, Connected scatterplot, Bubble, XY heatmap. Abbildung: correlation;
+    nur scatter vorhanden.'
+  source: *id001
+  evidence: Be mindful that, unless you tell them otherwise, many readers will assume the relationships you show
+    them to be causal
+  parameters: {}
+  applies_to:
+    purposes:
+    - correlation
+    idioms:
+    - scatter
+    - NEU:connected_scatter
+    - NEU:bubble
+    - NEU:xy_heatmap
+    - NEU:column_line_combo
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-003
+  pattern: FT-Kategorie Ranking
+  description: 'Position in einer geordneten Liste wichtiger als absoluter Wert; Punkte von Interesse hervorheben.
+    Chart-Typen: Ordered bar/column, Ordered proportional symbol, Dot strip plot, Slope, Lollipop, Bump. Abbildung:
+    compare_categories (Rang).'
+  source: *id001
+  evidence: Use where an item's position in an ordered list is more important than its absolute or relative value.
+  parameters: {}
+  applies_to:
+    purposes:
+    - compare_categories
+    idioms:
+    - bar_ranking
+    - lollipop
+    - slope
+    - NEU:dot_strip
+    - NEU:bump
+    - NEU:ordered_proportional_symbol
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-004
+  pattern: FT-Kategorie Distribution
+  description: 'Werte und ihre Häufigkeit; Schiefe als Aussage über Ungleichheit. Chart-Typen: Histogram, Boxplot,
+    Violin, Population pyramid, Dot strip plot, Dot plot, Barcode plot, Cumulative curve, Frequency polygons, Beeswarm.
+    Histogramm: Lücken zwischen Säulen klein halten, damit die Form sichtbar wird.'
+  source: *id001
+  evidence: The standard way to show a statistical distribution - keep the gaps between columns small to highlight
+    the 'shape' of the data.
+  parameters: {}
+  applies_to:
+    purposes:
+    - distribution
+    idioms:
+    - histogram
+    - boxplot
+    - dumbbell
+    - NEU:violin
+    - NEU:population_pyramid
+    - NEU:beeswarm
+    - NEU:barcode_plot
+    - NEU:cumulative_curve
+    - NEU:frequency_polygon
+    - NEU:dot_strip
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-005
+  pattern: FT-Kategorie Change over Time
+  description: 'Trends betonen, kurz (intraday) bis Jahrhunderte; die Wahl des Zeitfensters ist Teil der Aussage.
+    Chart-Typen: Line, Column, Column + line, Slope, Area, Fan chart, Connected scatterplot, Calendar heatmap, Priestley/Circle/Vertical
+    timeline, Seismogram, Candlestick, Streamgraph. Vertical timeline ist explizit für Scrollen auf Mobilgeräten
+    gedacht.'
+  source: *id001
+  evidence: Choosing the correct time period is important to provide suitable context for the reader.
+  parameters: {}
+  applies_to:
+    purposes:
+    - time_comparison
+    idioms:
+    - line
+    - column_time
+    - slope
+    - area_stacked
+    - NEU:fan_chart
+    - NEU:calendar_heatmap
+    - NEU:vertical_timeline
+    - NEU:priestley_timeline
+    - NEU:candlestick
+    - NEU:streamgraph
+    - NEU:column_line_combo
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-006
+  pattern: FT-Kategorie Part-to-whole
+  description: 'Zerlegung einer Einheit in Bestandteile; wenn nur die Größe der Teile interessiert, Magnitude-Chart
+    nehmen. Chart-Typen: Stacked column/bar, Marimekko, Pie, Donut, Treemap, Voronoi, Arc, Gridplot, Venn, Waterfall.'
+  source: *id001
+  evidence: If the reader's interest is solely in the size of the components, consider a magnitude-type chart instead.
+  parameters: {}
+  applies_to:
+    purposes:
+    - part_to_whole
+    idioms:
+    - bar_stacked
+    - stacked_100
+    - donut
+    - waterfall_buildup
+    - NEU:treemap
+    - NEU:marimekko
+    - NEU:gridplot_waffle
+    - NEU:arc_hemicycle
+    - NEU:voronoi
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-007
+  pattern: FT-Kategorie Magnitude
+  description: 'Größenvergleich, relativ oder absolut; meist gezählte Mengen statt Raten. Chart-Typen: Column, Bar,
+    Paired column/bar, Marimekko, Proportional symbol, Isotype, Lollipop, Radar, Parallel coordinates, Bullet, Grouped
+    symbol. Bullet (Messwert gegen Ziel/Leistungsband) steht laut Textextraktion in diesem Bereich; Spaltenzuordnung
+    aus PDF-Text abgeleitet.'
+  source: *id001
+  evidence: Usually these show a 'counted' number (for example, barrels, dollars or people) rather than a calculated
+    rate or per cent.
+  parameters: {}
+  applies_to:
+    purposes:
+    - compare_categories
+    - deviation_from_target
+    idioms:
+    - bar_absolute
+    - lollipop
+    - bullet
+    - NEU:paired_bar
+    - NEU:isotype
+    - NEU:proportional_symbol
+    - NEU:radar
+    - NEU:parallel_coordinates
+    - NEU:grouped_symbol
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-008
+  pattern: FT-Kategorie Spatial
+  description: 'Karten nur, wenn genaue Lage oder geografisches Muster wichtiger ist als alles andere; Choropleth
+    immer mit Raten statt Summen. Chart-Typen: Choropleth, Proportional symbol, Flow map, Contour, Equalised/Scaled
+    cartogram, Dot density, Heat map. Kein Purpose in unserer Liste deckt Raum ab.'
+  source: *id001
+  evidence: should always be rates rather than totals and use a sensible base geography.
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms:
+    - NEU:choropleth
+    - NEU:proportional_symbol_map
+    - NEU:flow_map
+    - NEU:equalised_cartogram
+    - NEU:dot_density
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-009
+  pattern: FT-Kategorie Flow
+  description: 'Volumen oder Intensität von Bewegung zwischen Zuständen (logische Sequenzen oder Orte). Chart-Typen:
+    Sankey, Waterfall (Sequenz durch einen Prozess, typischerweise Budgets, mit +/- Komponenten), Chord, Network.'
+  source: *id001
+  evidence: Show the reader volumes or intensity of movement between two or more states or conditions.
+  parameters: {}
+  applies_to:
+    purposes:
+    - flow_between_stages
+    - contribution_to_change
+    idioms:
+    - sankey
+    - waterfall_buildup
+    - waterfall_variance
+    - NEU:chord
+    - NEU:network
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-010
+  pattern: 'FT-Auswahllogik: wichtigste Datenbeziehung zuerst'
+  description: 'Auswahl in zwei Schritten: (1) die für die Geschichte wichtigste Datenbeziehung aus 9 Kategorien
+    wählen, (2) innerhalb der Kategorie Chart-Typen als Startpunkt prüfen. Ausdrücklich kein Wizard und nicht erschöpfend.
+    Für die automatische Auswahl: Kategorie = Purpose-Feld je Use-Case-Frage, Chart-Typ = Idiom-Kandidatenliste.'
+  source: *id001
+  evidence: Use the categories across the top to decide which data relationship is most important in your story
+  parameters:
+    kategorien: 9
+  applies_to:
+    purposes:
+    - time_comparison
+    - deviation_from_target
+    - compare_categories
+    - part_to_whole
+    - correlation
+    - flow_between_stages
+    - distribution
+    idioms: []
+    style_pack: editorial
+    layer: selection_logic
+  confidence: from_source
+- id: editorial-011
+  pattern: 'FT: Nullbasis nur für Längen-Encodings'
+  description: Bar/Column müssen bei 0 beginnen; Lollipop muss nicht (aber vorzugsweise). Säulen über Zeit am besten
+    mit nur einer Serie; Paired column wird ab mehr als 2 Serien schwer lesbar.
+  source: *id001
+  evidence: The standard way to compare the size of things. Must always start at 0 on the axis.
+  parameters:
+    paired_column_max_series: 2
+  applies_to:
+    purposes:
+    - compare_categories
+    - time_comparison
+    idioms:
+    - bar_absolute
+    - column_time
+    - lollipop
+    - NEU:paired_bar
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-012
+  pattern: 'FT: Ranking sortiert, Fan chart für Projektionsunsicherheit'
+  description: Balken zeigen Ränge nur dann leicht lesbar, wenn sortiert. Fan chart zeigt Unsicherheit künftiger
+    Projektionen, die mit dem Horizont wächst (Kandidat für Forecast-Idiom).
+  source: *id001
+  evidence: Use to show the uncertainty in future projections - usually this grows the further forward to projection.
+  parameters: {}
+  applies_to:
+    purposes:
+    - time_comparison
+    - compare_categories
+    idioms:
+    - bar_ranking
+    - NEU:fan_chart
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-013
+  pattern: 'FT Visual Vocabulary: README-Liste weicht vom Poster ab'
+  description: Die GitHub-README listet je Kategorie weniger Typen als das PDF-Poster (z. B. fehlen Bullet, Bump,
+    Marimekko, Beeswarm, Streamgraph, Candlestick, Vertical timeline). Für eine Idiom-Lückenliste das Poster als
+    maßgeblich nehmen.
+  source:
+    title: chart-doctor/visual-vocabulary README
+    publisher: Financial Times
+    url: https://github.com/Financial-Times/chart-doctor/tree/main/visual-vocabulary
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: Emphasise variations (+/-) from a fixed reference point.
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: editorial
+    layer: selection_logic
+  confidence: from_source
+- id: editorial-014
+  pattern: 'Urban: Typografie-Hierarchie (Web/Print)'
+  description: 'Feste Größen je Textrolle; Titel fett, Achsentitel kursiv und immer horizontal über dem obersten
+    Achsenlabel, Einheiten in Klammern im Achsentitel statt an den Ticks. Schrift Lato, Ersatz Arial; Textfarbe
+    #000000.'
+  source: &id002
+    title: Urban Institute Data Visualization Style Guide
+    publisher: Urban Institute
+    url: https://urbaninstitute.github.io/graphics-styleguide/
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: Always horizontal, above the top axis label If needed, include units or multipliers in parenthesis.
+  parameters:
+    title_px_web: 18
+    title_pt_print: 12
+    subtitle_px_web: 14
+    subtitle_pt_print: 9.5
+    axis_title_px_web: 12
+    axis_label_px_web: 12
+    legend_px_web: 12
+    direct_label_px_web: 12
+    data_label_px_web: 11
+    source_notes_px_web: 11
+    text_color: '#000000'
+    font: Lato
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: editorial
+    layer: token
+  confidence: from_source
+- id: editorial-015
+  pattern: 'Urban: Titel = Hauptaussage, Qualifier in den Untertitel'
+  description: Titel nennt den Hauptpunkt des Charts, kürzer als zwei Zeilen, ohne Qualifier; Jahre, Einheiten,
+    Präzisierungen gehören in den Untertitel; Methodik in Quelle/Anmerkungen, nicht in Titel oder Labels.
+  source: *id002
+  evidence: The main point of the chart. Try to keep shorter than two lines and avoid qualifiers.
+  parameters:
+    title_max_lines: 2
+  applies_to:
+    purposes:
+    - value_verdict
+    idioms: []
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-016
+  pattern: 'Urban: Direktbeschriftung mit Schwellen'
+  description: Direkte Serienlabels (fett) bei Linien- oder Säulencharts mit höchstens drei Serien; Datenpunktlabels
+    nur, wenn weniger als 10 Säulen. Legende sonst oben zwischen Titel und y-Achsenlabel (bevorzugt) oder rechts,
+    Reihenfolge wie die Daten.
+  source: *id002
+  evidence: Only directly label columns if there are fewer than 10 total columns in the chart.
+  parameters:
+    direct_label_max_series: 3
+    data_label_max_columns: 9
+    legend_position: top
+  applies_to:
+    purposes:
+    - compare_categories
+    - time_comparison
+    idioms:
+    - line
+    - column_time
+    - bar_absolute
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-017
+  pattern: 'Urban: Balkengeometrie und Gitterverzicht bei wenigen Balken'
+  description: Balkenbreite etwa doppelt so groß wie der Zwischenraum; Achsenlabels immer horizontal (lange Labels
+    -> horizontaler Balken), Kategorienlabels rechtsbündig; gleiche Variable = gleiche Farbe; unter 10 Balken Gitter
+    und y-Achse weglassen und direkt beschriften; keine Tickmarks bei kategorialen Achsen.
+  source: *id002
+  evidence: The width of the bars should be about twice the width of the space between the bars.
+  parameters:
+    bar_to_gap_ratio: 2
+    drop_gridlines_below_bars: 10
+  applies_to:
+    purposes:
+    - compare_categories
+    idioms:
+    - bar_absolute
+    - bar_ranking
+    - column_time
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-018
+  pattern: 'Urban: Highlight-Farben sparsam, Grau/Abstufung für Referenzen'
+  description: 'Gelb und Magenta nur zum Hervorheben (oder Magenta als Trendlinie, wenn Schwarz belegt); Teilmengen,
+    Projektionen oder Mittelwerte über andere Farbabstufung oder Grau abgrenzen; Beispiel: USA in Highlight-Farbe,
+    OECD-Total als dunklere Abstufung der Balkenfarbe. Primärfarbe Cyan #1696D2.'
+  source: *id002
+  evidence: Yellow and Magenta should be used sparingly, as these colors should be considered for highlighting purposes
+  parameters:
+    primary_cyan: '#1696D2'
+    cyan_ramp:
+    - '#CFE8F3'
+    - '#A2D4EC'
+    - '#73BFE2'
+    - '#46ABDB'
+    - '#1696D2'
+    - '#12719E'
+    - '#0A4C6A'
+    - '#062635'
+    grey_ramp:
+    - '#F5F5F5'
+    - '#ECECEC'
+    - '#E3E3E3'
+    - '#DCDBDB'
+    - '#D2D2D2'
+    - '#9D9D9D'
+    - '#696969'
+    - '#353535'
+  applies_to:
+    purposes:
+    - compare_categories
+    - value_verdict
+    idioms:
+    - bar_absolute
+    - bar_ranking
+    style_pack: editorial
+    layer: token
+  confidence: from_source
+- id: editorial-019
+  pattern: 'Urban: Kategorienzahl je Farbskala begrenzen'
+  description: Kategoriale Paletten sind für bis zu sechs Gruppen vorbereitet; bei sieben Gruppen Kategorien zusammenfassen
+    oder Chart aufteilen. Sequenzielle Reihen von hell nach dunkel.
+  source: *id002
+  evidence: Consider consolidating categories or breaking up the chart. Seven groups is really too many.
+  parameters:
+    max_categorical_groups: 6
+  applies_to:
+    purposes:
+    - part_to_whole
+    - compare_categories
+    idioms:
+    - bar_stacked
+    - area_stacked
+    style_pack: editorial
+    layer: token
+  confidence: from_source
+- id: editorial-020
+  pattern: 'Urban: Linienchart-Regeln'
+  description: Höchstens drei bis vier Linien je Chart; keine Datenmarker (außer bei unregelmäßigen Intervallen);
+    keine gestrichelten Linien; Serien direkt beschriften, bei zu engem Abstand Legende. Bei negativen Werten Linie
+    bei y=0 plus x-Achsenlabels unterhalb des Plots.
+  source: *id002
+  evidence: In a single chart, try to keep the maximum number of lines to three or four.
+  parameters:
+    max_lines: 4
+    markers: false
+    dashed: false
+  applies_to:
+    purposes:
+    - time_comparison
+    idioms:
+    - line
+    - indexed_line
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-021
+  pattern: 'Urban: Streudiagramm-Konventionen'
+  description: Gitter auf beiden Achsen; Transparenz gegen Überlagerung; dritte Variable über Größe/Farbe; höchstens
+    ein bis zwei Trendlinien; Ausreißer direkt beschriften; bei gleichen Achsenbereichen quadratisches Seitenverhältnis.
+  source: *id002
+  evidence: Add vertical and horizontal gridlines to allow for easy identification of the x and y coordinates of
+    each point.
+  parameters:
+    max_trendlines: 2
+    gridlines: xy
+  applies_to:
+    purposes:
+    - correlation
+    idioms:
+    - scatter
+    - NEU:bubble
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-022
+  pattern: 'Urban: Kreisdiagramm nur mit wenigen Segmenten'
+  description: Pie/Donut nur bei weniger als vier bis fünf Segmenten und klarer Teil-vom-Ganzen-Aussage zu einem
+    Segment; Segmente direkt beschriften; sonst Balken/Histogramm.
+  source: *id002
+  evidence: They're OK to use when the number of slices are fewer than four or five
+  parameters:
+    max_slices: 5
+  applies_to:
+    purposes:
+    - part_to_whole
+    idioms:
+    - donut
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-023
+  pattern: 'Urban: Small Multiples statt Legende'
+  description: Wenn die Geschichte die Verteilung je Serie ist, Small Multiples (Flächen); jede Kategorie separat,
+    daher keine Legende; Jahreszahlen zweistellig und nur jedes zweite Tick beschriften.
+  source: *id002
+  evidence: Because each category is separate, there is no need for a legend.
+  parameters: {}
+  applies_to:
+    purposes:
+    - time_comparison
+    - distribution
+    idioms:
+    - small_multiples
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+- id: editorial-024
+  pattern: 'Urban: Satzspiegel-Breite'
+  description: Alle Charts volle Breite des Inhaltsbereichs (680 px), deshalb hohe Datendichte anstreben; bei nur
+    zwei bis drei Werten lieber Text statt Chart.
+  source: *id002
+  evidence: All of Urban's charts will be full-width (680px), so it is important to keep the data density as high
+    as possible.
+  parameters:
+    content_width_px: 680
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+- id: editorial-025
+  pattern: 'Urban: Auswahllogik ''When to use'''
+  description: 'Je Chart-Familie eine ''When to use''-Liste nach Absicht: Balken für Vergleich über Kategorien,
+    gestapelt für Zusammensetzung ohne Zeitreihe, 100-%-Fläche für Zusammensetzung über Zeit, Linie für Trend, Scatter
+    für Beziehung ohne Zeitbezug. Vorab-Prüfung: Bei 2-3 Werten ist Text besser als ein Chart.'
+  source: *id002
+  evidence: A 100 percent stacked area chart can be used when displaying composition over time.
+  parameters:
+    text_instead_of_chart_max_values: 3
+  applies_to:
+    purposes:
+    - compare_categories
+    - part_to_whole
+    - time_comparison
+    - correlation
+    idioms:
+    - bar_absolute
+    - bar_stacked
+    - stacked_100
+    - line
+    - scatter
+    style_pack: editorial
+    layer: selection_logic
+  confidence: from_source
+- id: editorial-026
+  pattern: 'BBC: Typografie- und Legenden-Token'
+  description: 'Titel 28 fett #222222, Untertitel 22 mit Abstand 9 oben/unten, Achsen- und Legendentext 18; Achsentitel,
+    Tickmarks und Achsenlinien entfernt; Legende oben ohne Titel und Hintergrund. Schrift Helvetica (ggplot-Punkte).'
+  source: &id003
+    title: 'bbplot: bbc_style.R'
+    publisher: BBC Visual and Data Journalism
+    url: https://github.com/bbc/bbplot/blob/master/R/bbc_style.R
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: This sets the text font, size and colour for the axis test, as well as setting the margins and removes
+    lines and ticks.
+  parameters:
+    title_size: 28
+    title_weight: bold
+    subtitle_size: 22
+    axis_text_size: 18
+    legend_text_size: 18
+    text_color: '#222222'
+    axis_title: null
+    axis_ticks: null
+    legend_position: top
+    facet_strip_size: 22
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: editorial
+    layer: token
+  confidence: from_source
+- id: editorial-027
+  pattern: 'BBC: Nur horizontale Hauptgitterlinien, betonte Nulllinie'
+  description: 'Nur y-Hauptgitter in #cbcbcb, keine Nebengitter, kein x-Gitter; Nulllinie als eigene Linie size
+    1 in #333333 (in allen Cookbook-Beispielen). Bei horizontalen Balken Gitter auf x umschalten.'
+  source: *id003
+  evidence: This removes all minor gridlines and adds major y gridlines.
+  parameters:
+    grid_major_y: '#cbcbcb'
+    grid_minor: null
+    grid_major_x: null
+    zero_line_color: '#333333'
+    zero_line_size: 1
+  applies_to:
+    purposes:
+    - time_comparison
+    - compare_categories
+    idioms:
+    - line
+    - column_time
+    - bar_absolute
+    style_pack: editorial
+    layer: token
+  confidence: from_source
+- id: editorial-028
+  pattern: 'BBC: Linksbündiger Rahmen mit Quellzeile'
+  description: finalise_plot richtet Titel und Untertitel linksbündig aus, setzt eine Fußzeile mit Trennlinie, 'Source:'
+    links und Logo rechts; Standardgröße 640 x 450 px.
+  source:
+    title: 'bbplot: finalise_plot.R'
+    publisher: BBC Visual and Data Journalism
+    url: https://github.com/bbc/bbplot/blob/master/R/finalise_plot.R
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: It will left align your title, subtitle and source, add the BBC blocks at the bottom right
+  parameters:
+    width_px: 640
+    height_px: 450
+    source_fontsize: 16
+    title_align: left
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+- id: editorial-029
+  pattern: 'BBC: Kurzer Aussagetitel + beschreibender Untertitel'
+  description: Titel ist eine kurze Feststellung ('We're living longer', 'Reunion is highest'), Untertitel beschreibt
+    Messgröße, Raum und Zeitraum ('Biggest life expectancy rise, 1967-2007').
+  source: &id004
+    title: BBC Visual and Data Journalism cookbook for R graphics
+    publisher: BBC Visual and Data Journalism
+    url: https://github.com/bbc/rcookbook/blob/master/index.Rmd
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes:
+    - value_verdict
+    idioms: []
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-030
+  pattern: 'BBC: Legende entfernen, direkt beschriften'
+  description: 'Legenden entfernen und Serien per Textannotation direkt beschriften; Annotationen als Label ohne
+    Rahmen in #555555, linksbündig (hjust 0), Zeilenumbrüche manuell.'
+  source: *id004
+  evidence: Remove the legend to become one - it's better to label data directly with text annotations.
+  parameters:
+    annotation_color: '#555555'
+    annotation_hjust: 0
+  applies_to:
+    purposes:
+    - time_comparison
+    - compare_categories
+    idioms:
+    - line
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-031
+  pattern: 'BBC: Dumbbell für Differenz zweier Zeitpunkte'
+  description: Dumbbell als Standardform für 'Differenz zwischen zwei Zeitpunkten je Kategorie', sortiert nach Differenz;
+    Verbindung hellgrau, Endpunkte in zwei Kontrastfarben.
+  source: *id004
+  evidence: 'Another way of showing difference is a dumbbell chart:'
+  parameters:
+    connector_color: '#dddddd'
+    connector_size: 3
+    start_color: '#FAAB18'
+    end_color: '#1380A1'
+  applies_to:
+    purposes:
+    - time_comparison
+    - compare_categories
+    idioms:
+    - dumbbell
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-032
+  pattern: 'UK Analysis Function: Theme-Defaults'
+  description: 'Staatliche Statistik-Theme-Defaults: Basisgröße 14, Gitter nur y, Achsenlinie nur x, Gitterfarbe
+    #d9d9d9, Legende rechts, y-Achsentitel horizontal (angle 0) oben.'
+  source:
+    title: 'afcharts: theme_af.R'
+    publisher: UK Government Analysis Function
+    url: https://github.com/best-practice-and-impact/afcharts/blob/main/R/theme_af.R
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters:
+    base_size: 14
+    grid: y
+    axis_line: x
+    grid_color: '#d9d9d9'
+    legend: right
+    y_axis_title_angle: 0
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: editorial
+    layer: token
+  confidence: from_source
+- id: editorial-033
+  pattern: 'ONS: Zwei Titel - Headline-Aussage + statistischer Untertitel'
+  description: 'Jeder Chart bekommt eine Headline, die die Kernbotschaft sagt (z. B. ''Increase in number of people
+    living alone''), und einen formalen Untertitel mit Messgröße, Geografie und Zeitraum. [Zugriff: Seite egress-blockiert,
+    Inhalt nur über Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+  source:
+    title: 'Chart titles / Chart details: Chart text'
+    publisher: Office for National Statistics
+    url: https://service-manual.ons.gov.uk/data-visualisation/guidance/chart-text
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes:
+    - value_verdict
+    idioms: []
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-034
+  pattern: 'ONS: Chart-Typografie'
+  description: 'Mindestschriftgröße 14 px, in Small Multiples bis 12 px; Titel 20 px, Untertitel 16 px, Annotationen
+    14 px. [Zugriff: Seite egress-blockiert, Inhalt nur über Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+  source:
+    title: Chart typography
+    publisher: Office for National Statistics
+    url: https://service-manual.ons.gov.uk/data-visualisation/build-specifications/typography
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters:
+    min_font_px: 14
+    min_font_px_small_multiples: 12
+    title_px: 20
+    subtitle_px: 16
+    annotation_px: 14
+  applies_to:
+    purposes: []
+    idioms:
+    - small_multiples
+    style_pack: editorial
+    layer: token
+  confidence: from_source
+- id: editorial-035
+  pattern: 'ONS: Gitter nach Achsentyp'
+  description: 'Numerische Achsen bekommen Gitterlinien, Zeitachsen nur Ticks, kategoriale Achsen weder Ticks noch
+    Gitter; Balkencharts behalten Gitter auch bei Direktbeschriftung. [Zugriff: Seite egress-blockiert, Inhalt nur
+    über Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+  source: &id005
+    title: 'Chart details: Axes and gridlines'
+    publisher: Office for National Statistics
+    url: https://service-manual.ons.gov.uk/data-visualisation/guidance/axes-and-gridlines
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters:
+    grid_numeric_axis: true
+    grid_time_axis: false
+    ticks_time_axis: true
+    grid_categorical_axis: false
+  applies_to:
+    purposes:
+    - time_comparison
+    - compare_categories
+    idioms:
+    - line
+    - bar_absolute
+    - column_time
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-036
+  pattern: 'ONS: Nullbasis nach Encoding, Abstand bei gekappter Achse'
+  description: 'Flächen-/Längen-Encodings (Balken, Flächen) beginnen bei 0; Linie und Scatter dürfen gekappt werden.
+    Beginnt die Achse nicht bei 0, bleibt zwischen Achsenanfang und erstem Datenpunkt etwa ein Viertel bis ein Drittel
+    Raum. [Zugriff: Seite egress-blockiert, Inhalt nur über Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+  source: *id005
+  evidence: null
+  parameters:
+    cropped_axis_gap_fraction_min: 0.25
+    cropped_axis_gap_fraction_max: 0.33
+  applies_to:
+    purposes:
+    - time_comparison
+    - correlation
+    - compare_categories
+    idioms:
+    - line
+    - scatter
+    - bar_absolute
+    - area_stacked
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-037
+  pattern: 'ONS: Mobile Anpassung'
+  description: 'Kleinere Charts (Mobile) bekommen weniger Gitterlinien, meist drei bis sechs; mehrzeilig umbrechende
+    Texte und lange Fußnoten vermeiden. [Zugriff: Seite egress-blockiert, Inhalt nur über Suchindex-Auszug gelesen;
+    vor Übernahme gegenlesen]'
+  source: *id005
+  evidence: null
+  parameters:
+    mobile_gridlines_min: 3
+    mobile_gridlines_max: 6
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+- id: editorial-038
+  pattern: 'ONS: Ab vier ähnlichen Linien Small Multiples'
+  description: 'Sind vier oder mehr ähnliche Linien schwer unterscheidbar, Small Multiples statt einer Linie je
+    Serie; reduziert zugleich die Abhängigkeit von Farbe. [Zugriff: Seite egress-blockiert, Inhalt nur über Suchindex-Auszug
+    gelesen; vor Übernahme gegenlesen]'
+  source:
+    title: 'Data over time: Line chart'
+    publisher: Office for National Statistics
+    url: https://service-manual.ons.gov.uk/data-visualisation/chart-types/line-chart
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters:
+    small_multiples_from_lines: 4
+  applies_to:
+    purposes:
+    - time_comparison
+    idioms:
+    - line
+    - small_multiples
+    style_pack: editorial
+    layer: selection_logic
+  confidence: from_source
+- id: editorial-039
+  pattern: 'ONS: Chart-Typen nach Zweck gruppiert'
+  description: 'Die Chart-Typ-Seiten sind nach Zweck betitelt (''Data over time'', ''Parts of a whole'', ''Simple
+    comparisons'', ''Other charts and maps''); Auswahl erfolgt über Zweck, dann Typ. Seitentitel aus Suchindex,
+    Seiteninhalt nicht gelesen. [Zugriff: Seite egress-blockiert, Inhalt nur über Suchindex-Auszug gelesen; vor
+    Übernahme gegenlesen]'
+  source:
+    title: 'Data visualisation: Chart types'
+    publisher: Office for National Statistics
+    url: https://service-manual.ons.gov.uk/data-visualisation/chart-types
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes:
+    - time_comparison
+    - part_to_whole
+    - compare_categories
+    idioms: []
+    style_pack: editorial
+    layer: selection_logic
+  confidence: from_source
+- id: editorial-040
+  pattern: 'Datawrapper: Grau als wichtigste Farbe (Highlight-Grau-Prinzip)'
+  description: 'Alles grau außer dem Wichtigen; Grau für ''Sonstige'', ''keine Angabe'', ''weiß nicht''; ein Styleguide
+    definiert mehr Grautöne für Nicht-Daten-Elemente als erwartet. [Zugriff: Seite egress-blockiert, Inhalt nur
+    über Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+  source:
+    title: What to consider when choosing colors for data visualization
+    publisher: Datawrapper (Lisa Charlotte Muth)
+    url: https://www.datawrapper.de/blog/colors
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes:
+    - compare_categories
+    - time_comparison
+    - value_verdict
+    idioms:
+    - line
+    - bar_absolute
+    - bar_ranking
+    style_pack: editorial
+    layer: token
+  confidence: from_source
+- id: editorial-041
+  pattern: 'Datawrapper: Textebenen eines Charts'
+  description: 'Text als eigene Gestaltungsebene: Titel, Beschreibung, Anmerkungen, Quelle, Byline, Logo, Annotationen,
+    Labels, Farbschlüssel, Tooltips, Achsenlabels. [Zugriff: Seite egress-blockiert, Inhalt nur über Suchindex-Auszug
+    gelesen; vor Übernahme gegenlesen]'
+  source:
+    title: What to consider when using text in data visualizations
+    publisher: Datawrapper (Lisa Charlotte Muth)
+    url: https://www.datawrapper.de/blog/text-in-data-visualizations
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+- id: editorial-042
+  pattern: 'Datawrapper: Responsives Umschalten von Labels und Annotationen'
+  description: 'Auf kleinen Bildschirmen werden Annotationen nummeriert und unter den Chart verschoben; Linien-Direktlabels
+    wechseln zur Legende; Pie-Segmente bekommen Fußnoten-Labels. [Zugriff: Seite egress-blockiert, Inhalt nur über
+    Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+  source:
+    title: Datawrapper becomes mobile-first charting tool
+    publisher: Datawrapper
+    url: https://www.datawrapper.de/blog/datawrapper-becomes-mobile-first-charting-tool
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms:
+    - line
+    - donut
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+- id: editorial-043
+  pattern: 'Datawrapper: Range plot und Arrow plot'
+  description: 'Range plot betont die Spanne zwischen zwei Werten (zwei Punkte, fette Verbindung); Arrow plot betont
+    die Veränderung zwischen zwei Zeitpunkten mit Richtungspfeil vom früheren zum späteren Wert. [Zugriff: Seite
+    egress-blockiert, Inhalt nur über Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+  source:
+    title: 'New: Arrow and Range Plots'
+    publisher: Datawrapper
+    url: https://www.datawrapper.de/blog/new-arrow-and-range-plots
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes:
+    - time_comparison
+    - compare_categories
+    - distribution
+    idioms:
+    - dumbbell
+    - NEU:arrow_plot
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-044
+  pattern: 'Observable Plot: Difference mark (Surplus/Deficit-Fläche)'
+  description: Fläche zwischen Metrik und Vergleichswert, Farbe wechselt je nachdem, ob die Metrik darüber oder
+    darunter liegt (positiveFill/negativeFill); Vergleich gegen Konstante oder zweite Serie. Entspricht FT 'Surplus/deficit
+    filled line'.
+  source:
+    title: Difference mark
+    publisher: Observable, Inc.
+    url: https://github.com/observablehq/plot/blob/main/docs/marks/difference.md
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: unlike the area mark, alternating color shows when the metric is above or below the comparison value.
+  parameters: {}
+  applies_to:
+    purposes:
+    - deviation_from_target
+    - time_comparison
+    idioms:
+    - NEU:surplus_deficit_line
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-045
+  pattern: 'Observable Plot: Band-Fläche für Spannen/Unsicherheit'
+  description: Area mit y1/y2 statt y zeichnet ein Band zwischen Unter- und Obergrenze (Beispiel Tages-Tief/-Hoch);
+    Grundlage für Range-/Konfidenzbänder hinter einer Linie; bei zwei Feldern expliziten y-Achsentitel setzen.
+  source:
+    title: Area mark
+    publisher: Observable, Inc.
+    url: https://github.com/observablehq/plot/blob/main/docs/marks/area.md
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: When the baseline is not y = 0 but instead represents another dimension of data as in a band chart,
+    specify y1 and y2
+  parameters: {}
+  applies_to:
+    purposes:
+    - time_comparison
+    - distribution
+    idioms:
+    - line
+    - NEU:range_band
+    style_pack: editorial
+    layer: idiom
+  confidence: from_source
+- id: editorial-046
+  pattern: 'Observable Plot: Facetten als Small Multiples'
+  description: Facetten teilen Daten nach kategorialem Wert und wiederholen den Plot je Teil (fx horizontal, fy
+    vertikal); Facetten und Achsen können nach Median sortiert werden (Trellis-Beispiel).
+  source:
+    title: Facets
+    publisher: Observable, Inc.
+    url: https://github.com/observablehq/plot/blob/main/docs/features/facets.md
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: Faceting partitions data by ordinal or categorical value and then repeats a plot for each partition
+  parameters: {}
+  applies_to:
+    purposes:
+    - compare_categories
+    - time_comparison
+    - distribution
+    idioms:
+    - small_multiples
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+- id: editorial-047
+  pattern: 'Observable Plot: Direktlabels gezielt setzen'
+  description: Direktbeschriftung liest schneller und genauer als Achse oder Tooltip; bei Überlappung per Filter
+    nur jeden n-ten Punkt beschriften; bei Mehrlinien nur Anfang oder Ende jeder Serie beschriften (select-Transform).
+  source:
+    title: Text mark
+    publisher: Observable, Inc.
+    url: https://github.com/observablehq/plot/blob/main/docs/marks/text.md
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: When space is available, direct labeling can allow faster and more accurate reading of values than an
+    axis alone (or a tooltip).
+  parameters: {}
+  applies_to:
+    purposes:
+    - time_comparison
+    - correlation
+    idioms:
+    - line
+    - scatter
+    - NEU:connected_scatter
+    style_pack: editorial
+    layer: style
+  confidence: from_source
+- id: editorial-048
+  pattern: 'Observable Plot: Tooltip als Detail auf Abruf'
+  description: Tip mark zeigt Text oder Name-Wert-Paare in einer schwebenden Box, gekoppelt an den Pointer-Transform
+    beim Hovern; ergänzt statt ersetzt die statische Beschriftung.
+  source:
+    title: Tip mark
+    publisher: Observable, Inc.
+    url: https://github.com/observablehq/plot/blob/main/docs/marks/tip.md
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: to reveal details on demand when hovering over a chart
+  parameters: {}
+  applies_to:
+    purposes:
+    - evidence_detail
+    idioms: []
+    style_pack: editorial
+    layer: interaction
+  confidence: from_source
+- id: editorial-049
+  pattern: 'Reuters: Grafik-Block als feste Textanatomie'
+  description: Jede Grafik steckt in einem Rahmen mit Titel, Beschreibung, Notes (Anmerkung + Quelle als Markdown)
+    und ARIA-Beschreibung; Breiten normal/wide/wider/widest/fluid, Textbreite getrennt einstellbar.
+  source:
+    title: GraphicBlock (graphics-components 4.14.0, llm-docs)
+    publisher: Reuters Graphics
+    url: https://www.npmjs.com/package/@reuters-graphics/graphics-components
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: A wrapper that frames a chart or graphic with an optional title, description, notes and ARIA description.
+  parameters:
+    widths:
+    - normal
+    - wide
+    - wider
+    - widest
+    - fluid
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+- id: editorial-050
+  pattern: 'Reuters: Legenden-Modi'
+  description: 'Legendenkomponente mit fünf Modi: threshold, continuous, diverging (mit Mittelpunkt), categorical,
+    proportional-symbols; eigener Swatch für fehlende Werte (noData).'
+  source:
+    title: Legend (graphics-components 4.14.0, llm-docs)
+    publisher: Reuters Graphics
+    url: https://www.npmjs.com/package/@reuters-graphics/graphics-components
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: 'A presentational legend for maps and charts in one of five modes: threshold, continuous, diverging,
+    categorical or proportional symbols.'
+  parameters:
+    modes: 5
+  applies_to:
+    purposes:
+    - deviation_from_target
+    - distribution
+    idioms: []
+    style_pack: editorial
+    layer: token
+  confidence: from_source
+- id: editorial-051
+  pattern: 'NYT ai2html: eigene Zeichenfläche je Breakpoint'
+  description: 'Mobile Anpassung über getrennt gestaltete Artboards je Breite statt Skalierung: jedes Artboard ist
+    ab seiner Breite bis unter die nächstbreitere sichtbar; Modus fixed oder dynamic, Text per HTML (bleibt lesbar).'
+  source:
+    title: ai2html.js
+    publisher: The New York Times (newsdev)
+    url: https://github.com/newsdev/ai2html/blob/master/ai2html.js
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: get range of container widths that an ab is visible as a [min,max] array
+  parameters:
+    responsiveness_options:
+    - fixed
+    - dynamic
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: editorial
+    layer: layout
+  confidence: from_source
+- id: editorial-052
+  pattern: 'NYT: Annotation-Layer als Kern'
+  description: 'Amanda Cox (NYT Graphics) wird mit der Aussage zitiert, der Annotation-Layer sei das Wichtigste,
+    weil der Leser sonst allein gelassen werde. Wortlaut und Primärstelle nicht geprüft. [Zugriff: Seite egress-blockiert,
+    Inhalt nur über Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+  source:
+    title: Interview with Amanda Cox - Graphics Editor at the New York Times
+    publisher: Simply Statistics
+    url: https://simplystatistics.org/posts/2012-06-01-interview-with-amanda-cox-graphics-editor-at-the-new/
+    date_published: '2012-06-01'
+    date_accessed: '2026-09-30'
+    kind: secondary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes:
+    - value_verdict
+    - time_comparison
+    idioms: []
+    style_pack: editorial
+    layer: style
+  confidence: inferred
+- id: editorial-053
+  pattern: 'Economist: Drei Fehlerklassen als Prüfliste'
+  description: 'Sarah Leo ordnet überarbeitete Economist-Charts drei Klassen zu: irreführend, verwirrend, verfehlt
+    die Aussage. Als Abnahme-Prüfliste für automatisch gewählte Visuals nutzbar. [Zugriff: Seite egress-blockiert,
+    Inhalt nur über Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+  source:
+    title: Mistakes, we've drawn a few
+    publisher: The Economist (Sarah Leo)
+    url: https://medium.com/the-economist/mistakes-weve-drawn-a-few-8cdd8a42d368
+    date_published: '2019'
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters:
+    fehlerklassen: 3
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: editorial
+    layer: selection_logic
+  confidence: from_source
+- id: editorial-054
+  pattern: 'Economist: Hausstil (rote Marke, horizontale Gitter, y-Labels rechts)'
+  description: 'Laut Sekundärquellen: rote Linie mit rotem Rechteck oben links, nur horizontale Gitterlinien ohne
+    y-Achsenlinie, y-Achsenlabels rechts. Offizieller Styleguide (design-system.economist.com, 2017) nicht abrufbar;
+    konkrete Werte (Farbe, Maße) nicht übernommen.'
+  source:
+    title: Economist Style (Sekundärbeschreibung)
+    publisher: slidespeak.co
+    url: https://slidespeak.co/slide-design-prompts/prompts/economist-style
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: secondary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes:
+    - time_comparison
+    idioms:
+    - line
+    - column_time
+    style_pack: editorial
+    layer: style
+  confidence: inferred
+- id: editorial-055
+  pattern: 'SWD: Entrümpeln, sparsame Farbe, Aussagetitel'
+  description: 'Fünf Tipps: Wahrnehmung nutzen, visuelle Ordnung, klarer Kontrast, nicht überkomplizieren, strip
+    down & build up; Farbe sparsam zur Fokussierung, Titel mit der Kernaussage. [Zugriff: Seite egress-blockiert,
+    Inhalt nur über Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+  source:
+    title: declutter your data visualizations
+    publisher: storytelling with data (Cole Nussbaumer Knaflic)
+    url: https://www.storytellingwithdata.com/blog/2016/3/1/declutter-your-data-visualizations
+    date_published: '2016-03-01'
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes:
+    - value_verdict
+    idioms: []
+    style_pack: swd
+    layer: style
+  confidence: from_source
+- id: editorial-056
+  pattern: 'Tufte: Sparklines'
+  description: 'Wortgroße, datenintensive Grafiken ohne Rahmen, Ticks und Nicht-Daten-Elemente, eingebettet in Satz,
+    Tabelle oder Headline. Vorbild für kpi_card_spark und matrix_sparkline. [Zugriff: Seite egress-blockiert, Inhalt
+    nur über Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+  source:
+    title: Sparkline theory and practice
+    publisher: Edward Tufte
+    url: https://www.edwardtufte.com/notebook/sparkline-theory-and-practice-edward-tufte/
+    date_published: unbekannt
+    date_accessed: '2026-09-30'
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes:
+    - time_comparison
+    idioms:
+    - kpi_card_spark
+    - matrix_sparkline
+    style_pack: tufte
+    layer: idiom
+  confidence: from_source
+- id: editorial-057
+  pattern: 'PitchSide Pro: Datengeschichte mit einem Akzent gegen Grau'
+  description: 'Power-BI-Bericht der Contest Gallery. Alle Balken grau, nur das aktuelle Element in einer
+    Akzentfarbe; Seitentitel leicht mit einem fett gesetzten Schlüsselwort; Erzählsatz mit fetten Zahlen;
+    Empfehlung als Anmerkung neben dem Chart; schwarze Segment-Schalter; Urteils-Pillen in Tabellen.
+    [Zugriff: Seite egress-blockiert; gelesen aus fünf Screenshots, die Florian Haferkorn am 01.10.2026
+    geschickt hat. Übernommen wird das Muster, nicht die Farbe (Rosé), D-627.]'
+  source:
+    title: PitchSide Pro — The Story Behind the Sales
+    publisher: Microsoft Fabric Community (Contests Gallery)
+    url: https://community.fabric.microsoft.com/discussions/pbi_contestsgallery/pitchside-pro---the-story-behind-the-sales/5240460
+    date_published: unbekannt
+    date_accessed: '2026-10-01'
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: story
+    layer: style
+  confidence: from_source

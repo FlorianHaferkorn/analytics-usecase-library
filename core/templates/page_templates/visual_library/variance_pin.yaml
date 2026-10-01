@@ -1,0 +1,375 @@
+# Visual Library entry — variance_pin  (schema: _schema.yaml)
+# Relative variance (ΔPL%, ΔPY%) as thin pins with a head marker — IBCS 2.0 UN 4.1 (p. 54) and
+# EX 1.1 "horizontal pin chart" (p. 102-103). Base orientation: HORIZONTAL pin chart (time on the
+# category axis, vertical pins), because a relative variance is read mostly per period, and the
+# multi-tier chart (multi_tier_column) stacks exactly this chart above its columns (CO 4.2). The
+# vertical pin chart (structure categories, horizontal pins, EX 1.1 p. 111) is the table/row form
+# and lives in the SVG-DAX track (one pin per table row, CO 4.4).
+id: variance_pin
+name: Variance pins (relative variance)
+version: "1.0.0"
+status: active        # active | deprecated | experimental
+purpose: [deviation_from_target]
+zone: [analysis]
+min_size: {cols: 4, rows: 3}   # grid units — canvas-relative legibility floor (≈395×152px @1280; px derived from layout_grid.yaml)
+best_form_for: null            # deviation_bar stays the governed best form for an absolute Δ; pins are the RELATIVE-variance form
+alternatives: [deviation_bar, multi_tier_column, lollipop]
+
+encoding:
+  magnitude: length_position        # pin length from the reference axis (rank 1-3)
+  direction: [color, sign, label]   # never colour alone: sign in the label ('+'), side of the axis
+  reference: axis_is_the_reference  # the axis line IS the reference scenario (PL double line / PY solid light)
+  head: minuend_scenario            # head marker = the analysed scenario (AC solid)
+  width: very_thin                  # a pin is a very thin column, far thinner than an absolute bar
+
+anti_patterns:
+  - relative_variance_as_wide_column   # a % variance drawn as a full column reads as an amount
+  - color_beyond_semantic
+  - mixed_polarity_on_one_axis
+
+params:
+  measure:  {role: value_delta, required: true, note: "a relative variance measure (ΔPL% or ΔPY%) as a fraction, 0.12 = +12 %"}
+  date:     {role: axis, type: temporal, required: true, note: "a sortable period key (e.g. 2026-01) — the pins keep the ascending period order"}
+  entity:   {role: table, default: _Measures}
+
+data_fit:
+  date: {type: temporal, max: 24, on_violation: too_many_categories}
+
+tokens:
+  col_pos:  color_semantics.positive    # #107C10
+  col_neg:  color_semantics.negative    # #A4262C
+  col_zero: color_semantics.neutral     # #586472 (reference axis, recedes)
+  col_head: ink                         # #0F2430 pin head
+
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field:      {role: variance, required: true}
+  field_date: {role: time,     required: true}
+
+canonical_params:
+  col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
+  entity: "_Measures"
+  measure: "Sales vs Plan %"
+  category_entity: "dim_date"
+  category_prop: "Month"
+  field: "delta_pl_pct"
+  field_date: "month"
+  col_pos: "#107C10"
+  col_neg: "#A4262C"
+  col_zero: "#586472"
+  col_head: "#0F2430"
+  pin_band: "0.1"        # pin width = 10 % of the band (the band is the 2/3 absolute-bar width) -> ~7 % of the category
+  head_size: "36"        # point area in px² -> a 6 px head
+  fmt: "+.1~%"
+  viewbox: "0 0 340 60"
+  zero_x: "170"
+  zero_x_lo: "168.5"     # the two parallel lines of a PL/BU reference axis (IBCS form), 3 px apart
+  zero_x_hi: "171.5"
+  half_track: "140"
+  scale_max: "0.5"       # in-cell pins: ±50 % fill the half track; longer pins are clamped (outlier marker: see profile note)
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Variance pins (relative variance)">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">SALES ΔPL%</text>
+    <line x1="24" y1="84" x2="316" y2="84" stroke="#586472"/>
+    <rect x="42"  y="84" width="4" height="40" fill="#A4262C"/><rect x="41" y="121" width="6" height="6" fill="#0F2430"/>
+    <rect x="82"  y="84" width="4" height="18" fill="#A4262C"/><rect x="81" y="99"  width="6" height="6" fill="#0F2430"/>
+    <rect x="122" y="60" width="4" height="24" fill="#107C10"/><rect x="121" y="57" width="6" height="6" fill="#0F2430"/>
+    <rect x="162" y="58" width="4" height="26" fill="#107C10"/><rect x="161" y="55" width="6" height="6" fill="#0F2430"/>
+    <rect x="202" y="40" width="4" height="44" fill="#107C10"/><rect x="201" y="37" width="6" height="6" fill="#0F2430"/>
+    <rect x="242" y="84" width="4" height="8"  fill="#A4262C"/><rect x="241" y="89"  width="6" height="6" fill="#0F2430"/>
+    <rect x="282" y="36" width="4" height="48" fill="#107C10"/><rect x="281" y="33" width="6" height="6" fill="#0F2430"/>
+    <text x="284" y="28" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#201F1E">+66%</text>
+    <text x="44" y="140" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#201F1E">−55%</text>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "keine native Saeule mit Kopfmarker. Gemessen 30.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `clusteredColumnChart` und `lineClusteredColumnComboChart` steuern die Saeulenbreite nur ueber `layout.clusteredGapSize` (ein Kategorieabstand fuer alle Reihen), `dataPoint` fuehrt keine Breite; einen Kopfmarker gibt es nur an Linien (`lineStyles.markerShape`) und an Fehlerbalken (`error.barWidth`, `error.markerShape`). Ein Pin waere also nur als Kombination Saeule + strichlose Markerlinie oder als zweckentfremdeter Fehlerbalken moeglich — keine der beiden Varianten ist in Desktop geprueft, deshalb keine native Spur"
+    use: "deneb_vegalite (Pin-Chart ueber die Zeit); in Tabellen powerbi_svg_dax (ein Pin je Zeile, IBCS CO 4.4)"
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _dlt = [{{measure}}]
+      VAR _col = IF ( _dlt < 0, "{{col_neg}}", "{{col_pos}}" )
+      VAR _len = MIN ( ABS ( _dlt ) / {{scale_max}} * {{half_track}}, {{half_track}} )
+      VAR _x   = IF ( _dlt < 0, {{zero_x}} - _len, {{zero_x}} )
+      VAR _hx  = IF ( _dlt < 0, {{zero_x}} - _len - 3, {{zero_x}} + _len - 3 )
+      RETURN
+          "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='{{viewbox}}'>"
+            & "<rect x='" & _x & "' y='28' width='" & _len & "' height='4' fill='" & _col & "'/>"
+            & "<rect x='" & _hx & "' y='27' width='6' height='6' fill='{{col_head}}'/>"
+            & "<line x1='{{zero_x}}' y1='18' x2='{{zero_x}}' y2='42' stroke='{{col_zero}}' stroke-width='1'/>"
+            & "</svg>"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] } ],
+        "layer": [
+          { "mark": { "type": "bar", "width": { "band": {{pin_band}} } },
+            "encoding": {
+              "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth", "axis": { "title": null, "labelAngle": 0, "format": "%m/%y", "labelOverlap": true, "labelSeparation": 6 } },
+              "y": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null, "format": "{{fmt}}" }, "scale": { "padding": 18 } },
+              "color": { "condition": { "test": "datum['{{field}}'] < 0", "value": "{{col_neg}}" }, "value": "{{col_pos}}" } } },
+          { "mark": { "type": "rule", "color": "{{col_zero}}" }, "encoding": { "y": { "datum": 0 } } },
+          { "mark": { "type": "point", "shape": "circle", "filled": true, "color": "{{col_head}}", "size": {{head_size}}, "opacity": 1 },
+            "encoding": {
+              "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth" },
+              "y": { "field": "{{field}}", "type": "quantitative" } } },
+          { "mark": { "type": "text", "baseline": "bottom", "dy": { "expr": "datum['{{field}}'] < 0 ? 16 : -6" }, "color": "{{col_label}}" },
+            "encoding": {
+              "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth" },
+              "y": { "field": "{{field}}", "type": "quantitative" },
+              "text": { "field": "{{field}}", "type": "quantitative", "format": "{{fmt}}" },
+              "opacity": { "condition": { "test": "datum._n < 10", "value": 1 }, "value": 0 } } }
+        ]
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <ComposedChart data={data} width={480} height={220}>
+        <XAxis dataKey="{{field_date}}" />
+        <YAxis tickFormatter={(v) => `${v > 0 ? '+' : ''}${Math.round(v * 100)}%`} />
+        <ReferenceLine y={0} stroke="{{col_zero}}" />
+        <Bar dataKey="{{field}}" barSize={3} isAnimationActive={false}>
+          {data.map((e, i) => (
+            <Cell key={i} fill={e.{{field}} < 0 ? "{{col_neg}}" : "{{col_pos}}"} />
+          ))}
+        </Bar>
+        <Scatter dataKey="{{field}}" fill="{{col_head}}" shape="circle" isAnimationActive={false} />
+      </ComposedChart>
+
+# --- notation profile: IBCS (second axis; see _notation_profiles.yaml) ---
+# IBCS 2.0 UN 4.1 (p. 54-55) and EX 1.1 (p. 102-103): the pin is a very thin column coloured by the
+# RATING of the variance (good bright green / bad dark red / neutral blue, decided by the measure's
+# polarity, not by the sign); the head carries the minuend's scenario notation (AC = solid dark);
+# the axis carries the reference scenario (PL/BU = two parallel lines, PY = solid light); labels
+# sit outside in the direction of growth, positive ones with '+'; no value axis (SI 3.1); N/A where
+# the relative variance cannot be interpreted.
+profiles:
+  ibcs:
+    note: "IBCS 2.0: relative variance as very thin pins with a square head in the minuend notation (AC solid dark), colour by rating good/bad/neutral via polarity (UN 4.1, p. 54); axis = reference scenario, default PL as two parallel lines — for ΔPY% set ref_offset 0, ref_width 3, ref_opacity 0.5 (solid light, UN 4.1 p. 55); labels outside with '+' and N/A for missing values (UN 4.1); no value axis (SI 3.1); zero-based (CH 1.1); horizontal pin chart for time series (EX 1.1, p. 102). Not drawn: outlier triangles for clipped pins (UN 5.3) and hatched FC heads."
+    rule_refs:
+    - CH 1.1
+    - EX 1.1
+    - SI 3.1
+    - UN 4.1
+    param_overrides:
+      col_ac: '#404040'
+      col_good: '#5B9A35'
+      col_bad: '#A4262C'
+      col_neutral: '#1F6FB5'
+      col_ink: '#201F1E'
+      polarity: '1'
+      ref_offset: '1.5'
+      ref_width: '1'
+      ref_opacity: '1'
+    realizations:
+      powerbi_svg_dax:
+        ext: dax
+        template: |
+          VAR _dlt = [{{measure}}]
+          VAR _rat = _dlt * {{polarity}}
+          VAR _col = IF ( _rat > 0, "{{col_good}}", IF ( _rat < 0, "{{col_bad}}", "{{col_neutral}}" ) )
+          VAR _len = MIN ( ABS ( _dlt ) / {{scale_max}} * {{half_track}}, {{half_track}} )
+          VAR _x   = IF ( _dlt < 0, {{zero_x}} - _len, {{zero_x}} )
+          VAR _hx  = IF ( _dlt < 0, {{zero_x}} - _len - 3, {{zero_x}} + _len - 3 )
+          RETURN
+              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='{{viewbox}}'>"
+                & "<rect x='" & _x & "' y='28' width='" & _len & "' height='4' fill='" & _col & "'/>"
+                & "<rect x='" & _hx & "' y='27' width='6' height='6' fill='{{col_ac}}'/>"
+                & "<line x1='{{zero_x_lo}}' y1='18' x2='{{zero_x_lo}}' y2='42' stroke='{{col_ac}}' stroke-width='1'/>"
+                & "<line x1='{{zero_x_hi}}' y1='18' x2='{{zero_x_hi}}' y2='42' stroke='{{col_ac}}' stroke-width='1'/>"
+                & "</svg>"
+      deneb_vegalite:
+        ext: json
+        template: |
+          {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "data": {
+              "name": "dataset"
+            },
+            "transform": [
+              {
+                "calculate": "datum['{{field}}'] * {{polarity}} > 0 ? 'good' : (datum['{{field}}'] * {{polarity}} < 0 ? 'bad' : 'neutral')",
+                "as": "rating"
+              }
+            ],
+            "layer": [
+              {
+                "mark": {
+                  "type": "bar",
+                  "width": {
+                    "band": {{pin_band}}
+                  }
+                },
+                "encoding": {
+                  "x": {
+                    "field": "{{field_date}}",
+                    "type": "ordinal", "timeUnit": "yearmonth",
+                    "axis": {
+                      "title": null,
+                      "labelAngle": 0,
+                      "format": "%m/%y",
+                      "labelOverlap": true,
+                      "labelSeparation": 6,
+                      "ticks": false,
+                      "domain": false,
+                      "labelPadding": 6
+                    }
+                  },
+                  "y": {
+                    "field": "{{field}}",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true,
+                      "padding": 18
+                    }
+                  },
+                  "color": {
+                    "field": "rating",
+                    "type": "nominal",
+                    "legend": null,
+                    "scale": {
+                      "domain": [
+                        "good",
+                        "bad",
+                        "neutral"
+                      ],
+                      "range": [
+                        "{{col_good}}",
+                        "{{col_bad}}",
+                        "{{col_neutral}}"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "rule",
+                  "color": "{{col_ac}}",
+                  "strokeWidth": {{ref_width}},
+                  "opacity": {{ref_opacity}},
+                  "yOffset": -{{ref_offset}}
+                },
+                "encoding": {
+                  "y": {
+                    "datum": 0
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "rule",
+                  "color": "{{col_ac}}",
+                  "strokeWidth": {{ref_width}},
+                  "opacity": {{ref_opacity}},
+                  "yOffset": {{ref_offset}}
+                },
+                "encoding": {
+                  "y": {
+                    "datum": 0
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "point",
+                  "shape": "square",
+                  "filled": true,
+                  "color": "{{col_ac}}",
+                  "size": {{head_size}},
+                  "opacity": 1
+                },
+                "encoding": {
+                  "x": {
+                    "field": "{{field_date}}",
+                    "type": "ordinal", "timeUnit": "yearmonth"
+                  },
+                  "y": {
+                    "field": "{{field}}",
+                    "type": "quantitative"
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "text",
+                  "color": "{{col_ink}}",
+                  "baseline": {
+                    "expr": "datum['{{field}}'] < 0 ? 'top' : 'bottom'"
+                  },
+                  "dy": {
+                    "expr": "datum['{{field}}'] < 0 ? 6 : -6"
+                  }
+                },
+                "encoding": {
+                  "x": {
+                    "field": "{{field_date}}",
+                    "type": "ordinal", "timeUnit": "yearmonth"
+                  },
+                  "y": {
+                    "field": "{{field}}",
+                    "type": "quantitative"
+                  },
+                  "text": {
+                    "field": "{{field}}",
+                    "type": "quantitative",
+                    "format": "{{fmt}}"
+                  }
+                }
+              },
+              {
+                "transform": [
+                  {
+                    "filter": "!isValid(datum['{{field}}']) || !isFinite(datum['{{field}}'])"
+                  }
+                ],
+                "mark": {
+                  "type": "text",
+                  "color": "{{col_ink}}",
+                  "baseline": "bottom",
+                  "dy": -6,
+                  "text": "N/A"
+                },
+                "encoding": {
+                  "x": {
+                    "field": "{{field_date}}",
+                    "type": "ordinal", "timeUnit": "yearmonth"
+                  },
+                  "y": {
+                    "datum": 0
+                  }
+                }
+              }
+            ]
+          }
+      web_recharts:
+        ext: jsx
+        template: |
+          <ComposedChart data={data} width={480} height={220} margin={ { top: 24, right: 12, bottom: 12, left: 12 } }>
+            <XAxis dataKey="{{field_date}}" tickLine={false} axisLine={false} tickMargin={18} />
+            <YAxis hide domain={[(min) => Math.min(0, min), (max) => Math.max(0, max)]} />
+            <ReferenceLine y={0} stroke="{{col_ac}}" strokeWidth={1} />
+            <Bar dataKey="{{field}}" barSize={3} isAnimationActive={false}>
+              {data.map((e, i) => (
+                <Cell key={i} fill={e.{{field}} * {{polarity}} > 0 ? "{{col_good}}" : (e.{{field}} * {{polarity}} < 0 ? "{{col_bad}}" : "{{col_neutral}}")} />
+              ))}
+              <LabelList dataKey="{{field}}" position="top" offset={10} fill="{{col_ink}}" formatter={(v) => `${v > 0 ? '+' : ''}${Math.round(v * 100)}%`} />
+            </Bar>
+            <Scatter dataKey="{{field}}" fill="{{col_ac}}" shape="square" isAnimationActive={false} />
+          </ComposedChart>
+
+determinism:
+  golden_dir: golden
+  notes: "Pure {{param}} fill; golden-frozen. House form: sign-coloured pins with a round ink head over a muted zero line and a % value axis. IBCS form: rating colour via polarity, square AC head, reference-scenario axis (PL double line by default), outside labels with '+', N/A for missing values, no value axis."

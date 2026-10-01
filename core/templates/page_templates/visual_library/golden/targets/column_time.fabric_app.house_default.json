@@ -1,0 +1,180 @@
+{
+  "idiom": "column_time",
+  "profile": "house_default",
+  "notation": "house_default",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "transform": [
+      {
+        "joinaggregate": [
+          {
+            "op": "count",
+            "as": "_n"
+          }
+        ]
+      }
+    ],
+    "encoding": {
+      "x": {
+        "field": "month",
+        "type": "ordinal",
+        "axis": {
+          "title": null,
+          "labelAngle": 0
+        }
+      },
+      "y": {
+        "field": "count",
+        "type": "quantitative",
+        "axis": {
+          "title": null
+        }
+      }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "bar",
+          "color": "#0078D4"
+        },
+        "encoding": {
+          "tooltip": [
+            {
+              "field": "month",
+              "type": "temporal",
+              "title": "month",
+              "format": "%m/%Y"
+            },
+            {
+              "field": "count",
+              "type": "quantitative",
+              "title": "count",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "baseline": "bottom",
+          "dy": -4,
+          "color": "#201F1E",
+          "tooltip": null
+        },
+        "encoding": {
+          "text": {
+            "field": "count",
+            "type": "quantitative",
+            "format": ",.1~f"
+          },
+          "opacity": {
+            "condition": {
+              "test": "datum._n < 10",
+              "value": 1
+            },
+            "value": 0
+          }
+        }
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#E1DFDD",
+      "labelColor": "#605E5C",
+      "title": null,
+      "labelFontSize": 11
+    },
+    "axisX": {
+      "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333
+    },
+    "text": {
+      "fontSize": 11
+    },
+    "locale": {
+      "number": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [
+          3
+        ],
+        "currency": [
+          "",
+          " €"
+        ]
+      },
+      "time": {
+        "dateTime": "%A, der %e. %B %Y, %X",
+        "date": "%d.%m.%Y",
+        "time": "%H:%M:%S",
+        "periods": [
+          "AM",
+          "PM"
+        ],
+        "days": [
+          "Sonntag",
+          "Montag",
+          "Dienstag",
+          "Mittwoch",
+          "Donnerstag",
+          "Freitag",
+          "Samstag"
+        ],
+        "shortDays": [
+          "So",
+          "Mo",
+          "Di",
+          "Mi",
+          "Do",
+          "Fr",
+          "Sa"
+        ],
+        "months": [
+          "Januar",
+          "Februar",
+          "März",
+          "April",
+          "Mai",
+          "Juni",
+          "Juli",
+          "August",
+          "September",
+          "Oktober",
+          "November",
+          "Dezember"
+        ],
+        "shortMonths": [
+          "Jan",
+          "Feb",
+          "Mär",
+          "Apr",
+          "Mai",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Okt",
+          "Nov",
+          "Dez"
+        ]
+      }
+    }
+  },
+  "capabilities": {
+    "disableLineChartCrosshairTooltip": true,
+    "disableTextTruncation": true
+  }
+}

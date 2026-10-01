@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.analytics-consulting.local/reporting-feature-catalog/1.0.0/schema.json",
+  "title": "Reporting Feature Catalog",
+  "description": "What report and cockpit users expect from reporting, business intelligence and decision intelligence, one entry per feature, with its Power BI baseline, its sources in the research corpus, where it is built and whether a test measures it (A-31 R7, 30.09.2026). Machine form: a test reads the fields, not prose.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "features"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "features": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/feature"
+      }
+    },
+    "excluded_sources": {
+      "type": "array",
+      "uniqueItems": true,
+      "description": "Corpus entries of the feature strands that no feature carries, with the reason.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "reason"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(pbi|market|users|di|bi)-[0-9]{3}$"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "feature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "area",
+        "name",
+        "user_need",
+        "sources",
+        "pbi_status",
+        "must_have",
+        "beyond_pbi",
+        "home",
+        "meridian_module",
+        "status",
+        "user_value"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^feat-[0-9]{3}$"
+        },
+        "area": {
+          "enum": [
+            "chart",
+            "page",
+            "navigation",
+            "time",
+            "distribution",
+            "alerting",
+            "self_service",
+            "trust",
+            "collaboration",
+            "decision",
+            "decision_loop",
+            "planning",
+            "operations",
+            "accessibility",
+            "language",
+            "performance"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 3
+        },
+        "user_need": {
+          "type": "string",
+          "minLength": 10,
+          "description": "What the user wants to do, in their words."
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(pbi|market|users|di|bi|ibcs2|ibcs|editorial|product|fabric)-[0-9]{3}$"
+          },
+          "description": "Entry ids in docs/architecture/research/2026-09-30_visual-stack-r1/*.yaml."
+        },
+        "pbi_status": {
+          "enum": [
+            "native",
+            "premium",
+            "fabric_feature",
+            "custom_visual",
+            "absent",
+            "unknown"
+          ]
+        },
+        "must_have": {
+          "type": "boolean",
+          "description": "Needed for parity with Power BI or for decision intelligence."
+        },
+        "beyond_pbi": {
+          "type": "boolean"
+        },
+        "home": {
+          "enum": [
+            "aluca_spec",
+            "cockpit_shell",
+            "meridian_backend",
+            "fabric_platform",
+            "kpi_catalog",
+            "semantic_model"
+          ],
+          "description": "Where it is built: ALUCA library spec, Fabric App shell, Meridian generator/backend, a Fabric platform feature to configure, the KPI catalog, or the semantic model."
+        },
+        "meridian_module": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^M[1-8]$",
+          "description": "Module of the Meridian Cockpit plan (I-22); null = no module owns it yet."
+        },
+        "gap_reason": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Required when a must-have has no module: why and what decision is open."
+        },
+        "status": {
+          "enum": [
+            "done",
+            "partial",
+            "planned",
+            "gap"
+          ]
+        },
+        "tests": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 5
+          },
+          "description": "Repo-relative test files that measure the feature; Freelancing paths prefixed 'freelancing:'."
+        },
+        "user_value": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "done",
+                  "partial"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "tests"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "must_have": {
+                "const": true
+              },
+              "meridian_module": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "gap_reason"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

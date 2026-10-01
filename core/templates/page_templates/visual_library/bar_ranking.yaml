@@ -1,7 +1,7 @@
 # Visual Library entry — bar_ranking  (schema: _schema.yaml)
 id: bar_ranking
 name: Bar ranking
-version: "1.0.0"
+version: "1.2.0"
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
@@ -34,7 +34,15 @@ tokens:
   col_below: color_semantics.negative# #A4262C below target
   col_ref:   color_semantics.neutral # #94A0AC target reference
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_values: [target_val]   # a target, not a style: from params or removed (A-31 R6)
+data_slots:
+  field: {role: value, required: true}
+  field_cat: {role: category, required: true}
+  py_field: {role: prior, required: false}
+
 canonical_params:
+  col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
   entity: "_Measures"
   measure: "Gross Margin %"
   category_entity: "dim_org"
@@ -42,6 +50,8 @@ canonical_params:
   field: "gm"
   field_cat: "unit"
   target_val: "44.1"
+  polarity: "1"                    # -1 = lower is better: below target turns good (A-31 R7)
+  worst_first: "ascending"        # derived from polarity by render_target unless given
   col_above: "#0F2430"
   col_below: "#A4262C"
   col_ref: "#94A0AC"
@@ -93,14 +103,21 @@ realizations:
     template: |
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "padding": { "right": 40 },
         "data": { "name": "dataset" },
+        "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] } ],
         "layer": [
           { "mark": { "type": "bar" },
             "encoding": {
-              "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "x", "axis": { "title": null } },
+              "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "{{worst_first}}" }, "axis": { "title": null } },
               "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } },
-              "color": { "condition": { "test": "datum['{{field}}'] < {{target_val}}", "value": "{{col_below}}" }, "value": "{{col_above}}" } } },
-          { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [4, 3] }, "encoding": { "x": { "datum": {{target_val}} } } }
+              "color": { "condition": { "test": "(datum['{{field}}'] - {{target_val}}) * {{polarity}} < 0", "value": "{{col_below}}" }, "value": "{{col_above}}" } } },
+          { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [4, 3] }, "encoding": { "x": { "datum": {{target_val}} } } },
+          { "mark": { "type": "text", "align": "left", "dx": 4, "color": "{{col_label}}" },
+            "encoding": {
+              "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "{{worst_first}}" } },
+              "x": { "field": "{{field}}", "type": "quantitative" },
+              "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "datum._n < 10", "value": 1 }, "value": 0 } } }
         ]
       }
 
@@ -125,30 +142,106 @@ realizations:
 # adds a PY series and replaces the templates (vs the token overlay of deviation_bar@ibcs).
 profiles:
   ibcs:
-    note: "IBCS overlapped bar: solid AC over a lighter, wider PY reference; reads AC-vs-PY directly instead of AC-vs-target-line."
+    note: 'IBCS 2.0: overlapped bars, PY lighter solid behind AC dark solid (UN 3.2, UN 4.1); bar width from the band (UN 3.1); labels instead of value axis (SI 3.1).'
+    rule_refs:
+    - SI 3.1
+    - UN 3.1
+    - UN 3.2
+    - UN 4.1
     param_overrides:
-      py_field: "gm_py"
-      col_ac: "#0F2430"
-      col_py: "#C8CED5"
+      py_field: gm_py
+      col_ac: '#404040'
+      col_py: '#C8CED5'
+      col_good: '#5B9A35'
+      col_bad: '#A4262C'
+      col_neutral: '#1F6FB5'
+      col_ink: '#201F1E'
+      polarity: '1'
     realizations:
       powerbi_native:
         applicable: false
-        reason: "native clusteredBar cannot overlay a narrower AC bar on a wider PY reference bar"
-        use: "PowerofBI.IBCS overlapped-bar UDF (daxlib.org) or Inforiver"
+        reason: native clusteredBar cannot overlay a narrower AC bar on a wider PY reference bar
+        use: PowerofBI.IBCS overlapped-bar UDF (daxlib.org) or Inforiver
       powerbi_svg_dax:
         applicable: false
-        reason: "overlapped AC/PY bars across all categories is a full chart, not a single-cell micro-chart"
-        use: "deneb_vegalite, or PowerofBI.IBCS"
+        reason: overlapped AC/PY bars across all categories is a full chart, not a single-cell micro-chart
+        use: deneb_vegalite, or PowerofBI.IBCS
       deneb_vegalite:
         ext: json
         template: |
           {
             "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-            "data": { "name": "dataset" },
-            "encoding": { "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "-x", "axis": { "title": null } } },
+            "padding": { "right": 40 },
+            "data": {
+              "name": "dataset"
+            },
+            "transform": [
+              { "calculate": "max(datum['{{field}}'], isValid(datum['{{py_field}}']) ? datum['{{py_field}}'] : datum['{{field}}'])", "as": "_lx" }
+            ],
+            "encoding": {
+              "y": {
+                "field": "{{field_cat}}",
+                "type": "nominal",
+                "sort": { "field": "{{field}}", "order": "descending" },
+                "axis": {
+                  "title": null,
+                  "ticks": false,
+                  "domainColor": "{{col_ac}}"
+                }
+              }
+            },
             "layer": [
-              { "mark": { "type": "bar", "color": "{{col_py}}", "size": 18 }, "encoding": { "x": { "field": "{{py_field}}", "type": "quantitative", "axis": { "title": null } } } },
-              { "mark": { "type": "bar", "color": "{{col_ac}}", "size": 9 }, "encoding": { "x": { "field": "{{field}}", "type": "quantitative" } } }
+              {
+                "mark": {
+                  "type": "bar",
+                  "color": "{{col_ac}}",
+                  "opacity": 0.5,
+                  "yOffset": -4
+                },
+                "encoding": {
+                  "x": {
+                    "field": "{{py_field}}",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "bar",
+                  "color": "{{col_ac}}",
+                  "yOffset": 2
+                },
+                "encoding": {
+                  "x": {
+                    "field": "{{field}}",
+                    "type": "quantitative"
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "text",
+                  "color": "{{col_ink}}",
+                  "align": "left",
+                  "dx": 4,
+                  "yOffset": 2
+                },
+                "encoding": {
+                  "x": {
+                    "field": "_lx",
+                    "type": "quantitative"
+                  },
+                  "text": {
+                    "field": "{{field}}",
+                    "type": "quantitative",
+                    "format": ",.1~f"
+                  }
+                }
+              }
             ]
           }
       web_recharts:
