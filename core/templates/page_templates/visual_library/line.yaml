@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "1.1.0"
+version: "1.1.1"
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -252,7 +252,13 @@ profiles:
                 "transform": [
                   { "joinaggregate": [ { "op": "min", "field": "{{field}}", "as": "_min" }, { "op": "max", "field": "{{field}}", "as": "_max" }, { "op": "count", "as": "_n" } ] },
                   { "window": [ { "op": "row_number", "as": "_i" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] },
-                  { "filter": "datum._n <= 6 || datum._i == 1 || datum._i == datum._n || datum['{{field}}'] == datum._min || datum['{{field}}'] == datum._max" }
+                  { "calculate": "datum['{{field}}'] == datum._min ? datum._i : null", "as": "_at_min" },
+                  { "calculate": "datum['{{field}}'] == datum._max ? datum._i : null", "as": "_at_max" },
+                  { "calculate": "datum._i == 1 ? datum['{{field}}'] : null", "as": "_at_first" },
+                  { "calculate": "datum._i == datum._n ? datum['{{field}}'] : null", "as": "_at_last" },
+                  { "joinaggregate": [ { "op": "min", "field": "_at_min", "as": "_imin" }, { "op": "min", "field": "_at_max", "as": "_imax" }, { "op": "max", "field": "_at_first", "as": "_v1" }, { "op": "max", "field": "_at_last", "as": "_vn" } ] },
+                  { "calculate": "0.05 * (datum._max - datum._min)", "as": "_near" },
+                  { "filter": "datum._n <= 6 || datum._i == 1 || datum._i == datum._n || ((datum._i == datum._imin || datum._i == datum._imax) && !(datum._i == 2 && abs(datum['{{field}}'] - datum._v1) < datum._near) && !(datum._i == datum._n - 1 && abs(datum['{{field}}'] - datum._vn) < datum._near))" }
                 ],
                 "mark": {
                   "type": "text",

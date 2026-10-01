@@ -163,3 +163,25 @@ def test_no_profile_lets_the_host_shorten_data_labels():
         if doc is None:
             continue
         assert doc["capabilities"].get("disableTextTruncation") is True, pid
+
+
+def _ibcs_line_labels(vals: list[float]) -> list[str]:
+    rows = [{"Monat": f"2026-{i // 28 + 1:02d}-{i % 28 + 1:02d}", "Wert": v} for i, v in enumerate(vals)]
+    svg = _svg("line", "ibcs", {"time": "Monat", "value": "Wert"}, rows)
+    return re.findall(r'aria-roledescription="text mark"[^>]*>([^<]+)<', svg)
+
+
+def test_ibcs_line_labels_a_tied_extremum_once():
+    """Cockpit 01.10.2026 (ESG-002): a flat tail at the maximum put 31 identical labels on top of
+    each other — every tied point was 'the' extremum. Only its first occurrence is labelled."""
+    vals = [10.0, 12.0, 11.0, 13.0, 14.1, 14.1, 14.1, 14.1, 14.1, 14.1, 13.5, 12.8]
+    labels = _ibcs_line_labels(vals)
+    assert labels.count("14,1") == 1, labels
+    assert len(labels) == 3, f"first, max, last: {labels}"
+
+
+def test_ibcs_line_skips_an_extremum_that_repeats_its_neighbouring_label():
+    """Cockpit 01.10.2026 (COM-001): the minimum 28 right after the first point 28,2 covered it."""
+    vals = [28.2, 28.0, 31.0, 33.0, 35.0, 36.0, 34.0, 37.0, 40.0, 38.0]
+    labels = _ibcs_line_labels(vals)
+    assert "28" not in labels and "28,2" in labels and "40" in labels, labels

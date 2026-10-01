@@ -141,51 +141,7 @@
             ]
           },
           {
-            "calculate": "datum['gm'] == datum._min ? datum._i : null",
-            "as": "_at_min"
-          },
-          {
-            "calculate": "datum['gm'] == datum._max ? datum._i : null",
-            "as": "_at_max"
-          },
-          {
-            "calculate": "datum._i == 1 ? datum['gm'] : null",
-            "as": "_at_first"
-          },
-          {
-            "calculate": "datum._i == datum._n ? datum['gm'] : null",
-            "as": "_at_last"
-          },
-          {
-            "joinaggregate": [
-              {
-                "op": "min",
-                "field": "_at_min",
-                "as": "_imin"
-              },
-              {
-                "op": "min",
-                "field": "_at_max",
-                "as": "_imax"
-              },
-              {
-                "op": "max",
-                "field": "_at_first",
-                "as": "_v1"
-              },
-              {
-                "op": "max",
-                "field": "_at_last",
-                "as": "_vn"
-              }
-            ]
-          },
-          {
-            "calculate": "0.05 * (datum._max - datum._min)",
-            "as": "_near"
-          },
-          {
-            "filter": "datum._n <= 6 || datum._i == 1 || datum._i == datum._n || ((datum._i == datum._imin || datum._i == datum._imax) && !(datum._i == 2 && abs(datum['gm'] - datum._v1) < datum._near) && !(datum._i == datum._n - 1 && abs(datum['gm'] - datum._vn) < datum._near))"
+            "filter": "datum._n <= 6 || datum._i == 1 || datum._i == datum._n || datum['gm'] == datum._min || datum['gm'] == datum._max"
           }
         ],
         "mark": {
