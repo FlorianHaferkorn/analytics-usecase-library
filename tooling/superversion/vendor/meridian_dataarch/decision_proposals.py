@@ -1450,7 +1450,7 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "text": "Fabric App mit Eingaben, Rückschreiben und Workflows",
          "vorteile": ["Eingabe und Auswertung in einer Oberfläche"],
          "nachteile": ["Preview", "Braucht eine Fabric SQL Database für das Rückschreiben"],
-         "limitierungen": [{"text": "Fabric Apps sind nicht in jeder Region verfügbar, etwa nicht in Germany West Central",
+         "limitierungen": [{"text": "Fabric Apps sind nicht in jeder Region verfügbar, etwa nicht in North Europe",
                             "quelle": "MS Learn: fabric/admin/region-availability"},
                            {"text": "Der Weg über Pro/PPU ohne Kapazität ist angekündigt, aber nicht dokumentiert",
                             "quelle": "eigene Einschaetzung"}],
@@ -2313,10 +2313,10 @@ def propose_network_stance(bp: dict) -> dict:
 # (D-340). Ein Entscheidungsmodell mit eigenen Eingabefeldern daneben waere eine zweite
 # Wahrheit neben dem Bauplan gewesen; deshalb sitzen die Regeln hier.
 
-#: Regionen, in denen Fabric Apps laut Learn (`admin/region-availability`, gelesen
-#: 29.09.2026) nicht verfuegbar sind. Unvollstaendig und deshalb nur als Sperrliste gefuehrt:
-#: eine Region, die hier fehlt, ist nicht als verfuegbar belegt.
-FABRIC_APPS_NICHT_IN = ("germanywestcentral",)
+# Fabric-App-Regionen: eine Quelle, `stack_capabilities.FEATURE_NICHT_IN["fabric_apps"]`. Bis
+# 01.10.2026 stand hier eine eigene Sperrliste mit genau `germanywestcentral` -- zwei Tage nach
+# dem Lesen war sie falsch (Learn hat die Region am 29.09. abends freigegeben), und nichts las sie
+# gegen die Tabelle daneben.
 
 
 def _regionen(bp: dict) -> set[str]:
@@ -2440,8 +2440,9 @@ def propose_overage(bp: dict) -> dict:
 
 def propose_report_target(bp: dict) -> dict:
     """Report-Ziel: PBIR, Fabric App oder beides. Region und Lizenzbasis entscheiden mit."""
+    from core.dataarch_engine.blueprint.stack_capabilities import feature_in_region
     regionen = _regionen(bp)
-    gesperrt = sorted(regionen & set(FABRIC_APPS_NICHT_IN))
+    gesperrt = sorted(r for r in regionen if feature_in_region("fabric_apps", r) == "fehlt")
     if gesperrt:
         vorschlag = (f"**PBIR.** Fabric Apps sind in {', '.join(gesperrt)} laut Learn nicht "
                      "verfügbar. Braucht der Kunde Eingaben oder Rückschreiben, ist die Region "
@@ -2460,8 +2461,8 @@ def propose_report_target(bp: dict) -> dict:
         "Brauchen Nutzer Eingaben, Rückschreiben oder Workflows im Bericht, und auf welcher "
         "Lizenzbasis?",
         vorschlag,
-        "platform.sizing.region / platform.capacities[].region; MS Learn: admin/region-availability, "
-        "power-bi/create-reports/fabric-apps-analytics (gelesen 29.09.2026)",
+        "platform.sizing.region / platform.capacities[].region; MS Learn: admin/region-availability "
+        "(gelesen 01.10.2026), power-bi/create-reports/fabric-apps-analytics (gelesen 29.09.2026)",
         konfidenz,
         ["Fabric App mit Eingaben, Rückschreiben und Workflows (Preview, nicht in jeder Region)",
          "PBIR für die Analyse, Fabric App nur für die Eingabe"],
