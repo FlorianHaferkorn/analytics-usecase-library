@@ -207,3 +207,13 @@ def test_palette_gate_fails_on_reserved_conflict_and_cvd_collapse():
     assert not g["ok"] and g["failures"][0]["check"] == "reserved_conflict"
     g2 = C.palette_gate(["#107C10", "#D55E00"], "#FFFFFF", {})    # protan ΔE 0.79
     assert not g2["ok"] and g2["failures"][0]["check"] == "cvd_separation"
+
+
+def test_thresholds_decide_unrounded():
+    """BO-036 (Freelancing, 01.10.2026): a colour just under 3:1 (#62A462 on white, 2.9975) rounded to 3.00 and passed;
+    the Meridian theme gate measures unrounded and failed. Decisions now use the exact ratio."""
+    assert C.contrast_ratio("#62A462", "#FFFFFF") == 3.0
+    assert C.contrast_ratio_exact("#62A462", "#FFFFFF") < 3.0
+    assert not C.solid_safe_on_white("#62A462")
+    darker = C.ensure_contrast("#62A462", "#FFFFFF", 3.0)
+    assert darker != "#62A462" and C.contrast_ratio_exact(darker, "#FFFFFF") >= 3.0

@@ -62,10 +62,17 @@ def relative_luminance(h: str) -> float:
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
 
-def contrast_ratio(fg: str, bg: str) -> float:
+def contrast_ratio_exact(fg: str, bg: str) -> float:
+    """WCAG contrast, unrounded — the value every threshold decision uses. Rounding first let 2.9965 pass as
+    3.00 (Meridian theme gate measures unrounded and failed: #0FB2C9 on white, 01.10.2026, BO-036)."""
     l1, l2 = relative_luminance(fg), relative_luminance(bg)
     hi, lo = max(l1, l2), min(l1, l2)
-    return round((hi + 0.05) / (lo + 0.05), 2)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def contrast_ratio(fg: str, bg: str) -> float:
+    """WCAG contrast rounded to two places, for reports and messages — not for pass/fail."""
+    return round(contrast_ratio_exact(fg, bg), 2)
 
 
 # --------------------------------------------------------------------------- #
@@ -222,7 +229,7 @@ SERIES_CAP = len(OKABE_ITO)  # 8
 
 def solid_safe_on_white(h: str) -> bool:
     """True if the colour meets WCAG SC 1.4.11 non-text contrast (≥3:1) as a solid fill on white."""
-    return contrast_ratio(h, "#FFFFFF") >= 3.0
+    return contrast_ratio_exact(h, "#FFFFFF") >= 3.0
 
 
 def series_palette(n: int, name: str = "okabe_ito") -> dict:
@@ -322,7 +329,7 @@ def ensure_contrast(color: str, bg: str, min_ratio: float = 3.0) -> str:
     if not 1.0 <= min_ratio <= 21.0:
         raise ValueError(f"min_ratio {min_ratio} outside the WCAG range 1..21")
     color = rgb_to_hex(hex_to_rgb(color))           # normalised uppercase '#RRGGBB'
-    if contrast_ratio(color, bg) >= min_ratio:
+    if contrast_ratio_exact(color, bg) >= min_ratio:
         return color
     L, C, hue = hex_to_oklch(color)
     step = -ENSURE_STEP_L if relative_luminance(bg) > LIGHT_BG_LUMINANCE else ENSURE_STEP_L
@@ -332,12 +339,12 @@ def ensure_contrast(color: str, bg: str, min_ratio: float = 3.0) -> str:
         if Lk < 0.0 or Lk > 1.0:
             break
         cand = oklch_to_hex(Lk, C, hue)
-        if contrast_ratio(cand, bg) >= min_ratio:
+        if contrast_ratio_exact(cand, bg) >= min_ratio:
             return cand
         k += 1
     # last resort at the lightness end-point itself (pure black / white carry no hue)
     end = oklch_to_hex(0.0 if step < 0 else 1.0, 0.0, hue)
-    if contrast_ratio(end, bg) >= min_ratio:
+    if contrast_ratio_exact(end, bg) >= min_ratio:
         return end
     raise ValueError(f"{color} cannot reach {min_ratio}:1 on {bg} by "
                      f"{'darkening' if step < 0 else 'lightening'} (max {contrast_ratio(end, bg)}:1)")
@@ -445,11 +452,11 @@ def main(argv: "list[str]") -> int:
         return 2
     cmd = argv[0]
     if cmd == "ratio" and len(argv) >= 3:
-        r = contrast_ratio(argv[1], argv[2])
-        aa_text = "PASS" if r >= 4.5 else "FAIL"
-        aa_nontext = "PASS" if r >= 3.0 else "FAIL"
+        r, exact = contrast_ratio(argv[1], argv[2]), contrast_ratio_exact(argv[1], argv[2])
+        aa_text = "PASS" if exact >= 4.5 else "FAIL"
+        aa_nontext = "PASS" if exact >= 3.0 else "FAIL"
         print(f"{argv[1]} on {argv[2]}: {r}:1   text(4.5)={aa_text}  non-text(3.0)={aa_nontext}")
-        return 0 if r >= 3.0 else 1
+        return 0 if exact >= 3.0 else 1
     if cmd == "palette":
         rest = [a for a in argv[1:] if not a.startswith("--")]
         name = argv[argv.index("--name") + 1] if "--name" in argv else "okabe_ito"
