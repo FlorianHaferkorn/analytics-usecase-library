@@ -1,3 +1,0 @@
-relationship dim_org_fact_finance
-	fromColumn: fact_finance.OrgKey
-	toColumn: dim_org.OrgKey

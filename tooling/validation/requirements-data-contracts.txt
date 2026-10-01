@@ -1,5 +1,0 @@
-# Stage 1 Python validation (data contracts + run_stage1_checks.ps1 $pythonChecks)
-PyYAML>=6.0
-pandas>=2.0
-pyarrow>=14.0
-jsonschema>=4.17.0

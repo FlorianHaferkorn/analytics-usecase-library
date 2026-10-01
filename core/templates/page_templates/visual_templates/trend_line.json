@@ -1,7 +1,0 @@
-{
-  "visual_template_id": "Trend_Line",
-  "description": "Time series or trend line chart.",
-  "visual_type": "lineChart",
-  "slot_compatibility": ["Main_1", "Main_2", "Main_3", "Focus_Area", "Support_1", "Support_2"],
-  "defaults": {}
-}

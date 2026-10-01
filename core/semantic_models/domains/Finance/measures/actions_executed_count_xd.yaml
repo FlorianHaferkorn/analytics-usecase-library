@@ -1,6 +1,0 @@
-$ref: actions_executed_count_xd
-semantic_model: Finance_SemanticModel
-documentation:
-  description: Number of action codes with a recorded outcome — Finance domain cross-domain view.
-governance:
-  owner: Finance BI

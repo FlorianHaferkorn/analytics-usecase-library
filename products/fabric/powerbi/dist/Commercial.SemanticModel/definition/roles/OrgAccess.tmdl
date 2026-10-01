@@ -1,7 +1,0 @@
-role OrgAccess
-	modelPermission: read
-
-	tablePermission dim_org = dim_org[OrgKey] IN CALCULATETABLE( VALUES(security_user_org[OrgKey]), security_user_org[UserPrincipalName] = USERPRINCIPALNAME() )
-
-	annotation PBI_Id = 85a596a94ba5472a8c1db4f0b2f67608
-

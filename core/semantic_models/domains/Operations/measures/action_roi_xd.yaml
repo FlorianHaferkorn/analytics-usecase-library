@@ -1,6 +1,0 @@
-$ref: action_roi_xd
-semantic_model: Operations_SemanticModel
-documentation:
-  description: Average ROI of executed actions — Operations cross-domain proxy.
-governance:
-  owner: Operations BI

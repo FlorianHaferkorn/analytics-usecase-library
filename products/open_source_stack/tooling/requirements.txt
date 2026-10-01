@@ -1,3 +1,0 @@
-# OSS Stack tooling dependencies
-pyyaml>=6.0
-pytest>=7.0

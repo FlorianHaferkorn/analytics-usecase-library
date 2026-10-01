@@ -1,6 +1,0 @@
-$ref: action_effectiveness_delta_xd
-semantic_model: Finance_SemanticModel
-documentation:
-  description: Average EUR impact per achieved action execution — Finance domain cross-domain proxy.
-governance:
-  owner: Finance BI

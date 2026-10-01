@@ -1,6 +1,0 @@
-$ref: action_roi_xd
-semantic_model: Finance_SemanticModel
-documentation:
-  description: Average ROI of executed actions — Finance domain cross-domain proxy.
-governance:
-  owner: Finance BI

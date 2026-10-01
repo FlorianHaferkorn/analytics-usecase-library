@@ -1,4 +1,0 @@
-model Model
-	culture: {{CULTURE}}
-	defaultPowerBIDataSourceVersion: PowerBI_V3
-	discourageImplicitMeasures

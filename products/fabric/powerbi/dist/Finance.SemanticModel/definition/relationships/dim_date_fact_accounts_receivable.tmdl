@@ -1,3 +1,0 @@
-relationship dim_date_fact_accounts_receivable
-	fromColumn: fact_accounts_receivable.DateKey
-	toColumn: dim_date.DateKey

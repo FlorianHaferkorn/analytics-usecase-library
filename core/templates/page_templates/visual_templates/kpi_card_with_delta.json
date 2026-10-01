@@ -1,1 +1,0 @@
-{"visual_template_id":"KPI_Card_WithDelta","description":"KPI card with title, main value, relative deviation, status indicator.","visual_type":"cardVisual","action_logic":"standard_variance","slot_compatibility":["KPI_Cards"],"defaults":{"title_placeholder":"KPI Title","show_delta":true,"indicator":true}}

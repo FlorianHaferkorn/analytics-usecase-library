@@ -1,8 +1,0 @@
-# CODEOWNERS: required reviewers for protected paths.
-# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
-# Use team names (e.g. @FlorianHaferkorn/team-name) or usernames. At least one approval from these owners is required when branch protection is enabled.
-
-/core/                    @florianhaferkorn
-/tooling/                 @florianhaferkorn
-/internal/vision/         @florianhaferkorn
-/.github/                 @florianhaferkorn

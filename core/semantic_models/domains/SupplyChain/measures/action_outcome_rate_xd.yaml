@@ -1,6 +1,0 @@
-$ref: action_outcome_rate_xd
-semantic_model: SupplyChain_SemanticModel
-documentation:
-  description: Percentage of executed actions with confirmed achieved outcome — Supply Chain cross-domain proxy.
-governance:
-  owner: Supply Chain BI

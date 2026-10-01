@@ -1,6 +1,0 @@
-$ref: action_effectiveness_delta_xd
-semantic_model: Service_SemanticModel
-documentation:
-  description: Average EUR impact per achieved action execution — Service cross-domain proxy.
-governance:
-  owner: Service BI

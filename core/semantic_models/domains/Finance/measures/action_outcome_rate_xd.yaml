@@ -1,6 +1,0 @@
-$ref: action_outcome_rate_xd
-semantic_model: Finance_SemanticModel
-documentation:
-  description: Percentage of executed actions with a confirmed achieved outcome — Finance domain cross-domain proxy.
-governance:
-  owner: Finance BI
