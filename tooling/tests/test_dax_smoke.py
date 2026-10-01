@@ -228,3 +228,73 @@ def test_orphan_fk_on_gold_parquet_agrees_on_the_same_fixture(tmp_path, monkeypa
               "dims": [{"domain": "fix", "name": "dim_customer", "key": "CustomerKey"}]}
     orphan = cdm.check_referential_integrity(modell)
     assert len(orphan) == 1 and orphan[0].startswith("ORPHAN-FK") and ": 2 value(s)" in orphan[0]
+
+
+# ------------------------------------------------------------------ Toleranz der Gegenprobe (I-21 W5.16)
+
+def _gegenprobe_lauf(ist: float) -> tuple[dict, dict]:
+    plan = _mini_plan()
+    antworten = {"g1": [ist], "m1": [4.0, 6.0], "g2": [None], "m2": [None, None], "g3": [None], "m3": [None]}
+    return plan, ds.lauf(plan, "w", "d", "t", transport=_stub(antworten.get))
+
+
+def _abweichung(ist: float, soll: float, **kw) -> bool:
+    plan, lauf = _gegenprobe_lauf(ist)
+    return any(b["befund"] == "Gegenprobe weicht ab"
+               for b in ds.bewerten(plan, lauf, {"X.SemanticModel::Umsatz": soll}, **kw))
+
+
+def test_a_difference_in_the_fifth_decimal_stays_green():
+    """DAX und SQL weichen ab der 5. Nachkommastelle ab; das ist Engine-Rundung, kein Befund.
+
+    Vor W5.16 war die Grenze 1e-6 * max(1, |soll|): bei 0.1234 also 1e-6, und 0.12344 wurde rot.
+    """
+    assert not _abweichung(0.12344, 0.1234)
+    assert not _abweichung(10.00004, 10.0)
+    assert not _abweichung(-2.50009, -2.5)
+
+
+def test_a_real_deviation_turns_red():
+    assert _abweichung(10.001, 10.0)
+    assert _abweichung(0.1236, 0.1234)
+    assert _abweichung(1_000_002.0, 1_000_000.0)  # über der relativen Grenze 1e-6 * |soll| = 1.0
+
+
+def test_the_tolerance_is_a_parameter_with_a_default():
+    import inspect
+    sig = inspect.signature(ds.bewerten).parameters
+    assert sig["stellen"].default == ds.ABGLEICH_STELLEN == 4
+    assert sig["toleranz"].default == ds.TOLERANZ_REL == 1e-6
+    assert _abweichung(10.00004, 10.0, stellen=6)      # enger gestellt: die 5. Stelle zählt
+    assert not _abweichung(10.004, 10.0, stellen=2)    # weiter gestellt: 4e-3 unter 1e-2
+
+
+def test_fixed_decimal_raster_widens_the_limit_only_for_its_measure():
+    """Festkomma schneidet je Zeile ab der 5. Stelle ab; über n Zeilen summiert sich das."""
+    assert _abweichung(10.003, 10.0)
+    assert not _abweichung(10.003, 10.0, raster={"X.SemanticModel::Umsatz": 0.005})
+    assert _abweichung(10.003, 10.0, raster={"X.SemanticModel::Anderes": 0.005})
+
+
+def test_data_type_of_the_summed_column_is_read_from_the_model():
+    assert ds.datentyp(ds.DIST / "Experience.SemanticModel", "Net Sales Amount (XD)") == "decimal"
+    assert ds.datentyp(ds.DIST / "Commercial.SemanticModel", "Net Sales Amount") == "double"
+    assert ds.datentyp(ds.DIST / "Commercial.SemanticModel", "gibt es nicht") is None
+
+
+def test_gegenprobe_reports_the_raster_for_fixed_decimal_columns(tmp_path, monkeypatch):
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+    plan_dir = tmp_path / "plan"
+    plan_dir.mkdir()
+    gp = [{"measure": "Net Sales Amount (XD)", "ordner": "facts/fact_sales", "spalte": "Net Sales Amount"}]
+    (plan_dir / "Experience.json").write_text(json.dumps({"modell": "Experience.SemanticModel",
+                                                         "gegenproben": gp}), encoding="utf-8")
+    ordner = tmp_path / "slice" / "facts" / "fact_sales"
+    ordner.mkdir(parents=True)
+    pq.write_table(pa.table({"Net Sales Amount": [1.00004, 2.00004, None]}), ordner / "part-0.parquet")
+    monkeypatch.setattr(ds, "PLAN", plan_dir)
+    out = ds.gegenprobe(tmp_path / "slice")
+    key = "Experience.SemanticModel::Net Sales Amount (XD)"
+    assert abs(out["werte"][key] - 3.00008) < 1e-12
+    assert abs(out["raster"][key] - 2e-4) < 1e-15   # zwei gefüllte Zeilen, die leere zählt nicht

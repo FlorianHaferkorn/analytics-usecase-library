@@ -64,7 +64,12 @@ Erstellen Sie eine Azure AD App Registration:
 
 ### 2. Tenant Settings
 
-Aktivieren Sie in Power BI Admin Portal → Tenant settings:
+Aktivieren Sie unter **OneLake catalog → Govern → Configurations → Tenant settings**
+(Fallback: Settings (Zahnrad) → Admin portal → Tenant settings, solange Govern in Ihrer Region
+noch nicht ausgerollt ist. Grenzen von Govern: nicht verfügbar bei aktiviertem Private Link,
+keine Gastbenutzer und keine Cross-Tenant-Szenarien; dort bleibt das Admin portal der Weg — Learn
+[About tenant settings](https://learn.microsoft.com/fabric/admin/about-tenant-settings),
+[Govern](https://learn.microsoft.com/fabric/governance/onelake-catalog-govern), gelesen 01.10.2026):
 - "Users can create Fabric items" (oder spezifisch für den SPN)
 - "Users can synchronize workspace items with their Git repositories"
 - "Service principals can use Fabric APIs"
@@ -386,7 +391,7 @@ SELECT * FROM silver.transactions_cleaned
 
 ### Fehler: "SPN has no access to capacity"
 
-**Lösung**: Fügen Sie den SPN als Capacity Admin hinzu (Power BI Admin Portal → Capacity settings → Admins).
+**Lösung**: Fügen Sie den SPN als Capacity Admin hinzu (OneLake catalog → Govern → Capacities → die Kapazität → More options → Settings → Capacity admins; Fallback: Settings (Zahnrad) → Admin portal → Capacity settings, z. B. bei Private Link — Learn [Manage your capacities in the OneLake catalog](https://learn.microsoft.com/fabric/governance/onelake-catalog-capacities), gelesen 01.10.2026).
 
 ### Fehler: "Git provider details missing"
 

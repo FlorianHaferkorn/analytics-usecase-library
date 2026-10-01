@@ -50,13 +50,13 @@ steps:
       pip install -r $(Pipeline.Workspace)/automation/resources/requirements.txt
     displayName: 'Install Python dependencies'
   
-  - script: |
+  - pwsh: |
       python $(Pipeline.Workspace)/automation/scripts/fabric_release.py `
         --environment ${{ parameters.environment }} `
         --repo_path "$(Pipeline.Workspace)/solution" `
         --unpublish_items true
+      if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     displayName: 'Release Fabric items'
-    pwsh: true
     continueOnError: false
     env:
       PYTHONIOENCODING: utf-8

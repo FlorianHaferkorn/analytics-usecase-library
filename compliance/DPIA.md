@@ -3,7 +3,7 @@
 **Regulation:** DSGVO Article 35  
 **Document Version:** 1.0  
 **Last Updated:** 2026-04-22  
-**Inhaltliche Durchsicht (ohne Legal-Sign-off):** 2026-09-25 – siehe Abschnitt 10; Studio-KI ergänzt in Abschnitt 11 (2026-09-25, Code-Stand PR #478)  
+**Inhaltliche Durchsicht (ohne Legal-Sign-off):** 2026-09-25 – siehe Abschnitt 10; Studio-KI ergänzt in Abschnitt 11 (2026-09-25, Code-Stand PR #478); Optionen der Kundenplattform Microsoft Fabric/Power BI (Schlüssel, Customer Lockbox, KI-Zugriff je Semantikmodell) in Abschnitt 12 (2026-10-01)  
 **Next Review:** (to be completed by legal team)
 
 ---
@@ -129,6 +129,9 @@ If ANY special categories are present, Art. 9 restrictions apply (explicit conse
 | **Data minimization** | Only necessary fields exposed; row-level security (RLS) |
 | **Audit logging** | Immutable log of all data access/modifications; 1-year retention |
 | **Network isolation** | Private subnets; API gateway for external access |
+| **Kundenverwaltete Schlüssel (Option, Fabric/Power BI)** | Workspace-CMK für OneLake-Items, BYOK auf Kapazitätsebene für Import-Semantikmodelle; Entscheidung des Kunden, Verfahren und Grenzen in Abschnitt 12.1 (ergänzt 2026-10-01, C-24) |
+| **Supportzugriff Microsoft (Option)** | Customer Lockbox: Zugriff eines Microsoft-Technikers auf Kundendaten nur nach Freigabe; Abschnitt 12.2 (ergänzt 2026-10-01, C-24) |
+| **KI-Zugriff je Semantikmodell** | Modelleinstellung „Allow any person with only read permissions to use AI …“, ab Werk an, nicht vererbt; Abschnitt 12.3 (ergänzt 2026-10-01, C-25) |
 | **Automated deletion** | Nightly prune job: `tooling/generator/maintenance/prune_expired_rows.py` — ⚠️ Datei existiert im Repo nicht (Stand 2026-09-25, C-08) |
 
 ### 6.2 Organizational Measures
@@ -220,6 +223,7 @@ Diese DSFA deckt die Verarbeitungen 4.1–4.3 ab, seit 2026-09-25 außerdem die 
 - **C-01 Studio-KI / LLM-Anbieter:** Am 2026-09-25 teilweise bearbeitet, siehe **Abschnitt 11** (Datenfluss, Empfänger, Kontrollen, Risiken; Code-Stand PR #478). Offen sind weiterhin Rechtsgrundlage, konkrete Anbieter- und Regionswahl, Transfergrundlage und Löschfristen (C-21, C-22, C-23). Die DSK-Muss-Liste nach Art. 35 Abs. 4 DSGVO nennt unter Nr. 11 den „Einsatz von künstlicher Intelligenz zur Verarbeitung personenbezogener Daten zur Steuerung der Interaktion mit den Betroffenen oder zur Bewertung persönlicher Aspekte“[^2]. Ob dieser Tatbestand erfüllt ist, entscheidet Legal/DSB (C-12). Die Fakten dazu stehen in Abschnitt 11.6.
 - **C-02 LLM-Telemetrie:** Der Inhalt ist teilweise geklärt (Abschnitt 11.5), die Löschfrist ist offen.
 - **C-03 Studio-Benutzer-/Org-/Audit-Daten**, **C-04 SAP-Konnektor**, **C-05 Project Runner / agentic loop**, **C-06 Fabric-Export/Tenant-Settings:** nicht in Scope; Datenkategorien und Risiken sind nicht bewertet.
+- **C-24 Schlüssel und Customer Lockbox, C-25 KI-Zugriff je Semantikmodell (ergänzt 2026-10-01):** Optionen der Kundenplattform Fabric/Power BI in **Abschnitt 12**, mit Learn-Quellen. Offen sind die Entscheidung des Kunden je Option und die Bewertung durch Legal/DSB; C-06 bleibt davon unberührt offen.
 - **C-07 Rolle:** Abschnitt 2 ist offen (Verantwortlicher oder Auftragsverarbeiter). Davon hängt ab, wer die DSFA für Kundendaten schuldet.
 - **C-11 EU AI Act:** Die Transparenzpflichten nach Art. 50 VO (EU) 2024/1689 gelten seit 02.08.2026. Art. 4 wurde durch VO (EU) 2026/1744 geändert. Die Einordnung der Studio-KI ist nicht vorgenommen; die Fakten aus dem Code stehen in Abschnitt 11.8. Quellen siehe README.md, „Rechtsstand-Abgleich“.
 
@@ -325,6 +329,57 @@ Die rechtliche Einordnung (Anbieter oder Betreiber, Risikoklasse, Transparenzpfl
 - **Kennzeichnung:** Die Factsheet-Route liefert `engine: 'ai' | 'deterministic'`. Ob die Oberfläche KI-Ausgaben für Nutzer kennzeichnet: ⚠️ UNKLAR (UI-Komponenten nicht geprüft).
 - **Hochrisiko-Bezug:** Im Code gibt es keinen Hinweis auf Zwecke nach Anhang III (z. B. Beschäftigung, Kreditwürdigkeit). Das ist eine Beobachtung, keine Einordnung.
 - **Betriebszustand:** In diesem Code-Stand ist jede Modellübermittlung gesperrt (11.1). Ob das für das „Inverkehrbringen/Inbetriebnehmen“ eine Rolle spielt, bewertet Legal.
+
+---
+
+## 12. Kundenplattform Microsoft Fabric / Power BI: Schlüssel, Supportzugriff, KI-Zugriff (C-24, C-25; Stand 2026-10-01)
+
+Dieser Abschnitt beschreibt **Optionen**, die der Kunde auf seiner Fabric-/Power-BI-Plattform wählt. ALUCA liefert Semantikmodelle und Berichte in diese Plattform; eingeschaltet wird keine der Optionen durch ALUCA. Alle Plattformaussagen sind gegen Microsoft Learn gelesen am 01.10.2026 (Quelle je Unterabschnitt). Was dort nicht steht, ist als ⚠️ UNKLAR oder **ANNAHME, ungeprüft** markiert. Ob eine Option für eine konkrete Verarbeitung als Maßnahme nach Art. 25 oder 32 DSGVO erforderlich ist, bewertet Legal/DSB. Das gilt auch für die Frage, ob sie als zusätzliche Maßnahme bei Übermittlungen (Abschnitt 4.3 der Hosting-Doku) taugt. Zusammenhang: C-06 (Microsoft als Empfänger nicht erfasst).
+
+### 12.1 Kundenverwaltete Schlüssel (Option)
+
+Ab Werk verschlüsselt Fabric alle ruhenden Daten mit Microsoft-verwalteten Schlüsseln. Es gibt zwei kundenseitige Schlüsselwege, und sie decken **verschiedene** Items ab:
+
+| Weg | Deckt ab | Ebene | Wichtige Grenzen |
+|---|---|---|---|
+| **Workspace-CMK** | Lakehouse, Warehouse, Notebook, Environment, Spark Job Definition, API for GraphQL, ML model, Experiment, Pipeline, Dataflow, Copy job, Industry solutions, SQL Database, Mirrored Database, Eventhouse (Preview), Graph; damit alle OneLake-Daten des Workspace | Workspace | Tenant-Einstellung „Apply customer-managed keys“ muss an sein; Key Vault oder Managed HSM mit Soft-Delete **und** Purge-Schutz; RSA/RSA-HSM 2.048, 3.072 oder 4.096 Bit (SQL Database: kein 4.096), nur versionslose Schlüssel; nicht auf Trial-Kapazität; Mirrored Dataverse und Mirrored Azure Databricks Catalog nicht in CMK-Workspaces; einige Metadaten (Pipeline/Copy job, ML-Modell, Umgebungsbibliotheken) bleiben ohne CMK |
+| **BYOK (Power BI)** | in Semantikmodelle **importierte** Daten | Kapazität | Aktivierung per PowerShell auf Tenant-Ebene, **nicht rückgängig zu machen**; nicht für Push-, Streaming-, Live-Connection-Modelle und hochgeladene Excel-/CSV-Dateien |
+
+Folgen für ALUCA-Lieferungen:
+
+- **Direct Lake:** Die Daten liegen in OneLake, nicht im Semantikmodell (Learn `fabric/security/power-bi-security`, Tabelle „Data Persisted in Power BI“: DirectLake „No“). Sie schützt also der Workspace-CMK des Lakehouse-Workspace, nicht BYOK.
+- **Import:** Den Schutz der Modelldaten liefert BYOK der Kapazität, nicht der Workspace-CMK (Learn `fabric/security/security-scenario`: „Capacity-level BYOK encrypts Power BI semantic models, while workspace-level CMK encrypts other Fabric items“).
+- **Workspace-Schnitt:** Semantikmodelle und Berichte stehen nicht in der Liste der CMK-fähigen Items. Learn sagt, die Funktion lasse sich nicht einschalten, solange der Workspace nicht unterstützte Items enthält, und danach ließen sich nur unterstützte Items anlegen. Nach diesem Wortlaut gehören Modelle und Berichte in einen Workspace ohne CMK. Diese Lesart ist **ANNAHME, ungeprüft** (im Tenant nicht gemessen).
+- **Widerruf:** Wird der Schlüssel im Key Vault widerrufen, scheitern Lese- und Schreibzugriffe auf den CMK-Workspace binnen 60 Minuten; BYOK-Daten werden für den Dienst binnen 30 Minuten unlesbar. SQL Database prüft den Schlüssel nach einer Wiederherstellung nicht von selbst neu.
+- **Nachweis:** Audit-Ereignisse `ApplyWorkspaceEncryption`, `DisableWorkspaceEncryption`, `GetWorkspaceEncryption`. Workspace-Admins setzen den CMK im Portal oder über die APIs Assign/Get/Reset Workspace Encryption.
+
+Quellen (gelesen 01.10.2026): Learn `fabric/security/security-overview` (Abschnitt „Secure Data“), `fabric/security/workspace-customer-managed-keys`, `fabric/security/security-scenario` (Abschnitt „Data handling“), `fabric/enterprise/powerbi/service-encryption-byok`, `fabric/security/power-bi-security`.
+
+⚠️ TO BE COMPLETED BY LEGAL: ob für die Verarbeitungen 4.1–4.3 kundenverwaltete Schlüssel verlangt werden. Bei Microsoft-verwalteten Schlüsseln bleibt die Zeile „Encryption at rest“ in 6.1 die geltende Maßnahme.
+
+### 12.2 Customer Lockbox (Option)
+
+Mit Customer Lockbox for Microsoft Azure greift ein Microsoft-Techniker nur nach Freigabe des Kunden auf Kundendaten zu, wenn er einen Supportfall mit Standardwerkzeugen nicht lösen kann.
+
+- **Einschalten:** Azure-Portal → Customer Lockbox for Microsoft Azure → Administration → Enabled; Rolle Microsoft Entra Global Administrator.
+- **Freigabe:** Die Person mit aktiver Global-Administrator-Rolle erhält die Anfrage. Die Rolle muss **vor** der Anfrage aktiv sein, sonst ist die Anfrage nicht sichtbar. Bei PIM heißt das: Rolle während eines Supportfalls aktivieren. Eine Anfrage verfällt nach vier Tagen ohne Zugriff, eine Freigabe gilt standardmäßig acht Stunden.
+- **Protokolle:** Azure-Aktivitätsprotokoll (Create, Approve, Deny, Expiry) und Purview-Audit (z. B. `GetRefreshHistoryViaLockbox`, `GetQueryTextTelemetryViaLockbox`).
+- **Grenzen:** Keine Lockbox-Anfrage bei Notfällen außerhalb der Standardverfahren, bei zufälligem Kontakt mit Daten während der Fehlersuche und bei **behördlichen Herausgabeverlangen** („External legal demands for data“). Für die Transferbewertung (Schrems II) ersetzt Lockbox daher keine Maßnahme gegen behördlichen Zugriff.
+
+Quelle (gelesen 01.10.2026): Learn `fabric/security/security-lockbox`.
+
+### 12.3 KI-Zugriff je Semantikmodell (C-25)
+
+Die Modelleinstellung „Allow any person with only read permissions to use AI (for example, Copilot, Microsoft's MCP tools) on this model and its related reports“ steht in den Einstellungen des Semantikmodells (Abschnitt **Copilot**, auf der vollständigen Einstellungsseite unter **Explore and AI access**). Schalten darf, wer Schreibrecht auf das Modell hat.
+
+- **Ab Werk an.** Leser erreichen das Modell dann über die Copilot-Oberflächen in Power BI (Berichtsbereich, Standalone, Apps), Microsoft 365 Copilot Chat und Cowork, Data Agent und Microsofts Remote-MCP-Werkzeuge.
+- **Aus** heißt: Nutzer mit reinem Leserecht erreichen das Modell über keine dieser Oberflächen. In Oberflächen mit mehreren Modellen fällt es für **alle** Nutzer aus der Suche, auch für Nutzer mit Build- und Schreibrecht; diese erreichen es weiter direkt (URL oder manuelles Anhängen).
+- **Nicht vererbt.** Ein Modell, das auf einem anderen Modell aufbaut, braucht die Einstellung eigens.
+- **Setzbarkeit:** Ob die Einstellung in TMDL oder über eine API setzbar ist, ist ⚠️ UNKLAR. Learn beschreibt nur die Oberfläche (gelesen 01.10.2026). ALUCA kann sie deshalb nicht generieren; sie bleibt ein Schritt nach der Veröffentlichung.
+
+Empfehlung (Vorschlag, Entscheidung Kunde/DSB): Für jedes Modell mit personenbezogenen Daten (Abschnitt 3) vor der Freigabe an Leser entscheiden, ob KI-Zugriff erlaubt sein soll, und die Entscheidung je Modell festhalten. Für Microsoft 365 Copilot Chat schreibt Learn, die Anbindung respektiere die bestehenden Power-BI-Berechtigungen und Sicherheitskontrollen (Learn `microsoft-365/copilot/copilot-powerbi-copilot-chat`, gelesen 01.10.2026). Ob das für jede genannte Oberfläche RLS und OLS im selben Umfang einschließt, ist hier nicht geprüft (⚠️ UNKLAR). Die Copilot-Readiness-Doku (`products/fabric/powerbi/tooling/copilot_readiness/README.md`) führt den Schritt in ihrer Checkliste.
+
+Quelle (gelesen 01.10.2026): Learn `power-bi/create-reports/copilot-semantic-models`, Abschnitt „Control Copilot access for semantic models“.
 
 ---
 

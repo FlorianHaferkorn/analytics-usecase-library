@@ -42,7 +42,9 @@ stages:
   - stage: ReleaseTest
     displayName: 'Release to TEST'
     dependsOn: Build
-    condition: succeeded()
+    # Branch rule (I-21 W5.4): deploy only from releases/*, never from a PR build or a
+    # manual run on another branch. The `pr:` trigger above is for Build only.
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), ne(variables['Build.Reason'], 'PullRequest'))
     jobs:
       - deployment: ReleaseTest
         displayName: 'Deploy to TEST'
@@ -62,7 +64,9 @@ stages:
   - stage: ReleaseProd
     displayName: 'Release to PRODUCTION'
     dependsOn: ReleaseTest
-    condition: succeeded()
+    # Branch rule (I-21 W5.4): deploy only from releases/*, never from a PR build or a
+    # manual run on another branch. The `pr:` trigger above is for Build only.
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), ne(variables['Build.Reason'], 'PullRequest'))
     jobs:
       - deployment: ReleaseProd
         displayName: 'Deploy to PRODUCTION'

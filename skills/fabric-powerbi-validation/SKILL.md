@@ -63,6 +63,34 @@ Validated by `check_diagram_layout.ps1` (part of Fabric checks).
 - Regenerate TMDL after dictionary changes to keep them in sync.
 - Run Fabric checks before committing Power BI output.
 
+## MCP servers and new DAX functions (Microsoft Learn, read 2026-10-01)
+
+- **Which MCP server** (Learn `power-bi/developer/mcp/mcp-servers-overview`):
+  - Build or validate a model: **Power BI Authoring MCP**. Local is generally available
+    (`stdio`, the npm package pinned in `.mcp.json`, reaches PBIP/TMDL under `dist/`, supports a
+    service principal). Hosted is preview (`https://api.fabric.microsoft.com/v1/mcp/powerbi/authoring`,
+    Fabric workspaces only). This repo uses the local server; setup:
+    `products/fabric/powerbi/docs/references/powerbi-modeling-mcp-setup.md`.
+  - Ask questions of a deployed model as a consumer: **Fabric IQ MCP** (generally available,
+    read-only, delegated sign-in only, no service principal; Learn `fabric/iq/connectors/fabric-iq-mcp`).
+    Not a step of the agentic loop; its role as a manual cross-check for S4 is assessed in
+    `docs/plans/UMSETZUNGSPLAN_AGENTIC_LOOP.md` (AP-4).
+  - Learn warns against using the authoring server for consumption.
+- **`TEXTCONTAINS` / `TEXTSIMILARITY`** (new in September 2026; Learn `dax/textcontains-function-dax`,
+  `dax/textsimilarity-function-dax`): full-text match (Boolean) and relevance score on a string
+  column; modes `TEXTMATCHING`, `FUZZYMATCHING`, `PHRASEMATCHING`.
+  - They need a persisted full-text index on the column: TMDL column property
+    `fullTextIndexingBehavior: full` (or `explicit`), then a refresh (Learn
+    `analysis-services/azure-analysis-services/full-text-indexing`, preview). Import, Dual and Direct
+    Lake only; pure DirectQuery fails.
+  - Stemming follows the model culture (`de` and `en` are supported, which covers the `de-DE` and
+    `en-US` models in `dist/`).
+  - **Do not emit them yet.** `fullTextIndexingBehavior` is not in
+    `core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md` and no use case is known to
+    need free-text search (ASSUMPTION, unchecked). Adopting it is a separate decision (subset, generator, BPA).
+  - Nothing breaks today: `tooling/` holds no DAX function allowlist that would reject the new names
+    (grep, 2026-10-01).
+
 ## Key paths
 
 - Fabric checks: `products/fabric/powerbi/tooling/run_fabric_checks.ps1`

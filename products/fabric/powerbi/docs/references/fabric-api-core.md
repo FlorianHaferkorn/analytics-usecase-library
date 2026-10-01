@@ -138,7 +138,7 @@ grant_type=client_credentials&client_id=<appId>&client_secret=<secret>&scope=htt
 1. **App Registration**: Create at `https://entra.microsoft.com` > Applications > App registrations.
 2. **Redirect URI**: For interactive flows, add `http://localhost` as Mobile/Desktop redirect URI.
 3. **API Permissions**: Under **Power BI Service** (where Fabric scopes appear): `Workspace.ReadWrite.All`, `Item.ReadWrite.All`, `OneLake.ReadWrite.All`, etc. For client_credentials: grant Application permissions with admin consent.
-4. **Tenant Admin Setting**: Enable "Service principals can use Fabric APIs" in Fabric Admin Portal. Include the SPN/security group in the allowlist.
+4. **Tenant Admin Setting**: Enable "Service principals can use Fabric APIs" under **OneLake catalog > Govern > Configurations > Tenant settings**. Include the SPN/security group in the allowlist. Fallback: **Settings (gear) > Admin portal > Tenant settings** while Govern is not yet rolled out in your region; Govern limits: not available while Private Link is activated, no guest users and no cross-tenant scenarios; use the Admin portal there (Learn: [About tenant settings](https://learn.microsoft.com/fabric/admin/about-tenant-settings), [Govern limitations](https://learn.microsoft.com/fabric/governance/onelake-catalog-govern), read 2026-10-01).
 
 ## Core Control-Plane REST APIs
 
@@ -459,7 +459,7 @@ Verify `capacityAssignmentProgress` is "Completed" before creating items.
 | Error | Likely Cause | Resolution |
 |---|---|---|
 | `401 Unauthorized` | Wrong token audience, expired token, or insufficient permissions | Verify `aud` claim in JWT (decode at jwt.ms). Ensure correct scope (see Token Audiences table above). |
-| `403 Forbidden` | Missing workspace role or item permission | Check role assignments. For SPNs: verify admin portal settings. |
+| `403 Forbidden` | Missing workspace role or item permission | Check role assignments. For SPNs: verify the tenant settings (OneLake catalog > Govern > Configurations > Tenant settings; fallback Admin portal). |
 | `404 Not Found` | Wrong workspace/item ID or item deleted | Re-resolve the workspace/item. |
 | `429 Too Many Requests` | Rate limit exceeded | Wait for `Retry-After`, then retry. |
 | `PrincipalTypeNotSupported` | SPN used where only user principal is supported | Some APIs are user-only — check docs. |

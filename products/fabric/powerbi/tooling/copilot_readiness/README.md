@@ -63,6 +63,32 @@ Nicht gespiegelt: `anwendung.py` (Anleitungstext nennt den Meridian Core als Que
 Ohne Quelle bleibt ein Feld leer, statt geschätzt zu werden: der Katalog führt keine
 strategischen Ziele oder Baselines, also nennt die Ausgabe keine.
 
+## Nach der Veröffentlichung: KI-Zugriff für Leser je Modell (Handschritt)
+
+Prep data for AI regelt, **was** Copilot über ein Modell weiß. **Ob** Leser es überhaupt über KI
+erreichen, regelt eine eigene Modelleinstellung: „Allow any person with only read permissions to
+use AI (for example, Copilot, Microsoft's MCP tools) on this model and its related reports“.
+Stand Learn `power-bi/create-reports/copilot-semantic-models`, Abschnitt „Control Copilot access
+for semantic models“, gelesen 01.10.2026:
+
+- Ort: Einstellungen des Semantikmodells → Abschnitt **Copilot** (vollständige Einstellungsseite:
+  **Explore and AI access**). Schalten darf, wer Schreibrecht auf das Modell hat.
+- **Ab Werk an.** Gilt für Copilot in Power BI (Berichtsbereich, Standalone, Apps), Microsoft 365
+  Copilot Chat und Cowork, Data Agent und Microsofts Remote-MCP-Werkzeuge.
+- **Aus:** Leser erreichen das Modell über keine dieser Oberflächen; in Oberflächen mit mehreren
+  Modellen fällt es für alle Nutzer aus der Suche (Build/Schreibrecht erreicht es nur noch direkt).
+- **Nicht vererbt:** Ein Modell auf einem anderen Modell braucht die Einstellung eigens.
+- **Setzbarkeit per TMDL oder API: UNKLAR** (Learn beschreibt nur die Oberfläche). Dieses Werkzeug
+  erzeugt die Einstellung deshalb nicht; sie ist ein Handschritt nach dem Deploy.
+
+Checkliste je veröffentlichtem Modell:
+
+- [ ] Personenbezug geklärt (DSFA `compliance/DPIA.md`, Abschnitt 3).
+- [ ] Mit Personenbezug: Entscheidung KI-Zugriff für Leser an/aus durch Kunde/DSB, je Modell
+      festgehalten (`compliance/DPIA.md` 12.3, Ledger C-25).
+- [ ] Aus gewählt: in den Modelleinstellungen ausgeschaltet; abgeleitete Modelle einzeln geprüft.
+- [ ] An gewählt: Prep data for AI (diese Ausgabe) eingetragen, bevor Leser Zugriff erhalten.
+
 ## Bekannte Grenzen
 
 - Regel- und Anleitungstexte des Kerns sind deutsch, Definitionen bleiben englisch wie im Katalog.
