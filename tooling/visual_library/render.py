@@ -690,6 +690,24 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
     return out
 
 
+#: Number and date formats per reader language (d3 locale). German is the profiles' own `vegalite_config.locale`;
+#: English (en-GB) replaces it when the caller passes params `lang: "en"` (Freelancing L1, 01.10.2026: the Cockpit in
+#: English drew "27,9" because the German locale was fixed in the config).
+LOCALES: dict = {
+    "en": {
+        "number": {"decimal": ".", "thousands": ",", "grouping": [3], "currency": ["€", ""]},
+        "time": {
+            "dateTime": "%A, %e %B %Y, %X", "date": "%d/%m/%Y", "time": "%H:%M:%S", "periods": ["AM", "PM"],
+            "days": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            "shortDays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September",
+                       "October", "November", "December"],
+            "shortMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        },
+    },
+}
+
+
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
                   background: "str | None" = None) -> "tuple[str, str]":
@@ -723,7 +741,7 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         eff.update({v: eff[fb] for v, fb in dv.items() if v not in given and fb is not None})
         eff.update({k: str(v) for k, v in given.items()
                     if k not in ("top_n", "rest", "rest_label", "time_format", "time_ticks", "highlight", "accent",
-                                  "focus_grey")})
+                                  "focus_grey", "lang")})
         if (entry.get("encoding") or {}).get("order") == "worst_first" and "worst_first" not in given:
             # worst first: for a lower-is-better measure the worst value is the highest (A-31 R7)
             eff["worst_first"] = "descending" if float(eff.get("polarity", 1)) < 0 else "ascending"
@@ -749,6 +767,11 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         accent = params.get("accent") if profile_def(profile).get("focus") else None
         spec = with_highlight(spec, h["field"], list(h.get("values") or []), bool(h.get("temporal")), accent)
     config = vegalite_config(profile)
+    lang = str((params or {}).get("lang") or "de")
+    if lang != "de":
+        if lang not in LOCALES:
+            raise KeyError(f"unknown lang '{lang}' (de, {', '.join(LOCALES)})")
+        config = {**config, "locale": LOCALES[lang]}
     if background:
         spec, config = on_background(spec, background), on_background(config, background)
     if target == "html_vegalite":

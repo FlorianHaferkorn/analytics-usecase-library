@@ -121,3 +121,15 @@ def test_ibcs_top_n_behaelt_die_schwaechsten_auch_bei_absteigender_anzeige():
     assert s["categories"] == ["R5", "R2", "R7", "Übrige (5)"], "die drei kleinsten (9, 7, 5), absteigend"
     low = _scene("bar_ranking", "ibcs", {"top_n": 3, "rest": "none", "polarity": -1})
     assert low["categories"] == ["R6", "R1", "R3", "Übrige (5)"], "weniger ist besser: die höchsten bleiben"
+
+
+def test_lang_en_formats_numbers_in_english():
+    """L1: the German d3 locale sat fixed in the config; with lang en the labels read 27.9, not 27,9."""
+    de = json.loads(render.render_target("bar_ranking", "fabric_app", "house_default", bindings=COLS)[0])
+    en = json.loads(render.render_target("bar_ranking", "fabric_app", "house_default", bindings=COLS,
+                                         params={"lang": "en"})[0])
+    assert de["configVegaLite"]["locale"]["number"]["decimal"] == ","
+    assert en["configVegaLite"]["locale"]["number"]["decimal"] == "."
+    assert en["spec"] == de["spec"], "only the config changes"
+    with pytest.raises(KeyError):
+        render.render_target("bar_ranking", "fabric_app", "house_default", bindings=COLS, params={"lang": "fr"})
