@@ -1,6 +1,6 @@
 # Run-cost delta of a draft alternative
 
-Status: implemented in the decision engine (`tooling/superversion/project_package/run_cost_delta.py`). Not yet in Studio. No tenant execution, no approval, no release.
+Status: implemented in the decision engine (`tooling/superversion/project_package/run_cost_delta.py`) and in Studio (panel "Run cost" in the alternative comparison, route `GET /api/projects/{id}/architecture/run-cost`). No tenant execution, no approval, no release.
 
 ## Purpose
 
@@ -37,4 +37,4 @@ WB-008 shows what an alternative changes in structure, WB-009 what it changes in
 - Paused hours are not modelled.
 - Licences only for a declared `report_audience`; PPU is not modelled.
 - OneLake storage and workspace-monitoring ingestion are outside this delta.
-- Not in Studio yet: the route and the view follow the WB-008/WB-009 pattern.
+- Studio: the route needs the **viewer** role, unlike WB-009 (editor, price: admin). The result carries list prices only, which is what the customer's own Azure bill shows; no rate, margin or staffing. Fetched on explicit request, `private, no-store`, rejected unless `persist: false`.
