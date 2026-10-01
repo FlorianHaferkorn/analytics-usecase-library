@@ -124,3 +124,52 @@ def test_ohne_parameter_bleibt_die_spec_unveraendert():
     roles = {"category": "Region", "value": "Wert"}
     plain = render.render_target("bar_ranking", "fabric_app", "ibcs", bindings=roles)[0]
     assert render.KEY_PARAM not in plain
+
+
+# --- Gleichstand Python ↔ TypeScript (die Oberfläche rechnet auf der gefilterten Tabelle nach) ----
+
+CASES = REPO_ROOT / "tooling" / "visual_library" / "key_message_cases.json"
+TS = REPO_ROOT / "tooling" / "visual_library" / "key_message.ts"
+
+
+def _python_results() -> dict:
+    out = {}
+    for c in json.loads(CASES.read_text(encoding="utf-8"))["cases"]:
+        m = K.key_message(c["table"], c["roles"], **c["opts"])
+        out[c["name"]] = m and {**m, "keys": K.highlight_keys(m["highlight"])}
+    return out
+
+
+def test_ts_fassung_liefert_dasselbe_wie_python():
+    import shutil
+    import subprocess
+
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node fehlt — Gleichstand nicht geprüft")
+    script = (
+        f"const K = await import({json.dumps(TS.as_uri())});"
+        f"const doc = JSON.parse(require('fs').readFileSync({json.dumps(str(CASES))}, 'utf8'));"
+        "const out = {}; for (const c of doc.cases) { const m = K.keyMessage(c.table, c.roles, c.opts);"
+        " out[c.name] = m && { ...m, keys: K.highlightKeys(m.highlight) }; }"
+        "process.stdout.write(JSON.stringify(out));"
+    )
+    run = subprocess.run([node, "--experimental-strip-types", "--no-warnings", "--input-type=commonjs", "-e",
+                          f"(async () => {{ {script} }})().catch((e) => {{ console.error(e); process.exit(1); }})"],
+                         capture_output=True, text=True, timeout=60)
+    assert run.returncode == 0, run.stderr
+    ts, py = json.loads(run.stdout), _python_results()
+    assert set(ts) == set(py)
+    for name in py:
+        assert ts[name] == py[name], name
+    assert sum(1 for v in py.values() if v) >= 10, "die Fälle decken alle vier Regeln mit Aussage ab"
+    assert sum(1 for v in py.values() if v is None) >= 4, "und die Fälle ohne Aussage"
+
+
+def test_werte_parameter_statt_konstante():
+    roles = {"category": "Region", "value": "Wert"}
+    spec = json.loads(render.render_target("bar_ranking", "fabric_app", "ibcs", bindings=roles,
+                                           params={"highlight": {"field": "Region", "values": ["DACH"]}})[0])["spec"]
+    params = {p["name"]: p["value"] for p in spec["params"]}
+    assert params == {render.KEY_PARAM: False, render.KEY_VALUES: ["DACH"]}
+    assert "DACH" not in json.dumps(spec).replace('"value": ["DACH"]', ""), "kein Treffer fest im Test"

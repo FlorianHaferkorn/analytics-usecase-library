@@ -10,6 +10,8 @@ leeren oder geratenen Satz.
     Zeitreihe ohne Plan                         erste gegen letzte Periode, Veränderung
 
 Ergebnis: {"rule", "segments": [{"text", "strong"}], "highlight": {"field", "values", "temporal"}}.
+Zweite Fassung: key_message.ts (Browser, rechnet auf der gefilterten Tabelle nach); Gleichstand erzwingt
+test_key_message.py über key_message_cases.json.
 `segments` trennt Zahlen und Namen (fett) vom Fließtext, damit jede Oberfläche sie selbst setzt.
 `highlight` geht unverändert an `render_target(params={"highlight": ...})`.
 """
@@ -163,6 +165,17 @@ def key_message(table: dict, roles: dict, *, polarity: float = 1, additive: bool
     if roles.get("category") and roles.get("value"):
         return _categories(table, roles, polarity, additive, unit)
     return None
+
+
+def highlight_keys(highlight: dict) -> list:
+    """Werte für den Vega-Parameter `kernaussage_werte`: Zeitpunkte als ms (UTC), sonst unverändert."""
+    if not highlight.get("temporal"):
+        return list(highlight["values"])
+    out = []
+    for v in highlight["values"]:
+        d = dt.date.fromisoformat(str(v)[:10])
+        out.append(int(dt.datetime(d.year, d.month, d.day, tzinfo=dt.timezone.utc).timestamp() * 1000))
+    return out
 
 
 def plain_text(message: dict) -> str:

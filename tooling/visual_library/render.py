@@ -26,7 +26,6 @@ CLI:
 from __future__ import annotations
 
 import copy
-import datetime as dt
 import functools
 import json
 import re
@@ -561,25 +560,20 @@ def with_time_axis(spec: dict, fmt: str, ticks: "list | None") -> dict:
 
 
 KEY_PARAM = "kernaussage"
+KEY_VALUES = "kernaussage_werte"
 KEY_DIM = 0.25
 
 
-def with_highlight(spec: dict, field: str, values: list, temporal: bool = False) -> dict:
-    """Kernaussage hervorheben (D-623 Nachtrag, feat-109): ein Vega-Parameter `kernaussage` (Standard
-    aus) dämpft jede Marke, deren Zeile `field` trägt und nicht zu `values` gehört. Marken ohne das
-    Feld (Referenzlinie, Zielwert) bleiben unberührt, ebenso die Restzeile nicht — sie ist kein Treffer
-    und wird gedämpft. Die Oberfläche schaltet nur den Parameterwert um; die Spec bleibt eine.
-    Zeitwerte werden als Zeitpunkt (ms, UTC) verglichen, weil Vega-Lite Zeitfelder zu Datum parst."""
-    if temporal:
-        keys = []
-        for v in values:
-            d = dt.date.fromisoformat(str(v)[:10])
-            keys.append(int(dt.datetime(d.year, d.month, d.day, tzinfo=dt.timezone.utc).timestamp() * 1000))
-        probe = f"time(datum[{json.dumps(field)}])"
-    else:
-        keys, probe = list(values), f"datum[{json.dumps(field)}]"
-    test = (f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && "
-            f"indexof({json.dumps(keys, ensure_ascii=False)}, {probe}) < 0")
+def with_highlight(spec: dict, field: str, values: "list | None" = None, temporal: bool = False) -> dict:
+    """Kernaussage hervorheben (D-623 Nachtrag, feat-109): zwei Vega-Parameter, `kernaussage` (an/aus,
+    Standard aus) und `kernaussage_werte` (die Treffer). Gedämpft wird jede Marke, deren Zeile `field`
+    trägt und nicht zu den Treffern gehört; Marken ohne das Feld (Referenzlinie, Zielwert) bleiben
+    unberührt, die Restzeile ist kein Treffer. Die Treffer sind ein Parameter, keine Konstante im Test:
+    die Oberfläche rechnet die Aussage auf der gefilterten Tabelle neu (key_message.ts) und setzt nur die
+    Werte — die Spec bleibt eine. Zeitwerte als Zeitpunkt (ms, UTC), weil Vega-Lite Zeitfelder zu Datum
+    parst (`key_message.highlight_keys`)."""
+    probe = f"time(datum[{json.dumps(field)}])" if temporal else f"datum[{json.dumps(field)}]"
+    test = (f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && indexof({KEY_VALUES}, {probe}) < 0")
     dim = {"test": test, "value": KEY_DIM}
 
     def mark_unit(node: dict) -> dict:
@@ -604,9 +598,12 @@ def with_highlight(spec: dict, field: str, values: list, temporal: bool = False)
             return [walk(v) for v in node]
         return node
 
+    from key_message import highlight_keys  # gleiche Umrechnung wie die Oberfläche (eine Stelle)
+
+    keys = highlight_keys({"values": values or [], "temporal": temporal})
     out = walk(spec)
-    out["params"] = [p for p in out.get("params") or [] if p.get("name") != KEY_PARAM] + [
-        {"name": KEY_PARAM, "value": False}]
+    out["params"] = [p for p in out.get("params") or [] if p.get("name") not in (KEY_PARAM, KEY_VALUES)] + [
+        {"name": KEY_PARAM, "value": False}, {"name": KEY_VALUES, "value": keys}]
     return out
 
 
@@ -661,7 +658,7 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         spec = with_time_axis(spec, str(params["time_format"]), params.get("time_ticks"))
     if params and params.get("highlight"):
         h = params["highlight"]
-        spec = with_highlight(spec, h["field"], list(h["values"]), bool(h.get("temporal")))
+        spec = with_highlight(spec, h["field"], list(h.get("values") or []), bool(h.get("temporal")))
     config = vegalite_config(profile)
     if background:
         spec, config = on_background(spec, background), on_background(config, background)

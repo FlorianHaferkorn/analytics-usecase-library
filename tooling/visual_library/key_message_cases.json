@@ -1,0 +1,620 @@
+{
+ "_comment": "Gemeinsame Fälle für key_message.py und key_message.ts (feat-109). Beide Fassungen müssen je Fall dasselbe liefern; test_key_message.py vergleicht. Neue Regel = neuer Fall hier.",
+ "cases": [
+  {
+   "name": "quote_richtung_plus",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "DACH",
+      24.4
+     ],
+     [
+      "Benelux",
+      27.8
+     ],
+     [
+      "Nordics",
+      31.4
+     ],
+     [
+      "Southern Europe",
+      34.5
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%"
+   }
+  },
+  {
+   "name": "quote_richtung_minus",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "DACH",
+      24.4
+     ],
+     [
+      "Benelux",
+      27.8
+     ],
+     [
+      "Nordics",
+      31.4
+     ],
+     [
+      "Southern Europe",
+      34.5
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%",
+    "polarity": -1
+   }
+  },
+  {
+   "name": "beitrag",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "Conversion",
+      34
+     ],
+     [
+      "Out-of-Stock",
+      27
+     ],
+     [
+      "Saison",
+      16
+     ],
+     [
+      "Kampagne",
+      13
+     ],
+     [
+      "Sonstige",
+      10
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true
+   }
+  },
+  {
+   "name": "beitrag_negativ_groesster_betrag",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      -40
+     ],
+     [
+      "B",
+      25
+     ],
+     [
+      "C",
+      15
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true,
+    "unit": "Mio. €"
+   }
+  },
+  {
+   "name": "beitrag_halbwert_anteil",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      1
+     ],
+     [
+      "B",
+      1
+     ],
+     [
+      "C",
+      1
+     ],
+     [
+      "D",
+      1
+     ],
+     [
+      "E",
+      1
+     ],
+     [
+      "F",
+      1
+     ],
+     [
+      "G",
+      1
+     ],
+     [
+      "H",
+      1
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true
+   }
+  },
+  {
+   "name": "beitrag_summe_null",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      5
+     ],
+     [
+      "B",
+      -5
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true
+   }
+  },
+  {
+   "name": "zeit_plan_woche",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      33.5,
+      45.0
+     ],
+     [
+      "2025-12-29",
+      33.9,
+      45.0
+     ],
+     [
+      "2026-01-05",
+      33.6,
+      45.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "%",
+    "weekly": true
+   }
+  },
+  {
+   "name": "zeit_plan_datum",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      33.5,
+      45.0
+     ],
+     [
+      "2025-12-29",
+      33.9,
+      45.0
+     ],
+     [
+      "2026-01-05",
+      33.6,
+      45.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "t CO₂e"
+   }
+  },
+  {
+   "name": "zeit_ohne_plan",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      33.5,
+      45.0
+     ],
+     [
+      "2025-12-29",
+      33.9,
+      45.0
+     ],
+     [
+      "2026-01-05",
+      33.6,
+      45.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist"
+   },
+   "opts": {
+    "unit": "%",
+    "weekly": true
+   }
+  },
+  {
+   "name": "zeit_unveraendert",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      27.95,
+      35.0
+     ],
+     [
+      "2026-01-05",
+      27.95,
+      35.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist"
+   },
+   "opts": {
+    "unit": "%",
+    "weekly": true
+   }
+  },
+  {
+   "name": "zeit_auf_plan",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2026-01-05",
+      40,
+      40
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "%"
+   }
+  },
+  {
+   "name": "tausender_und_halbwert",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      14113.55
+     ],
+     [
+      "B",
+      0.25
+     ],
+     [
+      "C",
+      29750
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "t"
+   }
+  },
+  {
+   "name": "luecken_und_text",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      null
+     ],
+     [
+      "B",
+      ""
+     ],
+     [
+      "C",
+      "12,5"
+     ],
+     [
+      "D",
+      "7.5"
+     ],
+     [
+      "E",
+      3
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {}
+  },
+  {
+   "name": "gleichstand_keine_aussage",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      1
+     ],
+     [
+      "B",
+      1
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {}
+  },
+  {
+   "name": "eine_zeile_keine_aussage",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      1
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {}
+  },
+  {
+   "name": "leer_nach_filter",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": []
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "%"
+   }
+  },
+  {
+   "name": "keine_rolle",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "DACH",
+      24.4
+     ],
+     [
+      "Benelux",
+      27.8
+     ],
+     [
+      "Nordics",
+      31.4
+     ],
+     [
+      "Southern Europe",
+      34.5
+     ]
+    ]
+   },
+   "roles": {
+    "value": "Wert"
+   },
+   "opts": {}
+  }
+ ]
+}
