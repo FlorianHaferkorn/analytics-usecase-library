@@ -165,3 +165,107 @@ def test_unsupported_option_names_itself():
 
     with pytest.raises(arch_targets.ArchContractError, match="nonsense"):
         arch_targets.render("fabric", _bp(), nonsense=1)
+
+
+# -- gold target per domain (ADR-0024) -------------------------------------------------
+
+
+def test_default_gold_target_is_byte_identical_to_no_option():
+    """`warehouse_dbt` is the default: naming it changes nothing, byte for byte. This is the
+    regression guard for every input file written before the field existed."""
+    from tooling.superversion.architecture_blueprint import gold_targets
+
+    inputs = {**_FIXTURE, "domains": [{**_FIXTURE["domains"][0], "gold_target": "warehouse_dbt"}]}
+    assert gold_targets(inputs) == {}
+    assert arch_targets.render("fabric", _bp()) == arch_targets.render(
+        "fabric", derive_blueprint(inputs)["blueprint"])
+
+
+def test_mlv_domain_gets_views_and_loses_its_gold_transforms():
+    from tooling.superversion._dataarch_vendor import available
+
+    if not available():
+        return
+    out = arch_targets.render("fabric", _bp(), gold_targets={"Commercial": "mlv"})
+    assert {"fabric/mlv/commercial/dim_customer.mlv.sql", "fabric/mlv/commercial/fact_sales.mlv.sql",
+            "fabric/mlv/_MLV.md", "fabric/mlv/refresh_schedule.json"} <= set(out)
+    # one store per product: no notebook and no CTAS for the MLV products
+    assert not any(p.startswith("fabric/transforms/commercial/silver_to_gold__") for p in out)
+    assert not any(p.startswith("fabric/notebooks/nb_gold_") for p in out)
+    # MLV needs a schema-enabled lakehouse, so the whole run is schema-enabled
+    assert "enableSchemas=true" in out["fabric/provision.sh"]
+    plan = json.loads(out["fabric/apply/APPLY_PLAN.json"])
+    actions = [op["action"] for op in plan]
+    assert "schedule_mlv_refresh" in actions
+    assert {op["artifact"] for op in plan if op["action"] == "run_sql_ddl"} == {
+        "mlv/commercial/dim_customer.mlv.sql", "mlv/commercial/fact_sales.mlv.sql"}
+    assert "Gold target per domain (ADR-0024): Commercial → **mlv**" in out["fabric/PROVISIONING_PLAN.md"]
+
+
+def test_graph_schedule_adds_the_execution_definition():
+    from tooling.superversion._dataarch_vendor import available
+
+    if not available():
+        return
+    out = arch_targets.render("fabric", _bp(), gold_targets={"Commercial": "mlv"},
+                              mlv_zeitplan="graph")
+    assert "fabric/mlv/execution_definition.json" in out
+    schedule = json.loads(out["fabric/mlv/refresh_schedule.json"])
+    assert "mlvExecutionDefinitionId" in schedule["executionData"]
+    actions = [op["action"] for op in json.loads(out["fabric/apply/APPLY_PLAN.json"])]
+    assert actions.index("create_mlv_execution_definition") < actions.index("schedule_mlv_refresh")
+
+
+def test_onelake_role_mode_reaches_the_apply_plan_without_mlv():
+    from tooling.superversion._dataarch_vendor import available
+
+    if not available():
+        return
+    for modus, verb in (("gesamt", "PUT"), ("einzeln", "POST")):
+        out = arch_targets.render("fabric", _bp(), onelake_rollen_modus=modus)
+        step = next(op for op in json.loads(out["fabric/apply/APPLY_PLAN.json"])
+                    if op["action"] == "apply_onelake_roles")
+        assert verb in step["tool"], (modus, step["tool"])
+        assert f"mode **{modus}**" in out["fabric/PROVISIONING_PLAN.md"]
+
+
+def test_mlv_options_without_an_mlv_domain_are_refused():
+    import pytest
+
+    for kw in ({"mlv_refresh_hints": True}, {"mlv_zeitplan": "graph"}, {"governed_catalog": {}}):
+        with pytest.raises(arch_targets.ArchContractError, match="only take effect"):
+            arch_targets.render("fabric", _bp(), **kw)
+
+
+def test_bad_gold_targets_are_refused_by_name():
+    import pytest
+
+    with pytest.raises(arch_targets.ArchContractError, match="unknown target"):
+        arch_targets.render("fabric", _bp(), gold_targets={"Commercial": "lakeview"})
+    with pytest.raises(arch_targets.ArchContractError, match="does not have"):
+        arch_targets.render("fabric", _bp(), gold_targets={"Nowhere": "mlv"})
+    with pytest.raises(arch_targets.ArchContractError, match="mlv_zeitplan"):
+        arch_targets.render("fabric", _bp(), gold_targets={"Commercial": "mlv"}, mlv_zeitplan="nightly")
+    with pytest.raises(arch_targets.ArchContractError, match="onelake_rollen_modus"):
+        arch_targets.render("fabric", _bp(), onelake_rollen_modus="alle")
+
+
+def test_a_product_cannot_live_in_two_gold_stores():
+    import pytest
+
+    two = {**_FIXTURE, "domains": [
+        _FIXTURE["domains"][0],
+        {"name": "Finance", "gold_products": [{"name": "fact_sales", "kind": "fact"}]},
+    ]}
+    bp = derive_blueprint(two)["blueprint"]
+    with pytest.raises(arch_targets.ArchContractError, match="one gold store per product"):
+        arch_targets.render("fabric", bp, gold_targets={"Commercial": "mlv"})
+
+
+def test_other_stacks_refuse_the_gold_target():
+    """Databricks and Snowflake have no MLV — the choice must not pass silently there."""
+    import pytest
+
+    for stack in ("databricks", "snowflake"):
+        with pytest.raises(arch_targets.ArchContractError, match="gold_targets"):
+            arch_targets.render(stack, _bp(), gold_targets={"Commercial": "mlv"})

@@ -14,7 +14,8 @@ The drift check then diffs a live Fabric admin scan against this file: MEASURE_M
 MEASURE_UNDOCUMENTED / TABLE_MISSING / COLUMN_MISSING. Read-only; emits JSON, runs nothing.
 
 Per table, additively (older consumers read only ``name/kind/domain/columns``, which stay as they
-were): ``showcase`` (bool, default true: the Aurora showcase has data for the table) and
+were): ``key`` (the columns the contract marks ``role: key``, only when it marks any; since
+01.10.2026, ADR-0024), ``showcase`` (bool, default true: the Aurora showcase has data for the table) and
 ``column_specs`` — one object per column with only the keys the contract sets out of
 ``name, source_column, type, nullable, ref, unknown_member, checks, target_state, agg, synonyms`` (A-23; the
 structured quality fields are described in ``core/data_contracts/domains/README.md``). ``agg`` (default
@@ -98,11 +99,13 @@ def _load_tables(contracts_dir: Path) -> list[dict]:
             for tbl in doc.get(key) or []:
                 if not isinstance(tbl, dict) or not tbl.get("name") or is_reference(tbl):
                     continue
-                specs, seen = [], set()
+                specs, seen, key = [], set(), []
                 for c in tbl.get("columns") or []:
                     if isinstance(c, dict) and c.get("name") and c["name"] not in seen:
                         seen.add(c["name"])
                         specs.append(_column_spec(c))
+                        if c.get("role") == "key":
+                            key.append(c["name"])
                 tables.append({
                     "name": tbl["name"],
                     "kind": kind,
@@ -111,6 +114,12 @@ def _load_tables(contracts_dir: Path) -> list[dict]:
                     "columns": sorted(seen),
                     "showcase": tbl.get("showcase", True) is not False,
                     "column_specs": specs,
+                    # Der deklarierte Schlüssel (`role: key` im Vertrag), in Vertragsreihenfolge.
+                    # Meridians Katalogfeld `key` (31.07.2026): `emit_mlv` nimmt ihn als DQ-Anker
+                    # und für `REFRESH_HINT`, `emit_dq_gates` für den Eindeutigkeitstest, statt
+                    # aus Spaltenendungen zu raten (`CustomerKey` endet nicht auf `_key`). Nur
+                    # wenn der Vertrag einen deklariert — nichts wird erfunden (ADR-0024).
+                    **({"key": key} if key else {}),
                     # Tabellenbeschreibung des Vertrags (Meridian I-21 W5.6 e, 30.09.2026): der
                     # Gold-Emitter schreibt sie als `COMMENT` in die CTAS-Klausel. Nur wenn der
                     # Vertrag eine hat — nichts wird erfunden.
