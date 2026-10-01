@@ -31,7 +31,8 @@ vorgaenge:
   faellig: '2026-10-15'
   entscheidung: null
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen: compliance/ai_egress_measures.md um DLP/Labels für Copilot-Antworten
+  begruendung: 'Paket A, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-A-KI-Zugriff.md
+    (Freelancing). Vorher: Vorschlag umsetzen: compliance/ai_egress_measures.md um DLP/Labels für Copilot-Antworten
     aus Power BI ergänzen. ADR nötig.'
   d_eintrag: null
   belege: []
@@ -155,14 +156,17 @@ vorgaenge:
 - signal: SIG-2609-005
   artefakt: ALUCA-AGENT-SKILLS
   risiko: T0
-  status: entschieden
+  status: geschlossen
   faellig: '2026-10-08'
   entscheidung: umsetzen
   wiedervorlage: null
   begruendung: 'docs/agent/skills (generate-and-validate-pbi-report, fabric-powerbi-validation) um einen
     Abschnitt zu den offiziellen Power-BI-Skills ergänzen: wann ALUCA-Skill, wann offizieller Skill.'
   d_eintrag: null
-  belege: []
+  belege:
+  - 'docs/agent/agent-developer-tools.md: Abschnitt „Welches Werkzeug für welche Schicht“, ALUCA-Skills
+    für governte Inhalte, offizielle Werkzeuge je Schicht'
+  - check_index.py --strict 0 harte Befunde, markdownlint-cli2 0 issues, 01.10.2026
   verlauf:
   - am: '2026-10-01'
     status: triage
@@ -176,6 +180,18 @@ vorgaenge:
     status: entschieden
     von: agent
     notiz: 'T0, vom Agenten entschieden: umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: T0-Umsetzung
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Gates grün
+  - am: '2026-10-01'
+    status: geschlossen
+    von: agent
+    notiz: Doku ohne Auslieferung an Kunden
 - signal: SIG-2609-005
   artefakt: ALUCA-PBI-BERICHTE
   risiko: T2
@@ -585,8 +601,9 @@ vorgaenge:
   faellig: '2026-10-15'
   entscheidung: null
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen, hoch: MCP-Clients sind ein neuer Abflussweg personenbezogener Daten
-    an KI-Dienste; compliance/ai_egress_measures.md und DPIA.md ergänzen (erlaubte Clients, RLS/OLS).
+  begruendung: 'Paket A, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-A-KI-Zugriff.md
+    (Freelancing). Vorher: Vorschlag umsetzen, hoch: MCP-Clients sind ein neuer Abflussweg personenbezogener
+    Daten an KI-Dienste; compliance/ai_egress_measures.md und DPIA.md ergänzen (erlaubte Clients, RLS/OLS).
     ADR nötig.'
   d_eintrag: null
   belege: []
@@ -606,8 +623,9 @@ vorgaenge:
   faellig: '2026-10-15'
   entscheidung: null
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen, klein: README um „gute Metadaten wirken auch über Fabric IQ MCP“ ergänzen;
-    kein Code.'
+  begruendung: 'Paket A, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-A-KI-Zugriff.md
+    (Freelancing). Vorher: Vorschlag umsetzen, klein: README um „gute Metadaten wirken auch über Fabric
+    IQ MCP“ ergänzen; kein Code.'
   d_eintrag: null
   belege: []
   verlauf:
