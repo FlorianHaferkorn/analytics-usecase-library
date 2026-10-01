@@ -146,6 +146,9 @@ MIRRORED_FILES = (
     "provision_notebooks.py",
     "provision_orchestration.py",
     "provision_prereq.py",
+    # Purview als Andockmodul (D-620, 01.10.2026): `provision_governance` importiert es; ohne
+    # diesen Eintrag braeche die gespiegelte Governance-Emission beim Laden.
+    "provision_purview.py",
     "provision_terraform.py",
     # Kapazitaet je Stufengruppe (D-596, 30.09.2026): `provision_terraform` loest die
     # Workspace-→-Kapazitaet-Zuordnung darueber auf. Ohne diesen Eintrag braeche der

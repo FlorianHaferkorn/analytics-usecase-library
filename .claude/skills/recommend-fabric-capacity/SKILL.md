@@ -29,7 +29,7 @@ Fills `platform.capacity_sku` in the architecture blueprint IR, or states a reco
 
 3. **Choose the procurement model.** Break-even is 59.5 % runtime ≈ **100 hours per week**, identical across SKUs and regions because the discount is proportional.
 
-4. **Choose the region.** Same discount everywhere; only the base rate differs.
+4. **Choose the region.** Same discount everywhere; only the base rate differs. Then check the region against the functions the customer needs: `capacity.recommend(bp, features={...})` returns `region_features` from the mirrored Meridian table (`stack_capabilities`, Learn `admin/region-availability`, data as of 2026-10-01). As of that date: Ontology is missing only in South Central US; Fabric Apps are missing in North Europe, Poland Central, Spain Central, Switzerland West and UK West, among others, but available in Germany West Central and West Europe; Database Hub is missing in West and North Europe. Never quote a region from memory — the table changed between 29.09. and 01.10.2026.
 
 5. **Choose the split.** Production and non-production always separate (R6, D-596); within each, one larger capacity or several smaller ones.
 

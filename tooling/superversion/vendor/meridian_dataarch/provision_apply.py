@@ -319,13 +319,20 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     for e in ingestion:
         mode = e.get("access_mode")
         tool = ("fab mkdir *.MirroredDatabase" if mode == "mirror"
-                else "fab ln *.Shortcut" if mode == "shortcut" else "pipeline/dataflow copy")
+                else "fab ln *.Shortcut" if mode == "shortcut"
+                else "spark-sql: CREATE MATERIALIZED LAKE VIEW … USING OneLake_Files" if mode == "file_mlv"
+                else "pipeline/dataflow copy")
         # surface the source's authored rationale (which names the concrete connector — ODBC / OData /
         # SAP HANA / Premium Outbound / Mirroring) in the runbook; fall back to a generic note.
         rationale = e.get("rationale") or f"{mode} ingestion for {e.get('source_system', '')}"
         # Copy läuft über die emittierte Pipeline; Mirror/Shortcut über das Provisioning-Skript.
-        art = (present("orchestration/pipeline-content.json") if mode == "copy"
-               else present("provision.sh")) or present("ingestion_plan.json")
+        if mode == "file_mlv":
+            # D-619: die DDL liegt unter ingestion/file_mlv/, nicht in provision.sh.
+            from core.dataarch_engine.blueprint.provision_transforms import _ident as _id
+            art = present(f"ingestion/file_mlv/{_id(e['source'])}.mlv.sql") or present("ingestion_plan.json")
+        else:
+            art = (present("orchestration/pipeline-content.json") if mode == "copy"
+                   else present("provision.sh")) or present("ingestion_plan.json")
         add("ingest_source", f"{e['source']} ({mode})", tool, "human", rationale, art)
         if mode == "mirror" and art:
             # Gespiegelte Datenbanken haben einen eigenen DefaultReader (alle mit ReadAll lesen die

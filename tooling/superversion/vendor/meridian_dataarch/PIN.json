@@ -1,7 +1,7 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "fcb4ffff02b83f92e51504c1f4b84253c67e5516",
+  "source_commit": "6496d21f4e38d49af8c844e47beca4cf2599e7a9",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
@@ -14,7 +14,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "80cca816e9e021fd64af56019a60b07e7c59545af31bb676b4d87da4cdb7a0ae"
+      "sha256": "547c846c12e821c98ef3baad3e04ed62f8000a3c80927813c7a6a9247ae6455e"
     },
     {
       "path": "fabric_schedule.py",
@@ -30,7 +30,7 @@
     },
     {
       "path": "provision_governance.py",
-      "sha256": "5574f4e4179926efbd007c64762f75768b6d9f8efd126e82aecd2bfc5b5ca731"
+      "sha256": "9c72fff2b3f075047e7912cc8195eb08ecfedfd8d4d85708af5435644eb4f3df"
     },
     {
       "path": "provision_lifecycle.py",
@@ -70,7 +70,7 @@
     },
     {
       "path": "provision_apply.py",
-      "sha256": "06f6a9c7e2a8a4d6cfaabb36d520d652a467e998bb1504753557b0bd26a1f333"
+      "sha256": "e064eb0749ee0d5660464e0f5e847a185f0c6a6fa94979e50b80623e0e18e031"
     },
     {
       "path": "provision_chargeback.py",
@@ -78,7 +78,7 @@
     },
     {
       "path": "provision_cicd.py",
-      "sha256": "a818fa46418d1ab4a9a3490d08260a9ce595c33f9acd9d16a8f5a6862a70e7fe"
+      "sha256": "f3a4c1dd8155542461a08f6671bb55498cdf31bfeeb0c4216b8e0c19755ae203"
     },
     {
       "path": "provision_databricks_cicd.py",
@@ -90,7 +90,7 @@
     },
     {
       "path": "provision_fabric.py",
-      "sha256": "e52ee1933069838578d396ed70dbd1dc4bff58814c94362430c251e92317ac54"
+      "sha256": "aaee5cbe66ebaea010713240d962f14c4931abcbed765348598ac61efbedec8f"
     },
     {
       "path": "provision_fabric_cicd.py",
@@ -102,7 +102,7 @@
     },
     {
       "path": "provision_ingestion.py",
-      "sha256": "802cb20c87254cee4abfbd3868b2e56ad431571e872ab1159b7589a7a3ef8f1d"
+      "sha256": "0bca26e4d21de5306e286c5714086f8968efa295ff53caf1ea2074708c4d3550"
     },
     {
       "path": "provision_lineage.py",
@@ -123,6 +123,10 @@
     {
       "path": "provision_prereq.py",
       "sha256": "48fb3eb79b793778b32096cd533d7ae7d3fb85bbdf1bba6a18d9998459901ece"
+    },
+    {
+      "path": "provision_purview.py",
+      "sha256": "4557f4406924b2be4dbaabf23228c51725580d8546b9ab61b97db6ef2021e01f"
     },
     {
       "path": "provision_terraform.py",

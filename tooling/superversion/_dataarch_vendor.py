@@ -96,6 +96,9 @@ PUBLIC_API: dict[str, tuple[str, ...]] = {
     # Meridian D-617 (30.09.2026): Ontologie aus der Geschaeftsobjekt-Schicht als Turtle fuer den
     # Fabric-IQ-Import; `tooling/generator/ontology_ttl.py`.
     "ontologie_kern": ("modell_aus_geschaeftsobjekten", "emit_ttl", "profil_befunde"),
+    # Meridian D-618 (01.10.2026): Funktion x Region aus der gespiegelten Tabelle; ALUCA-eigen
+    # genutzt von `capacity.recommend` (FABCON W5.1), keine zweite Regionsliste hier.
+    "stack_capabilities": ("region_findings", "feature_in_region", "regionen_mit"),
 
     # -- Die Vollzugshälfte (26.08.2026) ------------------------------------------------
     #
