@@ -421,15 +421,70 @@ def datei_mlv_sql(entry: dict[str, Any], cfg: dict[str, Any] | None = None,
         optionen.append(("header", "true" if f.get("header", True) else "false"))
         if f.get("delimiter"):
             optionen.append(("delimiter", f["delimiter"]))
+    defekt = f.get("defekte_zeilen_spalte")
+    if defekt and f["format"] != "csv":
+        # Das Schema sperrt das schon; hier nur, damit ein ungeprueftes Dict nicht still verliert.
+        raise ValueError(f"{src}: defekte_zeilen_spalte gilt laut Learn nur fuer CSV")
+    if defekt:
+        optionen.append(("columnNameOfCorruptRecord", defekt))
     opt = ",\n".join(f"    '{k}' = '{v}'" for k, v in optionen)
     props = (f"    'schema_mode' = '{f.get('schema_mode', 'DYNAMIC')}',\n"
              f"    'refresh_mode' = '{f.get('refresh_mode', 'APPEND_ONLY')}'")
+    # Optionale FROM-lose Projektion (Learn: `[AS SELECT select_expression ...]` als letzte
+    # Klausel nach TBLPROPERTIES; `columnNameOfCorruptRecord` verlangt die Spalte im AS SELECT,
+    # `__filepath__` ist eine Quell-Metadatenspalte, die man ausdruecklich projiziert).
+    # ANNAHME, ungeprueft: `*` liefert die Dateispalten und schliesst beide Zusatzspalten nicht
+    # ein (Learn zeigt nur benannte Spalten) — sonst doppelte Spalte beim CREATE.
+    extra = [s for s in (defekt, "__filepath__" if f.get("dateipfad_spalte") else None) if s]
+    ende = ");\n" if not extra else (
+        ")\nAS SELECT\n" + ",\n".join(f"    {s}" for s in ["*", *extra]) + ";\n")
     return (f"-- bronze '{src}' ({entry.get('source_system', '')}): Datei-MLV aus {f['path']} "
             f"({f['format']}), D-619\n"
             f"CREATE MATERIALIZED LAKE VIEW IF NOT EXISTS {layer_ref('bronze', _ident(src), schemas)}\n"
             f"USING OneLake_Files\nOPTIONS (\n{opt}\n)\n"
             f"COMMENT 'bronze {src} (generated, file ingestion)'\n"
-            f"TBLPROPERTIES (\n{props}\n);\n")
+            f"TBLPROPERTIES (\n{props}\n{ende}")
+
+
+DATEI_MLV_EREIGNIS_DOC = ("learn.microsoft.com/fabric/data-engineering/materialized-lake-views/"
+                          "schedule-lineage-run")
+
+
+def datei_mlv_ereignis(entry: dict[str, Any], cfg: dict[str, Any] | None = None,
+                       schemas: bool = True) -> str:
+    """``file_mlv/<quelle>.refresh_event.json`` — OneLake-Ereignis als Ausloeser (D-621).
+
+    **Keine API-Nutzlast**, wie ``provision_transforms._mlv_refresh_event``: Learn
+    (*Schedule a materialized lake view refresh*, gelesen 01.10.2026) beschreibt den
+    ereignisgesteuerten Refresh nur im Portal (*Event-triggered (Preview)* → *OneLake events*),
+    eine REST-Form steht dort nicht. Die Datei haelt fest, was einzustellen ist.
+    """
+    import json as _json
+
+    from core.dataarch_engine.blueprint.naming import layer_ref
+    from core.dataarch_engine.blueprint.provision_transforms import _ident
+    cfg = cfg or {}
+    f = entry.get("file_mlv") or {}
+    src = str(entry["source"])
+    return _json.dumps({
+        "_comment": ("Ereignisgesteuerter Refresh der Datei-MLV (Preview, D-621). Einrichtung im "
+                     "Portal (Manage schedules → New schedule → Refresh type: Event-triggered), "
+                     "nicht per API. file_mlv/refresh_schedule.json bleibt der reproduzierbare "
+                     "Rueckfall — vor dem Aktivieren pausieren."),
+        "refreshType": "Event-triggered",
+        "status": "Preview",
+        "eventSourceType": "OneLake events",
+        "eventSource": {"workspaceId": cfg.get("workspaceId") or UNRESOLVED,
+                        "lakehouseId": cfg.get("lakehouseId") or UNRESOLVED,
+                        "path": f.get("path", "")},
+        "eventType": "<im Portal waehlen: Datei angelegt im Ordner oben>",
+        "scope": "Refresh selected materialized lake view(s)",
+        "views": [layer_ref("bronze", _ident(src), schemas)],
+        "abhaengigkeiten": ["FMLV Refresh (Notebook, automatisch angelegt)",
+                            "Activator (automatisch angelegt)"],
+        "nicht_unterstuetzt": ["Private Link"],
+        "beleg": DATEI_MLV_EREIGNIS_DOC + " (gelesen 01.10.2026)",
+    }, indent=2, ensure_ascii=False) + "\n"
 
 
 def emit_datei_mlv(bp: dict[str, Any], schemas: bool = True,
@@ -442,19 +497,29 @@ def emit_datei_mlv(bp: dict[str, Any], schemas: bool = True,
     from core.dataarch_engine.blueprint.provision_transforms import _ident
     connections = connections or {}
     out: dict[str, str] = {}
-    zeilen, offen, nicht_append = [], [], []
+    zeilen, offen, nicht_append, ereignis = [], [], [], []
+    projektion: list[tuple[str, str]] = []
     for e in entries:
         src = str(e["source"])
         cfg = connections.get(src) or {}
         f = e.get("file_mlv") or {}
         out[f"file_mlv/{_ident(src)}.mlv.sql"] = datei_mlv_sql(e, cfg, schemas)
+        if f.get("trigger") == "onelake_event":
+            out[f"file_mlv/{_ident(src)}.refresh_event.json"] = datei_mlv_ereignis(e, cfg, schemas)
+            ereignis.append(src)
         if not (cfg.get("workspaceId") and cfg.get("lakehouseId")):
             offen.append(src)
         modus = f.get("refresh_mode", "APPEND_ONLY")
         if modus != "APPEND_ONLY":
             nicht_append.append((src, modus))
+        auswahl = [a for a, an in (("__filepath__", f.get("dateipfad_spalte")),
+                                   (f"defekte Zeilen in `{f.get('defekte_zeilen_spalte')}`",
+                                    f.get("defekte_zeilen_spalte"))) if an]
+        if auswahl:
+            projektion.append((src, ", ".join(auswahl)))
         zeilen.append(f"| `{src}` | `{f.get('path', '')}` | {f.get('format', '')} | "
-                      f"{f.get('schema_mode', 'DYNAMIC')} | {modus} |")
+                      f"{f.get('schema_mode', 'DYNAMIC')} | {modus} | "
+                      f"{'OneLake-Ereignis' if f.get('trigger') == 'onelake_event' else 'Zeitplan'} |")
     out["file_mlv/refresh_schedule.json"] = emit_schedule(time=DATEI_MLV_REFRESH_UHRZEIT)
     doc = [
         "# Bronze aus Dateien — Materialized Lake Views (D-619)",
@@ -464,8 +529,8 @@ def emit_datei_mlv(bp: dict[str, Any], schemas: bool = True,
         "materialisiert sie als Delta-Tabelle. Silber liest sie unter demselben Namen wie eine",
         "kopierte Quelle. MLV ist GA (Spark SQL, seit März 2026); Beleg: " + DATEI_MLV_DOC + ".",
         "",
-        "| Quelle | Pfad | Format | Schema | Refresh |",
-        "|---|---|---|---|---|",
+        "| Quelle | Pfad | Format | Schema | Refresh | Auslöser |",
+        "|---|---|---|---|---|---|",
         *zeilen,
         "",
         "## Anlegen und Refresh",
@@ -483,13 +548,53 @@ def emit_datei_mlv(bp: dict[str, Any], schemas: bool = True,
         "- Ein Shortcut als Quelle: beim Anlegen werden Unterordner gelesen, beim Refresh werden",
         "  neue Dateien nur im Wurzelordner des Shortcuts entdeckt.",
         "- `FIXED` scheitert beim Anlegen, wenn Dateien im Ordner verschiedene Schemata haben.",
-        "- Die Spark-CSV-Option `mode` nicht setzen. Defekte Zeilen in eine eigene Spalte",
-        "  (`columnNameOfCorruptRecord`) braucht laut Learn ein `AS SELECT`, das die Spalte",
-        "  ausgibt — nicht erzeugt, weil die Sicht hier keine Projektion hat.",
+        "- Die Spark-CSV-Option `mode` nicht setzen; Fabric verwaltet defekte Zeilen selbst.",
         "- Der Pfad nutzt Workspace- und Lakehouse-**GUID** statt der Namen aus dem",
         "  Learn-Beispiel; beides ist OneLake-Adressierung. Am Tenant ungeprüft.",
         "",
+        "## Herkunft und defekte Zeilen je Quelle (optional)",
+        "",
+        "Ohne Angabe hat die Sicht keine Projektion. Je Quelle wählbar, beides hängt ein",
+        "FROM-loses `AS SELECT *, …` als letzte Klausel an (Learn: `[AS SELECT select_expression",
+        "…]` nach `TBLPROPERTIES`, kein `FROM`):",
+        "",
+        "- `file_mlv.dateipfad_spalte: true` — projiziert `__filepath__`, die Quelldatei je Zeile.",
+        "- `file_mlv.defekte_zeilen_spalte: <name>` (nur CSV) — setzt",
+        "  `'columnNameOfCorruptRecord' = '<name>'` und projiziert die Spalte; sie hält den",
+        "  Rohtext defekter Zeilen, gültige Zeilen tragen `NULL`. Prüfen mit",
+        "  `SELECT <name> FROM <sicht> WHERE <name> IS NOT NULL`.",
+        "- ANNAHME, ungeprüft: `*` liefert die Dateispalten ohne diese beiden Zusatzspalten",
+        "  (Learn zeigt nur benannte Spalten). Am Tenant beim ersten `CREATE` prüfen.",
+        "",
+        "Gewählt für: " + (", ".join(f"`{s}` ({a})" for s, a in projektion) if projektion
+                          else "keine Quelle") + ".",
+        "",
     ]
+    doc += [
+        "## Auslöser je Quelle (D-621)",
+        "",
+        "Vorgabe ist der Zeitplan oben. Je Quelle wählbar (`file_mlv.trigger: onelake_event`):",
+        "ein **ereignisgesteuerter** Refresh auf *OneLake events* des Landeordners — die Sicht",
+        "läuft, wenn Dateien landen, statt zu einer geratenen Uhrzeit. Learn",
+        f"({DATEI_MLV_EREIGNIS_DOC}, gelesen 01.10.2026): **Preview**, Einrichtung nur im Portal,",
+        "hängt an den automatisch angelegten Items *FMLV Refresh* (Notebook) und Activator, **kein",
+        "Private Link**. Unter welcher Identität diese Items laufen, ist nicht belegt (Tenant).",
+        "",
+    ]
+    if ereignis:
+        doc += [
+            "Gewählt für: " + ", ".join(f"`{s}`" for s in ereignis) + ". Je Quelle beschreibt",
+            "`<quelle>.refresh_event.json`, was im Portal einzustellen ist. Den Zeitplan vor dem",
+            "Aktivieren des Ereignisses **pausieren** und nach der ersten Landung den Lauf in",
+            "*Recent runs* lesen. Er bleibt in der Lieferung als reproduzierbarer Rückfall.",
+            "",
+            "Ein Ereignis startet nur die Datei-MLV. Silber entsteht per Notebook; die Pipeline",
+            "danach startet weiter zu ihrer Uhrzeit — Extended lineage folgt nur MLV-Kanten und",
+            "überbrückt den Notebook-Schritt nicht.",
+            "",
+        ]
+    else:
+        doc += ["In dieser Lieferung für keine Quelle gewählt.", ""]
     if nicht_append:
         doc += [
             "## Achtung: Bronze nicht append-only",
