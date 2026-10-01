@@ -203,7 +203,7 @@ def _node_eval(script: str) -> "subprocess.CompletedProcess[str]":
         pytest.skip("node fehlt — Gleichstand nicht geprüft")
     return subprocess.run([node, "--experimental-strip-types", "--no-warnings", "--input-type=commonjs", "-e",
                            f"(async () => {{ {script} }})().catch((e) => {{ console.error(e); process.exit(1); }})"],
-                          capture_output=True, text=True, timeout=60)
+                          capture_output=True, text=True, encoding="utf-8", timeout=60)
 
 
 def test_ts_fassung_liefert_dasselbe_wie_python():
