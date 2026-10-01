@@ -12,7 +12,9 @@ export interface Segment { text: string; strong: boolean }
 export interface Highlight { field: string; values: unknown[]; temporal: boolean }
 export interface KeyMessage { rule: string; segments: Segment[]; highlight: Highlight }
 export interface Table { columns: { name: string }[]; rows: unknown[][] }
-export interface KeyOptions { polarity?: number; additive?: boolean; unit?: string; weekly?: boolean; top_n?: number | null }
+export interface KeyOptions {
+  polarity?: number; additive?: boolean; unit?: string; weekly?: boolean; top_n?: number | null; purpose?: string | null;
+}
 export type Roles = Record<string, string | undefined>;
 
 const MINUS = "−";
@@ -184,10 +186,63 @@ function time(table: Table, roles: Roles, unit: string, weekly: boolean): KeyMes
   };
 }
 
+/** Quantil mit linearer Interpolation (wie key_message.quantile). */
+export function quantile(sorted: number[], q: number): number {
+  const pos = (sorted.length - 1) * q;
+  const lo = Math.trunc(pos);
+  const frac = pos - lo;
+  if (lo + 1 >= sorted.length) return sorted[lo];
+  return sorted[lo] + (sorted[lo + 1] - sorted[lo]) * frac;
+}
+
+function distribution(table: Table, roles: Roles, unit: string): KeyMessage | null {
+  const val = roles.value!, cat = roles.category;
+  const vals = column(table, val).map(num);
+  const cats = cat ? column(table, cat) : vals.map(() => null);
+  const pairs = cats.map((c, i) => [c, vals[i]] as [unknown, number | null]).filter((p): p is [unknown, number] => p[1] !== null);
+  if (pairs.length < 4) return null;
+  const s = pairs.map((p) => p[1]).sort((a, b) => a - b);
+  const q1 = quantile(s, 0.25), med = quantile(s, 0.5), q3 = quantile(s, 0.75);
+  const n = places(pairs.map((p) => p[1]));
+  const fence = 1.5 * (q3 - q1);
+  const out = cat ? pairs.filter((p) => p[1] < q1 - fence || p[1] > q3 + fence) : [];
+  const parts: (string | [string])[] = ["Median ", [withUnit(deNumber(med, n), unit)], ", die mittlere Hälfte liegt zwischen ",
+    [withUnit(deNumber(q1, n), unit)], " und ", [withUnit(deNumber(q3, n), unit)], "."];
+  if (out.length) {
+    // erster Treffer bei Gleichstand, wie Python max()
+    const far = out.reduce((a, b) => (Math.abs(b[1] - med) > Math.abs(a[1] - med) ? b : a));
+    parts.push(" Auffällig: ", [String(far[0])], " mit ", [withUnit(deNumber(far[1], n), unit)], ".");
+  }
+  return { rule: "Verteilung", segments: seg(...parts),
+    highlight: { field: cat ?? val, values: cat ? out.map((p) => p[0]) : [], temporal: false } };
+}
+
+const strength = (r: number) => (Math.abs(r) < 0.3 ? "schwach" : Math.abs(r) < 0.7 ? "mittel" : "stark");
+
+function correlation(table: Table, roles: Roles): KeyMessage | null {
+  const xs = column(table, roles.x!).map(num), ys = column(table, roles.y!).map(num);
+  const pts = xs.map((x, i) => [x, ys[i]] as [number | null, number | null])
+    .filter((p): p is [number, number] => p[0] !== null && p[1] !== null);
+  if (pts.length < 3) return null;
+  const mx = pts.reduce((a, p) => a + p[0], 0) / pts.length;
+  const my = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+  const sxy = pts.reduce((a, p) => a + (p[0] - mx) * (p[1] - my), 0);
+  const sxx = pts.reduce((a, p) => a + (p[0] - mx) ** 2, 0);
+  const syy = pts.reduce((a, p) => a + (p[1] - my) ** 2, 0);
+  if (!sxx || !syy) return null;
+  const r = sxy / Math.sqrt(sxx * syy);
+  return { rule: "Zusammenhang",
+    segments: seg(`Zusammenhang zwischen ${roles.x} und ${roles.y}: r = `, [deNumber(r, 2)],
+      ` (${strength(r)}, ${r > 0 ? "positiv" : "negativ"}), `, [String(pts.length)], " Punkte."),
+    highlight: { field: roles.x!, values: [], temporal: false } };
+}
+
 /** Kernaussage für die Tabelle eines Visuals; null, wenn keine Regel passt (Argumente wie key_message.py). */
 export function keyMessage(table: Table, roles: Roles, opts: KeyOptions = {}): KeyMessage | null {
-  const { polarity = 1, additive = false, unit = "", weekly = false, top_n = null } = opts;
+  const { polarity = 1, additive = false, unit = "", weekly = false, top_n = null, purpose = null } = opts;
   if (roles.time && roles.value) return time(table, roles, unit, weekly);
+  if (roles.x && roles.y) return correlation(table, roles);
+  if (roles.value && purpose === "distribution") return distribution(table, roles, unit);
   if (roles.category && roles.value) return categories(table, roles, polarity, additive, unit, top_n);
   return null;
 }

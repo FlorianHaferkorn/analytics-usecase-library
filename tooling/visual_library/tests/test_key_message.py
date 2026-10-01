@@ -71,6 +71,23 @@ def test_genannte_werte_in_uebrige_tragen_den_hinweis():
     assert "Übrige" not in K.plain_text(alle), "Gegenprobe: alle sichtbar, kein Hinweis"
 
 
+def test_verteilung_nennt_median_quartile_und_ausreisser():
+    t = {"columns": [{"name": "Filiale"}, {"name": "Marge"}],
+         "rows": [["A", 31.2], ["B", 28.4], ["C", 30.1], ["D", 29.7], ["E", 12.5], ["F", 30.8], ["G", 29.9], ["H", 31.0]]}
+    m = K.key_message(t, {"category": "Filiale", "value": "Marge"}, unit="%", purpose="distribution")
+    assert K.plain_text(m).startswith("Median 30,0\u00a0%, die mittlere Hälfte liegt zwischen 29,4\u00a0%")
+    assert "Auffällig: E mit 12,5\u00a0%" in K.plain_text(m) and m["highlight"]["values"] == ["E"]
+    # Gegenprobe: ohne Zweck „distribution“ greift der Kategorienvergleich
+    assert K.key_message(t, {"category": "Filiale", "value": "Marge"})["rule"] == "schwächster Wert"
+
+
+def test_zusammenhang_nennt_r_staerke_und_richtung():
+    t = {"columns": [{"name": "Preis"}, {"name": "Absatz"}],
+         "rows": [[10, 200], [12, 171], [14, 182], [16, 150], [18, 158], [20, 128]]}
+    m = K.key_message(t, {"x": "Preis", "y": "Absatz"})
+    assert K.plain_text(m) == "Zusammenhang zwischen Preis und Absatz: r = \u22120,91 (stark, negativ), 6 Punkte."
+
+
 def test_keine_regel_keine_aussage():
     assert K.key_message(REGIONS, {"value": "Wert"}) is None
     flat = {"columns": REGIONS["columns"], "rows": [["A", 1], ["B", 1]]}

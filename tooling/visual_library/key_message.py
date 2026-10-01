@@ -8,6 +8,8 @@ leeren oder geratenen Satz.
     Kategorienvergleich, additiv (Beitrag)      größter Beitrag mit Anteil an der Summe
     Zeitvergleich mit Plan                      letzte Periode: Ist gegen Plan, Abstand
     Zeitreihe ohne Plan                         erste gegen letzte Periode, Veränderung
+    Verteilung (purpose distribution)           Median und mittlere Hälfte, Ausreißer je Kategorie
+    Zusammenhang (roles x, y)                   Korrelation r mit Stärke und Richtung
 
 Ergebnis: {"rule", "segments": [{"text", "strong"}], "highlight": {"field", "values", "temporal"}}.
 Zweite Fassung: key_message.ts (Browser, rechnet auf der gefilterten Tabelle nach); Gleichstand erzwingt
@@ -167,19 +169,80 @@ def _time(table: dict, roles: dict, unit: str, weekly: bool) -> "dict | None":
             "highlight": {"field": time, "values": [periods[first], periods[last]], "temporal": True}}
 
 
+def quantile(sorted_values: list[float], q: float) -> float:
+    """Quantil mit linearer Interpolation (wie numpy „linear“); identisch in key_message.ts."""
+    pos = (len(sorted_values) - 1) * q
+    lo = int(pos)
+    frac = pos - lo
+    if lo + 1 >= len(sorted_values):
+        return sorted_values[lo]
+    return sorted_values[lo] + (sorted_values[lo + 1] - sorted_values[lo]) * frac
+
+
+def _distribution(table: dict, roles: dict, unit: str) -> "dict | None":
+    val, cat = roles["value"], roles.get("category")
+    vals = [_num(v) for v in _column(table, val)]
+    cats = _column(table, cat) if cat else [None] * len(vals)
+    pairs = [(c, v) for c, v in zip(cats, vals) if v is not None]
+    if len(pairs) < 4:
+        return None
+    s = sorted(v for _, v in pairs)
+    q1, med, q3 = quantile(s, 0.25), quantile(s, 0.5), quantile(s, 0.75)
+    n = places([v for _, v in pairs])
+    fence = 1.5 * (q3 - q1)
+    out = [p for p in pairs if p[1] < q1 - fence or p[1] > q3 + fence] if cat else []
+    seg = ["Median ", (_with_unit(de_number(med, n), unit),), ", die mittlere Hälfte liegt zwischen ",
+           (_with_unit(de_number(q1, n), unit),), " und ", (_with_unit(de_number(q3, n), unit),), "."]
+    if out:
+        far = max(out, key=lambda p: abs(p[1] - med))
+        seg += [" Auffällig: ", (str(far[0]),), " mit ", (_with_unit(de_number(far[1], n), unit),), "."]
+    return {"rule": "Verteilung", "segments": _seg(*seg),
+            "highlight": {"field": cat or val, "values": [c for c, _ in out] if cat else [], "temporal": False}}
+
+
+def _strength(r: float) -> str:
+    a = abs(r)
+    return "schwach" if a < 0.3 else "mittel" if a < 0.7 else "stark"
+
+
+def _correlation(table: dict, roles: dict) -> "dict | None":
+    xs, ys = [_num(v) for v in _column(table, roles["x"])], [_num(v) for v in _column(table, roles["y"])]
+    pts = [(x, y) for x, y in zip(xs, ys) if x is not None and y is not None]
+    if len(pts) < 3:
+        return None
+    mx = sum(x for x, _ in pts) / len(pts)
+    my = sum(y for _, y in pts) / len(pts)
+    sxy = sum((x - mx) * (y - my) for x, y in pts)
+    sxx = sum((x - mx) ** 2 for x, _ in pts)
+    syy = sum((y - my) ** 2 for _, y in pts)
+    if not sxx or not syy:
+        return None
+    r = sxy / math.sqrt(sxx * syy)
+    richtung = "positiv" if r > 0 else "negativ"
+    return {"rule": "Zusammenhang",
+            "segments": _seg(f"Zusammenhang zwischen {roles['x']} und {roles['y']}: r = ", (de_number(r, 2),),
+                             f" ({_strength(r)}, {richtung}), ", (str(len(pts)),), " Punkte."),
+            "highlight": {"field": roles["x"], "values": [], "temporal": False}}
+
+
 def key_message(table: dict, roles: dict, *, polarity: float = 1, additive: bool = False, unit: str = "",
-                weekly: bool = False, top_n: "int | None" = None) -> "dict | None":
+                weekly: bool = False, top_n: "int | None" = None, purpose: "str | None" = None) -> "dict | None":
     """Kernaussage für die Tabelle eines Visuals.
 
     table     {"columns": [{"name"}...], "rows": [[...]...]} — dieselbe Tabelle, die das Visual zeichnet
     roles     {Rolle: Spalte} wie bei `render_target(bindings=)`: time/value/plan oder category/value
     polarity  1 = mehr ist besser, −1 = weniger ist besser (Richtung der Kennzahl)
     additive  Werte summieren sich (Beiträge), sonst Quote oder Stand
+    purpose   Zweck des Visuals (Visual Library); `distribution` wählt die Verteilungsregel
     top_n     so viele Kategorien zeigt das Chart, der Rest steckt in „Übrige“; genannte Werte von dort
               tragen den Zusatz „(in „Übrige“)“
     """
     if roles.get("time") and roles.get("value"):
         return _time(table, roles, unit, weekly)
+    if roles.get("x") and roles.get("y"):
+        return _correlation(table, roles)
+    if roles.get("value") and purpose == "distribution":
+        return _distribution(table, roles, unit)
     if roles.get("category") and roles.get("value"):
         return _categories(table, roles, polarity, additive, unit, top_n)
     return None
