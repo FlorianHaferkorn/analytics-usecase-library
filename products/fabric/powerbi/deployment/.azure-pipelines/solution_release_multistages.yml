@@ -59,7 +59,6 @@ stages:
                 - template: _template_release_solution.yml
                   parameters:
                     environment: 'tst'
-                    requireManualApproval: false  # Use environment approvals instead
   
   - stage: ReleaseProd
     displayName: 'Release to PRODUCTION'
@@ -81,4 +80,3 @@ stages:
                 - template: _template_release_solution.yml
                   parameters:
                     environment: 'prd'
-                    requireManualApproval: false  # Use environment approvals instead

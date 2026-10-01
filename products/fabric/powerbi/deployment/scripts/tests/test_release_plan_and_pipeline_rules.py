@@ -160,6 +160,70 @@ def test_release_step_runs_fabric_release_in_pwsh():
     assert any("fabric_release.py" in s["pwsh"] for s in steps)
 
 
+# -- ManualValidation@0 only in agentless jobs (Learn manual-validation-v0, 01.10.2026) ------
+
+
+def _jobs(doc) -> list:
+    found = []
+    if isinstance(doc, dict):
+        if isinstance(doc.get("jobs"), list):
+            found.extend(j for j in doc["jobs"] if isinstance(j, dict))
+        for value in doc.values():
+            found.extend(_jobs(value))
+    elif isinstance(doc, list):
+        for value in doc:
+            found.extend(_jobs(value))
+    return found
+
+
+def _is_manual_validation(step: dict) -> bool:
+    return str(step.get("task", "")).startswith("ManualValidation@")
+
+
+ALL_PIPELINE_FILES = sorted(p.name for p in _PIPELINES.glob("*.yml"))
+
+
+@pytest.mark.parametrize("name", ALL_PIPELINE_FILES)
+def test_manual_validation_runs_only_in_agentless_jobs(name):
+    """"can only be used in an agentless job" — a steps template is expanded into agent jobs,
+    so it must not carry the task at all."""
+    doc = _yaml(name)
+    if "jobs" not in doc and "stages" not in doc:      # a steps template
+        assert not any(_is_manual_validation(s) for s in _steps(doc)), name
+        return
+    for job in _jobs(doc):
+        tasks = [s for s in job.get("steps", []) if isinstance(s, dict) and _is_manual_validation(s)]
+        if not tasks:
+            continue
+        assert job.get("pool") == "server", (name, job.get("job"))
+        for task in tasks:
+            assert "timeoutInMinutes" not in task.get("inputs", {}), "common property, not an input"
+            assert task.get("timeoutInMinutes", 60) < job.get("timeoutInMinutes", 60), \
+                "job timeout must exceed the task timeout"
+            assert "notifyUsers" in task["inputs"]
+
+
+def test_simple_pipeline_gates_each_release_job_on_its_approval_job():
+    doc = _yaml("solution_release_simple.yml")
+    checked = 0
+    for stage in doc["stages"]:
+        jobs = {j.get("job"): j for j in stage.get("jobs", [])}
+        approvals = [n for n, j in jobs.items() if j.get("pool") == "server"]
+        for name, job in jobs.items():
+            if any("_template_release_solution.yml" in str(s.get("template", ""))
+                   for s in job.get("steps", [])):
+                assert job.get("dependsOn") in approvals, (stage["stage"], name)
+                checked += 1
+    assert checked == 2, "Gegenprobe: TEST und PRODUCTION"
+
+
+def test_release_template_no_longer_takes_approval_parameters():
+    names = {p["name"] for p in _yaml("_template_release_solution.yml")["parameters"]}
+    assert names == {"environment"}
+    for pipeline in RELEASE_PIPELINES:
+        assert "requireManualApproval" not in (_PIPELINES / pipeline).read_text(encoding="utf-8")
+
+
 # -- W5.4 secret scan ----------------------------------------------------------------------
 
 

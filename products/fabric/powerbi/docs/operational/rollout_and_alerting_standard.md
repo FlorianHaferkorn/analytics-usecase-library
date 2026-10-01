@@ -243,8 +243,8 @@ is restated here with its Learn source):
 | Billed overage CU hours per day | Metrics app → Compute → Overages → *Overage (Billed)*; Azure Cost Management meter *Capacity Overage Capacity Usage CU* | Learn ([metrics-app-compute-page](https://learn.microsoft.com/fabric/enterprise/metrics-app-compute-page), [capacity-overage-overview](https://learn.microsoft.com/fabric/enterprise/capacity-overage-overview)) |
 | Workspaces blocked by workspace surge protection per 24 h | Metrics app → Health → *Blocked workspaces* | Learn (metrics-app-health-page) |
 | Carry-forward CUs | Monitor hub → Capacities → card *Carry forward CUs* | Learn (monitoring-hub-capacity) |
-| **Time in throttling / surge protection / overage (%)** | Metrics app "Preview" → Compute → time-share tiles | *observation* (FabCon demo 2026-09-29), not described on Learn (search 2026-10-01): `ANNAHME, ungeprüft`. Measure today via *Throttling (s)*, *Blocked workspaces* and Health state *Overage Billing Active* |
-| Heatmap day × hour | Metrics app "Preview" → Compute | *observation*, `ANNAHME, ungeprüft`; today: Compute → Throttling charts over the 14-day window |
+| **Time in throttling / surge protection / overage (%)** | Metrics app "Preview" → Compute → time-share tiles | *observation* (FabCon demo 2026-09-29), not described on Learn (searched 2026-10-01; re-checked 2026-10-01 against `metrics-app-compute-page`, `metrics-app-health-page`, `monitoring-hub-capacity`: still not on Learn): `ANNAHME, ungeprüft`. Measure today via *Throttling (s)*, *Blocked workspaces* and Health state *Overage Billing Active* |
+| Heatmap day × hour | Metrics app "Preview" → Compute | *observation*, `ANNAHME, ungeprüft` (re-checked 2026-10-01 against `metrics-app-compute-page`: still not on Learn); today: Compute → Throttling charts over the 14-day window |
 
 ## Response readiness (“who does what”)
 

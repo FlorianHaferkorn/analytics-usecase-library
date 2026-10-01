@@ -220,6 +220,50 @@ def test_service_principal_identity_fails_closed_with_manual_step():
     assert any("service principal" in s and "bulkSetLabels" in s for s in mgr.manual_steps)
 
 
+def _manual_body(step: str) -> dict:
+    """The JSON body embedded in the manual step: from the first '{' line to the end of it."""
+    import json
+    start = step.index("\n{")
+    depth, end = 0, None
+    for pos in range(start + 1, len(step)):
+        if step[pos] == "{":
+            depth += 1
+        elif step[pos] == "}":
+            depth -= 1
+            if depth == 0:
+                end = pos + 1
+                break
+    return json.loads(step[start + 1:end])
+
+
+def test_manual_step_hands_the_admin_everything_for_the_call():
+    """Owner decision 01.10.2026: no user sign-in; the SPN path ends in a manual step that a
+    Fabric admin can execute as is (Learn bulk-set-labels, read 01.10.2026)."""
+    api = _Api(auth=object.__new__(orch.AuthProvider))
+    mgr = _mgr(api, {"mode": "admin_api", "prod": LABEL_GUID})
+    assert mgr.apply_sensitivity_labels({"Report": [R1], "SemanticModel": [SM1]}, "prod") is False
+    (step,) = [s for s in mgr.manual_steps if "bulkSetLabels" in s]
+    assert "POST https://api.fabric.microsoft.com/v1/admin/items/bulkSetLabels" in step
+    assert "Fabric Administrator" in step and "Tenant.ReadWrite.All" in step
+    assert "25 requests per hour" in step and "2000 items" in step
+    assert "'Succeeded'" in step and "itemsChangeLabelStatus" in step
+    body = _manual_body(step)
+    assert body["labelId"] == LABEL_GUID
+    assert body["items"] == [{"id": R1, "type": "Report"}, {"id": SM1, "type": "SemanticModel"}]
+    assert "delegatedPrincipal" not in body
+    assert '"delegatedPrincipal"' in step            # named as the optional field
+    for secret_word in ("Bearer", "access_token", "client_secret", "Authorization"):
+        assert secret_word not in step
+
+
+def test_manual_step_body_carries_delegated_principal_when_given():
+    api = _Api(auth=object.__new__(orch.AuthProvider))
+    mgr = _mgr(api, {"mode": "admin_api", "prod": LABEL_GUID})
+    mgr.apply_sensitivity_labels({"Report": [R1]}, "prod", delegated_user_id=USER_GUID)
+    (step,) = [s for s in mgr.manual_steps if "bulkSetLabels" in s]
+    assert _manual_body(step)["delegatedPrincipal"] == {"id": USER_GUID, "type": "User"}
+
+
 def test_identity_without_declaration_counts_as_service_principal():
     api = _Api(auth=object())
     mgr = _mgr(api, {"mode": "admin_api", "prod": LABEL_GUID})
