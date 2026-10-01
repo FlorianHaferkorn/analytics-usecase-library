@@ -34,3 +34,4 @@ revisit a decision by adding a new ADR that supersedes the old one.
 | [0017](0017-generator-v2-insight-scoring-verification-composition.md) | Generator v2: Insight-Scoring, Verification, Composition (Two-Stage) | Accepted (2026-07-18) |
 | [0018](0018-visual-vocabulary-single-authority.md) | `visual_registry.yaml` ist die einzige Autorität für das Visualtyp-Vokabular | Accepted (2026-08-02) |
 | [0019](0019-team-beratung-preis-und-staffing-modell.md) | Team-Beratung: Preis- und Staffing-Modell (Rollen × Kostenband × Standort) | Accepted (2026-09-03) |
+| [0022](0022-authn-authz-stack-fuer-die-studios.md) | AuthN/AuthZ-Stack für die Studios: Better Auth, Kunden-Entra-ID, ReBAC bei Bedarf | Proposed |
