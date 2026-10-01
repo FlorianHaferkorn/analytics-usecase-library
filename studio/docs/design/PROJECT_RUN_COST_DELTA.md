@@ -10,6 +10,8 @@ WB-008 shows what an alternative changes in structure, WB-009 what it changes in
 
 `architecture_input.capacities[]` (optional, additive in schema 2.0.0): `id` (the UUID that `physical_workspaces[].capacity_id` refers to), `sku` (F2 to F8192), `billing` (`payg` default, `reservation`) and `overage` (`state`, `threshold_cu_hours`). Without the list the comparison returns `not_evaluated`: a capacity is never guessed from a workspace.
 
+`architecture_input.report_audience` (optional): `authors`, `viewers`. With it the run cost includes Power BI Pro licences, coupled to the production SKU: authors always need Pro, viewers only below F64 (Learn `enterprise/licenses`; same boundary as Meridian OUT-REPORT). An alternative that moves production across F64 therefore shows its licence effect next to the capacity price.
+
 ## Behavior
 
 `compare_run_cost(repository, project_ref, baseline_revision, decision_ref, option_ref)`:
@@ -33,5 +35,6 @@ WB-008 shows what an alternative changes in structure, WB-009 what it changes in
 
 - USD list prices; region and currency are not applied.
 - Paused hours are not modelled.
-- Licences, OneLake storage and workspace-monitoring ingestion are outside this delta.
+- Licences only for a declared `report_audience`; PPU is not modelled.
+- OneLake storage and workspace-monitoring ingestion are outside this delta.
 - Not in Studio yet: the route and the view follow the WB-008/WB-009 pattern.

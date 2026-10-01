@@ -91,8 +91,38 @@ def run_cost_side(architecture: dict, drivers: dict | None = None) -> dict:
                                  "max_usd_per_month": cap}})
         total += price
         ceiling += cap
-    return {"capacities": rows, "usd_per_month": round(total, 2), "overage_ceiling_usd_per_month": round(ceiling, 2),
+    licences = _licences(architecture, rows, drivers)
+    licence_total = licences["usd_per_month"] if licences else 0.0
+    return {"capacities": rows, "capacity_usd_per_month": round(total, 2), "licences": licences,
+            "usd_per_month": round(total + licence_total, 2), "overage_ceiling_usd_per_month": round(ceiling, 2),
             "priced_capacities": len(rows), "unpriced": unpriced}
+
+
+def _licences(architecture: dict, capacity_rows: list[dict], drivers: dict) -> dict | None:
+    """Power BI licences for the report audience, coupled to the production SKU.
+
+    Authors always need Pro. Viewers read without a licence when the production capacity is F64
+    or larger (Learn ``enterprise/licenses``; same boundary as Meridian OUT-REPORT and
+    ``capacity.FREE_VIEWER_MIN_SKU``); below it every viewer needs Pro. Without a declared
+    ``report_audience`` no licence cost is evaluated, and without a priced production capacity the
+    boundary is unknown, so viewers are counted as Pro and the row says so.
+    """
+    audience = architecture.get("report_audience")
+    if not audience:
+        return None
+    engine = _engine()
+    pro, _ppu = engine._license_prices(drivers)
+    prod = [row for row in capacity_rows if "prod" in row["environments"]]
+    sku = max((row["sku"] for row in prod), key=lambda s: int(s[1:]), default=None)
+    free_viewers = sku is not None and engine._sku_at_least_f64(sku)
+    authors, viewers = int(audience.get("authors", 0)), int(audience.get("viewers", 0))
+    pro_users = authors + (0 if free_viewers else viewers)
+    return {"authors": authors, "viewers": viewers, "production_sku": sku,
+            "viewers_need_pro": not free_viewers, "pro_users": pro_users,
+            "pro_usd_per_user_month": pro, "usd_per_month": round(pro_users * pro, 2),
+            "basis": ("production SKU F64 or larger: viewers without licence" if free_viewers else
+                      "production SKU below F64: every viewer needs Pro" if sku else
+                      "no priced production capacity: viewers counted as Pro")}
 
 
 def compare_run_cost(repository: ProjectPackageRevisionRepository, project_ref: str, baseline_revision: str,
@@ -119,6 +149,9 @@ def compare_run_cost(repository: ProjectPackageRevisionRepository, project_ref: 
             "currency": "USD", "price_basis": "Microsoft list price", "price_valid_from": str(drivers.get("valid_from")),
             "baseline": base, "alternative": alt,
             "delta": {"usd_per_month": round(alt["usd_per_month"] - base["usd_per_month"], 2),
+                      "capacity_usd_per_month": round(alt["capacity_usd_per_month"] - base["capacity_usd_per_month"], 2),
+                      "licence_usd_per_month": round((alt["licences"] or {}).get("usd_per_month", 0.0)
+                                                     - (base["licences"] or {}).get("usd_per_month", 0.0), 2),
                       "usd_per_year": round(12 * (alt["usd_per_month"] - base["usd_per_month"]), 2),
                       "overage_ceiling_usd_per_month": round(alt["overage_ceiling_usd_per_month"]
                                                              - base["overage_ceiling_usd_per_month"], 2),
@@ -132,7 +165,8 @@ def compare_run_cost(repository: ProjectPackageRevisionRepository, project_ref: 
                 "Capacity list prices in USD from cost_drivers.yaml; regional price differences and currency are not applied.",
                 "Paused hours are not modelled: a pay-as-you-go capacity is priced for the full month.",
                 "Overage is a ceiling derived from the threshold (threshold x 3 x PAYG), billed only when used; it is not in the monthly total.",
-                "Licences, OneLake storage and workspace-monitoring ingestion are not part of this delta.",
+                "Licences only for a declared report_audience: authors always Pro, viewers Pro below an F64 production capacity; PPU is not modelled.",
+                "OneLake storage and workspace-monitoring ingestion are not part of this delta.",
                 "A capacity shared by several environments costs the same whether one or all of them run on it."]}
 
 

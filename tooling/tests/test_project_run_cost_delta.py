@@ -9,7 +9,8 @@ from tooling.superversion.project_package import run_cost_delta as rc
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMAS = ROOT / "tooling/generator/schemas"
 PROJECT, DECISION = impact.REFERENCE_PROJECT, impact.REFERENCE_DECISION
-DRIVERS = {"valid_from": "2025-02-01", "fabric_capacity": [
+DRIVERS = {"valid_from": "2025-02-01", "power_bi_licenses": [{"id": "pro", "price_usd_per_month": 10}],
+           "fabric_capacity": [
     {"sku": "F8", "price_usd_per_month": 1000.0, "reservation_discount_pct": 40},
     {"sku": "F16", "price_usd_per_month": 2000.0, "reservation_discount_pct": 40},
     {"sku": "F64", "price_usd_per_month": 8000.0, "reservation_discount_pct": 40}]}
@@ -24,9 +25,12 @@ def test_per_stage_capacities_drop_the_test_capacity(tmp_path):
     report = _compare(tmp_path, "per_stage")
     assert report["status"] == "evaluated" and report["comparable"]
     # F64 reserved (8000 x 0.6) + F8 + F16 -> without test the F16 goes.
-    assert report["baseline"]["usd_per_month"] == 4800 + 1000 + 2000
-    assert report["alternative"]["usd_per_month"] == 4800 + 1000
+    assert report["baseline"]["capacity_usd_per_month"] == 4800 + 1000 + 2000
+    assert report["alternative"]["capacity_usd_per_month"] == 4800 + 1000
+    # F64 in production: 5 authors Pro, 200 viewers free -> 50 USD on both sides.
+    assert report["baseline"]["licences"]["usd_per_month"] == 50 and not report["baseline"]["licences"]["viewers_need_pro"]
     assert report["delta"]["usd_per_month"] == -2000 and report["delta"]["usd_per_year"] == -24000
+    assert report["delta"]["licence_usd_per_month"] == 0
     assert report["delta"]["capacities_removed"] == [impact.CAPACITY_BY_STAGE["test"]]
 
 
@@ -42,7 +46,8 @@ def test_overage_ceiling_is_reported_but_never_summed(tmp_path):
     side = _compare(tmp_path, "per_stage")["baseline"]
     prod = next(r for r in side["capacities"] if r["sku"] == "F64")
     assert prod["overage"]["enabled"] and prod["overage"]["max_usd_per_month"] > 0
-    assert side["usd_per_month"] == sum(r["usd_per_month"] for r in side["capacities"])
+    assert side["capacity_usd_per_month"] == sum(r["usd_per_month"] for r in side["capacities"])
+    assert side["usd_per_month"] == side["capacity_usd_per_month"] + side["licences"]["usd_per_month"]
     assert side["overage_ceiling_usd_per_month"] == prod["overage"]["max_usd_per_month"]
 
 
@@ -79,3 +84,29 @@ def test_real_cost_drivers_price_the_reference():
 def test_unknown_layout_is_rejected(tmp_path):
     with pytest.raises(ValueError, match="Unknown capacity layout"):
         impact.build_reference_baseline(tmp_path, SCHEMAS, capacity_layout="je_domaene")
+
+
+def _arch(prod_sku):
+    return {"environments": {"recommended": ["prod"]},
+            "capacities": [{"id": "p", "sku": prod_sku}],
+            "physical_workspaces": [{"environment": "prod", "capacity_id": "p"}],
+            "report_audience": {"authors": 3, "viewers": 40}}
+
+
+def test_below_f64_every_viewer_pays_pro():
+    side = rc.run_cost_side(_arch("F16"), DRIVERS)
+    assert side["licences"]["viewers_need_pro"] and side["licences"]["pro_users"] == 43
+    assert side["licences"]["usd_per_month"] == 430
+    assert side["usd_per_month"] == 2000 + 430
+
+
+def test_from_f64_viewers_read_free():
+    side = rc.run_cost_side(_arch("F64"), DRIVERS)
+    assert not side["licences"]["viewers_need_pro"] and side["licences"]["usd_per_month"] == 30
+
+
+def test_without_audience_no_licence_is_evaluated():
+    arch = _arch("F16")
+    del arch["report_audience"]
+    side = rc.run_cost_side(arch, DRIVERS)
+    assert side["licences"] is None and side["usd_per_month"] == side["capacity_usd_per_month"]

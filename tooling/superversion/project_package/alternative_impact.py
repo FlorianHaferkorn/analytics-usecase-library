@@ -301,6 +301,7 @@ def _reference_architecture(baseline: str, stages: list[str], with_alternative_r
             "physical_workspaces": workspaces, "physical_items": items, "decision_rules": rules}
     if layout:
         architecture["capacities"] = [dict(row) for row in layout["capacities"]]
+        architecture["report_audience"] = {"authors": 5, "viewers": 200}
     return architecture
 
 

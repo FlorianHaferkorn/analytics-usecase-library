@@ -96,6 +96,14 @@
         }
       }
     },
+    "report_audience": {
+      "description": "Optional: who uses the reports, for the licence part of the run cost. Authors always need Power BI Pro; viewers only below an F64 production capacity.",
+      "type": "object", "additionalProperties": false, "required": ["authors", "viewers"],
+      "properties": {
+        "authors": {"type": "integer", "minimum": 0},
+        "viewers": {"type": "integer", "minimum": 0}
+      }
+    },
     "physical_workspaces": {
       "description": "Explicit authored Fabric workspace creation scope. No resource names or environments are inferred.",
       "type": "array",
