@@ -389,7 +389,8 @@ def test_all_current_meridian_proposals_map_and_validate() -> None:
     # 20 seit Meridian D-533 (DATA-SILVER-LOAD, das Schreibmuster von Silber).
     # 25 seit Meridian D-615 (30.09.2026): SEC-MIRROR, OPS-MONITORING, PLAT-OVERAGE,
     # OUT-REPORT, AI-DE-COPILOT - die Plattformfragen aus der FabCon Europe 2026.
-    assert len(proposals) == 25
+    # 26 seit Meridian D-620 (01.10.2026): GOV-CATALOG, Purview als Andockmodul.
+    assert len(proposals) == 26
     result = adapt_decision_proposals(proposals)
     schema = _load_schema("project_decision_set.schema.json")
     Draft202012Validator(schema, format_checker=FormatChecker()).validate(result)

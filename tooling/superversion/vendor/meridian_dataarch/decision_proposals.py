@@ -629,6 +629,13 @@ _KUNDENFASSUNG: dict[str, dict[str, str]] = {
         "warum": "Der Assistent schreibt Code, der wie jeder andere geprüft werden muss. Ob er "
                  "Daten außerhalb Ihrer Region verarbeiten darf, regelt Ihre KI-Richtlinie.",
     },
+    "GOV-CATALOG": {
+        "frage": "Gehört Microsoft Purview zum Projekt, und wenn ja, welche Teile davon?",
+        "folge": "Wir verwalten Ihre Daten im Katalog von Fabric. Purview lässt sich später "
+                 "anschließen, ohne dass wir etwas umbauen.",
+        "warum": "Purview kostet eigene Lizenzen und braucht Rechte, die nur Ihre Verwaltung "
+                 "vergeben kann. Der Katalog von Fabric ist ohne beides da.",
+    },
 }
 
 
@@ -672,6 +679,9 @@ _FAELLIGKEIT: dict[str, str] = {
     # Ohne Antwort bleibt der Assistent aus; das blockiert nichts, gehoert aber vor den
     # produktiven Betrieb, weil erst dort Code aus zwei Quellen zusammenkommt.
     "AI-DE-COPILOT": "vor Produktivsetzung",
+    # D-620 (01.10.2026): Purview ist ein Andock-Modul. Ohne Antwort traegt der OneLake catalog;
+    # Labels und DLP muessen vor dem ersten produktiven Modell stehen, sonst sind sie nachzuziehen.
+    "GOV-CATALOG": "vor Produktivsetzung",
 }
 
 
@@ -1487,6 +1497,36 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "limitierungen": [{"text": "Erzeugter Code durchläuft nur die Prüfungen, die im Prozess stehen",
                             "quelle": "eigene Einschaetzung"}],
          "implikation": "Änderungen in Produktion brauchen eine nachträgliche Prüfung."},
+    ],
+    "GOV-CATALOG": [
+        {"wert": "nein", "empfohlen": True,
+         "text": "OneLake catalog trägt die Governance (Domänen, Endorsement, Beschreibungen, Lineage); Purview nicht im Umfang",
+         "vorteile": ["Keine Zusatzlizenz, keine Tenant-Rechte außerhalb von Fabric",
+                      "Der Andockpunkt bleibt dokumentiert (governance/purview/_PURVIEW.md)"],
+         "nachteile": ["Keine Sensitivity Labels, keine DLP, kein Audit über Fabric hinaus"],
+         "limitierungen": [{"text": "Der OneLake catalog zeigt nur Fabric-Elemente; Quellen außerhalb von Fabric erscheinen dort nicht",
+                            "quelle": "MS Learn: fabric/governance/onelake-catalog-overview"}],
+         "implikation": "governance.purview.im_umfang = nein; es entsteht nur _PURVIEW.md mit den Andockpunkten."},
+        {"wert": "teilweise",
+         "text": "Labels und DLP für Power BI und Fabric, der Rest bleibt im OneLake catalog",
+         "vorteile": ["Schutz sensibler Daten an Bericht und Export",
+                      "Kein eigenes Purview-Konto für die Data Map nötig"],
+         "nachteile": ["Microsoft 365 E5 oder ein Compliance-Zusatz je Nutzer",
+                       "Fabric-Admin-Konto für das Massen-Labeling"],
+         "limitierungen": [{"text": "Standard- und Pflichtlabel greifen nicht bei Veröffentlichung durch einen Dienstprinzipal",
+                            "quelle": "MS Learn: fabric/governance/service-security-sensitivity-label-mandatory-label-policy"},
+                           {"text": "DLP prüft keine Modelle, die ein Dienstprinzipal veröffentlicht oder besitzt",
+                            "quelle": "MS Learn: purview/dlp-powerbi-get-started"}],
+         "implikation": "governance.purview.bausteine = [labels, dlp]; Skripte unter governance/purview/labels und dlp."},
+        {"wert": "voll",
+         "text": "Purview vollständig: Labels, DLP, Data Map, Unified Catalog, Audit",
+         "vorteile": ["Ein Katalog über Fabric und Fremdquellen", "Audit und Datenprodukte an einer Stelle"],
+         "nachteile": ["Purview-Konto, Lizenzen und Pflege einer zweiten Domänenstruktur"],
+         "limitierungen": [{"text": "Fabric-Domänen lassen sich nicht 1:1 auf Purview-Domänen abbilden (Data Map: höchstens fünf Plattform-Domänen); Governance-Domänen werden getrennt gepflegt",
+                            "quelle": "MS Learn: purview/data-gov-best-practices-domains-and-gov-domains"},
+                           {"text": "Fabric-Elemente außer Power BI werden bei Private Link auf Tenant- oder Workspace-Ebene nicht gescannt",
+                            "quelle": "MS Learn: purview/register-scan-fabric-tenant"}],
+         "implikation": "governance.purview.bausteine mit allen Bausteinen; die Domänen werden zweimal gepflegt."},
     ],
 }
 
@@ -2514,6 +2554,46 @@ def propose_de_copilot(bp: dict) -> dict:
         status="offen")
 
 
+def propose_purview(bp: dict) -> dict:
+    """Purview als Andock-Modul (D-620): der OneLake catalog ist die Vorgabe.
+
+    Liest `governance.purview` direkt und nicht ueber `provision_purview`: dieses Modul wird
+    byte-identisch nach ALUCA gespiegelt, und die Vorlage soll nicht an einem zweiten Modul
+    haengen. Fehlt das Feld oder steht `nein`, ist die Hausvorgabe angewandt (vorbelegt);
+    `unbekannt` ist die offene Kundenfrage; `ja` nennt die gewaehlten Bausteine.
+    """
+    pv = (bp.get("governance") or {}).get("purview") or {}
+    stand = pv.get("im_umfang") or "nein"
+    teile = [b for b in pv.get("bausteine") or []]
+    if stand == "ja":
+        vorschlag = ("**Purview im Umfang:** "
+                     + (", ".join(f"`{b}`" for b in teile) if teile else "keine Bausteine benannt")
+                     + ". Die Pakete liegen unter `governance/purview/`; der OneLake catalog bleibt "
+                     "die Oberfläche für Fabric-Elemente.")
+        status, konfidenz = "vorbelegt" if teile else "offen", "hoch" if teile else "mittel"
+    elif stand == "unbekannt":
+        vorschlag = ("**OneLake catalog trägt die Governance**, Purview dockt bei Bedarf an. Ob ein "
+                     "Purview-Konto oder E5-Lizenzen vorhanden sind, steht nicht im Bauplan.")
+        status, konfidenz = "offen", "mittel"
+    else:
+        vorschlag = ("**OneLake catalog trägt die Governance** (Domänen, Endorsement, "
+                     "Beschreibungen, Lineage); Purview ist nicht im Umfang. Die Andockpunkte stehen "
+                     "in `governance/purview/_PURVIEW.md`.")
+        status, konfidenz = "vorbelegt", "hoch"
+    return _rec(
+        "GOV-CATALOG", "Purview als Andock-Modul",
+        "Gehört Microsoft Purview zum Umfang, und welche Bausteine (Labels, DLP, Data Map, "
+        "Unified Catalog, Audit)?",
+        vorschlag,
+        "governance.purview (D-620); MS Learn: fabric/governance/onelake-catalog-overview, "
+        "purview/dlp-powerbi-get-started (gelesen 01.10.2026)",
+        konfidenz,
+        ["Labels und DLP für Power BI und Fabric", "Purview vollständig mit Data Map und Unified Catalog"],
+        "Governance-Verantwortliche:r + Einkauf (Lizenzen)",
+        "Der OneLake catalog trägt die Governance; Purview lässt sich später ohne Umbau anschließen.",
+        status=status)
+
+
 def propose_ground_truth(gc: dict) -> dict:
     """Evaluation ground truth for the Data Agent — derivable as question skeletons."""
     ms = [m["measure_name"] for m in gc.get("measures", []) if m.get("measure_name")][:4]
@@ -2769,7 +2849,8 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
                 propose_transform_engine(bp), propose_silver_load(bp),
                 # I-21 (FabCon Europe 2026, 30.09.2026)
                 propose_mirror_security(bp), propose_monitoring_topology(bp),
-                propose_overage(bp), propose_report_target(bp), propose_de_copilot(bp)])
+                propose_overage(bp), propose_report_target(bp), propose_de_copilot(bp),
+                propose_purview(bp)])
     _tier = propose_platform_tier(bp)      # nur auf Stacks mit Stufen-Achse und nur solange offen
     if _tier:
         out.append(_tier)

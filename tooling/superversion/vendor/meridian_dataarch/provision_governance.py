@@ -353,28 +353,9 @@ def _governance_script(bp: dict, workspace: str, governance: dict, dom_owner: di
     return "\n".join(lines) + "\n"
 
 
-def _sensitivity_script(bp: dict, governance: dict) -> str:
-    """Bulk sensitivity-label templates via the Power BI admin API (GA)."""
-    labels = (governance or {}).get("labels", {})
-    lines = [
-        "#!/usr/bin/env bash",
-        "set -euo pipefail",
-        "# Sensitivity labels (Microsoft Purview Information Protection) — GA bulk admin API.",
-        "#   POST /v1.0/myorg/admin/informationProtection/setLabelsAsAdmin",
-        "#   limits: <=25 req/hr, <=2000 items/req; needs Fabric admin + Tenant.ReadWrite.All + label in policy.",
-        "# labelId per audience comes from your local --governance map (labels.<audience>).",
-        "",
-    ]
-    for d in _domains(bp):
-        aud = d.get("publishing", {}).get("intended_audience", "internal")
-        label = labels.get(aud, f"<{aud}-labelId>")
-        lines.append(f"# {d['name']} ({aud}) → label {label}")
-        lines.append(f'#   fab api "admin/informationProtection/setLabelsAsAdmin" -X POST -i - <<JSON')
-        lines.append(f'#   {{"labelId":"{label}","assignmentMethod":"Standard","artifacts":[{{"artifactType":"<SemanticModel|Report>","id":"<item-id>"}}]}}')
-        lines.append("#   JSON")
-    lines.append("")
-    lines.append('echo "Sensitivity-label script complete."')
-    return "\n".join(lines) + "\n"
+def _purview_im_umfang(bp: dict, baustein: str) -> bool:
+    from core.dataarch_engine.blueprint.provision_purview import im_umfang
+    return im_umfang(bp, baustein)
 
 
 def _rls_proposal_comment(catalog: dict | None) -> str:
@@ -1150,7 +1131,9 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
            "| RLS/OLS — model-only alternative | `roles/<domain>.tmdl` (TMDL role blocks; fixed-identity case) | GA |",
            "| Workspace roles + Domains | `governance.sh` (REST/fab api) | GA |",
            "| Domain-Admins + Domain-Contributors | `governance.sh` Abschnitt 1c | GA |",
-           "| Sensitivity labels | `sensitivity_labels.sh` (bulk admin API) | GA |",
+           "| Sensitivity labels, DLP, Data Map, Unified Catalog, Audit | `purview/` — nur mit "
+           "`governance.purview` im Umfang (D-620); sonst nur `purview/_PURVIEW.md` mit den "
+           "Andockpunkten | opt-in |",
            "| Endorsement | `ENDORSEMENT_RUNBOOK.md` (manual — no write API) | manual |",
            "| Which items may be created where | `fabric_policies/` (Fabric policies, target picture; "
            "not in West/North Europe) | **preview** |",
@@ -1173,9 +1156,10 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
             "> Die Konformitaetspruefung meldet den Fall als Fehler, solange beides zugleich",
             "> deklariert ist."]
     if gd:
-        doc += ["| **Data owners → workspace Admin** | `governance.sh` (from governance.json) | GA |",
-                "| **Glossary → Purview terms** | `glossary_import.json` | GA |",
-                "| **Data-quality gates** | `data_quality.json` (per-domain overrides) | policy |"]
+        doc += ["| **Data owners → workspace Admin** | `governance.sh` (from governance.json) | GA |"]
+        if _purview_im_umfang(bp, "unified_catalog"):
+            doc.append("| **Glossary → Purview terms** | `glossary_import.json` | GA |")
+        doc.append("| **Data-quality gates** | `data_quality.json` (per-domain overrides) | policy |")
     doc.append("")
 
     out: dict[str, str] = {"governance/_GOVERNANCE.md": "\n".join(doc) + "\n",
@@ -1187,14 +1171,20 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
             d["name"], list(d.get("data_products", [])), aud, sensitivity)
 
     if gd:  # Data-Gov stream output materialised
-        if gd.get("glossary"):
+        # Purview-Glossar nur mit Unified Catalog im Umfang (D-620); das Glossar selbst bleibt
+        # in governance.json und im Kontextpaket der Ontologie.
+        if gd.get("glossary") and _purview_im_umfang(bp, "unified_catalog"):
             out["governance/glossary_import.json"] = _glossary_import(gd)
         if gd.get("data_quality_standards") or gd.get("verification_thresholds"):
             out["governance/data_quality.json"] = _data_quality(gd)
 
     if stack == "fabric":
         out["governance/governance.sh"] = _governance_script(bp, workspace, governance, dom_owner)
-        out["governance/sensitivity_labels.sh"] = _sensitivity_script(bp, governance)
+        # D-620: Labels sind ein Purview-Baustein. Das alte sensitivity_labels.sh rief einen
+        # Endpunkt, den es nicht gibt (setLabelsAsAdmin); es ist durch
+        # purview/labels/set_labels.sh ersetzt und kommt nur mit Purview im Umfang.
+        from core.dataarch_engine.blueprint.provision_purview import emit_purview
+        out.update(emit_purview(bp, stack, governance))
         out.update(emit_onelake_roles(bp, lakehouse, sensitivity, governed_catalog))
         out.update(emit_fabric_policies(bp))
         out.update(emit_tags(bp))

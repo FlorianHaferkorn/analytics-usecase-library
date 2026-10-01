@@ -205,6 +205,17 @@ def emit_fab_commands(blueprint: dict, capacity: str = "<CAPACITY_NAME>",
                                            "mirror" if mode == "mirror" else
                                            "shortcut_transform" if mode == "shortcut_transform" else
                                            "copy")
+        if mode == "file_mlv":
+            # D-619: kein Copy job, kein fab-Befehl — die Datei-MLV ist Spark SQL im Lakehouse.
+            from core.dataarch_engine.blueprint.provision_transforms import _ident
+            pfad = (e.get("file_mlv") or {}).get("path", "Files/<pfad>")
+            lines.append(f"# {src} ({sys_}): Datei-MLV aus {pfad} -> Bronze (D-619)")
+            lines.append("#   render: python -m core.dataarch_engine.blueprint.cli … --emit-ingestion")
+            lines.append(f"#   ausfuehren: ./render/fabric/ingestion/file_mlv/{_ident(src)}.mlv.sql im "
+                         f"Bronze-Lakehouse (Notebook/SQL-Editor, nicht SQL-Endpunkt)")
+            lines.append("#   Refresh: ingestion/file_mlv/refresh_schedule.json (Job Scheduler, "
+                         "refreshMaterializedLakeViews)")
+            continue
         if kind == "shortcut_transform":
             # Bewusst KEIN erfundener fab-Befehl: die Transformationen werden am Shortcut konfiguriert,
             # und dafuer ist uns kein CLI-/REST-Aufruf dokumentiert. Also die belegten Fakten und ein

@@ -392,7 +392,25 @@ def planning_load(sessions: dict, sku: str | None = None) -> dict:
     return out
 
 
-def recommend(blueprint: dict, prices: dict | None = None) -> dict:
+def region_features(blueprint: dict, features: set[str] | None = None) -> dict:
+    """Feature x region for the declared capacity regions (FABCON W5.1).
+
+    Reads Meridian's ``stack_capabilities`` from the byte-identical mirror instead of keeping a
+    second region list here: the list changed two days after it was first read (29.09. ->
+    01.10.2026: ontology back in West/North Europe, Fabric Apps in Germany West Central), and
+    only a list that one sensor keeps in sync stays true. ``features`` names region-dependent
+    functions the IR has no field for yet (e.g. ``fabric_apps``); the ontology is read from
+    ``ai_grounding.ontology.enabled``.
+    """
+    from tooling.superversion._dataarch_vendor import load_module
+    sc = load_module("stack_capabilities")
+    return {"findings": sc.region_findings(blueprint, features),
+            "data_as_of": sc.REGION_DATENSTAND,
+            "source": "learn.microsoft.com/fabric/admin/region-availability"}
+
+
+def recommend(blueprint: dict, prices: dict | None = None,
+              features: set[str] | None = None) -> dict:
     """Full capacity recommendation for a blueprint. Deterministic, no network access."""
     platform = blueprint.get("platform", {})
     sizing = platform.get("sizing", {}) or {}
@@ -451,6 +469,9 @@ def recommend(blueprint: dict, prices: dict | None = None) -> dict:
             "spark_vcores_burst": SPARK_VCORES_BASELINE[floor] * 3,
             "parallel_model_refreshes": MODEL_REFRESH_PARALLELISM[floor],
         }
+    regionen = region_features(blueprint, features)
+    if regionen["findings"]:
+        out["region_features"] = regionen
     if assigned and floor and _rank(assigned) < _rank(floor):
         out["conflict"] = (f"assigned capacity_sku={assigned} is below the derived floor "
                            f"{floor} — the sizing inputs do not fit the assigned capacity")

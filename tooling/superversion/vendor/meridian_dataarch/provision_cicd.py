@@ -617,6 +617,11 @@ _ABGLEICH_JE_MODUS = {
              "und der Wasserstand ist mitgewandert. Fährt der alte Stand danach los, liest er ab "
              "dem neuen Wasserstand und überspringt still, was dazwischen liegt. Wasserstand auf "
              "den Zeitpunkt vor der Beförderung zurücksetzen und den Lauf einmal beobachten."),
+    # D-619: die Datei-MLV merkt sich selbst, welche Dateien sie gelesen hat (APPEND_ONLY).
+    "file_mlv": ("Die Datei-MLV hat neue Dateien angehängt und merkt sich, was sie gelesen hat. "
+                 "Ein Rücksprung des Codes setzt das nicht zurück. Zu prüfen: hat sich die "
+                 "Definition (Pfad, Format, `schema_mode`) geändert? Dann einmal "
+                 "`REFRESH MATERIALIZED LAKE VIEW … FULL` und die Zeilenzahl gegen den Ordner halten."),
 }
 
 
