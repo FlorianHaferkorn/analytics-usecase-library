@@ -492,8 +492,12 @@ def with_top_n(spec: dict, idiom: str, eff: dict, n: int, rest: str) -> dict:
 
     find_order(spec)
     last = 1e300 if order == "ascending" else -1e300
+    # Welche n bleiben, entscheidet die Richtung der Kennzahl, nicht die Anzeigereihenfolge: unter IBCS
+    # sortiert bar_ranking absteigend, und Top 3 behielt die drei besten — die schwächste Region lag
+    # in „Übrige“ (Cockpit 01.10.2026, UC-COM-003: CEE 22,4 % von fünf Regionen ausgeblendet).
+    keep = eff.get("worst_first") if eff.get("worst_first") in ("ascending", "descending") else order
     fold = [
-        {"window": [{"op": "row_number", "as": "_rank"}], "sort": [{"field": val, "order": order}]},
+        {"window": [{"op": "row_number", "as": "_rank"}], "sort": [{"field": val, "order": keep}]},
         {"joinaggregate": [{"op": "count", "as": "_rows"}]},
         {"calculate": f"datum._rank > {n}", "as": "_rest"},
         {"calculate": f"datum._rest ? '{REST_LABEL} (' + (datum._rows - {n}) + ')' : datum['{cat}']", "as": cat},

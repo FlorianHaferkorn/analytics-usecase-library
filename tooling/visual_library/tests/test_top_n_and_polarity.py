@@ -104,3 +104,12 @@ def test_unknown_rest_mode_fails_loudly():
     with pytest.raises(ValueError):
         render.render_target("bar_ranking", "fabric_app", "house_default", bindings=COLS,
                              params={"rest": "average"})
+
+
+def test_ibcs_top_n_behaelt_die_schwaechsten_auch_bei_absteigender_anzeige():
+    """Cockpit 01.10.2026: unter IBCS (absteigend sortiert) behielt Top 3 die drei besten Regionen, die
+    schwächste lag in „Übrige“. Behalten wird nach Richtung, angezeigt weiter absteigend."""
+    s = _scene("bar_ranking", "ibcs", {"top_n": 3, "rest": "none"})
+    assert s["categories"] == ["R5", "R2", "R7", "Übrige (5)"], "die drei kleinsten (9, 7, 5), absteigend"
+    low = _scene("bar_ranking", "ibcs", {"top_n": 3, "rest": "none", "polarity": -1})
+    assert low["categories"] == ["R6", "R1", "R3", "Übrige (5)"], "weniger ist besser: die höchsten bleiben"
