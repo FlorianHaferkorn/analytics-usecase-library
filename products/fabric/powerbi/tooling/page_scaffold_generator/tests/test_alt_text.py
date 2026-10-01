@@ -231,3 +231,171 @@ def test_apply_to_report_aendert_nur_alt_text(tmp_path: Path) -> None:
     assert all(line + "," in new_lines for line in removed)
     assert _alt(json.loads(new)) == "Cash"
     assert at.apply_to_report(tmp_path / "R.Report") == []  # zweiter Lauf: nichts mehr zu tun
+
+
+# --- Sprache (ux_layout_rules.report_locale, 01.10.2026) -----------------------------------------
+
+SCHEMA = REPO / "tooling" / "generator" / "schemas" / "usecase_bracket.schema.json"
+FIN001 = DIST / "FIN-001_Cash_Liquidity_Performance.Report"
+_DEUTSCH = (" und ", " nach ", " im Vergleich zu ", "Filtern nach ", " weitere Kennzahl")
+_ENGLISCH = (" and ", " by ", " compared with ", "Filter by ", " more measure")
+
+_FAELLE = [  # (Visual, Vergleichsreihen, en, de) je Visualtyp
+    (_v("lineChart", {"Category": {"projections": [_c("dim_date", "CalendarYearMonth")]},
+                      "Y": {"projections": [_m("OEE %"), _m("OEE % Target")]}}), ["OEE % Target"],
+     "OEE % compared with OEE % Target by Calendar Year Month",
+     "OEE % im Vergleich zu OEE % Target nach Calendar Year Month"),
+    (_v("clusteredBarChart", {"Category": {"projections": [_c("dim_org", "Region")]},
+                              "Y": {"projections": [_m("Net Sales Amount")]}}), [],
+     "Net Sales Amount by Region", "Net Sales Amount nach Region"),
+    (_v("slicer", {"Values": {"projections": [_c("dim_org", "OrgName")]}}), [],
+     "Filter by Org Name", "Filtern nach Org Name"),
+    (_v("cardVisual", {"Data": {"projections": [_m("A"), _m("B"), _m("C")]}}), [],
+     "A, B and C", "A, B und C"),
+    (_v("tableEx", {"Values": {"projections": [_c("dim_org", "OrgName"), _c("dim_org", "Region"),
+                                               _m("Cash")]}}), [],
+     "Cash by Org Name and Region", "Cash nach Org Name und Region"),
+    (_v("textbox", objects={"text": [{"properties": {"text": {"expr": {"Literal": {"Value": "'On track'"}}}}}]}),
+     [], "On track", "On track"),
+]
+
+
+@pytest.mark.parametrize("visual,refs,en,de", _FAELLE, ids=[f[0]["visual"]["visualType"] for f in _FAELLE])
+def test_de_und_en_je_visualtyp(visual: Dict[str, Any], refs: List[str], en: str, de: str) -> None:
+    assert at.describe(visual, refs, locale="en-US") == en
+    assert at.describe(visual, refs, locale="de-DE") == de
+    assert at.describe(visual, refs) == en  # Gegenprobe: ohne Einstellung Englisch
+
+
+def test_lange_liste_deutsch() -> None:
+    ms = [_m(f"Measure Number {i} With A Long Name") for i in range(20)]
+    text = at.describe(_v("tableEx", {"Values": {"projections": [_c("dim_org", "Region")] + ms}}), locale="de-DE")
+    assert len(text) <= at.ALT_TEXT_MAX_CHARS
+    assert text.endswith("weitere Kennzahlen nach Region")
+
+
+def test_sprachen_haben_dieselben_bausteine() -> None:
+    assert set(at.PHRASES) >= {"en", "de"}
+    keys = set(at.PHRASES["en"])
+    assert all(set(p) == keys for p in at.PHRASES.values())
+
+
+@pytest.mark.parametrize("locale,lang", [("de-DE", "de"), ("de", "de"), ("de_AT", "de"),
+                                         ("en-GB", "en"), ("en-US", "en"), (None, "en")])
+def test_locale_zu_sprache(locale: str | None, lang: str, recwarn: pytest.WarningsRecorder) -> None:
+    assert at.language(locale) == lang
+    assert not [w for w in recwarn if issubclass(w.category, at.UnknownLocaleWarning)]
+
+
+def test_unbekannte_locale_warnt_und_faellt_auf_englisch() -> None:
+    v = _FAELLE[0][0]
+    with pytest.warns(at.UnknownLocaleWarning, match="fr-FR"):
+        text = at.describe(v, ["OEE % Target"], locale="fr-FR")
+    assert text == "OEE % compared with OEE % Target by Calendar Year Month"
+
+
+def test_sprachwechsel_ersetzt_nur_erzeugten_alt_text() -> None:
+    v = _FAELLE[1][0]
+    at.apply_alt_text(v)
+    assert _alt(v) == "Net Sales Amount by Region"
+    at.apply_alt_text(v, locale="de-DE")  # ohne replace_generated: bleibt
+    assert _alt(v) == "Net Sales Amount by Region"
+    at.apply_alt_text(v, locale="de-DE", replace_generated=True)
+    assert _alt(v) == "Net Sales Amount nach Region"
+    v["visual"]["visualContainerObjects"]["general"][0]["properties"]["altText"]["expr"]["Literal"]["Value"] = "'Hand'"
+    at.apply_alt_text(v, locale="en-US", replace_generated=True)
+    assert _alt(v) == "Hand"  # von Hand geschrieben: unberuehrt
+
+
+# --- Schema ---------------------------------------------------------------------------------------
+
+
+def _schema_fehler(bracket: Dict[str, Any]) -> List[str]:
+    import jsonschema
+    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
+    return [e.message for e in jsonschema.Draft7Validator(schema).iter_errors(bracket)]
+
+
+def _bracket(uc_dir: str) -> Dict[str, Any]:
+    import yaml
+    return yaml.safe_load((REPO / "core" / "usecases" / "core" / uc_dir / "UseCase_Bracket.yaml")
+                          .read_text(encoding="utf-8"))
+
+
+def test_schema_feld_report_locale() -> None:
+    ux = json.loads(SCHEMA.read_text(encoding="utf-8"))["properties"]["ux_layout_rules"]
+    prop = ux["properties"]["report_locale"]
+    assert prop["default"] == at.DEFAULT_LOCALE == "en-US"
+    fin = _bracket("FIN-001_Cash_Liquidity_Performance")
+    assert fin["ux_layout_rules"]["report_locale"] == "de-DE"
+    assert _schema_fehler(fin) == []
+    for bad in ("German", "de_DE", "DE-de", 7):
+        fin["ux_layout_rules"]["report_locale"] = bad
+        assert _schema_fehler(fin), bad
+    del fin["ux_layout_rules"]["report_locale"]
+    assert _schema_fehler(fin) == []  # optional
+    assert at.bracket_locale(fin) == "en-US"
+
+
+# --- Generator und dist ---------------------------------------------------------------------------
+
+
+def test_generator_folgt_der_bracket_sprache() -> None:
+    """FIN-002 (Generatorpfad, zeichnet eine Vergleichsreihe): de aus der Einstellung, sonst en."""
+    def texte(locale: str | None) -> List[str]:
+        out = []
+        for page in ("overview", "detail"):
+            gen = sg.PageScaffoldGenerator(use_case_id="FIN-002", page_name=page, repo_root=REPO)
+            gen.load_config()
+            assert gen.page_config["report_locale"] == "en-US"  # Bracket deklariert nichts
+            if locale:
+                gen.page_config["report_locale"] = locale
+            gen.generate()
+            s = gen.get_page_structure()
+            # Textboxen tragen ihren (im Bracket englisch verfassten) Text, keine Satzbausteine.
+            out += [_alt(v) or "" for v in s["visuals"] + s.get("slicers", [])
+                    if (v.get("visual") or {}).get("visualType") != "textbox"]
+        return out
+    de, en = " ".join(texte("de-DE")), " ".join(texte(None))
+    assert " im Vergleich zu " in de and "Filtern nach " in de and " nach " in de
+    assert not any(p in de for p in (" compared with ", "Filter by ", " by "))
+    assert " compared with " in en and not any(p in en for p in _DEUTSCH)
+
+
+def _dist_alt(report: Path) -> List[str]:
+    return [_alt(json.loads(p.read_text(encoding="utf-8"))) or ""
+            for p in sorted((report / "definition" / "pages").glob("*/visuals/*/visual.json"))]
+
+
+def test_fin001_dist_traegt_deutschen_alt_text() -> None:
+    texte = _dist_alt(FIN001)
+    assert sum(any(p in t for p in _DEUTSCH) for t in texte) >= 9  # gemessen 01.10.2026: 9 von 13
+    assert not any(p in t for t in texte for p in (" compared with ", "Filter by ", " by "))
+    for path in sorted((FIN001 / "definition" / "pages").glob("*/visuals/*/visual.json")):
+        v = json.loads(path.read_text(encoding="utf-8"))
+        assert _alt(v) == at.describe(v, locale="de-DE") or v["visual"]["visualType"] == "shape", path
+
+
+@pytest.mark.parametrize("report", sorted(p.name for p in DIST.glob("*.Report") if p != FIN001))
+def test_uebrige_dist_reports_englisch(report: str) -> None:
+    """Gegenprobe: ohne report_locale bleibt der Alt-Text englisch."""
+    texte = _dist_alt(DIST / report)
+    assert not any(p in t for t in texte for p in (" im Vergleich zu ", "Filtern nach ", " nach ")), report
+
+
+def test_werkzeug_liest_sprache_aus_dem_bracket(tmp_path: Path) -> None:
+    import shutil
+    kopie = tmp_path / FIN001.name
+    shutil.copytree(FIN001, kopie)
+    assert at.report_locale(kopie) == "de-DE"
+    assert at.main([str(kopie)]) == 0
+    assert _dist_alt(kopie) == _dist_alt(FIN001)  # dist ist schon erzeugt: nichts zu tun
+    assert at.main([str(kopie), "--locale", "en-US"]) == 0
+    en = _dist_alt(kopie)
+    assert any(" by " in t for t in en) and not any(p in t for t in en for p in _DEUTSCH)
+    # nur die Alt-Text-Zeile wechselt (handformatierte Dateien bleiben unberuehrt)
+    for p in sorted(kopie.rglob("visual.json")):
+        alt, neu = (FIN001 / p.relative_to(kopie)).read_text(encoding="utf-8").splitlines(), \
+            p.read_text(encoding="utf-8").splitlines()
+        assert len(alt) == len(neu)
+        assert all(a == b or '"Value"' in a for a, b in zip(alt, neu)), p

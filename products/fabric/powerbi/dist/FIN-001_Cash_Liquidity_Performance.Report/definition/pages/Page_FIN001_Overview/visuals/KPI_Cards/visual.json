@@ -121,7 +121,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'CCC Days, Cash Balance, Operating Cash Flow and Cash vs Plan %'"
+                  "Value": "'CCC Days, Cash Balance, Operating Cash Flow und Cash vs Plan %'"
                 }
               }
             }

@@ -101,7 +101,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Operating Cash Flow by Calendar Year Month'"
+                  "Value": "'Operating Cash Flow nach Calendar Year Month'"
                 }
               }
             }

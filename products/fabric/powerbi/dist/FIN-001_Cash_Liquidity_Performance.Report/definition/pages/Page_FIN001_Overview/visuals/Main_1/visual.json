@@ -86,7 +86,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Cash Balance by Calendar Year Month'"
+                  "Value": "'Cash Balance nach Calendar Year Month'"
                 }
               }
             }

@@ -24,8 +24,13 @@ Vergleichsreihe gezeichnete Measure (comparison im Bracket, R6.1) und bei Textbo
 Nichts wird erfunden: ein Visual, das nichts davon traegt, bekommt keinen Alt-Text (und
 ENSURE_ALTTEXT meldet es), statt eines Platzhalters.
 
-Sprache: Englisch, wie die Titel, die der Generator aus den Brackets uebernimmt (es gibt keine
-Locale-Einstellung im Generator).
+Sprache (seit 01.10.2026): `ux_layout_rules.report_locale` im UseCase_Bracket (BCP 47, Default
+`en-US`, Schema usecase_bracket.schema.json). Uebersetzt werden nur die Satzbausteine, die dieses Modul
+selbst zusammensetzt (`PHRASES`: "and", "compared with", "by", "Filter by", "n more measures"). Namen
+von Measures und Spalten bleiben, wie das Visual sie bindet: KPI-Katalog und Modell fuehren keine
+lokalisierten Namen (kein `name_de`/`display_name`, Modell-`cultures/` nur en-US). Unbekannte Sprache:
+Fallback `en` mit `UnknownLocaleWarning`. Das Modell-`culture` ist bewusst keine Quelle: es steht in
+vier von fuenf Modellen auf de-DE, deren Reports aber englische Titel tragen (gemessen 01.10.2026).
 
 Ausnahmen wie in der BPA-Regel: `shape` (dekorativ) bekommt keinen Alt-Text.
 """
@@ -36,6 +41,7 @@ import argparse
 import json
 import re
 import sys
+import warnings
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence
 
@@ -48,17 +54,53 @@ ALT_TEXT_EXEMPT_TYPES = frozenset({"shape"})
 
 _ELLIPSIS = "…"
 
+#: Default, wenn das Bracket keine `ux_layout_rules.report_locale` deklariert (Stand vor 01.10.2026).
+DEFAULT_LOCALE = "en-US"
+
+#: Satzbausteine je Sprache (Sprachteil der Locale). Nur was dieses Modul selbst formuliert.
+PHRASES: Dict[str, Dict[str, str]] = {
+    "en": {"and": "and", "compared_with": "compared with", "by": "by", "filter_by": "Filter by",
+           "more_one": "{n} more measure", "more_many": "{n} more measures"},
+    "de": {"and": "und", "compared_with": "im Vergleich zu", "by": "nach", "filter_by": "Filtern nach",
+           "more_one": "{n} weitere Kennzahl", "more_many": "{n} weitere Kennzahlen"},
+}
+
+_FALLBACK_LANGUAGE = "en"
+
+
+class UnknownLocaleWarning(UserWarning):
+    """Locale ohne Satzbausteine in `PHRASES`: der Alt-Text faellt auf Englisch zurueck."""
+
+
+def language(locale: Optional[str]) -> str:
+    """`de-DE` -> `de`. Ohne Angabe `en`; unbekannte Sprache -> `en` mit `UnknownLocaleWarning`."""
+    if not locale:
+        return _FALLBACK_LANGUAGE
+    lang = str(locale).replace("_", "-").split("-")[0].lower()
+    if lang in PHRASES:
+        return lang
+    warnings.warn(f"Alt-Text: keine Satzbausteine fuer Locale {locale!r} (vorhanden: "
+                  f"{', '.join(sorted(PHRASES))}); Fallback '{_FALLBACK_LANGUAGE}'.",
+                  UnknownLocaleWarning, stacklevel=2)
+    return _FALLBACK_LANGUAGE
+
+
+def bracket_locale(bracket: Optional[Dict[str, Any]]) -> str:
+    """`ux_layout_rules.report_locale` aus einem UseCase_Bracket, sonst `DEFAULT_LOCALE`."""
+    ux = (bracket or {}).get("ux_layout_rules") or {}
+    return str(ux.get("report_locale") or DEFAULT_LOCALE)
+
 
 def _split_camel(name: str) -> str:
     """`CalendarYearMonth` -> `Calendar Year Month`; Akronyme (`SKU`) bleiben zusammen."""
     return re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", name).replace("_", " ").strip()
 
 
-def _join(items: Sequence[str]) -> str:
+def _join(items: Sequence[str], lang: str = _FALLBACK_LANGUAGE) -> str:
     items = [i for i in items if i]
     if len(items) <= 1:
         return "".join(items)
-    return ", ".join(items[:-1]) + " and " + items[-1]
+    return ", ".join(items[:-1]) + f" {PHRASES[lang]['and']} " + items[-1]
 
 
 def _projection_label(proj: Dict[str, Any]) -> Optional[str]:
@@ -127,28 +169,37 @@ def _shorten(text: str, limit: int = ALT_TEXT_MAX_CHARS) -> str:
     return cut.rstrip(" ,;:·—-") + _ELLIPSIS
 
 
-def _measures_phrase(primary: List[str], compared: List[str], tail: str) -> str:
+def _measures_phrase(primary: List[str], compared: List[str], tail: str,
+                     lang: str = _FALLBACK_LANGUAGE) -> str:
     """`A and B compared with C by X`, mit gekuerzter Measure-Liste, falls die Grenze reisst."""
+    ph = PHRASES[lang]
     for keep in range(len(primary), 0, -1):
         shown = list(primary[:keep])
         rest = len(primary) - keep
         if rest:
-            shown.append(f"{rest} more measure{'s' if rest > 1 else ''}")
-        text = _join(shown)
+            shown.append(ph["more_many" if rest > 1 else "more_one"].format(n=rest))
+        text = _join(shown, lang)
         if compared:
-            text += " compared with " + _join(compared)
+            text += f" {ph['compared_with']} " + _join(compared, lang)
         text += tail
         if len(text) <= ALT_TEXT_MAX_CHARS:
             return text
-    return _shorten(_join(primary) + tail)
+    return _shorten(_join(primary, lang) + tail)
 
 
-def describe(visual: Dict[str, Any], comparison_measures: Iterable[str] = ()) -> Optional[str]:
+def describe(visual: Dict[str, Any], comparison_measures: Iterable[str] = (),
+             locale: Optional[str] = None) -> Optional[str]:
     """Alt-Text fuer ein PBIR-Visual (visual.json als dict), oder None.
 
     None heisst: dekorativ (`ALT_TEXT_EXEMPT_TYPES`), Gruppe, oder nichts Beschreibbares gebunden.
     `comparison_measures`: Measures, die als Vergleichsreihe gezeichnet sind (R6.1).
+    `locale`: Sprache der Satzbausteine (`report_locale` des Brackets); None -> Englisch.
     """
+    return _describe(visual, comparison_measures, language(locale))
+
+
+def _describe(visual: Dict[str, Any], comparison_measures: Iterable[str], lang: str) -> Optional[str]:
+    ph = PHRASES[lang]
     visual_cfg = visual.get("visual")
     if not isinstance(visual_cfg, dict):
         return None  # visualGroup: kein eigenes Visual
@@ -160,16 +211,27 @@ def describe(visual: Dict[str, Any], comparison_measures: Iterable[str] = ()) ->
         return _shorten(text) if text else None
     measures, columns = _fields(visual_cfg)
     if vtype == "slicer":
-        return _shorten("Filter by " + _join(columns)) if columns else None
+        return _shorten(f"{ph['filter_by']} " + _join(columns, lang)) if columns else None
     if not measures:
-        return _shorten(_join(columns)) if columns else None
+        return _shorten(_join(columns, lang)) if columns else None
     refs = set(comparison_measures)
     compared = [m for m in measures if m in refs]
     primary = [m for m in measures if m not in refs]
     if not primary:  # nur Referenzreihen gebunden: dann ist nichts "verglichen"
         primary, compared = measures, []
-    tail = (" by " + _join(columns)) if columns else ""
-    return _measures_phrase(primary, compared, tail)
+    tail = (f" {ph['by']} " + _join(columns, lang)) if columns else ""
+    return _measures_phrase(primary, compared, tail, lang)
+
+
+def _alt_literal(visual: Dict[str, Any]) -> Optional[str]:
+    """Der Alt-Text als Klartext, wenn er ein Literal ist; sonst None (fehlt oder Ausdruck)."""
+    vco = (visual.get("visual") or {}).get("visualContainerObjects") or {}
+    for entry in vco.get("general") or []:
+        value = ((((entry or {}).get("properties") or {}).get("altText") or {}).get("expr") or {}) \
+            .get("Literal", {}).get("Value")
+        if isinstance(value, str) and len(value) >= 2 and value[0] == value[-1] == "'":
+            return value[1:-1].replace("''", "'")
+    return None
 
 
 def has_alt_text(visual: Dict[str, Any]) -> bool:
@@ -186,12 +248,25 @@ def has_alt_text(visual: Dict[str, Any]) -> bool:
     return False
 
 
-def apply_alt_text(visual: Dict[str, Any], comparison_measures: Iterable[str] = ()) -> Dict[str, Any]:
-    """Setzt den Alt-Text als Literal, wenn das Visual noch keinen traegt. Gibt das Visual zurueck."""
+def apply_alt_text(visual: Dict[str, Any], comparison_measures: Iterable[str] = (),
+                   locale: Optional[str] = None, replace_generated: bool = False) -> Dict[str, Any]:
+    """Setzt den Alt-Text als Literal, wenn das Visual noch keinen traegt. Gibt das Visual zurueck.
+
+    `replace_generated`: einen vorhandenen Alt-Text ersetzen, aber nur, wenn er woertlich dem
+    entspricht, was dieses Modul in einer der Sprachen aus `PHRASES` erzeugt (Sprachwechsel eines
+    schon erzeugten Reports). Von Hand geschriebener Alt-Text und Ausdruecke bleiben unberuehrt.
+    """
+    comparison_measures = tuple(comparison_measures)
+    lang = language(locale)
     if has_alt_text(visual):
-        return visual
-    text = describe(visual, comparison_measures)
-    if not text:
+        current = _alt_literal(visual)
+        if not replace_generated or current is None:
+            return visual
+        generated = {_describe(visual, comparison_measures, other) for other in PHRASES}
+        if current not in generated:
+            return visual
+    text = _describe(visual, comparison_measures, lang)
+    if not text or text == _alt_literal(visual):
         return visual
     literal = "'" + text.replace("'", "''") + "'"
     vco = visual["visual"].setdefault("visualContainerObjects", {})
@@ -202,6 +277,22 @@ def apply_alt_text(visual: Dict[str, Any], comparison_measures: Iterable[str] = 
     return visual
 
 
+def _replace_literal(raw: str, original: Dict[str, Any], updated: Dict[str, Any]) -> Optional[str]:
+    """Ersetzt nur den Alt-Text-Wert textuell, wenn das sein einziger Unterschied ist und er genau
+    einmal in `raw` steht (Sprachwechsel in handformatierten Dateien). Sonst None."""
+    old, new = _alt_literal(original), _alt_literal(updated)
+    if old is None or new is None:
+        return None
+    for ascii_only in (False, True):
+        old_tok = json.dumps("'" + old.replace("'", "''") + "'", ensure_ascii=ascii_only)
+        new_tok = json.dumps("'" + new.replace("'", "''") + "'", ensure_ascii=ascii_only)
+        if raw.count(old_tok) == 1:
+            text = raw.replace(old_tok, new_tok)
+            if json.loads(text) == updated:
+                return text
+    return None
+
+
 def _serialize_like(raw: str, original: Dict[str, Any], updated: Dict[str, Any]) -> str:
     """Schreibt `updated` so, dass sich gegenueber `raw` nur die Alt-Text-Zeilen aendern.
 
@@ -210,6 +301,9 @@ def _serialize_like(raw: str, original: Dict[str, Any], updated: Dict[str, Any])
     `visualContainerObjects`-Block textuell vor dem Ende des `visual`-Objekts eingefuegt, wenn
     `visual` der letzte Schluessel ist und noch keinen solchen Block hat; sonst Neuformatierung.
     """
+    replaced = _replace_literal(raw, original, updated)
+    if replaced is not None:
+        return replaced
     nl = "\n" if raw.endswith("\n") else ""
     for indent in (2, 4):
         for ascii_only in (False, True):
@@ -224,16 +318,18 @@ def _serialize_like(raw: str, original: Dict[str, Any], updated: Dict[str, Any])
     return json.dumps(updated, indent=2, ensure_ascii=False) + nl
 
 
-def apply_to_report(report_dir: Path) -> List[Path]:
+def apply_to_report(report_dir: Path, locale: Optional[str] = None) -> List[Path]:
     """Alt-Text in einen bestehenden PBIR-Report schreiben (fuer Reports ohne Generatorpfad).
 
-    Ueberschreibt keinen vorhandenen Alt-Text. Gibt die geaenderten visual.json zurueck.
+    Ueberschreibt keinen von Hand geschriebenen Alt-Text; einen von diesem Modul erzeugten bringt
+    er in die Sprache `locale` (`replace_generated`). Gibt die geaenderten visual.json zurueck.
     """
+    lang = language(locale)  # einmal warnen, nicht je Visual
     changed: List[Path] = []
     for path in sorted((report_dir / "definition" / "pages").glob("*/visuals/*/visual.json")):
         raw = path.read_text(encoding="utf-8")
         original = json.loads(raw)
-        updated = apply_alt_text(json.loads(raw))
+        updated = apply_alt_text(json.loads(raw), locale=lang, replace_generated=True)
         if updated == original:
             continue
         text = _serialize_like(raw, original, updated)
@@ -244,18 +340,46 @@ def apply_to_report(report_dir: Path) -> List[Path]:
     return changed
 
 
+_USE_CASE_ID = re.compile(r"^([A-Z]{2,4}-\d{3})(?=[_.]|$)")
+
+
+def report_locale(report_dir: Path, repo_root: Optional[Path] = None) -> str:
+    """Locale eines Reports aus dem Bracket seines Use Case (Ordnername `<UC-ID>_...Report`).
+
+    Ohne erkennbare Use-Case-ID oder Bracket: `DEFAULT_LOCALE` mit Warnung.
+    """
+    match = _USE_CASE_ID.match(report_dir.name)
+    if match:
+        from .config_loader import ConfigLoader  # lazy: config_loader ist schwer, describe() nicht
+        try:
+            root = repo_root or Path(__file__).resolve().parents[5]
+            bracket = ConfigLoader(root).load_use_case_bracket(match.group(1))
+        except FileNotFoundError:
+            bracket = None
+        if bracket is not None:
+            return bracket_locale(bracket)
+    warnings.warn(f"Alt-Text: kein UseCase_Bracket fuer {report_dir.name}; Locale {DEFAULT_LOCALE}.",
+                  UnknownLocaleWarning, stacklevel=2)
+    return DEFAULT_LOCALE
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         description="Alt-Text in bestehende PBIR-Reports schreiben (Reports ohne Generatorpfad, "
-                    "z. B. FIN-001 und COM-001_Sales_Performance_vs_Plan_LY).")
+                    "z. B. FIN-001 und COM-001_Sales_Performance_vs_Plan_LY). Sprache aus "
+                    "ux_layout_rules.report_locale des Brackets.")
     parser.add_argument("reports", nargs="+", type=Path, help="Pfad(e) zu <Name>.Report")
+    parser.add_argument("--locale", default=None,
+                        help="Sprache statt der aus dem Bracket (z. B. de-DE); nur fuer Reports "
+                             "ohne Bracket gedacht, die Quelle ist das Bracket.")
     args = parser.parse_args(argv)
     for report in args.reports:
         if not (report / "definition" / "pages").is_dir():
             print(f"ERROR: kein PBIR-Report: {report}", file=sys.stderr)
             return 1
-        changed = apply_to_report(report)
-        print(f"{report.name}: {len(changed)} visual.json mit Alt-Text")
+        locale = args.locale or report_locale(report)
+        changed = apply_to_report(report, locale)
+        print(f"{report.name}: {len(changed)} visual.json mit Alt-Text (Locale {locale})")
     return 0
 
 

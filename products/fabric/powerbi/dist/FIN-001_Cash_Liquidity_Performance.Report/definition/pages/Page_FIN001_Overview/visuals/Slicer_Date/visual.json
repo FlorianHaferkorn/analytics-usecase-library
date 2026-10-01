@@ -69,7 +69,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Filter by Calendar Year Month'"
+                  "Value": "'Filtern nach Calendar Year Month'"
                 }
               }
             }

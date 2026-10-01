@@ -69,7 +69,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Filter by Vergleich'"
+                  "Value": "'Filtern nach Vergleich'"
                 }
               }
             }

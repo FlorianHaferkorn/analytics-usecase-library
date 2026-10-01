@@ -87,6 +87,7 @@ Lesbare Übersicht der Regeln aus `bpa-rules-report.json`. `validate_report.ps1`
 - **Warum:** Barrierefreiheit.
 - **Status:** **Aktiv** seit 01.10.2026 (`disabled: false`, Entscheidung Florian), Schwere Info. Vorher deaktiviert; aktiviert meldete die Regel 220 von 220 Visuals der 17 dist-Reports.
 - **Woher der Alt-Text kommt:** `products/fabric/powerbi/tooling/page_scaffold_generator/alt_text.py`, beim Generieren (Kennzahlen, Achse, Vergleichsreihe; Textbox = ihr Text). Reports ohne Generatorpfad: `python -m products.fabric.powerbi.tooling.page_scaffold_generator.alt_text <X.Report>`.
+- **Sprache des Alt-Texts:** `ux_layout_rules.report_locale` im UseCase_Bracket (BCP 47, Default `en-US`; seit 01.10.2026 FIN-001 `de-DE`). Übersetzt werden die Satzbausteine des Moduls („compared with“ = „im Vergleich zu“, „by“ = „nach“, „Filter by“ = „Filtern nach“); Kennzahl- und Spaltennamen bleiben, wie das Visual sie bindet (Katalog und Modell führen keine lokalisierten Namen). Unbekannte Sprache: Englisch mit Warnung. Das Werkzeug ersetzt beim Sprachwechsel nur Alt-Text, den es selbst erzeugt hat.
 - **Learn** (*Design Power BI reports for accessibility*, gelesen 01.10.2026): „Ensure alt text is added to all non-decorative visuals on the page.“ · „The Alt Text textbox has a limit of 250 characters.“ · „Because a screen reader reads out the title and type of a visual, you only need to fill in a description.“ Der Titel ersetzt den Alt-Text also nicht (`Design_Spec_3_30_300.md §9`).
 
 ---

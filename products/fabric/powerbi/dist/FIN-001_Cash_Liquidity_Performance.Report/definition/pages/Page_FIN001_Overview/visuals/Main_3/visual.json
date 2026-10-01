@@ -114,7 +114,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'CCC Bridge Value by Step'"
+                  "Value": "'CCC Bridge Value nach Step'"
                 }
               }
             }
