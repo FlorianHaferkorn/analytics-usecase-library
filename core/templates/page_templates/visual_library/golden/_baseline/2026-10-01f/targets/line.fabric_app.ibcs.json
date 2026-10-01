@@ -168,9 +168,6 @@
       {
         "transform": [
           {
-            "filter": "isValid(datum['gm'])"
-          },
-          {
             "joinaggregate": [
               {
                 "op": "min",

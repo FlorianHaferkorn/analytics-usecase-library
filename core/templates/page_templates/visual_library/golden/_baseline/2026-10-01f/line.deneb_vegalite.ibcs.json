@@ -81,7 +81,6 @@
     },
     {
       "transform": [
-        { "filter": "isValid(datum['gm'])" },
         { "joinaggregate": [ { "op": "min", "field": "gm", "as": "_min" }, { "op": "max", "field": "gm", "as": "_max" }, { "op": "count", "as": "_n" } ] },
         { "window": [ { "op": "row_number", "as": "_i" } ], "sort": [ { "field": "month", "order": "ascending" } ] },
         { "calculate": "datum['gm'] == datum._min ? datum._i : null", "as": "_at_min" },
