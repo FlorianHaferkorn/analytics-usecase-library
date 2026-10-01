@@ -240,3 +240,23 @@ def test_ibcs_line_keeps_extrema_that_stand_apart():
     vals = [28.2, 28.0, 31.0, 33.0, 35.0, 36.0, 34.0, 40.0, 37.0, 36.0]
     labels = _ibcs_line_labels(vals, 600)
     assert "28,2" in labels and "40" in labels and "36" in labels, labels
+
+
+@pytest.mark.parametrize("pid", ["house_default", "ibcs"])
+def test_weekly_time_axis_names_calendar_weeks_at_the_data_points(pid):
+    """Cockpit 01.10.2026 (R8, Zeitraum 4 Wochen): Vega setzte bei vier Wochenpunkten Tagesmarken
+    "Mo 09, Mi 11, Fr 13"; ein Wochenintervall läge auf Sonntagen = ISO-Vorwoche. Mit time_format und
+    time_ticks stehen die Kalenderwochen der Datenpunkte an Achse und Tooltip; Marken außerhalb des
+    gefilterten Zeitraums fallen weg; ohne Angabe bleibt die Spec wie eingefroren."""
+    vlc = pytest.importorskip("vl_convert")
+    dates = ["2024-11-25", "2024-12-02", "2024-12-09", "2024-12-16", "2024-12-23", "2024-12-30"]
+    rows = [{"Periode": d, "Ist": 33.5 + 0.1 * i} for i, d in enumerate(dates)][2:]   # Zeitraum: 4 Wochen
+    spec = json.loads(render.render_target("line", "html_vegalite", pid, bindings={"time": "Periode", "value": "Ist"},
+                                           params={"time_format": "KW %V", "time_ticks": dates})[0])
+    assert '"KW %V"' in json.dumps(spec)
+    spec["data"] = {"values": rows}
+    spec["width"], spec["height"] = 300, 200
+    sg = json.dumps(vlc.vegalite_to_scenegraph(spec))
+    labels = re.findall(r'"text": "(KW \d+|[A-Z][a-z] \d+)"', sg)
+    assert labels == ["KW 50", "KW 51", "KW 52", "KW 01"], labels      # 30.12.2024 = ISO-Woche 1/2025
+    assert "KW %V" not in render.render_target("line", "fabric_app", pid)[0]

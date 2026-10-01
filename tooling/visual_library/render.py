@@ -530,6 +530,31 @@ def with_top_n(spec: dict, idiom: str, eff: dict, n: int, rest: str) -> dict:
     return spec
 
 
+def with_time_axis(spec: dict, fmt: str, ticks: "list | None") -> dict:
+    """Format (d3-time-format, z. B. "KW %V" für ISO-Wochen) für jede Zeitachse und jeden
+    Zeit-Tooltip, Achsenmarken an den gegebenen Zeitpunkten (A-31 R8). Ohne Angabe wählt Vega die
+    Marken selbst: bei vier Wochenpunkten Tagesmarken "Mo 09, Mi 11, Fr 13", mit Intervall "week"
+    Sonntage — nach ISO die Vorwoche, also um eine Woche falsch beschriftet (Cockpit, 01.10.2026).
+    Marken außerhalb des gezeigten Zeitraums verwirft Vega; überlappende dünnt labelOverlap aus."""
+    def walk(node):
+        if isinstance(node, dict):
+            out = {k: walk(v) for k, v in node.items()}
+            if out.get("type") == "temporal" and "field" in out:
+                if "title" in out and "axis" not in out and "scale" not in out:
+                    out["format"] = fmt                     # a tooltip entry
+                elif out.get("axis") is not None:
+                    axis = {**(out.get("axis") or {}), "format": fmt, "labelOverlap": True}
+                    if ticks:
+                        axis["values"] = list(ticks)
+                    out["axis"] = axis
+            return out
+        if isinstance(node, list):
+            return [walk(v) for v in node]
+        return node
+
+    return walk(spec)
+
+
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
                   background: "str | None" = None) -> "tuple[str, str]":
@@ -561,7 +586,7 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
                     if p not in bound and not slot.get("required", True) and p not in given]
         eff.update({v: _NO_VALUE for v in missing})
         eff.update({v: eff[fb] for v, fb in dv.items() if v not in given and fb is not None})
-        eff.update({k: str(v) for k, v in given.items() if k not in ("top_n", "rest")})
+        eff.update({k: str(v) for k, v in given.items() if k not in ("top_n", "rest", "time_format", "time_ticks")})
         if (entry.get("encoding") or {}).get("order") == "worst_first" and "worst_first" not in given:
             # worst first: for a lower-is-better measure the worst value is the highest (A-31 R7)
             eff["worst_first"] = "descending" if float(eff.get("polarity", 1)) < 0 else "ascending"
@@ -577,6 +602,8 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
         eff = dict(_effective_params(load_entry(idiom), notation))
     spec = with_tooltips(spec, idiom, eff)
+    if params and params.get("time_format"):
+        spec = with_time_axis(spec, str(params["time_format"]), params.get("time_ticks"))
     config = vegalite_config(profile)
     if background:
         spec, config = on_background(spec, background), on_background(config, background)
