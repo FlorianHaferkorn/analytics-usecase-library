@@ -3,7 +3,7 @@
 `deklaration.yaml` nennt die ALUCA-Artefakte, ihre Themen, Pfade und Klasse. `vorgaenge.yaml`
 führt je Signal und Artefakt einen Vorgang durch den Lifecycle (triage → bewerten → entschieden
 → in_umsetzung → verifiziert → ausgerollt, oder nicht_relevant / geschlossen). Das Register mit
-Signalen, Themen und Lifecycle-Regeln liegt im Freelancing-Repo unter `research/signale/` (D-622).
+Signalen, Themen und Lifecycle-Regeln liegt im Freelancing-Repo unter `research/signale/` (D-623).
 
 | Aufgabe | Befehl (aus einem Freelancing-Checkout daneben) |
 |---|---|

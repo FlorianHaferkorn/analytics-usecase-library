@@ -1,7 +1,7 @@
 # Deklaration der ALUCA-Artefakte für das Signal-Register.
 #
 # Das Register (Signale, Themen, Lifecycle) liegt im Freelancing-Repo unter research/signale/
-# (D-602, D-622). Hier steht nur, welche ALUCA-Artefakte sich auf welche Fabric-/Power-BI-Themen
+# (D-602, D-623). Hier steht nur, welche ALUCA-Artefakte sich auf welche Fabric-/Power-BI-Themen
 # stützen. Abgleich aus einem Freelancing-Checkout:
 #   python3 scripts/signale.py vorgaenge ../analytics-usecase-library/signale/deklaration.yaml --fortschreiben
 #   make check-signale-aluca            # Form, Ausgang 2 ohne ALUCA-Checkout

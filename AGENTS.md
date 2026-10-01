@@ -16,7 +16,7 @@ Use cases and reports **reference** governed definitions — they do not define 
 | Semantic model conventions | `core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md` |
 | Page templates | `core/templates/page_templates/` |
 | Schema authority | `tooling/generator/schemas/` |
-| Fabric/Power-BI changes affecting ALUCA (signals, open cases) | `signale/` (register in Freelancing `research/signale/`, D-622) |
+| Fabric/Power-BI changes affecting ALUCA (signals, open cases) | `signale/` (register in Freelancing `research/signale/`, D-623) |
 
 ---
 
