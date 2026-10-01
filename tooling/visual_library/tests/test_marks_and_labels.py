@@ -151,3 +151,15 @@ def test_ibcs_bar_label_sits_right_of_the_longer_of_ac_and_py():
 def test_house_pins_are_labelled():
     spec = json.loads(render.render_target("variance_pin", "fabric_app", "house_default")[0])["spec"]
     assert any((lay.get("mark") or {}).get("type") == "text" for lay in spec["layer"])
+
+
+def test_no_profile_lets_the_host_shorten_data_labels():
+    """Text marks are values. VegaVisual's default shortened "74,4" at the plot edge to "…"
+    (Cockpit, 01.10.2026) — the number was gone. Every profile switches that off (A-31 R7)."""
+    for pid in render.all_profiles():
+        doc = json.loads(render.render_target("bar_ranking", "fabric_app", pid)[0]) \
+            if pid in render.target_profiles("bar_ranking") or render.profile_def(pid).get("kind") == "style" \
+            else None
+        if doc is None:
+            continue
+        assert doc["capabilities"].get("disableTextTruncation") is True, pid

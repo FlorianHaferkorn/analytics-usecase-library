@@ -65,8 +65,11 @@ profiles:
           shortMonths: [Jan, Feb, Mär, Apr, Mai, Jun, Jul, Aug, Sep, Okt, Nov, Dez]
     # The library states its own tooltips (render.with_tooltips, line: nearest-date hover); the host's
     # crosshair tooltip would add a second, differently formatted one. Styles inherit this.
+    # Text marks are data labels: VegaVisual shortened "74,4" at the plot edge to "…" (measured
+    # 01.10.2026), which drops the number. The specs reserve the room themselves (padding.right).
     vegavisual_capabilities:
       disableLineChartCrosshairTooltip: true
+      disableTextTruncation: true
 
   ibcs:
     name: "IBCS — International Business Communication Standards 2.0"

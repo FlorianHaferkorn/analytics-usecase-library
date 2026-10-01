@@ -137,6 +137,7 @@
     }
   },
   "capabilities": {
-    "disableLineChartCrosshairTooltip": true
+    "disableLineChartCrosshairTooltip": true,
+    "disableTextTruncation": true
   }
 }

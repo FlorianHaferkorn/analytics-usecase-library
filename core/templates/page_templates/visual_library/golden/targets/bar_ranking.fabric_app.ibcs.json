@@ -229,6 +229,7 @@
     "disableLineChartCrosshairTooltip": true,
     "disableMinBarSize": true,
     "disableNiceAxisBounds": true,
-    "disableStackedDataLabels": true
+    "disableStackedDataLabels": true,
+    "disableTextTruncation": true
   }
 }

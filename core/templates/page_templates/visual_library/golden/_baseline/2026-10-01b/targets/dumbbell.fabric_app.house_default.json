@@ -1,0 +1,199 @@
+{
+  "idiom": "dumbbell",
+  "profile": "house_default",
+  "notation": "house_default",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "encoding": {
+      "y": {
+        "field": "unit",
+        "type": "nominal",
+        "axis": {
+          "title": null
+        }
+      }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "rule",
+          "color": "#C8CED5",
+          "size": 3
+        },
+        "encoding": {
+          "x": {
+            "field": "gm_py",
+            "type": "quantitative",
+            "axis": {
+              "title": null
+            }
+          },
+          "x2": {
+            "field": "gm"
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "circle",
+          "size": 90,
+          "color": "#94A0AC"
+        },
+        "encoding": {
+          "x": {
+            "field": "gm_py",
+            "type": "quantitative"
+          },
+          "tooltip": [
+            {
+              "field": "unit",
+              "type": "nominal",
+              "title": "unit"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "circle",
+          "size": 90,
+          "color": "#0F2430"
+        },
+        "encoding": {
+          "x": {
+            "field": "gm",
+            "type": "quantitative"
+          },
+          "tooltip": [
+            {
+              "field": "unit",
+              "type": "nominal",
+              "title": "unit"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#E1DFDD",
+      "labelColor": "#605E5C",
+      "title": null,
+      "labelFontSize": 11
+    },
+    "axisX": {
+      "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333
+    },
+    "text": {
+      "fontSize": 11
+    },
+    "locale": {
+      "number": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [
+          3
+        ],
+        "currency": [
+          "",
+          " €"
+        ]
+      },
+      "time": {
+        "dateTime": "%A, der %e. %B %Y, %X",
+        "date": "%d.%m.%Y",
+        "time": "%H:%M:%S",
+        "periods": [
+          "AM",
+          "PM"
+        ],
+        "days": [
+          "Sonntag",
+          "Montag",
+          "Dienstag",
+          "Mittwoch",
+          "Donnerstag",
+          "Freitag",
+          "Samstag"
+        ],
+        "shortDays": [
+          "So",
+          "Mo",
+          "Di",
+          "Mi",
+          "Do",
+          "Fr",
+          "Sa"
+        ],
+        "months": [
+          "Januar",
+          "Februar",
+          "März",
+          "April",
+          "Mai",
+          "Juni",
+          "Juli",
+          "August",
+          "September",
+          "Oktober",
+          "November",
+          "Dezember"
+        ],
+        "shortMonths": [
+          "Jan",
+          "Feb",
+          "Mär",
+          "Apr",
+          "Mai",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Okt",
+          "Nov",
+          "Dez"
+        ]
+      }
+    }
+  },
+  "capabilities": {
+    "disableLineChartCrosshairTooltip": true
+  }
+}
