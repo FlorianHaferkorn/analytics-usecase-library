@@ -83,6 +83,38 @@ def test_style_config_is_the_baseline_overlaid():
             assert k in cfg, f"{pid}: lost baseline key '{k}'"
 
 
+#: Keys only full Vega knows at the top level; Vega-Lite has none of them there. `@microsoft/fabric-visuals`
+#: 4.0.0 accepts Vega-Lite or Flint only (`VisualizationSpec = VegaLiteSpecWithOptionalData | FlintSpec`,
+#: dist/index.d.ts:37), so a full-Vega spec would not render in the Fabric App (Meridian D-642).
+VEGA_ONLY_TOP_LEVEL = ("signals", "scales", "axes", "legends", "marks", "projections")
+VEGA_LITE_SCHEMA = "https://vega.github.io/schema/vega-lite/"
+
+
+def is_vega_lite(spec: dict) -> bool:
+    return str(spec.get("$schema", "")).startswith(VEGA_LITE_SCHEMA) and not any(k in spec for k in VEGA_ONLY_TOP_LEVEL)
+
+
+def test_every_fabric_app_target_is_vega_lite():
+    """D-642: the Fabric App renders Vega-Lite only. Every idiom x notation profile the cockpit can ask for is
+    Vega-Lite; an idiom Vega-Lite cannot draw is reported as not mappable, never emitted as full Vega or D3."""
+    seen = 0
+    for idiom in _implemented():
+        for pid in render.target_profiles(idiom):
+            if render.profile_def(pid).get("kind", "notation") != "notation":
+                continue
+            spec = json.loads(render.render_target(idiom, "fabric_app", pid)[0])["spec"]
+            assert is_vega_lite(spec), f"{idiom}@{pid}: fabric_app target is not Vega-Lite"
+            seen += 1
+    assert seen >= 30, f"expected the Vega-Lite set under its notation profiles, got {seen}"
+
+
+def test_vega_lite_check_rejects_full_vega():
+    """Counter-check: a full-Vega spec (signals/marks at the top) and a v5 Vega schema fail the check."""
+    assert not is_vega_lite({"$schema": "https://vega.github.io/schema/vega/v5.json", "marks": []})
+    assert not is_vega_lite({"$schema": VEGA_LITE_SCHEMA + "v5.json", "signals": [], "mark": "bar"})
+    assert is_vega_lite({"$schema": VEGA_LITE_SCHEMA + "v5.json", "mark": "bar"})
+
+
 def test_fabric_app_targets_match_golden_and_are_idempotent():
     frozen = 0
     for idiom in _implemented():
