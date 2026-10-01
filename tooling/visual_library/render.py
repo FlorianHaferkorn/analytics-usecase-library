@@ -464,11 +464,17 @@ def _slot_column(idiom: str, eff: dict, role: str) -> "str | None":
     return None
 
 
-def with_top_n(spec: dict, idiom: str, eff: dict, n: int, rest: str) -> dict:
+def _vega_str(text: str) -> str:
+    """Text for a single-quoted Vega expression string."""
+    return text.replace("\\", "\\\\").replace("'", "\\'")
+
+
+def with_top_n(spec: dict, idiom: str, eff: dict, n: int, rest: str, label: str = REST_LABEL) -> dict:
     """Keep the first `n` categories in display order and fold the others into one rest row
     ("Übrige (k)"), drawn last (A-31 R7, BC-CHART-10). Silent truncation hides data; a rest row
     says how much is folded. Applies to the top-level data, so every layer (bar, label, reference)
-    reads the same rows; sorts on the value field are redirected so the rest stays at the end."""
+    reads the same rows; sorts on the value field are redirected so the rest stays at the end.
+    `label` names the rest row in the reader's language (German default, "Other" in English)."""
     if rest not in REST_MODES:
         raise ValueError(f"rest must be one of {REST_MODES}, not {rest!r}")
     cat, val = _slot_column(idiom, eff, "category"), _slot_column(idiom, eff, "value")
@@ -500,7 +506,7 @@ def with_top_n(spec: dict, idiom: str, eff: dict, n: int, rest: str) -> dict:
         {"window": [{"op": "row_number", "as": "_rank"}], "sort": [{"field": val, "order": keep}]},
         {"joinaggregate": [{"op": "count", "as": "_rows"}]},
         {"calculate": f"datum._rank > {n}", "as": "_rest"},
-        {"calculate": f"datum._rest ? '{REST_LABEL} (' + (datum._rows - {n}) + ')' : datum['{cat}']", "as": cat},
+        {"calculate": f"datum._rest ? '{_vega_str(label)} (' + (datum._rows - {n}) + ')' : datum['{cat}']", "as": cat},
     ]
     if rest == "none":
         fold += [{"calculate": f"datum._rest ? null : datum['{m}']", "as": m} for m in measures]
@@ -716,7 +722,8 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         eff.update({v: _NO_VALUE for v in missing})
         eff.update({v: eff[fb] for v, fb in dv.items() if v not in given and fb is not None})
         eff.update({k: str(v) for k, v in given.items()
-                    if k not in ("top_n", "rest", "time_format", "time_ticks", "highlight", "accent", "focus_grey")})
+                    if k not in ("top_n", "rest", "rest_label", "time_format", "time_ticks", "highlight", "accent",
+                                  "focus_grey")})
         if (entry.get("encoding") or {}).get("order") == "worst_first" and "worst_first" not in given:
             # worst first: for a lower-is-better measure the worst value is the highest (A-31 R7)
             eff["worst_first"] = "descending" if float(eff.get("polarity", 1)) < 0 else "ascending"
@@ -727,7 +734,7 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         if bindings and isinstance(limit, dict) and limit.get("role") == "limit":
             # real data always gets the limit the idiom declares; the caller may lower or raise it
             spec = with_top_n(spec, idiom, eff, int(given.get("top_n", limit.get("default", 20))),
-                              str(given.get("rest", "none")))
+                              str(given.get("rest", "none")), str(given.get("rest_label", REST_LABEL)))
     else:
         spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
         eff = dict(_effective_params(load_entry(idiom), notation))

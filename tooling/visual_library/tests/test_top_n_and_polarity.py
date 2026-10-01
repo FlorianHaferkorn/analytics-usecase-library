@@ -59,6 +59,14 @@ def test_rest_without_sum_names_the_folded_rows_and_draws_no_value():
     assert sorted(s["labels"], key=float) == ["5", "7", "9", "12", "15"]
 
 
+def test_rest_label_follows_the_language_and_escapes_quotes():
+    """L1 (01.10.2026): the Cockpit renders English with rest_label "Other"; a quote must not break the expression."""
+    s = _scene("bar_ranking", "house_default", {"top_n": 5, "rest": "none", "rest_label": "Other"})
+    assert s["categories"][-1] == "Other (3)"
+    q = _scene("bar_ranking", "house_default", {"top_n": 5, "rest": "none", "rest_label": "Rest d'Europe"})
+    assert q["categories"][-1] == "Rest d'Europe (3)"
+
+
 def test_rest_with_sum_is_one_bar_last_and_neutral():
     s = _scene("bar_ranking", "house_default", {"top_n": 5, "rest": "sum", "target_val": 15})
     assert s["categories"][-1] == "Übrige (3)"

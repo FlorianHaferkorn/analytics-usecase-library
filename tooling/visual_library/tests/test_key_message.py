@@ -6,6 +6,8 @@ deckend, mit an nur die Treffer. Gegenprobe: ohne den Parameter bleibt die Spec 
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -101,6 +103,22 @@ def test_deutsche_zahlen():
     assert K.de_number(2, 0, signed=True) == "+2"
 
 
+def test_englische_zahlen_und_saetze():
+    assert K.en_number(1234.5, 1) == "1,234.5"
+    assert K.en_number(-0.4, 1) == "\u22120.4"
+    assert K.en_number(-0.01, 1) == "0.0"
+    assert K.fmt_number(1234.5, 1, lang="de") == K.de_number(1234.5, 1), "de unverändert"
+    m = K.key_message(WEEKS, {"time": "Periode", "value": "Ist", "plan": "Plan"}, unit="%", weekly=True, lang="en")
+    assert K.plain_text(m) == "Week 02: actual 33.6% vs. plan 45.0%, 11.4\u00a0pp below plan."
+    assert m["rule"] == "letzte Periode gegen Plan", "rule ist Schlüssel, nicht Text"
+    assert K.period_label("2026-01-31", lang="en") == "2026-01-31"
+
+
+def test_unbekannte_sprache_wirft():
+    with pytest.raises(ValueError):
+        K.key_message(REGIONS, {"category": "Region", "value": "Wert"}, lang="fr")
+
+
 # --- Hervorhebung am gezeichneten Chart --------------------------------------------------------
 
 def _opacities(idiom: str, roles: dict, rows: list[dict], highlight: dict | None, on: bool) -> dict:
@@ -168,13 +186,27 @@ def _python_results() -> dict:
     return out
 
 
-def test_ts_fassung_liefert_dasselbe_wie_python():
-    import shutil
-    import subprocess
+def test_englische_faelle_tragen_den_erwarteten_satz():
+    cases = [c for c in json.loads(CASES.read_text(encoding="utf-8"))["cases"] if c["opts"].get("lang") == "en"]
+    for c in cases:
+        m = K.key_message(c["table"], c["roles"], **c["opts"])
+        assert (m and K.plain_text(m)) == c["expect"], c["name"]
+    rules = {K.key_message(c["table"], c["roles"], **c["opts"])["rule"] for c in cases if c["expect"]}
+    assert rules == {"schwächster Wert", "größter Beitrag", "letzte Periode gegen Plan", "Veränderung im Zeitraum",
+                     "Verteilung", "Zusammenhang"}, "jede Regel hat einen englischen Fall"
+    assert any("(in \u201cOther\u201d)" in (c["expect"] or "") for c in cases), "Restzeilen-Hinweis englisch"
 
+
+def _node_eval(script: str) -> "subprocess.CompletedProcess[str]":
     node = shutil.which("node")
     if not node:
         pytest.skip("node fehlt — Gleichstand nicht geprüft")
+    return subprocess.run([node, "--experimental-strip-types", "--no-warnings", "--input-type=commonjs", "-e",
+                           f"(async () => {{ {script} }})().catch((e) => {{ console.error(e); process.exit(1); }})"],
+                          capture_output=True, text=True, timeout=60)
+
+
+def test_ts_fassung_liefert_dasselbe_wie_python():
     script = (
         f"const K = await import({json.dumps(TS.as_uri())});"
         f"const doc = JSON.parse(require('fs').readFileSync({json.dumps(str(CASES))}, 'utf8'));"
@@ -182,9 +214,7 @@ def test_ts_fassung_liefert_dasselbe_wie_python():
         " out[c.name] = m && { ...m, keys: K.highlightKeys(m.highlight) }; }"
         "process.stdout.write(JSON.stringify(out));"
     )
-    run = subprocess.run([node, "--experimental-strip-types", "--no-warnings", "--input-type=commonjs", "-e",
-                          f"(async () => {{ {script} }})().catch((e) => {{ console.error(e); process.exit(1); }})"],
-                         capture_output=True, text=True, timeout=60)
+    run = _node_eval(script)
     assert run.returncode == 0, run.stderr
     ts, py = json.loads(run.stdout), _python_results()
     assert set(ts) == set(py)
@@ -192,6 +222,19 @@ def test_ts_fassung_liefert_dasselbe_wie_python():
         assert ts[name] == py[name], name
     assert sum(1 for v in py.values() if v) >= 10, "die Fälle decken alle vier Regeln mit Aussage ab"
     assert sum(1 for v in py.values() if v is None) >= 4, "und die Fälle ohne Aussage"
+    assert sum(1 for n in py if n.endswith("_en")) >= 15, "die englischen Fälle laufen mit durch Node"
+
+
+def test_ts_fassung_wirft_bei_unbekannter_sprache():
+    script = (
+        f"const K = await import({json.dumps(TS.as_uri())});"
+        "const t = {columns: [{name: 'R'}, {name: 'W'}], rows: [['A', 1], ['B', 2]]};"
+        "let msg = 'kein Fehler'; try { K.keyMessage(t, {category: 'R', value: 'W'}, {lang: 'fr'}); }"
+        " catch (e) { msg = 'wirft'; } process.stdout.write(msg);"
+    )
+    run = _node_eval(script)
+    assert run.returncode == 0, run.stderr
+    assert run.stdout == "wirft"
 
 
 def test_werte_parameter_statt_konstante():
