@@ -82,7 +82,7 @@ features:
     tests: [tooling/visual_library/tests/test_marks_and_labels.py, "freelancing:meridian/tests/test_check_fabric_app_layout.py"]
     user_value: high
     priority: 1
-    note: Labels unter 10 Kategorien, Vorzeichen-Platzierung, IBCS-Linienlabels nur Anfang/Ende/Extrema; G14 misst Kollisionen.
+    note: Labels unter 10 Kategorien, Vorzeichen-Platzierung, IBCS-Linienlabels nur Anfang/Ende/Extrema; G14 misst Kollisionen und seit R7 auch zu '…' gekürzte Labels (45 Befunde behoben über disableTextTruncation).
   - id: feat-006
     area: chart
     name: Balkenbreite, Abstände und Nulllinie nach Regel
@@ -148,9 +148,11 @@ features:
     beyond_pbi: true
     home: aluca_spec
     meridian_module: M2
-    status: planned
+    status: done
+    tests: [tooling/visual_library/tests/test_top_n_and_polarity.py, "freelancing:meridian/tool-layers/fabric/tests/test_cockpit_data.py"]
     user_value: high
     priority: 1
+    note: "R7: render_target faltet gebundene Daten auf top_n (Standard 20) mit Restzeile 'Übrige (k)'; ohne Summe für Quoten, summiert nur additiv (Beiträge). Vorher schnitt das Cockpit still ab (OPS-002: 10 Regionen, 3 gezeigt)."
   - id: feat-011
     area: chart
     name: Abweichungsfarbe dreht bei Kostenkennzahlen
@@ -161,10 +163,11 @@ features:
     beyond_pbi: true
     home: kpi_catalog
     meridian_module: M2
-    status: planned
+    status: partial
+    tests: [tooling/visual_library/tests/test_top_n_and_polarity.py, "freelancing:meridian/tool-layers/fabric/tests/test_cockpit_data.py"]
     user_value: high
     priority: 1
-    note: Polarität je KPI gehört in den KPI-Katalog; die Spec liest sie nur.
+    note: "R7: bar_ranking (Hausprofil) bewertet über polarity, worst first folgt der Richtung; Cockpit liest direction aus kpi.json. Offen: Verlauf gegen Plan im Hausprofil, Polarität als Feld im ALUCA-KPI-Katalog."
   - id: feat-012
     area: chart
     name: Zoom und Pan auf Zeitachsen
@@ -217,10 +220,11 @@ features:
     beyond_pbi: false
     home: cockpit_shell
     meridian_module: M2
-    status: planned
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: high
     priority: 1
-    note: VegaVisual onInteraction liefert die Prädikate; Shell verteilt sie an die Zone.
+    note: "R7: onInteraction -> Filter nur auf Dimensionsspalten mit bekannten Werten, wirkt auf alle Zonen mit derselben Spaltenüberschrift, Quelle hebt hervor (Self-Highlight erst mit einer Tabelle als data). Offen: in den Vorschaudaten teilen Zonen einer Seite keine Dimension, sichtbar wird es erst mit Live-Daten oder per Drillthrough."
   - id: feat-021
     area: page
     name: Mehrfachauswahl und Legenden-Auswahl
@@ -231,9 +235,11 @@ features:
     beyond_pbi: false
     home: aluca_spec
     meridian_module: M2
-    status: planned
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: medium
     priority: 2
+    note: "R7: Strg/Umschalt-Klick vereinigt Werte je Spalte. Offen: Auswahl über die Legende."
   - id: feat-022
     area: page
     name: Geteiltes Crosshair über alle Panels
@@ -305,6 +311,7 @@ features:
     status: planned
     user_value: high
     priority: 1
+    note: "Blockiert durch Daten: die Vorschaudaten haben keine Hierarchie; kommt mit Live-Daten über das Semantic Model."
   - id: feat-031
     area: navigation
     name: Drillthrough auf Detailseite mit Zurück
@@ -315,9 +322,11 @@ features:
     beyond_pbi: false
     home: cockpit_shell
     meridian_module: M1
-    status: planned
+    status: done
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: high
     priority: 1
+    note: "R7: Drillthrough auf Seiten desselben Use Case, nur wenn die Auswahl dort Zeilen findet; Filter und Herkunft in der URL, Zurück-Knopf."
   - id: feat-032
     area: navigation
     name: Drill anywhere nach beliebigem Attribut
@@ -371,7 +380,7 @@ features:
     status: planned
     user_value: high
     priority: 1
-    note: Offen - Schalter je Seite (empfohlen) oder je Chart.
+    note: "Offen - Schalter je Seite (empfohlen). Blockiert durch Daten: die Vorschaudaten haben kein PY, und FC hat keine Datenrolle in der Library (R3 offen)."
   - id: feat-041
     area: time
     name: Relativer Zeitraum und Datumsauswahl
@@ -395,10 +404,11 @@ features:
     beyond_pbi: false
     home: cockpit_shell
     meridian_module: M1
-    status: planned
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: high
     priority: 1
-    note: Globale Filter in der URL (Plan M1).
+    note: "R7: Auswahlleiste zeigt aktive Filter, Reichweite und Aufheben; Filter in der URL. Offen: Slicer-Visuals, Filterbereich, globale Filter (R8)."
   - id: feat-043
     area: self_service
     name: Kennzahl oder Dimension wechseln (Field Parameters)
@@ -449,9 +459,11 @@ features:
     beyond_pbi: false
     home: cockpit_shell
     meridian_module: M2
-    status: planned
+    status: done
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: high
     priority: 1
+    note: "R7: 'Als Tabelle' schaltet auf das offizielle DataGrid mit denselben (gefilterten) Daten; Sortieren, Filtern, Kopieren bringt das Grid mit. Screenreader-Tabelle per Tastenkürzel offen."
   - id: feat-051
     area: distribution
     name: Export nach Excel, wie das Visual es zeigt
@@ -462,9 +474,11 @@ features:
     beyond_pbi: false
     home: cockpit_shell
     meridian_module: M2
-    status: planned
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
     user_value: high
     priority: 1
+    note: "R7: Export als CSV für deutsches Excel (Semikolon, Dezimalkomma, BOM) der gezeigten Tabelle. Offen: echtes xlsx, und ob der Fabric-Host Downloads aus der App zulässt (UNKLAR)."
   - id: feat-052
     area: distribution
     name: Bild, PDF und Druck für Sitzungen
