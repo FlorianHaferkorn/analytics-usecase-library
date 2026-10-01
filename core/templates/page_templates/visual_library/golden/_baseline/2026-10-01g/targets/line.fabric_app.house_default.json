@@ -1,7 +1,7 @@
 {
   "idiom": "line",
-  "profile": "print_safe",
-  "notation": "print_safe",
+  "profile": "house_default",
+  "notation": "house_default",
   "data_name": "dataset",
   "spec": {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
@@ -203,9 +203,6 @@
       {
         "transform": [
           {
-            "filter": "isValid(datum['gm'])"
-          },
-          {
             "window": [
               {
                 "op": "row_number",
@@ -227,7 +224,7 @@
           "type": "point",
           "filled": true,
           "size": 60,
-          "color": "#F7630C"
+          "color": "#A4262C"
         },
         "encoding": {
           "y": {
@@ -368,9 +365,6 @@
       },
       {
         "transform": [
-          {
-            "filter": "isValid(datum['gm'])"
-          },
           {
             "window": [
               {

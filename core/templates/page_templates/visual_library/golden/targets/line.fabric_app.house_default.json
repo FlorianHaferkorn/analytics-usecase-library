@@ -203,6 +203,9 @@
       {
         "transform": [
           {
+            "filter": "isValid(datum['gm'])"
+          },
+          {
             "window": [
               {
                 "op": "row_number",
@@ -365,6 +368,9 @@
       },
       {
         "transform": [
+          {
+            "filter": "isValid(datum['gm'])"
+          },
           {
             "window": [
               {

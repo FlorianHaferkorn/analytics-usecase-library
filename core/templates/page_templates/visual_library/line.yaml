@@ -122,7 +122,7 @@ realizations:
           { "transform": [ { "window": [ { "op": "row_number", "as": "_p" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._p == 1" } ],
             "mark": { "type": "text", "text": "Plan", "align": "left", "dx": 4, "dy": -8, "color": "{{col_ref}}" },
             "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
-          { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
+          { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
             "mark": { "type": "point", "filled": true, "size": 60, "color": "{{col_end}}" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } },
           { "params": [ { "name": "hover", "select": { "type": "point", "fields": ["{{field_date}}"], "nearest": true, "on": "pointerover", "clear": "pointerout" } } ],
@@ -131,7 +131,7 @@ realizations:
           { "mark": { "type": "point", "filled": true, "size": 50, "color": "{{col_line}}" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative" },
                           "opacity": { "condition": { "param": "hover", "empty": false, "value": 1 }, "value": 0 } } },
-          { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
+          { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
             "mark": { "type": "text", "align": "right", "dx": -8, "dy": -10, "color": "{{col_label}}" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative" }, "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" } } }
         ]

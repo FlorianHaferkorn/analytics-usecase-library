@@ -1,0 +1,116 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "name": "dataset"
+  },
+  "encoding": {
+    "x": {
+      "field": "month",
+      "type": "temporal",
+      "axis": {
+        "title": null,
+        "grid": false,
+        "ticks": false,
+        "domainColor": "#404040"
+      }
+    }
+  },
+  "layer": [
+    {
+      "mark": {
+        "type": "line",
+        "color": "#404040",
+        "strokeWidth": 1.5,
+        "point": {
+          "filled": false,
+          "fill": "white",
+          "stroke": "#404040",
+          "size": 30
+        }
+      },
+      "encoding": {
+        "y": {
+          "field": "gm_plan",
+          "type": "quantitative",
+          "axis": null,
+          "scale": {
+            "zero": true
+          }
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "line",
+        "color": "#404040",
+        "strokeWidth": 1.5,
+        "point": {
+          "filled": true,
+          "color": "#404040",
+          "size": 30
+        }
+      },
+      "encoding": {
+        "y": {
+          "field": "gm",
+          "type": "quantitative",
+          "axis": null,
+          "scale": {
+            "zero": true
+          }
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "line",
+        "color": "#404040",
+        "strokeWidth": 1.5,
+        "strokeDash": [3, 2]
+      },
+      "encoding": {
+        "y": {
+          "field": "gm_fc",
+          "type": "quantitative",
+          "axis": null,
+          "scale": {
+            "zero": true
+          }
+        }
+      }
+    },
+    {
+      "transform": [
+        { "filter": "isValid(datum['gm'])" },
+        { "joinaggregate": [ { "op": "min", "field": "gm", "as": "_min" }, { "op": "max", "field": "gm", "as": "_max" }, { "op": "count", "as": "_n" } ] },
+        { "window": [ { "op": "row_number", "as": "_i" } ], "sort": [ { "field": "month", "order": "ascending" } ] },
+        { "calculate": "datum['gm'] == datum._min ? datum._i : null", "as": "_at_min" },
+        { "calculate": "datum['gm'] == datum._max ? datum._i : null", "as": "_at_max" },
+        { "calculate": "datum._i == 1 ? datum['gm'] : null", "as": "_at_first" },
+        { "calculate": "datum._i == datum._n ? datum['gm'] : null", "as": "_at_last" },
+        { "joinaggregate": [ { "op": "min", "field": "_at_min", "as": "_imin" }, { "op": "min", "field": "_at_max", "as": "_imax" }, { "op": "max", "field": "_at_first", "as": "_v1" }, { "op": "max", "field": "_at_last", "as": "_vn" } ] },
+        { "calculate": "max(abs(datum._max), abs(datum._min), 1e-9)", "as": "_top" },
+        { "calculate": "width / max(datum._n - 1, 1)", "as": "_step" },
+        { "calculate": "abs(datum._imax - 1) * datum._step < 34 && abs(datum._max - datum._v1) / datum._top * height < 14 || abs(datum._n - datum._imax) * datum._step < 34 && abs(datum._max - datum._vn) / datum._top * height < 14", "as": "_max_hidden" },
+        { "calculate": "abs(datum._imin - 1) * datum._step < 34 && abs(datum._min - datum._v1) / datum._top * height < 14 || abs(datum._n - datum._imin) * datum._step < 34 && abs(datum._min - datum._vn) / datum._top * height < 14 || !datum._max_hidden && abs(datum._imin - datum._imax) * datum._step < 34 && abs(datum._min - datum._max) / datum._top * height < 14", "as": "_min_hidden" },
+        { "filter": "datum._n <= 6 || datum._i == 1 || datum._i == datum._n || datum._i == datum._imax && !datum._max_hidden || datum._i == datum._imin && !datum._min_hidden" }
+      ],
+      "mark": {
+        "type": "text",
+        "color": "#201F1E",
+        "dy": -10
+      },
+      "encoding": {
+        "y": {
+          "field": "gm",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "gm",
+          "type": "quantitative",
+          "format": ",.1~f"
+        }
+      }
+    }
+  ]
+}

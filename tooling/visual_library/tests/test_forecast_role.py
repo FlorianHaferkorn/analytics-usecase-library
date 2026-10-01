@@ -76,3 +76,27 @@ def test_letzter_istwert_bleibt_beschriftet_wenn_die_prognose_weiterlaeuft():
 
     walk(vlc.vegalite_to_scenegraph(spec))
     assert any(t.replace(",", ".") == "33.6" for t in texts), texts
+
+
+@pytest.mark.parametrize("profile", ["house_default", "story", "ibcs"])
+def test_endpunkt_und_endwert_stehen_am_letzten_ist_nicht_in_der_prognose(profile):
+    """Mit Prognosewochen ist die jüngste Zeile ohne Ist: der Endpunkt nahm sie und blieb leer — der Ist-Endpunkt
+    fehlte, und axe meldete den leeren Container ohne Namen (Cockpit-Tor Marke/Story, 01.10.2026)."""
+    vlc = pytest.importorskip("vl_convert")
+    spec = json.loads(render.render_target("line", "html_vegalite", profile,
+                                           bindings={"time": "P", "value": "I", "forecast": "F"})[0])
+    spec["data"] = {"values": ROWS}
+    empty: list = []
+
+    def walk(n):
+        if isinstance(n, dict):
+            if n.get("role") == "mark" and n.get("marktype") in ("symbol", "text") and not n.get("items"):
+                empty.append(n.get("name"))
+            for v in n.values():
+                walk(v)
+        elif isinstance(n, list):
+            for v in n:
+                walk(v)
+
+    walk(vlc.vegalite_to_scenegraph(spec))
+    assert not [e for e in empty if e and "marks" in e and "hover" not in e], empty
