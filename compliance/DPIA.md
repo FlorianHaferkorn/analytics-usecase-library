@@ -381,6 +381,38 @@ Empfehlung (Vorschlag, Entscheidung Kunde/DSB): Für jedes Modell mit personenbe
 
 Quelle (gelesen 01.10.2026): Learn `power-bi/create-reports/copilot-semantic-models`, Abschnitt „Control Copilot access for semantic models“.
 
+### 12.4 KI-Clients über Fabric IQ MCP und Microsoft 365 Copilot (C-26, ADR-0022)
+
+Fabric IQ MCP ist ein entfernter, nur lesender MCP-Server von Microsoft. Jeder MCP-fähige
+KI-Client (z. B. GitHub Copilot, eigene Agenten) kann darüber Power-BI-Berichte und
+Semantikmodelle finden, Metadaten lesen und DAX-Abfragen ausführen. Die Abfrage läuft immer als
+angemeldete Person mit deren Rechten; RLS und OLS greifen, ein Build-Recht ist nicht nötig.
+Service Principals werden nicht unterstützt.
+
+- **Neuer Abfluss:** Abfrageergebnisse gehen an den KI-Client und dessen Modellanbieter. Für
+  diesen gelten dessen Bedingungen, nicht die von Microsoft Fabric. Jeder zugelassene Client ist
+  deshalb ein eigener Auftragsverarbeiter bzw. Empfänger im Sinne von Art. 28 bzw. Art. 4 Nr. 9
+  DSGVO und gehört in das Verzeichnis der Verarbeitungstätigkeiten des Kunden (Vorlage `data_processing_record.md`).
+- **Steuerung:** Die drei delegierten Berechtigungen (`Item.Read.All`, `Item.Execute.All`,
+  `Dataset.Read.All`) brauchen ab Werk keine Admin-Zustimmung. Der Tenant-Admin kann die
+  Benutzerzustimmung einschränken oder einen Admin-Genehmigungsablauf verlangen. Die Einstellung
+  gilt für den ganzen Endpunkt.
+- **Je Modell:** Die Modelleinstellung aus 12.3 nennt „Microsoft's MCP tools“ ausdrücklich; aus
+  heißt auch hier: kein Zugriff für reine Leser.
+- **Microsoft 365 Copilot:** Das Gesprächslabel übernimmt das restriktivste Label der genutzten
+  Power-BI-Inhalte, Exporte erben es. Eine DLP-Richtlinie kann Copilot die Verarbeitung gelabelter
+  Inhalte verbieten; das setzt Microsoft 365 E5 oder die Purview-Suite voraus. Mit E3 oder Business
+  Premium wirkt DLP nur auf Prompts.
+- **Protokollierung:** Ob jeder MCP-Aufruf im Fabric-Aktivitätsprotokoll erscheint, ist ⚠️ UNKLAR.
+
+Empfehlung (Vorschlag, Entscheidung Kunde/DSB): Benutzerzustimmung für Fabric IQ MCP auf
+Admin-Genehmigung stellen, bis eine Liste erlaubter Clients mit Prüfung des Modellanbieters
+beschlossen ist; Modelle mit personenbezogenen Daten nach 12.3 behandeln.
+
+Quellen (gelesen 01.10.2026): Learn `fabric/iq/connectors/fabric-iq-mcp` (Abschnitt
+„Authenticate“), `fabric/iq/connectors/microsoft-365-copilot-overview` (Abschnitt „Sensitivity
+labels“), Microsoft Purview Service Description (Abschnitt „DLP for Microsoft Copilot“).
+
 ---
 
 **Document prepared by:** Analytics Team  

@@ -27,15 +27,15 @@ vorgaenge:
 - signal: SIG-2609-002
   artefakt: ALUCA-COMPLIANCE
   risiko: T2
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-15'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Paket A, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-A-KI-Zugriff.md
-    (Freelancing). Vorher: Vorschlag umsetzen: compliance/ai_egress_measures.md um DLP/Labels für Copilot-Antworten
-    aus Power BI ergänzen. ADR nötig.'
-  d_eintrag: null
-  belege: []
+  begruendung: 'DPIA 12.4: Gesprächslabel, Exportvererbung, Label-DLP erst ab E5 (ADR-0022, C-26).'
+  d_eintrag: D-626
+  belege: &id001
+  - 'compliance/DPIA.md 12.4, compliance/_INDEX.md C-26, docs/architecture/adr/0022: check_index --strict
+    0 harte Befunde, markdownlint-cli2 0 issues, 01.10.2026'
   verlauf:
   - am: '2026-10-01'
     status: triage
@@ -45,6 +45,18 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket A umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-626
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün
 - signal: SIG-2609-002
   artefakt: ALUCA-COPILOT
   risiko: T1
@@ -597,16 +609,14 @@ vorgaenge:
 - signal: SIG-2609-021
   artefakt: ALUCA-COMPLIANCE
   risiko: T2
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-15'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Paket A, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-A-KI-Zugriff.md
-    (Freelancing). Vorher: Vorschlag umsetzen, hoch: MCP-Clients sind ein neuer Abflussweg personenbezogener
-    Daten an KI-Dienste; compliance/ai_egress_measures.md und DPIA.md ergänzen (erlaubte Clients, RLS/OLS).
-    ADR nötig.'
-  d_eintrag: null
-  belege: []
+  begruendung: 'DPIA 12.4: neuer Abfluss an KI-Clients, Zustimmungsrichtlinie, Modelleinstellung (ADR-0022,
+    C-26).'
+  d_eintrag: D-626
+  belege: *id001
   verlauf:
   - am: '2026-10-01'
     status: triage
@@ -616,18 +626,30 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket A umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-626
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün
 - signal: SIG-2609-021
   artefakt: ALUCA-COPILOT
   risiko: T1
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-15'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Paket A, Entscheidungsvorlage research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-A-KI-Zugriff.md
-    (Freelancing). Vorher: Vorschlag umsetzen, klein: README um „gute Metadaten wirken auch über Fabric
-    IQ MCP“ ergänzen; kein Code.'
-  d_eintrag: null
-  belege: []
+  begruendung: 'README Bekannte Grenzen: Fabric IQ MCP, Verified Answers bei aktiviertem Fabric IQ, Verweis
+    DPIA 12.4.'
+  d_eintrag: D-626
+  belege:
+  - products/fabric/powerbi/tooling/copilot_readiness/README.md, markdownlint-cli2 0 issues, 01.10.2026
   verlauf:
   - am: '2026-10-01'
     status: triage
@@ -637,6 +659,18 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket A umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-626
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün
 - signal: SIG-2609-021
   artefakt: ALUCA-PBI-GENERATOR
   risiko: T1
