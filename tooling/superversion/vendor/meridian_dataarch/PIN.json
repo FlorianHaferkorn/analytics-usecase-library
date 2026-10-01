@@ -1,7 +1,7 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "48d1d1cce06ff7c1b80968920522d59897544b48",
+  "source_commit": "fcb4ffff02b83f92e51504c1f4b84253c67e5516",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
@@ -14,7 +14,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "0019885d68e66319208a971a1bada3d93d90690979befd4a0dea069e0463482b"
+      "sha256": "80cca816e9e021fd64af56019a60b07e7c59545af31bb676b4d87da4cdb7a0ae"
     },
     {
       "path": "fabric_schedule.py",
@@ -54,7 +54,7 @@
     },
     {
       "path": "stack_capabilities.py",
-      "sha256": "b95bb7cb1c06b43fb22c4122f732202baeba1d9b0c2415afb15eba7f2f0ae95f"
+      "sha256": "64d3ffa228a885282c12aa3ebe7d61f36df2281450d0314d0c219a322cc20d70"
     },
     {
       "path": "direct_lake_guardrails.py",
@@ -138,7 +138,7 @@
     },
     {
       "path": "provision_transforms.py",
-      "sha256": "bec68ec3ad69763fd986f6796b893ec034be896e11d5e179a8b940e3671c8887"
+      "sha256": "34d0732e0e0331131d222d8e12efbc5bde04446f082d74ea8d9ef12bf0319d01"
     },
     {
       "path": "provision_translations.py",

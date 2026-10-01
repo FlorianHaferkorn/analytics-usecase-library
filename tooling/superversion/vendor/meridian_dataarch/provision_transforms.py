@@ -2947,7 +2947,10 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
              pipeline_name: str = "medallion_orchestration") -> dict[str, str]:
     """Emit the medallion as **Materialized Lake Views** (declarative, SQL-only). Idea I-20.7.
 
-    PREVIEW / SQL-only, honestly flagged. One ``CREATE OR REPLACE MATERIALIZED LAKE VIEW`` per gold
+    GA (Spark SQL), SQL-only. MS Learn *What's new archive*, gelesen 01.10.2026: "March 2026 ·
+    Materialized Lake Views (Generally Available)"; preview ist nur noch das PySpark-Authoring, das
+    hier nicht genutzt wird. Grammatik am 01.10.2026 gegen *Spark SQL reference for materialized
+    lake views* nachgeprueft (Klauselfolge unveraendert). One ``CREATE OR REPLACE MATERIALIZED LAKE VIEW`` per gold
     product per the official MLV grammar (MS Learn):
     ``CREATE … VIEW name (CONSTRAINT … CHECK … ON MISMATCH DROP|FAIL) [PARTITIONED BY(…)] COMMENT …
     TBLPROPERTIES(…) AS SELECT …``.
@@ -3008,10 +3011,10 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
         "Views require a **schema-enabled** lakehouse; this set was emitted with the flat `dbo` "
         "layout (`--no-lakehouse-schemas`). Either enable schemas (the default) or use the "
         "notebook/SQL transforms (`--emit-transforms`) instead — those work in both layouts.", ""])
-    doc = ["# Materialized Lake Views — declarative medallion (generated — PREVIEW, SQL-only)", "",
+    doc = ["# Materialized Lake Views — declarative medallion (generated — SQL-only)", "",
            *schema_warning,
-           "> **PREVIEW & SQL-only** (Fabric Materialized Lake Views): region-limited; the grammar may "
-           "change before GA (tracked by `make check-upstream` feature-watch → I-20.7). Non-SQL logic "
+           "> **SQL-only** (Fabric Materialized Lake Views, generally available since March 2026 per MS "
+           "Learn *What's new*; only PySpark authoring is still preview and is not used here). Non-SQL logic "
            "(ML/Python/API/cleansing beyond SQL) is out of scope → use the notebook transforms "
            "(`--emit-notebooks`) for those hops. MLV **dependency management** is automatic (the "
            "engine chains views by their SELECT refs) — **the refresh is not**: it runs only when a "
@@ -3045,7 +3048,7 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
                                       katalog_vorhanden=bool(governed_catalog))
 
             preamble = [
-                f"-- silver → gold '{product}' as a Materialized Lake View ({kind}).  PREVIEW / SQL-only.",
+                f"-- silver → gold '{product}' as a Materialized Lake View ({kind}).  SQL-only.",
                 f"-- Contract: {c_ref}  ·  dependency order automatic; the REFRESH runs only when "
                 f"triggered — see mlv/refresh_schedule.json and mlv/_MLV.md (D-529)."]
             _bez = scd_bezuege(governed_catalog, product, schemas)
@@ -3145,7 +3148,7 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
 
             sql = ("\n".join(preamble) + "\n"
                    f"CREATE OR REPLACE MATERIALIZED LAKE VIEW {mlv_name}{constraint_block}{partition_clause}\n"
-                   f"COMMENT 'gold {kind} {product} (generated, MLV preview)'"
+                   f"COMMENT 'gold {kind} {product} (generated)'"
                    f"{tblprops}\n"
                    f"AS\n{select_body}\n")
             out[f"mlv/{ddir}/{pident}.mlv.sql"] = sql
