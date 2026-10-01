@@ -1,4 +1,4 @@
-"""Kernaussage je Visual, regelbasiert aus den Daten des Visuals (D-627 Nachtrag, feat-109).
+"""Kernaussage je Visual, regelbasiert aus den Daten des Visuals (D-631 Nachtrag, feat-109).
 
 Eine Regel je Zweck; jede Zahl im Satz stammt aus der Tabelle, die das Visual zeichnet. Dieselben
 Daten ergeben immer denselben Satz. Ohne passende Regel gibt es keine Aussage (None) — nie einen
