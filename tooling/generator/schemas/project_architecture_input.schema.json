@@ -76,6 +76,26 @@
         }
       }
     },
+    "capacities": {
+      "description": "Optional: the Fabric capacities that physical_workspaces[].capacity_id refers to, with what drives their run cost. Without this list no run cost is evaluated; a capacity is never guessed from a workspace (Meridian D-596 for the prod/non-prod split).",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "sku"],
+        "properties": {
+          "id": {"type": "string", "format": "uuid"},
+          "sku": {"type": "string", "pattern": "^F(2|4|8|16|32|64|128|256|512|1024|2048|4096|8192)$"},
+          "billing": {"enum": ["payg", "reservation"], "description": "Pay-as-you-go (default) or reserved; a reservation cannot be paused."},
+          "overage": {
+            "type": "object", "additionalProperties": false, "required": ["state"],
+            "properties": {
+              "state": {"enum": ["enabled", "disabled"]},
+              "threshold_cu_hours": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
+    },
     "physical_workspaces": {
       "description": "Explicit authored Fabric workspace creation scope. No resource names or environments are inferred.",
       "type": "array",

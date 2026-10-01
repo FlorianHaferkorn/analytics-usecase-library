@@ -34,6 +34,26 @@ REFERENCE_DECISION = "decision_environment_model"
 DOMAINS = {"domain_sales": ("sales", "11111111-1111-4111-8111-000000000001"),
            "domain_finance": ("finance", "11111111-1111-4111-8111-000000000002")}
 CAPACITY = "22222222-2222-4222-8222-222222222222"
+#: Run-cost layouts of the synthetic reference (WB run-cost delta). ``prod_non_prod`` is Meridian D-596:
+#: production on its own capacity, dev and test consolidated. ``per_stage`` is the full Microsoft
+#: recommendation (one capacity per environment). Without a layout the reference carries no
+#: ``capacities`` list, exactly as before.
+CAPACITY_BY_STAGE = {"dev": "22222222-2222-4222-8222-2222222222d1", "test": "22222222-2222-4222-8222-2222222222e2",
+                     "prod": CAPACITY}
+CAPACITY_LAYOUTS = {
+    "prod_non_prod": {"stages": {"dev": CAPACITY_BY_STAGE["dev"], "test": CAPACITY_BY_STAGE["dev"], "prod": CAPACITY},
+                      "capacities": [{"id": CAPACITY, "sku": "F64", "billing": "reservation",
+                                      "overage": {"state": "enabled", "threshold_cu_hours": 300}},
+                                     {"id": CAPACITY_BY_STAGE["dev"], "sku": "F8", "billing": "payg",
+                                      "overage": {"state": "disabled"}}]},
+    "per_stage": {"stages": dict(CAPACITY_BY_STAGE),
+                  "capacities": [{"id": CAPACITY, "sku": "F64", "billing": "reservation",
+                                  "overage": {"state": "enabled", "threshold_cu_hours": 300}},
+                                 {"id": CAPACITY_BY_STAGE["dev"], "sku": "F8", "billing": "payg",
+                                  "overage": {"state": "disabled"}},
+                                 {"id": CAPACITY_BY_STAGE["test"], "sku": "F16", "billing": "payg",
+                                  "overage": {"state": "disabled"}}]},
+}
 OPTIONS = {"dev_test_prod": ["dev", "test", "prod"], "dev_prod": ["dev", "prod"]}
 PLAN_VALUES = {
     "dev_test_prod": {"role_refs": ["fabric_engineer", "test_lead"], "effort": 6,
@@ -232,13 +252,16 @@ def _part(path: str, value: Any) -> dict:
     return {"path": path, "payload": base64.b64encode(content.encode()).decode(), "payloadType": "InlineBase64"}
 
 
-def _reference_architecture(baseline: str, stages: list[str], with_alternative_rule: bool) -> dict:
+def _reference_architecture(baseline: str, stages: list[str], with_alternative_rule: bool,
+                            capacity_layout: str | None = None) -> dict:
     workspaces, items = [], []
+    layout = CAPACITY_LAYOUTS[capacity_layout] if capacity_layout else None
     for domain_ref, (key, domain_id) in DOMAINS.items():
         for stage in stages:
             workspace = f"ws_{key}_{stage}"
             workspaces.append({"id": workspace, "name": f"synthetic_mfg_{key}_{stage}", "domain_ref": domain_ref, "environment": stage,
-                               "capacity_id": CAPACITY, "domain_id": domain_id, "decision_refs": [REFERENCE_DECISION]})
+                               "capacity_id": layout["stages"][stage] if layout else CAPACITY, "domain_id": domain_id,
+                               "decision_refs": [REFERENCE_DECISION]})
             common = {"workspace_ref": workspace, "environment": stage, "decision_refs": [REFERENCE_DECISION]}
             items.append({**common, "id": f"nb_{key}_{stage}", "name": f"nb_{key}_load_{stage}", "type": "Notebook", "depends_on": [],
                           "environment_bindings": [], "definition": {"format": "FabricGitSource", "parts": [
@@ -265,7 +288,7 @@ def _reference_architecture(baseline: str, stages: list[str], with_alternative_r
                            "value": {"value": new["effort"], "unit": "person_days", "provenance": "assumption"}},
                           {"target": {"collection": "plan_tasks", "entity_id": "task_lane_acceptance", "field": "definition_of_done"},
                            "expected_value": old["definition_of_done"], "value": new["definition_of_done"]}]})
-    return {"schema_version": "2.0.0", "stack": "fabric", "reference_date": "2026-09-26", "tenant": "Synthetic tenant (not connected)",
+    architecture = {"schema_version": "2.0.0", "stack": "fabric", "reference_date": "2026-09-26", "tenant": "Synthetic tenant (not connected)",
             "region": "West Europe", "ledger_ref": "synthetic://alternative_impact_reference/decision_set.json",
             "model_ref": "synthetic://alternative_impact_reference/architecture", "blueprint_ref": "synthetic://alternative_impact_reference/outputs",
             "mapping_ref": "synthetic://alternative_impact_reference/bindings",
@@ -276,6 +299,9 @@ def _reference_architecture(baseline: str, stages: list[str], with_alternative_r
             "environments": {"recommended": OPTIONS[baseline], "accepted": True, "decision_ref": REFERENCE_DECISION}, "contracts": [],
             "compiler_policy": {"version": "1", "generated_ref": "synthetic_outputs", "fail_closed_for_apply": True, "allow_review_with_blockers": True},
             "physical_workspaces": workspaces, "physical_items": items, "decision_rules": rules}
+    if layout:
+        architecture["capacities"] = [dict(row) for row in layout["capacities"]]
+    return architecture
 
 
 CANON_ROLE_MAP = {"fabric_engineer": "engineer", "test_lead": "tester", "data_engineer": "engineer"}
@@ -309,7 +335,8 @@ def _reference_plan(baseline: str, task_done: bool, canon: bool = False) -> dict
 
 def build_reference_baseline(root: Path, schemas: Path, *, baseline: str = "dev_test_prod", stages: list[str] | None = None,
                              with_alternative_rule: bool = True, task_done: bool = False, project_ref: str = REFERENCE_PROJECT,
-                             repository_root: Path | None = None, canon: bool = False) -> tuple[ProjectPackageRevisionRepository, str]:
+                             repository_root: Path | None = None, canon: bool = False,
+                             capacity_layout: str | None = None) -> tuple[ProjectPackageRevisionRepository, str]:
     """Build and release the synthetic baseline in an empty trusted directory. Test and reference use only.
 
     ``project_ref`` and ``repository_root`` let a local browser test place the synthetic package under a
@@ -318,6 +345,8 @@ def build_reference_baseline(root: Path, schemas: Path, *, baseline: str = "dev_
     root, schemas = Path(root), Path(schemas)
     if baseline not in OPTIONS:
         raise ValueError("Unknown baseline option")
+    if capacity_layout is not None and capacity_layout not in CAPACITY_LAYOUTS:
+        raise ValueError("Unknown capacity layout")
     if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}", project_ref):
         raise ValueError("Invalid project reference")
     source = root / "source"
@@ -331,7 +360,8 @@ def build_reference_baseline(root: Path, schemas: Path, *, baseline: str = "dev_
     decision["definitions"][0]["source"]["source_hash"] = hashlib.sha256((FIXTURE / "brief.md").read_bytes()).hexdigest()
     decision["instances"][0]["selection"]["option_ref"] = baseline
     modules = (("decision_set", decision), ("plan", _reference_plan(baseline, task_done, canon)),
-               ("architecture_input", _reference_architecture(baseline, stages or OPTIONS[baseline], with_alternative_rule)),
+               ("architecture_input", _reference_architecture(baseline, stages or OPTIONS[baseline], with_alternative_rule,
+                                                              capacity_layout)),
                ("use_case_delivery", {**json.loads((FIXTURE / "use_case_delivery.json").read_text(encoding="utf-8")), "project_ref": project_ref}))
     for kind, document in modules:
         row = next((row for row in manifest["modules"] if row["module_type"] == kind), None)
