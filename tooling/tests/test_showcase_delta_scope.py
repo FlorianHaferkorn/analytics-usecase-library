@@ -26,7 +26,7 @@ REPO = Path(__file__).resolve().parents[2]
 SCRIPT = REPO / "scripts" / "check_showcase_delta.py"
 
 
-def _run() -> subprocess.CompletedProcess:
+def _run(root: Path = REPO) -> subprocess.CompletedProcess:
     """Die Ausgabe wird ausdruecklich als UTF-8 gelesen, nicht mit der Locale-Vorgabe.
 
     Ohne `encoding` nimmt `text=True` die Locale des Elternprozesses -- auf einem
@@ -45,12 +45,26 @@ def _run() -> subprocess.CompletedProcess:
     und nicht die Zusage.
     """
     umgebung = {**os.environ, "PYTHONIOENCODING": "utf-8"}
-    return subprocess.run([sys.executable, str(SCRIPT)], cwd=REPO, env=umgebung,
-                          capture_output=True, text=True, encoding="utf-8")
+    return subprocess.run([sys.executable, str(SCRIPT), "--root", str(root)], cwd=REPO,
+                          env=umgebung, capture_output=True, text=True, encoding="utf-8")
 
 
-def test_the_success_message_states_what_it_does_not_cover():
-    r = _run()
+def _mini_gold(root: Path) -> Path:
+    """Eine Delta-Tabelle mit einem aktiven `add` -- das Gate prueft nur Log gegen Platte.
+
+    Seit D-578 (29.09.2026) liegen die Showdaten nicht mehr in Git; der Test baut sich
+    seine Daten selbst, statt vom Checkout abzuhaengen.
+    """
+    tab = root / "showcases" / "demo" / "data" / "gold" / "facts" / "fact_x"
+    (tab / "_delta_log").mkdir(parents=True)
+    (tab / "_delta_log" / "00000000000000000000.json").write_text(
+        '{"add": {"path": "part-0.parquet"}}\n', encoding="utf-8")
+    (tab / "part-0.parquet").write_bytes(b"PAR1")
+    return root
+
+
+def test_the_success_message_states_what_it_does_not_cover(tmp_path):
+    r = _run(_mini_gold(tmp_path))
     assert r.returncode == 0, r.stdout + r.stderr
     out = r.stdout
     assert "OK —" in out or "OK -" in out
@@ -79,3 +93,11 @@ def test_both_gates_run_in_the_consolidated_local_check():
     sh = (REPO / "tooling" / "run_local_ci_check.sh").read_text(encoding="utf-8")
     assert "check_showcase_delta.py" in sh
     assert "check_data_model.py" in sh
+
+
+def test_no_tables_is_not_run_not_ok(tmp_path):
+    """Ohne Showdaten ist null Tabellen kein „OK — 0 consistent", sondern Exit 2 (D-578)."""
+    r = _run(tmp_path)
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert "NICHT GELAUFEN" in r.stderr and "showdaten.py holen" in r.stderr
+    assert "OK" not in r.stdout

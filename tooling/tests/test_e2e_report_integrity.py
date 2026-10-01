@@ -34,6 +34,13 @@ DIST_ROOT = REPO_ROOT / "products/fabric/powerbi/dist"
 GOLD_FACTS = REPO_ROOT / "showcases/aurora_group/data/gold/facts"
 GOLD_DIMS  = REPO_ROOT / "showcases/aurora_group/data/gold/dimensions"
 
+# Meridian D-578 (29.09.2026): die Showdaten liegen nicht mehr in Git. Tests, die sie lesen,
+# stehen ohne sie mit "nicht gelaufen: ... holen mit ..." im Skip-Grund, nicht gruen.
+from showcases.aurora_group.data import showdaten  # noqa: E402
+
+braucht_showdaten = showdaten.pytest_markierung()
+
+
 # Map report prefix → SemanticModel directory
 DOMAIN_MAP: Dict[str, str] = {
     "COM": "Commercial.SemanticModel",
@@ -114,6 +121,7 @@ ABSICHTLICH_LEER = {
 class TestParquetCoverage:
     """Every fact table referenced in TMDL must have non-empty Parquet data."""
 
+    @braucht_showdaten
     @pytest.mark.parametrize("model_name", list(DOMAIN_MAP.values()))
     def test_fact_tables_have_parquet(self, model_name):
         try:

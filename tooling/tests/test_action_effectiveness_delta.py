@@ -36,6 +36,13 @@ except ImportError:
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VALIDATOR_MODULE = REPO_ROOT / "tooling/generator/validation/check_action_outcome_reconciliation.py"
 FACT_PATH = REPO_ROOT / "showcases/aurora_group/data/gold/facts/fact_action_outcome"
+
+# Meridian D-578 (29.09.2026): die Showdaten liegen nicht mehr in Git. Tests, die sie lesen,
+# stehen ohne sie mit "nicht gelaufen: ... holen mit ..." im Skip-Grund, nicht gruen.
+from showcases.aurora_group.data import showdaten  # noqa: E402
+
+braucht_showdaten = showdaten.pytest_markierung()
+
 DIST_ROOT = REPO_ROOT / "products/fabric/powerbi/dist"
 CATALOG_PATH = REPO_ROOT / "core/kpi_catalog/KPI_Catalog.md"
 
@@ -399,6 +406,7 @@ class TestCatalogEntry:
 # ---------------------------------------------------------------------------
 
 @_needs_pandas
+@braucht_showdaten
 class TestRealDataReconciliation:
     def test_real_fact_action_outcome_passes_all_checks(self):
         """End-to-end: load real Parquet, load real Impactful-15, run checks."""

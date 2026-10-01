@@ -1,0 +1,1852 @@
+{
+ "entscheidung": "Meridian D-578 (29.09.2026): Showdaten raus aus Git",
+ "tag": "showdaten-aurora-2026-09-29c",
+ "asset": "aurora_gold_2026-09-29c.tar",
+ "repo": "FlorianHaferkorn/analytics-usecase-library",
+ "sha256": "fde95e84aa694bcd2c00eda9ff472264585d244efe9e10b7c7dd6f6b37ab353d",
+ "sha256_hinweis": "SHA-256 des veroeffentlichten Assets (GitHub-Digest, 01.10.2026). Unter Windows gepackt, vor showdaten.ordnen(): gleiche 460 Dateien und Bytes wie 'dateien', andere Reihenfolge. Gemessen per Nachbau in Windows-Reihenfolge (= Digest). packen ergibt heute e92c6bda86b74db6a36c5125f3bb3898a026812d6ce86593d0c3e4aa45982d2d.",
+ "bytes": 615075840,
+ "inhalt_bytes": 614442829,
+ "dateien": {
+  "dimensions/dim_account/_delta_log/00000000000000000000.json": {
+   "bytes": 1719,
+   "sha256": "f5830baf44d47eba809c58ce3e354c44ff36a0e30f2794da574b30f4080cbd47"
+  },
+  "dimensions/dim_account/_delta_log/00000000000000000001.json": {
+   "bytes": 1204,
+   "sha256": "d9c06396cdf30481d69b83346aab239719a4b10fc4e9ab0930ed0aa866fb004e"
+  },
+  "dimensions/dim_account/_delta_log/00000000000000000002.json": {
+   "bytes": 1204,
+   "sha256": "b29678ba5dc223af96408dbfd5b5a38a50e6eaf52ab767451bfefed26c8065f2"
+  },
+  "dimensions/dim_account/_delta_log/00000000000000000003.json": {
+   "bytes": 1204,
+   "sha256": "e3347c9c33cb0925069c43f6d2913b6f066dc9b4fc54736ea6916a5498408bed"
+  },
+  "dimensions/dim_account/_delta_log/00000000000000000004.json": {
+   "bytes": 330,
+   "sha256": "be247a2aee38c796f020aa74adebe842900695adc531960320e151498be5af96"
+  },
+  "dimensions/dim_account/_delta_log/00000000000000000005.json": {
+   "bytes": 249,
+   "sha256": "ee98d1b4249abcad73f25888702126859dff2dadbc3501ef9cf7e9177c461081"
+  },
+  "dimensions/dim_account/part-00000-c1a2a075-09a9-4828-9fc9-b05238bdbc46-c000.snappy.parquet": {
+   "bytes": 2353,
+   "sha256": "fb1cee529c33bfc5e69eb2286badcfda61b5743693cef575b363a782854f8c7c"
+  },
+  "dimensions/dim_asset/part-00000.parquet": {
+   "bytes": 4349,
+   "sha256": "b81c6ac7c77da7a06d163cbba44ee54b10c2220220239d5e541297f55297e092"
+  },
+  "dimensions/dim_case_queue/part-00000.parquet": {
+   "bytes": 2883,
+   "sha256": "fbb9052716d519c4fc5dca796ca7ac0f0b56dde2300c6d52178c5add00800bc1"
+  },
+  "dimensions/dim_category/part-00000.parquet": {
+   "bytes": 2596,
+   "sha256": "9f6b64ddf89eee71059bd872665ad0432ba60eddfcc0a0c58c425214ee62550f"
+  },
+  "dimensions/dim_cost_center/part-00000.parquet": {
+   "bytes": 3172,
+   "sha256": "94b7734e439ab5263dcf7ca57cd670aab0377af5a4beb7511f705f13b95a2515"
+  },
+  "dimensions/dim_currency/_delta_log/00000000000000000000.json": {
+   "bytes": 1271,
+   "sha256": "a84ae1328c7c269ee65eee027d3a4490a0dad159762041877badbd37bdc0dbe8"
+  },
+  "dimensions/dim_currency/_delta_log/00000000000000000001.json": {
+   "bytes": 994,
+   "sha256": "db0131d4f73d97297a40fdf1fa4a45089218e7f053849697b3f551929c2ac35b"
+  },
+  "dimensions/dim_currency/_delta_log/00000000000000000002.json": {
+   "bytes": 994,
+   "sha256": "abe9ae8c5d885e41a9988d44508171ad15d9b3b53f69b37ec58962fe32475aa8"
+  },
+  "dimensions/dim_currency/_delta_log/00000000000000000003.json": {
+   "bytes": 994,
+   "sha256": "06e7df73714dd482f3c10d2915648496ba12d18a464f8707a3deabfd1c1a369c"
+  },
+  "dimensions/dim_currency/_delta_log/00000000000000000004.json": {
+   "bytes": 330,
+   "sha256": "e0d95e4408bce5f8f19ba23317b815e8839cf0f8e8316c57b96cec26dc4556f4"
+  },
+  "dimensions/dim_currency/_delta_log/00000000000000000005.json": {
+   "bytes": 249,
+   "sha256": "a6743156b3b18f583f35b153379190cf4e4872c55f9b4f016df5b7031dd98ef1"
+  },
+  "dimensions/dim_currency/part-00000-b7582417-f069-4df4-8835-cccfa4986c88-c000.snappy.parquet": {
+   "bytes": 870,
+   "sha256": "6a3c2eea84aa2c9bc737319a2bd30330332925b9b6bec74d33a077494d3334a6"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000000.json": {
+   "bytes": 1910,
+   "sha256": "44bfd8e990c456d1a4b8c846012867725dec0723dd26437016f3e433595fdded"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000001.json": {
+   "bytes": 1312,
+   "sha256": "1ff2f8f929c4cad2fdb39ca250f1ec79a78d0d94aad92f6be53449e5c6008e3d"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000002.json": {
+   "bytes": 1323,
+   "sha256": "83837732ed8559ab2a0b5dd57106e48260a4e11c49634bf23b1d4bef51dc8496"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000003.json": {
+   "bytes": 1322,
+   "sha256": "8c6a168a93e287ae568dc32d2f618e763997843eab0327a73aed27663020c41b"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000004.json": {
+   "bytes": 333,
+   "sha256": "808fcf46291fe8abb495d6c04a1ac61c7959931146c3df90fdb4d9a25245fc0e"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000005.json": {
+   "bytes": 249,
+   "sha256": "00b0d1b55a1516397148141936288881612034d2754d2ad2278c0392ba91ea39"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000006.json": {
+   "bytes": 2211,
+   "sha256": "567253a5b89b1d825887d188139a3e08403272800063bb1dbb6d1a36ab477f88"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000007.json": {
+   "bytes": 333,
+   "sha256": "c0281677bd0706ffa03824469bbdf1526e8c576811fa4eef9593c5d4f885d938"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000008.json": {
+   "bytes": 249,
+   "sha256": "e9255cc249334a83f6e9c2aa9cbe0966fa44fa7bd3bdb150988993b78911336f"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000009.json": {
+   "bytes": 1388,
+   "sha256": "4cbd92d69d795a4d6a19b5ea2221c1ea5fa65b351ad4851fd3c81d214f14ac76"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000010.json": {
+   "bytes": 333,
+   "sha256": "1d2b463bcae438a6b3e2a407783dfaba05e21e1fece9c4a74a92df232604be5f"
+  },
+  "dimensions/dim_customer/_delta_log/00000000000000000011.json": {
+   "bytes": 249,
+   "sha256": "4f8ae6d2a4dd890240294073b723103ef6ce4a18dbfb7a6ec3dbbec5e042c800"
+  },
+  "dimensions/dim_customer/part-00000-bb95749a-390e-4b3a-b3b3-526715e34485-c000.snappy.parquet": {
+   "bytes": 950084,
+   "sha256": "fb59afcad4c40a7e0ed0d8df99ff64525293b4f7ab801581eee21112e3db2291"
+  },
+  "dimensions/dim_date/_delta_log/00000000000000000000.json": {
+   "bytes": 2121,
+   "sha256": "0457828ff4ec46460469ad1adc6bb57c20b803416bed0fb1fbfc9210ff051c67"
+  },
+  "dimensions/dim_date/_delta_log/00000000000000000001.json": {
+   "bytes": 1313,
+   "sha256": "c58d08f8694ca35e173a691c53125831cb5d4a71313214ecdfe8cf344f2981d8"
+  },
+  "dimensions/dim_date/_delta_log/00000000000000000002.json": {
+   "bytes": 1313,
+   "sha256": "e2df531e37d68309561b6a39e5ea1877ca346d00d4ecc0cacf9a79916cf75748"
+  },
+  "dimensions/dim_date/_delta_log/00000000000000000003.json": {
+   "bytes": 1313,
+   "sha256": "82d730bfee4ccc94d00eb35ccfbcaba5bef8e230ba0d5d66f426d78aefea2cba"
+  },
+  "dimensions/dim_date/_delta_log/00000000000000000004.json": {
+   "bytes": 2655,
+   "sha256": "73367b32275d2906a904e3152947bb547f5f5274becb6d6c7d9b596a9c29daf3"
+  },
+  "dimensions/dim_date/_delta_log/00000000000000000005.json": {
+   "bytes": 332,
+   "sha256": "d9d1f7934e70c645e1de58e77a01333684e92c47578030e2a08e4583d11d395c"
+  },
+  "dimensions/dim_date/_delta_log/00000000000000000006.json": {
+   "bytes": 249,
+   "sha256": "a8956aff83d7e19d8d3fcabc5d187d050c87073a39fac6eb5e2673b6ef2d55e7"
+  },
+  "dimensions/dim_date/part-00000-3342f130-86fc-4de7-ba1b-4d6e00273a67-c000.snappy.parquet": {
+   "bytes": 67497,
+   "sha256": "e1db2c1cffd9cb319ac0589512f35876b4cd1830f57c2d153ae687a04a4e80f8"
+  },
+  "dimensions/dim_employee_segment/part-00000.parquet": {
+   "bytes": 3333,
+   "sha256": "99897df1d4dccaca0833da2999ed168d07ba09a7d6b69d9ca6c633e66ab6aab9"
+  },
+  "dimensions/dim_issue_type/part-00000.parquet": {
+   "bytes": 2378,
+   "sha256": "fe047ba967f6ed4bbe3ae749e0a265e443272d5bd80b35307881493d2d0dd3ca"
+  },
+  "dimensions/dim_lane/part-00000.parquet": {
+   "bytes": 3005,
+   "sha256": "8460a40900572d0cb466f03c20f2f17a3e1a45bbae23d4d9e1b9636d89551aca"
+  },
+  "dimensions/dim_org/_delta_log/00000000000000000000.json": {
+   "bytes": 2318,
+   "sha256": "0c94cc158531a9d5ccc4272d679a86ccb353c8ae4f278764c177b1b7d567ad30"
+  },
+  "dimensions/dim_org/_delta_log/00000000000000000001.json": {
+   "bytes": 1426,
+   "sha256": "001651d16c6d3683025f2f946b7c0337a0dec3883b7adb55a4708ba6f916d896"
+  },
+  "dimensions/dim_org/_delta_log/00000000000000000002.json": {
+   "bytes": 1436,
+   "sha256": "0fd8e949d458e3df90c82520c6eb7e70534ea70e30fcceebea0b1a2c4067fe3b"
+  },
+  "dimensions/dim_org/_delta_log/00000000000000000003.json": {
+   "bytes": 1436,
+   "sha256": "02a35e6486e8e711fe8638583f89a4cc244ab0734aaabdda433caf9f6a2a7650"
+  },
+  "dimensions/dim_org/_delta_log/00000000000000000004.json": {
+   "bytes": 4244,
+   "sha256": "543cda13f829c96aef0eddcbb28d6b7f1364c9dc209ae06aad9bf35835109275"
+  },
+  "dimensions/dim_org/_delta_log/00000000000000000005.json": {
+   "bytes": 331,
+   "sha256": "3c1b630276d204b56d96fd84d0bd53a4e4dd5152a25e844ef306fb6cf4635bc7"
+  },
+  "dimensions/dim_org/_delta_log/00000000000000000006.json": {
+   "bytes": 249,
+   "sha256": "ddfce3a748716371fb4a5053db4c2064549f33055bc12798c060e80eeb5e1d0b"
+  },
+  "dimensions/dim_org/part-00000-124dea31-3b1b-4a6c-8429-0f4e81645efd-c000.snappy.parquet": {
+   "bytes": 24357,
+   "sha256": "35dc4eb3de5504b58ec3169cfff1cd50aa16e9a5059df3bc9b633ce139d836ea"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000000.json": {
+   "bytes": 2294,
+   "sha256": "5f6f6e754c3cbab39b84254dd112b491d37adfe1fca477606e01e24fb6de39c4"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000001.json": {
+   "bytes": 1540,
+   "sha256": "2395d45deaaa764e92b8f50a8b8f229908747b02fbddc396d75ebdf9c42fc97b"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000002.json": {
+   "bytes": 1498,
+   "sha256": "73c6cacee43084513e098078138acfcacdd484b36c96c26c3472d0bbbcafeef6"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000003.json": {
+   "bytes": 1499,
+   "sha256": "f253f769465bf3739e508d4c2ed17b4fb629e572cff3a9e74bac9ec2aefb04f7"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000004.json": {
+   "bytes": 332,
+   "sha256": "c1426ce8fe1bc7613de629f8914423b4a2d74906842ed3e142ba3ae4a679a051"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000005.json": {
+   "bytes": 249,
+   "sha256": "6016ec37b35975ecacec9305caa0958fd90884fff2f0bc5b6b368c3e578a3dd3"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000006.json": {
+   "bytes": 1498,
+   "sha256": "473fb0e502e999b7d5fe6fb3dc9189f2abf489e47cfc5554e43c3c3ecd4e37f8"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000007.json": {
+   "bytes": 332,
+   "sha256": "0a9afbac9bfe91bc79b598bd2347c735ca4c38b7cdf9743e580ffee8cbdefcdb"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000008.json": {
+   "bytes": 249,
+   "sha256": "a99dfa011f0ea6ce854c021fba91e0a24b949f82a2c2f31e106b51a43c86c275"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000009.json": {
+   "bytes": 2671,
+   "sha256": "e59a2133ce93f25fd13a4081844a3f6abd4039248ca08349f9d2eb55899dfc23"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000010.json": {
+   "bytes": 332,
+   "sha256": "fa6c3b9e6d66c4845802db4006b83aa84399fa06157b13e21208686cab4baccf"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000011.json": {
+   "bytes": 249,
+   "sha256": "63686cf978e7364cc5a87f8fa0c849a4fb0ce2bc82e2958fe1cea65d6b32999f"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000012.json": {
+   "bytes": 1611,
+   "sha256": "1e72622a6e173b806de161d98c5678f4f9293af83a603df90c75566b8843fe59"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000013.json": {
+   "bytes": 332,
+   "sha256": "6c59ffaa8102186e9d3e2ccffb3a34beb254479f7eafe6896241a063ede052f1"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000014.json": {
+   "bytes": 249,
+   "sha256": "c2073fff270da4c265bbe085480237a208a74196b70747d56e2a8bb19b4216d9"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000015.json": {
+   "bytes": 1626,
+   "sha256": "1cf865fe1da514b00dd5b7106178728a9ce9549a935ad712aa6a51dca8415b68"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000016.json": {
+   "bytes": 332,
+   "sha256": "9fa615aa9f6cc0fcf9ef445ec5c43b23c161bedd9a6099f7227f068b9be63d49"
+  },
+  "dimensions/dim_product/_delta_log/00000000000000000017.json": {
+   "bytes": 249,
+   "sha256": "a82c17b9caeeb69b3f7a6ed58705f8e0f12ed627a1d46ba214ebb8ba0c26f539"
+  },
+  "dimensions/dim_product/part-00000-42dcd7b0-21e6-48e0-b208-42f81c101d07-c000.snappy.parquet": {
+   "bytes": 130643,
+   "sha256": "d3c78ce1df1699eeed84afc37564953c9eaac69cda2acf786077e22b84fb4d78"
+  },
+  "dimensions/dim_promo/_delta_log/00000000000000000000.json": {
+   "bytes": 2137,
+   "sha256": "aac11e6dd710eb699eeb1b36d575f435d9424c6c321e19693bc32923a9dfe5ef"
+  },
+  "dimensions/dim_promo/_delta_log/00000000000000000001.json": {
+   "bytes": 1389,
+   "sha256": "e08fe29522562f7bc20b42d04255cfb3048867ec7bb8cb3deeda4442d5aefb10"
+  },
+  "dimensions/dim_promo/_delta_log/00000000000000000002.json": {
+   "bytes": 1396,
+   "sha256": "615021f33914d403735fef97b966a92eba365ed2b660c07f34290499894e3556"
+  },
+  "dimensions/dim_promo/_delta_log/00000000000000000003.json": {
+   "bytes": 1396,
+   "sha256": "d83f5ebc045558ddcb567e0813e2590215ff44fb30a46bd39fe3af0c5cdc9272"
+  },
+  "dimensions/dim_promo/_delta_log/00000000000000000004.json": {
+   "bytes": 331,
+   "sha256": "15d64f86656414d8e985dcc57d69c386c34ea8863b2bb4f872741fba6b2a4dba"
+  },
+  "dimensions/dim_promo/_delta_log/00000000000000000005.json": {
+   "bytes": 249,
+   "sha256": "9e9a56ddad1dde3a3148225f47bdf4f4c12d622a2407263cbc831da4e2bf419b"
+  },
+  "dimensions/dim_promo/part-00000-860aae2d-135c-43ea-afe1-863857fda3f4-c000.snappy.parquet": {
+   "bytes": 4409,
+   "sha256": "aa1521d22e2ff1e51e07c07aa060a011ce3549e522a6464620ca5033daf05d0a"
+  },
+  "dimensions/dim_pvm_driver/part-00000.parquet": {
+   "bytes": 2934,
+   "sha256": "e2b2a7195914aa5bb4225cdab027a98bae002a096a631570343dd2af2a8823dd"
+  },
+  "dimensions/dim_role/part-00000.parquet": {
+   "bytes": 3154,
+   "sha256": "889e8ed9311e0ac5919f166ffc4c4da00a691d58a7b4b563bbf7e17af6876709"
+  },
+  "dimensions/dim_sales_stage/part-00000.parquet": {
+   "bytes": 3323,
+   "sha256": "42d21291b005baa81e1a0963370c75e996b1d36337b808fb2b562487ea39ccaf"
+  },
+  "dimensions/dim_salesrep/part-00000.parquet": {
+   "bytes": 3337,
+   "sha256": "8d361c9b7c86b3856fe24342fa3324a62f24b4e81ab212133b62c5d1c721b569"
+  },
+  "dimensions/dim_vendor/part-00000.parquet": {
+   "bytes": 3224,
+   "sha256": "ecbe0991dc255077098bd7f9079133af2a014e1639a543e8650a40a765e5c43a"
+  },
+  "facts/fact_accounts_payable/Fiscal Year=2020/part-00000-aafa3359-e550-42cd-a4e4-a23a05455839-c000.snappy.parquet": {
+   "bytes": 15196,
+   "sha256": "4dc5f83608b0683d61ab425cc730e5af9d9954095e9b0fa6dab075bca159dd43"
+  },
+  "facts/fact_accounts_payable/Fiscal Year=2021/part-00000-6d3ab7ba-4e4c-4aa0-8620-88c2b34d1fd0-c000.snappy.parquet": {
+   "bytes": 15232,
+   "sha256": "ac65d675379d5933706b74de18a9224314265e1ba4a493be2b305381912c90fe"
+  },
+  "facts/fact_accounts_payable/Fiscal Year=2022/part-00000-d5299a32-2a71-463d-ae71-49d5d4bfaffd-c000.snappy.parquet": {
+   "bytes": 15236,
+   "sha256": "446d34e467744b3a45ce5a92b6b367c76efb328f3ca5c4ae32107458f69cca2a"
+  },
+  "facts/fact_accounts_payable/Fiscal Year=2023/part-00000-4831b038-c5ad-4f76-9cab-63dc9ed4836f-c000.snappy.parquet": {
+   "bytes": 15214,
+   "sha256": "8f5ad69bdb05897c802477edad4efced30fda539ebe929c1a5224c985c76376a"
+  },
+  "facts/fact_accounts_payable/Fiscal Year=2024/part-00000-29aa1bf0-31b7-42a9-bc13-9cb327b1154e-c000.snappy.parquet": {
+   "bytes": 15251,
+   "sha256": "e164edca1d152c0ff107a300ef5ab854c554e3e10c14fb513b2fc3abcfc84e30"
+  },
+  "facts/fact_accounts_payable/_delta_log/00000000000000000000.json": {
+   "bytes": 4390,
+   "sha256": "5bb937b14a3c7bf57feda4af6ba1fb7344d6f440690347c2f6b746955adf7bd9"
+  },
+  "facts/fact_accounts_receivable/Fiscal Year=2020/part-00000-e515be91-96a5-449d-98c3-823851836edd-c000.snappy.parquet": {
+   "bytes": 35529,
+   "sha256": "8230f5b73e8a8c3d19e72115ca5f5b9e4197cd786418a9144021e300416ba899"
+  },
+  "facts/fact_accounts_receivable/Fiscal Year=2021/part-00000-46ac6ab8-5787-4498-97ae-280dd92b63be-c000.snappy.parquet": {
+   "bytes": 35642,
+   "sha256": "ca47427ce80764a88d74e889e76ed56fe293320edd1eef49801e29cdec8beacf"
+  },
+  "facts/fact_accounts_receivable/Fiscal Year=2022/part-00000-d218c5e0-b8b2-4ec6-adab-ec5e3e63b2d4-c000.snappy.parquet": {
+   "bytes": 35584,
+   "sha256": "72454d59310253c03f1f914223b36d6310da8d3a714214d25ce203a1f59a9333"
+  },
+  "facts/fact_accounts_receivable/Fiscal Year=2023/part-00000-0375deec-4a08-4f18-8e4a-3ec4980bfb58-c000.snappy.parquet": {
+   "bytes": 35671,
+   "sha256": "227165a27e7ddb59a90a3ccce39eeb045463a389b790630484c36c508e1d74e4"
+  },
+  "facts/fact_accounts_receivable/Fiscal Year=2024/part-00000-a6957f0e-3df4-47b9-b3b4-d7e243a29760-c000.snappy.parquet": {
+   "bytes": 35607,
+   "sha256": "7377879b7fc10c504bd7fd9112b09a212247aa7bd6180e79185756a376571c70"
+  },
+  "facts/fact_accounts_receivable/_delta_log/00000000000000000000.json": {
+   "bytes": 4447,
+   "sha256": "73e09dbee52f7af7dcd51e10d8e752ee4b9b28dc5a1b7125cd899a4a939c09d6"
+  },
+  "facts/fact_action_log/Fiscal Year=2020/part-00000-0d3bcb44-820b-451c-90dc-f978b3a31694-c000.snappy.parquet": {
+   "bytes": 23897,
+   "sha256": "62907163847f137d7ec2b042f8d653565674e1385c196901dbc4b9f035826b69"
+  },
+  "facts/fact_action_log/Fiscal Year=2021/part-00000-7d653fa5-579c-4d61-99fd-8bdc91e710c4-c000.snappy.parquet": {
+   "bytes": 21186,
+   "sha256": "84c5c912849350ad99767af1f997eecc45eda8de3a6cd5b4a0b3943408f53471"
+  },
+  "facts/fact_action_log/Fiscal Year=2022/part-00000-82ae98f3-1d25-4ed1-abce-3873c1a524ad-c000.snappy.parquet": {
+   "bytes": 33210,
+   "sha256": "8c504350ab3f32ed9bdebffb9c8ac47da6ef32ebe06804d0c1d1ea719308ee32"
+  },
+  "facts/fact_action_log/Fiscal Year=2023/part-00000-fbb203fc-5d0f-433c-a84f-4c5eb3292e19-c000.snappy.parquet": {
+   "bytes": 21340,
+   "sha256": "39b8783886abb3ffcf8853a366f7aa13f8153ab9098754cdc48646bbb363cd99"
+  },
+  "facts/fact_action_log/Fiscal Year=2024/part-00000-c8271fed-f410-41e1-ba5a-b83a1f0410f2-c000.snappy.parquet": {
+   "bytes": 20969,
+   "sha256": "6b02227cc63c4af23fe05ff66c3de4b7995b4dda69b3bc37d9a627f2c7411d22"
+  },
+  "facts/fact_action_log/_delta_log/00000000000000000000.json": {
+   "bytes": 5181,
+   "sha256": "9f245d6da4dd72a5de99194854b3d6e10435a41b450462fd8af24b24684d699d"
+  },
+  "facts/fact_action_log/_delta_log/00000000000000000001.json": {
+   "bytes": 5510,
+   "sha256": "8b8f4db68bb5974171a8d5ccbde643556cb7b751a0de8921d1c7d83b413ac0d7"
+  },
+  "facts/fact_action_log/_delta_log/00000000000000000002.json": {
+   "bytes": 5510,
+   "sha256": "c12fe9c50c8d77e30e5e545654bcfa4ad7e8cb3dbc6598165db328be53b3ae38"
+  },
+  "facts/fact_action_log/_delta_log/00000000000000000003.json": {
+   "bytes": 5510,
+   "sha256": "44b5fd2e6be5df0372d9e2865f5ed8b15672c18191c57278af25d2304cd5f9d5"
+  },
+  "facts/fact_action_log/_delta_log/00000000000000000004.json": {
+   "bytes": 7435,
+   "sha256": "10c88bf2b491f0bc8857c6ff6fe89290346e9eac12df17a7fc2e91a17f8a2b6e"
+  },
+  "facts/fact_action_log/_delta_log/00000000000000000005.json": {
+   "bytes": 333,
+   "sha256": "d5870b67579d27672fba78181b69432aa8bec21f9c061acc046d05a346523711"
+  },
+  "facts/fact_action_log/_delta_log/00000000000000000006.json": {
+   "bytes": 250,
+   "sha256": "36985ed3cf9537881a413c22a76766a51d5c3b143ca033e8b7af80d3b617071e"
+  },
+  "facts/fact_action_outcome/Fiscal Year=2020/data.parquet": {
+   "bytes": 6979,
+   "sha256": "8a25021e64d1769344b1c5a0951d922a359be2af2476ebb10e3b34b45c68592a"
+  },
+  "facts/fact_action_outcome/Fiscal Year=2021/data.parquet": {
+   "bytes": 7061,
+   "sha256": "5760c5b8db19a98dfada1ffa9904f395641a4eeccc58bf7b151102a62c85f6b4"
+  },
+  "facts/fact_action_outcome/Fiscal Year=2022/data.parquet": {
+   "bytes": 6943,
+   "sha256": "7d43ee8b6ebaaf4e29b3d7483ffb70349dcc49c406cd485ba37a4e54a1781e6c"
+  },
+  "facts/fact_action_outcome/Fiscal Year=2023/data.parquet": {
+   "bytes": 7070,
+   "sha256": "ec4c903bbc6fcc9adc3f10896e625918fe8261b9d6618c5b6cd38189a3c17170"
+  },
+  "facts/fact_action_outcome/Fiscal Year=2024/data.parquet": {
+   "bytes": 7040,
+   "sha256": "f8c915ce69400df546bdcc0bd7cc284088713164648fda04f12c3d02826c419d"
+  },
+  "facts/fact_cash_flow/Fiscal Year=2020/part-00000-004aec49-0c02-40df-a15d-c285af643278-c000.snappy.parquet": {
+   "bytes": 7211,
+   "sha256": "9bb0b8a7885fb3c55ae9e316111ebaedd52538da0812adbe6d9527340f5b3687"
+  },
+  "facts/fact_cash_flow/Fiscal Year=2021/part-00000-dec0cf4b-31eb-42f5-8036-2238db5b8a41-c000.snappy.parquet": {
+   "bytes": 7219,
+   "sha256": "07c8a7f2296c68670153fad032672a57561a9bfb053ee1a66cc1cccfc1fe065a"
+  },
+  "facts/fact_cash_flow/Fiscal Year=2022/part-00000-e73004f2-1428-4eb1-a55e-3a05a7bb214f-c000.snappy.parquet": {
+   "bytes": 7200,
+   "sha256": "0a62a7149c5d309bec4dd9b80810b4c43b8eb97874a70ac745b34f5b2e806e98"
+  },
+  "facts/fact_cash_flow/Fiscal Year=2023/part-00000-f4e87eb0-e1f7-4514-8117-6b6c5bf24134-c000.snappy.parquet": {
+   "bytes": 7235,
+   "sha256": "a9557ca209680a1981a263af57e441cdef7ee1a441643dcb8b13e6d2b941b59e"
+  },
+  "facts/fact_cash_flow/Fiscal Year=2024/part-00000-cd173de1-7073-4a83-8d2d-fbd875432cd9-c000.snappy.parquet": {
+   "bytes": 7216,
+   "sha256": "7b41f6d9262496c6e999449bb4bf4173bb0fa42b7daa20b744d451e23c5cf743"
+  },
+  "facts/fact_cash_flow/_delta_log/00000000000000000000.json": {
+   "bytes": 4822,
+   "sha256": "efa516afb548fb91ae659b5434d0d21eb5b29dee35ca2a9584f4ab59ccc4a669"
+  },
+  "facts/fact_cash_position/Fiscal Year=2020/part-00000-4ecec3dd-1d17-45a5-9c77-ab8860433c41-c000.snappy.parquet": {
+   "bytes": 55234,
+   "sha256": "09bc4d9d372b1c8492b8ab4a5ebd466dbb514d9e67c9df52f74932fdb24250ec"
+  },
+  "facts/fact_cash_position/Fiscal Year=2021/part-00000-b331705e-f562-47a0-ba47-55f19db727e7-c000.snappy.parquet": {
+   "bytes": 55139,
+   "sha256": "3a525911df35a295ce994fa12bda03974661c928557398f09c84924f037526ca"
+  },
+  "facts/fact_cash_position/Fiscal Year=2022/part-00000-2391a442-02b2-4504-9b01-7a26b34b5823-c000.snappy.parquet": {
+   "bytes": 55122,
+   "sha256": "3e8ec38557d97254b85c719a9c1a5a0c43824a9cdfc24ab749004101e922de28"
+  },
+  "facts/fact_cash_position/Fiscal Year=2023/part-00000-4386b804-9a51-4ae8-b3b5-17cf69d6fa2b-c000.snappy.parquet": {
+   "bytes": 55031,
+   "sha256": "56eb0e9c252657aa7e4f7057933f7b15577589917464a0869d55ddb539fe579c"
+  },
+  "facts/fact_cash_position/Fiscal Year=2024/part-00000-7c9c3d4d-9cb2-48a4-a9e5-ce76faa0c57b-c000.snappy.parquet": {
+   "bytes": 55187,
+   "sha256": "61bf73111c03c13a221895871279c67e55b63278f7a9768237979892df8db33f"
+  },
+  "facts/fact_cash_position/_delta_log/00000000000000000000.json": {
+   "bytes": 4317,
+   "sha256": "e5a77c5d230d2ab9d823d152d27f7861d447d7b1aa7aefc1d8f0d4a83fe0fa46"
+  },
+  "facts/fact_cogs/Fiscal Year=2020/part-00000-74ba1c01-d226-4e74-b46a-47bc78d4062d-c000.snappy.parquet": {
+   "bytes": 26646,
+   "sha256": "2fca8a0869319d9dabedfd5b8bcf5ede558d7bc169321d71473d814a85919424"
+  },
+  "facts/fact_cogs/Fiscal Year=2021/part-00000-a3e7c4bb-47f6-44f9-9cf3-1fb5356dd5ca-c000.snappy.parquet": {
+   "bytes": 26733,
+   "sha256": "ccad90407fa39678778ae6d688f5a34e77ce3e5d02d980ad0ce6da6a84c39c9e"
+  },
+  "facts/fact_cogs/Fiscal Year=2022/part-00000-984cbc0d-7868-4165-9a9d-111617854a76-c000.snappy.parquet": {
+   "bytes": 26659,
+   "sha256": "270b38c53646b2ce77079465d9847f861f89edf62e29346ed28dc7d0ce19d8ae"
+  },
+  "facts/fact_cogs/Fiscal Year=2023/part-00000-41e6a0c6-6bf8-4379-95ce-0fe421ad4dbd-c000.snappy.parquet": {
+   "bytes": 26592,
+   "sha256": "a382d7df9a2482ac6689b68b0f334be76714cc5067f237e8c20859fb1f4e6ab3"
+  },
+  "facts/fact_cogs/Fiscal Year=2024/part-00000-1f0af51b-905f-45bf-ae96-a36f5a76d49f-c000.snappy.parquet": {
+   "bytes": 26703,
+   "sha256": "3e7851e5f90596ac3787913332a5229daf953d90f4b980defba3ef4bb52196ee"
+  },
+  "facts/fact_cogs/_delta_log/00000000000000000000.json": {
+   "bytes": 4004,
+   "sha256": "7bf1532eb28f7787ba524cc3bba2fd1d4cbdc6b750e8d17b657a43c454666bda"
+  },
+  "facts/fact_complaints/Fiscal Year=2020/part-00000-6880b548-1c87-49a2-bc85-77e1449f57f7-c000.snappy.parquet": {
+   "bytes": 24911,
+   "sha256": "bd08133f7ed63e5f496c1add1d3106f4ab7cafef143a5d03cc004e4be6d8ec5a"
+  },
+  "facts/fact_complaints/Fiscal Year=2021/part-00000-f5f31872-0b4c-402e-bbe9-fe19ce27b6e6-c000.snappy.parquet": {
+   "bytes": 24843,
+   "sha256": "b117861f67e4fbcac26c27241e3b51daf77d607295cc30c5e3c0659af7efb4ad"
+  },
+  "facts/fact_complaints/Fiscal Year=2022/part-00000-e93c2508-a165-4fa2-bab3-f2cb4e2063a2-c000.snappy.parquet": {
+   "bytes": 24850,
+   "sha256": "eaf6a749e9c0b9346b7e10567e5809ccae6e27f699db6903ff7ac0dfe646fb32"
+  },
+  "facts/fact_complaints/Fiscal Year=2023/part-00000-3178f0fb-e5c8-497c-b3e3-e5b9f3704a19-c000.snappy.parquet": {
+   "bytes": 24888,
+   "sha256": "a837c15159b05fb9601870aec61411e6ff3952de32cf8630709a73b668dc7556"
+  },
+  "facts/fact_complaints/Fiscal Year=2024/part-00000-733fee0f-26bc-4e3b-ba7c-aa5f6083cd0e-c000.snappy.parquet": {
+   "bytes": 24803,
+   "sha256": "2c137db8558af1a2a1577c8e1e7d5b3b1b5f039d97aedda5be349bd36c00ef82"
+  },
+  "facts/fact_complaints/_delta_log/00000000000000000000.json": {
+   "bytes": 4861,
+   "sha256": "c4bb32515af33bc08d180751f4729d7eb4d7cf8735abd3d2464b375b51ccd0dc"
+  },
+  "facts/fact_cost/Fiscal Year=2020/part-00000-4695a7a5-4009-4111-99ff-423bff958ff7-c000.snappy.parquet": {
+   "bytes": 5481301,
+   "sha256": "56bc46db19273ecb92f7f5a0d359def63344c32f7462c7f932935fc1daaaf9db"
+  },
+  "facts/fact_cost/Fiscal Year=2021/part-00000-b934a6b0-5a3b-4e35-a90a-500a6249d3db-c000.snappy.parquet": {
+   "bytes": 5479473,
+   "sha256": "ff3cec31cdc167ee9c6372bae525eb05619d94f008d11848fd01082ce4157ef9"
+  },
+  "facts/fact_cost/Fiscal Year=2022/part-00000-db9eb16b-d0ae-4d16-82cb-0a9ec2008973-c000.snappy.parquet": {
+   "bytes": 5486695,
+   "sha256": "71a5e81aa35a7f1de6868fa1f055a4a8e8095706e4970a6e9e10e1d8fb9d124b"
+  },
+  "facts/fact_cost/Fiscal Year=2023/part-00000-2b4e7dd9-e27f-4de2-baea-54e243fa1bfe-c000.snappy.parquet": {
+   "bytes": 5521936,
+   "sha256": "af30d3ea2e4ea7ab38e4cd52adef4d61d1210f52145b98a0cdf68c636168e2de"
+  },
+  "facts/fact_cost/Fiscal Year=2024/part-00000-053ab990-d484-4899-8238-51632be36ae9-c000.snappy.parquet": {
+   "bytes": 5548396,
+   "sha256": "bf6e64800caf7102e6967a9d52c35abd26a1998c33f31b36ae5f92d28dc74eaf"
+  },
+  "facts/fact_cost/_delta_log/00000000000000000000.json": {
+   "bytes": 5012,
+   "sha256": "77ff35e339540983c60c296c7faffb394289a8b19319732e32c1fb93c187d23a"
+  },
+  "facts/fact_cost/_delta_log/00000000000000000001.json": {
+   "bytes": 7178,
+   "sha256": "4ecdc87cf18cf195b86c2e46e9142f7e35877d38487b366a942fdf3f11efec1d"
+  },
+  "facts/fact_cost/_delta_log/00000000000000000002.json": {
+   "bytes": 334,
+   "sha256": "14880500164987c6224158e1824870ad1372cd20687a44677b5f2538f8361350"
+  },
+  "facts/fact_cost/_delta_log/00000000000000000003.json": {
+   "bytes": 249,
+   "sha256": "07db0b1671e15f5dd5115ea6d491202beb917bd564ad160688441810d13b1682"
+  },
+  "facts/fact_customer_events/events.parquet": {
+   "bytes": 66336,
+   "sha256": "5d55f9cb4ecf9f7e160271d6279244459729273f9ac040756476a7a62c9408ce"
+  },
+  "facts/fact_customer_interactions/Fiscal Year=2020/part-00000-1f64b4eb-a3ca-4048-b20e-28b0878158b8-c000.snappy.parquet": {
+   "bytes": 22126,
+   "sha256": "1e1fced7768145cebcda8e1ae24b5c0fcd3651563a4a605902444e8ae17b5327"
+  },
+  "facts/fact_customer_interactions/Fiscal Year=2021/part-00000-ca295121-8726-470c-ae46-a5a5710a7dcb-c000.snappy.parquet": {
+   "bytes": 36774,
+   "sha256": "5ac96c5a653aa817ec04b98c0b7a979cd651ef1b78e71fe2028367c21d62a33d"
+  },
+  "facts/fact_customer_interactions/Fiscal Year=2022/part-00000-fe16c4c2-8cf8-4516-bb4f-33b5829bb15f-c000.snappy.parquet": {
+   "bytes": 65230,
+   "sha256": "750c3a4d148eaed65a180ed402b7d0c573549d14c175887b05fa0a27d16eee41"
+  },
+  "facts/fact_customer_interactions/Fiscal Year=2023/part-00000-805801c5-ab35-49e5-aea7-10b4e9789a29-c000.snappy.parquet": {
+   "bytes": 40137,
+   "sha256": "e9b15adb6742e2feff926cb143d05a577deb2ac3862ee6b618a0181a7be2854d"
+  },
+  "facts/fact_customer_interactions/Fiscal Year=2024/part-00000-16aecf8c-5373-4cee-8ea1-061c0655e8dc-c000.snappy.parquet": {
+   "bytes": 26884,
+   "sha256": "84f15dabeef0d56d33fdd7e5fc59cc0d89fccf51b66a3a9dbd48528f735ab472"
+  },
+  "facts/fact_customer_interactions/_delta_log/00000000000000000000.json": {
+   "bytes": 5470,
+   "sha256": "097183319bd364dff65dcb915d412d6775dfb3940ce9fe2adf39d9edea95afdc"
+  },
+  "facts/fact_customer_interactions/_delta_log/00000000000000000001.json": {
+   "bytes": 5709,
+   "sha256": "9ba961888b90de1e5951c331095753b59ca8637f73225ce32ca944e8ce34f8bd"
+  },
+  "facts/fact_customer_interactions/_delta_log/00000000000000000002.json": {
+   "bytes": 5709,
+   "sha256": "4da232e11b2b76dcb74663a0d174d38ac65d6f4d0774a3c6535f211eeffb6844"
+  },
+  "facts/fact_customer_value/value.parquet": {
+   "bytes": 2555383,
+   "sha256": "8e0ca34a34dad525f5cb2e61ed78d33abd4a358434d7d3feefc1e3a922329727"
+  },
+  "facts/fact_engagement_survey/Fiscal Year=2020/part-00000-1066b887-bd65-40d3-ab70-7f0fe24251c5-c000.snappy.parquet": {
+   "bytes": 35225,
+   "sha256": "5d31e43ca678cbb86e4e16bdeda4d575d26fd6e231648d275cb134a68c44b5b0"
+  },
+  "facts/fact_engagement_survey/Fiscal Year=2021/part-00000-50315afa-2825-4f1f-89aa-b7a7fbf18a82-c000.snappy.parquet": {
+   "bytes": 40949,
+   "sha256": "c184a9b5981abb42d4e0bba43e467485ce0557e2a36e2bc3d700fd3b9461aebe"
+  },
+  "facts/fact_engagement_survey/Fiscal Year=2022/part-00000-fe43683f-40aa-4af7-a51a-c4ff9bd6f415-c000.snappy.parquet": {
+   "bytes": 35229,
+   "sha256": "69b4ded9b6c4846d6db66f4c95962bd863649b007bd98fc88cd1377c97e7a8a8"
+  },
+  "facts/fact_engagement_survey/Fiscal Year=2023/part-00000-b424da10-b091-48b0-8a29-0ff30435f550-c000.snappy.parquet": {
+   "bytes": 40997,
+   "sha256": "fd5b1da1a711f7248a1ac16f9584ba625bb15c0583c1a45036eb14b84df5f6ec"
+  },
+  "facts/fact_engagement_survey/Fiscal Year=2024/part-00000-72fda8d5-5dfa-4864-a09b-736b4f107e6b-c000.snappy.parquet": {
+   "bytes": 35117,
+   "sha256": "acb79a3b7d8278571fe8c9bab30f895ecb84f83ac623f9d3eb414bc1db34d876"
+  },
+  "facts/fact_engagement_survey/_delta_log/00000000000000000000.json": {
+   "bytes": 4827,
+   "sha256": "00cb0714cfcdc0940d381799885cce11cb9b5f50553fcb34315902858c2018ff"
+  },
+  "facts/fact_experience/Fiscal Year=2020/part-00000-d9d97fbb-1d24-4d47-b54e-37bf4d184fb8-c000.snappy.parquet": {
+   "bytes": 11885,
+   "sha256": "974eb168d6e55c3afc67dc643a17a8e43c198526c4d9691a895b405304b081bc"
+  },
+  "facts/fact_experience/Fiscal Year=2021/part-00000-d0f48726-c74d-4f72-9388-381f7b610529-c000.snappy.parquet": {
+   "bytes": 11899,
+   "sha256": "b6c700bd5f407634a9a4f8e0d115d344236118a8ea42300f2e7835bd21515378"
+  },
+  "facts/fact_experience/Fiscal Year=2022/part-00000-e16b67f8-fd56-4b26-9b6b-d405b564e5f8-c000.snappy.parquet": {
+   "bytes": 11726,
+   "sha256": "42c22f342b22ce57db02f081046354a96bb40bed2892fac5fb77ad7c7e83445d"
+  },
+  "facts/fact_experience/Fiscal Year=2023/part-00000-6502fb89-623d-4c02-b8aa-4580bae03ff6-c000.snappy.parquet": {
+   "bytes": 12183,
+   "sha256": "e8d0f78a592b8d4407417256c27ed51cfa70eb54ff6b9213e975f45d94a5f17b"
+  },
+  "facts/fact_experience/Fiscal Year=2024/part-00000-55256519-39db-455e-b1d2-06ae4971a458-c000.snappy.parquet": {
+   "bytes": 12252,
+   "sha256": "046df59f87da9b35f3915c1c397361c39598fdf13ba9f49c665d1c9065029d89"
+  },
+  "facts/fact_experience/_delta_log/00000000000000000000.json": {
+   "bytes": 5089,
+   "sha256": "004917a6dcff0cf614a95d64776cc5134642ebff4a5ba73b539c5e3192581329"
+  },
+  "facts/fact_finance/Fiscal Year=2020/part-00000-767f6ab2-e924-458c-9601-27de018c03e3-c000.snappy.parquet": {
+   "bytes": 553896,
+   "sha256": "b19840fed720d904a8a14f965f17388979fdb03fe9b28d8a3825f9cc9471cbab"
+  },
+  "facts/fact_finance/Fiscal Year=2021/part-00000-db5bda1a-ce1d-4f76-a917-7be72af93d3a-c000.snappy.parquet": {
+   "bytes": 553927,
+   "sha256": "ae5951eb886a4ca2baba0f6d5d05e1bef08f284b3b0f1a8a148258ffead9b861"
+  },
+  "facts/fact_finance/Fiscal Year=2022/part-00000-ed2fd988-8401-4d25-851b-5ad2baf6493c-c000.snappy.parquet": {
+   "bytes": 553451,
+   "sha256": "eb9f207166b708a42fc21968e0e990a93ec0d8abfa2af0caba70bd6c7983c3f3"
+  },
+  "facts/fact_finance/Fiscal Year=2023/part-00000-2e87a9eb-07a5-42c8-bf39-557772a65725-c000.snappy.parquet": {
+   "bytes": 553437,
+   "sha256": "230b7bf2430b23334436c63d280efd3ad5d1072008cf411b5e1f0775f443c3a2"
+  },
+  "facts/fact_finance/Fiscal Year=2024/part-00000-039095e0-6f7c-4f14-b24d-9ad2dff26857-c000.snappy.parquet": {
+   "bytes": 555077,
+   "sha256": "400afa5d5dc669bd83654f3b1f99ac7c1d76969cedde41ea1f38c0e1a155427e"
+  },
+  "facts/fact_finance/_delta_log/00000000000000000000.json": {
+   "bytes": 9101,
+   "sha256": "4bad3624d18f4776089df1c91b0cfb86eafc0b7dd46141ce947f05877e4bd512"
+  },
+  "facts/fact_forecast/Fiscal Year=2020/part-00000-89c43ac5-843b-439c-b83e-dd209a1c4762-c000.snappy.parquet": {
+   "bytes": 26820,
+   "sha256": "f249e1f30e52086f6b131e77d85d7368dc04dcc4d814af62625c17349d36f886"
+  },
+  "facts/fact_forecast/Fiscal Year=2021/part-00000-4800ba76-49de-4600-b10f-c04b8c769e57-c000.snappy.parquet": {
+   "bytes": 27128,
+   "sha256": "56c56ff05cc361e1ce12a7ee3397964fbf70a252fbe633d1bf1cdb2cd14e7357"
+  },
+  "facts/fact_forecast/Fiscal Year=2022/part-00000-85217911-3819-479b-aa13-50bc616ca52d-c000.snappy.parquet": {
+   "bytes": 24895,
+   "sha256": "a45da73b45ae744df4cb239866561b1206ffa97ade89fe84f51d25efd62f7758"
+  },
+  "facts/fact_forecast/Fiscal Year=2023/part-00000-54efd15b-8531-46b1-b1e4-990bf6def986-c000.snappy.parquet": {
+   "bytes": 24822,
+   "sha256": "9b26ce142a96c9ffe009c3772b2a1bd893bfdc99136ef92ccc857dc0a2a33818"
+  },
+  "facts/fact_forecast/Fiscal Year=2024/part-00000-3d275d20-dc30-4f95-a427-583daafbf31b-c000.snappy.parquet": {
+   "bytes": 26843,
+   "sha256": "4338e3a42255f505955953103a6409545a4f680a715f0c500079e1a5c9c14786"
+  },
+  "facts/fact_forecast/_delta_log/00000000000000000000.json": {
+   "bytes": 4515,
+   "sha256": "326f28919c89d52613e0377fb4bd0d6c25efbf36b4c683ed6fd27b9b76dd4089"
+  },
+  "facts/fact_fulfillment/Fiscal Year=2020/part-00000-a0a90b21-fe06-4ddf-b15b-a42103156ec6-c000.snappy.parquet": {
+   "bytes": 14928,
+   "sha256": "eb9f199b2c1bf6d7ebd4609a0e49a4715a90971c8412a5279d4d464ea1f9e816"
+  },
+  "facts/fact_fulfillment/Fiscal Year=2021/part-00000-41c048c6-d096-46bf-8be5-50cfde162d2e-c000.snappy.parquet": {
+   "bytes": 15067,
+   "sha256": "c77b0e16ffe9e9161ebad0699ad38749e3bfa0576905674bfc52f36144c87a27"
+  },
+  "facts/fact_fulfillment/Fiscal Year=2022/part-00000-3ae3ee8a-62e8-4367-bdaf-c165121d352f-c000.snappy.parquet": {
+   "bytes": 14522,
+   "sha256": "b1a67ddc103e3f005a593f14d73044ffef74ea256f72a004f6bbada796215c7e"
+  },
+  "facts/fact_fulfillment/Fiscal Year=2023/part-00000-411d486e-1269-4149-ad85-b573084d8cf3-c000.snappy.parquet": {
+   "bytes": 15089,
+   "sha256": "9990191a75ef7bdb4bb3370f7a2a2c3d0ac92c2532bed074681b4be33d6dfb5b"
+  },
+  "facts/fact_fulfillment/Fiscal Year=2024/part-00000-cf7d80e7-708f-4f80-bb16-f51b9aa6ae80-c000.snappy.parquet": {
+   "bytes": 14648,
+   "sha256": "09276939112efff092f8d4cc3f09a79b48c74eb55cf0e9aded287817fb47da1f"
+  },
+  "facts/fact_fulfillment/_delta_log/00000000000000000000.json": {
+   "bytes": 6739,
+   "sha256": "00db24c55f0ecf283dbe9701fbc5a1b4eca1566656386c415b80c60036764e67"
+  },
+  "facts/fact_gl_journal/Fiscal Year=2020/part-00000-258766a2-706a-466a-bb75-e6bf85faafb6-c000.snappy.parquet": {
+   "bytes": 3481104,
+   "sha256": "9d5f140a368d3e415c0a1acded96f6c83ae6e0a7efa630d9b1df6666398625ba"
+  },
+  "facts/fact_gl_journal/Fiscal Year=2021/part-00000-91398304-69e3-4a5b-9d5f-691c82806c81-c000.snappy.parquet": {
+   "bytes": 3384156,
+   "sha256": "7a2d8cd33464c0fee983c494f9be77f1a21696280b8bf022857e331e72b53ff0"
+  },
+  "facts/fact_gl_journal/Fiscal Year=2022/part-00000-4847470f-5a27-4b4f-a814-53a5ebeb3d21-c000.snappy.parquet": {
+   "bytes": 3373865,
+   "sha256": "e0a4b795f7088328500a4caae47f2d72902c7e9a972c5418c575309b4bafce4e"
+  },
+  "facts/fact_gl_journal/Fiscal Year=2023/part-00000-c9aa0cd8-c779-4e5e-8991-83a7e10c3c36-c000.snappy.parquet": {
+   "bytes": 3393734,
+   "sha256": "d65e3bf6a300aef26b0f88a90fa3167aba67894aec37c3a1f2adf55104528177"
+  },
+  "facts/fact_gl_journal/Fiscal Year=2024/part-00000-43f3189b-1cbe-49d6-a1c7-8b4e220bf5e9-c000.snappy.parquet": {
+   "bytes": 3437659,
+   "sha256": "10d17234fe1b1e5414c3412abac7b98d0545c3eb37d1b67a3fc4c30f96ae491a"
+  },
+  "facts/fact_gl_journal/_delta_log/00000000000000000000.json": {
+   "bytes": 5639,
+   "sha256": "b09208dc7cc8b6ecc0c4c7f0fb58d7a2a97477bf8a1addae856864633981b84f"
+  },
+  "facts/fact_gl_journal/_delta_log/00000000000000000001.json": {
+   "bytes": 5910,
+   "sha256": "fb459f5f0c00c39a3e48df991d1bf95bf960dc296bdea4f665c81358e75b4bce"
+  },
+  "facts/fact_gl_journal/_delta_log/00000000000000000002.json": {
+   "bytes": 5915,
+   "sha256": "2268cd9d7254e3126ef9860d25cd6b16ac3cce11176dffebdd336d383ad4210c"
+  },
+  "facts/fact_inventory/Fiscal Year=2020/part-00000-2d4703fb-3728-4f63-b6fc-2d42fab008ff-c000.snappy.parquet": {
+   "bytes": 93519,
+   "sha256": "9dfac82d9cb194a015306428f2c499dc039bc6a0235442b1e9b090da11a45dbf"
+  },
+  "facts/fact_inventory/Fiscal Year=2021/part-00000-c9f28c66-fd2d-4b20-9c5e-68aae17e7814-c000.snappy.parquet": {
+   "bytes": 94456,
+   "sha256": "747bc51b6a64729234007dd5bc41f02515be74b1df8f8f143e2a2dadfa11eecd"
+  },
+  "facts/fact_inventory/Fiscal Year=2022/part-00000-8a3f8ea8-63c1-4981-9aec-7d4bbd3ded79-c000.snappy.parquet": {
+   "bytes": 93824,
+   "sha256": "6ec23d44e9066c0810d26477e7c8916193831b750c19ba8e1f48b3fa9814210c"
+  },
+  "facts/fact_inventory/Fiscal Year=2023/part-00000-381647e7-e71d-4542-870b-993a609ef8e7-c000.snappy.parquet": {
+   "bytes": 93651,
+   "sha256": "376debc35e2c7c0d794001de899fc0e76dc219674709f6fefa5df9f8e9e788c6"
+  },
+  "facts/fact_inventory/Fiscal Year=2024/part-00000-30562340-dd5f-41c8-8e3b-4f17469c4b70-c000.snappy.parquet": {
+   "bytes": 93860,
+   "sha256": "d8ef91997f3b8a16420e6d75f6b37db74699dbba728fda2aca6d5949a4254102"
+  },
+  "facts/fact_inventory/_delta_log/00000000000000000000.json": {
+   "bytes": 6029,
+   "sha256": "5ac0bfcfc011068dcbf882cf60228015a026d40ba1c6715613587e3d32f66722"
+  },
+  "facts/fact_inventory/_delta_log/00000000000000000001.json": {
+   "bytes": 6347,
+   "sha256": "ba392a4f3ae4d75eb6c88c859b366c5b6cd4fb587f619cb19cada649e35dad7a"
+  },
+  "facts/fact_inventory/_delta_log/00000000000000000002.json": {
+   "bytes": 7718,
+   "sha256": "014b06560d13c939c80f2c2984544f451183f1ce3f6ca525f92099c33d790ebe"
+  },
+  "facts/fact_inventory/_delta_log/00000000000000000003.json": {
+   "bytes": 333,
+   "sha256": "bfbbe109d1214c6120158b18a79f2ebf3db4e3ea705797c9d27620f1ab3a37a1"
+  },
+  "facts/fact_inventory/_delta_log/00000000000000000004.json": {
+   "bytes": 250,
+   "sha256": "e6c70abc4a0111e6d5b864222402bb4afef71be208a15ff0fc91603a41bc68c0"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=1/part-00000-1430d0e1-bed0-49f3-83b0-1a4b20174937-c000.snappy.parquet": {
+   "bytes": 103068,
+   "sha256": "58f5a68e1e43eeaa660f6dc263a2b7c7c1718f328f91070491fcbe07b1f3f750"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=10/part-00000-cea98721-f532-4875-bcef-5826beb168f0-c000.snappy.parquet": {
+   "bytes": 103047,
+   "sha256": "ca156e8206019fa3c1653a7d3f0922cb746120d821677472acda59434736d48c"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=11/part-00000-b38ab928-c9f6-4cb2-b684-430dc7682339-c000.snappy.parquet": {
+   "bytes": 103109,
+   "sha256": "4f099ea819e16d7f97448df73d5f001075800f4da661d8945ea0a9ecfd6b727a"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=12/part-00000-44456050-2656-4b17-8577-17882feecd50-c000.snappy.parquet": {
+   "bytes": 103085,
+   "sha256": "5cb0f3621bc2c9035791bb73970a2ea963574d97d5862a63ecbafeebd53287d0"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=2/part-00000-1c7f7194-a0f7-47bc-a68c-0ac8846c3a79-c000.snappy.parquet": {
+   "bytes": 103079,
+   "sha256": "1000d7e52c1058dba50d4cedd39f9ba2446d3f0370b00d55c0602fdc5f67d825"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=3/part-00000-57da00a3-64e6-427a-8c2f-43004819e72e-c000.snappy.parquet": {
+   "bytes": 103008,
+   "sha256": "f2026251dc44c18b92f4afb5cc07e16d8075efbdacc2083b317eaa31c93aea15"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=4/part-00000-2eed7c23-c993-4460-8418-aa3731a29344-c000.snappy.parquet": {
+   "bytes": 103010,
+   "sha256": "68e4ad6f782f6cb11dbddad60c4758025a775a1b6774b1860783e5a691a692cf"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=5/part-00000-2b09da35-8d2f-49e2-99d1-0c50b38fa5fd-c000.snappy.parquet": {
+   "bytes": 103260,
+   "sha256": "afa10b5e2e404f607f1b68d8267ee64381a1d239041b1bb015a8b6481523a82b"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=6/part-00000-fe619c5f-62bf-4d40-bf57-9dcd0753f122-c000.snappy.parquet": {
+   "bytes": 103281,
+   "sha256": "0984dff8fbdfa74bfd06953af2a90a4ae199a670e9c9610429e3f5a955df44e9"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=7/part-00000-27c07f0d-f71c-48b7-9e3b-a0b1d495e7dc-c000.snappy.parquet": {
+   "bytes": 103003,
+   "sha256": "acf8166af6dc4209fe27618277d52ebc7729458a23cdece5efe91a7e87071269"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=8/part-00000-a7e8f187-65bb-44de-a02f-9e0b4a9070c3-c000.snappy.parquet": {
+   "bytes": 102957,
+   "sha256": "f921e3291a78e5c212ec2d4e26ba6d70af7adf36b5ce90e0d913ec9e65176bc9"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2020/Fiscal Month=9/part-00000-69bb7c7a-151f-41f1-80cf-49adc46dcd09-c000.snappy.parquet": {
+   "bytes": 103095,
+   "sha256": "ee7a3fc250a9896d84b1cdcc7662336fe762a1e98c25748ea4bc7f3a625259a8"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=1/part-00000-c5bfd89d-e8da-4dcf-9a58-be2518ba8ab8-c000.snappy.parquet": {
+   "bytes": 103115,
+   "sha256": "e8c0a71cd648b62bfdb6e36ff24499013a6a6cea9bae014b66dbe33ddcd87437"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=10/part-00000-f44dfe0e-78c1-4741-b5f4-a77991ecdcf3-c000.snappy.parquet": {
+   "bytes": 103072,
+   "sha256": "c6f086425687e84015fc65af5fe8f1192ef8277eb2631a47250f2d01bdc13b0f"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=11/part-00000-f14a15af-7127-4367-a916-c0866f4f35d0-c000.snappy.parquet": {
+   "bytes": 103124,
+   "sha256": "b557dd85c2acbaf6b389ec645fe6ca634bb7329251a3246f87442ec420a757db"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=12/part-00000-02d498a1-a685-4132-bcd4-d7005df3e7c3-c000.snappy.parquet": {
+   "bytes": 102966,
+   "sha256": "838028318b35fa26b76079b2afd97ca408a228fddf496db76a34368bc716baa6"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=2/part-00000-b1091b70-bd1a-43e6-91ee-d05c9a6359c7-c000.snappy.parquet": {
+   "bytes": 103103,
+   "sha256": "970aad1ff3d0caed1281387cbd162482832a2c9d4804a7ee2d600f08cd1f1bf4"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=3/part-00000-7c61c224-e61e-4b37-81b7-c88e997868eb-c000.snappy.parquet": {
+   "bytes": 103086,
+   "sha256": "7ee3ec6f9e95a457a0535ceb5d226b4ca34b5d27a587f4b371de85a5faeafc47"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=4/part-00000-4b5ae515-ab06-4830-8e76-7abfe978cc87-c000.snappy.parquet": {
+   "bytes": 103124,
+   "sha256": "056eebeacd354e27a588ebabc6e2a72ec5ddf7968c9c9cf2dc6e1c0de48d6e43"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=5/part-00000-8dd58fce-7ded-42cb-aa93-47c55b065623-c000.snappy.parquet": {
+   "bytes": 103041,
+   "sha256": "7e0d851e05b75b5aed0d3189e42c5bf7914fd24dbf7edcdf3c8df78cbb1a3631"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=6/part-00000-d5976fa4-d050-41b3-9021-24dffeb8d36a-c000.snappy.parquet": {
+   "bytes": 103080,
+   "sha256": "743956b22faeb9fcb77a551046f1baafe9959fc5d36b5a6507fe54c2ee1622d0"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=7/part-00000-806b1809-45ef-4bef-8c8f-c2e2354eb5bd-c000.snappy.parquet": {
+   "bytes": 103233,
+   "sha256": "d3c2216d6ff1b29d2347758cb313ea55d69c028627c3ebe6d0981fcd8a46bb9b"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=8/part-00000-466d65c5-ebaf-49a8-9e9a-f47c446fc13c-c000.snappy.parquet": {
+   "bytes": 103184,
+   "sha256": "fa5829eb0e726e78d714cf1d7f0811dde89a70ac8e092bed063b591842dbdfa0"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2021/Fiscal Month=9/part-00000-8723571e-4099-4d3e-acec-1f0ac836bf77-c000.snappy.parquet": {
+   "bytes": 103041,
+   "sha256": "01a9fb75222bd763d297aa65d34349df6436e7b6a00282b3ba0ff69f75813a9b"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=1/part-00000-3dab81f5-a3ee-4674-9100-867f0014cd23-c000.snappy.parquet": {
+   "bytes": 103147,
+   "sha256": "02cee6dccf9cd2096f4233bfc0f37b6d3e14a7837823b06b7fc2d6ba41f1094d"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=10/part-00000-adb166ad-897f-4d40-9de7-104f89de03aa-c000.snappy.parquet": {
+   "bytes": 103290,
+   "sha256": "d7b9c650d9cee864f3921c1d4006218df42980ec4d767e80dceed10e00427707"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=11/part-00000-7d9e0d0f-8c92-43c2-a9a3-767f7acc77e7-c000.snappy.parquet": {
+   "bytes": 103194,
+   "sha256": "97a03311cc593a0b57466c47492d2b575d6c5fb3f86780113d3a2cc1bf520775"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=12/part-00000-4524da1a-dae1-4360-8aa9-ed626e8e7619-c000.snappy.parquet": {
+   "bytes": 103089,
+   "sha256": "b50b5633c9d06f831e699634284617e8fbfe34605a8253b2aa08da3e0b685e5b"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=2/part-00000-f537331f-4e29-459d-a288-d7a05c0fe62d-c000.snappy.parquet": {
+   "bytes": 103047,
+   "sha256": "1147e627f929fafb247e19fc11bdba4b69d403961b24099635c369e555c92a91"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=3/part-00000-e1551495-595f-41d4-8de6-28554c529a6f-c000.snappy.parquet": {
+   "bytes": 103148,
+   "sha256": "7096fa1c8cd5f54e18330b7e771337b5dc28f437c75a89eda299a4274de24132"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=4/part-00000-c8040135-e1dd-4686-9b46-c281c88affa8-c000.snappy.parquet": {
+   "bytes": 103066,
+   "sha256": "cdfb248e0d5f9ec2db928a2881f557dd6683d1a2a19cc77bbf9f59ad64b411b3"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=5/part-00000-dcc089f3-015c-4802-ad21-16167c5b5bce-c000.snappy.parquet": {
+   "bytes": 103135,
+   "sha256": "fe3cdf8c73a1dcf8ead7382a24d73ffe70f771b37f7e5ea040eb11d3521ea28b"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=6/part-00000-55401bb9-c7df-44a3-8833-c87ebb8de593-c000.snappy.parquet": {
+   "bytes": 103128,
+   "sha256": "7a0f4cdad17129224a1b5f50c5c86ce1454ccb20c9833e1bf1fe33279ca8b0cf"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=7/part-00000-455c8f45-7d4c-4796-856c-b5171543d563-c000.snappy.parquet": {
+   "bytes": 103231,
+   "sha256": "e85e7b2c20305f0852df263cef65605902dfcc4d7f6987eba2a189a53c9431fa"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=8/part-00000-b7c3d370-530d-486e-a38a-138b1388a370-c000.snappy.parquet": {
+   "bytes": 103128,
+   "sha256": "542d5d27445f1be9d7eccdc8995f089c3e007806e2e733bbdfe8f3697122ec69"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2022/Fiscal Month=9/part-00000-17e5a16b-92bc-4ff0-a22a-674009b5cc85-c000.snappy.parquet": {
+   "bytes": 103099,
+   "sha256": "ddc5be2814c317ba01fd6586c2ce08f8903675d87b8f34620471a813a70c40db"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=1/part-00000-cf8ce531-546a-41f4-a025-ab0798f3d5ac-c000.snappy.parquet": {
+   "bytes": 103180,
+   "sha256": "3af0a3e332413db15db825d4f6dddab0119433bd9846df7ad39dc1dea4021df6"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=10/part-00000-2eaa69f8-9787-4f15-b718-70a2e1b46d41-c000.snappy.parquet": {
+   "bytes": 103206,
+   "sha256": "93755588b450ad7d1eed2b1c457d588b4d03259504814e1f8fbd55e1c9154811"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=11/part-00000-a560e3ae-9f45-4c88-be06-603b4f9fb58e-c000.snappy.parquet": {
+   "bytes": 103003,
+   "sha256": "45f159c12fec2326e28685d58436413e633f567ab0848cd2990c28b2b22325a8"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=12/part-00000-561d980d-423d-4f8e-a4d8-b6846273eb95-c000.snappy.parquet": {
+   "bytes": 103145,
+   "sha256": "016ced9f1be43488e7a3348b517cd21d689085fd83abf85f9b5b2b792d33e05b"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=2/part-00000-19b35820-e983-4de7-9274-31408124b626-c000.snappy.parquet": {
+   "bytes": 103043,
+   "sha256": "5c6b7b9324ddd933ff2116d28e7c6e2d5605dfb56e8e955f2813a54e7c6e9f3f"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=3/part-00000-93e18f58-30ac-4627-9322-07a01df5c30c-c000.snappy.parquet": {
+   "bytes": 103202,
+   "sha256": "b2ed24e2d3ded71dce9f36450f560c56dda8ebda38806dd8a9c0e0b907b5cb27"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=4/part-00000-5410b888-b634-4352-ad47-9c740895ef1e-c000.snappy.parquet": {
+   "bytes": 103081,
+   "sha256": "efedbc907aed82e35070c6c214fa1f378d7d27b3e5e640216cbf9cf691035b3b"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=5/part-00000-b0fbdac9-7bb8-43fe-8450-b573d6684fab-c000.snappy.parquet": {
+   "bytes": 103135,
+   "sha256": "c53e3dc0ea258304d8091ffcf9eee19ddd96808cd63e39a3a26bc304b5216641"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=6/part-00000-789cbf5f-7c2f-4578-b8a0-095feba6265c-c000.snappy.parquet": {
+   "bytes": 103138,
+   "sha256": "63160a89713a6ee58b92fe66d08062393a33b0859719497be4cd91668a59d7da"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=7/part-00000-fa68ab3e-94b1-439f-a8d0-a3d77b87e003-c000.snappy.parquet": {
+   "bytes": 102947,
+   "sha256": "99fb4d7f4225b182f6583d911edb5541c96a6cd76710d169402b3f5e236ab05e"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=8/part-00000-d87b015c-ef49-4adf-87bf-86290e6620f2-c000.snappy.parquet": {
+   "bytes": 103187,
+   "sha256": "c7273ee3e6990c0c95cb96d2c1acc0a052da8d50268cab08f45bee584a5d5521"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2023/Fiscal Month=9/part-00000-eaac0772-4700-443b-8af6-d09f7df0e948-c000.snappy.parquet": {
+   "bytes": 103184,
+   "sha256": "0eb8cbbe7f12d9f984926541f3a607857828f82bcc64207a12b24cb0125793ae"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=1/part-00000-9b4118ac-6e56-4b3e-8dc6-601662b1ad7f-c000.snappy.parquet": {
+   "bytes": 103162,
+   "sha256": "3705a5d248c258e58c73f7d6f68776d245257f0af1ad7ac7548868d34f8a28f2"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=10/part-00000-8aab2afa-9f37-44ef-b842-4762cc15d324-c000.snappy.parquet": {
+   "bytes": 103149,
+   "sha256": "e2e48c28b3cb2aaf44c866d2c86daf58e59bcc76e16c95425410f7665644d58b"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=11/part-00000-09fa3404-e4c1-434a-8218-bdb32d5157b3-c000.snappy.parquet": {
+   "bytes": 103030,
+   "sha256": "34672a2a6c9b34026ba611321870077cdc63c9b1293a82f99790621c4a228242"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=12/part-00000-d61c17a9-3186-4eaf-9a6f-e40d6ad42a34-c000.snappy.parquet": {
+   "bytes": 103179,
+   "sha256": "4e4e226eb6dfd13d1610200641fa0e30a5b7d3a8c58943727f04fa3cfc6422d1"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=2/part-00000-abd799c0-d843-4755-9960-f45bf63e9e39-c000.snappy.parquet": {
+   "bytes": 102945,
+   "sha256": "264dd8b6c076e8b4f65cf284f41303b4e0bf17d57a5160e5140c64eab03fabe2"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=3/part-00000-b764b98f-98e4-46fb-b91e-dfca6a207722-c000.snappy.parquet": {
+   "bytes": 103282,
+   "sha256": "9f5a3dc07a23670cdaa3582289c1bf967a838bd1e69e9d5d51ab7269e0a500d8"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=4/part-00000-eed3d95d-eba0-4fce-ac4d-47e905a12b89-c000.snappy.parquet": {
+   "bytes": 103132,
+   "sha256": "5d87cfabbdb844f0fa532dd3103c48e5d2d83d8ce4d1e9eb082b9447ab29b83a"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=5/part-00000-305ae538-3d6e-461f-a775-382bfc1ea732-c000.snappy.parquet": {
+   "bytes": 103052,
+   "sha256": "50be2e88a3a76d4b6813b00e23508e59b9a788ff7df14120dfaa5d05d9d1201c"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=6/part-00000-99544a55-0809-4c0b-8bf4-23fff6148bb0-c000.snappy.parquet": {
+   "bytes": 103172,
+   "sha256": "6ad99b64fd71ea4ceb9cc4b3eb6d60d76d44a6691604e142fe0bf7a70e24fbab"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=7/part-00000-0d0ee95b-9360-4503-b57a-f554c8c5a3e9-c000.snappy.parquet": {
+   "bytes": 103216,
+   "sha256": "c0cac67e4945146dd1b490c68aa82901739ee3464fb561047b6b42838f74777d"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=8/part-00000-821e07db-5daf-46bc-b7b9-0dc907f81c4b-c000.snappy.parquet": {
+   "bytes": 103127,
+   "sha256": "0e1ae4e8eebf223ef9b6e2d1e8710ec6d564bcabbde6ebe8fd3f92a3b3fb8160"
+  },
+  "facts/fact_inventory_snapshot/Fiscal Year=2024/Fiscal Month=9/part-00000-34516ec8-eaec-4ecb-9679-dbc79b334c5a-c000.snappy.parquet": {
+   "bytes": 102871,
+   "sha256": "3c2a1045e32bc7a9b75d6091c4c4e394189e420f39603906d9832e04eec73bca"
+  },
+  "facts/fact_inventory_snapshot/_delta_log/00000000000000000000.json": {
+   "bytes": 47737,
+   "sha256": "eb8d38ef36460ac316d19c6d100c92710b7d28017d1cf03d0873514170e34158"
+  },
+  "facts/fact_inventory_snapshot/_delta_log/00000000000000000001.json": {
+   "bytes": 63352,
+   "sha256": "31f1d4b20e0692bbcbf1ea7895811fd1f68cd8af6a2ffc8da38a605760edd771"
+  },
+  "facts/fact_inventory_snapshot/_delta_log/00000000000000000002.json": {
+   "bytes": 63346,
+   "sha256": "f2741a28301f6b1fa787a284f6a0e144d2715fb2d657619c50adf8a45361c9f8"
+  },
+  "facts/fact_inventory_snapshot/_delta_log/00000000000000000003.json": {
+   "bytes": 63346,
+   "sha256": "74c2313e6d840ce87ca3c043894c3992ada52e2c81a2c07c443f95e110dfc192"
+  },
+  "facts/fact_inventory_snapshot/_delta_log/00000000000000000004.json": {
+   "bytes": 68187,
+   "sha256": "f4ef221530fa37287e9480882e9f50874b0fcd8ceea902037dbb4db5ece1107c"
+  },
+  "facts/fact_inventory_snapshot/_delta_log/00000000000000000005.json": {
+   "bytes": 336,
+   "sha256": "fc2b3b9086ec65f6e06e4dbc3d5c5844ed9f2177e230fd2bbd0dc9c461da8463"
+  },
+  "facts/fact_inventory_snapshot/_delta_log/00000000000000000006.json": {
+   "bytes": 251,
+   "sha256": "49c70f6a6ba3213c665b3c348a1af6034481182ae1329968ac09fff37ed36f69"
+  },
+  "facts/fact_labor/Fiscal Year=2020/part-00000-a1607767-aaee-4234-9f81-39e304a1d85f-c000.snappy.parquet": {
+   "bytes": 55814,
+   "sha256": "fec01e0eafecea435ce0d58b4dfee6f1e146771051e47a1dd3124bb4d0bb9623"
+  },
+  "facts/fact_labor/Fiscal Year=2021/part-00000-c08724d5-4207-4c3c-8ece-34432124ecd8-c000.snappy.parquet": {
+   "bytes": 57517,
+   "sha256": "06a098c07df6ea70a85de80ba67049060e82a09411793ae588dbd60445747131"
+  },
+  "facts/fact_labor/Fiscal Year=2022/part-00000-e5875101-8a40-4ef2-90d8-66ee5eba3790-c000.snappy.parquet": {
+   "bytes": 57102,
+   "sha256": "4942a4d25622d93f4aaf0ca16a9a4e429bdaae5f3759003878fc71735e8d16bf"
+  },
+  "facts/fact_labor/Fiscal Year=2023/part-00000-9c92e516-9b08-4710-8be3-04289090b1d4-c000.snappy.parquet": {
+   "bytes": 57851,
+   "sha256": "41da55110cde3df37acf9f095a37ddea7d44737e3b53d4a7079441a62cb4edc7"
+  },
+  "facts/fact_labor/Fiscal Year=2024/part-00000-aff62a23-3528-46c8-b14a-fde7f5a72b28-c000.snappy.parquet": {
+   "bytes": 58520,
+   "sha256": "4038133b25da320d3ffbc38a6a4edd0d3fc0a31d8ec262d8c5fe6de4a61fefa1"
+  },
+  "facts/fact_labor/_delta_log/00000000000000000000.json": {
+   "bytes": 4392,
+   "sha256": "a57841c5eb9fad22510f313a3d739660c6c6ddc39af20cf9d1a675efca634347"
+  },
+  "facts/fact_maintenance/Fiscal Year=2020/part-00000-d106353b-2556-4fe7-9934-c1dc1fd32d96-c000.snappy.parquet": {
+   "bytes": 2346,
+   "sha256": "3e83282c86725f084aa59da75f3d17122df1c48563c4baa7a07862a046268ada"
+  },
+  "facts/fact_maintenance/Fiscal Year=2021/part-00000-641a2030-bc65-43aa-8c28-e3c65820f24a-c000.snappy.parquet": {
+   "bytes": 2373,
+   "sha256": "61dfdd7f03318c01d08f2a7d89cc4abf28ebf1e28b2c960d7fc237c31d8c5389"
+  },
+  "facts/fact_maintenance/Fiscal Year=2022/part-00000-b46012a3-ea76-414a-852b-d96a12ae69a8-c000.snappy.parquet": {
+   "bytes": 2314,
+   "sha256": "7c65a2d6cd65d2b5e8189eac160ac1a5e678e8116b45e62ed8870b3a8270fb0a"
+  },
+  "facts/fact_maintenance/Fiscal Year=2023/part-00000-1570eb3d-8251-4e7d-a95c-304619a4e315-c000.snappy.parquet": {
+   "bytes": 2373,
+   "sha256": "a2ff280212eadc2a7f2aa0f53c02c19f323ff0338443fbffa321e5bcfad6fc4d"
+  },
+  "facts/fact_maintenance/Fiscal Year=2024/part-00000-3ff1d701-3c2d-429f-ab50-bfbd3f152e13-c000.snappy.parquet": {
+   "bytes": 2304,
+   "sha256": "3c37a7da19c3547d52fff1b00f7790cc43aa2f213df62db2de1d02ade2093972"
+  },
+  "facts/fact_maintenance/_delta_log/00000000000000000000.json": {
+   "bytes": 5081,
+   "sha256": "5fc02ea405364e843c2eb3b6ca5a289702a98368c18a82e0c89989e83d1063ba"
+  },
+  "facts/fact_nps/_delta_log/00000000000000000000.json": {
+   "bytes": 1908,
+   "sha256": "e3d7a78fb9d7a509a761348950989e31a1ad17234ef733d77b028ab1036bf4be"
+  },
+  "facts/fact_nps/_delta_log/00000000000000000001.json": {
+   "bytes": 1251,
+   "sha256": "ab30332a01e9e9e7b65186aac271f215a65a9bab858cc89eca00fece1642eeb3"
+  },
+  "facts/fact_nps/_delta_log/00000000000000000002.json": {
+   "bytes": 1251,
+   "sha256": "75984f125d05af1a3174e64b9a2e11dc0b6c7e589e12eef946aee8a00c341329"
+  },
+  "facts/fact_nps/part-00000-78fe4959-1752-4c8d-91f9-3f8f027f9092-c000.snappy.parquet": {
+   "bytes": 15912,
+   "sha256": "a8388af9805424242b81bee0b3cbc02dd671e655c2ade2de658d9dc8ad55626d"
+  },
+  "facts/fact_opex_costcenter/Fiscal Year=2020/part-00000-d2680591-9ea1-4ec2-8e70-05f8755d61ac-c000.snappy.parquet": {
+   "bytes": 287025,
+   "sha256": "d59a3ba1474e505dc92f82a0cb20cef3c6199d86231dd187f48e1d130b7b7c77"
+  },
+  "facts/fact_opex_costcenter/Fiscal Year=2021/part-00000-b6d1738a-a88b-407d-b00b-5f7c3c46fdc5-c000.snappy.parquet": {
+   "bytes": 287305,
+   "sha256": "3a55af9e309c9edd5579ba9b1c6cac28c6fde8ab7df902d8d487e3179175ed35"
+  },
+  "facts/fact_opex_costcenter/Fiscal Year=2022/part-00000-d4db5dde-f143-4560-8c97-361dbb8f2232-c000.snappy.parquet": {
+   "bytes": 287431,
+   "sha256": "eb631344646b4884f4242ac5b19597eea660dae3ddccc2ab246d80d91ef37adb"
+  },
+  "facts/fact_opex_costcenter/Fiscal Year=2023/part-00000-a5fca97d-1dbb-446b-bd75-8ad3ab72fb9c-c000.snappy.parquet": {
+   "bytes": 287553,
+   "sha256": "50341ae0c48c29f20c04e3e1db347adc86e9833ef7819c5c81d7cecd0b3d2f51"
+  },
+  "facts/fact_opex_costcenter/Fiscal Year=2024/part-00000-ab1e172b-6953-408e-a034-f1a1f0e02dcb-c000.snappy.parquet": {
+   "bytes": 287887,
+   "sha256": "27d6ebb55891bb4fdb61d0e6705a20e8633156aa5164d55c0997f6c5121478c5"
+  },
+  "facts/fact_opex_costcenter/_delta_log/00000000000000000000.json": {
+   "bytes": 4571,
+   "sha256": "4545d42eac0ab4761f4d5545098c802ebc67a14b8053d9e33f1a915d18697b2d"
+  },
+  "facts/fact_ops/Fiscal Year=2020/part-00000-001ec9e1-c3b3-4cab-b0cf-4aadcf2dceb9-c000.snappy.parquet": {
+   "bytes": 213523,
+   "sha256": "3646bce1013f4f30e68d9c43de8f79825d4dd629e282a8ac34513f1962b95585"
+  },
+  "facts/fact_ops/Fiscal Year=2021/part-00000-30207947-82dc-401f-b365-af067b877d35-c000.snappy.parquet": {
+   "bytes": 216991,
+   "sha256": "01bec1eb9500d146dfa12e86cc1aa972440268c06afe0c9120aaa33ed07065ff"
+  },
+  "facts/fact_ops/Fiscal Year=2022/part-00000-55376f8b-f22c-41ca-93a3-6218ae0e4841-c000.snappy.parquet": {
+   "bytes": 212990,
+   "sha256": "e8798fd5e20dab9177684bd4e21d2b5de3ab47b662da33cb1102600f9d06bc79"
+  },
+  "facts/fact_ops/Fiscal Year=2023/part-00000-20c76d7a-6a75-470e-9db9-5f888bd45f29-c000.snappy.parquet": {
+   "bytes": 212332,
+   "sha256": "e2c8fff090781ce6de771a4eb7f212a80a4933378329d65865cd92cf8225527e"
+  },
+  "facts/fact_ops/Fiscal Year=2024/part-00000-4a5a0546-5645-4674-b60a-67b5edc9f2ea-c000.snappy.parquet": {
+   "bytes": 213674,
+   "sha256": "9cbdac9e24acd7da3adeb37230e7093854fc7642438d79ffcc006b96c43cc8e4"
+  },
+  "facts/fact_ops/_delta_log/00000000000000000000.json": {
+   "bytes": 6935,
+   "sha256": "7e0c0f0337f9d4cb7733daa2f55b2cf5d5a112fc7aeecba87f2b794ce680feec"
+  },
+  "facts/fact_ops_failures/Fiscal Year=2020/part-00000-89a520d4-4b77-4bfa-b4c3-8a449a496769-c000.snappy.parquet": {
+   "bytes": 3881,
+   "sha256": "f02e7ccb3132c7ac7688dd7e621852e7d1a103c2c91b234ca3b2d9999973e0b4"
+  },
+  "facts/fact_ops_failures/Fiscal Year=2021/part-00000-7b4505ef-3a20-4646-8cc9-d7abba27ad56-c000.snappy.parquet": {
+   "bytes": 3939,
+   "sha256": "281311b2c9e750e732237612837f3f32af115c58d31f4bf17477b6a7f53a75a4"
+  },
+  "facts/fact_ops_failures/Fiscal Year=2022/part-00000-110171a4-54bd-4c7f-8afc-99a805e5bfc8-c000.snappy.parquet": {
+   "bytes": 3943,
+   "sha256": "2c264d40fb0cd9438b814385dbe1998ae84b664dcd6796ff0735702c29b440f0"
+  },
+  "facts/fact_ops_failures/Fiscal Year=2023/part-00000-f8749cd0-6864-4d8a-ae05-9b3623fce133-c000.snappy.parquet": {
+   "bytes": 4032,
+   "sha256": "391749cd307e1fcc6a0c0764c432f4a78e61958bcfb09612e5fbf0e87f6d7ad8"
+  },
+  "facts/fact_ops_failures/Fiscal Year=2024/part-00000-2c769e8a-2d84-4a4b-b92c-dbc5724be880-c000.snappy.parquet": {
+   "bytes": 4158,
+   "sha256": "7a5c5bf212a25704a9022e16a83050def820f97af57e3b4b1ae42b0cb0a40ca6"
+  },
+  "facts/fact_ops_failures/_delta_log/00000000000000000000.json": {
+   "bytes": 6388,
+   "sha256": "e00f4f8dd11239dc57bf1580721247c369180ddb687c5e555c880d100c574c64"
+  },
+  "facts/fact_output/Fiscal Year=2020/part-00000-8388bf11-ecc7-4000-934b-95c4920af31c-c000.snappy.parquet": {
+   "bytes": 1162755,
+   "sha256": "0c9dd132213c758f87d49fc89426ece64deb23547d3cdc80ebea08a0bf440cd3"
+  },
+  "facts/fact_output/Fiscal Year=2021/part-00000-79e5c92b-6528-49c8-84b4-e363f0cb3562-c000.snappy.parquet": {
+   "bytes": 1180269,
+   "sha256": "311f5ab9976f7170051b9b4f0ac918a87f3d54df840f33c516433dbc9acaa837"
+  },
+  "facts/fact_output/Fiscal Year=2022/part-00000-8bd0b86e-a900-4afd-9b9f-ef0b8ca91a61-c000.snappy.parquet": {
+   "bytes": 1157085,
+   "sha256": "0a43ba95e66e3831f127a5f9fa3637d376cceba559e6776b23f2901c2957a9f1"
+  },
+  "facts/fact_output/Fiscal Year=2023/part-00000-24253f61-51d7-4934-b742-66f1952fc46d-c000.snappy.parquet": {
+   "bytes": 1184253,
+   "sha256": "2432470f99f83712ba8ef9cd39b14cfddf53fd6c6808656d308166d7eecbe455"
+  },
+  "facts/fact_output/Fiscal Year=2024/part-00000-87d60397-b738-4461-bcb3-a7aa5cf03b77-c000.snappy.parquet": {
+   "bytes": 1217743,
+   "sha256": "2ecefe9ac608d2e3dbac511caa84d4beffda8a9bc9c42e9160fba075309be43d"
+  },
+  "facts/fact_output/_delta_log/00000000000000000000.json": {
+   "bytes": 5275,
+   "sha256": "3eb40ea0f497d00e218dd07dba0901a8aafb8a1ab910d97f8d995f8a54aacad5"
+  },
+  "facts/fact_pipeline/Fiscal Year=2020/part-00000-371d5b7b-1429-444b-86e0-918fb9a93fee-c000.snappy.parquet": {
+   "bytes": 29549,
+   "sha256": "7299a9c1c0aae13e335c31d6a53f29a3cde389bf6c5f2cc1b9cb1cf183a441df"
+  },
+  "facts/fact_pipeline/Fiscal Year=2021/part-00000-fc677505-479c-4358-b4f6-4bdc1e51a67a-c000.snappy.parquet": {
+   "bytes": 29151,
+   "sha256": "c40963421e0e5e77a0a889f3f86942e2de65683180bdccc3407b6d536c19860a"
+  },
+  "facts/fact_pipeline/Fiscal Year=2022/part-00000-7f1a186e-20dc-4948-b591-5a95dff6170c-c000.snappy.parquet": {
+   "bytes": 29712,
+   "sha256": "9a9b7aab5fd0ae79e4c3ded39b42ce9d83306016b40b19780b52cc5ff344925d"
+  },
+  "facts/fact_pipeline/Fiscal Year=2023/part-00000-8e3130a2-948d-4771-ae7c-59fb08b123b1-c000.snappy.parquet": {
+   "bytes": 31031,
+   "sha256": "88d095daf1966fa6ba0a9738d8bfa23047346624a3216a55703f7d4e238fc400"
+  },
+  "facts/fact_pipeline/Fiscal Year=2024/part-00000-c786db69-937d-4e80-b2cc-90ce2318ab9a-c000.snappy.parquet": {
+   "bytes": 33451,
+   "sha256": "af09ea41491bd0ba75ea2c65db7df79c7ff4bb177880e19a4a59a37e19b4e136"
+  },
+  "facts/fact_pipeline/_delta_log/00000000000000000000.json": {
+   "bytes": 8595,
+   "sha256": "9ecf2c345b077cec9646444c76607afd96e3bcd43bf31facbae0114fd53dec4c"
+  },
+  "facts/fact_plan_sales/plan.parquet": {
+   "bytes": 37415436,
+   "sha256": "cfd14c1b9bca58e1bb8e4d0f5bdcf378a6264d1e519e5b537dac72d1186e800f"
+  },
+  "facts/fact_procurement/Fiscal Year=2020/part-00000-d30fd2fb-b76c-4137-aee4-2ea4ba298b12-c000.snappy.parquet": {
+   "bytes": 624921,
+   "sha256": "c4ba264d6d269a58860047842dcc02bf5c458442b36a18047bab974696e4e0f3"
+  },
+  "facts/fact_procurement/Fiscal Year=2021/part-00000-2a3c6789-3567-471c-b6e2-97b77c60d469-c000.snappy.parquet": {
+   "bytes": 616297,
+   "sha256": "f2c726956fdc9dc52f3c308c2ee7394863cd530a50e7c118f94740ff56e8dba5"
+  },
+  "facts/fact_procurement/Fiscal Year=2022/part-00000-f6266099-d107-4e1f-bc45-589a14a68f28-c000.snappy.parquet": {
+   "bytes": 621715,
+   "sha256": "cad725396ff33d8d32547624e431c54d39bac1a8211313f6824400237db90c03"
+  },
+  "facts/fact_procurement/Fiscal Year=2023/part-00000-2ebb298f-d12f-4ea8-b408-7d4a24cb0e77-c000.snappy.parquet": {
+   "bytes": 627519,
+   "sha256": "11f50501ab364075f8851e9bf4597758532aa7abef426a352dd7c263a0dc1d1a"
+  },
+  "facts/fact_procurement/Fiscal Year=2024/part-00000-04b2f094-f2ed-425c-bc57-fb2514cdcd4d-c000.snappy.parquet": {
+   "bytes": 621313,
+   "sha256": "662844114684fb62db1248247e94aa80a0c70dd62b326d169730210ed2890c5d"
+  },
+  "facts/fact_procurement/_delta_log/00000000000000000000.json": {
+   "bytes": 10338,
+   "sha256": "67165f547987ab40134d5368adb6de42a11da03000a960928d57c4fca08c1eb0"
+  },
+  "facts/fact_procurement/_delta_log/00000000000000000001.json": {
+   "bytes": 12050,
+   "sha256": "e53039c385950111a44fdfa869bd03d6fd7b114c35ff88e5d57e4f88f515ffe8"
+  },
+  "facts/fact_procurement/_delta_log/00000000000000000002.json": {
+   "bytes": 333,
+   "sha256": "3fe4379f6abfafb6b7427363afbea047a2f9b344a91751f131999f2e84d9f007"
+  },
+  "facts/fact_procurement/_delta_log/00000000000000000003.json": {
+   "bytes": 249,
+   "sha256": "93400a5d810dc1bd7cb257896906cfc0b536e3507ba68182ad934c0b202d6dbd"
+  },
+  "facts/fact_procurement_receipts/Fiscal Year=2020/part-00000-2d10d905-a65b-4118-aee5-e9fe02751444-c000.snappy.parquet": {
+   "bytes": 12346,
+   "sha256": "6dd351bbb4a05a14b009e5a993a84c157cdc3509b3b0fbc1e07a3c2097272235"
+  },
+  "facts/fact_procurement_receipts/Fiscal Year=2021/part-00000-3e43ae6a-0761-4868-8706-3e1e2da5956a-c000.snappy.parquet": {
+   "bytes": 14610,
+   "sha256": "7395c717d85e416ffd3aeea702961adabbf162cd42bdfb4c4e56e5513d000758"
+  },
+  "facts/fact_procurement_receipts/Fiscal Year=2022/part-00000-52c68b4b-95c6-4177-ae6e-cc50730e1d18-c000.snappy.parquet": {
+   "bytes": 12475,
+   "sha256": "bab3615122ed2af618c097b25f526776c7e62843aa51392a4bc2904ca2f69959"
+  },
+  "facts/fact_procurement_receipts/Fiscal Year=2023/part-00000-66c95f65-d383-4a52-bd3e-07e6c27e6d9d-c000.snappy.parquet": {
+   "bytes": 14775,
+   "sha256": "62d5381db7c3c13eb399cf5cd4af857d3d65b463177f8271e6b3c7f9d008f71b"
+  },
+  "facts/fact_procurement_receipts/Fiscal Year=2024/part-00000-1bb19190-7d77-42b0-b3f4-8682ccb4c140-c000.snappy.parquet": {
+   "bytes": 12427,
+   "sha256": "7ac436bf379fb5f0a8785a92c32c430ee495fe9c13aac9741c443c939986ec18"
+  },
+  "facts/fact_procurement_receipts/_delta_log/00000000000000000000.json": {
+   "bytes": 5200,
+   "sha256": "e30085034e76d9d28900468d9e36d40542741715d5b3083121ea0ccda9df02e6"
+  },
+  "facts/fact_promo/_delta_log/00000000000000000000.json": {
+   "bytes": 1976,
+   "sha256": "ffde68c6ccad7afb42609e692e9f3cfbdd0998b51fb4163428925ac2bbe6d386"
+  },
+  "facts/fact_promo/_delta_log/00000000000000000001.json": {
+   "bytes": 1347,
+   "sha256": "7e5112728a3470ae4d022adffddcaf1d16eda6ced706722f58d01075ca8580db"
+  },
+  "facts/fact_promo/part-00000-a9d2ed2c-1e74-4aa6-9cac-c7032747d415-c000.snappy.parquet": {
+   "bytes": 4422,
+   "sha256": "25deaced131e7ea7c19a174a310527af9d51e04cf79d46060d241d7e75e92a6b"
+  },
+  "facts/fact_quality/Fiscal Year=2020/part-00000-440e5152-d02c-49b1-b83b-58ab977a38cd-c000.snappy.parquet": {
+   "bytes": 183099,
+   "sha256": "8a5bf4a2c3f471ca823dc5bdf20c1c307820b69b1d3ef1777736913d85206ae8"
+  },
+  "facts/fact_quality/Fiscal Year=2021/part-00000-eca8c735-2149-47e1-b343-88e055f9e3db-c000.snappy.parquet": {
+   "bytes": 185138,
+   "sha256": "14b0990e1b7525000e04e4f27a83ae29519614b0b12f2987b6a889b1a7603a8f"
+  },
+  "facts/fact_quality/Fiscal Year=2022/part-00000-58b90690-8f6b-4d53-b434-33317e97f6ba-c000.snappy.parquet": {
+   "bytes": 182431,
+   "sha256": "ab91e46a528057b6e80111d9f82f263085cf5744f77a0210c0612f924f846296"
+  },
+  "facts/fact_quality/Fiscal Year=2023/part-00000-e73aeb1f-fc6c-4bf2-8771-4e96b99ffb73-c000.snappy.parquet": {
+   "bytes": 182390,
+   "sha256": "220f58107d32d3bde14e63ac9135eea6f00ad4866ae26b508f1f3e9628499d8f"
+  },
+  "facts/fact_quality/Fiscal Year=2024/part-00000-cf21b20f-1b62-45a9-b061-dd996c96984d-c000.snappy.parquet": {
+   "bytes": 183109,
+   "sha256": "188fc1313d53c37a3bd9e175ff06de6bbddf1e36b5c31e1cb1e856aa4dc67b10"
+  },
+  "facts/fact_quality/_delta_log/00000000000000000000.json": {
+   "bytes": 5527,
+   "sha256": "24e72141ef9893d7bbac944b3446fb6aafde2c761789719dbf4b1ce72180fddc"
+  },
+  "facts/fact_quality_costs/Fiscal Year=2020/part-00000-94ac6d8f-8d6c-49ea-82ef-09f7ff0404cd-c000.snappy.parquet": {
+   "bytes": 3733157,
+   "sha256": "c7f48e6390c9c840384582ee20167c9fd7d2f12a661de2939f4cb260a3f41b71"
+  },
+  "facts/fact_quality_costs/Fiscal Year=2021/part-00000-c7ee82d6-c177-49df-a5de-c8b8e071b053-c000.snappy.parquet": {
+   "bytes": 3709618,
+   "sha256": "b63377801fd412d1d423eaa5b31b72b97edd94ac54f7a6dd95d2a5680cd6981d"
+  },
+  "facts/fact_quality_costs/Fiscal Year=2022/part-00000-5c298c78-9d83-4558-b3c0-83738640a5ff-c000.snappy.parquet": {
+   "bytes": 3694496,
+   "sha256": "927189e895b7d8cd988413d02a42495d2437cd48077219485c0546d31f2e7d0e"
+  },
+  "facts/fact_quality_costs/Fiscal Year=2023/part-00000-9fa774aa-c33d-4494-9bf3-f68740e849e0-c000.snappy.parquet": {
+   "bytes": 3678537,
+   "sha256": "bcc269cacf527db02a1d2472fbf274e35c29013318b28f5c63238d9a21636906"
+  },
+  "facts/fact_quality_costs/Fiscal Year=2024/part-00000-f4389555-3847-41eb-8eba-fde708932a6a-c000.snappy.parquet": {
+   "bytes": 3663517,
+   "sha256": "9f40838c73494a248ebc27d8b005b440244009d579c0d4d26ca674e68ff62e3e"
+  },
+  "facts/fact_quality_costs/_delta_log/00000000000000000000.json": {
+   "bytes": 5595,
+   "sha256": "2e07c74ac962278a8db9f3f6c821e3a765050b6e403ed3392e424beeffdda454"
+  },
+  "facts/fact_recruiting/Fiscal Year=2020/part-00000-f2151888-f477-40ea-9851-5549a271d4fa-c000.snappy.parquet": {
+   "bytes": 18358,
+   "sha256": "27c880ef583a215a2a542ee023d8a8928bb2011eefd3f1109157b57ef16f48bc"
+  },
+  "facts/fact_recruiting/Fiscal Year=2021/part-00000-4b0d3ff1-c0ab-49e1-89ba-afde0a24ed57-c000.snappy.parquet": {
+   "bytes": 19866,
+   "sha256": "ffea7fad02d6c55500287e711554648a4e21fae2f51eb2eea8eca97a468487c1"
+  },
+  "facts/fact_recruiting/Fiscal Year=2022/part-00000-ad63a1c4-9c47-471e-9c05-aae4b8173983-c000.snappy.parquet": {
+   "bytes": 19041,
+   "sha256": "dad3e87e0ac4819c587f1adfcb14a8a58f52654f0e13fc4c9aefdb4b4bb3dba1"
+  },
+  "facts/fact_recruiting/Fiscal Year=2023/part-00000-286f995c-3038-45f2-a823-354f4509d06a-c000.snappy.parquet": {
+   "bytes": 20376,
+   "sha256": "2f15455626cbbd2d1505854d20df560a771049a214df31668b51f8a24f9ca54e"
+  },
+  "facts/fact_recruiting/Fiscal Year=2024/part-00000-44e32a60-29cc-4676-b370-db84aa498f7c-c000.snappy.parquet": {
+   "bytes": 20636,
+   "sha256": "ebfa8856ee10fdddfc11d429c8deddbfec2c4b4022266043dd6cce79d7d5bbf9"
+  },
+  "facts/fact_recruiting/_delta_log/00000000000000000000.json": {
+   "bytes": 5343,
+   "sha256": "af77a6d5adab4539b8417d0ff42c708f4383ec1196ab854ed5cabf5b4d029cbb"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=1/part-00000-86bdc6de-0c5f-4621-b920-0a3e6055beff-c000.snappy.parquet": {
+   "bytes": 6927379,
+   "sha256": "ef771811ddaec810f296a6cbd99c88f7ba81a8ebcbc2e888f333c30db99259bb"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=10/part-00000-b03eee21-305c-4632-b841-2f7afc06d67c-c000.snappy.parquet": {
+   "bytes": 8214117,
+   "sha256": "31e5bcb3a2c5d9ef19bb6ac2f72b70ac507f15dbd46ff4f2988aa8c070c4cd2d"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=11/part-00000-df1c547a-6021-4131-ba7b-ce338388627e-c000.snappy.parquet": {
+   "bytes": 8918212,
+   "sha256": "17950ca0c4bed169e3d6616aaa1ed8ad27b67c8793558e0261c9b6908997ece7"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=12/part-00000-4c0558ca-562d-4499-ba87-91cdb05e9f72-c000.snappy.parquet": {
+   "bytes": 9769702,
+   "sha256": "b64141605f123c11a0c7ffb12a5cc97dd8b93cb443c1a900fb0955c06e67365c"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=2/part-00000-f712543f-4b08-4ef0-a7de-dca13ed5f70a-c000.snappy.parquet": {
+   "bytes": 6934401,
+   "sha256": "276923907c487900d807b081e8b04cbaf7f7689c24671910fc00fe106b3e5460"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=3/part-00000-8ce8bbec-5cc1-4abf-b79d-991485dcdb46-c000.snappy.parquet": {
+   "bytes": 7435809,
+   "sha256": "15021349e997bbef56353611578cc14680bff21929b6dbc92f520fd1bf47e48c"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=4/part-00000-855214a4-3591-4d07-802b-a37ee5686e2a-c000.snappy.parquet": {
+   "bytes": 7672095,
+   "sha256": "6fc02e6998c6c270ff750e43e3002c1e6254f800ffcb60c135eba35b68c6f747"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=5/part-00000-d90b337a-5f01-4adc-b02f-a38af2b7aa15-c000.snappy.parquet": {
+   "bytes": 7591565,
+   "sha256": "cc6442d805efb6d6ce09bc8f03968bf4e8d20feb31b074cca76b69b76bc0bbf4"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=6/part-00000-a6d7ddc2-0b15-4e96-b5f9-2b618c009594-c000.snappy.parquet": {
+   "bytes": 7551313,
+   "sha256": "ffe7d8d97f4b5daa9aeabbd3e494e5ee96b1122659539673a945fb5d0581a625"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=7/part-00000-f138ff88-520b-4091-95f3-006b1aec4f32-c000.snappy.parquet": {
+   "bytes": 8316530,
+   "sha256": "e641a13c5bacf83364327419bf9b76e53a1c30ee35358c47b1f43f1b94ac802e"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=8/part-00000-8e6a3f25-070a-44c5-a927-11feea3823b1-c000.snappy.parquet": {
+   "bytes": 7523551,
+   "sha256": "aa9b736dc4bd988996b7dcea23f50351ebff73be2b0f344d62782596d897eca7"
+  },
+  "facts/fact_sales/Fiscal Year=2020/Fiscal Month=9/part-00000-8912e027-5213-4d68-b1c8-a27a3a73b505-c000.snappy.parquet": {
+   "bytes": 7693078,
+   "sha256": "ede1621c0655f33229bc16b6bb0de425fc8468aa6a3ebc5b2e7598c70b70ab2f"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=1/part-00000-a4f0f618-01ec-4db1-8a9b-c2c16291b247-c000.snappy.parquet": {
+   "bytes": 7060883,
+   "sha256": "b204bf2c68b41f34b6124060502b5cc66f73c43883fb7fc04d19118e60fa3607"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=10/part-00000-2878360d-adc5-4fb1-b070-40fe223e4afa-c000.snappy.parquet": {
+   "bytes": 8043917,
+   "sha256": "2bd4273673f97fa2f9c5649db7748b208d9debfd2ae60ad175d3172bbe7815dc"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=11/part-00000-c0cbe0ce-4bf2-4587-8d6f-84378108732e-c000.snappy.parquet": {
+   "bytes": 9048622,
+   "sha256": "793ed37d209d4a6f7d3fb742b16c39ff3ca4988b6cd4634fd590785261641bb9"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=12/part-00000-ecad8527-7490-4d54-b777-1b4acc7156e3-c000.snappy.parquet": {
+   "bytes": 10155512,
+   "sha256": "3aad40d6d1eaefa5bee33544d86cca7cae537453a893847b67531e604bb403b6"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=2/part-00000-ed3c34a2-9005-47b2-a965-9d3ae183ed36-c000.snappy.parquet": {
+   "bytes": 6610881,
+   "sha256": "b4e8f6c2efeb3235e90fc58146a86d328c282aa21fc1d7f347a50353c39b079b"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=3/part-00000-4561a61d-8d71-40b6-9126-dc6c1f6ac756-c000.snappy.parquet": {
+   "bytes": 7778105,
+   "sha256": "c7e1703b566164f77cc9edad07be03d2ada00850b30ff4ea83fce40ceb253f44"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=4/part-00000-94b6274a-f41e-47f6-a522-0b3db562e4a2-c000.snappy.parquet": {
+   "bytes": 7804795,
+   "sha256": "76a872856a8ce9e45afa7e0648c342bf6ec08c9a17417b89da1390f81ee0bde0"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=5/part-00000-af4a88ff-7422-42f7-9d67-a923362e1cd8-c000.snappy.parquet": {
+   "bytes": 7538422,
+   "sha256": "a91112f910022497c3b5184ae420b7950562b05e387807f757464ee998f36db2"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=6/part-00000-bc832997-bf8a-4d53-b92e-81d4d6c64f2f-c000.snappy.parquet": {
+   "bytes": 7642010,
+   "sha256": "ea14b3710597de427f74cd48ebef60346e16b1337a0d4dd4a330fddd52139e7d"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=7/part-00000-29e673b9-7386-4e27-8bff-7b83cb9fb3b9-c000.snappy.parquet": {
+   "bytes": 8208237,
+   "sha256": "8744246cacf09e265797c27495b2cd878089d7e4c32af61156c2900ef60a375c"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=8/part-00000-0aa13fc1-5c27-4b97-ba16-290f89a747d1-c000.snappy.parquet": {
+   "bytes": 7385480,
+   "sha256": "275e4be5493d9c5a49703a006c6e76ae1212cb57b5ac24f15079f9767a2ed17d"
+  },
+  "facts/fact_sales/Fiscal Year=2021/Fiscal Month=9/part-00000-80b446a1-6b2b-448f-97db-7acb711f869f-c000.snappy.parquet": {
+   "bytes": 7707066,
+   "sha256": "8e66904be5cb9500a02100409e36273691a640b8bbad0e052f14ed3fde85c663"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=1/part-00000-029f2331-8980-4311-81f7-cd265262545a-c000.snappy.parquet": {
+   "bytes": 6986909,
+   "sha256": "2120d659ed3438c4f5299092309c0319e5168e77af94032773c44f6da94e0ff0"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=10/part-00000-5952feb9-47bf-4d4e-ab40-d55781c21610-c000.snappy.parquet": {
+   "bytes": 7778732,
+   "sha256": "faaf7739fa757474e898d00d5e7d4abeac5b77c8fa271122295f0b90726423ba"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=11/part-00000-39cc8704-d884-4447-ad5d-e0b611a43dc3-c000.snappy.parquet": {
+   "bytes": 9101693,
+   "sha256": "e2535a01914ddfcb54ca158486670af1fe38c44b803015a9d889821a7658e7cc"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=12/part-00000-b13188ab-d3b9-4d76-b0f7-43de86719048-c000.snappy.parquet": {
+   "bytes": 9697105,
+   "sha256": "d5c218bb9c5808f03b78b1d6b29e8e99b26e860123987f5a7cb1530a4d0dd7ff"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=2/part-00000-5cf04624-cd16-4803-8a10-0b6f791651d0-c000.snappy.parquet": {
+   "bytes": 6557132,
+   "sha256": "626695572d1e4335ec33c51e7f291ff25caa3caf5eb0b270a012e4b16824828c"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=3/part-00000-43191155-7354-471f-81dc-c6826cd6aa5c-c000.snappy.parquet": {
+   "bytes": 7737342,
+   "sha256": "67b0cc9d8866d9800e70408d47ca98e5e80516b5bf1d964d04ab4beda160d81a"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=4/part-00000-bd6f760d-1063-472e-9494-41ec0d4292b0-c000.snappy.parquet": {
+   "bytes": 7616361,
+   "sha256": "46f73b5335f19f44c5c15453c7fd6286ddc8154b849c48a36c60499ddf06ce07"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=5/part-00000-b7041636-8f85-4cae-a436-f95460f1f649-c000.snappy.parquet": {
+   "bytes": 7693762,
+   "sha256": "0c1b550bcfdd387c36e2685dd84afa9692413f50ab6bc603e3b74f06505060e7"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=6/part-00000-8924b72e-bc94-4ab1-a4ec-4399af219040-c000.snappy.parquet": {
+   "bytes": 7662726,
+   "sha256": "b0a633d50630ec0b835370cb71042b61d5f22a98b8ca78fd746071321cdfc541"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=7/part-00000-91b61185-ffbf-4318-807c-428a5a8f499e-c000.snappy.parquet": {
+   "bytes": 8140235,
+   "sha256": "26e633b28cfd46ef8f99e6b15b9e6351715aaa46fe5241aa9d0e1dfcb4b5a07d"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=8/part-00000-87ca1680-1e2c-4cd2-949c-23ffeebd248c-c000.snappy.parquet": {
+   "bytes": 7318499,
+   "sha256": "69fe84ce595576900334b85e25883b489efdef7acfd255222dc759bb3fb30fd6"
+  },
+  "facts/fact_sales/Fiscal Year=2022/Fiscal Month=9/part-00000-79af165c-0a3a-43a2-a4b3-8bc597d510eb-c000.snappy.parquet": {
+   "bytes": 7727531,
+   "sha256": "328846cbc29b7f6a9ddc3c207f1f51c34b7483d2a4de53f327d63e82c043f5ae"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=1/part-00000-fabde9ba-e928-40c6-bae1-2bc13afe7793-c000.snappy.parquet": {
+   "bytes": 7055778,
+   "sha256": "90e7d7f9405ce173925c0d808dd7a410dd4956743c50bbf35b382124eeb237ff"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=10/part-00000-04bf32b2-10ea-4081-bda2-7a0af9063ca4-c000.snappy.parquet": {
+   "bytes": 7793149,
+   "sha256": "095f283be9555ca5f89dcfd958e5f5ee3e71aee910dddefb5e814fdb973511fc"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=11/part-00000-f470c1bb-88b5-4036-9a7f-e109449fb10a-c000.snappy.parquet": {
+   "bytes": 9184197,
+   "sha256": "e8b468c0ac11788bea1a1465a2f8f9af64b82470f8d5a59c02b1046a47181971"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=12/part-00000-5fd7357a-060e-4035-a5fb-0eeefe4cde03-c000.snappy.parquet": {
+   "bytes": 9658208,
+   "sha256": "a6730d2891b4bb561839f86f19596ff064de010c075041921db6f81afb90ad1b"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=2/part-00000-a57d22d7-d325-4747-a785-f96fcdcaf569-c000.snappy.parquet": {
+   "bytes": 6758204,
+   "sha256": "03a504417b41727b48000dfb1dde1ab336e5a90795eba86727972f3c52b46483"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=3/part-00000-95c6caf5-241d-4f56-b60f-7b832510e279-c000.snappy.parquet": {
+   "bytes": 7587209,
+   "sha256": "bee9a77bd8bb97027400249e69bec2457104536698e040eb1218161a4ab87cec"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=4/part-00000-0d6f5d54-019e-4d3d-ae3c-7ced575ebb01-c000.snappy.parquet": {
+   "bytes": 7518157,
+   "sha256": "1f0102a5eb2907cbefa9e72b9dbf0730eba09e021e41a7a7905595e76e954d18"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=5/part-00000-a5a99203-be15-4a7e-9f4c-e126b14eba25-c000.snappy.parquet": {
+   "bytes": 7782452,
+   "sha256": "71b8727ec48a30baa040b2543cf02d79660d0135042326d4222a2162362928d8"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=6/part-00000-92c052b3-90b2-4b16-94e4-99936a2eecb0-c000.snappy.parquet": {
+   "bytes": 7742626,
+   "sha256": "85214c61591a7501f30bc95eae9e617483b0d67c80c50ea3afe0b137221fbe29"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=7/part-00000-659b878f-a5c6-4c49-8e51-ae45b2ec55f2-c000.snappy.parquet": {
+   "bytes": 8115125,
+   "sha256": "6e52d356ae831a304734c3e4ddf7cd7a7e51368a913b58a421bc8af631e1bd95"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=8/part-00000-12a7a134-e178-41a5-a678-5a6fde0f4a0c-c000.snappy.parquet": {
+   "bytes": 7372500,
+   "sha256": "f7f80765c9602fc03723f82f1b8698dd1ce24eb38acd85a37f17b04d202a68db"
+  },
+  "facts/fact_sales/Fiscal Year=2023/Fiscal Month=9/part-00000-d26a49d9-a2fb-4c67-8307-74e75772a9be-c000.snappy.parquet": {
+   "bytes": 7701859,
+   "sha256": "ea253c55665859edb35164f3e318d6130bd3f2c6d2ecbd4e9a4358d6a9ea1e49"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=1/part-00000-43389e0a-6d2f-4e5d-afd9-a7323a52124d-c000.snappy.parquet": {
+   "bytes": 6890568,
+   "sha256": "44d6fb7a334875e2248f66e6334753ac24b0d08d3b65d0701492093fce1853ec"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=10/part-00000-b544e85f-4f01-4f8f-bb28-f672a3692867-c000.snappy.parquet": {
+   "bytes": 7938347,
+   "sha256": "886b245012a54450a9d4cbee1e9c1a3202a6e66bd8b86e38d979368a72e8c6c4"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=11/part-00000-09bcd5ae-1d9e-4c01-928c-42bccd614481-c000.snappy.parquet": {
+   "bytes": 8958625,
+   "sha256": "913b7a5ee0b74b6284be57c7ce06db38e463f7920ce965e56d43113baf1611ec"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=12/part-00000-594980cf-3611-4de2-b741-0266d4b76a47-c000.snappy.parquet": {
+   "bytes": 9626981,
+   "sha256": "14ffe71d2e578065a77ac79e9b21b161df496e7f4109eb361ca14bcb4215cf39"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=2/part-00000-86d8a40d-1f48-434a-b74b-c07f806a39e8-c000.snappy.parquet": {
+   "bytes": 6915069,
+   "sha256": "6318eb5486cc930319cdbf5af4bfe705077b7f7e5c66dfd5513b3a2ae7fcb7c5"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=3/part-00000-58d663b5-7ef5-4f1d-8c12-2f6b5e34b9f7-c000.snappy.parquet": {
+   "bytes": 7559998,
+   "sha256": "e9319abde1e8e07be08bcef2956fafb0a9c4075bb7b0d0ffaec9452a6103004a"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=4/part-00000-16b3c193-c256-47b4-aaa8-e0f589a088d0-c000.snappy.parquet": {
+   "bytes": 7673213,
+   "sha256": "a4479df5f28a389eb70265d4f1ae787c100c9e0f0edf4a1a410cc9337fe5e756"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=5/part-00000-0e8b48a1-3453-4194-bdf5-71d90062979b-c000.snappy.parquet": {
+   "bytes": 7878423,
+   "sha256": "ff45e8b5b38554c3ab89d5106f48407d86098b4ff52afbc70f74a10b1c10eb39"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=6/part-00000-28ffffbd-d676-41e3-a0d4-845d4d417762-c000.snappy.parquet": {
+   "bytes": 7714617,
+   "sha256": "23f18bd7112f3a49df965cdbf2abd2faceab95eda874c431dc62fa03cc435f5d"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=7/part-00000-89348fab-576d-4482-927f-ce083feb4111-c000.snappy.parquet": {
+   "bytes": 8107281,
+   "sha256": "79566ac7feea3dc71aab9fe2ae17b7ce9340195b5429ece7bef8d473eb8473e7"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=8/part-00000-7bbb9e34-509c-41d0-bc65-d60a1210fd80-c000.snappy.parquet": {
+   "bytes": 7346804,
+   "sha256": "68fdb741d8e54e31021370e049e6c49da7d43a5fe89c7052153bf2107bfc64c2"
+  },
+  "facts/fact_sales/Fiscal Year=2024/Fiscal Month=9/part-00000-69ea8c4c-3e6f-4435-9555-41d15dc52ab2-c000.snappy.parquet": {
+   "bytes": 7710612,
+   "sha256": "af4c8514d5ebf68106671bc2120a5452e64eb70cde671ecf73c2c6120f95b596"
+  },
+  "facts/fact_sales/_delta_log/00000000000000000000.json": {
+   "bytes": 97058,
+   "sha256": "59a7315b715a16fe96f0f438d494d76668b3b2331ad8399da4897a6ebed60781"
+  },
+  "facts/fact_sales/_delta_log/00000000000000000001.json": {
+   "bytes": 111465,
+   "sha256": "c9c3c9f2819ffd632c9d91d743742f876914bfe550b147a040c17cc7991545f5"
+  },
+  "facts/fact_sales/_delta_log/00000000000000000002.json": {
+   "bytes": 113218,
+   "sha256": "3adae9edd646f654bbf369ec76b1a8fee792505674d6c95e398540e4ffdb03b5"
+  },
+  "facts/fact_sales/_delta_log/00000000000000000003.json": {
+   "bytes": 113559,
+   "sha256": "f304910960333fc0b203e0420406ba4d9540b745b9057e8b79ee7edeaea601a3"
+  },
+  "facts/fact_sales/_delta_log/00000000000000000004.json": {
+   "bytes": 116578,
+   "sha256": "fa9c80572f9aed79e77b82f942bd95280ec5f93f8b9b83ce9ec49bbbeefdadb3"
+  },
+  "facts/fact_sales_budget/_delta_log/00000000000000000000.json": {
+   "bytes": 2028,
+   "sha256": "c0a2fc172e3e73ed51b7fdfbd85429a9d1ff14bb61ea70096fa548ffdc03251d"
+  },
+  "facts/fact_sales_budget/_delta_log/00000000000000000001.json": {
+   "bytes": 1347,
+   "sha256": "dd06fc6ca54e9e8a0efb3861d85e4ac5390f3408d16bb81754eeb39b26937937"
+  },
+  "facts/fact_sales_budget/_delta_log/00000000000000000002.json": {
+   "bytes": 1347,
+   "sha256": "ace2c2b6edbd8eaf5cb73d80c3def084f61be9b6834cf4ef87f9e991443da58f"
+  },
+  "facts/fact_sales_budget/_delta_log/00000000000000000003.json": {
+   "bytes": 1347,
+   "sha256": "de67824ff4dc933e8c1d49ae5405eb9a6f3d1bda92f89c5318802b431e1fbd26"
+  },
+  "facts/fact_sales_budget/part-00000-a1fe4680-90d8-4be9-8822-c054a175f252-c000.snappy.parquet": {
+   "bytes": 7680389,
+   "sha256": "14c5f830ce602c9c8f4d375696d2c5d6583545038a03517f20f2079a09d34c59"
+  },
+  "facts/fact_sales_target/Fiscal Year=2020/part-00000-dd1d183f-9ff7-4708-afbf-520156271adb-c000.snappy.parquet": {
+   "bytes": 2687,
+   "sha256": "1beaa827178ca71d39ca90d31a0b34bd23f378f190af9a5eda492219a3a75fb7"
+  },
+  "facts/fact_sales_target/Fiscal Year=2021/part-00000-71ddc3a6-ccf9-44df-b30c-a21c6cb6a2c6-c000.snappy.parquet": {
+   "bytes": 2709,
+   "sha256": "c7c837349c133e35368f994178c4604ee9b82bcc7c88743a4ea2ea48ff2c5f88"
+  },
+  "facts/fact_sales_target/Fiscal Year=2022/part-00000-fe6bc7aa-1a78-45f8-aea0-0374aced572d-c000.snappy.parquet": {
+   "bytes": 2711,
+   "sha256": "129fb972be8ba60fa419fd016027f4fbef0f512b8712a5409f7dec0747c51110"
+  },
+  "facts/fact_sales_target/Fiscal Year=2023/part-00000-03cffd16-01c8-4c5f-940a-09ca35841994-c000.snappy.parquet": {
+   "bytes": 2712,
+   "sha256": "b045ce958dc26cf9b2fbf43581cc87059344976befcb33df27c1484e7d96b80d"
+  },
+  "facts/fact_sales_target/Fiscal Year=2024/part-00000-c1b3a960-69b7-4d27-a211-dc51e1679777-c000.snappy.parquet": {
+   "bytes": 2664,
+   "sha256": "aa68c00ff782839f8363ce6d9bdb40f625e748a1c4e23ad965d8c23813840cf7"
+  },
+  "facts/fact_sales_target/_delta_log/00000000000000000000.json": {
+   "bytes": 3856,
+   "sha256": "b86d95732b2ee15bbd758cccc843b18281d7bd1e28fa851092fbe3e4187d4ad4"
+  },
+  "facts/fact_shipments/Fiscal Year=2020/part-00000-4863850a-7693-4d58-9430-856252e01e3d-c000.snappy.parquet": {
+   "bytes": 80441,
+   "sha256": "b67d570765e33221ca46b036a024635691c35fda7e9987024b61d12cbe1e68fe"
+  },
+  "facts/fact_shipments/Fiscal Year=2021/part-00000-d5be90fc-9e54-4d10-b286-8644fc2b4bd8-c000.snappy.parquet": {
+   "bytes": 82460,
+   "sha256": "4a54353595c6b84449bf285a13c3686b22d3053063a3a7d0f8d3339e3d23e1b8"
+  },
+  "facts/fact_shipments/Fiscal Year=2022/part-00000-65081f7c-5ac7-4335-8884-8f7d052e08d4-c000.snappy.parquet": {
+   "bytes": 81067,
+   "sha256": "610792db28264b534548e2e9a62d4630ab188a9204b2ce0281e6248998457fdb"
+  },
+  "facts/fact_shipments/Fiscal Year=2023/part-00000-3f02a969-2d2e-40fe-97c1-6537df3bae3a-c000.snappy.parquet": {
+   "bytes": 82594,
+   "sha256": "12938e96bd7863483223e88b63467d3e5767efbb45f9559535e0a1f5abdead81"
+  },
+  "facts/fact_shipments/Fiscal Year=2024/part-00000-136b5b31-a980-4317-98f4-f5478ee17da7-c000.snappy.parquet": {
+   "bytes": 85572,
+   "sha256": "3257f6cb71b412196f0d3930b84c4fa36e1f700bc49842959381463fa237ccbe"
+  },
+  "facts/fact_shipments/_delta_log/00000000000000000000.json": {
+   "bytes": 4441,
+   "sha256": "632f0bf1c1a15790e23e890af06a5afb872f528558959633ddd81427ce8f0b63"
+  },
+  "facts/fact_stockout/Fiscal Year=2020/part-00000-3537a2cf-5984-44b2-bde9-5a19c218e3bc-c000.snappy.parquet": {
+   "bytes": 92648,
+   "sha256": "31e1454981e8c083d1312f5401818e0e84f3cbf37ec5a38a76a01d35954baccf"
+  },
+  "facts/fact_stockout/Fiscal Year=2021/part-00000-7fba0030-df96-41f4-bd82-fa4d2bb42418-c000.snappy.parquet": {
+   "bytes": 92856,
+   "sha256": "ea6be60e87962c3cdfdacc8b5a7e898c0abaa17ef82de30fc4407b6e3838cc00"
+  },
+  "facts/fact_stockout/Fiscal Year=2022/part-00000-f1b56706-4108-4a48-bb23-f7b337af44a7-c000.snappy.parquet": {
+   "bytes": 92722,
+   "sha256": "110cd0498cc6eed1d2d04f2ae576e6b1c80d858d9c6e2fe81ca630f10936202e"
+  },
+  "facts/fact_stockout/Fiscal Year=2023/part-00000-959a8002-9582-434c-ab54-3f26cdbb9454-c000.snappy.parquet": {
+   "bytes": 92725,
+   "sha256": "3b1220dc7d539213b71131ce0b35aa97130b433af754d4bf636f82cbf8a14e3d"
+  },
+  "facts/fact_stockout/Fiscal Year=2024/part-00000-f7220be2-5b43-4320-9c14-37b479cf2e9c-c000.snappy.parquet": {
+   "bytes": 92842,
+   "sha256": "4dc291befbb833a6d38bac78389c64129d1d9e9948a425b5137d90e6966a7359"
+  },
+  "facts/fact_stockout/_delta_log/00000000000000000000.json": {
+   "bytes": 4894,
+   "sha256": "23fccf501f4f867f53f205a47e7eac22d093fe2e7b4a819a794e29045fab6af4"
+  },
+  "facts/fact_supplier_risk/Fiscal Year=2020/part-00000-841ac232-584b-4f18-8468-c13e49fbcacf-c000.snappy.parquet": {
+   "bytes": 14240,
+   "sha256": "091268985c93067b7b29b1c7461b55a2ce4cb0598664ab3526562f6df05f3105"
+  },
+  "facts/fact_supplier_risk/Fiscal Year=2021/part-00000-dc237568-89c8-4298-a643-91002e8da529-c000.snappy.parquet": {
+   "bytes": 14210,
+   "sha256": "fbb94acaa5dd3389d000469b3e8405978e220902944b2b63ab2125b7c3c2e22c"
+  },
+  "facts/fact_supplier_risk/Fiscal Year=2022/part-00000-96d54d78-263e-4656-8f0f-8b3ef2ab6fd9-c000.snappy.parquet": {
+   "bytes": 14218,
+   "sha256": "abbbf3003002c32b0dd95dd7078ad27d6a907c54594fccee9cc1e5c4623bd5dc"
+  },
+  "facts/fact_supplier_risk/Fiscal Year=2023/part-00000-d6c82a4f-770f-4dfa-8797-6a1b8beb1d9c-c000.snappy.parquet": {
+   "bytes": 14216,
+   "sha256": "373b14488aa8352c4b3c3c69d68453f51ec1cc58184e717a2d7168bead139718"
+  },
+  "facts/fact_supplier_risk/Fiscal Year=2024/part-00000-1fbf19e7-c4c8-4e2c-82bc-ba063ed55ea3-c000.snappy.parquet": {
+   "bytes": 14199,
+   "sha256": "9b377d1c4a07463a67143c476e8f47bc9da78262b316c06558907604aeda5b08"
+  },
+  "facts/fact_supplier_risk/_delta_log/00000000000000000000.json": {
+   "bytes": 5210,
+   "sha256": "3f9f3fa6694e10eb00907f14ac39fa69cde6c1b11bf586b27ecc089c6eb6d6cc"
+  },
+  "facts/fact_support_cases/part-00000.parquet": {
+   "bytes": 84901,
+   "sha256": "8317be4ae01ff7ef2fe44d2c5c118c6f5f1c6bb91dcf094ff397b175d504529b"
+  },
+  "facts/fact_target/part-00000.parquet": {
+   "bytes": 803,
+   "sha256": "ed7179e0887f2af043f9b89f05404a9f922291120a09cf7b264e9877a3347821"
+  },
+  "facts/fact_workforce/Fiscal Year=2020/part-00000-93f56008-31e8-45ca-9672-01ee141be7ed-c000.snappy.parquet": {
+   "bytes": 502541,
+   "sha256": "1b5c845c6438074aeaaf1322b1289796ddcdedd93721ccd1bf2bf094790f5113"
+  },
+  "facts/fact_workforce/Fiscal Year=2021/part-00000-5b7335a6-3ec3-4638-8d8e-d939998b0a53-c000.snappy.parquet": {
+   "bytes": 513547,
+   "sha256": "187be6165a5373132c9effea92132633a2c60d158b7a104ea33e38ed46b67f08"
+  },
+  "facts/fact_workforce/Fiscal Year=2022/part-00000-1740927f-cd1d-42ad-aace-efeee5fab816-c000.snappy.parquet": {
+   "bytes": 504621,
+   "sha256": "15a217f5965743db12908475c66d71269f06b4ff416fdd23668c2681cee8d5f7"
+  },
+  "facts/fact_workforce/Fiscal Year=2023/part-00000-b4c08168-3460-4103-a4c5-4b91460d6adf-c000.snappy.parquet": {
+   "bytes": 516010,
+   "sha256": "4e27e5e3f9ca9e9766915f485049dd3c5ecd75bc796d145831b09e31f9280650"
+  },
+  "facts/fact_workforce/Fiscal Year=2024/part-00000-3cf9b146-8dfe-4dc3-874a-1b35e5e9e8fd-c000.snappy.parquet": {
+   "bytes": 507817,
+   "sha256": "0e6f50bcddbf0466d04844795d6ff6b03ad7ba8772011fb1cf6376889b8bad5c"
+  },
+  "facts/fact_workforce/_delta_log/00000000000000000000.json": {
+   "bytes": 7000,
+   "sha256": "3e555130f360113da8169651140a9bbfc04998b1fb06e1fed7485a7edb491cd9"
+  },
+  "facts/fact_workforce_management/part-00000.parquet": {
+   "bytes": 1113733,
+   "sha256": "be3a00cc4dbe11d455e7c8252fa314573c5ad058e21fe2e9f00226a6fc5aabde"
+  },
+  "facts/fact_working_capital/_delta_log/00000000000000000000.json": {
+   "bytes": 2321,
+   "sha256": "c86014adc009c6b7a4a97fa2555f7d6909d6d3c8b1497907e6b0968b507e06d2"
+  },
+  "facts/fact_working_capital/_delta_log/00000000000000000001.json": {
+   "bytes": 1521,
+   "sha256": "7a786fb5c5b5a76fe422238e5febd5608a51852fe0a43872a513f97a22a94ec3"
+  },
+  "facts/fact_working_capital/_delta_log/00000000000000000002.json": {
+   "bytes": 1519,
+   "sha256": "98ba69ca49b4b06772352fb624749196b6c5f213c7e623bc75b9e2c718c098f7"
+  },
+  "facts/fact_working_capital/_delta_log/00000000000000000003.json": {
+   "bytes": 1520,
+   "sha256": "5fc4e6b0e1fabef1e17d3bc4e85b5886891c5881eb516cfaadf03c93a1ce1ff8"
+  },
+  "facts/fact_working_capital/part-00000-c18cc633-d70b-4506-8b57-a70cb4157638-c000.snappy.parquet": {
+   "bytes": 237933,
+   "sha256": "072557ef54256942c3d8506e9055b675e2cbdeb57f0ec6f873a8865af0b6acb5"
+  },
+  "security_user_org/part-00000.parquet": {
+   "bytes": 4122,
+   "sha256": "16779b02aeb69cbd559f1666d97bc7a67fa7111fc694fbbfd5e3d0bbe5ce0c4f"
+  }
+ }
+}
