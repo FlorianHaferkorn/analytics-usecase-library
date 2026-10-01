@@ -48,13 +48,14 @@ governance:
   sensitivity_labels:
     # purview_policy (default) — a Purview default/mandatory label policy applies the
     #   label; the orchestrator only reports the requirement. No API call.
-    #   There is NO workspace-level label API and no Fabric-API label endpoint.
-    # admin_api — really call POST {powerbi}/admin/informationprotection/setLabels.
-    #   Requires: label GUIDs below (not names), a Fabric-admin identity with
-    #   Tenant.ReadWrite.All, and awareness of the 25 req/h + 2000 artifacts/req caps.
-    #   Note: this Power BI admin *write* API is not covered by the service-principal
-    #   tenant settings, so an SP-only identity will get 401 — expect a delegated
-    #   (user) token here.
+    #   There is NO workspace-level label API; labels attach to items.
+    # admin_api — call POST https://api.fabric.microsoft.com/v1/admin/items/bulkSetLabels
+    #   (Learn rest/api/fabric/admin/labels/bulk-set-labels, read 01.10.2026): all Fabric
+    #   item types of its ItemType enumeration, not only reports/semantic models.
+    #   Requires: label GUIDs below (not names), a Fabric Administrator *user* with
+    #   Tenant.ReadWrite.All and the label in that user's label policy; caps 25 req/h and
+    #   2,000 items/req. Service principals and managed identities are NOT supported, so
+    #   this SPN-only orchestrator refuses the call and records a manual step.
     # off — labelling out of scope for this deployment.
     mode: "purview_policy"
     dev: "General"        # display name in purview_policy mode, label GUID in admin_api mode

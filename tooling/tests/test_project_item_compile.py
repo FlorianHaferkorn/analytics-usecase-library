@@ -28,7 +28,7 @@ def native_item(kind="Notebook", id="notebook_prepare", depends=None):
         "Notebook": {"format": "FabricGitSource", "parts": [part("notebook-content.py", "# Fabric notebook source\nprint('Supplied definition')\n")]},
         "DataPipeline": {"parts": [part("pipeline-content.json", {"properties": {"activities": [], "parameters": {"environment": {"type": "String", "defaultValue": "dev"}}}})]},
         "SemanticModel": {"format": "TMSL", "parts": [part("definition.pbism", {"version": "1.0"}), part("model.bim", {"compatibilityLevel": 1600, "model": {}})]},
-        "Report": {"format": "PBIR-Legacy", "parts": [part("definition.pbir", {"version": "4.0", "datasetReference": {"byConnection": {"connectionString": "supplied fixture connection"}}}), part("report.json", {"sections": []})]},
+        "Report": {"format": "PBIR", "parts": [part("definition.pbir", {"version": "4.0", "datasetReference": {"byConnection": {"connectionString": "supplied fixture connection"}}}), part("definition/report.json", {"themeCollection": {}}), part("definition/version.json", {"version": "2.0.0"})]},
     }
     return {"id": id, "name": id, "type": kind, "workspace_ref": "workspace_gold_dev", "environment": "dev",
             "decision_refs": ["decision_environment_model"], "depends_on": depends or [], "environment_bindings": [], "definition": definitions[kind]}
@@ -51,6 +51,34 @@ def test_supplied_native_types_have_explicit_transport_not_semantic_claim(kind):
     assert not plan["apply_ready"]
     assert not plan["ordered_items"][0]["tenant_bindings_verified"]
     assert item_target(value)["status"] == "ready"
+
+
+def legacy_report(format="PBIR-Legacy"):
+    item = native_item("Report")
+    pbir = item["definition"]["parts"][0]
+    item["definition"] = {"parts": [pbir, part("report.json", {"sections": []})]}
+    if format is not None:
+        item["definition"]["format"] = format
+    return item
+
+
+@pytest.mark.parametrize("format", ["PBIR-Legacy", None, "PBIR"])
+def test_pbir_legacy_report_is_rejected_with_save_as_pbir_hint(format):
+    """PBIR only: a declared PBIR-Legacy format or a root report.json fails closed."""
+    value = data()
+    value["modules"]["architecture_input"]["physical_items"] = [legacy_report(format)]
+    with pytest.raises(ValueError, match="PBIR-Legacy wird nicht mehr akzeptiert.*als PBIR speichern"):
+        compile_item_plan(value)
+    assert item_target(value)["status"] == "blocked"
+
+
+def test_report_without_pbir_definition_folder_is_rejected():
+    value = data()
+    report = native_item("Report")
+    report["definition"]["parts"] = report["definition"]["parts"][:1]
+    value["modules"]["architecture_input"]["physical_items"] = [report]
+    with pytest.raises(ValueError, match="PBIR definition/ folder"):
+        compile_item_plan(value)
 
 
 def test_dependency_order_is_deterministic():

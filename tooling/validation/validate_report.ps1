@@ -9,7 +9,14 @@ param(
 	[string]$BpaRulesPath = ""
 )
 
+Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+function Exit-WithError {
+	param([string]$Message)
+	$Host.UI.WriteErrorLine($Message)
+	exit 1
+}
 
 if (-not $BpaRulesPath) {
 	$BpaRulesPath = Join-Path $PSScriptRoot "..\linters\powerbi\bpa-rules-report.json"
@@ -17,8 +24,7 @@ if (-not $BpaRulesPath) {
 
 # Load BPA Rules
 if (-not (Test-Path $BpaRulesPath)) {
-	Write-Error "BPA Rules not found: $BpaRulesPath"
-	exit 1
+	Exit-WithError "BPA Rules not found: $BpaRulesPath"
 }
 
 $bpaRules = Get-Content $BpaRulesPath -Raw | ConvertFrom-Json
@@ -31,21 +37,26 @@ $results = @{
 	Info = @()
 }
 
-# Helper: Load report JSON (from PBIP structure)
+# Helper: Load report JSON (PBIR only)
+# PBIR only (Florian, 01.10.2026). Learn power-bi/developer/projects/projects-report
+# (read 01.10.2026): a root report.json holds "the Power BI Report Legacy format
+# (PBIR-Legacy)"; the definition\ folder "replaces the report.json file". A root
+# report.json is therefore an error, never a fallback.
 function Get-ReportJson {
 	param([string]$ReportPath)
-	
-	# PBIP structure: report/definition/report.json
-	$reportJsonPath = Join-Path $ReportPath "definition\report.json"
-	if (-not (Test-Path $reportJsonPath)) {
-		# Try alternative: report.json at root
-		$reportJsonPath = Join-Path $ReportPath "report.json"
-		if (-not (Test-Path $reportJsonPath)) {
-			return $null
-		}
+
+	$legacyPath = Join-Path $ReportPath "report.json"
+	if (Test-Path -LiteralPath $legacyPath) {
+		Exit-WithError ("PBIR-Legacy wird nicht mehr akzeptiert: $legacyPath. " +
+			"In Power BI Desktop als PBIR speichern (Learn power-bi/developer/projects/projects-report).")
 	}
-	
-	$content = Get-Content -Path $reportJsonPath -Raw
+
+	$reportJsonPath = Join-Path $ReportPath "definition\report.json"
+	if (-not (Test-Path -LiteralPath $reportJsonPath)) {
+		Exit-WithError "PBIR definition\report.json not found in: $ReportPath"
+	}
+
+	$content = Get-Content -LiteralPath $reportJsonPath -Raw -Encoding utf8
 	return $content | ConvertFrom-Json
 }
 
@@ -54,13 +65,18 @@ Write-Host "Validating Power BI report: $ReportPath" -ForegroundColor Cyan
 
 $reportJson = Get-ReportJson -ReportPath $ReportPath
 
-if (-not $reportJson) {
-	Write-Error "Could not find report.json in: $ReportPath"
-	exit 1
-}
-
 # Check pages count
-$pages = $reportJson.sections
+# The page/visual rules below read the PBIR-Legacy shape (`sections`/`visualContainers`),
+# which PBIR definition\report.json does not carry (pages live in definition\pages\).
+# Say so instead of reporting "0 findings" for rules that did not run.
+$pages = $null
+if ($reportJson.PSObject.Properties['sections']) {
+	$pages = $reportJson.sections
+} else {
+	Write-Warning ("Page/visual rules (REDUCE_PAGES, REDUCE_VISUALS_ON_PAGE, " +
+		"ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY, ENSURE_ALTTEXT) not evaluated: " +
+		"their reader expects the PBIR-Legacy 'sections' shape.")
+}
 if ($pages) {
 	$pageCount = $pages.Count
 	
@@ -137,8 +153,8 @@ Write-Host "  Info: $($results.Info.Count)" -ForegroundColor Cyan
 
 if ($results.Errors.Count -gt 0) {
 	Write-Host "`nErrors:" -ForegroundColor Red
-	foreach ($error in $results.Errors) {
-		Write-Host "  [$($error.RuleId)] $($error.Description)" -ForegroundColor Red
+	foreach ($err in $results.Errors) {
+		Write-Host "  [$($err.RuleId)] $($err.Description)" -ForegroundColor Red
 	}
 }
 

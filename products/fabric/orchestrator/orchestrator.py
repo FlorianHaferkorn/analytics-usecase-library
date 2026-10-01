@@ -194,6 +194,9 @@ class ConfigLoader:
 
 class AuthProvider:
     """Handles Service Principal authentication via MSAL."""
+
+    # Read by GovernanceManager: admin/items/bulkSetLabels accepts user identities only.
+    IDENTITY_KIND = "service_principal"
     
     def __init__(self, config: ConfigLoader):
         self.config = config
@@ -633,14 +636,38 @@ class WorkspaceManager:
 # Governance Manager
 # ============================================================================
 
-# The Power BI admin API is a different API surface AND a different token audience than
-# api.fabric.microsoft.com. Sensitivity labelling lives here, not under /v1/workspaces.
-_PBI_API_BASE = "https://api.powerbi.com/v1.0/myorg"
-_PBI_SCOPES = ["https://analysis.windows.net/powerbi/api/.default"]
+# Sensitivity labels are written through the *Fabric* admin API (same host and token
+# audience as every other call here). Source: Microsoft Learn
+# `rest/api/fabric/admin/labels/bulk-set-labels` (read 01.10.2026):
+#   POST https://api.fabric.microsoft.com/v1/admin/items/bulkSetLabels
+#   body  {items: [{id, type}], labelId, assignmentMethod?, delegatedPrincipal?}
+#   200   {itemsChangeLabelStatus: [{id, type, status}]}, status one of
+#         Succeeded | Failed | FailedToGetUsageRights | InsufficientUsageRights | NotFound
+#   "Maximum 25 requests per hour." / "Each request can update up to 2,000 Fabric items."
+#   Permissions: "The user must be a Fabric Administrator."; scope Tenant.ReadWrite.All.
+#   Identities: User = Yes; "Service principal and Managed identities" = No.
+# It replaces the Power BI admin API `admin/informationprotection/setLabels`, which only
+# knew four artifact buckets (dashboards/reports/datasets/dataflows).
+_BULK_SET_LABELS_ENDPOINT = "admin/items/bulkSetLabels"
+_BULK_SET_LABELS_MAX_ITEMS = 2000
+_BULK_SET_LABELS_SUCCEEDED = "Succeeded"
 
-# The only artifact buckets informationprotection/setLabels accepts. Anything else
-# (lakehouses, notebooks, pipelines, warehouses) has no label-write API at all.
-_LABELABLE_TYPES = ("dashboards", "reports", "datasets", "dataflows")
+# `ItemType` enumeration of the same Learn page (read 01.10.2026). Learn notes that
+# "additional item types may be added over time" — a type missing here is rejected
+# (fail closed) until it is checked against Learn and added.
+_LABELABLE_ITEM_TYPES = (
+    "Dashboard", "Report", "SemanticModel", "PaginatedReport", "Datamart", "Lakehouse",
+    "Eventhouse", "Environment", "KQLDatabase", "KQLQueryset", "KQLDashboard",
+    "DataPipeline", "Notebook", "SparkJobDefinition", "MLExperiment", "MLModel",
+    "Warehouse", "Eventstream", "SQLEndpoint", "MirroredWarehouse", "MirroredDatabase",
+    "Reflex", "GraphQLApi", "MountedDataFactory", "SQLDatabase", "CopyJob",
+    "VariableLibrary", "Dataflow", "ApacheAirflowJob", "WarehouseSnapshot",
+    "DigitalTwinBuilder", "DigitalTwinBuilderFlow", "MirroredAzureDatabricksCatalog", "Map",
+    "AnomalyDetector", "UserDataFunction", "GraphModel", "GraphQuerySet",
+    "SnowflakeDatabase", "OperationsAgent", "CosmosDBDatabase", "Ontology",
+    "EventSchemaSet", "DataAgent", "MirroredCatalog", "AppBackend", "OrgApp",
+    "OrgAppAudience", "DataBuildToolJob", "AzureDatabricksStorage", "Plan",
+)
 
 _GUID_RE = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
                       r"[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
@@ -650,17 +677,21 @@ class GovernanceManager:
     """Governance: sensitivity labels and endorsement.
 
     Both are deliberately conservative, because the official surface is narrower than it
-    looks and the previous implementation invented endpoints that do not exist:
+    looks and an earlier implementation invented endpoints that do not exist:
 
-    * **Sensitivity labels** — there is no workspace-level label API and no Fabric-API
-      label endpoint. The only documented write path is the *Power BI admin* API
-      ``POST {pbi}/admin/informationprotection/setLabels``, which takes a label **GUID**
-      (not a name) and artifact IDs bucketed by type, is capped at 25 requests/hour and
-      2000 artifacts/request, requires ``Tenant.ReadWrite.All`` plus Fabric-admin rights,
-      and returns HTTP 200 even when individual artifacts failed (per-artifact ``status``).
-      It is also **not** among the admin APIs that support service-principal auth — the
-      tenant setting covers Power BI *read-only* admin APIs and *Fabric* update admin
-      APIs, so this orchestrator's SP identity will get 401 here.
+    * **Sensitivity labels** — there is no workspace-level label API; labels attach to
+      items. The documented write path is the *Fabric* admin API
+      ``POST https://api.fabric.microsoft.com/v1/admin/items/bulkSetLabels`` (Learn
+      ``rest/api/fabric/admin/labels/bulk-set-labels``, read 01.10.2026). It covers all
+      Fabric item types of its ``ItemType`` enumeration (lakehouses, notebooks,
+      warehouses … not only the four Power BI artifact types), takes a label **GUID** and
+      ``{id, type}`` per item, is capped at 25 requests/hour and 2,000 items/request,
+      requires a Fabric Administrator plus ``Tenant.ReadWrite.All``, and returns HTTP 200
+      even when individual items failed (per-item ``status`` in ``itemsChangeLabelStatus``).
+      It supports **user** identities only — service principals and managed identities:
+      "No". This orchestrator authenticates as a service principal, so in ``admin_api``
+      mode it refuses the call and records a manual step unless the API client carries a
+      user identity (``auth.IDENTITY_KIND == "user"``).
       Therefore the default mode is ``purview_policy``: the label is declared as a
       Purview default/mandatory label policy and applied by the platform, and the
       orchestrator emits the precondition instead of pretending to have applied it.
@@ -671,8 +702,9 @@ class GovernanceManager:
 
     Modes (``governance.sensitivity_labels.mode``):
       ``purview_policy`` (default) — declare the requirement, apply nothing via API.
-      ``admin_api``                — really call setLabels; needs a Fabric-admin identity
-                                     and label GUIDs. Fails closed on missing preconditions.
+      ``admin_api``                — call bulkSetLabels; needs a Fabric-admin *user*
+                                     identity and label GUIDs. Fails closed on missing
+                                     preconditions.
       ``off``                      — labelling is out of scope for this deployment.
     """
 
@@ -700,6 +732,11 @@ class GovernanceManager:
 
     def _configured_label(self, environment: str) -> Optional[str]:
         return self.config.get(f'governance.sensitivity_labels.{environment}')
+
+    def _identity_kind(self) -> str:
+        """Identity behind the API client; anything not declared 'user' counts as SPN."""
+        auth = getattr(self.api, "auth", None)
+        return str(getattr(auth, "IDENTITY_KIND", "service_principal"))
 
     def _record(self, step: str) -> None:
         self.manual_steps.append(step)
@@ -741,14 +778,18 @@ class GovernanceManager:
 
     def apply_sensitivity_labels(
         self,
-        artifacts_by_type: Dict[str, List[str]],
+        items_by_type: Dict[str, List[str]],
         environment: str,
-        delegated_user_email: Optional[str] = None
+        delegated_user_id: Optional[str] = None
     ) -> bool:
-        """Apply the environment's sensitivity label to concrete items.
+        """Apply the environment's sensitivity label to concrete Fabric items.
 
-        `artifacts_by_type` maps a bucket from `_LABELABLE_TYPES` to item IDs. Returns True
-        only when every artifact came back ``Succeeded`` — a 200 alone does not mean success.
+        `items_by_type` maps a Fabric ``ItemType`` from `_LABELABLE_ITEM_TYPES` (e.g.
+        ``Report``, ``SemanticModel``, ``Lakehouse``) to item IDs (GUIDs).
+        `delegated_user_id` is the Entra object ID of a user to be marked as label issuer
+        (Learn: "Only principals of type 'User' are supported.").
+        Returns True only when every requested item came back ``Succeeded`` in
+        ``itemsChangeLabelStatus`` — a 200 alone does not mean success.
         """
         mode = self._mode()
         if mode == self.MODE_OFF:
@@ -762,7 +803,7 @@ class GovernanceManager:
         if mode == self.MODE_PURVIEW:
             self._record(
                 f"Labelling for env={environment} is delegated to the Purview label policy "
-                f"('{label}'); no setLabels call issued by design."
+                f"('{label}'); no bulkSetLabels call issued by design."
             )
             return True
 
@@ -770,62 +811,92 @@ class GovernanceManager:
         if not _GUID_RE.match(str(label)):
             raise ConfigurationError(
                 f"governance.sensitivity_labels.{environment}='{label}' must be the label's "
-                f"GUID in admin_api mode — setLabels takes 'labelId', not a display name. "
-                f"Read the GUID from the Purview label, or use mode={self.MODE_PURVIEW}."
+                f"GUID in admin_api mode — bulkSetLabels takes 'labelId' (uuid), not a "
+                f"display name. Read the GUID from the Purview label, or use "
+                f"mode={self.MODE_PURVIEW}."
             )
 
-        unknown = sorted(set(artifacts_by_type) - set(_LABELABLE_TYPES))
+        unknown = sorted(set(items_by_type) - set(_LABELABLE_ITEM_TYPES))
         if unknown:
             raise ConfigurationError(
-                f"setLabels has no bucket for {unknown}; supported: {list(_LABELABLE_TYPES)}. "
-                f"Fabric item types outside these four have no label-write API — label them "
-                f"via a Purview policy instead."
+                f"bulkSetLabels has no item type {unknown} in its documented ItemType "
+                f"enumeration (Learn rest/api/fabric/admin/labels/bulk-set-labels, read "
+                f"01.10.2026). Use the Fabric item type name (e.g. 'Report', "
+                f"'SemanticModel', 'Lakehouse'); a type added to Learn later must be added "
+                f"to _LABELABLE_ITEM_TYPES first."
             )
 
-        artifacts = {t: [{"id": i} for i in ids]
-                     for t, ids in artifacts_by_type.items() if ids}
-        if not artifacts:
+        items = [{"id": item_id, "type": item_type}
+                 for item_type, ids in items_by_type.items() for item_id in (ids or [])]
+        if not items:
             return True
 
-        total = sum(len(v) for v in artifacts.values())
-        if total > 2000:
+        bad_ids = sorted({i["id"] for i in items if not _GUID_RE.match(str(i["id"]))})
+        if bad_ids:
             raise ConfigurationError(
-                f"setLabels accepts at most 2000 artifacts per request; got {total}. "
-                f"Batch the call (and mind the 25 requests/hour cap)."
+                f"bulkSetLabels takes item IDs in UUID format; not a GUID: {bad_ids[:5]}"
             )
 
+        if len(items) > _BULK_SET_LABELS_MAX_ITEMS:
+            raise ConfigurationError(
+                f"bulkSetLabels accepts at most {_BULK_SET_LABELS_MAX_ITEMS} items per "
+                f"request; got {len(items)}. Batch the call (and mind the 25 requests/hour "
+                f"cap)."
+            )
+
+        if delegated_user_id is not None and not _GUID_RE.match(str(delegated_user_id)):
+            raise ConfigurationError(
+                f"delegated_user_id='{delegated_user_id}' must be the user's Entra object ID "
+                f"(GUID); bulkSetLabels' delegatedPrincipal only supports type 'User'."
+            )
+
+        # Learn: Service principal and Managed identities — "No". The SP token of this
+        # orchestrator would be rejected; say so instead of issuing a doomed call.
+        if self._identity_kind() != "user":
+            console.print("[red]bulkSetLabels does not support service principals or "
+                          "managed identities; label not applied.[/red]")
+            self._record(
+                f"Sensitivity label {label} (env={environment}) on {len(items)} item(s) was "
+                f"NOT applied: POST https://api.fabric.microsoft.com/v1/{_BULK_SET_LABELS_ENDPOINT} "
+                f"supports user identities only (no service principal / managed identity, "
+                f"Learn 01.10.2026). Run it as a Fabric Administrator user with scope "
+                f"Tenant.ReadWrite.All and the label in that user's label policy, or use "
+                f"mode={self.MODE_PURVIEW}."
+            )
+            return False
+
         payload: Dict[str, Any] = {
-            "artifacts": artifacts,
+            "items": items,
             "labelId": label,
-            # 'Standard' = set by an automated process (this orchestrator).
+            # 'Standard' = "set by an automated process (default value)" (Learn).
             "assignmentMethod": "Standard",
         }
-        if delegated_user_email:
-            payload["delegatedUser"] = {"emailAddress": delegated_user_email}
+        if delegated_user_id:
+            payload["delegatedPrincipal"] = {"id": delegated_user_id, "type": "User"}
 
-        console.print(f"[yellow]Applying sensitivity label[/yellow] {label} to {total} item(s)")
+        console.print(f"[yellow]Applying sensitivity label[/yellow] {label} to {len(items)} item(s)")
 
-        response = self.api.post(
-            "admin/informationprotection/setLabels",
-            payload,
-            base=_PBI_API_BASE,
-            scopes=_PBI_SCOPES,
-        )
+        response = self.api.post(_BULK_SET_LABELS_ENDPOINT, payload)
         if response is None:
             return False
         if response.get("dry_run"):
             return True
 
-        # 200 OK still carries per-artifact failures — evaluate them, don't assume.
+        # 200 OK still carries per-item failures — evaluate them, don't assume. An item
+        # missing from the answer counts as not labelled.
+        statuses = {
+            str(entry.get("id")).lower(): entry.get("status")
+            for entry in (response.get("itemsChangeLabelStatus") or [])
+            if isinstance(entry, dict)
+        }
         failures = [
-            f"{bucket}/{entry.get('id')}={entry.get('status')}"
-            for bucket in _LABELABLE_TYPES
-            for entry in (response.get(bucket) or [])
-            if entry.get("status") != "Succeeded"
+            f"{i['type']}/{i['id']}={statuses.get(str(i['id']).lower(), 'missing')}"
+            for i in items
+            if statuses.get(str(i["id"]).lower()) != _BULK_SET_LABELS_SUCCEEDED
         ]
         if failures:
-            console.print(f"[red]setLabels reported {len(failures)} failure(s):[/red] "
-                          + ", ".join(failures[:10]))
+            console.print(f"[red]bulkSetLabels reported {len(failures)} of {len(items)} "
+                          f"item(s) not labelled:[/red] " + ", ".join(failures[:10]))
             return False
         return True
 

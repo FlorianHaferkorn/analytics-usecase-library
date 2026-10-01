@@ -92,10 +92,18 @@ def _validate_definition(item: dict) -> None:
         if format not in {None, "TMDL", "TMSL"} or "definition.pbism" not in paths or tmdl == tmsl or (format == "TMSL" and not tmsl) or (format in {None, "TMDL"} and not tmdl):
             raise ValueError(f"{item['id']}: semantic model requires definition.pbism and exactly the declared TMDL or TMSL format")
     elif kind == "Report":
+        # PBIR only (Florian, 01.10.2026). Learn power-bi/developer/projects/projects-report
+        # (read 01.10.2026): report.json holds "the Power BI Report Legacy format
+        # (PBIR-Legacy)", the definition/ folder "replaces the report.json file", and PBIR
+        # "is generally available and is the default report format".
         pbir = any(path.startswith("definition/") and path.endswith(".json") for path in paths)
-        legacy = "report.json" in paths
-        if format not in {None, "PBIR", "PBIR-Legacy"} or "definition.pbir" not in paths or pbir == legacy or (format == "PBIR-Legacy" and not legacy) or (format in {None, "PBIR"} and not pbir):
-            raise ValueError(f"{item['id']}: report requires definition.pbir and exactly the declared PBIR or PBIR-Legacy format")
+        if format == "PBIR-Legacy" or "report.json" in paths:
+            raise ValueError(
+                f"{item['id']}: PBIR-Legacy wird nicht mehr akzeptiert (report.json); "
+                "in Power BI Desktop als PBIR speichern (Learn power-bi/developer/projects/projects-report)"
+            )
+        if format not in {None, "PBIR"} or "definition.pbir" not in paths or not pbir:
+            raise ValueError(f"{item['id']}: report requires definition.pbir and the PBIR definition/ folder")
     else:
         raise ValueError(f"{item['id']}: unsupported native definition type")
     for binding in item["environment_bindings"]:
