@@ -243,6 +243,7 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: erste Triage
+  vorlage: research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-C-Pruefungen-und-Previews.md
 - signal: SIG-2609-006
   artefakt: ALUCA-AGENT-SKILLS
   risiko: T0
@@ -423,6 +424,7 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: erste Triage
+  vorlage: research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-C-Pruefungen-und-Previews.md
 - signal: SIG-2609-011
   artefakt: ALUCA-COPILOT
   risiko: T2
