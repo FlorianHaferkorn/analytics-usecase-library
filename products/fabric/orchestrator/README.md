@@ -399,7 +399,7 @@ SELECT * FROM silver.transactions_cleaned
 
 ### Fehler: "Sensitivity label not found"
 
-**Lösung**: Labels müssen im Tenant existieren (Microsoft Purview). Verwenden Sie Label-IDs statt Namen in `config.yaml`.
+**Lösung**: Labels müssen im Tenant existieren (Microsoft Purview). Im Modus `admin_api` Label-IDs (GUID) statt Namen in `config.yaml`. `admin_api` ruft Fabric `POST /v1/admin/items/bulkSetLabels` (alle Fabric-Item-Typen, 2.000 Items je Aufruf, 25 Aufrufe je Stunde); der Endpunkt unterstützt laut Learn (gelesen 01.10.2026) keinen Dienstprinzipal — der SPN-Orchestrator setzt dort nichts, sondern meldet einen manuellen Schritt. Default ist `purview_policy`.
 
 ---
 
