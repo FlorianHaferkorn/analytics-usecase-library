@@ -85,7 +85,8 @@ def test_library_layer_passes(doc, gates) -> None:
     lambda d: d["business_objects"][0]["attributes"][0].update(personal_data=True),
     lambda d: d["business_objects"][0]["attributes"][0].update(personal_data_category="contact_data"),
     lambda d: d["business_objects"][0]["attributes"][0].update(type="text"),
-    lambda d: d["business_objects"][0].update(kpi_ids=["sales.net_sales.amount"]),
+    # pre-D-594 id syntax, deliberately not a mapped id (kpi_id_migration --check stays clean)
+    lambda d: d["business_objects"][0].update(kpi_ids=["sales.example.amount"]),
     lambda d: d["business_objects"][0]["binding"].update(table="customers"),
 ])
 def test_schema_counter_probes(doc, gates, spoil) -> None:
