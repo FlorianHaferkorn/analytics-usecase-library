@@ -54,7 +54,8 @@ def test_overage_ceiling_is_reported_but_never_summed(tmp_path):
     prod = next(r for r in side["capacities"] if r["sku"] == "F64")
     assert prod["overage"]["enabled"] and prod["overage"]["max_per_month"] > 0
     assert side["capacity_per_month"] == sum(r["per_month"] for r in side["capacities"])
-    assert side["per_month"] == side["capacity_per_month"] + side["licences"]["per_month"] + side["monitoring_storage"]["per_month"]
+    assert side["per_month"] == (side["capacity_per_month"] + side["licences"]["per_month"]
+                                 + side["monitoring_storage"]["per_month"])
     assert side["overage_ceiling_per_month"] == prod["overage"]["max_per_month"]
 
 
@@ -148,7 +149,8 @@ def test_real_cost_drivers_price_the_reference_in_both_currencies():
     for layout in impact.CAPACITY_LAYOUTS.values():
         for row in layout["capacities"]:
             for currency in ("USD", "EUR"):
-                price, basis = engine.capacity_price_per_month(drivers, row["sku"], region="West Europe", currency=currency)
+                price, basis = engine.capacity_price_per_month(drivers, row["sku"], region="West Europe",
+                                                               currency=currency)
                 assert price > 0 and basis == "region:westeurope"
 
 

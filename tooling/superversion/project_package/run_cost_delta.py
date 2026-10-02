@@ -121,12 +121,14 @@ def run_cost_side(architecture: dict, drivers: dict | None = None) -> dict:
         row = declared.get(capacity_id)
         if row is None:
             unpriced.append({"item": capacity_id,
-                             "reason": "Used by a selected workspace or by monitoring but not declared in architecture_input.capacities."})
+                             "reason": "Used by a selected workspace or by monitoring but not declared"
+                                       " in architecture_input.capacities."})
             continue
         try:
             priced = _price_capacity(engine, drivers, row, region, currency)
         except KeyError as error:
-            unpriced.append({"item": capacity_id, "reason": f"{row['sku']}: {error.args[0] if error.args else 'no list price'}."})
+            detail = error.args[0] if error.args else "no list price"
+            unpriced.append({"item": capacity_id, "reason": f"{row['sku']}: {detail}."})
             continue
         priced["environments"] = sorted(used[capacity_id])
         rows.append(priced)
@@ -168,7 +170,8 @@ def _licences(architecture: dict, capacity_rows: list[dict], drivers: dict, curr
                         "no priced production capacity: viewers counted as Pro")}
     pro, _ppu = engine._license_prices(drivers, currency)
     if pro is None:
-        unpriced.append({"item": "power_bi_licences", "reason": f"No {currency} list price for Power BI Pro in cost_drivers.yaml."})
+        unpriced.append({"item": "power_bi_licences",
+                         "reason": f"No {currency} list price for Power BI Pro in cost_drivers.yaml."})
         return {**result, "pro_per_user_month": None, "per_month": None}
     return {**result, "pro_per_user_month": pro, "per_month": round(pro_users * pro, 2)}
 
@@ -186,7 +189,8 @@ def _monitoring_storage(monitoring: dict, drivers: dict, region: str | None, cur
     rates = engine.regional_rates(drivers, region, currency) if region else None
     if rates is None:
         if currency != "USD":
-            unpriced.append({"item": "monitoring_storage", "reason": f"No {currency} storage price for region {region!r}."})
+            unpriced.append({"item": "monitoring_storage",
+                             "reason": f"No {currency} storage price for region {region!r}."})
             return {"retained_gb": monitoring["retained_gb"], "per_gb_month": None, "per_month": None}
         rate = float(drivers["onelake_storage"]["usd_per_gb_month"])
     else:
@@ -228,8 +232,10 @@ def compare_run_cost(repository: ProjectPackageRevisionRepository, project_ref: 
                       "per_year": round(12 * (alt["per_month"] - base["per_month"]), 2),
                       "capacity_per_month": round(alt["capacity_per_month"] - base["capacity_per_month"], 2),
                       "licence_per_month": round(part(alt, "licences") - part(base, "licences"), 2),
-                      "monitoring_storage_per_month": round(part(alt, "monitoring_storage") - part(base, "monitoring_storage"), 2),
-                      "overage_ceiling_per_month": round(alt["overage_ceiling_per_month"] - base["overage_ceiling_per_month"], 2),
+                      "monitoring_storage_per_month": round(part(alt, "monitoring_storage")
+                                                            - part(base, "monitoring_storage"), 2),
+                      "overage_ceiling_per_month": round(alt["overage_ceiling_per_month"]
+                                                         - base["overage_ceiling_per_month"], 2),
                       "capacities_removed": sorted({r["capacity_id"] for r in base["capacities"]}
                                                    - {r["capacity_id"] for r in alt["capacities"]}),
                       "capacities_added": sorted({r["capacity_id"] for r in alt["capacities"]}
@@ -237,11 +243,16 @@ def compare_run_cost(repository: ProjectPackageRevisionRepository, project_ref: 
             "comparable": not base["unpriced"] and not alt["unpriced"],
             "tenant_actions_performed": False,
             "limitations": [
-                "List prices from cost_drivers.yaml: regional PAYG rates fetched from the Azure Retail Prices API, reservation discount from the SKU table; no negotiated discount.",
+                "List prices from cost_drivers.yaml: regional PAYG rates fetched from the Azure Retail Prices API,"
+                " reservation discount from the SKU table; no negotiated discount.",
                 "Paused hours are not modelled: a pay-as-you-go capacity is priced for the full month.",
-                "Overage is a ceiling derived from the threshold (threshold x 3 x PAYG), billed only when used; it is not in the monthly total.",
-                "Licences only for a declared report_audience, in USD or EUR (Microsoft list price per currency, annual billing, excl. VAT): authors always Pro, viewers Pro below an F64 production capacity; PPU is not modelled.",
-                "Workspace monitoring: compute runs on the hosting capacity (priced there), storage only for a declared retained_gb at the OneLake hot rate.",
+                "Overage is a ceiling derived from the threshold (threshold x 3 x PAYG), billed only when used;"
+                " it is not in the monthly total.",
+                "Licences only for a declared report_audience, in USD or EUR (Microsoft list price per currency,"
+                " annual billing, excl. VAT): authors always Pro, viewers Pro below an F64 production capacity;"
+                " PPU is not modelled.",
+                "Workspace monitoring: compute runs on the hosting capacity (priced there), storage only for a"
+                " declared retained_gb at the OneLake hot rate.",
                 "A capacity shared by several environments costs the same whether one or all of them run on it."]}
 
 
@@ -252,12 +263,14 @@ def main() -> int:
     args = parser.parse_args()
     try:
         payload = json.loads(sys.stdin.read(100_001))
-        if not isinstance(payload, dict) or set(payload) != {"project_ref", "revision_hash", "decision_ref", "option_ref"}:
+        expected_keys = {"project_ref", "revision_hash", "decision_ref", "option_ref"}
+        if not isinstance(payload, dict) or set(payload) != expected_keys:
             raise ValueError("Invalid run-cost request")
         if not re.fullmatch(r"[a-f0-9]{64}", str(payload["revision_hash"])):
             raise ValueError("Invalid request revision")
-        value = compare_run_cost(ProjectPackageRevisionRepository(args.repository, args.schemas), payload["project_ref"],
-                                 payload["revision_hash"], payload["decision_ref"], payload["option_ref"])
+        value = compare_run_cost(ProjectPackageRevisionRepository(args.repository, args.schemas),
+                                 payload["project_ref"], payload["revision_hash"],
+                                 payload["decision_ref"], payload["option_ref"])
         print(json.dumps({"ok": True, "value": value}, ensure_ascii=True))
         return 0
     except (ValueError, OSError, RuntimeError, KeyError) as error:
