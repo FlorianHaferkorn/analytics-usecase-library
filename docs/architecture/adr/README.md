@@ -35,4 +35,4 @@ revisit a decision by adding a new ADR that supersedes the old one.
 | [0018](0018-visual-vocabulary-single-authority.md) | `visual_registry.yaml` ist die einzige Autorität für das Visualtyp-Vokabular | Accepted (2026-08-02) |
 | [0019](0019-team-beratung-preis-und-staffing-modell.md) | Team-Beratung: Preis- und Staffing-Modell (Rollen × Kostenband × Standort) | Accepted (2026-09-03) |
 | [0022](0022-authn-authz-stack-fuer-die-studios.md) | AuthN/AuthZ-Stack für die Studios: Better Auth, Kunden-Entra-ID, ReBAC bei Bedarf | Accepted (2026-10-01) |
-| [0024](0024-gold-ziel-mlv-neben-dbt-warehouse.md) | Gold-Ziel MLV neben dbt/Warehouse (je Domäne wählbar) | Accepted (2026-10-01) |
+| [0024](0024-gold-ziel-mlv-neben-dbt-warehouse.md) | Gold-Ziel je Domäne: Lakehouse (empfohlen), MLV, Warehouse (Option) | Accepted (2026-10-01), Nachtrag 2026-10-02 |

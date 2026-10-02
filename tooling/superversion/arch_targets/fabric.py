@@ -20,12 +20,15 @@ degrade into half-correct governance artifacts.
 Contract: ``emit(blueprint) -> {relative_path: content}`` — deterministic for a given
 blueprint and mirror state.
 
-Gold target per domain (ADR-0024, 01.10.2026). ``gold_targets={domain: "mlv"}`` moves that
-domain's gold to Fabric Materialized Lake Views through the mirrored ``emit_mlv`` — called the
-way Meridian's ``cli.py --emit-mlv`` calls it (``refresh_hints``, ``zeitplan``,
-``governed_catalog``). Without the option nothing changes: the default ``warehouse_dbt`` reproduces
-the output from before the option existed, byte for byte. The IR cannot carry the choice (its
-schema is byte-identical with Meridian's), so it arrives as a target option next to the
+Gold target per domain (ADR-0024, 01.10.2026; amended 02.10.2026). ``gold_targets={domain: "mlv"}``
+moves that domain's gold to Fabric Materialized Lake Views through the mirrored ``emit_mlv`` — called
+the way Meridian's ``cli.py --emit-mlv`` calls it (``refresh_hints``, ``zeitplan``,
+``governed_catalog``). Without the option nothing changes: the default ``lakehouse`` (the
+recommendation — lakehouse Delta tables built by the mirrored notebook transforms) reproduces the
+output from before the option existed, byte for byte. ``warehouse`` is a valid choice that this
+target refuses by name: the mirror has ``emit_warehouse_gold``, but only table shells without a load
+path and no ``create_warehouse`` step reachable through ``emit_apply`` (ADR-0024 §8.4). The IR
+cannot carry the choice (its schema is byte-identical with Meridian's), so it arrives as a target option next to the
 blueprint, from the inputs field ``domains[].gold_target``
 (``architecture_blueprint.gold_targets``). ``onelake_rollen_modus`` (``gesamt|einzeln``) is
 handed to the apply plan for every Fabric run that sets it, MLV or not.
@@ -36,7 +39,11 @@ import copy
 import json
 
 from tooling.superversion.arch_targets.base import ArchAdapter, ArchContractError, register
-from tooling.superversion.architecture_blueprint import DEFAULT_GOLD_TARGET, GOLD_TARGETS
+from tooling.superversion.architecture_blueprint import (
+    DEFAULT_GOLD_TARGET,
+    GOLD_TARGETS,
+    normalize_gold_target,
+)
 from tooling.superversion.capacity import recommend as _capacity_recommend
 
 _ACCESS_ACTION = {
@@ -152,10 +159,24 @@ def _check_options(blueprint: dict, gold_targets: dict[str, str] | None,
     as if it had been honoured, which is the failure `base.render` already refuses for
     unknown options.
     """
-    targets = dict(gold_targets or {})
+    targets = {d: normalize_gold_target(t, f"gold_targets[{d}]")
+               for d, t in (gold_targets or {}).items()}
     bad = {d: t for d, t in targets.items() if t not in GOLD_TARGETS}
     if bad:
         raise ArchContractError(f"gold_targets: unknown target(s) {bad}; allowed: {list(GOLD_TARGETS)}")
+    warehouse = sorted(d for d, t in targets.items() if t == "warehouse")
+    if warehouse:
+        # A valid choice that this target does not build yet — refused, never half-built. The
+        # mirror's `emit_warehouse_gold` writes `CREATE TABLE` shells only ("populate via
+        # CTAS/COPY INTO from silver" is left to the reader), and the mirrored `emit_apply`
+        # takes no `entscheidungen`, so the plan would run warehouse DDL without ever creating
+        # the warehouse item (`create_warehouse` hangs on PLAT-LHTOPO in `build_apply_plan`).
+        # Dropping the domain's notebook transforms for that would leave gold empty.
+        raise ArchContractError(
+            f"gold_target 'warehouse' is not generated yet for: {warehouse}. The recommendation "
+            f"is 'lakehouse' (default); 'mlv' is available. Open in ADR-0024 §8.4 "
+            f"(docs/architecture/adr/0024-gold-ziel-mlv-neben-dbt-warehouse.md): a warehouse "
+            f"load path from silver and a create_warehouse step in the mirrored apply plan.")
     names = {d.get("name") for d in blueprint.get("mesh", {}).get("domains", []) or []}
     unknown = sorted(set(targets) - names)
     if unknown:
@@ -338,9 +359,11 @@ def emit(blueprint: dict,
          onelake_rollen_modus: str | None = None) -> dict[str, str]:
     """Render the Fabric scaffold.
 
-    ``gold_targets`` — ``{domain: "warehouse_dbt" | "mlv"}`` (ADR-0024); absent domains keep
-    the default. ``governed_catalog``, ``mlv_refresh_hints`` and ``mlv_zeitplan``
-    (``je_schicht|graph``, D-621) feed the MLV path and are refused without an MLV domain.
+    ``gold_targets`` — ``{domain: "lakehouse" | "mlv" | "warehouse"}`` (ADR-0024); absent
+    domains keep the default ``lakehouse``, ``warehouse`` is refused (not generated yet), the
+    deprecated alias ``warehouse_dbt`` is read as ``lakehouse`` with a warning.
+    ``governed_catalog``, ``mlv_refresh_hints`` and ``mlv_zeitplan`` (``je_schicht|graph``, D-621)
+    feed the MLV path and are refused without an MLV domain.
     ``onelake_rollen_modus`` (``gesamt|einzeln``) reaches the apply plan of every Fabric run.
     """
     mlv_domains = _check_options(blueprint, gold_targets, governed_catalog, mlv_refresh_hints,

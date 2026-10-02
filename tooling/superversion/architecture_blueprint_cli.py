@@ -8,8 +8,10 @@ Usage:
   python -m tooling.superversion.architecture_blueprint_cli \
       --inputs inputs.json --dest out/ --stack fabric
 
-Gold as Materialized Lake Views for chosen domains (ADR-0024) — set
-`domains[].gold_target: "mlv"` in the inputs, then e.g.:
+Gold target per domain (ADR-0024): `domains[].gold_target` is `lakehouse` (default and
+recommendation), `mlv` or `warehouse` (valid, refused by the Fabric target until it is generated);
+the old name `warehouse_dbt` is read as `lakehouse` with a warning. Gold as Materialized Lake
+Views for chosen domains — set `domains[].gold_target: "mlv"` in the inputs, then e.g.:
   python -m tooling.superversion.architecture_blueprint_cli \
       --inputs showcases/aurora_group/architecture/aurora_architecture_inputs.json \
       --dest out/ --governed-catalog governed_catalog.json \

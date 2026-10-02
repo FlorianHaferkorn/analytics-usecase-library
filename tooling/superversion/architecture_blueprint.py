@@ -16,11 +16,13 @@ Public API:
   - validate_blueprint(blueprint) -> None  (raises on schema violation; soft-skip w/o jsonschema)
   - validate_inputs(inputs) -> None  (the ALUCA-owned input contract, ADR-0024)
   - gold_targets(inputs) -> {domain: "mlv", ...}  (the domains whose gold is NOT the default)
+  - normalize_gold_target(value) -> canonical value (maps the deprecated alias, with a warning)
 """
 from __future__ import annotations
 
 import json
 import re
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -31,9 +33,15 @@ _SCHEMA_FILE = _REPO_ROOT / "tooling" / "generator" / "schemas" / "architecture_
 _INPUTS_SCHEMA_FILE = (_REPO_ROOT / "tooling" / "generator" / "schemas"
                        / "architecture_blueprint_inputs.schema.json")
 
-#: Gold-Ziel je Domaene (ADR-0024). Die Vorgabe reproduziert die Ausgabe von vor dem Feld.
-GOLD_TARGETS = ("warehouse_dbt", "mlv")
-DEFAULT_GOLD_TARGET = "warehouse_dbt"
+#: Gold-Ziel je Domaene (ADR-0024, Nachtrag 02.10.2026). ``lakehouse`` ist Vorgabe und Empfehlung
+#: und reproduziert die Ausgabe von vor dem Feld (Lakehouse-Notebook-Transforms). ``warehouse``
+#: ist eine waehlbare Option, die das Fabric-Target heute noch abweist (ADR-0024 §8.4).
+GOLD_TARGETS = ("lakehouse", "mlv", "warehouse")
+DEFAULT_GOLD_TARGET = "lakehouse"
+#: Veraltete Namen -> kanonischer Wert. ``warehouse_dbt`` war vom 01.10. bis 02.10.2026 der Name
+#: der Vorgabe, obwohl das Target Lakehouse-Notebook-Transforms erzeugt, kein dbt und kein
+#: Warehouse. Angenommen wird er weiter, aber nie still (``normalize_gold_target``).
+GOLD_TARGET_ALIASES = {"warehouse_dbt": "lakehouse"}
 
 # --- P1: deterministic shortcut-vs-mirror heuristic --------------------------------
 # Databases → mirror (reliable isolated copy); lakes/object stores → shortcut (zero-copy).
@@ -66,8 +74,8 @@ def derive_blueprint(inputs: dict[str, Any]) -> dict[str, Any]:
           "name": "Commercial",
           "data_contract_ref": "...",    # optional
           "gold_products": [ {"name": "dim_x", "kind": "dimension", "grain": "..."} ],
-          "gold_target": "warehouse_dbt|mlv"?,  # optional, default warehouse_dbt (ADR-0024);
-                                                # not part of the IR — see gold_targets()
+          "gold_target": "lakehouse|mlv|warehouse"?,  # optional, default lakehouse (ADR-0024);
+                                                      # not part of the IR — see gold_targets()
           "sources": [ {"source": "...", "source_system": "...",
                         "access_mode": "shortcut|mirror|copy"?, "sensitivity": "..."?} ],
           "endorsement": "none|promoted|certified"?,   # optional, default promoted
@@ -285,15 +293,34 @@ def validate_inputs(inputs: dict[str, Any]) -> None:
     Draft202012Validator(schema).validate(inputs)
 
 
+def normalize_gold_target(value: str, where: str = "gold_target") -> str:
+    """The canonical gold target for ``value``; a deprecated alias is mapped with a warning.
+
+    ``FutureWarning`` rather than ``DeprecationWarning``: the reader is whoever wrote an input
+    file, and Python hides ``DeprecationWarning`` outside ``__main__`` — a hidden warning is the
+    silent acceptance this function exists to avoid. Unknown values pass through unchanged so
+    the caller's own check names them.
+    """
+    if value in GOLD_TARGET_ALIASES:
+        new = GOLD_TARGET_ALIASES[value]
+        warnings.warn(f"{where}: {value!r} is deprecated (ADR-0024, 02.10.2026) and read as "
+                      f"{new!r} — the target emits lakehouse notebook transforms, not dbt or a "
+                      f"warehouse. Rename it in the input file.", FutureWarning, stacklevel=3)
+        return new
+    return value
+
+
 def gold_targets(inputs: dict[str, Any]) -> dict[str, str]:
     """``{domain name: gold_target}`` for every domain that does **not** use the default.
 
-    Empty when every domain keeps ``warehouse_dbt`` — so a caller that forwards the map only
-    when it is non-empty leaves the rendered output of an unchanged input byte-identical. The
-    blueprint IR cannot carry the choice (its schema is byte-identical with Meridian's), so it
-    travels next to the blueprint, as a target option (`arch_targets.fabric.emit(gold_targets=…)`).
+    Empty when every domain keeps ``lakehouse`` (or names the deprecated alias
+    ``warehouse_dbt``, with a warning) — so a caller that forwards the map only when it is
+    non-empty leaves the rendered output of an unchanged input byte-identical. The blueprint IR
+    cannot carry the choice (its schema is byte-identical with Meridian's), so it travels next
+    to the blueprint, as a target option (`arch_targets.fabric.emit(gold_targets=…)`).
     """
     validate_inputs(inputs)
-    return {d["name"]: d["gold_target"]
-            for d in sorted(inputs.get("domains", []) or [], key=lambda d: d.get("name", ""))
-            if d.get("gold_target", DEFAULT_GOLD_TARGET) != DEFAULT_GOLD_TARGET}
+    chosen = {d["name"]: normalize_gold_target(d.get("gold_target", DEFAULT_GOLD_TARGET),
+                                               f"domains[{d['name']}].gold_target")
+              for d in sorted(inputs.get("domains", []) or [], key=lambda d: d.get("name", ""))}
+    return {name: t for name, t in chosen.items() if t != DEFAULT_GOLD_TARGET}

@@ -171,14 +171,43 @@ def test_unsupported_option_names_itself():
 
 
 def test_default_gold_target_is_byte_identical_to_no_option():
-    """`warehouse_dbt` is the default: naming it changes nothing, byte for byte. This is the
+    """`lakehouse` is the default: naming it changes nothing, byte for byte. This is the
     regression guard for every input file written before the field existed."""
     from tooling.superversion.architecture_blueprint import gold_targets
 
-    inputs = {**_FIXTURE, "domains": [{**_FIXTURE["domains"][0], "gold_target": "warehouse_dbt"}]}
+    inputs = {**_FIXTURE, "domains": [{**_FIXTURE["domains"][0], "gold_target": "lakehouse"}]}
     assert gold_targets(inputs) == {}
     assert arch_targets.render("fabric", _bp()) == arch_targets.render(
         "fabric", derive_blueprint(inputs)["blueprint"])
+    # naming it as a target option is just as inert
+    assert arch_targets.render("fabric", _bp()) == arch_targets.render(
+        "fabric", _bp(), gold_targets={"Commercial": "lakehouse"})
+
+
+def test_deprecated_alias_is_the_default_with_a_warning():
+    """`warehouse_dbt` (01.10.–02.10.2026) is read as `lakehouse` — same bytes, plus a warning,
+    in the inputs and as a direct target option."""
+    import pytest
+
+    from tooling.superversion.architecture_blueprint import gold_targets
+
+    inputs = {**_FIXTURE, "domains": [{**_FIXTURE["domains"][0], "gold_target": "warehouse_dbt"}]}
+    with pytest.warns(FutureWarning, match="warehouse_dbt"):
+        assert gold_targets(inputs) == {}
+    with pytest.warns(FutureWarning, match="warehouse_dbt"):
+        aliased = arch_targets.render("fabric", _bp(), gold_targets={"Commercial": "warehouse_dbt"})
+    assert aliased == arch_targets.render("fabric", _bp())
+
+
+def test_warehouse_gold_target_is_refused_not_half_built():
+    """`warehouse` is a valid choice (schema), but the Fabric target does not generate it yet:
+    the mirrored `emit_warehouse_gold` writes table shells without a load path and the mirrored
+    `emit_apply` cannot create the warehouse item. Refused by name, pointing at ADR-0024."""
+    import pytest
+
+    with pytest.raises(arch_targets.ArchContractError,
+                       match=r"'warehouse' is not generated yet.*Commercial.*ADR-0024"):
+        arch_targets.render("fabric", _bp(), gold_targets={"Commercial": "warehouse"})
 
 
 def test_mlv_domain_gets_views_and_loses_its_gold_transforms():
