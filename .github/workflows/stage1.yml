@@ -143,6 +143,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python showcases/aurora_group/data/showdaten.py holen --ci
 
+      # Node fuer die TS-Zwillinge der Visual Library (key_message.ts, contrast.ts, D-646 in Freelancing):
+      # test_contrast_ts.py rechnet contrast.ts gegen contrast.py und ist ohne Node rot, nie skip.
+      # >= 22.18 entfernt TypeScript-Typen ohne Schalter (process.features.typescript); "22" holt die
+      # neueste 22.x. Vorher lief hier das vorinstallierte Node des Runners, Version ungemessen.
+      - name: Set up Node (TS-Zwillinge der Visual Library)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Run tests
         run: python -m pytest -n auto --tb=short -q -rs
 
