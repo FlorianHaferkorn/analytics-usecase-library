@@ -2,7 +2,9 @@
 
 Pflicht-Inputs:   <core>/kpi.json, <core>/governance.json
 Optionale Inputs: <core>/strategy.json, <core>/reporting.json,
-                  <core>/../architecture/data_architecture.json (auto-detect)
+                  <core>/../architecture/data_architecture.json (auto-detect),
+                  <core>/../tool-layers/fabric/data/kpi_snapshot.json (auto-detect; Messwerte für
+                  Glossarbeispiele mit `kpi_id`, Audit Aurora E2E A-13)
 
 Kein Netzwerk, kein LLM, keine Dependencies außerhalb der stdlib.
 """
@@ -42,6 +44,7 @@ class CopilotCore:
     reporting: dict | None = None
     architecture: dict | None = None
     sources: list[SourceFile] = field(default_factory=list)
+    snapshot: dict | None = None
 
     # ── Convenience-Accessors (immer Listen/Strings, nie None) ──────────────
     @property
@@ -179,6 +182,14 @@ def load_core(core_dir: Path, architecture: Path | None = None) -> CopilotCore:
             last_updated=str(arch_data.get("_last_updated") or ""),
         ))
 
+    # Gemessene Werte für Glossarbeispiele (A-13): der Snapshot der Organisation, falls vorhanden. Seine Datei ist
+    # deterministisch (fester Erzeugungszeitpunkt, D-649) — gleicher Datenstand, gleiche Bytes im Ergebnis.
+    snapshot: dict | None = None
+    snap_path = core_dir.parent / "tool-layers" / "fabric" / "data" / "kpi_snapshot.json"
+    if snap_path.exists():
+        snapshot = _read_json(snap_path)
+        sources.append(SourceFile(name=snap_path.name, last_updated=str(snapshot.get("as_of") or "")[:10]))
+
     assert kpi is not None and governance is not None  # _load(required=True) garantiert das
     return CopilotCore(
         core_dir=core_dir,
@@ -188,6 +199,7 @@ def load_core(core_dir: Path, architecture: Path | None = None) -> CopilotCore:
         reporting=reporting,
         architecture=arch_data,
         sources=sources,
+        snapshot=snapshot,
     )
 
 

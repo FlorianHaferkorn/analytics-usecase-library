@@ -25,6 +25,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Are we on track for our Commercial targets this month? · Expected finding — Protect margin by separating the sales gap into price, volume, and mix before choosing an intervention.'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

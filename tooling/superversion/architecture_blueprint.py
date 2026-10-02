@@ -14,6 +14,8 @@ Public API:
   - derive_blueprint(inputs) -> {"blueprint": <dict>, "hitl": [str, ...]}
   - assemble_inputs_from_repo(repo_root) -> inputs dict (best-effort, marks HITL)
   - validate_blueprint(blueprint) -> None  (raises on schema violation; soft-skip w/o jsonschema)
+  - validate_inputs(inputs) -> None  (the ALUCA-owned input contract, ADR-0024)
+  - gold_targets(inputs) -> {domain: "mlv", ...}  (the domains whose gold is NOT the default)
 """
 from __future__ import annotations
 
@@ -26,6 +28,12 @@ SCHEMA_VERSION = "0.1.0"
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _SCHEMA_FILE = _REPO_ROOT / "tooling" / "generator" / "schemas" / "architecture_blueprint.schema.json"
+_INPUTS_SCHEMA_FILE = (_REPO_ROOT / "tooling" / "generator" / "schemas"
+                       / "architecture_blueprint_inputs.schema.json")
+
+#: Gold-Ziel je Domaene (ADR-0024). Die Vorgabe reproduziert die Ausgabe von vor dem Feld.
+GOLD_TARGETS = ("warehouse_dbt", "mlv")
+DEFAULT_GOLD_TARGET = "warehouse_dbt"
 
 # --- P1: deterministic shortcut-vs-mirror heuristic --------------------------------
 # Databases → mirror (reliable isolated copy); lakes/object stores → shortcut (zero-copy).
@@ -58,6 +66,8 @@ def derive_blueprint(inputs: dict[str, Any]) -> dict[str, Any]:
           "name": "Commercial",
           "data_contract_ref": "...",    # optional
           "gold_products": [ {"name": "dim_x", "kind": "dimension", "grain": "..."} ],
+          "gold_target": "warehouse_dbt|mlv"?,  # optional, default warehouse_dbt (ADR-0024);
+                                                # not part of the IR — see gold_targets()
           "sources": [ {"source": "...", "source_system": "...",
                         "access_mode": "shortcut|mirror|copy"?, "sensitivity": "..."?} ],
           "endorsement": "none|promoted|certified"?,   # optional, default promoted
@@ -260,3 +270,30 @@ def validate_blueprint(blueprint: dict[str, Any]) -> None:
         return
     schema = json.loads(_SCHEMA_FILE.read_text(encoding="utf-8"))
     Draft202012Validator(schema).validate(blueprint)
+
+
+def validate_inputs(inputs: dict[str, Any]) -> None:
+    """Validate the derivation inputs against ALUCA's own input schema (ADR-0024).
+
+    Unlike :func:`validate_blueprint` this does **not** soft-skip without ``jsonschema``: the
+    schema is the only place `gold_target` is typed, and a choice nobody checked is how a typo
+    (``"MLV"``, ``"lakeview"``) would silently fall back to the default gold path.
+    """
+    from jsonschema import Draft202012Validator
+
+    schema = json.loads(_INPUTS_SCHEMA_FILE.read_text(encoding="utf-8"))
+    Draft202012Validator(schema).validate(inputs)
+
+
+def gold_targets(inputs: dict[str, Any]) -> dict[str, str]:
+    """``{domain name: gold_target}`` for every domain that does **not** use the default.
+
+    Empty when every domain keeps ``warehouse_dbt`` — so a caller that forwards the map only
+    when it is non-empty leaves the rendered output of an unchanged input byte-identical. The
+    blueprint IR cannot carry the choice (its schema is byte-identical with Meridian's), so it
+    travels next to the blueprint, as a target option (`arch_targets.fabric.emit(gold_targets=…)`).
+    """
+    validate_inputs(inputs)
+    return {d["name"]: d["gold_target"]
+            for d in sorted(inputs.get("domains", []) or [], key=lambda d: d.get("name", ""))
+            if d.get("gold_target", DEFAULT_GOLD_TARGET) != DEFAULT_GOLD_TARGET}

@@ -171,6 +171,13 @@ MIRRORED_FILES = (
     # Repos dieselbe Vorgabe ziehen; ALUCAs dist-Codegen liest sie ueber
     # `tooling/codegen/speichermodus.py`. Nur Standardbibliothek.
     "storage_mode.py",
+    # Konformitaetspruefung des Blueprints (Meridian NM-06, 01.10.2026): Basis fuer den
+    # MLV-Pfad (Befunde `file_mlv_*`, `gold_fact_full_rebuild_direct_lake`,
+    # `gold_mlv_shortcut_source`). Importhuelle laut Meridian `test_aluca_spiegelmenge.py`:
+    # stack_capabilities, capacity_recommend, provision_purview, provision_terraform,
+    # storage_mode — alle bereits gespiegelt. Die Abloesung von
+    # `tooling/superversion/eval/blueprint_conformance.py` ist ein eigener Schritt.
+    "conformance.py",
 
     # -- Der Preis-Rechenkern (03.09.2026, ADR-0019 N-3) ---------------------------------
     #

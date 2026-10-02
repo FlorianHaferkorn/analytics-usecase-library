@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 from .config_loader import ConfigLoader
 from .page_builder import PageBuilder
+from .alt_text import apply_alt_text
 from .pbip_writer import PBIPWriter
 from .visual_validator import validate_page
 from . import design_rules_enforcer
@@ -75,6 +76,8 @@ class PageScaffoldGenerator:
         # question-first headers instead of asserting the message as a static title. Default True
         # preserves every other report's current output (see title_policy.py / config_loader).
         self.page_builder.assert_statement_titles = self.page_config.get("assert_statement_titles", True)
+        # Sprache des Alt-Texts aus dem Bracket (ux_layout_rules.report_locale, Default en-US).
+        self.page_builder.report_locale = self.page_config.get("report_locale")
 
         # Speaking page ID (human-readable; no Power BI default hex IDs)
         # e.g. Page_COM001_Overview, Page_COM001_Detail
@@ -176,6 +179,11 @@ class PageScaffoldGenerator:
         )
 
         self._add_last_refresh(page_structure["visuals"])
+        # Alt-Text fuer jedes nicht-dekorative Visual (Learn-Checkliste, ENSURE_ALTTEXT aktiv seit
+        # 01.10.2026). Haupt-Slots tragen ihn schon (mit Vergleichsreihe); apply_alt_text laesst
+        # vorhandenen Alt-Text stehen.
+        for _vis in page_structure["visuals"] + page_structure.get("slicers", []):
+            apply_alt_text(_vis, locale=self.page_builder.report_locale)
 
         self.page_structure = {
             "metadata": page_metadata,

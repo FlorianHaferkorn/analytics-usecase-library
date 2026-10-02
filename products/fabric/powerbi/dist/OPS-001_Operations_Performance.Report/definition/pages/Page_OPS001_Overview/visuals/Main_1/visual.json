@@ -106,6 +106,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Overall Equipment Effectiveness (OEE) % compared with Overall Equipment Effectiveness (OEE) % Target by Date'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

@@ -239,6 +239,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Utilization %, Occupancy %, Overtime % and Shrinkage % by Org Name, Queue Name and Channel'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

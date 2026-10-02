@@ -79,6 +79,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Cash Balance nach Calendar Year Month'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   },

@@ -170,6 +170,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Stockout Rate %, OTIF % and Obsolete Inventory % by Org Name'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

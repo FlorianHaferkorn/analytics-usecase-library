@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Forecast Accuracy %, Forecast MAPE %, Forecast Bias % and Service Impact %'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

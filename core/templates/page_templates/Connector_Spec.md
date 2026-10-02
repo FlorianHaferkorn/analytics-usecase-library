@@ -152,7 +152,7 @@ Standard: **WCAG 2.2 AA** (W3C, October 2023).
 
 | Requirement | SC | Rule |
 |---|---|---|
-| Alt text / title | SC 1.1.1 | Every visual has a descriptive title (used as accessibility label) |
+| Alt text | SC 1.1.1 | Every non-decorative visual has its own alt text (≤ 250 characters in Power BI); a title does not replace it, screen readers read title and alt text separately — `Design_Spec_3_30_300.md §9` |
 | Focus order | SC 2.4.3 | KPI band → primary visuals → slicers → action panel |
 | Text contrast | SC 1.4.3 | Minimum 4.5:1 for text; 3:1 for large text (≥18pt or ≥14pt bold) |
 | Non-text contrast | SC 1.4.11 | Chart fills, data lines, data points, axis marks ≥3:1 against adjacent background |

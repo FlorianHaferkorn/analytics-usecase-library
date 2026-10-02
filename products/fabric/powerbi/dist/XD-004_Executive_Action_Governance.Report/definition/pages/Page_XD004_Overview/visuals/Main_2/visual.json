@@ -145,6 +145,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Action Effectiveness Delta by domain'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

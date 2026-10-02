@@ -45,14 +45,15 @@ This directory contains **validation scripts** for automated quality checks agai
 ---
 
 ### validate_report.ps1
-**Purpose**: Validate Power BI report visuals against `bpa-rules-report.json`  
+**Purpose**: Validate PBIR report pages and visuals (`definition/pages/**`) against `bpa-rules-report.json` and the canvases in `core/templates/page_templates/tokens/layout_grid.yaml`  
 **Auto-fix**: No  
-**Integration**: run_all_checks.ps1 (19f) for each dist `*.Report`  
-**Checks**:
-- Max visuals per page
-- Theme colors usage
-- Alt-text for accessibility
-- Page scroll limits
+**Integration**: run_all_checks.ps1 (19f) for each dist `*.Report`; tests `tooling/tests/test_validate_report_pbir_rules.py`  
+**Checks** (thresholds read from the sources, none hard-coded):
+- REDUCE_PAGES: page count <= `<=` operand of the BPA rule (10)
+- REDUCE_VISUALS_ON_PAGE: visible visuals per page <= `paramMaxVisualsPerPage` (20), without the BPA-excluded types (shape, slicer, actionButton, textbox); group containers do not count, their visible children do
+- ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY: page equals a `layout_grid.yaml` canvas or height <= width x canvas ratio; `FitToPage` never scrolls (oversize = Info), `FitToWidth`/`ActualSize` oversize = Warning; hidden and tooltip pages skipped
+- ENSURE_ALTTEXT: `visual.visualContainerObjects.general[].properties.altText` on every visible visual except shapes; disabled in `bpa-rules-report.json` (`disabled: true`), then listed under `Disabled`
+- Output JSON lists `Evaluated`, `NotEvaluated` and `Disabled` rules, so "0 findings" is distinguishable from "not run"
 
 ---
 

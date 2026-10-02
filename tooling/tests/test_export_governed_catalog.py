@@ -175,3 +175,14 @@ def test_table_description_travels_only_when_the_contract_has_one():
     assert mit and mit <= erwartet
     assert all(t["description"] == " ".join(t["description"].split()) for t in tabellen
                if "description" in t)
+
+
+def test_declared_key_travels_only_when_the_contract_marks_one():
+    """ADR-0024: `role: key` becomes the catalog field `key` (Meridian's name) — the MLV
+    emitter's DQ anchor and REFRESH_HINT key. Not guessed from suffixes: `CustomerKey`
+    does not end in `_key`."""
+    cat = {t["name"]: t for t in build_governed_catalog(REPO)["tables"]}
+    assert cat["dim_customer"]["key"] == ["CustomerKey"]
+    assert cat["dim_date"]["key"] == ["DateKey"]
+    assert cat["fact_experience"]["key"] == ["Complaint ID"]
+    assert "key" not in cat["fact_sales"]          # its contract marks no key

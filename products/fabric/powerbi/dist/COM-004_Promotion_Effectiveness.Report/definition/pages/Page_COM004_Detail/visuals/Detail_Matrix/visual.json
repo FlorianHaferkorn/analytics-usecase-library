@@ -253,6 +253,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Incremental Sales Amount, Promo ROI %, Price Realization %, Cannibalization % and Incremental Gross Margin Amount by Promo Name, Category and Promo Mechanic'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

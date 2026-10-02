@@ -154,6 +154,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Gross Margin % vs Plan'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

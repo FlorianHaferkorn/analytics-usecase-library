@@ -92,6 +92,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Inventory Turnover by Calendar Year Month'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

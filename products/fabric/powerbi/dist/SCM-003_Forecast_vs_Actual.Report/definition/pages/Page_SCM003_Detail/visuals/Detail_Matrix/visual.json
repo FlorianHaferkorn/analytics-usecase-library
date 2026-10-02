@@ -239,6 +239,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Forecast Accuracy %, Forecast MAPE %, Forecast Bias % and Service Impact % by Category, ABC Class and XYZ Class'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

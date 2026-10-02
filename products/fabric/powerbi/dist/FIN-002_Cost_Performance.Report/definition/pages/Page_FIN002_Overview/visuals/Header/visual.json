@@ -25,6 +25,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Is unit cost deteriorating, and which entities have the largest OpEx variance? · Expected finding — Restore unit-cost performance by locating the worst entities before selecting the material, productivity, or OpEx lever.'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }
