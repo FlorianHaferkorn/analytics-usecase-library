@@ -75,12 +75,14 @@ errors:
     signature: "visual:forbidden-type.*Forbidden visual type"
     check: report.structural
     scope: report
-    severity: critical
+    # warning for IBCS 2.0 EX 2.1-2.5 (pie/donut, gauge, radar/funnel, >4 lines, traffic
+    # lights; "replace" with exceptions); critical only for treemap (house rule BC-CHART-08).
+    severity: warning
     category: structural
     deterministic_fix: false
     fix_id: null
-    manual_fix: "Replace the forbidden visual type (pie/donut/gauge/treemap) with an approved alternative."
-    regression_test: null
+    manual_fix: "Replace the chart type with the replacement named in the finding (IBCS 2.0 EX 2.x, catalogue page in the message), or declare a catalogue exception via PBIR annotation 'ibcs.ausnahme' = 'EX 2.x: <reason>'."
+    regression_test: "tooling/tests/test_ibcs_ex2_verbotsliste.py"
     docs: "tooling/linters/powerbi/bpa-rules-report.json"
 
   # ── Schema ─────────────────────────────────────────────────────────────────
