@@ -28,7 +28,7 @@ Provide a governed, auditable product for proposal costing and pricing decisions
 ## Price sources
 
 - **Fabric capacity:** [Microsoft Fabric pricing (Azure)](https://azure.microsoft.com/pricing/details/microsoft-fabric/) — Pay-as-you-go USD/month; ~41% savings with 1- or 3-year reservation.
-- **Power BI Pro / PPU:** [Power BI pricing](https://powerbi.microsoft.com/pricing/) — List prices USD (annual commitment); Pro $14, PPU $24 per user/month.
+- **Power BI Pro / PPU:** [Power BI pricing](https://powerbi.microsoft.com/pricing/) — List prices USD (annual commitment); Pro $14, PPU $24 per user/month. EUR list prices (microsoft.com/de-de, excl. VAT, read 02.10.2026): Pro 12.10 EUR, PPU 20.80 EUR; used by the run-cost delta, never derived from USD.
 - **Region:** capacity, OneLake storage, overage and the Planning share are priced at the regional Pay-as-you-go rate from `cost_drivers.yaml` -> `fabric_regions` (Azure Retail Prices API, 01.10.2026; default West Europe, 0.22 USD per CU hour). The SKU table (East US, 0.18 USD) is only the fallback for a region without an entry, and the breakdown says so (`price_basis: sku_table_us`).
 - All amounts in this product are **USD**. Contractual discounts are not modelled; treat as reference only.
 

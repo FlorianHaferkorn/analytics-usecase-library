@@ -152,6 +152,18 @@ def test_real_cost_drivers_price_the_reference_in_both_currencies():
                 assert price > 0 and basis == "region:westeurope"
 
 
+def test_real_cost_drivers_price_licences_in_eur_from_the_eur_list():
+    """Microsoft's EUR list price (12.10 / 20.80, annual billing, excl. VAT), not a converted USD price."""
+    engine = rc._engine()
+    drivers = engine.load_cost_drivers()
+    assert engine._license_prices(drivers, "EUR") == (12.10, 20.80)
+    assert engine._license_prices(drivers, "CHF") == (None, None)
+    side = rc.run_cost_side(_arch("F16", cost_currency="EUR"), drivers)
+    assert side["licences"]["pro_per_user_month"] == 12.10
+    assert side["licences"]["per_month"] == round(43 * 12.10, 2)
+    assert all(row["item"] != "power_bi_licences" for row in side["unpriced"])
+
+
 def test_below_f64_every_viewer_pays_pro():
     side = rc.run_cost_side(_arch("F16"), DRIVERS)
     assert side["licences"]["viewers_need_pro"] and side["licences"]["pro_users"] == 43

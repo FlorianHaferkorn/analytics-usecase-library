@@ -283,14 +283,24 @@ def _price_by_sku(drivers: dict[str, Any], sku: str, use_reservation: bool = Fal
     raise KeyError(f"Unknown Fabric SKU: {sku}")
 
 
-def _license_prices(drivers: dict[str, Any]) -> tuple[float, float]:
-    """Return (pro_usd_per_month, ppu_usd_per_month)."""
-    pro_price = ppu_price = 0.0
+def _license_prices(drivers: dict[str, Any], currency: str = "USD") -> tuple[float | None, float | None]:
+    """Return (pro_per_month, ppu_per_month) in `currency`.
+
+    USD keeps the old behaviour (0.0 for a missing row). Any other currency reads
+    `price_<cur>_per_month` and returns None where Microsoft's list price in that currency is not
+    recorded: a USD price is never converted.
+    """
+    key = f"price_{currency.lower()}_per_month"
+    usd = currency.upper() == "USD"
+    pro_price = ppu_price = 0.0 if usd else None
     for item in drivers.get("power_bi_licenses", []):
+        value = item.get(key)
+        if value is None:
+            continue
         if item.get("id") == "pro":
-            pro_price = float(item["price_usd_per_month"])
+            pro_price = float(value)
         elif item.get("id") == "ppu":
-            ppu_price = float(item["price_usd_per_month"])
+            ppu_price = float(value)
     return pro_price, ppu_price
 
 

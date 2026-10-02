@@ -39,7 +39,7 @@ from pathlib import Path
 from .alternative_impact import _fingerprint, evaluate_alternative
 from .repository import ProjectPackageRevisionRepository
 
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 _COST_ENGINE = Path(__file__).resolve().parents[3] / "internal" / "proposal_costing" / "tooling" / "cost_engine.py"
 #: Monthly view of the daily overage ceiling; Azure list prices use 730 h per month.
 _DAYS_PER_MONTH = 730 / 24
@@ -148,8 +148,9 @@ def _licences(architecture: dict, capacity_rows: list[dict], drivers: dict, curr
     Authors always need Pro. Viewers read without a licence when the production capacity is F64
     or larger (Learn ``enterprise/licenses``; same boundary as Meridian OUT-REPORT and
     ``capacity.FREE_VIEWER_MIN_SKU``); below it every viewer needs Pro. Without a declared
-    ``report_audience`` no licence cost is evaluated. The licence list price exists in USD only;
-    in another currency the licences are counted but not priced.
+    ``report_audience`` no licence cost is evaluated. USD and EUR come from Microsoft's own price
+    list in that currency (``price_<cur>_per_month``); a currency without a recorded list price
+    is counted but not priced, never converted.
     """
     audience = architecture.get("report_audience")
     if not audience:
@@ -165,10 +166,10 @@ def _licences(architecture: dict, capacity_rows: list[dict], drivers: dict, curr
               "basis": ("production SKU F64 or larger: viewers without licence" if free_viewers else
                         "production SKU below F64: every viewer needs Pro" if sku else
                         "no priced production capacity: viewers counted as Pro")}
-    if currency != "USD":
+    pro, _ppu = engine._license_prices(drivers, currency)
+    if pro is None:
         unpriced.append({"item": "power_bi_licences", "reason": f"No {currency} list price for Power BI Pro in cost_drivers.yaml."})
         return {**result, "pro_per_user_month": None, "per_month": None}
-    pro, _ppu = engine._license_prices(drivers)
     return {**result, "pro_per_user_month": pro, "per_month": round(pro_users * pro, 2)}
 
 
@@ -239,7 +240,7 @@ def compare_run_cost(repository: ProjectPackageRevisionRepository, project_ref: 
                 "List prices from cost_drivers.yaml: regional PAYG rates fetched from the Azure Retail Prices API, reservation discount from the SKU table; no negotiated discount.",
                 "Paused hours are not modelled: a pay-as-you-go capacity is priced for the full month.",
                 "Overage is a ceiling derived from the threshold (threshold x 3 x PAYG), billed only when used; it is not in the monthly total.",
-                "Licences only for a declared report_audience and only in USD: authors always Pro, viewers Pro below an F64 production capacity; PPU is not modelled.",
+                "Licences only for a declared report_audience, in USD or EUR (Microsoft list price per currency, annual billing, excl. VAT): authors always Pro, viewers Pro below an F64 production capacity; PPU is not modelled.",
                 "Workspace monitoring: compute runs on the hosting capacity (priced there), storage only for a declared retained_gb at the OneLake hot rate.",
                 "A capacity shared by several environments costs the same whether one or all of them run on it."]}
 

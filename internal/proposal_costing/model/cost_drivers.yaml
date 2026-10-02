@@ -61,10 +61,12 @@ power_bi_licenses:
   - id: pro
     name: Power BI Pro
     price_usd_per_month: 14
+    price_eur_per_month: 12.10   # microsoft.com/de-de + de-at Power BI pricing, annual billing, excl. VAT, read 2026-10-02
     note: "For authors when using Fabric/Premium capacity; viewers Free with F64+"
   - id: ppu
     name: Power BI Premium Per User
     price_usd_per_month: 24
+    price_eur_per_month: 20.80   # same source and date
     note: "No Fabric capacity; no Lakehouse/Warehouse; full Fabric needs F capacity"
 
 # Regional PAYG prices per CU hour and OneLake hot storage per GB-month, USD and EUR, from the Azure
