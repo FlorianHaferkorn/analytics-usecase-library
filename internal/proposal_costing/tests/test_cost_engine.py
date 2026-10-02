@@ -460,10 +460,11 @@ def test_overage_customer_threshold_and_switch_off():
 
 
 def test_compute_carries_overage_line_and_customer_question():
-    r = compute("compact", product_root=_product_root)
+    r = compute("compact", product_root=_product_root, region="West Europe")
     assert r["overage"]["sku"] == r["prod_sku"]
     assert r["customer_questions"] and "overage" in r["customer_questions"][0].lower()
-    decided = compute("compact", {"overage_threshold_cu_hours": 10}, product_root=_product_root)
+    decided = compute("compact", {"overage_threshold_cu_hours": 10}, product_root=_product_root,
+                      region="West Europe")
     assert decided["customer_questions"] == []
     # The overage line never changes the platform total: it is a contingent cost.
     assert decided["total_month"] == r["total_month"]
@@ -604,3 +605,13 @@ def test_eur_template_shows_eur_and_no_usd():
     eur = compute("compact", {"pro_users": 5}, product_root=_product_root, currency="EUR")
     text = fill_template(eur, (_product_root / "templates" / "proposal_snippet.md").read_text(encoding="utf-8"))
     assert "EUR/month" in text and "USD" not in text and "{{" not in text
+
+
+def test_unconfirmed_region_is_an_open_question_with_the_price_difference():
+    r = compute("compact", product_root=_product_root, currency="EUR")
+    q = [x for x in r["customer_questions"] if x.startswith("Azure region not confirmed")]
+    assert len(q) == 1 and "West Europe" in q[0]
+    assert f"{(0.1936 / 0.1889 - 1) * 100:+.1f} %" in q[0]
+    confirmed = compute("compact", product_root=_product_root, currency="EUR", region="Germany West Central")
+    assert not any(x.startswith("Azure region") for x in confirmed["customer_questions"])
+    assert compute("power_bi_only", product_root=_product_root)["customer_questions"] == []

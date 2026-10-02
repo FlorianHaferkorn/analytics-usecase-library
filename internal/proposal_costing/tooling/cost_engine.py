@@ -434,6 +434,34 @@ def _resolve_assumptions(defaults: dict[str, Any], drivers: dict[str, Any], vali
     }
 
 
+#: Region compared against the default when the customer has not named one: the German region
+#: is the usual alternative for German customers (data residency) and is priced differently.
+_REGION_ALTERNATIVE = "germanywestcentral"
+
+
+def _region_question(drivers: dict[str, Any], region: str | None, effective_region: str, currency: str,
+                     capacities: dict[str, Any]) -> str | None:
+    """Open customer question when the region was not given and a Fabric capacity is priced.
+
+    The default region (proposal_defaults) is a price assumption, not the customer's decision;
+    the question names the price difference to Germany West Central so the choice is visible.
+    """
+    if region or not any(capacities.values()):
+        return None
+    base = regional_rates(drivers, effective_region, currency)
+    alt = regional_rates(drivers, _REGION_ALTERNATIVE, currency)
+    text = (f"Azure region not confirmed: capacity priced in the default region {effective_region}. "
+            "Which region hosts the Fabric capacity?")
+    if base and alt and region_key(effective_region) != _REGION_ALTERNATIVE:
+        pct = (alt["payg_per_cu_hour"] / base["payg_per_cu_hour"] - 1) * 100
+        if abs(pct) < 0.05:
+            text += f" Germany West Central has the same {currency} rate per CU hour (fabric_regions)."
+        else:
+            text += (f" Germany West Central costs {pct:+.1f} % per CU hour in {currency} "
+                     "(Azure Retail Prices, fabric_regions).")
+    return text
+
+
 def compute(
     scenario_id: str,
     overrides: dict[str, Any] | None = None,
@@ -561,6 +589,9 @@ def compute(
     overage: dict[str, Any] | None = None
     planning: dict[str, Any] | None = None
     customer_questions: list[str] = []
+    region_question = _region_question(drivers, region, effective_region, cur, capacities)
+    if region_question:
+        customer_questions.append(region_question)
     if prod_sku:
         overage = compute_overage(drivers, prod_sku, overrides.get("overage_enabled"),
                                   overrides.get("overage_threshold_cu_hours"),

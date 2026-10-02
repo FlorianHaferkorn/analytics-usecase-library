@@ -83,6 +83,7 @@ With production capacity below F64, report viewers require Power BI Pro.
 *Warum:* Planning-Sessions verbrauchen CU der Produktionskapazität. Der Anteil steckt bereits im Kapazitätspreis und muss neben den übrigen Workloads Platz haben.
 
 ## Offene Kundenfragen
+- Azure region not confirmed: capacity priced in the default region West Europe. Which region hosts the Fabric capacity? Germany West Central has the same USD rate per CU hour (fabric_regions).
 - Capacity overage: switch it off, or set a rolling 24-hour threshold of X CU hours? It is on by default for new F capacities (threshold 25 % = 48 CU hours/day on F8) and is billed at 3x the pay-as-you-go rate.
 
 ## Capacity breakdown
