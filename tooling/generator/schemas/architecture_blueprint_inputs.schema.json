@@ -20,9 +20,9 @@
             "minLength": 1
           },
           "gold_target": {
-            "enum": ["warehouse_dbt", "mlv"],
-            "default": "warehouse_dbt",
-            "description": "Where this domain's gold is materialised (ADR-0024). `warehouse_dbt` (default) keeps the gold path as it was before the field existed — byte-identical output. `mlv` = Fabric Materialized Lake Views in a schema-enabled lakehouse: one `CREATE OR REPLACE MATERIALIZED LAKE VIEW` per gold product (GA since March 2026 per MS Learn What's new, SQL authoring), refreshed by a schedule (D-529), with the gold transforms of this domain replaced rather than duplicated. The choice is read by the Fabric arch target only; the IR carries no field for it, so it is handed over as the target option `gold_targets`."
+            "enum": ["lakehouse", "mlv", "warehouse", "warehouse_dbt"],
+            "default": "lakehouse",
+            "description": "Where this domain's gold is materialised (ADR-0024, amended 02.10.2026: lakehouse recommended, warehouse an option). `lakehouse` (default and recommendation) = Delta tables in the lakehouse, built by the notebook transforms the Fabric target has always emitted — byte-identical output to before the field existed. `mlv` = Fabric Materialized Lake Views in a schema-enabled lakehouse: one `CREATE OR REPLACE MATERIALIZED LAKE VIEW` per gold product (GA since March 2026 per MS Learn What's new, SQL authoring), refreshed by a schedule (D-529), with the gold transforms of this domain replaced rather than duplicated. `warehouse` = gold in a Fabric Warehouse (T-SQL, multi-table transactions per MS Learn decision-guide-lakehouse-warehouse); accepted here as a choice, refused by the Fabric target until a load path exists (ADR-0024 §8.4). `warehouse_dbt` is a deprecated alias of `lakehouse` (the old, misleading name), read with a warning. The choice is read by the Fabric arch target only; the IR carries no field for it, so it is handed over as the target option `gold_targets`."
           },
           "gold_products": {
             "type": "array",

@@ -15,6 +15,8 @@ pyyaml>=6.0
 
 # Optional: Template generation
 dbt-fabric>=1.6.0  # optional, nur für dbt-Template-Generierung
+# Für gold_target: lakehouse läuft das Skelett mit dbt-fabricspark (nicht gepinnt, nicht installiert):
+# pip install dbt-fabricspark
 
 # Optional: Utilities
 python-dotenv>=1.0.0

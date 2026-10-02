@@ -15,8 +15,10 @@ from jsonschema import ValidationError
 
 from tooling.superversion.architecture_blueprint import (
     DEFAULT_GOLD_TARGET,
+    GOLD_TARGET_ALIASES,
     GOLD_TARGETS,
     gold_targets,
+    normalize_gold_target,
     validate_inputs,
 )
 
@@ -32,16 +34,17 @@ def _inputs(**dom):
 def test_schema_enum_matches_the_code():
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     field = schema["properties"]["domains"]["items"]["properties"]["gold_target"]
-    assert tuple(field["enum"]) == GOLD_TARGETS
-    assert field["default"] == DEFAULT_GOLD_TARGET == "warehouse_dbt"
+    assert tuple(field["enum"]) == GOLD_TARGETS + tuple(GOLD_TARGET_ALIASES)
+    assert field["default"] == DEFAULT_GOLD_TARGET == "lakehouse"
+    assert GOLD_TARGETS == ("lakehouse", "mlv", "warehouse")
 
 
-@pytest.mark.parametrize("value", ["warehouse_dbt", "mlv"])
+@pytest.mark.parametrize("value", ["lakehouse", "mlv", "warehouse", "warehouse_dbt"])
 def test_valid_targets_pass(value):
     validate_inputs(_inputs(gold_target=value))
 
 
-@pytest.mark.parametrize("value", ["MLV", "lakeview", "warehouse", "", None, 1])
+@pytest.mark.parametrize("value", ["MLV", "lakeview", "Lakehouse", "dbt", "", None, 1])
 def test_invalid_targets_are_rejected(value):
     with pytest.raises(ValidationError):
         validate_inputs(_inputs(gold_target=value))
@@ -49,8 +52,29 @@ def test_invalid_targets_are_rejected(value):
 
 def test_absent_field_means_default_and_is_not_forwarded():
     assert gold_targets(_inputs()) == {}
-    assert gold_targets(_inputs(gold_target="warehouse_dbt")) == {}
+    assert gold_targets(_inputs(gold_target="lakehouse")) == {}
     assert gold_targets(_inputs(gold_target="mlv")) == {"Commercial": "mlv"}
+    # a valid choice travels on; the Fabric target is the one that refuses it (not generated yet)
+    assert gold_targets(_inputs(gold_target="warehouse")) == {"Commercial": "warehouse"}
+
+
+def test_deprecated_alias_reads_as_lakehouse_and_warns():
+    """`warehouse_dbt` named the default for one day although the target emits lakehouse
+    notebook transforms. Input files that carry it keep loading — never silently."""
+    with pytest.warns(FutureWarning, match="warehouse_dbt.*deprecated.*'lakehouse'"):
+        assert gold_targets(_inputs(gold_target="warehouse_dbt")) == {}
+    with pytest.warns(FutureWarning):
+        assert normalize_gold_target("warehouse_dbt") == "lakehouse"
+
+
+def test_canonical_values_do_not_warn():
+    import warnings
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        for value in GOLD_TARGETS:
+            assert normalize_gold_target(value) == value
+        gold_targets(_inputs(gold_target="lakehouse"))
 
 
 def test_gold_targets_validates_before_it_reads():

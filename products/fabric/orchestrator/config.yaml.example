@@ -4,6 +4,12 @@
 # Default strategy: enterprise (9 workspaces) or compact (3 workspaces)
 default_strategy: enterprise
 
+# Gold target of the Trf layer (ALUCA ADR-0024): lakehouse (recommended — Spark/notebook-first,
+# MLV and shortcuts are lakehouse features) or warehouse (T-SQL, multi-table transactions). Without this key
+# the orchestrator keeps its previous default, warehouse. Decides the Trf item (--provision-items)
+# and the dbt adapter of the skeleton (dbt-fabricspark vs. dbt-fabric). See README "Gold-Ziel".
+gold_target: lakehouse
+
 strategy:
   enterprise:
     folder_pattern: "domains/{domain}/{layer}"
@@ -111,9 +117,11 @@ layers:
   
   Trf:
     full_name: "Transform"
-    description: "Gold - Warehouse transformation (dbt)"
+    description: "Gold - Lakehouse (recommended) or Warehouse transformation (dbt), see gold_target"
+    # Descriptive only — the orchestrator does not read layers.*.item_types. The Trf item comes
+    # from gold_target (Lakehouse | Warehouse) unless item_provisioner.layer_items.Trf is set.
     item_types:
-      - "Warehouse"
+      - "Lakehouse"
       - "Notebook"
   
   Anl:
