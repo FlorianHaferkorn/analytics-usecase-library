@@ -6,7 +6,7 @@
 | Entscheider | Florian Haferkorn |
 | Kontext | Signal-Register (Meridian D-623): SIG-2609-021 Fabric IQ MCP (GA), SIG-2609-002 Power-BI-Antworten in Microsoft 365 Copilot mit DLP; Entscheidungsvorlage „Paket A“ im Freelancing-Repo (`research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-A-KI-Zugriff.md`) |
 | Betrifft | `compliance/DPIA.md` 12.4 · `compliance/_INDEX.md` C-26 |
-| Bezug | C-25 (KI-Zugriff je Semantikmodell, DPIA 12.3) · Meridian D-606 (`platform.ai_zugang`), D-641 (Zustimmungsrichtlinie, DLP-Lizenz) |
+| Bezug | C-25 (KI-Zugriff je Semantikmodell, DPIA 12.3) · Meridian D-606 (`platform.ai_zugang`), D-644 (Zustimmungsrichtlinie, DLP-Lizenz) |
 
 ## 1. Kontext
 
