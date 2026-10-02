@@ -1,7 +1,7 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "4206e915f1d75aa6079523b12a2e0bc567aa5768",
+  "source_commit": "ab10b2d6cf07e36757f1dbdf0541a9ad1f995572",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
@@ -159,6 +159,10 @@
     {
       "path": "storage_mode.py",
       "sha256": "6345779ff1b42f7cb0e139218e21eee365489968abb057f0eee582029dff7750"
+    },
+    {
+      "path": "conformance.py",
+      "sha256": "b8f2e8a3020a283e729b78155f40247c83f72d713e943fbe6b20c95bbdb12851"
     },
     {
       "path": "preis_kanon.py",
