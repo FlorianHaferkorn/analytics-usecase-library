@@ -156,6 +156,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Forecast Bias % and Service Impact % by Org Name'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

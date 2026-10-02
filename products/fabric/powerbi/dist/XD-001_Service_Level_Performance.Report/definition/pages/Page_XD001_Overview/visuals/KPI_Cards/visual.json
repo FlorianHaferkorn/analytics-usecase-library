@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'SLA Attainment %, Backlog Count, First Contact Resolution % and Average Handling Time (minutes)'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

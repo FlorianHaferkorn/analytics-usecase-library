@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Days in Inventory, Inventory Turnover, Stockout Rate % and OTIF %'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

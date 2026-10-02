@@ -253,6 +253,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Net Sales Amount, Net Sales % vs Plan, Price Effect Amount, Volume Effect Amount, Mix Effect Amount and Gross Margin % by Region and Category'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

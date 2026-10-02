@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Promo ROI %, Incremental Sales Amount, GM % During Promo and List Price Amount'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

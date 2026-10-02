@@ -156,6 +156,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'In-Full % and Stockout Impact % by Org Name'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

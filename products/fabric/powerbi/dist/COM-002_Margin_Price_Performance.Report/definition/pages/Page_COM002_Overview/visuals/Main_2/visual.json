@@ -107,6 +107,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'PVM Bridge Value by Driver'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

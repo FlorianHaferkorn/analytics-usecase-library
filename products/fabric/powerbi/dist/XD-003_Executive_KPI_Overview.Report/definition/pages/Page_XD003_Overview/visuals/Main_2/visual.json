@@ -145,6 +145,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'OTIF % (XD) by Org Name'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

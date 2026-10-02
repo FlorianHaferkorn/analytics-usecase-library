@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Unit Cost Amount, COGS % of Sales, OpEx vs Plan % and Material Cost %'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -423,7 +423,7 @@
       "id": "ENSURE_ALTTEXT",
       "name": "Ensure alternativeText has been defined for all visuals",
       "description": "Alt-text is required for screen readers",
-      "disabled": true,
+      "disabled": false,
       "part": "Pages",
       "test": [
         {

@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'CLV (Customer Lifetime Value), Customer Lifetime Revenue Amount, Customer Retention % and Churned Customers'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

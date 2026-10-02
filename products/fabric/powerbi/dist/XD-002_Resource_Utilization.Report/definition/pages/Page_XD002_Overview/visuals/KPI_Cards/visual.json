@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Utilization %, Occupancy %, SLA Attainment % and Overtime %'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -182,6 +182,12 @@
           },
           "additionalProperties": false
         },
+        "report_locale": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$",
+          "default": "en-US",
+          "description": "Language of the report texts the generator composes itself (BCP 47, e.g. en-US, de-DE). Today: visual alt text (alt_text.py PHRASES: 'compared with', 'by', 'Filter by'). Does not translate authored texts (titles, questions, messages) nor measure/column names. Languages without phrases fall back to English with a warning. Default en-US."
+        },
         "page_1_summary": {
           "type": "object",
           "required": [

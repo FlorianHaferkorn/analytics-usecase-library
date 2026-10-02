@@ -431,7 +431,16 @@ Standard: **WCAG 2.2 AA** (W3C, October 2023). Supersedes WCAG 2.1; SC 1.4.3, 1.
 - **SC 1.4.10 Reflow (Power BI exception):** Fixed-pixel Power BI canvases (1920×1080) are exempt from the 400%-zoom reflow requirement under the "two-dimensional layout essential" provision of SC 1.4.10; this exception must be documented per connector — see `Connector_Spec.md §4`
 - **Colorblind safety:** Signal colors always paired with icon + optional weight change
 - **Tab order:** KPI band → primary visuals → secondary visuals → slicers → action panel
-- **Alt text / description:** Every visual has a descriptive title (used as alt text in accessible exports)
+- **Alt text (SC 1.1.1):** Every non-decorative visual has its own alt text; the title does not replace
+  it. Microsoft Learn, *Design Power BI reports for accessibility* (read 01.10.2026): "When a report
+  consumer navigates to a visual, the screen reader reads out the title, visual type, and any alt text
+  if you set it." and "Because a screen reader reads out the title and type of a visual, you only need
+  to fill in a description." So the alt text describes what the visual shows (measures, axis,
+  comparison) and repeats neither title nor visual type. Limit 250 characters ("The **Alt Text**
+  textbox has a limit of 250 characters."). Textboxes carry their text as alt text ("Make sure to put
+  text contents in the **alt text** box"); decorative shapes carry none. No static data points or
+  findings in it ("data in Power BI is dynamic"). Power BI connector: generated in
+  `page_scaffold_generator/alt_text.py`, checked by `ENSURE_ALTTEXT` (active since 01.10.2026).
 - **Focus states:** Interactive elements (slicers, drill buttons) have visible focus rings
 
 ---

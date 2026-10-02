@@ -256,7 +256,7 @@ Detail pages:
 
 | Abstract Requirement | PBI Implementation |
 |---|---|
-| Alt text / title on every visual | Set `title.text` in `visualContainerObjects`; used as accessibility label |
+| Alt text on every non-decorative visual | `visualContainerObjects.general[0].properties.altText` (literal, ≤ 250 characters), written by `page_scaffold_generator/alt_text.py`; the title is read separately and does not replace it (`Design_Spec_3_30_300.md §9`); rule `ENSURE_ALTTEXT` |
 | Focus order | `tabOrder` field in `position` object; set per grid slot order |
 | WCAG AA contrast | Theme generator validates contrast ratios; use `good`/`bad`/`neutral` theme roles |
 | Colorblind safety | Delta signals always use icon (▲▼⚠─) via conditional formatting measure + color |

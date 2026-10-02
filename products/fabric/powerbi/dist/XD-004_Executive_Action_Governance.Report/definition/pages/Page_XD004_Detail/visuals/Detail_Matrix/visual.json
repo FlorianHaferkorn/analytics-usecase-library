@@ -225,6 +225,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Avg Time-to-Outcome Days (XD), Action Effectiveness Delta and Action ROI % (XD) by domain, outcome status and action code id'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

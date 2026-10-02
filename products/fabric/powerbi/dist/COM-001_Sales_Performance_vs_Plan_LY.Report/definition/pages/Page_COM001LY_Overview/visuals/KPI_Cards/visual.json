@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Net Sales Amount, Net Sales % vs Plan, Delta% Net Sales and Price Effect Amount'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

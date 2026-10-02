@@ -106,6 +106,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Net Sales % vs Plan by Region'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

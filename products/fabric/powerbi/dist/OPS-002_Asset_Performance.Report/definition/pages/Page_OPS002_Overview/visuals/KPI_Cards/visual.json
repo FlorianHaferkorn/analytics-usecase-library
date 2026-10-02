@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'MTBF (hours), Availability %, MTTR (hours) and Unplanned Downtime %'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }
