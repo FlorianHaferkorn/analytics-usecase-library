@@ -1206,6 +1206,71 @@ def _warehouse_monitor_lines() -> list[str]:
     ]
 
 
+def _file_mlv_quellen(bp: dict) -> list[str]:
+    """Quellen mit ``access_mode: file_mlv`` (D-619) — der einzige MLV-Anteil, den der Bauplan
+    selbst traegt. Gold-MLVs entstehen hinter dem CLI-Flag ``--emit-mlv`` und sind hier unsichtbar."""
+    return [str(e.get("source") or "?") for e in bp.get("ingestion") or []
+            if isinstance(e, dict) and e.get("access_mode") == "file_mlv"]
+
+
+def _mlv_monitor_lines(bp: dict) -> list[str]:
+    """Materialized Lake Views im Betrieb — Abschnitt in `_MONITORING.md` (Nachzug 01.10.2026).
+
+    Belegt, MS Learn gelesen 01.10.2026: ``materialized-lake-views/run-history`` (Recent runs,
+    Status, 30 Tage), ``…/analytics``, ``…/insights``, ``…/data-quality-reports`` (Activator-Alert),
+    ``…/overview-materialized-lake-view`` (Systemtabellen ``_mlv_system``, „Don't alter"),
+    ``…/materialized-lake-views-public-api`` (Skipped erscheint im Monitor hub als Canceled).
+
+    Der Emitter weiss nur von Datei-MLVs (Bauplan); ob Gold-MLVs emittiert werden, entscheidet ein
+    CLI-Flag, das hier nicht ankommt. Darum steht der Abschnitt immer da — bedingt formuliert,
+    solange keine Datei-MLV im Bauplan steht.
+    """
+    quellen = _file_mlv_quellen(bp)
+    if quellen:
+        einstieg = ("This delivery carries file-ingesting MLVs (`access_mode: file_mlv`: "
+                    + ", ".join(f"`{q}`" for q in quellen)
+                    + "); gold MLVs come on top if the delivery was emitted with `--emit-mlv`.")
+    else:
+        einstieg = ("**If materialized lake views are in use** in this delivery (gold MLVs from "
+                    "`--emit-mlv`, or file-ingesting MLVs with `access_mode: file_mlv`) — "
+                    "otherwise skip this section.")
+    return [
+        "## Materialized Lake Views", "",
+        einstieg, "",
+        "Where to look (lakehouse → ribbon **Materialized lake views**; Read on the workspace is "
+        "enough):", "",
+        "| Surface | What it gives operations |", "|---|---|",
+        "| **Recent run(s)** | one row per refresh, status *In progress / Completed / Failed / "
+        "Skipped / Canceled*; runs of the last **30 days**. A failed view marks its children "
+        "*Skipped*; a run is also *Skipped* when another active run refreshes the same view |",
+        "| **Analytics** | the same runs as charts: run trend by status, top error codes, refresh "
+        "policy mix (Full / Incremental / No refresh) |",
+        "| **Insights** | ranked cards such as *Consecutive Failures Detected* (three or more in a "
+        "row), *Source Schema Changed*, *Duration Regression Detected*; *Mark as resolved* only "
+        "hides a card for the browser session |",
+        "| **Data quality report** | violations and dropped rows per MLV and constraint (Power BI, "
+        "DirectQuery) |", "",
+        "- **Skipped is reported as Canceled in the Monitor hub** and in the job-instance APIs "
+        "(job type `RefreshMaterializedLakeViews`). A *Canceled* MLV run there is therefore not "
+        "necessarily a user cancel — check *Recent run(s)* before acting on it. Whether "
+        "`ItemJobEventLogs` (the KQL rule above) carries the same mapping is not documented: "
+        "ASSUMPTION, unverified.",
+        "- **System tables, read only.** Fabric writes `_mlv_system.sys_run_metrics`, "
+        "`_mlv_system.sys_node_metrics` and `_mlv_system.sys_error_metrics` into the lakehouse. "
+        "Query them for evidence and trend reports; **do not alter the `_mlv_system` schema** — "
+        "Microsoft: changes break the Analytics and Insights tabs. No load, cleanup or retention "
+        "job of this delivery may touch it.",
+        "- **Data-quality alert.** On the data quality report: **Set Alert** (Activator) on a "
+        "measure such as total violations or rows dropped in the last week, trigger on value "
+        "change, percent change or a condition, channel **Teams or Outlook email**. Send it to "
+        "the same recipients as the job-failure rule (step 4). A dropped row is not a failed run "
+        "— without this alert, `ON MISMATCH DROP` loses rows silently.", "",
+        "Source: MS Learn `fabric/data-engineering/materialized-lake-views/run-history`, "
+        "`…/analytics`, `…/insights`, `…/data-quality-reports`, `…/overview-materialized-lake-view`, "
+        "`…/materialized-lake-views-public-api` (read 2026-10-01).", "",
+    ]
+
+
 def _result_set_cache_lines() -> list[str]:
     """Result set caching (I-21 W5.8): ab Werk an, Folgen fuer Kosten, Frische und Messung.
 
@@ -1487,7 +1552,8 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "statement; `connectivity/_CONNECTIVITY.md` carries the same current statement.", "",
         "> Activator must poll more frequently than the KQL time window, else failures are missed. Use",
         "> stateful operators + preview-before-activate to avoid alert spam (grounded).", "",
-        *((_warehouse_monitor_lines() + [""] + _operations_agent_lines(politik))
+        *((_warehouse_monitor_lines() + [""] + _mlv_monitor_lines(bp)
+           + _operations_agent_lines(politik))
           if stack == "fabric" else []),
         *_activity_log_lines(),
     ]

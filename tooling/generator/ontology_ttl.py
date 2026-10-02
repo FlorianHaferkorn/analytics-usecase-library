@@ -16,6 +16,12 @@ Nothing is invented: a missing name or description stays missing (the gaps are c
 ``business_objects.py --template/--apply``). Action codes are not emitted as rules — the import
 does not document a rule construct.
 
+Deadline (I-21 W5.9): the old ontology experience (JSON item definition) retires on 2027-01-31
+(Learn fabric/iq/ontology/overview, read 2026-10-01). This path does not depend on it: the RDF/OWL
+import into an empty item is documented for the new experience (Learn
+fabric/iq/ontology/how-to-import-export, read 2026-10-01). Never target an old-experience item.
+Ledger: docs/architecture/_INDEX.md A-22.
+
 Usage:
     python3 tooling/generator/ontology_ttl.py --check            # import profile, exit 1 on findings
     python3 tooling/generator/ontology_ttl.py --out build/ontology.ttl

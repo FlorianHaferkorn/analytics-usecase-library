@@ -1,6 +1,6 @@
 # Report Best Practices (BPA Rules)
 
-Lesbare Übersicht der Regeln aus `bpa-rules-report.json`. Diese Regeln werden von `validate_report.ps1` gegen Power-BI-Report-Dateien (PBIP) ausgewertet.
+Lesbare Übersicht der Regeln aus `bpa-rules-report.json`. `validate_report.ps1` wertet davon REDUCE_PAGES, REDUCE_VISUALS_ON_PAGE, ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY und ENSURE_ALTTEXT gegen PBIR-Reports (`definition/pages/**`) aus und liest die Schwellen aus dieser Datei bzw. aus `layout_grid.yaml`; die übrigen Regeln wertet das Skript nicht aus.
 
 **Version:** v1 · **Letzte Aktualisierung:** 2025-10-12 · **Owner:** analytics-core-team
 
@@ -19,8 +19,8 @@ Lesbare Übersicht der Regeln aus `bpa-rules-report.json`. Diese Regeln werden v
 | AVOID_SHOW_ITEMS_WITH_NO_DATA | „Show items with no data“ vermeiden | — | Ja |
 | HIDE_TOOLTIP_DRILLTROUGH_PAGES | Tooltip- und Drillthrough-Seiten ausblenden | — | Ja |
 | ENSURE_THEME_COLOURS | Charts nutzen Theme-Farben (keine Hardcodierung) | — | Ja |
-| ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY | Keine vertikale Scroll-Seiten | max. Höhe 720 px | Ja |
-| ENSURE_ALTTEXT | Alt-Text für alle Visuals (Barrierefreiheit) | — | **Nein** (disabled) |
+| ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY | Keine vertikale Scroll-Seiten | Leinwände aus `layout_grid.yaml` (1280×720, 1920×1080) | Ja |
+| ENSURE_ALTTEXT | Alt-Text für alle Visuals (Barrierefreiheit) | ausgenommen `shape`; max. 250 Zeichen (Learn) | Ja (seit 01.10.2026) |
 
 ---
 
@@ -77,15 +77,18 @@ Lesbare Übersicht der Regeln aus `bpa-rules-report.json`. Diese Regeln werden v
 - **Aktion bei Verstoß:** Custom-Farben in den Visuals durch Theme-Farben ersetzen (z. B. über „Theme colors“ im Formatierungsbereich).
 
 ### ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY
-- **Was:** Sichtbare Seiten sollen **nicht höher als 720 px** sein (kein vertikales Scrollen).
-- **Parameter:** implizit max. **720** px Höhe.
+- **Was:** Sichtbare Seiten (ohne `HiddenInViewMode` und Tooltip-Seiten) scrollen nicht vertikal.
+- **Parameter (ALUCA, Entscheidung Florian 01.10.2026):** nicht die 720 px dieser Regeldatei, sondern die Leinwände aus `core/templates/page_templates/tokens/layout_grid.yaml` (`canvas.design_base` 1280×720, `canvas.production` 1920×1080). Eine Seite besteht, wenn sie einer Leinwand entspricht oder ihre Höhe ≤ Breite × Höhe/Breite der Leinwand ist. `FitToPage` skaliert und scrollt nicht (Übergröße wird als Info gemeldet), `FitToWidth` und `ActualSize` scrollen bei Übergröße (Warnung).
 - **Warum:** Einheitliche Darstellung auf verschiedenen Bildschirmgrößen; keine „langen“ Scroll-Seiten.
 - **Aktion bei Verstoß:** Seitenhöhe verkleinern oder Inhalt auf weitere Seiten verteilen.
 
 ### ENSURE_ALTTEXT
 - **Was:** Alle Visuals (außer Shapes) sollen **alternativeText** für Screenreader gesetzt haben.
 - **Warum:** Barrierefreiheit.
-- **Status:** In der Standard-Konfiguration **deaktiviert** (`disabled: true`). Kann in `bpa-rules-report.json` aktiviert werden.
+- **Status:** **Aktiv** seit 01.10.2026 (`disabled: false`, Entscheidung Florian), Schwere Info. Vorher deaktiviert; aktiviert meldete die Regel 220 von 220 Visuals der 17 dist-Reports.
+- **Woher der Alt-Text kommt:** `products/fabric/powerbi/tooling/page_scaffold_generator/alt_text.py`, beim Generieren (Kennzahlen, Achse, Vergleichsreihe; Textbox = ihr Text). Reports ohne Generatorpfad: `python -m products.fabric.powerbi.tooling.page_scaffold_generator.alt_text <X.Report>`.
+- **Sprache des Alt-Texts:** `ux_layout_rules.report_locale` im UseCase_Bracket (BCP 47, Default `en-US`; seit 01.10.2026 FIN-001 `de-DE`). Übersetzt werden die Satzbausteine des Moduls („compared with“ = „im Vergleich zu“, „by“ = „nach“, „Filter by“ = „Filtern nach“); Kennzahl- und Spaltennamen bleiben, wie das Visual sie bindet (Katalog und Modell führen keine lokalisierten Namen). Unbekannte Sprache: Englisch mit Warnung. Das Werkzeug ersetzt beim Sprachwechsel nur Alt-Text, den es selbst erzeugt hat.
+- **Learn** (*Design Power BI reports for accessibility*, gelesen 01.10.2026): „Ensure alt text is added to all non-decorative visuals on the page.“ · „The Alt Text textbox has a limit of 250 characters.“ · „Because a screen reader reads out the title and type of a visual, you only need to fill in a description.“ Der Titel ersetzt den Alt-Text also nicht (`Design_Spec_3_30_300.md §9`).
 
 ---
 
@@ -93,7 +96,7 @@ Lesbare Übersicht der Regeln aus `bpa-rules-report.json`. Diese Regeln werden v
 
 ```powershell
 # Einzelnen Report prüfen
-& tooling/validation/validate_report.ps1 -ReportPath "products/fabric/powerbi/dist/Commercial.SemanticModel/Report/COM-001.Report" -BpaRulesPath "tooling/linters/powerbi/bpa-rules-report.json"
+& tooling/validation/validate_report.ps1 -ReportPath "products/fabric/powerbi/dist/COM-001_Sales_Performance.Report"
 
 # Über run_all_checks (Check 19f)
 .\tooling\run_all_checks.ps1

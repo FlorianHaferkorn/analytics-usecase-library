@@ -60,7 +60,7 @@ All values are in pixels, measured from the top-left corner of the page canvas.
 | `height` | Visual height in pixels |
 | `tabOrder` | Keyboard tab order (lower = earlier); increment by 1000 |
 
-**Standard page canvas**: 1280 × 720px (16:9). Use `products/fabric/powerbi/tooling/page_scaffold_generator/` for layout calculations.
+**Page canvas**: the ALUCA canvases in `core/templates/page_templates/tokens/layout_grid.yaml` (`canvas.design_base` 1280 × 720 for slot coordinates, `canvas.production` 1920 × 1080 for deployed reports; prose in `governance/Layout_Grid_System.md`), not the Power BI default. `tooling/validation/validate_report.ps1` (ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY) reads them from there. Use `products/fabric/powerbi/tooling/page_scaffold_generator/` for layout calculations.
 
 ---
 

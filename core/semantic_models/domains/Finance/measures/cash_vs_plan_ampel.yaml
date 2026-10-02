@@ -1,0 +1,21 @@
+measure_name: Cash vs Plan Ampel
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Finance_SemanticModel
+display_folder: 0_Vergleich
+category: Supporting
+expression:
+  aggregation_method: custom
+  logical: Cash vs Plan Ampel = SWITCH ( TRUE ( ), ISBLANK ( [Cash vs Plan %] ), "#98A2B3",
+    [Cash vs Plan %] < -0.10, "#EF4444", [Cash vs Plan %] < -0.05, "#F59E0B", "#16A34A"
+    )
+documentation:
+  description: 'Cash-vs-Plan Ampel (Hex): ≥−5% grün · −5..−10% amber · <−10% rot.'
+  notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist,
+    ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem
+    TMDL übernommen.'
+governance:
+  owner: Finance Analytics
+  status: active
+  version: v1.0
+  last_review: '2026-10-01'

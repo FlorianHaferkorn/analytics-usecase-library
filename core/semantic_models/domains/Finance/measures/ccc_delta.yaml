@@ -1,0 +1,20 @@
+measure_name: CCC Delta
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Finance_SemanticModel
+display_folder: 0_Vergleich
+category: Supporting
+expression:
+  aggregation_method: custom
+  logical: CCC Delta = SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 0, BLANK ( ), 2,
+    [CCC Days] - 45, [CCC Days] - [CCC Days PM] )
+documentation:
+  description: CCC Δ je Vergleichsmodus (Feldparameter 'Vergleich'). Niedriger = besser.
+  notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist,
+    ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem
+    TMDL übernommen.'
+governance:
+  owner: Finance Analytics
+  status: active
+  version: v1.0
+  last_review: '2026-10-01'

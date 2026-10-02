@@ -3,31 +3,21 @@
 # Supports approval gates via Azure DevOps Environments
 #
 # Usage: Include as steps in a deployment job that references an environment
+#
+# No approval step here: these steps run in an agent job, and ManualValidation@0 runs only in an
+# agentless job (`pool: server`, Learn manual-validation-v0, 01.10.2026). Approvals come from the
+# environment (solution_release_multistages.yml) or from a separate agentless job before the
+# release job (solution_release_simple.yml). The former parameters `requireManualApproval` and
+# `approvalTimeoutMinutes` were removed on 01.10.2026; a caller still passing them fails at
+# template expansion instead of deploying without the approval it asked for.
 
 parameters:
   - name: environment
     type: string
     default: 'dev'
     displayName: 'Target environment'
-  - name: requireManualApproval
-    type: boolean
-    default: false
-    displayName: 'Require manual approval before release (fallback if environment approvals not configured)'
-  - name: approvalTimeoutMinutes
-    type: number
-    default: 1440
-    displayName: 'Approval timeout (minutes)'
 
 steps:
-  - task: ManualValidation@0
-    displayName: 'Manual Approval Gate (Fallback)'
-    condition: and(succeeded(), eq('${{ parameters.requireManualApproval }}', 'true'))
-    inputs:
-      notifyUsers: |
-        $(APPROVAL_NOTIFY_USERS)
-      onTimeout: 'reject'
-      timeoutInMinutes: ${{ parameters.approvalTimeoutMinutes }}
-  
   - task: DownloadPipelineArtifact@2
     displayName: 'Download automation artifacts'
     inputs:
@@ -50,13 +40,13 @@ steps:
       pip install -r $(Pipeline.Workspace)/automation/resources/requirements.txt
     displayName: 'Install Python dependencies'
   
-  - script: |
+  - pwsh: |
       python $(Pipeline.Workspace)/automation/scripts/fabric_release.py `
         --environment ${{ parameters.environment }} `
         --repo_path "$(Pipeline.Workspace)/solution" `
         --unpublish_items true
+      if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     displayName: 'Release Fabric items'
-    pwsh: true
     continueOnError: false
     env:
       PYTHONIOENCODING: utf-8

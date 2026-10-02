@@ -142,6 +142,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Unplanned Downtime % by Asset Name'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

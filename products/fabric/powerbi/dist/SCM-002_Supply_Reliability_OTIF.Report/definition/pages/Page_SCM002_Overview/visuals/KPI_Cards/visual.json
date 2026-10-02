@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'OTIF %, On-Time %, In-Full % and Stockout Impact %'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

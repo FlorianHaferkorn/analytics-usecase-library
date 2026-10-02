@@ -92,6 +92,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Incremental Sales Amount by Calendar Year Month'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

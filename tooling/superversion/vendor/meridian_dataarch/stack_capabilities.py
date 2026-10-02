@@ -370,18 +370,24 @@ def gap_doc_for(bp: dict, capability: str, title: str) -> str | None:
 # -- Feature × Region (Plan I-21 W5.1) --------------------------------------------------------------
 #
 # Nicht jede Fabric-Funktion gibt es in jeder Region, und gerade die EU-Regionen, die DACH-Kunden
-# waehlen, fehlen mehrfach: Ontologie und Database Hub nicht in West und North Europe, Fabric Apps nicht
-# in Germany West Central, Fabric policies nicht in West und North Europe. Ein Angebot, das eine
-# Ontologie in `westeurope` verspricht, ist ohne diese Tabelle eine Zusage, die im Mandanten scheitert.
+# waehlen, fehlen mehrfach: Database Hub nicht in West und North Europe, Fabric Apps nicht in North
+# Europe, Fabric policies nicht in West und North Europe. Ein Angebot, das eine Funktion in einer Region
+# verspricht, in der Learn sie ausschliesst, ist ohne diese Tabelle eine Zusage, die im Mandanten scheitert.
 #
 # Maschinenform: je Funktion die Regionen, in denen sie **fehlt**, als Azure-Region-Id — so fuehrt MS
 # die Ausnahmen. Fehlt eine Region ganz in der MS-Tabelle, sagt der Validator `unbekannt`, nicht `ok`.
 #
-# Datenstand: per Learn-MCP gelesen am 29.09.2026 — `fabric/admin/region-availability` (Spalten
+# Datenstand: per Learn-MCP gelesen am 01.10.2026 — `fabric/admin/region-availability` (Spalten
 # „Unavailable Fabric features" und „Power BI only region") und fuer die Policies
 # `fabric/governance/fabric-policies-overview` („not currently supported in … West Europe, North Europe,
 # and West US"). Die Tabelle ist ein Snapshot mit Datum; der Wochen-Radar prueft sie nach.
-REGION_DATENSTAND = "2026-09-29"
+#
+# 29.09. -> 01.10.2026 hat Microsoft die Tabelle umgebaut (Commit im fabric-docs-Repo am 29.09.2026
+# abends): Ontology fehlt nur noch in South Central US (vorher auch North/West Europe); Fabric App
+# ist in Germany West Central verfuegbar, fehlt neu in Canada East, UK West, Australia Southeast und
+# South India; neu gefuehrt ist der Operations agent. Ein Stand von zwei Tagen war damit falsch —
+# fuer DACH-Kunden in beide Richtungen.
+REGION_DATENSTAND = "2026-10-01"
 
 #: Azure-Regionen mit Power BI **und** allen Fabric-Workloads.
 FABRIC_REGIONEN: frozenset[str] = frozenset({
@@ -406,18 +412,22 @@ _RA = "learn.microsoft.com/fabric/admin/region-availability"
 #: Funktion -> Status, Regionen ohne diese Funktion, Quelle.
 FEATURE_NICHT_IN: dict[str, dict[str, Any]] = {
     "ontology": {"status": "preview", "quelle": _RA,
-                 "fehlt_in": frozenset({"northeurope", "westeurope", "southcentralus"})},
+                 "fehlt_in": frozenset({"southcentralus"})},
     "database_hub": {"status": "unbekannt", "quelle": _RA,
                      "fehlt_in": frozenset({"northeurope", "westeurope"})},
     "fabric_apps": {"status": "preview", "quelle": _RA,
                     "fehlt_in": frozenset({
-                        "brazilsouth", "canadacentral", "mexicocentral", "northeurope",
-                        "germanywestcentral", "polandcentral", "spaincentral", "switzerlandwest",
-                        "indonesiacentral", "israelcentral", "japanwest", "malaysiawest",
-                        "newzealandnorth", "taiwannorth", "taiwannorthwest"})},
+                        "brazilsouth", "canadacentral", "canadaeast", "mexicocentral",
+                        "northeurope", "polandcentral", "spaincentral", "switzerlandwest", "ukwest",
+                        "australiasoutheast", "southindia", "indonesiacentral", "israelcentral",
+                        "japanwest", "malaysiawest", "newzealandnorth", "taiwannorth",
+                        "taiwannorthwest"})},
     "digital_twin_builder": {"status": "preview", "quelle": _RA,
                              "fehlt_in": frozenset({"southcentralus", "northeurope", "israelcentral",
                                                     "japanwest"})},
+    # Learn fuehrt ihn in East US als „Operations agent (preview)", in South Central US ohne Zusatz.
+    "operations_agent": {"status": "preview", "quelle": _RA,
+                         "fehlt_in": frozenset({"eastus", "southcentralus"})},
     "fabric_policies": {"status": "preview",
                         "quelle": "learn.microsoft.com/fabric/governance/fabric-policies-overview",
                         "fehlt_in": frozenset({"westeurope", "northeurope", "westus"})},

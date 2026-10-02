@@ -18,13 +18,14 @@
 # An idiom OPTS IN to a non-default profile by declaring a `profiles:` block
 # (see _schema.yaml). If it declares none, it exists only in house_default.
 
-schema_version: 1
+schema_version: 2
 default: house_default
 
 profiles:
 
   house_default:
     name: "ALUCA House Standard"
+    kind: notation
     is_default: true
     description: >
       The governed ALUCA notation: honest statement titles (descriptor · question ·
@@ -39,31 +40,85 @@ profiles:
       variance:        "length + sign + semantic colour (positive #107C10 / negative #A4262C); never colour alone"
       reference_axis:  "muted neutral zero/plan line (recedes behind the data)"
       emphasis:        "size and position only; grey to recede; a single accent per page"
+    vegalite_config:
+      font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
+      view: {stroke: null}
+      axis: {gridColor: "#E1DFDD", domainColor: "#E1DFDD", labelColor: "#605E5C", title: null, labelFontSize: 11}
+      axisX: {grid: false}
+      # Bar/column = 2/3 of the category, gap 1/3 (IBCS UN 3.1 ibcs2-un-3-1; Urban "bar ~2x the gap"
+      # editorial corpus). Vega-Lite's default 0.1 drew 0.9 (measured 30.09.2026). Styles inherit it.
+      scale: {bandPaddingInner: 0.3333}
+      # Data labels 11 px, axis labels 11 px: never smaller than the numbers they sit next to (Urban 11/12).
+      text: {fontSize: 11}
+      # German number and date formats for labels, axes and tooltips (d3 locale de-DE). Without it
+      # a host renders "1,240.5" and "Dec 30, 2024" (measured in Fabric's VegaVisual 30.09.2026).
+      locale:
+        number: {decimal: ",", thousands: ".", grouping: [3], currency: ["", "\u00a0€"]}
+        time:
+          dateTime: "%A, der %e. %B %Y, %X"
+          date: "%d.%m.%Y"
+          time: "%H:%M:%S"
+          periods: ["AM", "PM"]
+          days: [Sonntag, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag]
+          shortDays: [So, Mo, Di, Mi, Do, Fr, Sa]
+          months: [Januar, Februar, März, April, Mai, Juni, Juli, August, September, Oktober, November, Dezember]
+          shortMonths: [Jan, Feb, Mär, Apr, Mai, Jun, Jul, Aug, Sep, Okt, Nov, Dez]
+    # The library states its own tooltips (render.with_tooltips, line: nearest-date hover); the host's
+    # crosshair tooltip would add a second, differently formatted one. Styles inherit this.
+    # Text marks are data labels: VegaVisual shortened "74,4" at the plot edge to "…" (measured
+    # 01.10.2026), which drops the number. The specs reserve the room themselves (padding.right).
+    vegavisual_capabilities:
+      disableLineChartCrosshairTooltip: true
+      disableTextTruncation: true
 
   ibcs:
-    name: "IBCS — International Business Communication Standards"
+    name: "IBCS — International Business Communication Standards 2.0"
+    kind: notation
     is_default: false
     description: >
-      Hichert SUCCESS notation. Scenarios are distinguished by FILL PATTERN, not a
-      second colour (AC solid · PL outlined · FC hatched · PY solid @50%). The
-      plan/target reference is prominent (ink), not muted. Variances are integrated
-      ± bars/columns with sign, and comparable charts share one value-per-pixel scale.
+      IBCS Standards 2.0 (IBCS Association 2026, CC BY-SA 4.0; notation aligned with
+      ISO 24896). Scenarios are distinguished by fill, not by a second colour: AC solid
+      dark, PY lighter solid, PL/BU outlined, FC outlined and hatched. Variances are
+      rated good / bad / neutral (not by sign). Value axes start at zero; data labels
+      replace value axes and grid lines. Externally this is "follows the IBCS notation",
+      never "IBCS compliant/certified" (IBCS® is a registered trademark of IBCS Institute).
     source:
-      - "HICHERT, Rolf; FAISST, Jürgen — Solid, Outlined, Hatched (IBCS Institute, 2020)"
-      - "core/templates/page_templates/tokens/color_semantics.yaml: ibcs_scenario (governed)"
-      - "daxlib.org PowerofBI.IBCS — runnable UDF realisations (bar, column, waterfall, small multiples)"
+      - "IBCS Standards Version 2.0, IBCS Association 2026, CC BY-SA 4.0 — rules as catalogued in docs/architecture/research/2026-09-30_visual-stack-r1/ibcs_v2.yaml"
+      - "core/templates/page_templates/tokens/color_semantics.yaml: ibcs_scenario, ibcs_variance (governed)"
     rules:
-      scenario_fill:   "AC solid · PL outlined · FC hatched · PY solid@50% — colour shared, pattern distinguishes; never a 2nd colour for scenarios"
-      reference_axis:  "prominent ink reference line (plan/target), not muted"
-      variance:        "integrated ± bars/columns with sign; good/bad by semantic colour where defined"
-      scaling:         "same value-per-pixel across comparable charts on a page (uniform scaling)"
-    # governed hex a profile overlay may pull from (kept in sync with color_semantics.yaml)
+      scenario_fill:   "AC solid dark · PY lighter solid (scenario comparison only) · PL/BU outlined · FC outlined + hatched in AC colour (UN 3.2)"
+      variance:        "absolute variance = bar/column, same width and scale as the base; relative variance = pin; colour by rating: good bright green, bad dark red, neutral blue; '+' on positive labels (UN 4.1)"
+      axes:            "value axes start at zero, exception indexed data (CH 1.1); data labels replace value axis and grid (SI 3.1)"
+      measures:        "absolute measures: column/bar width 2/3 of the category, ratios 1/3; ratio lines half the stroke (UN 3.1)"
+      decoration:      "no frames, shadows, pseudo-3D, decorative colours or rounded data ends (SI 2.1, SI 2.2)"
+    rule_refs: [UN 3.1, UN 3.2, UN 4.1, CH 1.1, SI 2.1, SI 2.2, SI 3.1]
+    # Hex values are NOT prescribed by IBCS (UN 4.1: "does not prescribe exact codes").
+    # These are the governed defaults (Klasse C, overridable per brand); tests check relations.
     tokens:
       reference_ink:  "#201F1E"    # text.primary — the prominent IBCS reference
-      py_tint_alpha:  0.5          # PY = AC colour at 50%
+      ac:             "#404040"    # dark gray, 10.4:1 on white
+      py_tint_alpha:  0.5          # PY = AC at 50 % -> lighter solid
+      good:           "#5B9A35"    # bright green, 3.43:1 on white (WCAG 1.4.11 floor 3:1)
+      bad:            "#A4262C"    # dark red, 7.26:1 (= semantic.negative)
+      neutral:        "#1F6FB5"    # blue, 5.25:1
+      good_cvd:       "#1A9E8F"    # blue-green for colour-vision deficiency (UN 4.1), 3.32:1
+    # Vega-Lite config applied in the derived targets (fabric_app, html_vegalite)
+    vegalite_config:
+      view: {stroke: null}
+      axis: {grid: false, ticks: false, domainColor: "#404040", labelColor: "#201F1E", title: null}
+      bar: {cornerRadius: 0}
+      scale: {bandPaddingInner: 0.3333, zero: true}
+      legend: {disable: true}
+      font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
+    vegavisual_capabilities:
+      disableNiceAxisBounds: true
+      disableMinBarSize: true
+      disableCompactNumberFormatting: true
+      disableStackedDataLabels: true
 
   print_safe:
     name: "Print-safe (CVAA)"
+    kind: notation
     is_default: false
     description: >
       The colour-blind-safe reading of an idiom: the governed blue/orange variance
@@ -82,3 +137,111 @@ profiles:
     tokens:
       pos_cvaa:  "#0078D4"    # colorblind_safe.positive (brand blue)
       neg_cvaa:  "#F7630C"    # colorblind_safe.negative (orange)
+
+  # --- style profiles (kind: style) ------------------------------------------------
+  # A style profile does not change the notation of an idiom (that stays house_default)
+  # and needs no opt-in per idiom: it is a Vega-Lite `config` applied to every idiom in
+  # the derived targets (fabric_app, html_vegalite). Colours stay out — they come from
+  # the brand tokens (Klasse C). Each parameter names its source entry in the R1 corpus
+  # (docs/architecture/research/2026-09-30_visual-stack-r1/).
+
+  fluent:
+    name: "Fluent — close to Power BI and Microsoft 365"
+    kind: style
+    base_notation: house_default
+    is_default: false
+    description: >
+      The look of Power BI's Fluent 2 defaults: Segoe UI with Bahnschrift numerals, light
+      grey horizontal grid, legend top-left, small radii.
+    source:
+      - "product-036 (Fluent tokens: Segoe UI, Bahnschrift numeric, type ramp)"
+      - "product-038 (Office data viz: legend top-left, light grey axes/grid)"
+      - "product-034 (Fluent radius scale)"
+    rules:
+      typography: "Segoe UI for text, Bahnschrift for numbers; ramp 12/14/16/20 px"
+      grid:       "light grey horizontal grid, no vertical grid"
+      legend:     "top-left"
+    vegalite_config:
+      font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
+      axis: {gridColor: "#E1DFDD", domainColor: "#C8C6C4", tickColor: "#C8C6C4", labelFontSize: 12, titleFontSize: 12}
+      axisX: {grid: false}
+      legend: {orient: top, direction: horizontal, labelFontSize: 12}
+      bar: {cornerRadiusEnd: 2}
+      title: {fontSize: 16, anchor: start}
+
+  editorial:
+    name: "Editorial — newsroom charts (BBC, Urban Institute, FT, ONS)"
+    kind: style
+    base_notation: house_default
+    is_default: false
+    description: >
+      Statement headline and qualifier subtitle, horizontal major grid only, emphasised
+      zero line, no axis titles or ticks, direct labels over legends, one highlight
+      colour against grey.
+    source:
+      - "editorial-027 (BBC: horizontal major grid #cbcbcb, zero line #333333)"
+      - "editorial-026 (BBC: no axis titles or ticks, legend top)"
+      - "editorial-014 (Urban: title 18 / subtitle 14 / labels 12 px)"
+      - "editorial-017 (Urban: bar-to-gap ratio 2)"
+      - "editorial-016 (Urban: direct labels up to 3 series)"
+    rules:
+      titles:  "headline states the finding, subtitle carries measure, unit, period"
+      grid:    "horizontal major grid only, zero line emphasised"
+      labels:  "direct labels up to 3 series, legend on top otherwise"
+    vegalite_config:
+      font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
+      view: {stroke: null}
+      axis: {title: null, ticks: false, domain: false, gridColor: "#CBCBCB", labelFontSize: 12}
+      axisX: {grid: false, domain: true, domainColor: "#333333"}
+      scale: {bandPaddingInner: 0.3333}
+      legend: {orient: top, labelFontSize: 12}
+      title: {fontSize: 18, subtitleFontSize: 14, anchor: start}
+
+  minimal:
+    name: "Minimal — Tufte / Storytelling with Data"
+    kind: style
+    base_notation: house_default
+    is_default: false
+    status: experimental   # sources only as search excerpts in R1 (L-3)
+    description: >
+      Maximum data-ink: no frame, no ticks, no grid, one focus colour against grey,
+      sparklines embedded in text and tables.
+    source:
+      - "editorial summary R1: swd/tufte principles (search excerpts, not read in the original)"
+    rules:
+      data_ink: "no frame, ticks, grid or axis lines unless they carry data"
+      focus:    "one focus colour, everything else grey"
+    vegalite_config:
+      font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
+      view: {stroke: null}
+      axis: {grid: false, ticks: false, domain: false, title: null, labelFontSize: 11}
+      legend: {disable: true}
+
+  story:
+    name: "Story — one accent against grey, statements next to the chart"
+    kind: style
+    base_notation: house_default
+    is_default: false
+    status: experimental   # pattern from one reference report, see source
+    focus: true            # data marks grey; the key message's hits take the accent (render.with_focus)
+    description: >
+      Data story in the manner of a magazine page: no frame, ticks or axis titles, light
+      horizontal grid, direct labels; every data mark grey, only what the key message names
+      in the one accent colour. Merges editorial (grammar of axes and titles) and minimal
+      (data-ink); the accent comes from the brand tokens (Klasse C), never from the profile.
+    source:
+      - "editorial-027 (via editorial: light horizontal grid)"
+      - "editorial-026 (via editorial: no axis titles or ticks)"
+      - "editorial-057 (PitchSide Pro: grey marks, one accent for the current item, statement next to the chart)"
+      - "editorial summary R1: one focus colour against grey (via minimal, search excerpts)"
+    rules:
+      focus:   "every data mark grey; only the key message's hits in the accent"
+      grid:    "light horizontal grid, no vertical grid, no frame"
+      labels:  "no axis titles or ticks, direct labels"
+    vegalite_config:
+      font: "Inter, Segoe UI, system-ui, -apple-system, sans-serif"
+      view: {stroke: null}
+      axis: {title: null, ticks: false, domain: false, gridColor: "#E6E6E6", labelFontSize: 11}
+      axisX: {grid: false}
+      legend: {orient: top, labelFontSize: 11}
+      title: {fontSize: 16, subtitleFontSize: 13, anchor: start}

@@ -145,6 +145,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Availability % by Asset Name'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

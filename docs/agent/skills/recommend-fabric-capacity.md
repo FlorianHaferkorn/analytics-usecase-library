@@ -19,7 +19,7 @@ Fills `platform.capacity_sku` in the architecture blueprint IR, or states a reco
 
 3. **Choose the procurement model.** Break-even is 59.5 % runtime ≈ **100 hours per week**, identical across SKUs and regions because the discount is proportional.
 
-4. **Choose the region.** Same discount everywhere; only the base rate differs.
+4. **Choose the region.** Same discount everywhere; only the base rate differs. Then check the region against the functions the customer needs: `capacity.recommend(bp, features={...})` returns `region_features` from the mirrored Meridian table (`stack_capabilities`, Learn `admin/region-availability`, data as of 2026-10-01). As of that date: Ontology is missing only in South Central US; Fabric Apps are missing in North Europe, Poland Central, Spain Central, Switzerland West and UK West, among others, but available in Germany West Central and West Europe; Database Hub is missing in West and North Europe. Never quote a region from memory — the table changed between 29.09. and 01.10.2026.
 
 5. **Choose the split.** Production and non-production always separate (R6, D-596); within each, one larger capacity or several smaller ones.
 
@@ -72,6 +72,21 @@ Learn `enterprise/capacity-overage-overview` and `enable-capacity-overage`, read
 
 **R8 — Overage is a customer decision, not a default.** Ask “overage off, or threshold X?” in every sizing conversation. Quote the derived ceiling: maximum overage cost per day ≈ threshold × 3 × PAYG per CU hour — derived, not measured, and a lower bound of the worst case because of the 5-minute evaluation. `tooling/superversion/capacity.py` (`overage_profile`) computes it; `recommend()` returns the open question in `customer_questions`; `internal/proposal_costing` prints it in the quote.
 
+## Resizing a running capacity (scale up, split, scale down)
+
+Learn `enterprise/capacity-planning-manage-capacity-growth-governance`, read 2026-10-01. Use these after go-live, from the Capacity Metrics app, not at initial sizing:
+
+- **80 % — scale up or split.** A capacity that runs consistently above ~80 % at peak times gets split (a workload moves to its own capacity) or upgraded. If peak usage rises steadily (Learn's example: 60 % → 75 % → 90 %), move to the next SKU **before** full utilization. Scaling up always **doubles** the SKU.
+- **30 % — consolidate or scale down.** Peak usage consistently below 30 % means consolidate workloads onto it or scale down, **provided the SLAs still hold**.
+- **Size by the measured 30-second peak.** On a trial or pay-as-you-go capacity, read the highest 30-second timepoint in the Capacity Metrics app; a SKU offers CU × 30 CU-seconds per timepoint. `peak_floor(peak_cu_seconds)` in `capacity.py` returns the smallest SKU whose budget covers the peak at 80 % (`recommend(..., measured={"peak_cu_seconds": n})` raises the floor and names the reason). The value is a measurement passed alongside the blueprint, not a blueprint field.
+- **Scale-down check (formula).** Background operations are smoothed over 24 hours, so judge the smoothed usage, not the peak of a single job. Usage at the target size = current usage × CU current / CU target; it must stay at or below the 80 % threshold:
+
+  `u_current ≤ 0.80 × CU_target / CU_current`
+
+  Halving the SKU (F128 → F64) therefore needs u_current **< 40 %** — the example on the Learn page. The general form is derived from that example, not stated by Learn.
+- **Reservation plus pay-as-you-go for surges.** Reserve the base and add a pay-as-you-go capacity for peaks (Learn: F64 reserved, F128 on Mondays by adding a PAYG F64); if the extra capacity is needed **more than four days a week**, reserving it is better value. Four days of 24 h are 96 h per week — consistent with R1's ~100 h break-even (derived, not stated by Learn). `surge_procurement(extra_sku, days_per_week)` in `capacity.py` applies the four-day rule; `recommend(..., measured={"surge": {"extra_sku": "F64", "days_per_week": 1}})` adds it under `procurement.surge` (Plan I-21 W5.3, 01.10.2026).
+- **Optimize before scaling**, and avoid frequent resizes: running operations can be delayed; schedule resizes for low-activity periods.
+
 ## Fabric Planning sessions
 
 Learn `iq/plan/resources/billing-fabric-plan`, read 2026-09-29: a session lasts 30 days (730 h), cannot be ended early and is counted per tenant + user + capacity. It consumes CU of the capacity: **Planner 847, Stakeholder 168, Viewer 37 CU hours** per session. Keep an estimated **30 % buffer** for the other workloads a planning deployment uses. Automation jobs are billed per successful job (“2 CU”, time unit not stated — do not quote a number). Pausing or deleting the capacity bills the remaining session CU at once. `planning_load()` in `capacity.py` returns load and share of a SKU. Since D-595 (30.09.2026) planning is a blueprint option (`platform.planning`); `recommend()` computes the load from `platform.planning.sessions` and turns missing role counts into a customer question. Plan sessions on only one stage group: a user working on both capacities has two sessions. Release status read 2026-09-30: Learn lists Plan as generally available since July 2026 while the IQ workload is still marked preview — state both in an offer.
@@ -107,4 +122,4 @@ Germany West Central carries **no premium** over West Europe. Sweden Central lac
 
 ## Sources
 
-Overage and Fabric Planning figures verified against learn.microsoft.com on 2026-09-29 (pages named in their sections). All other figures verified against learn.microsoft.com and the Azure Retail Prices API on 2026-08-04: capacity reservations and discount mechanics, throttling and smoothing policy, SKU limits for semantic models and Direct Lake, region availability, pause and resume behaviour, mirroring cost, OneLake consumption.
+Overage and Fabric Planning figures verified against learn.microsoft.com on 2026-09-29 (pages named in their sections). Resizing thresholds (80 %/30 %, 24-hour smoothing example F128 < 40 % → F64, four-day rule) read on learn.microsoft.com on 2026-10-01 (`enterprise/capacity-planning-manage-capacity-growth-governance`). All other figures verified against learn.microsoft.com and the Azure Retail Prices API on 2026-08-04: capacity reservations and discount mechanics, throttling and smoothing policy, SKU limits for semantic models and Direct Lake, region availability, pause and resume behaviour, mirroring cost, OneLake consumption.

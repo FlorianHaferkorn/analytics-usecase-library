@@ -130,6 +130,13 @@ COM-001.Report/
 The generator reads from these governance files:
 
 - Use case UX SSOT: `core/usecases/core/<ID>_*/UseCase_Bracket.yaml` (`ux_layout_rules`)
+  - `ux_layout_rules.report_locale` (optional, BCP 47, default `en-US`): language of the texts the
+    generator composes itself, today the visual alt text (`alt_text.py`, phrase table `PHRASES`
+    with `en` and `de`). Measure and column names stay as bound; authored bracket texts (titles,
+    questions, messages) are not translated. A language without phrases falls back to English with
+    an `UnknownLocaleWarning`. Reports without a generator path (FIN-001, COM-001LY) take the same
+    setting via `python -m products.fabric.powerbi.tooling.page_scaffold_generator.alt_text <X.Report>`
+    (bracket found by the use case ID in the folder name; `--locale` only for reports without one).
 - `core/templates/page_templates/tokens/visual_slot_mapping.yaml`
 - `core/templates/page_templates/tokens/layout_grid.yaml`
 - `core/templates/page_templates/tokens/color_semantics.yaml`

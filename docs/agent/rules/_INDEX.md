@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-09-25
+last-reviewed: 2026-09-30
 shelf-life-days: 90
 ---
 # Agent-Rules — Register (_INDEX)

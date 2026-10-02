@@ -7,6 +7,12 @@
     "capacity_name": "MyCapacity-NonProd",
     "_capacity_note": "Fabric capacity name (must exist in tenant). Base value = NON-PRODUCTION capacity (dev, tst and feature workspaces); infrastructure.prd.json overrides it with the production capacity. Production and non-production run on separate capacities (D-596).",
     
+    "surge_protection": {
+      "_surge_note": "Workspace-level surge protection (preview). The workspace CU limit is one percentage per capacity (rolling 24 h) and applies to every workspace on it that is 'Available'; prd workspaces are 'Mission critical' (fabric_setup.py SURGE_CLASS_BY_ENVIRONMENT). null = not yet set by the capacity admin; no documented API, set in OneLake catalog > Govern > Capacities.",
+      "workspace_cu_limit_pct": null,
+      "block_hours": null
+    },
+    
     "permissions": {
       "_permissions_note": "Workspace role assignments. Types: Group, User, ServicePrincipal",
       "Admin": [

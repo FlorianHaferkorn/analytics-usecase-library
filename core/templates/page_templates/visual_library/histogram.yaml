@@ -28,6 +28,10 @@ data_fit:
 tokens:
   col_bar: brand.primary            # #0078D4
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field: {role: value, required: true}
+
 canonical_params:
   entity: "_Measures"
   measure: "Order Value"

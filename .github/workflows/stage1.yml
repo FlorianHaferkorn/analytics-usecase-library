@@ -119,8 +119,41 @@ jobs:
         # ebenso fehlendes Ruff; ein Anstieg ist Exit 1. Beides rot (29.09.2026).
         run: python scripts/check_lint_ratchet.py --pin-pflicht
 
+      # Meridian D-578 (29.09.2026): die Aurora-Showdaten (Parquet + _delta_log, 614 MB aktiv)
+      # liegen nicht mehr in Git, sondern als Release-Archiv; showdaten.lock.json haelt Tag,
+      # Asset und SHA-256. `holen` laedt das Asset per gh (GH_TOKEN), prueft die Pruefsumme und
+      # entpackt. Fehlt der Release, endet es mit Exit 2 und einer ::error-Annotation (Tag,
+      # Asset, Befehl zum Hochladen). continue-on-error nur, damit die datenunabhaengigen Tests
+      # trotzdem laufen; rot wird der Job danach zweimal: `check_model_vs_gold --strict`
+      # (Exit 2 "nicht geprueft") und der Schritt "Showdaten vorhanden" am Ende. Kein stilles
+      # Gruen. Der Cache spart den Download je Lauf (Schluessel = Lock).
+      - name: Showdaten-Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            showcases/aurora_group/data/gold/dimensions
+            showcases/aurora_group/data/gold/facts
+            showcases/aurora_group/data/gold/security_user_org
+          key: showdaten-${{ runner.os }}-${{ hashFiles('showcases/aurora_group/data/showdaten.lock.json') }}
+
+      - name: Showdaten holen (Release-Archiv laut showdaten.lock.json)
+        id: showdaten
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python showcases/aurora_group/data/showdaten.py holen --ci
+
+      # Node fuer die TS-Zwillinge der Visual Library (key_message.ts, contrast.ts, D-646 in Freelancing):
+      # test_contrast_ts.py rechnet contrast.ts gegen contrast.py und ist ohne Node rot, nie skip.
+      # >= 22.18 entfernt TypeScript-Typen ohne Schalter (process.features.typescript); "22" holt die
+      # neueste 22.x. Vorher lief hier das vorinstallierte Node des Runners, Version ungemessen.
+      - name: Set up Node (TS-Zwillinge der Visual Library)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Run tests
-        run: python -m pytest -n auto --tb=short -q
+        run: python -m pytest -n auto --tb=short -q -rs
 
       # Ledger A-24 (29.09.2026): jede sourceColumn der dist-Modelle gegen die Gold-Tabelle, die
       # ihre Partition liest (Allowlist tooling/validation/model_vs_gold_allowlist.yaml). Eigener
@@ -144,6 +177,12 @@ jobs:
           python3 products/fabric/powerbi/tooling/validate_bindings.py \
             --dist-dir products/fabric/powerbi/dist \
             --strict
+
+      # Gegenstueck zu continue-on-error oben: ein fehlgeschlagenes Holen macht den Job rot,
+      # auch wenn jeder Schritt dazwischen gruen war. pruefen: 0 da, 1 abweichend, 2 fehlt.
+      - name: Showdaten vorhanden (blockierend)
+        if: always() && steps.showdaten.outcome != 'skipped'
+        run: python showcases/aurora_group/data/showdaten.py pruefen --tief
 
   stage1:
     name: Stage 1 checks
@@ -253,6 +292,25 @@ jobs:
             }
           }
 
+      # Meridian D-578: Stage 1 faehrt check_model_vs_gold --strict und
+      # check_action_outcome_reconciliation, beide lesen Aurora-Gold. Holen wie im Job
+      # python-checks; fehlt der Release, bleibt der Job rot (Stage 1 Exit 2 + Schritt unten).
+      - name: Showdaten-Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            showcases/aurora_group/data/gold/dimensions
+            showcases/aurora_group/data/gold/facts
+            showcases/aurora_group/data/gold/security_user_org
+          key: showdaten-${{ runner.os }}-${{ hashFiles('showcases/aurora_group/data/showdaten.lock.json') }}
+
+      - name: Showdaten holen (Release-Archiv laut showdaten.lock.json)
+        id: showdaten
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python showcases/aurora_group/data/showdaten.py holen --ci
+
       - name: Run Stage 1 checks
         shell: pwsh
         run: ./tooling/run_stage1_checks.ps1 -Root $env:GITHUB_WORKSPACE
@@ -335,3 +393,7 @@ jobs:
           name: report-scorecard
           path: internal/metrics/runs/report_scorecard/
           if-no-files-found: ignore
+
+      - name: Showdaten vorhanden (blockierend)
+        if: always() && steps.showdaten.outcome != 'skipped'
+        run: python showcases/aurora_group/data/showdaten.py pruefen --tief

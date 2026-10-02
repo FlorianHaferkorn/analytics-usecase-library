@@ -44,6 +44,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Narrative Text (FIN)'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

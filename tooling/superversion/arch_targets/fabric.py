@@ -19,12 +19,24 @@ degrade into half-correct governance artifacts.
 
 Contract: ``emit(blueprint) -> {relative_path: content}`` — deterministic for a given
 blueprint and mirror state.
+
+Gold target per domain (ADR-0024, 01.10.2026). ``gold_targets={domain: "mlv"}`` moves that
+domain's gold to Fabric Materialized Lake Views through the mirrored ``emit_mlv`` — called the
+way Meridian's ``cli.py --emit-mlv`` calls it (``refresh_hints``, ``zeitplan``,
+``governed_catalog``). Without the option nothing changes: the default ``warehouse_dbt`` reproduces
+the output from before the option existed, byte for byte. The IR cannot carry the choice (its
+schema is byte-identical with Meridian's), so it arrives as a target option next to the
+blueprint, from the inputs field ``domains[].gold_target``
+(``architecture_blueprint.gold_targets``). ``onelake_rollen_modus`` (``gesamt|einzeln``) is
+handed to the apply plan for every Fabric run that sets it, MLV or not.
 """
 from __future__ import annotations
 
+import copy
 import json
 
-from tooling.superversion.arch_targets.base import ArchAdapter, register
+from tooling.superversion.arch_targets.base import ArchAdapter, ArchContractError, register
+from tooling.superversion.architecture_blueprint import DEFAULT_GOLD_TARGET, GOLD_TARGETS
 from tooling.superversion.capacity import recommend as _capacity_recommend
 
 _ACCESS_ACTION = {
@@ -88,27 +100,131 @@ _NEEDS_INPUT = {
     "emit_ingress_dq": "answered source introspections (--source-schema-results)",
 }
 
+# --- Gold target MLV (ADR-0024) -------------------------------------------------------
+#
+# The emitters that BUILD gold. For a domain whose gold is a Materialized Lake View they get a
+# blueprint view without that domain's gold products: a notebook and an MLV that both
+# materialise `gold.<product>` are two stores for one object, and whichever ran last would win
+# without an error — the conflict Meridian's apply plan names `decide_gold_store` (A.11).
+# Bronze -> silver stays: the views read silver.
+_GOLD_BUILDERS = ("emit_transforms", "emit_notebooks", "emit_orchestration")
+# The emitters whose table names follow the lakehouse layout. MS Learn: "Features like
+# materialized lake views require schema-enabled lakehouses" (quoted in `emit_mlv`), so a run
+# with an MLV domain is schema-enabled throughout — `gold.<p>` instead of `gold_<p>` — and
+# `provision.sh` creates the lakehouse with `enableSchemas=true`. A flat run never reaches here.
+_SCHEMA_AWARE = ("emit_transforms", "emit_notebooks", "emit_lineage", "emit_ingestion",
+                 "emit_lifecycle")
+MLV_ZEITPLAENE = ("je_schicht", "graph")
+ONELAKE_ROLLEN_MODI = ("gesamt", "einzeln")
+
+
+def _ohne_gold(blueprint: dict, products: set[str]) -> dict:
+    """The blueprint without ``products`` as gold — for the emitters that would build them."""
+    view = copy.deepcopy(blueprint)
+    for d in view.get("mesh", {}).get("domains", []) or []:
+        d["data_products"] = [p for p in d.get("data_products", []) or [] if p not in products]
+    gold = view.get("medallion", {}).get("gold")
+    if isinstance(gold, dict):
+        gold["data_products"] = [p for p in gold.get("data_products", []) or []
+                                 if p.get("name") not in products]
+    return view
+
+
+def _nur_domaenen(blueprint: dict, names: set[str]) -> dict:
+    """The blueprint reduced to the domains ``names`` and their gold — the MLV domains."""
+    view = copy.deepcopy(blueprint)
+    doms = [d for d in view.get("mesh", {}).get("domains", []) or [] if d.get("name") in names]
+    view.setdefault("mesh", {})["domains"] = doms
+    keep = {p for d in doms for p in d.get("data_products", []) or []}
+    gold = view.get("medallion", {}).get("gold")
+    if isinstance(gold, dict):
+        gold["data_products"] = [p for p in gold.get("data_products", []) or []
+                                 if p.get("name") in keep]
+    return view
+
+
+def _check_options(blueprint: dict, gold_targets: dict[str, str] | None,
+                   governed_catalog: dict | None, mlv_refresh_hints: bool,
+                   mlv_zeitplan: str, onelake_rollen_modus: str | None) -> list[str]:
+    """Validate the target options; return the MLV domains (sorted).
+
+    An option that cannot take effect is refused by name — silently ignoring it would read
+    as if it had been honoured, which is the failure `base.render` already refuses for
+    unknown options.
+    """
+    targets = dict(gold_targets or {})
+    bad = {d: t for d, t in targets.items() if t not in GOLD_TARGETS}
+    if bad:
+        raise ArchContractError(f"gold_targets: unknown target(s) {bad}; allowed: {list(GOLD_TARGETS)}")
+    names = {d.get("name") for d in blueprint.get("mesh", {}).get("domains", []) or []}
+    unknown = sorted(set(targets) - names)
+    if unknown:
+        raise ArchContractError(f"gold_targets names domain(s) the blueprint does not have: {unknown}")
+    mlv = sorted(d for d, t in targets.items() if t == "mlv")
+    if mlv_zeitplan not in MLV_ZEITPLAENE:
+        raise ArchContractError(f"mlv_zeitplan {mlv_zeitplan!r} unknown; allowed: {list(MLV_ZEITPLAENE)}")
+    if onelake_rollen_modus is not None and onelake_rollen_modus not in ONELAKE_ROLLEN_MODI:
+        raise ArchContractError(f"onelake_rollen_modus {onelake_rollen_modus!r} unknown; "
+                                f"allowed: {list(ONELAKE_ROLLEN_MODI)}")
+    if not mlv:
+        idle = [n for n, on in (("mlv_refresh_hints", mlv_refresh_hints),
+                                ("mlv_zeitplan", mlv_zeitplan != "je_schicht"),
+                                ("governed_catalog", governed_catalog is not None)) if on]
+        if idle:
+            raise ArchContractError(f"{', '.join(idle)} only take effect for a domain with "
+                                    f"gold_target 'mlv' — none is set")
+    # A conformed product owned by an MLV domain and a default domain would be built twice,
+    # once per store. Which store wins is an architecture decision, not this target's.
+    mlv_products = {p for d in blueprint.get("mesh", {}).get("domains", []) or []
+                    if d.get("name") in mlv for p in d.get("data_products", []) or []}
+    shared = sorted(p for d in blueprint.get("mesh", {}).get("domains", []) or []
+                    if d.get("name") not in mlv
+                    for p in d.get("data_products", []) or [] if p in mlv_products)
+    if shared:
+        raise ArchContractError(f"gold product(s) {shared} belong to an 'mlv' and a "
+                                f"'{DEFAULT_GOLD_TARGET}' domain — one gold store per product")
+    return mlv
+
 
 def _mirrored_artifacts(blueprint: dict,
                         source_schema_results: dict[str, str] | None = None,
-                        ) -> tuple[dict[str, str], str]:
-    """Artifacts from the mirrored Meridian emitters, plus a one-line status.
+                        mlv_domains: list[str] | None = None,
+                        governed_catalog: dict | None = None,
+                        mlv_refresh_hints: bool = False,
+                        mlv_zeitplan: str = "je_schicht",
+                        onelake_rollen_modus: str | None = None,
+                        ) -> tuple[dict[str, str], str, list[str]]:
+    """Artifacts from the mirrored Meridian emitters, a one-line status and runbook notes.
 
-    Returns ``({}, reason)`` when the mirror is unavailable — the caller then emits the
+    Returns ``({}, reason, [])`` when the mirror is unavailable — the caller then emits the
     topology layer alone and surfaces `reason` in the runbook.
+
+    Without ``mlv_domains`` and ``onelake_rollen_modus`` every call is the one this function
+    has always made; the options only add to it (ADR-0024).
     """
     try:
         from tooling.superversion._dataarch_vendor import VendorUnavailable, load_emitters
     except ImportError as exc:  # pragma: no cover - loader is part of the repo
-        return {}, f"vendor loader unavailable ({exc})"
+        return {}, f"vendor loader unavailable ({exc})", []
 
     try:
         api = load_emitters()
     except VendorUnavailable as exc:
-        return {}, str(exc)
+        return {}, str(exc), []
 
     out: dict[str, str] = {}
     empty: list[str] = []
+    notes: list[str] = []
+    mlv = sorted(mlv_domains or [])
+    mlv_products = {p for d in blueprint.get("mesh", {}).get("domains", []) or []
+                    if d.get("name") in mlv for p in d.get("data_products", []) or []}
+    gold_view = _ohne_gold(blueprint, mlv_products) if mlv else blueprint
+    # The apply plan links each step to the file it executes only when it sees the emitted
+    # tree; Meridian's cli always passes it. ALUCA never did, so its plan carries no artifact
+    # column and skips the steps that hang on an artifact (`apply_onelake_roles` among them).
+    # Passing it for the default run would change the default output, which this change
+    # promises not to do — so it is passed exactly when one of the new options is set.
+    apply_with_tree = bool(mlv) or onelake_rollen_modus is not None
 
     def _take(name: str, artifacts: dict[str, str]) -> None:
         if not artifacts:
@@ -117,7 +233,12 @@ def _mirrored_artifacts(blueprint: dict,
             out[f"fabric/{path}"] = content
 
     for name, kwargs in _MIRRORED:
-        _take(name, api[name](blueprint, **kwargs))
+        if name == "emit_apply" and apply_with_tree:
+            continue  # built last, against the whole tree (below)
+        kw = dict(kwargs)
+        if mlv and name in _SCHEMA_AWARE:
+            kw["schemas"] = True
+        _take(name, api[name](gold_view if name in _GOLD_BUILDERS else blueprint, **kw))
 
     # Tag-0 identity and secrets: the only emitter that does not read the blueprint at
     # all, because nothing about it depends on the architecture.
@@ -126,7 +247,8 @@ def _mirrored_artifacts(blueprint: dict,
 
     # A single script, not a set — it keeps the name Meridian gives it so a customer who
     # has seen one delivery recognises the other.
-    out["fabric/provision.sh"] = api["emit_fab_commands"](blueprint)
+    out["fabric/provision.sh"] = (api["emit_fab_commands"](blueprint, schemas=True) if mlv
+                                  else api["emit_fab_commands"](blueprint))
 
     # Source introspection is two-phase: the question always, the answer only once the
     # customer has run it. Phase 1 costs nothing and is the thing that gets forgotten, so
@@ -142,14 +264,87 @@ def _mirrored_artifacts(blueprint: dict,
     _take("emit_ingress_dq",
           api["emit_ingress_dq"](blueprint, by_source) if by_source else {})
 
+    if mlv:
+        mlv_view = _nur_domaenen(blueprint, set(mlv))
+        # Called as Meridian's cli.py calls it for `--emit-mlv` (schemas, catalog, hints,
+        # zeitplan); runtime/ausloeser keep the emitter's defaults (1.3, zeitplan).
+        _take("emit_mlv", api["emit_mlv"](mlv_view, schemas=True,
+                                          governed_catalog=governed_catalog,
+                                          refresh_hints=mlv_refresh_hints,
+                                          zeitplan=mlv_zeitplan))
+        notes.append(f"Gold as **Materialized Lake Views** for: {', '.join(mlv)} — `fabric/mlv/` "
+                     "(schema-enabled lakehouse; the gold transforms and notebooks of these "
+                     "domains are not emitted, one store per product). Refresh only when "
+                     "triggered: `fabric/mlv/refresh_schedule.json` (D-529)"
+                     + (", chained across lakehouses by `fabric/mlv/execution_definition.json` "
+                        "(D-621)" if mlv_zeitplan == "graph" else "") + ".")
+        if not governed_catalog:
+            notes.append("No governed catalog was supplied: the views project `SELECT *` with a "
+                         "TODO, carry no partition and no REFRESH_HINT. Export one with "
+                         "`tooling/generator/export_governed_catalog.py`.")
+        if mlv_refresh_hints:
+            # REFRESH_HINT (Preview): Fabric does not check uniqueness, so every view with a
+            # hint gets its uniqueness test in dq/ — one rule (`mlv_hint_schluessel`), two
+            # readers, exactly as in Meridian's cli.
+            keys = api["mlv_hint_schluessel"](mlv_view, governed_catalog)
+            if keys:
+                ct = (api["beziehungs_spaltentests"](governed_catalog,
+                                                     basis=api["vertrags_spaltentests"](governed_catalog),
+                                                     modelle=set(mlv_products))
+                      if governed_catalog else None)
+                _take("emit_dq_gates", api["emit_dq_gates"](mlv_view, schemas=True, column_tests=ct,
+                                                            stack="fabric", schluessel_tests=keys))
+                notes.append(f"REFRESH_HINT (Preview) on {len(keys)} view(s); their uniqueness "
+                             "is tested by the dbt project in `fabric/dq/`, because Fabric does "
+                             "not check it.")
+            else:
+                notes.append("REFRESH_HINT requested, but no view has a declared key — no hint "
+                             "written, no uniqueness test needed.")
+
+    if apply_with_tree:
+        tree = {p[len("fabric/"):] for p in out}
+        kw = {"stack": "fabric", "emitted": tree,
+              "onelake_rollen_modus": onelake_rollen_modus or "gesamt"}
+        if mlv:
+            kw["sql_ddl_layers"] = ("mlv",)
+        _take("emit_apply", api["emit_apply"](blueprint, **kw))
+        # The mirrored plan treats an SQL-DDL layer per run, not per domain: with MLV for one
+        # domain it also writes `run_sql_ddl` for the gold of the others, pointing at views
+        # that were never emitted. Named here instead of edited out of a mirrored artifact.
+        plan = json.loads(out.get("fabric/apply/APPLY_PLAN.json", "[]") or "[]")
+        steps = plan if isinstance(plan, list) else plan.get("steps", plan.get("plan", []))
+        stale = sorted(str(op.get("artifact")) for op in steps
+                       if isinstance(op, dict) and op.get("action") == "run_sql_ddl"
+                       and op.get("artifact") not in tree)
+        if stale:
+            notes.append(f"**Strike {len(stale)} `run_sql_ddl` step(s)** in `apply/APPLY_PLAN.json` "
+                         f"before applying — they belong to `{DEFAULT_GOLD_TARGET}` domains and "
+                         f"point at MLV DDL that was not emitted: "
+                         + ", ".join(f"`{p}`" for p in stale)
+                         + ". The mirrored plan takes the DDL layer per run, not per domain.")
+
     if empty:
         note = "; ".join(f"{n} — {_NEEDS_INPUT.get(n, 'no input')}" for n in sorted(empty))
-        return out, f"mirrored emitters with nothing to emit: {note}"
-    return out, ""
+        return out, f"mirrored emitters with nothing to emit: {note}", notes
+    return out, "", notes
 
 
 def emit(blueprint: dict,
-         source_schema_results: dict[str, str] | None = None) -> dict[str, str]:
+         source_schema_results: dict[str, str] | None = None,
+         gold_targets: dict[str, str] | None = None,
+         governed_catalog: dict | None = None,
+         mlv_refresh_hints: bool = False,
+         mlv_zeitplan: str = "je_schicht",
+         onelake_rollen_modus: str | None = None) -> dict[str, str]:
+    """Render the Fabric scaffold.
+
+    ``gold_targets`` — ``{domain: "warehouse_dbt" | "mlv"}`` (ADR-0024); absent domains keep
+    the default. ``governed_catalog``, ``mlv_refresh_hints`` and ``mlv_zeitplan``
+    (``je_schicht|graph``, D-621) feed the MLV path and are refused without an MLV domain.
+    ``onelake_rollen_modus`` (``gesamt|einzeln``) reaches the apply plan of every Fabric run.
+    """
+    mlv_domains = _check_options(blueprint, gold_targets, governed_catalog, mlv_refresh_hints,
+                                 mlv_zeitplan, onelake_rollen_modus)
     platform = blueprint.get("platform", {})
     medallion = blueprint.get("medallion", {})
     mesh = blueprint.get("mesh", {})
@@ -216,6 +411,10 @@ def emit(blueprint: dict,
     gp = sorted(p["name"] for p in medallion.get("gold", {}).get("data_products", []))
     lines.append(f"- Gold data products: {', '.join(f'`{n}`' for n in gp) or '(none — HITL)'}")
     lines.append(f"- No-layer-skip: {medallion.get('no_layer_skip')}")
+    if mlv_domains:
+        lines.append("- Gold target per domain (ADR-0024): "
+                     + ", ".join(f"{d['name']} → **{'mlv' if d['name'] in mlv_domains else DEFAULT_GOLD_TARGET}**"
+                                 for d in domains))
     lines.append("")
     lines.append("## 4. Semantic binding & grounding (AI-era)")
     lines.append("- Direct Lake semantic model per domain, bound to gold.")
@@ -223,7 +422,10 @@ def emit(blueprint: dict,
                  "(never bronze); grounding manifest emitted separately (`ground`).")
     lines.append("")
 
-    mirrored, skip_reason = _mirrored_artifacts(blueprint, source_schema_results)
+    mirrored, skip_reason, notes = _mirrored_artifacts(
+        blueprint, source_schema_results, mlv_domains=mlv_domains,
+        governed_catalog=governed_catalog, mlv_refresh_hints=mlv_refresh_hints,
+        mlv_zeitplan=mlv_zeitplan, onelake_rollen_modus=onelake_rollen_modus)
 
     lines.append("## 5. Provisioning, CI/CD, governance, operations")
     if mirrored:
@@ -245,6 +447,12 @@ def emit(blueprint: dict,
             # reads exactly like an emitter that never ran, and the difference is the whole
             # point of pinning the mirror in the first place.
             lines.append(f"Nothing to emit for some of them — {skip_reason}.")
+        for note in notes:
+            lines.append(note)
+        if onelake_rollen_modus is not None:
+            lines.append(f"OneLake roles are applied in mode **{onelake_rollen_modus}** "
+                         "(`gesamt` = bulk PUT, GA, replaces the whole role set; `einzeln` = POST "
+                         "per role, preview, smaller blast radius) — step `apply_onelake_roles`.")
         for path in sorted(mirrored):
             lines.append(f"- `{path}`")
     else:

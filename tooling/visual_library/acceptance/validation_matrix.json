@@ -35,7 +35,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "line": {
@@ -61,7 +61,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "bar_ranking": {
@@ -87,7 +87,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "waterfall_pvm": {
@@ -113,7 +113,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "area_stacked": {
@@ -139,7 +139,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "indexed_line": {
@@ -165,7 +165,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "matrix_evidence": {
@@ -209,7 +209,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "donut": {
@@ -235,7 +235,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "bullet": {
@@ -261,7 +261,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "slope": {
@@ -287,7 +287,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "stacked_100": {
@@ -313,7 +313,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "lollipop": {
@@ -339,7 +339,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "histogram": {
@@ -365,7 +365,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "boxplot": {
@@ -435,7 +435,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "decomposition_tree": {
@@ -479,7 +479,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "waterfall_buildup": {
@@ -505,7 +505,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "waterfall_variance": {
@@ -531,7 +531,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "kpi_card_spark": {
@@ -665,7 +665,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
       }
     },
     "dumbbell": {
@@ -717,7 +717,59 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
+      }
+    },
+    "variance_pin": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "keine native Saeule mit Kopfmarker. Gemessen 30.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `clusteredColumnChart` und `lineClusteredColumnComboChart` steuern die Saeulenbreite nur ueber `layout.clusteredGapSize` (ein Kategorieabstand fuer alle Reihen), `dataPoint` fuehrt keine Breite; einen Kopfmarker gibt es nur an Linien (`lineStyles.markerShape`) und an Fehlerbalken (`error.barWidth`, `error.markerShape`). Ein Pin waere also nur als Kombination Saeule + strichlose Markerlinie oder als zweckentfremdeter Fehlerbalken moeglich \u2014 keine der beiden Varianten ist in Desktop geprueft, deshalb keine native Spur"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 34/34 goldens render a populated <svg> (30.09.2026)"
+      }
+    },
+    "multi_tier_column": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "keine native Stufenform. Gemessen 30.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `clusteredColumnChart` (Rollen Category, Series, Y, Rows, Tooltips) und `lineClusteredColumnComboChart` (zusaetzlich Y2) zeichnen alle Kennzahlen in EINEN Plotbereich \u2014 die Combo mit hoechstens einer zweiten Wertachse (`valueAxis.sec*`), nicht mit einer zweiten Stufe. `smallMultiplesLayout` (Rolle Rows) teilt nach einer Dimension, jede Kachel zeigt dieselben Kennzahlen; eine Stufe je Kennzahl ueber derselben Kategorieachse ist damit nicht einstellbar. Drei gestapelte native Visuals waeren drei Dateien mit je eigener Achse und eigener Skala \u2014 genau der Fall, den `variance_tier_on_its_own_scale` ausschliesst"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a three-tier chart over all periods is a full chart, not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "three tiers on one category axis need three synchronised charts (syncId) inside a wrapper element; the Recharts track holds single-root charts, and the \u0394PY tier would lose the shared value scale"
       }
     }
   }

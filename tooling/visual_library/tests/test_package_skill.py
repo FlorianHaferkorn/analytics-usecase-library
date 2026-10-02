@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library"))
 import package_skill  # noqa: E402
@@ -21,7 +23,9 @@ def test_bundle_is_complete_and_portable(tmp_path):
               "core/templates/page_templates/visual_library/index.yaml",
               "core/templates/page_templates/tokens/layout_grid.yaml"):
         assert (b / f).exists(), f"bundle missing {f}"
-    assert m["idiom_yaml"] == 30 and m["golden_files"] > 90
+    implemented = yaml.safe_load((REPO_ROOT / "core" / "templates" / "page_templates" / "visual_library"
+                                  / "index.yaml").read_text(encoding="utf-8"))["implemented"]
+    assert m["idiom_yaml"] == len(implemented) and m["golden_files"] > 90   # every idiom, no fixed count
     # portable: no ALUCA-core machinery leaked into the bundle
     assert not (b / "tooling" / "superversion").exists()
     assert not (b / "core" / "usecases").exists()

@@ -1,6 +1,7 @@
 """WB-009 first increment: the WB-008 decision delta through the mirrored price canon, rate-free."""
 import copy
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -185,8 +186,11 @@ def test_released_revision_gets_a_rate_free_proposal_document(tmp_path, tenant_d
     assert "- Quantity umgebungen: 3 (derived: selected_stage_count)" in files["proposal-assumptions.md"]
     manifest = json.loads(files["output-manifest.json"])
     assert manifest["price_values_embedded"] is False and manifest["revision_hash"] == revision
+    # Hex-Hashes (Revision, Fingerprint) ausblenden: sie enthalten zufaellig Ziffernfolgen wie
+    # "8765" und liessen den Test ohne Preiswert scheitern (CI 01.10.2026, PR #573).
+    ohne_hashes = re.sub(r"[0-9a-f]{32,}", "<hash>", json.dumps(files))
     for value in ("123.45", "67.89", "54.32", "4321", "8765", "kostensatz"):
-        assert value not in json.dumps(files)
+        assert value not in ohne_hashes
 
 
 def test_generation_runner_offers_the_document_only_on_request(tmp_path, tenant_dir):

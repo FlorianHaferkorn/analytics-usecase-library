@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-09-30
+last-reviewed: 2026-10-01
 shelf-life-days: 90
 ---
 # products — Zentraler Anlaufpunkt (_INDEX)
@@ -54,5 +54,5 @@ shelf-life-days: 90
 | `fabric/powerbi/themes/` — vendorte Power-BI-Themes | Kein Markdown: 32 Theme-JSONs aus Freelancings kanonischer Engine `products/pbi_theme`, byte-identisch mit `PIN.json` (sha256 je Datei, ADR-0005 vendor + PIN; bis 29.09.2026 das Submodul `powerbi-theme`). Nie hier editieren: in Freelancing erzeugen, dann `python3 scripts/check_dataarch_mirror.py --write-themes`; der Sensor meldet Drift. Namensauflösung und Engine-Aufruf: `fabric/powerbi/tooling/theme_paths.py`; eigene Ausgabe (auf Abruf, nicht versioniert) in `fabric/powerbi/themes_local/` | Ein Theme anwenden, ein neues erzeugen oder den Theme-Spiegel nachziehen |
 | `fabric/powerbi/orchestrator/` — Power-BI-MCP-Automationsflow | `fabric/powerbi/orchestrator/AUTOMATION_FLOW.md` — Vision und End-to-End-Flow KPI-Katalog → Modell → Report mit Self-Healing<br>`fabric/powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md` — MCP-Operationen und Aufrufmuster | Modell-/Report-Erzeugung über den MCP-Loop automatisieren |
 | `fabric/powerbi/deployment/` — Workspace-Deployment-Automation | `fabric/powerbi/deployment/USAGE.md` — Setup und Nutzung der Skripte/Pipelines, Test ohne Fabric-Kapazität<br>`fabric/powerbi/deployment/ENHANCEMENTS.md` — Pre-flight-Checks, Health-Checks, Structured Logging<br>`fabric/powerbi/deployment/OPTIMIZATION_SUMMARY.md` — Zusammenfassung der Produktionsreife-Verbesserungen | Workspaces provisionieren oder die Deploy-Skripte ändern |
-| `open_source_stack/` — Architektur | `open_source_stack/ARCHITECTURE.md` — OSS-Stack-Plan (IR-first, Komponenten-Parität zu Fabric, Lizenz-Audit, Phasen) | Eine Nicht-Microsoft-Zielplattform planen oder die Adapter-Parität prüfen |
+| `open_source_stack/` — Architektur | `open_source_stack/ARCHITECTURE.md` — OSS-Stack-Plan (IR-first, Komponenten-Parität zu Fabric, Lizenz-Audit, Phasen; §5.3 Bewertung Fabric dbt job, GA 09/2026: kein Adapter-Wechsel, 01.10.2026) | Eine Nicht-Microsoft-Zielplattform planen oder die Adapter-Parität prüfen |
 | `open_source_stack/evidence_app/pages/` — generierte Evidence-Seiten | `open_source_stack/evidence_app/pages/com_001_overview.md` — COM-001 Sales Performance, Overview<br>`open_source_stack/evidence_app/pages/com_001_detail.md` — COM-001 Sales Performance, Detail<br>`open_source_stack/evidence_app/pages/com_004_overview.md` — COM-004 Promotion Effectiveness, Overview<br>`open_source_stack/evidence_app/pages/com_004_detail.md` — COM-004 Promotion Effectiveness, Detail | Generator-Output des OSS-Adapters prüfen (generiert — nicht von Hand editieren) |

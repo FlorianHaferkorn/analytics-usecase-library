@@ -1,0 +1,844 @@
+# R1 Referenzkorpus — Strang "di": Decision-Intelligence-Fähigkeiten jenseits klassischem BI (Stand 30.09.2026)
+# Zielbild: Management-Steuerungscockpit als Microsoft-Fabric-App, DE-Mittelstand, Controlling-/IBCS-Kultur.
+# Format: Auftragsformat dieses Strangs (id-Präfix di-), angelehnt an FORMAT.md. Felder:
+#   zugang: fetched (Primärseite gelesen; hier nur Microsoft Learn über MCP) | search_index (Seite per Egress-Proxy
+#           gesperrt, nur Suchmaschinen-Auszug; evidence dann nur, wenn der Auszug selbst ein Zitat in Anführungszeichen war)
+#   pbi_fabric_status: native (Power BI Standard ohne Capacity-Zwang, ggf. Pro) | fabric_feature (eigenes Fabric-Item/
+#           Workload) | premium (braucht bezahlte F-/Premium-Capacity bzw. Copilot) | custom_visual | absent (muss das
+#           Cockpit selbst bauen; Bausteine im Feld pbi_fabric_note) | unknown
+#   user_value, must_have_for_di: immer eigene Einschätzung für das Zielbild (nicht aus der Quelle).
+#   vendor_evidence_urls: Fundstellen für vendors_offering, sofern nicht identisch mit source.url.
+# Gesperrt (Egress): gartner.com, help.tableau.com, docs.thoughtspot.com, learning.sap.com, aeratechnology.com,
+#   omg.org, arxiv.org, pmc.ncbi.nlm.nih.gov. Alles außer Microsoft Learn ist deshalb search_index.
+
+# ---------------------------------------------------------------- Rahmen: was DI ist
+- id: di-001
+  capability: "Entscheidung als modelliertes Objekt mit Rückkopplung"
+  area: decision
+  description: "Entscheidungen werden explizit als Objekte geführt (Frage, Optionen, Kriterien, Verantwortliche), und ihre Ergebnisse fließen per Feedback zurück. Das ist Gartners Kerndefinition von DI und der Unterschied zu KPI-Reporting, das beim Befund aufhört."
+  source:
+    title: "The 2025 Gartner AI Hype Cycle Report Recognizes Decision Intelligence as Transformational"
+    publisher: Cloverpop (zitiert Gartner)
+    url: https://www.cloverpop.com/blog/the-2025-gartner-ai-hype-cycle-report-recognizes-decision-intelligence-as-transformational
+    date_published: 2025
+    date_accessed: 2026-09-30
+    kind: secondary
+  zugang: search_index
+  evidence: "advances decision making by explicitly understanding and engineering how decisions are made, and how outcomes are evaluated, managed and improved via feedback"
+  vendors_offering: [Cloverpop, Aera Technology]
+  vendor_evidence_urls:
+    - https://www.cloverpop.com/blog/product-update-system-of-record-for-decisions
+    - https://www.aeratechnology.com/platform
+  pbi_fabric_status: absent
+  pbi_fabric_note: "Power BI/Fabric kennen Measures, Ziele (Scorecards) und Regeln (Activator/Ontologie), aber kein Objekt \"Entscheidung\". Baubar als Tabelle in Fabric SQL DB + translytical task flow (di-024)."
+  user_value: high
+  must_have_for_di: true
+  confidence: inferred
+
+- id: di-002
+  capability: "Decision-Intelligence-Plattform als eigene Marktkategorie (Gartner MQ 2026)"
+  area: decision
+  description: "Gartner hat im Januar 2026 den ersten Magic Quadrant für Decision Intelligence Platforms veröffentlicht (17 Anbieter). Bewertet werden Entscheidungsmodellierung, Ausführung, Governance und Integration mit ML/GenAI; Auditierbarkeit, Erklärbarkeit und Decision Monitoring gelten als zunehmend Pflicht."
+  source:
+    title: "Magic Quadrant for Decision Intelligence Platforms (Abstract)"
+    publisher: Gartner
+    url: https://www.gartner.com/en/documents/7363830
+    date_published: 2026-01-26
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: [ACTICO, Aera Technology, CRIF, Decisions, Faculty, FICO, FlexRule, IBM, InRule Technology, o9 Solutions, Oracle, Pegasystems, Quantexa, RelationalAI, Rulex, Sapiens, SAS]
+  vendor_evidence_urls:
+    - https://www.aap.com.au/aapreleases/globenewswire1001161979/
+    - https://o9solutions.com/resources/2026-gartner-magic-quadrant-for-decision-intelligence-platforms
+  pbi_fabric_status: absent
+  pbi_fabric_note: "Microsoft ist laut Suchauszug nicht unter den 17 bewerteten Anbietern. Microsoft Learn nennt Fabric Planning dennoch \"enterprise decision intelligence\" (di-023) — Selbstetikett, kein Analystenbefund."
+  user_value: medium
+  must_have_for_di: false
+  confidence: inferred
+
+- id: di-003
+  capability: "Entscheidungsanforderungs-Modell (DMN Decision Requirements Diagram)"
+  area: decision
+  description: "Standardnotation, die Abhängigkeiten zwischen Teilentscheidungen, benötigtem Fachwissen und Eingangsdaten zeigt; Entscheidungslogik als Tabellen/FEEL ausführbar. Für ein Cockpit: je Steuerungsentscheidung sichtbar, welche KPIs und Regeln sie speisen."
+  source:
+    title: "DMN — Decision Model and Notation 1.5"
+    publisher: Object Management Group (OMG)
+    url: https://www.omg.org/spec/DMN/1.5/About-DMN
+    date_published: 2024-08
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: []
+  pbi_fabric_status: absent
+  pbi_fabric_note: "Kein DMN in Fabric. Nächster Baustein ist die Ontologie (Regeln + Metriken, di-031); Abbildung eines DRD müsste das Cockpit selbst leisten."
+  user_value: medium
+  must_have_for_di: false
+  confidence: inferred
+
+- id: di-004
+  capability: "Kausales Entscheidungsdiagramm (Handlung -> Zwischenwirkung -> Ergebnis)"
+  area: decision
+  description: "Causal Decision Diagram nach Pratt verknüpft Handlungsoptionen, externe Faktoren, Zwischenergebnisse und Ziele über Ursache-Wirkungs-Kanten. Der Manager sieht, welcher Hebel über welche Kette auf welchen KPI wirkt, statt nur Korrelationen."
+  source:
+    title: "Link: How Decision Intelligence Connects Data, Actions, and Outcomes for a Better World"
+    publisher: Emerald Publishing (Lorien Pratt)
+    url: https://bookstore.emerald.com/link-hb-9781787696549.html
+    date_published: 2019
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: []
+  pbi_fabric_status: absent
+  pbi_fabric_note: "Werttreiberbaum-artige Darstellung nur rechnerisch über Measures/Parameter; Kausalkanten als Metadaten nirgends. Fabric Graph/Ontologie könnte die Kanten halten (di-031), Visualisierung wäre Eigenbau."
+  user_value: high
+  must_have_for_di: true
+  confidence: inferred
+
+- id: di-005
+  capability: "KPI-zu-Handlung-Verknüpfung (jede Kennzahl mit Entscheidung/Aktion)"
+  area: decision
+  description: "DI definiert sich über das Umsetzen von Information in bessere Handlungen; im Cockpit heißt das, jede Kennzahl trägt die Entscheidung bzw. den Handlungscode, den sie auslösen soll. Ohne diese Kopplung bleibt es Reporting."
+  source:
+    title: "Decision intelligence: Thoughtful, data-driven choices (AI in Action Podcast, Cassie Kozyrkov)"
+    publisher: IBM
+    url: https://www.ibm.com/think/podcasts/ai-in-action/decision-intelligence-data-driven
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: "Decision intelligence is the discipline of turning information into better actions at any scale."
+  vendors_offering: [Aera Technology, Peak, Tellius]
+  vendor_evidence_urls:
+    - https://www.aeratechnology.com/aera-skills/
+    - https://peak.ai/products/
+    - https://www.tellius.com/llms.txt
+  pbi_fabric_status: absent
+  pbi_fabric_note: "Ontologie kann Regeln mit Aktionen verbinden (\"If inventory < threshold, trigger replenishment\"), aber im Report ist die Kopplung Kennzahl->Aktion ein Design-/Metadatenthema des Cockpits."
+  user_value: high
+  must_have_for_di: true
+  confidence: inferred
+
+# ---------------------------------------------------------------- Entscheidungsschleife
+- id: di-006
+  capability: "Entscheidungslog / System of Record für Entscheidungen"
+  area: decision_loop
+  description: "Nutzer halten fest, wer was warum entschieden hat, mit Alternativen und erwarteter Wirkung, und teilen das; später durchsuchbar und mit dem Ergebnis verknüpft."
+  source:
+    title: "Cloverpop Product Update: A System of Record for Decisions"
+    publisher: Cloverpop
+    url: https://www.cloverpop.com/blog/product-update-system-of-record-for-decisions
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: [Cloverpop, Aera Technology]
+  vendor_evidence_urls:
+    - https://www.aeratechnology.com/platform
+  pbi_fabric_status: absent
+  pbi_fabric_note: "Bausteine vorhanden — translytical task flow (Formular im Report, Schreiben in Fabric SQL DB, GA seit März 2026) und Tutorial \"status update workflow\" mit voller Historie. Datenmodell und UX der Entscheidung baut das Cockpit."
+  user_value: high
+  must_have_for_di: true
+  confidence: inferred
+
+- id: di-007
+  capability: "Entscheidungsqualität getrennt vom Ergebnis bewerten (Decision Journal)"
+  area: decision_loop
+  description: "Vor der Entscheidung werden Begründung, Alternativen, Unsicherheiten und erwartetes Ergebnis festgehalten, damit später nicht nur am Ausgang (\"resulting\", Outcome Bias) gemessen wird. Liefert die Felder, die ein Entscheidungslog (di-006) haben muss."
+  source:
+    title: "The Single Biggest Problem In Decision Making, According to Annie Duke"
+    publisher: Maven
+    url: https://maven.com/articles/decision-making-mistake
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: secondary
+  zugang: search_index
+  evidence: null
+  vendors_offering: []
+  pbi_fabric_status: absent
+  pbi_fabric_note: "Wie di-006; zusätzlich Pflichtfelder \"erwartete Wirkung\" und \"Prüftermin\" vorsehen."
+  user_value: medium
+  must_have_for_di: true
+  confidence: inferred
+
+- id: di-008
+  capability: "Wirkungsmessung der Maßnahme (Closed Loop, vorher/nachher)"
+  area: decision_loop
+  description: "Nach einer Maßnahme zeigt das System, ob der Ziel-KPI sich wie erwartet bewegt hat, und lernt daraus für künftige Empfehlungen. Aera beschreibt ein Decision Data Model, das Entscheidungen, Kontext, Aktionen und Ergebnisse festhält."
+  source:
+    title: "Aera Decision Cloud"
+    publisher: Aera Technology
+    url: https://www.aeratechnology.com/platform
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: [Aera Technology, Cloverpop]
+  vendor_evidence_urls:
+    - https://www.cloverpop.com/blog/product-update-system-of-record-for-decisions
+  pbi_fabric_status: absent
+  pbi_fabric_note: "Operations Agent (Fabric IQ) wird als \"learning from results\" beschrieben, aber ohne dokumentierte Wirkungsmessung pro Maßnahme. Vorher/Nachher-Vergleich baubar über Maßnahmen-Tabelle (di-006) + DAX-Zeitvergleich."
+  user_value: high
+  must_have_for_di: true
+  confidence: inferred
+
+- id: di-009
+  capability: "Kontrafaktische Wirkungsschätzung (was wäre ohne Maßnahme passiert)"
+  area: decision_loop
+  description: "Statt naivem Vorher/Nachher schätzt ein Zeitreihenmodell die Entwicklung ohne Eingriff (synthetische Kontrolle) und weist die zurechenbare Wirkung samt Unsicherheitsband aus. Referenz ist Googles CausalImpact."
+  source:
+    title: "Inferring causal impact using Bayesian structural time-series models"
+    publisher: Annals of Applied Statistics (Brodersen et al., Google)
+    url: https://arxiv.org/abs/1506.00356
+    date_published: 2015-03
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: []
+  pbi_fabric_status: absent
+  pbi_fabric_note: "Kein Report-Feature. Machbar in Fabric-Notebook (Python), Ergebnis als Tabelle ins Semantikmodell; Aufwand und Datenanforderung (Kontrollreihen) hoch."
+  user_value: medium
+  must_have_for_di: false
+  confidence: inferred
+
+- id: di-010
+  capability: "Handlungsempfehlungen (Next Best Action)"
+  area: decision_loop
+  description: "Das System schlägt konkrete Maßnahmen vor (z. B. Nachbestellung, Preisänderung) statt nur Abweichungen zu zeigen. Peak nennt Empfehlungen und Vorhersagen für Bestand und Preis; Tellius \"prescriptive actions\"."
+  source:
+    title: "Peak products (Inventory AI, Pricing AI)"
+    publisher: Peak
+    url: https://peak.ai/products/
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: [Peak, Aera Technology, Tellius]
+  vendor_evidence_urls:
+    - https://www.aeratechnology.com/aera-skills/
+    - https://www.tellius.com/llms.txt
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Operations Agent (Fabric IQ/Real-Time Intelligence) analysiert Bedingungen und empfiehlt Aktionen per Teams. Außerhalb dessen keine Empfehlungslogik im Report."
+  user_value: high
+  must_have_for_di: true
+  confidence: inferred
+
+- id: di-011
+  capability: "Freigabe durch den Menschen vor der Ausführung (Human in the Loop)"
+  area: decision_loop
+  description: "Empfohlene Aktionen erscheinen als Nachricht mit Kontext; der Verantwortliche genehmigt, lehnt ab oder erklärt die Regel für autonom. Die Ausführung läuft mit den Rechten des Agent-Erstellers."
+  source:
+    title: "Operations agent transparency note"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/fabric/real-time-intelligence/operations-agent-transparency-note
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "You can approve, reject, or make the rule autonomous, allowing the agent to act without further confirmation."
+  vendors_offering: [Microsoft Fabric]
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Operations Agent + Teams-App. Für Controlling-Entscheidungen im Report (nicht Echtzeit) ist der Weg translytical task flow mit Status \"beantragt/freigegeben\" (Eigenbau)."
+  user_value: high
+  must_have_for_di: true
+  confidence: from_source
+
+- id: di-012
+  capability: "Automatisierte Aktion mit Leitplanken und Audit"
+  area: decision_loop
+  description: "Regeln lösen Aktionen direkt aus (Pipeline, Notebook, User Data Function, Power Automate, Teams, E-Mail). Microsofts Architekturleitfaden verlangt dafür Human in the Loop, Least Privilege und Protokoll, wer was freigegeben hat."
+  source:
+    title: "Operational Excellence maturity model (AI opportunities, action optimization agents)"
+    publisher: Microsoft Learn (Azure Well-Architected)
+    url: https://learn.microsoft.com/azure/well-architected/operational-excellence/maturity-model
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "Detailed auditing is essential, capturing what actions were proposed, who approved them, and execution logs for traceability."
+  vendors_offering: [Microsoft Fabric, Aera Technology]
+  vendor_evidence_urls:
+    - https://learn.microsoft.com/fabric/real-time-intelligence/data-activator/activator-rules-overview
+    - https://www.aeratechnology.com/platform
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Aktionsausführung über Activator nativ; ein fachliches Audit \"Empfehlung -> Freigabe -> Wirkung\" liefert Fabric nicht als Objekt (Aktivierungshistorie je Regel ja)."
+  user_value: medium
+  must_have_for_di: false
+  confidence: from_source
+
+# ---------------------------------------------------------------- Vertrauen / Erklärbarkeit
+- id: di-013
+  capability: "Erklärbare Empfehlung mit Konfidenzangabe"
+  area: trust
+  description: "Jede Empfehlung nennt die Signale und Datenquellen, auf die sie sich stützt, und eine Verlässlichkeitsangabe. Gartner führt Erklärbarkeit und Auditierbarkeit im DIP-MQ als werdende Pflicht (Suchauszug); Microsoft empfiehlt Konfidenzindikatoren."
+  source:
+    title: "Operational Excellence maturity model (Recommendation agents)"
+    publisher: Microsoft Learn (Azure Well-Architected)
+    url: https://learn.microsoft.com/azure/well-architected/operational-excellence/maturity-model
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "Consider including confidence indicators (for example, 0–100%) to help downstream systems or users gauge reliability."
+  vendors_offering: [Tellius, Anaplan]
+  vendor_evidence_urls:
+    - https://www.tellius.com/llms.txt
+    - https://www.anaplan.com/wp-content/uploads/2020/09/planIQ-Solution-Brief.pdf
+  pbi_fabric_status: absent
+  pbi_fabric_note: "Copilot-Antworten verweisen auf Quellvisuals (Fußnoten), Anomalie-Erklärungen haben eine Stärke-Zahl; eine Konfidenz je Empfehlung gibt es nicht."
+  user_value: high
+  must_have_for_di: true
+  confidence: from_source
+
+- id: di-014
+  capability: "Nutzer darf Algorithmus-Vorschlag anpassen (gegen Algorithm Aversion)"
+  area: trust
+  description: "Menschen verwerfen Algorithmen schneller als Menschen, nachdem sie Fehler sahen; sie nutzen sie aber deutlich eher, wenn sie die Prognose auch nur geringfügig verändern dürfen. Cockpit-Folgerung - Prognose als Vorschlag mit Override-Feld, Override protokolliert."
+  source:
+    title: "Overcoming Algorithm Aversion: People Will Use Imperfect Algorithms If They Can (Even Slightly) Modify Them"
+    publisher: Management Science (Dietvorst, Simmons, Massey)
+    url: https://ideas.repec.org/a/inm/ormnsc/v64y2018i3p1155-1170.html
+    date_published: 2018
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: [Microsoft Fabric]
+  vendor_evidence_urls:
+    - https://learn.microsoft.com/fabric/iq/plan/resources/frequently-asked-questions
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Fabric Planning erlaubt Eingaben/Umverteilung in Forecast-Spalten und Writeback; in einem reinen Report nur per translytical task flow."
+  user_value: high
+  must_have_for_di: true
+  confidence: inferred
+
+- id: di-015
+  capability: "Gemeinsame Geschäftssemantik als Grundlage für Agenten (Ontologie)"
+  area: trust
+  description: "Entitäten, Beziehungen, Regeln und Metriken werden einmal definiert; Agenten verwenden die DAX-Measures des Semantikmodells statt eigene Formeln zu erzeugen. Senkt das Risiko widersprüchlicher KI-Antworten zu Steuerungskennzahlen."
+  source:
+    title: "What is Fabric IQ?"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/fabric/iq/overview
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "metrics carry source-owned Power BI DAX measures into ontology context so agents reuse trusted calculations."
+  vendors_offering: [Microsoft Fabric, Quantexa]
+  vendor_evidence_urls:
+    - https://www.applytosupply.digitalmarketplace.service.gov.uk/g-cloud/services/372785790917030
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Ontology-Item ist Preview. Deckt sich mit dem Golden Thread (KPI-Katalog referenzieren, nicht neu definieren)."
+  user_value: medium
+  must_have_for_di: false
+  confidence: from_source
+
+# ---------------------------------------------------------------- Erklären / Ursachen (Self-Service)
+- id: di-016
+  capability: "Automatische Ursachen-/Treiberanalyse einer Abweichung"
+  area: self_service
+  description: "Nutzer klickt auf eine auffällige KPI-Bewegung und bekommt die Dimensionen/Faktoren, die die Veränderung erklären, nach Stärke sortiert. Marktstandard in Tableau Pulse, ThoughtSpot SpotIQ (change analysis) und Tellius."
+  source:
+    title: "Anomaly detection tutorial for Power BI"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-anomaly-detection
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "It gives you a natural language explanation of the anomaly, and factors associated with that anomaly, sorted by its explanatory strength."
+  vendors_offering: [Microsoft Power BI, Tableau, ThoughtSpot, Tellius]
+  vendor_evidence_urls:
+    - https://help.tableau.com/current/online/en-us/pulse_insights_platform_insight_types.htm
+    - https://docs.thoughtspot.com/software/9.8.0.sw/spotiq-change
+    - https://www.tellius.com/llms.txt
+  pbi_fabric_status: native
+  pbi_fabric_note: "Anomalie-Erklärung nur im Liniendiagramm ohne Legende/mehrere Werte; ergänzend Key Influencers, Decomposition Tree (AI-Splits), \"Explain the decrease\". Fabric Data Agent schließt \"warum\"-Fragen ausdrücklich aus (di-020)."
+  user_value: high
+  must_have_for_di: true
+  confidence: from_source
+
+- id: di-017
+  capability: "Interaktive Zerlegung einer Kennzahl über Dimensionen"
+  area: self_service
+  description: "Der Nutzer zerlegt einen Wert schrittweise über frei wählbare Dimensionen; KI schlägt die nächste Ebene mit höchstem/niedrigstem Wert vor. Ersetzt einen Teil der Controller-Rückfragen."
+  source:
+    title: "Create and view decomposition tree visuals in Power BI"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-decomposition-tree
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "This tool is valuable for ad hoc exploration and conducting root-cause analysis."
+  vendors_offering: [Microsoft Power BI, Tellius]
+  vendor_evidence_urls:
+    - https://www.tellius.com/llms.txt
+  pbi_fabric_status: native
+  pbi_fabric_note: "Grenzen laut Doku - max. 50 Ebenen, Top 10 je Ebene, keine AI-Splits bei Publish to Web/Report Server."
+  user_value: medium
+  must_have_for_di: false
+  confidence: from_source
+
+- id: di-018
+  capability: "Einflussfaktoren einer Zielgröße (Key Influencers)"
+  area: self_service
+  description: "Visual listet die Faktoren, die eine Zielgröße am stärksten treiben (z. B. was mit niedriger Marge einhergeht). Korrelativ, nicht kausal — muss im Cockpit so benannt werden."
+  source:
+    title: "Visualizations overview in Power BI (AI-powered visuals)"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualizations-overview
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "Key influencer charts display the major contributors to a selected result or value."
+  vendors_offering: [Microsoft Power BI, ThoughtSpot, Tellius]
+  vendor_evidence_urls:
+    - https://thoughtspot.com/spotiq
+    - https://www.tellius.com/llms.txt
+  pbi_fabric_status: native
+  user_value: medium
+  must_have_for_di: false
+  confidence: from_source
+
+- id: di-019
+  capability: "Generierte Management-Zusammenfassung (Narrativ)"
+  area: self_service
+  description: "Ein Klick erzeugt eine Zusammenfassung von Trends, Highlights und Veränderungen über Seiten und Visuals, mit Verweis auf das Quellvisual. Pendant zum Kommentarblock im IBCS-Bericht, aber maschinell."
+  source:
+    title: "Summarize a report with Copilot"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/explore-reports/copilot-pane-summarize-content
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "a concise, report-wide summary that surfaces key trends, performance highlights, and notable changes across pages and visuals"
+  vendors_offering: [Microsoft Power BI, Tableau, Tellius]
+  vendor_evidence_urls:
+    - https://help.tableau.com/current/online/en-us/pulse_insights_platform_insight_types.htm
+    - https://www.tellius.com/llms.txt
+  pbi_fabric_status: premium
+  pbi_fabric_note: "Copilot nur auf bezahlter Fabric-Capacity (keine Trial-SKU), Tenant-Schalter nötig, Datenverarbeitung außerhalb EU/US nur per Admin-Freigabe. Ohne Copilot bleibt der Narrative-Visual im Custom-Modus (manuell mit dynamischen Werten, native)."
+  user_value: medium
+  must_have_for_di: false
+  confidence: from_source
+
+- id: di-020
+  capability: "Fragen in natürlicher Sprache an governte Daten (Data Agent)"
+  area: self_service
+  description: "Manager stellen Fragen in Klartext und bekommen Antworten aus Semantikmodell, Lakehouse, Warehouse oder Ontologie, auch in Teams/M365 Copilot. Der Agent ist lesend und laut Microsoft nicht für kausale \"Warum\"-Fragen gedacht."
+  source:
+    title: "Privacy, security, and responsible use of Copilot in notebooks and Fabric data agents"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/fabric/fundamentals/copilot-data-science-privacy-security
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "The Fabric data agent isn't intended for uses cases that require deep analytics or causal analytics."
+  vendors_offering: [Microsoft Fabric, ThoughtSpot, Tellius]
+  vendor_evidence_urls:
+    - https://learn.microsoft.com/fabric/data-science/concept-data-agent
+    - https://www.thoughtspot.com/product/analytics/spotiq
+    - https://www.tellius.com/llms.txt
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Data Agent ist GA, strikt read-only, bis zu fünf Datenquellen je Agent; nicht für Fälle mit Anspruch auf deterministisch 100 % korrekte Ergebnisse."
+  user_value: medium
+  must_have_for_di: false
+  confidence: from_source
+
+# ---------------------------------------------------------------- Alerting
+- id: di-021
+  capability: "Schwellwert-Alarm auf KPI"
+  area: alerting
+  description: "Nutzer lässt sich per E-Mail/Benachrichtigung informieren, wenn eine Kennzahl eine Grenze über- oder unterschreitet. Basisfunktion aller Anbieter."
+  source:
+    title: "Set data alerts on Power BI dashboards"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-alerts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "Alerts can be set only on gauges, KPIs, and cards."
+  vendors_offering: [Microsoft Power BI, ThoughtSpot, Tableau]
+  vendor_evidence_urls:
+    - https://www.thoughtspot.com/product/analytics/spotiq
+    - https://help.tableau.com/current/api/rest_api/en-us/REST/rest_api_ref_pulse.htm
+  pbi_fabric_status: native
+  pbi_fabric_note: "Nur auf Dashboard-Kacheln (nicht Report-Visuals), nur numerisch, nur nach Refresh, Pro bzw. Premium-Capacity; privat je Nutzer. Für Fabric-App-Cockpits ohne Dashboard daher eher di-022."
+  user_value: medium
+  must_have_for_di: true
+  confidence: from_source
+
+- id: di-022
+  capability: "Zustandsbehaftete Regel mit Aktion (Activator)"
+  area: alerting
+  description: "Regeln auf Report-Visuals, Eventstreams oder SQL-Abfragen erkennen \"wird\", \"steigt um x %\", \"verlässt Bereich\" oder Ausbleiben von Daten je Objekt und lösen Teams, E-Mail, Power Automate, Pipeline, Notebook oder User Data Function aus."
+  source:
+    title: "Fabric Activator rules"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/fabric/real-time-intelligence/data-activator/activator-rules-overview
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "Rules define the conditions you want to detect on your objects and the actions to take when those conditions are met."
+  vendors_offering: [Microsoft Fabric, Aera Technology]
+  vendor_evidence_urls:
+    - https://www.aeratechnology.com/platform
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Report-Alerts über Activator sind laut Power-BI-Doku Preview und verlangen Schreibrecht auf einen Workspace mit F64+/Premium; die Activator-Doku nennt nur \"Fabric capacity\" (Widerspruch, siehe Summary). Alert-Filter werden beim Anlegen eingefroren."
+  user_value: high
+  must_have_for_di: true
+  confidence: from_source
+
+- id: di-023
+  capability: "Schutz vor Alert-Fatigue (Zustandswechsel, Häufigkeit, Drosselung)"
+  area: alerting
+  description: "Alarme feuern nur beim Eintritt in einen neuen Zustand bzw. nach n Vorkommen, statt bei jedem Refresh erneut. In der Klinik-Entscheidungsunterstützung werden laut Literatur-Auszügen sehr hohe Anteile der Warnungen übergangen (Zahlen ungeprüft); Hauptursache sind irrelevante und falsch-positive Meldungen."
+  source:
+    title: "What is Fabric Activator? (Core concepts)"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/fabric/real-time-intelligence/data-activator/activator-introduction
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "Rules only fire on entry into a new state, preventing repeated firings in unchanged conditions."
+  vendors_offering: [Microsoft Fabric]
+  research_note: "Override-Raten aus Suchauszügen (u. a. https://www.mindbowser.com/alert-fatigue-healthcare/, sekundär) — ANNAHME, ungeprueft; Primärstudien per Egress gesperrt."
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Activator hat Zustandswechsel + \"Occurrence\"; Power-BI-Dashboard-Alerts feuern stündlich/täglich weiter, solange die Schwelle überschritten ist (keine Fatigue-Kontrolle). Priorisierung/Bündelung über mehrere Regeln fehlt in beiden."
+  user_value: high
+  must_have_for_di: true
+  confidence: from_source
+
+- id: di-024
+  capability: "KPI-Anomalieerkennung mit erwartetem Band"
+  area: alerting
+  description: "Zeitreihen werden automatisch gegen einen erwarteten Bereich geprüft, Ausreißer markiert, Empfindlichkeit einstellbar. Grundlage, um Alarme ohne manuell gesetzte Schwellen auszulösen."
+  source:
+    title: "Use the Analytics pane in Power BI (Anomalies)"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/transform-model/desktop-analytics-pane
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "The Anomalies feature automatically identifies unexpected spikes or dips in your time-series data."
+  vendors_offering: [Microsoft Power BI, Tableau, ThoughtSpot, Tellius, Jedox]
+  vendor_evidence_urls:
+    - https://help.tableau.com/current/online/en-us/pulse_insights_platform_insight_types.htm
+    - https://thoughtspot.com/spotiq
+    - https://www.tellius.com/llms.txt
+    - https://www.rfp.wiki/vendors/board-international/jedox
+  pbi_fabric_status: native
+  pbi_fabric_note: "Nur Liniendiagramm, mind. 4 Punkte, nicht mit Forecast-Linie kombinierbar. Anomalien lösen in Power BI selbst keinen Alarm aus; Push erst über Activator/Operations Agent."
+  user_value: medium
+  must_have_for_di: false
+  confidence: from_source
+
+- id: di-025
+  capability: "Proaktiver Kennzahlen-Digest (Metrik folgen)"
+  area: alerting
+  description: "Nutzer folgen einzelnen Kennzahlen und erhalten per Mail/Slack eine Zusammenfassung mit den wichtigsten Veränderungen und Folgefragen, statt Berichte aufzusuchen. Referenz ist Tableau Pulse."
+  source:
+    title: "The Insights Platform and Insight Types in Tableau Pulse"
+    publisher: Tableau (Salesforce)
+    url: https://help.tableau.com/current/online/en-us/pulse_insights_platform_insight_types.htm
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: [Tableau, ThoughtSpot, Microsoft Power BI]
+  vendor_evidence_urls:
+    - https://www.thoughtspot.com/product/analytics/spotiq
+    - https://learn.microsoft.com/power-bi/create-reports/copilot-reports-overview
+  pbi_fabric_status: premium
+  pbi_fabric_note: "Power BI hat E-Mail-Abos (Snapshot, Pro/Premium) und Copilot-Zusammenfassungen in Abos (bezahlte Capacity); ein metrikzentriertes \"Folgen\" mit Insight-Typen wie Pulse gibt es nicht — Scorecard-Abos (di-029) kommen am nächsten."
+  user_value: high
+  must_have_for_di: false
+  confidence: inferred
+
+# ---------------------------------------------------------------- Zeit / Prognose / Unsicherheit
+- id: di-026
+  capability: "Prognose mit Konfidenzintervall"
+  area: time
+  description: "Zeitreihe wird fortgeschrieben und mit Unsicherheitsband gezeigt; Länge, Saisonalität und Konfidenzniveau einstellbar. Für Steuerung wichtiger als der Punktwert, weil Handlungsbedarf vom Band abhängt."
+  source:
+    title: "Use the Analytics pane in Power BI (Forecast)"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/transform-model/desktop-analytics-pane
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "You might specify many inputs to modify the forecast, such as the Forecast length or the Confidence interval."
+  vendors_offering: [Microsoft Power BI, Anaplan, Tellius]
+  vendor_evidence_urls:
+    - https://www.anaplan.com/wp-content/uploads/2020/09/planIQ-Solution-Brief.pdf
+    - https://www.tellius.com/llms.txt
+  pbi_fabric_status: native
+  pbi_fabric_note: "Nur Liniendiagramm; Prognose ist visuell, nicht als Measure verfügbar (nicht in Tabellen/Alarme weiterverwendbar). Belastbare Prognosen daher im Notebook/Planning rechnen und als Daten laden."
+  user_value: high
+  must_have_for_di: true
+  confidence: from_source
+
+- id: di-027
+  capability: "Unsicherheit als Zahlenbereich zeigen (ohne Vertrauensverlust)"
+  area: trust
+  description: "Experimente mit 5.780 Teilnehmern zeigen - ein numerischer Bereich senkt die Gewissheit in die Zahl, aber nicht das Vertrauen in die Quelle. Stützt Error-Bänder/Spannen statt Scheingenauigkeit im Cockpit."
+  source:
+    title: "The effects of communicating uncertainty on public trust in facts and numbers"
+    publisher: PNAS (van der Bles, van der Linden, Freeman, Spiegelhalter)
+    url: https://research.rug.nl/en/publications/the-effects-of-communicating-uncertainty-on-public-trust-in-facts/
+    date_published: 2020
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: [Microsoft Power BI]
+  vendor_evidence_urls:
+    - https://learn.microsoft.com/power-bi/transform-model/desktop-analytics-pane
+  pbi_fabric_status: native
+  pbi_fabric_note: "Error Bars/Error Band (Säule, Balken, Linie) aus Ober-/Untergrenzen-Feldern; die Grenzen muss das Modell liefern."
+  user_value: medium
+  must_have_for_di: false
+  confidence: inferred
+
+# ---------------------------------------------------------------- Planung / Szenarien
+- id: di-028
+  capability: "Werttreiberbaum mit Simulation"
+  area: planning
+  description: "Kennzahlen werden als Baum aus beeinflussbaren Treibern (Preis, Menge, Personal) und externen Faktoren aufgebaut; ändert man einen Knoten, rechnen alle verbundenen Knoten nach. Klassisches Controlling-Werkzeug (SAP VDT, Jedox, Board)."
+  source:
+    title: "Simulating Data with Value Driver Trees (SAP Analytics Cloud for Planning)"
+    publisher: SAP Learning
+    url: https://learning.sap.com/courses/leveraging-advanced-features-in-sap-analytics-cloud-for-planning/simulating-with-value-driver-trees_fc3552eb-ceb0-4f96-93e4-7c690bcaed2d
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: [SAP Analytics Cloud, Jedox, Board, Anaplan]
+  vendor_evidence_urls:
+    - https://erpresearch.com/erp-add-ons/fpa-planning/board-international-vs-jedox
+    - https://www.rfp.wiki/vendors/board-international/jedox
+  pbi_fabric_status: absent
+  pbi_fabric_note: "Kein Treiberbaum-Visual in Power BI oder Fabric Planning dokumentiert (gesucht, nicht gefunden). Rechenlogik baubar über What-if-Parameter + Measures; Baumdarstellung Eigenbau oder Custom Visual (nicht geprüft)."
+  user_value: high
+  must_have_for_di: true
+  confidence: inferred
+
+- id: di-029
+  capability: "Ziele mit Verantwortlichen, Check-ins und Statusregeln (Scorecard)"
+  area: planning
+  description: "Ziele mit Owner, Zielwert, Meilensteinen, automatischen Statusregeln und Check-ins mit Notiz; die Historie jeder Statusänderung bleibt am Ziel. Das ist die nächste native Annäherung an eine Entscheidungs-/Maßnahmenhistorie."
+  source:
+    title: "Stay on top of your goals"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/create-reports/service-goals-check-in
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "The goals Details pane provides the entire history for the goal from the start date, including check-ins, status changes, and relevant notes."
+  vendors_offering: [Microsoft Power BI]
+  pbi_fabric_status: native
+  pbi_fabric_note: "Pro-Feature (Autoren), Betrachten für Free-User nur auf F64+/Premium. Scorecards sind ein Service-Objekt neben dem Report — Einbindung in eine gestaltete Cockpit-Seite nur als eigenes Visual/Tab."
+  user_value: high
+  must_have_for_di: false
+  confidence: from_source
+
+- id: di-030
+  capability: "What-if-Parameter im Bericht"
+  area: planning
+  description: "Nutzer verschiebt per Schieberegler einen Annahmewert (z. B. Rabatt %) und sieht die Auswirkung auf abhängige Measures sofort. Einfachste Form der Szenariosimulation, ohne Speichern."
+  source:
+    title: "Create and use parameters to visualize variables in Power BI Desktop"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/transform-model/desktop-what-if
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "Parameters provide a way for report consumers to interact with scenarios that you create in your reports."
+  vendors_offering: [Microsoft Power BI, SAP Analytics Cloud, Jedox]
+  vendor_evidence_urls:
+    - https://learning.sap.com/courses/leveraging-advanced-features-in-sap-analytics-cloud-for-planning/simulating-with-value-driver-trees_fc3552eb-ceb0-4f96-93e4-7c690bcaed2d
+    - https://platform.softwareone.com/product/scenario-planning-software/PCP-2696-0393
+  pbi_fabric_status: native
+  pbi_fabric_note: "Max. 1.000 Werte je Parameter (sonst Stichprobe), nur für Measures gedacht; Szenario wird nicht gespeichert oder verglichen."
+  user_value: medium
+  must_have_for_di: true
+  confidence: from_source
+
+- id: di-031
+  capability: "Szenarien speichern, versionieren und vergleichen"
+  area: planning
+  description: "Basis-, Chancen- und Risikoszenario werden als Versionen gehalten und nebeneinander gegen Ist verglichen, inkl. Snapshots und rollierendem Forecast."
+  source:
+    title: "What are planning sheets within planning in Fabric?"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/fabric/iq/plan/planning-overview
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "Budget creation - Forecast management - Scenario analysis - What-if simulations - Rolling forecasts - Version management and snapshots"
+  vendors_offering: [Microsoft Fabric, Jedox, Board, Anaplan, SAP Analytics Cloud]
+  vendor_evidence_urls:
+    - https://www.rfp.wiki/vendors/board-international/jedox
+    - https://www.nasdaq.com/press-release/anaplan-extends-intelligence-capabilities-with-planiq-for-predictive-forecasting-and
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Fabric Planning (Fabric IQ), laut Doku weltweit als Teil der Fabric-SKU mit eigenen Abrechnungs-Metern verfügbar."
+  user_value: high
+  must_have_for_di: true
+  confidence: from_source
+
+- id: di-032
+  capability: "Zielsuche (welche Treiberwerte erreichen das Ziel)"
+  area: planning
+  description: "Statt \"was passiert, wenn\" rechnet das System rückwärts, welche Eingabewerte ein vorgegebenes Ergebnis erreichen. Für Budgetgespräche (\"was müssen wir liefern, um EBIT X zu halten\")."
+  source:
+    title: "Fabric planning tutorial part 3: Optimize data input measures to achieve a target result"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/fabric/iq/plan/planning-tutorial/planning/tutorial-3-forecasting-writeback
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "Optimize data input measures to achieve a target result"
+  vendors_offering: [Microsoft Fabric, Peak]
+  vendor_evidence_urls:
+    - https://peak.ai/products/
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Nur Titel gelesen; Umfang der Optimierung (eine/mehrere Stellgrößen, Nebenbedingungen) nicht geprüft."
+  user_value: medium
+  must_have_for_di: false
+  confidence: inferred
+
+- id: di-033
+  capability: "Treiberbasierte Planung mit Rückschreiben in die Datenplattform"
+  area: planning
+  description: "Budgets, Forecasts, Annahmen und Kommentare werden im Planungsblatt erfasst und in Fabric SQL DB oder das Semantikmodell zurückgeschrieben; damit können Reports und Agenten Plan gegen Ist fragen (\"erreichen wir den Forecast?\")."
+  source:
+    title: "Writeback (planning in Fabric)"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/fabric/iq/plan/planning-concept-writeback
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "Users can ask questions such as, “At our current rate, will we meet this year’s forecast?”"
+  vendors_offering: [Microsoft Fabric, Anaplan, Board, Jedox, SAP Analytics Cloud, Pyramid Analytics]
+  vendor_evidence_urls:
+    - https://www.softwareadvice.com.au/compare/1931/7378/board/vs/anaplan
+    - https://barc.com/review/pyramid-decision-intelligence-platform/
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Writeback-Format \"Long with Changes\" schreibt nur geänderte Werte und baut eine Änderungshistorie auf (Audit). Kein Writeback in Composite-Modelle."
+  user_value: high
+  must_have_for_di: true
+  confidence: from_source
+
+- id: di-034
+  capability: "Freigabe-Workflow für Planwerte"
+  area: planning
+  description: "Planungsrunden bekommen definierte Freigabestufen mit Genehmigern, Prüfung und Rückforderung von Anpassungen."
+  source:
+    title: "What are planning sheets within planning in Fabric?"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/fabric/iq/plan/planning-overview
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "Provides governance for planning cycles through structured approval processes."
+  vendors_offering: [Microsoft Fabric, Board]
+  vendor_evidence_urls:
+    - https://erpresearch.com/erp-add-ons/fpa-planning/board-international-vs-jedox
+  pbi_fabric_status: fabric_feature
+  user_value: medium
+  must_have_for_di: false
+  confidence: from_source
+
+- id: di-035
+  capability: "Maßnahme direkt aus dem Bericht erfassen (Write-back / translytical task flow)"
+  area: decision_loop
+  description: "Im Report erfasst der Nutzer per Eingabe-Slicer und Button eine Maßnahme, Annotation oder Statusänderung; eine User Data Function schreibt sie mit dem aktuellen Filterkontext in Fabric SQL DB/Warehouse oder ruft eine externe API. Technische Grundlage für di-006, di-011, di-014."
+  source:
+    title: "Understand translytical task flows"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/create-reports/translytical-task-flow-overview
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "end users can update, add, or delete data in Fabric databases from within Power BI reports"
+  vendors_offering: [Microsoft Fabric, Pyramid Analytics, Jedox, Board, Anaplan]
+  vendor_evidence_urls:
+    - https://learn.microsoft.com/power-bi/fundamentals/desktop-latest-update-archive
+    - https://barc.com/review/pyramid-decision-intelligence-platform/
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Laut Power-BI-Update März 2026 GA; die Cosmos-DB-Variante ist laut ihrer Doku noch Preview. Braucht Fabric-Capacity für User Data Functions und SQL DB."
+  user_value: high
+  must_have_for_di: true
+  confidence: from_source
+
+# ---------------------------------------------------------------- Zusammenarbeit
+- id: di-036
+  capability: "Kommentar am Datenpunkt mit gespeichertem Filterkontext"
+  area: collaboration
+  description: "Kommentar an Bericht oder Visual, @Erwähnung benachrichtigt Kollegen; der Kommentar speichert Filter/Slicer als Lesezeichen, sodass der Empfänger dieselbe Sicht sieht. Fabric Planning ergänzt Zellkommentare mit Zuweisung und Status."
+  source:
+    title: "Add comments to a dashboard or report"
+    publisher: Microsoft Learn
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-comment
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: fetched
+  evidence: "When you add a comment to a report, Power BI captures the current filter and slicer values as a bookmark."
+  vendors_offering: [Microsoft Power BI, Microsoft Fabric, Cloverpop]
+  vendor_evidence_urls:
+    - https://learn.microsoft.com/fabric/iq/plan/intelligence-how-to-comment-collaborate
+    - https://www.cloverpop.com/blog/product-update-system-of-record-for-decisions
+  pbi_fabric_status: native
+  pbi_fabric_note: "Pro/PPU oder F64+; max. 100 Konversationen je Bericht, 2.000 Zeichen je Kommentar; Kommentare sind nicht als Daten auswertbar (kein Entscheidungslog)."
+  user_value: medium
+  must_have_for_di: false
+  confidence: from_source
+
+- id: di-037
+  capability: "Entitätsauflösung und Beziehungsgraph für Kontext"
+  area: decision
+  description: "Kunden, Lieferanten, Anlagen werden über Quellen hinweg zu einer Entität zusammengeführt und als Netzwerk gezeigt, um Wirkketten und Abhängigkeiten zu sehen (z. B. Lieferant -> Teil -> Auftrag -> Umsatz)."
+  source:
+    title: "Quantexa Decision Intelligence Platform (G-Cloud service definition)"
+    publisher: Quantexa (UK Digital Marketplace)
+    url: https://www.applytosupply.digitalmarketplace.service.gov.uk/g-cloud/services/372785790917030
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  zugang: search_index
+  evidence: null
+  vendors_offering: [Quantexa, Microsoft Fabric]
+  vendor_evidence_urls:
+    - https://learn.microsoft.com/fabric/graph/overview
+  pbi_fabric_status: fabric_feature
+  pbi_fabric_note: "Fabric Graph (Preview) + Ontologie für Mehrsprung-Abfragen; keine Entitätsauflösung dokumentiert. Für DE-Mittelstand-Steuerung eher Randthema."
+  user_value: low
+  must_have_for_di: false
+  confidence: inferred

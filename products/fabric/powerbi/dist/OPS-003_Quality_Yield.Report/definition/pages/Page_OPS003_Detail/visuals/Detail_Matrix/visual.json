@@ -253,6 +253,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'First Pass Yield %, Scrap Rate %, Rework Rate %, Cost of Poor Quality, Complaint Rate % and Defect Density by Asset Name and Category'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

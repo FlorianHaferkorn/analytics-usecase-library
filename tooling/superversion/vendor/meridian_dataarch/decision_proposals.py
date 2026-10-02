@@ -629,6 +629,13 @@ _KUNDENFASSUNG: dict[str, dict[str, str]] = {
         "warum": "Der Assistent schreibt Code, der wie jeder andere geprüft werden muss. Ob er "
                  "Daten außerhalb Ihrer Region verarbeiten darf, regelt Ihre KI-Richtlinie.",
     },
+    "GOV-CATALOG": {
+        "frage": "Gehört Microsoft Purview zum Projekt, und wenn ja, welche Teile davon?",
+        "folge": "Wir verwalten Ihre Daten im Katalog von Fabric. Purview lässt sich später "
+                 "anschließen, ohne dass wir etwas umbauen.",
+        "warum": "Purview kostet eigene Lizenzen und braucht Rechte, die nur Ihre Verwaltung "
+                 "vergeben kann. Der Katalog von Fabric ist ohne beides da.",
+    },
 }
 
 
@@ -672,6 +679,9 @@ _FAELLIGKEIT: dict[str, str] = {
     # Ohne Antwort bleibt der Assistent aus; das blockiert nichts, gehoert aber vor den
     # produktiven Betrieb, weil erst dort Code aus zwei Quellen zusammenkommt.
     "AI-DE-COPILOT": "vor Produktivsetzung",
+    # D-620 (01.10.2026): Purview ist ein Andock-Modul. Ohne Antwort traegt der OneLake catalog;
+    # Labels und DLP muessen vor dem ersten produktiven Modell stehen, sonst sind sie nachzuziehen.
+    "GOV-CATALOG": "vor Produktivsetzung",
 }
 
 
@@ -763,8 +773,10 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "text": "Vollast beibehalten: bei jedem Lauf den ganzen Bestand laden",
          "vorteile": ["Einfachste Variante, keine Schlüssel- oder Watermark-Frage", "Löschungen kommen automatisch an"],
          "nachteile": ["Kosten und Laufzeit wachsen mit dem Bestand", "Das Ladefenster wird irgendwann zu klein"],
-         "limitierungen": [{"text": "Bei Direct Lake löst jedes Neuschreiben ein Neuladen des Modells aus (Framing)",
-                            "quelle": "MS Learn: fabric/fundamentals/direct-lake-overview"}],
+         # D-622 (01.10.2026): quantifiziert mit Learn direct-lake-understand-storage (gelesen
+         # 01.10.2026). Vorher nur „löst ein Neuladen aus (Framing)“.
+         "limitierungen": [{"text": "Bei Direct Lake löscht ein Overwrite das Delta-Log: \"Direct Lake can't use incremental framing and must reload all the data, dictionaries, and join indexes\" — jede Vollast lädt das Modell ganz neu",
+                            "quelle": "MS Learn: fabric/fundamentals/direct-lake-understand-storage"}],
          "implikation": "Tragfähig bis zur ersten Beladung, die das Fenster sprengt; dann wird diese Entscheidung neu getroffen."},
         {"wert": "cdc",
          "text": "Änderungserfassung an der Quelle (CDC oder Mirroring) statt Watermark im Transform",
@@ -779,8 +791,21 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "nachteile": ["Späte Änderungen in alten Perioden erzwingen deren Neuladen",
                        "Die Periode muss in der Quelle stabil bestimmbar sein"],
          "limitierungen": [{"text": "Partitionierte Tabellen sind von Liquid Clustering ausgeschlossen",
-                            "quelle": "MS Learn: fabric/data-engineering/delta-optimization-and-v-order"}],
+                            "quelle": "MS Learn: fabric/data-engineering/delta-optimization-and-v-order"},
+                           {"text": "Bei Direct Lake ersetzt ein Partition-Overwrite die Parquet-Dateien der Periode; inkrementelles Framing bleibt nur für unberührte Partitionen (\"Avoid destructive update patterns on large Delta tables\")",
+                            "quelle": "MS Learn: fabric/fundamentals/direct-lake-understand-storage"}],
          "implikation": "Das Partitionsschema wird Teil des Datenvertrags."},
+        # D-622 (01.10.2026): append-freundliche Gold-Fakten bei Direct Lake. Nie Vorgabe —
+        # korrekt nur bei append-only Quellen.
+        {"wert": "append",
+         "text": "Append-only für Fakten: je Lauf nur neue Zeilen per INSERT (Watermark), nie überschreiben",
+         "vorteile": ["Bei Direct Lake bleibt das inkrementelle Framing erhalten: \"Append-only patterns don't affect existing Parquet files\"",
+                      "Kein Match-Key nötig"],
+         "nachteile": ["Korrekturen und Löschungen der Quelle kommen nie an",
+                       "Nur für Fakten; Dimensionen bleiben MERGE oder Vollaufbau"],
+         "limitierungen": [{"text": "Korrekt nur, wenn die Quelle append-only ist (Buchungen, Ereignisse); eine geänderte Zeile wird doppelt oder gar nicht geladen",
+                            "quelle": "MS Learn: fabric/fundamentals/direct-lake-understand-storage"}],
+         "implikation": "Die Emission schreibt je Fakt INSERT INTO … SELECT … WHERE <Watermark> > (SELECT MAX(…)); ohne Änderungsspalte im Katalog bleibt das Prädikat TODO(contract)."},
     ],
     "DATA-CONTRACT": [
         {"wert": "aus_beziehungen", "empfohlen": True,
@@ -1300,10 +1325,14 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "text": "MERGE mit Change Data Feed: Änderungen und Löschungen einarbeiten",
          "vorteile": ["Korrekturen der Quelle kommen an",
                       "Laufzeit wächst mit den Änderungen"],
-         "nachteile": ["Ein Zyklus mit Änderung oder Löschung lässt die MLV voll rechnen",
+         "nachteile": ["Ohne REFRESH_HINT lässt ein Zyklus mit Änderung oder Löschung die MLV voll rechnen",
                        "Braucht Match-Key und Löschkennzeichen je Quelle"],
-         "limitierungen": [{"text": "Updates oder Deletes im Zyklus erzwingen den Vollaufbau der MLV, auch mit CDF",
-                            "quelle": "MS Learn: fabric/data-engineering/materialized-lake-views/refresh-materialized-lake-view"}],
+         # Bis 01.10.2026 stand hier „erzwingen den Vollaufbau, auch mit CDF“. MS Learn *Enable
+         # optimal refresh for deletes and updates* (optimal-refresh-handling-deletes-updates,
+         # gelesen 01.10.2026): mit `REFRESH_HINT … UNIQUE (…)` laufen Updates und Deletes
+         # inkrementell (Preview, nur CDF auf allen Quellen vorausgesetzt).
+         "limitierungen": [{"text": "Updates oder Deletes im Zyklus laufen nur mit REFRESH_HINT inkrementell (Preview, Fabric prüft die Eindeutigkeit nicht); ohne Hint Vollaufbau der MLV, auch mit CDF",
+                            "quelle": "MS Learn: fabric/data-engineering/materialized-lake-views/optimal-refresh-handling-deletes-updates"}],
          "implikation": "Die Emission legt Silber einmal leer mit CDF an und schreibt per MERGE; der Schlüssel der Quelltabelle bleibt Platzhalter, bis der Datenvertrag ihn nennt."},
     ],
     "PLAT-TRANSFORM": [
@@ -1364,11 +1393,15 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "text": "Spiegeln und die Rechte der Quelle als OneLake-Security-Rollen nachbilden",
          "vorteile": ["Der Spiegel bleibt aktuell, ohne eigene Ladestrecke",
                       "Zeilen- und Spaltenfilter wirken für jeden Leser über OneLake"],
+         # Bis 01.10.2026 stand hier „Rollen auf gespiegelten Items sind Preview“. MS Learn
+         # (whats-new-archive, gelesen 01.10.2026): OneLake security GA seit Mai 2026;
+         # onelake/security/data-access-control-model (gelesen 01.10.2026): gespiegelte
+         # Datenbanken/Kataloge nur Read, ReadWrite nur im Lakehouse und ohne RLS/CLS.
          "nachteile": ["Die Rechte existieren zweimal, in der Quelle und in Fabric",
-                       "Rollen auf gespiegelten Items sind Preview"],
+                       "Auf gespiegelten Items nur Leserollen (Read); Schreiben vor dem Lesen geht dort nicht"],
          "limitierungen": [{"text": "Mirroring übernimmt Zeilen-, Spaltenrechte und Maskierung der Quelle nicht",
                             "quelle": "MS Learn: fabric/mirroring/azure-sql-database-how-to-data-security"},
-                           {"text": "OneLake-Security-Rollen auf gespiegelten Items erlauben nur Read",
+                           {"text": "OneLake Security ist GA (Mai 2026); Rollen auf gespiegelten Datenbanken und Katalogen erlauben nur Read, ReadWrite gibt es nur im Lakehouse und dort ohne RLS/CLS",
                             "quelle": "MS Learn: fabric/onelake/security/data-access-control-model"}],
          "implikation": "Je Quelle mit Rechten ein Arbeitspaket Rechte-Nachbau und ein Abnahmetest mit einem Leser ohne Rolle."},
         {"wert": "kopie",
@@ -1450,7 +1483,7 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "text": "Fabric App mit Eingaben, Rückschreiben und Workflows",
          "vorteile": ["Eingabe und Auswertung in einer Oberfläche"],
          "nachteile": ["Preview", "Braucht eine Fabric SQL Database für das Rückschreiben"],
-         "limitierungen": [{"text": "Fabric Apps sind nicht in jeder Region verfügbar, etwa nicht in Germany West Central",
+         "limitierungen": [{"text": "Fabric Apps sind nicht in jeder Region verfügbar, etwa nicht in North Europe",
                             "quelle": "MS Learn: fabric/admin/region-availability"},
                            {"text": "Der Weg über Pro/PPU ohne Kapazität ist angekündigt, aber nicht dokumentiert",
                             "quelle": "eigene Einschaetzung"}],
@@ -1487,6 +1520,36 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "limitierungen": [{"text": "Erzeugter Code durchläuft nur die Prüfungen, die im Prozess stehen",
                             "quelle": "eigene Einschaetzung"}],
          "implikation": "Änderungen in Produktion brauchen eine nachträgliche Prüfung."},
+    ],
+    "GOV-CATALOG": [
+        {"wert": "nein", "empfohlen": True,
+         "text": "OneLake catalog trägt die Governance (Domänen, Endorsement, Beschreibungen, Lineage); Purview nicht im Umfang",
+         "vorteile": ["Keine Zusatzlizenz, keine Tenant-Rechte außerhalb von Fabric",
+                      "Der Andockpunkt bleibt dokumentiert (governance/purview/_PURVIEW.md)"],
+         "nachteile": ["Keine Sensitivity Labels, keine DLP, kein Audit über Fabric hinaus"],
+         "limitierungen": [{"text": "Der OneLake catalog zeigt nur Fabric-Elemente; Quellen außerhalb von Fabric erscheinen dort nicht",
+                            "quelle": "MS Learn: fabric/governance/onelake-catalog-overview"}],
+         "implikation": "governance.purview.im_umfang = nein; es entsteht nur _PURVIEW.md mit den Andockpunkten."},
+        {"wert": "teilweise",
+         "text": "Labels und DLP für Power BI und Fabric, der Rest bleibt im OneLake catalog",
+         "vorteile": ["Schutz sensibler Daten an Bericht und Export",
+                      "Kein eigenes Purview-Konto für die Data Map nötig"],
+         "nachteile": ["Microsoft 365 E5 oder ein Compliance-Zusatz je Nutzer",
+                       "Fabric-Admin-Konto für das Massen-Labeling"],
+         "limitierungen": [{"text": "Standard- und Pflichtlabel greifen nicht bei Veröffentlichung durch einen Dienstprinzipal",
+                            "quelle": "MS Learn: fabric/governance/service-security-sensitivity-label-mandatory-label-policy"},
+                           {"text": "DLP prüft keine Modelle, die ein Dienstprinzipal veröffentlicht oder besitzt",
+                            "quelle": "MS Learn: purview/dlp-powerbi-get-started"}],
+         "implikation": "governance.purview.bausteine = [labels, dlp]; Skripte unter governance/purview/labels und dlp."},
+        {"wert": "voll",
+         "text": "Purview vollständig: Labels, DLP, Data Map, Unified Catalog, Audit",
+         "vorteile": ["Ein Katalog über Fabric und Fremdquellen", "Audit und Datenprodukte an einer Stelle"],
+         "nachteile": ["Purview-Konto, Lizenzen und Pflege einer zweiten Domänenstruktur"],
+         "limitierungen": [{"text": "Fabric-Domänen lassen sich nicht 1:1 auf Purview-Domänen abbilden (Data Map: höchstens fünf Plattform-Domänen); Governance-Domänen werden getrennt gepflegt",
+                            "quelle": "MS Learn: purview/data-gov-best-practices-domains-and-gov-domains"},
+                           {"text": "Fabric-Elemente außer Power BI werden bei Private Link auf Tenant- oder Workspace-Ebene nicht gescannt",
+                            "quelle": "MS Learn: purview/register-scan-fabric-tenant"}],
+         "implikation": "governance.purview.bausteine mit allen Bausteinen; die Domänen werden zweimal gepflegt."},
     ],
 }
 
@@ -1786,7 +1849,10 @@ def propose_incremental(gc: dict, source_schema: dict | None = None) -> dict:
         "hoch" if (keys and have_wm) else "mittel" if keys else "niedrig",
         ["Vollast beibehalten (einfachste Variante, teuer ab realer Datenmenge)",
          "CDC/Mirroring an der Quelle statt Watermark im Transform",
-         "Partition-Overwrite je Periode statt zeilenweisem MERGE"],
+         "Partition-Overwrite je Periode statt zeilenweisem MERGE",
+         # D-622: bei Direct Lake (MS Learn direct-lake-understand-storage, gelesen 01.10.2026)
+         "Append-only für Fakten (INSERT mit Watermark): erhält bei Direct Lake das inkrementelle "
+         "Framing — nur korrekt, wenn die Quelle append-only ist (D-622)"],
         "Data Engineering + Quellsystem-Owner",
         "Der MERGE-Platzhalter bleibt unausgefüllt, es läuft weiter Vollast (CU-Kosten und Laufzeit)",
         # Schlüssel UND Änderungsspalte im Modell → die Strategie steht, nur bestätigen.
@@ -1954,7 +2020,9 @@ def propose_silver_load(bp: dict) -> dict:
 
     Die Frage stand nirgends, und sie entscheidet, ob eine Materialized Lake View je
     inkrementell aktualisiert werden kann: laut MS Learn nur mit Change Data Feed auf **allen**
-    Quellen **und** append-only im Zyklus. Die Lieferung schreibt Silber per
+    Quellen **und** append-only im Zyklus -- oder, mit `REFRESH_HINT … UNIQUE` auf der Sicht
+    (Preview), auch bei Updates und Deletes (MS Learn optimal-refresh-handling-deletes-updates,
+    gelesen 01.10.2026). Die Lieferung schreibt Silber per
     `CREATE OR REPLACE` -- jeder Lauf ist fuer die Plattform eine Aenderung an allem.
     `DATA-INC` beantwortet eine andere Frage (wie Gold nachlaedt), deshalb eine eigene.
 
@@ -1970,17 +2038,22 @@ def propose_silver_load(bp: dict) -> dict:
          "**Der Preis, den diese Wahl hat:** jede Materialized Lake View darüber rechnet bei "
          "jedem Lauf voll. Inkrementell aktualisiert Fabric nur, wenn Change Data Feed auf "
          "**allen** Quellen aktiv ist **und** der Zyklus append-only war; ein Überschreiben ist "
-         "eine Änderung an allem, ein MERGE mit Änderung oder Löschung ebenso.\n\n"
+         "eine Änderung an allem. Ein MERGE mit Änderung oder Löschung läuft nur dann "
+         "inkrementell, wenn die Sicht einen `REFRESH_HINT … UNIQUE` trägt (Preview), sonst "
+         "voll.\n\n"
          "**Wann umstellen:** wenn die gemessene Laufzeit der vollen Aktualisierung das "
          "Ladefenster sprengt — nicht vorher. Eine Antwort `append` oder `merge` baut die "
          "Emission: Silber wird einmal leer mit Change Data Feed angelegt und danach nur "
          "ergänzt bzw. per MERGE nachgeführt; was der Katalog nicht nennt (Änderungsspalte, "
          "Schlüssel der Quelltabelle), bleibt Platzhalter."),
         "MS Learn (*Optimal refresh for materialized lake views*, abgerufen 23.09.2026: CDF auf "
-        "allen Quellen, append-only im Zyklus) + Schreibmuster des Transform-Emitters",
+        "allen Quellen, append-only im Zyklus; *Enable optimal refresh for deletes and updates*, "
+        "gelesen 01.10.2026: mit REFRESH_HINT auch Updates/Deletes, Preview) + Schreibmuster "
+        "des Transform-Emitters",
         "mittel",
         ["append — nur neue Zeilen, CDF an; Korrekturen der Quelle kommen nicht an",
-         "merge — Änderungen einarbeiten; ein Zyklus mit Update/Delete rechnet die MLV voll"],
+         "merge — Änderungen einarbeiten; ein Zyklus mit Update/Delete rechnet die MLV ohne "
+         "REFRESH_HINT voll, mit Hint inkrementell (Preview)"],
         "Data Engineering Lead (verbindlich), Data Platform Lead (Kosten und Ladefenster)",
         "Vollaufbau bleibt stehen, ohne dass jemand ihn gewählt hat — und die Zusage "
         "„inkrementell mit Change Data Feed“ steht im Angebot, ohne dass die Lieferung sie trägt",
@@ -2313,10 +2386,10 @@ def propose_network_stance(bp: dict) -> dict:
 # (D-340). Ein Entscheidungsmodell mit eigenen Eingabefeldern daneben waere eine zweite
 # Wahrheit neben dem Bauplan gewesen; deshalb sitzen die Regeln hier.
 
-#: Regionen, in denen Fabric Apps laut Learn (`admin/region-availability`, gelesen
-#: 29.09.2026) nicht verfuegbar sind. Unvollstaendig und deshalb nur als Sperrliste gefuehrt:
-#: eine Region, die hier fehlt, ist nicht als verfuegbar belegt.
-FABRIC_APPS_NICHT_IN = ("germanywestcentral",)
+# Fabric-App-Regionen: eine Quelle, `stack_capabilities.FEATURE_NICHT_IN["fabric_apps"]`. Bis
+# 01.10.2026 stand hier eine eigene Sperrliste mit genau `germanywestcentral` -- zwei Tage nach
+# dem Lesen war sie falsch (Learn hat die Region am 29.09. abends freigegeben), und nichts las sie
+# gegen die Tabelle daneben.
 
 
 def _regionen(bp: dict) -> set[str]:
@@ -2345,8 +2418,10 @@ def propose_mirror_security(bp: dict) -> dict:
     else:
         vorschlag = (f"**Die Rechte als OneLake-Security-Rollen neu aufbauen** für {namen}. Mirroring "
                      "übernimmt Zeilen- und Spaltenrechte sowie die Maskierung der Quelle nicht; ohne "
-                     "Neuaufbau liest jeder Leser des gespiegelten Items alle Zeilen. Rollen auf "
-                     "gespiegelten Items erlauben nur Read (Preview). Wer vor dem Lesen schreiben oder "
+                     "Neuaufbau liest jeder Leser des gespiegelten Items alle Zeilen. OneLake "
+                     "Security ist GA seit Mai 2026; Rollen auf gespiegelten Datenbanken und "
+                     "Katalogen erlauben nur Read. ReadWrite gibt es nur im Lakehouse, und eine "
+                     "ReadWrite-Rolle darf kein RLS/CLS tragen. Wer vor dem Lesen schreiben oder "
                      "transformieren muss, kopiert stattdessen in ein gesteuertes Lakehouse."
                      + ("" if vertraulich else
                         " Keine gespiegelte Quelle ist als vertraulich markiert; ob sie Rechte trägt, "
@@ -2359,7 +2434,7 @@ def propose_mirror_security(bp: dict) -> dict:
         vorschlag,
         f"{len(gespiegelt)} Quelle(n) mit access_mode `mirror`, davon {len(vertraulich)} vertraulich; "
         "MS Learn: mirroring/azure-sql-database-how-to-data-security, onelake/security/"
-        "data-access-control-model (gelesen 29.09.2026)",
+        "data-access-control-model (gelesen 01.10.2026)",
         konfidenz,
         ["In ein gesteuertes Lakehouse kopieren und dort absichern (Kopie statt Spiegel)",
          "Nur Tabellen ohne schutzbedürftige Inhalte spiegeln, den Rest kopieren"],
@@ -2440,8 +2515,9 @@ def propose_overage(bp: dict) -> dict:
 
 def propose_report_target(bp: dict) -> dict:
     """Report-Ziel: PBIR, Fabric App oder beides. Region und Lizenzbasis entscheiden mit."""
+    from core.dataarch_engine.blueprint.stack_capabilities import feature_in_region
     regionen = _regionen(bp)
-    gesperrt = sorted(regionen & set(FABRIC_APPS_NICHT_IN))
+    gesperrt = sorted(r for r in regionen if feature_in_region("fabric_apps", r) == "fehlt")
     if gesperrt:
         vorschlag = (f"**PBIR.** Fabric Apps sind in {', '.join(gesperrt)} laut Learn nicht "
                      "verfügbar. Braucht der Kunde Eingaben oder Rückschreiben, ist die Region "
@@ -2460,8 +2536,8 @@ def propose_report_target(bp: dict) -> dict:
         "Brauchen Nutzer Eingaben, Rückschreiben oder Workflows im Bericht, und auf welcher "
         "Lizenzbasis?",
         vorschlag,
-        "platform.sizing.region / platform.capacities[].region; MS Learn: admin/region-availability, "
-        "power-bi/create-reports/fabric-apps-analytics (gelesen 29.09.2026)",
+        "platform.sizing.region / platform.capacities[].region; MS Learn: admin/region-availability "
+        "(gelesen 01.10.2026), power-bi/create-reports/fabric-apps-analytics (gelesen 29.09.2026)",
         konfidenz,
         ["Fabric App mit Eingaben, Rückschreiben und Workflows (Preview, nicht in jeder Region)",
          "PBIR für die Analyse, Fabric App nur für die Eingabe"],
@@ -2511,6 +2587,46 @@ def propose_de_copilot(bp: dict) -> dict:
         "KI-Verantwortliche:r + Datenschutz des Kunden",
         "Der Assistent bleibt aus. Gebaut wird wie bisher.",
         status="offen")
+
+
+def propose_purview(bp: dict) -> dict:
+    """Purview als Andock-Modul (D-620): der OneLake catalog ist die Vorgabe.
+
+    Liest `governance.purview` direkt und nicht ueber `provision_purview`: dieses Modul wird
+    byte-identisch nach ALUCA gespiegelt, und die Vorlage soll nicht an einem zweiten Modul
+    haengen. Fehlt das Feld oder steht `nein`, ist die Hausvorgabe angewandt (vorbelegt);
+    `unbekannt` ist die offene Kundenfrage; `ja` nennt die gewaehlten Bausteine.
+    """
+    pv = (bp.get("governance") or {}).get("purview") or {}
+    stand = pv.get("im_umfang") or "nein"
+    teile = [b for b in pv.get("bausteine") or []]
+    if stand == "ja":
+        vorschlag = ("**Purview im Umfang:** "
+                     + (", ".join(f"`{b}`" for b in teile) if teile else "keine Bausteine benannt")
+                     + ". Die Pakete liegen unter `governance/purview/`; der OneLake catalog bleibt "
+                     "die Oberfläche für Fabric-Elemente.")
+        status, konfidenz = "vorbelegt" if teile else "offen", "hoch" if teile else "mittel"
+    elif stand == "unbekannt":
+        vorschlag = ("**OneLake catalog trägt die Governance**, Purview dockt bei Bedarf an. Ob ein "
+                     "Purview-Konto oder E5-Lizenzen vorhanden sind, steht nicht im Bauplan.")
+        status, konfidenz = "offen", "mittel"
+    else:
+        vorschlag = ("**OneLake catalog trägt die Governance** (Domänen, Endorsement, "
+                     "Beschreibungen, Lineage); Purview ist nicht im Umfang. Die Andockpunkte stehen "
+                     "in `governance/purview/_PURVIEW.md`.")
+        status, konfidenz = "vorbelegt", "hoch"
+    return _rec(
+        "GOV-CATALOG", "Purview als Andock-Modul",
+        "Gehört Microsoft Purview zum Umfang, und welche Bausteine (Labels, DLP, Data Map, "
+        "Unified Catalog, Audit)?",
+        vorschlag,
+        "governance.purview (D-620); MS Learn: fabric/governance/onelake-catalog-overview, "
+        "purview/dlp-powerbi-get-started (gelesen 01.10.2026)",
+        konfidenz,
+        ["Labels und DLP für Power BI und Fabric", "Purview vollständig mit Data Map und Unified Catalog"],
+        "Governance-Verantwortliche:r + Einkauf (Lizenzen)",
+        "Der OneLake catalog trägt die Governance; Purview lässt sich später ohne Umbau anschließen.",
+        status=status)
 
 
 def propose_ground_truth(gc: dict) -> dict:
@@ -2768,7 +2884,8 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
                 propose_transform_engine(bp), propose_silver_load(bp),
                 # I-21 (FabCon Europe 2026, 30.09.2026)
                 propose_mirror_security(bp), propose_monitoring_topology(bp),
-                propose_overage(bp), propose_report_target(bp), propose_de_copilot(bp)])
+                propose_overage(bp), propose_report_target(bp), propose_de_copilot(bp),
+                propose_purview(bp)])
     _tier = propose_platform_tier(bp)      # nur auf Stacks mit Stufen-Achse und nur solange offen
     if _tier:
         out.append(_tier)

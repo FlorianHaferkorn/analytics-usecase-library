@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/architecture-blueprint-inputs/0.1.0",
+  "title": "ArchitectureBlueprint derivation inputs (ALUCA-owned)",
+  "description": "The input contract of `tooling.superversion.architecture_blueprint.derive_blueprint` and of `architecture_blueprint_cli --inputs`. ALUCA's own contract — unlike `architecture_blueprint.schema.json` (the derived IR, byte-identical with Meridian), it is not mirrored. Typed strictly where ALUCA owns a choice that the IR cannot carry; every other key stays open, because the deriver documents it but has never validated it and existing input files must keep loading (ADR-0024).",
+  "type": "object",
+  "properties": {
+    "stack": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "gold_target": {
+            "enum": ["warehouse_dbt", "mlv"],
+            "default": "warehouse_dbt",
+            "description": "Where this domain's gold is materialised (ADR-0024). `warehouse_dbt` (default) keeps the gold path as it was before the field existed — byte-identical output. `mlv` = Fabric Materialized Lake Views in a schema-enabled lakehouse: one `CREATE OR REPLACE MATERIALIZED LAKE VIEW` per gold product (GA since March 2026 per MS Learn What's new, SQL authoring), refreshed by a schedule (D-529), with the gold transforms of this domain replaced rather than duplicated. The choice is read by the Fabric arch target only; the IR carries no field for it, so it is handed over as the target option `gold_targets`."
+          },
+          "gold_products": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "kind"],
+              "properties": {
+                "name": {"type": "string"},
+                "kind": {"enum": ["dimension", "fact", "aggregate"]}
+              }
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["source"],
+              "properties": {
+                "source": {"type": "string", "minLength": 1}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

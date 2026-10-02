@@ -96,6 +96,9 @@ PUBLIC_API: dict[str, tuple[str, ...]] = {
     # Meridian D-617 (30.09.2026): Ontologie aus der Geschaeftsobjekt-Schicht als Turtle fuer den
     # Fabric-IQ-Import; `tooling/generator/ontology_ttl.py`.
     "ontologie_kern": ("modell_aus_geschaeftsobjekten", "emit_ttl", "profil_befunde"),
+    # Meridian D-618 (01.10.2026): Funktion x Region aus der gespiegelten Tabelle; ALUCA-eigen
+    # genutzt von `capacity.recommend` (FABCON W5.1), keine zweite Regionsliste hier.
+    "stack_capabilities": ("region_findings", "feature_in_region", "regionen_mit"),
 
     # -- Die Vollzugshälfte (26.08.2026) ------------------------------------------------
     #
@@ -109,7 +112,9 @@ PUBLIC_API: dict[str, tuple[str, ...]] = {
     "provision_chargeback": ("emit_chargeback",),
     "provision_cicd": ("emit_cicd",),
     "provision_databricks_cicd": ("emit_databricks_cicd",),
-    "provision_dq": ("emit_ingress_dq",),
+    # Die Spaltentest-Lieferanten 3 und 4 (Vertrag, Sternkanten) fuer `emit_dq_gates` — derselbe
+    # Aufruf wie in Meridians `cli.py`, gezogen mit dem MLV-Pfad (ADR-0024, 01.10.2026).
+    "provision_dq": ("emit_ingress_dq", "vertrags_spaltentests", "beziehungs_spaltentests"),
     "provision_fabric": ("emit_fab_commands",),
     "provision_fabric_cicd": ("emit_fabric_cicd",),
     "provision_gates": ("emit_gates",),
@@ -120,7 +125,10 @@ PUBLIC_API: dict[str, tuple[str, ...]] = {
     "provision_orchestration": ("emit_orchestration",),
     "provision_prereq": ("emit_prereq",),
     "provision_terraform": ("emit_terraform",),
-    "provision_transforms": ("emit_transforms",),
+    # MLV-Gold je Domaene (ADR-0024, 01.10.2026): die Sichten, die Hint-Schluessel als
+    # eine Regel mit zwei Lesern, und der dbt-Testlauf, der die Eindeutigkeit prueft, die
+    # Fabric bei `REFRESH_HINT` nicht prueft.
+    "provision_transforms": ("emit_transforms", "emit_mlv", "mlv_hint_schluessel", "emit_dq_gates"),
     "provision_translations": ("emit_translations",),
     "provision_varlib": ("emit_variable_library",),
     "direct_lake_guardrails": ("emit_direct_lake_guardrails",),

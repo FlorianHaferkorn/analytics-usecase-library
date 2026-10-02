@@ -25,6 +25,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Is the action governance cycle delivering verified business impact? · Expected finding — Govern actions to verified outcomes by focusing executive attention where weak follow-through and material impact intersect.'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -1765,7 +1765,7 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
 #: Die Werte, die eine `DATA-INC`-Antwort tragen kann (Optionen-Katalog in
 #: `decision_proposals._OPTIONEN["DATA-INC"]`). Hier genannt, damit ein unbekannter Wert
 #: als Befund im Kopf steht und nicht still wie „nicht entschieden" behandelt wird.
-_DATA_INC_WERTE = ("watermark", "vollast", "cdc", "partition")
+_DATA_INC_WERTE = ("watermark", "vollast", "cdc", "partition", "append")
 
 
 def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str], contract_ref: str,
@@ -1891,6 +1891,17 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
                  + (f"{c}   {wasserzeichen['hinweis']}\n" if wasserzeichen.get("hinweis") else "")
                  + f"{c}   Ein Watermark-MERGE traegt hier nicht — DATA-INC = vollast oder "
                  f"Aenderungsbelege.\n")
+    # D-622 (01.10.2026): append-only fuer Fakten. MS Learn direct-lake-understand-storage
+    # (gelesen 01.10.2026): "Append-only patterns don't affect existing Parquet files. They work
+    # well with Direct Lake incremental framing." Nur gewaehlt, nie Vorgabe — korrekt nur bei
+    # append-only Quellen.
+    if wahl == "append" and kind == "fact":
+        return head + _gold_append(gold_tbl, auswahl, quelle, spalten, wz_praedikat, wm, keys,
+                                   contract_ref, c, _using, bool(bezuege))
+    if wahl == "append":
+        head += (f"{c}\n{c} BEFUND: DATA-INC = append gilt nur fuer Fakten (D-622); '{name}' ist "
+                 f"{kind} — der MERGE unten bleibt die Ladeform.\n")
+        wahl = None
     # Die Bestaetigung, auf die der Kommentar unten wartet (C-3, 02.09.2026): traegt das Profil
     # `entscheidungen.DATA-INC[·<domaene>] = watermark` und nennt der Katalog Schluessel und
     # Aenderungsspalte, wird der Vorschlag zur ausfuehrbaren Anweisung. Genau das ist der
@@ -1984,6 +1995,41 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
         f";\n"
     )
     return head + body
+
+
+def _gold_append(gold_tbl: str, auswahl: str, quelle: str, spalten: list[str], wz_praedikat: str,
+                 wm: str | None, keys: list[str], contract_ref: str, c: str, using,
+                 mit_bezuegen: bool) -> str:
+    """``INSERT INTO gold … SELECT … WHERE <watermark> > (SELECT MAX…)`` fuer einen Fakt (D-622).
+
+    Ohne Aenderungsspalte bleibt das Praedikat ein unparsebarer Platzhalter (TODO(contract)) —
+    dieselbe Fail-safe-Haltung wie der MERGE: kein stilles Volllesen, das wie inkrementell aussieht.
+    """
+    praedikat = wz_praedikat or (f"{wm} > (SELECT MAX({wm}) FROM {gold_tbl})" if wm else "")
+    kopf = (f"{c}\n{c} ENTSCHIEDEN: DATA-INC = append (D-622). Nur neue Zeilen, nie Ueberschreiben:\n"
+            f"{c}   bei Direct Lake bleibt das inkrementelle Framing erhalten (MS Learn\n"
+            f"{c}   direct-lake-understand-storage, gelesen 01.10.2026: \"Append-only patterns don't\n"
+            f"{c}   affect existing Parquet files\").\n"
+            f"{c}   KORREKT NUR BEI APPEND-ONLY QUELLEN: eine geaenderte oder geloeschte Quellzeile\n"
+            f"{c}   kommt nie an.\n")
+    if keys:
+        kopf += f"{c}   Grain (nicht geprueft beim INSERT): {' + '.join(keys)}\n"
+    if praedikat:
+        filt = (f"    WHERE (SELECT COUNT(*) FROM {gold_tbl}) = 0\n"
+                f"       OR {praedikat}\n")
+    else:
+        kopf += (f"{c}   Watermark: keine Aenderungsspalte im Katalog — Praedikat ist "
+                 f"TODO(contract:{contract_ref}).\n")
+        filt = (f"    {c} TODO(contract:{contract_ref}): watermark predicate\n"
+                f"    WHERE <watermark_col> > (SELECT MAX(<watermark_col>) FROM {gold_tbl})\n")
+    ziel = gold_tbl
+    if spalten and not mit_bezuegen:
+        liste = [*spalten, *([WASSERZEICHEN_SPALTE] if wz_praedikat else [])]
+        ziel = f"{gold_tbl} ({', '.join(zitiere(x) for x in liste)})"
+    elif mit_bezuegen or not spalten:
+        kopf += (f"{c}   VERIFY: INSERT ohne Spaltenliste — Spaltenfolge der Auswahl gegen "
+                 f"{gold_tbl} pruefen.\n")
+    return kopf + f"INSERT INTO {ziel}\n" + using(f"{auswahl}    FROM {quelle}\n{filt}") + ";\n"
 
 
 def _incremental_proposal(gc: dict | None, product: str) -> dict | None:
@@ -2219,6 +2265,9 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
                        "`transforms/<domäne>/` ist die Ladeform, jeder Lauf schreibt Gold neu",
             "cdc": "Platzhalter bleiben; der Feed ist Quellwissen",
             "partition": "Platzhalter bleiben; die Partitionsspalte ist Vertragswissen",
+            "append": "Fakten: INSERT nur neuer Zeilen (Watermark), erhält bei Direct Lake das "
+                      "inkrementelle Framing; nur bei append-only Quellen korrekt (D-622). "
+                      "Dimensionen: MERGE wie ohne Entscheidung",
         }
         doc += [f"| {name} | `{wahl}` | {wirkung.get(wahl, 'unbekannter Wert, wie nicht entschieden')} |"
                 for name, wahl in entschieden]
@@ -2589,8 +2638,20 @@ def _schnitt_spalten_tests(schnitt: tuple[str, ...]) -> list[dict]:
             for s in schnitt]
 
 
+def schluessel_eindeutigkeit(spalten: list[str]) -> str:
+    """Spark-SQL-Ausdruck fuer den dbt-Test ``unique`` ueber einen Spaltenverbund.
+
+    ``to_json(array(cast(… as string), …))`` statt ``concat_ws``: das Array traegt NULL als
+    ``null`` und braucht kein Trennzeichen, das in einem Wert vorkommen koennte. Ohne
+    ``dbt_utils`` (bewusst draussen, siehe ``emit_dq_gates``): dbt nimmt fuer ``unique`` einen
+    Ausdruck als ``column_name``.
+    """
+    return "to_json(array(" + ", ".join(f"cast({zitiere(c)} as string)" for c in spalten) + "))"
+
+
 def _dq_model_entry(name: str, kind: str, contract_ref: str, columns: list[dict] | None = None,
-                    schnitt: tuple[str, ...] = ()) -> dict:
+                    schnitt: tuple[str, ...] = (),
+                    schluessel: list[str] | None = None) -> dict:
     """dbt schema.yml model entry with kind-aware structural tests (runtime DQ gate per gold product).
 
     ``columns`` — when a caller can supply the CONCRETE column tests (e.g. the SAP standard pack knows the
@@ -2614,9 +2675,27 @@ def _dq_model_entry(name: str, kind: str, contract_ref: str, columns: list[dict]
     # anderen Achse (wer darf die Zeile sehen) als der Schluessel (haengt die Zeile richtig).
     vorhanden = {c.get("name") for c in cols}
     cols = cols + [t for t in _schnitt_spalten_tests(schnitt) if t["name"] not in vorhanden]
-    return {"name": f"gold_{_ident(name)}",
-            "description": f"gold {kind} '{name}' — runtime DQ gate (Contract: {contract_ref})",
-            "columns": cols}
+    eintrag = {"name": f"gold_{_ident(name)}",
+               "description": f"gold {kind} '{name}' — runtime DQ gate (Contract: {contract_ref})",
+               "columns": cols}
+    if schluessel:
+        # REFRESH_HINT-Schluessel (01.10.2026): Fabric prueft die Eindeutigkeit nicht (MS Learn
+        # optimal-refresh-handling-deletes-updates). Einspaltig traegt die Spalte `unique`,
+        # sofern noch nicht da (ein zweiter gleicher Test waere in dbt ein doppelter Knoten);
+        # zusammengesetzt ein Modelltest ueber den Spaltenverbund.
+        if len(schluessel) == 1:
+            sp = schluessel[0]
+            cols = [dict(c) for c in cols]           # Lieferanten-Eintraege nicht veraendern
+            eintrag["columns"] = cols
+            e = next((c for c in cols if c.get("name") == sp), None)
+            if e is None:
+                cols.append({"name": sp, "description": "REFRESH_HINT-Schluessel",
+                             "tests": ["unique"]})
+            elif "unique" not in (e.get("tests") or []):
+                e["tests"] = [*(e.get("tests") or []), "unique"]
+        else:
+            eintrag["tests"] = [{"unique": {"column_name": schluessel_eindeutigkeit(schluessel)}}]
+    return eintrag
 
 
 #: Name des Fabric-dbt-Jobs, der die DQ-Tore faehrt (W2.4). Ein Name, weil ein Job alle Domaenen
@@ -2721,7 +2800,8 @@ def _dbt_job_doc(n_tests: int, jobs: list[tuple[str, str, int]]) -> list[str]:
 def emit_dq_gates(blueprint: dict, schemas: bool = False,
                   column_tests: dict[str, list[dict]] | None = None,
                   stack: str | None = None,
-                  lakehouse: str = "analytics_gold") -> dict[str, str]:
+                  lakehouse: str = "analytics_gold",
+                  schluessel_tests: dict[str, list[str]] | None = None) -> dict[str, str]:
     """Emit **runtime** data-quality gates for the strecke as dbt-style ``schema.yml`` tests.
 
     One ``dq/<domain>/schema.yml`` per domain (dbt ``version: 2`` models + kind-aware structural tests:
@@ -2742,6 +2822,9 @@ def emit_dq_gates(blueprint: dict, schemas: bool = False,
     Seit 29.09.2026 (W2.4) ist ``dq/`` ein lauffaehiges dbt-Projekt (``dbt_project.yml`` + ein
     ephemeres Modell je Gold-Produkt), und ``stack="fabric"`` legt das Fabric-Item
     ``DataBuildToolJob`` dazu, das ``dbt test`` faehrt.
+
+    ``schluessel_tests`` (01.10.2026) — ``{produkt: [spalten]}`` der Sichten mit ``REFRESH_HINT``
+    (``mlv_fakt_hint_schluessel``): je Produkt ein Eindeutigkeitstest auf genau diesen Schluessel.
     """
     med = blueprint.get("medallion", {})
     contract_ref = med.get("silver", {}).get("data_contract_ref", "<silver-contract>")
@@ -2784,7 +2867,8 @@ def emit_dq_gates(blueprint: dict, schemas: bool = False,
         geschuetzt = set(d.get("row_security", {}).get("protected_products")
                          or (prods if schnitt else []))
         models = [_dq_model_entry(p, kinds.get(p, "fact"), c_ref, ctests.get(p),
-                                  schnitt=schnitt if p in geschuetzt else ())
+                                  schnitt=schnitt if p in geschuetzt else (),
+                                  schluessel=(schluessel_tests or {}).get(p))
                   for p in prods]
         rel = f"dq/{_dirslug(d['name'])}/schema.yml"
         out[rel] = yaml.safe_dump({"version": 2, "models": models}, sort_keys=False, allow_unicode=True)
@@ -2797,6 +2881,7 @@ def emit_dq_gates(blueprint: dict, schemas: bool = False,
                 je_domaene.setdefault(d["name"], []).append(m)
             n_tests += sum(len(c.get("tests") or []) for e in models if e["name"] == m
                            for c in e.get("columns") or [])
+            n_tests += sum(len(e.get("tests") or []) for e in models if e["name"] == m)
     out.update(_dbt_projekt(dbt_modelle))
     if stack == "fabric" and dbt_modelle:
         # Ein Job je Gold-Workspace: der Job verbindet genau ein Lakehouse, und jede Domaene
@@ -2900,21 +2985,106 @@ def _mlv_key_column(name_ident: str, kind: str, columns: list[str],
     return next((c for c in columns if c.endswith(_MLV_KEY_SUFFIXES)), None)
 
 
-def _mlv_partition_column(columns: list[str], table: dict | None = None) -> str | None:
-    """Die Partitionsspalte — aus dem DEKLARIERTEN Typ, nicht aus dem Spaltennamen.
+def mlv_fakt_hint_schluessel(blueprint: dict, governed_catalog: dict | None,
+                             entscheidungen: dict | None = None) -> dict[str, list[str]]:
+    """Fakten, die einen ``REFRESH_HINT … UNIQUE (…)`` bekommen — und mit welchen Spalten.
 
-    Die alte Namensheuristik suchte nach "date" in der Spalte. Bei SAP-Feldnamen scheitert das
-    systematisch: BUDAT, BLDAT, ERDAT, AUSVN und LTRMI sind Datumsspalten und enthalten das Wort
-    nicht. Der Katalog fuehrt `column_types` mit dem deklarierten logischen Typ; das ist dieselbe
-    Luecke, die schon einmal ein Datum als String ins Semantikmodell gebracht hat.
+    MS Learn *Enable optimal refresh for deletes and updates* (optimal-refresh-handling-deletes-
+    updates, gelesen 01.10.2026): der Hint darf zusammengesetzt sein (*"Use multiple columns when
+    no single column is unique, but a combination of columns is"*), *"Fabric doesn't validate
+    uniqueness at runtime"*, und Duplikate fuehren zu *"data inconsistencies without any error
+    or warning"* (Preview). Daraus zwei Bedingungen, beide aus dem Bauplan, nichts geraten:
+
+    * der Katalog **deklariert** den Schluessel (`key`, Grain) und alle Teile stehen in der
+      Projektion — keine Endungsheuristik, die bei Fakten ohnehin nur einen FK faende;
+    * `DATA-SILVER-LOAD` der Domaene ist nicht `append` — bei append-only Silber laeuft die
+      Sicht ohne Hint inkrementell, der Hint braechte nur das Risiko.
+
+    Eine Regel, zwei Leser: ``emit_mlv`` schreibt den Hint, ``emit_dq_gates`` den
+    Eindeutigkeitstest dazu (``schluessel_tests``), weil Fabric die Eindeutigkeit nicht prueft.
+    """
+    from core.dataarch_engine.blueprint.decision_proposals import entscheidung_fuer
+    kinds = _gold_kinds(blueprint)
+    out: dict[str, list[str]] = {}
+    for d in blueprint.get("mesh", {}).get("domains", []) or []:
+        ladeform = entscheidung_fuer(entscheidungen, "DATA-SILVER-LOAD", d.get("name", "")) or "vollaufbau"
+        if ladeform == "append":
+            continue
+        for product in d.get("data_products", []) or []:
+            if kinds.get(product, "fact") != "fact":
+                continue
+            pident = _ident(product)
+            schluessel = [str(k) for k in (_catalog_table(governed_catalog, pident) or {}).get("key") or [] if k]
+            spalten = set(_mlv_catalog_columns(governed_catalog, pident))
+            if schluessel and spalten and set(schluessel) <= spalten:
+                out[product] = schluessel
+    return out
+
+
+def mlv_hint_schluessel(blueprint: dict, governed_catalog: dict | None,
+                        entscheidungen: dict | None = None) -> dict[str, list[str]]:
+    """Alle Sichten, die ``emit_mlv(refresh_hints=True)`` mit ``REFRESH_HINT`` schreibt.
+
+    Dimensionen mit Katalog und belegtem Schluessel (dieselbe Regel wie in ``emit_mlv``) plus
+    die Fakten aus ``mlv_fakt_hint_schluessel``. Fuer ``emit_dq_gates(schluessel_tests=…)``:
+    jede Sicht mit Hint bekommt ihren Eindeutigkeitstest.
+    """
+    kinds = _gold_kinds(blueprint)
+    out: dict[str, list[str]] = {}
+    for d in blueprint.get("mesh", {}).get("domains", []) or []:
+        for product in d.get("data_products", []) or []:
+            if kinds.get(product, "fact") != "dimension":
+                continue
+            pident = _ident(product)
+            kat = _catalog_table(governed_catalog, pident)
+            if not kat:
+                continue
+            key_col = _mlv_key_column(pident, "dimension", _mlv_catalog_columns(governed_catalog, pident),
+                                      kat, katalog_vorhanden=bool(governed_catalog))
+            if key_col:
+                out[product] = [key_col]
+    out.update(mlv_fakt_hint_schluessel(blueprint, governed_catalog, entscheidungen))
+    return out
+
+
+#: Spalten, deren Name eine **niedrig-kardinale** Periode deklariert (Jahr, Monat, Periode). Die
+#: SAP-Felder sind Standardfelder mit festem Wertebereich: GJAHR Geschaeftsjahr, MONAT
+#: Geschaeftsmonat, POPER Buchungsperiode. Verglichen wird nach Normalisierung (Kleinschreibung,
+#: Nicht-Alphanumerisches → `_`), damit `Fiscal-Year` und `fiscal_year` gleich behandelt werden.
+_MLV_PERIODEN_NAMEN = ("year", "month", "period", "fiscal_year", "fiscal_period",
+                       "gjahr", "monat", "poper")
+_MLV_PERIODEN_ENDUNGEN = ("_year", "_month", "_period")
+#: Typen, die nie Partitionsspalte werden: ein Tagesdatum hat mehr als 200 Werte je Jahr.
+_MLV_NICHT_PARTITION = ("date", "datetime", "timestamp", "boolean")
+#: Die Regel, die in der DDL steht, wenn keine Spalte passt.
+MLV_PARTITION_REGEL = ("Partitionsspalte nur mit weniger als 100-200 verschiedenen Werten "
+                       "(MS Learn direct-lake-understand-storage, gelesen 01.10.2026); Direct "
+                       "Lake nutzt kein File-Skipping, Delta allgemein: nicht per Vorgabe "
+                       "partitionieren (delta-lake-partitioning)")
+
+
+def _mlv_partition_column(columns: list[str], table: dict | None = None) -> str | None:
+    """Die Partitionsspalte — nur eine deklarierte niedrig-kardinale Periode, sonst keine.
+
+    Bis 01.10.2026 nahm diese Funktion die erste Spalte mit deklariertem Typ ``date`` (davor:
+    "date" im Namen). Ein Tagesdatum hat aber hunderte Werte je Jahr. MS Learn (gelesen
+    01.10.2026): *"the column should have fewer than 100-200 distinct values"*
+    (fabric/fundamentals/direct-lake-understand-storage); *"Direct Lake doesn't use
+    delta\\Parquet statistics for row group\\file skipping"* (ebd.); Delta allgemein *"Avoid
+    partitioning by default"* (fabric/data-engineering/delta-lake-partitioning). Anlass war der
+    Abgleich mit der FabCon-Session, Beleg sind die Learn-Seiten.
+
+    Der Katalog kennt keinen Typ "niedrig-kardinal" (logische Typen: date, integer, number,
+    string, boolean). Belegbar ist nur der **Name** einer Periodenspalte (`_MLV_PERIODEN_NAMEN`),
+    und auch der nur, wenn der deklarierte Typ kein Datum ist. Passt nichts: ``None`` — lieber
+    nicht partitionieren als raten; der Aufrufer schreibt die Learn-Regel als TODO in die DDL.
     """
     typen = (table or {}).get("column_types") or {}
-    datum = [c for c in columns if str(typen.get(c, "")).lower() == "date"]
-    if datum:
-        return sorted(datum)[0]
-    for c in columns:
-        lc = c.lower()
-        if "date" in lc or lc in ("year", "month", "day") or lc.endswith(("_year", "_month", "_day")):
+    for c in sorted(columns):
+        if str(typen.get(c, "")).lower() in _MLV_NICHT_PARTITION:
+            continue
+        norm = re.sub(r"[^0-9a-z]+", "_", c.lower()).strip("_")
+        if norm in _MLV_PERIODEN_NAMEN or norm.endswith(_MLV_PERIODEN_ENDUNGEN):
             return c
     return None
 
@@ -2944,10 +3114,14 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
              runtime: str = "1.3",
              ausloeser: str = "zeitplan",
              refresh_hints: bool = False,
-             pipeline_name: str = "medallion_orchestration") -> dict[str, str]:
+             pipeline_name: str = "medallion_orchestration",
+             zeitplan: str = "je_schicht") -> dict[str, str]:
     """Emit the medallion as **Materialized Lake Views** (declarative, SQL-only). Idea I-20.7.
 
-    PREVIEW / SQL-only, honestly flagged. One ``CREATE OR REPLACE MATERIALIZED LAKE VIEW`` per gold
+    GA (Spark SQL), SQL-only. MS Learn *What's new archive*, gelesen 01.10.2026: "March 2026 ·
+    Materialized Lake Views (Generally Available)"; preview ist nur noch das PySpark-Authoring, das
+    hier nicht genutzt wird. Grammatik am 01.10.2026 gegen *Spark SQL reference for materialized
+    lake views* nachgeprueft (Klauselfolge unveraendert). One ``CREATE OR REPLACE MATERIALIZED LAKE VIEW`` per gold
     product per the official MLV grammar (MS Learn):
     ``CREATE … VIEW name (CONSTRAINT … CHECK … ON MISMATCH DROP|FAIL) [PARTITIONED BY(…)] COMMENT …
     TBLPROPERTIES(…) AS SELECT …``.
@@ -2963,8 +3137,9 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
     * **Contract checks** — ``column_specs[].checks`` (ALUCA A-20) become additional ``CHECK``
       constraints with the same kind policy (``provision_dq.vertrags_constraints``); a check on a
       column outside the projection stays a TODO comment (never a constraint on a missing column).
-    * **PARTITIONED BY** — emitted only for a real date-ish catalog column; otherwise the grain is noted
-      as a partition TODO comment (grain is prose, not a column).
+    * **PARTITIONED BY** — emitted only for a declared low-cardinality period column (year, month,
+      period; never a day-level date — Learn: fewer than 100-200 distinct values, read 01.10.2026);
+      otherwise a TODO comment with that rule (and the grain, which is prose, not a column).
     * **TBLPROPERTIES** — deterministic provenance tags (generator/layer/kind), always valid.
 
     **Dependency management is automatic, the refresh is not** (D-529). Fabric orders the views by their
@@ -2987,16 +3162,25 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
       reproduzierbare Rueckfall.
     * ``refresh_hints`` (W5.8) — schreibt fuer Dimensionen mit belegtem Schluessel
       ``REFRESH_HINT … UNIQUE (…)`` (Preview), damit Updates/Deletes inkrementell laufen koennen.
+    * ``zeitplan`` (D-621, 01.10.2026) — ``"je_schicht"`` (Vorgabe) oder ``"graph"``: dann
+      zusaetzlich ``mlv/execution_definition.json`` (Body fuer *Create MLV Execution Definition*,
+      Extended lineage ueber alle vorgelagerten Lakehouses) und der Zeitplan verweist per
+      ``executionData.mlvExecutionDefinitionId`` darauf. Extended lineage folgt nur MLV-Kanten.
     """
     if runtime not in MLV_LAUFZEITEN:
         raise ValueError(f"runtime {runtime!r} unbekannt — erlaubt: {sorted(MLV_LAUFZEITEN)}")
     if ausloeser not in MLV_AUSLOESER:
         raise ValueError(f"ausloeser {ausloeser!r} unbekannt — erlaubt: {list(MLV_AUSLOESER)}")
+    if zeitplan not in MLV_ZEITPLAENE:
+        raise ValueError(f"zeitplan {zeitplan!r} unbekannt — erlaubt: {list(MLV_ZEITPLAENE)}")
     med = blueprint.get("medallion", {})
     contract_ref = med.get("silver", {}).get("data_contract_ref", "<silver-contract>")
     kinds = _gold_kinds(blueprint)
     grains = _gold_grains(blueprint)
     hints: list[str] = []
+    fakt_hints = (mlv_fakt_hint_schluessel(blueprint, governed_catalog, entscheidungen)
+                  if refresh_hints else {})
+    aggregate_ohne_gruppierung: list[str] = []
     grounded = "governed catalog" if governed_catalog else "IR skeleton (no catalog → SELECT * + TODO)"
     out: dict[str, str] = {}
     # Materialized Lake Views REQUIRE a schema-enabled lakehouse (MS Learn: "Features like
@@ -3008,10 +3192,10 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
         "Views require a **schema-enabled** lakehouse; this set was emitted with the flat `dbo` "
         "layout (`--no-lakehouse-schemas`). Either enable schemas (the default) or use the "
         "notebook/SQL transforms (`--emit-transforms`) instead — those work in both layouts.", ""])
-    doc = ["# Materialized Lake Views — declarative medallion (generated — PREVIEW, SQL-only)", "",
+    doc = ["# Materialized Lake Views — declarative medallion (generated — SQL-only)", "",
            *schema_warning,
-           "> **PREVIEW & SQL-only** (Fabric Materialized Lake Views): region-limited; the grammar may "
-           "change before GA (tracked by `make check-upstream` feature-watch → I-20.7). Non-SQL logic "
+           "> **SQL-only** (Fabric Materialized Lake Views, generally available since March 2026 per MS "
+           "Learn *What's new*; only PySpark authoring is still preview and is not used here). Non-SQL logic "
            "(ML/Python/API/cleansing beyond SQL) is out of scope → use the notebook transforms "
            "(`--emit-notebooks`) for those hops. MLV **dependency management** is automatic (the "
            "engine chains views by their SELECT refs) — **the refresh is not**: it runs only when a "
@@ -3045,7 +3229,7 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
                                       katalog_vorhanden=bool(governed_catalog))
 
             preamble = [
-                f"-- silver → gold '{product}' as a Materialized Lake View ({kind}).  PREVIEW / SQL-only.",
+                f"-- silver → gold '{product}' as a Materialized Lake View ({kind}).  SQL-only.",
                 f"-- Contract: {c_ref}  ·  dependency order automatic; the REFRESH runs only when "
                 f"triggered — see mlv/refresh_schedule.json and mlv/_MLV.md (D-529)."]
             _bez = scd_bezuege(governed_catalog, product, schemas)
@@ -3071,16 +3255,24 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
             # Art-Politik: MS Learn — stehen DROP und FAIL in einer Sicht, gewinnt FAIL.
             from core.dataarch_engine.blueprint.provision_dq import vertrags_constraints
             vertrag_zeilen, vertrag_offen = vertrags_constraints(kat, pident, action, columns)
+            hint_zeile = ""
             preamble.extend(vertrag_offen)
             if key_col:
                 zeilen = [f"    CONSTRAINT {pident}_{suffix}_not_null "
-                          f"CHECK ({key_col} IS NOT NULL) ON MISMATCH {action}", *vertrag_zeilen]
+                          f"CHECK ({zitiere(key_col)} IS NOT NULL) ON MISMATCH {action}", *vertrag_zeilen]
                 # W5.8: REFRESH_HINT nur fuer Dimensionen mit Katalogschluessel — dort ist er
                 # der Schluessel der Tabelle, und `dq/` prueft ihn mit `unique`. Fabric prueft
                 # die Eindeutigkeit selbst NICHT (MS Learn, 29.09.2026).
                 if refresh_hints and kind == "dimension" and kat:
-                    zeilen.insert(0, f"    REFRESH_HINT {pident}_key UNIQUE ({zitiere(key_col)})")
+                    hint_zeile = f"    REFRESH_HINT {pident}_key UNIQUE ({zitiere(key_col)})"
                     hints.append(f"`{mlv_name}` ({key_col})")
+                # Fakten (01.10.2026): nur mit deklariertem Grain-Schluessel und nicht-append
+                # Silber (`mlv_fakt_hint_schluessel`), mehrspaltig erlaubt laut Learn.
+                elif refresh_hints and product in fakt_hints:
+                    teile = fakt_hints[product]
+                    hint_zeile = (f"    REFRESH_HINT {pident}_grain UNIQUE "
+                                  f"({', '.join(zitiere(k) for k in teile)})")
+                    hints.append(f"`{mlv_name}` ({', '.join(teile)})")
                 constraint_cell = f"`… CHECK ({key_col} …) ON MISMATCH {action}`"
             else:
                 zeilen = list(vertrag_zeilen)
@@ -3089,10 +3281,18 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
                     f"CONSTRAINT {pident}_{suffix}_not_null CHECK (<{kind}_key> IS NOT NULL) ON MISMATCH {action}")
                 constraint_cell = f"template (no catalog key) · ON MISMATCH {action}"
             constraint_block = (" (\n" + ",\n".join(zeilen) + "\n)") if zeilen else ""
+            # Der Hint ist ein EIGENER Klammerblock nach den Constraints, nicht ein weiteres
+            # Element derselben Liste. MS Learn *Enable optimal refresh for deletes and updates*
+            # (gelesen 01.10.2026): `[( CONSTRAINT … )] ( REFRESH_HINT <name> UNIQUE (…) )`.
+            # Bis 01.10.2026 stand er als erstes Element in der Constraint-Klammer — als
+            # ANNAHME markiert und nie gegen einen Tenant gelaufen; aufgefallen beim Abgleich
+            # der FabCon-MLV-Session gegen Learn.
+            if hint_zeile:
+                constraint_block += " (\n" + hint_zeile + "\n)"
             if vertrag_zeilen:
                 constraint_cell += f" + {len(vertrag_zeilen)} contract check(s)"
 
-            # --- #3 partition: real date-ish catalog column, else the grain as a TODO comment ----------
+            # --- #3 partition: declared low-cardinality period column, else a TODO with the rule -------
             part_col = _mlv_partition_column(columns, kat)
             grain = grains.get(product, "")
             if part_col:
@@ -3103,9 +3303,10 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
                 partition_clause = f"\nPARTITIONED BY ({zitiere(part_col)})"
                 partition_cell = f"`{part_col}`"
             else:
-                if grain:
-                    preamble.append(f"-- TODO: PARTITIONED BY (<column>) — grain '{grain}' has no resolved "
-                                    f"partition column (supply one via the governed catalog).")
+                if grain or columns:
+                    preamble.append("-- TODO: PARTITIONED BY (<column>) — "
+                                    + (f"grain '{grain}', " if grain else "")
+                                    + f"no declared low-cardinality period column. {MLV_PARTITION_REGEL}.")
                 partition_clause = ""
                 partition_cell = f"grain '{grain}'" if grain else "—"
 
@@ -3119,6 +3320,16 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
             else:
                 select_body = (f"SELECT\n    -- TODO(contract:{c_ref}): {kind} columns, keys, "
                                f"measures from the silver contract\n    *\nFROM {von};")
+            # Aggregat ohne Verdichtung: die Projektion ist 1:1, ein GROUP BY schreibt der
+            # Emitter nicht -- Koernung und Kennzahlen kennt er nicht. Laut statt still
+            # (Entscheidung 01.10.2026): sonst laege eine Detailsicht unter Aggregat-Namen.
+            if kind == "aggregate":
+                preamble.append(
+                    f"-- TODO(contract:{c_ref}): '{product}' ist ein Aggregat, diese Sicht "
+                    f"verdichtet aber NICHT (kein GROUP BY). Koernung"
+                    f"{f' ({grain})' if grain else ''} und Kennzahlen aus dem Vertrag ergaenzen "
+                    f"— bis dahin liefert sie Detailzeilen.")
+                aggregate_ohne_gruppierung.append(f"`{mlv_name}`")
             if len(eigene) > 1:
                 preamble.append(
                     f"-- TODO(contract:{c_ref}): '{product}' entsteht aus {len(eigene)} Herkuenften "
@@ -3137,6 +3348,13 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
             # aufsetzt, inkrementell aktualisiert werden kann (MS Learn, *Optimal refresh*,
             # 23.09.2026: CDF auf **allen** Quellen, und die Quellen append-only im Zyklus).
             # Hier stand es nirgends in der Lieferung (D-529).
+            # Protokoll-Pins 2/5 bleiben (FabCon-Abgleich 01.10.2026, nur Anlass): sie stehen fuer
+            # `columnMapping` (gemessen 13.08.2026, s. o.). Deletion Vectors braeuchten Reader 3 /
+            # Writer 7 (MS Learn delta-lake-deletion-vectors, gelesen 01.10.2026); REFRESH_HINT
+            # braucht laut Learn nur CDF, keine DV (optimal-refresh-handling-deletes-updates,
+            # gelesen 01.10.2026). Wie die Pins unter Runtime 2.0 wirken (Vorgabe dort: DV an,
+            # Reader 3 / Writer 7, Learn delta-lake-interoperability) ist UNGEMESSEN — Watchlist
+            # `mlv-protocol-pins-runtime2`.
             tblprops = (f"\nTBLPROPERTIES ('generated_by' = 'meridian-dataarch', "
                         f"'medallion_layer' = 'gold', 'mlv_kind' = '{kind}', "
                         f"'delta.columnMapping.mode' = 'name', "
@@ -3145,7 +3363,7 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
 
             sql = ("\n".join(preamble) + "\n"
                    f"CREATE OR REPLACE MATERIALIZED LAKE VIEW {mlv_name}{constraint_block}{partition_clause}\n"
-                   f"COMMENT 'gold {kind} {product} (generated, MLV preview)'"
+                   f"COMMENT 'gold {kind} {product} (generated)'"
                    f"{tblprops}\n"
                    f"AS\n{select_body}\n")
             out[f"mlv/{ddir}/{pident}.mlv.sql"] = sql
@@ -3158,9 +3376,17 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
     ladeformen = {d.get("name", ""): (entscheidung_fuer(entscheidungen, "DATA-SILVER-LOAD",
                                                         d.get("name", "")) or "vollaufbau")
                   for d in blueprint.get("mesh", {}).get("domains", []) or []}
-    doc += _mlv_refresh_doc(ladeformen)
+    # Silber per Shortcut (Bronze ausgelagert): dieselbe Bedingung wie Conformance
+    # `gold_mlv_shortcut_source` — eine Regel, zwei Leser.
+    _bronze_an = bool(blueprint.get("medallion", {}).get("bronze", {}).get("enabled", False))
+    shortcut_quellen = ([] if _bronze_an else
+                        sorted(str(e.get("source")) for e in blueprint.get("ingestion", []) or []
+                               if e.get("access_mode") == "shortcut"))
+    doc += _mlv_refresh_doc(ladeformen, shortcut_quellen)
     doc += _mlv_ereignis_doc(ausloeser, pipeline_name)
+    doc += _mlv_graph_doc(zeitplan)
     doc += _mlv_hint_doc(refresh_hints, hints)
+    doc += _mlv_aggregat_doc(aggregate_ohne_gruppierung)
     doc += _mlv_laufzeit_doc(runtime)
     out["mlv/_MLV.md"] = "\n".join(doc) + "\n"
     if ausloeser == "ereignis":
@@ -3170,36 +3396,130 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
     # entsteht in der Pipeline. Zeitversatz ist eine Annahme, keine Kopplung — steht im Dokument.
     from core.dataarch_engine.blueprint.fabric_schedule import emit_schedule
     out["mlv/refresh_schedule.json"] = emit_schedule(time=MLV_REFRESH_UHRZEIT)
+    if zeitplan == "graph":
+        import json as _json
+        out["mlv/execution_definition.json"] = _mlv_execution_definition()
+        plan = _json.loads(out["mlv/refresh_schedule.json"])
+        plan["executionData"] = {"mlvExecutionDefinitionId": MLV_EXECUTION_DEFINITION_MARKER}
+        out["mlv/refresh_schedule.json"] = _json.dumps(plan, indent=2, ensure_ascii=False) + "\n"
     return out
+
+
+#: D-621: Vorgabe bleibt ein Zeitplan je Lakehouse; ``graph`` koppelt die Kette ueber eine
+#: Execution Definition mit Extended lineage.
+MLV_ZEITPLAENE = ("je_schicht", "graph")
+#: Platzhalter fuer die ID aus der 201-Antwort von *Create MLV Execution Definition*. Kein GUID —
+#: der Zeitplan scheitert laut, solange er nicht ersetzt ist.
+MLV_EXECUTION_DEFINITION_MARKER = "<id aus der Antwort auf mlv/execution_definition.json>"
+MLV_EXECUTION_DEFINITION_DOC = ("learn.microsoft.com/rest/api/fabric/lakehouse/materialized-lake-views/"
+                                "create-mlv-execution-definition")
+
+
+def _mlv_execution_definition() -> str:
+    """Body fuer ``POST …/lakehouses/{goldLakehouseId}/mlvexecutiondefinitions`` (D-621).
+
+    Feldnamen und Werte aus der REST-Referenz (gelesen 01.10.2026): ``currentLakehouseExecution
+    Context.mode`` = ``All``, ``extendedLineageExecutionContext.mode`` = ``All`` (alle vorgelagerten
+    Lakehouses der Lineage), ``settings.refreshMode`` = ``Optimal``. Keine Umgebung: ohne Angabe
+    gilt die Workspace-Vorgabe.
+    """
+    import json as _json
+    return _json.dumps({
+        "displayName": "medallion-lineage",
+        "description": "Generated (D-621): refreshes the gold MLVs and every upstream MLV via "
+                       "extended lineage in dependency order.",
+        "settings": {"refreshMode": "Optimal"},
+        "currentLakehouseExecutionContext": {"mode": "All"},
+        "extendedLineageExecutionContext": {"mode": "All"},
+    }, indent=2, ensure_ascii=False) + "\n"
+
+
+def _mlv_graph_doc(zeitplan: str) -> list[str]:
+    """Abschnitt Graph-Zeitplan (D-621)."""
+    kopf = ["", "## Ein Zeitplan fuer die Kette (Extended lineage, D-621)", "",
+            "MS Learn (*Schedule a materialized lake view refresh*, Abschnitt *Schedule across "
+            "lakehouses*, gelesen 01.10.2026): ein Zeitplan im Gold-Lakehouse kann mit **Extended "
+            "lineage** die vorgelagerten Lakehouses einschliessen; Fabric loest die Reihenfolge "
+            "ueber alle Lakehouses auf, unabhaengige Zweige laufen parallel, *Recent runs* zeigt "
+            "einen Lauf. Per API ueber eine **MLV Execution Definition** (" +
+            MLV_EXECUTION_DEFINITION_DOC + ", SPN unterstuetzt) und "
+            "`executionData.mlvExecutionDefinitionId` im Zeitplan. Rechte: `ReadWrite` auf jedem "
+            "eingeschlossenen Lakehouse; ein nicht erreichbarer Knoten stoppt den ganzen Lauf.",
+            "",
+            "**Grenze:** Extended lineage folgt nur **MLV-Kanten**. Silber entsteht in dieser "
+            "Lieferung per Notebook — eine Datei-MLV in Bronze haengt deshalb nicht an dieser "
+            "Kette und behaelt ihren eigenen Ausloeser (`ingestion/file_mlv/`).",
+            "",
+            # MS Learn schedule-lineage-run und rest/api/fabric/core/job-scheduler/
+            # create-item-schedule, gelesen 01.10.2026. Bis dahin stand hier und in der
+            # Ausloeser-Tabelle „ein aktiver Zeitplan je Lineage“ — das sagt Learn nicht.
+            "**Mehrere Zeitplaene.** Laut MS Learn (*Schedule a materialized lake view refresh*, "
+            "gelesen 01.10.2026) lassen sich **ein oder mehrere** Zeitplaene anlegen, fuer alle "
+            "Sichten oder eine **Teilmenge**; jeder laeuft unabhaengig. Hoechstens 20 Zeitplaene je "
+            "Item, Mindestintervall 5 Minuten, ein Lauf, der einen noch laufenden ueberlappen "
+            "wuerde, wird uebersprungen. Die Teilmenge waehlt der Zeitplan per API ueber "
+            "`executionData.mlvExecutionDefinitionId`."]
+    if zeitplan != "graph":
+        return kopf + ["", "In dieser Lieferung **nicht gewaehlt** (`zeitplan=\"je_schicht\"`): "
+                       "ein Zeitplan je Lakehouse."]
+    return kopf + [
+        "",
+        "**Gewaehlt** (`zeitplan=\"graph\"`). Reihenfolge beim Anlegen: zuerst "
+        "`execution_definition.json` an `POST …/lakehouses/{goldLakehouseId}/mlvexecutiondefinitions`, "
+        "die `id` aus der 201-Antwort in `refresh_schedule.json` "
+        "(`executionData.mlvExecutionDefinitionId`) eintragen, dann den Zeitplan anlegen. Solange der "
+        "Platzhalter steht, scheitert das Anlegen laut. Ein eigener Zeitplan im vorgelagerten "
+        "Lakehouse bleibt erlaubt — Zeitplaene laufen unabhaengig voneinander —, rechnet dieselben "
+        "Sichten aber ein zweites Mal; vorgelagerte Zeitplaene deshalb vor dem Aktivieren pausieren.",
+    ]
 
 
 #: Eine Stunde nach der Pipeline-Vorgabe (`fabric_schedule.emit_schedule`: 02:00 UTC).
 MLV_REFRESH_UHRZEIT = "03:00"
 
 
-def _silber_ladeform_absatz(ladeformen: dict[str, str] | None) -> str:
-    """Der Absatz „inkrementell nur unter zwei Bedingungen“ — mit dem, was gewaehlt ist."""
+def _silber_ladeform_absatz(ladeformen: dict[str, str] | None,
+                            shortcut_quellen: list[str] | None = None) -> str:
+    """Der Absatz „inkrementell nur unter zwei Bedingungen“ — mit dem, was gewaehlt ist.
+
+    ``shortcut_quellen``: Quellen mit ``access_mode: shortcut`` bei ausgelagertem Bronze. Dann
+    haengt ein Satz an, der die Learn-Grenze fuer Nicht-Delta-Quellen nennt (MS Learn
+    refresh-materialized-lake-view, gelesen 01.10.2026) und die CDF-Frage am Shortcut-Ziel als
+    ANNAHME ausweist (Conformance `gold_mlv_shortcut_source`).
+    """
+    zusatz = ""
+    if shortcut_quellen:
+        zusatz = (" **Silber per Shortcut** (" + ", ".join(f"`{q}`" for q in shortcut_quellen)
+                  + "): Nicht-Delta-Quellen laufen immer voll (MS Learn, *Refresh materialized "
+                  "lake views*, gelesen 01.10.2026). Inkrementell nur, wenn das Shortcut-Ziel "
+                  "eine Delta-Tabelle mit Change Data Feed ist — das dokumentiert Learn nicht "
+                  "(ANNAHME, ungeprueft; im Tenant am ersten Lauf in *Recent runs* messen).")
     bedingung = ("**Inkrementell nur unter zwei Bedingungen.** Change Data Feed auf **allen** "
                  "Quellen (`delta.enableChangeDataFeed = true` — die MLV hier setzen es für "
-                 "nachgelagerte Sichten) **und** die Quellen sind im Zyklus append-only. ")
+                 "nachgelagerte Sichten) **und** die Quellen sind im Zyklus append-only — "
+                 "oder die Sicht traegt einen `REFRESH_HINT … UNIQUE`, dann laufen auch Updates "
+                 "und Deletes inkrementell (Preview, Abschnitt *Refresh-Hints*). ")
     werte = sorted(set((ladeformen or {}).values())) or ["vollaufbau"]
     if werte == ["vollaufbau"]:
         return (bedingung + "Silber entsteht in dieser Lieferung per `CREATE OR REPLACE TABLE` "
                 "(Vollaufbau, `DATA-SILVER-LOAD`) — damit ist jeder Zyklus ein Ersetzen, und "
                 "Fabric wählt den **Vollaufbau**. Inkrementell wird es erst mit append-only "
-                "geladenem Silber; das ist eine Ladeentscheidung, keine Einstellung.")
+                "geladenem Silber; das ist eine Ladeentscheidung, keine Einstellung." + zusatz)
     if werte == ["append"]:
         return (bedingung + "Silber wird in dieser Lieferung append-only geschrieben "
                 "(`DATA-SILVER-LOAD = append`), mit Change Data Feed ab der Anlage. Damit ist "
                 "Bedingung (2) je Zyklus erfüllt, solange niemand Silber von Hand ändert — "
-                "ein einziges `UPDATE` oder `DELETE` im Zyklus, und Fabric rechnet voll.")
+                "ein einziges `UPDATE` oder `DELETE` im Zyklus, und Fabric rechnet voll "
+                "(ausser die Sicht traegt einen `REFRESH_HINT`)." + zusatz)
     je = ", ".join(f"{dom}: `{w}`" for dom, w in sorted((ladeformen or {}).items()))
     return (bedingung + f"Silber wird je Domäne verschieden geschrieben ({je}). Eine Sicht "
             "läuft nur dann inkrementell, wenn **jede** ihrer Quellen append-only geladen wird; "
-            "eine Quelle im Vollaufbau oder mit MERGE-Änderungen zieht sie in den Vollaufbau.")
+            "eine Quelle im Vollaufbau oder mit MERGE-Änderungen zieht sie in den Vollaufbau "
+            "(MERGE-Änderungen nicht, wenn die Sicht einen `REFRESH_HINT` traegt)." + zusatz)
 
 
-def _mlv_refresh_doc(ladeformen: dict[str, str] | None = None) -> list[str]:
+def _mlv_refresh_doc(ladeformen: dict[str, str] | None = None,
+                     shortcut_quellen: list[str] | None = None) -> list[str]:
     """Wer den MLV-Refresh ausloest — belegt, nicht angenommen (D-529).
 
     Grundlage: MS Learn, abgerufen 23.09.2026 (*Manage and refresh materialized lake views with
@@ -3220,7 +3540,8 @@ def _mlv_refresh_doc(ladeformen: dict[str, str] | None = None) -> list[str]:
         "| **Zeitplan über die Job-Scheduler-API** (`refresh_schedule.json` → "
         "`POST …/lakehouses/{lakehouseId}/jobs/refreshMaterializedLakeViews/schedules`) | "
         "**Vorgabe dieser Lieferung** — unterstützt Service Principal und Managed Identity | "
-        "API im **Preview**; höchstens 20 Zeitpläne je Lakehouse, **ein** aktiver je Lineage |",
+        "API im **Preview**; höchstens 20 Zeitpläne je Lakehouse, Mindestintervall 5 Minuten, "
+        "ein überlappender Lauf wird übersprungen |",
         "| Zeitplan in der Lineage-Ansicht (Portal) | Produktionsweg laut MS Learn | Handarbeit, "
         "nicht im Deployment reproduzierbar |",
         "| Pipeline-Aktivität *Refresh Materialized Lake View* | Kopplung an das Laden ohne "
@@ -3236,7 +3557,22 @@ def _mlv_refresh_doc(ladeformen: dict[str, str] | None = None) -> list[str]:
         "02:00 UTC). Dauert die Pipeline länger, liest der Refresh den alten Stand. Die Kopplung "
         "über die Pipeline-Aktivität gäbe es, aber nur unter einer persönlichen Identität.",
         "",
-        _silber_ladeform_absatz(ladeformen),
+        # MS Learn, gelesen 01.10.2026: rest/api/fabric/lakehouse/background-jobs/run-on-demand-
+        # refresh-materialized-lake-views; data-factory/fabric-actions-activity;
+        # refresh-materialized-lake-view-activity. Bewusst kein Pipeline-JSON (Watchlist
+        # `fabric-actions-mlv-kopplung`).
+        "**Der belegte Weg mit Dienstprinzipal** ist der REST-Job "
+        "`POST …/workspaces/{ws}/lakehouses/{lh}/jobs/refreshMaterializedLakeViews/instances` "
+        "(Preview; Service Principal und Managed Identity unterstützt, Scopes "
+        "`Lakehouse.Execute.All` oder `Item.Execute.All`; Body optional "
+        "`{\"executionData\": {\"mlvExecutionDefinitionId\": \"…\"}}` für eine Teilmenge). "
+        "Eine Pipeline kann ihn am Ende des Ladens aufrufen. Die Aktivität *Fabric actions* "
+        "(Preview, ruft Fabric-REST-Operationen aus einer Pipeline) wäre der naheliegende Träger — "
+        "Learn dokumentiert aber weder ihre Authentifizierungsarten noch die unterstützten "
+        "Operationen. Sie kommt erst nach Klärung der Authentifizierung in Frage; bis dahin "
+        "bleibt es beim Zeitversatz.",
+        "",
+        _silber_ladeform_absatz(ladeformen, shortcut_quellen),
         "",
         "**Aus einem Kundenprojekt, gemessen (15.–22.09.2026, D-530).** Der Refresh scheiterte "
         "zuerst mit `MLV_SCHEMA_NOT_FOUND` — *the default database is not defined* — über die "
@@ -3316,10 +3652,10 @@ def _mlv_ereignis_doc(ausloeser: str, pipeline_name: str) -> list[str]:
         f"**Gewaehlt** (`ausloeser=\"ereignis\"`). `refresh_event.json` beschreibt, was im Portal "
         f"einzustellen ist: *Job events*, Quelle die Pipeline `{pipeline_name}`, Ereignis "
         "erfolgreicher Abschluss. `refresh_schedule.json` bleibt als reproduzierbarer Rueckfall "
-        "in der Lieferung. Ob ein ereignisgesteuerter Ausloeser zu den Zeitplaenen zaehlt, von "
-        "denen je Lineage nur einer aktiv sein darf, ist nicht belegt — **vor dem Aktivieren des "
-        "Ereignisses den Zeitplan pausieren** und nach dem ersten Pipeline-Lauf den MLV-Lauf in "
-        "*Recent runs* lesen, nicht die Einstellung.",
+        "in der Lieferung. Beide laufen unabhaengig voneinander (mehrere Zeitplaene je Item "
+        "sind erlaubt, ein ueberlappender Lauf wird uebersprungen) und rechnen dann doppelt — "
+        "**vor dem Aktivieren des Ereignisses den Zeitplan pausieren** und nach dem ersten "
+        "Pipeline-Lauf den MLV-Lauf in *Recent runs* lesen, nicht die Einstellung.",
     ]
 
 
@@ -3330,20 +3666,45 @@ def _mlv_hint_doc(refresh_hints: bool, hints: list[str]) -> list[str]:
             "`REFRESH_HINT <name> UNIQUE (<spalten>)` erklaert die Zeilenidentitaet einer Sicht; "
             "damit laufen **Updates und Deletes** in den Quellen inkrementell statt voll. "
             "Voraussetzung CDF auf allen Quellen, hoechstens ein Hint je Sicht. **Fabric prueft "
-            "die Eindeutigkeit nicht** — ein falscher Hint erzeugt still falsche Daten."]
+            "die Eindeutigkeit nicht** — Duplikate im Hint-Schluessel fuehren laut Learn "
+            "(gelesen 01.10.2026) zu Inkonsistenzen *ohne Fehler und ohne Warnung*. Der Hint darf "
+            "mehrspaltig sein (`UNIQUE (a, b)`), wenn erst die Kombination eindeutig ist. "
+            "Status: **Preview**."]
     if not refresh_hints:
         return kopf + ["", "In dieser Lieferung **aus** (`refresh_hints=False`)."]
-    ziele = ", ".join(hints) or "— (kein Dimensionsschluessel im Katalog)"
+    ziele = ", ".join(hints) or "— (kein deklarierter Schluessel im Katalog)"
     return kopf + [
         "",
-        f"**An** fuer {len(hints)} Sicht(en): {ziele}. Nur Dimensionen mit Katalogschluessel; "
-        "`dq/` prueft denselben Schluessel mit `unique` — das ist die Eindeutigkeitspruefung, "
-        "die Fabric nicht macht.",
+        f"**An** fuer {len(hints)} Sicht(en): {ziele}. Dimensionen mit Katalogschluessel; "
+        "Fakten nur mit **deklariertem** Grain-Schluessel im Katalog und nur, wenn "
+        "`DATA-SILVER-LOAD` der Domaene nicht `append` ist (append-only Silber laeuft ohne Hint "
+        "inkrementell). `dq/` prueft denselben Schluessel auf Eindeutigkeit (`unique`, "
+        "zusammengesetzt als Modelltest ueber den Spaltenverbund) — das ist die Pruefung, die "
+        "Fabric nicht macht; ohne `dq/` im Lauf steht der Hint ungesichert.",
         "",
-        "ANNAHME, ungeprueft: dass `REFRESH_HINT` und `CONSTRAINT … CHECK` in **einer** Klammer "
-        "stehen duerfen. Learn zeigt beide Formen nur getrennt; beim ersten `CREATE` pruefen "
-        "(Tenant-gated).",
+        "Form nach Learn (gelesen 01.10.2026): der Hint steht in einem **eigenen** Klammerblock "
+        "nach den Constraints — `[( CONSTRAINT … )] ( REFRESH_HINT <name> UNIQUE (…) )`.",
     ]
+
+
+def _mlv_aggregat_doc(sichten: list[str]) -> list[str]:
+    """Aggregat-Sichten ohne GROUP BY benennen — nur wenn es welche gibt."""
+    if not sichten:
+        return []
+    return ["", "## Aggregate ohne Verdichtung", "",
+            f"{', '.join(sichten)}: als Aggregat modelliert, die Sicht projiziert aber 1:1 "
+            "aus Silber. `GROUP BY`, Koernung und Kennzahlen stehen im Datenvertrag, nicht im "
+            "Blueprint — sie sind in der DDL als TODO markiert und vor dem ersten Lauf zu "
+            "ergaenzen. Bis dahin liefert die Sicht Detailzeilen unter Aggregat-Namen.",
+            "",
+            # MS Learn *Optimal refresh … SQL constructs supported by incremental refresh*,
+            # gelesen 01.10.2026; FabCon-Folie (01.10.) nennt GROUP BY ebenfalls inkrementell.
+            "Beim Ergaenzen auf die inkrementelle Aktualisierung achten (MS Learn, *Optimal "
+            "refresh*, 01.10.2026): `SUM`, `MIN`, `MAX` und `COUNT` ohne `DISTINCT` laufen "
+            "inkrementell. Andere Aggregate (`AVG`, `STDDEV` …) nur, wenn jede Quelle "
+            "partitioniert ist und die Partitionsspalte im `GROUP BY` steht — gemischt mit "
+            "`SUM` & Co. gilt die Bedingung fuer die ganze Abfrage. `GROUP BY`-Spalten muessen "
+            "im `SELECT` stehen. Sonst faellt Fabric auf den Vollaufbau zurueck."]
 
 
 def _mlv_laufzeit_doc(runtime: str) -> list[str]:

@@ -1,0 +1,1192 @@
+# Strang capability_bi: Plattform- und Berichtsfähigkeiten jenseits des einzelnen Visuals (Stand 30.09.2026)
+# Baseline Power BI/Fabric, Vergleich Tableau, Qlik, Looker, SAP Analytics Cloud, Pyramid.
+# Abgrenzung: Visual-Interaktionen (Tooltip, Cross-Filter, Drill, Export je Visual, Focus, Show as table,
+# Slicer, Bookmarks/Persistente Filter/Personalize, Kommentare am Visual, Visual-Alert, Q&A-Visual,
+# Visual-Barrierefreiheit, Mobil-Layout) stehen in interaction_pbi.yaml und werden hier nicht wiederholt.
+# Felder user_value, must_have_for_parity und cockpit_build sind eigene Einschätzung (nicht Quelle).
+# zugang: mcp = Microsoft-Learn-MCP gelesen; search_index = Seite per Egress gesperrt, nur Suchauszug.
+
+# ---------------------------------------------------------------- distribution
+- id: bi-001
+  capability: E-Mail-Abonnement für Seite oder ganzen Bericht mit PDF/PPTX-Anhang
+  area: distribution
+  description: >-
+    Leser abonnieren eine Berichtsseite oder den ganzen Bericht per Mail nach Zeitplan. Anhang des ganzen Berichts
+    als PDF oder PowerPoint nur bei Premium-Kapazität oder PPU; Sensitivity Labels gehen auf den Anhang über.
+    Ergänzt pbi-041 (Snapshot-Abo) um Anhang und Grenzen.
+  source: {title: "Email subscriptions for reports and dashboards in the Power BI service", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/end-user-subscribe", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "The size of the attachment is limited to no more than 20 pages and less than 25 MB."
+  parameters: {max_attachment_pages: 20, max_attachment_mb_exclusive: 25}
+  pbi_status: premium
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-002
+  capability: Dynamische Abos je Empfänger (Bericht und Paginated)
+  area: distribution
+  description: >-
+    Ein Abo verschickt je Empfänger eine eigene gefilterte Fassung. Empfänger, Betreff, Parameter bzw. Filter und
+    Anhangsformat kommen aus einem Semantic Model (Mapping-Tabelle). Standard-Enddatum ein Jahr nach Start.
+    Lizenzvoraussetzung in der gelesenen Stelle nicht genannt.
+  source: {title: "Dynamic per recipient subscriptions for paginated reports", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/dynamic-subscriptions", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Power BI connects to a semantic model that defines the mapping between recipients and parameters."
+  parameters: {max_attachment_mb_exclusive: 25, default_end_date_after_start_years: 1}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-003
+  capability: Abo-Zustellung großer Berichte nach OneDrive/SharePoint
+  area: distribution
+  description: >-
+    Statt Mailanhang legt das Abo den ganzen Bericht in OneDrive/SharePoint ab. Power-BI-Berichte als PDF oder PPTX,
+    Paginated zusätzlich XLSX, Accessible PDF, XML, CSV. Nur Standard-Abos.
+  source: {title: "Send large report subscriptions to OneDrive SharePoint", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/paginated-reports/paginated-reports-onedrive-sharepoint", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Currently, only Standard subscriptions are supported."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-004
+  capability: Copilot-Zusammenfassung im Abo-Mail (Vorschau)
+  area: distribution
+  description: >-
+    Standard-Abos können eine Copilot-Zusammenfassung der Seite oder des ganzen Berichts in den Mailtext setzen;
+    bei neuen berechtigten Abos standardmäßig an. Keine eigenen Prompts; läuft im Namen des Abo-Eigentümers.
+  source: {title: "Create report subscriptions with Copilot summaries in the Power BI service (preview)", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/create-reports/copilot-summaries-in-subscriptions", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Copilot doesn't generate email subscription summaries for dynamic per recipient subscriptions, paginated reports, scorecards, and dashboards."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-005
+  capability: Paginated Reports für Druck, Sitzungsunterlage und Belege
+  area: distribution
+  description: >-
+    Seitengenaue Layouts mit Kopf-/Fußzeilen, Tabellen laufen kontrolliert über mehrere Seiten; Ausgabe PDF, Word,
+    Excel, PowerPoint, CSV, XML, MHTML. Parameterbasiert, kaum Interaktion. Liegen neben Berichten im selben
+    Workspace/App.
+  source: {title: "When to use paginated reports in Power BI", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/guidance/report-paginated-or-power-bi", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Paginated reports are optimized for printing, or PDF generation."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: configure
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-006
+  capability: Abo auf Paginated Report mit vollständigem Anhang
+  area: distribution
+  description: >-
+    Anhang ist die komplette Ausgabe (PDF, PPTX, XLSX, DOCX, CSV, XML), unbegrenzte Abos je Bericht, kein
+    Zeitplan "nach Datenaktualisierung". Ausführung auf 60 Minuten begrenzt.
+  source: {title: "Email subscriptions for reports and dashboards in the Power BI service", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/end-user-subscribe", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Reports for subscriptions have a 60-minute execution time limit."
+  parameters: {execution_limit_min: 60, max_attachment_mb: 25}
+  pbi_status: native
+  cockpit_build: configure
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-007
+  capability: Export-API exportToFile (PDF/PPTX/PNG) für "Drucken"-Knopf und geplante Mails
+  area: distribution
+  description: >-
+    REST-Export eines Berichts inkl. Bookmark-Zustand oder Filter; asynchron mit Polling, Datei-URL 24 h gültig.
+    Nur auf Premium/Embedded/Fabric-Kapazität, nicht PPU. Persönliche Bookmarks und persistente Filter nicht
+    unterstützt. Gilt nur für Power-BI-Berichte, nicht für eine eigene Fabric-App-Oberfläche.
+  source: {title: "Export Power BI report to file", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/developer/embedded/export-to", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "The number of exports (single visuals or report pages) that can be included in a single exported report is 50"
+  parameters: {max_exports_per_job: 50, max_file_mb: 250, max_concurrent_requests_per_capacity: 500, pages_processed_concurrently: 5, download_url_valid_h: 24}
+  pbi_status: premium
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-008
+  capability: Ganzen Bericht als PDF/PowerPoint exportieren (Leser)
+  area: distribution
+  description: >-
+    Jede Berichtsseite wird eine PDF-Seite; Sensitivity Label und Verschlüsselung gehen auf die Datei über.
+    PowerPoint-Export als Bild oder als eingebettete Live-Daten.
+  source: {title: "Export Power BI reports to PDF", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/end-user-pdf", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "When you export to PDF, each page in the Power BI report becomes an individual page in your PDF document."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-009
+  capability: Teams-Tab und Link-Vorschaukarte
+  area: distribution
+  description: >-
+    Berichte, Paginated, Scorecards und Org Apps als Tab in Kanal, Chat oder Meeting (seit 06/2026 auch private und
+    geteilte Kanäle, Org Apps). Eingefügte Links werden Vorschaukarten mit Öffnen/Abonnieren; über 60 Teilnehmer
+    zeigt die Karte die Sicht des Einfügenden.
+  source: {title: "Share Power BI data in Microsoft Teams channels, chats, and meetings", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/explore-reports/business-user-teams-share-data", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Teams converts the link into a rich preview card that colleagues can select to open the report."
+  parameters: {permission_aware_card_max_participants: 60}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-010
+  capability: PowerPoint-Add-in mit Live-Daten und Datenpunkt-Annotationen
+  area: distribution
+  description: >-
+    Berichtsseite oder einzelnes Visual live auf der Folie; Filtern und Drill während der Präsentation, Zustand aus
+    dem Bearbeitungsmodus bleibt, Präsentationsänderungen verfallen. Annotationen je eingebettetem Visual.
+    Org-App-Berichte seit 06/2026 (nur ganze Seite).
+  source: {title: "Enhance storytelling in PowerPoint presentations with the Power BI add-in", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/office-integration/service-power-bi-powerpoint-add-in-about", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "you'll be able to filter and drill down on data in response to questions and feedback from your audience without having to switch contexts"
+  parameters: {recommended_max_addins_per_presentation: 25}
+  pbi_status: native
+  cockpit_build: not_possible_in_fabric_app
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-011
+  capability: Einbettung in SharePoint-Online-Seiten
+  area: distribution
+  description: Interaktiver Bericht per Web Part in einer SharePoint-Seite; Sensitivity Label bleibt im eingebetteten View sichtbar.
+  source: {title: "Collaborate and share Power BI content", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/collaborate-share-overview", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Embed live, interactive Power BI reports directly in SharePoint Online pages"
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-012
+  capability: Workspace-App mit Zielgruppen (Audiences)
+  area: distribution
+  description: >-
+    Versionierte, kuratierte Sammlung je Workspace; Inhalte je Audience ein-/ausblendbar, Änderungen erst nach
+    App-Update sichtbar. Eine App je Workspace.
+  source: {title: "Publish an app in Power BI", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/service-create-distribute-apps", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "You can create up to 25 audience groups per app."
+  parameters: {max_audiences_per_app: 25, max_users_and_groups_per_app: 10000, max_users_or_groups_per_audience: 1000, apps_per_workspace: 1, publish_timeout_min: 1}
+  pbi_status: native
+  cockpit_build: configure
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-013
+  capability: Org Apps als Fabric-Item, auch mit eingebundener Fabric App
+  area: distribution
+  description: >-
+    Mehrere Org Apps je Workspace, nicht versioniert (Speichern = sofort sichtbar), Audiences als Kind-Items.
+    Enthalten Berichte, Paginated, Notebooks, Fabric Apps (Vorschau), Maps, Real-Time-Dashboards. Zugriff auf die
+    Org App gibt Read and Execute auf die enthaltene Fabric App. Scorecards stehen nicht in der Liste.
+  source: {title: "Get started with org apps", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/explore-reports/org-app-items", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Authors can include a purpose-built Fabric App alongside existing reports and other organizational content."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: configure
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-014
+  capability: Mobile App offline mit Cache
+  area: distribution
+  description: >-
+    iOS/Android-App cacht zuletzt gesehene Inhalte und aktualisiert im Hintergrund. DirectQuery-, Live-Connection-
+    und Paginated-Inhalte offline nicht verfügbar.
+  source: {title: "View your data offline in the Power BI mobile apps", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/explore-reports/mobile/mobile-apps-offline-data", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Power BI can cache up to 250 MB of data offline."
+  parameters: {max_offline_cache_mb: 250}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: low
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-015
+  capability: Mobil annotieren und als Schnappschuss teilen
+  area: collaboration
+  description: >-
+    Zeichnen, Text, Stempel auf Kachel/Seite/Visual; Versand per Mail/Chat mit Bild und Link aufs Live-Objekt.
+    Teilen gibt keinen Zugriff.
+  source: {title: "Share a dashboard or report from Power BI mobile apps", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/explore-reports/mobile/mobile-share-dashboard-from-the-mobile-apps", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Snapshot annotations are static. Data continues to update in Power BI."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: low
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-016
+  capability: Teilen-Links und geteilte Ansichten ("Include my changes")
+  area: collaboration
+  description: >-
+    Link für Organisation, bestimmte Personen oder Bestehende; optional Reshare/Build. "Include my changes" packt
+    Filter, Slicer, Personalisierung, Drill, Bookmark und Spotlight in eine geteilte Ansicht mit Ablaufdatum.
+  source: {title: "Share and collaborate on Power BI reports and dashboards", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/service-share-dashboards", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Each report can't have more than 1,000 sharing links."
+  parameters: {max_sharing_links_per_report: 1000}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-017
+  capability: Abos anderer verwalten und übernehmen
+  area: collaboration
+  description: >-
+    Workspace-Admins sehen alle Abos des Workspace, können sie bearbeiten und übernehmen (z. B. bei Austritt des
+    Eigentümers); Audit-Log mit Ersteller, Frequenz, Änderungen. Abos in Apps verwaltet nur der Ersteller.
+  source: {title: "Email subscriptions for reports and dashboards in the Power BI service", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/end-user-subscribe", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Workspace admins can also edit and take over subscriptions owned by others."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+# ---------------------------------------------------------------- alerting
+- id: bi-018
+  capability: Klassische Datenalarme auf Dashboard-Kacheln
+  area: alerting
+  description: >-
+    Schwellenalarm auf Gauge-, KPI- und Card-Kacheln, privat für den Ersteller, ausgewertet nur nach Refresh,
+    höchstens stündlich oder täglich; Benachrichtigungscenter und optional Mail, synchron mit Mobile und Teams.
+  source: {title: "Set data alerts on Power BI dashboards", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/explore-reports/end-user-alerts", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Alerts can be set only on gauges, KPIs, and cards."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-019
+  capability: Fabric Activator als Regel- und Aktionsschicht
+  area: alerting
+  description: >-
+    Aus Berichtsalarmen werden Activator-Regeln, verfeinerbar mit Bedingungen je Objekt und Aktionen: Mail oder
+    Teams (Personen, Gruppenchat, Kanal) mit Empfänger aus Datenfeld, Pipeline/Notebook/User Data Function starten,
+    Power Automate. Regeln auch auf Warehouse-SQL-Abfragen (Vorschau). Filter werden beim Anlegen eingefroren.
+    Ergänzt pbi-040 um die Aktionsseite.
+  source: {title: "Create an alert in Power BI report", publisher: Microsoft, url: "https://learn.microsoft.com/fabric/real-time-intelligence/data-activator/activator-get-data-power-bi", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Power BI uses the filters in place at the time that you create your alert."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: configure
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-020
+  capability: Scorecards/Metrics mit Ziel, Status, Eigentümer, Check-ins und Notizen
+  area: alerting
+  description: >-
+    Ziele mit Ist, Zielwert, Status, Eigentümern, Start/Fälligkeit, Tracking-Zyklus; Werte manuell oder an ein
+    Berichtsvisual gebunden; Detailbereich mit vollständiger Historie; Ziel-Berechtigungen; Tab in Teams.
+  source: {title: "Stay on top of your goals", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/create-reports/service-goals-check-in", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "The goals Details pane provides the entire history for the goal from the start date, including check-ins, status changes, and relevant notes."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-021
+  capability: Automatische Statusregeln und Folgen von Metriken
+  area: alerting
+  description: >-
+    Status setzt sich per Regel aus Wert, Zielerreichung in Prozent und Datum; bei verbundenen Metriken nach jedem
+    Refresh neu bewertet. Wer einer Metrik folgt, bekommt Benachrichtigungen in Teams oder per Mail.
+  source: {title: "Track your business KPIs with Power BI metrics", publisher: Microsoft, url: "https://learn.microsoft.com/dynamics365/business-central/track-kpis-with-power-bi-metrics", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Rules trigger changes based on value, percentage of target met, date conditions, or a combination of the three"
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-022
+  capability: Scorecard-Hierarchien und Heatmap entfallen (15.04.2026)
+  area: alerting
+  description: >-
+    Kaskadierende Scorecards je Hierarchieebene und die Heatmap-Ansicht wurden entfernt; Scorecards selbst laufen
+    weiter. Lücke für Ziel-Kaskaden (Konzern → Bereich → Team).
+  source: {title: "Previous monthly updates to Power BI Desktop and the Power BI service (February 2026)", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/fundamentals/desktop-latest-update-archive", date_published: 2026-02, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Starting April 15, 2026, the Hierarchies feature in Power BI Scorecards will be removed."
+  parameters: {}
+  pbi_status: absent
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-023
+  capability: In-Report-Hinweise als Daten (Translytical-Muster)
+  area: alerting
+  description: >-
+    Hinweise werden per User Data Function in eine SQL-Datenbank geschrieben, per Lakehouse-Shortcut ins Direct-Lake-
+    Modell gespiegelt und in allen Berichten gefiltert nach Bericht angezeigt (ID, Autor, Zeit, Ziel, Text, aktiv).
+  source: {title: "Set up alerts directly in Power BI reports using translytical task flows", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/create-reports/translytical-task-flow-report-alerts", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Instead of changing an existing value, you can store alert records as data and show them in the report based on the current report context."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+# ---------------------------------------------------------------- time
+- id: bi-024
+  capability: Kalenderbasierte Time Intelligence (Vorschau)
+  area: time
+  description: >-
+    Kalender als Metadaten auf einer Tabelle; beliebige Kalender (gregorianisch, verschoben/fiskalisch, 445/454/544,
+    13 Monate, Mond), lückenhafte Datumstabellen, Wochenfunktionen (z. B. TOTALWTD), mehrere Kalender je Modell,
+    in TMDL definierbar. Aktivierung über Preview-Schalter "Enhanced DAX Time Intelligence".
+  source: {title: "Implement time-based calculations in Power BI", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/transform-model/desktop-time-intelligence", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "We recommend using calendar-based time intelligence (preview) because it provides the best performance and highest range of flexibility to meet any calendar."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: none
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-025
+  capability: Klassische Time Intelligence mit Datumstabelle
+  area: time
+  description: >-
+    YTD/QTD/MTD, Vorjahr, Parallelperiode über eine als Datumstabelle markierte Tabelle. Auto date/time für größere
+    Modelle nicht empfohlen; Offset-Spalten-Tricks blähen das Modell.
+  source: {title: "Implement time-based calculations in Power BI", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/transform-model/desktop-time-intelligence", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Requires creation of a date table, assumes Gregorian or shifted Gregorian calendar, suffers from performance issues in some specific scenarios"
+  parameters: {}
+  pbi_status: native
+  cockpit_build: none
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-026
+  capability: Periodenumschalter über Calculation Groups (Aktuell/YTD/QTD/VJ/Abw.%)
+  area: time
+  description: >-
+    Calculation Items (Current, MTD, QTD, YTD, PY, PY YTD, YOY, YOY%) gelten für jedes Measure; der Leser wählt
+    per Slicer. Dynamische Formatstrings (YOY% als Prozent).
+  source: {title: "Create calculation groups", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/transform-model/calculation-groups", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "You can also apply an individual calculation item to multiple measures by adding the calculation group column to a Slicer visual."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-027
+  capability: Tableau Pulse - Vergleichszeitraum und günstige Richtung je Metrik
+  area: time
+  description: >-
+    Metrik-Definition trägt Zeitdimension, Standardvergleiche ("Compared to" Vorperiode/Vorjahr) und die günstige
+    Richtung (steigend gut/schlecht), wiederverwendbar für abgeleitete Metriken. Besser als PBI: Vergleich und
+    Polarität als Metadatum der Metrik statt je Visual.
+  source: {title: "Create Metrics with Tableau Pulse", publisher: Tableau (Salesforce), url: "https://help.tableau.com/current/online/en-us/pulse_create_metrics.htm", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: search_index
+  evidence: null
+  parameters: {}
+  pbi_status: absent
+  cockpit_build: build_shell
+  user_value: high
+  must_have_for_parity: false
+  confidence: inferred
+
+# ---------------------------------------------------------------- personalization / navigation
+- id: bi-028
+  capability: Favoriten, Zuletzt verwendet, Startseite
+  area: navigation
+  description: >-
+    Berichte, Dashboards, Apps als Favorit; Startseite mit Favoriten/Häufig/Empfohlen; mobil eigene Reiter
+    Favoriten, Zuletzt, Geteilt, Benachrichtigungen.
+  source: {title: "Add favorites for dashboards, reports, and apps in Power BI", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/explore-reports/end-user-favorite", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "When you mark content as a favorite, you access it quickly from the Favorites list."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-029
+  capability: Berichtszustand serialisieren und wiederherstellen (Embed-API)
+  area: personalization
+  description: >-
+    bookmarksManager.capture liefert den Zustand (optional alle Seiten, inkl. Personalisierung) als base64;
+    applyState stellt ihn wieder her. Persönliche Bookmarks im Embed brauchen UserState.ReadWrite.All.
+    Technische Grundlage für "Meine Ansichten" im Cockpit, sofern PBI-Berichte eingebettet werden.
+  source: {title: "Enhance your users' experience with bookmarks", publisher: Microsoft, url: "https://learn.microsoft.com/javascript/api/overview/powerbi/report-bookmarks", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Use the IReportBookmark.state property to return the base64 string identifying the bookmark state"
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-030
+  capability: Tableau Custom Views - benannte Ansicht als Standard und für andere sichtbar
+  area: personalization
+  description: >-
+    Leser speichern Filterzustand als benannte Ansicht, "Make it my default" setzt sie als Einstieg,
+    "Make visible to others" teilt sie. Besser als PBI: geteilte Leseransichten ohne Autorenrechte (PBI-Pendant:
+    persönliche Bookmarks nur privat, pbi-060).
+  source: {title: "Use Custom Views", publisher: Tableau (Salesforce), url: "https://help.tableau.com/current/pro/desktop/en-us/customview.htm", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: search_index
+  evidence: null
+  parameters: {}
+  pbi_status: absent
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: inferred
+
+# ---------------------------------------------------------------- language
+- id: bi-031
+  capability: Format-Locale je Bericht für Zahlen und Datum
+  area: language
+  description: >-
+    Bericht erzwingt ein Locale unabhängig vom Browser; optional Anzeigeeinheit "keine" berichtsweit.
+    USERCULTURE und Metadaten-Übersetzungen folgen weiter dem Browser.
+  source: {title: "Set the default format string locale for a Power BI report", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/create-reports/power-bi-default-format-string-locale", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "all locale-aware format strings—such as date formats marked with an asterisk in Format options—use the locale you specify instead of the viewer's browser locale"
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-032
+  capability: Mehrsprachige Berichte (Metadaten-, Label-, Datenübersetzung)
+  area: language
+  description: >-
+    Metadaten-Übersetzung (Caption, Description, DisplayFolder) im Semantic Model; Berichtstexte, Seitennamen und
+    Buttons nicht lokalisierbar, nur über Hilfstabelle mit Measures; Datenübersetzung über Zusatzspalten und Field
+    Parameters. Test per URL ?language=, Embed per localeSettings; Publish to web nicht unterstützt.
+  source: {title: "Plan translation for multiple-language reports in Power BI", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/guidance/multiple-language-translation", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Power BI Desktop and the Power BI service don't support storing or loading translations for text values stored as part of the report layout."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-033
+  capability: Oberflächensprache wählbar, Q&A nur Englisch
+  area: language
+  description: >-
+    Service-UI folgt Browser oder fester Einstellung; automatisch erzeugte Titel, Filter, Tooltips werden übersetzt,
+    Daten nicht. Q&A ist laut Seite nur Englisch.
+  source: {title: "Supported languages and countries/regions for Power BI", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/fundamentals/supported-languages-countries-regions", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Use the language already set for your browser, or select a separate language for the Power BI service."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: medium
+  must_have_for_parity: true
+  confidence: from_source
+
+# ---------------------------------------------------------------- self_service
+- id: bi-034
+  capability: Copilot-Bereich im Bericht (Zusammenfassen, Datenfragen)
+  area: self_service
+  description: >-
+    Zusammenfassung der Seite oder mit eigenem Prompt, Antworten mit Verweisen auf Quellvisuals, bei Bedarf neues
+    Visual aus dem Modell. Braucht Kapazität; Mehrsprachigkeit offiziell nicht unterstützt; ohne "Prep data for AI"
+    ungenau.
+  source: {title: "Copilot for Power BI overview", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/create-reports/copilot-introduction", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "A Power BI Pro or Premium Per User (PPU) license alone isn't sufficient—Copilot requires organizational capacity."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-035
+  capability: Standalone- und App-Copilot (Vorschau), regional eingeschränkt
+  area: self_service
+  description: >-
+    Vollbild-Copilot sucht passende Berichte/Modelle; App-Copilot beschränkt auf Inhalte einer App, nutzt Verified
+    Answers. Region Germany North steht auf der Ausschlussliste. Prompt-Limit seit 02/2026 10.000 Zeichen.
+  source: {title: "Copilot for Power BI overview", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/create-reports/copilot-introduction", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "The standalone Copilot and Copilot in apps experiences aren't yet available in the following regions:"
+  parameters: {max_prompt_chars: 10000}
+  pbi_status: fabric_feature
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-036
+  capability: Verified Answers im Semantic Model
+  area: self_service
+  description: >-
+    Autor hinterlegt Auslösephrasen, ein Visual und bis zu drei vom Leser per Sprache steuerbare Filter; gilt für alle
+    Berichte auf dem Modell. Slicer werden nicht übernommen.
+  source: {title: "Prepare your data for AI: Verified answers", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/create-reports/copilot-prepare-data-ai-verified-answers", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Verified answers support up to three filters that users can adjust by using natural language in their prompt."
+  parameters: {max_filters: 3}
+  pbi_status: fabric_feature
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-037
+  capability: Q&A wird im Februar 2027 abgeschaltet
+  area: self_service
+  description: Alle Q&A-Erfahrungen (Visual, Dashboard-Frage, Featured Questions) entfallen zugunsten Copilot. Ergänzt pbi-043 um das Enddatum.
+  source: {title: "Q&A for Power BI business users", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/explore-reports/end-user-q-and-a", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Q&A experiences are going away in February 2027."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: none
+  user_value: low
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-038
+  capability: Explore this data (Vorschau)
+  area: self_service
+  description: >-
+    Aus Visual, Bericht oder Katalog in eine fokussierte Ansicht mit gekoppelter Matrix und Visual; Filter als Pills;
+    speicherbar als Exploration oder einseitiger Bericht (Build-Recht nötig), teilbar.
+  source: {title: "Use Explore (preview) in the Power BI service", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/explore-reports/explore-data-service", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "You can use Explore on an existing visual to dig into the underlying data, or you can start with a blank canvas"
+  parameters: {}
+  pbi_status: native
+  cockpit_build: configure
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-039
+  capability: Analyze in Excel und live verbundene Excel-Tabellen
+  area: self_service
+  description: >-
+    PivotTable oder formatierte Tabelle mit Live-Verbindung zum Semantic Model; Endorsement und Sensitivity Label
+    gehen auf die Mappe über. Build-Recht nötig; Hierarchien nur bei Import-Modellen, nicht Direct Lake.
+  source: {title: "Create Excel workbooks with refreshable Power BI data", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/office-integration/service-analyze-in-excel", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "You might see an error message if the data is larger than 2 GB."
+  parameters: {max_data_gb: 2}
+  pbi_status: native
+  cockpit_build: configure
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-040
+  capability: Microsoft 365 Copilot antwortet aus Power-BI-Berichten
+  area: self_service
+  description: Copilot Chat in M365 findet Berichte/Modelle und beantwortet Fragen unter bestehenden Rechten; standardmäßig an, im M365-Admin steuerbar.
+  source: {title: "Use Power BI data in Microsoft Copilot", publisher: Microsoft, url: "https://learn.microsoft.com/microsoft-365/copilot/copilot-powerbi-copilot-chat", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Microsoft Copilot can answer user questions using Power BI reports and semantic models."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: none
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-041
+  capability: Translytical Task Flows - Rückschreiben und Aktionen aus dem Bericht (Vorschau)
+  area: collaboration
+  description: >-
+    Datenfunktions-Button ruft User Data Function mit Filter-/Auswahlkontext; schreibt in Fabric SQL DB, Warehouse,
+    Lakehouse-Dateien oder ruft externe APIs (z. B. Teams-Post). Direct Lake/DirectQuery zeigen Änderung sofort.
+  source: {title: "Understand translytical task flows", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/create-reports/translytical-task-flow-overview", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Translytical task flows enable data write-back capabilities in Power BI reports, allowing users to update records, add annotations, or trigger actions in other systems"
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: false
+  confidence: from_source
+
+# ---------------------------------------------------------------- trust
+- id: bi-042
+  capability: Endorsement im Berichtskopf (Promoted, Certified, Master data)
+  area: trust
+  description: >-
+    Zertifizierung im Kopf und Kopf-Dropdown inkl. zertifizierender Person; Promoted nur im Dropdown. Master data nur
+    für Datenitems. Zertifizieren nur durch vom Admin benannte Prüfer.
+  source: {title: "Promote and certify Power BI content with endorsement", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/service-endorsement-overview", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Certification is indicated in both in the header and in the header drop-down, where you can also see who did the certification."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-043
+  capability: Sensitivity Label sichtbar und beim Export wirksam
+  area: trust
+  description: >-
+    Label auf Bericht, Modell, Dashboard sichtbar (Service, Mobile, Embed); Schutz greift nur beim Verlassen über
+    Excel, PDF, PPTX (als Bild), .pbix, Analyze in Excel. Im Service steuert das Label keinen Zugriff.
+  source: {title: "Sensitivity labels in Power BI", publisher: Microsoft, url: "https://learn.microsoft.com/fabric/enterprise/powerbi/service-security-sensitivity-label-overview", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Sensitivity labels and protection aren't applied when data is exported to .csv, files or any other unsupported export path."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-044
+  capability: Datenaktualität für Leser (Zeitstempel, nächster Refresh)
+  area: trust
+  description: >-
+    Berichtstitel-Menü zeigt Kontakt und Zeitstempel; Workspace-Liste zeigt Refreshed und Next refresh, Fehler-Icon
+    bei Refresh-Fehler. Dashboards und Scorecards zeigen keinen Zeitstempel. Stand-Karte im Bericht ist Autorenarbeit.
+  source: {title: "How to determine that content is up to date", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/explore-reports/end-user-fresh", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "In a report, there's an arrow on the title bar. Select the arrow to see contact information and a timestamp."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-045
+  capability: Lineage-Ansicht und Impact-Analyse (nicht für reine Leser)
+  area: trust
+  description: >-
+    Datenquellen, Gateways, Modelle, Berichte mit Refresh-Zeit und Endorsement; Impact-Analyse je Quelle. Mindestens
+    Contributor-Rolle nötig, also für Konsumenten nicht sichtbar.
+  source: {title: "Data lineage", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/service-data-lineage", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "You need at least a Contributor role in the workspace to view it."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: configure
+  user_value: low
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-046
+  capability: OneLake Catalog - Auffinden mit Refresh, Endorsement, Sensitivity
+  area: trust
+  description: >-
+    Liste aller zugänglichen Items mit Owner, Refreshed, Endorsement, Sensitivity; Domain-Filter, Tags; discoverable
+    Modelle erscheinen auch ohne Zugriff zur Zugriffsanfrage.
+  source: {title: "Find and explore data in the OneLake catalog", publisher: Microsoft, url: "https://learn.microsoft.com/fabric/governance/onelake-catalog-explore", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Last refresh time of data items (rounded to hour, day, month, and year."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: configure
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-047
+  capability: Datenqualität und Lineage in Purview Unified Catalog statt im Bericht
+  area: trust
+  description: >-
+    Purview scannt Power BI, zeigt Lineage und führt Data-Quality-Regeln (u. a. Fabric Lakehouse). Ein
+    DQ-Indikator im Bericht selbst ist in den gelesenen Power-BI-Seiten nicht dokumentiert (Status absent = Ableitung).
+  source: {title: "How to get lineage from Power BI into Microsoft Purview", publisher: Microsoft, url: "https://learn.microsoft.com/purview/data-map-lineage-power-bi", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Data consumers can perform root cause analysis of a report or dashboard from Microsoft Purview."
+  parameters: {}
+  pbi_status: absent
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: inferred
+
+- id: bi-048
+  capability: Tableau Data Quality Warnings erben bis ins Dashboard
+  area: trust
+  description: >-
+    Warnung auf Quelle, Tabelle oder Spalte erscheint bei allen abhängigen Dashboards (Data-Details-Reiter);
+    Refresh-Fehler erzeugen automatisch eine Warnung. Besser als PBI: Qualitätsstatus propagiert zum Konsumenten.
+  source: {title: "Set a Data Quality Warning", publisher: Tableau (Salesforce), url: "https://help.tableau.com/current/online/en-us/dm_dqw.htm", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: search_index
+  evidence: null
+  parameters: {}
+  pbi_status: absent
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: false
+  confidence: inferred
+
+- id: bi-049
+  capability: Nutzungsmetriken inkl. typischer Öffnungszeit
+  area: trust
+  description: >-
+    Views, Viewer, Seitenaufrufe, Verteilweg, Plattform, Öffnungszeit (P25/P50/P75) je Tag. Nur für Eigentümer/
+    Bearbeiter, 30 Tage, bis 24 h Verzug, Client-Telemetrie kann unterzählen.
+  source: {title: "Monitor usage metrics in Power BI workspaces (preview)", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/service-modern-usage-metrics", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "The typical report opening time corresponds to the 50th percentile of the time it takes to open the report."
+  parameters: {retention_days: 30, max_delay_h: 24, typical_open_time_percentile: 50}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-050
+  capability: Fabric IQ Ontology - Measures als Geschäftsmetriken (Vorschau)
+  area: trust
+  description: >-
+    Aus einem Semantic Model erzeugte Ontologie zeigt Measures als Metriken mit Beschreibung, Quelle, Tabelle; DAX nur
+    mit Schreibrecht. Beschreibungen bleiben in der Ontologie (für Agenten), nicht im Modell.
+  source: {title: "Define business metrics in ontology (preview)", publisher: Microsoft, url: "https://learn.microsoft.com/fabric/iq/ontology/how-to-use-metrics", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Anything you edit in the ontology, such as a metric description, stays in the ontology only, where agents can use it."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: configure
+  user_value: low
+  must_have_for_parity: false
+  confidence: from_source
+
+# ---------------------------------------------------------------- collaboration
+- id: bi-051
+  capability: Aus dem Bericht in Teams chatten (gefilterte Ansicht, Visual hervorgehoben)
+  area: collaboration
+  description: Share oder "Chat in Teams" sendet Link auf Bericht/Visual in bestehenden oder neuen Chat; Visual-Link öffnet mit Hervorhebung.
+  source: {title: "Chat in Microsoft Teams directly from the Power BI service", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/collaborate-share/office-integration/service-share-report-teams", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "If you used the contextual menu for a specific visual, the visual is highlighted when the report opens."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-052
+  capability: Zellkommentare mit Zuweisung und Rückschreiben (Fabric IQ Plan)
+  area: collaboration
+  description: >-
+    Kommentare auf Zelle, Zeile, Spalte mit @Erwähnung, Mail-/Teams-Benachrichtigung, Aufgabenzuweisung, Status
+    Open/Resolved; beim Writeback gespeichert. Näher an SAC-Datenpunktkommentaren als PBI-Visualkommentare.
+  source: {title: "Collaborate with comments in intelligence sheet", publisher: Microsoft, url: "https://learn.microsoft.com/fabric/iq/plan/intelligence-how-to-comment-collaborate", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Key features include @mentions, email notifications, and task assignments."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-053
+  capability: SAP Analytics Cloud - Datenpunktkommentare und Kommentar-Widget
+  area: collaboration
+  description: >-
+    Kommentar an einer Tabellenzelle (Keil-Markierung), Threads, Likes; nur Planungsmodelle/BPC live; KI fasst
+    Kommentare zusammen. Besser als PBI: Kommentar hängt am Wert, nicht am Visual (inferred).
+  source: {title: "Using Data Point Comments", publisher: SAP, url: "https://learning.sap.com/courses/designing-stories-in-sap-analytics-cloud/using-data-point-comments_dc971273-35be-4ac8-8943-87f7b97eefd6", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: search_index
+  evidence: null
+  parameters: {}
+  pbi_status: absent
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: false
+  confidence: inferred
+
+# ---------------------------------------------------------------- performance
+- id: bi-054
+  capability: Direct Lake on OneLake ohne DirectQuery-Fallback
+  area: performance
+  description: >-
+    Spalten werden aus Delta-Parquet in den Speicher geladen, empfohlen für neue Modelle. Direct Lake on SQL fällt bei
+    SQL-RLS, Views oder Guardrail-Überschreitung still auf DirectQuery zurück (langsamer), steuerbar über
+    DirectLakeBehavior.
+  source: {title: "How Direct Lake works", publisher: Microsoft, url: "https://learn.microsoft.com/fabric/fundamentals/direct-lake-how-it-works", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Direct Lake on OneLake runs exclusively in DirectLakeOnly mode and doesn't support DirectQuery fallback."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: none
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-055
+  capability: Direct-Lake-Speicherzustand (kalt bis heiß) bestimmt erste Antwortzeit
+  area: performance
+  description: >-
+    Erste Abfrage nach Framing lädt Wörterbücher, Segmente, Join-Indizes; V-Order und große Segmente (1-16 Mio Zeilen)
+    beschleunigen. Inkrementelles Framing hält warm.
+  source: {title: "Understand Direct Lake query performance", publisher: Microsoft, url: "https://learn.microsoft.com/fabric/fundamentals/direct-lake-understand-storage", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Direct Lake semantic models can be in cold, semiwarm, warm, or hot state with increasingly better performance from cold to hot."
+  parameters: {preferred_segment_rows_min: 1000000, preferred_segment_rows_max: 16000000}
+  pbi_status: fabric_feature
+  cockpit_build: none
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-056
+  capability: Query Caching für die Einstiegsseite
+  area: performance
+  description: >-
+    Kapazität cacht Abfrageergebnisse der ersten Seite je Nutzer- und Sicherheitskontext; nur Import-Modelle auf
+    Premium/Embedded; beachtet persönliche Bookmarks und persistente Filter; Neuaufbau nach jedem Refresh.
+  source: {title: "Query caching in Power BI Premium or Power BI Embedded", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/connect-data/power-bi-query-caching", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "The service only does query caching for the initial page that they land on."
+  parameters: {}
+  pbi_status: premium
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-057
+  capability: Seitenlast begrenzen (wenige Visuals, Top-N, Drillthrough statt Überladung)
+  area: performance
+  description: >-
+    Jedes Visual feuert Abfragen; weniger Visuals je Seite, Top-N-Filter auf Tabellen, Details auf Drillthrough- und
+    Tooltip-Seiten. Bei DirectQuery laufen viele Visuals seriell.
+  source: {title: "Optimization guide for Power BI", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/guidance/power-bi-optimization", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "It's highly recommended you limit the number of visuals on a particular report page to only what is necessary."
+  parameters: {}
+  pbi_status: native
+  cockpit_build: configure
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-058
+  capability: Feldgrenzen je Visual
+  area: performance
+  description: Empfehlung 10-20 Felder je Visual, harte Obergrenze 100 Felder (Measures oder Spalten).
+  source: {title: "Customize the Visualizations pane in Power BI Desktop and the Power BI service", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/visuals/power-bi-report-visualizations", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "The upper limit for visuals is 100 fields (measures or columns)."
+  parameters: {recommended_fields_min: 10, recommended_fields_max: 20, max_fields: 100}
+  pbi_status: native
+  cockpit_build: configure
+  user_value: low
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-059
+  capability: Automatische Seitenaktualisierung (DirectQuery)
+  area: performance
+  description: >-
+    Seite aktualisiert sich im Intervall oder per Änderungserkennung, nur solange sie offen ist; Kapazitäts-Admin setzt
+    Mindestintervalle.
+  source: {title: "Power BI usage scenarios: Self-service real-time analytics", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/guidance/powerbi-implementation-planning-usage-scenario-self-service-real-time-analytics", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Power BI can automatically refresh on intervals of one minute or more."
+  parameters: {min_interval_min_on_capacity: 1}
+  pbi_status: premium
+  cockpit_build: build_shell
+  user_value: low
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-060
+  capability: Abfrage-Speicherlimit und Timeout je Kapazität
+  area: performance
+  description: >-
+    Automatisches Speicherlimit je DAX-Abfrage nach SKU (F2-F8 1 GB, F16 2 GB, F32 5 GB, F64-F256 10 GB); Query
+    Timeout gilt für Berichte, Analyze in Excel und XMLA. Dass Fabric-App-Abfragen dieselben Grenzen treffen, ist
+    Ableitung.
+  source: {title: "Configure workloads in a Premium capacity", publisher: Microsoft, url: "https://learn.microsoft.com/fabric/enterprise/powerbi/service-admin-premium-workloads", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "The query limit for a workspace that isn't assigned to a Premium capacity is 1GB."
+  parameters: {query_memory_gb_f2_f8: 1, query_memory_gb_f16: 2, query_memory_gb_f32: 5, query_memory_gb_f64: 10, query_memory_gb_non_premium: 1}
+  pbi_status: native
+  cockpit_build: none
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+# ---------------------------------------------------------------- accessibility
+- id: bi-061
+  capability: Seitenweite Tab-Reihenfolge, Deko ausblenden, Kontrast-Checkliste
+  area: accessibility
+  description: >-
+    Autor legt die Tab-Reihenfolge je Seite im Auswahlbereich fest und nimmt Dekoelemente heraus; Checkliste fordert
+    Kontrast 4.5:1 und Alt-Text (max. 250 Zeichen) für jedes nicht dekorative Objekt. Alt-Text am Visual: pbi-093.
+  source: {title: "Design Power BI reports for accessibility", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/create-reports/desktop-accessibility-creating-reports", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Ensure color contrast between title, axis label, and data label text and the background are at least 4.5:1."
+  parameters: {min_contrast_ratio: 4.5, alt_text_max_chars: 250}
+  pbi_status: native
+  cockpit_build: build_shell
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source
+
+- id: bi-062
+  capability: Barrierefreies PDF (PDF/UA) aus Paginated Reports
+  area: accessibility
+  description: Accessible PDF als Exportformat im Service, per exportToFile-API und als Abo-Format.
+  source: {title: "Export Power BI paginated reports", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/paginated-reports/report-builder/export-reports-report-builder", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Accessible PDF is supported only on Power BI service"
+  parameters: {}
+  pbi_status: native
+  cockpit_build: configure
+  user_value: medium
+  must_have_for_parity: false
+  confidence: from_source
+
+# ---------------------------------------------------------------- Wettbewerb (besser als Baseline)
+- id: bi-063
+  capability: Tableau Pulse - Metrik mit Followern und Digest per Mail/Slack
+  area: alerting
+  description: >-
+    Follower erhalten regelmäßig einen Digest je Metrik mit automatisch erzeugten, nach Nützlichkeit gerankten
+    Insights (Trend, Ausreißer, Änderung) und Folgefragen. Besser als PBI-Metrics: Push statt Abruf, Insights ohne
+    Autor (inferred).
+  source: {title: "Create Metrics with Tableau Pulse", publisher: Tableau (Salesforce), url: "https://help.tableau.com/current/online/en-us/pulse_create_metrics.htm", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: search_index
+  evidence: null
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: false
+  confidence: inferred
+
+- id: bi-064
+  capability: Looker - bedingte Zustellung nur bei Ergebnissen oder Änderung seit letztem Lauf
+  area: distribution
+  description: >-
+    "Send this schedule if" nur mit/ohne Ergebnis, optional nur wenn sich das Ergebnis seit dem letzten Lauf geändert
+    hat; macht Abos zu Alarmen. In den gelesenen PBI-Seiten nicht belegt (absent = Ableitung).
+  source: {title: "Delivering Looks", publisher: Google Cloud, url: "https://docs.cloud.google.com/looker/docs/delivering-looks", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: search_index
+  evidence: null
+  parameters: {}
+  pbi_status: absent
+  cockpit_build: build_backend
+  user_value: high
+  must_have_for_parity: false
+  confidence: inferred
+
+- id: bi-065
+  capability: Looker - Alarm auf Dashboard-Kachel mit Bild, Wert und Followern
+  area: alerting
+  description: Alarm-Mail/Slack enthält auslösenden Wert, Kachelbild (PNG), Link zum Dashboard; andere können dem Alarm folgen.
+  source: {title: "Receiving alert notifications", publisher: Google Cloud, url: "https://docs.cloud.google.com/looker/docs/receiving-alerts", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: search_index
+  evidence: null
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: inferred
+
+- id: bi-066
+  capability: Qlik - Alarmbedingung gegen letzte Auswertung, nur nach Datenänderung, mit Bookmark-Kontext
+  area: alerting
+  description: >-
+    Mehrere Bedingungen, jeweils gegen Wert, anderes Measure oder letzte Auswertung; Auswertung nach Zeitplan oder nur
+    wenn sich App-Daten nach Reload ändern; Filter aus Auswahl oder Bookmark.
+  source: {title: "Monitoring data with alerts", publisher: Qlik, url: "https://help.qlik.com/en-us/cloud-services/Subsystems/Hub/Content/Sense_Hub/Alerting/monitoring-changes-with-alerts.htm", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: search_index
+  evidence: null
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: inferred
+
+- id: bi-067
+  capability: Qlik Reporting - Abo mehrerer Sheets und Excel-Tabellenberichte nach SharePoint
+  area: distribution
+  description: >-
+    Abos als PDF/PowerPoint mit mehreren Sheets; formatierte Excel-Berichte über Excel-Add-in, Zustellung per Mail oder
+    in SharePoint-Ordner. Zahl 10 Sheets nur aus Suchauszug.
+  source: {title: "Tabular reporting with Qlik Cloud Analytics", publisher: Qlik, url: "https://help.qlik.com/en-US/cloud-services/Subsystems/Hub/Content/Sense_Hub/Reporting/cloud-tabular-reports-intro.htm", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: search_index
+  evidence: null
+  parameters: {max_sheets_per_subscription: 10}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: inferred
+
+- id: bi-068
+  capability: SAP Analytics Cloud - Bursting nach Datenberechtigung und Kalender
+  area: distribution
+  description: >-
+    Geplante Publikation einer Story als PDF, im Bursting-Modus je Empfänger nach dessen Datenberechtigung; auch an
+    Nicht-SAC-Empfänger; Zeitpläne und Aufgaben im SAC-Kalender. PBI-Dynamik mappt Parameter aus einer Tabelle.
+  source: {title: "Burst story to deliver personalized content to each recipient based on their respective data authorization", publisher: SAP Community, url: "https://blogs.sap.com/2021/11/26/burst-story-to-deliver-personalized-content-to-each-recipients-based-on-their-respective-data-authorization/", date_published: 2021-11-26, date_accessed: 2026-09-30, kind: secondary}
+  zugang: search_index
+  evidence: null
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: inferred
+
+- id: bi-069
+  capability: Pyramid Publish - Pixel-Perfect-Bursting mit Repeatern und Triggern
+  area: distribution
+  description: >-
+    Seiten wiederholen sich je Dimensionselement (Repeater), Trigger begrenzen, welche Seiten entstehen; Ausgabe PDF,
+    Word, Excel, PowerPoint, XML, HTML, PNG, JSON; Verteilung an tausende Empfänger.
+  source: {title: "Smart report bursting with triggers and repeaters", publisher: Pyramid Analytics, url: "https://www.pyramidanalytics.com/blog/smart-report-bursting-with-triggers-and-repeaters/", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: search_index
+  evidence: null
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: medium
+  must_have_for_parity: false
+  confidence: inferred
+
+- id: bi-070
+  capability: Tableau - datengetriebene Alarme mit Slack und "nicht senden, wenn leer"
+  area: alerting
+  description: >-
+    Schwellenalarm auf einer stetigen Measure-Achse an Mail, Slack oder In-App; Abonnenten können hinzugefügt werden.
+    Bedingte Abos: nicht senden, wenn die Ansicht leer ist.
+  source: {title: "Alert! Alert! Turn on conditional subscriptions with 1 click in Tableau 10.1", publisher: Tableau, url: "https://www.tableau.com/about/blog/2016/9/alert-alert-turn-conditional-subscriptions-one-click-tableau-101-59345", date_published: 2016-09-20, date_accessed: 2026-09-30, kind: primary}
+  zugang: search_index
+  evidence: null
+  parameters: {}
+  pbi_status: native
+  cockpit_build: build_backend
+  user_value: low
+  must_have_for_parity: false
+  confidence: inferred
+
+# ---------------------------------------------------------------- Fabric-App-Rahmen
+- id: bi-071
+  capability: Fabric Apps (Vorschau) - Laufzeitrahmen eines eigenen Cockpits
+  area: navigation
+  description: >-
+    TypeScript-App mit generierter GraphQL-API, SQL-Datenbank, Storage, Hosting im Workspace; Anmeldung nur Fabric SSO;
+    Freigabe über Item-Recht "Run and interact"; braucht Fabric-Kapazität und Tenant-Schalter; nicht in allen Regionen.
+    Anonymer Datenzugriff seit 08/2026 als Vorschau.
+  source: {title: "What is Fabric Apps (Preview)?", publisher: Microsoft, url: "https://learn.microsoft.com/fabric/apps/overview", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "Authentication uses Fabric SSO (Microsoft Entra ID single sign-on) exclusively - no other authentication providers are available after deployment."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: none
+  user_value: high
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-072
+  capability: Data-App-Vorlage mit Semantic-Model-Anbindung und DAX-Bausteinen
+  area: self_service
+  description: >-
+    Vorlage bringt Fabric-Authentifizierung, Verbindung zu Semantic Models und Agent-Skills, die DAX erzeugen und an
+    analytische Visual-Komponenten binden. Berichte bleiben laut Microsoft Kernerlebnis, Apps ergänzen.
+  source: {title: "Power BI data in Fabric Apps (preview)", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/create-reports/fabric-apps-analytics", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "By default, apps created with the template include Fabric authentication and connectivity to semantic models"
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: none
+  user_value: high
+  must_have_for_parity: false
+  confidence: from_source
+
+- id: bi-073
+  capability: App-Navigation mit Theme, Menü und Startseite je Zielgruppe
+  area: navigation
+  description: >-
+    Org Apps bekommen Theme-Farben, eigene Navigation und Landing-Erlebnis; Audiences als Reiter, Sichtbarkeit je Item
+    und Audience; "Access to hidden content" öffnet bei einer Audience alle Items.
+  source: {title: "Get started with org apps", publisher: Microsoft, url: "https://learn.microsoft.com/power-bi/explore-reports/org-app-items", date_published: unbekannt, date_accessed: 2026-09-30, kind: primary}
+  zugang: mcp
+  evidence: "You can customize each app with theme colors, navigation, and landing experiences."
+  parameters: {}
+  pbi_status: fabric_feature
+  cockpit_build: configure
+  user_value: high
+  must_have_for_parity: true
+  confidence: from_source

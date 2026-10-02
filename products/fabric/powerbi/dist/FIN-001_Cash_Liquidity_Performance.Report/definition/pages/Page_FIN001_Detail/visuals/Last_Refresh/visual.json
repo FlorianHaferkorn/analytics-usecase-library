@@ -43,6 +43,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Last Refresh (FIN)'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -227,6 +227,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Net Sales Amount, Net Sales % vs Plan, Delta% Net Sales, Price Effect Amount, Volume Effect Amount, Mix Effect Amount and Gross Margin % by Region, Channel, Category and Segment'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

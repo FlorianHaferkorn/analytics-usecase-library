@@ -1,0 +1,1854 @@
+# R1 Strang interaction_pbi: Konsumenten-Interaktionsbaseline eines Power-BI-Report-Visuals (Stand 30.09.2026)
+# Zweck: Paritätsliste für die eigene Vega-Lite-Chartbibliothek (Fabric App via VegaVisual + HTML).
+# Quellenzugang:
+#   - Microsoft Learn: Inhalte über den Microsoft-Learn-MCP (docs_search) gelesen. Direkter Abruf von
+#     learn.microsoft.com per curl scheitert am Egress-Proxy (CONNECT 403); ms.date war daher nicht lesbar
+#     -> date_published: unbekannt. Zitate stammen aus den MCP-Auszügen der genannten Seite.
+#   - npmjs.com-Paketseite: WebFetch 403 (blockiert). registry.npmjs.org erreichbar: fabric-visuals latest = 4.1.0
+#     (Registry-Zeit 2026-09-23T23:31Z). Tarball 4.1.0 geladen, 4.0.0 lokal im Freelancing-Scaffold-Cache.
+# Zusatzfelder (über FORMAT.md hinaus, vom Auftrag verlangt):
+#   user_value: high|medium|low            -> eigene Einschätzung, immer inferred
+#   must_have_for_parity: true|false       -> eigene Einschätzung, immer inferred
+#   vegavisual: {status, basis}            -> native | partial | build | n_a (was @microsoft/fabric-visuals mitbringt)
+# style_pack: pbi_native (Kandidat für "Power-BI-Standardverhalten").
+
+# ---------------------------------------------------------------- Tooltips
+- id: pbi-001
+  pattern: Standard-Tooltip mit Feldname und Wert je Datenpunkt
+  description: >-
+    Hover über einen Datenpunkt zeigt Feldname und Wert aller im Visual verwendeten Felder, gestylt aus dem
+    Report-Theme. Unterstützt u. a. Balken, Säulen, Linie, Fläche, Treemap, Scatter, Pie/Donut, Ribbon, Funnel, Waterfall.
+  source:
+    title: Visual tooltips in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-visual-tooltips
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "By default, the tooltip shows: The field name and value for each field used in the visual."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "vega-tooltip-Dependency; CHANGELOG 2.0.0 'Treat empty params array as built-in tooltip', Theme-Tooltips (#285)"}
+
+- id: pbi-002
+  pattern: Zusätzliche Tooltip-Felder (Tooltip-Feldbereich) und "nur Tooltip-Felder"
+  description: >-
+    Autor legt weitere Measures/Dimensionen in den Tooltip-Feldbereich; Option "Tooltip fields only" zeigt nur diese.
+    Tabellen und Matrizen haben keinen Tooltip-Feldbereich.
+  source:
+    title: Visual tooltips in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-visual-tooltips
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Tooltip fields only: Turn on to show only the fields you add to the Tooltip field well."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail, driver_breakdown]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "Vega-Lite tooltip-Kanal nimmt beliebige Felder; Spalten-displayName aus DataTable (CHANGELOG #284)"}
+
+- id: pbi-003
+  pattern: Satz-Tooltip aus Vorlage
+  description: >-
+    Tooltip kann statt Feldliste einen Satz aus einer Vorlage mit Feldreferenzen in geschweiften Klammern rendern,
+    optional mit fett gesetzten Werten.
+  source:
+    title: Visual tooltips in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-visual-tooltips
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Sentence format only: Turn on to render the tooltip as a sentence from a template instead of a list of fields."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail, value_verdict]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "kein Satz-Template im Typ; per eigenem Tooltip-Handler oder berechnetem Feld (inferred)"}
+
+- id: pbi-004
+  pattern: Moderner Tooltip mit Drill-Aktionen im Footer
+  description: >-
+    Bei eingeschaltetem Actions-Footer zeigen unterstützte Visuals Drill down, Drill up und Drillthrough direkt im
+    Tooltip; Footer erscheint nur bei drillbarer Hierarchie oder Drillthrough-Ziel. Nicht bei Decomposition Tree,
+    Report-Page-Tooltips und AppSource-Custom-Visuals.
+  source:
+    title: Visual tooltips in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-visual-tooltips
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Using drill actions from the tooltip means consumers don't need to use right-click menus or header icons."
+  parameters: {}
+  applies_to:
+    purposes: [driver_breakdown, evidence_detail]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Popover-Tooltip (CHANGELOG 2.0.0 #478) vorhanden, aber keine Aktionen/Drill-API im Typ"}
+
+- id: pbi-005
+  pattern: Report-Page-Tooltip (ganze Berichtsseite als Hover-Karte)
+  description: >-
+    Eine als Tooltip markierte Seite ersetzt den Standard-Tooltip, gefiltert auf den Datenpunkt; automatisch über
+    Tooltip-Felder oder manuell je Visual zugewiesen. Page-Tooltips sind nicht interaktiv.
+  source:
+    title: Extend visuals with report page tooltips
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/guidance/report-page-tooltips
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "You can use the built-in Tooltip option (320 pixels wide, 240 pixels high)."
+  parameters:
+    tooltip_page_default_width_px: 320
+    tooltip_page_default_height_px: 240
+  applies_to:
+    purposes: [evidence_detail, time_comparison]
+    idioms: [kpi_card_spark, line]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "kein Mechanismus für eingebettete Mini-Visuals im Tooltip (inferred)"}
+
+- id: pbi-006
+  pattern: Help-Tooltip im Visual-Header
+  description: >-
+    Ein Fragezeichen-Icon im Header zeigt Kurztext oder eine Report-Seite mit Erklärung zum Visual. Text-Hilfe
+    reagiert nicht auf Filter.
+  source:
+    title: Add Help tooltips to visuals in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-help-tooltips
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Consumers select the icon to view either short text or a report page that explains the visual or describes how to interact with it."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: partial, basis: "VisualContainer hat header {title, subtitle}; kein Help-Icon (fabric-visuals-core 4.0.0 HeaderProps)"}
+
+- id: pbi-007
+  pattern: Führungslinie (Crosshair) auf der X-Achse bei Liniendiagrammen
+  description: >-
+    Hover auf einen Punkt einer Linie zeigt den Tooltip und eine Führungslinie auf der X-Achse; in Small Multiples je
+    Multiple.
+  source:
+    title: Interact with small multiples in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-small-multiples-interact
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "You also see a guide line on the X axis for line charts."
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison]
+    idioms: [line, indexed_line, small_multiples]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "capability disableLineChartCrosshairTooltip (default aktiv): vertikale Regel + Mehrserien-Tooltip"}
+
+# ---------------------------------------------------------------- Auswahl, Cross-Filter, Cross-Highlight
+- id: pbi-010
+  pattern: Klick auf Datenpunkt cross-filtert und cross-highlightet die anderen Visuals der Seite
+  description: >-
+    Standardmäßig wirkt eine Auswahl auf alle Visuals der Seite: Cross-Highlight dimmt Nicht-Passendes und behält den
+    Kontext, Cross-Filter blendet Nicht-Passendes aus. Ohne Konfiguration aktiv.
+  source:
+    title: Power BI reports overview
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/power-bi-reports-overview
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "By default, selecting a data point in one visual cross-filters and cross-highlights other visuals on the page."
+  parameters: {}
+  applies_to:
+    purposes: [part_to_whole, compare_categories, driver_breakdown]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: partial, basis: "onInteraction liefert select/clear mit Set-/Range-Prädikaten; Weitergabe an andere Visuals und Highlight-Rendering (Teilbalken) muss der Host bauen"}
+
+- id: pbi-011
+  pattern: Mehrfachauswahl per Strg+Klick
+  description: Strg+Klick fügt Datenpunkte zur Auswahl hinzu; die Mehrfachauswahl wirkt auf alle verbundenen Visuals.
+  source:
+    title: Multiselect data elements, data points, and visuals in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/desktop-multi-select
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "To multiselect data points in visuals, use Ctrl + Click to select multiple data points."
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "disableSelfHighlight-Doku: 'Shift / Ctrl / Cmd-click adds to the selection'; CHANGELOG 1.2.0 #334"}
+
+- id: pbi-012
+  pattern: Auswahl aufheben durch erneuten Klick oder Klick auf Leerfläche
+  description: Deselektieren des Elements oder Klick in eine leere Fläche des Visuals setzt Filter und Highlight zurück.
+  source:
+    title: Create and use column charts in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-column-charts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "To reset the visuals and remove the filtering or highlighting effect, you can either deselect the item or select an empty space within the visual."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "ClearInteractionEvent 'User clicked empty space'; CHANGELOG 'clear catcher behind plot area' (#270)"}
+
+- id: pbi-013
+  pattern: Wirkungsart je Zielvisual (Filter / Highlight / None), Linie und Scatter nur filterbar
+  description: >-
+    Der Autor legt pro Quell-Ziel-Paar fest, ob gefiltert, hervorgehoben oder nicht reagiert wird; der Konsument erlebt
+    das Ergebnis. Linien-, Scatter- und Kartenvisuals können nur cross-gefiltert, nicht cross-highlightet werden.
+  source:
+    title: Change how visuals interact in a Power BI report
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/service-reports-visual-interactions
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "You can only cross-filter line charts, scatter charts, and maps. You can't cross-highlight them."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: [line, scatter]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "kein Interaktionsmatrix-Konzept im Paket; Host-Logik (inferred)"}
+
+- id: pbi-014
+  pattern: Legendeneintrag anklicken wählt die ganze Serie
+  description: >-
+    Klick auf einen Legendeneintrag hebt die Serie hervor und cross-highlightet andere Visuals; per Tastatur über den
+    Legendenbereich ebenso.
+  source:
+    title: Interact with small multiples in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-small-multiples-interact
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Select a legend category to cross-highlight other visuals and cross-highlight other multiples."
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories, time_comparison]
+    idioms: [line, bar_stacked, area_stacked, small_multiples]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Self-Highlight injiziert point-Selection auf Marks; Legend-Binding nicht dokumentiert, HTML-Scroll-Legende ist eigener Renderer (inferred)"}
+
+- id: pbi-015
+  pattern: Achsenbeschriftung oder Multiple-Titel anklicken wählt die Kategorie
+  description: >-
+    Klick auf eine Kategorie-Achsenbeschriftung oder den Titel eines Small Multiple cross-highlightet andere Visuals nach
+    diesem Wert.
+  source:
+    title: Interact with small multiples in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-small-multiples-interact
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Select a category label to cross-highlight other visuals by that axis value."
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories]
+    idioms: [small_multiples, bar_ranking]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: low
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "Achsen-Labels sind in Vega nicht selektierbar ohne eigene Text-Marks (inferred)"}
+
+- id: pbi-016
+  pattern: Rechteckauswahl mehrerer Datenpunkte
+  description: >-
+    Standardvisuals erlauben das Aufziehen eines Rechtecks zur Mehrfachauswahl; in Small Multiples ist das laut Doku
+    deaktiviert. Die positive Beschreibung für Standardvisuals wurde nicht als Primärtext gefunden.
+  source:
+    title: Create small multiples in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-small-multiples
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Selecting multiple data points with rectangular select: disabled for now."
+  parameters: {}
+  applies_to:
+    purposes: [correlation, distribution]
+    idioms: [scatter]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: inferred
+  user_value: low
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "Vega-Lite interval selection möglich, aber nicht an onInteraction gekoppelt (inferred)"}
+
+- id: pbi-017
+  pattern: Kontextmenü (Rechtsklick/Long-Press) mit Datenpunkt-Aktionen inkl. Include/Exclude
+  description: >-
+    Rechtsklick auf Leerfläche zeigt das Basismenü, auf einem Datenpunkt zusätzlich "Show data point as a table",
+    "Include" und "Exclude"; Drill- und Drillthrough-Befehle liegen ebenfalls dort. Touch: Long-Press.
+  source:
+    title: Add a context menu to your Power BI Visual
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/developer/visuals/context-menu
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "In this case, the context menu also contains the options Show data point as a table, Include, and Exclude"
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "VisualContainer kennt nur copyVisual als Built-in-Aktion (BuiltInActionId = 'copyVisual')"}
+
+# ---------------------------------------------------------------- Drill
+- id: pbi-020
+  pattern: Drill-Modus mit vier Header-Icons (Drill up, Drill down, Next level, Expand all)
+  description: >-
+    Bei Hierarchien zeigt der Header Drill up, Drill-Modus an/aus, "Go to next level" (ersetzt Ebene für alle Punkte)
+    und "Expand all down one level" (fügt Ebene unter jede Kategorie, Kontext bleibt). Titel zeigt die aktuelle Ebene.
+  source:
+    title: Use drill mode to explore visuals in the Power BI service
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-drill
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Expand keeps the current view and adds the next level underneath each category."
+  parameters:
+    drill_icons: 4
+  applies_to:
+    purposes: [driver_breakdown, time_comparison]
+    idioms: [column_time, bar_ranking]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "keine Hierarchie-/Drill-API; Spec-Tausch per Host (inferred)"}
+
+- id: pbi-021
+  pattern: Drill auf einzelnen Datenpunkt; bei ausgeschaltetem Drill-Modus wird cross-gefiltert
+  description: >-
+    Im Drill-Modus führt Klick auf einen Punkt eine Ebene tiefer nur für diesen Punkt; ohne Drill-Modus bewirkt derselbe
+    Klick Cross-Filter. Drill filtert andere Visuals standardmäßig nicht.
+  source:
+    title: Use drill mode to explore visuals in the Power BI service
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-drill
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "By default, drilling one visual doesn't filter the other visuals on the report page."
+  parameters: {}
+  applies_to:
+    purposes: [driver_breakdown]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Klickmodus-Umschaltung Auswahl vs. Drill nicht vorhanden (inferred)"}
+
+- id: pbi-022
+  pattern: Drillthrough auf Detailseite mit automatischem Zurück-Button
+  description: >-
+    Rechtsklick (oder Tooltip-Footer, Button) auf einen Datenpunkt öffnet eine Detailseite, gefiltert auf den Punkt;
+    Power BI fügt einen Zurück-Button hinzu. Drillthrough-Feld muss im Quellvisual vorkommen.
+  source:
+    title: "Drillthrough in Power BI reports: Navigate to detailed insights"
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/desktop-drillthrough
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The drillthrough page opens, filtered to show only data for the selected item."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail, driver_breakdown]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Router-/Seitenlogik der App; onInteraction liefert die Prädikate als Eingang (inferred)"}
+
+- id: pbi-023
+  pattern: Cross-Report-Drillthrough im selben Workspace
+  description: >-
+    Drillthrough kann auf eine Seite eines anderen Reports springen, wenn beide im selben Workspace liegen,
+    Feldnamen/Typen übereinstimmen und das Ziel es erlaubt; nur im Power BI Service.
+  source:
+    title: "Drillthrough in Power BI reports: Navigate to detailed insights"
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/desktop-drillthrough
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Requires consistent field names and data types, and must be enabled in report settings. Only supported in the Power BI service."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "URL-Parameter-Übergabe zwischen Apps/Seiten (inferred)"}
+
+- id: pbi-024
+  pattern: Drillthrough-Button mit Vorbedingungen und Zielauswahl
+  description: >-
+    Ein Button bleibt inaktiv, bis alle geforderten Auswahlen getroffen sind (Hover-Tooltip nennt sie), und kann per
+    Dropdown mehrere Ziele anbieten.
+  source:
+    title: Identify and use buttons in the Power BI service
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-buttons
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Until you select one of each, the button remains inactive."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: low
+  must_have_for_parity: false
+  vegavisual: {status: n_a, basis: "Seiten-UI außerhalb des Visuals"}
+
+# ---------------------------------------------------------------- Visual-Header und Menü "More options"
+- id: pbi-030
+  pattern: Visual-Header mit einzeln schaltbaren Icons
+  description: >-
+    Der Header bündelt u. a. Drill-Icons, Pin, Focus mode, See data layout, More options, Filter, Help tooltip,
+    Smart narrative, Copilot summary, Comment, Personalize, Copy, Set alert; jedes Icon ist per Autor schaltbar.
+  source:
+    title: Format pane General tab overview
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-format-pane-overview
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Each icon has its own toggle so you can show only the actions that make sense for your report."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: partial, basis: "VisualContainer mit Header und Toolbar; einziges Built-in: copyVisual (visualContainerCapabilities.allowCopyVisual)"}
+
+- id: pbi-031
+  pattern: Focus mode (Visual füllt die Zeichenfläche, Filterbereich bleibt)
+  description: >-
+    Header-Icon vergrößert ein Visual auf die ganze Canvas; Filter bleiben bedienbar, Änderungen werden bei
+    Report-Visuals automatisch gespeichert. Full screen entfernt zusätzlich alle UI-Elemente.
+  source:
+    title: Change the display of a report page
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-report-view
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Focus mode expands a visual to fill the canvas while keeping the Filters pane accessible."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: layout
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "nicht im VisualContainer; Resize via Container-Größe (inferred)"}
+
+- id: pbi-032
+  pattern: Show as a table (Visual table) neben oder unter dem Visual
+  description: >-
+    Zeigt die Daten des Visuals als Tabelle unter oder neben dem Chart (Layout umschaltbar), mit Export aus dieser
+    Ansicht. Nicht für Card, KPI, Key influencers, Q&A, Smart narrative u. a.
+  source:
+    title: Show the data used to create a Power BI visual
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-show-data
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Show as a table displays the data underlying a visual."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "@microsoft/fabric-datagrid im Scaffold vorhanden; Kopplung an VegaVisual-Daten muss gebaut werden (inferred)"}
+
+- id: pbi-033
+  pattern: Show data point as a table (Zeilen hinter einem Datenpunkt)
+  description: >-
+    Rechtsklick auf ein Element zeigt die Datensätze, aus denen dieser eine Punkt berechnet wurde. Nicht verfügbar,
+    wenn der Wert ein Measure ist.
+  source:
+    title: Show the data used to create a Power BI visual
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-show-data
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "if the visual has a measure in the Value field, showing the data underlying a data point will not be available."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: [matrix_evidence]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "braucht Detailabfrage über Fabric-Connector mit Prädikaten aus onInteraction (inferred)"}
+
+- id: pbi-034
+  pattern: Export data (zusammengefasst/zugrunde liegend) nach .xlsx/.csv mit Zeilenlimits
+  description: >-
+    Service bietet Current layout, Summarized und Underlying data; Formate xlsx mit Live-Verbindung, xlsx statisch, csv.
+    Desktop exportiert nur csv. Export trägt angewandte Filter mit, keine Zwischensummen in csv.
+  source:
+    title: Export data from a Power BI visualization
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-export-data
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The maximum number of rows that Power BI Desktop and Power BI service can export to a .csv file is 30,000."
+  parameters:
+    csv_max_rows: 30000
+    xlsx_max_rows: 150000
+    xlsx_live_connection_max_rows: 500000
+    matrix_current_layout_max_data_intersections: 150000
+    directquery_max_uncompressed_mb: 16
+    mobile_export_max_rows_or_intersections: 150000
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "kein Export im Paket; Daten liegen als DataTable im Host vor (inferred)"}
+
+- id: pbi-035
+  pattern: Underlying-Export nur mit Berechtigung und eindeutigem Schlüssel
+  description: >-
+    "Underlying data" kann Build-Berechtigung erfordern und fällt weg bei Tabellen ohne eindeutigen Schlüssel, bei
+    Admin-Sperre oder "Show items with no data"; RLS begrenzt auf erlaubte Zeilen.
+  source:
+    title: Export data from a Power BI visualization
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-export-data
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "You might need build permissions to see more data than the visual currently displays (underlying data)."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: n_a, basis: "Berechtigungslogik gehört in den Fabric-App-Datenzugriff, nicht ins Visual"}
+
+- id: pbi-036
+  pattern: Sortieren durch den Konsumenten (Sort ascending/descending, Sort by, Sort axis)
+  description: >-
+    Über More options sortiert der Leser nach einem, teils zwei Feldern und kann die Sicht persönlich speichern. Nicht
+    sortierbar: Treemap, Filled map, Scatter, Gauge, Waterfall, Card.
+  source:
+    title: Change how a chart is sorted in a Power BI report
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-change-sort
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Depending on the type of visual, the sorting options are Sort descending, Sort ascending, Sort by, and Sort axis."
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories]
+    idioms: [bar_ranking, bar_absolute, lollipop]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Sortierung per Spec-Änderung (encoding.sort) durch Host (inferred)"}
+
+- id: pbi-037
+  pattern: Spotlight (ein Visual hervorheben, Rest fast transparent)
+  description: More options > Spotlight blendet alle anderen Visuals der Seite fast aus; Zustand wird in Bookmarks übernommen.
+  source:
+    title: Add spotlights to Power BI reports
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-spotlight
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The selected visual is highlighted, which causes all other visuals on the page to fade to near transparency."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: layout
+  confidence: from_source
+  user_value: low
+  must_have_for_parity: false
+  vegavisual: {status: n_a, basis: "Seiten-Layout, CSS-Opacity im Host"}
+
+- id: pbi-038
+  pattern: Copy visual as image mit Beschriftung (Link, Titel, Zeitstempel, Filtertext)
+  description: >-
+    Kopiert ein statisches Bild samt Caption mit "Open in Power BI"-Link, Titel, Vertraulichkeitshinweis, Datenzeitstempel
+    und Filterbeschreibung; Sensitivity Label warnt vorher.
+  source:
+    title: Copy and paste a report visualization
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-copy-paste
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "A time stamp indicating date and time of data in the static image of the visual."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: partial, basis: "Built-in Copy Visual (default an, CHANGELOG 3.0.0); Caption mit Filtern/Zeitstempel nicht belegt"}
+
+- id: pbi-039
+  pattern: Kommentare am Visual mit @Erwähnung und Filterkontext
+  description: >-
+    More options > Add a comment hängt eine Konversation an ein Visual; der erste Kommentar speichert Filter/Slicer als
+    Bookmark, @-Erwähnung benachrichtigt per Mail/Push.
+  source:
+    title: Add comments to a dashboard or report
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-comment
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "When you add a comment to a report, Power BI captures the current filter and slicer values as a bookmark."
+  parameters:
+    max_characters_per_comment: 2000
+    max_conversations_per_report: 100
+    max_comments_per_conversation: 1000
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: n_a, basis: "Plattformfunktion; in Fabric App über eigene Datenmodelle baubar (inferred)"}
+
+- id: pbi-040
+  pattern: Datenalarm auf Visual (Activator, Vorschau) bzw. auf Dashboard-Kacheln
+  description: >-
+    Klassische Alerts gelten für Dashboard-Kacheln (Gauge, KPI, Card). Activator-Alerts auf Report-Visuals (Vorschau)
+    überwachen ein Measure mit Bedingung und Schwelle, Benachrichtigung per Mail/Teams; brauchen Fabric-Kapazität.
+  source:
+    title: Set alerts on Power BI reports (public preview)
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/business-user-set-alerts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Write permission for a workspace with a Fabric capacity license (F64 or higher) or Premium capacity"
+  parameters:
+    min_capacity_sku: F64
+  applies_to:
+    purposes: [deviation_from_target, value_verdict]
+    idioms: [kpi_card_bullet, kpi_card_spark]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: n_a, basis: "Plattformfunktion (Activator), nicht Visual"}
+
+- id: pbi-041
+  pattern: Abonnement (Snapshot per Mail nach Zeitplan)
+  description: Leser abonnieren Report oder Dashboard und erhalten Snapshots per Mail; Lizenz Pro/PPU oder Premium-Kapazität.
+  source:
+    title: Interact with reports and dashboards
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-reading-view
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Power BI emails you a snapshot of that dashboard on a schedule you set."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: low
+  must_have_for_parity: false
+  vegavisual: {status: n_a, basis: "Plattformfunktion; headless renderVisualToSvg (4.1.0) wäre Baustein (inferred)"}
+
+- id: pbi-042
+  pattern: Analyze > Explain the increase/decrease und Find where distribution is different
+  description: >-
+    Rechtsklick auf Balken-/Linienpunkt erklärt die Änderung zum vorigen Punkt per ML-Zerlegung (Waterfall, Scatter,
+    100%-Säule, Ribbon). Nicht bei TopN-, Include/Exclude-, Measure-Filtern, RLS/OLS, DirectQuery, Live connect,
+    Embedding und in Apps.
+  source:
+    title: Apply insights in Power BI to explain fluctuations in visuals
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/desktop-insights
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The insights feature is contextual, and is based on the immediately previous data point—such as the previous bar, or column."
+  parameters: {}
+  applies_to:
+    purposes: [contribution_to_change, driver_breakdown]
+    idioms: [waterfall_variance, column_time]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "eigene Zerlegungslogik; Chance: deterministische Varianz-Zerlegung statt ML (inferred)"}
+
+- id: pbi-043
+  pattern: Q&A (Fragen in natürlicher Sprache erzeugen ein Visual)
+  description: >-
+    Q&A-Box oder -Button beantwortet Fragen mit automatisch gewählten Visuals; Admin/Modellbesitzer kann Q&A abschalten.
+    Nicht mit Field Parameters kombinierbar.
+  source:
+    title: Interact with reports and dashboards
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-reading-view
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Sometimes the fastest way to get an answer from your data is to ask a question using natural language."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: low
+  must_have_for_parity: false
+  vegavisual: {status: n_a, basis: "durch Copilot abgelöst; Spec-Generierung per Agent denkbar (inferred)"}
+
+- id: pbi-044
+  pattern: Copilot-Zusammenfassung aus dem Visual-Header (2026)
+  description: >-
+    Ein Klick im Header erzeugt im Copilot-Bereich eine visual-bezogene Zusammenfassung (Trendwechsel, Kategorienunterschiede,
+    Treiber), respektiert Filter, Slicer und RLS; Antworten sind nichtdeterministisch. Nicht bei Key influencers,
+    Decomposition tree, Textbox, Narrative.
+  source:
+    title: Summarize a report with Copilot
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/copilot-pane-summarize-content
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The summary is scoped specifically to the selected visual and reflects the visual's current state, including any applied filters, slicers, or row-level security (RLS)."
+  parameters: {}
+  applies_to:
+    purposes: [value_verdict, time_comparison]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "kein LLM-Hook; deterministischer Aussagesatz aus Spec+Daten wäre ein Beat (inferred)"}
+
+- id: pbi-045
+  pattern: Filter-Icon zeigt alle auf das Visual wirkenden Filter und Slicer
+  description: Header-Icon "Filter" listet Visual-, Seiten-, Report- und Drillthrough-Filter, die das Visual beeinflussen.
+  source:
+    title: Interact with visuals in reports, dashboards, and apps
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-visualizations
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "View all the filters and slicers affecting the visual."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Filterzustand liegt im Host; Anzeige im Header muss gebaut werden (inferred)"}
+
+- id: pbi-046
+  pattern: Zeitstempel / letzte Aktualisierung am Visual
+  description: Leser können den Zeitstempel eines Visuals und die letzte Aktualisierung prüfen.
+  source:
+    title: Interact with visuals in reports, dashboards, and apps
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-visualizations
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Check the visual's timestamp and see the latest refresh time."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "Subtitle im Header nutzbar (HeaderProps.subtitle) (inferred)"}
+
+# ---------------------------------------------------------------- Slicer, Filter, Parameter
+- id: pbi-050
+  pattern: Slicer-Visual mit Stilen Dropdown, Liste, Kachel, Between, Before, After, Relative date/time, Date picker
+  description: >-
+    Auf der Canvas liegende Filtersteuerung; Strg für Mehrfachauswahl, optional Single select und "Select all",
+    Zusammenfassung der Auswahl im Kopf. Filtert standardmäßig alle Visuals der Seite.
+  source:
+    title: Slicer visual in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-slicer-visual
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Select values in the slicer to filter other visuals on the page. Hold Ctrl to select multiple values."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "kein Slicer im Paket; Vega-Lite bind-Inputs möglich, aber nicht an Host-Filter gekoppelt (inferred)"}
+
+- id: pbi-051
+  pattern: Relative Datumsauswahl und Date picker mit Anker Today/First/Last und Offset
+  description: >-
+    Last/Next/This + Anzahl + Periode (Days, Weeks, Weeks (Calendar), Months, Months (Calendar), Years, Years (Calendar)),
+    Anker heute, erstes oder letztes Datum der Spalte, optionaler Offset; rollt bei jedem Laden mit. Kalender und Slider
+    für manuelle Bereiche.
+  source:
+    title: Slicer visual in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-slicer-visual
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The Date picker style provides relative date selections that automatically roll forward as time passes"
+  parameters:
+    anchor_options: 3
+  applies_to:
+    purposes: [time_comparison]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Host-Komponente nötig (inferred)"}
+
+- id: pbi-052
+  pattern: Numerischer/Datums-Bereichsslider (Between, <=, >=) mit Eingabefeldern
+  description: Slider mit zwei Griffen und Eingabefeldern für exakte Werte; Datumsbereich standardmäßig Between.
+  source:
+    title: Create a numeric or date range slicer in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/desktop-slicer-numeric-range
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "You can use the slider, or select either box to type in the values you want."
+  parameters: {}
+  applies_to:
+    purposes: [distribution]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Host-Komponente; RangePredicate-Typ existiert bereits in fabric-visuals-core (inferred)"}
+
+- id: pbi-053
+  pattern: Button-Slicer und List-Slicer (Vorschau) mit Suche und Hierarchie
+  description: >-
+    Button-Slicer zeigt Werte als gestaltbare Buttons im Raster (auch Bilder); List-Slicer bietet Hierarchien, Suche und
+    bedingte Formatierung.
+  source:
+    title: Slicers overview in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-slicers
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The List slicer provides a vertical list with hierarchies, search functionality, and conditional formatting."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "Host-Komponente (inferred)"}
+
+- id: pbi-054
+  pattern: Filterbereich auf Visual-, Seiten- und Report-Ebene
+  description: >-
+    Seitlicher Filterbereich, für Leser meist sichtbar; Änderungen lassen sich speichern oder mit Revert auf den
+    Standardzustand zurücksetzen. Drill erzeugt automatisch Drill-Filter.
+  source:
+    title: Interact with reports and dashboards
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-reading-view
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Open the Filters pane to reveal the filters applied to the page, report, and visualization."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Host-Komponente (inferred)"}
+
+- id: pbi-055
+  pattern: Field Parameters (Leser wechselt Measure oder Dimension per Slicer)
+  description: >-
+    Ein generierter Slicer tauscht Measures und/oder Achsendimension aller gebundenen Visuals; nicht als
+    Drillthrough-/Tooltip-Verknüpfung nutzbar, keine "keine Auswahl"-Option, nicht mit Q&A und AI-Visuals.
+  source:
+    title: Use field parameters to let report readers change visuals
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/power-bi-field-parameters
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Readers can explore and customize the analysis by selecting different measures or dimensions from a slicer."
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories, driver_breakdown]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Spec-Tausch per Host; KPI-Katalog-Referenzen als Auswahlquelle (inferred)"}
+
+- id: pbi-056
+  pattern: What-if-Parameter (numerischer Schieberegler speist Measure)
+  description: >-
+    Numerischer Parameter mit Min/Max/Schritt erzeugt Slicer und Measure; Szenarien wie Rabattwirkung werden live
+    nachgerechnet.
+  source:
+    title: Create and use parameters to visualize variables in Power BI Desktop
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/transform-model/desktop-what-if
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Parameters can have at most 1,000 unique values. If a parameter has more than 1,000 unique values, the parameter values get evenly sampled."
+  parameters:
+    max_unique_values: 1000
+  applies_to:
+    purposes: [deviation_from_target, driver_breakdown]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: partial, basis: "Vega-Lite params mit bind: range rechnen clientseitig ohne Server-Roundtrip (inferred)"}
+
+- id: pbi-057
+  pattern: Buttons Apply all slicers / Clear all slicers
+  description: Buttons wenden alle Slicer einer Seite gesammelt an oder setzen sie zurück.
+  source:
+    title: Create and configure buttons in Power BI reports
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/desktop-buttons
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Apply all slicers and Clear all slicers buttons apply all the slicers or clear all the slicers on a page."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: n_a, basis: "Seiten-UI"}
+
+# ---------------------------------------------------------------- Zustand: Bookmarks, Personalisierung
+- id: pbi-060
+  pattern: Report- und persönliche Bookmarks (Seitenzustand speichern und wiederherstellen)
+  description: >-
+    Bookmarks sichern Filter, Slicer, Cross-Highlight, Sortierung und Sichtbarkeit. Leser ohne Editierrecht legen
+    persönliche Bookmarks an und können eines als Standardansicht setzen.
+  source:
+    title: Bookmarks in the Power BI service
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-bookmarks
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "You can create up to 20 personal bookmarks for a single report and up to 2,000 personal bookmarks across all reports."
+  parameters:
+    personal_bookmarks_per_report_max: 20
+    personal_bookmarks_total_max: 2000
+    personal_bookmark_expiry_months: 6
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Zustand (Prädikate, Spec-Varianten) als URL/DB im Host serialisieren (inferred)"}
+
+- id: pbi-061
+  pattern: Personalize this visual (Leser ändert Typ, Felder, Legende, Aggregation)
+  description: >-
+    Ohne Editierrecht tauscht der Leser Visualtyp, Achsen-/Wertfelder, Legende, vergleicht mehrere Measures und ändert
+    Aggregationen; Speichern als persönliches Bookmark, Reset je Visual oder Report. Muss vom Autor aktiviert sein.
+  source:
+    title: Personalize visuals in a report
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/end-user-personalize-visuals
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The ability to personalize a visual must be enabled by the report designer."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "Spec-Editor im Host; Governance-Konflikt mit kuratierten Idiomen (inferred)"}
+
+- id: pbi-062
+  pattern: Persistente Filter (Leserzustand bleibt beim nächsten Öffnen, Reset to default)
+  description: >-
+    Filteränderungen des Lesers werden automatisch gespeichert und mit "Reset to default" verworfen; Autor kann das
+    per Report-Einstellung unterbinden.
+  source:
+    title: Troubleshoot visualizations in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-troubleshoot
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "select the Don't allow end user to save filters on this report checkbox."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "localStorage/DB im Host (inferred)"}
+
+# ---------------------------------------------------------------- Visual-Funktionen
+- id: pbi-070
+  pattern: Zoom-Slider auf X- und Y-Achse mit Slider-Tooltips und -Labels
+  description: >-
+    Autor aktiviert Zoom-Slider (braucht kontinuierliche X-Achse); Leser zieht Griffe und sieht nur den gewählten
+    Bereich, Slider-Tooltips zeigen die Position, Slider-Labels den Gesamtbereich. In Small Multiples deaktiviert.
+  source:
+    title: Create and use column charts in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-column-charts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The chart dynamically updates to show only the data points within the selected range"
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, distribution]
+    idioms: [column_time, line, scatter]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: partial, basis: "Vega-Lite interval selection mit bind: scales oder Overview+Detail; nicht vorkonfiguriert (inferred)"}
+
+- id: pbi-071
+  pattern: Scrollen bei vielen Kategorien statt Überfüllung
+  description: >-
+    Bei vielen Kategorien auf der Kategorieachse erscheint eine Scrollleiste; Power BI lädt per Data-Windowing nach.
+    In Small Multiples scrollen alle Achsenkopien gemeinsam.
+  source:
+    title: Interact with small multiples in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-small-multiples-interact
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "For a categorical X axis with many categories, you also see a scroll bar for each copy of that axis."
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories]
+    idioms: [bar_ranking, bar_absolute]
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "CategoricalScrollOptions: threshold 15, windowSize 10, default an (fabric-visuals 4.0.0 index.d.ts)"}
+
+- id: pbi-072
+  pattern: Datenbeschriftungen als Autoroption, Fluent-2-Preset "Data labels" statt Achse
+  description: >-
+    Datenbeschriftungen schaltet der Autor; das Fluent-2-Theme bietet Presets "Default" (Achse ohne Labels) und
+    "Data labels" (Achse aus, Labels und Marker an). Leser schalten sie nicht selbst um.
+  source:
+    title: Visual defaults in Power BI reports
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/power-bi-reports-visual-defaults
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Data labels: Turns off the axis in favor of data labels and markers—useful for small multiples"
+  parameters: {}
+  applies_to:
+    purposes: [compare_categories]
+    idioms: [bar_absolute, column_time, small_multiples]
+    style_pack: fluent
+    layer: style
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: native, basis: "Stacked- und Arc-Labels default an, unlesbare Labels ausgeblendet (CHANGELOG 4.1.0)"}
+
+- id: pbi-073
+  pattern: Bedingte Formatierung von Balken-, Linien-, Segmentfarben (Gradient, Regeln, Feldwert)
+  description: >-
+    Farben folgen Werten (Gradient mit Mittelwert), Regeln oder einem Farb-Measure; Linien lassen sich segmentweise
+    einfärben (nur Einzelserie), Marker gezielt hervorheben (z. B. nur Min/Max).
+  source:
+    title: Conditional formatting in Power BI visuals
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-conditional-formatting
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "you can set colors to change based on field values, rules you define, or color scales that map values to a gradient."
+  parameters: {}
+  applies_to:
+    purposes: [deviation_from_target, value_verdict]
+    idioms: [deviation_bar, line, bar_ranking]
+    style_pack: pbi_native
+    layer: style
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "Vega-Lite condition/scale im Spec (inferred)"}
+
+- id: pbi-074
+  pattern: Referenzlinien aus dem Analytics-Bereich (Konstante, Min, Max, Durchschnitt, Median, Perzentil)
+  description: >-
+    Dynamische Linien mit Name, Farbe, Stil, Position und Datenbeschriftung; mehrere Instanzen pro Typ möglich.
+    Unterstützt je nach Typ Balken, Säulen, Linie, Fläche, Scatter, Waterfall (nur Y-Konstante).
+  source:
+    title: Use the Analytics pane in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/transform-model/desktop-analytics-pane
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "You can add multiple instances of the same line type to a single visual."
+  parameters: {}
+  applies_to:
+    purposes: [deviation_from_target, compare_categories]
+    idioms: [bar_absolute, column_time, line, scatter]
+    style_pack: pbi_native
+    layer: idiom
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "Vega-Lite rule-Layer mit aggregate (inferred)"}
+
+- id: pbi-075
+  pattern: Trendlinie
+  description: Zeigt die Gesamtrichtung; für Fläche, gruppierte Säule, Linie, Linie+Säule (braucht Zeitdaten) und Scatter.
+  source:
+    title: Use the Analytics pane in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/transform-model/desktop-analytics-pane
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Trend line | Shows the overall direction of data over time"
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, correlation]
+    idioms: [line, scatter, column_time]
+    style_pack: pbi_native
+    layer: idiom
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: native, basis: "Vega-Lite regression/loess-Transform (inferred)"}
+
+- id: pbi-076
+  pattern: Forecast und Anomalieerkennung auf Liniendiagrammen
+  description: >-
+    Prognose künftiger Werte und Markierung unerwarteter Spitzen/Einbrüche mit Erklärung; nur Einzelserie mit
+    kontinuierlicher X-Achse, in Small Multiples deaktiviert.
+  source:
+    title: Line charts in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-line-chart
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Advanced features like Anomaly detection and Forecasting require a single-series chart and a continuous X-axis."
+  parameters: {}
+  applies_to:
+    purposes: [time_comparison, deviation_from_target]
+    idioms: [line]
+    style_pack: pbi_native
+    layer: idiom
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "Prognose muss in Daten/Modell berechnet werden; Darstellung als Layer (inferred)"}
+
+- id: pbi-077
+  pattern: Fehlerbalken und Fehlerband mit Tooltip-Varianten
+  description: >-
+    Ober-/Untergrenze per Feld (absolut/relativ) oder Prozent; Linien erhalten optional ein Fehlerband (Fläche, Linie,
+    beides); Tooltip zeigt Bereich, absolut, relativ numerisch/prozentual oder nichts.
+  source:
+    title: Use the Analytics pane in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/transform-model/desktop-analytics-pane
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "The error band shows the error range as an area around the line."
+  parameters: {}
+  applies_to:
+    purposes: [distribution, time_comparison]
+    idioms: [line, bar_absolute]
+    style_pack: pbi_native
+    layer: idiom
+  confidence: from_source
+  user_value: low
+  must_have_for_parity: false
+  vegavisual: {status: native, basis: "Vega-Lite errorbar/errorband-Marks (inferred)"}
+
+- id: pbi-078
+  pattern: Small Multiples mit synchronisierten Achsen und Rasterwahl bis 6 x 6
+  description: >-
+    Balken, Säule, Linie, Fläche lassen sich nach einer Dimension aufteilen; geteilte Y-Achse umschaltbar, weitere
+    Multiples laden beim Scrollen. Deaktiviert: Zoom-Slider, Trend, Forecast, Analyze, Rechteckauswahl.
+  source:
+    title: Create small multiples in Power BI
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-small-multiples
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "you can adjust the number of rows and columns up to six by six."
+  parameters:
+    grid_default_rows: 2
+    grid_default_columns: 2
+    grid_max_rows: 6
+    grid_max_columns: 6
+  applies_to:
+    purposes: [compare_categories, time_comparison]
+    idioms: [small_multiples]
+    style_pack: pbi_native
+    layer: idiom
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "Vega-Lite facet/repeat und Flint column/row (fabric.yaml); Auswahl über Multiples hinweg per Host (inferred)"}
+
+# ---------------------------------------------------------------- Barrierefreiheit
+- id: pbi-090
+  pattern: Dreistufige Tastaturnavigation im Visual (Strg+Pfeil rechts, Tab, Enter, Esc)
+  description: >-
+    Strg+Rechts betritt das Visual, Tab wechselt zwischen Plotbereich, Achsenkategorien und Legende, Enter betritt einen
+    Bereich, Tab geht durch Punkte, Pfeil hoch/runter springt zwischen Serien, Esc verlässt die Ebene.
+  source:
+    title: Consume Power BI reports by using accessibility features
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/desktop-accessibility-consuming-tools
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "press Ctrl + right arrow to enter that visual. Once you enter that visual, you can press Tab to cycle through the main areas"
+  parameters:
+    navigation_levels: 3
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: partial, basis: "4.1.0: accessible overlay (Data Navigator) integriert, Tastenbindungen ArrowUp/Down/Left/Right, Enter, Escape, Tab im Bundle; Auswahl per Tastatur nicht belegt"}
+
+- id: pbi-091
+  pattern: Tastenkürzel am Visual (Auswahl, Mehrfachauswahl, Auswahl löschen, Tooltip, Header)
+  description: >-
+    Enter/Leertaste wählt, Strg+Enter/Strg+Leertaste Mehrfachauswahl, Strg+Umschalt+C löscht Auswahl, Strg+H zeigt
+    Tooltip, Alt+Umschalt+F10 fokussiert den Header, Umschalt+F10 Kontextmenü, Umschalt+? Hilfe.
+  source:
+    title: Keyboard shortcuts in Power BI Desktop
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/desktop-accessibility-keyboard-shortcuts
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Clear selection | Ctrl + Shift + C"
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Enter-Taste im Overlay vorhanden, Kopplung an onInteraction/Tooltip/Header nicht belegt (inferred)"}
+
+- id: pbi-092
+  pattern: Screenreader liest Typ, Titel und Alt-Text des Visuals
+  description: >-
+    Jedes tastaturnavigierbare Objekt ist screenreaderfähig; beim Fokus werden Objekttyp, Titel und Alt-Text angesagt.
+    Scan-Modus soll aus bleiben.
+  source:
+    title: Design Power BI reports for accessibility
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/desktop-accessibility-creating-reports
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "When a report consumer navigates to a visual, the screen reader reads out the title, visual type, and any alt text if you set it."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: partial, basis: "CHANGELOG 4.1.0: aria roles, fallback accessible names, figure/plot-area announcements"}
+
+- id: pbi-093
+  pattern: Alt-Text statisch oder datengetrieben (fx-Measure)
+  description: Autor setzt Alt-Text als Text oder als Ausdruck, der sich mit den Daten aktualisiert.
+  source:
+    title: Format pane General tab overview
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-format-pane-overview
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "use fx to build a description from a measure or expression so it updates with the data."
+  parameters: {}
+  applies_to:
+    purposes: [value_verdict]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "Spec-description/aria möglich; datengetriebener Satz muss generiert werden (inferred)"}
+
+- id: pbi-094
+  pattern: Screenreader-taugliche Datentabelle per Alt+Umschalt+F11
+  description: >-
+    Kürzel öffnet eine HTML-Tabelle der Visualdaten, bedienbar mit Screenreader-Kürzeln; die per Header geöffnete
+    Tabelle ist dagegen nicht screenreadertauglich.
+  source:
+    title: Consume Power BI reports by using accessibility features
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/desktop-accessibility-consuming-tools
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "If you open Show data from the option in the visual header, a table that's not screen reader compatible is displayed."
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "semantische HTML-Tabelle aus DataTable erzeugbar; Beat: eine Tabelle für Maus und Screenreader (inferred)"}
+
+- id: pbi-095
+  pattern: Show visuals as tables (Vorschau) für den ganzen Report per Strg+Umschalt+F11
+  description: >-
+    Alle Seiten zeigen die meisten Visuals als Tabelle/Matrix, Interaktion und Cross-Filter bleiben; nicht für Slicer,
+    Cards, Smart narrative, Q&A u. a.; je Report neu zu aktivieren.
+  source:
+    title: Consume Power BI reports by using accessibility features
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/desktop-accessibility-consuming-tools
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "all pages in your report display most visuals in a table or matrix format, while still allowing interaction and cross-filtering capabilities."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "globaler Tabellenmodus im Host (inferred)"}
+
+- id: pbi-096
+  pattern: Hochkontrastmodus automatisch aus Windows übernommen
+  description: >-
+    Desktop übernimmt das Windows-Hochkontrastthema; der Service versucht die Erkennung browserabhängig, sonst manuell
+    über View > High contrast colors.
+  source:
+    title: Design Power BI reports for accessibility
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/desktop-accessibility-creating-reports
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Power BI Desktop automatically detects which high contrast theme you're using and applies those settings to your reports."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: token
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "useCssTheme reagiert auf forced-colors/prefers-contrast und löst CSS-Systemfarben auf (index.d.ts 4.0.0)"}
+
+# ---------------------------------------------------------------- Mobil
+- id: pbi-100
+  pattern: Touch-Tooltip per Long-Tap mit Drill-Footer
+  description: >-
+    Long-Tap auf einen Datenpunkt zeigt den Tooltip und im Footer Drill down/up/Drillthrough; Tooltips nur auf
+    Datenpunkten. Report-Page-Tooltips erst ab Mindest-Viewport, sonst Standard-Tooltip.
+  source:
+    title: Explore reports in the Power BI mobile apps
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/mobile/mobile-reports-in-the-mobile-apps
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Report tooltips are supported for devices of at least 640 pixels and 320 pixel viewports."
+  parameters:
+    report_page_tooltip_min_viewport_a_px: 640
+    report_page_tooltip_min_viewport_b_px: 320
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: build, basis: "vega-tooltip ist hoverbasiert; Long-Press-Handling nicht belegt (inferred)"}
+
+- id: pbi-101
+  pattern: Mobiler Fokusmodus mit Drill, Sortierung und Revert
+  description: >-
+    Auf dem Telefon sind Drill und Sortieren nur im Fokusmodus möglich; Revert verwirft Erkundungsschritte je Visual oder
+    Report. Auswahl im Fokusmodus wirkt auf den ganzen Report.
+  source:
+    title: View Power BI reports optimized for your phone
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/mobile/mobile-apps-view-phone-report
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Some actions are only possible in focus mode, due to screen size constraints"
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: layout
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: build, basis: "Host-Layout (inferred)"}
+
+- id: pbi-102
+  pattern: Hochformat-Mobillayout, Querformat zeigt Desktop-Layout
+  description: >-
+    Autoren erstellen je Seite eine Hochformat-Ansicht; Kippen ins Querformat zeigt immer das reguläre Layout. Im Browser
+    gibt es nur das reguläre Layout.
+  source:
+    title: Create mobile-optimized Power BI reports
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/create-reports/power-bi-create-mobile-optimized-report-about
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "When viewed through a web browser, reports always display in the standard, non-optimized view."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: layout
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: partial, basis: "Visual ist containergrößenabhängig; responsives Seitenlayout ist Host (inferred)"}
+
+- id: pbi-103
+  pattern: Pinch-to-Zoom im mobilen Report
+  description: Aufziehen/Zusammenziehen vergrößert oder verkleinert den Report auf iOS/Android.
+  source:
+    title: Explore reports in the Power BI mobile apps
+    publisher: Microsoft
+    url: https://learn.microsoft.com/power-bi/explore-reports/mobile/mobile-reports-in-the-mobile-apps
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Use the pinch gesture to zoom into your reports to examine them in greater detail."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: pbi_native
+    layer: interaction
+  confidence: from_source
+  user_value: low
+  must_have_for_parity: false
+  vegavisual: {status: n_a, basis: "Browser-Standard"}
+
+# ---------------------------------------------------------------- VegaVisual / fabric-visuals: was offiziell geliefert wird
+- id: pbi-110
+  pattern: VegaVisual onInteraction mit Selektionsprädikaten (select/clear)
+  description: >-
+    Callback erhält InteractionEvent[]: select mit DataPointSelection (Prädikate Set oder Range, AND innerhalb, OR
+    zwischen Selektionen) oder clear. Ein Hover-Event ist im Typ nur als TODO vermerkt. Das ist die offizielle
+    Grundlage für eigenen Cross-Filter.
+  source:
+    title: "@microsoft/fabric-visuals-core 4.0.0 dist/index.d.ts (lokal: Freelancing .cache/fabric_app/1.36.0/scaffold)"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals-core
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "A single selected datapoint, defined by the conjunction (AND) of its predicates. Multiple selections in an array are disjunctive (OR)."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "Typdefinition; npmjs.com-Seite per WebFetch 403, Inhalt aus lokalem Paket"}
+
+- id: pbi-111
+  pattern: VegaVisual Self-Highlight (Dimmen nicht gewählter Marks) mit Modifier-Mehrfachauswahl
+  description: >-
+    Standardmäßig injiziert VegaVisual eine point-Selection plus bedingte Opazität; wird übersprungen, wenn der Spec
+    eigene Selection-Params oder Opacity verwaltet. Abschaltbar über capabilities.disableSelfHighlight.
+  source:
+    title: "@microsoft/fabric-visuals 4.1.0 dist/spec-compiler-DCzIymx1.d.ts (VegaVisualCapabilities.disableSelfHighlight)"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.1.0
+    date_published: 2026-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "Skipped automatically when the spec already manages selection params or opacity."
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "capabilities-Flag, default false (= aktiv)"}
+
+- id: pbi-112
+  pattern: VisualContainer-Aktionen auf Copy Visual beschränkt
+  description: >-
+    Der Rahmen bietet Header (Titel, Untertitel), Toolbar/Kontextmenü und als einzige eingebaute Aktion Copy Visual.
+    Focus mode, Show as table, Export, Sort, Drill fehlen und sind Host-Aufgabe.
+  source:
+    title: "@microsoft/fabric-visuals-core 4.0.0 dist/index.d.ts"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals-core
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "type BuiltInActionId = 'copyVisual';"
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: partial, basis: "chromeless erlaubt eigenen Rahmen"}
+
+- id: pbi-113
+  pattern: VegaVisual-Barrierefreiheit 4.1.0 (Accessible Overlay, ARIA-Rollen, Ansagen)
+  description: >-
+    4.1.0 integriert ein Accessible Overlay (Data-Navigator-Bibliothek) mit Navigator-Anbindung, ARIA-Rollen,
+    Fallback-Namen und Screenreader-Ansagen für Figure und Plotbereich. 4.0.0 hatte nur die Typen dafür.
+  source:
+    title: "@microsoft/fabric-visuals 4.1.0 CHANGELOG (npm-Tarball über registry.npmjs.org)"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.1.0
+    date_published: 2026-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "[Visuals] Integrate accessible overlay with VegaVisual"
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: high
+  must_have_for_parity: true
+  vegavisual: {status: partial, basis: "Verhalten nicht im Browser gemessen; Tastenliste aus Bundle-String-Suche"}
+
+- id: pbi-114
+  pattern: VegaVisual Tooltip-Komfort (Crosshair, gekürzte Labels im Tooltip, Legend-Truncation)
+  description: >-
+    Mehrserien-Crosshair auf Linien, abgeschnittene Achsen-/Legenden-/Donut-Labels werden im Tooltip vollständig
+    gezeigt, Tooltips nutzen Spalten-Formate und Theme-Farben.
+  source:
+    title: "@microsoft/fabric-visuals 4.1.0 CHANGELOG"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.1.0
+    date_published: 2026-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "[Visuals] Parse temporal values without timezone shift and apply column formats in tooltips"
+  parameters: {}
+  applies_to:
+    purposes: [evidence_detail]
+    idioms: [line]
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: true
+  vegavisual: {status: native, basis: "CHANGELOG 2.0.0-4.1.0"}
+
+- id: pbi-115
+  pattern: VegaVisualHandle gibt die Vega-View frei (Signale, Listener)
+  description: >-
+    Über den Ref ist die Vega View erreichbar; damit lassen sich Signale lesen/setzen und Listener anhängen, z. B. um
+    eingehende Cross-Filter von anderen Visuals als Highlight in den Spec zu spielen.
+  source:
+    title: "@microsoft/fabric-visuals 4.0.0 dist/index.d.ts"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.0.0
+    date_published: 2026-09-09
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "/** The current Vega View instance, or null if not rendered. */"
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: inferred
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: native, basis: "Handle belegt; Nutzung für eingehende Highlights ist eigene Ableitung"}
+
+- id: pbi-116
+  pattern: Headless renderVisualToSvg (4.1.0) als Baustein für Bild-Export und Snapshots
+  description: >-
+    Neuer Einstieg rendert einen Spec ohne DOM zu SVG; nutzbar für Export als Bild, Abo-Snapshots und HTML-Ausgabe.
+  source:
+    title: "@microsoft/fabric-visuals 4.1.0 dist/headless-render.d.ts"
+    publisher: Microsoft
+    url: https://www.npmjs.com/package/@microsoft/fabric-visuals/v/4.1.0
+    date_published: 2026-09-23
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: "declare function renderVisualToSvg(spec: VisualizationSpec, options?: RenderVisualToSvgOptions): Promise<RenderVisualToSvgResult>;"
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: from_source
+  user_value: medium
+  must_have_for_parity: false
+  vegavisual: {status: native, basis: "Typdefinition 4.1.0"}
+
+- id: pbi-117
+  pattern: Keine Microsoft-Learn-Dokumentation zu VegaVisual/fabric-visuals
+  description: >-
+    Suchen nach "Fabric apps visuals", "VegaVisual", "fabric-visuals" im Learn-MCP liefern nur Fabric-Apps-Backend-Seiten
+    (Rayfin, GraphQL, Hosting), keine Visual-Komponenten-Doku. Einzige Primärquelle ist das npm-Paket.
+  source:
+    title: "What is Fabric Apps (Preview)? / Fabric Apps FAQ"
+    publisher: Microsoft
+    url: https://learn.microsoft.com/fabric/apps/overview
+    date_published: unbekannt
+    date_accessed: 2026-09-30
+    kind: primary
+  evidence: null
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: fluent
+    layer: interaction
+  confidence: inferred
+  user_value: low
+  must_have_for_parity: false
+  vegavisual: {status: n_a, basis: "Negativbefund der Suche, nicht Aussage der Quelle"}

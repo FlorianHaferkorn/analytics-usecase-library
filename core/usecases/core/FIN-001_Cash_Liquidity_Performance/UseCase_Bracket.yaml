@@ -48,6 +48,9 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # Sprache der vom Generator formulierten Texte (Alt-Text), 01.10.2026: der Report in dist
+  # traegt deutsche Seitentitel. Die Texte hier im Bracket bleiben englisch.
+  report_locale: de-DE
   # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
   intent_rules_version: 2
   page_1_summary:

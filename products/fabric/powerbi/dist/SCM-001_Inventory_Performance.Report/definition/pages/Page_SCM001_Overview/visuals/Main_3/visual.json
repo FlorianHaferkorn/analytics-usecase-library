@@ -106,6 +106,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Forecast Accuracy % compared with Forecast Accuracy % Target by Calendar Year Month'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

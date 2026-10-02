@@ -253,6 +253,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'OTIF %, On-Time %, In-Full %, Stockout Impact %, Penalty Amount and Expedite Cost Amount by Customer and Mode'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {
