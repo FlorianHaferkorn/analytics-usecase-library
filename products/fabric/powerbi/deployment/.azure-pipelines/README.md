@@ -252,10 +252,14 @@ findings; 1 = findings; 2 = the scan did not run (tool missing, tool error, empt
 - Measured 01.10.2026 (local `detect-secrets 1.5.0`): scope 0 findings in 26 files; a planted
   AWS key in a test copy gives exit 1. The whole repository has 630 findings in 50 files
   without a baseline, which is why the gate is scoped and not repo-wide.
-- Open: a repo-wide `.secrets.baseline`. Re-measured 01.10.2026 (`detect-secrets scan`,
-  1.5.0, git-tracked files): still 630 findings in 50 files, gate scope still 0 in 26. Writing
-  the baseline is one command, but it would accept all 630 unreviewed; it is created only
-  together with a per-finding review (`detect-secrets audit`).
+- Repo-wide `.secrets.baseline` (02.10.2026, `detect-secrets scan` 1.5.0 over the git-tracked
+  files): 720 findings in 57 files, each reviewed, all false positives (`is_secret: false`):
+  677 hex strings are SHA-256/commit pins, visreg dHash/colour signatures and PBIR object
+  names; 21 base64 strings are SRI `integrity` hashes, file names and two test-only
+  `AUTH_SECRET` stubs; 20 keywords are placeholders (`your-client-secret`, `change-me…`),
+  env-variable names and test fixtures; 1 private-key header without key material in an
+  egress test case; 1 `ghp_xxx…` placeholder. `detect-secrets scan --baseline .secrets.baseline`
+  exits 0. The baseline is not wired as a repo-wide gate yet; the scoped gate above stays.
 - First choice on Azure Repos is **GitHub Advanced Security for Azure DevOps** secret scanning
   with push protection (repository setting; Learn `azure/devops/repos/security/
   github-advanced-security-secret-scanning`). The gate covers repositories without it.
