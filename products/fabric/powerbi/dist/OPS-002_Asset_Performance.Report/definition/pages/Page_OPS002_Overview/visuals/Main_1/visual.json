@@ -92,6 +92,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Availability % by Calendar Year Month'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

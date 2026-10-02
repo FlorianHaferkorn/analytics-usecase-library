@@ -151,7 +151,7 @@ Report-level theme, filters, settings, and resource packages:
 
 ### page.json
 
-Page metadata, dimensions, and visual interactions:
+Page metadata, dimensions, and visual interactions. The 1280 × 720 below is an example; ALUCA page sizes come from `core/templates/page_templates/tokens/layout_grid.yaml` (`canvas.design_base` 1280 × 720, `canvas.production` 1920 × 1080; prose in `governance/Layout_Grid_System.md`), checked by `tooling/validation/validate_report.ps1`. `displayOption` (page 2.1.0 schema): `FitToPage` scales width and height into the viewport (no scrolling), `FitToWidth` keeps the aspect ratio and can scroll vertically, `ActualSize` does not scale.
 ```json
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",

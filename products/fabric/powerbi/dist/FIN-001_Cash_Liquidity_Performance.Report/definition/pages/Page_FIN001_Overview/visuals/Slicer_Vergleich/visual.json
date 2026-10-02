@@ -61,6 +61,21 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Filtern nach Vergleich'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

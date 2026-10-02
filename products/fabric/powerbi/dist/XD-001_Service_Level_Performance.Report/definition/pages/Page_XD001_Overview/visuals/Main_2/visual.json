@@ -145,6 +145,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'First Contact Resolution % by Org Name'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

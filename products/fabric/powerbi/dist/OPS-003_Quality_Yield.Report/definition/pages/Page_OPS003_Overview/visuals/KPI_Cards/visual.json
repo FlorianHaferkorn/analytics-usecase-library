@@ -103,6 +103,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'First Pass Yield %, Scrap Rate %, Rework Rate % and Cost of Poor Quality'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

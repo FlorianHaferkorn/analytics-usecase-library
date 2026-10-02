@@ -92,6 +92,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Occupancy % by Calendar Year Month'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

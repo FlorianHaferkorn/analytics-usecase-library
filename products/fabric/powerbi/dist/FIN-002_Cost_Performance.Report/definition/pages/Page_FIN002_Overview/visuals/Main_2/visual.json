@@ -110,6 +110,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'OpEx vs Plan % by Entity'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

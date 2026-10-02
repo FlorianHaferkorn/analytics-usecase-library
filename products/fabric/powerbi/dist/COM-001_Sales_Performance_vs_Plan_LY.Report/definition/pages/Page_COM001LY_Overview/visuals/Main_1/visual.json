@@ -79,6 +79,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Net Sales Amount, Plan Sales Amount and Last Year Net Sales Amount by Calendar Year Month'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

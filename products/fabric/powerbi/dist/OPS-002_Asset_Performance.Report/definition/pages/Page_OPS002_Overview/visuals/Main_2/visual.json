@@ -179,6 +179,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Unplanned Downtime % and Spare Parts Stockout % by Org Name'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

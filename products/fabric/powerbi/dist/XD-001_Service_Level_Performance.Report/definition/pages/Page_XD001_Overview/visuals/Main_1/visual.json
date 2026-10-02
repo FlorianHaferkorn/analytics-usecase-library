@@ -92,6 +92,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Backlog Count by Calendar Year Month'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

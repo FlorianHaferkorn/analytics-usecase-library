@@ -12,6 +12,8 @@ import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
+from .alt_text import bracket_locale
+
 # Threshold units that were KPI-ID suffixes before D-594 and were never displayed; same set as
 # tooling/generator_core/ir/compiler.py SUFFIX_UNITS (tooling/tests/test_kpi_id_migration.py).
 _SUFFIX_UNITS = frozenset({"amount", "count", "index", "pct", "days", "hours", "minutes", "units"})
@@ -1079,6 +1081,8 @@ class ConfigLoader:
                 "layout_source": layout_source,
                 "grid_blueprint": grid_blueprint,
                 "report_canvas": report_canvas,
+                # Sprache der vom Generator formulierten Texte (Alt-Text), alt_text.bracket_locale.
+                "report_locale": bracket_locale(bracket),
                 "needs_action_panel": False,
                 "slots": slots,
                 "component_3s": dict(c3s) if isinstance(c3s, dict) else {},
@@ -1268,6 +1272,8 @@ class ConfigLoader:
                 "template_id": template_id,
                 "grid_blueprint": grid_blueprint,
                 "report_canvas": report_canvas,
+                # Sprache der vom Generator formulierten Texte (Alt-Text), alt_text.bracket_locale.
+                "report_locale": bracket_locale(bracket),
                 "needs_action_panel": has_action_panel,
                 "slots": slots,
                 "card_kpi_ids": card_kpi_ids,

@@ -1,5 +1,6 @@
 # layout_grid.yaml — Machine-readable grid parameters (tool-agnostic)
 # Consumed by: products/fabric/powerbi/tooling/page_scaffold_generator/config_loader.py
+#              tooling/validation/validate_report.ps1 (canvas -> ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY)
 # Prose documentation: governance/Layout_Grid_System.md
 # Authority: Storytelling_Principles.md §11 · Design_Spec_3_30_300.md §3
 # Schema version: 1.0

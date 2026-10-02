@@ -38,6 +38,8 @@ value_driver_model:
 
 ux_layout_rules:
   report_structure: "2-Page-Lead"
+  # Optional: language of generator-composed report texts (alt text), BCP 47. Default en-US.
+  # report_locale: "de-DE"
   page_1_summary:
     title: "[Domain] Summary & Insights"
 

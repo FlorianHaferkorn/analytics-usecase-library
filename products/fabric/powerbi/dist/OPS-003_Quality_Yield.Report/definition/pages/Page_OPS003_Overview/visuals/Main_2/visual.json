@@ -179,6 +179,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Rework Rate % and Complaint Rate % by Org Name'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

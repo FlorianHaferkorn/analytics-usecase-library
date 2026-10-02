@@ -253,6 +253,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Inventory Turnover, Stockout Rate %, Obsolete Inventory %, Days in Inventory and OTIF % by Category, ABC Class and XYZ Class'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

@@ -253,6 +253,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'MTBF (hours), MTTR (hours), Unplanned Downtime %, PM Compliance %, Spare Parts Stockout % and Failure Count by Asset Name and Criticality'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {
