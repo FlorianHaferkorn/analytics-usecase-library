@@ -40,7 +40,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Last Refresh (SCM)'"
+                  "Value": "'Last Refresh (SCM): current value'"
                 }
               }
             }

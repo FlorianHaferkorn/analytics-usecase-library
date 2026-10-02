@@ -51,7 +51,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Active Actions Text (FIN)'"
+                  "Value": "'Active Actions Text (FIN): aktueller Wert'"
                 }
               }
             }

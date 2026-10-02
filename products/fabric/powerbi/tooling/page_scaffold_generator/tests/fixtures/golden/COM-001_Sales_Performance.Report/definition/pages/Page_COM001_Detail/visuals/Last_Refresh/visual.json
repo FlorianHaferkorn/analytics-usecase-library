@@ -40,7 +40,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Last Refresh (COM)'"
+                  "Value": "'Last Refresh (COM): current value'"
                 }
               }
             }

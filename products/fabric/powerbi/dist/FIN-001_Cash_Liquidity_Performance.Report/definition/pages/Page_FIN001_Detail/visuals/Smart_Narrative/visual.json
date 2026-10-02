@@ -52,7 +52,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Narrative Text (FIN)'"
+                  "Value": "'Narrative Text (FIN): aktueller Wert'"
                 }
               }
             }

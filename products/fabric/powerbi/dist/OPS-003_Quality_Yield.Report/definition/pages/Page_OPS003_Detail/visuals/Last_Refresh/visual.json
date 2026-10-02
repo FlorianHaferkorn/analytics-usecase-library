@@ -40,7 +40,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Last Refresh (OPS)'"
+                  "Value": "'Last Refresh (OPS): current value'"
                 }
               }
             }

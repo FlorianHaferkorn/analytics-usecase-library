@@ -111,7 +111,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Enterprise Value-at-Risk Index, Gross Margin % (XD), Delta% Net Sales (XD) and CLV (Customer Lifetime Value)'"
+                  "Value": "'Current values of Enterprise Value-at-Risk Index, Gross Margin % (XD), Delta% Net Sales (XD) and CLV (Customer Lifetime Value)'"
                 }
               }
             }

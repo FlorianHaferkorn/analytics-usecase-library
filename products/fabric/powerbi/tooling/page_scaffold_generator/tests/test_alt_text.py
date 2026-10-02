@@ -185,7 +185,8 @@ def test_kein_titel_und_kein_visualtyp_im_alt_text() -> None:
 
 def test_slicer_card_textbox_shape() -> None:
     assert at.describe(_v("slicer", {"Values": {"projections": [_c("dim_org", "OrgName")]}})) == "Filter by Org Name"
-    assert at.describe(_v("cardVisual", {"Data": {"projections": [_m("A"), _m("B"), _m("C")]}})) == "A, B and C"
+    assert at.describe(_v("cardVisual", {"Data": {"projections": [_m("A"), _m("B"), _m("C")]}})) == \
+        "Current values of A, B and C"
     tb = _v("textbox", objects={"text": [{"properties": {"text": {"expr": {"Literal": {"Value": "'It''s on'"}}}}}]})
     assert at.describe(tb) == "It's on"
     assert at.describe(_v("shape")) is None
@@ -210,7 +211,7 @@ def test_vorhandener_alt_text_bleibt_und_hochkomma_wird_verdoppelt() -> None:
     v = _v("cardVisual", {"Data": {"projections": [_m("Owner's Margin")]}})
     at.apply_alt_text(v)
     assert v["visual"]["visualContainerObjects"]["general"][0]["properties"]["altText"] == {
-        "expr": {"Literal": {"Value": "'Owner''s Margin'"}}}
+        "expr": {"Literal": {"Value": "'Owner''s Margin: current value'"}}}
     v["visual"]["visualContainerObjects"]["general"][0]["properties"]["altText"]["expr"]["Literal"]["Value"] = "'x'"
     at.apply_alt_text(v)
     assert _alt(v) == "x"
@@ -229,7 +230,7 @@ def test_apply_to_report_aendert_nur_alt_text(tmp_path: Path) -> None:
     old_lines, new_lines = raw.splitlines(), new.splitlines()
     removed = [line for line in old_lines if line not in new_lines]
     assert all(line + "," in new_lines for line in removed)
-    assert _alt(json.loads(new)) == "Cash"
+    assert _alt(json.loads(new)) == "Cash: current value"
     assert at.apply_to_report(tmp_path / "R.Report") == []  # zweiter Lauf: nichts mehr zu tun
 
 
@@ -251,7 +252,7 @@ _FAELLE = [  # (Visual, Vergleichsreihen, en, de) je Visualtyp
     (_v("slicer", {"Values": {"projections": [_c("dim_org", "OrgName")]}}), [],
      "Filter by Org Name", "Filtern nach Org Name"),
     (_v("cardVisual", {"Data": {"projections": [_m("A"), _m("B"), _m("C")]}}), [],
-     "A, B and C", "A, B und C"),
+     "Current values of A, B and C", "Aktuelle Werte von A, B und C"),
     (_v("tableEx", {"Values": {"projections": [_c("dim_org", "OrgName"), _c("dim_org", "Region"),
                                                _m("Cash")]}}), [],
      "Cash by Org Name and Region", "Cash nach Org Name und Region"),
@@ -399,3 +400,64 @@ def test_werkzeug_liest_sprache_aus_dem_bracket(tmp_path: Path) -> None:
             p.read_text(encoding="utf-8").splitlines()
         assert len(alt) == len(neu)
         assert all(a == b or '"Value"' in a for a, b in zip(alt, neu)), p
+
+
+# --- Kacheln und lokalisierte Kennzahlnamen (02.10.2026) -------------------------------------------
+
+
+def test_kachel_nennt_kennzahl_und_aktuellen_wert() -> None:
+    card = _v("cardVisual", {"Data": {"projections": [_m("Net Sales")]}})
+    assert at.describe(card) == "Net Sales: current value"
+    assert at.describe(card, locale="de-DE") == "Net Sales: aktueller Wert"
+    assert at.describe(_v("cardVisual", {"Data": {"projections": [_m("Net Sales"), _m("Net Sales PY")]}}),
+                       ["Net Sales PY"]) == "Net Sales: current value compared with Net Sales PY"
+    # Gegenprobe: ein Chart mit derselben Bindung bekommt keine Kachelform
+    assert at.describe(_v("clusteredBarChart", {"Y": {"projections": [_m("Net Sales")]}})) == "Net Sales"
+
+
+def test_kpi_visual_zielwert_ist_vergleich() -> None:
+    kpi = _v("kpi", {"Indicator": {"projections": [_m("OTIF %")]}, "Goal": {"projections": [_m("OTIF Target")]},
+                     "TrendLine": {"projections": [_c("dim_date", "Month")]}})
+    assert at.describe(kpi) == "OTIF %: current value compared with OTIF Target by Month"
+
+
+def test_alte_kachelform_wird_ersetzt_handtext_nicht() -> None:
+    card = _v("cardVisual", {"Data": {"projections": [_m("Cash")]}})
+    card["visual"]["visualContainerObjects"] = {"general": [{"properties": {"altText": {
+        "expr": {"Literal": {"Value": "'Cash'"}}}}}]}
+    at.apply_alt_text(card, replace_generated=True)
+    assert _alt(card) == "Cash: current value"
+    card["visual"]["visualContainerObjects"]["general"][0]["properties"]["altText"]["expr"]["Literal"]["Value"] = "'Hand'"
+    at.apply_alt_text(card, replace_generated=True)
+    assert _alt(card) == "Hand"
+
+
+def test_ausdruck_als_alt_text_bleibt() -> None:
+    """Learn: dynamischer Alt-Text per Measure (bedingte Formatierung) -- nie ueberschreiben."""
+    card = _v("cardVisual", {"Data": {"projections": [_m("Cash")]}})
+    expr = {"expr": {"Measure": {"Expression": {"SourceRef": {"Entity": "_Measures"}}, "Property": "Cash Alt"}}}
+    card["visual"]["visualContainerObjects"] = {"general": [{"properties": {"altText": expr}}]}
+    at.apply_alt_text(card, replace_generated=True)
+    assert card["visual"]["visualContainerObjects"]["general"][0]["properties"]["altText"] == expr
+
+
+def test_lokalisierter_kennzahlname_nur_wenn_gefuehrt() -> None:
+    card = _v("cardVisual", {"Data": {"projections": [_m("Net Sales"), _m("Net Sales PY")]}})
+    namen = {"Net Sales": {"de": "Nettoumsatz"}}
+    assert at.describe(card, ["Net Sales PY"], locale="de-DE", kpi_namen=namen) == \
+        "Nettoumsatz: aktueller Wert im Vergleich zu Net Sales PY"
+    assert at.describe(card, ["Net Sales PY"], locale="en-US", kpi_namen=namen) == \
+        "Net Sales: current value compared with Net Sales PY"
+
+
+def test_katalog_fuehrt_keine_namen_je_sprache() -> None:
+    """Lueckenmessung: kein KPI im Katalog fuehrt einen Namen je Sprache. Wird dieser Test rot,
+    gibt es die Quelle -- dann `kpi_namen` aus dem Katalog an den Generator anschliessen."""
+    import yaml
+    sprachfelder = []
+    for f in sorted((REPO / "core" / "kpi_catalog" / "kpis").glob("*.yaml")):
+        kpi = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        for teil in (kpi, kpi.get("business") or {}, kpi.get("technical") or {}):
+            sprachfelder += [f"{f.name}:{k}" for k in teil
+                             if any(t in k.lower() for t in ("_de", "_en", "i18n", "locale", "translation"))]
+    assert sprachfelder == []
