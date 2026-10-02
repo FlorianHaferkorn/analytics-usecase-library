@@ -635,6 +635,14 @@ _KUNDENFASSUNG: dict[str, dict[str, str]] = {
                  "anschließen, ohne dass wir etwas umbauen.",
         "warum": "Purview kostet eigene Lizenzen und braucht Rechte, die nur Ihre Verwaltung "
                  "vergeben kann. Der Katalog von Fabric ist ohne beides da.",
+    },    # D-655 (01.10.2026): Report-Darstellung in Power BI.
+    "REPORT-RENDER": {
+        "frage": "Dürfen in Ihren Power-BI-Berichten zertifizierte Zusatz-Visuals aus AppSource "
+                 "laufen, und wie nah sollen die Berichte an der Fabric App aussehen?",
+        "folge": "Wir bauen die Berichte mit Bordmitteln und Grafiken aus Measures. Sie laufen "
+                 "ohne eine Freigabe im Tenant.",
+        "warum": "Zusatz-Visuals bringen das Bild der Fabric App in den Bericht. Sie brauchen eine "
+                 "Freigabe Ihrer Verwaltung und hängen an einem einzelnen Anbieter.",
     },
 }
 
@@ -682,6 +690,9 @@ _FAELLIGKEIT: dict[str, str] = {
     # D-620 (01.10.2026): Purview ist ein Andock-Modul. Ohne Antwort traegt der OneLake catalog;
     # Labels und DLP muessen vor dem ersten produktiven Modell stehen, sonst sind sie nachzuziehen.
     "GOV-CATALOG": "vor Produktivsetzung",
+    # D-655 (01.10.2026): die Antwort legt fest, welche visualTypes der Report-Emitter schreibt;
+    # ein spaeterer Wechsel baut jede Seite neu. Ohne Antwort gilt Variante B.
+    "REPORT-RENDER": "blockiert den Aufbau",
 }
 
 
@@ -1561,6 +1572,48 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
                            {"text": "Fabric-Elemente außer Power BI werden bei Private Link auf Tenant- oder Workspace-Ebene nicht gescannt",
                             "quelle": "MS Learn: purview/register-scan-fabric-tenant"}],
          "implikation": "governance.purview.bausteine mit allen Bausteinen; die Domänen werden zweimal gepflegt."},
+    ],
+    # D-655 (01.10.2026): Report-Darstellung in Power BI. `empfohlen` steht hier auf der Vorgabe
+    # (B); `propose_report_render` setzt es nach der Vorfrage um.
+    "REPORT-RENDER": [
+        {"wert": "native",
+         "text": "A Native: nur Bordmittel von Power BI mit IBCS-Theme",
+         "vorteile": ["Keine Voraussetzung im Tenant",
+                      "Kein fremder Code im Bericht; Export und Abo ohne Einschränkung durch Visuals"],
+         "nachteile": ["IBCS-Formen ohne nativen Grundtyp (Stufendiagramm, Abweichungspins je Zeile) fehlen oder sind angenähert",
+                       "Sichtbar weit von der Fabric App entfernt"],
+         "limitierungen": [{"text": "Für das mehrstufige Säulendiagramm (multi_tier_column) gibt es keinen nativen visualType",
+                            "quelle": "eigene Messung 30.09.2026 gegen @microsoft/powerbi-core-visual-schema 0.1.1 (Visual Library multi_tier_column.yaml)"}],
+         "implikation": "Der Report-Emitter bleibt bei nativen visualTypes und dem IBCS-Theme."},
+        {"wert": "svg", "empfohlen": True,
+         "text": "B Native + SVG-Measures: IBCS-Elemente als SVG aus DAX in Tabelle, Matrix und Karte",
+         "vorteile": ["Keine Voraussetzung im Tenant",
+                      "Abweichungspins, Bullets und Abweichungsbalken je Zeile aus der Visual Library (powerbi_svg_dax)"],
+         "nachteile": ["SVG in DAX ist nur wartbar, wenn es generiert wird",
+                       "Ganze Charts (Wasserfall mit Szenarien, Stufendiagramm) bleiben näher an nativ als an der Fabric App"],
+         "limitierungen": [{"text": "Ein SVG-Measure ist ein Bild in einer Zelle; Auswahl und Kreuzfilter wirken auf die Zeile, nicht auf Teile des Bildes",
+                            "quelle": "eigene Einschaetzung"}],
+         "implikation": "Measures mit Bild-URL kommen generiert aus der Visual Library und werden nie von Hand gepflegt."},
+        {"wert": "fabric_apps_nah",
+         "text": "C Fabric-Apps-nah: Deneb für Charts, HTML Content (lite) für KPI-Kacheln, Kernaussage, Handlungsempfehlung, Kausalkette und Badges; Tabelle, Slicer und Navigation nativ",
+         "vorteile": ["Dieselben Vega-Lite-Specs wie in der Fabric App; Bericht und App sehen gleich aus",
+                      "Beide Visuals sind zertifiziert und bleiben in PDF, PowerPoint und Abo-E-Mails sichtbar"],
+         "nachteile": ["Bindet die Laufzeit beim Kunden an zwei Custom Visuals desselben Autors (Ausnahme von der Tool-frei-Regel, D-655)",
+                       "HTML in DAX ist nur wartbar, wenn es generiert wird",
+                       "Ob Kreuzfilter und Drillthrough aus HTML Content (lite) wirken, ist ungeprüft"],
+         "limitierungen": [{"text": "Voraussetzung ist die Tenant-Einstellung „Allow visuals created using the Power BI SDK“; sie ist ab Werk aus",
+                            "quelle": "MS Learn: fabric/admin/organizational-visuals"},
+                           {"text": "Custom Visuals werden beim PDF-Export nicht unterstützt, außer zertifizierte",
+                            "quelle": "MS Learn: power-bi/collaborate-share/end-user-pdf"},
+                           {"text": "Zertifizierte Visuals lassen sich nach PowerPoint exportieren und in Abo-E-Mails anzeigen",
+                            "quelle": "MS Learn: power-bi/developer/visuals/power-bi-custom-visuals-certified"},
+                           {"text": "Organisationsvisuals lassen sich nicht nach PowerPoint exportieren; nur zertifizierte Visuals direkt aus AppSource können das",
+                            "quelle": "MS Learn: power-bi/developer/visuals/power-bi-custom-visuals-organization"},
+                           {"text": "Microsoft kann ein Visual jederzeit von der Liste der zertifizierten Visuals nehmen",
+                            "quelle": "MS Learn: power-bi/developer/visuals/power-bi-custom-visuals-certified"},
+                           {"text": "Die Tenant-Einstellungen wirken nur im Service; für Power BI Desktop gilt eine Gruppenrichtlinie",
+                            "quelle": "MS Learn: fabric/admin/organizational-visuals"}],
+         "implikation": "Der Bericht registriert zwei AppSource-Visuals; Specs und HTML kommen generiert aus der Visual Library (D-635)."},
     ],
 }
 
@@ -2875,6 +2928,102 @@ def wartet_auf_modell(p: dict) -> bool:
     """
     return basis_id(p.get("id", "")) in modellgetriebene_ids() and not p.get("proposal")
 
+# -- Report-Darstellung in Power BI (D-655, 01.10.2026) --------------------------------------
+#
+# Drei Varianten mit Kundenwahl: `native`, `svg`, `fabric_apps_nah`. Die Empfehlung haengt an
+# einer Vorfrage, die der Bauplan nicht fuehrt: sind Custom Visuals im Tenant erlaubt? Ohne
+# Antwort gilt `unbekannt`, und die Empfehlung ist `svg` (die Vorgabe der Entscheidung). Die
+# Vorfrage steht deshalb in der Vorlage selbst (D-340) und wird hier nicht vermutet. Ein Feld im
+# Bauplan (Peer-Paar mit ALUCA) und die beiden Tenant-Einstellungen im Katalog
+# `admin_settings` sind der Folgeschritt der Generator-Runde; bis dahin reicht der Aufrufer den
+# Stand als Argument durch.
+
+#: Antworten auf die Vorfrage „Sind Custom Visuals im Tenant erlaubt?“. `nur_zertifiziert`
+#: heisst: „Add and use certified visuals only“ ist an. Variante C nutzt nur zertifizierte
+#: Visuals, deshalb fuehrt diese Antwort wie `erlaubt` zu C.
+CUSTOM_VISUALS_STAENDE: tuple[str, ...] = ("erlaubt", "nur_zertifiziert", "gesperrt", "unbekannt")
+
+#: Vorfrage -> empfohlene Option von `REPORT-RENDER`. Eine Tabelle statt einer Bedingung, damit
+#: der Test jede Antwort einzeln pruefen kann und eine neue Antwort ohne Zeile auffaellt.
+REPORT_RENDER_EMPFEHLUNG: dict[str, str] = {
+    "erlaubt": "fabric_apps_nah",
+    "nur_zertifiziert": "fabric_apps_nah",
+    "gesperrt": "svg",
+    "unbekannt": "svg",
+}
+
+
+def empfehlung_report_render(custom_visuals: str | None) -> str:
+    """Die empfohlene Option zur Vorfrage. Fehlt die Antwort, gilt `unbekannt`."""
+    stand = custom_visuals or "unbekannt"
+    if stand not in REPORT_RENDER_EMPFEHLUNG:
+        raise ValueError(f"custom_visuals: {stand!r} ist keine Antwort aus {CUSTOM_VISUALS_STAENDE}")
+    return REPORT_RENDER_EMPFEHLUNG[stand]
+
+
+_REPORT_RENDER_VORSCHLAG: dict[str, str] = {
+    "svg": ("**Variante B: native Visuals mit SVG-Measures.** IBCS-Elemente (Abweichungspins, "
+            "Bullets, Abweichungsbalken) stehen als SVG aus DAX-Measures in Tabelle, Matrix und "
+            "Karte, erzeugt aus der Visual Library (`powerbi_svg_dax`). Das braucht keine "
+            "Tenant-Einstellung und übersteht jeden Export."),
+    "fabric_apps_nah": ("**Variante C: Fabric-Apps-nah.** Charts in Deneb mit denselben "
+                        "Vega-Lite-Specs wie in der Fabric App, KPI-Kacheln, Kernaussage, "
+                        "Handlungsempfehlung, Kausalkette und Badges in HTML Content (lite), "
+                        "Tabelle, Slicer und Navigation nativ. Beide Visuals sind zertifiziert "
+                        "und direkt aus AppSource einzubinden, nicht über den "
+                        "Organisationsspeicher (sonst kein Export nach PowerPoint). **Vor dem "
+                        "Bau prüfen:** ob Kreuzfilter und Drillthrough aus HTML Content (lite) "
+                        "wirken; das ist noch ungeprüft."),
+}
+
+
+def propose_report_render(bp: dict, custom_visuals: str | None = None) -> dict:
+    """Report-Darstellung in Power BI: native, SVG oder Fabric-Apps-nah (D-655).
+
+    ``custom_visuals`` ist die Antwort auf die Vorfrage (``CUSTOM_VISUALS_STAENDE``). Der Bauplan
+    fuehrt sie nicht; ohne Antwort gilt ``unbekannt`` und damit die Vorgabe B. Die Entscheidung
+    bleibt ``offen``: der Kunde waehlt geführt, auch wenn Custom Visuals erlaubt sind, weil C die
+    Laufzeit an zwei Visuals eines Autors bindet (bewusste Ausnahme von der Tool-frei-Regel).
+    ``bp`` wird gelesen wie bei den Nachbarn, damit ``propose_all`` die Vorlage gleich aufruft.
+    """
+    del bp  # die Vorfrage steht nicht im Bauplan; siehe Modulnotiz oben
+    stand = custom_visuals or "unbekannt"
+    wahl = empfehlung_report_render(stand)
+    herkunft = {
+        "erlaubt": "Custom Visuals sind laut Kunde erlaubt.",
+        "nur_zertifiziert": "Laut Kunde sind nur zertifizierte Visuals erlaubt; Deneb und "
+                            "HTML Content (lite) sind zertifiziert.",
+        "gesperrt": "Custom Visuals sind laut Kunde gesperrt.",
+        "unbekannt": "Ob Custom Visuals im Tenant erlaubt sind, ist nicht geklärt. Die "
+                     "Einstellung „Allow visuals created using the Power BI SDK“ ist laut Learn "
+                     "ab Werk aus.",
+    }[stand]
+    r = _rec(
+        "REPORT-RENDER", "Report-Darstellung in Power BI (native, SVG oder Fabric-Apps-nah)",
+        "Vorfrage: Sind Custom Visuals im Tenant erlaubt (Einstellung „Allow visuals created "
+        "using the Power BI SDK“, ggf. „Add and use certified visuals only“)? Danach: Wie nah "
+        "folgt der Power-BI-Bericht der Fabric App, nur Bordmittel (A), SVG-Measures (B) oder "
+        "Deneb und HTML Content (lite) (C)?",
+        f"{herkunft} {_REPORT_RENDER_VORSCHLAG[wahl]}",
+        f"Vorfrage custom_visuals = `{stand}` (nicht im Bauplan, D-340); D-655; MS Learn: "
+        "fabric/admin/organizational-visuals, power-bi/developer/visuals/"
+        "power-bi-custom-visuals-certified, power-bi/collaborate-share/end-user-pdf, "
+        "power-bi/developer/visuals/power-bi-custom-visuals-organization (gelesen 01.10.2026)",
+        "mittel" if stand == "unbekannt" else "hoch",
+        ["A Native: nur Bordmittel mit IBCS-Theme, ohne Voraussetzung",
+         "B Native + SVG-Measures: ohne Voraussetzung, Vorgabe bei gesperrten oder ungeklärten "
+         "Custom Visuals",
+         "C Fabric-Apps-nah: Deneb und HTML Content (lite), Tenant-Einstellung nötig"],
+        "Fachbereich (Darstellung) + Fabric-Administration (Tenant-Einstellung)",
+        "Wir bauen Variante B: native Visuals mit SVG-Measures. Sie braucht keine Freigabe im "
+        "Tenant.",
+        status="offen")
+    # Die Landkarte ist statisch (`_OPTIONEN`), die Empfehlung haengt an der Vorfrage: `empfohlen`
+    # steht auf der Option, die der Vorschlag nennt, und nur dort.
+    for o in r["optionen"]:
+        o["empfohlen"] = o["wert"] == wahl
+    return r
+
 
 def propose_all(bp: dict, governed_catalog: dict | None = None,
                 source_schema: dict | None = None) -> list[dict]:
@@ -2948,7 +3097,9 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
                 # I-21 (FabCon Europe 2026, 30.09.2026)
                 propose_mirror_security(bp), propose_monitoring_topology(bp),
                 propose_overage(bp), propose_report_target(bp), propose_de_copilot(bp),
-                propose_purview(bp)])
+                propose_purview(bp),
+                # D-655 (01.10.2026): Vorfrage nicht im Bauplan, also `unbekannt` -> Vorgabe B
+                propose_report_render(bp)])
     _tier = propose_platform_tier(bp)      # nur auf Stacks mit Stufen-Achse und nur solange offen
     if _tier:
         out.append(_tier)
