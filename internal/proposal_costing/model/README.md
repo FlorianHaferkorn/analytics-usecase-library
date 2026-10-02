@@ -5,7 +5,7 @@ Product-specific data for proposal costing: cost drivers (prices), scenario defi
 ## cost_drivers.yaml
 
 - **Purpose:** Single source of reference prices (USD) for Fabric capacity SKUs (F2–F2048), optional OneLake storage ($/GB/month), Power BI licenses (Pro, PPU), and **services_rates** for implementation and maintenance.
-- **Fields:** `schema_version`, `valid_from`, `source_urls`, `fabric_capacity[]`, `onelake_storage`, `power_bi_licenses[]`, **`services_rates`** (optional but required when FTE are used): `implementation_usd_per_fte_month`, `maintenance_usd_per_fte_year`; optional `source`/`note` for audit. All numeric rates live only here; no fallback in code.
+- **Fields:** `schema_version`, `valid_from`, `source_urls`, `fabric_capacity[]`, `onelake_storage`, `power_bi_licenses[]`, **`fabric_regions`** (PAYG per CU hour and OneLake per GB/month per Azure region, USD and EUR; takes precedence over `fabric_capacity[]` whenever the region is listed), **`services_rates`** (optional but required when FTE are used): `implementation_usd_per_fte_month`, `maintenance_usd_per_fte_year`; optional `source`/`note` for audit. All numeric rates live only here; no fallback in code.
 - **Maintenance:** Update `valid_from` when refreshing prices; keep `source_urls` for audit. OneLake is used only when `storage_gb` is passed to `compute()`.
 
 ## scenarios.yaml

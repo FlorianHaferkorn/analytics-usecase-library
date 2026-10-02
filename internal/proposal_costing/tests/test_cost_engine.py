@@ -528,6 +528,15 @@ def test_overage_takes_the_regional_rate():
 
 
 
+def test_planning_share_takes_the_regional_rate():
+    """Bis 02.10.2026 rechnete der Planning-Anteil auch in West Europe mit 0.18 USD."""
+    we = compute("compact", {"planning_sessions": {"planner": 1}}, product_root=_product_root)
+    assert we["planning"]["usd_equivalent_per_session_window"] == pytest.approx(847 * 0.22, abs=0.01)
+    us = compute("compact", {"planning_sessions": {"planner": 1}}, product_root=_product_root,
+                 region="East US")
+    assert us["planning"]["usd_equivalent_per_session_window"] == pytest.approx(847 * 0.18, abs=0.01)
+
+
 def test_compute_us_region_keeps_the_us_table_price():
     """East US is the region the SKU table was taken from: same numbers as before 01.10.2026."""
     result = compute("compact", product_root=_product_root, region="East US")

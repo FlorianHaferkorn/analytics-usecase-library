@@ -135,15 +135,17 @@ def compute_overage(drivers: dict[str, Any], sku: str, enabled: bool | None = No
     }
 
 
-def compute_planning(drivers: dict[str, Any], sessions: dict[str, int], sku: str) -> dict[str, Any]:
+def compute_planning(drivers: dict[str, Any], sessions: dict[str, int], sku: str,
+                     payg_per_cu_hour: float | None = None) -> dict[str, Any]:
     """Fabric Planning sessions as a capacity cost position on the production SKU.
 
     Sessions consume CU of the capacity they run on, so the USD figure is the share of the
     capacity price they occupy (CU hours x PAYG per CU hour), already inside the capacity
-    line — shown for transparency, not added to the total.
+    line — shown for transparency, not added to the total. `payg_per_cu_hour` is the
+    regional rate from compute(); without it the US table applies (eastus, 0.18 USD).
     """
     load = _CAPACITY.planning_load(sessions, sku)
-    rate = payg_usd_per_cu_hour(drivers, sku)
+    rate = payg_per_cu_hour if payg_per_cu_hour is not None else payg_usd_per_cu_hour(drivers, sku)
     load["usd_equivalent_per_session_window"] = round(load["cu_hours_per_session_window"] * rate, 2)
     load["included_in_capacity_total"] = True
     load["evidence"] = "derived"
@@ -492,7 +494,8 @@ def compute(
         if overage.get("customer_question"):
             customer_questions.append(overage["customer_question"])
         if overrides.get("planning_sessions"):
-            planning = compute_planning(drivers, overrides["planning_sessions"], prod_sku)
+            planning = compute_planning(drivers, overrides["planning_sessions"], prod_sku,
+                                        regional["payg_per_cu_hour"] if regional else None)
     if prod_sku and _sku_at_least_f64(prod_sku):
         viewer_note = defaults.get("viewer_note_f64_plus", _INLINE_DEFAULTS["viewer_note_f64_plus"])
     elif prod_sku:
