@@ -43,6 +43,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Working capital on track. Cash conversion cycle within the 45-day target'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

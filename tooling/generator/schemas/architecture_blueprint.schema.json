@@ -890,9 +890,10 @@
               "shortcut",
               "shortcut_transform",
               "mirror",
-              "copy"
+              "copy",
+              "file_mlv"
             ],
-            "description": "How the source is made available. `shortcut_transform` = a OneLake shortcut with file transformations (CSV/Parquet/JSON/Excel -> Delta, polled ~2 min): it replaces an ingestion pipeline, but its TARGET TABLE IS READ-OPTIMIZED and supports neither MERGE nor DELETE — so a layer landed this way cannot be the target of an upsert."
+            "description": "How the source is made available. `shortcut_transform` = a OneLake shortcut with file transformations (CSV/Parquet/JSON/Excel -> Delta, polled ~2 min): it replaces an ingestion pipeline, but its TARGET TABLE IS READ-OPTIMIZED and supports neither MERGE nor DELETE — so a layer landed this way cannot be the target of an upsert. `file_mlv` = files already in the lakehouse (`Files/…`, CSV or Parquet) become a bronze table through a file-ingesting Materialized Lake View (`USING OneLake_Files`, D-619): no copy step, Fabric refreshes it with the other MLVs in dependency order. Opt-in per source; needs the `file_mlv` block."
           },
           "rationale": {
             "type": "string",
@@ -950,8 +951,118 @@
             },
             "uniqueItems": true,
             "description": "Optional allowlist of unqualified physical source table names. When present, source introspection must not discover other tables."
+          },
+          "file_mlv": {
+            "type": "object",
+            "description": "File-ingesting MLV for `access_mode: file_mlv` (MS Learn create-materialized-lake-view, read 01.10.2026). Limits from Learn: CSV and Parquet only; no space or %20 in the path; new files under nested folders of a shortcut are not discovered on refresh; all-uppercase schema names unsupported.",
+            "required": [
+              "format",
+              "path"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "format": {
+                "enum": [
+                  "csv",
+                  "parquet"
+                ]
+              },
+              "path": {
+                "type": "string",
+                "pattern": "^Files/[^\\s'%\\\\]+$",
+                "description": "Folder (trailing slash) or single file inside the bronze lakehouse, relative to the lakehouse root. A single file always refreshes FULL."
+              },
+              "header": {
+                "type": "boolean",
+                "default": true,
+                "description": "CSV only: first row holds column names (Learn default is false; we default to true and write it explicitly)."
+              },
+              "delimiter": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1,
+                "description": "CSV only; omitted = comma."
+              },
+              "schema_mode": {
+                "enum": [
+                  "DYNAMIC",
+                  "FIXED"
+                ],
+                "default": "DYNAMIC"
+              },
+              "refresh_mode": {
+                "enum": [
+                  "APPEND_ONLY",
+                  "FULL",
+                  "MIRROR"
+                ],
+                "default": "APPEND_ONLY",
+                "description": "APPEND_ONLY keeps bronze append-only (the medallion contract); FULL and MIRROR rewrite it and are reported by conformance."
+              },
+              "trigger": {
+                "enum": [
+                  "zeitplan",
+                  "onelake_event"
+                ],
+                "default": "zeitplan",
+                "description": "What starts the refresh (D-621). `zeitplan` (default): the time-based schedule in file_mlv/refresh_schedule.json. `onelake_event`: an event-triggered refresh on OneLake events for this folder (MS Learn schedule-lineage-run, Event-triggered (Preview), read 01.10.2026) - set up in the portal, no REST form on Learn; the time schedule stays as the reproducible fallback."
+              },
+              "dateipfad_spalte": {
+                "type": "boolean",
+                "default": false,
+                "description": "Project the `__filepath__` source metadata column (source file per row) via a FROM-less `AS SELECT *, __filepath__` appended after TBLPROPERTIES (MS Learn create-materialized-lake-view, section 'Ingest files with USING OneLake_Files', read 01.10.2026: 'optionally project the __filepath__ source metadata column when you need per-row file traceability'). Default false = no projection, DDL unchanged. ASSUMPTION, unverified: `*` returns the file columns without __filepath__."
+              },
+              "defekte_zeilen_spalte": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+                "not": {
+                  "const": "__filepath__"
+                },
+                "description": "CSV only. Name of the string column that receives the raw text of malformed rows; sets OPTIONS 'columnNameOfCorruptRecord' and projects the column in the FROM-less `AS SELECT` (MS Learn create-materialized-lake-view, section 'Ingest files with USING OneLake_Files', read 01.10.2026: 'Valid rows contain NULL in this column. Include the column in the AS SELECT output.'). Plain identifier; the Spark CSV `mode` option stays unset (Learn: Fabric manages malformed-row handling)."
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "format": {
+                      "const": "parquet"
+                    }
+                  },
+                  "required": [
+                    "format"
+                  ]
+                },
+                "then": {
+                  "not": {
+                    "required": [
+                      "defekte_zeilen_spalte"
+                    ]
+                  }
+                }
+              }
+            ]
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "access_mode": {
+                  "const": "file_mlv"
+                }
+              },
+              "required": [
+                "access_mode"
+              ]
+            },
+            "then": {
+              "required": [
+                "file_mlv"
+              ]
+            }
+          }
+        ]
       }
     },
     "medallion": {
@@ -1969,6 +2080,57 @@
               "description": {
                 "type": "string"
               }
+            }
+          }
+        },
+        "purview": {
+          "type": "object",
+          "description": "Microsoft Purview as an opt-in dock-on module (D-620). OneLake catalog (domains, endorsement, tags, scanner, descriptions) is the default governance surface and needs no Purview. Absent or im_umfang=nein: no Purview artifact is emitted, only the dock points are named. im_umfang=ja: each listed building block is emitted ready to run (governance/purview/). unbekannt: a customer question, nothing emitted.",
+          "required": [
+            "im_umfang"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "im_umfang": {
+              "enum": [
+                "ja",
+                "nein",
+                "unbekannt"
+              ]
+            },
+            "bausteine": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "labels",
+                  "dlp",
+                  "data_map",
+                  "unified_catalog",
+                  "audit",
+                  "data_quality"
+                ]
+              },
+              "description": "Building blocks in scope. labels = sensitivity labels (Purview Information Protection) on Fabric items; dlp = DLP policy for Fabric/Power BI; data_map = register and scan the Fabric tenant; unified_catalog = governance domains, data products, glossary; audit = Purview audit search/retention; data_quality = Purview Data Quality (documented only)."
+            },
+            "konto": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9-]{3,63}$",
+              "description": "Purview account name (Data Map endpoint https://<konto>.purview.azure.com)."
+            },
+            "collection": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{3,63}$",
+              "description": "Data Map collection the Fabric source is registered in (3-63 chars, no spaces)."
+            },
+            "standardlabel_id": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F-]{36}$",
+              "description": "GUID of the default sensitivity label (label policy powerbidefaultlabelid)."
+            },
+            "pflichtlabel": {
+              "type": "boolean",
+              "description": "Mandatory labeling for Fabric/Power BI content (label policy powerbimandatory)."
             }
           }
         }

@@ -8,6 +8,11 @@ Deploys PBIP/TMDL items from Git repository to Fabric workspaces using fabric-ci
 Usage:
     python fabric_release.py --environment dev --repo_path ./solution
     python fabric_release.py --environment tst --layers DE,DM --item_types SemanticModel,Report
+
+Deployment path: fabric-cicd (Fabric Items APIs), not Fabric deployment pipelines. The Learn
+restriction "deployment pipelines are not supported with workspace inbound access protection"
+(fabric/cicd/cicd-security, read 01.10.2026) therefore does not apply to this script; with
+inbound protection the agent running it must still reach Fabric from an allowed network.
 """
 import os
 import sys
@@ -16,6 +21,7 @@ import json
 import time
 import shutil
 import argparse
+import re
 import tempfile
 from pathlib import Path
 
@@ -68,20 +74,60 @@ DEFAULT_REPO_PATH = "./solution"
 DEFAULT_ITEM_TYPES = "Notebook,DataPipeline,Lakehouse,SemanticModel,Report"
 DEFAULT_LAYERS = "DE,DM,BI,Shared"
 
+# --- Deployment plan (preview), I-21 W2.7 ----------------------------------------------------
+# Learn fabric/cicd/deployment-plan/deployment-plan-automation (read 01.10.2026): a plan is
+# attached by adding `options.deploymentPlan` to Update From Git, Deploy Stage Content or Bulk
+# Import Item Definitions, each with `?beta=true` and the extra scope Item.Execute.All. The same
+# page states that the fabric-cicd library does NOT support deployment plans. This script
+# publishes through fabric-cicd, so the flag only resolves and prints the documented Bulk Import
+# request (dry run); a live release with a plan is refused instead of silently dropping it.
+FABRIC_API = "https://api.fabric.microsoft.com/v1"
+DEPLOYMENT_PLAN_SCOPES = ("Item.ReadWrite.All", "Item.Execute.All")
+_GUID = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
+
+
+def _parse_bool(value: str) -> bool:
+    """argparse helper: ``type=bool`` turns every non-empty string, including "false", into True."""
+    v = str(value).strip().lower()
+    if v in ("true", "1", "yes", "y"):
+        return True
+    if v in ("false", "0", "no", "n"):
+        return False
+    raise argparse.ArgumentTypeError(f"expected true or false, got {value!r}")
+
+def deployment_plan_request(workspace_id: str, logical_id: str) -> dict:
+    """Bulk Import Item Definitions request carrying a deployment plan (documented shape).
+
+    Only the parts this script can know: URL, plan reference, required scopes. The item
+    definition parts of the body are what fabric-cicd would publish and are not built here.
+    """
+    if not _GUID.match(logical_id or ""):
+        raise ValueError(f"deployment plan logical ID is not a GUID: '{logical_id}'")
+    return {
+        "method": "POST",
+        "url": f"{FABRIC_API}/workspaces/{workspace_id}/items/bulkImportDefinitions?beta=true",
+        "options": {
+            "allowPairingByName": False,
+            "deploymentPlan": {"logicalId": logical_id, "referenceType": "ByLogicalId"},
+        },
+        "scopes": list(DEPLOYMENT_PLAN_SCOPES),
+    }
+
 
 def load_environment_config(environment: str):
     """Load and merge environment JSON configuration."""
     script_dir = Path(__file__).parent
     base_json_path = script_dir.parent / "resources" / "environments" / "infrastructure.json"
     env_json_path = script_dir.parent / "resources" / "environments" / f"infrastructure.{environment}.json"
-    
+
     base_json = misc.load_json(str(base_json_path))
     env_json = misc.load_json(str(env_json_path))
-    
+
     if not base_json or not env_json:
         misc.print_error(f"Failed to load environment configuration for {environment}")
         return None
-    
+
     return misc.merge_json(base_json, env_json)
 
 
@@ -152,11 +198,11 @@ def release_to_workspace(
 ):
     """Release items from repository directory to Fabric workspace."""
     misc.print_subheader(f"Releasing to workspace: {workspace_name}")
-    
+
     if not os.path.exists(repository_directory):
         misc.print_error(f"Repository directory not found: {repository_directory}")
         return False
-    
+
     target_workspace = FabricWorkspace(
         workspace_id=workspace_id,
         environment=environment.upper(),
@@ -166,7 +212,6 @@ def release_to_workspace(
     )
 
     max_retries = 3
-    last_exc = None
     for attempt in range(max_retries + 1):
         try:
             misc.print_info(f"  {misc.BULLET} Publishing items from {repository_directory}...", end="")
@@ -174,7 +219,6 @@ def release_to_workspace(
             misc.print_success(f" {misc.CHECKMARK}")
             break
         except Exception as e:
-            last_exc = e
             is_transient = retry_logic is not None and retry_logic.is_transient_failure(e, str(e))
             if attempt < max_retries and is_transient:
                 misc.print_warning(f" Transient failure (attempt {attempt + 1}/{max_retries + 1}), retrying...")
@@ -191,7 +235,6 @@ def release_to_workspace(
                 misc.print_success(f" {misc.CHECKMARK}")
                 break
             except Exception as e:
-                last_exc = e
                 is_transient = retry_logic is not None and retry_logic.is_transient_failure(e, str(e))
                 if attempt < max_retries and is_transient:
                     misc.print_warning(f" Transient failure (attempt {attempt + 1}/{max_retries + 1}), retrying...")
@@ -215,57 +258,57 @@ Examples:
   python fabric_release.py --environment prd --item_types SemanticModel,Report
         """
     )
-    
+
     parser.add_argument(
         "--environment",
         required=True,
         choices=["dev", "tst", "prd"],
         help="Target environment"
     )
-    
+
     parser.add_argument(
         "--layers",
         required=False,
         default=DEFAULT_LAYERS,
         help=f"Comma-separated list of layers to deploy (default: {DEFAULT_LAYERS})"
     )
-    
+
     parser.add_argument(
         "--item_types",
         required=False,
         default=DEFAULT_ITEM_TYPES,
         help=f"Comma-separated list of item types (default: {DEFAULT_ITEM_TYPES})"
     )
-    
+
     parser.add_argument(
         "--repo_path",
         required=False,
         default=DEFAULT_REPO_PATH,
         help=f"Path to repository directory (default: {DEFAULT_REPO_PATH})"
     )
-    
+
     parser.add_argument(
         "--unpublish_items",
         required=False,
         default=True,
-        type=bool,
-        help="Whether to unpublish orphan items (default: True)"
+        type=_parse_bool,
+        help="Whether to unpublish orphan items: true|false (default: true)"
     )
-    
+
     parser.add_argument(
         "--tenant_id",
         required=False,
         default=os.environ.get('TENANT_ID'),
         help="Azure AD tenant ID (or set TENANT_ID env var)"
     )
-    
+
     parser.add_argument(
         "--client_id",
         required=False,
         default=os.environ.get('CLIENT_ID'),
         help="Service principal client ID (or set CLIENT_ID env var)"
     )
-    
+
     # Geheimnis nur ueber die Umgebung (CLIENT_SECRET / AZURE_CLIENT_SECRET); das
     # Argument ist nur noch deklariert, um einen alten Aufruf laut abzulehnen.
     parser.add_argument(
@@ -319,6 +362,16 @@ Examples:
         help="Resolve and report what would be published without calling Fabric"
     )
 
+    parser.add_argument(
+        "--deployment_plan_logical_id",
+        required=False,
+        default=None,
+        help="Deployment plan (preview) logical ID from the plan's .platform file. Off by "
+             "default. Dry run only: prints the Bulk Import request with options.deploymentPlan. "
+             "fabric-cicd does not support deployment plans, so a live release with this flag "
+             "is refused."
+    )
+
     args = parser.parse_args()
 
     # deploy.ps1 exports SP credentials as AZURE_* (what azure-identity expects); accept
@@ -333,6 +386,17 @@ Examples:
     # usable as a CI check).
     offline_dry_run = args.dry_run and bool(args.workspace_id)
 
+    if args.deployment_plan_logical_id:
+        if not _GUID.match(args.deployment_plan_logical_id):
+            misc.print_error("--deployment_plan_logical_id must be a GUID (the plan's logicalId)")
+            sys.exit(1)
+        if not args.dry_run:
+            misc.print_error("--deployment_plan_logical_id: fabric-cicd does not support "
+                             "deployment plans (Learn, deployment-plan-automation); this script "
+                             "only prints the Bulk Import request in --dry_run. Release without "
+                             "a plan, or attach the plan via Update From Git / Deploy Stage Content.")
+            sys.exit(1)
+
     # Validate required arguments
     if not offline_dry_run and (not args.tenant_id or not args.client_id or not args.client_secret):
         misc.print_error("Error: tenant_id, client_id, and client_secret are required")
@@ -341,7 +405,7 @@ Examples:
                         "(TENANT_ID/CLIENT_ID/CLIENT_SECRET or AZURE_TENANT_ID/AZURE_CLIENT_ID/AZURE_CLIENT_SECRET)")
         sys.exit(1)
 
-    if args.workspace_id and len([l for l in args.layers.split(",") if l.strip()]) > 1:
+    if args.workspace_id and len([layer for layer in args.layers.split(",") if layer.strip()]) > 1:
         misc.print_error("--workspace_id targets one workspace but --layers names several; "
                          "pass a single layer or drop --workspace_id")
         sys.exit(1)
@@ -384,18 +448,18 @@ Examples:
     env_definition = load_environment_config(args.environment)
     if not env_definition:
         sys.exit(1)
-    
+
     # Parse layers and item types
     layers_to_deploy = [layer.strip().upper() for layer in args.layers.split(",")]
     item_type_list = [item_type.strip() for item_type in args.item_types.split(",")]
-    
+
     # Get solution name template and capacity
     solution_name_template = env_definition.get("name", "")
     environment_name = env_definition.get("generic", {}).get("environment_name", args.environment)
     layers = env_definition.get("layers", {})
-    
+
     misc.print_header(f"Releasing to {environment_name.upper()} environment")
-    
+
     success_count = 0
     fail_count = 0
     enable_rollback = getattr(args, "enable_rollback", False) and rollback
@@ -417,17 +481,17 @@ Examples:
     for layer_name, layer_def in layers.items():
         if layer_name.upper() not in layers_to_deploy:
             continue
-        
+
         if not isinstance(layer_def, dict):
             continue
-        
+
         # Get workspace name and ID
         workspace_name = misc.format_workspace_name(
             solution_name_template,
             layer_name,
             environment_name
         )
-        
+
         # An explicit --workspace_id wins: the caller already resolved/created it.
         if args.workspace_id:
             workspace_id = args.workspace_id
@@ -484,6 +548,9 @@ Examples:
                 f"to '{workspace_name}' ({workspace_id}); "
                 f"unpublish_orphans={unpublish_orphans}"
             )
+            if args.deployment_plan_logical_id:
+                plan_request = deployment_plan_request(workspace_id, args.deployment_plan_logical_id)
+                misc.print_info(f"  [DRY-RUN] deployment plan request: {json.dumps(plan_request)}")
             if staged_dir:
                 shutil.rmtree(staged_dir, ignore_errors=True)
             success_count += 1

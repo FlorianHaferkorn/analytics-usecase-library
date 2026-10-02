@@ -31,6 +31,12 @@ data_fit:
 tokens:
   col_line: color_semantics.neutral # #94A0AC (per-series recolour at gen time)
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field: {role: value, required: true}
+  field_period: {role: period, required: true}
+  field_series: {role: series, required: true}
+
 canonical_params:
   entity: "_Measures"
   measure: "Gross Margin %"

@@ -253,6 +253,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Overall Equipment Effectiveness (OEE) %, Unplanned Downtime %, Availability %, Performance %, Quality % and Scrap Rate % by Asset Name and Category'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

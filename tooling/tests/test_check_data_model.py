@@ -88,6 +88,27 @@ def test_parse_model_reads_facts_and_dims(tmp_path):
 
 # --- integration smoke: the shipped ontology is production-clean ------------
 
+# Meridian D-578 (29.09.2026): die Showdaten liegen nicht mehr in Git. Der Vertragsteil laeuft
+# immer; der Gold-Teil (ORPHAN-FK) nur mit Daten, sonst „nicht gelaufen" im Skip-Grund.
+from showcases.aurora_group.data import showdaten  # noqa: E402
+
+
+def test_shipped_contracts_have_no_hard_findings():
+    hard, _advisory = cdm.run(with_gold=False)
+    assert hard == [], "data-model hard findings in the shipped contracts:\n" + "\n".join(hard)
+
+
+@showdaten.pytest_markierung()
 def test_shipped_model_has_no_hard_findings():
     hard, _advisory = cdm.run(with_gold=True)
     assert hard == [], "data-model hard findings in the shipped contracts:\n" + "\n".join(hard)
+
+
+def test_missing_gold_is_not_run_not_green(tmp_path, monkeypatch, capsys):
+    """Ohne Gold-Daten liefen ORPHAN-FK/DEGENERATE-KEY ueber nichts: Exit 2, nicht 0."""
+    monkeypatch.setattr(cdm, "GOLD", tmp_path / "gold")
+    monkeypatch.setattr(sys, "argv", ["check_data_model.py"])
+    assert cdm.main() == 2
+    assert "nicht gelaufen" in capsys.readouterr().out
+    monkeypatch.setattr(sys, "argv", ["check_data_model.py", "--no-gold"])
+    assert cdm.main() == 0

@@ -72,6 +72,15 @@ def test_active_theme_reads_report_json(tmp_path):
     assert active_theme(rep) == "Brand_Navy"
 
 
+def test_active_theme_ignores_pbir_legacy_root_report_json(tmp_path):
+    """I-21 W5.8: PBIR only. A root report.json (PBIR-Legacy) is no longer read."""
+    rep = tmp_path / "UC-L.Report"
+    rep.mkdir()
+    (rep / "report.json").write_text(
+        json.dumps({"themeCollection": {"customTheme": {"name": "Legacy_Theme"}}}), encoding="utf-8")
+    assert active_theme(rep) is None
+
+
 def test_consistency_passes_when_all_share_one_theme(tmp_path):
     _make_active(tmp_path, "UC-A", "Brand_Navy")
     _make_active(tmp_path, "UC-B", "Brand_Navy")

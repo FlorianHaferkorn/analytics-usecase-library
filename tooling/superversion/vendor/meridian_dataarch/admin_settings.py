@@ -411,9 +411,11 @@ CATALOG: list[dict[str, Any]] = [
         "target": "on; thresholds derived from the first full measurement window, never set up front",
         "who": "Capacity admin", "automatable": False,
         "how": ("capacity-admin portal action: OneLake catalog → Govern → Capacities → select the "
-                "capacity → More options → Settings → Surge protection → Background Operations On → "
-                "rejection + recovery threshold → Apply (fallback where Govern is not rolled out: Admin "
-                "portal → Capacity settings → select the capacity → Surge protection)"),
+                "capacity → More options → Configure surge protection (or → Settings → Surge "
+                "protection) → Background Operations On → rejection + recovery threshold → Apply "
+                "(fallback where Govern is not rolled out, and the path the surge-protection page "
+                "itself documents: Admin portal → Capacity settings → select the capacity → Surge "
+                "protection; both read 01.10.2026)"),
         "why": ("without it the capacity's 24-hour background percentage may reach 100% before background "
                 "operations are rejected, and the deep throttling that follows recovers slowly"),
         "required": "yes",
@@ -432,8 +434,13 @@ CATALOG: list[dict[str, Any]] = [
             "Workspace-level surge protection is the second half and a separate decision: a per-"
             "workspace CU cap over a rolling 24-hour window, plus the states *Available* / *Mission "
             "critical* / *Blocked*. Two properties decide whether it fits — the check runs every five "
-            "minutes, so the cap is soft; and raising the limit does **not** release a workspace that "
-            "is already blocked, a capacity admin sets it back to *Available* by hand.\n\n"
+            "minutes, so the cap is soft; and raising the limit or deleting the rule does **not** "
+            "release a workspace that is already blocked — change the limit first, then unblock it "
+            "(Admin portal → Capacity settings → the capacity → *Workspaces* table → *Unblock*, review "
+            "the consumption, confirm). Unblocking can *forgive* the consumption already recorded, so "
+            "it no longer counts toward the rolling 24-hour total; operations already in progress are "
+            "neither cancelled nor restarted nor billed differently. Setting a blocked workspace to "
+            "*Mission critical* also unblocks it.\n\n"
             "Two things to settle before switching the workspace cap on. *Blocked* is a harder stop "
             "than the capacity-level one: capacity level rejects background operations, a blocked "
             "workspace rejects **all** operations, interactive included — to its users that looks "
@@ -442,28 +449,40 @@ CATALOG: list[dict[str, Any]] = [
             "all users of the workspace*; fallback Admin portal → Capacity settings → *Throttling "
             "notifications*) so they read a limit instead of guessing at a fault. And the rolling 24-hour window does not reset "
             "when a block expires: a workspace whose usage still sits above the cap is blocked "
-            "again straight away."),
+            "again straight away.\n\n"
+            "The capacity level has its own notifications in the same place: *Display a banner to all "
+            "users of the capacity* and *Email capacity administrators contacts (preview)*; they fire "
+            "when the capacity approaches or enters throttling, activates surge protection, recovers, "
+            "and returns to a healthy state. Watch the effect in the Capacity Metrics app → Compute → "
+            "*System events* (`SurgeProtectionActive`, `InteractiveDelayAndSurgeProtectionActive`, "
+            "`InteractiveRejectedAndSurgeProtectionActive`, back to `NotOverloaded`); rejected "
+            "requests carry the status *RejectedSurgeProtection* on the Timepoint page (surge-"
+            "protection page read 01.10.2026)."),
         "grenzen": (
             "Fabric SKUs only — no other SKU type is supported.",
             "In-progress jobs are not stopped, so the rejection threshold is not an upper bound on the "
             "24-hour background percentage: running jobs keep reporting usage past it.",
             "Operations billed with Autoscale are not blocked.",
+            "Some requests started from the Fabric UI are billed as background operations or depend "
+            "on one; while surge protection is active they are rejected too, so users see it in the UI.",
             "OneLake activities are unaffected.",
             "It does not guarantee interactive requests escape delay or rejection — at the capacity's "
             "maximum compute limit they are delayed or rejected regardless.",
             "Workspace level: Dataflows Gen1, paginated reports, scorecards, graph models, Activator "
-            "and Dataflow Gen2 editing are outside its reach; Autoscale compute is excluded from the "
-            "per-workspace calculation.",
-            "*Mission critical* is worth less than it reads, and MS's own page says both things. Its "
-            "capability list calls the state \"immune from blocking\" and the state table answers "
+            "(no new Activators in a blocked workspace, existing ones may keep running) and Dataflow "
+            "Gen2 editing (its refreshes are blocked) are outside its reach; Autoscale compute is "
+            "excluded from the per-workspace calculation.",
+            "*Mission critical* is worth less than it reads, and MS's own page says both things. The "
+            "state table calls it \"exempt from capacity-level surge protection rules\" and answers "
             "\"subject to capacity-level surge protection? No\"; the same page's limitations say "
-            "\"Mission-critical status does not override capacity-level surge protection\" and the "
-            "control description narrows it to \"exempt from workspace consumption limits\" (page read "
-            "20.08.2026). We deliver the conservative reading: it lifts the per-workspace cap and "
+            "\"Mission-critical status doesn't override capacity-level surge protection\", and the "
+            "unblock section narrows it to \"exempt from workspace-level surge protection\" (page read "
+            "01.10.2026; still contradictory as on 20.08.2026). We deliver the conservative reading: it lifts the per-workspace cap and "
             "nothing else. Do not plan a critical workload around surviving capacity-level throttling "
             "on this flag — isolate it in its own capacity, which is what MS recommends anyway.",
             "There is no API. Every documented path for this setting is a portal step, on the surge-"
-            "protection page and on `fabric/admin/capacity-settings` alike (both read 20.08.2026). The "
+            "protection page and on `fabric/admin/capacity-settings` alike (both read 20.08.2026; "
+            "surge-protection page re-read 01.10.2026, still portal only). The "
             "capacity REST surfaces that do exist reach other things: Azure `Microsoft.Fabric/"
             "capacities` creates, pauses, resumes and resizes; the Power BI `Capacities` APIs "
             "configure Premium workloads; `sempy.fabric.admin` reads the capacity state. None of them "

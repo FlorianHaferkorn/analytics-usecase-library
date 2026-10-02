@@ -1,0 +1,945 @@
+# Reporting Feature Catalog (A-31 R7, 30.09.2026). Schema:
+# tooling/generator/schemas/reporting_feature_catalog.schema.json; test:
+# tooling/tests/test_reporting_feature_catalog.py. One entry per feature a report or cockpit user
+# expects; sources are entry ids of docs/architecture/research/2026-09-30_visual-stack-r1/*.yaml.
+# meridian_module = module of the Meridian Cockpit plan (M1 Shell, M2 Reports, M3 Steuerung,
+# M4 Wissen, M5 Transparenz, M6 KI, M7 Zusammenarbeit, M8 Betrieb).
+schema_version: "1.0.0"
+# Corpus entries of the feature strands (interaction_*, capability_*) that no feature carries, each
+# with its reason; the test demands every entry is either a source or listed here.
+excluded_sources:
+  - {id: pbi-117, reason: "Befund über fehlende Microsoft-Learn-Doku zu VegaVisual, keine Nutzerfunktion."}
+  - {id: market-039, reason: "Scrollytelling ist ein Erzählformat für Redaktionen, kein Berichts- oder Cockpit-Bedarf."}
+features:
+  # --- chart: reading a single visual -------------------------------------------------------
+  - id: feat-001
+    area: chart
+    name: Tooltip je Datenpunkt
+    user_need: Beim Zeigen auf einen Balken oder Punkt Kategorie und Wert mit Einheit lesen.
+    sources: [pbi-001, pbi-002, users-017, pbi-114, pbi-003]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: aluca_spec
+    meridian_module: M2
+    status: done
+    tests: [tooling/visual_library/tests/test_tooltips.py, "freelancing:meridian/tool-layers/fabric/tests/test_cockpit_data.py"]
+    user_value: high
+    priority: 1
+    note: Rollen je Feld liefern das Format (de-DE); Text-Marks tragen keinen Tooltip.
+  - id: feat-002
+    area: chart
+    name: Führungslinie mit Tooltip über alle Reihen
+    user_need: Auf einer Zeitachse einen Monat anfahren und Ist und Plan dieses Monats zusammen sehen.
+    sources: [pbi-007, market-006, market-011, market-012, market-036]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: true
+    home: aluca_spec
+    meridian_module: M2
+    status: done
+    tests: [tooling/visual_library/tests/test_tooltips.py]
+    user_value: high
+    priority: 1
+    note: Hover-Regel mit nearest-Selektion; Achsenwert-Label am Crosshair (market-012) offen.
+  - id: feat-003
+    area: chart
+    name: Tooltip mit Drill-Aktionen
+    user_need: Aus dem Tooltip direkt in die nächste Ebene oder die Detailseite springen.
+    sources: [pbi-004, pbi-100]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M2
+    status: gap
+    user_value: medium
+    priority: 3
+  - id: feat-004
+    area: chart
+    name: Mini-Chart im Tooltip
+    user_need: Beim Zeigen auf eine Kategorie ihren Verlauf klein sehen, ohne die Seite zu wechseln.
+    sources: [pbi-005, market-014]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: false
+    home: aluca_spec
+    meridian_module: M2
+    status: gap
+    user_value: medium
+    priority: 3
+  - id: feat-005
+    area: chart
+    name: Datenbeschriftung selektiv und kollisionsfrei
+    user_need: Die wichtigen Werte direkt am Balken lesen, ohne dass Beschriftungen sich überdecken.
+    sources: [pbi-072, users-019, users-020, market-040]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: true
+    home: aluca_spec
+    meridian_module: M2
+    status: done
+    tests: [tooling/visual_library/tests/test_marks_and_labels.py, "freelancing:meridian/tests/test_check_fabric_app_layout.py"]
+    user_value: high
+    priority: 1
+    note: Labels unter 10 Kategorien, Vorzeichen-Platzierung, IBCS-Linienlabels nur Anfang/Ende/Extrema; G14 misst Kollisionen und seit R7 auch zu '…' gekürzte Labels (45 Befunde behoben über disableTextTruncation).
+  - id: feat-006
+    area: chart
+    name: Balkenbreite, Abstände und Nulllinie nach Regel
+    user_need: Balken vergleichen können, ohne dass Breite oder abgeschnittene Achsen täuschen.
+    sources: [pbi-073]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: true
+    home: aluca_spec
+    meridian_module: M2
+    status: done
+    tests: [tooling/visual_library/tests/test_marks_and_labels.py, tooling/visual_library/tests/test_zero_baseline_all_profiles.py]
+    user_value: high
+    priority: 1
+  - id: feat-007
+    area: chart
+    name: Referenzlinien (Plan, Durchschnitt, Schwelle)
+    user_need: Auf einen Blick sehen, ob ein Wert über oder unter Ziel oder Durchschnitt liegt.
+    sources: [pbi-074, market-002, users-003]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: true
+    home: aluca_spec
+    meridian_module: M2
+    status: partial
+    tests: [tooling/visual_library/tests/test_marks_and_labels.py]
+    user_value: high
+    priority: 1
+    note: Planlinie mit Direktlabel gebaut; Durchschnitt und Brush-Mittelwert (market-002) offen.
+  - id: feat-008
+    area: chart
+    name: Trend, Forecast und Anomalie im Liniendiagramm
+    user_need: Sehen, wohin sich eine Kennzahl entwickelt und welcher Monat aus der Reihe fällt.
+    sources: [pbi-075, pbi-076, market-015, di-024, di-026, di-027, pbi-077]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: false
+    home: meridian_backend
+    meridian_module: M6
+    status: gap
+    user_value: medium
+    priority: 2
+  - id: feat-009
+    area: chart
+    name: Small Multiples mit gemeinsamer Achse
+    user_need: Dieselbe Kennzahl für mehrere Regionen nebeneinander vergleichen.
+    sources: [pbi-078]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: aluca_spec
+    meridian_module: M2
+    status: planned
+    user_value: high
+    priority: 2
+  - id: feat-010
+    area: chart
+    name: Top N mit Restzeile
+    user_need: Die zehn größten Posten sehen und den Rest als eine Summe, statt 80 Balken.
+    sources: [market-009, market-027, pbi-071]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: aluca_spec
+    meridian_module: M2
+    status: done
+    tests: [tooling/visual_library/tests/test_top_n_and_polarity.py, "freelancing:meridian/tool-layers/fabric/tests/test_cockpit_data.py"]
+    user_value: high
+    priority: 1
+    note: "R7: render_target faltet gebundene Daten auf top_n (Standard 20) mit Restzeile 'Übrige (k)'; ohne Summe für Quoten, summiert nur additiv (Beiträge). Vorher schnitt das Cockpit still ab (OPS-002: 10 Regionen, 3 gezeigt)."
+  - id: feat-011
+    area: chart
+    name: Abweichungsfarbe dreht bei Kostenkennzahlen
+    user_need: Mehr Kosten als Plan erscheint als schlecht, mehr Umsatz als gut.
+    sources: [market-028]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: kpi_catalog
+    meridian_module: M2
+    status: partial
+    tests: [tooling/visual_library/tests/test_top_n_and_polarity.py, "freelancing:meridian/tool-layers/fabric/tests/test_cockpit_data.py"]
+    user_value: high
+    priority: 1
+    note: "R7: bar_ranking (Hausprofil) bewertet über polarity, worst first folgt der Richtung; Cockpit liest direction aus kpi.json. Offen: Verlauf gegen Plan im Hausprofil, Polarität als Feld im ALUCA-KPI-Katalog."
+  - id: feat-012
+    area: chart
+    name: Zoom und Pan auf Zeitachsen
+    user_need: In einen Zeitraum hineinzoomen und per Doppelklick zurück.
+    sources: [pbi-070, market-003, market-004, market-033]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: true
+    home: aluca_spec
+    meridian_module: M2
+    status: gap
+    user_value: medium
+    priority: 3
+  - id: feat-013
+    area: chart
+    name: Annotationen und datengebundene Kommentare
+    user_need: Ein Ereignis (Preisaktion, Streik) am Datum im Chart vermerkt sehen.
+    sources: [market-013, market-030, market-038, market-040, users-024]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: aluca_spec
+    meridian_module: M7
+    status: gap
+    user_value: high
+    priority: 2
+  - id: feat-014
+    area: chart
+    name: Aussagetitel statt Beschriftungstitel
+    user_need: Im Titel lesen, was der Chart aussagt, nicht nur was er zeigt.
+    sources: [users-009, users-008]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M2
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/tests/test_cockpit_data.py"]
+    user_value: high
+    priority: 2
+    note: Kurztitel und Untertitel gebaut; generierte Aussage (SAY) offen, gehört mit M6 zusammen.
+  # --- page: cross-filter, selection, layout ------------------------------------------------
+  - id: feat-020
+    area: page
+    name: Kreuzfilter und Hervorheben zwischen Visuals
+    user_need: Auf eine Region klicken und alle anderen Charts der Seite zeigen nur diese Region.
+    sources: [pbi-010, pbi-012, pbi-013, pbi-110, pbi-111, market-017, market-025, pbi-115]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M2
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
+    user_value: high
+    priority: 1
+    note: "R7: onInteraction -> Filter nur auf Dimensionsspalten mit bekannten Werten, wirkt auf alle Zonen mit derselben Spaltenüberschrift, Quelle hebt hervor (Self-Highlight erst mit einer Tabelle als data). Offen: in den Vorschaudaten teilen Zonen einer Seite keine Dimension, sichtbar wird es erst mit Live-Daten oder per Drillthrough."
+  - id: feat-021
+    area: page
+    name: Mehrfachauswahl und Legenden-Auswahl
+    user_need: Zwei Regionen zugleich wählen oder eine Reihe über die Legende isolieren.
+    sources: [pbi-011, pbi-014, market-005, market-035, pbi-015, pbi-016, pbi-017]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: aluca_spec
+    meridian_module: M2
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
+    user_value: medium
+    priority: 2
+    note: "R7: Strg/Umschalt-Klick vereinigt Werte je Spalte. Offen: Auswahl über die Legende."
+  - id: feat-022
+    area: page
+    name: Geteiltes Crosshair über alle Panels
+    user_need: Beim Zeigen auf März in einem Chart März in allen Zeit-Charts der Seite markiert sehen.
+    sources: [market-032]
+    pbi_status: absent
+    must_have: false
+    beyond_pbi: true
+    home: cockpit_shell
+    meridian_module: M2
+    status: gap
+    user_value: high
+    priority: 2
+  - id: feat-023
+    area: page
+    name: Eine Seite, ein Bildschirm, auf einen Blick lesbar
+    user_need: Die Kernaussage ohne Scrollen und ohne Klicken erfassen.
+    sources: [users-001, users-002, users-029]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: done
+    tests: ["freelancing:meridian/tests/test_check_fabric_app_layout.py", tooling/visual_library/tests/test_zone_vocabulary.py]
+    user_value: high
+    priority: 1
+    note: Zonen aus Seitenvorlagen mit Zweck (R5), G14/G15 messen Überlauf bei 1280/1024/390 px.
+  - id: feat-024
+    area: page
+    name: Responsive und mobil lesbar
+    user_need: Den Bericht auf dem Telefon lesen, ohne abgeschnittene Werte.
+    sources: [pbi-102, pbi-101, market-031, users-026, users-018, pbi-103]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: done
+    tests: ["freelancing:meridian/tests/test_check_fabric_app_layout.py"]
+    user_value: medium
+    priority: 1
+    note: G15 misst 390 px; Touch-Ersatz für Hover (Long-Tap) offen.
+  - id: feat-025
+    area: page
+    name: Dunkelmodus mit gleicher Salienz
+    user_need: Den Bericht im Dark Mode lesen, ohne dass Gitter heller als Daten wirkt.
+    sources: [pbi-096]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: true
+    home: aluca_spec
+    meridian_module: M1
+    status: done
+    tests: [tooling/visual_library/tests/test_profile_targets.py, tooling/visual_library/tests/test_contrast.py, "freelancing:meridian/tests/test_rayfin_theme.py"]
+    user_value: medium
+    priority: 2
+  # --- navigation: drill ---------------------------------------------------------------------
+  - id: feat-030
+    area: navigation
+    name: Drill-down und Drill-up in Hierarchien
+    user_need: Von Jahr auf Monat oder von Region auf Filiale klicken.
+    sources: [pbi-020, pbi-021, market-024]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M2
+    status: planned
+    user_value: high
+    priority: 1
+    note: "Blockiert durch Daten: die Vorschaudaten haben keine Hierarchie; kommt mit Live-Daten über das Semantic Model."
+  - id: feat-031
+    area: navigation
+    name: Drillthrough auf Detailseite mit Zurück
+    user_need: Von einer auffälligen Filiale auf ihre Detailseite springen und zurück.
+    sources: [pbi-022, pbi-023, pbi-024, market-010, market-021]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: done
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
+    user_value: high
+    priority: 1
+    note: "R7: Drillthrough auf Seiten desselben Use Case, nur wenn die Auswahl dort Zeilen findet; Filter und Herkunft in der URL, Zurück-Knopf."
+  - id: feat-032
+    area: navigation
+    name: Drill anywhere nach beliebigem Attribut
+    user_need: Einen Wert nach einer Dimension aufschlüsseln, die der Berichtsautor nicht vorgesehen hat.
+    sources: [market-018, market-019, market-020, market-022, users-022, bi-038]
+    pbi_status: absent
+    must_have: false
+    beyond_pbi: true
+    home: cockpit_shell
+    meridian_module: M2
+    status: gap
+    user_value: high
+    priority: 2
+  - id: feat-033
+    area: navigation
+    name: Kuratierte Drill-Felder je Kennzahl
+    user_need: Beim Drill nur die fachlich sinnvollen Aufschlüsselungen angeboten bekommen.
+    sources: [market-023]
+    pbi_status: absent
+    must_have: false
+    beyond_pbi: true
+    home: kpi_catalog
+    meridian_module: M2
+    status: gap
+    user_value: high
+    priority: 2
+  - id: feat-034
+    area: navigation
+    name: Fragen als Navigation, Suche und Favoriten
+    user_need: Den Bericht über die Frage finden, die ich beantworten will, nicht über den Dateinamen.
+    sources: [users-001, bi-028]
+    pbi_status: absent
+    must_have: false
+    beyond_pbi: true
+    home: cockpit_shell
+    meridian_module: M1
+    status: done
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
+    user_value: medium
+    priority: 2
+    note: "R8: Fragen-Navigation und Suche (⌘K) aus W1, dazu Favoriten und „Zuletzt geöffnet“ je App."
+  # --- time and filters ----------------------------------------------------------------------
+  - id: feat-040
+    area: time
+    name: Szenario-Schalter AC gegen PL, PY, FC
+    user_need: Mit einem Klick von Ist gegen Plan auf Ist gegen Vorjahr wechseln.
+    sources: [market-029, users-004, users-003, bi-026, bi-027]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: cockpit_shell
+    meridian_module: M2
+    status: planned
+    user_value: high
+    priority: 1
+    note: "Offen - Schalter je Seite (empfohlen). Blockiert durch Daten: die Vorschaudaten haben kein PY, und FC hat keine Datenrolle in der Library (R3 offen)."
+  - id: feat-041
+    area: time
+    name: Relativer Zeitraum und Datumsauswahl
+    user_need: Letzte 12 Monate oder laufendes Jahr wählen, ohne Daten einzutippen.
+    sources: [pbi-051, pbi-052, bi-024, bi-025]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
+    user_value: high
+    priority: 1
+    note: "R8: relative Zeiträume 4 Wochen, 3, 6, 12 Monate (im Link); Wochenachse in KW. Offen: laufendes Jahr, freie Datumsauswahl."
+  - id: feat-042
+    area: self_service
+    name: Slicer und Filterbereich mit sichtbaren aktiven Filtern
+    user_need: Nach Region oder Warengruppe filtern und jederzeit sehen, welche Filter gelten.
+    sources: [pbi-050, pbi-053, pbi-054, pbi-045, pbi-057, users-016, market-008, market-034]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: done
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
+    user_value: high
+    priority: 1
+    note: "R7: Auswahlleiste mit Reichweite und Aufheben; R8: Filterbereich je Seite mit Slicer je Dimension, aktive Anzahl am Slicer, Filter im Link."
+  - id: feat-043
+    area: self_service
+    name: Kennzahl oder Dimension wechseln (Field Parameters)
+    user_need: Im selben Chart von Umsatz auf Marge wechseln.
+    sources: [pbi-055, market-026]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M2
+    status: planned
+    user_value: high
+    priority: 2
+  - id: feat-044
+    area: self_service
+    name: Lesezeichen und gemerkter Zustand
+    user_need: Meine Filterauswahl speichern und beim nächsten Öffnen wiederfinden.
+    sources: [pbi-060, pbi-062, bi-029, bi-030]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
+    user_value: medium
+    priority: 2
+    note: "R8: Zustand (Seite, Filter, Zeitraum) im Link teilbar, Favoriten gemerkt. Offen: benannte Lesezeichen mit Filterstand."
+  - id: feat-045
+    area: self_service
+    name: Visual personalisieren und sortieren
+    user_need: Einen Chart selbst nach Wert sortieren oder den Diagrammtyp ändern.
+    sources: [pbi-036, pbi-061]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M2
+    status: gap
+    user_value: medium
+    priority: 3
+  # --- distribution: export, print -----------------------------------------------------------
+  - id: feat-050
+    area: distribution
+    name: Zahlen hinter dem Chart als Tabelle
+    user_need: Die Werte eines Charts als Tabelle sehen, auch für Screenreader.
+    sources: [pbi-032, pbi-033, pbi-094, pbi-095, users-005, users-021, users-025, market-007]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M2
+    status: done
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
+    user_value: high
+    priority: 1
+    note: "R7: 'Als Tabelle' schaltet auf das offizielle DataGrid mit denselben (gefilterten) Daten; Sortieren, Filtern, Kopieren bringt das Grid mit. Screenreader-Tabelle per Tastenkürzel offen."
+  - id: feat-051
+    area: distribution
+    name: Export nach Excel, wie das Visual es zeigt
+    user_need: Die Zahlen des Charts in Excel weiterverarbeiten.
+    sources: [pbi-034, pbi-035, users-006, users-007, bi-039]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M2
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
+    user_value: high
+    priority: 1
+    note: "R7: Export als CSV für deutsches Excel (Semikolon, Dezimalkomma, BOM) der gezeigten Tabelle. Offen: echtes xlsx, und ob der Fabric-Host Downloads aus der App zulässt (UNKLAR)."
+  - id: feat-052
+    area: distribution
+    name: Bild, PDF und Druck für Sitzungen
+    user_need: Einen Chart oder die Seite mit Filterkontext in die Vorstandsvorlage übernehmen.
+    sources: [pbi-038, pbi-116, users-030, bi-005, bi-006, bi-007, bi-008, bi-062]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M2
+    status: planned
+    user_value: medium
+    priority: 2
+    note: exportToFile gilt nur für Power-BI-Berichte; Cockpit baut Druck/PDF selbst oder nutzt einen Zwillingsbericht in derselben Org App.
+  - id: feat-053
+    area: alerting
+    name: Abos und Datenalarme
+    user_need: Benachrichtigt werden, wenn eine Kennzahl eine Schwelle reißt, statt nachzusehen.
+    sources: [pbi-040, pbi-041, users-027, market-015, di-021, di-022, di-023, di-025, bi-018, bi-019, bi-063, bi-065, bi-066, bi-070]
+    pbi_status: fabric_feature
+    must_have: true
+    beyond_pbi: true
+    home: fabric_platform
+    meridian_module: null
+    gap_reason: Kein Cockpit-Modul besitzt Push; offen, ob Fabric Activator konfiguriert oder M3 erweitert wird. Activator auf Berichten laut Power-BI-Doku F64+/Premium, laut Activator-Doku jede Fabric-Kapazität (UNKLAR, di-022).
+    status: gap
+    user_value: high
+    priority: 2
+  # --- trust ---------------------------------------------------------------------------------
+  - id: feat-060
+    area: trust
+    name: Datenstand sichtbar
+    user_need: Wissen, von wann die Zahlen sind, bevor ich sie weitergebe.
+    sources: [pbi-046, users-010, bi-044]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M4
+    status: planned
+    user_value: high
+    priority: 1
+  - id: feat-061
+    area: trust
+    name: KPI-Steckbrief und Glossar am Chart
+    user_need: Nachlesen, wie eine Kennzahl definiert ist, direkt aus dem Chart heraus.
+    sources: [users-028, users-011, pbi-006, di-015, bi-050]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: kpi_catalog
+    meridian_module: M4
+    status: planned
+    user_value: high
+    priority: 1
+  - id: feat-062
+    area: trust
+    name: Datenqualität und Herkunft prüfbar
+    user_need: Sehen, ob die Daten vollständig geladen sind und woher eine Zahl stammt.
+    sources: [users-012, users-013, bi-045, bi-046, bi-047, bi-048]
+    pbi_status: fabric_feature
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M5
+    status: planned
+    user_value: high
+    priority: 1
+  - id: feat-063
+    area: trust
+    name: Keine Scheingenauigkeit
+    user_need: Werte in sinnvoller Genauigkeit lesen, nicht mit sechs Nachkommastellen.
+    sources: [users-020, bi-031]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: aluca_spec
+    meridian_module: M2
+    status: done
+    tests: [tooling/visual_library/tests/test_tooltips.py]
+    user_value: medium
+    priority: 1
+    note: Formate aus Feldrollen, de-DE-Locale im Profil.
+  # --- collaboration, AI -----------------------------------------------------------------------
+  - id: feat-070
+    area: collaboration
+    name: Kommentare am Datenpunkt mit Erwähnung
+    user_need: Eine Abweichung kommentieren und die verantwortliche Person darauf hinweisen.
+    sources: [pbi-039, users-023, users-008, di-036, bi-015, bi-051, bi-052, bi-053]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: true
+    home: cockpit_shell
+    meridian_module: M7
+    status: planned
+    user_value: medium
+    priority: 2
+  - id: feat-071
+    area: decision
+    name: Erklären, warum sich eine Kennzahl verändert hat
+    user_need: Nach einem Einbruch die Treiber der Veränderung genannt bekommen.
+    sources: [pbi-042, market-016, di-016, di-017, di-018]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M3
+    status: partial
+    tests: [tooling/visual_library/tests/test_zone_vocabulary.py]
+    user_value: high
+    priority: 1
+    note: Beitragszerlegung (Waterfall PVM) als Zweck contribution_to_change gebaut; statistische Treibersuche offen.
+  - id: feat-072
+    area: decision
+    name: Fragen in natürlicher Sprache und Chart-Zusammenfassung
+    user_need: Eine Frage eintippen oder mir einen Chart in zwei Sätzen erklären lassen.
+    sources: [pbi-043, pbi-044, di-019, di-020, bi-034, bi-035, bi-036, bi-037, bi-040]
+    pbi_status: premium
+    must_have: false
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M6
+    status: planned
+    user_value: medium
+    priority: 3
+    note: Grenze ist der KPI-Katalog (Plan M6). Q&A wird im Februar 2027 abgeschaltet; Copilot nicht in Germany North und offiziell nicht mehrsprachig (bi-035, bi-037).
+  - id: feat-073
+    area: decision
+    name: Was-wäre-wenn-Parameter
+    user_need: Einen Preis um 3 Prozent verschieben und die Wirkung auf die Marge sehen.
+    sources: [pbi-056, market-001, di-030, di-032]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: meridian_backend
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 2
+  # --- accessibility, performance ----------------------------------------------------------------
+  - id: feat-080
+    area: accessibility
+    name: Tastaturbedienung und Screenreader
+    user_need: Den Bericht ohne Maus bedienen und vorgelesen bekommen.
+    sources: [pbi-090, pbi-091, pbi-092, pbi-093, pbi-113, market-037, bi-061]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: partial
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
+    user_value: high
+    priority: 1
+    note: "R8: Skip-Link, Fokus auf den Seitentitel, aria-live, Dialog mit Fokusrückgabe; axe-core 4.13.0 WCAG 2.1 AA 0 Verstöße auf 3 Seiten (Tor G8). Offen: Tastaturbedienung innerhalb der Vega-Charts (Ersatz: Als Tabelle)."
+  - id: feat-081
+    area: accessibility
+    name: Farben unterscheidbar für Farbsehschwäche
+    user_need: Reihen und Statusfarben auch mit Rot-Grün-Schwäche auseinanderhalten.
+    sources: [pbi-096]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: true
+    home: aluca_spec
+    meridian_module: M1
+    status: done
+    tests: [tooling/visual_library/tests/test_contrast.py, "freelancing:meridian/tests/test_rayfin_theme.py"]
+    user_value: high
+    priority: 1
+  - id: feat-082
+    area: performance
+    name: Antwortzeit unter einer Sekunde
+    user_need: Nach einem Klick nicht warten müssen.
+    sources: [users-014, users-015, bi-054, bi-055, bi-056, bi-057, bi-058, bi-060]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: semantic_model
+    meridian_module: null
+    gap_reason: Kein Modul misst Antwortzeit; offen, ob ein Latenz-Gate in den Cockpit-Gates oder die CU-Leitplanke es trägt.
+    status: gap
+    user_value: high
+    priority: 1
+  - id: feat-083
+    area: operations
+    name: Visual-Kopfleiste mit Fokusmodus
+    user_need: Einen Chart vergrößern, ohne die Seite zu verlassen.
+    sources: [pbi-030, pbi-031, pbi-037, pbi-112]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M2
+    status: done
+    tests: ["freelancing:meridian/tool-layers/fabric/cockpit/shell/shell.spec.tsx"]
+    user_value: high
+    priority: 2
+    note: "R8: Kopfleiste aus dem VisualContainer der Pakete plus Als Tabelle, Export, Vergrößern (Dialog, Esc)."
+  # --- decision intelligence: decision, loop, planning ---------------------------------------
+  - id: feat-090
+    area: decision
+    name: Entscheidung als Objekt, an Kennzahl und Maßnahme gebunden
+    user_need: Zu jeder roten Kennzahl sehen, welche Entscheidung ansteht und welche Maßnahme dazugehört.
+    sources: [di-001, di-002, di-003, di-005, di-037]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 1
+    note: Andocken an core/action_codes (Golden Thread), nicht neu definieren.
+  - id: feat-091
+    area: decision_loop
+    name: Entscheidungslog
+    user_need: Nachlesen, wer wann was entschieden hat, mit welcher Begründung und Datenlage.
+    sources: [di-006, di-007]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 1
+  - id: feat-092
+    area: decision_loop
+    name: Wirkungsmessung der Maßnahme
+    user_need: Nach drei Monaten sehen, ob die Maßnahme die Kennzahl bewegt hat.
+    sources: [di-008, di-009]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M3
+    status: gap
+    user_value: high
+    priority: 2
+    note: Plan M3 nennt Maßnahmen und Log, aber keine Vorher-nachher-Messung; ohne sie schließt der Kreis nicht.
+  - id: feat-093
+    area: decision_loop
+    name: Erklärbare Handlungsempfehlung, anpassbar
+    user_need: Einen Vorschlag bekommen, sehen warum und wie sicher, und ihn selbst anpassen können.
+    sources: [di-010, di-013, di-014]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 2
+    note: Action-Brief aus Plan M3.
+  - id: feat-094
+    area: decision_loop
+    name: Freigabe durch den Menschen vor der Ausführung
+    user_need: Eine automatisch vorbereitete Aktion prüfen und freigeben oder ablehnen.
+    sources: [di-011, di-012]
+    pbi_status: fabric_feature
+    must_have: true
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 2
+  - id: feat-095
+    area: decision_loop
+    name: Maßnahme direkt aus dem Bericht erfassen
+    user_need: Aus dem Chart heraus eine Maßnahme mit Verantwortlichem und Frist anlegen.
+    sources: [di-035, bi-023, bi-041]
+    pbi_status: fabric_feature
+    must_have: true
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 1
+    note: Translytical task flows; GA-Stand widersprüchlich (Update März 2026 vs. Anleitung Preview).
+  - id: feat-096
+    area: planning
+    name: Werttreiberbaum und Kausalkette mit Simulation
+    user_need: Sehen, welche Treiber eine Zielgröße bestimmen, und einen Treiber probeweise verändern.
+    sources: [di-004, di-028]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: meridian_backend
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 2
+  - id: feat-097
+    area: planning
+    name: Planung mit Szenarien, Versionen und Freigabe
+    user_need: Planwerte eingeben, Szenarien vergleichen und den Plan freigeben lassen.
+    sources: [di-031, di-033, di-034]
+    pbi_status: fabric_feature
+    must_have: true
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: M3
+    status: planned
+    user_value: high
+    priority: 2
+  - id: feat-098
+    area: planning
+    name: Ziele mit Verantwortlichen und Check-ins
+    user_need: Ziele je Verantwortlichem verfolgen, mit Status und regelmäßigem Update.
+    sources: [di-029, bi-020, bi-021, bi-022]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: M3
+    status: gap
+    user_value: high
+    priority: 2
+    note: Scorecard-Hierarchien und Heatmap seit 15.04.2026 entfernt (bi-022); Scorecards laut Inhaltsliste nicht in Org Apps (abgeleitet).
+  # --- BI platform: distribution, governance, language, operations ------------------------------
+  - id: feat-100
+    area: distribution
+    name: Abonnement per Mail, dynamisch je Empfänger
+    user_need: Den Monatsbericht automatisch als PDF bekommen, gefiltert auf meinen Bereich.
+    sources: [bi-001, bi-002, bi-003, bi-004, bi-017, bi-064, bi-067, bi-068, bi-069]
+    pbi_status: premium
+    must_have: true
+    beyond_pbi: false
+    home: meridian_backend
+    meridian_module: null
+    gap_reason: Abos der Plattform gelten nur für Power-BI-Berichte; offen, ob das Cockpit eigenen Versand baut oder einen Zwillingsbericht in der Org App abonnieren lässt.
+    status: gap
+    user_value: high
+    priority: 2
+  - id: feat-101
+    area: distribution
+    name: Verteilung über Org App mit Zielgruppen und Navigation
+    user_need: Nur die Berichte meiner Rolle sehen, in einer App mit eigener Startseite.
+    sources: [bi-012, bi-013, bi-071, bi-072, bi-073]
+    pbi_status: fabric_feature
+    must_have: true
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: M1
+    status: planned
+    user_value: high
+    priority: 1
+    note: Org App kann die Fabric App (Vorschau) neben Berichten tragen; Rechte und Audiences kommen dadurch von der Plattform.
+  - id: feat-102
+    area: collaboration
+    name: In Teams und SharePoint teilen und einbetten
+    user_need: Einen Bericht mit meiner Filterauswahl im Teams-Chat teilen oder in einer Teams-Registerkarte öffnen.
+    sources: [bi-009, bi-011, bi-016]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: gap
+    user_value: high
+    priority: 2
+    note: Ob eine Fabric App als Teams-Tab oder SharePoint-Web-Part läuft, ist ungeprüft (UNKLAR).
+  - id: feat-103
+    area: trust
+    name: Zertifizierung und Vertraulichkeitsstufe sichtbar
+    user_need: Erkennen, ob ein Bericht freigegeben ist und wie vertraulich die Zahlen sind, auch nach dem Export.
+    sources: [bi-042, bi-043]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M5
+    status: planned
+    user_value: high
+    priority: 2
+  - id: feat-104
+    area: language
+    name: Mehrsprachige Berichte
+    user_need: Denselben Bericht auf Deutsch oder Englisch lesen, inklusive Titel und Beschriftungen.
+    sources: [bi-032, bi-033]
+    pbi_status: native
+    must_have: true
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: gap
+    user_value: medium
+    priority: 3
+  - id: feat-105
+    area: operations
+    name: Nutzung und Adoption messen
+    user_need: Als Verantwortlicher sehen, welche Seiten gelesen werden und welche nicht.
+    sources: [bi-049]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: false
+    home: meridian_backend
+    meridian_module: M8
+    status: planned
+    user_value: medium
+    priority: 3
+  - id: feat-106
+    area: distribution
+    name: Offline lesen auf dem Telefon
+    user_need: Den Bericht im Flugzeug mit dem letzten Stand öffnen.
+    sources: [bi-014]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M1
+    status: gap
+    user_value: low
+    priority: 3
+  - id: feat-107
+    area: distribution
+    name: Live-Daten in PowerPoint
+    user_need: In der Vorstandspräsentation den aktuellen Stand zeigen, ohne Screenshots zu ersetzen.
+    sources: [bi-010]
+    pbi_status: native
+    must_have: false
+    beyond_pbi: false
+    home: fabric_platform
+    meridian_module: null
+    status: gap
+    user_value: medium
+    priority: 3
+    note: Laut Recherche in einer Fabric App nicht möglich (abgeleitet); Weg über einen Zwillingsbericht.
+  - id: feat-108
+    area: performance
+    name: Automatische Seitenaktualisierung
+    user_need: Operative Kennzahlen ohne Neuladen aktuell sehen.
+    sources: [bi-059]
+    pbi_status: premium
+    must_have: false
+    beyond_pbi: false
+    home: cockpit_shell
+    meridian_module: M2
+    status: gap
+    user_value: low
+    priority: 3
+  - id: feat-109
+    area: chart
+    name: Kernaussage je Visual hervorheben
+    user_need: Auf Knopfdruck sehen, was ein Visual für die anstehende Entscheidung aussagt, und die tragenden Werte hervorgehoben.
+    sources: [users-009]
+    pbi_status: absent
+    must_have: true
+    beyond_pbi: true
+    home: aluca_spec
+    meridian_module: M2
+    status: partial
+    tests: [tooling/visual_library/tests/test_key_message.py]
+    user_value: high
+    priority: 1
+    note: "D-638 Nachtrag (Freelancing), 01.10.2026: regelbasiert je Zweck (key_message.py), Hervorhebung als Vega-Parameter kernaussage in render_target; Knopf je Visual und je Seite im Cockpit, Verweis auf die Handlungsempfehlung. Offen: Story- und Marken-Gestaltung, Zwecke ohne Regel (Verteilung, Zusammenhang). Verwandt feat-013, feat-014."

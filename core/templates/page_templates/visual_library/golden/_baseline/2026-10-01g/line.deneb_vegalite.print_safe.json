@@ -1,0 +1,30 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "encoding": { "x": { "field": "month", "type": "temporal", "axis": { "title": null } } },
+  "layer": [
+    { "mark": { "type": "line", "color": "#0F2430", "strokeWidth": 2.5 },
+      "encoding": { "y": { "field": "gm", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
+    { "mark": { "type": "rule", "color": "#94A0AC", "strokeDash": [5, 4] },
+      "encoding": { "y": { "datum": 44.1 } } },
+    { "mark": { "type": "line", "color": "#94A0AC", "strokeDash": [5, 4], "strokeWidth": 1.5 },
+      "encoding": { "y": { "field": "gm_plan", "type": "quantitative" } } },
+    { "mark": { "type": "line", "color": "#0F2430", "strokeDash": [2, 3], "strokeWidth": 2 },
+      "encoding": { "y": { "field": "gm_fc", "type": "quantitative" } } },
+    { "transform": [ { "window": [ { "op": "row_number", "as": "_p" } ], "sort": [ { "field": "month", "order": "ascending" } ] }, { "filter": "datum._p == 1" } ],
+      "mark": { "type": "text", "text": "Plan", "align": "left", "dx": 4, "dy": -8, "color": "#94A0AC" },
+      "encoding": { "y": { "field": "gm_plan", "type": "quantitative" } } },
+    { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
+      "mark": { "type": "point", "filled": true, "size": 60, "color": "#F7630C" },
+      "encoding": { "y": { "field": "gm", "type": "quantitative" } } },
+    { "params": [ { "name": "hover", "select": { "type": "point", "fields": ["month"], "nearest": true, "on": "pointerover", "clear": "pointerout" } } ],
+      "mark": { "type": "rule", "color": "#94A0AC" },
+      "encoding": { "opacity": { "condition": { "param": "hover", "empty": false, "value": 0.8 }, "value": 0 } } },
+    { "mark": { "type": "point", "filled": true, "size": 50, "color": "#0F2430" },
+      "encoding": { "y": { "field": "gm", "type": "quantitative" },
+                    "opacity": { "condition": { "param": "hover", "empty": false, "value": 1 }, "value": 0 } } },
+    { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
+      "mark": { "type": "text", "align": "right", "dx": -8, "dy": -10, "color": "#201F1E" },
+      "encoding": { "y": { "field": "gm", "type": "quantitative" }, "text": { "field": "gm", "type": "quantitative", "format": ",.1~f" } } }
+  ]
+}

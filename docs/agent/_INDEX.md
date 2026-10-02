@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-09-30
+last-reviewed: 2026-10-01
 shelf-life-days: 90
 ---
 # Agent — Zentraler Anlaufpunkt (_INDEX)

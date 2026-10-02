@@ -253,6 +253,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'CLV (Customer Lifetime Value), Customer Retention %, Churned Customers, Revenue at Risk Amount, Net Promoter Score (NPS) and Complaint Count by Segment and Channel'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

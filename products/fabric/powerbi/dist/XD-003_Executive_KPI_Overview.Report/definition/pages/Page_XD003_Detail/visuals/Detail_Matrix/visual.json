@@ -253,6 +253,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Enterprise Value-at-Risk Index, Gross Margin % (XD), Delta% Net Sales (XD), OTIF % (XD), CLV (Customer Lifetime Value) and SLA Attainment % by Org Name and Date'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "filterConfig": {

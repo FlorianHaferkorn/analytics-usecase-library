@@ -1,0 +1,318 @@
+{
+  "idiom": "line",
+  "profile": "ibcs",
+  "notation": "ibcs",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "encoding": {
+      "x": {
+        "field": "month",
+        "type": "temporal",
+        "axis": {
+          "title": null,
+          "grid": false,
+          "ticks": false,
+          "domainColor": "#404040"
+        }
+      }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "line",
+          "color": "#404040",
+          "strokeWidth": 1.5,
+          "point": {
+            "filled": false,
+            "fill": "white",
+            "stroke": "#404040",
+            "size": 30
+          }
+        },
+        "encoding": {
+          "y": {
+            "field": "gm_plan",
+            "type": "quantitative",
+            "axis": null,
+            "scale": {
+              "zero": true
+            }
+          },
+          "tooltip": [
+            {
+              "field": "month",
+              "type": "temporal",
+              "title": "month",
+              "format": "%m/%Y"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_plan",
+              "type": "quantitative",
+              "title": "gm_plan",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "line",
+          "color": "#404040",
+          "strokeWidth": 1.5,
+          "point": {
+            "filled": true,
+            "color": "#404040",
+            "size": 30
+          }
+        },
+        "encoding": {
+          "y": {
+            "field": "gm",
+            "type": "quantitative",
+            "axis": null,
+            "scale": {
+              "zero": true
+            }
+          },
+          "tooltip": [
+            {
+              "field": "month",
+              "type": "temporal",
+              "title": "month",
+              "format": "%m/%Y"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_plan",
+              "type": "quantitative",
+              "title": "gm_plan",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "transform": [
+          {
+            "joinaggregate": [
+              {
+                "op": "min",
+                "field": "gm",
+                "as": "_min"
+              },
+              {
+                "op": "max",
+                "field": "gm",
+                "as": "_max"
+              },
+              {
+                "op": "count",
+                "as": "_n"
+              }
+            ]
+          },
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_i"
+              }
+            ],
+            "sort": [
+              {
+                "field": "month",
+                "order": "ascending"
+              }
+            ]
+          },
+          {
+            "calculate": "datum['gm'] == datum._min ? datum._i : null",
+            "as": "_at_min"
+          },
+          {
+            "calculate": "datum['gm'] == datum._max ? datum._i : null",
+            "as": "_at_max"
+          },
+          {
+            "calculate": "datum._i == 1 ? datum['gm'] : null",
+            "as": "_at_first"
+          },
+          {
+            "calculate": "datum._i == datum._n ? datum['gm'] : null",
+            "as": "_at_last"
+          },
+          {
+            "joinaggregate": [
+              {
+                "op": "min",
+                "field": "_at_min",
+                "as": "_imin"
+              },
+              {
+                "op": "min",
+                "field": "_at_max",
+                "as": "_imax"
+              },
+              {
+                "op": "max",
+                "field": "_at_first",
+                "as": "_v1"
+              },
+              {
+                "op": "max",
+                "field": "_at_last",
+                "as": "_vn"
+              }
+            ]
+          },
+          {
+            "calculate": "0.05 * (datum._max - datum._min)",
+            "as": "_near"
+          },
+          {
+            "filter": "datum._n <= 6 || datum._i == 1 || datum._i == datum._n || ((datum._i == datum._imin || datum._i == datum._imax) && !(datum._i == 2 && abs(datum['gm'] - datum._v1) < datum._near) && !(datum._i == datum._n - 1 && abs(datum['gm'] - datum._vn) < datum._near))"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "color": "#201F1E",
+          "dy": -10,
+          "tooltip": null
+        },
+        "encoding": {
+          "y": {
+            "field": "gm",
+            "type": "quantitative"
+          },
+          "text": {
+            "field": "gm",
+            "type": "quantitative",
+            "format": ",.1~f"
+          }
+        }
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#404040",
+      "labelColor": "#201F1E",
+      "title": null,
+      "labelFontSize": 11,
+      "grid": false,
+      "ticks": false
+    },
+    "axisX": {
+      "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333,
+      "zero": true
+    },
+    "text": {
+      "fontSize": 11
+    },
+    "locale": {
+      "number": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [
+          3
+        ],
+        "currency": [
+          "",
+          " €"
+        ]
+      },
+      "time": {
+        "dateTime": "%A, der %e. %B %Y, %X",
+        "date": "%d.%m.%Y",
+        "time": "%H:%M:%S",
+        "periods": [
+          "AM",
+          "PM"
+        ],
+        "days": [
+          "Sonntag",
+          "Montag",
+          "Dienstag",
+          "Mittwoch",
+          "Donnerstag",
+          "Freitag",
+          "Samstag"
+        ],
+        "shortDays": [
+          "So",
+          "Mo",
+          "Di",
+          "Mi",
+          "Do",
+          "Fr",
+          "Sa"
+        ],
+        "months": [
+          "Januar",
+          "Februar",
+          "März",
+          "April",
+          "Mai",
+          "Juni",
+          "Juli",
+          "August",
+          "September",
+          "Oktober",
+          "November",
+          "Dezember"
+        ],
+        "shortMonths": [
+          "Jan",
+          "Feb",
+          "Mär",
+          "Apr",
+          "Mai",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Okt",
+          "Nov",
+          "Dez"
+        ]
+      }
+    },
+    "bar": {
+      "cornerRadius": 0
+    },
+    "legend": {
+      "disable": true
+    }
+  },
+  "capabilities": {
+    "disableCompactNumberFormatting": true,
+    "disableLineChartCrosshairTooltip": true,
+    "disableMinBarSize": true,
+    "disableNiceAxisBounds": true,
+    "disableStackedDataLabels": true,
+    "disableTextTruncation": true
+  }
+}

@@ -145,6 +145,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'GM % During Promo by Org Name'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

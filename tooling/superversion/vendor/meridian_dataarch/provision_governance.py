@@ -353,28 +353,9 @@ def _governance_script(bp: dict, workspace: str, governance: dict, dom_owner: di
     return "\n".join(lines) + "\n"
 
 
-def _sensitivity_script(bp: dict, governance: dict) -> str:
-    """Bulk sensitivity-label templates via the Power BI admin API (GA)."""
-    labels = (governance or {}).get("labels", {})
-    lines = [
-        "#!/usr/bin/env bash",
-        "set -euo pipefail",
-        "# Sensitivity labels (Microsoft Purview Information Protection) — GA bulk admin API.",
-        "#   POST /v1.0/myorg/admin/informationProtection/setLabelsAsAdmin",
-        "#   limits: <=25 req/hr, <=2000 items/req; needs Fabric admin + Tenant.ReadWrite.All + label in policy.",
-        "# labelId per audience comes from your local --governance map (labels.<audience>).",
-        "",
-    ]
-    for d in _domains(bp):
-        aud = d.get("publishing", {}).get("intended_audience", "internal")
-        label = labels.get(aud, f"<{aud}-labelId>")
-        lines.append(f"# {d['name']} ({aud}) → label {label}")
-        lines.append(f'#   fab api "admin/informationProtection/setLabelsAsAdmin" -X POST -i - <<JSON')
-        lines.append(f'#   {{"labelId":"{label}","assignmentMethod":"Standard","artifacts":[{{"artifactType":"<SemanticModel|Report>","id":"<item-id>"}}]}}')
-        lines.append("#   JSON")
-    lines.append("")
-    lines.append('echo "Sensitivity-label script complete."')
-    return "\n".join(lines) + "\n"
+def _purview_im_umfang(bp: dict, baustein: str) -> bool:
+    from core.dataarch_engine.blueprint.provision_purview import im_umfang
+    return im_umfang(bp, baustein)
 
 
 def _rls_proposal_comment(catalog: dict | None) -> str:
@@ -394,6 +375,121 @@ def _rls_proposal_comment(catalog: dict | None) -> str:
             "//   Volle Begründung + Alternativen: decisions/ENTSCHEIDUNGSVORLAGE.md (SEC-RLS)\n")
 
 
+#: Wie die Rollen ins Item kommen (Apply-Schritt ``apply_onelake_roles``, 01.10.2026).
+#:
+#: MS Learn, REST *OneLake Data Access Security* (gelesen 01.10.2026):
+#: ``gesamt`` = *Create Or Update Data Access Roles*, ``PUT …/dataAccessRoles`` — ohne Preview,
+#: *"creates, updates, or deletes roles to match the provided payload"*: nicht genannte Rollen
+#: verschwinden, und ein ungueltiges Praedikat bricht die ganze Menge ab (B12, gemessen 14.08.2026).
+#: ``einzeln`` = *Create Or Update Single Data Access Role*, ``POST …/dataAccessRoles?preview=true
+#: [&dataAccessRoleConflictPolicy=Overwrite|Abort]`` je Rolle — **Preview**, SPN und MI unterstuetzt,
+#: Aufrufer Member oder hoeher. Fehler bleiben bei ihrer Rolle, nicht genannte Rollen bleiben stehen.
+#:
+#: Vorgabe ``gesamt``: nach dem Muster von D-621 wird eine Preview-API angeboten, nicht Vorgabe
+#: ("als Vorgabe hinge jede Lieferung an einer Preview-Funktion"). Empfohlen ist ``einzeln`` wegen
+#: des kleineren Schadensradius — so steht es im Apply-Plan und in ``_ONELAKE_SECURITY.md``.
+ONELAKE_ROLLEN_MODI = ("gesamt", "einzeln")
+
+_ROLLEN_RUNTIME = r'''#!/usr/bin/env python3
+"""Spielt governance/onelake_data_access_roles.json in ein Lakehouse ein (generiert).
+
+--modus gesamt   PUT  …/dataAccessRoles            (GA; ersetzt die GANZE Rollenmenge, nicht
+                                                    genannte Rollen werden geloescht)
+--modus einzeln  POST …/dataAccessRoles?preview=true je Rolle (Preview; Fehler je Rolle,
+                                                    nicht genannte Rollen bleiben)
+
+Quelle: MS Learn REST "OneLake Data Access Security" (gelesen 01.10.2026). Das Token kommt nur
+aus der Umgebungsvariable FABRIC_TOKEN, nie von der Befehlszeile.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+import time
+from pathlib import Path
+from urllib.error import HTTPError
+from urllib.parse import quote
+from urllib.request import Request, urlopen
+
+BASE = "https://api.fabric.microsoft.com/v1"
+PLATZHALTER = ("<VERIFY", "<TENANT_GUID>")
+
+
+def _request(method, url, token, payload):
+    data = json.dumps(payload).encode("utf-8")
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json",
+               "Content-Type": "application/json"}
+    for versuch in range(4):
+        try:
+            with urlopen(Request(url, data=data, headers=headers, method=method), timeout=60) as r:
+                return r.status
+        except HTTPError as fehler:
+            if fehler.code == 429 and versuch < 3:
+                time.sleep(int(fehler.headers.get("Retry-After", "10")))
+                continue
+            detail = fehler.read().decode("utf-8", errors="replace")
+            raise RuntimeError(f"HTTP {fehler.code}: {detail}") from fehler
+    raise RuntimeError("Fabric API: Wiederholungen erschoepft")
+
+
+def plane(rollen, workspace_id, item_id, modus, konflikt="Overwrite"):
+    """Die Aufrufe als Liste (method, url, body) — ohne Netz, fuer --dry-run und Tests."""
+    basis = f"{BASE}/workspaces/{quote(workspace_id)}/items/{quote(item_id)}/dataAccessRoles"
+    if modus == "gesamt":
+        return [("PUT", basis, {"value": rollen})]
+    if modus == "einzeln":
+        url = f"{basis}?preview=true&dataAccessRoleConflictPolicy={quote(konflikt)}"
+        return [("POST", url, rolle) for rolle in rollen]
+    raise ValueError(f"modus {modus!r} unbekannt: gesamt | einzeln")
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--modus", choices=("gesamt", "einzeln"), default="gesamt")
+    ap.add_argument("--rollen", default=str(Path(__file__).with_name("onelake_data_access_roles.json")))
+    ap.add_argument("--workspace-id", required=True)
+    ap.add_argument("--item-id", required=True)
+    ap.add_argument("--konflikt", choices=("Overwrite", "Abort"), default="Overwrite",
+                    help="nur einzeln: dataAccessRoleConflictPolicy")
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args(argv)
+    rumpf = Path(args.rollen).read_text(encoding="utf-8")
+    rollen = json.loads(rumpf).get("value", [])
+    aufrufe = plane(rollen, args.workspace_id, args.item_id, args.modus, args.konflikt)
+    if args.dry_run:
+        print(json.dumps([{"method": m, "url": u, "role": b.get("name", "alle Rollen (PUT)")}
+                          for m, u, b in aufrufe], indent=2, ensure_ascii=False))
+        return 0
+    if any(p in rumpf for p in PLATZHALTER):
+        ap.error("Rollen tragen noch VERIFY- bzw. TENANT_GUID-Platzhalter — erst ersetzen")
+    token = os.environ.get("FABRIC_TOKEN", "")
+    if not token:
+        ap.error("FABRIC_TOKEN ist nicht gesetzt (Token nur ueber die Umgebung)")
+    fehler = []
+    for method, url, body in aufrufe:
+        name = body.get("name", "alle Rollen (PUT)")
+        try:
+            status = _request(method, url, token, body)
+            print(f"ok   {name}  HTTP {status}")
+        except RuntimeError as e:
+            fehler.append(name)
+            print(f"FEHL {name}  {e}", file=sys.stderr)
+            if args.modus == "gesamt":
+                break
+    if fehler:
+        print(f"{len(fehler)} von {len(aufrufe)} Aufruf(en) gescheitert: {', '.join(fehler)}",
+              file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'''
+
+
 def emit_onelake_roles(bp: dict, lakehouse: str, sensitivity: dict | None = None,
                        catalog: dict | None = None) -> dict[str, str]:
     """Der PUT-Rumpf **und** seine Erklärung — zwei Dateien, weil das eine abgeschickt und das
@@ -405,7 +501,8 @@ def emit_onelake_roles(bp: dict, lakehouse: str, sensitivity: dict | None = None
     payload, cls_todo = _onelake_security_roles(bp, lakehouse, sensitivity, catalog,
                                                 _with_todo=True)
     return {"governance/onelake_data_access_roles.json": payload,
-            "governance/_ONELAKE_SECURITY.md": _onelake_roles_doc(cls_todo, catalog, bp)}
+            "governance/_ONELAKE_SECURITY.md": _onelake_roles_doc(cls_todo, catalog, bp),
+            "governance/apply_onelake_roles.py": _ROLLEN_RUNTIME}
 
 
 def _ist_platzhalter(member: dict) -> bool:
@@ -452,6 +549,24 @@ def check_onelake_role_guardrails(payload: dict | str) -> dict:
                      for p in scope.get("attributeValueIncludedIn") or []]
             zeilen = (regel.get("constraints") or {}).get("rows") or []
             geschnitten = {r.get("tablePath") for r in zeilen}
+            aktionen = {a for scope in regel.get("permission") or []
+                        if scope.get("attributeName") == "Action"
+                        for a in scope.get("attributeValueIncludedIn") or []}
+            spalten = (regel.get("constraints") or {}).get("columns") or []
+            # MS Learn onelake/security/data-access-control-model (gelesen 01.10.2026):
+            # ReadWrite-Rollen duerfen kein RLS/CLS enthalten. Heute baut `_onelake_area_roles`
+            # ReadWrite nur ohne Constraints — die Pruefung haelt das fest, falls ein Rumpf von
+            # Hand oder ein spaeterer Emitter beides kombiniert.
+            if "ReadWrite" in aktionen and (zeilen or spalten):
+                findings.append({
+                    "object": name, "kind": "role",
+                    "issue": "ReadWrite-Rolle mit "
+                             + " und ".join(x for x, ok in (("Zeilenschnitt (RLS)", bool(zeilen)),
+                                                            ("Spaltenschnitt (CLS)", bool(spalten)))
+                                           if ok),
+                    "why": "OneLake verbietet RLS/CLS in ReadWrite-Rollen (Learn "
+                           "data-access-control-model). Den Schnitt in eine eigene Leserolle "
+                           "legen, die Schreibrolle ohne Constraints lassen"})
 
             for r in zeilen:
                 wert = str(r.get("value") or "")
@@ -977,6 +1092,22 @@ def _onelake_roles_doc(cls_todo: list[str], catalog: dict | None, bp: dict | Non
         "Das ist die **primäre** RLS/CLS/OLS-Schicht: einmal definiert, von allen Fabric-Engines",
         "durchgesetzt — auch von Direct Lake on OneLake.",
         "",
+        "## Einspielen: gesamt oder je Rolle",
+        "",
+        "`apply_onelake_roles.py` daneben spielt den Rumpf ein; das Token kommt nur aus",
+        "`FABRIC_TOKEN` (Umgebung), `--dry-run` zeigt die Aufrufe ohne Netz.",
+        "",
+        "| Modus | Aufruf | Status | Wirkung |",
+        "|---|---|---|---|",
+        "| `gesamt` (Vorgabe) | `PUT …/dataAccessRoles` | GA | ersetzt die **ganze** Rollenmenge "
+        "des Items: nicht genannte Rollen werden gelöscht, ein ungültiges Prädikat bricht alles ab |",
+        "| `einzeln` (empfohlen) | `POST …/dataAccessRoles?preview=true&dataAccessRoleConflictPolicy=…` "
+        "je Rolle | **Preview** | Fehler bleiben bei ihrer Rolle, nicht genannte Rollen bleiben |",
+        "",
+        "Empfohlen ist `einzeln`, weil der Schadensradius einer fehlerhaften Rolle eine Rolle ist",
+        "und nicht das Item. Vorgabe bleibt `gesamt`, weil `einzeln` an einer Preview-API hängt",
+        "(Muster D-621). Quelle: MS Learn REST *OneLake Data Access Security*, gelesen 01.10.2026.",
+        "",
         "## Was im Rumpf steht und was du ändern musst",
         "",
         "- **RLS** — `constraints.rows[]` steht **nur dort, wo der Bauplan einen Schnitt",
@@ -1150,7 +1281,9 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
            "| RLS/OLS — model-only alternative | `roles/<domain>.tmdl` (TMDL role blocks; fixed-identity case) | GA |",
            "| Workspace roles + Domains | `governance.sh` (REST/fab api) | GA |",
            "| Domain-Admins + Domain-Contributors | `governance.sh` Abschnitt 1c | GA |",
-           "| Sensitivity labels | `sensitivity_labels.sh` (bulk admin API) | GA |",
+           "| Sensitivity labels, DLP, Data Map, Unified Catalog, Audit | `purview/` — nur mit "
+           "`governance.purview` im Umfang (D-620); sonst nur `purview/_PURVIEW.md` mit den "
+           "Andockpunkten | opt-in |",
            "| Endorsement | `ENDORSEMENT_RUNBOOK.md` (manual — no write API) | manual |",
            "| Which items may be created where | `fabric_policies/` (Fabric policies, target picture; "
            "not in West/North Europe) | **preview** |",
@@ -1173,9 +1306,10 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
             "> Die Konformitaetspruefung meldet den Fall als Fehler, solange beides zugleich",
             "> deklariert ist."]
     if gd:
-        doc += ["| **Data owners → workspace Admin** | `governance.sh` (from governance.json) | GA |",
-                "| **Glossary → Purview terms** | `glossary_import.json` | GA |",
-                "| **Data-quality gates** | `data_quality.json` (per-domain overrides) | policy |"]
+        doc += ["| **Data owners → workspace Admin** | `governance.sh` (from governance.json) | GA |"]
+        if _purview_im_umfang(bp, "unified_catalog"):
+            doc.append("| **Glossary → Purview terms** | `glossary_import.json` | GA |")
+        doc.append("| **Data-quality gates** | `data_quality.json` (per-domain overrides) | policy |")
     doc.append("")
 
     out: dict[str, str] = {"governance/_GOVERNANCE.md": "\n".join(doc) + "\n",
@@ -1187,14 +1321,20 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
             d["name"], list(d.get("data_products", [])), aud, sensitivity)
 
     if gd:  # Data-Gov stream output materialised
-        if gd.get("glossary"):
+        # Purview-Glossar nur mit Unified Catalog im Umfang (D-620); das Glossar selbst bleibt
+        # in governance.json und im Kontextpaket der Ontologie.
+        if gd.get("glossary") and _purview_im_umfang(bp, "unified_catalog"):
             out["governance/glossary_import.json"] = _glossary_import(gd)
         if gd.get("data_quality_standards") or gd.get("verification_thresholds"):
             out["governance/data_quality.json"] = _data_quality(gd)
 
     if stack == "fabric":
         out["governance/governance.sh"] = _governance_script(bp, workspace, governance, dom_owner)
-        out["governance/sensitivity_labels.sh"] = _sensitivity_script(bp, governance)
+        # D-620: Labels sind ein Purview-Baustein. Das alte sensitivity_labels.sh rief einen
+        # Endpunkt, den es nicht gibt (setLabelsAsAdmin); es ist durch
+        # purview/labels/set_labels.sh ersetzt und kommt nur mit Purview im Umfang.
+        from core.dataarch_engine.blueprint.provision_purview import emit_purview
+        out.update(emit_purview(bp, stack, governance))
         out.update(emit_onelake_roles(bp, lakehouse, sensitivity, governed_catalog))
         out.update(emit_fabric_policies(bp))
         out.update(emit_tags(bp))

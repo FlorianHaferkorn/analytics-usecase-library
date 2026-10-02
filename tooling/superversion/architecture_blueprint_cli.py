@@ -8,7 +8,15 @@ Usage:
   python -m tooling.superversion.architecture_blueprint_cli \
       --inputs inputs.json --dest out/ --stack fabric
 
-`--inputs` is a JSON file matching the `derive_blueprint` inputs shape. Output under
+Gold as Materialized Lake Views for chosen domains (ADR-0024) — set
+`domains[].gold_target: "mlv"` in the inputs, then e.g.:
+  python -m tooling.superversion.architecture_blueprint_cli \
+      --inputs showcases/aurora_group/architecture/aurora_architecture_inputs.json \
+      --dest out/ --governed-catalog governed_catalog.json \
+      --mlv-refresh-hints --mlv-zeitplan graph --onelake-rollen-modus gesamt
+
+`--inputs` is a JSON file matching the `derive_blueprint` inputs shape
+(`tooling/generator/schemas/architecture_blueprint_inputs.schema.json`). Output under
 `--dest`: blueprint.json, hitl.json, OPEN_QUESTIONS.md, open_questions.json,
 ENGAGEMENT_GUIDE.md, engagement_guide.json, answers_template.json, CONFORMANCE.md,
 mcp_grounding.json, retrieval_decisions.md, and render/<stack>/… . Non-zero exit if
@@ -36,6 +44,7 @@ from typing import Any
 from tooling.superversion.architecture_blueprint import (
     derive_blueprint,
     emit_grounding,
+    gold_targets,
     validate_blueprint,
 )
 from tooling.superversion.eval.blueprint_conformance import conformance
@@ -74,15 +83,29 @@ def read_source_schema_results(directory: Path | None) -> dict[str, str]:
 
 
 def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric",
-        source_schema_results: Path | None = None, customer: str = "") -> dict[str, Any]:
-    """Run the full workflow and write artifacts under ``dest``. Returns a summary."""
+        source_schema_results: Path | None = None, customer: str = "",
+        governed_catalog: Path | None = None, mlv_refresh_hints: bool = False,
+        mlv_zeitplan: str | None = None,
+        onelake_rollen_modus: str | None = None) -> dict[str, Any]:
+    """Run the full workflow and write artifacts under ``dest``. Returns a summary.
+
+    The last four parameters are the Fabric target options of ADR-0024, named after
+    Meridian's cli (``--mlv-refresh-hints``, ``--mlv-zeitplan``, ``--onelake-rollen-modus``).
+    Like ``source_schema_results`` they are handed over only when set, and the gold target
+    of each domain comes from the inputs (``domains[].gold_target``).
+    """
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
 
+    targets = gold_targets(inputs)  # validates the inputs against their schema (ADR-0024)
     derived = derive_blueprint(inputs)
     bp = derived["blueprint"]
     validate_blueprint(bp)  # schema-valid or raises
 
+    # Andockstelle (ADR-0024 §6): Meridians `conformance.py` kommt ueber den Spiegel; seine
+    # MLV-Befunde (`gold_mlv_shortcut_source`, `gold_fact_full_rebuild_direct_lake`) lesen nur
+    # den Blueprint und werden hier neben ALUCAs eigenem Ergebnis eingehaengt, sobald sie da
+    # sind. Bis dahin nichts davon nachbauen.
     score = conformance(bp)
     grounding = emit_grounding(bp)
     results = read_source_schema_results(source_schema_results)
@@ -93,7 +116,17 @@ def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric",
     # `does not accept: source_schema_results` for every run, although both are offered
     # as choices. With real results the refusal stands, and that is the correct outcome:
     # a stack that cannot ground contracts must not pretend it did.
-    render_kwargs = {"source_schema_results": results} if results else {}
+    render_kwargs: dict[str, Any] = {"source_schema_results": results} if results else {}
+    if targets:
+        render_kwargs["gold_targets"] = targets
+    if governed_catalog is not None:
+        render_kwargs["governed_catalog"] = json.loads(Path(governed_catalog).read_text(encoding="utf-8"))
+    if mlv_refresh_hints:
+        render_kwargs["mlv_refresh_hints"] = True
+    if mlv_zeitplan is not None:
+        render_kwargs["mlv_zeitplan"] = mlv_zeitplan
+    if onelake_rollen_modus is not None:
+        render_kwargs["onelake_rollen_modus"] = onelake_rollen_modus
     rendered = arch_targets.render(stack, bp, dest=dest / "render", **render_kwargs)
 
     (dest / "blueprint.json").write_text(
@@ -119,6 +152,7 @@ def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric",
 
     return {
         "stack": stack,
+        "gold_targets": targets,
         "source_schemas_answered": sorted(results),
         "hitl": derived["hitl"],
         "questions": questions["summary"],
@@ -143,12 +177,31 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--source-schema-results", type=Path, default=None,
                         help="directory of answered source introspections "
                              "(<source>.csv/.json), as produced by render/fabric/source_schema/")
+    # Fabric target options (ADR-0024) — names and choices as in Meridian's cli.py. Unset,
+    # nothing is handed to the target, and the output stays what it was.
+    parser.add_argument("--governed-catalog", type=Path, default=None,
+                        help="governed-catalog/v1 JSON (tooling/generator/export_governed_catalog.py) "
+                             "for the MLV projection, constraints, partition and REFRESH_HINT")
+    parser.add_argument("--mlv-refresh-hints", action="store_true",
+                        help="REFRESH_HINT ... UNIQUE for views with a declared key (Preview) plus "
+                             "their uniqueness test in dq/")
+    parser.add_argument("--mlv-zeitplan", choices=("je_schicht", "graph"), default=None,
+                        help="MLV refresh: one schedule per lakehouse (default) or 'graph' = "
+                             "execution definition with extended lineage (D-621)")
+    parser.add_argument("--onelake-rollen-modus", choices=("gesamt", "einzeln"), default=None,
+                        help="apply OneLake roles by bulk PUT (gesamt, GA) or POST per role "
+                             "(einzeln, preview)")
     args = parser.parse_args(argv)
 
     inputs = json.loads(Path(args.inputs).read_text(encoding="utf-8"))
-    summary = run(inputs, args.dest, args.stack, args.source_schema_results, args.customer)
+    summary = run(inputs, args.dest, args.stack, args.source_schema_results, args.customer,
+                  governed_catalog=args.governed_catalog,
+                  mlv_refresh_hints=args.mlv_refresh_hints, mlv_zeitplan=args.mlv_zeitplan,
+                  onelake_rollen_modus=args.onelake_rollen_modus)
 
     print(f"stack: {summary['stack']}")
+    if summary["gold_targets"]:
+        print("gold targets: " + ", ".join(f"{d} → {t}" for d, t in summary["gold_targets"].items()))
     answered = summary["source_schemas_answered"]
     print(f"source schemas answered: {', '.join(answered) if answered else '(none yet)'}")
     print("conformance:")

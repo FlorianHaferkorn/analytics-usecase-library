@@ -223,6 +223,34 @@ Desktop, Pakete mit ☁ einen Tenant.
   in vier Modellen (`KNOWN_ERRORS_AND_FIXES.md`). Sie sind als Sperrklinke festgehalten; die
   Zuordnung (umbenennen oder im Gold ergänzen) ist eine Entscheidung (E8).
 
+- **Bewertung Fabric IQ MCP als S4-Ausführungsweg (01.10.2026, I-21 W5.7, ohne Tenant).**
+  Ergebnis: **kein Ersatz für den S4-Lauf, aber eine zweite Messung neben ihm.**
+  Plattform (Learn `fabric/iq/connectors/fabric-iq-mcp`, gelesen 01.10.2026): GA; nur lesend
+  (`DiscoverArtifacts`, `ResolveFabricItem`, `GetReportMetadata`, `GetSemanticModelSchema`,
+  `ValueSearch`, `ExecuteQuery`); nur delegiertes OAuth mit `Item.Read.All`, `Item.Execute.All`,
+  `Dataset.Read.All` — Service Principal und reine App-Anmeldung ausdrücklich nicht unterstützt;
+  weder Workspace-Rolle noch Build-Recht nötig; Berichte und Modelle müssen nicht auf Fabric- oder
+  Premium-Kapazität liegen; `ExecuteQuery` je Aufruf ein Modell, ohne `maxRows` höchstens 250 Zeilen;
+  RLS/OLS gelten; Drosselung des Power BI Service; Tool-Vertrag per Header
+  `X-Variants: Fabric.Routing.FabricIQ.V1` pinnbar. Einordnung neben Authoring-MCP: Learn
+  `power-bi/developer/mcp/mcp-servers-overview` (gelesen 01.10.2026) nennt Fabric IQ den Weg für
+  Konsum, den Authoring-MCP für Bau und Prüfung beim Bauen.
+
+  | Kriterium | Execute-Queries-REST (`dax_smoke run`, heute) | Fabric IQ MCP |
+  |---|---|---|
+  | unbeaufsichtigt in der Schleife (Tenant-Lauf mit `FABRIC_CLIENT_ID`/`FABRIC_CLIENT_SECRET` aus der Umgebung, Skill `run-agentic-loop`) | ja, Token aus `POWERBI_ACCESS_TOKEN` | **nein**: nur delegiert, interaktive Anmeldung |
+  | prüft, was ein Konsument sieht (Read ohne Build, RLS/OLS) | nein | **ja** |
+  | liefert die Modell-Metadaten, die Copilot liest (Beschreibungen, Synonyme → W3.2) | nein | ja, `GetSemanticModelSchema` |
+  | 278 Measures × 2 Abfragen deterministisch abarbeiten | ja | ungeeignet: ein Agent komponiert die Abfragen; Drosselung |
+  | Kapazität nötig | ANNAHME, ungeprüft: Sandbox liegt ohnehin auf Kapazität (AP-2) | nein (Learn) |
+
+  Folge: S4 bleibt auf `dax_smoke run`. Fabric IQ MCP wird als **manuelle Gegenmessung** nach
+  einem Tenant-Lauf geführt: ein angemeldeter Entwickler mit nur Read-Recht fragt für die drei
+  Belegpflicht-KPIs denselben Wert ab; Abweichung zur REST-Zahl ist ein Befund (RLS, Rechte oder
+  Metadaten). Kein Einbau in `schleife.py`, kein Service Principal, keine Kunden-Laufzeit.
+  UNKLAR: Learn nennt zwei Schreibweisen des Endpunkts (`…/v1/mcp/fabriciq` im Get-started-Artikel,
+  `…/v1/mcp/FabricIQ` in der Übersicht); vor dem ersten Lauf `tools/list` gegen den Get-started-Wert.
+
 ### AP-5 · Rendern über die Service-Engine (S5) ☁ (⊞ optional)
 - `fabric_export.py` für die in AP-2 veröffentlichten Berichte nutzen; Seitenliste aus `pages.json`.
 - Dateinamen deterministisch: `<use_case>/<page_name>.png`.

@@ -1,0 +1,21 @@
+measure_name: CCC Days (Now)
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Finance_SemanticModel
+display_folder: FIN-001 (Now)
+category: Supporting
+expression:
+  aggregation_method: custom
+  logical: CCC Days (Now) = VAR _n = [_NowIdx] RETURN CALCULATE ( [CCC Days], REMOVEFILTERS
+    ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber]
+    = _n ) )
+documentation:
+  description: CCC im letzten Datenmonat (slicer-unabhaengig). Headline-KPI der Overview-Cards.
+  notes: 'Nachgetragen 01.10.2026: steht seit #421 (06f93e98c, 15.08.2026) in dist,
+    ohne Dictionary-Eintrag (check_tmdl_vs_measure_dictionary rot). Ausdruck aus dem
+    TMDL übernommen.'
+governance:
+  owner: Finance Analytics
+  status: active
+  version: v1.0
+  last_review: '2026-10-01'

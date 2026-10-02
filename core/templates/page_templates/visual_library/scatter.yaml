@@ -29,6 +29,11 @@ params:
 tokens:
   col_point: brand.primary          # #0078D4
 
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field_x: {role: x, required: true}
+  field_y: {role: y, required: true}
+
 canonical_params:
   entity: "_Measures"
   measure_x: "Price Realization %"

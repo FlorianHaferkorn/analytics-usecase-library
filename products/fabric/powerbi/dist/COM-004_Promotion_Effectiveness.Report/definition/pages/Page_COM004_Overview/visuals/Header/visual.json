@@ -25,6 +25,21 @@
           }
         }
       ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Are our promotions generating profitable incremental volume? · Expected finding — Promotion ROI is below threshold — cannibalization and insufficient incremental lift signal that promotional mechanics need redesign before next campaign cycle.'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

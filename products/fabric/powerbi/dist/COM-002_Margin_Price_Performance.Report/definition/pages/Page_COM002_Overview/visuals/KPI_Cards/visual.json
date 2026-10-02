@@ -89,6 +89,21 @@
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Gross Margin %, Price Realization % and Gross Margin Amount'"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -290,7 +290,23 @@ def main() -> int:
     print(f"\ncheck_data_model: {n_fact} facts · {len(hard)} hard finding(s) · {len(advisory)} advisory.")
     if hard or (args.strict and advisory):
         return 1
+    fehlt = None if args.no_gold else gold_fehlt()
+    if fehlt:
+        # D-578: ohne Showdaten liefen die Gold-Pruefungen (ORPHAN-FK, DEGENERATE-KEY) ueber
+        # nichts. Das ist „nicht gelaufen", kein Gruen; `--no-gold` sagt es ausdruecklich.
+        print(f"  Gold-Pruefungen {fehlt}")
+        return 2
     return 0
+
+
+def gold_fehlt() -> Optional[str]:
+    """Grund, wenn die Showdaten fehlen (Tool-Reuse: `showdaten.grund_wenn_fehlend`)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "showdaten", REPO / "showcases" / "aurora_group" / "data" / "showdaten.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.grund_wenn_fehlend(GOLD)
 
 
 if __name__ == "__main__":

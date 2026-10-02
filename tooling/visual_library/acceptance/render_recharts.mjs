@@ -44,6 +44,7 @@ function sampleRows(n) {
       gm: 40 + i * 4, gm_vs_plan: [-0.018, 0.02, -0.01, 0.03, -0.02][i % 5], idx: 100 + i * 6,
       net_sales: 3 + i, price_real: 90 + i * 3, sales: 2 + i * 0.5, sla: 0.9 + i * 0.01, count: 4 + i * 2,
       base, delta: d, series1: 10 + i, series2: 14 - i, series3: 9 + i, part_val: 20 + i,
+      delta_pl_pct: [-0.12, 0.08, 0.2, -0.05, 0.15][i % 5],
     });
   }
   return out;

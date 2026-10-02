@@ -617,6 +617,11 @@ _ABGLEICH_JE_MODUS = {
              "und der Wasserstand ist mitgewandert. Fährt der alte Stand danach los, liest er ab "
              "dem neuen Wasserstand und überspringt still, was dazwischen liegt. Wasserstand auf "
              "den Zeitpunkt vor der Beförderung zurücksetzen und den Lauf einmal beobachten."),
+    # D-619: die Datei-MLV merkt sich selbst, welche Dateien sie gelesen hat (APPEND_ONLY).
+    "file_mlv": ("Die Datei-MLV hat neue Dateien angehängt und merkt sich, was sie gelesen hat. "
+                 "Ein Rücksprung des Codes setzt das nicht zurück. Zu prüfen: hat sich die "
+                 "Definition (Pfad, Format, `schema_mode`) geändert? Dann einmal "
+                 "`REFRESH MATERIALIZED LAKE VIEW … FULL` und die Zeilenzahl gegen den Ordner halten."),
 }
 
 
@@ -1051,8 +1056,18 @@ def _deployment_plan_doc(deployment_model: str, plans: list[tuple[str, str, list
         "- Tenant-Setting **Users can create deployment plan (preview) items** für die "
         "Entwicklergruppe an.",
         "- Mindestens Contributor im Quell-Workspace.",
-        "- Automatisierung: Token mit `Item.Execute.All` zusätzlich zum Scope der Operation, "
-        "URL mit `?beta=true`.",
+        "- Automatisierung: Token mit `Item.Execute.All` zusätzlich zum Scope der Operation "
+        "(Update From Git `Workspace.GitUpdate.All`, Deploy Stage Content `Pipeline.Deploy` oder "
+        "`DeploymentPipeline.Deploy.All`, Bulk Import `Item.ReadWrite.All`). `beta=true` in der "
+        "URL ist Pflicht, `deploymentPlan` steht in `options`, nicht auf der Wurzel des Bodys "
+        "(Learn `deployment-plan-automation`, gelesen 01.10.2026).",
+        "- **Aktiver Wertesatz der Variable Library vor jeder Plan-Aktion setzen.** Welcher Value "
+        "Set aktiv ist, ist Workspace-Zustand und steht **nicht in Git**; der Deploy ändert ihn "
+        "nicht. Legt ein Initial-Sync oder ein Deploy in eine leere Stufe den Workspace neu an, "
+        "ist **Default** aktiv. Eine Aktion, die eine Variable-Library-Referenz als Parameter "
+        "trägt, löst sie gegen den aktiven Satz im Ziel auf — also im Ziel-Workspace die Library "
+        "öffnen, den Satz der Stufe aktiv setzen, speichern, erst dann deployen (Learn "
+        "`variable-library/variable-library-cicd`, gelesen 01.10.2026).",
         "- Das Gate-Notebook (`items.json` → `Gate_Notebook`) muss es im Workspace geben. Dieser "
         "Emitter erzeugt es nicht; es fährt die Prüfungen aus `gates/` im Tenant und endet mit "
         "Fehler, wenn eine rot ist.", "",
@@ -1085,8 +1100,10 @@ def _deployment_plan_doc(deployment_model: str, plans: list[tuple[str, str, list
         "Der Plan wirkt auch bei Git-Update und REST, also dort, wo Inbound-Schutz Deployment "
         "Pipelines ausschließt (D-592: dort deployt diese Lieferung Git-basiert).", "",
         "## Was der Plan nicht tut", "",
-        "- **Kein Rollback:** scheitert ein Item oder eine Aktion, bleibt Deployedes stehen, der "
-        "Rest kommt nicht. Rückweg: `_RUECKSPRUNG.md`.",
+        "- **Kein Rollback bei Abbruch:** scheitert die Validierung, ein Item oder eine Aktion, "
+        "stoppt die Operation; Deployedes bleibt stehen, der Rest kommt nicht (Learn "
+        "`deployment-plan-automation`: „Fabric doesn't roll back completed work“, gelesen "
+        "01.10.2026). Rückweg: `_RUECKSPRUNG.md`.",
         "- Keine Workspace-Einstellungen, Identitäten, Verbindungen, Gateway-Bindungen, "
         "Spark-Settings — die müssen im Ziel stehen, bevor eine Aktion sie braucht.",
         "- Er schaltet den aktiven Wertesatz einer Variable Library nicht um.",

@@ -64,7 +64,12 @@ Erstellen Sie eine Azure AD App Registration:
 
 ### 2. Tenant Settings
 
-Aktivieren Sie in Power BI Admin Portal → Tenant settings:
+Aktivieren Sie unter **OneLake catalog → Govern → Configurations → Tenant settings**
+(Fallback: Settings (Zahnrad) → Admin portal → Tenant settings, solange Govern in Ihrer Region
+noch nicht ausgerollt ist. Grenzen von Govern: nicht verfügbar bei aktiviertem Private Link,
+keine Gastbenutzer und keine Cross-Tenant-Szenarien; dort bleibt das Admin portal der Weg — Learn
+[About tenant settings](https://learn.microsoft.com/fabric/admin/about-tenant-settings),
+[Govern](https://learn.microsoft.com/fabric/governance/onelake-catalog-govern), gelesen 01.10.2026):
 - "Users can create Fabric items" (oder spezifisch für den SPN)
 - "Users can synchronize workspace items with their Git repositories"
 - "Service principals can use Fabric APIs"
@@ -172,7 +177,7 @@ python orchestrator.py init-domain --name Sales --strategy compact --capacity-de
 **Was passiert**:
 1. Erstellt Workspaces (enterprise: 9, compact: 3); idempotent
 2. Weist Kapazitäten zu
-3. Setzt Sensitivity Labels (General für Dev/Test, Confidential für Prod)
+3. Sensitivity Labels (General für Dev/Test, Confidential für Prod): Standard `purview_policy` überlässt sie der Purview-Labelrichtlinie; `admin_api` mit SPN setzt nichts, sondern meldet einen manuellen Schritt mit fertigem Aufruf (siehe *Fehler: "Sensitivity label not found"*)
 4. Verknüpft mit Git (Branch/Folder je Strategy)
 5. Erstellt Deployment Pipeline und weist Stages zu (Enterprise: Anl-Workspaces, Compact: ein WS pro Env)
 
@@ -386,7 +391,7 @@ SELECT * FROM silver.transactions_cleaned
 
 ### Fehler: "SPN has no access to capacity"
 
-**Lösung**: Fügen Sie den SPN als Capacity Admin hinzu (Power BI Admin Portal → Capacity settings → Admins).
+**Lösung**: Fügen Sie den SPN als Capacity Admin hinzu (OneLake catalog → Govern → Capacities → die Kapazität → More options → Settings → Capacity admins; Fallback: Settings (Zahnrad) → Admin portal → Capacity settings, z. B. bei Private Link — Learn [Manage your capacities in the OneLake catalog](https://learn.microsoft.com/fabric/governance/onelake-catalog-capacities), gelesen 01.10.2026).
 
 ### Fehler: "Git provider details missing"
 
@@ -394,7 +399,7 @@ SELECT * FROM silver.transactions_cleaned
 
 ### Fehler: "Sensitivity label not found"
 
-**Lösung**: Labels müssen im Tenant existieren (Microsoft Purview). Verwenden Sie Label-IDs statt Namen in `config.yaml`.
+**Lösung**: Labels müssen im Tenant existieren (Microsoft Purview). Im Modus `admin_api` Label-IDs (GUID) statt Namen in `config.yaml`. `admin_api` ruft Fabric `POST /v1/admin/items/bulkSetLabels` (alle Fabric-Item-Typen, 2.000 Items je Aufruf, 25 Aufrufe je Stunde); der Endpunkt unterstützt laut Learn (gelesen 01.10.2026) keinen Dienstprinzipal — der SPN-Orchestrator setzt dort nichts, sondern meldet einen manuellen Schritt. Default ist `purview_policy`. Eine Benutzer-Anmeldung im Orchestrator wird nicht gebaut (Entscheidung 01.10.2026: manueller Schritt plus Purview). Der manuelle Schritt enthält alles für einen Fabric-Admin: Endpunkt `POST https://api.fabric.microsoft.com/v1/admin/items/bulkSetLabels`, den fertigen JSON-Body (`items` mit `{id, type}`, `labelId`, `assignmentMethod`, optional `delegatedPrincipal` vom Typ `User`), Anmeldung nur als Benutzer mit der Rolle Fabric Administrator und Scope `Tenant.ReadWrite.All`, die Grenzen (25 Aufrufe je Stunde, 2.000 Items je Aufruf) und die Erfolgsregel: erledigt erst, wenn jedes Item in `itemsChangeLabelStatus` `Succeeded` meldet. Ein Token steht nie im Schritt.
 
 ---
 

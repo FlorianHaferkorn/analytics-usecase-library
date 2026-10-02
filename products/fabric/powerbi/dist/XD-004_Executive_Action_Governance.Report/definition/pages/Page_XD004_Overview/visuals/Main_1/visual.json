@@ -92,6 +92,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Action Outcome Rate % (XD Log) by Year'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

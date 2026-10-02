@@ -1,6 +1,6 @@
 # Open-Source Stack — Architecture Plan
 
-> Status: **Draft v1.0** · Last updated: 2026-03-28
+> Status: **Draft v1.0** · Last updated: 2026-10-01 (§5.3 Fabric dbt job)
 
 This document defines the open-source (OSS) stack that mirrors the
 Fabric / Power BI connector — same governance, same agent workflow, same
@@ -276,6 +276,30 @@ metrics:
       source: ir_v1.json
 ```
 
+### 5.3 Fabric dbt job (GA September 2026) — assessment for this stack
+
+Assessed 2026-10-01 (I-21 W2.4) without a tenant. Sources, all read 2026-10-01 on Microsoft Learn:
+[dbt-job-overview](https://learn.microsoft.com/fabric/data-factory/dbt-job-overview) (adapters,
+runtime, limitations), [What's new in Fabric](https://learn.microsoft.com/fabric/fundamentals/whats-new)
+(entry "dbt job in Fabric Data Factory (Generally Available)", September 2026),
+[dbt-run-github](https://learn.microsoft.com/fabric/data-factory/dbt-run-github) (GitHub source with a
+classic PAT).
+
+| Question | Platform fact (Learn) | Consequence for this repo |
+|---|---|---|
+| Can the job run our profile targets? | Runtime 1.0 ships dbt-core 1.11 with the adapters `dbt-fabric` (Warehouse), `dbt-fabricspark` (Lakehouse), `dbt-sqlserver`, `dbt-postgres`, `dbt-snowflake` | Our `profiles.yml.example` targets `duckdb` (dev), `postgres`, `trino` (prod). Only `postgres` is in the list; `duckdb` and `trino` are not. `dbt-core>=1.8` in `adapter.json` is compatible with 1.11 |
+| Does it change the OSS stack? | The job is a Fabric item: it needs a Fabric workspace (Contributor or higher) and runs inside Fabric | No. The OSS stack's hard requirement is "hyperscaler-agnostic, zero license fees" (§1 principle 4, §2); a Fabric-hosted runner is the Fabric path, not the OSS path. Orchestration stays Dagster (or Airflow) |
+| Where would it help? | Native schedule, lineage view, compiled SQL, run logs; GitHub as source per branch | Only for a customer on Fabric who wants dbt instead of notebooks for Bronze→Silver→Gold. That is a Fabric-adapter decision, not taken here |
+| Is there anything to run today? | — | No. `dbt_project/models/staging/` and `models/marts/` are empty; only `models/metrics/_metrics.yml` exists, and metrics need the dbt Semantic Layer, which the job pages do not mention |
+| Limits to plan around | No build caching between runs; `dbt docs generate` artifacts are stored but not rendered in Fabric | Irrelevant until models exist |
+
+Result: **no adapter change.** `adapter.json` keeps its tool list; the Fabric dbt job is recorded as an
+option for the Fabric path in the decision log (§10).
+
+UNKLAR: The Learn overview page still names the tenant switch "dbt jobs (preview)" while What's new
+lists the job as generally available (both read 2026-10-01). Whether the switch was renamed is
+unchecked without a tenant.
+
 ---
 
 ## 6 Validation & Quality Gates
@@ -472,3 +496,4 @@ products/open_source_stack/
 | 2026-03-28 | Dagster for orchestration | Asset-centric model fits use-case-driven architecture, native dbt integration |
 | 2026-03-28 | AWS as reference hyperscaler | Widest Iceberg support (Athena = serverless Trino), free tier for dev |
 | 2026-03-28 | Python for all OSS tooling | Consistency with existing generators, pytest ecosystem, dbt/Dagster are Python |
+| 2026-10-01 | Fabric dbt job (GA 09/2026) not adopted for the OSS stack | Fabric-hosted, runtime 1.0 has no `dbt-duckdb`/`dbt-trino` adapter; OSS orchestration stays Dagster. Option for the Fabric path only (§5.3, I-21 W2.4) |

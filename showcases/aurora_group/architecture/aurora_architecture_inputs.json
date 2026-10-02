@@ -1,0 +1,28 @@
+{
+  "stack": "fabric",
+  "silver_contract_ref": "core/data_contracts/domains",
+  "domains": [
+    {
+      "name": "Commercial",
+      "data_contract_ref": "core/data_contracts/domains/commercial_sales.yaml",
+      "gold_target": "mlv",
+      "gold_products": [
+        {"name": "dim_customer", "kind": "dimension"},
+        {"name": "dim_date", "kind": "dimension"},
+        {"name": "dim_product", "kind": "dimension"},
+        {"name": "fact_experience", "kind": "fact", "grain": "customer_event"},
+        {"name": "fact_sales", "kind": "fact", "grain": "invoice_line"}
+      ],
+      "endorsement": "certified"
+    },
+    {
+      "name": "Finance",
+      "data_contract_ref": "core/data_contracts/domains/finance.yaml",
+      "gold_products": [
+        {"name": "dim_cost_center", "kind": "dimension"},
+        {"name": "fact_cost", "kind": "fact"},
+        {"name": "fact_finance", "kind": "fact"}
+      ]
+    }
+  ]
+}

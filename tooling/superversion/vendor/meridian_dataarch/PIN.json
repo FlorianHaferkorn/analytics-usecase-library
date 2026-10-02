@@ -1,12 +1,12 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "cf70aa1e3d5ff34fd7bdeaeebf32dc8267492655",
+  "source_commit": "beb408c7c7133ac132e0b2d98bbf199f9591a05e",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
       "path": "admin_settings.py",
-      "sha256": "14f6936bde7fbb9712dfeb291f9cef82589460e04e7cfb05c715d2ad2ee79df1"
+      "sha256": "a7d84c8c37dae62b624c686caf3edc811ad3e87fb6509c1017f86c5342174ea7"
     },
     {
       "path": "capacity_recommend.py",
@@ -14,7 +14,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "cb2781bfa300fa8e6847ed764ed69305e2133541bd25356abf738ad033f64259"
+      "sha256": "4141e390412aa3f0301aa09b306d9eb97b7f1bdc3a15fdb9b30796684ecad967"
     },
     {
       "path": "fabric_schedule.py",
@@ -30,7 +30,7 @@
     },
     {
       "path": "provision_governance.py",
-      "sha256": "5574f4e4179926efbd007c64762f75768b6d9f8efd126e82aecd2bfc5b5ca731"
+      "sha256": "d1beb42789ec132de4a6c217336e60d2d27184f0cca0dc46861e597b0f4a77ca"
     },
     {
       "path": "provision_lifecycle.py",
@@ -38,7 +38,7 @@
     },
     {
       "path": "provision_monitoring.py",
-      "sha256": "62534b91491ffb943e3a44e2a7d9f1a1165ab1d9d88c993faac12d2ec3b72a77"
+      "sha256": "2528f719547b5df02051697e3bd3464869472591f8da80b64394690fc21f041f"
     },
     {
       "path": "provision_operability.py",
@@ -54,7 +54,7 @@
     },
     {
       "path": "stack_capabilities.py",
-      "sha256": "b95bb7cb1c06b43fb22c4122f732202baeba1d9b0c2415afb15eba7f2f0ae95f"
+      "sha256": "64d3ffa228a885282c12aa3ebe7d61f36df2281450d0314d0c219a322cc20d70"
     },
     {
       "path": "direct_lake_guardrails.py",
@@ -70,7 +70,7 @@
     },
     {
       "path": "provision_apply.py",
-      "sha256": "06f6a9c7e2a8a4d6cfaabb36d520d652a467e998bb1504753557b0bd26a1f333"
+      "sha256": "93d46a009b5a269bdb5e4104db8ba533e4cd3e27b9200d093119a5dd8f838c47"
     },
     {
       "path": "provision_chargeback.py",
@@ -78,7 +78,7 @@
     },
     {
       "path": "provision_cicd.py",
-      "sha256": "a818fa46418d1ab4a9a3490d08260a9ce595c33f9acd9d16a8f5a6862a70e7fe"
+      "sha256": "8cb31c10c29583c307e69059628d6a950db328f802d8408a5a6a243865f0e66d"
     },
     {
       "path": "provision_databricks_cicd.py",
@@ -90,7 +90,7 @@
     },
     {
       "path": "provision_fabric.py",
-      "sha256": "e52ee1933069838578d396ed70dbd1dc4bff58814c94362430c251e92317ac54"
+      "sha256": "aaee5cbe66ebaea010713240d962f14c4931abcbed765348598ac61efbedec8f"
     },
     {
       "path": "provision_fabric_cicd.py",
@@ -102,7 +102,7 @@
     },
     {
       "path": "provision_ingestion.py",
-      "sha256": "802cb20c87254cee4abfbd3868b2e56ad431571e872ab1159b7589a7a3ef8f1d"
+      "sha256": "053f07486ff46b02316d5478810dc84d3ed0b1e4dd02325033a79a0648a40a86"
     },
     {
       "path": "provision_lineage.py",
@@ -125,6 +125,10 @@
       "sha256": "48fb3eb79b793778b32096cd533d7ae7d3fb85bbdf1bba6a18d9998459901ece"
     },
     {
+      "path": "provision_purview.py",
+      "sha256": "4557f4406924b2be4dbaabf23228c51725580d8546b9ab61b97db6ef2021e01f"
+    },
+    {
       "path": "provision_terraform.py",
       "sha256": "a640126d0e4f64695cad7118ed694bdf4f74f2d19dffa4911eb50a9dee8f04b7"
     },
@@ -138,7 +142,7 @@
     },
     {
       "path": "provision_transforms.py",
-      "sha256": "bec68ec3ad69763fd986f6796b893ec034be896e11d5e179a8b940e3671c8887"
+      "sha256": "9eae7673c263ac94cf1d56ec2f7621d0d1e0e81eacdd77a117453fa440b5de0a"
     },
     {
       "path": "provision_translations.py",
@@ -157,6 +161,10 @@
       "sha256": "6345779ff1b42f7cb0e139218e21eee365489968abb057f0eee582029dff7750"
     },
     {
+      "path": "conformance.py",
+      "sha256": "b8f2e8a3020a283e729b78155f40247c83f72d713e943fbe6b20c95bbdb12851"
+    },
+    {
       "path": "preis_kanon.py",
       "sha256": "01c6eae5e537fa77adc9616b831b39a2e7df3521590bca1bab44baa9aa6566c1",
       "source": "core/preis_kanon.py"
@@ -165,6 +173,11 @@
       "path": "leerstellen_vorlage.py",
       "sha256": "fe61366e405ad6418a64c5f99f1200ef5126157e2f3e7cc52a59aa3c34c4cb6c",
       "source": "meridian/semantics/leerstellen_vorlage.py"
+    },
+    {
+      "path": "ontologie_kern.py",
+      "sha256": "c25b4c628dadbc5df2ac33d874d507534a5ee392b59cc98e695c3f6d586e8916",
+      "source": "meridian/semantics/ontologie_kern.py"
     }
   ]
 }

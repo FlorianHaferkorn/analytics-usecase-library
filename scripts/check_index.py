@@ -51,51 +51,6 @@ FRONT_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 PLACEHOLDER_RE = re.compile(r"\{\{[^}]+\}\}")
 
 
-# The index checker validates the TRACKED repo. Content git ignores — e.g. real customer showcases
-# kept local per showcases/README.md ("Customer-specific implementations … kept in separate project
-# repositories") — is NOT part of it and must not be scanned. Populated in main().
-_IGNORED: "set[Path]" = set()
-
-
-def _git_ignored_prefixes(root: Path) -> "set[Path]":
-    """Absolute paths git ignores (directories collapsed to one entry via ``--directory``)."""
-    try:
-        out = subprocess.run(
-            ["git", "-C", str(root), "ls-files", "--others", "--ignored",
-             "--exclude-standard", "--directory", "-z"],
-            capture_output=True, text=True, timeout=30, check=True,
-            encoding="utf-8", errors="replace").stdout
-    except Exception:
-        return set()
-    return {(root / p).resolve() for p in out.split("\0") if p}
-
-
-def _git_submodule_prefixes(root: Path) -> "set[Path]":
-    """Absolute paths of git submodules (gitlinks, mode 160000).
-
-    A submodule is a separate repository: its files exist only after
-    ``git submodule update --init`` and are versioned elsewhere. The index must not
-    depend on them - otherwise a fresh checkout (CI, worktree) fails on paths that
-    the maintainer's initialised checkout happens to have."""
-    try:
-        out = subprocess.run(
-            ["git", "-C", str(root), "ls-files", "-s", "-z"],
-            capture_output=True, text=True, timeout=30, check=True,
-            encoding="utf-8", errors="replace").stdout
-    except Exception:
-        return set()
-    prefixes = set()
-    for entry in out.split("\0"):
-        if entry.startswith("160000 ") and "\t" in entry:
-            prefixes.add((root / entry.split("\t", 1)[1]).resolve())
-    return prefixes
-
-
-def _under_ignored(p: Path) -> bool:
-    rp = p.resolve()
-    return any(rp == ig or ig in rp.parents for ig in _IGNORED)
-
-
 def slugify(h: str) -> str:
     s = re.sub(r"[^\w\s-]", "", h.strip().lower(), flags=re.UNICODE)
     return re.sub(r"\s+", "-", s)
@@ -107,16 +62,73 @@ def headings_of(md: Path) -> set[str]:
             if m}
 
 
+def _heisst_wirklich_index(p: Path) -> bool:
+    """`rglob("_INDEX.md")` matcht auf Windows (NTFS) und macOS (APFS) ohne Groß/Klein: ein
+    `_index.md` wird zum Index, und das Gate verlangt dann, dass er sich selbst listet. Gemessen
+    30.09.2026 in Freelancing (`products/cockpit_catalog/_index.md`): auf jedem Windows-Rechner
+    zwei harte Befunde, auf Linux keiner. Maßgeblich ist der Name, der wirklich im Ordner steht."""
+    try:
+        return any(q.name == "_INDEX.md" for q in p.parent.iterdir())
+    except OSError:
+        return False
+
+
 def find_indexes(root: Path) -> list[Path]:
     return sorted(p for p in root.rglob("_INDEX.md")
-                  if not any(part in IGNORE_DIRS for part in p.parts)
-                  and not _under_ignored(p))
+                  if not any(part in IGNORE_DIRS for part in p.parts) and not _git_ignored(p)
+                  and _heisst_wirklich_index(p))
+
+
+# Das Gate misst den VERSIONIERTEN Bestand dieses Repos, nicht das Dateisystem. Zwei Arten
+# Dateien liegen im Arbeitsbaum, ohne dazuzugehören:
+#   - gitignorierte (lokale Lauf-Logs, Kundendaten, Build-Reste): auf dem einen Rechner da, auf
+#     jedem anderen Klon nicht — ein Register, das sie führt, ist dort voller toter Pfade;
+#   - Submodule (gitlinks, Modus 160000): ein fremdes Repository, befüllt erst nach
+#     `git submodule update --init` — ein frischer Checkout (CI, Worktree) hat sie nicht.
+# Ohne Git (kein Repo, kein `git`) bleibt die Menge leer: altes Verhalten, kein stilles Schweigen.
+_GIT_IGNORED: set[str] | None = None   # relative POSIX-Pfade; None = noch nicht gemessen
+
+
+def _git_submodule_prefixes(root: Path) -> set[Path]:
+    """Absolute Pfade der Submodule (gitlinks) unter `root`."""
+    try:
+        out = subprocess.run(["git", "-C", str(root), "ls-files", "-s", "-z"],
+                             capture_output=True, text=True, encoding="utf-8",
+                             errors="replace", timeout=30, check=True).stdout
+    except (OSError, subprocess.SubprocessError):
+        return set()
+    return {(root / e.split("\t", 1)[1]).resolve()
+            for e in out.split("\0") if e.startswith("160000 ") and "\t" in e}
+
+
+def _git_ignored(p: Path) -> bool:
+    """Gitignoriert, in einem gitignorierten Ordner oder in einem Submodul?"""
+    global _GIT_IGNORED
+    if _GIT_IGNORED is None:
+        try:
+            r = subprocess.run(["git", "-C", str(REPO_ROOT), "ls-files", "-z", "--others",
+                                "--ignored", "--exclude-standard", "--directory"],
+                               capture_output=True, text=True, encoding="utf-8",
+                               errors="replace", timeout=30)
+            found = {s.rstrip("/") for s in r.stdout.split("\0") if s} if r.returncode == 0 else set()
+        except (OSError, subprocess.SubprocessError):
+            found = set()
+        root = REPO_ROOT.resolve()
+        found |= {s.relative_to(root).as_posix() for s in _git_submodule_prefixes(root)}
+        _GIT_IGNORED = found
+    if not _GIT_IGNORED:
+        return False
+    try:
+        rel = p.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+    except ValueError:
+        return False
+    parts = rel.split("/")
+    return any("/".join(parts[:i]) in _GIT_IGNORED for i in range(1, len(parts) + 1))
 
 
 def ignored(md: Path) -> bool:
     return (any(p in IGNORE_DIRS for p in md.parts) or md.name in EXEMPT_FILES
-            or DUPE_RE.search(md.name) or DUPE_RE.search(md.stem)
-            or _under_ignored(md))
+            or DUPE_RE.search(md.name) or DUPE_RE.search(md.stem) or _git_ignored(md))
 
 
 LIESWENN_HEADER_RE = re.compile(r"nicht\s*n(ö|oe)tig", re.IGNORECASE)
@@ -513,12 +525,14 @@ def check_staleness(index: Path, warnings: list[str]) -> None:
     if fm.get("status", "").strip().lower() in ("historical", "superseded", "frozen"):
         return  # eingefrorenes Artefakt → staleness-frei (F)
     if "last-reviewed" not in fm:
-        warnings.append(f"[Staleness] {rel}: kein last-reviewed-Feld"); return
+        warnings.append(f"[Staleness] {rel}: kein last-reviewed-Feld")
+        return
     try:
         age = (_dt.date.today() - _dt.date.fromisoformat(fm["last-reviewed"].strip())).days
         shelf = int(fm.get("shelf-life-days", "90"))
     except ValueError:
-        warnings.append(f"[Staleness] {rel}: last-reviewed/shelf-life-days unlesbar"); return
+        warnings.append(f"[Staleness] {rel}: last-reviewed/shelf-life-days unlesbar")
+        return
     if age > shelf:
         warnings.append(f"[Staleness] {rel}: vor {age} d reviewt (> {shelf} d) — auffrischen")
 
@@ -532,7 +546,7 @@ def _git_last_commit_date(rel_dir: Path, exclude: str | None = None) -> _dt.date
         args.append(f":(exclude){rel_dir}/{exclude}")
     try:
         r = subprocess.run(args, cwd=REPO_ROOT, capture_output=True, text=True,
-            encoding="utf-8", errors="replace", timeout=5)
+                           encoding="utf-8", errors="replace", timeout=5)
         s = r.stdout.strip()
         return _dt.date.fromisoformat(s) if s else None
     except Exception:
@@ -570,7 +584,7 @@ def check_unindexed_areas(root: Path, indexes: list[Path], warnings: list[str]) 
     index_dirs = {idx.parent.resolve() for idx in indexes}
     for child in sorted(p for p in root.iterdir() if p.is_dir()):
         if (child.name in IGNORE_DIRS or child.name.startswith(".") or _non_navigated(child)
-                or _under_ignored(child)):
+                or _git_ignored(child)):
             continue
         cr = child.resolve()
         if any(d == cr or cr in d.parents for d in index_dirs):
@@ -629,7 +643,7 @@ def claude_hook(event: str) -> int:
 
     def git(*a: str) -> subprocess.CompletedProcess:
         return subprocess.run(["git", "-C", str(REPO_ROOT), *a], capture_output=True, text=True,
-            encoding="utf-8", errors="replace")
+                              encoding="utf-8", errors="replace")
 
     try:
         if event == "session-start":
@@ -648,8 +662,8 @@ def claude_hook(event: str) -> int:
             st = git("status", "--porcelain")
             if st.returncode != 0 or not st.stdout.strip():
                 return 0
-            res = subprocess.run([sys.executable, str(Path(__file__).resolve())], capture_output=True, text=True,
-                encoding="utf-8", errors="replace")
+            res = subprocess.run([sys.executable, str(Path(__file__).resolve())], capture_output=True,
+                                 text=True, encoding="utf-8", errors="replace")
             fails = [ln for ln in res.stdout.splitlines() if ln.startswith("FAIL")]
             if res.returncode == 0 or not fails:
                 return 0   # grün — oder das Gate selbst ist abgestürzt: dann nicht blockieren
@@ -668,8 +682,6 @@ def main(argv: list[str]) -> int:
     strict = "--strict" in argv
     pos = [a for a in argv[1:] if not a.startswith("--")]
     root = (REPO_ROOT / pos[0]) if pos else REPO_ROOT
-    global _IGNORED
-    _IGNORED = _git_ignored_prefixes(REPO_ROOT) | _git_submodule_prefixes(REPO_ROOT)
     indexes = find_indexes(root)
     errors: list[str] = []
     warnings: list[str] = []

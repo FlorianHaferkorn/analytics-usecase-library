@@ -1,0 +1,126 @@
+{
+  "environment": "prd",
+  "workspaces": [
+    {
+      "layer": "DE",
+      "workspace": "ActionReady - DE [prd]",
+      "outbound_access_protection": "open_decision",
+      "oap_reason": "Lakehouse, notebooks and pipelines support OAP (managed private endpoints / data connection rules); whether DE_ is protected is a separate decision.",
+      "oap_connection_rules": [],
+      "allowed_item_types": [
+        "Lakehouse",
+        "Notebook",
+        "DataPipeline"
+      ]
+    },
+    {
+      "layer": "DM",
+      "workspace": "ActionReady - DM [prd]",
+      "outbound_access_protection": "on_with_rules",
+      "oap_reason": "Semantic models support OAP (preview) but need a rule even for Fabric sources; without it the refresh fails.",
+      "oap_connection_rules": [
+        "SQL Server connector: SQL analytics endpoint FQDN of the DE_ lakehouse",
+        "ADLS Gen2 connector: OneLake URL of the DE_ workspace"
+      ],
+      "allowed_item_types": [
+        "SemanticModel"
+      ]
+    },
+    {
+      "layer": "BI",
+      "workspace": "ActionReady - BI [prd]",
+      "outbound_access_protection": "off",
+      "oap_reason": "BI_ reports bind to semantic models in DM_ (another workspace). Under OAP a report may bind only to a model in the same workspace (preview), and the OAP overview still lists reports as unsupported.",
+      "oap_connection_rules": [],
+      "allowed_item_types": [
+        "Report"
+      ]
+    },
+    {
+      "layer": "Shared",
+      "workspace": "ActionReady - Shared [prd]",
+      "outbound_access_protection": "open_decision",
+      "oap_reason": "No items declared for Shared; nothing to decide yet.",
+      "oap_connection_rules": [],
+      "allowed_item_types": null
+    }
+  ],
+  "oap_preconditions": [
+    "Tenant setting 'Configure workspace-level outbound network rules' enabled",
+    "Workspace on a Fabric F SKU (no trial, P or EM SKU)",
+    "Only OAP-supported items in the workspace (no report, dashboard, paginated report)",
+    "'Allow Git integration' on before any Git operation, else connect/update fails",
+    "PUT .../networking/communicationPolicy must also send 'inbound', else it resets to Allow"
+  ],
+  "surge_protection": {
+    "class": "mission_critical",
+    "workspace_availability": "Mission critical",
+    "capacity": "MyCapacity-Prod",
+    "mechanism": "manual",
+    "manual_path": "OneLake catalog > Govern > Capacities > <capacity> > Workspaces > gear icon > Workspace availability"
+  },
+  "item_creation_policy": {
+    "status": "target_picture",
+    "scope": "capacity",
+    "capacity": "MyCapacity-Prod",
+    "unsupported_regions": [
+      "West Europe",
+      "North Europe",
+      "West US"
+    ],
+    "rules": [
+      {
+        "name": "DE-item-types",
+        "workspaces": {
+          "AnyOf": [
+            "ActionReady - DE [prd]"
+          ]
+        },
+        "item_type": {
+          "AnyOf": [
+            "Lakehouse",
+            "Notebook",
+            "DataPipeline"
+          ]
+        }
+      },
+      {
+        "name": "DM-item-types",
+        "workspaces": {
+          "AnyOf": [
+            "ActionReady - DM [prd]"
+          ]
+        },
+        "item_type": {
+          "AnyOf": [
+            "SemanticModel"
+          ]
+        }
+      },
+      {
+        "name": "BI-item-types",
+        "workspaces": {
+          "AnyOf": [
+            "ActionReady - BI [prd]"
+          ]
+        },
+        "item_type": {
+          "AnyOf": [
+            "Report"
+          ]
+        }
+      },
+      {
+        "name": "all-other-workspaces",
+        "workspaces": {
+          "NoneOf": [
+            "ActionReady - DE [prd]",
+            "ActionReady - DM [prd]",
+            "ActionReady - BI [prd]"
+          ]
+        }
+      }
+    ]
+  },
+  "item_type_violations": []
+}
