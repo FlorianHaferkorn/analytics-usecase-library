@@ -32,5 +32,35 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: People Analytics
   semantic_model: People_SemanticModel
   display_folder: 03_Digital
+
+- measure_name: Attrition %
+  is_kpi_measure: true
+  kpi_id_ref: KPI-PPL-001
+  semantic_model: People_SemanticModel
+  display_folder: 01_Retention
+  category: KPI
+  expression:
+    logical: Attrition % = DIVIDE ( SUM ( fact_workforce[Voluntary Leavers] ), SUM ( fact_workforce[Headcount FTE] ) ) * 12
+    aggregation_method: ratio
+  documentation:
+    description: Voluntary leavers divided by headcount FTE, annualised from the monthly rate.
+    notes: 'Grain: org/segment, monthly, annualised. Unit: %.
+
+      Lineage: fact_workforce[Voluntary Leavers], fact_workforce[Headcount FTE].
+
+      Expression synthesized from the governed catalog calculation (KPI-PPL-001, op ratio, scale 12) via tooling/superversion/targets/dax_synth.py; not yet measured against Aurora gold data.
+
+      QA: Denominator > 0 for reported slices.
+
+      '
+  dependencies:
+    columns:
+    - fact_workforce[Voluntary Leavers]
+    - fact_workforce[Headcount FTE]
+  governance:
+    owner: People Analytics
+    status: experimental
+    version: v0.1
+    last_review: 02.10.2026
 ```
 

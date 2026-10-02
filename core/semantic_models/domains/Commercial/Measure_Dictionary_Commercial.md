@@ -1227,4 +1227,34 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: 28.04.2026
+
+- measure_name: Pipeline Coverage
+  is_kpi_measure: true
+  kpi_id_ref: KPI-COM-026
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: 05_Pipeline
+  category: KPI
+  expression:
+    logical: Pipeline Coverage = DIVIDE ( SUM ( fact_pipeline[Open Qualified Value Amount] ), SUM ( fact_sales_target[Remaining Target Amount] ) )
+    aggregation_method: ratio
+  documentation:
+    description: Open qualified pipeline value divided by the remaining sales target.
+    notes: 'Grain: rep/region/segment, weekly snapshot. Unit: ratio (x).
+
+      Lineage: fact_pipeline[Open Qualified Value Amount], fact_sales_target[Remaining Target Amount].
+
+      Expression synthesized from the governed catalog calculation (KPI-COM-026, op ratio) via tooling/superversion/targets/dax_synth.py; not yet measured against Aurora gold data.
+
+      QA: Denominator > 0 for reported slices.
+
+      '
+  dependencies:
+    columns:
+    - fact_pipeline[Open Qualified Value Amount]
+    - fact_sales_target[Remaining Target Amount]
+  governance:
+    owner: Commercial BI
+    status: experimental
+    version: v0.1
+    last_review: 02.10.2026
 ```

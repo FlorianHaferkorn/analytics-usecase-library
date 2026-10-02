@@ -7,9 +7,9 @@
 
 - Use cases: **22**  (evidence packs: 16/22, factsheets: 22/22)
 - KPIs in catalog: **145**  — reachable: **143**, roadmap (planned.yaml): 36, orphan: **0**
-- Action codes: **57**  — reachable: **57**, orphan: **0**
+- Action codes: **60**  — reachable: **59**, orphan: **1**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
-- Semantic measures: **279**  — backing a catalog KPI: **111** (registry/drift gated by `test_measure_dictionary_files`)
+- Semantic measures: **282**  — backing a catalog KPI: **114** (registry/drift gated by `test_measure_dictionary_files`)
 
 ## Integrity (must be empty)
 
@@ -26,8 +26,8 @@
 | COM-003 | 20 | 2 | ✓ | commercial_sales.yaml |
 | COM-004 | 15 | 3 | ✓ | commercial_sales.yaml |
 | COM-005 | 6 | 1 | — | growth.yaml |
-| COM-006 | 3 | 0 | — | commercial_sales.yaml |
-| ESG-001 | 1 | 0 | — | esg.yaml |
+| COM-006 | 3 | 1 | — | commercial_sales.yaml |
+| ESG-001 | 1 | 1 | — | esg.yaml |
 | FIN-001 | 23 | 4 | ✓ | finance.yaml |
 | FIN-002 | 16 | 4 | ✓ | finance.yaml |
 | FIN-003 | 9 | 1 | — | finance.yaml |
@@ -52,7 +52,7 @@ _none_
 
 **Action codes:**
 
-_none_
+- `C-M2.3`
 
 **Decision spines (unmapped):**
 
@@ -66,7 +66,6 @@ _none_
 - `KPI-COM-023`
 - `KPI-COM-024`
 - `KPI-COM-025`
-- `KPI-COM-026`
 - `KPI-COM-027`
 - `KPI-COM-028`
 - `KPI-COM-029`
@@ -81,14 +80,12 @@ _none_
 - `KPI-FIN-021`
 - `KPI-OPS-019`
 - `KPI-OPS-020`
-- `KPI-PPL-001`
 - `KPI-PPL-002`
 - `KPI-PPL-003`
 - `KPI-PPL-004`
 - `KPI-PPL-005`
 - `KPI-PPL-006`
 - `KPI-SCM-003`
-- `KPI-SCM-023`
 - `KPI-SCM-024`
 - `KPI-SCM-025`
 - `KPI-SCM-026`

@@ -12,7 +12,8 @@ domain_tag:
 - Assortment
 use_case_ref:
 - COM-IND-R002
-action_code_ref: []
+action_code_ref:
+- C-M2.3
 calc_type: ratio
 good_is: higher
 business:

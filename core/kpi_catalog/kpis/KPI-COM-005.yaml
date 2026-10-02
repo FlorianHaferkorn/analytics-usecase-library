@@ -11,6 +11,8 @@ use_case_ref:
 - COM-003
 - COM-004
 action_code_ref:
+- C-E1.1
+- C-M2.3
 - C-S1.1
 - C-S1.2
 calc_type: amount
