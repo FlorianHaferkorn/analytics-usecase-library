@@ -151,3 +151,33 @@
   eta_date: '2026-10-31'
   reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
     measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: KPI-SCM-028
+  owner: scm_analytics_lead
+  eta_date: '2026-12-31'
+  reason: Library KPI for an external consumer (consumer_ref meridian:aurora, D-594 Nachtrag 1); no ALUCA use case
+    wires it into a semantic model yet.
+- kpi_id: KPI-COM-032
+  owner: com_analytics_lead
+  eta_date: '2026-12-31'
+  reason: Library KPI for an external consumer (consumer_ref meridian:aurora); calculation op:hitl (grammar, filtered
+    sum) and no ALUCA use case wires it into a semantic model yet.
+- kpi_id: KPI-COM-033
+  owner: com_analytics_lead
+  eta_date: '2026-12-31'
+  reason: Library KPI for an external consumer (consumer_ref meridian:aurora); calculation op:hitl (data_contract,
+    no private-label attribute) and no ALUCA use case wires it yet.
+- kpi_id: KPI-COM-034
+  owner: com_analytics_lead
+  eta_date: '2026-12-31'
+  reason: Library KPI for an external consumer (consumer_ref meridian:aurora); calculation op:hitl (data_contract,
+    no web-analytics session fact) and no ALUCA use case wires it yet.
+- kpi_id: KPI-ESG-001
+  owner: esg_analytics_lead
+  eta_date: '2026-12-31'
+  reason: Library KPI for an external consumer (consumer_ref meridian:aurora); calculation op:hitl (grammar, filtered
+    sum) and no ALUCA use case wires it into a semantic model yet.
+- kpi_id: KPI-ESG-002
+  owner: esg_analytics_lead
+  eta_date: '2026-12-31'
+  reason: Library KPI for an external consumer (consumer_ref meridian:aurora); calculation op:hitl (data_contract,
+    no supplier ESG audit data) and no ALUCA use case wires it yet.

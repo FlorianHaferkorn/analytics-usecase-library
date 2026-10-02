@@ -561,3 +561,28 @@ class TestLifecycleGate:
             brackets = self._bracket("COM-IND-X001", status, "invoice_line")
             issues = validate_evidence_grains(brackets, self.ALLOWED, self.REPO)
             assert issues == [], f"governed grain should be clean (status={status})"
+
+
+# ---------------------------------------------------------------------------
+# consumer_ref (D-594 Nachtrag 1): Bibliotheks-KPI ohne Use Case, mit externem Abnehmer
+# ---------------------------------------------------------------------------
+
+def test_consumer_ref_is_parsed_from_the_catalog_chunk():
+    from registry_builder import _parse_kpi_catalog_chunk
+
+    mit = _parse_kpi_catalog_chunk(["- kpi_id: KPI-ESG-001", "  use_case_ref: []",
+                                    "  consumer_ref:", "  - meridian:aurora"])
+    ohne = _parse_kpi_catalog_chunk(["- kpi_id: KPI-ESG-001", "  use_case_ref: []"])
+    assert mit["consumer_ref"] == ["meridian:aurora"]
+    assert ohne["consumer_ref"] == []
+
+
+def test_every_catalog_kpi_is_referenced_or_has_a_consumer():
+    """Spiegel der Stage-1-Regel (validate_kpi_catalog.ps1) fuer die per-KPI-Dateien."""
+    kpis = Path(__file__).resolve().parents[2] / "core" / "kpi_catalog" / "kpis"
+    leer = []
+    for p in sorted(kpis.glob("KPI-*.yaml")):
+        d = yaml.safe_load(p.read_text(encoding="utf-8"))
+        if not (d.get("use_case_ref") or d.get("action_code_ref") or d.get("consumer_ref")):
+            leer.append(d["kpi_id"])
+    assert leer == ["KPI-FIN-018"], leer   # FIN-018: Altlast auf main, nicht Teil dieser Regel-Erweiterung

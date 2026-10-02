@@ -1,0 +1,55 @@
+kpi_id: KPI-ESG-002
+synonyms:
+- Lieferanten-ESG-Quote (Tier 1)
+- Lieferant-ESG-Compliance
+- Supplier ESG compliance
+kpi_key: Supplier ESG Compliance %
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: ESG
+domain_tag:
+- ESG
+- Sourcing
+use_case_ref: []
+action_code_ref: []
+consumer_ref:
+- meridian:aurora
+calc_type: rate
+good_is: higher
+business:
+  purpose: Measures the share of direct (Tier-1) suppliers with a completed and passed ESG audit.
+  definition: Tier-1 suppliers with a completed ESG audit and a passing score / all active Tier-1 suppliers. Tier 1
+    only — sub-suppliers (Tier 2+) are out of scope.
+  grain_scope: Supplier/category; quarterly.
+  unit_format: percent_1
+  interpretation: Higher is better; the quarterly audit cadence lags detection by up to three months. Comparable over
+    years only with a documented, stable pass/fail scoring method.
+technical:
+  measure_name: Supplier ESG Compliance %
+  description: Share of active Tier-1 suppliers with a passed ESG audit.
+  depends_on_measures: []
+  lineage: []
+  calculation:
+    op: hitl
+    blocked_by: data_contract
+    reason: No ALUCA data contract carries supplier ESG audit results (status, score, Tier flag); a supplier-audit
+      fact or attributes on the procurement supplier dimension are needed.
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  - Tier-1 population = suppliers with direct purchase orders in the period
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 02.10.2026
+standard_ref:
+- standard: ISO 20400
+  name: Sustainable procurement — Guidance
+  alignment: none
+  note: ISO 20400 gives guidance on integrating sustainability into procurement but defines no compliance-rate
+    metric; the audit scope and pass threshold are company rules.

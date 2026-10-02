@@ -61,6 +61,8 @@ KPI_TO_LEGACY = {
     "KPI-COM-023": (None, "Items per Transaction"),
     "KPI-COM-024": (None, "Average Basket Value"),
     "KPI-SCM-019": (None, "Planned Hours"),
+    # 02.10.2026, Bibliotheks-KPI fuer einen externen Abnehmer (consumer_ref), ohne Legacy-Measure.
+    "KPI-SCM-028": (None, "Picks per Labor Hour"),
     "KPI-FIN-011": ("Commercial.SemanticModel", "Cost of Goods Sold Amount"),
     "KPI-COM-001": ("Commercial.SemanticModel", "List Price Amount"),
     "KPI-COM-002": ("Commercial.SemanticModel", "Net Price Amount"),

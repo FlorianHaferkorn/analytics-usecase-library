@@ -52,6 +52,16 @@
         "type": "string"
       }
     },
+    "consumer_ref": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_-]*:[a-z0-9][a-z0-9_.-]*$"
+      },
+      "description": "Externe Abnehmer ausserhalb der Bibliothek (<system>:<organisation>, z. B. meridian:aurora), die diese KPI ohne ALUCA-Use-Case und ohne Action Code nutzen (D-594 Nachtrag 1: Mandanten-KPIs ohne Bibliotheksgegenstueck kommen in die Bibliothek). Erfuellt in validate_kpi_catalog.ps1 die Referenzpflicht anstelle von use_case_ref/action_code_ref."
+    },
     "plan_kpi_ref": {
       "type": "string",
       "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$",

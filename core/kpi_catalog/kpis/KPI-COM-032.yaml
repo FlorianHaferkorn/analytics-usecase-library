@@ -1,0 +1,57 @@
+kpi_id: KPI-COM-032
+synonyms:
+- E-Commerce Umsatzanteil
+- E-Com share
+- Online revenue share
+kpi_key: E-Commerce Revenue Share
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Growth
+domain_tag:
+- Commercial
+- Growth
+use_case_ref: []
+action_code_ref: []
+consumer_ref:
+- meridian:aurora
+calc_type: ratio
+good_is: higher
+business:
+  purpose: Measures the share of revenue generated through e-commerce channels.
+  definition: E-commerce channel net sales / total net sales.
+  grain_scope: Channel/region; daily, reported monthly.
+  unit_format: percent_1
+  interpretation: Higher means a larger digital share; depends on clean channel attribution of each sale — mis-tagged
+    channels understate the e-commerce share.
+technical:
+  measure_name: E-Commerce Revenue Share
+  description: Net sales of the e-commerce channel divided by total net sales.
+  depends_on_measures: []
+  lineage:
+  - fact_sales.Net Sales Amount
+  - dim_org.Channel
+  calculation:
+    op: hitl
+    blocked_by: decision
+    reason: Open decision which dim_org[Channel] values count as e-commerce (Online only, or Online and Marketplace).
+      Once decided the numerator is CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), dim_org[Channel] IN { ... } ),
+      the same cross-table filtered sum as KPI-ESG-001 — the second case makes the grammar operation due.
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  - Every sale carries a channel (no unassigned revenue in the denominator only)
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 02.10.2026
+standard_ref:
+- standard: Retail analytics (convention)
+  name: Channel revenue share
+  alignment: none
+  note: Channel share of revenue is a retail-analytics convention; which channels count as e-commerce (own web shop,
+    marketplace) is set by the channel model, not by an external standard.

@@ -64,6 +64,7 @@ UNIT_BY_FORMAT: dict[str, str] = {
     "percent_1": "%",
     "ratio_1": "ratio",
     "score_1": "score",
+    "tco2e_0": "tCO2e",
     "units_0": "units",
 }
 

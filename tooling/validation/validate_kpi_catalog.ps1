@@ -239,7 +239,10 @@ Get-KpiBlocks -Root $resolvedCatalogRoot | ForEach-Object {
 
     $hasUse = Has-NonEmptyList -Entry $chunk -Key 'use_case_ref'
     $hasAct = Has-NonEmptyList -Entry $chunk -Key 'action_code_ref'
-    if (-not ($hasUse -or $hasAct)) { $errors += "use_case_ref and action_code_ref both empty for $id ($file)" }
+    # consumer_ref: externe Abnehmer (<system>:<organisation>) einer Bibliotheks-KPI ohne Use Case
+    # und ohne Action Code (D-594 Nachtrag 1, Schema kpi_definition.schema.json).
+    $hasCon = Has-NonEmptyList -Entry $chunk -Key 'consumer_ref'
+    if (-not ($hasUse -or $hasAct -or $hasCon)) { $errors += "use_case_ref, action_code_ref and consumer_ref all empty for $id ($file)" }
 
     # Composite dependency integrity
     $hasDepends = $chunk -match '(?m)^\s*depends_on\s*:\s*\[(?<inner>[^\]]*)\]'

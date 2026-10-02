@@ -133,6 +133,8 @@ _UNIT_FORMATS: dict[str, dict[str, str]] = {
     "turns_1":         {"model": "0.0",    "visual": "#,0.0",       "sv": ""},
     "per_1k_0":        {"model": "#,0",    "visual": "#,0",         "sv": ""},
     "defects_per_1k_0":{"model": "#,0",    "visual": "#,0",         "sv": ""},
+    # Tonnen CO2-Aequivalent (KPI-ESG-001, 02.10.2026): kein dist-Vorbild, Zahlformat wie units_0.
+    "tco2e_0":         {"model": "#,0",    "visual": '#,0 "t"',     "sv": ""},
 }
 
 

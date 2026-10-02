@@ -22,10 +22,13 @@ KPIS = REPO / "core" / "kpi_catalog" / "kpis"
 MUSTER = r"^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\d{3}$"
 
 # Stand nach der Migration (freigegebene Tabelle, D-594 Nachtrag 3): 139 Bibliotheks-KPIs
-# (140 minus CCC-Proxy); die 6 Neuzugaenge aus Aurora/Branchenpaket sind blockiert
-# (NEUZUGANG_BLOCKIERT), daher fehlen ESG und je einer in COM/OPS gegenueber 145.
-ERWARTET_JE_KUERZEL = {"COM": 31, "CUS": 7, "FIN": 21, "GOV": 7, "OPS": 20, "PPL": 6,
-                       "QUA": 6, "SCM": 27, "SVC": 14}
+# (140 minus CCC-Proxy). Seit 02.10.2026 (BO-103 Freelancing) stehen die fuenf Aurora-
+# Neuzugaenge (KPI-COM-032..034, KPI-ESG-001/002) und KPI-SCM-028 (Freelancing D-651, nicht
+# in der Tabelle) mit consumer_ref im Katalog; KPI-OPS-021 (Branchenpaket) bleibt blockiert.
+ERWARTET_JE_KUERZEL = {"COM": 34, "CUS": 7, "ESG": 2, "FIN": 21, "GOV": 7, "OPS": 20,
+                       "PPL": 6, "QUA": 6, "SCM": 28, "SVC": 14}
+#: Neuzugaenge der Tabelle, die im Katalog stehen duerfen: genau die mit consumer_ref.
+NEUZUGANG_IM_KATALOG = {"KPI-COM-032", "KPI-COM-033", "KPI-COM-034", "KPI-ESG-001", "KPI-ESG-002"}
 
 MAPPING = Path(os.environ.get(
     "D594_MAPPING",
@@ -190,5 +193,9 @@ def test_mapping_zielzustand():
     alt = sorted((set(m.alt_neu) & ids) | (set(m.alt_neu) & presets))
     assert not fehlt and not alt, (fehlt, alt)
     neuzugang = sorted(z["neu_id"] for z in m.neuzugaenge)
-    assert not set(neuzugang) & ids, "Neuzugaenge sind blockiert (NEUZUGANG_BLOCKIERT)"
+    im_katalog = set(neuzugang) & ids
+    assert im_katalog == NEUZUGANG_IM_KATALOG, im_katalog ^ NEUZUGANG_IM_KATALOG
+    for kid in im_katalog:
+        d = yaml.safe_load((KPIS / f"{kid}.yaml").read_text(encoding="utf-8"))
+        assert d.get("consumer_ref"), f"{kid}: Neuzugang ohne Use Case braucht consumer_ref"
     assert mig.check(REPO, m) == []

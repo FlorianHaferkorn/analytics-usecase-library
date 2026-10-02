@@ -1,0 +1,55 @@
+kpi_id: KPI-COM-033
+synonyms:
+- Eigenmarkenanteil
+- Private Label Anteil
+- Private label penetration
+kpi_key: Private Label Penetration %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Profitability
+domain_tag:
+- Commercial
+- Assortment
+use_case_ref: []
+action_code_ref: []
+consumer_ref:
+- meridian:aurora
+calc_type: ratio
+good_is: higher
+business:
+  purpose: Measures the share of revenue from private-label (own-brand) products.
+  definition: Private-label net sales / total net sales.
+  grain_scope: Category/region; weekly, reported monthly.
+  unit_format: percent_1
+  interpretation: Higher usually lifts gross margin; an outcome of category-management decisions already taken, so
+    read it per category. Requires consistent private-label flagging of every SKU.
+technical:
+  measure_name: Private Label Penetration %
+  description: Net sales of private-label products divided by total net sales.
+  depends_on_measures: []
+  lineage:
+  - fact_sales.Net Sales Amount
+  calculation:
+    op: hitl
+    blocked_by: data_contract
+    reason: The commercial_sales contract has no private-label attribute (dim_product carries Brand only, no own-brand
+      flag); the numerator cannot be sourced until dim_product gains one.
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  - Every SKU flagged private label yes/no
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 02.10.2026
+standard_ref:
+- standard: Retail analytics (convention)
+  name: Private label share
+  alignment: none
+  note: Private-label share is a retail-analytics convention; some sources measure it by units instead of revenue —
+    this KPI is revenue-based.

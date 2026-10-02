@@ -275,6 +275,8 @@ class KpiRecord:
     depends_on_measures: List[str] = dataclasses.field(default_factory=list)
     causal_links: Optional[Dict[str, Any]] = None
     deprecated: bool = False
+    # Externe Abnehmer (<system>:<organisation>) einer Bibliotheks-KPI ohne Use Case (D-594 Nachtrag 1).
+    consumer_ref: List[str] = dataclasses.field(default_factory=list)
 
 
 def _extract_depends_on_measures(chunk_lines: List[str]) -> List[str]:
@@ -347,6 +349,7 @@ def _parse_kpi_catalog_chunk(chunk_lines: List[str]) -> dict:
     depends_on_measures: List[str] = _extract_depends_on_measures(chunk_lines)
 
     causal_links: Optional[Dict[str, Any]] = None
+    consumer_ref: List[str] = []
     # Best-effort parse of causal_links (if present) from the chunk using YAML loader.
     if yaml is not None:
         try:
@@ -356,6 +359,9 @@ def _parse_kpi_catalog_chunk(chunk_lines: List[str]) -> dict:
                 cl = parsed[0].get("causal_links")
                 if isinstance(cl, dict):
                     causal_links = cl
+                cr = parsed[0].get("consumer_ref")
+                if isinstance(cr, list):
+                    consumer_ref = [str(c) for c in cr if str(c).strip()]
         except Exception:
             # keep best-effort: ignore parse errors here (Stage 1 validates catalog separately)
             causal_links = None
@@ -372,6 +378,7 @@ def _parse_kpi_catalog_chunk(chunk_lines: List[str]) -> dict:
         "depends_on_measures": depends_on_measures,
         "causal_links": causal_links,
         "deprecated": deprecated,
+        "consumer_ref": consumer_ref,
     }
 
 
@@ -465,6 +472,7 @@ def scan_kpi_catalog(repo_root: Path) -> Tuple[Dict[str, KpiRecord], List[Issue]
                     depends_on_measures=raw["depends_on_measures"],
                     causal_links=raw["causal_links"],
                     deprecated=raw.get("deprecated", False),
+                    consumer_ref=raw.get("consumer_ref", []),
                 )
                 parsed_records.append((raw["kpi_id"], rel, kpi_line, record))
 
@@ -1754,6 +1762,8 @@ def build_registry(repo_root: Path, args: Any) -> Dict[str, Any]:
     for kpi_id, rec in sorted(kpis.items(), key=lambda kv: kv[0]):
         if getattr(rec, "deprecated", False):
             continue  # Deprecated KPIs are exempt from orphan detection
+        if getattr(rec, "consumer_ref", None):
+            continue  # Library KPI for a declared external consumer (consumer_ref), no bracket by design
         if kpi_id not in linked_kpis:
             orphan_items.append(
                 {
