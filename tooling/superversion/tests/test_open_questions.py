@@ -143,9 +143,12 @@ def test_the_mirrored_decisions_arrive_with_their_ways(ledger):
 
     25 -> 26 mit Meridian D-620 (01.10.2026): GOV-CATALOG (Purview als Andockmodul, OneLake
     catalog als Vorgabe). Ohne Purview-Angabe vorbelegt, ohne Ermittlungsweg.
+
+    26 -> 27 mit Meridian D-655 (01.10.2026): REPORT-RENDER (Report-Darstellung in Power BI,
+    drei Varianten mit Kundenwahl). Vorbelegt, ohne Ermittlungsweg: die zweite Zahl bleibt bei 8.
     """
     mirrored = [q for q in ledger["questions"] if q["origin"] == ORIGIN_MIRROR]
-    assert len(mirrored) == 26
+    assert len(mirrored) == 27
     mit_weg = [q for q in mirrored
                if all(str(q["way"].get(f, "")).strip() for f in WAY_FIELDS)]
     assert len(mit_weg) == 8
