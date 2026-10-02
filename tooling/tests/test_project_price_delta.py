@@ -8,6 +8,7 @@ import yaml
 
 from tooling.superversion import preis_kanon_mandant as pkm
 from tooling.superversion.project_package import alternative_impact as impact
+from tooling.tests.reference_baseline import reference_baseline
 from tooling.superversion.project_package import price_delta
 from tooling.tests.test_project_commercial_impact import _TENANT
 
@@ -34,7 +35,7 @@ def _tree(path: Path) -> dict:
 
 
 def _baseline(tmp_path, **options):
-    return impact.build_reference_baseline(tmp_path / "work", SCHEMAS, canon=True, **options)
+    return reference_baseline(tmp_path / "work", canon=True, **options)
 
 
 def _expected(tenant: dict, packages: dict[str, dict]) -> dict:

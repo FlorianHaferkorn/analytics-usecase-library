@@ -8,6 +8,7 @@ import yaml
 
 from tooling.superversion import preis_kanon_mandant as pkm
 from tooling.superversion.project_package import alternative_impact as impact
+from tooling.tests.reference_baseline import reference_baseline
 from tooling.superversion.project_package import staffing
 from tooling.tests.test_project_commercial_impact import _TENANT
 
@@ -37,7 +38,7 @@ def _tree(path: Path) -> dict:
 
 
 def _baseline(tmp_path, **options):
-    return impact.build_reference_baseline(tmp_path / "work", SCHEMAS, canon=True, **options)
+    return reference_baseline(tmp_path / "work", canon=True, **options)
 
 
 def test_names_are_put_against_the_canon_hours_without_writing(tmp_path, tenant_dir):

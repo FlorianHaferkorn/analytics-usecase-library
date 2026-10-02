@@ -10,6 +10,7 @@ from jsonschema import Draft202012Validator
 
 from tooling.superversion import preis_kanon_mandant as pkm
 from tooling.superversion.project_package import alternative_impact as impact
+from tooling.tests.reference_baseline import reference_baseline
 from tooling.superversion.project_package import commercial_impact as commercial
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -65,7 +66,7 @@ def _tree(path: Path) -> dict:
 
 
 def _baseline(tmp_path, **options):
-    return impact.build_reference_baseline(tmp_path / "work", SCHEMAS, canon=True, **options)
+    return reference_baseline(tmp_path / "work", canon=True, **options)
 
 
 def test_decision_delta_changes_hours_bands_capacity_and_gaps_without_money(tmp_path, tenant_dir):
