@@ -22,6 +22,9 @@ Rules, deliberately narrow:
 * **The overage ceiling stays a ceiling.** Overage is billed only when used; its derived maximum
   (threshold x 3 x PAYG) is reported separately and never added to the monthly total.
 * **Nothing is written.** The result is a read-only comparison like WB-008.
+* **The monitoring capacity follows the blueprint.** `monitoring.capacity_id` names it explicitly;
+  without it the first capacity with `purpose: monitoring` hosts the workspace-monitoring
+  Eventhouse, the same convention as Meridian's `kapazitaet_stufen.monitoring_kapazitaet` (D-615).
 """
 from __future__ import annotations
 
@@ -36,7 +39,7 @@ from pathlib import Path
 from .alternative_impact import _fingerprint, evaluate_alternative
 from .repository import ProjectPackageRevisionRepository
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 _COST_ENGINE = Path(__file__).resolve().parents[3] / "internal" / "proposal_costing" / "tooling" / "cost_engine.py"
 #: Monthly view of the daily overage ceiling; Azure list prices use 730 h per month.
 _DAYS_PER_MONTH = 730 / 24
@@ -67,6 +70,26 @@ def _price_capacity(engine, drivers: dict, row: dict, region: str | None, curren
                         "max_per_month": round(float(line["max_usd_per_day"]) * _DAYS_PER_MONTH, 2)}}
 
 
+def monitoring_capacity(architecture: dict) -> dict | None:
+    """Which capacity hosts workspace monitoring, and where that came from. Pure.
+
+    The explicit ``monitoring.capacity_id`` wins; otherwise the first declared capacity with
+    ``purpose: monitoring``. A disagreement between the two is reported, not resolved silently.
+    """
+    explicit = (architecture.get("monitoring") or {}).get("capacity_id")
+    tagged = [row["id"] for row in architecture.get("capacities") or []
+              if str(row.get("purpose") or "").strip().lower() == "monitoring"]
+    if explicit:
+        found = {"capacity_id": explicit, "source": "monitoring.capacity_id"}
+        if tagged and explicit not in tagged:
+            found["note"] = (f"monitoring.capacity_id names {explicit!r}, the blueprint tags "
+                             f"{tagged[0]!r} with purpose: monitoring; the explicit id is priced.")
+        return found
+    if tagged:
+        return {"capacity_id": tagged[0], "source": "capacities[].purpose"}
+    return None
+
+
 def run_cost_side(architecture: dict, drivers: dict | None = None) -> dict:
     """Monthly run cost of one package state. Pure."""
     engine = _engine()
@@ -88,8 +111,9 @@ def run_cost_side(architecture: dict, drivers: dict | None = None) -> dict:
             if ws["environment"] not in envs:
                 envs.append(ws["environment"])
     monitoring = architecture.get("monitoring") or {}
-    if monitoring.get("capacity_id"):
-        used.setdefault(monitoring["capacity_id"], []).append("monitoring")
+    host = monitoring_capacity(architecture)
+    if host:
+        used.setdefault(host["capacity_id"], []).append("monitoring")
     rows, total, ceiling = [], 0.0, 0.0
     for capacity_id in sorted(used):
         if capacity_id in duplicate:
@@ -113,7 +137,7 @@ def run_cost_side(architecture: dict, drivers: dict | None = None) -> dict:
     extra = (licences or {}).get("per_month") or 0.0
     extra += (storage or {}).get("per_month") or 0.0
     return {"currency": currency, "capacities": rows, "capacity_per_month": round(total, 2), "licences": licences,
-            "monitoring_storage": storage, "per_month": round(total + extra, 2),
+            "monitoring_storage": storage, "monitoring_capacity": host, "per_month": round(total + extra, 2),
             "overage_ceiling_per_month": round(ceiling, 2), "priced_capacities": len(rows), "unpriced": unpriced}
 
 

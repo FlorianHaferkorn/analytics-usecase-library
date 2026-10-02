@@ -96,6 +96,29 @@ def test_monitoring_capacity_is_priced_even_without_workspaces():
     assert side["capacity_per_month"] == 8000 + 1000
 
 
+def test_monitoring_capacity_comes_from_the_blueprint_purpose():
+    arch = _arch("F64", capacities=[{"id": "p", "sku": "F64"}, {"id": "m", "sku": "F8", "purpose": "monitoring"}])
+    side = rc.run_cost_side(arch, DRIVERS)
+    assert side["monitoring_capacity"] == {"capacity_id": "m", "source": "capacities[].purpose"}
+    assert {r["capacity_id"]: r["environments"] for r in side["capacities"]} == {"m": ["monitoring"], "p": ["prod"]}
+    assert side["capacity_per_month"] == 8000 + 1000
+
+
+def test_explicit_monitoring_id_wins_and_the_disagreement_is_reported():
+    arch = _arch("F64", capacities=[{"id": "p", "sku": "F64"}, {"id": "m", "sku": "F8", "purpose": "monitoring"}],
+                 monitoring={"capacity_id": "p"})
+    host = rc.monitoring_capacity(arch)
+    assert host["capacity_id"] == "p" and host["source"] == "monitoring.capacity_id"
+    assert "'m'" in host["note"]
+    side = rc.run_cost_side(arch, DRIVERS)
+    assert [r["capacity_id"] for r in side["capacities"]] == ["p"]
+
+
+def test_without_monitoring_nothing_hosts_it():
+    assert rc.monitoring_capacity(_arch("F64")) is None
+    assert rc.run_cost_side(_arch("F64"), DRIVERS)["monitoring_capacity"] is None
+
+
 def test_without_declared_capacities_nothing_is_guessed(tmp_path):
     report = _compare(tmp_path, None)
     assert report["status"] == "not_evaluated" and "not guessed" in report["reason"]

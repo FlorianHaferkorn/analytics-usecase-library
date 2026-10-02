@@ -16,6 +16,8 @@ Region and currency: `architecture_input.region` selects the regional PAYG rate 
 
 `architecture_input.monitoring` (optional): `capacity_id` of the capacity hosting the central monitoring Eventhouse (priced even if no workload workspace uses it) and `retained_gb` (monitoring data at the chosen retention, OneLake hot rate). Monitoring compute is CU on that capacity and already inside its price (Learn `real-time-intelligence-consumption`).
 
+Without `monitoring.capacity_id` the first capacity with `purpose: monitoring` hosts the monitoring Eventhouse, the convention of the Meridian blueprint (`kapazitaet_stufen.monitoring_kapazitaet`, D-615). The explicit id wins; if it names a different capacity than the tagged one, `monitoring_capacity.note` says so. Each side reports `monitoring_capacity` with `capacity_id` and `source` (`monitoring.capacity_id` or `capacities[].purpose`). Since `run_cost_delta.py` 1.2.0.
+
 ## Behavior
 
 `compare_run_cost(repository, project_ref, baseline_revision, decision_ref, option_ref)`:
