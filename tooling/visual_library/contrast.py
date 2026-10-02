@@ -19,6 +19,11 @@ Brand-theme derivation (Meridian mirrors this file byte-for-byte):
   - palette_gate      one verdict: CVD separation + reserved conflicts (fail), low non-text
                       contrast (warn: needs a label/outline, WCAG 1.4.11)
 
+Second version: contrast.ts (browser; the Meridian Studio checks colours while typing). Parity is
+enforced by tests/test_contrast_ts.py over contrast_cases.json (Node >= 22.18, red without it).
+Change this file -> regenerate the cases (`python tooling/visual_library/tests/test_contrast_ts.py --write`)
+and keep contrast.ts in step in the same PR.
+
 CLI:
   contrast.py ratio <fg_hex> <bg_hex>              # WCAG contrast ratio
   contrast.py palette [n] [--name okabe_ito|tol_bright]   # first n CVD-safe series colours + fallback
