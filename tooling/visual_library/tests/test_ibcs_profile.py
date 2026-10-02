@@ -171,10 +171,19 @@ def test_un_3_2_scenarios_by_fill_not_by_colour():
     py, ac = ranking[0]["mark"], ranking[1]["mark"]
     assert py["color"] == ac["color"] == TOK["ac"]
     assert py.get("opacity", 1) < ac.get("opacity", 1), "PY must be lighter than AC"
-    line = _app("line")["spec"]["layer"]
-    pl, ac_line = line[0]["mark"]["point"], line[1]["mark"]["point"]
+    # line: layers found by the series they draw, not by position (PY sits behind AC, BO-052)
+    p = render.load_entry("line")["profiles"]["ibcs"]["param_overrides"]
+    canon = render.load_entry("line")["canonical_params"]
+    by_field = {lay["encoding"]["y"]["field"]: lay["mark"] for lay in _app("line")["spec"]["layer"]
+                if (lay.get("mark") or {}).get("type") == "line" and "field" in lay["encoding"]["y"]}
+    pl, ac_line = by_field[p["plan_field"]]["point"], by_field[canon["field"]]["point"]
     assert pl["filled"] is False and pl["stroke"] == TOK["ac"], "PL marker must be outlined"
     assert ac_line["filled"] is True, "AC marker must be solid"
+    py_line = by_field[canon["py_field"]]
+    assert py_line["color"] == TOK["ac"] and py_line.get("opacity") == TOK["py_tint_alpha"], \
+        "PY line: AC colour, lighter by the governed tint (UN 3.2)"
+    assert "strokeDash" not in py_line, "PY is solid — dashed is FC"
+    assert by_field[canon["fc_field"]].get("strokeDash"), "FC is dashed"
 
 
 def test_un_4_1_variances_coloured_by_rating_not_by_sign():

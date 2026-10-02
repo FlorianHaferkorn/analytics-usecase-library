@@ -245,3 +245,72 @@ def test_werte_parameter_statt_konstante():
     params = {p["name"]: p["value"] for p in spec["params"]}
     assert params == {render.KEY_PARAM: False, render.KEY_VALUES: ["DACH"]}
     assert "DACH" not in json.dumps(spec).replace('"value": ["DACH"]', ""), "kein Treffer fest im Test"
+
+
+# --- Hervorhebung ohne Zeilen (BO-054: Live-Charts entstehen vor den Daten) ----------------------
+
+def _cases() -> list:
+    return json.loads(CASES.read_text(encoding="utf-8"))["cases"]
+
+
+def test_hervorhebung_ohne_zeilen_ist_die_der_regel():
+    """Feld und Zeitart aus Rollen und Zweck allein = die der zeilenbasierten Aussage, für jeden Fall mit Aussage.
+    Gegenprobe: Rollen ohne Regel liefern keine Hervorhebung."""
+    geprueft = 0
+    for c in _cases():
+        m = K.key_message(c["table"], c["roles"], **c["opts"])
+        h = K.key_highlight(c["roles"], c["opts"].get("purpose"))
+        if m:
+            assert h == {**m["highlight"], "values": []}, c["name"]
+            geprueft += 1
+    assert geprueft >= 10
+    assert K.key_highlight({"value": "Wert"}) is None
+    assert K.key_highlight({"category": "Region"}) is None
+
+
+def test_ts_hervorhebung_ohne_zeilen_wie_python():
+    script = (
+        f"const K = await import({json.dumps(TS.as_uri())});"
+        f"const doc = JSON.parse(require('fs').readFileSync({json.dumps(str(CASES))}, 'utf8'));"
+        "const out = {}; for (const c of doc.cases) { out[c.name] = K.keyHighlight(c.roles, c.opts.purpose ?? null); }"
+        "out._ohne = K.keyHighlight({value: 'W'}, null);"
+        "process.stdout.write(JSON.stringify(out));"
+    )
+    run = _node_eval(script)
+    assert run.returncode == 0, run.stderr
+    ts = json.loads(run.stdout)
+    py = {c["name"]: K.key_highlight(c["roles"], c["opts"].get("purpose")) for c in _cases()}
+    py["_ohne"] = None
+    assert ts == py
+
+
+def _scene(spec: dict, rows: list[dict]) -> dict:
+    vlc = pytest.importorskip("vl_convert")
+    spec = {**spec, "data": {"values": rows}, "width": 300, "height": 200}
+    return vlc.vegalite_to_scenegraph(spec)
+
+
+@pytest.mark.parametrize("idiom,roles,table", [
+    ("line", {"time": "Periode", "value": "Ist", "plan": "Plan"}, WEEKS),
+    ("bar_ranking", {"category": "Region", "value": "Wert"}, REGIONS),
+])
+def test_live_spec_mit_nachgereichten_treffern_zeichnet_wie_die_zeilenbasierte(idiom, roles, table):
+    """Die Spec ohne Zeilen trägt die Parameter; setzt die Oberfläche die Treffer aus der Tabelle, zeichnet sie
+    Marke für Marke dasselbe wie die Spec, die mit den Zeilen erzeugt wurde (Szenengraph gleich)."""
+    live = json.loads(render.render_target(idiom, "html_vegalite", "ibcs", bindings=roles,
+                                           params={"highlight": K.key_highlight(roles)})[0])
+    assert {p["name"]: p["value"] for p in live["params"] if p["name"].startswith("kern")} == {
+        render.KEY_PARAM: False, render.KEY_VALUES: []}
+    m = K.key_message(table, roles, unit="%")
+    built = json.loads(render.render_target(idiom, "html_vegalite", "ibcs", bindings=roles,
+                                            params={"highlight": m["highlight"]})[0])
+    keys = K.highlight_keys(m["highlight"])
+    for spec in (live, built):
+        spec["params"] = [{**p, "value": True} if p["name"] == render.KEY_PARAM
+                          else {**p, "value": keys} if p["name"] == render.KEY_VALUES else p for p in spec["params"]]
+    rows = [dict(zip([c["name"] for c in table["columns"]], r)) for r in table["rows"]]
+    assert _scene(live, rows) == _scene(built, rows)
+    # Gegenprobe: ohne nachgereichte Treffer ist mit `kernaussage` an alles gedämpft — die Treffer tragen das Bild
+    leer = json.loads(json.dumps(live))
+    leer["params"] = [{**p, "value": []} if p["name"] == render.KEY_VALUES else p for p in leer["params"]]
+    assert _scene(leer, rows) != _scene(live, rows)
