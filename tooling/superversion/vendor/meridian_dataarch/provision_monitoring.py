@@ -355,7 +355,7 @@ def region_pruefung(bp: dict, politik: dict) -> dict:
     zentrale Monitoring-Workspace im Bauplan, zaehlt seine Kapazitaet mit; sonst ist seine Region
     offen. ``status``: ``gleich`` | ``abweichend`` | ``unbekannt`` | ``nicht_anwendbar``.
     """
-    from core.dataarch_engine.blueprint.kapazitaet_stufen import zuordnung
+    from core.dataarch_engine.blueprint.kapazitaet_stufen import monitoring_kapazitaet, zuordnung
 
     if politik["topologie"] != "zentral":
         return {"status": "nicht_anwendbar", "regionen": {}, "ohne_region": []}
@@ -371,6 +371,17 @@ def region_pruefung(bp: dict, politik: dict) -> dict:
             ohne.append(r["workspace"])
     zentral_ws = politik.get("zentral_workspace")
     zentral_bekannt = any(r["workspace"] == zentral_ws for r in zuordnung(bp))
+    # 01.10.2026: Eine Kapazitaet mit ``purpose: monitoring`` ist der Ort des zentralen
+    # Monitoring-Workspace (OPS-MONITORING); ihre Region zaehlt wie die eines Arbeits-Workspace.
+    mon = monitoring_kapazitaet(bp)
+    if mon is not None and not zentral_bekannt:
+        reg = str(mon.get("region") or "").strip()
+        label = zentral_ws or f"<Monitoring-Workspace auf {mon.get('name') or 'Monitoring-Kapazitaet'}>"
+        if reg:
+            regionen.setdefault(re.sub(r"\s+", "", reg).lower(), []).append(label)
+            zentral_bekannt = True
+        else:
+            ohne.append(label)
     if len(regionen) > 1:
         status = "abweichend"
     elif ohne or not regionen or not zentral_bekannt:

@@ -2394,13 +2394,19 @@ def propose_monitoring_topology(bp: dict) -> dict:
                    for c in (bp.get("platform") or {}).get("capacities") or [])
     alternative = ("die vorhandene Nicht-Produktionskapazität" if getrennt else
                    "die Nicht-Produktionskapazität, sobald es sie gibt (D-596)")
+    from core.dataarch_engine.blueprint.kapazitaet_stufen import monitoring_kapazitaet
+    mon = monitoring_kapazitaet(bp)
+    benannt = (f" Der Bauplan nennt sie bereits: `{mon.get('name') or 'ohne Namen'}`"
+               f"{' (' + str(mon['sku']) + ')' if mon.get('sku') else ''}." if mon else
+               " Im Bauplan als Kapazität mit `purpose: monitoring` eintragen.")
     return _rec(
         "OPS-MONITORING", "Workspace-Monitoring (vor der Anlage entscheiden)",
         "Zentrales oder dezentrales Workspace-Monitoring, KI-Untersuchungen an oder aus, eigener "
         "Endpoint?",
         ("**Ein zentrales Monitoring-Eventhouse** in einem eigenen Workspace auf einer **eigenen, "
          "kleinen Kapazität**, wie Learn es empfiehlt: Drosselung einer Arbeitskapazität trifft die "
-         "Überwachung dann nicht, und die Überwachung belastet keine Arbeitskapazität. Günstiger ist "
+         "Überwachung dann nicht, und die Überwachung belastet keine Arbeitskapazität."
+         + benannt + " Günstiger ist "
          f"{alternative}; dann werden Berichte und Activator-Alarme auf den Monitoring-Daten "
          "mitgedrosselt, wenn Dev/Test gedrosselt ist (Ingestion und Abfragen laufen weiter). "
          "Alarme an die Rollen-Postfächer aus OPS-ALERT. **Vor der Anlage** entscheiden: den eigenen Endpoint "

@@ -48,6 +48,24 @@ ENTSCHEIDUNG_NICHT_PROD = (
     "`governance.decisions`.")
 
 
+#: ``platform.capacities[].purpose`` der Kapazitaet, die das zentrale Monitoring-Eventhouse
+#: traegt (01.10.2026, OPS-MONITORING: Learn empfiehlt dafuer eine eigene Kapazitaet). Sie
+#: traegt keine Arbeits-Workspaces: ohne ``stages`` und ``domain`` fiele sie sonst unter Regel 4
+#: und bekaeme jede Stufe, die kein anderer Eintrag beansprucht.
+ZWECK_MONITORING = "monitoring"
+
+
+def ist_monitoring_kapazitaet(cap: dict) -> bool:
+    return str(cap.get("purpose") or "").strip().lower() == ZWECK_MONITORING
+
+
+def monitoring_kapazitaet(bp: dict) -> dict | None:
+    """Die Kapazitaet mit ``purpose: monitoring``, falls der Bauplan eine nennt (die erste)."""
+    plat = bp.get("platform") or {}
+    return next((k for k in plat.get("capacities") or []
+                 if isinstance(k, dict) and ist_monitoring_kapazitaet(k)), None)
+
+
 def stufengruppe(stage: str | None) -> str:
     """Die Stufengruppe eines Workspace. Ohne Stufe: Produktion (siehe Moduldoku)."""
     return STUFENGRUPPE.get(str(stage or "").strip(), "prod")
@@ -55,7 +73,8 @@ def stufengruppe(stage: str | None) -> str:
 
 def _kapazitaeten(bp: dict) -> list[dict]:
     plat = bp.get("platform") or {}
-    kaps = [k for k in (plat.get("capacities") or []) if isinstance(k, dict)]
+    kaps = [k for k in (plat.get("capacities") or [])
+            if isinstance(k, dict) and not ist_monitoring_kapazitaet(k)]
     if not kaps and str(plat.get("capacity") or "").strip():
         kaps = [{"name": str(plat["capacity"]).strip()}]
     return kaps
