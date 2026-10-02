@@ -122,8 +122,11 @@ def build_sections(core: CopilotCore) -> list[Section]:
             approved = entry.get("approved_date", "—")
             definition = pick_label(entry.get("definition"), "de")
             line = f"- **{term}** ({domain}; freigegeben: {approver}, {approved}): {definition}"
+            gemessen = _measured_example(core, entry.get("kpi_id"))
             example = entry.get("example")
-            if example:
+            if gemessen:
+                line += f" Beispiel aus den Daten: {gemessen}"
+            elif example:
                 line += f" Beispiel: {example}"
             glos.append(line)
     else:
@@ -150,6 +153,40 @@ def build_sections(core: CopilotCore) -> list[Section]:
     ]
     sections.append(("Antwortregeln", rules))
     return sections
+
+
+_EINHEIT_DE = {"%": " %", "EUR Million": " Mio. €", "days": " Tage", "points": " Punkte", "tCO2e": " t CO₂e",
+               "times/year": "×"}
+
+
+def _de(v: float) -> str:
+    return f"{v:,.1f}".replace(",", "\u0000").replace(".", ",").replace("\u0000", ".")
+
+
+def _measured_example(core: CopilotCore, kpi_id: str | None) -> str | None:
+    """Beispiel zu einem Glossarbegriff aus dem Snapshot (Audit Aurora E2E A-13): Wert im Messfenster, Datenstand
+    und die zwei Enden der Aufschlüsselung. Vorher frei formulierte Zahlen („OTIF of 97.3% … DHL 98.1%“), die den
+    Daten widersprachen und dem Copilot als Grounding dienten. Ohne Snapshot oder Wert: None (statisches Beispiel)."""
+    if not kpi_id or not core.snapshot:
+        return None
+    e = next((k for k in core.snapshot.get("kpis", []) if k.get("kpi_id") == kpi_id), None)
+    if not e or not isinstance(e.get("value"), (int, float)):
+        return None
+    kpi = next((k for k in core.kpis if k.get("id") == kpi_id), {})
+    unit = _EINHEIT_DE.get((kpi.get("definition") or {}).get("unit") or "", "")
+    w = e.get("window") or {}
+    stand = str(core.snapshot.get("as_of") or "")[:10]
+    datum = f"{stand[8:10]}.{stand[5:7]}.{stand[0:4]}" if len(stand) == 10 else stand
+    text = f"{pick_label(kpi.get('label'), 'de') or kpi_id} {_de(float(e['value']))}{unit}"
+    text += f" ({w['days']} Tage bis {datum})" if w.get("days") else f" (Datenstand {datum})"
+    items = [b for b in e.get("breakdown") or [] if isinstance(b.get("value"), (int, float))]
+    if len(items) >= 2:
+        items = sorted(items, key=lambda b: b["value"])
+        lo, hi = items[0], items[-1]
+        dim = e.get("breakdown_label") or "Element"
+        text += (f"; je {dim} von {lo['label']} {_de(float(lo['value']))}{unit} "
+                 f"bis {hi['label']} {_de(float(hi['value']))}{unit}")
+    return text + " (gemessen, Snapshot)."
 
 
 #: Herkunft in der Quellenzeile. Ein Adapter (ALUCA) nennt seine eigene Quelle ueber den
