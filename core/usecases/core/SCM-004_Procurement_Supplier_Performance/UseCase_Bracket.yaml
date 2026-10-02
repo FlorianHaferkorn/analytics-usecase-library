@@ -14,6 +14,9 @@ orchestration:
   supporting_kpi_ids:
   - KPI-SCM-027
   - KPI-SCM-022
+  # KPI-ESG-002 (02.10.2026): Tier-1 supplier ESG audit compliance, read next to KPI-SCM-022
+  # supplier risk; supporting only, op:hitl until a supplier-audit fact exists.
+  - KPI-ESG-002
   action_code_ids:
   - S-P1.1
 primary_kpi_ids:

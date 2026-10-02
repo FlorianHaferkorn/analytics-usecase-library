@@ -583,3 +583,13 @@ roles:
   domain: Supply Chain
   aliases:
   - Procurement BI Lead
+- id: sustainability_controlling_lead
+  title: Sustainability Controlling Lead
+  domain: ESG
+  aliases:
+  - Sustainability Controlling
+- id: esg_reporting_bi_lead
+  title: ESG Reporting BI Lead
+  domain: ESG
+  aliases:
+  - ESG Reporting BI Lead

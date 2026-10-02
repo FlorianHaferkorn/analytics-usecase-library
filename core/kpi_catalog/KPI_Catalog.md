@@ -7848,4 +7848,326 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     name: Managed / addressable spend
     alignment: none
     note: Addressable-spend scoping is a procurement convention, not an external standard.
+
+- kpi_id: KPI-SCM-028
+  synonyms:
+  - Picks je Arbeitsstunde
+  - Lines picked per hour
+  - Pick rate
+  kpi_key: Picks per Labor Hour
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Efficiency
+  domain_tag:
+  - Supply Chain
+  - Logistics
+  use_case_ref:
+  - SCM-002
+  action_code_ref: []
+  calc_type: ratio
+  good_is: higher
+  business:
+    purpose: Measures picking productivity in the distribution center as order lines picked per productive picking hour.
+    definition: Order lines picked (WMS pick confirmations) / productive labor hours booked on picking (time and attendance).
+    grain_scope: Distribution center; daily.
+    unit_format: ratio_1
+    interpretation: Higher is better; a leading indicator for OTIF and cost-to-serve — falling picks per hour precede late shipments. Compare only within the same pick technology and order profile (lines per order, piece vs. case picking).
+  technical:
+    measure_name: Picks per Labor Hour
+    description: Order lines picked per productive picking hour (ratio of two sums, warehouse/day grain).
+    depends_on_measures: []
+    lineage:
+    - fact_warehouse.Picks Count
+    - fact_warehouse.Picking Hours
+    calculation:
+      op: ratio
+      numerator:
+        column: Picks Count
+      denominator:
+        column: Picking Hours
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    - One pick = one confirmed order line (WMS), not one unit
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 02.10.2026
+  standard_ref:
+  - standard: WERC DC Measures
+    name: Lines picked and shipped per hour
+    url: https://werc.org/page/ASSESS-Benchmarking_Overview
+    alignment: partial
+    note: WERC divides lines picked AND shipped by total hours worked in picking and shipping; this KPI counts picked lines over productive picking hours only, so values run higher than the WERC metric. No benchmark entry until a WERC edition is pinned (quintile limits differ between editions).
+
+- kpi_id: KPI-COM-032
+  synonyms:
+  - E-Commerce Umsatzanteil
+  - E-Com share
+  - Online revenue share
+  kpi_key: E-Commerce Revenue Share
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Growth
+  use_case_ref:
+  - COM-006
+  action_code_ref: []
+  calc_type: ratio
+  good_is: higher
+  business:
+    purpose: Measures the share of revenue generated through e-commerce channels.
+    definition: E-commerce channel net sales / total net sales.
+    grain_scope: Channel/region; daily, reported monthly.
+    unit_format: percent_1
+    interpretation: Higher means a larger digital share; depends on clean channel attribution of each sale — mis-tagged channels understate the e-commerce share.
+  technical:
+    measure_name: E-Commerce Revenue Share
+    description: Net sales of the e-commerce channel divided by total net sales.
+    depends_on_measures: []
+    lineage:
+    - fact_sales.Net Sales Amount
+    - dim_org.Channel
+    calculation:
+      op: hitl
+      blocked_by: decision
+      reason: Open decision which dim_org[Channel] values count as e-commerce (Online only, or Online and Marketplace). Once decided the numerator is CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), dim_org[Channel] IN { ... } ), the same cross-table filtered sum as KPI-ESG-001 — the second case makes the grammar operation due.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    - Every sale carries a channel (no unassigned revenue in the denominator only)
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 02.10.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Channel revenue share
+    alignment: none
+    note: Channel share of revenue is a retail-analytics convention; which channels count as e-commerce (own web shop, marketplace) is set by the channel model, not by an external standard.
+
+- kpi_id: KPI-COM-033
+  synonyms:
+  - Eigenmarkenanteil
+  - Private Label Anteil
+  - Private label penetration
+  kpi_key: Private Label Penetration %
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: Profitability
+  domain_tag:
+  - Commercial
+  - Assortment
+  use_case_ref:
+  - COM-IND-R002
+  action_code_ref: []
+  calc_type: ratio
+  good_is: higher
+  business:
+    purpose: Measures the share of revenue from private-label (own-brand) products.
+    definition: Private-label net sales / total net sales.
+    grain_scope: Category/region; weekly, reported monthly.
+    unit_format: percent_1
+    interpretation: Higher usually lifts gross margin; an outcome of category-management decisions already taken, so read it per category. Requires consistent private-label flagging of every SKU.
+  technical:
+    measure_name: Private Label Penetration %
+    description: Net sales of private-label products divided by total net sales.
+    depends_on_measures: []
+    lineage:
+    - fact_sales.Net Sales Amount
+    calculation:
+      op: hitl
+      blocked_by: data_contract
+      reason: The commercial_sales contract has no private-label attribute (dim_product carries Brand only, no own-brand flag); the numerator cannot be sourced until dim_product gains one.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    - Every SKU flagged private label yes/no
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 02.10.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Private label share
+    alignment: none
+    note: Private-label share is a retail-analytics convention; some sources measure it by units instead of revenue — this KPI is revenue-based.
+
+- kpi_id: KPI-COM-034
+  synonyms:
+  - E-Commerce Konversionsrate
+  - Online conversion rate
+  kpi_key: E-Commerce Conversion Rate
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Growth
+  use_case_ref:
+  - COM-006
+  action_code_ref: []
+  calc_type: rate
+  good_is: higher
+  business:
+    purpose: Measures the share of web-shop sessions that end in a purchase.
+    definition: Sessions with at least one purchase / total sessions.
+    grain_scope: Web shop/device/traffic source; daily.
+    unit_format: percent_1
+    interpretation: Higher is better; operational driver of e-commerce revenue. Comparable over time only with a fixed session definition and documented bot filtering; peer values differ strongly by product category.
+  technical:
+    measure_name: E-Commerce Conversion Rate
+    description: Purchasing sessions divided by all sessions (web analytics).
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      blocked_by: data_contract
+      reason: No ALUCA data contract carries web-analytics sessions; a session-grain fact (session id, purchase flag) is needed before the rate can be computed.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    - Bot traffic excluded by a documented rule
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 02.10.2026
+  standard_ref:
+  - standard: Web analytics (convention)
+    name: E-commerce conversion rate
+    alignment: none
+    note: Session-based conversion is a web-analytics convention; session definition and bot filtering differ between analytics tools, so the value is tool-dependent.
+
+- kpi_id: KPI-ESG-001
+  synonyms:
+  - Scope 1+2 CO2 Emissionen
+  - Scope 1 and 2 GHG emissions
+  kpi_key: Scope 1+2 CO2 Emissions
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: ESG
+  domain_tag:
+  - ESG
+  - Environment
+  use_case_ref:
+  - ESG-001
+  action_code_ref: []
+  calc_type: quantity
+  good_is: lower
+  business:
+    purpose: Measures greenhouse-gas emissions from own operations and purchased energy.
+    definition: Scope 1 emissions + Scope 2 emissions (market-based), in tonnes CO2 equivalent.
+    grain_scope: Site/scope; annual inventory, monthly where metered.
+    unit_format: tco2e_0
+    interpretation: Lower is better; an annual GHG inventory makes in-year trends invisible until consolidation. State the Scope 2 method (market-based) next to the value.
+  technical:
+    measure_name: Scope 1+2 CO2 Emissions
+    description: Sum of Scope 1 and Scope 2 emissions in tCO2e.
+    depends_on_measures: []
+    lineage:
+    - fact_emissions.Emissions tCO2e
+    - dim_emission_scope.ScopeCode
+    calculation:
+      op: hitl
+      blocked_by: grammar
+      reason: CALCULATE ( SUM ( fact_emissions[Emissions tCO2e] ), dim_emission_scope[ScopeCode] IN { "SCOPE_1", "SCOPE_2" } ) — a sum under a column-value filter; the grammar has no filtered sum over a related dimension's column (count_filtered/avg_filtered filter only the KPI's own lineage table).
+      pattern: calculate_sum_with_dimension_filter
+      occurrences_in_corpus: 0
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: annually
+    validation_process: manual review
+    qa_rules:
+    - Emissions >= 0
+    - Scope 2 method (market-based) documented per reporting year
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 02.10.2026
+  standard_ref:
+  - standard: GHG Protocol
+    name: Corporate Standard — Scope 1 and Scope 2
+    url: https://ghgprotocol.org/corporate-standard
+    alignment: partial
+    note: Scope boundaries follow the GHG Protocol Corporate Standard; its Scope 2 Guidance asks for both location-based and market-based Scope 2 figures, this KPI carries the market-based one only.
+  - standard: ESRS E1
+    id: E1-6
+    name: Gross Scopes 1, 2, 3 and Total GHG emissions
+    alignment: partial
+    note: ESRS E1-6 discloses Scope 1, Scope 2 and Scope 3 separately plus a total; this KPI is the Scope 1+2 subtotal and not a full E1-6 disclosure.
+
+- kpi_id: KPI-ESG-002
+  synonyms:
+  - Lieferanten-ESG-Quote (Tier 1)
+  - Lieferant-ESG-Compliance
+  - Supplier ESG compliance
+  kpi_key: Supplier ESG Compliance %
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: ESG
+  domain_tag:
+  - ESG
+  - Sourcing
+  use_case_ref:
+  - SCM-004
+  action_code_ref: []
+  calc_type: rate
+  good_is: higher
+  business:
+    purpose: Measures the share of direct (Tier-1) suppliers with a completed and passed ESG audit.
+    definition: Tier-1 suppliers with a completed ESG audit and a passing score / all active Tier-1 suppliers. Tier 1 only — sub-suppliers (Tier 2+) are out of scope.
+    grain_scope: Supplier/category; quarterly.
+    unit_format: percent_1
+    interpretation: Higher is better; the quarterly audit cadence lags detection by up to three months. Comparable over years only with a documented, stable pass/fail scoring method.
+  technical:
+    measure_name: Supplier ESG Compliance %
+    description: Share of active Tier-1 suppliers with a passed ESG audit.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      blocked_by: data_contract
+      reason: No ALUCA data contract carries supplier ESG audit results (status, score, Tier flag); a supplier-audit fact or attributes on the procurement supplier dimension are needed.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    - Tier-1 population = suppliers with direct purchase orders in the period
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 02.10.2026
+  standard_ref:
+  - standard: ISO 20400
+    name: Sustainable procurement — Guidance
+    alignment: none
+    note: ISO 20400 gives guidance on integrating sustainability into procurement but defines no compliance-rate metric; the audit scope and pass threshold are company rules.
 ```

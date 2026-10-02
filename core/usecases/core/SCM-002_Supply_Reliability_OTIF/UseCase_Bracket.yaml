@@ -16,6 +16,9 @@ orchestration:
   supporting_kpi_ids:
   - KPI-SCM-013
   - KPI-SCM-015
+  # KPI-SCM-028 (02.10.2026): picking productivity in the distribution center, a leading
+  # indicator for on-time shipping; supporting only (no measure in the SupplyChain model yet).
+  - KPI-SCM-028
   action_code_ids:
   - S-R2.1
   - S-R2.2

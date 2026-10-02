@@ -1,0 +1,122 @@
+schema_version: '2.0'
+id: ESG-001
+title: Scope 1+2 Emissions
+domain: ESG
+# Added 02.10.2026 (PR #584): gives KPI-ESG-001 a governed consumer inside the library.
+# No Domain_Evidence_Pack.yaml yet (same state as COM-005/FIN-003/HR-001/SCM-004); the
+# Research-to-Core pack is an open follow-up, not a waiver approved by the Framework Architect.
+governance:
+  owner_role: sustainability_controlling_lead
+  steward_role: esg_reporting_bi_lead
+  status: active
+orchestration:
+  strategic_kpi_id: KPI-ESG-001
+  # The catalog carries no further Scope 1/2 KPI (no energy or intensity KPI yet); the
+  # diagnostic cut is by scope and site on the strategic KPI itself.
+  influencing_kpi_ids: []
+  # No action code in the framework covers emission-reduction measures yet; page 2 is an
+  # exception queue (T3), not an action decision (T4).
+  action_code_ids: []
+primary_kpi_ids:
+- KPI-ESG-001
+value_driver_model:
+  formula: KPI-ESG-001 = Scope 1 emissions + Scope 2 emissions (market-based), summed over sites
+    (fact_emissions by dim_emission_scope.ScopeCode)
+  impact_direction: minimize
+  impact_logic: Reductions come from the sites and scopes with the largest share of the total; the split
+    by scope separates own combustion (Scope 1) from purchased energy (Scope 2).
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas:
+    width: 1920
+    height: 1080
+  intent_rules_version: 2
+  page_1_summary:
+    title: ESG / Emissions Summary & Insights
+    page_type: T1_Strategic_Overview
+    template_variant: T1_Trend
+    template_id: pulse
+    decision_question: Are Scope 1+2 emissions falling year over year?
+    big_idea: Scope 1+2 emissions are concentrated in a few sites, so the reduction path runs through
+      those sites first.
+    component_3s:
+      kpi_id: KPI-ESG-001
+      visual_type: kpi_card_with_delta
+      comparison: vs_py
+      status_logic: lower_is_better
+    component_30s:
+    - slot_id: Main_1
+      kpi_id: KPI-ESG-001
+      visual_type: line_chart
+      question: Do Scope 1+2 emissions fall from period to period?
+      message: The Scope 1+2 total falls only when the largest sites cut more than smaller sites add
+      so_what: A flat trend despite running measures means the measures sit in sites with a small share
+        of the total.
+      unit: quantity
+    - slot_id: Main_2
+      kpi_id: KPI-ESG-001
+      visual_type: line_chart
+      category_field: dim_emission_scope.ScopeName
+      question: Does own combustion or purchased energy fall faster?
+      message: Scope 1 and Scope 2 fall at different rates, so fuel switching and energy purchasing are separate levers
+      so_what: A Scope 2 line that falls slower than Scope 1 points at the energy contract (market-based
+        instruments) before site investments.
+      unit: quantity
+    - slot_id: Main_3
+      kpi_id: KPI-ESG-001
+      visual_type: horizontal_bar_chart
+      category_field: dim_org.SiteName
+      question: Which sites carry most of the Scope 1+2 total?
+      message: A few sites carry most of the Scope 1+2 total
+      so_what: Reduction programmes start where the site share is largest.
+      unit: quantity
+  page_2_execution:
+    title: ESG / Emissions Execution
+    decision_question: Which sites and scopes should the reduction programme target first?
+    page_type: T3_Operational_Monitoring
+    template_variant: T3_ExceptionQueue
+    template_id: action_matrix
+    component_300s:
+      # Governed fact grain (fact_emissions, esg.yaml).
+      evidence_grain: site_scope_month
+      evidence_columns:
+      - site
+      - scope
+      - KPI-ESG-001
+      action_panel: false
+      payload_mode: full
+      sort_by:
+        measure: KPI-ESG-001
+        direction: descending
+      top_n: 20
+      highlight_rule:
+        column: KPI-ESG-001
+        type: data_bar
+prioritization:
+  business_value: medium
+  implementation_effort: medium
+  confidence: 0.5
+  reach: organization
+  priority_score: 10
+data_protection:
+  # DSGVO Art. 25 Privacy by Design and by Default
+  # Authority: core/templates/page_templates/governance/Data_Protection_Governance.md
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: >
+    Reporting stays at site, scope and month grain; emissions are attributed to sites and
+    scopes, no natural person is identified.
+  access_restriction: >
+    sustainability_controlling_lead and esg_reporting_bi_lead roles; row-level security
+    enforced at semantic-model level (site filter per org role).
+  dpia_required: false
+  ai_generated_output: false
+readiness:
+  data_availability: missing
+  org_capability: developing
+  stakeholder_alignment: partial
+  overall_readiness: red
+overrides:
+  data_contract_ref: core/data_contracts/domains/esg.yaml
+documentation:
+  business_factsheet: ./Business_Factsheet.md

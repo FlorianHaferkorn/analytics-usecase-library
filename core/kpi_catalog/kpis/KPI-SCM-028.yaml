@@ -1,0 +1,60 @@
+kpi_id: KPI-SCM-028
+synonyms:
+- Picks je Arbeitsstunde
+- Lines picked per hour
+- Pick rate
+kpi_key: Picks per Labor Hour
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: Efficiency
+domain_tag:
+- Supply Chain
+- Logistics
+use_case_ref:
+- SCM-002
+action_code_ref: []
+calc_type: ratio
+good_is: higher
+business:
+  purpose: Measures picking productivity in the distribution center as order lines picked per productive picking hour.
+  definition: Order lines picked (WMS pick confirmations) / productive labor hours booked on picking (time and
+    attendance).
+  grain_scope: Distribution center; daily.
+  unit_format: ratio_1
+  interpretation: Higher is better; a leading indicator for OTIF and cost-to-serve — falling picks per hour precede
+    late shipments. Compare only within the same pick technology and order profile (lines per order, piece vs. case
+    picking).
+technical:
+  measure_name: Picks per Labor Hour
+  description: Order lines picked per productive picking hour (ratio of two sums, warehouse/day grain).
+  depends_on_measures: []
+  lineage:
+  - fact_warehouse.Picks Count
+  - fact_warehouse.Picking Hours
+  calculation:
+    op: ratio
+    numerator:
+      column: Picks Count
+    denominator:
+      column: Picking Hours
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  - One pick = one confirmed order line (WMS), not one unit
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 02.10.2026
+standard_ref:
+- standard: WERC DC Measures
+  name: Lines picked and shipped per hour
+  url: https://werc.org/page/ASSESS-Benchmarking_Overview
+  alignment: partial
+  note: WERC divides lines picked AND shipped by total hours worked in picking and shipping; this KPI counts picked
+    lines over productive picking hours only, so values run higher than the WERC metric. No benchmark entry until a
+    WERC edition is pinned (quintile limits differ between editions).

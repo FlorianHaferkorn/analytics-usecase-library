@@ -5,8 +5,8 @@
 
 ## Coverage
 
-- Use cases: **20**  (evidence packs: 16/20, factsheets: 20/20)
-- KPIs in catalog: **139**  — reachable: **138**, roadmap (planned.yaml): 30, orphan: **0**
+- Use cases: **22**  (evidence packs: 16/22, factsheets: 22/22)
+- KPIs in catalog: **145**  — reachable: **143**, roadmap (planned.yaml): 36, orphan: **0**
 - Action codes: **57**  — reachable: **57**, orphan: **0**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
 - Semantic measures: **279**  — backing a catalog KPI: **111** (registry/drift gated by `test_measure_dictionary_files`)
@@ -26,6 +26,8 @@
 | COM-003 | 20 | 2 | ✓ | commercial_sales.yaml |
 | COM-004 | 15 | 3 | ✓ | commercial_sales.yaml |
 | COM-005 | 6 | 1 | — | growth.yaml |
+| COM-006 | 3 | 0 | — | commercial_sales.yaml |
+| ESG-001 | 1 | 0 | — | esg.yaml |
 | FIN-001 | 23 | 4 | ✓ | finance.yaml |
 | FIN-002 | 16 | 4 | ✓ | finance.yaml |
 | FIN-003 | 9 | 1 | — | finance.yaml |
@@ -34,9 +36,9 @@
 | OPS-002 | 10 | 5 | ✓ | operations.yaml |
 | OPS-003 | 9 | 5 | ✓ | operations.yaml |
 | SCM-001 | 15 | 5 | ✓ | supply_chain.yaml |
-| SCM-002 | 8 | 5 | ✓ | supply_chain.yaml |
+| SCM-002 | 9 | 5 | ✓ | supply_chain.yaml |
 | SCM-003 | 7 | 4 | ✓ | supply_chain.yaml |
-| SCM-004 | 6 | 1 | — | supply_chain.yaml |
+| SCM-004 | 7 | 1 | — | supply_chain.yaml |
 | XD-001 | 8 | 4 | ✓ | experience.yaml |
 | XD-002 | 11 | 4 | ✓ | experience.yaml |
 | XD-003 | 30 | 1 | ✓ | executive.yaml |
@@ -70,6 +72,10 @@ _none_
 - `KPI-COM-029`
 - `KPI-COM-030`
 - `KPI-COM-031`
+- `KPI-COM-032`
+- `KPI-COM-034`
+- `KPI-ESG-001`
+- `KPI-ESG-002`
 - `KPI-FIN-008`
 - `KPI-FIN-020`
 - `KPI-FIN-021`
@@ -87,3 +93,4 @@ _none_
 - `KPI-SCM-025`
 - `KPI-SCM-026`
 - `KPI-SCM-027`
+- `KPI-SCM-028`
