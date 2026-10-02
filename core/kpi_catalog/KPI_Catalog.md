@@ -7861,10 +7861,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   domain_tag:
   - Supply Chain
   - Logistics
-  use_case_ref: []
+  use_case_ref:
+  - SCM-002
   action_code_ref: []
-  consumer_ref:
-  - meridian:aurora
   calc_type: ratio
   good_is: higher
   business:
@@ -7918,10 +7917,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   domain_tag:
   - Commercial
   - Growth
-  use_case_ref: []
+  use_case_ref:
+  - COM-006
   action_code_ref: []
-  consumer_ref:
-  - meridian:aurora
   calc_type: ratio
   good_is: higher
   business:
@@ -7972,10 +7970,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   domain_tag:
   - Commercial
   - Assortment
-  use_case_ref: []
+  use_case_ref:
+  - COM-IND-R002
   action_code_ref: []
-  consumer_ref:
-  - meridian:aurora
   calc_type: ratio
   good_is: higher
   business:
@@ -8024,10 +8021,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   domain_tag:
   - Commercial
   - Growth
-  use_case_ref: []
+  use_case_ref:
+  - COM-006
   action_code_ref: []
-  consumer_ref:
-  - meridian:aurora
   calc_type: rate
   good_is: higher
   business:
@@ -8075,10 +8071,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   domain_tag:
   - ESG
   - Environment
-  use_case_ref: []
+  use_case_ref:
+  - ESG-001
   action_code_ref: []
-  consumer_ref:
-  - meridian:aurora
   calc_type: quantity
   good_is: lower
   business:
@@ -8137,10 +8132,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   domain_tag:
   - ESG
   - Sourcing
-  use_case_ref: []
+  use_case_ref:
+  - SCM-004
   action_code_ref: []
-  consumer_ref:
-  - meridian:aurora
   calc_type: rate
   good_is: higher
   business:

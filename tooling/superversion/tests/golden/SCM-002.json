@@ -111,6 +111,34 @@
         "hierarchy_columns": []
       },
       {
+        "name": "fact_warehouse",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Picks per Labor Hour",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "Order lines picked (WMS pick confirmations) / productive labor hours booked on picking (time and attendance).",
+            "format_string": "",
+            "format_string_definition": "",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Picking Hours\", \"kind\": \"column\", \"table\": \"fact_warehouse\"}, \"numerator\": {\"column\": \"Picks Count\", \"kind\": \"column\", \"table\": \"fact_warehouse\"}, \"op\": \"ratio\"}"
+            },
+            "synonyms": []
+          }
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "entity_name": "",
+        "entity_schema": "",
+        "hierarchy_columns": []
+      },
+      {
         "name": "_Measures",
         "description": "",
         "is_hidden": false,

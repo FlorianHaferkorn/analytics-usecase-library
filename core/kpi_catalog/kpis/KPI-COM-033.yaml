@@ -10,10 +10,9 @@ impact_dimension: Profitability
 domain_tag:
 - Commercial
 - Assortment
-use_case_ref: []
+use_case_ref:
+- COM-IND-R002
 action_code_ref: []
-consumer_ref:
-- meridian:aurora
 calc_type: ratio
 good_is: higher
 business:

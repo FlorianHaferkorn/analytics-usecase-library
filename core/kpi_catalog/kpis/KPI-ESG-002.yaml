@@ -10,10 +10,9 @@ impact_dimension: ESG
 domain_tag:
 - ESG
 - Sourcing
-use_case_ref: []
+use_case_ref:
+- SCM-004
 action_code_ref: []
-consumer_ref:
-- meridian:aurora
 calc_type: rate
 good_is: higher
 business:

@@ -154,30 +154,30 @@
 - kpi_id: KPI-SCM-028
   owner: scm_analytics_lead
   eta_date: '2026-12-31'
-  reason: Library KPI for an external consumer (consumer_ref meridian:aurora, D-594 Nachtrag 1); no ALUCA use case
-    wires it into a semantic model yet.
+  reason: Library KPI (D-594 Nachtrag 1), supporting KPI of SCM-002; fact_warehouse is in the supply_chain contract
+    but not in the SupplyChain semantic model, so no Picks per Labor Hour measure yet.
 - kpi_id: KPI-COM-032
   owner: com_analytics_lead
   eta_date: '2026-12-31'
-  reason: Library KPI for an external consumer (consumer_ref meridian:aurora); calculation op:hitl (grammar, filtered
-    sum) and no ALUCA use case wires it into a semantic model yet.
+  reason: Strategic KPI of COM-006; calculation op:hitl (decision which channels count as e-commerce, then a
+    cross-table filtered sum) and no measure in the Commercial model yet.
 - kpi_id: KPI-COM-033
   owner: com_analytics_lead
   eta_date: '2026-12-31'
-  reason: Library KPI for an external consumer (consumer_ref meridian:aurora); calculation op:hitl (data_contract,
-    no private-label attribute) and no ALUCA use case wires it yet.
+  reason: Supporting KPI of COM-002; calculation op:hitl (data_contract, no private-label attribute on dim_product)
+    and no measure in the Commercial model yet.
 - kpi_id: KPI-COM-034
   owner: com_analytics_lead
   eta_date: '2026-12-31'
-  reason: Library KPI for an external consumer (consumer_ref meridian:aurora); calculation op:hitl (data_contract,
-    no web-analytics session fact) and no ALUCA use case wires it yet.
+  reason: Influencing KPI of COM-006; calculation op:hitl (data_contract, no web-analytics session fact) and no
+    measure yet.
 - kpi_id: KPI-ESG-001
   owner: esg_analytics_lead
   eta_date: '2026-12-31'
-  reason: Library KPI for an external consumer (consumer_ref meridian:aurora); calculation op:hitl (grammar, filtered
-    sum) and no ALUCA use case wires it into a semantic model yet.
+  reason: Strategic KPI of ESG-001; calculation op:hitl (grammar, filtered sum over dim_emission_scope) and no ESG
+    semantic model yet.
 - kpi_id: KPI-ESG-002
   owner: esg_analytics_lead
   eta_date: '2026-12-31'
-  reason: Library KPI for an external consumer (consumer_ref meridian:aurora); calculation op:hitl (data_contract,
-    no supplier ESG audit data) and no ALUCA use case wires it yet.
+  reason: Supporting KPI of SCM-004; calculation op:hitl (data_contract, no supplier ESG audit data) and no measure
+    yet.

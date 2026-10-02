@@ -24,10 +24,11 @@ MUSTER = r"^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\d{3}$"
 # Stand nach der Migration (freigegebene Tabelle, D-594 Nachtrag 3): 139 Bibliotheks-KPIs
 # (140 minus CCC-Proxy). Seit 02.10.2026 (BO-103 Freelancing) stehen die fuenf Aurora-
 # Neuzugaenge (KPI-COM-032..034, KPI-ESG-001/002) und KPI-SCM-028 (Freelancing D-651, nicht
-# in der Tabelle) mit consumer_ref im Katalog; KPI-OPS-021 (Branchenpaket) bleibt blockiert.
+# in der Tabelle) im Katalog, jeder mit einem ALUCA-Use-Case (Entscheidung Florian 02.10.2026:
+# kein Abnehmer-Feld); KPI-OPS-021 (Branchenpaket) bleibt blockiert.
 ERWARTET_JE_KUERZEL = {"COM": 34, "CUS": 7, "ESG": 2, "FIN": 21, "GOV": 7, "OPS": 20,
                        "PPL": 6, "QUA": 6, "SCM": 28, "SVC": 14}
-#: Neuzugaenge der Tabelle, die im Katalog stehen duerfen: genau die mit consumer_ref.
+#: Neuzugaenge der Tabelle, die im Katalog stehen duerfen; jeder braucht einen Use Case.
 NEUZUGANG_IM_KATALOG = {"KPI-COM-032", "KPI-COM-033", "KPI-COM-034", "KPI-ESG-001", "KPI-ESG-002"}
 
 MAPPING = Path(os.environ.get(
@@ -197,5 +198,5 @@ def test_mapping_zielzustand():
     assert im_katalog == NEUZUGANG_IM_KATALOG, im_katalog ^ NEUZUGANG_IM_KATALOG
     for kid in im_katalog:
         d = yaml.safe_load((KPIS / f"{kid}.yaml").read_text(encoding="utf-8"))
-        assert d.get("consumer_ref"), f"{kid}: Neuzugang ohne Use Case braucht consumer_ref"
+        assert d.get("use_case_ref"), f"{kid}: Neuzugang ohne Use Case"
     assert mig.check(REPO, m) == []

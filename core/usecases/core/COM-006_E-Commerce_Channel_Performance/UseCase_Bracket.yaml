@@ -1,0 +1,131 @@
+schema_version: '2.0'
+id: COM-006
+title: E-Commerce Channel Performance
+domain: Commercial
+# Added 02.10.2026 (PR #584): gives KPI-COM-032 and KPI-COM-034 a governed consumer inside
+# the library. No Domain_Evidence_Pack.yaml yet (same state as COM-005/FIN-003/HR-001/SCM-004);
+# the Research-to-Core pack is an open follow-up, not a waiver approved by the Framework Architect.
+governance:
+  owner_role: commercial_controlling_lead
+  steward_role: sales_bi_lead
+  status: active
+orchestration:
+  strategic_kpi_id: KPI-COM-032
+  influencing_kpi_ids:
+  - KPI-COM-034
+  supporting_kpi_ids:
+  - KPI-COM-005
+  # No action code in the framework covers e-commerce conversion or channel-shift levers yet;
+  # page 2 is therefore an exception queue (T3), not an action decision (T4).
+  action_code_ids: []
+primary_kpi_ids:
+- KPI-COM-032
+- KPI-COM-034
+value_driver_model:
+  formula: KPI-COM-032 = f(KPI-COM-034); e-commerce net sales = sessions x KPI-COM-034 x average order
+    value (online channel), divided by total net sales
+  impact_direction: maximize
+  primary_driver: KPI-COM-034
+  impact_logic: With traffic and order value held, the e-commerce revenue share moves with the share of
+    sessions that end in a purchase, so KPI-COM-034 is the first lever to read. Traffic and order value
+    have no catalog KPI yet and stay outside this use case.
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas:
+    width: 1920
+    height: 1080
+  intent_rules_version: 2
+  page_1_summary:
+    title: Commercial / E-Commerce Summary & Insights
+    page_type: T1_Strategic_Overview
+    template_variant: T1_Trend
+    template_id: pulse
+    decision_question: Is the e-commerce share of revenue growing as planned?
+    big_idea: The e-commerce share moves with session conversion first, and a few regions hold the
+      share back.
+    component_3s:
+      kpi_id: KPI-COM-032
+      visual_type: kpi_card_with_delta
+      comparison: vs_py
+      status_logic: higher_is_better
+    component_30s:
+    - slot_id: Main_1
+      kpi_id: KPI-COM-032
+      visual_type: line_chart
+      question: Is the e-commerce share of revenue rising month over month?
+      message: The e-commerce share rises only while online net sales grow faster than total net sales
+      so_what: A flat share while total sales grow means the online channel only follows the market and
+        needs its own levers.
+      unit: ratio
+    - slot_id: Main_2
+      kpi_id: KPI-COM-034
+      visual_type: line_chart
+      question: Is session conversion the reason the share stalls?
+      message: Session conversion drops earlier than the e-commerce share when the shop loses buyers
+      so_what: If conversion falls while traffic holds, shop experience and checkout come before more
+        traffic spend.
+      unit: rate
+    - slot_id: Main_3
+      kpi_id: KPI-COM-032
+      visual_type: horizontal_bar_chart
+      category_field: dim_org.Region
+      question: Which regions hold the e-commerce share back?
+      message: A few regions hold the e-commerce share below the rest of the business
+      so_what: Channel programmes start in the regions with the lowest share, not with a company-wide push.
+      unit: ratio
+  page_2_execution:
+    title: Commercial / E-Commerce Execution
+    decision_question: Which regions and categories hold the e-commerce share back the most?
+    page_type: T3_Operational_Monitoring
+    template_variant: T3_ExceptionQueue
+    template_id: action_matrix
+    component_300s:
+      # Governed fact grain (fact_sales, commercial_sales.yaml). KPI-COM-034 has no invoice-line
+      # source (web sessions are not in any data contract), so it stays off the evidence table.
+      evidence_grain: invoice_line
+      evidence_columns:
+      - region
+      - category
+      - KPI-COM-032
+      - KPI-COM-005
+      action_panel: false
+      payload_mode: full
+      sort_by:
+        measure: KPI-COM-032
+        direction: ascending
+      top_n: 20
+      highlight_rule:
+        column: KPI-COM-032
+        type: data_bar
+prioritization:
+  business_value: medium
+  implementation_effort: high
+  confidence: 0.5
+  reach: division
+  priority_score: 10
+data_protection:
+  # DSGVO Art. 25 Privacy by Design and by Default
+  # Authority: core/templates/page_templates/governance/Data_Protection_Governance.md
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: >
+    Reporting stays at channel, region and month grain. Web-analytics sessions enter only as
+    aggregated counts; no session id, cookie id or customer record is exposed. If session-level
+    data with identifiers enters scope, re-assess personal_data = true.
+  access_restriction: >
+    commercial_controlling_lead and sales_bi_lead roles; row-level security enforced by the
+    Commercial semantic model (entity filter per org role).
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: >
+    Active Actions Text (COM) — DAX measure that reads current filter context and concatenates
+    only triggered action texts. See Storytelling_Principles.md §13.
+readiness:
+  data_availability: missing
+  org_capability: developing
+  stakeholder_alignment: partial
+  overall_readiness: red
+overrides:
+  data_contract_ref: core/data_contracts/domains/commercial_sales.yaml
+documentation:
+  business_factsheet: ./Business_Factsheet.md

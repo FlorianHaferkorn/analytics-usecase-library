@@ -10,7 +10,10 @@
 | COM-003 | Customer Value | Commercial / CustomerValue | KPI-CUS-001 | KPI-CUS-005, KPI-CUS-002, KPI-CUS-004, KPI-CUS-006, KPI-CUS-003, KPI-SVC-001, KPI-OPS-001 | C-C3.1, C-C3.2 | commercial_controlling_lead | sales_ops_bi_lead |
 | COM-004 | Promotion Effectiveness | Commercial | KPI-COM-016 | KPI-COM-021, KPI-FIN-012, KPI-COM-001, KPI-COM-002, KPI-COM-003, KPI-COM-018 | C-P4.1, C-M2.1, C-M2.2 | revenue_growth_management_commercial_controlling | trade_marketing_commercial_bi_lead |
 | COM-005 | Sales Pipeline & Conversion | Commercial | KPI-COM-026 | KPI-COM-027, KPI-COM-028, KPI-COM-029, KPI-COM-030 | C-P1.1 | commercial_controlling_revenue_operations | revenue_operations_bi_lead |
+| COM-006 | E-Commerce Channel Performance | Commercial | KPI-COM-032 | KPI-COM-034 |  | commercial_controlling_lead | sales_bi_lead |
 | COM-IND-R001 | Basket & Category Cross-Sell | Commercial / Retail | KPI-COM-022 | KPI-COM-023, KPI-COM-024, KPI-COM-025, KPI-CUS-007 | C-M3.1 | category_manager | trade_marketing_commercial_bi_lead |
+| COM-IND-R002 | Private Label Performance | Commercial / Retail | KPI-COM-033 |  |  | category_manager | trade_marketing_commercial_bi_lead |
+| ESG-001 | Scope 1+2 Emissions | ESG | KPI-ESG-001 |  |  | sustainability_controlling_lead | esg_reporting_bi_lead |
 | FIN-001 | Cash & Liquidity Performance | Finance | KPI-FIN-006 | KPI-FIN-007, KPI-FIN-009, KPI-FIN-010, KPI-FIN-001, KPI-FIN-004, KPI-FIN-005 | F-C1.1, F-C1.2, S-I1.2, F-C1.4 | treasury_finance_controlling | treasury_finance_bi_lead |
 | FIN-002 | Cost Performance | Finance / Operations | KPI-FIN-015 | KPI-FIN-016, KPI-FIN-014, KPI-SCM-020, KPI-OPS-004, KPI-OPS-009, KPI-QUA-006, KPI-OPS-003 | F-K2.1, F-K2.2, F-K2.3, F-K2.4 | plant_ops_controllers | finance_bi_lead |
 | FIN-003 | Earnings Performance vs Plan | Finance | KPI-FIN-018 | KPI-FIN-021, KPI-COM-009, KPI-COM-013, KPI-FIN-014 | F-E1.1 | finance_controlling_fpa | finance_bi_lead |

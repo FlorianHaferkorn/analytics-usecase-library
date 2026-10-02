@@ -10,10 +10,9 @@ impact_dimension: Efficiency
 domain_tag:
 - Supply Chain
 - Logistics
-use_case_ref: []
+use_case_ref:
+- SCM-002
 action_code_ref: []
-consumer_ref:
-- meridian:aurora
 calc_type: ratio
 good_is: higher
 business:

@@ -38,6 +38,7 @@ deep dive (SCM-003); promo effects (COM-004).
 
 - Where is OTIF below target by lane/DC/channel/product?
 - What are the main drivers of late or incomplete deliveries?
+- Is picking productivity in the distribution center (KPI-SCM-028) falling ahead of late shipments?
 - How much do stockouts, penalties, and expedites cost?
 - Which corrective actions improve OTIF fastest without excessive cost?
 
@@ -60,6 +61,7 @@ deep dive (SCM-003); promo effects (COM-004).
 | KPI-SCM-010 | Supporting |
 | KPI-SCM-013 | Supporting |
 | KPI-SCM-015 | Supporting |
+| KPI-SCM-028 | Supporting |
 
 **Action Codes:** S-R2.1, S-R2.2, S-R2.3, S-R2.4, S-R2.5
 

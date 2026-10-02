@@ -9,10 +9,9 @@ impact_dimension: Growth
 domain_tag:
 - Commercial
 - Growth
-use_case_ref: []
+use_case_ref:
+- COM-006
 action_code_ref: []
-consumer_ref:
-- meridian:aurora
 calc_type: rate
 good_is: higher
 business:

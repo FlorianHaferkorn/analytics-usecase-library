@@ -9,10 +9,9 @@ impact_dimension: ESG
 domain_tag:
 - ESG
 - Environment
-use_case_ref: []
+use_case_ref:
+- ESG-001
 action_code_ref: []
-consumer_ref:
-- meridian:aurora
 calc_type: quantity
 good_is: lower
 business:
