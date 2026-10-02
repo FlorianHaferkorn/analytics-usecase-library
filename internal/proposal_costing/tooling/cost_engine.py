@@ -66,9 +66,49 @@ def payg_usd_per_cu_hour(drivers: dict[str, Any], sku: str) -> float:
     return _price_by_sku(drivers, sku) / (_CAPACITY.CU[sku] * _HOURS_PER_MONTH)
 
 
+def region_key(region: str | None) -> str:
+    """'West Europe', 'west-europe' and 'westeurope' name the same Azure region."""
+    return "".join(ch for ch in str(region or "").lower() if ch.isalnum())
+
+
+def regional_rates(drivers: dict[str, Any], region: str | None, currency: str = "USD") -> dict[str, float] | None:
+    """PAYG per CU hour and OneLake hot per GB-month for one region and currency, or None if unknown."""
+    row = ((drivers.get("fabric_regions") or {}).get("regions") or {}).get(region_key(region))
+    cur = currency.lower()
+    if not row or f"payg_{cur}_per_cu_hour" not in row:
+        return None
+    return {"payg_per_cu_hour": float(row[f"payg_{cur}_per_cu_hour"]),
+            "onelake_hot_per_gb_month": float(row[f"onelake_hot_{cur}_per_gb_month"])}
+
+
+def capacity_price_per_month(drivers: dict[str, Any], sku: str, *, region: str | None = None,
+                             currency: str = "USD", use_reservation: bool = False) -> tuple[float, str]:
+    """Monthly list price of one capacity and where it came from.
+
+    With a known region: CU x regional PAYG rate x 730 h, reservation discount from the SKU table.
+    Without one: the SKU table (US price, USD only). Raises KeyError when neither applies.
+    """
+    rates = regional_rates(drivers, region, currency) if region else None
+    if rates is None:
+        if currency.upper() != "USD":
+            raise KeyError(f"No {currency.upper()} price for region {region!r}")
+        return _price_by_sku(drivers, sku, use_reservation=use_reservation), "sku_table_us"
+    price = _CAPACITY.CU[sku] * rates["payg_per_cu_hour"] * _HOURS_PER_MONTH
+    if use_reservation:
+        row = next((r for r in drivers.get("fabric_capacity", []) if r.get("sku") == sku), None)
+        if row is None:
+            raise KeyError(f"No reservation discount for {sku}")
+        price *= 1 - float(row.get("reservation_discount_pct", 0)) / 100.0
+    return price, f"region:{region_key(region)}"
+
+
 def compute_overage(drivers: dict[str, Any], sku: str, enabled: bool | None = None,
-                    threshold_cu_hours: float | None = None) -> dict[str, Any]:
+                    threshold_cu_hours: float | None = None,
+                    payg_per_cu_hour: float | None = None, currency: str = "USD") -> dict[str, Any]:
     """Capacity-overage line for the production SKU.
+
+    `max_per_day` is in `currency` (the currency of `payg_per_cu_hour`); `max_usd_per_day`
+    stays as an alias only for USD so a EUR amount never carries a USD name.
 
     enabled False: overage is off, no cost line. Otherwise the threshold is either the
     customer's (threshold_cu_hours) or Microsoft's default at capacity creation (25 % of
@@ -76,12 +116,17 @@ def compute_overage(drivers: dict[str, Any], sku: str, enabled: bool | None = No
     max_usd_per_day = threshold x 3 x PAYG per CU hour is derived, not measured, and not
     a cap: the threshold is checked every 5 minutes and running operations continue.
     """
+    cur = currency.upper()
     if enabled is False:
-        return {"sku": sku, "enabled": False, "max_usd_per_day": 0.0,
-                "threshold_source": "customer"}
+        off = {"sku": sku, "enabled": False, "max_per_day": 0.0, "currency": cur,
+               "threshold_source": "customer"}
+        if cur == "USD":
+            off["max_usd_per_day"] = 0.0
+        return off
     prof = _CAPACITY.overage_profile(sku, threshold_cu_hours,
-                                     payg_usd_per_cu_hour(drivers, sku))
-    return {
+                                     payg_per_cu_hour if payg_per_cu_hour is not None
+                                     else payg_usd_per_cu_hour(drivers, sku))
+    line = {
         "sku": sku,
         "enabled": True,  # on by default for new F capacities unless switched off
         "cu_hours_per_day": prof["cu_hours_per_day"],
@@ -90,23 +135,32 @@ def compute_overage(drivers: dict[str, Any], sku: str, enabled: bool | None = No
         "recommended_max_threshold_cu_hours": prof["recommended_max_threshold_cu_hours"],
         "above_recommended_max": prof["above_recommended_max"],
         "quota_cu_required": prof["quota_cu_required"],
-        "max_usd_per_day": prof["max_cost_per_day_usd"],
+        "max_per_day": prof["max_cost_per_day_usd"],
+        "currency": cur,
         "evidence": prof["evidence"],
         "caveat": prof["caveat"],
         "customer_question": prof.get("customer_question"),
     }
+    if cur == "USD":
+        line["max_usd_per_day"] = line["max_per_day"]
+    return line
 
 
-def compute_planning(drivers: dict[str, Any], sessions: dict[str, int], sku: str) -> dict[str, Any]:
+def compute_planning(drivers: dict[str, Any], sessions: dict[str, int], sku: str,
+                     payg_per_cu_hour: float | None = None, currency: str = "USD") -> dict[str, Any]:
     """Fabric Planning sessions as a capacity cost position on the production SKU.
 
     Sessions consume CU of the capacity they run on, so the USD figure is the share of the
     capacity price they occupy (CU hours x PAYG per CU hour), already inside the capacity
-    line — shown for transparency, not added to the total.
+    line — shown for transparency, not added to the total. `payg_per_cu_hour` is the
+    regional rate from compute(); without it the US table applies (eastus, 0.18 USD).
     """
     load = _CAPACITY.planning_load(sessions, sku)
-    rate = payg_usd_per_cu_hour(drivers, sku)
-    load["usd_equivalent_per_session_window"] = round(load["cu_hours_per_session_window"] * rate, 2)
+    rate = payg_per_cu_hour if payg_per_cu_hour is not None else payg_usd_per_cu_hour(drivers, sku)
+    load["equivalent_per_session_window"] = round(load["cu_hours_per_session_window"] * rate, 2)
+    load["currency"] = currency.upper()
+    if load["currency"] == "USD":
+        load["usd_equivalent_per_session_window"] = load["equivalent_per_session_window"]
     load["included_in_capacity_total"] = True
     load["evidence"] = "derived"
     return load
@@ -243,14 +297,24 @@ def _price_by_sku(drivers: dict[str, Any], sku: str, use_reservation: bool = Fal
     raise KeyError(f"Unknown Fabric SKU: {sku}")
 
 
-def _license_prices(drivers: dict[str, Any]) -> tuple[float, float]:
-    """Return (pro_usd_per_month, ppu_usd_per_month)."""
-    pro_price = ppu_price = 0.0
+def _license_prices(drivers: dict[str, Any], currency: str = "USD") -> tuple[float | None, float | None]:
+    """Return (pro_per_month, ppu_per_month) in `currency`.
+
+    USD keeps the old behaviour (0.0 for a missing row). Any other currency reads
+    `price_<cur>_per_month` and returns None where Microsoft's list price in that currency is not
+    recorded: a USD price is never converted.
+    """
+    key = f"price_{currency.lower()}_per_month"
+    usd = currency.upper() == "USD"
+    pro_price = ppu_price = 0.0 if usd else None
     for item in drivers.get("power_bi_licenses", []):
+        value = item.get(key)
+        if value is None:
+            continue
         if item.get("id") == "pro":
-            pro_price = float(item["price_usd_per_month"])
+            pro_price = float(value)
         elif item.get("id") == "ppu":
-            ppu_price = float(item["price_usd_per_month"])
+            ppu_price = float(value)
     return pro_price, ppu_price
 
 
@@ -264,43 +328,87 @@ def _parse_valid_from(valid_from: str | None) -> datetime:
     return datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
 
-def _compute_capacity_costs(capacities: dict[str, Any], drivers: dict[str, Any], use_reservation: bool) -> tuple[float, list]:
-    """Return (total_cost, building_blocks_list) for capacity."""
+def _amounts(per_month: float, currency: str, per_year: float | None = None) -> dict[str, float]:
+    """Neutral amount keys, plus the historic usd_* aliases when the currency is USD."""
+    out = {"per_month": per_month}
+    if per_year is not None:
+        out["per_year"] = per_year
+    if currency == "USD":
+        out.update({f"usd_{k}": v for k, v in list(out.items())})
+    return out
+
+
+def _compute_capacity_costs(capacities: dict[str, Any], drivers: dict[str, Any], use_reservation: bool,
+                            region: str | None = None, currency: str = "USD") -> tuple[float, list]:
+    """Return (total_cost, building_blocks_list) for capacity.
+
+    Priced at the regional PAYG rate when the region is in ``fabric_regions`` (01.10.2026: until
+    then every region was priced at the US table, about 22 % below West Europe); otherwise the
+    US SKU table, and the row says so.
+    """
     capacity_month = 0.0
     capacity_breakdown: list[dict[str, Any]] = []
     for env, sku in capacities.items():
         if not sku:
             continue
-        price = _price_by_sku(drivers, sku, use_reservation=use_reservation)
+        price, basis = capacity_price_per_month(drivers, sku, region=region, currency=currency,
+                                                use_reservation=use_reservation)
+        price = round(price, 2)
         capacity_month += price
-        capacity_breakdown.append({"environment": env, "sku": sku, "usd_per_month": price})
+        capacity_breakdown.append({"environment": env, "sku": sku, **_amounts(price, currency),
+                                   "price_basis": basis})
     return capacity_month, capacity_breakdown
 
 
-def _compute_license_costs(pro_users: int | float, ppu_users: int | float, drivers: dict[str, Any]) -> tuple[float, list]:
-    """Return (total_cost, building_blocks_list) for licenses."""
-    pro_price, ppu_price = _license_prices(drivers)
+def _compute_license_costs(pro_users: int | float, ppu_users: int | float, drivers: dict[str, Any],
+                           currency: str = "USD") -> tuple[float, list]:
+    """Return (total_cost, building_blocks_list) for licenses. Raises ValueError for a currency
+    without a recorded list price instead of converting the USD price."""
+    pro_price, ppu_price = _license_prices(drivers, currency)
+    if (pro_users and pro_price is None) or (ppu_users and ppu_price is None):
+        raise ValueError(f"No {currency} list price for Power BI Pro/PPU in cost_drivers.yaml")
+    pro_price, ppu_price = pro_price or 0.0, ppu_price or 0.0
     license_month = pro_users * pro_price + ppu_users * ppu_price
     license_breakdown = [
-        {"license": "pro", "users": pro_users, "usd_per_month": pro_users * pro_price},
-        {"license": "ppu", "users": ppu_users, "usd_per_month": ppu_users * ppu_price},
+        {"license": "pro", "users": pro_users, **_amounts(pro_users * pro_price, currency)},
+        {"license": "ppu", "users": ppu_users, **_amounts(ppu_users * ppu_price, currency)},
     ]
     return license_month, license_breakdown
 
 
-def _compute_service_costs(impl_fte: float, impl_months: float, maint_fte: float, drivers: dict[str, Any], package: dict[str, Any] | None) -> tuple[float, float]:
-    """Return (impl_cost, maint_annual_cost)."""
+def _package_has_fixed_price(package: dict[str, Any] | None) -> bool:
+    """True when the package carries a fixed implementation price in any currency."""
+    return bool(package) and any(k.startswith("implementation_fixed_") and v is not None
+                                 for k, v in package.items())
+
+
+def _compute_service_costs(impl_fte: float, impl_months: float, maint_fte: float, drivers: dict[str, Any],
+                           package: dict[str, Any] | None, currency: str = "USD") -> tuple[float, float]:
+    """Return (impl_cost, maint_annual_cost) in `currency`.
+
+    Fixed package prices and FTE rates are read under the currency's own key
+    (`implementation_fixed_eur`, `implementation_eur_per_fte_month`, ...). A missing key in a
+    non-USD currency raises ValueError: our service price is never converted from USD.
+    """
+    cur = currency.lower()
     implementation_one_time = 0.0
     maintenance_year = 0.0
-    if package and package.get("implementation_fixed_usd") is not None:
-        implementation_one_time = round(float(package["implementation_fixed_usd"]), 2)
-        maintenance_year = round(float(package.get("maintenance_fixed_usd_per_year", 0)), 2)
+    if _package_has_fixed_price(package):
+        fixed = package.get(f"implementation_fixed_{cur}")
+        if fixed is None:
+            raise ValueError(f"Package has no implementation_fixed_{cur}; a {currency} offer needs the "
+                             f"package price in {currency}, the USD price is not converted")
+        implementation_one_time = round(float(fixed), 2)
+        maintenance_year = round(float(package.get(f"maintenance_fixed_{cur}_per_year", 0)), 2)
     elif impl_fte > 0 or impl_months > 0 or maint_fte > 0:
         services = drivers.get("services_rates")
         if not services:
             raise ValueError("services_rates missing in cost_drivers.yaml; required when implementation_fte, implementation_months, or maintenance_fte are set")
-        rate_impl = float(services.get("implementation_usd_per_fte_month", 0))
-        rate_maint = float(services.get("maintenance_usd_per_fte_year", 0))
+        if cur != "usd" and f"implementation_{cur}_per_fte_month" not in services:
+            raise ValueError(f"services_rates has no implementation_{cur}_per_fte_month; a {currency} offer "
+                             "needs the service rates in that currency, the USD rate is not converted")
+        rate_impl = float(services.get(f"implementation_{cur}_per_fte_month", 0))
+        rate_maint = float(services.get(f"maintenance_{cur}_per_fte_year", 0))
         implementation_one_time = round(impl_fte * impl_months * rate_impl, 2) if (impl_fte and impl_months) else 0.0
         maintenance_year = round(maint_fte * rate_maint, 2) if maint_fte else 0.0
     return implementation_one_time, maintenance_year
@@ -326,6 +434,34 @@ def _resolve_assumptions(defaults: dict[str, Any], drivers: dict[str, Any], vali
     }
 
 
+#: Region compared against the default when the customer has not named one: the German region
+#: is the usual alternative for German customers (data residency) and is priced differently.
+_REGION_ALTERNATIVE = "germanywestcentral"
+
+
+def _region_question(drivers: dict[str, Any], region: str | None, effective_region: str, currency: str,
+                     capacities: dict[str, Any]) -> str | None:
+    """Open customer question when the region was not given and a Fabric capacity is priced.
+
+    The default region (proposal_defaults) is a price assumption, not the customer's decision;
+    the question names the price difference to Germany West Central so the choice is visible.
+    """
+    if region or not any(capacities.values()):
+        return None
+    base = regional_rates(drivers, effective_region, currency)
+    alt = regional_rates(drivers, _REGION_ALTERNATIVE, currency)
+    text = (f"Azure region not confirmed: capacity priced in the default region {effective_region}. "
+            "Which region hosts the Fabric capacity?")
+    if base and alt and region_key(effective_region) != _REGION_ALTERNATIVE:
+        pct = (alt["payg_per_cu_hour"] / base["payg_per_cu_hour"] - 1) * 100
+        if abs(pct) < 0.05:
+            text += f" Germany West Central has the same {currency} rate per CU hour (fabric_regions)."
+        else:
+            text += (f" Germany West Central costs {pct:+.1f} % per CU hour in {currency} "
+                     "(Azure Retail Prices, fabric_regions).")
+    return text
+
+
 def compute(
     scenario_id: str,
     overrides: dict[str, Any] | None = None,
@@ -342,9 +478,14 @@ def compute(
     price_basis: str | None = None,
     valid_from: str | None = None,
     quote_valid_days: int | None = None,
+    currency: str = "USD",
 ) -> dict[str, Any]:
     """
     Compute monthly and yearly costs for a scenario.
+    currency: USD (default) or EUR. Every Microsoft amount comes from Microsoft's own list in that
+    currency (fabric_regions, price_eur_per_month); service prices need their own EUR keys. Nothing
+    is converted: a missing price raises ValueError. Amount keys are neutral (per_month, per_year,
+    max_per_day); the usd_* aliases exist only for USD.
     If package_id is set, scenario_id and implementation/maintenance come from the package (fixed USD or FTE profile).
     overrides can include: capacities (dev/test/prod -> SKU), pro_users, ppu_users.
     use_reservation: use reservation pricing for capacity (~41% savings).
@@ -386,7 +527,7 @@ def compute(
     impl_fte = implementation_fte if implementation_fte is not None else overrides.get("implementation_fte")
     impl_months = implementation_months if implementation_months is not None else overrides.get("implementation_months")
     maint_fte = maintenance_fte if maintenance_fte is not None else overrides.get("maintenance_fte")
-    if package and package.get("implementation_fixed_usd") is None:
+    if package and not _package_has_fixed_price(package):
         if impl_fte is None and package.get("implementation_fte") is not None:
             impl_fte = package.get("implementation_fte")
         if impl_months is None and package.get("implementation_months") is not None:
@@ -417,18 +558,29 @@ def compute(
     impl_months = float(impl_months) if impl_months is not None else 0.0
     maint_fte = float(maint_fte) if maint_fte is not None else 0.0
 
-    capacity_month, capacity_breakdown = _compute_capacity_costs(capacities, drivers, use_reservation)
+    cur = (currency or "USD").upper()
+    if cur not in ("USD", "EUR"):
+        raise ValueError(f"Unsupported currency {currency!r}: USD or EUR")
+    effective_region = region or defaults.get("default_region", _INLINE_DEFAULTS["default_region"])
+    regional = regional_rates(drivers, effective_region, cur)
+    if regional is None and cur != "USD":
+        raise ValueError(f"No {cur} rates for region {effective_region!r} in fabric_regions; "
+                         "the USD table is not converted")
+    capacity_month, capacity_breakdown = _compute_capacity_costs(capacities, drivers, use_reservation,
+                                                                 effective_region, cur)
 
-    license_month, license_breakdown = _compute_license_costs(pro_users, ppu_users, drivers)
+    license_month, license_breakdown = _compute_license_costs(pro_users, ppu_users, drivers, cur)
 
     storage_month = 0.0
     storage_breakdown: dict[str, Any] | None = None
     if storage_gb is not None and storage_gb > 0:
-        onelake = (drivers.get("onelake_storage") or {}).get("usd_per_gb_month") or 0.023
+        onelake = (regional["onelake_hot_per_gb_month"] if regional else
+                   (drivers.get("onelake_storage") or {}).get("usd_per_gb_month") or 0.023)
         storage_month = round(storage_gb * float(onelake), 2)
-        storage_breakdown = {"gb": storage_gb, "usd_per_month": storage_month}
+        storage_breakdown = {"gb": storage_gb, **_amounts(storage_month, cur)}
 
-    implementation_one_time, maintenance_year = _compute_service_costs(impl_fte, impl_months, maint_fte, drivers, package)
+    implementation_one_time, maintenance_year = _compute_service_costs(impl_fte, impl_months, maint_fte, drivers,
+                                                                       package, cur)
 
     total_month = capacity_month + license_month + storage_month
     total_year = round(total_month * 12, 2)
@@ -437,13 +589,18 @@ def compute(
     overage: dict[str, Any] | None = None
     planning: dict[str, Any] | None = None
     customer_questions: list[str] = []
+    region_question = _region_question(drivers, region, effective_region, cur, capacities)
+    if region_question:
+        customer_questions.append(region_question)
     if prod_sku:
         overage = compute_overage(drivers, prod_sku, overrides.get("overage_enabled"),
-                                  overrides.get("overage_threshold_cu_hours"))
+                                  overrides.get("overage_threshold_cu_hours"),
+                                  regional["payg_per_cu_hour"] if regional else None, cur)
         if overage.get("customer_question"):
             customer_questions.append(overage["customer_question"])
         if overrides.get("planning_sessions"):
-            planning = compute_planning(drivers, overrides["planning_sessions"], prod_sku)
+            planning = compute_planning(drivers, overrides["planning_sessions"], prod_sku,
+                                        regional["payg_per_cu_hour"] if regional else None, cur)
     if prod_sku and _sku_at_least_f64(prod_sku):
         viewer_note = defaults.get("viewer_note_f64_plus", _INLINE_DEFAULTS["viewer_note_f64_plus"])
     elif prod_sku:
@@ -471,6 +628,10 @@ def compute(
     building_blocks.append({"id": "implementation", "label": _block_label("implementation"), "category": _block_category("implementation"), "usd_per_month": 0.0, "usd_per_year": implementation_one_time})
     building_blocks.append({"id": "maintenance", "label": _block_label("maintenance"), "category": _block_category("maintenance"), "usd_per_month": round(maintenance_year / 12, 2) if maintenance_year else 0.0, "usd_per_year": maintenance_year})
 
+    # Neutral keys for every block; usd_* aliases only for USD (see _amounts).
+    building_blocks = [{**{k: v for k, v in b.items() if not k.startswith("usd_")},
+                        **_amounts(b["usd_per_month"], cur, b["usd_per_year"])} for b in building_blocks]
+
     sensitivity_note = (defaults.get("sensitivity_note") or "").strip()
     customer_contrib_list = defaults.get("customer_contributions") or []
     customer_contributions = "\n".join(f"- {s}" for s in customer_contrib_list) if isinstance(customer_contrib_list, list) else str(customer_contrib_list) if customer_contrib_list else ""
@@ -479,6 +640,7 @@ def compute(
 
     return {
         "scenario_id": scenario_id,
+        "currency": cur,
         "capacity_month": round(capacity_month, 2),
         "license_month": round(license_month, 2),
         "total_month": round(total_month, 2),
@@ -496,7 +658,8 @@ def compute(
         "quote_valid_until": assumptions["quote_valid_until"],
         "contract_term_months": contract_term_months if contract_term_months is not None else int(defaults.get("default_contract_term_months", 12)),
         "region": assumptions["region"],
-        "price_basis": price_basis or defaults.get("price_basis", _INLINE_DEFAULTS["price_basis"]),
+        "price_basis": price_basis or str(defaults.get("price_basis", _INLINE_DEFAULTS["price_basis"])).replace(
+            "(USD)", f"({cur})"),
         "storage_month": round(storage_month, 2),
         "storage_breakdown": storage_breakdown,
         "building_blocks": building_blocks,
@@ -605,7 +768,8 @@ def format_projection_table(horizons: list[dict[str, Any]]) -> str:
     """Format horizons as Markdown table for template placeholder."""
     if not horizons:
         return "—"
-    lines = ["| Horizon | Years | USD/year (platform) | USD/year (maintenance) |", "|---------|-------|---------------------|------------------------|"]
+    cur = (horizons[0].get("breakdown") or {}).get("currency", "USD")
+    lines = [f"| Horizon | Years | {cur}/year (platform) | {cur}/year (maintenance) |", "|---------|-------|---------------------|------------------------|"]
     for h in horizons:
         label = h.get("label", h.get("id", ""))
         years = h.get("years", 0)
@@ -615,26 +779,31 @@ def format_projection_table(horizons: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def format_breakdown_capacity(breakdown: list[dict[str, Any]]) -> str:
+def _pm(row: dict[str, Any]) -> float:
+    """Monthly amount of a row; neutral key first, historic usd_per_month as fallback."""
+    return row.get("per_month", row.get("usd_per_month", 0)) or 0
+
+
+def format_breakdown_capacity(breakdown: list[dict[str, Any]], currency: str = "USD") -> str:
     """Format capacity_breakdown for template placeholder."""
     if not breakdown:
         return "—"
-    return " | ".join(f"{r['environment']}: {r['sku']} {r['usd_per_month']:.2f} USD/mo" for r in breakdown)
+    return " | ".join(f"{r['environment']}: {r['sku']} {_pm(r):.2f} {currency}/mo" for r in breakdown)
 
 
-def format_breakdown_license(breakdown: list[dict[str, Any]]) -> str:
+def format_breakdown_license(breakdown: list[dict[str, Any]], currency: str = "USD") -> str:
     """Format license_breakdown for template placeholder."""
     if not breakdown:
         return "—"
-    parts = [f"{r['license'].upper()}: {r['users']} users, {r['usd_per_month']:.2f} USD/mo" for r in breakdown if r["users"] > 0]
+    parts = [f"{r['license'].upper()}: {r['users']} users, {_pm(r):.2f} {currency}/mo" for r in breakdown if r["users"] > 0]
     return " | ".join(parts) if parts else "—"
 
 
-def format_storage_breakdown(storage_breakdown: dict[str, Any] | None) -> str:
+def format_storage_breakdown(storage_breakdown: dict[str, Any] | None, currency: str = "USD") -> str:
     """Format storage_breakdown for template placeholder."""
     if not storage_breakdown:
         return "—"
-    return f"{storage_breakdown.get('gb', 0)} GB, {storage_breakdown.get('usd_per_month', 0):.2f} USD/mo"
+    return f"{storage_breakdown.get('gb', 0)} GB, {_pm(storage_breakdown):.2f} {currency}/mo"
 
 
 def format_role_breakdown_table(role_breakdown: list[dict[str, Any]]) -> str:
@@ -677,25 +846,25 @@ def format_milestones_table(milestones: list[dict[str, Any]]) -> str:
     return "\n".join(lines) if len(lines) > 2 else "—"
 
 
-def format_building_blocks_table(building_blocks: list[dict[str, Any]]) -> str:
+def format_building_blocks_table(building_blocks: list[dict[str, Any]], currency: str = "USD") -> str:
     """Format building_blocks as Markdown table for template placeholder. Optional category column if present."""
     if not building_blocks:
         return "—"
     has_category = any(b.get("category") for b in building_blocks)
     if has_category:
-        lines = ["| Baustein | Kategorie | USD/month | USD/year |", "|----------|-----------|-----------|----------|"]
+        lines = [f"| Baustein | Kategorie | {currency}/month | {currency}/year |", "|----------|-----------|-----------|----------|"]
         for b in building_blocks:
             label = b.get("label", b.get("id", ""))
             cat = b.get("category", "") or "—"
-            mo = b.get("usd_per_month", 0) or 0
-            yr = b.get("usd_per_year", 0) or (mo * 12)
+            mo = b.get("per_month", b.get("usd_per_month", 0)) or 0
+            yr = b.get("per_year", b.get("usd_per_year", 0)) or (mo * 12)
             lines.append(f"| {label} | {cat} | {mo:.2f} | {yr:.2f} |")
     else:
-        lines = ["| Baustein | USD/month | USD/year |", "|----------|-----------|----------|"]
+        lines = [f"| Baustein | {currency}/month | {currency}/year |", "|----------|-----------|----------|"]
         for b in building_blocks:
             label = b.get("label", b.get("id", ""))
-            mo = b.get("usd_per_month", 0) or 0
-            yr = b.get("usd_per_year", 0) or (mo * 12)
+            mo = b.get("per_month", b.get("usd_per_month", 0)) or 0
+            yr = b.get("per_year", b.get("usd_per_year", 0)) or (mo * 12)
             lines.append(f"| {label} | {mo:.2f} | {yr:.2f} |")
     return "\n".join(lines)
 
@@ -714,7 +883,8 @@ def format_overage(overage: dict[str, Any] | None) -> str:
         f"Microsoft recommends staying below {overage['recommended_max_threshold_cu_hours']:g} "
         "(one third of the daily CU hours)",
         f"- Maximum overage cost per day ≈ threshold × 3 × PAYG price per CU hour ≈ "
-        f"{overage['max_usd_per_day']:.2f} USD (derived, not measured; can be exceeded because "
+        f"{overage.get('max_per_day', overage.get('max_usd_per_day', 0)):.2f} {overage.get('currency', 'USD')} "
+        "(derived, not measured; can be exceeded because "
         "the threshold is checked every 5 minutes and running operations continue)",
         f"- Additional Fabric quota required: {overage['quota_cu_required']:g} CU",
     ]
@@ -732,7 +902,8 @@ def format_planning(planning: dict[str, Any] | None) -> str:
         f"- Consumption: {planning['cu_hours_per_session_window']} CU hours per 730 h "
         f"(average {planning['average_cu']:g} CU) = {planning['share_of_capacity_pct']:g} % of "
         f"{planning['sku']}; {fit} within the recommended 30 % buffer for other workloads",
-        f"- Capacity share ≈ {planning['usd_equivalent_per_session_window']:.2f} USD per 30 days "
+        f"- Capacity share ≈ {planning.get('equivalent_per_session_window', planning.get('usd_equivalent_per_session_window', 0)):.2f} "
+        f"{planning.get('currency', 'USD')} per 30 days "
         "(derived; already contained in the capacity price, not added to the total)",
         f"- Not included: {planning['not_included']}",
     ])
@@ -749,16 +920,18 @@ def fill_template(result: dict[str, Any], template_content: str) -> str:
     cap_m = result.get("capacity_month", 0)
     lic_m = result.get("license_month", 0)
     storage_m = result.get("storage_month", 0) or 0
+    cur = result.get("currency", "USD")
     replacements = {
         "scenario_id": result.get("scenario_id", ""),
+        "currency": cur,
         "capacity_month": f"{cap_m:.2f}",
         "license_month": f"{lic_m:.2f}",
         "capacity_year": f"{cap_m * 12:.2f}",
         "license_year": f"{lic_m * 12:.2f}",
         "total_month": f"{result.get('total_month', 0):.2f}",
         "total_year": f"{result.get('total_year', 0):.2f}",
-        "capacity_breakdown": format_breakdown_capacity(result.get("capacity_breakdown", [])),
-        "license_breakdown": format_breakdown_license(result.get("license_breakdown", [])),
+        "capacity_breakdown": format_breakdown_capacity(result.get("capacity_breakdown", []), cur),
+        "license_breakdown": format_breakdown_license(result.get("license_breakdown", []), cur),
         "pricing_mode": result.get("pricing_mode", "—"),
         "viewer_note": result.get("viewer_note", "—"),
         "prod_sku": result.get("prod_sku", "—"),
@@ -771,8 +944,8 @@ def fill_template(result: dict[str, Any], template_content: str) -> str:
         "price_basis": result.get("price_basis", "—"),
         "storage_month": f"{storage_m:.2f}" if storage_m else "—",
         "storage_year": f"{storage_m * 12:.2f}" if storage_m else "—",
-        "storage_breakdown": format_storage_breakdown(result.get("storage_breakdown")),
-        "building_blocks_table": format_building_blocks_table(result.get("building_blocks", [])),
+        "storage_breakdown": format_storage_breakdown(result.get("storage_breakdown"), cur),
+        "building_blocks_table": format_building_blocks_table(result.get("building_blocks", []), cur),
         "implementation_one_time": f"{result.get('implementation_one_time', 0):.2f}",
         "maintenance_year": f"{result.get('maintenance_year', 0):.2f}",
         "role_breakdown_table": format_role_breakdown_table(result.get("role_breakdown", [])),

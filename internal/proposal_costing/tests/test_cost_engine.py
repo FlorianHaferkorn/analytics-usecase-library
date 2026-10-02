@@ -54,9 +54,11 @@ def test_load_scenarios():
 
 
 def test_compute_compact():
+    # Default region West Europe (proposal_defaults): 0.22 USD per CU hour x 730 h (Azure Retail
+    # Prices API, 01.10.2026). F2 321.20 + F4 642.40 + F8 1284.80 = 2248.40; 3 Pro = 42.
+    # Until 01.10.2026 every region was priced at the US table (1839.60) - 22 % too low for Europe.
     result = compute("compact", product_root=_product_root)
-    # F2 262.80 + F4 525.60 + F8 1051.20 = 1839.60; 3 Pro = 42
-    expected_capacity = 262.80 + 525.60 + 1051.20
+    expected_capacity = 321.20 + 642.40 + 1284.80
     expected_license = 3 * 14
     assert result["capacity_month"] == pytest.approx(expected_capacity)
     assert result["license_month"] == pytest.approx(expected_license)
@@ -97,8 +99,8 @@ def test_compute_with_overrides():
         overrides={"capacities": {"prod": "F64"}, "pro_users": 5},
         product_root=_product_root,
     )
-    # F2 + F4 + F64 = 262.80 + 525.60 + 8409.60 = 9198; 5 Pro = 70
-    expected_cap = 262.80 + 525.60 + 8409.60
+    # West Europe: F2 + F4 + F64 = 321.20 + 642.40 + 10278.40 = 11242; 5 Pro = 70
+    expected_cap = 321.20 + 642.40 + 10278.40
     expected_lic = 5 * 14
     assert result2["capacity_month"] == expected_cap
     assert result2["license_month"] == expected_lic
@@ -178,11 +180,11 @@ def test_viewer_note_f64_plus():
 
 def test_compute_storage_gb():
     result = compute("compact", product_root=_product_root, storage_gb=500)
-    # 500 * 0.023 = 11.50 USD/mo
-    assert result["storage_month"] == pytest.approx(11.50)
+    # West Europe OneLake hot: 500 * 0.024 = 12.00 USD/mo
+    assert result["storage_month"] == pytest.approx(12.00)
     assert result["storage_breakdown"] is not None
     assert result["storage_breakdown"]["gb"] == 500
-    assert result["total_month"] == pytest.approx(1839.60 + 42 + 11.50)
+    assert result["total_month"] == pytest.approx(2248.40 + 42 + 12.00)
     assert result["total_year"] == pytest.approx(result["total_month"] * 12)
 
 
@@ -458,10 +460,11 @@ def test_overage_customer_threshold_and_switch_off():
 
 
 def test_compute_carries_overage_line_and_customer_question():
-    r = compute("compact", product_root=_product_root)
+    r = compute("compact", product_root=_product_root, region="West Europe")
     assert r["overage"]["sku"] == r["prod_sku"]
     assert r["customer_questions"] and "overage" in r["customer_questions"][0].lower()
-    decided = compute("compact", {"overage_threshold_cu_hours": 10}, product_root=_product_root)
+    decided = compute("compact", {"overage_threshold_cu_hours": 10}, product_root=_product_root,
+                      region="West Europe")
     assert decided["customer_questions"] == []
     # The overage line never changes the platform total: it is a contingent cost.
     assert decided["total_month"] == r["total_month"]
@@ -495,3 +498,120 @@ def test_planning_sessions_as_capacity_share_not_added_to_total():
     assert with_plan["total_month"] == base["total_month"]
     text = fill_template(with_plan, "{{ planning }}")
     assert "847 CU hours per 730 h" in text
+
+
+
+def test_regional_capacity_price_uses_the_retail_rate():
+    """F2 in eastus is the SKU table price; germanywestcentral is 0.22 USD per CU hour."""
+    import cost_engine as ce
+    drivers = load_cost_drivers()
+    us, source = ce.capacity_price_per_month(drivers, "F2", region="East US")
+    assert round(us, 2) == 262.80 and source == "region:eastus"
+    de, _ = ce.capacity_price_per_month(drivers, "F64", region="germanywestcentral")
+    assert round(de, 2) == round(64 * 0.22 * 730, 2)
+    eur, _ = ce.capacity_price_per_month(drivers, "F64", region="Germany West Central", currency="EUR")
+    assert round(eur, 2) == round(64 * 0.1936 * 730, 2)
+
+
+def test_unknown_region_falls_back_to_usd_table_only():
+    import cost_engine as ce
+    drivers = load_cost_drivers()
+    price, source = ce.capacity_price_per_month(drivers, "F8", region="mars")
+    assert source == "sku_table_us" and price == 1051.20
+    with pytest.raises(KeyError):
+        ce.capacity_price_per_month(drivers, "F8", region="mars", currency="EUR")
+
+
+def test_overage_takes_the_regional_rate():
+    drivers = load_cost_drivers()
+    ov = compute_overage(drivers, "F8", threshold_cu_hours=20, payg_per_cu_hour=0.22)
+    assert round(ov["max_usd_per_day"], 2) == round(20 * 3 * 0.22, 2)
+
+
+
+def test_planning_share_takes_the_regional_rate():
+    """Bis 02.10.2026 rechnete der Planning-Anteil auch in West Europe mit 0.18 USD."""
+    we = compute("compact", {"planning_sessions": {"planner": 1}}, product_root=_product_root)
+    assert we["planning"]["usd_equivalent_per_session_window"] == pytest.approx(847 * 0.22, abs=0.01)
+    us = compute("compact", {"planning_sessions": {"planner": 1}}, product_root=_product_root,
+                 region="East US")
+    assert us["planning"]["usd_equivalent_per_session_window"] == pytest.approx(847 * 0.18, abs=0.01)
+
+
+def test_compute_us_region_keeps_the_us_table_price():
+    """East US is the region the SKU table was taken from: same numbers as before 01.10.2026."""
+    result = compute("compact", product_root=_product_root, region="East US")
+    assert result["capacity_month"] == pytest.approx(262.80 + 525.60 + 1051.20)
+    assert {row["price_basis"] for row in result["capacity_breakdown"]} == {"region:eastus"}
+
+
+def test_compute_unknown_region_falls_back_and_says_so():
+    result = compute("compact", product_root=_product_root, region="Mars Central")
+    assert result["capacity_month"] == pytest.approx(262.80 + 525.60 + 1051.20)
+    assert {row["price_basis"] for row in result["capacity_breakdown"]} == {"sku_table_us"}
+
+
+# --- EUR offers (02.10.2026): Microsoft's EUR list, never a converted USD price -----------------
+
+def test_eur_prices_capacity_licences_and_storage_from_the_eur_lists():
+    eur = compute("compact", {"pro_users": 5}, product_root=_product_root, currency="EUR", storage_gb=100)
+    assert eur["currency"] == "EUR"
+    assert eur["capacity_month"] == pytest.approx(round(2 * 0.1889 * 730, 2) + round(4 * 0.1889 * 730, 2)
+                                                  + round(8 * 0.1889 * 730, 2))
+    assert eur["license_month"] == pytest.approx(5 * 12.10)
+    assert eur["storage_breakdown"]["per_month"] == eur["storage_month"]
+    assert all("usd_per_month" not in row for row in eur["capacity_breakdown"] + eur["license_breakdown"])
+    assert all("usd_per_month" not in b and "per_month" in b for b in eur["building_blocks"])
+    assert eur["price_basis"].endswith("(EUR)")
+
+
+def test_usd_result_keeps_the_historic_keys():
+    usd = compute("compact", product_root=_product_root)
+    assert usd["currency"] == "USD"
+    row = usd["capacity_breakdown"][0]
+    assert row["usd_per_month"] == row["per_month"]
+    assert usd["building_blocks"][0]["usd_per_year"] == usd["building_blocks"][0]["per_year"]
+    assert usd["overage"]["max_usd_per_day"] == usd["overage"]["max_per_day"]
+
+
+def test_eur_overage_and_planning_carry_their_currency():
+    eur = compute("compact", {"planning_sessions": {"planner": 1}}, product_root=_product_root, currency="EUR")
+    assert eur["overage"]["currency"] == "EUR" and "max_usd_per_day" not in eur["overage"]
+    assert eur["planning"]["equivalent_per_session_window"] == pytest.approx(847 * 0.1889, abs=0.01)
+    assert "usd_equivalent_per_session_window" not in eur["planning"]
+
+
+def test_eur_without_regional_rate_raises_instead_of_converting():
+    with pytest.raises(ValueError, match="EUR rates"):
+        compute("compact", product_root=_product_root, currency="EUR", region="Mars Central")
+
+
+def test_eur_service_prices_are_never_converted_from_usd():
+    with pytest.raises(ValueError, match="implementation_eur_per_fte_month"):
+        compute("compact", product_root=_product_root, currency="EUR",
+                implementation_fte=1, implementation_months=1)
+    packages = load_product_packages(_product_root)
+    fixed = next(pid for pid, p in packages.items() if p.get("implementation_fixed_usd") is not None)
+    with pytest.raises(ValueError, match="implementation_fixed_eur"):
+        compute("compact", product_root=_product_root, currency="EUR", package_id=fixed)
+
+
+def test_unsupported_currency_is_rejected():
+    with pytest.raises(ValueError, match="USD or EUR"):
+        compute("compact", product_root=_product_root, currency="CHF")
+
+
+def test_eur_template_shows_eur_and_no_usd():
+    eur = compute("compact", {"pro_users": 5}, product_root=_product_root, currency="EUR")
+    text = fill_template(eur, (_product_root / "templates" / "proposal_snippet.md").read_text(encoding="utf-8"))
+    assert "EUR/month" in text and "USD" not in text and "{{" not in text
+
+
+def test_unconfirmed_region_is_an_open_question_with_the_price_difference():
+    r = compute("compact", product_root=_product_root, currency="EUR")
+    q = [x for x in r["customer_questions"] if x.startswith("Azure region not confirmed")]
+    assert len(q) == 1 and "West Europe" in q[0]
+    assert f"{(0.1936 / 0.1889 - 1) * 100:+.1f} %" in q[0]
+    confirmed = compute("compact", product_root=_product_root, currency="EUR", region="Germany West Central")
+    assert not any(x.startswith("Azure region") for x in confirmed["customer_questions"])
+    assert compute("power_bi_only", product_root=_product_root)["customer_questions"] == []

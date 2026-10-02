@@ -67,6 +67,7 @@ def _run(
     contract_months: int | None = typer.Option(None, "--contract-months", help="Contract term in months (for assumptions)"),
     region: str | None = typer.Option(None, "--region", help="Region (e.g. West Europe) for assumptions"),
     quote_valid_days: int | None = typer.Option(None, "--quote-valid-days", help="Days until quote expires (from valid_from)"),
+    currency: str | None = typer.Option(None, "--currency", help="USD (default) or EUR; Microsoft list price per currency, never converted"),
     overage_off: bool = typer.Option(False, "--overage-off", help="Customer switched capacity overage off"),
     overage_threshold: float | None = typer.Option(
         None, "--overage-threshold-cu-hours", help="Customer's rolling 24-h overage threshold in CU hours"),
@@ -118,6 +119,7 @@ def _run(
         tco_years_list = [int(x) for x in cfg["tco_years"]]
     contract_months = contract_months or cfg.get("contract_term_months")
     region = region or cfg.get("region")
+    currency = (currency or cfg.get("currency") or "USD").upper()
     quote_valid_days = quote_valid_days if quote_valid_days is not None else cfg.get("quote_valid_days")
     output = output or cfg.get("output_path")
 
@@ -161,6 +163,7 @@ def _run(
                 contract_term_months=contract_months,
                 region=region,
                 quote_valid_days=quote_valid_days,
+                currency=currency,
             )
             first = (proj_result.get("horizons") or [{}])[0]
             result = first.get("breakdown", {}) if isinstance(first, dict) else {}
@@ -182,6 +185,7 @@ def _run(
                 contract_term_months=contract_months,
                 region=region,
                 quote_valid_days=quote_valid_days,
+                currency=currency,
             )
     except (FileNotFoundError, KeyError, ValueError) as e:
         if json_out:
@@ -201,7 +205,8 @@ def _run(
 
     console = Console()
     console.print(f"\n[bold]Scenario:[/bold] {result['scenario_id']}  [dim]Pricing: {result.get('pricing_mode', 'Pay-as-you-go')}[/dim]\n")
-    table = Table(title="Cost summary (USD)")
+    cur = result.get("currency", "USD")
+    table = Table(title=f"Cost summary ({cur})")
     table.add_column("Item", style="cyan")
     table.add_column("Per month", justify="right")
     table.add_column("Per year", justify="right")
@@ -217,7 +222,7 @@ def _run(
     if result.get("tco_by_years"):
         console.print("\n[bold]TCO[/bold]")
         for years, val in sorted(result["tco_by_years"].items()):
-            console.print(f"  {years} years: {val:.2f} USD")
+            console.print(f"  {years} years: {val:.2f} {cur}")
     if result.get("viewer_note"):
         console.print(f"\n[dim]Viewer:[/dim] {result['viewer_note']}")
 
@@ -226,9 +231,9 @@ def _run(
         ct = Table()
         ct.add_column("Environment")
         ct.add_column("SKU")
-        ct.add_column("USD/month", justify="right")
+        ct.add_column(f"{cur}/month", justify="right")
         for row in result["capacity_breakdown"]:
-            ct.add_row(row["environment"], row["sku"], f"{row['usd_per_month']:.2f}")
+            ct.add_row(row["environment"], row["sku"], f"{row['per_month']:.2f}")
         console.print(ct)
 
     if result["license_breakdown"]:
@@ -236,10 +241,10 @@ def _run(
         lt = Table()
         lt.add_column("License")
         lt.add_column("Users", justify="right")
-        lt.add_column("USD/month", justify="right")
+        lt.add_column(f"{cur}/month", justify="right")
         for row in result["license_breakdown"]:
             if row["users"] > 0:
-                lt.add_row(row["license"].upper(), str(row["users"]), f"{row['usd_per_month']:.2f}")
+                lt.add_row(row["license"].upper(), str(row["users"]), f"{row['per_month']:.2f}")
         console.print(lt)
     console.print()
 
@@ -295,6 +300,7 @@ def main(
     contract_months: int | None = typer.Option(None, "--contract-months", help="Contract term in months"),
     region: str | None = typer.Option(None, "--region", help="Region for assumptions"),
     quote_valid_days: int | None = typer.Option(None, "--quote-valid-days", help="Days until quote expires"),
+    currency: str | None = typer.Option(None, "--currency", help="USD (default) or EUR"),
     overage_off: bool = typer.Option(False, "--overage-off", help="Customer switched capacity overage off"),
     overage_threshold: float | None = typer.Option(
         None, "--overage-threshold-cu-hours", help="Customer's rolling 24-h overage threshold in CU hours"),
@@ -324,6 +330,7 @@ def main(
         contract_months=contract_months,
         region=region,
         quote_valid_days=quote_valid_days,
+        currency=currency,
         overage_off=overage_off,
         overage_threshold=overage_threshold,
         json_out=json_out,

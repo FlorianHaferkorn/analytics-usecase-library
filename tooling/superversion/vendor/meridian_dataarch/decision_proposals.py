@@ -1420,16 +1420,27 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "implikation": "Je Tabelle steht fest, ob sie gespiegelt oder kopiert wird."},
     ],
     "OPS-MONITORING": [
-        {"wert": "zentral", "empfohlen": True,
-         "text": "Ein Monitoring-Eventhouse in einem eigenen Workspace auf der Nicht-Produktionskapazität",
+        {"wert": "eigene_kapazitaet", "empfohlen": True,
+         "text": "Ein zentrales Monitoring-Eventhouse in einem eigenen Workspace auf einer eigenen, kleinen Kapazität",
          "vorteile": ["Eine Stelle für Abfragen und Alarme über alle Workspaces",
-                      "Die Ingestion belastet nicht die Produktionskapazität (D-596)"],
-         "nachteile": ["Ein Workspace mehr mit eigenem Eigentümer"],
+                      "Drosselung einer Arbeitskapazität trifft die Überwachung nicht, und die Überwachung belastet keine Arbeitskapazität"],
+         "nachteile": ["Eine Kapazität mehr in der Rechnung (kleinste F-SKU genügt meist)"],
+         "limitierungen": [{"text": "Learn empfiehlt, den Workspace mit dem zentralen Monitoring-Eventhouse auf eine eigene Kapazität zu isolieren",
+                            "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring#recommended-architecture"},
+                           {"text": "Den eigenen Endpoint gibt es nur bei der Anlage des Monitoring-Items",
+                            "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring"},
+                           {"text": "Ein aktivierter Operations Agent lässt sich nicht abschalten",
+                            "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring"}],
+         "implikation": "Monitoring-Kapazität, Workspace und Eventhouse stehen im Bauplan; KI-Untersuchungen folgen der KI-Richtlinie."},
+        {"wert": "nicht_prod",
+         "text": "Ein zentrales Monitoring-Eventhouse in einem eigenen Workspace auf der Nicht-Produktionskapazität",
+         "vorteile": ["Keine weitere Kapazität", "Die Ingestion belastet nicht die Produktionskapazität (D-596)"],
+         "nachteile": ["Ist Dev/Test gedrosselt, werden Berichte und Activator-Alarme auf den Monitoring-Daten mitgedrosselt; Ingestion und Abfragen laufen weiter"],
          "limitierungen": [{"text": "Den eigenen Endpoint gibt es nur bei der Anlage des Monitoring-Items",
                             "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring"},
                            {"text": "Ein aktivierter Operations Agent lässt sich nicht abschalten",
                             "quelle": "MS Learn: fabric/fundamentals/enable-workspace-monitoring"}],
-         "implikation": "Monitoring-Workspace und Eventhouse stehen im Bauplan; KI-Untersuchungen folgen der KI-Richtlinie."},
+         "implikation": "Alarme aus der Überwachung sind so verlässlich wie die Dev/Test-Kapazität."},
         {"wert": "je_workspace",
          "text": "Monitoring je Workspace",
          "vorteile": ["Jeder Workspace-Eigentümer sieht nur seinen Betrieb"],
@@ -2452,24 +2463,39 @@ def propose_monitoring_topology(bp: dict) -> dict:
     Kunden unterstellt.
     """
     # D-596: eine Kapazitaet mit Stufen, aber ohne `prod`, ist die Nicht-Produktionskapazitaet.
+    # 01.10.2026: Learn empfiehlt eine eigene Kapazitaet fuer das zentrale Monitoring-Eventhouse;
+    # die Nicht-Produktionskapazitaet ist die guenstigere Alternative mit benanntem Nachteil.
     getrennt = any(isinstance(c, dict) and c.get("stages") and "prod" not in c["stages"]
                    for c in (bp.get("platform") or {}).get("capacities") or [])
-    ort = ("auf der Nicht-Produktionskapazität" if getrennt else
-           "auf der Nicht-Produktionskapazität, sobald es sie gibt (D-596)")
+    alternative = ("die vorhandene Nicht-Produktionskapazität" if getrennt else
+                   "die Nicht-Produktionskapazität, sobald es sie gibt (D-596)")
+    from core.dataarch_engine.blueprint.kapazitaet_stufen import monitoring_kapazitaet
+    mon = monitoring_kapazitaet(bp)
+    benannt = (f" Der Bauplan nennt sie bereits: `{mon.get('name') or 'ohne Namen'}`"
+               f"{' (' + str(mon['sku']) + ')' if mon.get('sku') else ''}." if mon else
+               " Im Bauplan als Kapazität mit `purpose: monitoring` eintragen.")
     return _rec(
         "OPS-MONITORING", "Workspace-Monitoring (vor der Anlage entscheiden)",
         "Zentrales oder dezentrales Workspace-Monitoring, KI-Untersuchungen an oder aus, eigener "
         "Endpoint?",
-        (f"**Ein zentrales Monitoring-Eventhouse** in einem eigenen Workspace {ort}, Alarme an die "
-         "Rollen-Postfächer aus OPS-ALERT. **Vor der Anlage** entscheiden: den eigenen Endpoint "
+        ("**Ein zentrales Monitoring-Eventhouse** in einem eigenen Workspace auf einer **eigenen, "
+         "kleinen Kapazität**, wie Learn es empfiehlt: Drosselung einer Arbeitskapazität trifft die "
+         "Überwachung dann nicht, und die Überwachung belastet keine Arbeitskapazität."
+         + benannt + " Günstiger ist "
+         f"{alternative}; dann werden Berichte und Activator-Alarme auf den Monitoring-Daten "
+         "mitgedrosselt, wenn Dev/Test gedrosselt ist (Ingestion und Abfragen laufen weiter). "
+         "Alarme an die Rollen-Postfächer aus OPS-ALERT. **Vor der Anlage** entscheiden: den eigenen Endpoint "
          "gibt es nur bei der Anlage, ein aktivierter Operations Agent lässt sich nicht "
          "abschalten, und die KI-Untersuchungen sind ab Werk an. Sie bleiben aus, bis die "
          "KI-Richtlinie des Kunden sie freigibt. Activator-Alarme je Jobtyp kosten CU; nur die "
          "Jobtypen wählen, auf die jemand reagiert."),
-        "MS Learn: fundamentals/enable-workspace-monitoring, admin/monitoring-hub-alerts "
-        "(gelesen 29.09.2026); D-596 Kapazität je Umgebung",
+        "MS Learn: fundamentals/enable-workspace-monitoring (Recommended architecture, gelesen "
+        "01.10.2026), fundamentals/workspace-monitoring-overview (Verhalten bei Drosselung), "
+        "admin/monitoring-hub-alerts; D-596 Kapazität je Umgebung",
         "mittel",
-        ["Monitoring je Workspace (jeder Eigentümer sieht nur seinen Betrieb)",
+        ["Zentrales Eventhouse auf der Nicht-Produktionskapazität (keine weitere Kapazität, "
+         "Berichte und Alarme darauf werden mit Dev/Test gedrosselt)",
+         "Monitoring je Workspace (jeder Eigentümer sieht nur seinen Betrieb)",
          "Kein Monitoring-Item, nur Monitor hub und Capacity Metrics"],
         "Plattform-Verantwortliche:r + KI-Verantwortliche:r des Kunden",
         "Es wird kein Monitoring-Item angelegt. Fehler fallen im Monitor hub auf, ohne eigene "
@@ -2513,6 +2539,40 @@ def propose_overage(bp: dict) -> dict:
         status=status)
 
 
+#: Ab dieser F-SKU lesen Berichtskonsumenten ohne eigene Pro-Lizenz (Learn
+#: `enterprise/licenses`: Inhalte auf F64 und groesser sind fuer Free-Nutzer lesbar). Autoren
+#: brauchen Pro immer. Dieselbe Grenze fuehrt ALUCA als `capacity.FREE_VIEWER_MIN_SKU`.
+FREE_VIEWER_MIN_F = 64
+
+
+def _produktions_sku(bp: dict) -> str | None:
+    """Die SKU, auf der Produktion laeuft: eine Kapazitaet mit `prod` in `stages` oder ohne
+    Stufenangabe (D-596), sonst `platform.capacity_sku`. Bei mehreren die groesste."""
+    plat = bp.get("platform") or {}
+    kandidaten = [c.get("sku") for c in plat.get("capacities") or []
+                  if isinstance(c, dict) and c.get("sku")
+                  and (not c.get("stages") or "prod" in c["stages"])]
+    if not kandidaten and plat.get("capacity_sku"):
+        kandidaten = [plat["capacity_sku"]]
+    rang = [(int(m.group(1)), str(k)) for k in kandidaten
+            if (m := re.fullmatch(r"[Ff](\d+)", str(k).strip()))]
+    return max(rang)[1].upper() if rang else None
+
+
+def _lizenz_satz(bp: dict) -> str:
+    sku = _produktions_sku(bp)
+    if sku is None:
+        return (" **Lizenz:** Die Produktionskapazität ist nicht benannt. Unter F64 braucht jede "
+                "Person, die einen Bericht liest, Power BI Pro oder PPU; ab F64 lesen "
+                "Konsumenten ohne eigene Lizenz.")
+    if int(sku[1:]) >= FREE_VIEWER_MIN_F:
+        return (f" **Lizenz:** Auf {sku} lesen Konsumenten ohne eigene Lizenz; Autoren brauchen "
+                "Power BI Pro.")
+    return (f" **Lizenz:** Auf {sku} braucht jede Person, die einen Bericht liest, Power BI Pro "
+            "oder PPU. Ab F64 entfällt das; bei vielen Lesern ist das die Rechnung, die "
+            "PLAT-CAP entscheidet.")
+
+
 def propose_report_target(bp: dict) -> dict:
     """Report-Ziel: PBIR, Fabric App oder beides. Region und Lizenzbasis entscheiden mit."""
     from core.dataarch_engine.blueprint.stack_capabilities import feature_in_region
@@ -2521,7 +2581,7 @@ def propose_report_target(bp: dict) -> dict:
     if gesperrt:
         vorschlag = (f"**PBIR.** Fabric Apps sind in {', '.join(gesperrt)} laut Learn nicht "
                      "verfügbar. Braucht der Kunde Eingaben oder Rückschreiben, ist die Region "
-                     "selbst die Entscheidung.")
+                     "selbst die Entscheidung." + _lizenz_satz(bp))
         konfidenz = "hoch"
     else:
         vorschlag = ("**PBIR für die Analyse**, eine Fabric App nur dort, wo Nutzer Werte eingeben "
@@ -2529,15 +2589,18 @@ def propose_report_target(bp: dict) -> dict:
                      "Rolle). Fabric Apps sind Preview; der Weg über Pro/PPU ohne Kapazität ist "
                      "angekündigt, aber nicht dokumentiert."
                      + ("" if regionen else
-                        " Die Zielregion steht nicht im Bauplan; vor einer App klären."))
+                        " Die Zielregion steht nicht im Bauplan; vor einer App klären.")
+                     + _lizenz_satz(bp))
         konfidenz = "mittel"
     return _rec(
         "OUT-REPORT", "Report-Ziel: PBIR, Fabric App oder beides",
         "Brauchen Nutzer Eingaben, Rückschreiben oder Workflows im Bericht, und auf welcher "
         "Lizenzbasis?",
         vorschlag,
-        "platform.sizing.region / platform.capacities[].region; MS Learn: admin/region-availability "
-        "(gelesen 01.10.2026), power-bi/create-reports/fabric-apps-analytics (gelesen 29.09.2026)",
+        "platform.sizing.region / platform.capacities[].region, Produktions-SKU aus "
+        "platform.capacities[].sku (D-596) bzw. platform.capacity_sku; MS Learn: "
+        "admin/region-availability (gelesen 01.10.2026), "
+        "power-bi/create-reports/fabric-apps-analytics, enterprise/licenses (gelesen 29.09.2026)",
         konfidenz,
         ["Fabric App mit Eingaben, Rückschreiben und Workflows (Preview, nicht in jeder Region)",
          "PBIR für die Analyse, Fabric App nur für die Eingabe"],
