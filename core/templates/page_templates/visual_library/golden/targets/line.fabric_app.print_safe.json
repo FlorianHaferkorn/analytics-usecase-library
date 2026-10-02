@@ -21,6 +21,90 @@
       {
         "mark": {
           "type": "line",
+          "color": "#8C8C8C",
+          "strokeWidth": 1.5
+        },
+        "encoding": {
+          "y": {
+            "field": "gm_py",
+            "type": "quantitative"
+          },
+          "tooltip": [
+            {
+              "field": "month",
+              "type": "temporal",
+              "title": "month",
+              "format": "%m/%Y"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_plan",
+              "type": "quantitative",
+              "title": "gm_plan",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_fc",
+              "type": "quantitative",
+              "title": "gm_fc",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": "isValid(datum['gm_py'])"
+          },
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_q"
+              }
+            ],
+            "sort": [
+              {
+                "field": "month",
+                "order": "ascending"
+              }
+            ]
+          },
+          {
+            "filter": "datum._q == 1"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "text": "PY",
+          "align": "left",
+          "dx": 4,
+          "dy": 12,
+          "color": "#8C8C8C",
+          "tooltip": null
+        },
+        "encoding": {
+          "y": {
+            "field": "gm_py",
+            "type": "quantitative"
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "line",
           "color": "#0F2430",
           "strokeWidth": 2.5
         },
@@ -58,6 +142,12 @@
               "field": "gm_fc",
               "type": "quantitative",
               "title": "gm_fc",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
               "format": ",.1~f"
             }
           ]
@@ -117,6 +207,12 @@
               "type": "quantitative",
               "title": "gm_fc",
               "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
             }
           ]
         }
@@ -159,6 +255,12 @@
               "field": "gm_fc",
               "type": "quantitative",
               "title": "gm_fc",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
               "format": ",.1~f"
             }
           ]
@@ -258,6 +360,12 @@
               "type": "quantitative",
               "title": "gm_fc",
               "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
             }
           ]
         }
@@ -314,6 +422,12 @@
               "type": "quantitative",
               "title": "gm_fc",
               "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
             }
           ]
         }
@@ -361,6 +475,12 @@
               "field": "gm_fc",
               "type": "quantitative",
               "title": "gm_fc",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
               "format": ",.1~f"
             }
           ]

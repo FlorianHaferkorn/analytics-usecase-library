@@ -20,6 +20,35 @@
       "mark": {
         "type": "line",
         "color": "#404040",
+        "opacity": 0.5,
+        "strokeWidth": 1.5,
+        "point": {
+          "filled": true,
+          "color": "#404040",
+          "opacity": 0.5,
+          "size": 20
+        }
+      },
+      "encoding": {
+        "y": {
+          "field": "gm_py",
+          "type": "quantitative",
+          "axis": null,
+          "scale": {
+            "zero": true
+          }
+        }
+      }
+    },
+    {
+      "transform": [ { "filter": "isValid(datum['gm_py'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "month", "order": "ascending" } ] }, { "filter": "datum._q == 1" } ],
+      "mark": { "type": "text", "text": "PY", "align": "left", "dx": 4, "dy": 12, "color": "#201F1E" },
+      "encoding": { "y": { "field": "gm_py", "type": "quantitative", "axis": null } }
+    },
+    {
+      "mark": {
+        "type": "line",
+        "color": "#404040",
         "strokeWidth": 1.5,
         "point": {
           "filled": false,

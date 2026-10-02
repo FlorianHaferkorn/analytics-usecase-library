@@ -4,8 +4,24 @@
     "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_date" } }, "Property": "Date" } }, "queryRef": "dim_date.Date" } ] },
     "Y": { "projections": [
       { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } }, "queryRef": "_Measures.Gross Margin %" },
-      { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Plan Gross Margin %" } }, "queryRef": "_Measures.Plan Gross Margin %" }
+      { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Plan Gross Margin %" } }, "queryRef": "_Measures.Plan Gross Margin %" },
+      { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin % FC" } }, "queryRef": "_Measures.Gross Margin % FC" },
+      { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin % PY" } }, "queryRef": "_Measures.Gross Margin % PY" }
     ] }
   } },
-  "objects": { "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ] }
+  "objects": {
+    "dataPoint": [
+      { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#404040'" } } } } } }, "selector": { "metadata": "_Measures.Gross Margin %" } },
+      { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#94A0AC'" } } } } } }, "selector": { "metadata": "_Measures.Plan Gross Margin %" } },
+      { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#404040'" } } } } } }, "selector": { "metadata": "_Measures.Gross Margin % FC" } },
+      { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#404040'" } } } } } }, "selector": { "metadata": "_Measures.Gross Margin % PY" } }
+    ],
+    "lineStyles": [
+      { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'solid'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "showMarker": { "expr": { "Literal": { "Value": "true" } } }, "markerShape": { "expr": { "Literal": { "Value": "'circle'" } } } }, "selector": { "metadata": "_Measures.Gross Margin %" } },
+      { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'solid'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "showMarker": { "expr": { "Literal": { "Value": "true" } } }, "markerShape": { "expr": { "Literal": { "Value": "'circle'" } } } }, "selector": { "metadata": "_Measures.Plan Gross Margin %" } },
+      { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'dashed'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "showMarker": { "expr": { "Literal": { "Value": "false" } } } }, "selector": { "metadata": "_Measures.Gross Margin % FC" } },
+      { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'solid'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "strokeTransparency": { "expr": { "Literal": { "Value": "50D" } } }, "showMarker": { "expr": { "Literal": { "Value": "false" } } } }, "selector": { "metadata": "_Measures.Gross Margin % PY" } }
+    ],
+    "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ]
+  }
 }

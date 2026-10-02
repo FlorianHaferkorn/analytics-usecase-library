@@ -312,6 +312,16 @@ export function keyMessage(table: Table, roles: Roles, opts: KeyOptions = {}): K
   return null;
 }
 
+/** Hervorhebung der Kernaussage ohne Zeilen (BO-054): Feld und Zeitart, Treffer leer — dieselbe
+ *  Verzweigung wie keyMessage (siehe key_highlight in key_message.py). null: keine Regel für diese Rollen. */
+export function keyHighlight(roles: Roles, purpose: string | null = null): Highlight | null {
+  if (roles.time && roles.value) return { field: roles.time, values: [], temporal: true };
+  if (roles.x && roles.y) return { field: roles.x, values: [], temporal: false };
+  if (roles.value && purpose === "distribution") return { field: roles.category ?? roles.value, values: [], temporal: false };
+  if (roles.category && roles.value) return { field: roles.category, values: [], temporal: false };
+  return null;
+}
+
 /** Werte für den Vega-Parameter `kernaussage_werte`: Zeitpunkte als ms (UTC), sonst unverändert. */
 export function highlightKeys(h: Highlight): unknown[] {
   if (!h.temporal) return h.values;

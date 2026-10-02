@@ -16,6 +16,7 @@ Zweite Fassung: key_message.ts (Browser, rechnet auf der gefilterten Tabelle nac
 test_key_message.py über key_message_cases.json.
 `segments` trennt Zahlen und Namen (fett) vom Fließtext, damit jede Oberfläche sie selbst setzt.
 `highlight` geht unverändert an `render_target(params={"highlight": ...})`.
+Ohne Zeilen (Live-Abfrage) liefert `key_highlight(roles, purpose)` Feld und Zeitart vorab (BO-054).
 """
 from __future__ import annotations
 
@@ -317,6 +318,27 @@ def key_message(table: dict, roles: dict, *, polarity: float = 1, additive: bool
         return _distribution(table, roles, unit, lang)
     if roles.get("category") and roles.get("value"):
         return _categories(table, roles, polarity, additive, unit, top_n, lang)
+    return None
+
+
+def key_highlight(roles: dict, purpose: "str | None" = None) -> "dict | None":
+    """Hervorhebung der Kernaussage ohne Zeilen (BO-054): Feld und Zeitart, Treffer leer.
+
+    Welche Regel greift und welches Feld sie hervorhebt, hängt nur an Rollen und Zweck, nicht an den
+    Werten — dieselbe Verzweigung wie `key_message`. Damit trägt eine Spec, die vor den Daten entsteht
+    (Live-Abfrage), die Parameter `kernaussage`/`kernaussage_werte` schon; die Oberfläche rechnet die
+    Treffer auf der gelieferten Tabelle nach (key_message.ts) und setzt nur die Werte. None: keine Regel
+    für diese Rollen, die Spec bekommt keine Parameter. Geht unverändert an
+    `render_target(params={"highlight": ...})`.
+    """
+    if roles.get("time") and roles.get("value"):
+        return {"field": roles["time"], "values": [], "temporal": True}
+    if roles.get("x") and roles.get("y"):
+        return {"field": roles["x"], "values": [], "temporal": False}
+    if roles.get("value") and purpose == "distribution":
+        return {"field": roles.get("category") or roles["value"], "values": [], "temporal": False}
+    if roles.get("category") and roles.get("value"):
+        return {"field": roles["category"], "values": [], "temporal": False}
     return None
 
 
