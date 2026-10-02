@@ -63,11 +63,11 @@ def _price_capacity(engine, drivers: dict, row: dict, region: str | None, curren
     overage = row.get("overage") or {}
     enabled = None if not overage else overage["state"] == "enabled"
     line = engine.compute_overage(drivers, row["sku"], enabled, overage.get("threshold_cu_hours"),
-                                  rates["payg_per_cu_hour"] if rates else None)
+                                  rates["payg_per_cu_hour"] if rates else None, currency)
     return {"capacity_id": row["id"], "sku": row["sku"], "billing": "reservation" if reservation else "payg",
             "price_basis": basis, "per_month": round(price, 2),
             "overage": {"enabled": line["enabled"], "threshold_source": line["threshold_source"],
-                        "max_per_month": round(float(line["max_usd_per_day"]) * _DAYS_PER_MONTH, 2)}}
+                        "max_per_month": round(float(line["max_per_day"]) * _DAYS_PER_MONTH, 2)}}
 
 
 def monitoring_capacity(architecture: dict) -> dict | None:

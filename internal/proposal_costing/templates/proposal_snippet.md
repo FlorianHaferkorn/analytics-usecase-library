@@ -2,7 +2,7 @@
 
 **Pricing:** {{ pricing_mode }}
 
-| Item | USD/month | USD/year |
+| Item | {{ currency }}/month | {{ currency }}/year |
 |------|-----------|----------|
 | Fabric capacity | {{ capacity_month }} | {{ capacity_year }} |
 | Power BI licenses | {{ license_month }} | {{ license_year }} |
@@ -71,8 +71,8 @@
 *Warum:* Die Projektion zeigt die erwartete Kostenentwicklung bei Skalierung (z. B. mehr Nutzer, größere Capacity). Sie dient der mittel- bis langfristigen Planung.
 
 ## TCO
-- TCO (3 years): {{ tco_3y }} USD
-- TCO (5 years): {{ tco_5y }} USD
+- TCO (3 years): {{ tco_3y }} {{ currency }}
+- TCO (5 years): {{ tco_5y }} {{ currency }}
 
 *Warum:* TCO über 3 bzw. 5 Jahre unterstützt die Investitionsentscheidung und den Vergleich mit Alternativen; inkl. einmaliger Implementierung und laufender Wartung.
 

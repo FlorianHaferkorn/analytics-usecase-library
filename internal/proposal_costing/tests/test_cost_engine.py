@@ -548,3 +548,59 @@ def test_compute_unknown_region_falls_back_and_says_so():
     result = compute("compact", product_root=_product_root, region="Mars Central")
     assert result["capacity_month"] == pytest.approx(262.80 + 525.60 + 1051.20)
     assert {row["price_basis"] for row in result["capacity_breakdown"]} == {"sku_table_us"}
+
+
+# --- EUR offers (02.10.2026): Microsoft's EUR list, never a converted USD price -----------------
+
+def test_eur_prices_capacity_licences_and_storage_from_the_eur_lists():
+    eur = compute("compact", {"pro_users": 5}, product_root=_product_root, currency="EUR", storage_gb=100)
+    assert eur["currency"] == "EUR"
+    assert eur["capacity_month"] == pytest.approx(round(2 * 0.1889 * 730, 2) + round(4 * 0.1889 * 730, 2)
+                                                  + round(8 * 0.1889 * 730, 2))
+    assert eur["license_month"] == pytest.approx(5 * 12.10)
+    assert eur["storage_breakdown"]["per_month"] == eur["storage_month"]
+    assert all("usd_per_month" not in row for row in eur["capacity_breakdown"] + eur["license_breakdown"])
+    assert all("usd_per_month" not in b and "per_month" in b for b in eur["building_blocks"])
+    assert eur["price_basis"].endswith("(EUR)")
+
+
+def test_usd_result_keeps_the_historic_keys():
+    usd = compute("compact", product_root=_product_root)
+    assert usd["currency"] == "USD"
+    row = usd["capacity_breakdown"][0]
+    assert row["usd_per_month"] == row["per_month"]
+    assert usd["building_blocks"][0]["usd_per_year"] == usd["building_blocks"][0]["per_year"]
+    assert usd["overage"]["max_usd_per_day"] == usd["overage"]["max_per_day"]
+
+
+def test_eur_overage_and_planning_carry_their_currency():
+    eur = compute("compact", {"planning_sessions": {"planner": 1}}, product_root=_product_root, currency="EUR")
+    assert eur["overage"]["currency"] == "EUR" and "max_usd_per_day" not in eur["overage"]
+    assert eur["planning"]["equivalent_per_session_window"] == pytest.approx(847 * 0.1889, abs=0.01)
+    assert "usd_equivalent_per_session_window" not in eur["planning"]
+
+
+def test_eur_without_regional_rate_raises_instead_of_converting():
+    with pytest.raises(ValueError, match="EUR rates"):
+        compute("compact", product_root=_product_root, currency="EUR", region="Mars Central")
+
+
+def test_eur_service_prices_are_never_converted_from_usd():
+    with pytest.raises(ValueError, match="implementation_eur_per_fte_month"):
+        compute("compact", product_root=_product_root, currency="EUR",
+                implementation_fte=1, implementation_months=1)
+    packages = load_product_packages(_product_root)
+    fixed = next(pid for pid, p in packages.items() if p.get("implementation_fixed_usd") is not None)
+    with pytest.raises(ValueError, match="implementation_fixed_eur"):
+        compute("compact", product_root=_product_root, currency="EUR", package_id=fixed)
+
+
+def test_unsupported_currency_is_rejected():
+    with pytest.raises(ValueError, match="USD or EUR"):
+        compute("compact", product_root=_product_root, currency="CHF")
+
+
+def test_eur_template_shows_eur_and_no_usd():
+    eur = compute("compact", {"pro_users": 5}, product_root=_product_root, currency="EUR")
+    text = fill_template(eur, (_product_root / "templates" / "proposal_snippet.md").read_text(encoding="utf-8"))
+    assert "EUR/month" in text and "USD" not in text and "{{" not in text

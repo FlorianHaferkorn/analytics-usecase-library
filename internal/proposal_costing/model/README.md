@@ -18,7 +18,7 @@ Product-specific data for proposal costing: cost drivers (prices), scenario defi
 
 - **Purpose:** Product packages bundle a scenario with implementation pricing for automated offers. When `package_id` is used, scenario comes from the package; implementation is either fixed USD or FTE-based (rates from cost_drivers).
 - **Fields:** `packages`: dict of package_id → `{ name, scenario_id, implementation_fixed_usd?, maintenance_fixed_usd_per_year? }` for fixed-price packages, or `{ name, scenario_id, implementation_fte?, implementation_months?, maintenance_fte? }` for FTE-based (uses cost_drivers.services_rates). Optional per package: `role_allocation_path`, `description`.
-- **Maintenance:** Add or adjust packages; ensure scenario_id exists in scenarios.yaml. Fixed-price packages do not require services_rates.
+- **Maintenance:** Add or adjust packages; ensure scenario_id exists in scenarios.yaml. Fixed-price packages do not require services_rates. For EUR offers add `implementation_fixed_eur` / `maintenance_fixed_eur_per_year` to the package, or `implementation_eur_per_fte_month` / `maintenance_eur_per_fte_year` to `services_rates`; without them a EUR run stops instead of converting the USD price.
 
 ## proposal_defaults.yaml (optional)
 
