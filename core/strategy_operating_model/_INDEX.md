@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-09-25
+last-reviewed: 2026-10-01
 shelf-life-days: 90
 ---
 # strategy_operating_model — Zentraler Anlaufpunkt (_INDEX)

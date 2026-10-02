@@ -773,8 +773,10 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "text": "Vollast beibehalten: bei jedem Lauf den ganzen Bestand laden",
          "vorteile": ["Einfachste Variante, keine Schlüssel- oder Watermark-Frage", "Löschungen kommen automatisch an"],
          "nachteile": ["Kosten und Laufzeit wachsen mit dem Bestand", "Das Ladefenster wird irgendwann zu klein"],
-         "limitierungen": [{"text": "Bei Direct Lake löst jedes Neuschreiben ein Neuladen des Modells aus (Framing)",
-                            "quelle": "MS Learn: fabric/fundamentals/direct-lake-overview"}],
+         # D-622 (01.10.2026): quantifiziert mit Learn direct-lake-understand-storage (gelesen
+         # 01.10.2026). Vorher nur „löst ein Neuladen aus (Framing)“.
+         "limitierungen": [{"text": "Bei Direct Lake löscht ein Overwrite das Delta-Log: \"Direct Lake can't use incremental framing and must reload all the data, dictionaries, and join indexes\" — jede Vollast lädt das Modell ganz neu",
+                            "quelle": "MS Learn: fabric/fundamentals/direct-lake-understand-storage"}],
          "implikation": "Tragfähig bis zur ersten Beladung, die das Fenster sprengt; dann wird diese Entscheidung neu getroffen."},
         {"wert": "cdc",
          "text": "Änderungserfassung an der Quelle (CDC oder Mirroring) statt Watermark im Transform",
@@ -789,8 +791,21 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "nachteile": ["Späte Änderungen in alten Perioden erzwingen deren Neuladen",
                        "Die Periode muss in der Quelle stabil bestimmbar sein"],
          "limitierungen": [{"text": "Partitionierte Tabellen sind von Liquid Clustering ausgeschlossen",
-                            "quelle": "MS Learn: fabric/data-engineering/delta-optimization-and-v-order"}],
+                            "quelle": "MS Learn: fabric/data-engineering/delta-optimization-and-v-order"},
+                           {"text": "Bei Direct Lake ersetzt ein Partition-Overwrite die Parquet-Dateien der Periode; inkrementelles Framing bleibt nur für unberührte Partitionen (\"Avoid destructive update patterns on large Delta tables\")",
+                            "quelle": "MS Learn: fabric/fundamentals/direct-lake-understand-storage"}],
          "implikation": "Das Partitionsschema wird Teil des Datenvertrags."},
+        # D-622 (01.10.2026): append-freundliche Gold-Fakten bei Direct Lake. Nie Vorgabe —
+        # korrekt nur bei append-only Quellen.
+        {"wert": "append",
+         "text": "Append-only für Fakten: je Lauf nur neue Zeilen per INSERT (Watermark), nie überschreiben",
+         "vorteile": ["Bei Direct Lake bleibt das inkrementelle Framing erhalten: \"Append-only patterns don't affect existing Parquet files\"",
+                      "Kein Match-Key nötig"],
+         "nachteile": ["Korrekturen und Löschungen der Quelle kommen nie an",
+                       "Nur für Fakten; Dimensionen bleiben MERGE oder Vollaufbau"],
+         "limitierungen": [{"text": "Korrekt nur, wenn die Quelle append-only ist (Buchungen, Ereignisse); eine geänderte Zeile wird doppelt oder gar nicht geladen",
+                            "quelle": "MS Learn: fabric/fundamentals/direct-lake-understand-storage"}],
+         "implikation": "Die Emission schreibt je Fakt INSERT INTO … SELECT … WHERE <Watermark> > (SELECT MAX(…)); ohne Änderungsspalte im Katalog bleibt das Prädikat TODO(contract)."},
     ],
     "DATA-CONTRACT": [
         {"wert": "aus_beziehungen", "empfohlen": True,
@@ -1310,10 +1325,14 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "text": "MERGE mit Change Data Feed: Änderungen und Löschungen einarbeiten",
          "vorteile": ["Korrekturen der Quelle kommen an",
                       "Laufzeit wächst mit den Änderungen"],
-         "nachteile": ["Ein Zyklus mit Änderung oder Löschung lässt die MLV voll rechnen",
+         "nachteile": ["Ohne REFRESH_HINT lässt ein Zyklus mit Änderung oder Löschung die MLV voll rechnen",
                        "Braucht Match-Key und Löschkennzeichen je Quelle"],
-         "limitierungen": [{"text": "Updates oder Deletes im Zyklus erzwingen den Vollaufbau der MLV, auch mit CDF",
-                            "quelle": "MS Learn: fabric/data-engineering/materialized-lake-views/refresh-materialized-lake-view"}],
+         # Bis 01.10.2026 stand hier „erzwingen den Vollaufbau, auch mit CDF“. MS Learn *Enable
+         # optimal refresh for deletes and updates* (optimal-refresh-handling-deletes-updates,
+         # gelesen 01.10.2026): mit `REFRESH_HINT … UNIQUE (…)` laufen Updates und Deletes
+         # inkrementell (Preview, nur CDF auf allen Quellen vorausgesetzt).
+         "limitierungen": [{"text": "Updates oder Deletes im Zyklus laufen nur mit REFRESH_HINT inkrementell (Preview, Fabric prüft die Eindeutigkeit nicht); ohne Hint Vollaufbau der MLV, auch mit CDF",
+                            "quelle": "MS Learn: fabric/data-engineering/materialized-lake-views/optimal-refresh-handling-deletes-updates"}],
          "implikation": "Die Emission legt Silber einmal leer mit CDF an und schreibt per MERGE; der Schlüssel der Quelltabelle bleibt Platzhalter, bis der Datenvertrag ihn nennt."},
     ],
     "PLAT-TRANSFORM": [
@@ -1374,11 +1393,15 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
          "text": "Spiegeln und die Rechte der Quelle als OneLake-Security-Rollen nachbilden",
          "vorteile": ["Der Spiegel bleibt aktuell, ohne eigene Ladestrecke",
                       "Zeilen- und Spaltenfilter wirken für jeden Leser über OneLake"],
+         # Bis 01.10.2026 stand hier „Rollen auf gespiegelten Items sind Preview“. MS Learn
+         # (whats-new-archive, gelesen 01.10.2026): OneLake security GA seit Mai 2026;
+         # onelake/security/data-access-control-model (gelesen 01.10.2026): gespiegelte
+         # Datenbanken/Kataloge nur Read, ReadWrite nur im Lakehouse und ohne RLS/CLS.
          "nachteile": ["Die Rechte existieren zweimal, in der Quelle und in Fabric",
-                       "Rollen auf gespiegelten Items sind Preview"],
+                       "Auf gespiegelten Items nur Leserollen (Read); Schreiben vor dem Lesen geht dort nicht"],
          "limitierungen": [{"text": "Mirroring übernimmt Zeilen-, Spaltenrechte und Maskierung der Quelle nicht",
                             "quelle": "MS Learn: fabric/mirroring/azure-sql-database-how-to-data-security"},
-                           {"text": "OneLake-Security-Rollen auf gespiegelten Items erlauben nur Read",
+                           {"text": "OneLake Security ist GA (Mai 2026); Rollen auf gespiegelten Datenbanken und Katalogen erlauben nur Read, ReadWrite gibt es nur im Lakehouse und dort ohne RLS/CLS",
                             "quelle": "MS Learn: fabric/onelake/security/data-access-control-model"}],
          "implikation": "Je Quelle mit Rechten ein Arbeitspaket Rechte-Nachbau und ein Abnahmetest mit einem Leser ohne Rolle."},
         {"wert": "kopie",
@@ -1826,7 +1849,10 @@ def propose_incremental(gc: dict, source_schema: dict | None = None) -> dict:
         "hoch" if (keys and have_wm) else "mittel" if keys else "niedrig",
         ["Vollast beibehalten (einfachste Variante, teuer ab realer Datenmenge)",
          "CDC/Mirroring an der Quelle statt Watermark im Transform",
-         "Partition-Overwrite je Periode statt zeilenweisem MERGE"],
+         "Partition-Overwrite je Periode statt zeilenweisem MERGE",
+         # D-622: bei Direct Lake (MS Learn direct-lake-understand-storage, gelesen 01.10.2026)
+         "Append-only für Fakten (INSERT mit Watermark): erhält bei Direct Lake das inkrementelle "
+         "Framing — nur korrekt, wenn die Quelle append-only ist (D-622)"],
         "Data Engineering + Quellsystem-Owner",
         "Der MERGE-Platzhalter bleibt unausgefüllt, es läuft weiter Vollast (CU-Kosten und Laufzeit)",
         # Schlüssel UND Änderungsspalte im Modell → die Strategie steht, nur bestätigen.
@@ -1994,7 +2020,9 @@ def propose_silver_load(bp: dict) -> dict:
 
     Die Frage stand nirgends, und sie entscheidet, ob eine Materialized Lake View je
     inkrementell aktualisiert werden kann: laut MS Learn nur mit Change Data Feed auf **allen**
-    Quellen **und** append-only im Zyklus. Die Lieferung schreibt Silber per
+    Quellen **und** append-only im Zyklus -- oder, mit `REFRESH_HINT … UNIQUE` auf der Sicht
+    (Preview), auch bei Updates und Deletes (MS Learn optimal-refresh-handling-deletes-updates,
+    gelesen 01.10.2026). Die Lieferung schreibt Silber per
     `CREATE OR REPLACE` -- jeder Lauf ist fuer die Plattform eine Aenderung an allem.
     `DATA-INC` beantwortet eine andere Frage (wie Gold nachlaedt), deshalb eine eigene.
 
@@ -2010,17 +2038,22 @@ def propose_silver_load(bp: dict) -> dict:
          "**Der Preis, den diese Wahl hat:** jede Materialized Lake View darüber rechnet bei "
          "jedem Lauf voll. Inkrementell aktualisiert Fabric nur, wenn Change Data Feed auf "
          "**allen** Quellen aktiv ist **und** der Zyklus append-only war; ein Überschreiben ist "
-         "eine Änderung an allem, ein MERGE mit Änderung oder Löschung ebenso.\n\n"
+         "eine Änderung an allem. Ein MERGE mit Änderung oder Löschung läuft nur dann "
+         "inkrementell, wenn die Sicht einen `REFRESH_HINT … UNIQUE` trägt (Preview), sonst "
+         "voll.\n\n"
          "**Wann umstellen:** wenn die gemessene Laufzeit der vollen Aktualisierung das "
          "Ladefenster sprengt — nicht vorher. Eine Antwort `append` oder `merge` baut die "
          "Emission: Silber wird einmal leer mit Change Data Feed angelegt und danach nur "
          "ergänzt bzw. per MERGE nachgeführt; was der Katalog nicht nennt (Änderungsspalte, "
          "Schlüssel der Quelltabelle), bleibt Platzhalter."),
         "MS Learn (*Optimal refresh for materialized lake views*, abgerufen 23.09.2026: CDF auf "
-        "allen Quellen, append-only im Zyklus) + Schreibmuster des Transform-Emitters",
+        "allen Quellen, append-only im Zyklus; *Enable optimal refresh for deletes and updates*, "
+        "gelesen 01.10.2026: mit REFRESH_HINT auch Updates/Deletes, Preview) + Schreibmuster "
+        "des Transform-Emitters",
         "mittel",
         ["append — nur neue Zeilen, CDF an; Korrekturen der Quelle kommen nicht an",
-         "merge — Änderungen einarbeiten; ein Zyklus mit Update/Delete rechnet die MLV voll"],
+         "merge — Änderungen einarbeiten; ein Zyklus mit Update/Delete rechnet die MLV ohne "
+         "REFRESH_HINT voll, mit Hint inkrementell (Preview)"],
         "Data Engineering Lead (verbindlich), Data Platform Lead (Kosten und Ladefenster)",
         "Vollaufbau bleibt stehen, ohne dass jemand ihn gewählt hat — und die Zusage "
         "„inkrementell mit Change Data Feed“ steht im Angebot, ohne dass die Lieferung sie trägt",
@@ -2385,8 +2418,10 @@ def propose_mirror_security(bp: dict) -> dict:
     else:
         vorschlag = (f"**Die Rechte als OneLake-Security-Rollen neu aufbauen** für {namen}. Mirroring "
                      "übernimmt Zeilen- und Spaltenrechte sowie die Maskierung der Quelle nicht; ohne "
-                     "Neuaufbau liest jeder Leser des gespiegelten Items alle Zeilen. Rollen auf "
-                     "gespiegelten Items erlauben nur Read (Preview). Wer vor dem Lesen schreiben oder "
+                     "Neuaufbau liest jeder Leser des gespiegelten Items alle Zeilen. OneLake "
+                     "Security ist GA seit Mai 2026; Rollen auf gespiegelten Datenbanken und "
+                     "Katalogen erlauben nur Read. ReadWrite gibt es nur im Lakehouse, und eine "
+                     "ReadWrite-Rolle darf kein RLS/CLS tragen. Wer vor dem Lesen schreiben oder "
                      "transformieren muss, kopiert stattdessen in ein gesteuertes Lakehouse."
                      + ("" if vertraulich else
                         " Keine gespiegelte Quelle ist als vertraulich markiert; ob sie Rechte trägt, "
@@ -2399,7 +2434,7 @@ def propose_mirror_security(bp: dict) -> dict:
         vorschlag,
         f"{len(gespiegelt)} Quelle(n) mit access_mode `mirror`, davon {len(vertraulich)} vertraulich; "
         "MS Learn: mirroring/azure-sql-database-how-to-data-security, onelake/security/"
-        "data-access-control-model (gelesen 29.09.2026)",
+        "data-access-control-model (gelesen 01.10.2026)",
         konfidenz,
         ["In ein gesteuertes Lakehouse kopieren und dort absichern (Kopie statt Spiegel)",
          "Nur Tabellen ohne schutzbedürftige Inhalte spiegeln, den Rest kopieren"],

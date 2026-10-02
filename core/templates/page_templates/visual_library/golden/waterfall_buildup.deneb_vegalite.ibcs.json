@@ -1,13 +1,110 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "data": { "name": "dataset" },
+  "data": {
+    "name": "dataset"
+  },
   "transform": [
-    { "window": [ { "op": "sum", "field": "value", "as": "cum" } ], "frame": [null, 0] },
-    { "calculate": "datum.cum - datum['value']", "as": "prev" }
+    {
+      "window": [
+        {
+          "op": "sum",
+          "field": "value",
+          "as": "cum"
+        }
+      ],
+      "frame": [
+        null,
+        0
+      ]
+    },
+    {
+      "calculate": "datum.cum - datum['value']",
+      "as": "prev"
+    },
+    {
+      "window": [
+        {
+          "op": "lead",
+          "field": "part",
+          "as": "next"
+        }
+      ]
+    }
   ],
-  "encoding": { "x": { "field": "part", "type": "ordinal", "sort": null, "axis": { "title": null } } },
+  "encoding": {
+    "x": {
+      "field": "part",
+      "type": "ordinal",
+      "sort": null,
+      "axis": {
+        "title": null,
+        "ticks": false,
+        "labelAngle": 0,
+        "domainColor": "#404040"
+      }
+    }
+  },
   "layer": [
-    { "mark": { "type": "bar", "color": "#0078D4" }, "encoding": { "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } }, "y2": { "field": "cum" } } },
-    { "mark": { "type": "text", "dy": -6, "fontWeight": "bold", "color": "#0F2430" }, "encoding": { "y": { "field": "cum", "type": "quantitative" }, "text": { "field": "value", "type": "quantitative", "format": ".0f" } } }
+    {
+      "mark": {
+        "type": "bar",
+        "color": "#404040"
+      },
+      "encoding": {
+        "y": {
+          "field": "prev",
+          "type": "quantitative",
+          "axis": null,
+          "scale": {
+            "zero": true,
+            "padding": 16
+          }
+        },
+        "y2": {
+          "field": "cum"
+        }
+      }
+    },
+    {
+      "transform": [
+        {
+          "filter": "datum.next != null"
+        }
+      ],
+      "mark": {
+        "type": "rule",
+        "color": "#201F1E",
+        "strokeWidth": 0.75
+      },
+      "encoding": {
+        "y": {
+          "field": "cum",
+          "type": "quantitative"
+        },
+        "x2": {
+          "field": "next"
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "color": "#201F1E",
+        "dy": {
+          "expr": "datum['value'] < 0 ? 12 : -6"
+        }
+      },
+      "encoding": {
+        "y": {
+          "field": "cum",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "value",
+          "type": "quantitative",
+          "format": ".0f"
+        }
+      }
+    }
   ]
 }

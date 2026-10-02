@@ -102,7 +102,7 @@ Cost KPIs (review monthly, and at the quarterly sizing review):
 | Billed overage CU hours per day | Compute → Overages → *Overage (Billed)*; Azure Cost Management meter *Capacity Overage Capacity Usage CU* | direct extra spend at 3 × pay-as-you-go | Learn |
 | Carry-forward CUs | Monitor hub → Capacities → *Carry forward CUs* | debt that throttles or is billed as overage | Learn |
 | Workspaces blocked by surge protection per 24 h | Health → *Blocked workspaces* | protected capacity at the price of blocked jobs | Learn |
-| **Time in throttling / surge protection / overage (%)** | Metrics app "Preview" → Compute → time-share tiles | the share of the period the capacity was not running at its paid size | *observation* (FabCon demo 2026-09-29), not on Learn (search 2026-10-01): `ANNAHME, ungeprüft`; measure today via *Throttling (s)*, *Blocked workspaces*, Health state *Overage Billing Active* |
+| **Time in throttling / surge protection / overage (%)** | Metrics app "Preview" → Compute → time-share tiles | the share of the period the capacity was not running at its paid size | *observation* (FabCon demo 2026-09-29), not on Learn (re-checked 2026-10-01 against `metrics-app-compute-page`, `metrics-app-health-page`, `monitoring-hub-capacity`: still not on Learn): `ANNAHME, ungeprüft`; measure today via *Throttling (s)*, *Blocked workspaces*, Health state *Overage Billing Active* |
 
 Alert thresholds for the same signals live in the rollout standard
 (`products/fabric/powerbi/docs/operational/rollout_and_alerting_standard.md`, *Capacity alerts*),

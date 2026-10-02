@@ -1,7 +1,7 @@
 # Visual Library entry — bullet  (schema: _schema.yaml)
 id: bullet
 name: Bullet graph
-version: "1.0.0"
+version: "1.1.0"
 status: active        # active | deprecated | experimental
 purpose: [deviation_from_target]
 zone: [pulse, analysis]
@@ -27,6 +27,11 @@ params:
 tokens:
   col_actual: ink                    # #0F2430
   col_target: color_semantics.negative # #A4262C tick
+
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_values: [target_val]   # a target, not a style: from params or removed (A-31 R6)
+data_slots:
+  field: {role: value, required: true}
 
 canonical_params:
   entity: "_Measures"
@@ -100,9 +105,12 @@ realizations:
 # clean AC bar against a neutral PL reference tick (reference is dark, never alarm-red).
 profiles:
   ibcs:
-    note: "IBCS bullet: AC bar + neutral PL reference tick, no qualitative bands (IBCS drops the ranges as chart-junk)."
+    note: IBCS 2.0 has no bullet notation; the IBCS reading keeps AC dark solid and an ink target (UN 3.2).
+    rule_refs:
+    - UN 3.2
     param_overrides:
-      col_target: "#605E5C"
+      col_target: '#201F1E'
+      col_actual: '#404040'
     realizations:
       powerbi_svg_dax:
         ext: dax

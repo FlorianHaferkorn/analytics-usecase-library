@@ -228,7 +228,7 @@ You can add additional checks:
 
 **Manual Approval Fallback:**
 
-If environment approvals are not configured, you can enable manual approval tasks by setting `requireManualApproval: true` in the pipeline template parameters. This uses `ManualValidation@0` task as a fallback.
+If environment approvals are not configured, use `solution_release_simple.yml`: it runs `ManualValidation@0` in an agentless job (`pool: server`) before each release job. The task runs only in an agentless job (Learn `manual-validation-v0`, read 01.10.2026), so the release template carries no approval step of its own.
 
 ## Parameterization
 

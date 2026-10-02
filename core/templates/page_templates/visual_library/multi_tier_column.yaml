@@ -1,0 +1,674 @@
+# Visual Library entry — multi_tier_column  (schema: _schema.yaml)
+# IBCS 2.0 CO 4.2 "Show multi-tier charts" (p. 149-150): tiers for analyses of the SAME basic data
+# on one reduplicated category axis. The horizontal (time) form: the primary chart — AC columns with
+# PY as the lighter solid reference behind them (UN 3.2, UN 4.1) — at the bottom; the secondary
+# chart — absolute variance ΔPY as columns of the same width and scale (UN 4.1) — ABOVE it; the
+# tertiary pin chart — relative variance ΔPY% (UN 4.1) — above that (CO 4.2, p. 149-150: "For
+# horizontal charts the secondary chart appears above the primary chart").
+#
+# Same unit, same scale (CO 4.2, UN 4.1): AC, PY and ΔPY share ONE y scale — the ΔPY tier is drawn
+# in the same view, lifted above the columns by a computed offset, so a variance of 1 is exactly as
+# tall as a column of 1. ΔPY% has its own unit and its own view; both views share the x scale
+# (vconcat, resolve x shared). The variances are DERIVED in the spec from AC and PY (a single source
+# of truth for the three tiers); ΔPY% is N/A when PY <= 0 (UN 4.1: not interpretable).
+id: multi_tier_column
+name: Multi-tier column chart (values, ΔPY, ΔPY%)
+version: "1.0.0"
+status: active        # active | deprecated | experimental
+purpose: [time_comparison, deviation_from_target]
+zone: [analysis]
+min_size: {cols: 6, rows: 6}   # grid units — canvas-relative legibility floor (≈600×320px @1280; px derived from layout_grid.yaml)
+best_form_for: null            # line / deviation_bar stay the governed best forms; this is the dense IBCS combination of both
+alternatives: [column_time, variance_pin, deviation_bar, waterfall_variance]
+
+encoding:
+  x: temporal_discrete              # periods as columns, one reduplicated category axis for every tier
+  magnitude: length                 # column height = value (rank 1)
+  reference: overlapped_prior       # PY lighter solid behind AC (scenario comparison)
+  variance_abs: same_scale_columns  # ΔPY on the value scale, same column width
+  variance_rel: pins                # ΔPY% as thin pins with a head
+  tiers: [relative_variance, absolute_variance, values]   # top to bottom
+
+anti_patterns:
+  - variance_tier_on_its_own_scale     # ΔPY scaled apart from the values exaggerates small variances
+  - relative_variance_as_wide_column
+  - dual_axis_no_reason                # tiers replace a second value axis
+  - color_beyond_semantic
+
+params:
+  measure:       {role: value, required: true, note: "the analysed scenario (AC)"}
+  prior_measure: {role: reference, required: true, note: "the reference scenario (PY) — ΔPY and ΔPY% are derived from both"}
+  date:          {role: axis, type: temporal, required: true, note: "a sortable period key (e.g. 2026-01)"}
+  entity:        {role: table, default: _Measures}
+
+data_fit:
+  date: {type: temporal, max: 13, on_violation: too_many_categories}
+
+tokens:
+  col_ac:   brand.primary             # #0078D4 the analysed columns (house)
+  col_py:   surface.row_alt_ink       # #C8CED5 the prior-period reference (house)
+  col_pos:  color_semantics.positive  # #107C10
+  col_neg:  color_semantics.negative  # #A4262C
+  col_zero: color_semantics.neutral   # #586472 tier axes
+  col_ink:  ink                       # #0F2430 labels and pin heads
+
+# data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_slots:
+  field:      {role: value, required: true}
+  ref_field:  {role: prior, required: true}
+  field_date: {role: time,  required: true}
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Sales"
+  prior_measure: "Sales PY"
+  category_entity: "dim_date"
+  category_prop: "Month"
+  field: "sales"
+  ref_field: "sales_py"
+  field_date: "month"
+  col_ac: "#0078D4"
+  col_py: "#C8CED5"
+  col_pos: "#107C10"
+  col_neg: "#A4262C"
+  col_zero: "#586472"
+  col_ink: "#0F2430"
+  tier_width: "480"      # both views share the x scale, so they carry the same width
+  h_pins: "70"
+  h_values: "230"
+  tier_gap: "0.3"        # free space between columns and the ΔPY axis, as a share of the value span (room for labels)
+  pin_band: "0.1"        # pin width = 10 % of the column band
+  head_size: "36"
+  fmt_value: ",.1f"
+  fmt_delta: "+,.1f"
+  fmt_pct: "+.1~%"
+
+preview_svg: |
+  <svg viewBox="0 0 340 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Multi-tier column chart (values, ΔPY, ΔPY%)">
+    <rect width="340" height="190" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="22" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">SALES — AC vs PY</text>
+    <text x="18" y="50" font-family="Segoe UI,sans-serif" font-size="9" fill="#0F2430">ΔPY%</text>
+    <line x1="60" y1="48" x2="320" y2="48" stroke="#586472"/>
+    <rect x="92" y="36" width="3" height="12" fill="#107C10"/><rect x="90" y="33" width="6" height="6" fill="#0F2430"/>
+    <rect x="182" y="48" width="3" height="10" fill="#A4262C"/><rect x="180" y="55" width="6" height="6" fill="#0F2430"/>
+    <rect x="272" y="30" width="3" height="18" fill="#107C10"/><rect x="270" y="27" width="6" height="6" fill="#0F2430"/>
+    <text x="18" y="88" font-family="Segoe UI,sans-serif" font-size="9" fill="#0F2430">ΔPY</text>
+    <line x1="60" y1="86" x2="320" y2="86" stroke="#586472"/>
+    <rect x="78" y="78" width="30" height="8" fill="#107C10"/>
+    <rect x="168" y="86" width="30" height="7" fill="#A4262C"/>
+    <rect x="258" y="74" width="30" height="12" fill="#107C10"/>
+    <text x="18" y="130" font-family="Segoe UI,sans-serif" font-size="9" fill="#0F2430">AC</text>
+    <rect x="74" y="122" width="30" height="48" fill="#C8CED5"/><rect x="80" y="114" width="30" height="56" fill="#0078D4"/>
+    <rect x="164" y="118" width="30" height="52" fill="#C8CED5"/><rect x="170" y="125" width="30" height="45" fill="#0078D4"/>
+    <rect x="254" y="126" width="30" height="44" fill="#C8CED5"/><rect x="260" y="112" width="30" height="58" fill="#0078D4"/>
+    <line x1="60" y1="170" x2="320" y2="170" stroke="#586472"/>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "keine native Stufenform. Gemessen 30.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `clusteredColumnChart` (Rollen Category, Series, Y, Rows, Tooltips) und `lineClusteredColumnComboChart` (zusaetzlich Y2) zeichnen alle Kennzahlen in EINEN Plotbereich — die Combo mit hoechstens einer zweiten Wertachse (`valueAxis.sec*`), nicht mit einer zweiten Stufe. `smallMultiplesLayout` (Rolle Rows) teilt nach einer Dimension, jede Kachel zeigt dieselben Kennzahlen; eine Stufe je Kennzahl ueber derselben Kategorieachse ist damit nicht einstellbar. Drei gestapelte native Visuals waeren drei Dateien mit je eigener Achse und eigener Skala — genau der Fall, den `variance_tier_on_its_own_scale` ausschliesst"
+    use: "deneb_vegalite (eine Spec, geteilte x-Skala, eine y-Skala fuer Werte und ΔPY)"
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "a three-tier chart over all periods is a full chart, not a single-cell micro-chart"
+    use: "deneb_vegalite; per table row use variance_pin (svg_dax) next to the value"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "transform": [
+          { "calculate": "datum['{{field}}'] - datum['{{ref_field}}']", "as": "d_abs" },
+          { "calculate": "datum['{{ref_field}}'] > 0 ? (datum['{{field}}'] - datum['{{ref_field}}']) / datum['{{ref_field}}'] : null", "as": "d_rel" },
+          { "window": [ { "op": "row_number", "as": "rn" } ] },
+          { "joinaggregate": [
+            { "op": "max", "field": "{{field}}", "as": "ac_max" }, { "op": "min", "field": "{{field}}", "as": "ac_min" },
+            { "op": "max", "field": "{{ref_field}}", "as": "py_max" }, { "op": "min", "field": "{{ref_field}}", "as": "py_min" },
+            { "op": "min", "field": "d_abs", "as": "d_min" } ] },
+          { "calculate": "max(datum.ac_max, datum.py_max, 0)", "as": "v_top" },
+          { "calculate": "datum.v_top + {{tier_gap}} * (datum.v_top - min(datum.ac_min, datum.py_min, 0)) + max(0, -datum.d_min)", "as": "tier_base" },
+          { "calculate": "datum.tier_base + datum.d_abs", "as": "tier_end" }
+        ],
+        "resolve": { "scale": { "x": "shared" } },
+        "spacing": 4,
+        "vconcat": [
+          { "width": {{tier_width}}, "height": {{h_pins}},
+            "layer": [
+              { "mark": { "type": "bar", "width": { "band": {{pin_band}} } },
+                "encoding": {
+                  "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth", "axis": null },
+                  "y": { "field": "d_rel", "type": "quantitative", "axis": null, "scale": { "zero": true, "padding": 16 } },
+                  "color": { "condition": { "test": "datum.d_rel < 0", "value": "{{col_neg}}" }, "value": "{{col_pos}}" } } },
+              { "mark": { "type": "rule", "color": "{{col_zero}}" }, "encoding": { "y": { "datum": 0 } } },
+              { "mark": { "type": "point", "shape": "circle", "filled": true, "color": "{{col_ink}}", "size": {{head_size}}, "opacity": 1 },
+                "encoding": { "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth" }, "y": { "field": "d_rel", "type": "quantitative" } } },
+              { "mark": { "type": "text", "color": "{{col_ink}}", "baseline": { "expr": "datum.d_rel < 0 ? 'top' : 'bottom'" }, "dy": { "expr": "datum.d_rel < 0 ? 6 : -6" } },
+                "encoding": { "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth" }, "y": { "field": "d_rel", "type": "quantitative" },
+                  "text": { "field": "d_rel", "type": "quantitative", "format": "{{fmt_pct}}" } } },
+              { "transform": [ { "filter": "datum.rn === 1" } ],
+                "mark": { "type": "text", "color": "{{col_ink}}", "align": "right", "baseline": "middle", "dx": -8, "text": "ΔPY%" },
+                "encoding": { "x": { "value": 0 }, "y": { "datum": 0 } } }
+            ] },
+          { "width": {{tier_width}}, "height": {{h_values}},
+            "layer": [
+              { "mark": { "type": "bar", "color": "{{col_py}}", "xOffset": -4 },
+                "encoding": {
+                  "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth", "axis": { "title": null, "labelAngle": 0, "format": "%m/%y", "labelOverlap": true, "labelSeparation": 6, "domainColor": "{{col_zero}}" } },
+                  "y": { "field": "{{ref_field}}", "type": "quantitative", "axis": null, "scale": { "zero": true } } } },
+              { "mark": { "type": "bar", "color": "{{col_ac}}", "xOffset": 2 },
+                "encoding": { "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth" }, "y": { "field": "{{field}}", "type": "quantitative" } } },
+              { "mark": { "type": "text", "color": "{{col_ink}}", "baseline": "bottom", "dy": -4, "xOffset": 2 },
+                "encoding": { "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth" }, "y": { "field": "{{field}}", "type": "quantitative" },
+                  "text": { "field": "{{field}}", "type": "quantitative", "format": "{{fmt_value}}" } } },
+              { "mark": { "type": "rule", "color": "{{col_zero}}" }, "encoding": { "y": { "field": "tier_base", "aggregate": "max", "type": "quantitative" } } },
+              { "mark": { "type": "bar" },
+                "encoding": { "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth" },
+                  "y": { "field": "tier_end", "type": "quantitative" }, "y2": { "field": "tier_base" },
+                  "color": { "condition": { "test": "datum.d_abs < 0", "value": "{{col_neg}}" }, "value": "{{col_pos}}" } } },
+              { "mark": { "type": "text", "color": "{{col_ink}}", "baseline": { "expr": "datum.d_abs < 0 ? 'top' : 'bottom'" }, "dy": { "expr": "datum.d_abs < 0 ? 4 : -4" } },
+                "encoding": { "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth" }, "y": { "field": "tier_end", "type": "quantitative" },
+                  "text": { "field": "d_abs", "type": "quantitative", "format": "{{fmt_delta}}" } } },
+              { "transform": [ { "filter": "datum.rn === 1" } ],
+                "mark": { "type": "text", "color": "{{col_ink}}", "align": "right", "baseline": "middle", "dx": -8, "text": "ΔPY" },
+                "encoding": { "x": { "value": 0 }, "y": { "field": "tier_base", "type": "quantitative" } } },
+              { "transform": [ { "filter": "datum.rn === 1" } ],
+                "mark": { "type": "text", "color": "{{col_ink}}", "align": "right", "baseline": "middle", "dx": -8, "text": "AC" },
+                "encoding": { "x": { "value": 0 }, "y": { "field": "{{field}}", "type": "quantitative" } } }
+            ] }
+        ]
+      }
+
+  web_recharts:
+    applicable: false
+    reason: "three tiers on one category axis need three synchronised charts (syncId) inside a wrapper element; the Recharts track holds single-root charts, and the ΔPY tier would lose the shared value scale"
+    use: "deneb_vegalite; in React render the Vega-Lite spec (react-vega) instead of three Recharts charts"
+
+# --- notation profile: IBCS (second axis; see _notation_profiles.yaml) ---
+profiles:
+  ibcs:
+    note: "IBCS 2.0 multi-tier chart (CO 4.2, p. 149-150): primary tier AC solid dark with PY lighter solid behind it (UN 3.2, UN 4.1); secondary tier ΔPY above it as columns of the same width and on the same scale, colour by rating good/bad/neutral via polarity, labels outside with '+' (UN 4.1); tertiary tier ΔPY% as thin pins with an AC head, N/A where PY <= 0 (UN 4.1); variance axes solid light for the PY reference (UN 4.1, p. 53/55); columns 2/3 of the category (UN 3.1); no value axes, labels instead (SI 3.1); zero-based (CH 1.1). Not drawn: PL/FC scenarios (hollow PL, hatched FC) — this is the AC-vs-PY form of Figure CO 4.2-1."
+    rule_refs:
+    - CH 1.1
+    - CO 4.2
+    - SI 3.1
+    - UN 3.1
+    - UN 3.2
+    - UN 4.1
+    param_overrides:
+      col_ac: '#404040'
+      col_good: '#5B9A35'
+      col_bad: '#A4262C'
+      col_neutral: '#1F6FB5'
+      col_ink: '#201F1E'
+      polarity: '1'
+      py_opacity: '0.5'
+    realizations:
+      deneb_vegalite:
+        ext: json
+        template: |
+          {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "data": {
+              "name": "dataset"
+            },
+            "transform": [
+              {
+                "calculate": "datum['{{field}}'] - datum['{{ref_field}}']",
+                "as": "d_abs"
+              },
+              {
+                "calculate": "datum['{{ref_field}}'] > 0 ? (datum['{{field}}'] - datum['{{ref_field}}']) / datum['{{ref_field}}'] : null",
+                "as": "d_rel"
+              },
+              {
+                "calculate": "datum.d_abs * {{polarity}} > 0 ? 'good' : (datum.d_abs * {{polarity}} < 0 ? 'bad' : 'neutral')",
+                "as": "rating"
+              },
+              {
+                "window": [
+                  {
+                    "op": "row_number",
+                    "as": "rn"
+                  }
+                ]
+              },
+              {
+                "joinaggregate": [
+                  {
+                    "op": "max",
+                    "field": "{{field}}",
+                    "as": "ac_max"
+                  },
+                  {
+                    "op": "min",
+                    "field": "{{field}}",
+                    "as": "ac_min"
+                  },
+                  {
+                    "op": "max",
+                    "field": "{{ref_field}}",
+                    "as": "py_max"
+                  },
+                  {
+                    "op": "min",
+                    "field": "{{ref_field}}",
+                    "as": "py_min"
+                  },
+                  {
+                    "op": "min",
+                    "field": "d_abs",
+                    "as": "d_min"
+                  }
+                ]
+              },
+              {
+                "calculate": "max(datum.ac_max, datum.py_max, 0)",
+                "as": "v_top"
+              },
+              {
+                "calculate": "datum.v_top + {{tier_gap}} * (datum.v_top - min(datum.ac_min, datum.py_min, 0)) + max(0, -datum.d_min)",
+                "as": "tier_base"
+              },
+              {
+                "calculate": "datum.tier_base + datum.d_abs",
+                "as": "tier_end"
+              }
+            ],
+            "resolve": {
+              "scale": {
+                "x": "shared"
+              }
+            },
+            "spacing": 4,
+            "vconcat": [
+              {
+                "width": {{tier_width}},
+                "height": {{h_pins}},
+                "layer": [
+                  {
+                    "mark": {
+                      "type": "bar",
+                      "width": {
+                        "band": {{pin_band}}
+                      }
+                    },
+                    "encoding": {
+                      "x": {
+                        "field": "{{field_date}}",
+                        "type": "ordinal", "timeUnit": "yearmonth",
+                        "axis": null
+                      },
+                      "y": {
+                        "field": "d_rel",
+                        "type": "quantitative",
+                        "axis": null,
+                        "scale": {
+                          "zero": true,
+                          "padding": 16
+                        }
+                      },
+                      "color": {
+                        "field": "rating",
+                        "type": "nominal",
+                        "legend": null,
+                        "scale": {
+                          "domain": [
+                            "good",
+                            "bad",
+                            "neutral"
+                          ],
+                          "range": [
+                            "{{col_good}}",
+                            "{{col_bad}}",
+                            "{{col_neutral}}"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mark": {
+                      "type": "rule",
+                      "color": "{{col_ac}}",
+                      "opacity": {{py_opacity}},
+                      "strokeWidth": 3
+                    },
+                    "encoding": {
+                      "y": {
+                        "datum": 0
+                      }
+                    }
+                  },
+                  {
+                    "mark": {
+                      "type": "point",
+                      "shape": "square",
+                      "filled": true,
+                      "color": "{{col_ac}}",
+                      "size": {{head_size}},
+                      "opacity": 1
+                    },
+                    "encoding": {
+                      "x": {
+                        "field": "{{field_date}}",
+                        "type": "ordinal", "timeUnit": "yearmonth"
+                      },
+                      "y": {
+                        "field": "d_rel",
+                        "type": "quantitative"
+                      }
+                    }
+                  },
+                  {
+                    "mark": {
+                      "type": "text",
+                      "color": "{{col_ink}}",
+                      "baseline": {
+                        "expr": "datum.d_rel < 0 ? 'top' : 'bottom'"
+                      },
+                      "dy": {
+                        "expr": "datum.d_rel < 0 ? 6 : -6"
+                      }
+                    },
+                    "encoding": {
+                      "x": {
+                        "field": "{{field_date}}",
+                        "type": "ordinal", "timeUnit": "yearmonth"
+                      },
+                      "y": {
+                        "field": "d_rel",
+                        "type": "quantitative"
+                      },
+                      "text": {
+                        "field": "d_rel",
+                        "type": "quantitative",
+                        "format": "{{fmt_pct}}"
+                      }
+                    }
+                  },
+                  {
+                    "transform": [
+                      {
+                        "filter": "datum.d_rel === null"
+                      }
+                    ],
+                    "mark": {
+                      "type": "text",
+                      "color": "{{col_ink}}",
+                      "baseline": "bottom",
+                      "dy": -6,
+                      "text": "N/A"
+                    },
+                    "encoding": {
+                      "x": {
+                        "field": "{{field_date}}",
+                        "type": "ordinal", "timeUnit": "yearmonth"
+                      },
+                      "y": {
+                        "datum": 0
+                      }
+                    }
+                  },
+                  {
+                    "transform": [
+                      {
+                        "filter": "datum.rn === 1"
+                      }
+                    ],
+                    "mark": {
+                      "type": "text",
+                      "color": "{{col_ink}}",
+                      "align": "right",
+                      "baseline": "middle",
+                      "dx": -8,
+                      "text": "ΔPY%"
+                    },
+                    "encoding": {
+                      "x": {
+                        "value": 0
+                      },
+                      "y": {
+                        "datum": 0
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "width": {{tier_width}},
+                "height": {{h_values}},
+                "layer": [
+                  {
+                    "mark": {
+                      "type": "bar",
+                      "color": "{{col_ac}}",
+                      "opacity": {{py_opacity}},
+                      "xOffset": -4
+                    },
+                    "encoding": {
+                      "x": {
+                        "field": "{{field_date}}",
+                        "type": "ordinal", "timeUnit": "yearmonth",
+                        "axis": {
+                          "title": null,
+                          "labelAngle": 0,
+                          "format": "%m/%y",
+                          "labelOverlap": true,
+                          "labelSeparation": 6,
+                          "ticks": false,
+                          "domainColor": "{{col_ac}}"
+                        }
+                      },
+                      "y": {
+                        "field": "{{ref_field}}",
+                        "type": "quantitative",
+                        "axis": null,
+                        "scale": {
+                          "zero": true
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mark": {
+                      "type": "bar",
+                      "color": "{{col_ac}}",
+                      "xOffset": 2
+                    },
+                    "encoding": {
+                      "x": {
+                        "field": "{{field_date}}",
+                        "type": "ordinal", "timeUnit": "yearmonth"
+                      },
+                      "y": {
+                        "field": "{{field}}",
+                        "type": "quantitative"
+                      }
+                    }
+                  },
+                  {
+                    "mark": {
+                      "type": "text",
+                      "color": "{{col_ink}}",
+                      "baseline": "bottom",
+                      "dy": -4,
+                      "xOffset": 2
+                    },
+                    "encoding": {
+                      "x": {
+                        "field": "{{field_date}}",
+                        "type": "ordinal", "timeUnit": "yearmonth"
+                      },
+                      "y": {
+                        "field": "{{field}}",
+                        "type": "quantitative"
+                      },
+                      "text": {
+                        "field": "{{field}}",
+                        "type": "quantitative",
+                        "format": "{{fmt_value}}"
+                      }
+                    }
+                  },
+                  {
+                    "mark": {
+                      "type": "rule",
+                      "color": "{{col_ac}}",
+                      "opacity": {{py_opacity}},
+                      "strokeWidth": 3
+                    },
+                    "encoding": {
+                      "y": {
+                        "field": "tier_base",
+                        "aggregate": "max",
+                        "type": "quantitative"
+                      }
+                    }
+                  },
+                  {
+                    "mark": {
+                      "type": "bar"
+                    },
+                    "encoding": {
+                      "x": {
+                        "field": "{{field_date}}",
+                        "type": "ordinal", "timeUnit": "yearmonth"
+                      },
+                      "y": {
+                        "field": "tier_end",
+                        "type": "quantitative"
+                      },
+                      "y2": {
+                        "field": "tier_base"
+                      },
+                      "color": {
+                        "field": "rating",
+                        "type": "nominal",
+                        "legend": null,
+                        "scale": {
+                          "domain": [
+                            "good",
+                            "bad",
+                            "neutral"
+                          ],
+                          "range": [
+                            "{{col_good}}",
+                            "{{col_bad}}",
+                            "{{col_neutral}}"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mark": {
+                      "type": "text",
+                      "color": "{{col_ink}}",
+                      "baseline": {
+                        "expr": "datum.d_abs < 0 ? 'top' : 'bottom'"
+                      },
+                      "dy": {
+                        "expr": "datum.d_abs < 0 ? 4 : -4"
+                      }
+                    },
+                    "encoding": {
+                      "x": {
+                        "field": "{{field_date}}",
+                        "type": "ordinal", "timeUnit": "yearmonth"
+                      },
+                      "y": {
+                        "field": "tier_end",
+                        "type": "quantitative"
+                      },
+                      "text": {
+                        "field": "d_abs",
+                        "type": "quantitative",
+                        "format": "{{fmt_delta}}"
+                      }
+                    }
+                  },
+                  {
+                    "transform": [
+                      {
+                        "filter": "datum.rn === 1"
+                      }
+                    ],
+                    "mark": {
+                      "type": "text",
+                      "color": "{{col_ink}}",
+                      "align": "right",
+                      "baseline": "middle",
+                      "dx": -8,
+                      "text": "ΔPY"
+                    },
+                    "encoding": {
+                      "x": {
+                        "value": 0
+                      },
+                      "y": {
+                        "field": "tier_base",
+                        "type": "quantitative"
+                      }
+                    }
+                  },
+                  {
+                    "transform": [
+                      {
+                        "filter": "datum.rn === 1"
+                      }
+                    ],
+                    "mark": {
+                      "type": "text",
+                      "color": "{{col_ink}}",
+                      "align": "right",
+                      "baseline": "middle",
+                      "dx": -8,
+                      "text": "AC"
+                    },
+                    "encoding": {
+                      "x": {
+                        "value": 0
+                      },
+                      "y": {
+                        "field": "{{field}}",
+                        "type": "quantitative"
+                      }
+                    }
+                  },
+                  {
+                    "transform": [
+                      {
+                        "filter": "datum.rn === 1"
+                      }
+                    ],
+                    "mark": {
+                      "type": "text",
+                      "color": "{{col_ink}}",
+                      "align": "right",
+                      "baseline": "top",
+                      "dx": -8,
+                      "dy": 4,
+                      "text": "PY"
+                    },
+                    "encoding": {
+                      "x": {
+                        "value": 0
+                      },
+                      "y": {
+                        "field": "{{ref_field}}",
+                        "type": "quantitative"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+
+determinism:
+  golden_dir: golden
+  notes: "Pure {{param}} fill; golden-frozen. One spec, two views: ΔPY% pins (own unit) above the value view, where AC/PY columns and the ΔPY tier share one y scale (the tier is lifted by a computed offset). x shared across views. House form colours by sign on house tokens; the IBCS form rates by polarity and uses AC/PY fill notation."

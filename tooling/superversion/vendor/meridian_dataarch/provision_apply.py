@@ -175,7 +175,8 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
                      stack: str = "fabric", sql_ddl_layers: tuple[str, ...] = (),
                      emitted: set[str] | None = None,
                      semantic_model: bool = False,
-                     entscheidungen: dict | None = None) -> list[dict]:
+                     entscheidungen: dict | None = None,
+                     onelake_rollen_modus: str = "gesamt") -> list[dict]:
     """Return the ordered, gated apply plan (list of operation dicts).
 
     Each op: {seq, action, target, tool, gate, rationale, artifact}. ``tool`` names the preferred
@@ -201,8 +202,17 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     gold_warehouse`` als zusaetzliches Warehouse im Gold-Workspace. Ohne getroffene
     Entscheidung entsteht **kein** Schritt — die Vorbelegung (oeffentliche Endpunkte, ein
     Lakehouse je Domaene) ist der Plan, wie er ohnehin steht.
+
+    ``onelake_rollen_modus`` (01.10.2026) — ``"gesamt"`` (Vorgabe, Bulk-PUT, GA) oder
+    ``"einzeln"`` (POST je Rolle, Preview, kleinerer Schadensradius): wie der Schritt
+    ``apply_onelake_roles`` die Rollen einspielt.
     """
     from core.dataarch_engine.blueprint.decision_proposals import entscheidung_fuer
+    from core.dataarch_engine.blueprint.provision_governance import ONELAKE_ROLLEN_MODI
+
+    if onelake_rollen_modus not in ONELAKE_ROLLEN_MODI:
+        raise ValueError(f"onelake_rollen_modus {onelake_rollen_modus!r} unbekannt — erlaubt: "
+                         f"{list(ONELAKE_ROLLEN_MODI)}")
 
     workspaces = _unique_workspaces(bp)
     gold_ws = [n for n, r in workspaces if r in LAKEHOUSE_ROLES]
@@ -427,13 +437,24 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
                 f"execute the generated {layer} DDL for '{gp}' against the SQL endpoint — {once}",
                 # der Pfad ist hier deklariert, nicht gesucht: die DDL-Schicht lief in diesem Lauf
                 present(rel) or rel)
+        if layer == "mlv" and present("mlv/execution_definition.json"):
+            # D-621: der Graph-Zeitplan braucht zuerst die Execution Definition; ihre ID
+            # gehoert in refresh_schedule.json, sonst scheitert der Zeitplan laut.
+            add("create_mlv_execution_definition", f"{target_ws}.Workspace Lakehouse — MLV-Kette",
+                "rest:/workspaces/{id}/lakehouses/{id}/mlvexecutiondefinitions",
+                "human",
+                "create the execution definition (extended lineage) — then put the returned id "
+                "into refresh_schedule.json (executionData.mlvExecutionDefinitionId).",
+                present("mlv/execution_definition.json"))
         if layer == "mlv":
             # Der Ausloeser (D-529). Ohne diesen Schritt steht die MLV auf dem Stand ihres
             # CREATE, und nichts wird rot.
             add("schedule_mlv_refresh", f"{target_ws}.Workspace Lakehouse — MLV-Lineage",
                 "rest:/workspaces/{id}/lakehouses/{id}/jobs/refreshMaterializedLakeViews/schedules",
                 "human",
-                "register the MLV refresh schedule (preview API; one active schedule per lineage) "
+                "register the MLV refresh schedule (preview API; up to 20 schedules per item, "
+                "min. interval 5 min, an overlapping run is skipped — MS Learn schedule-lineage-run, "
+                "read 01.10.2026) "
                 "— then trigger once and read the job status, not the 202."
                 + ZEITPLAN_IDENTITAET,
                 present("mlv/refresh_schedule.json") or "mlv/refresh_schedule.json")
@@ -450,6 +471,24 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     # Artefakt, das der Lauf erzeugt hat; ohne das Artefakt entsteht der Schritt nicht.
     rollen_datei = present("governance/onelake_data_access_roles.json")
     if rollen_datei:
+        # Die Rollen selbst einspielen (01.10.2026). `gesamt` = Bulk-PUT (GA, ersetzt die ganze
+        # Menge), `einzeln` = POST je Rolle (Preview) — MS Learn REST OneLake Data Access
+        # Security, gelesen 01.10.2026; Vorgabe und Begruendung in
+        # `provision_governance.ONELAKE_ROLLEN_MODI`.
+        if onelake_rollen_modus == "einzeln":
+            werkzeug = ("rest:POST /dataAccessRoles?preview=true&dataAccessRoleConflictPolicy=Overwrite "
+                        "(je Rolle) | governance/apply_onelake_roles.py --modus einzeln")
+            wirkung = ("Je Rolle ein Aufruf (PREVIEW-API): ein Fehler bleibt bei seiner Rolle, "
+                       "nicht genannte Rollen im Item bleiben stehen. Fehler je Rolle lesen.")
+        else:
+            werkzeug = ("rest:PUT /dataAccessRoles | governance/apply_onelake_roles.py --modus gesamt")
+            wirkung = ("Bulk-PUT (GA) ersetzt die GANZE Rollenmenge des Items: nicht genannte "
+                       "Rollen werden geloescht, ein ungueltiges Praedikat bricht alle ab. Kleinerer "
+                       "Schadensradius mit --onelake-rollen-modus einzeln (Preview).")
+        add("apply_onelake_roles", f"{target_ws}.Workspace/{lakehouse}.Lakehouse — OneLake-Rollen",
+            werkzeug, "human-approved",
+            "OneLake-Security-Rollen einspielen; Token nur aus FABRIC_TOKEN (Umgebung). " + wirkung,
+            present("governance/apply_onelake_roles.py") or rollen_datei)
         # *„lakehouse items have a DefaultReader role that lets users with the ReadAll permission
         # see data in the lakehouse"* und *„To restrict the access to specific users or specific
         # folders, either modify the default role or remove it and create a new custom role"*
@@ -825,7 +864,8 @@ def _workspace_surge_rows(bp: dict) -> list[str]:
 def emit_apply(bp: dict, stack: str = "fabric", workspace: str = PLACEHOLDER_WORKSPACE,
                lakehouse: str = "analytics_gold", sql_ddl_layers: tuple[str, ...] = (),
                emitted: set[str] | None = None,
-               semantic_model: bool = False) -> dict[str, str]:
+               semantic_model: bool = False,
+               onelake_rollen_modus: str = "gesamt") -> dict[str, str]:
     """Return the apply/MCP-integration artifact set (path → content). Fabric-specific.
 
     ``sql_ddl_layers`` (``"mlv"``/``"warehouse"``) adds ``run_sql_ddl`` steps for the emitted SQL DDL so
@@ -838,7 +878,8 @@ def emit_apply(bp: dict, stack: str = "fabric", workspace: str = PLACEHOLDER_WOR
         return {}
     plan = build_apply_plan(bp, workspace=workspace, lakehouse=lakehouse, stack=stack,
                             sql_ddl_layers=sql_ddl_layers, emitted=emitted,
-                            semantic_model=semantic_model)
+                            semantic_model=semantic_model,
+                            onelake_rollen_modus=onelake_rollen_modus)
     return {
         "apply/APPLY_PLAN.json": json.dumps(plan, indent=2, ensure_ascii=False) + "\n",
         "apply/APPLY_PLAN.md": _apply_md(plan),

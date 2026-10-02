@@ -1,0 +1,1666 @@
+{
+ "_comment": "Gemeinsame Fälle für key_message.py und key_message.ts (feat-109). Beide Fassungen müssen je Fall dasselbe liefern; test_key_message.py vergleicht. Neue Regel = neuer Fall hier. Fälle mit Suffix _en laufen mit lang=en und tragen den erwarteten Satz in expect (null = keine Aussage).",
+ "cases": [
+  {
+   "name": "quote_richtung_plus",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "DACH",
+      24.4
+     ],
+     [
+      "Benelux",
+      27.8
+     ],
+     [
+      "Nordics",
+      31.4
+     ],
+     [
+      "Southern Europe",
+      34.5
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%"
+   }
+  },
+  {
+   "name": "quote_richtung_minus",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "DACH",
+      24.4
+     ],
+     [
+      "Benelux",
+      27.8
+     ],
+     [
+      "Nordics",
+      31.4
+     ],
+     [
+      "Southern Europe",
+      34.5
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%",
+    "polarity": -1
+   }
+  },
+  {
+   "name": "beitrag",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "Conversion",
+      34
+     ],
+     [
+      "Out-of-Stock",
+      27
+     ],
+     [
+      "Saison",
+      16
+     ],
+     [
+      "Kampagne",
+      13
+     ],
+     [
+      "Sonstige",
+      10
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true
+   }
+  },
+  {
+   "name": "beitrag_negativ_groesster_betrag",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      -40
+     ],
+     [
+      "B",
+      25
+     ],
+     [
+      "C",
+      15
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true,
+    "unit": "Mio. €"
+   }
+  },
+  {
+   "name": "beitrag_halbwert_anteil",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      1
+     ],
+     [
+      "B",
+      1
+     ],
+     [
+      "C",
+      1
+     ],
+     [
+      "D",
+      1
+     ],
+     [
+      "E",
+      1
+     ],
+     [
+      "F",
+      1
+     ],
+     [
+      "G",
+      1
+     ],
+     [
+      "H",
+      1
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true
+   }
+  },
+  {
+   "name": "beitrag_summe_null",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      5
+     ],
+     [
+      "B",
+      -5
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true
+   }
+  },
+  {
+   "name": "zeit_plan_woche",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      33.5,
+      45.0
+     ],
+     [
+      "2025-12-29",
+      33.9,
+      45.0
+     ],
+     [
+      "2026-01-05",
+      33.6,
+      45.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "%",
+    "weekly": true
+   }
+  },
+  {
+   "name": "zeit_plan_datum",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      33.5,
+      45.0
+     ],
+     [
+      "2025-12-29",
+      33.9,
+      45.0
+     ],
+     [
+      "2026-01-05",
+      33.6,
+      45.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "t CO₂e"
+   }
+  },
+  {
+   "name": "zeit_ohne_plan",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      33.5,
+      45.0
+     ],
+     [
+      "2025-12-29",
+      33.9,
+      45.0
+     ],
+     [
+      "2026-01-05",
+      33.6,
+      45.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist"
+   },
+   "opts": {
+    "unit": "%",
+    "weekly": true
+   }
+  },
+  {
+   "name": "zeit_unveraendert",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      27.95,
+      35.0
+     ],
+     [
+      "2026-01-05",
+      27.95,
+      35.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist"
+   },
+   "opts": {
+    "unit": "%",
+    "weekly": true
+   }
+  },
+  {
+   "name": "zeit_auf_plan",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2026-01-05",
+      40,
+      40
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "%"
+   }
+  },
+  {
+   "name": "tausender_und_halbwert",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      14113.55
+     ],
+     [
+      "B",
+      0.25
+     ],
+     [
+      "C",
+      29750
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "t"
+   }
+  },
+  {
+   "name": "luecken_und_text",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      null
+     ],
+     [
+      "B",
+      ""
+     ],
+     [
+      "C",
+      "12,5"
+     ],
+     [
+      "D",
+      "7.5"
+     ],
+     [
+      "E",
+      3
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {}
+  },
+  {
+   "name": "gleichstand_keine_aussage",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      1
+     ],
+     [
+      "B",
+      1
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {}
+  },
+  {
+   "name": "eine_zeile_keine_aussage",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      1
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {}
+  },
+  {
+   "name": "leer_nach_filter",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": []
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "%"
+   }
+  },
+  {
+   "name": "keine_rolle",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "DACH",
+      24.4
+     ],
+     [
+      "Benelux",
+      27.8
+     ],
+     [
+      "Nordics",
+      31.4
+     ],
+     [
+      "Southern Europe",
+      34.5
+     ]
+    ]
+   },
+   "roles": {
+    "value": "Wert"
+   },
+   "opts": {}
+  },
+  {
+   "name": "top_n_staerkster_in_uebrige",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "Nordics",
+      43.41
+     ],
+     [
+      "Benelux",
+      38.36
+     ],
+     [
+      "DACH",
+      32.99
+     ],
+     [
+      "Southern Europe",
+      24.49
+     ],
+     [
+      "CEE",
+      22.42
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%",
+    "top_n": 3
+   }
+  },
+  {
+   "name": "top_n_alle_sichtbar",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "Nordics",
+      43.41
+     ],
+     [
+      "Benelux",
+      38.36
+     ],
+     [
+      "DACH",
+      32.99
+     ],
+     [
+      "Southern Europe",
+      24.49
+     ],
+     [
+      "CEE",
+      22.42
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%",
+    "top_n": 5
+   }
+  },
+  {
+   "name": "top_n_richtung_minus",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "Nordics",
+      43.41
+     ],
+     [
+      "Benelux",
+      38.36
+     ],
+     [
+      "DACH",
+      32.99
+     ],
+     [
+      "Southern Europe",
+      24.49
+     ],
+     [
+      "CEE",
+      22.42
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%",
+    "top_n": 2,
+    "polarity": -1
+   }
+  },
+  {
+   "name": "top_n_beitrag_negativ_gefaltet",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      -40
+     ],
+     [
+      "B",
+      25
+     ],
+     [
+      "C",
+      15
+     ],
+     [
+      "D",
+      10
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true,
+    "polarity": -1,
+    "top_n": 2
+   }
+  },
+  {
+   "name": "verteilung_mit_ausreisser",
+   "table": {
+    "columns": [
+     {
+      "name": "Filiale"
+     },
+     {
+      "name": "Marge"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      31.2
+     ],
+     [
+      "B",
+      28.4
+     ],
+     [
+      "C",
+      30.1
+     ],
+     [
+      "D",
+      29.7
+     ],
+     [
+      "E",
+      12.5
+     ],
+     [
+      "F",
+      30.8
+     ],
+     [
+      "G",
+      29.9
+     ],
+     [
+      "H",
+      31.0
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Filiale",
+    "value": "Marge"
+   },
+   "opts": {
+    "unit": "%",
+    "purpose": "distribution"
+   }
+  },
+  {
+   "name": "verteilung_ohne_kategorie",
+   "table": {
+    "columns": [
+     {
+      "name": "Marge"
+     }
+    ],
+    "rows": [
+     [
+      31.2
+     ],
+     [
+      28.4
+     ],
+     [
+      30.1
+     ],
+     [
+      29.7
+     ],
+     [
+      12.5
+     ],
+     [
+      30.8
+     ],
+     [
+      29.9
+     ],
+     [
+      31.0
+     ]
+    ]
+   },
+   "roles": {
+    "value": "Marge"
+   },
+   "opts": {
+    "unit": "%",
+    "purpose": "distribution"
+   }
+  },
+  {
+   "name": "verteilung_zu_wenig",
+   "table": {
+    "columns": [
+     {
+      "name": "Filiale"
+     },
+     {
+      "name": "Marge"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      31.2
+     ],
+     [
+      "B",
+      28.4
+     ],
+     [
+      "C",
+      30.1
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Filiale",
+    "value": "Marge"
+   },
+   "opts": {
+    "purpose": "distribution"
+   }
+  },
+  {
+   "name": "zusammenhang_negativ",
+   "table": {
+    "columns": [
+     {
+      "name": "Preis"
+     },
+     {
+      "name": "Absatz"
+     }
+    ],
+    "rows": [
+     [
+      10,
+      200
+     ],
+     [
+      12,
+      171
+     ],
+     [
+      14,
+      182
+     ],
+     [
+      16,
+      150
+     ],
+     [
+      18,
+      158
+     ],
+     [
+      20,
+      128
+     ]
+    ]
+   },
+   "roles": {
+    "x": "Preis",
+    "y": "Absatz"
+   },
+   "opts": {}
+  },
+  {
+   "name": "zusammenhang_konstant",
+   "table": {
+    "columns": [
+     {
+      "name": "Preis"
+     },
+     {
+      "name": "Absatz"
+     }
+    ],
+    "rows": [
+     [
+      1,
+      5
+     ],
+     [
+      2,
+      5
+     ],
+     [
+      3,
+      5
+     ]
+    ]
+   },
+   "roles": {
+    "x": "Preis",
+    "y": "Absatz"
+   },
+   "opts": {}
+  },
+  {
+   "name": "quote_richtung_plus_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "DACH",
+      24.4
+     ],
+     [
+      "Benelux",
+      27.8
+     ],
+     [
+      "Nordics",
+      31.4
+     ],
+     [
+      "Southern Europe",
+      34.5
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%",
+    "lang": "en"
+   },
+   "expect": "Weakest: DACH at 24.4%, strongest: Southern Europe at 34.5%."
+  },
+  {
+   "name": "beitrag_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "Conversion",
+      34
+     ],
+     [
+      "Out-of-Stock",
+      27
+     ],
+     [
+      "Saison",
+      16
+     ],
+     [
+      "Kampagne",
+      13
+     ],
+     [
+      "Sonstige",
+      10
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true,
+    "lang": "en"
+   },
+   "expect": "Largest contribution: Conversion at 34, i.e. 34% of the total."
+  },
+  {
+   "name": "beitrag_negativ_groesster_betrag_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      -40
+     ],
+     [
+      "B",
+      25
+     ],
+     [
+      "C",
+      15
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true,
+    "unit": "Mio. €",
+    "lang": "en"
+   },
+   "expect": "Largest contribution: A at −40 Mio. €, i.e. 50% of the sum of absolute values."
+  },
+  {
+   "name": "zeit_plan_woche_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      33.5,
+      45.0
+     ],
+     [
+      "2025-12-29",
+      33.9,
+      45.0
+     ],
+     [
+      "2026-01-05",
+      33.6,
+      45.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "%",
+    "weekly": true,
+    "lang": "en"
+   },
+   "expect": "Week 02: actual 33.6% vs. plan 45.0%, 11.4 pp below plan."
+  },
+  {
+   "name": "zeit_plan_datum_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      33.5,
+      45.0
+     ],
+     [
+      "2025-12-29",
+      33.9,
+      45.0
+     ],
+     [
+      "2026-01-05",
+      33.6,
+      45.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "t CO₂e",
+    "lang": "en"
+   },
+   "expect": "2026-01-05: actual 33.6 t CO₂e vs. plan 45.0 t CO₂e, 11.4 t CO₂e below plan."
+  },
+  {
+   "name": "zeit_ohne_plan_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      33.5,
+      45.0
+     ],
+     [
+      "2025-12-29",
+      33.9,
+      45.0
+     ],
+     [
+      "2026-01-05",
+      33.6,
+      45.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist"
+   },
+   "opts": {
+    "unit": "%",
+    "weekly": true,
+    "lang": "en"
+   },
+   "expect": "Week 52 to Week 02: 33.5% to 33.6%, +0.1 pp."
+  },
+  {
+   "name": "zeit_unveraendert_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      27.95,
+      35.0
+     ],
+     [
+      "2026-01-05",
+      27.95,
+      35.0
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist"
+   },
+   "opts": {
+    "unit": "%",
+    "weekly": true,
+    "lang": "en"
+   },
+   "expect": "Week 52 to Week 02: unchanged at 27.9%."
+  },
+  {
+   "name": "zeit_auf_plan_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2026-01-05",
+      40,
+      40
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "%",
+    "lang": "en"
+   },
+   "expect": "2026-01-05: actual 40% vs. plan 40%, exactly on plan."
+  },
+  {
+   "name": "tausender_und_halbwert_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      14113.55
+     ],
+     [
+      "B",
+      0.25
+     ],
+     [
+      "C",
+      29750
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "t",
+    "lang": "en"
+   },
+   "expect": "Weakest: B at 0.2 t, strongest: C at 29,750.0 t."
+  },
+  {
+   "name": "top_n_staerkster_in_uebrige_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "Nordics",
+      43.41
+     ],
+     [
+      "Benelux",
+      38.36
+     ],
+     [
+      "DACH",
+      32.99
+     ],
+     [
+      "Southern Europe",
+      24.49
+     ],
+     [
+      "CEE",
+      22.42
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "unit": "%",
+    "top_n": 3,
+    "lang": "en"
+   },
+   "expect": "Weakest: CEE at 22.4%, strongest: Nordics (in “Other”) at 43.4%."
+  },
+  {
+   "name": "top_n_beitrag_negativ_gefaltet_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Ursache"
+     },
+     {
+      "name": "Beitrag"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      -40
+     ],
+     [
+      "B",
+      25
+     ],
+     [
+      "C",
+      15
+     ],
+     [
+      "D",
+      10
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Ursache",
+    "value": "Beitrag"
+   },
+   "opts": {
+    "additive": true,
+    "polarity": -1,
+    "top_n": 2,
+    "lang": "en"
+   },
+   "expect": "Largest contribution: A (in “Other”) at −40, i.e. 44% of the sum of absolute values."
+  },
+  {
+   "name": "verteilung_mit_ausreisser_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Filiale"
+     },
+     {
+      "name": "Marge"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      31.2
+     ],
+     [
+      "B",
+      28.4
+     ],
+     [
+      "C",
+      30.1
+     ],
+     [
+      "D",
+      29.7
+     ],
+     [
+      "E",
+      12.5
+     ],
+     [
+      "F",
+      30.8
+     ],
+     [
+      "G",
+      29.9
+     ],
+     [
+      "H",
+      31.0
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Filiale",
+    "value": "Marge"
+   },
+   "opts": {
+    "unit": "%",
+    "purpose": "distribution",
+    "lang": "en"
+   },
+   "expect": "Median 30.0%, middle half between 29.4% and 30.9%. Notable: E at 12.5%."
+  },
+  {
+   "name": "verteilung_ohne_kategorie_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Marge"
+     }
+    ],
+    "rows": [
+     [
+      31.2
+     ],
+     [
+      28.4
+     ],
+     [
+      30.1
+     ],
+     [
+      29.7
+     ],
+     [
+      12.5
+     ],
+     [
+      30.8
+     ],
+     [
+      29.9
+     ],
+     [
+      31.0
+     ]
+    ]
+   },
+   "roles": {
+    "value": "Marge"
+   },
+   "opts": {
+    "unit": "%",
+    "purpose": "distribution",
+    "lang": "en"
+   },
+   "expect": "Median 30.0%, middle half between 29.4% and 30.9%."
+  },
+  {
+   "name": "zusammenhang_negativ_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Preis"
+     },
+     {
+      "name": "Absatz"
+     }
+    ],
+    "rows": [
+     [
+      10,
+      200
+     ],
+     [
+      12,
+      171
+     ],
+     [
+      14,
+      182
+     ],
+     [
+      16,
+      150
+     ],
+     [
+      18,
+      158
+     ],
+     [
+      20,
+      128
+     ]
+    ]
+   },
+   "roles": {
+    "x": "Preis",
+    "y": "Absatz"
+   },
+   "opts": {
+    "lang": "en"
+   },
+   "expect": "Correlation between Preis and Absatz: r = −0.91 (strong, negative), 6 points."
+  },
+  {
+   "name": "gleichstand_keine_aussage_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Region"
+     },
+     {
+      "name": "Wert"
+     }
+    ],
+    "rows": [
+     [
+      "A",
+      1
+     ],
+     [
+      "B",
+      1
+     ]
+    ]
+   },
+   "roles": {
+    "category": "Region",
+    "value": "Wert"
+   },
+   "opts": {
+    "lang": "en"
+   },
+   "expect": null
+  },
+  {
+   "name": "zeit_plan_ueber_en",
+   "table": {
+    "columns": [
+     {
+      "name": "Periode"
+     },
+     {
+      "name": "Ist"
+     },
+     {
+      "name": "Plan"
+     }
+    ],
+    "rows": [
+     [
+      "2025-12-22",
+      33.5,
+      45.0
+     ],
+     [
+      "2025-12-29",
+      33.9,
+      45.0
+     ],
+     [
+      "2026-01-05",
+      1234.5,
+      1200
+     ]
+    ]
+   },
+   "roles": {
+    "time": "Periode",
+    "value": "Ist",
+    "plan": "Plan"
+   },
+   "opts": {
+    "unit": "t CO₂e",
+    "lang": "en"
+   },
+   "expect": "2026-01-05: actual 1,234.5 t CO₂e vs. plan 1,200.0 t CO₂e, 34.5 t CO₂e above plan."
+  }
+ ]
+}
