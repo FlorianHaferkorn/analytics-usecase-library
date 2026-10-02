@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 import type { AlternativeImpact } from '@/lib/bridge/project-alternatives';
 import { ProjectCommercialImpact } from './project-commercial-impact';
+import { ProjectRunCostDelta } from './project-run-cost-delta';
 import styles from './project-alternative-impact.module.css';
 
 export interface AlternativeOption { decision_ref: string; option_ref: string; rule_id: string }
@@ -95,6 +96,9 @@ export function ProjectAlternativeImpact({ projectId, revisionHash, options }: {
       </StudioPanel>
       {view.status === 'impact_ready' && selected && <StudioPanel title="Commercial impact" description="Rate-free: hours, window and open points from the price canon.">
         <ProjectCommercialImpact key={`${selected.decision_ref}:${selected.option_ref}`} projectId={projectId} revisionHash={revisionHash} decisionRef={selected.decision_ref} optionRef={selected.option_ref} />
+      </StudioPanel>}
+      {view.status === 'impact_ready' && selected && <StudioPanel title="Run cost" description="Capacities and licences at Microsoft list price.">
+        <ProjectRunCostDelta key={`${selected.decision_ref}:${selected.option_ref}`} projectId={projectId} revisionHash={revisionHash} decisionRef={selected.decision_ref} optionRef={selected.option_ref} />
       </StudioPanel>}
       <details className={styles.details}><summary>Limitations</summary><ul className={styles.list}>{view.limitations.map(item => <li key={item}>{item}</li>)}</ul></details>
     </>}

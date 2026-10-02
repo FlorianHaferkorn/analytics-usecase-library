@@ -14,7 +14,9 @@ role_allocation_path: null
 projection: true
 tco_years: [3, 5]
 contract_term_months: 12
-region: West Europe
+region: West Europe          # set it explicitly; unset = default region + open customer question
+# region: Germany West Central  # EUR +2.5 % per CU hour vs West Europe (01.10.2026)
+# currency: EUR                 # USD default; EUR from Microsoft's EUR list, never converted
 quote_valid_days: 30
 output_path: dist/last_calculation.md
 # Capacity overage (on by default for new F capacities, billed at 3x PAYG). Ask the
