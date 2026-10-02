@@ -15,9 +15,11 @@ orchestration:
   - KPI-COM-034
   supporting_kpi_ids:
   - KPI-COM-005
-  # No action code in the framework covers e-commerce conversion or channel-shift levers yet;
-  # page 2 is therefore an exception queue (T3), not an action decision (T4).
-  action_code_ids: []
+  # C-E1.1 (02.10.2026, BO-120) is status draft: its trigger KPI-COM-032 is op:hitl and the
+  # thresholds are open owner decisions, so no level can fire yet. Page 2 stays an exception
+  # queue (T3) until the action code is active; a T4 decision page needs a trigger that fires.
+  action_code_ids:
+  - C-E1.1
 primary_kpi_ids:
 - KPI-COM-032
 - KPI-COM-034

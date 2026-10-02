@@ -12,7 +12,8 @@ domain_tag:
 - Growth
 use_case_ref:
 - COM-006
-action_code_ref: []
+action_code_ref:
+- C-E1.1
 calc_type: ratio
 good_is: higher
 business:

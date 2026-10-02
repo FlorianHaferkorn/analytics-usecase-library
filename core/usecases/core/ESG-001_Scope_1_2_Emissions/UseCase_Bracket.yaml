@@ -14,9 +14,11 @@ orchestration:
   # The catalog carries no further Scope 1/2 KPI (no energy or intensity KPI yet); the
   # diagnostic cut is by scope and site on the strategic KPI itself.
   influencing_kpi_ids: []
-  # No action code in the framework covers emission-reduction measures yet; page 2 is an
-  # exception queue (T3), not an action decision (T4).
-  action_code_ids: []
+  # E-S1.1 (02.10.2026, BO-120) is status draft: KPI-ESG-001 is op:hitl, there is no ESG
+  # semantic model yet and the tolerance against the reduction target is an open owner decision.
+  # Page 2 stays an exception queue (T3) until the action code is active.
+  action_code_ids:
+  - E-S1.1
 primary_kpi_ids:
 - KPI-ESG-001
 value_driver_model:

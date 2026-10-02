@@ -3280,6 +3280,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-003
   - COM-004
   action_code_ref:
+  - C-E1.1
+  - C-M2.3
   - C-S1.1
   - C-S1.2
   calc_type: amount
@@ -7919,7 +7921,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Growth
   use_case_ref:
   - COM-006
-  action_code_ref: []
+  action_code_ref:
+  - C-E1.1
   calc_type: ratio
   good_is: higher
   business:
@@ -7972,7 +7975,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Assortment
   use_case_ref:
   - COM-IND-R002
-  action_code_ref: []
+  action_code_ref:
+  - C-M2.3
   calc_type: ratio
   good_is: higher
   business:
@@ -8023,7 +8027,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Growth
   use_case_ref:
   - COM-006
-  action_code_ref: []
+  action_code_ref:
+  - C-E1.1
   calc_type: rate
   good_is: higher
   business:
@@ -8073,7 +8078,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Environment
   use_case_ref:
   - ESG-001
-  action_code_ref: []
+  action_code_ref:
+  - E-S1.1
   calc_type: quantity
   good_is: lower
   business:

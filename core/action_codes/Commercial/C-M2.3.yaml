@@ -1,0 +1,156 @@
+schema_version: '2.0'
+id: C-M2.3
+name: Private Label Assortment Review
+# Added 02.10.2026 (BO-120): first action code for COM-IND-R002. status draft on purpose: the trigger
+# KPI KPI-COM-033 is op:hitl (blocked_by data_contract - dim_product carries no own-brand flag), so no
+# level can fire until the contract and the measure exist. Thresholds are open customer decisions
+# (value: null, value_status: open); nothing here is a measured or benchmarked number.
+inherits_decision_spine: null
+owner_domain: Commercial
+impact_dimension: Profitability
+status: draft
+owner_role: category_manager
+steward_role: trade_marketing_commercial_bi_lead
+use_case_links:
+  core_use_cases:
+  - COM-IND-R002
+  related_use_cases: []
+kpis:
+  trigger_kpis:
+  - KPI-COM-033
+  guardrail_kpis:
+  - KPI-COM-005
+  outcome_kpis:
+  - KPI-COM-033
+scope:
+  default_grain: month
+  default_perspective:
+  - Region
+  - Product Category
+  supported_slices:
+  - Channel
+  exclusions:
+  - Categories without an own-brand range
+  - Categories in an active range review
+trigger:
+  type: Deviation
+  evaluation:
+    grain: month
+    window:
+      kind: rolling
+      length: 3
+      unit: periods
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 3
+  levels:
+    L1:
+      severity: EarlyWarning
+      condition:
+        metric_kpi_id: KPI-COM-033
+        comparator: lt
+        threshold:
+          basis: relative
+          reference: baseline
+          value: null
+          value_status: open
+          unit: '%'
+        filters: []
+    L2:
+      severity: RequiredIntervention
+      condition:
+        metric_kpi_id: KPI-COM-033
+        comparator: lt
+        threshold:
+          basis: relative
+          reference: baseline
+          value: null
+          value_status: open
+          unit: '%'
+        filters: []
+    L3:
+      severity: PrescriptiveExecution
+      condition:
+        metric_kpi_id: KPI-COM-033
+        comparator: lt
+        threshold:
+          basis: relative
+          reference: baseline
+          value: null
+          value_status: open
+          unit: '%'
+        filters: []
+  gating_rules:
+  - Do not evaluate until dim_product carries an own-brand flag in the commercial_sales contract and KPI-COM-033 has a measure
+  - Read per category; a falling total share from category mix alone is no trigger
+impact_valuation:
+  method: DirectMarginImprovement
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P90D
+    metric_kpi_id: KPI-COM-033
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Shifted net sales from brand to own brand * (Own-brand gross margin % - Brand gross margin %)"
+    latex: EUR = \Delta NS_{PL} \times (GM\%_{PL} - GM\%_{brand})
+  required_measures:
+  - Private Label Penetration %
+  - Net Sales Amount
+  - Gross Margin %
+impact:
+  category: Unquantified
+  mechanism:
+  - Range, shelf-space and price-gap decisions per category where the own-brand share falls
+  confidence:
+    level: Low
+    rationale:
+    - ANNAHME, ungeprueft - the margin gap between own brand and brand is not measured in the library; the EUR value follows only from the formula above once both margins are measured
+    - KPI-COM-033 is op:hitl (no own-brand attribute in the data contract)
+operational_execution:
+  stakeholders:
+  - Category Management
+  - Private Label Management
+  prerequisites:
+  - Own-brand flag on every SKU in dim_product (commercial_sales contract)
+  - Gross margin per SKU available for own brand and brand
+  steps:
+  - IDENTIFY categories where the own-brand share fell below its baseline for this {entity}
+  - CHECK range, shelf space and price gap to the brand leader for this {entity}
+  - EXECUTE the range or price-gap decision for this {entity}
+  - MONITOR own-brand share and net sales for this {entity} monthly
+  effort:
+    level: Medium
+  risks_and_tradeoffs:
+  - Pushing own brand can lose shoppers who buy the brand elsewhere
+  - Supplier negotiations with brand manufacturers can be affected
+data_requirements:
+  required_entities:
+  - Region
+  - Product Category
+  semantic_dependencies:
+    measures:
+    - Private Label Penetration %
+    - Net Sales Amount
+    tables:
+    - fact_sales
+    - dim_product
+governance:
+  approvals_required:
+  - Head of Category Management
+  - Commercial Director
+  rollback_plan:
+  - Revert the range or price-gap decision if category net sales fall below plan during the success window
+  documentation_links:
+  - core/usecases/industry/retail/COM-IND-R002_Private_Label_Performance/Business_Factsheet.md
+quality_rules:
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- Thresholds stay value null with value_status open until the owner sets them; status stays draft until then.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

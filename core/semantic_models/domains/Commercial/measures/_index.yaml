@@ -44,3 +44,4 @@ order:
 - action_roi
 - action_effectiveness_delta
 - action_outcome_rate
+- pipeline_coverage

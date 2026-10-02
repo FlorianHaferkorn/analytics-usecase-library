@@ -1,0 +1,151 @@
+schema_version: '2.0'
+id: E-S1.1
+name: Scope 1+2 Reduction Programme Steering
+# Added 02.10.2026 (BO-120): first action code for ESG-001. status draft on purpose: the trigger KPI
+# KPI-ESG-001 is op:hitl (blocked_by grammar - no filtered sum over a related dimension) and there is
+# no ESG semantic model yet. The trigger compares against the reduction target the company sets
+# (fact_emissions[Target Emissions tCO2e]); the tolerance is an open decision (value: null).
+inherits_decision_spine: null
+owner_domain: ESG
+impact_dimension: ESG
+status: draft
+owner_role: sustainability_controlling_lead
+steward_role: esg_reporting_bi_lead
+use_case_links:
+  core_use_cases:
+  - ESG-001
+  related_use_cases: []
+kpis:
+  trigger_kpis:
+  - KPI-ESG-001
+  guardrail_kpis: []
+  outcome_kpis:
+  - KPI-ESG-001
+scope:
+  default_grain: month
+  default_perspective:
+  - Site
+  - Emission Scope
+  supported_slices:
+  - Region
+  exclusions:
+  - Sites without metered energy data (annual inventory only)
+  - Sites acquired or divested within the reporting year
+trigger:
+  type: Deviation
+  evaluation:
+    grain: month
+    window:
+      kind: rolling
+      length: 12
+      unit: periods
+    persistence:
+      required: true
+      min_consecutive_periods: 3
+    minimum_data:
+      min_observations: 6
+  levels:
+    L1:
+      severity: EarlyWarning
+      condition:
+        metric_kpi_id: KPI-ESG-001
+        comparator: gt
+        threshold:
+          basis: target
+          value: null
+          value_status: open
+          unit: '%'
+        filters: []
+    L2:
+      severity: RequiredIntervention
+      condition:
+        metric_kpi_id: KPI-ESG-001
+        comparator: gt
+        threshold:
+          basis: target
+          value: null
+          value_status: open
+          unit: '%'
+        filters: []
+    L3:
+      severity: PrescriptiveExecution
+      condition:
+        metric_kpi_id: KPI-ESG-001
+        comparator: gt
+        threshold:
+          basis: target
+          value: null
+          value_status: open
+          unit: '%'
+        filters: []
+  gating_rules:
+  - Do not evaluate until KPI-ESG-001 has a measure and the reduction target per site is loaded (fact_emissions[Target Emissions tCO2e])
+  - Report the Scope 2 method (market-based) next to every triggered value
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P365D
+    metric_kpi_id: KPI-ESG-001
+    success_criteria:
+      kind: threshold_met
+      baseline_window: P365D
+  calculation_logic:
+    standardized: "Reduced_tCO2e = Pre_Emissions_tCO2e - Post_Emissions_tCO2e; RealizedEUR = Reduced_tCO2e * internal carbon price (if the company sets one) + avoided energy cost"
+    latex: t = E_{pre} - E_{post};\ EUR = t \times p_{CO2} + \Delta C_{energy}
+  required_measures:
+  - Scope 1+2 CO2 Emissions
+impact:
+  category: Unquantified
+  mechanism:
+  - Reduction measures at the sites and scopes with the largest share of the total (own combustion vs purchased energy)
+  confidence:
+    level: Low
+    rationale:
+    - ANNAHME, ungeprueft - no internal carbon price and no energy-cost baseline in the library; the EUR value stays open until the company provides them
+    - KPI-ESG-001 is op:hitl and there is no ESG semantic model yet
+operational_execution:
+  stakeholders:
+  - Sustainability Controlling
+  - Site Management
+  - Energy Management
+  prerequisites:
+  - Measure for KPI-ESG-001 (filtered sum over dim_emission_scope)
+  - Reduction target per site and year
+  steps:
+  - IDENTIFY sites and scopes above their reduction path for this {entity}
+  - CHECK whether own combustion (Scope 1) or purchased energy (Scope 2) drives the gap for this {entity}
+  - EXECUTE the agreed reduction measure for this {entity}
+  - MONITOR Scope 1+2 emissions against the reduction path for this {entity} monthly
+  effort:
+    level: High
+  risks_and_tradeoffs:
+  - Switching to green-energy certificates lowers market-based Scope 2 without a physical reduction
+  - Annual inventories hide in-year effects until consolidation
+data_requirements:
+  required_entities:
+  - Site
+  - Emission Scope
+  semantic_dependencies:
+    measures:
+    - Scope 1+2 CO2 Emissions
+    tables:
+    - fact_emissions
+    - dim_emission_scope
+    - dim_org
+governance:
+  approvals_required:
+  - Head of Sustainability
+  - CFO
+  rollback_plan:
+  - Re-plan the reduction measure if it misses its effect after one full reporting year
+  documentation_links:
+  - core/usecases/core/ESG-001_Scope_1_2_Emissions/Business_Factsheet.md
+quality_rules:
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- Thresholds stay value null with value_status open until the owner sets them; status stays draft until then.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

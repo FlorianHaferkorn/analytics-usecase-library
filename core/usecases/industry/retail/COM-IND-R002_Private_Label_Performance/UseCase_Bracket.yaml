@@ -17,9 +17,11 @@ orchestration:
   influencing_kpi_ids: []
   supporting_kpi_ids:
   - KPI-COM-005
-  # No action code in the framework covers own-brand assortment or pricing decisions yet;
-  # page 2 is an exception queue (T3), not an action decision (T4).
-  action_code_ids: []
+  # C-M2.3 (02.10.2026, BO-120) is status draft: KPI-COM-033 is op:hitl (no own-brand flag in
+  # the data contract) and the thresholds are open owner decisions, so no level can fire yet.
+  # Page 2 stays an exception queue (T3) until the action code is active.
+  action_code_ids:
+  - C-M2.3
 primary_kpi_ids:
 - KPI-COM-033
 value_driver_model:

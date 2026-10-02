@@ -76,7 +76,7 @@ table _Measures
 	/// Sum of net sales after discounts and rebates.
 	/// Formula: SUM ( fact_sales[Net Sales Amount] )
 	/// Grain: invoice_line, reported monthly · Unit: EUR
-	/// Owner: Commercial BI · Status: active · Actions: C-S1.1, C-S1.2
+	/// Owner: Commercial BI · Status: active · Actions: C-E1.1, C-M2.3, C-S1.1, C-S1.2
 	measure 'Net Sales Amount' = SUM ( fact_sales[Net Sales Amount] )
 		formatString: "#,0"
 		displayFolder: "COM-001"

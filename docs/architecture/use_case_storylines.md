@@ -158,6 +158,7 @@
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which regions and categories hold the e-commerce share back the most?
 - **[300s evidence]** grain `invoice_line`, worst-first by `KPI-COM-032` (ascending), Top-20
+**Decision payoff (actions):** C-E1.1
 
 ## ESG-001 — Scope 1+2 Emissions
 
@@ -184,6 +185,7 @@
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which sites and scopes should the reduction programme target first?
 - **[300s evidence]** grain `site_scope_month`, worst-first by `KPI-ESG-001` (descending), Top-20
+**Decision payoff (actions):** E-S1.1
 
 ## FIN-001 — Cash & Liquidity Performance
 
@@ -617,4 +619,5 @@
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which categories and regions lag on private-label share the most?
 - **[300s evidence]** grain `invoice_line`, worst-first by `KPI-COM-033` (ascending), Top-20
+**Decision payoff (actions):** C-M2.3
 **Cross-domain pull:** Commercial (2: `KPI-COM-033`, `KPI-COM-005`)
