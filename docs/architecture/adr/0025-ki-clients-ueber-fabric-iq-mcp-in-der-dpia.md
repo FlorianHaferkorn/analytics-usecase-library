@@ -1,4 +1,4 @@
-# ADR-0024 — KI-Clients über Fabric IQ MCP gehören als eigener Abfluss in die DPIA
+# ADR-0025 — KI-Clients über Fabric IQ MCP gehören als eigener Abfluss in die DPIA
 
 | Feld | Wert |
 |---|---|

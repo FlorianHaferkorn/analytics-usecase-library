@@ -31,10 +31,10 @@ vorgaenge:
   faellig: '2026-10-15'
   entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'DPIA 12.4: Gesprächslabel, Exportvererbung, Label-DLP erst ab E5 (ADR-0024, C-26).'
+  begruendung: 'DPIA 12.4: Gesprächslabel, Exportvererbung, Label-DLP erst ab E5 (ADR-0025, C-26).'
   d_eintrag: D-644
   belege: &id001
-  - 'compliance/DPIA.md 12.4, compliance/_INDEX.md C-26, docs/architecture/adr/0024: check_index --strict
+  - 'compliance/DPIA.md 12.4, compliance/_INDEX.md C-26, docs/architecture/adr/0025: check_index --strict
     0 harte Befunde, markdownlint-cli2 0 issues, 01.10.2026'
   verlauf:
   - am: '2026-10-01'
@@ -618,7 +618,7 @@ vorgaenge:
   faellig: '2026-10-15'
   entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'DPIA 12.4: neuer Abfluss an KI-Clients, Zustimmungsrichtlinie, Modelleinstellung (ADR-0024,
+  begruendung: 'DPIA 12.4: neuer Abfluss an KI-Clients, Zustimmungsrichtlinie, Modelleinstellung (ADR-0025,
     C-26).'
   d_eintrag: D-644
   belege: *id001
