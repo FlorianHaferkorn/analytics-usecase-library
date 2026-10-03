@@ -1934,7 +1934,9 @@ def propose_silver_contract(gc: dict) -> dict:
                     ["Vertrag im Fachworkshop erheben"], "Data Owner + Data Engineering",
                     "Die Transform-Skelette bleiben `SELECT *` mit TODO-Markern",
                     markers=("contract:",))
-    joins = "; ".join(f"`{r['from_table']}.{r['from_column']}` → `{r['to_table']}.{r['to_column']}`"
+    # Komma statt Semikolon (03.10.2026): mit vier Kanten trug der Kundentext drei Semikolons, und das
+    # Stil-Gate erlaubt zwei (gemessen am Szenario sap_mittelstand, seit VBRK im Paket liegt, D-674).
+    joins = ", ".join(f"`{r['from_table']}.{r['from_column']}` → `{r['to_table']}.{r['to_column']}`"
                       for r in rels[:6])
     more = f" (+{len(rels) - 6} weitere)" if len(rels) > 6 else ""
     return _rec(
