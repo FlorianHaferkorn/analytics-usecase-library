@@ -26,6 +26,11 @@ on:
   # on the branch. (A normal branch push does NOT trigger this workflow — only
   # pull_request→main, push→main, or this manual dispatch do.)
   workflow_dispatch: {}
+  # Meridian D-659 (02.10.2026): der Windows-Job laeuft nicht mehr auf jedem Push auf
+  # main, sondern im PR (ready), nachts und von Hand. Gemessen 01./02.10.2026: Pushes auf main
+  # 375 von 956 abgerechneten Minuten dieses Repos; Stage 1 checks im Schnitt 6 min x2 (Windows).
+  schedule:
+    - cron: "41 2 * * *"
 
 # Cancel a superseded run when a newer commit lands on the same ref (PR or branch).
 # Without this, every push to an active PR started a *fresh* full matrix while the
@@ -190,9 +195,10 @@ jobs:
     # windows-latest is billed at 2× the ubuntu minute rate and this job is the
     # heaviest (Node + Python×2 + PSGallery + fab-inspector + full quality gate),
     # so it is the biggest single cost. Skip it while a PR is a draft — full CI
-    # (incl. this job) runs the moment the PR is marked ready for review, and it
-    # always runs on push to main. Local `run_quality_gate.ps1` covers drafts.
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
+    # (incl. this job) runs the moment the PR is marked ready for review. On push to main it
+    # is skipped (same commit content passed in the PR); the nightly schedule and manual
+    # dispatch run it on main. Local `run_quality_gate.ps1` covers drafts.
+    if: ${{ github.event_name != 'push' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
     # Cap a hung run (default 360 min, billed at 2x on Windows).
     timeout-minutes: 45
     env:
