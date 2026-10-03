@@ -40,7 +40,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Narrative Text (SCM): current value'"
+                  "Value": "'Narrative Text (SCM)'"
                 }
               }
             }

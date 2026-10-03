@@ -44,6 +44,16 @@ ist ein Literal und veraltet mit jedem Filter (Learn, s. o.). Learn kennt dynami
 Werts), das der Modellgenerator nicht erzeugt -- offen, dieses Modul setzt nur Literale und laesst
 einen vorhandenen Ausdruck stehen (`has_alt_text`).
 
+Text-Measures auf Kacheln (seit 03.10.2026): eine Kachel, die nur Text-Measures traegt ("Narrative
+Text (COM)", "Last Refresh (COM)", "Active Actions Text (COM)"), zeigt keinen Wert einer Kennzahl,
+sondern einen Satz; "aktueller Wert" waere dort falsch. Sie bekommt nur den Namen. Erkannt wird das
+am Modell, nicht am Namen: Measures tragen in TMDL kein `dataType` (der Typ folgt aus dem Ausdruck),
+wohl aber `formatString`, und die Text-Measures stehen dort auf `@` (Power-BI-Format "Text").
+Gemessen 03.10.2026 in den fuenf dist-Modellen: 70 von 278 Measures mit `@`, alle liefern Text
+(Ausdruck endet auf einem Zeichenketten-Ausdruck), und kein Measure mit Zeichenketten-Verkettung
+steht auf einem anderen Format. Gelesen wird mit `tooling.codegen.dax_smoke.measures`, demselben
+Parser, der die Formatzeichenkette fuer den DAX-Smoke liest (`text_measures`).
+
 Lokalisierte KPI-Namen: `kpi_namen` (Anzeigename -> {Sprache: Name}) ersetzt gebundene Namen in der
 Sprache des Reports. Der KPI-Katalog fuehrt heute keine Namen je Sprache (gemessen 02.10.2026: kein
 solches Feld in `core/kpi_catalog/kpis/*.yaml`, Schema `kpi_definition.schema.json`); ohne Eintrag
@@ -75,6 +85,9 @@ ALT_TEXT_EXEMPT_TYPES = frozenset({"shape"})
 
 _ELLIPSIS = "…"
 
+#: Formatzeichenkette, unter der das Modell ein Measure als Text fuehrt (Power BI "Text").
+TEXT_FORMAT_STRING = "@"
+
 #: Default, wenn das Bracket keine `ux_layout_rules.report_locale` deklariert (Stand vor 01.10.2026).
 DEFAULT_LOCALE = "en-US"
 
@@ -95,6 +108,10 @@ class UnknownLocaleWarning(UserWarning):
     """Locale ohne Satzbausteine in `PHRASES`: der Alt-Text faellt auf Englisch zurueck."""
 
 
+class UnknownModelWarning(UserWarning):
+    """Kein Semantikmodell zum Report: Text-Measures sind unbekannt (`text_measures` leer)."""
+
+
 def language(locale: Optional[str]) -> str:
     """`de-DE` -> `de`. Ohne Angabe `en`; unbekannte Sprache -> `en` mit `UnknownLocaleWarning`."""
     if not locale:
@@ -112,6 +129,26 @@ def bracket_locale(bracket: Optional[Dict[str, Any]]) -> str:
     """`ux_layout_rules.report_locale` aus einem UseCase_Bracket, sonst `DEFAULT_LOCALE`."""
     ux = (bracket or {}).get("ux_layout_rules") or {}
     return str(ux.get("report_locale") or DEFAULT_LOCALE)
+
+
+def text_measures(model_dir: Optional[Path]) -> frozenset:
+    """Namen der Measures mit `formatString: @` im Semantikmodell `model_dir` (leer ohne Modell)."""
+    if model_dir is None or not (model_dir / "definition" / "tables").is_dir():
+        return frozenset()
+    from tooling.codegen.dax_smoke import measures  # lazy, wie config_loader -> tooling.codegen
+    return frozenset(n for n, info in measures(model_dir).items()
+                     if info.get("format") == TEXT_FORMAT_STRING)
+
+
+def report_model_dir(report_dir: Path) -> Optional[Path]:
+    """Das Modell, an das ein PBIR-Report bindet (`definition.pbir` -> `datasetReference.byPath`)."""
+    pbir = report_dir / "definition.pbir"
+    if not pbir.exists():
+        return None
+    ref = ((json.loads(pbir.read_text(encoding="utf-8")).get("datasetReference") or {})
+           .get("byPath") or {}).get("path")
+    d = (report_dir / ref).resolve() if ref else None
+    return d if d is not None and d.is_dir() else None
 
 
 def _split_camel(name: str) -> str:
@@ -173,6 +210,14 @@ def _fields(visual_cfg: Dict[str, Any], lang: str = _FALLBACK_LANGUAGE,
     return measures, columns, goals
 
 
+def _measure_properties(visual_cfg: Dict[str, Any]) -> List[str]:
+    """Modellnamen (`Measure.Property`) aller gebundenen Measures, unabhaengig vom Anzeigenamen."""
+    state = ((visual_cfg.get("query") or {}).get("queryState")) or {}
+    return [str(((proj.get("field") or {}).get("Measure") or {}).get("Property"))
+            for role in state.values() for proj in (role or {}).get("projections") or []
+            if ((proj.get("field") or {}).get("Measure") or {}).get("Property")]
+
+
 def _literal_text(expr: Any) -> str:
     value = (((expr or {}).get("expr") or {}).get("Literal") or {}).get("Value")
     if not isinstance(value, str) or len(value) < 2 or not (value.startswith("'") and value.endswith("'")):
@@ -232,21 +277,28 @@ def _measures_phrase(primary: List[str], compared: List[str], tail: str,
 
 
 def describe(visual: Dict[str, Any], comparison_measures: Iterable[str] = (),
-             locale: Optional[str] = None, kpi_namen: Optional[KpiNamen] = None) -> Optional[str]:
+             locale: Optional[str] = None, kpi_namen: Optional[KpiNamen] = None,
+             text_measures: Iterable[str] = ()) -> Optional[str]:
     """Alt-Text fuer ein PBIR-Visual (visual.json als dict), oder None.
 
     None heisst: dekorativ (`ALT_TEXT_EXEMPT_TYPES`), Gruppe, oder nichts Beschreibbares gebunden.
     `comparison_measures`: Measures, die als Vergleichsreihe gezeichnet sind (R6.1).
     `locale`: Sprache der Satzbausteine (`report_locale` des Brackets); None -> Englisch.
     `kpi_namen`: lokalisierte Kennzahlnamen (Anzeigename -> {Sprache: Name}); None -> wie gebunden.
+    `text_measures`: Measures, die Text liefern (`text_measures(model_dir)`); eine Kachel nur aus
+    solchen nennt deren Namen ohne "aktueller Wert".
     """
-    return _describe(visual, comparison_measures, language(locale), kpi_namen=kpi_namen)
+    return _describe(visual, comparison_measures, language(locale), kpi_namen=kpi_namen,
+                     text_measures=frozenset(text_measures))
 
 
 def _describe(visual: Dict[str, Any], comparison_measures: Iterable[str], lang: str,
-              kpi_namen: Optional[KpiNamen] = None, card_form: bool = True) -> Optional[str]:
+              kpi_namen: Optional[KpiNamen] = None, card_form: bool = True,
+              text_measures: frozenset = frozenset()) -> Optional[str]:
     """`card_form=False`: Kacheln wie vor dem 02.10.2026 (blosse Measure-Liste), nur um solchen
-    erzeugten Alt-Text beim Sprach- oder Formwechsel wiederzuerkennen."""
+    erzeugten Alt-Text beim Sprach- oder Formwechsel wiederzuerkennen. Kacheln, deren gebundene
+    Measures alle Text liefern (`text_measures`, Abgleich mit `Measure.Property`), bekommen ebenfalls
+    die blosse Liste."""
     ph = PHRASES[lang]
     visual_cfg = visual.get("visual")
     if not isinstance(visual_cfg, dict):
@@ -268,7 +320,10 @@ def _describe(visual: Dict[str, Any], comparison_measures: Iterable[str], lang: 
     if not primary:  # nur Referenzreihen gebunden: dann ist nichts "verglichen"
         primary, compared = measures, []
     tail = (f" {ph['by']} " + _join(columns, lang)) if columns else ""
-    return _measures_phrase(primary, compared, tail, lang, card=card_form and vtype in CARD_TYPES)
+    gebunden = _measure_properties(visual_cfg)
+    nur_text = bool(gebunden) and all(m in text_measures for m in gebunden)
+    return _measures_phrase(primary, compared, tail, lang,
+                            card=card_form and vtype in CARD_TYPES and not nur_text)
 
 
 def _alt_literal(visual: Dict[str, Any]) -> Optional[str]:
@@ -298,25 +353,29 @@ def has_alt_text(visual: Dict[str, Any]) -> bool:
 
 def apply_alt_text(visual: Dict[str, Any], comparison_measures: Iterable[str] = (),
                    locale: Optional[str] = None, replace_generated: bool = False,
-                   kpi_namen: Optional[KpiNamen] = None) -> Dict[str, Any]:
+                   kpi_namen: Optional[KpiNamen] = None,
+                   text_measures: Iterable[str] = ()) -> Dict[str, Any]:
     """Setzt den Alt-Text als Literal, wenn das Visual noch keinen traegt. Gibt das Visual zurueck.
 
     `replace_generated`: einen vorhandenen Alt-Text ersetzen, aber nur, wenn er woertlich dem
     entspricht, was dieses Modul in einer der Sprachen aus `PHRASES` erzeugt (Sprachwechsel eines
-    schon erzeugten Reports) oder in der Kachelform vor dem 02.10.2026. Von Hand geschriebener
-    Alt-Text und Ausdruecke bleiben unberuehrt.
+    schon erzeugten Reports) oder in der Kachelform vor dem 02.10.2026, auch in der Kachelform
+    ohne Kenntnis der Text-Measures (vor dem 03.10.2026). Von Hand geschriebener Alt-Text und
+    Ausdruecke bleiben unberuehrt.
     """
     comparison_measures = tuple(comparison_measures)
+    text_measures = frozenset(text_measures)
     lang = language(locale)
     if has_alt_text(visual):
         current = _alt_literal(visual)
         if not replace_generated or current is None:
             return visual
-        generated = {_describe(visual, comparison_measures, other, kpi_namen, form)
-                     for other in PHRASES for form in (True, False)}
+        generated = {_describe(visual, comparison_measures, other, kpi_namen, form, texte)
+                     for other in PHRASES for form in (True, False)
+                     for texte in (text_measures, frozenset())}
         if current not in generated:
             return visual
-    text = _describe(visual, comparison_measures, lang, kpi_namen)
+    text = _describe(visual, comparison_measures, lang, kpi_namen, text_measures=text_measures)
     if not text or text == _alt_literal(visual):
         return visual
     literal = "'" + text.replace("'", "''") + "'"
@@ -369,18 +428,26 @@ def _serialize_like(raw: str, original: Dict[str, Any], updated: Dict[str, Any])
     return json.dumps(updated, indent=2, ensure_ascii=False) + nl
 
 
-def apply_to_report(report_dir: Path, locale: Optional[str] = None) -> List[Path]:
+def apply_to_report(report_dir: Path, locale: Optional[str] = None,
+                    model_dir: Optional[Path] = None) -> List[Path]:
     """Alt-Text in einen bestehenden PBIR-Report schreiben (fuer Reports ohne Generatorpfad).
 
     Ueberschreibt keinen von Hand geschriebenen Alt-Text; einen von diesem Modul erzeugten bringt
     er in die Sprache `locale` (`replace_generated`). Gibt die geaenderten visual.json zurueck.
+    `model_dir`: Semantikmodell fuer `text_measures`; ohne Angabe das aus `definition.pbir`.
+    Ist keines auffindbar, warnt die Funktion und behandelt kein Measure als Text.
     """
     lang = language(locale)  # einmal warnen, nicht je Visual
+    model_dir = model_dir or report_model_dir(report_dir)
+    if model_dir is None:
+        warnings.warn(f"Alt-Text: kein Semantikmodell fuer {report_dir.name} (definition.pbir byPath); "
+                      "Text-Measures unbekannt, Kacheln in Kachelform.", UnknownModelWarning, stacklevel=2)
+    texte = text_measures(model_dir)
     changed: List[Path] = []
     for path in sorted((report_dir / "definition" / "pages").glob("*/visuals/*/visual.json")):
         raw = path.read_text(encoding="utf-8")
         original = json.loads(raw)
-        updated = apply_alt_text(json.loads(raw), locale=lang, replace_generated=True)
+        updated = apply_alt_text(json.loads(raw), locale=lang, replace_generated=True, text_measures=texte)
         if updated == original:
             continue
         text = _serialize_like(raw, original, updated)
@@ -420,6 +487,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     "z. B. FIN-001 und COM-001_Sales_Performance_vs_Plan_LY). Sprache aus "
                     "ux_layout_rules.report_locale des Brackets.")
     parser.add_argument("reports", nargs="+", type=Path, help="Pfad(e) zu <Name>.Report")
+    parser.add_argument("--model", type=Path, default=None,
+                        help="Semantikmodell (<Name>.SemanticModel) fuer die Erkennung der "
+                             "Text-Measures, wenn definition.pbir nicht dorthin aufloest (z. B. "
+                             "Golden-Fixtures ohne Nachbarmodell).")
     parser.add_argument("--locale", default=None,
                         help="Sprache statt der aus dem Bracket (z. B. de-DE); nur fuer Reports "
                              "ohne Bracket gedacht, die Quelle ist das Bracket.")
@@ -428,8 +499,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if not (report / "definition" / "pages").is_dir():
             print(f"ERROR: kein PBIR-Report: {report}", file=sys.stderr)
             return 1
+        if args.model is None and report_model_dir(report) is None:
+            # Ohne Modell sind Text-Measures unbekannt; raten hiesse, erzeugten Alt-Text von
+            # Text-Kacheln wieder in die Kachelform zu kippen.
+            print(f"ERROR: kein Semantikmodell fuer {report.name} (definition.pbir byPath); "
+                  "--model angeben", file=sys.stderr)
+            return 1
         locale = args.locale or report_locale(report)
-        changed = apply_to_report(report, locale)
+        changed = apply_to_report(report, locale, model_dir=args.model)
         print(f"{report.name}: {len(changed)} visual.json mit Alt-Text (Locale {locale})")
     return 0
 

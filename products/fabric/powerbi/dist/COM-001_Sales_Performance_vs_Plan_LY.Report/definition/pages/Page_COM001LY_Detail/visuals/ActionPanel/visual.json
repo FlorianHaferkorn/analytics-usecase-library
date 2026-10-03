@@ -40,7 +40,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Active Actions Text: current value'"
+                  "Value": "'Active Actions Text'"
                 }
               }
             }

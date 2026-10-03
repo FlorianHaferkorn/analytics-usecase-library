@@ -40,7 +40,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Narrative Text (XD): current value'"
+                  "Value": "'Narrative Text (XD)'"
                 }
               }
             }

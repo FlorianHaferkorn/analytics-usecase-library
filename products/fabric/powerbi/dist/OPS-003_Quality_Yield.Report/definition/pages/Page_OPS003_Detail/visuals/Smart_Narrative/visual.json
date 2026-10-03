@@ -40,7 +40,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Narrative Text (OPS): current value'"
+                  "Value": "'Narrative Text (OPS)'"
                 }
               }
             }

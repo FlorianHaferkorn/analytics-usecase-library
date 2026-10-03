@@ -137,6 +137,10 @@ The generator reads from these governance files:
     an `UnknownLocaleWarning`. Reports without a generator path (FIN-001, COM-001LY) take the same
     setting via `python -m products.fabric.powerbi.tooling.page_scaffold_generator.alt_text <X.Report>`
     (bracket found by the use case ID in the folder name; `--locale` only for reports without one).
+    Cards bound only to text measures (`formatString: @` in the bound model, e.g. `Narrative Text
+    (COM)`) get the measure name without "current value"; the tool reads the model from
+    `definition.pbir` (`--model <X.SemanticModel>` where that path does not resolve, e.g. golden
+    fixtures) and stops without one.
 - `core/templates/page_templates/tokens/visual_slot_mapping.yaml`
 - `core/templates/page_templates/tokens/layout_grid.yaml`
 - `core/templates/page_templates/tokens/color_semantics.yaml`
