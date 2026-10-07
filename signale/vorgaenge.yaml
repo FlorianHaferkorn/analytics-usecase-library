@@ -47,14 +47,16 @@ vorgaenge:
 - signal: SIG-2609-001
   artefakt: ALUCA-PBI-GENERATOR
   risiko: T1
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-21'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen: products/fabric/powerbi/tooling/copilot_readiness um Copilot Chat/Cowork
-    als Einstieg ergänzen, wie MER-KI-ASSESSMENT (D-681).'
+  begruendung: 'D-686: copilot_readiness rendert zugangswege.md (Chat/Cowork, Verified-Answers-Grenze
+    laut Learn 07.10.2026); zugangswege.py byte-identisch im Copilot-Kern-Spiegel; ALUCA c56474af, 62
+    passed'
   d_eintrag: null
-  belege: []
+  belege:
+  - products/fabric/powerbi/tooling/copilot_readiness/adapter.py
   verlauf:
   - am: '2026-10-07'
     status: triage
@@ -63,6 +65,18 @@ vorgaenge:
   - am: '2026-10-07'
     status: bewerten
     von: agent
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: verifiziert
+    von: flo
     notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-07_Entscheidung_Paket-D-Folgevorgaenge-aus-Deklarationsluecken.md
 - signal: SIG-2609-002
@@ -140,14 +154,15 @@ vorgaenge:
 - signal: SIG-2609-002
   artefakt: ALUCA-PBI-GENERATOR
   risiko: T1
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-21'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen: copilot_readiness nennt Label-DLP ab E5 bereits (ADR-0025); nach Entscheidung
-    verifizieren.'
+  begruendung: 'D-686: Prüfung ergab Lücke (grep E5 in copilot_readiness 0 Treffer); ergänzt adapter.py:387
+    und zugangswege.md:34 (E5 oder Purview-Suite), Test; ALUCA c56474af'
   d_eintrag: null
-  belege: []
+  belege:
+  - products/fabric/powerbi/tooling/copilot_readiness/adapter.py
   verlauf:
   - am: '2026-10-07'
     status: triage
@@ -156,6 +171,18 @@ vorgaenge:
   - am: '2026-10-07'
     status: bewerten
     von: agent
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: verifiziert
+    von: flo
     notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-07_Entscheidung_Paket-D-Folgevorgaenge-aus-Deklarationsluecken.md
 - signal: SIG-2609-003
@@ -180,11 +207,11 @@ vorgaenge:
 - signal: SIG-2609-003
   artefakt: ALUCA-PBI-GENERATOR
   risiko: T1
-  status: bewerten
+  status: entschieden
   faellig: '2026-10-21'
-  entscheidung: null
-  wiedervorlage: null
-  begruendung: 'Vorschlag beobachten bis GA (Preview): Copilot in Power BI und Fabric.'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-07'
+  begruendung: 'Vorschlag angenommen: Vorschlag beobachten bis GA (Preview): Copilot in Power BI und Fabric.'
   d_eintrag: null
   belege: []
   verlauf:
@@ -195,6 +222,10 @@ vorgaenge:
   - am: '2026-10-07'
     status: bewerten
     von: agent
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
     notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-07_Entscheidung_Paket-D-Folgevorgaenge-aus-Deklarationsluecken.md
 - signal: SIG-2609-004
@@ -309,14 +340,15 @@ vorgaenge:
 - signal: SIG-2609-005
   artefakt: ALUCA-DEPLOY
   risiko: T1
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-21'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen gemeinsam mit ALUCA-PBI-GENERATOR (D-681): report_generator.py/.ps1
-    und orchestrator/sandbox.py erzeugen PBIR; gegen die offiziellen Skills halten.'
+  begruendung: 'D-686: Deploy-Pfad erzeugt keine abgekündigten Typen (dist: 69x cardVisual, 0x map/filledMap/qnaVisual/card/multiRowCard);
+    Cheatsheet-Beispiele auf cardVisual; ALUCA 84ac89e1'
   d_eintrag: null
-  belege: []
+  belege:
+  - deployment/orchestrator/IMPLEMENTATION_CHEATSHEET.md
   verlauf:
   - am: '2026-10-07'
     status: triage
@@ -325,6 +357,18 @@ vorgaenge:
   - am: '2026-10-07'
     status: bewerten
     von: agent
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: verifiziert
+    von: flo
     notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-07_Entscheidung_Paket-D-Folgevorgaenge-aus-Deklarationsluecken.md
 - signal: SIG-2609-005
@@ -425,14 +469,15 @@ vorgaenge:
 - signal: SIG-2609-008
   artefakt: ALUCA-AGENT-SKILLS
   risiko: T2
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-21'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen: generate-and-validate-pbi-report und fix-pbi-report-errors (docs/agent/skills,
-    .claude/skills) nennen report.json/PBIR-Legacy; auf „PBIR GA, stille Konvertierung“ umstellen (D-681).'
-  d_eintrag: null
-  belege: []
+  begruendung: 'D-686: Skills generate-and-validate-pbi-report und fix-pbi-report-errors auf PBIR GA umgestellt,
+    generate_tool_configs --check 35 ok; ALUCA 84ac89e1/488d2d25'
+  d_eintrag: D-686
+  belege:
+  - docs/agent/skills/generate-and-validate-pbi-report.md
   verlauf:
   - am: '2026-10-07'
     status: triage
@@ -442,18 +487,31 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: verifiziert
+    von: flo
+    notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-07_Entscheidung_Paket-D-Folgevorgaenge-aus-Deklarationsluecken.md
 - signal: SIG-2609-008
   artefakt: ALUCA-DEPLOY
   risiko: T2
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-21'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen: deployment/orchestrator (report_generator, AUTOMATION_FLOW.md, IMPLEMENTATION_CHEATSHEET.md)
-    auf report.json/PBIR-Legacy prüfen und auf PBIR GA umstellen.'
-  d_eintrag: null
-  belege: []
+  begruendung: 'D-686: report_generator.ps1 (schrieb PBIR-Legacy) stillgelegt, generate_phase5_reports.ps1
+    ohne Legacy-Fallback, AUTOMATION_FLOW/CHEATSHEET/README auf PBIR GA; pwsh-Lauf steht aus; ALUCA 84ac89e1'
+  d_eintrag: D-686
+  belege:
+  - deployment/orchestrator/AUTOMATION_FLOW.md
   verlauf:
   - am: '2026-10-07'
     status: triage
@@ -462,6 +520,18 @@ vorgaenge:
   - am: '2026-10-07'
     status: bewerten
     von: agent
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: verifiziert
+    von: flo
     notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-07_Entscheidung_Paket-D-Folgevorgaenge-aus-Deklarationsluecken.md
 - signal: SIG-2609-008
@@ -586,15 +656,15 @@ vorgaenge:
 - signal: SIG-2609-009
   artefakt: ALUCA-PBI-GENERATOR
   risiko: T2
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-21'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen: tooling/generator (enrich_measure_docs.py, data_contract.schema.json)
-    nennt Q&A/Linguistik; wie D-624 den Q&A-Schalter als Voraussetzung von Prep data for AI behalten,
-    Q&A-Oberflächen nicht mehr erzeugen.'
-  d_eintrag: null
-  belege: []
+  begruendung: 'D-686: data_contract.schema.json:231 Q&A-Schalter bleibt Voraussetzung, Oberflächen enden
+    Feb 2027 (Learn-Banner 07.10.2026); enrich_measure_docs.py ohne Q&A-Aussage; ALUCA 84ac89e1'
+  d_eintrag: D-686
+  belege:
+  - tooling/generator/schemas/data_contract.schema.json
   verlauf:
   - am: '2026-10-07'
     status: triage
@@ -603,6 +673,18 @@ vorgaenge:
   - am: '2026-10-07'
     status: bewerten
     von: agent
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: verifiziert
+    von: flo
     notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-07_Entscheidung_Paket-D-Folgevorgaenge-aus-Deklarationsluecken.md
 - signal: SIG-2609-010
@@ -663,13 +745,15 @@ vorgaenge:
 - signal: SIG-2609-010
   artefakt: ALUCA-PBI-GENERATOR
   risiko: T1
-  status: bewerten
+  status: verifiziert
   faellig: '2026-10-21'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Vorschlag umsetzen gemeinsam mit ALUCA-KAPAZITAET (D-681): Copilot ab F2 in der Kapazitätsempfehlung.'
+  begruendung: 'D-686: capacity.py COPILOT_MIN_SKU F2 + copilot_minimum(), Feld copilot in recommend(),
+    Test gegen Meridian-Spiegel; Learn copilot-enable-fabric 07.10.2026; ALUCA 84ac89e1'
   d_eintrag: null
-  belege: []
+  belege:
+  - tooling/superversion/capacity.py
   verlauf:
   - am: '2026-10-07'
     status: triage
@@ -678,6 +762,18 @@ vorgaenge:
   - am: '2026-10-07'
     status: bewerten
     von: agent
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: verifiziert
+    von: flo
     notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-07_Entscheidung_Paket-D-Folgevorgaenge-aus-Deklarationsluecken.md
 - signal: SIG-2609-011
@@ -722,11 +818,12 @@ vorgaenge:
 - signal: SIG-2609-011
   artefakt: ALUCA-PBI-GENERATOR
   risiko: T2
-  status: bewerten
+  status: entschieden
   faellig: '2026-10-21'
-  entscheidung: null
-  wiedervorlage: null
-  begruendung: 'Vorschlag beobachten bis GA (angekündigt): Narrative-Visual ohne Q&A.'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-07'
+  begruendung: 'Vorschlag angenommen: Vorschlag beobachten bis GA (angekündigt): Narrative-Visual ohne
+    Q&A.'
   d_eintrag: null
   belege: []
   verlauf:
@@ -737,6 +834,10 @@ vorgaenge:
   - am: '2026-10-07'
     status: bewerten
     von: agent
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
     notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-07_Entscheidung_Paket-D-Folgevorgaenge-aus-Deklarationsluecken.md
 - signal: SIG-2609-015
@@ -935,11 +1036,11 @@ vorgaenge:
 - signal: SIG-2609-020
   artefakt: ALUCA-PBI-GENERATOR
   risiko: T1
-  status: bewerten
+  status: entschieden
   faellig: '2026-10-21'
-  entscheidung: null
-  wiedervorlage: null
-  begruendung: 'Vorschlag beobachten bis GA (Preview): Ontology als Data-Agent-Kontext.'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-07'
+  begruendung: 'Vorschlag angenommen: Vorschlag beobachten bis GA (Preview): Ontology als Data-Agent-Kontext.'
   d_eintrag: null
   belege: []
   verlauf:
@@ -950,6 +1051,10 @@ vorgaenge:
   - am: '2026-10-07'
     status: bewerten
     von: agent
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
     notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-07_Entscheidung_Paket-D-Folgevorgaenge-aus-Deklarationsluecken.md
 - signal: SIG-2609-021
