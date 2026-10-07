@@ -97,6 +97,47 @@ def visual_measure_references(visual_json: dict) -> set[str]:
     return refs
 
 
+def visual_column_references(visual_json: dict) -> set[tuple[str, str]]:
+    """``(table, column)`` of every explicit ``Column`` node with an ``Entity`` source.
+
+    Skills-Abgleich R5 (D-687): the official report skill binds visuals only to existing model
+    objects. Nodes that name their source through a query alias (``Source``) carry no table
+    name and are skipped rather than guessed.
+    """
+
+    refs: set[tuple[str, str]] = set()
+    for node in _walk(visual_json):
+        column = node.get("Column")
+        if not isinstance(column, dict):
+            continue
+        entity = ((column.get("Expression") or {}).get("SourceRef") or {}).get("Entity")
+        prop = column.get("Property")
+        if isinstance(entity, str) and isinstance(prop, str):
+            refs.add((entity, prop))
+    return refs
+
+
+def _bound_model_tables(report_dir: Path) -> dict[str, TableSymbols] | None:
+    """Tabellen des Modells, an das der Report laut `definition.pbir` bindet. None = nicht aufloesbar."""
+    import json
+
+    pbir = report_dir / "definition.pbir"
+    try:
+        ref = ((json.loads(pbir.read_text(encoding="utf-8")).get("datasetReference") or {})
+               .get("byPath") or {}).get("path")
+    except (OSError, ValueError):
+        return None
+    model = (report_dir / ref).resolve() if ref else None
+    if model is None or not (model / "definition" / "tables").is_dir():
+        return None
+    out: dict[str, TableSymbols] = {}
+    for tmdl in sorted((model / "definition" / "tables").glob("*.tmdl")):
+        table = parse_tmdl_table(tmdl)
+        if table:
+            out[table.name] = table
+    return out
+
+
 def _bound_model_measures(report_dir: Path) -> set[str] | None:
     """Measures des Modells, an das der Report laut `definition.pbir` bindet.
 
@@ -137,6 +178,8 @@ def validate_report_measure_references(dist_root: Path) -> list[Violation]:
     for report_dir in iter_report_dirs(dist_root):
         eigene = _bound_model_measures(report_dir)
         bekannt = eigene if eigene is not None else symbols.measure_names
+        tabellen = _bound_model_tables(report_dir)
+        tabellen = tabellen if tabellen is not None else symbols.tables
         for visual_file in report_dir.glob("definition/pages/*/visuals/*/visual.json"):
             try:
                 import json
@@ -164,6 +207,20 @@ def validate_report_measure_references(dist_root: Path) -> list[Violation]:
                          "Visual references a measure that is not defined in any TMDL _Measures table"),
                         expected="defined TMDL measure",
                         actual=ref,
+                    )
+                )
+            # R5 (D-687): columns, too -- same model, same severity.
+            for table, column in sorted(visual_column_references(visual)):
+                if table in tabellen and column in tabellen[table].columns:
+                    continue
+                violations.append(
+                    Violation(
+                        "dax-reference:missing-column",
+                        "critical",
+                        visual_file.relative_to(dist_root).as_posix(),
+                        "Visual references a column that is not defined in the semantic model it is bound to",
+                        expected="defined TMDL column",
+                        actual=f"{table}[{column}]",
                     )
                 )
     return violations
