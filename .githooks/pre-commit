@@ -2,3 +2,13 @@
 # claude-repo-kit: strict Drift-Gate (zero-dependency; `make check` bleibt für lokal/CI).
 if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi
 "$PY" scripts/check_index.py --strict || exit 1
+# Secret-Baseline-Tor (07.10.2026): gestagte Dateien gegen .secrets.baseline (detect-secrets-hook,
+# Pin = "version" der Baseline). 1 = neuer Fund -> Commit abbrechen. 2 = nicht gelaufen (Werkzeug
+# fehlt / falsche Version) -> laut melden, nicht blockieren: der versionierte Hook reist in
+# Umgebungen ohne die Abhaengigkeit (repo_kit_init.py, v3.24); hart prueft CI python-checks.
+"$PY" products/fabric/powerbi/deployment/scripts/secret_scan_gate.py --baseline --staged
+rc=$?
+if [ "$rc" -eq 1 ]; then exit 1; fi
+if [ "$rc" -ne 0 ]; then
+  echo "[UNGEPRUEFT] Secret-Baseline-Tor nicht gelaufen (Exit $rc) - Commit ohne Secret-Scan." >&2
+fi
