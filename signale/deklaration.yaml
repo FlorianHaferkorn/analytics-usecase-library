@@ -11,42 +11,114 @@
 stand: null
 vorgaenge: vorgaenge.yaml
 artefakte:
-  - id: ALUCA-PBI-GENERATOR
-    titel: Generator für Semantic Models und Berichte (TMDL, PBIR, PBIP, Themes)
-    klasse: werkzeug
-    themen: [pbi.pbir, pbi.tmdl, pbi.pbip, pbi.semantic_model]
-    pfade: [tooling/generator/**, tooling/generator_core/**, tooling/codegen/**,
-            products/fabric/powerbi/tooling/**, products/fabric/powerbi/themes/**,
-            products/fabric/powerbi/templates/**]
-  - id: ALUCA-PBI-BERICHTE
-    titel: Ausgelieferte Berichte und Modelle je Use Case (dist, Blueprints)
-    klasse: deliverable
-    themen: [pbi.reporting, pbi.pbir, fabric.direct_lake]
-    pfade: [products/fabric/powerbi/dist/**, products/fabric/powerbi/blueprints/**]
-  - id: ALUCA-DEPLOY
-    titel: Deployment nach Fabric (Skripte, Orchestrator, Identitäten)
-    klasse: werkzeug
-    themen: [fabric.cicd, governance.identity]
-    pfade: [products/fabric/powerbi/deployment/**, products/fabric/orchestrator/**,
-            products/fabric/powerbi/orchestrator/**]
-  - id: ALUCA-COPILOT
-    titel: Copilot-Readiness der Modelle (Beschreibungen, linguistisches Schema, KI-Zugriff)
-    klasse: werkzeug
-    themen: [pbi.copilot, pbi.qa, fabric.iq, fabric.data_agent, governance.ai_access]
-    pfade: [products/fabric/powerbi/tooling/copilot_readiness/**]
-  - id: ALUCA-AGENT-SKILLS
-    titel: Agenten-Skills und Regeln für die Arbeit an ALUCA
-    klasse: doku
-    themen: [pbi.agentic]
-    pfade: [docs/agent/**, .claude/skills/**, AGENTS.md]
-  - id: ALUCA-KAPAZITAET
-    titel: Capacity-Empfehlung (Skill und Rechenkern)
-    klasse: werkzeug
-    themen: [lizenz.capacity, lizenz.kosten]
-    pfade: [docs/agent/skills/recommend-fabric-capacity.md, .claude/skills/recommend-fabric-capacity/**,
-            tooling/superversion/capacity.py]
-  - id: ALUCA-COMPLIANCE
-    titel: DSGVO-Compliance-Paket (DPIA, AVV, Retention, KI-Egress)
-    klasse: deliverable
-    themen: [governance.purview, governance.dlp, governance.ai_access, governance.data_export]
-    pfade: [compliance/**]
+- id: ALUCA-PBI-GENERATOR
+  titel: Generator für Semantic Models und Berichte (TMDL, PBIR, PBIP, Themes)
+  klasse: werkzeug
+  themen:
+  - pbi.pbir
+  - pbi.tmdl
+  - pbi.pbip
+  - pbi.semantic_model
+  - pbi.copilot
+  - pbi.qa
+  - fabric.iq.ontology
+  - fabric.direct_lake
+  pfade:
+  - tooling/generator/**
+  - tooling/generator_core/**
+  - tooling/codegen/**
+  - products/fabric/powerbi/tooling/**
+  - products/fabric/powerbi/themes/**
+  - products/fabric/powerbi/templates/**
+  themen_bewusst_nicht:
+    fabric.iq: 'Vorschlag Agent: über verwandt mit fabric.iq.ontology abgedeckt, sobald diese aufgenommen
+      ist'
+    lizenz.capacity: 'Vorschlag Agent: Kapazität nur in Hilfsskripten erwähnt; Dimensionierung liegt in
+      ALUCA-KAPAZITAET'
+- id: ALUCA-PBI-BERICHTE
+  titel: Ausgelieferte Berichte und Modelle je Use Case (dist, Blueprints)
+  klasse: deliverable
+  themen:
+  - pbi.reporting
+  - pbi.pbir
+  - fabric.direct_lake
+  - pbi.qa
+  pfade:
+  - products/fabric/powerbi/dist/**
+  - products/fabric/powerbi/blueprints/**
+- id: ALUCA-DEPLOY
+  titel: Deployment nach Fabric (Skripte, Orchestrator, Identitäten)
+  klasse: werkzeug
+  themen:
+  - fabric.cicd
+  - governance.identity
+  - pbi.pbip
+  - pbi.tmdl
+  pfade:
+  - products/fabric/powerbi/deployment/**
+  - products/fabric/orchestrator/**
+  - products/fabric/powerbi/orchestrator/**
+  themen_bewusst_nicht:
+    pbi.pbir: 'Vorschlag Agent: Deploy reicht Berichte unverändert durch; Formatänderungen treffen ALUCA-PBI-GENERATOR'
+    fabric.iq.ontology: 'Vorschlag Agent: nur Erwähnung im Orchestrator-README und einem Gate'
+    fabric.direct_lake: 'Vorschlag Agent: nur Erwähnung; Modellmodus entscheidet der Generator'
+    governance.purview: 'Vorschlag Agent: nur Erwähnung; Purview-Einrichtung liegt in Meridians Blueprint'
+    governance.tenant_settings: 'Vorschlag Agent: Voraussetzungen werden geprüft, nicht gesetzt; Tenant-Setup
+      liegt in Meridians admin_settings.py'
+- id: ALUCA-COPILOT
+  titel: Copilot-Readiness der Modelle (Beschreibungen, linguistisches Schema, KI-Zugriff)
+  klasse: werkzeug
+  themen:
+  - pbi.copilot
+  - pbi.qa
+  - fabric.iq
+  - fabric.data_agent
+  - governance.ai_access
+  pfade:
+  - products/fabric/powerbi/tooling/copilot_readiness/**
+- id: ALUCA-AGENT-SKILLS
+  titel: Agenten-Skills und Regeln für die Arbeit an ALUCA
+  klasse: doku
+  themen:
+  - pbi.agentic
+  - pbi.pbir
+  - pbi.pbip
+  - pbi.tmdl
+  - fabric.iq.ontology
+  pfade:
+  - docs/agent/**
+  - .claude/skills/**
+  - AGENTS.md
+  themen_bewusst_nicht:
+    fabric.iq: 'Vorschlag Agent: Werkzeugtabelle verweist auf Fabric IQ MCP; Änderungen daran treffen
+      ALUCA-COPILOT und ALUCA-COMPLIANCE'
+    fabric.direct_lake: 'Vorschlag Agent: nur im Capacity-Skill erwähnt; der gehört zu ALUCA-KAPAZITAET'
+    governance.ai_access: 'Vorschlag Agent: Werkzeugtabelle verweist auf Zugriffsfragen; geregelt in ALUCA-COMPLIANCE'
+- id: ALUCA-KAPAZITAET
+  titel: Capacity-Empfehlung (Skill und Rechenkern)
+  klasse: werkzeug
+  themen:
+  - lizenz.capacity
+  - lizenz.kosten
+  pfade:
+  - docs/agent/skills/recommend-fabric-capacity.md
+  - .claude/skills/recommend-fabric-capacity/**
+  - tooling/superversion/capacity.py
+  themen_bewusst_nicht:
+    fabric.iq.ontology: 'Vorschlag Agent: Ontologie nur als Feature mit Mindest-SKU erwähnt'
+    fabric.monitoring: 'Vorschlag Agent: Monitoring nur als Hinweis auf die Capacity-Metrics-App'
+    fabric.direct_lake: 'Vorschlag Agent: Direct-Lake-Grenzen als Eingangsgröße; Änderungen daran meldet
+      lizenz.capacity mit'
+- id: ALUCA-COMPLIANCE
+  titel: DSGVO-Compliance-Paket (DPIA, AVV, Retention, KI-Egress)
+  klasse: deliverable
+  themen:
+  - governance.purview
+  - governance.dlp
+  - governance.ai_access
+  - governance.data_export
+  pfade:
+  - compliance/**
+  themen_bewusst_nicht:
+    governance.tenant_settings: 'Vorschlag Agent: die DPIA verweist auf Tenant-Einstellungen; gesetzt
+      werden sie in Meridians admin_settings.py'

@@ -5,6 +5,21 @@
 version: 1
 vorgaenge:
 - signal: SIG-2609-001
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-14'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-001
   artefakt: ALUCA-COPILOT
   risiko: T1
   status: nicht_relevant
@@ -24,6 +39,36 @@ vorgaenge:
     status: nicht_relevant
     von: agent
     notiz: erste Triage
+- signal: SIG-2609-001
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-002
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-14'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
 - signal: SIG-2609-002
   artefakt: ALUCA-COMPLIANCE
   risiko: T2
@@ -76,6 +121,21 @@ vorgaenge:
     status: nicht_relevant
     von: agent
     notiz: erste Triage
+- signal: SIG-2609-002
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
 - signal: SIG-2609-003
   artefakt: ALUCA-COPILOT
   risiko: T1
@@ -95,6 +155,21 @@ vorgaenge:
     status: nicht_relevant
     von: agent
     notiz: erste Triage
+- signal: SIG-2609-003
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
 - signal: SIG-2609-004
   artefakt: ALUCA-COMPLIANCE
   risiko: T2
@@ -205,6 +280,21 @@ vorgaenge:
     von: agent
     notiz: Doku ohne Auslieferung an Kunden
 - signal: SIG-2609-005
+  artefakt: ALUCA-DEPLOY
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-005
   artefakt: ALUCA-PBI-BERICHTE
   risiko: T2
   status: nicht_relevant
@@ -226,12 +316,12 @@ vorgaenge:
 - signal: SIG-2609-005
   artefakt: ALUCA-PBI-GENERATOR
   risiko: T1
-  status: bewerten
+  status: entschieden
   faellig: '2026-10-15'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Vorschlag prüfen (Official-First): offizielle Skills gegen TMDL-/PBIR-Hardrules (AGENTS.md)
-    halten.'
+  begruendung: 'Vorschlag angenommen: Vorschlag prüfen (Official-First): offizielle Skills gegen TMDL-/PBIR-Hardrules
+    (AGENTS.md) halten.'
   d_eintrag: null
   belege: []
   verlauf:
@@ -243,6 +333,10 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: erste Triage
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-C-Pruefungen-und-Previews.md
 - signal: SIG-2609-006
   artefakt: ALUCA-AGENT-SKILLS
@@ -286,6 +380,36 @@ vorgaenge:
     status: nicht_relevant
     von: agent
     notiz: erste Triage
+- signal: SIG-2609-008
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T2
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-008
+  artefakt: ALUCA-DEPLOY
+  risiko: T2
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
 - signal: SIG-2609-008
   artefakt: ALUCA-PBI-BERICHTE
   risiko: T2
@@ -385,6 +509,36 @@ vorgaenge:
     status: verifiziert
     von: agent
     notiz: Tests und Gates grün
+- signal: SIG-2609-009
+  artefakt: ALUCA-PBI-BERICHTE
+  risiko: T2
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-009
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T2
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
 - signal: SIG-2609-010
   artefakt: ALUCA-COPILOT
   risiko: T1
@@ -407,12 +561,12 @@ vorgaenge:
 - signal: SIG-2609-010
   artefakt: ALUCA-KAPAZITAET
   risiko: T1
-  status: bewerten
+  status: entschieden
   faellig: '2026-10-15'
-  entscheidung: null
+  entscheidung: umsetzen
   wiedervorlage: null
-  begruendung: 'Vorschlag prüfen: tooling/superversion/capacity.py führt F64 als Lizenzschwelle (Z.18);
-    sicherstellen, dass Copilot ab F2 empfohlen wird, sonst ergänzen.'
+  begruendung: 'Vorschlag angenommen: Vorschlag prüfen: tooling/superversion/capacity.py führt F64 als
+    Lizenzschwelle (Z.18); sicherstellen, dass Copilot ab F2 empfohlen wird, sonst ergänzen.'
   d_eintrag: null
   belege: []
   verlauf:
@@ -424,7 +578,26 @@ vorgaenge:
     status: bewerten
     von: agent
     notiz: erste Triage
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
   vorlage: research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-C-Pruefungen-und-Previews.md
+- signal: SIG-2609-010
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
 - signal: SIG-2609-011
   artefakt: ALUCA-COPILOT
   risiko: T2
@@ -464,6 +637,21 @@ vorgaenge:
     status: nicht_relevant
     von: agent
     notiz: erste Triage
+- signal: SIG-2609-011
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T2
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
 - signal: SIG-2609-015
   artefakt: ALUCA-COMPLIANCE
   risiko: T2
@@ -541,6 +729,21 @@ vorgaenge:
     von: flo
     notiz: 'Vorschlag angenommen: beobachten bis 2026-12-01'
 - signal: SIG-2609-019
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-14'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-019
   artefakt: ALUCA-COPILOT
   risiko: T1
   status: entschieden
@@ -588,6 +791,21 @@ vorgaenge:
     von: flo
     notiz: 'Vorschlag angenommen: beobachten bis 2026-12-01'
 - signal: SIG-2609-020
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-14'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-020
   artefakt: ALUCA-COPILOT
   risiko: T1
   status: entschieden
@@ -611,6 +829,36 @@ vorgaenge:
     status: entschieden
     von: flo
     notiz: 'Vorschlag angenommen: beobachten bis 2026-12-01'
+- signal: SIG-2609-020
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-021
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-14'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
 - signal: SIG-2609-021
   artefakt: ALUCA-COMPLIANCE
   risiko: T2
