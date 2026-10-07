@@ -43,10 +43,25 @@ def test_bar_chart_is_clean(tmp_path):
 
 def test_forbidden_set_is_the_governed_one():
     # the reuse guarantee: the forbidden set lives in the invariant, not here
+    # (IBCS 2.0 EX 2.1-2.3 since 02.10.2026: funnel added; radar/custom gauges by substring)
+    # (07.10.2026: plus the Microsoft-deprecated types, D-683 Meridian)
     assert ForbiddenVisualTypes().forbidden == {
-        "pieChart", "donutChart", "gauge", "treemap",
+        "pieChart", "donutChart", "gauge", "treemap", "funnel",
         "map", "filledMap", "qnaVisual", "card", "multiRowCard",
     }
+
+
+def test_declared_exception_is_not_a_violation(tmp_path):
+    rep = _report_with_visual(tmp_path, "gauge")
+    vj = next(rep.rglob("visual.json"))
+    body = json.loads(vj.read_text(encoding="utf-8"))
+    body["annotations"] = [{"name": "ibcs.ausnahme", "value": "EX 2.2: Leitstand"}]
+    vj.write_text(json.dumps(body), encoding="utf-8")
+    assert forbidden_in(rep) == []
+    # Gegenprobe: ohne Annotation zaehlt der Tacho
+    body.pop("annotations")
+    vj.write_text(json.dumps(body), encoding="utf-8")
+    assert forbidden_in(rep) == ["gauge"]
 
 
 @pytest.mark.parametrize("visual_type,replacement", [

@@ -76,6 +76,9 @@ class PageBuilder:
         # Sprache des Alt-Texts (ux_layout_rules.report_locale, gesetzt von PageScaffoldGenerator);
         # None -> Englisch wie vor dem 01.10.2026.
         self.report_locale: Optional[str] = None
+        # Text-Measures des gebundenen Modells (formatString @, alt_text.text_measures): Kacheln
+        # aus ihnen bekommen keinen Zusatz "aktueller Wert". Gesetzt von PageScaffoldGenerator.
+        self.text_measures: frozenset = frozenset()
     
     def generate_page_id(self) -> str:
         """Generate unique page ID (20 hex characters)."""
@@ -326,7 +329,8 @@ class PageBuilder:
                     vis.setdefault("visual", {}).setdefault("query", {})["sortDefinition"] = _rang
                 # Alt-Text hier, weil nur hier bekannt ist, welche Reihe der Vergleich ist;
                 # alle uebrigen Visuals bekommen ihn in PageScaffoldGenerator.generate().
-                apply_alt_text(vis, _binding.get("comparison_measures") or (), locale=self.report_locale)
+                apply_alt_text(vis, _binding.get("comparison_measures") or (), locale=self.report_locale,
+                               text_measures=self.text_measures)
             elif slot_id in _MAIN_SLOTS_ORDER:
                 # Ungebundener Main-Slot -> KEIN Visual. Bis 01.08.2026 stand hier ein
                 # Fallback, der die ersten vier KPI-Card-Measures auf eine Balkenachse

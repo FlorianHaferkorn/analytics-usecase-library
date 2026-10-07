@@ -99,10 +99,18 @@ def test_check_fit_flags_max_with_the_governing_anti_pattern():
     r = resolve.check_fit("donut", {"category": 7})
     assert r["fit"] is False
     v = r["violations"][0]
-    assert v["param"] == "category" and v["check"] == "max" and v["bound"] == 4 and v["actual"] == 7
+    assert v["param"] == "category" and v["check"] == "max" and v["bound"] == 3 and v["actual"] == 7
     assert v["rule"] == "pie_or_donut_gt_4"
     assert v["message"] and v["fix"]  # resolved from the catalog
     assert "value" in r["unchecked"]  # not supplied -> unchecked, not failed
+
+
+def test_donut_max_three_parts_ibcs_ex21():
+    # IBCS 2.0 EX 2.1 (S. 136): not more than two or three values per pie; Gegenprobe 3 vs 4
+    assert resolve.check_fit("donut", {"category": 3})["fit"] is True
+    r = resolve.check_fit("donut", {"category": 4})
+    assert r["fit"] is False and r["violations"][0]["rule"] == "pie_or_donut_gt_4"
+    assert "<=3 parts" in resolve.DENY_VISUALTYPES["pieChart"]["use"]
 
 
 def test_check_fit_flags_min_and_type():
@@ -129,5 +137,5 @@ def test_anti_patterns_resolve_to_catalog_entries():
 
 def test_idiom_card_carries_data_fit_and_resolved_anti_patterns():
     card = resolve._idiom_card("donut")
-    assert card["data_fit"]["category"]["max"] == 4
+    assert card["data_fit"]["category"]["max"] == 3  # IBCS 2.0 EX 2.1, S. 136
     assert any(a["id"] == "pie_or_donut_gt_4" and a["message"] for a in card["anti_patterns"])

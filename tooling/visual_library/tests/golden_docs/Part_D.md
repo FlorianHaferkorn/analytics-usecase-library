@@ -12,7 +12,7 @@
 | **deviation_from_target** | Are we above/below plan or target — by how much? | `deviation_bar` | pulse / analysis | `deviation_bar` · `bullet` · `deviation_bar@ibcs` · `variance_pin@ibcs` · `multi_tier_column@ibcs` |
 | **compare_categories** | Which categories lead or lag — where should attention focus? | `bar_ranking` | analysis | `bar_ranking` · `lollipop` · `bar_absolute` · `dumbbell` |
 | **contribution_to_change** | What moved the number from A to B — which drivers? | `waterfall_pvm` | analysis | `waterfall_pvm` · `waterfall_buildup` · `waterfall_variance` · `waterfall_pvm@ibcs` |
-| **part_to_whole** | What is the share of the whole (<= 4 parts)? | `donut` | analysis | `donut` · `stacked_100` · `bar_stacked` |
+| **part_to_whole** | What is the share of the whole (<= 3 parts)? | `donut` | analysis | `donut` · `stacked_100` · `bar_stacked` |
 | **correlation** | How do two continuous variables relate? | `scatter` | analysis | `scatter` |
 | **flow_between_stages** | How does quantity flow between stages — where does it leak? | `sankey` | detail | `sankey` |
 | **driver_breakdown** | Which dimension drives the number? (interactive) | `decomposition_tree` | detail | `decomposition_tree` |
