@@ -212,6 +212,33 @@ def test_committed_output_is_the_current_render():
     assert cli_main(["-u", "COM-001", "--check"]) == 0
 
 
+# -- access paths via Microsoft 365 Copilot (D-686, SIG-2609-001/-002) ----------------
+
+
+def test_zugangswege_cover_chat_and_cowork_from_the_mirrored_fields(com001):
+    """Both access paths come from the mirrored Meridian fields, not from ALUCA prose."""
+    zw = _vendor.load_kernel()["zugangswege"]
+    text = com001["zugangswege.md"]
+    assert [w["id"] for w in zw.ZUGANGSWEGE] == ["m365_copilot_chat", "m365_copilot_cowork"]
+    for weg in zw.ZUGANGSWEGE:
+        assert weg["name"] in text and weg["quelle"] in text
+    # one table row per criterion, one cell per path
+    for _feld, label in zw.KRITERIEN_ZEILEN:
+        row = next(ln for ln in text.splitlines() if ln.startswith(f"| {label} |"))
+        assert row.count("|") == len(zw.ZUGANGSWEGE) + 2, row
+    # None means "source says nothing", never "no"
+    assert "laut Quelle offen" in text
+
+
+def test_zugangswege_name_the_verified_answer_limit_and_label_dlp_e5(com001):
+    text = com001["zugangswege.md"]
+    assert "keine Verified Answers, wenn dort Fabric IQ eingeschaltet ist" in text
+    assert "Cowork unterstützt Verified Answers" in text
+    assert adapter.QUELLE_VERIFIED_ANSWERS in text
+    assert "Microsoft 365 E5" in text and "compliance/DPIA.md, Abschnitt 12.4" in text
+    assert (REPO / "compliance" / "DPIA.md").read_text(encoding="utf-8").count("E5") >= 1
+
+
 # -- parity with Meridian ------------------------------------------------------------
 
 
