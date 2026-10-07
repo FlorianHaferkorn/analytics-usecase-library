@@ -88,9 +88,17 @@ Checkliste je veröffentlichtem Modell:
       festgehalten (`compliance/DPIA.md` 12.3, Ledger C-25).
 - [ ] Aus gewählt: in den Modelleinstellungen ausgeschaltet; abgeleitete Modelle einzeln geprüft.
 - [ ] An gewählt: Prep data for AI (diese Ausgabe) eingetragen, bevor Leser Zugriff erhalten.
+- [ ] Q&A am Semantic Model eingeschaltet: ohne den Schalter sind die Reiter von Prep data for AI
+      gesperrt (Learn `copilot-prepare-data-ai`, gelesen 01.10.2026). Die Q&A-Oberflächen enden im
+      Februar 2027, der Schalter bleibt Voraussetzung, bis Microsoft einen Ersatz nennt (D-624).
 
 ## Bekannte Grenzen
 
+- Fabric IQ MCP (GA, nur lesend) gibt eigenen Agenten Zugriff auf Modell-Metadaten und Werte.
+  Ist Fabric IQ aktiviert, liefert Copilot keine Verified Answers (Learn
+  `power-bi/create-reports/copilot-prepare-data-ai-verified-answers`, in Meridian gelesen
+  30.09.2026, `ki_zugang.py`). Datenschutz und Zustimmungsrichtlinie: `compliance/DPIA.md` 12.4
+  (ADR-0025).
 - Regel- und Anleitungstexte des Kerns sind deutsch, Definitionen bleiben englisch wie im Katalog.
 - Die Trigger-Phrasen sind Vorlagen des Kerns; `example_question` aus dem Katalog wird nicht eingespielt.
 - Spalten-Synonyme der Datenverträge gehen über das linguistische Schema

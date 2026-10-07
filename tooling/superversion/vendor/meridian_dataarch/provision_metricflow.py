@@ -57,8 +57,18 @@ def _measure_columns_by_fact(gc: dict | None) -> dict[str, set[str]]:
     return out
 
 
+def _vorzeichen_expr(col: str, sb: dict | None) -> str:
+    """Die Spalte mit Vorzeichen je Zeile (D-674): zeilenweises SQL, in einem Mass-`expr` ausdrueckbar."""
+    if not sb:
+        return col
+    neg = ", ".join(f"'{w}'" for w in sb["negative"])
+    aus = ", ".join(f"'{w}'" for w in sb.get("exclude") or [])
+    return (f"CASE WHEN {sb['sap_field']} IN ({neg}) THEN -{col} "
+            + (f"WHEN {sb['sap_field']} IN ({aus}) THEN 0 " if aus else "") + f"ELSE {col} END")
+
+
 def _measure_entry(col: str, contract_ref: str, is_balance: bool,
-                   filt: dict | None = None) -> dict[str, Any] | None:
+                   filt: dict | None = None, vorzeichen: dict | None = None) -> dict[str, Any] | None:
     """A semantic-model measure. Balances carry ``meta.additivity: balance`` + a semi-additive note —
     honest signalling: a balance is additive across non-time dimensions but NOT over time. A proper
     ``non_additive_dimension`` needs the as-of/posting date column, which is a per-system modelling
@@ -79,9 +89,14 @@ def _measure_entry(col: str, contract_ref: str, is_balance: bool,
         desc += f" — nur Zeilen mit {_sql_pred(filt)}: {filt.get('why') or 'gefiltert'}"
     eintrag: dict[str, Any] = {"name": col, "agg": "sum", "description": desc,
                                "meta": {"additivity": "balance" if is_balance else "flow"}}
+    wert = _vorzeichen_expr(col, vorzeichen)
     if filt:
-        eintrag["expr"] = f"CASE WHEN {_sql_pred(filt)} THEN {col} ELSE 0 END"
+        eintrag["expr"] = f"CASE WHEN {_sql_pred(filt)} THEN {wert} ELSE 0 END"
         eintrag["meta"]["filter"] = _sql_pred(filt)
+    elif vorzeichen:
+        eintrag["expr"] = wert
+    if vorzeichen:
+        eintrag["meta"]["vorzeichen"] = vorzeichen.get("why") or vorzeichen["sap_field"]
     return eintrag
 
 
@@ -131,6 +146,12 @@ def _sql_pred(f: dict | None) -> str:
         return ""
     sp = f["sap_field"]
     wert = f.get("value")
+    if f.get("op") in ("not_empty", "empty"):
+        sp = f"TRIM({sp})"          # Leerzeichen-Kennzeichen zaehlt als leer (02.10.2026, wie DAX)
+    if f.get("op") == "in_list":
+        # Wert in Liste (D-676): ausdrueckbar, sobald die Liste aufgeloest ist; ein offener Kundenwert
+        # ist hier leer, und das Mass faellt heraus wie ein nicht ausdrueckbarer Filter.
+        return f"{sp} IN ({', '.join(repr(str(w)) for w in f['values'])})" if f.get("values") else ""
     return {"not_empty": f"{sp} <> ''", "empty": f"{sp} = ''",
             "equals": f"{sp} = '{wert}'", "not_equals": f"{sp} <> '{wert}'"}.get(f.get("op", ""), "")
 
@@ -148,7 +169,9 @@ def _semantic_model(name: str, kind: str, contract_ref: str, columns: list[str],
                     measure_cols: set[str] | None = None,
                     balance_cols: set[str] | None = None,
                     count_measures: list[dict] | None = None,
-                    measure_filters: dict | None = None) -> dict[str, Any]:
+                    measure_filters: dict | None = None,
+                    ohne: set[str] | None = None,
+                    vorzeichen: dict | None = None) -> dict[str, Any]:
     model = f"gold_{_ident(name)}"
     entities = [{"name": f"{_ident(name)}_key", "type": "primary"}]
     mcols = set(measure_cols or ())
@@ -166,10 +189,14 @@ def _semantic_model(name: str, kind: str, contract_ref: str, columns: list[str],
         "entities": entities,
         "dimensions": dimensions,
     }
-    zaehl = sorted(count_measures or [], key=lambda c: c.get("name", ""))
+    # Eine Zaehlung mit nicht ausdrueckbarem Filter (Zugehoerigkeit, D-666) faellt heraus: `1` statt
+    # des Praedikats zaehlte jede Zeile.
+    zaehl = sorted((c for c in count_measures or [] if not c.get("filter") or _sql_pred(c["filter"])),
+                   key=lambda c: c.get("name", ""))
     mf = measure_filters or {}
-    gefiltert = [e for e in (_measure_entry(c, contract_ref, c in bcols, mf.get(c))
-                             for c in sorted(mcols)) if e is not None]
+    vz = vorzeichen or {}
+    gefiltert = [e for e in (_measure_entry(c, contract_ref, c in bcols, mf.get(c), vz.get(c))
+                             for c in sorted(mcols - set(ohne or ()))) if e is not None]
     if gefiltert or zaehl:                                  # real governed measures (agg default sum)
         sm["measures"] = gefiltert + [_count_entry(c, contract_ref) for c in zaehl if c.get("name")]
     elif not mcols and kind in ("fact", "aggregate"):      # IR-only skeleton (no catalog)
@@ -222,12 +249,24 @@ def _metrics_from_catalog(gc: dict | None, ohne: set[str] | None = None) -> list
                          "type_params": {"measure": mname}, "meta": {"kpi_id": m.get("kpi_id", "")}}
 
     metrics: list[dict[str, Any]] = list(simple.values())
+    abgeleitet = {mname for _m, mname in derived}
+    # Kennzahlverweise (D-664): eine Ableitung faellt, wenn eine Zielkennzahl fehlt — auch eine
+    # abgeleitete, die selbst gefallen ist. Bis zum Fixpunkt, weil Verweise sich ketten.
+    # Eine Seite auf Jahresbasis (D-675, Monatsmittel mal 12) ist kein Ausdruck ueber Metriken; sie
+    # faellt von Anfang an, und mit ihr, was auf sie verweist (CCC auf DSO).
+    gefallen: set[str] = jahresbasis_metriken(gc)
+    while True:
+        neu = {mname for m, mname in derived if mname not in gefallen
+               and (fehlt | gefallen).intersection(m["derived_from"].get("measures", []))}
+        if not neu:
+            break
+        gefallen |= neu
     for m, mname in derived:
         df = m["derived_from"]
-        if fehlt.intersection(df.get("measures", [])):
+        if mname in gefallen:
             continue                                # eine Komponente fehlt, das Verhaeltnis auch
         for base in df.get("measures", []):        # auxiliary simple metric per ungoverned operand
-            if base not in simple:
+            if base not in simple and base not in abgeleitet:
                 aux = {"name": base, "label": base, "type": "simple", "type_params": {"measure": base},
                        "meta": {"kpi_id": "intermediate (no governed KPI)"}}
                 simple[base] = aux
@@ -239,6 +278,14 @@ def _metrics_from_catalog(gc: dict | None, ohne: set[str] | None = None) -> list
             "meta": {"kpi_id": m.get("kpi_id", "")},
         })
     return metrics
+
+
+def jahresbasis_metriken(gc: dict | None) -> set[str]:
+    """Abgeleitete Kennzahlen mit einer Seite auf Jahresbasis (D-675). Ihr Nenner ist ein Mittel ueber
+    Kalendermonate; ein MetricFlow-`derived`-Ausdruck rechnet ueber Metrikwerte im Abfragegrain und
+    kennt diese Mittelung nicht. Genaehert wird nicht."""
+    return {_ident(m.get("measure_name", "")) for m in (gc or {}).get("measures", []) or []
+            if (m.get("derived_from") or {}).get("annualize")}
 
 
 def emit_metricflow(blueprint: dict, governed_catalog: dict | None = None) -> dict[str, str]:
@@ -253,6 +300,12 @@ def emit_metricflow(blueprint: dict, governed_catalog: dict | None = None) -> di
     counts_by_fact = _count_measures_by_fact(governed_catalog)
     filters_by_fact = {_ident(t.get("name", "")): dict(t.get("measure_filters") or {})
                        for t in (governed_catalog or {}).get("tables", []) or []}
+    perioden_by_fact = {_ident(t.get("name", "")): set(t.get("period_averages") or {})
+                        for t in (governed_catalog or {}).get("tables", []) or []}
+    zeilen_by_fact = {_ident(t.get("name", "")): list(t.get("row_measures") or [])
+                      for t in (governed_catalog or {}).get("tables", []) or []}
+    vorzeichen_by_fact = {_ident(t.get("name", "")): dict(t.get("measure_signs") or {})
+                          for t in (governed_catalog or {}).get("tables", []) or []}
 
     semantic_models: list[dict[str, Any]] = []
     ausgelassen: set[str] = set()                   # Masse mit nicht ausdrueckbarem Filter (D-345)
@@ -265,8 +318,16 @@ def emit_metricflow(blueprint: dict, governed_catalog: dict | None = None) -> di
             zaehl = _fuer_produkt(counts_by_fact, product) or []
             m_filter = _fuer_produkt(filters_by_fact, product) or {}
             ausgelassen |= _nicht_ausdrueckbar(m_filter)
+            # Mittel ueber Perioden (D-663) und Rechnung je Zeile (D-665) sind kein `agg: sum` ueber
+            # einer Spalte; MetricFlow bekommt sie nicht genaehert, sondern gar nicht.
+            perioden = _fuer_produkt(perioden_by_fact, product) or set()
+            ausgelassen |= perioden
+            ausgelassen |= {c.get("name") for c in _fuer_produkt(zeilen_by_fact, product) or []}
+            ausgelassen |= {c.get("name") for c in zaehl if c.get("filter") and not _sql_pred(c["filter"])}
             semantic_models.append(_semantic_model(product, kind, contract_ref, columns,
-                                                   measure_cols, balance_cols, zaehl, m_filter))
+                                                   measure_cols, balance_cols, zaehl, m_filter,
+                                                   ohne=perioden,
+                                                   vorzeichen=_fuer_produkt(vorzeichen_by_fact, product)))
 
     # metrics: real ones from the governed catalog; else one skeleton per fact (Golden-Thread honest).
     metrics = _metrics_from_catalog(governed_catalog, ausgelassen)
@@ -288,6 +349,12 @@ def emit_metricflow(blueprint: dict, governed_catalog: dict | None = None) -> di
                 + ". Ihr Filter braucht den Filterkontext oder eine zweite Tabelle; ein Mass-`expr` "
                   "hat beides nicht. Diese Kennzahlen stehen im semantischen Modell von Power BI und "
                   "hier bewusst nirgends — eine Naeherung saehe in jeder Anzeige richtig aus.", ""]
+    if jahresbasis_metriken(governed_catalog):
+        doc += ["**Nicht emittiert, Jahresbasis** (D-675): "
+                + ", ".join(f"`{m}`" for m in sorted(jahresbasis_metriken(governed_catalog)))
+                + ". Ihr Umsatz- bzw. Wareneinsatz-Nenner ist das Monatsmittel mal 12 (ALUCA "
+                  "`avgx_over_key(CalendarYearMonth) * 12`); ein `derived`-Ausdruck kennt diese Mittelung "
+                  "nicht. Verweise darauf (CCC) fallen mit. Sie stehen im semantischen Modell von Power BI.", ""]
     return {
         "metricflow/semantic_models.yml": yaml.safe_dump(
             {"semantic_models": semantic_models}, sort_keys=False, allow_unicode=True),
