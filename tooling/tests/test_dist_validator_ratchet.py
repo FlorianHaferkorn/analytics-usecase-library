@@ -28,6 +28,15 @@ Nachgemessen am 30.09.2026 (CLI 0.4.0): unverändert 16 × 25 und 1 × 23. Der o
 käme auf 0, trägt aber nur 105 statt 211 Visuals und 39 von 133 im dist-Modell auflösbare
 Bindungen; `dist/` bleibt deshalb auf dem Prototyp und die Ratsche auf 25
 (`docs/architecture/research/2026-09-30_a18-dist-emit-messung.md`, A-18).
+
+Nachgemessen am 07.10.2026 (CLI 0.4.0, `validate --format json`, alle 17 dist-Reports): vorher
+16 × 25 und 1 × 23 (423 Errors), nachher 15 × 23, FIN-001 23, COM-001LY 25 (393). Die 25 waren
+keine Katalogluecke, sondern Quellfehler: der Generator schrieb `calloutValue` an `cardVisual`
+und `text.text` an die Header-Textbox (beide behoben, 15 Reports neu erzeugt). Die 23 im Theme
+stammen aus einem veralteten dist-Theme; das vendorte Engine-Theme haette 0, nimmt aber die
+globale Nullbasis (BC-CHART-09) weg und wechselt die Schrift — Engine-Korrektur offen.
+COM-001_Sales_Performance_vs_Plan_LY bleibt bei 25 (keine Generator-Eingabe). Offline
+gefuehrt in `test_dist_formatting_catalogue.py`.
 """
 from __future__ import annotations
 
@@ -65,6 +74,11 @@ def _cli_args(report: Path) -> list[str]:
 #: `horizontal_bar_chart`; der eine ECHTE Bruecke (COM-001LY) nutzt jetzt das
 #: Muster, das COM-002 seit jeher vormacht — dim_pvm_driver als Kategorie, eine
 #: Measure auf Y. Was bleibt, sind die Theme-Eigenschaften (Uebergabepunkt A).
+#:
+#: 07.10.2026: cardVisual `value` statt `calloutValue`, Textbox `general.paragraphs` statt
+#: `text.text` — 15 Reports 25 -> 23. Der schlechteste bleibt COM-001LY mit 25 (Theme 23 +
+#: `calloutValue` + `dataLabels`, handgepflegte Variante ohne Bracket), daher Baseline 25.
+#: Faellt COM-001LY oder das Theme, gehoert die Zahl gesenkt (test_baseline_is_not_stale).
 BASELINE_ERRORS = 25
 
 

@@ -12,16 +12,18 @@
   "visual": {
     "visualType": "textbox",
     "objects": {
-      "text": [
+      "general": [
         {
           "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Is OEE on target and which losses are biggest this week?  ·  Expected finding — Recover OEE by isolating asset-level availability losses and routing the right maintenance response.'"
-                }
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Is OEE on target and which losses are biggest this week?  ·  Expected finding — Recover OEE by isolating asset-level availability losses and routing the right maintenance response."
+                  }
+                ]
               }
-            }
+            ]
           }
         }
       ]

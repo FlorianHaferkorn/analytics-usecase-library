@@ -189,12 +189,24 @@ def check_header_text_equals_big_idea(
     header = next((v for v in generated_visuals if v.get("name") == "Header"), None)
     if header is None:
         return [f"{rule['id']}: page_1_summary.big_idea is set but no Header visual was generated"]
-    text_objs = header.get("visual", {}).get("objects", {}).get("text") or []
-    if not text_objs:
-        return [f"{rule['id']}: Header visual has no text object"]
-    rendered = text_objs[0].get("properties", {}).get("text", {}).get("expr", {}).get("Literal", {}).get("Value", "")
-    # Rendered literal is a single-quoted PBIR string with '' as the escaped quote.
-    rendered_unquoted = rendered[1:-1].replace("''", "'") if rendered.startswith("'") and rendered.endswith("'") else rendered
+    objects = header.get("visual", {}).get("objects", {}) or {}
+    # Textbox text lives in general.paragraphs[].textRuns[].value (plain string, PBIR shape
+    # since 07.10.2026); the legacy text.text literal is still read so older output is judged
+    # by the same rule.
+    runs = [
+        str(run.get("value") or "")
+        for entry in objects.get("general") or []
+        for para in (entry.get("properties") or {}).get("paragraphs") or []
+        for run in para.get("textRuns") or []
+    ]
+    rendered_unquoted = "".join(runs)
+    if not runs:
+        text_objs = objects.get("text") or []
+        if not text_objs:
+            return [f"{rule['id']}: Header visual has no text object"]
+        rendered = text_objs[0].get("properties", {}).get("text", {}).get("expr", {}).get("Literal", {}).get("Value", "")
+        # Rendered literal is a single-quoted PBIR string with '' as the escaped quote.
+        rendered_unquoted = rendered[1:-1].replace("''", "'") if rendered.startswith("'") and rendered.endswith("'") else rendered
     if big_idea not in rendered_unquoted:
         return [f"{rule['id']}: Header text does not contain page_1_summary.big_idea verbatim"]
     return []
