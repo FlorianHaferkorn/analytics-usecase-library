@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-10-01
+last-reviewed: 2026-10-07
 shelf-life-days: 90
 owns: "*.py"
 ---
@@ -24,6 +24,7 @@ owns: "*.py"
 | Semantic Model gegen Gold-Daten prüfen (fehlende `sourceColumn`, Ledger A-24) | [`../tooling/validation/check_model_vs_gold.py`](../tooling/validation/check_model_vs_gold.py) (liest `_metadata`/`_active_paths` von hier) | `check_plattform.py` |
 | Secret-Baseline-Tor rot (CI `python-checks` oder pre-commit), neuer Fund oder Pin-Hash gemeldet | [`../products/fabric/powerbi/deployment/scripts/secret_scan_gate.py`](../products/fabric/powerbi/deployment/scripts/secret_scan_gate.py) `--baseline` (Doku: [`../products/fabric/powerbi/deployment/.azure-pipelines/README.md`](../products/fabric/powerbi/deployment/.azure-pipelines/README.md) „Secret Baseline Gate“) | `check_index.py` |
 | Neues Repo mit dem Claude Repo Kit einrichten | `repo_kit_init.py` | Gates |
+| pre-commit-Hook ändern oder aktivieren | [`../.githooks/pre-commit`](../.githooks/pre-commit) (einziger Hook: Drift-Gate, Kundenkennungen, Secret-Baseline, Ruff-Sperrklinke bei `.py`, Ontologie-Registry bei `core/`; aktiv über `core.hooksPath=.githooks`, gesetzt vom SessionStart bzw. [`../tooling/git-hooks/install_precommit.ps1`](../tooling/git-hooks/install_precommit.ps1)) | `tooling/git-hooks/pre-commit` (entfernt 07.10.2026) |
 
 ## 2. Register
 
@@ -35,7 +36,7 @@ owns: "*.py"
 | `check_dataarch_mirror.py` | Sensor | Drift des gespiegelten Meridian-Dataarch-Vertrags (ADR-0051) der vendorten Power-BI-Themes aus Freelancing `products/pbi_theme` (`--write-themes`, seit 29.09.2026) und des gespiegelten Copilot-Readiness-Kerns aus `products/meridian_copilot_readiness/generator` (`--write-copilot`, seit 30.09.2026) |
 | `check_superversion_pins.py` | Sensor | Pin-Drift der Superversion (ADR-0005 Regel 6) |
 | `check_plattform.py` | Ratchet | Sperrklinke gegen Annahmen, die nur auf Linux stimmen (`plattform_baseline.json`) |
-| `check_lint_ratchet.py` | Ratchet | Ruff-Befunde je Regel eingefroren (`lint_baseline.json`), dürfen nur sinken; Exit 0 OK / 1 gestiegen / 2 nicht gelaufen; Ruff aus PATH, dann `python -m ruff`, Pin aus `stage1.yml`; CI `python-checks` (`--pin-pflicht`, hart) + pre-commit `.githooks/pre-commit` (seit 07.10.2026) und `tooling/git-hooks/pre-commit` Gate 1.6, je nur bei gestagtem `.py` (1 = Abbruch, 2 = `[UNGEPRUEFT]` auf stderr) |
+| `check_lint_ratchet.py` | Ratchet | Ruff-Befunde je Regel eingefroren (`lint_baseline.json`), dürfen nur sinken; Exit 0 OK / 1 gestiegen / 2 nicht gelaufen; Ruff aus PATH, dann `python -m ruff`, Pin aus `stage1.yml`; CI `python-checks` (`--pin-pflicht`, hart) + pre-commit `.githooks/pre-commit` (Tor 4; seit 07.10.2026 der einzige Hook), nur bei gestagtem `.py` (1 = Abbruch, 2 = `[UNGEPRUEFT]` auf stderr) |
 | `pruefe_sweep.py` | Gegenprobe | Prüft mechanische Massenänderungen nach |
 | `check_showcase_delta.py` | Gate | Konsistenz der Showcase-Delta-Tabellen; stellt den Delta-Log-Replay (`_active_paths`, `_metadata`: Schema + Partitionsspalten) für andere Tore bereit |
 | `repo_kit_init.py` | Werkzeug | Erkennungs- und Scaffold-Engine des Claude Repo Kits |

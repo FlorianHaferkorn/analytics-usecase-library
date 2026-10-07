@@ -100,16 +100,19 @@ Legacy migration script (factsheets to brackets): see `internal/archive/lean2_cu
 
 ## 3. git-hooks/ (Continuous Governance)
 
-**Purpose:** Pre-commit enforcement — runs registry in strict mode before every commit.
+**Purpose:** Activates the repository's single pre-commit hook, `.githooks/pre-commit`
+(drift gate, customer identifiers, secret baseline, Ruff ratchet for staged `.py`,
+ontology registry strict for staged `core/`). Since 07.10.2026 there is no second hook here.
 
 **Install:**
 ```powershell
-.\tooling\git-hooks\install_precommit.ps1
+.\tooling\git-hooks\install_precommit.ps1   # sets git config core.hooksPath .githooks
 ```
 
 **Contents:**
-- `pre-commit` — shell hook (runs `registry_builder.py --strict`)
-- `install_precommit.ps1` — copies hook to `.git/hooks/`, validates Python 3
+- `install_precommit.ps1` — validates Python 3, sets `core.hooksPath .githooks` (idempotent),
+  renames a previously copied `.git/hooks/pre-commit` instead of deleting it. Claude Code
+  sessions do the same via the SessionStart hook `.claude/hooks/activate_git_hooks.sh`.
 
 ---
 
