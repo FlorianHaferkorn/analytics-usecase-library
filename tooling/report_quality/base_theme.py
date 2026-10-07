@@ -16,6 +16,10 @@ Measured 30.09.2026 with CLI 0.4.0 (``scaffold --offline``): baseTheme name ``CY
 ``reportVersionAtImport`` ``{visual 2.11.0, report 3.4.0, page 2.3.1}``.
 Hergeleitet, ANNAHME, ungeprueft (D-587): ``CY26SU10`` is "Classic 2026", not Fluent 2.
 
+Measured 07.10.2026 with CLI 0.5.0 (Meridian D-685): ``scaffold`` now writes ``Fluent2-CY26SU10``
+(95297 bytes), ``reportVersionAtImport`` unchanged. Learn ``power-bi-reports-visual-defaults``:
+Fluent 2 is the default base theme for new reports, Classic 2026 the previous one.
+
 Pure stdlib, no side effects on import.
 """
 
@@ -26,10 +30,10 @@ from pathlib import Path
 #: npm package and the version pinned in ``.github/workflows/superversion.yml``
 #: (D-580). The drift test holds both in step.
 CLI_PACKAGE = "@microsoft/powerbi-report-authoring-cli"
-CLI_VERSION_PIN = "0.4.0"
+CLI_VERSION_PIN = "0.5.0"
 
 #: Base theme the pinned CLI scaffolds new reports with (D-587).
-BASE_THEME_NAME = "CY26SU10"
+BASE_THEME_NAME = "Fluent2-CY26SU10"
 
 #: ``themeCollection.baseTheme.reportVersionAtImport`` as written by ``scaffold`` of the pin.
 BASE_THEME_REPORT_VERSION_AT_IMPORT: dict[str, str] = {

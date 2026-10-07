@@ -1175,3 +1175,163 @@ vorgaenge:
     status: verifiziert
     von: agent
     notiz: Tests und Gates grün
+- signal: SIG-2610-003
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T2
+  status: nicht_relevant
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: 'ALUCA-AGENT-SKILLS: Skills nennen kein Basistheme; Pin und Theme laufen unter ALUCA-PBI-GENERATOR.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-07'
+    status: nicht_relevant
+    von: agent
+    notiz: Statuswechsel
+- signal: SIG-2610-003
+  artefakt: ALUCA-PBI-BERICHTE
+  risiko: T2
+  status: nicht_relevant
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: 'ALUCA-PBI-BERICHTE: Die CLI-Beobachtung ist durch das Herstellersignal SIG-2610-004 (GA)
+    abgelöst; Umsetzung dort.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-07'
+    status: nicht_relevant
+    von: agent
+    notiz: Statuswechsel
+- signal: SIG-2610-003
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T2
+  status: verifiziert
+  faellig: '2026-10-21'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'Flo 07.10.2026 (D-685): Basistheme Fluent2-CY26SU10, Pin 0.5.0 in beiden Repos.'
+  d_eintrag: D-685
+  belege:
+  - '13/13 Meridian- und 17/17 ALUCA-Berichte mit powerbi-report-author 0.5.0 geprüft (07.10.2026): Meridian
+    0 Errors, ALUCA unveränderter Rückstand 423; base_theme drift-check 17/17 ohne Abweichung'
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-07'
+    status: bewerten
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: verifiziert
+    von: flo
+    notiz: Statuswechsel
+- signal: SIG-2610-004
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T2
+  status: nicht_relevant
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: 'ALUCA-AGENT-SKILLS: Skills nennen kein Basistheme; Umsetzung unter ALUCA-PBI-GENERATOR
+    (D-685).'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-07'
+    status: nicht_relevant
+    von: agent
+    notiz: Statuswechsel
+- signal: SIG-2610-004
+  artefakt: ALUCA-PBI-BERICHTE
+  risiko: T2
+  status: verifiziert
+  faellig: '2026-10-21'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'Flo 07.10.2026 (D-685): Basistheme Fluent2-CY26SU10 mit Ausgleich, Pin 0.5.0 in beiden
+    Repos.'
+  d_eintrag: D-685
+  belege:
+  - 17/17 ALUCA-dist-Berichte per apply_report_theme --sync-base-theme umgezogen, --check 0 abweichend;
+    powerbi-report-author 0.5.0 unveränderter Rückstand 423 (07.10.2026)
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-07'
+    status: bewerten
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: verifiziert
+    von: flo
+    notiz: Statuswechsel
+- signal: SIG-2610-004
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T2
+  status: verifiziert
+  faellig: '2026-10-21'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'Flo 07.10.2026 (D-685): Basistheme Fluent2-CY26SU10 mit Ausgleich, Pin 0.5.0 in beiden
+    Repos.'
+  d_eintrag: D-685
+  belege:
+  - tooling/report_quality/base_theme.py auf Fluent2-CY26SU10 und Pin 0.5.0, Vendor-Kopie per refresh_authoring_metadata
+    --base-theme-only, Metadaten-Snapshot 57 Typen unverändert (07.10.2026)
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-07'
+    status: bewerten
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: flo
+    notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: verifiziert
+    von: flo
+    notiz: Statuswechsel
