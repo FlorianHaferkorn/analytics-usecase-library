@@ -121,6 +121,34 @@ class ConfigurationError(OrchestratorError):
 
 
 # ============================================================================
+# Gold target (ALUCA ADR-0024, amended 02.10.2026)
+# ============================================================================
+#
+# Where the Trf layer materialises gold: a Lakehouse (Spark, dbt-fabricspark over the Livy API)
+# or a Warehouse (T-SQL, dbt-fabric). The **recommendation is `lakehouse`** — MS Learn
+# *decision-guide-lakehouse-warehouse* (read 02.10.2026): Spark development → Lakehouse, T-SQL →
+# Warehouse, multi-table transactions → Warehouse. The **default stays `warehouse`**: it is the
+# path this tool has always provisioned, and a config without the key must not change what an
+# existing tenant gets. Neither path has been run against a tenant from here.
+GOLD_TARGETS = ("lakehouse", "warehouse")
+DEFAULT_GOLD_TARGET = "warehouse"
+RECOMMENDED_GOLD_TARGET = "lakehouse"
+GOLD_ITEM_TYPE = {"lakehouse": "Lakehouse", "warehouse": "Warehouse"}
+
+
+def resolve_gold_target(config: Any) -> str:
+    """The configured gold target (`gold_target` in config.yaml), validated; default `warehouse`."""
+    raw = config.get("gold_target", DEFAULT_GOLD_TARGET)
+    value = str(raw).lower().strip()
+    if value not in GOLD_TARGETS:
+        raise ConfigurationError(
+            f"Invalid gold_target '{raw}'. Must be one of {list(GOLD_TARGETS)} "
+            f"(recommended: '{RECOMMENDED_GOLD_TARGET}')."
+        )
+    return value
+
+
+# ============================================================================
 # Configuration Loader
 # ============================================================================
 
@@ -1355,8 +1383,19 @@ class TemplateGenerator:
 
         return str(output_path)
     
-    def _build_dbt_project_configs(self, domain: str) -> dict:
-        """Construct and return all dbt config structures (no I/O, no print)."""
+    def _build_dbt_project_configs(self, domain: str, gold_target: Optional[str] = None) -> dict:
+        """Construct and return all dbt config structures (no I/O, no print).
+
+        ``gold_target`` (default: ``gold_target`` from the config, else ``warehouse``) picks the
+        adapter: ``warehouse`` → dbt-fabric (T-SQL against the Trf Warehouse), ``lakehouse`` →
+        dbt-fabricspark (Spark SQL over the Fabric Livy API into the Trf Lakehouse).
+        """
+        if gold_target is None:
+            gold_target = resolve_gold_target(self.config)
+        if gold_target not in GOLD_TARGETS:
+            raise ConfigurationError(f"Invalid gold_target '{gold_target}'. Must be one of {list(GOLD_TARGETS)}.")
+        if gold_target == "lakehouse":
+            return self._build_dbt_fabricspark_configs(domain)
         dbt_project = {
             "name": f"{domain.lower()}_dbt",
             "version": "1.0.0",
@@ -1461,8 +1500,98 @@ WHERE transaction_date >= DATEADD(year, -2, GETDATE())
             "fact_sql": fact_sql,
         }
 
+    def _build_dbt_fabricspark_configs(self, domain: str) -> dict:
+        """dbt-fabricspark skeleton for a Lakehouse gold target (no I/O, no print).
+
+        Profile fields as documented by the adapter (github.com/microsoft/dbt-fabricspark,
+        README, read 02.10.2026): ``method: livy``, ``workspaceid``/``lakehouseid`` (GUIDs, only
+        known after provisioning — hence environment variables), ``authentication: SPN``. The
+        Trf lakehouse is created without schemas (``ItemProvisioner``), so ``schema`` equals the
+        lakehouse name (two-part naming) and the models carry no ``+schema`` override.
+        """
+        project = f"{domain.lower()}_dbt"
+        lakehouse = f"{domain.lower()}_trf"
+        dbt_project = {
+            "name": project,
+            "version": "1.0.0",
+            "config-version": 2,
+            "profile": "fabricspark",
+            "model-paths": ["models"],
+            "analysis-paths": ["analyses"],
+            "test-paths": ["tests"],
+            "seed-paths": ["seeds"],
+            "macro-paths": ["macros"],
+            "snapshot-paths": ["snapshots"],
+            "target-path": "target",
+            "clean-targets": ["target", "dbt_packages"],
+            "models": {project: {"gold": {"+materialized": "table"}}},
+        }
+
+        def _output(env: str) -> dict:
+            suffix = env.upper()
+            return {
+                "type": "fabricspark",
+                "method": "livy",
+                "endpoint": "https://api.fabric.microsoft.com/v1",
+                "workspaceid": "{{ env_var('FABRIC_TRF_WORKSPACE_ID_%s') }}" % suffix,
+                "lakehouseid": "{{ env_var('FABRIC_TRF_LAKEHOUSE_ID_%s') }}" % suffix,
+                "lakehouse": lakehouse,
+                "schema": lakehouse,
+                "threads": 1,
+                "authentication": "SPN",
+                "tenant_id": "{{ env_var('AZURE_TENANT_ID') }}",
+                "client_id": "{{ env_var('AZURE_CLIENT_ID') }}",
+                "client_secret": "{{ env_var('AZURE_CLIENT_SECRET') }}",
+            }
+
+        profiles = {
+            "fabricspark": {
+                "target": "dev",
+                "outputs": {env: _output(env) for env in ("dev", "test", "prod")},
+            }
+        }
+
+        schema_yml = {
+            "version": 2,
+            "models": [
+                {
+                    "name": "fact_transactions",
+                    "description": "Gold layer fact table - transactions (Delta table in the Trf lakehouse)",
+                    "columns": [
+                        {"name": "transaction_id", "description": "Unique transaction identifier"},
+                        {"name": "transaction_date", "description": "Date of transaction"},
+                        {"name": "amount", "description": "Transaction amount"}
+                    ]
+                }
+            ]
+        }
+
+        fact_sql = f"""-- Gold layer: Fact table for {domain} transactions (Spark SQL, dbt-fabricspark)
+-- Source: Silver layer. TODO: point at the silver table as it appears in the Trf lakehouse
+-- through the OneLake shortcut created by init-domain (shortcut `src_tables`).
+
+SELECT
+    transaction_id,
+    transaction_date,
+    customer_id,
+    product_id,
+    amount,
+    quantity,
+    current_timestamp() AS processed_at
+FROM transactions_cleaned
+WHERE transaction_date >= add_months(current_date(), -24)
+"""
+
+        return {
+            "dbt_project": dbt_project,
+            "profiles": profiles,
+            "schema": schema_yml,
+            "fact_sql": fact_sql,
+        }
+
     def generate_dbt_project(self, domain: str, output_dir: str) -> Tuple[str, str]:
-        """Generate dbt-fabric project skeleton."""
+        """Generate the dbt project skeleton for the configured gold target
+        (dbt-fabric for ``warehouse``, dbt-fabricspark for ``lakehouse``)."""
         configs = self._build_dbt_project_configs(domain)
 
         project_dir = Path(output_dir) / f"dbt_{domain.lower()}"
@@ -1506,7 +1635,8 @@ class ItemProvisioner:
 
     Default item types per layer (from architecture spec):
       Src → Lakehouse   (raw / bronze zone)
-      Trf → Warehouse   (transform / silver zone; SQL analytics endpoint auto-created)
+      Trf → Warehouse or Lakehouse, from ``gold_target`` (default ``warehouse``, recommended
+            ``lakehouse``; SQL analytics endpoint auto-created either way)
       Anl → SemanticModel stub (placeholder — full model via PBI Generator pipeline)
 
     The provisioner is idempotent: it skips creation if an item with the target
@@ -1537,6 +1667,8 @@ class ItemProvisioner:
         override = self.config.get(f"item_provisioner.layer_items.{layer}")
         if override is not None:
             return override if isinstance(override, list) else [override]
+        if layer == "Trf":
+            return [GOLD_ITEM_TYPE[resolve_gold_target(self.config)]]
         return self.DEFAULT_LAYER_ITEMS.get(layer, [])
 
     def _find_item(
@@ -1879,6 +2011,8 @@ class DomainOrchestrator:
     def __init__(self, config: ConfigLoader, dry_run: bool = False):
         self.config = config
         self.dry_run = dry_run
+        # Fail fast on a misspelt gold_target, before any workspace exists.
+        self.gold_target = resolve_gold_target(config)
         
         # Initialize components
         self.auth = AuthProvider(config)

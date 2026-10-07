@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-10-01
+last-reviewed: 2026-10-02
 shelf-life-days: 90
 ---
 # internal — Zentraler Anlaufpunkt (_INDEX)
@@ -39,7 +39,7 @@ shelf-life-days: 90
 | Monatliche Guardrail-Retrospektive oder Stage-1-Fehlerquoten auswerten | `metrics/README.md` → `metrics/retrospective_template.md` | `vision/`, `continuity/` |
 | Neue:n Engineer onboarden oder die Systemarchitektur für eine Übergabe verstehen | `continuity/README.md` → `continuity/handover_guide.md` → `continuity/architecture_overview.md` | `project_mgmt/`, `proposal_costing/` |
 | Betrieb/Deployment ohne Originalteam oder Vendor-Escrow durchführen bzw. Kunden-Eigentum verifizieren | `continuity/runbook.md` → `continuity/escrow_checklist.md` | `skills/`, `metrics/` |
-| Angebotskalkulation (Fabric-Kapazität, Power-BI-Lizenzen, Implementierung) erstellen oder Angebotstext befüllen | `proposal_costing/docs/README.md` → `proposal_costing/tooling/README.md` → `proposal_costing/templates/proposal_snippet.md` / `proposal_costing/templates/offer_snippet.md`; Beispiel-Output `proposal_costing/dist/aurora_calculation.md` | `project_mgmt/`, `continuity/` |
+| Angebotskalkulation (Fabric-Kapazität, Power-BI-Lizenzen, Implementierung; USD oder EUR) erstellen oder Angebotstext befüllen | `proposal_costing/docs/README.md` → `proposal_costing/tooling/README.md` → `proposal_costing/templates/proposal_snippet.md` / `proposal_costing/templates/offer_snippet.md`; Beispiel-Output `proposal_costing/dist/aurora_calculation.md` | `project_mgmt/`, `continuity/` |
 | Historischen Stand oder abgelöste Docs nachforschen | `archive/` (nicht navigiert — gezielt suchen, nicht scannen) | alles andere |
 
 ## 2. Dokument-Register (vollständig — Drift-Gate erzwingt das)

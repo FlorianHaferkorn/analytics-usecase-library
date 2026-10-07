@@ -3,6 +3,11 @@
   "data": { "name": "dataset" },
   "encoding": { "x": { "field": "month", "type": "temporal", "axis": { "title": null } } },
   "layer": [
+    { "mark": { "type": "line", "color": "#8C8C8C", "strokeWidth": 1.5 },
+      "encoding": { "y": { "field": "gm_py", "type": "quantitative" } } },
+    { "transform": [ { "filter": "isValid(datum['gm_py'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "month", "order": "ascending" } ] }, { "filter": "datum._q == 1" } ],
+      "mark": { "type": "text", "text": "PY", "align": "left", "dx": 4, "dy": 12, "color": "#8C8C8C" },
+      "encoding": { "y": { "field": "gm_py", "type": "quantitative" } } },
     { "mark": { "type": "line", "color": "#0F2430", "strokeWidth": 2.5 },
       "encoding": { "y": { "field": "gm", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
     { "mark": { "type": "rule", "color": "#94A0AC", "strokeDash": [5, 4] },

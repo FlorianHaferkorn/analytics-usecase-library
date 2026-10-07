@@ -300,20 +300,31 @@ justification. This never overrides the no-layer-skip rule (`data_layers_standar
 
 ### 6.4. Lakehouse vs. Warehouse
 
-**Lakehouse (Recommended):**
-- Delta Lake native
-- Direct Lake Mode support
-- Spark/Notebooks integrated
-- File-level control
-- Open format portability
+Decision 02.10.2026 (ADR-0024 §8): **Lakehouse is the recommendation, Warehouse stays a
+selectable option.** Microsoft Learn does not recommend either across the board; *Choose
+between Warehouse and Lakehouse* (`fabric/fundamentals/decision-guide-lakehouse-warehouse`,
+read 02.10.2026) decides on three questions: Spark development → Lakehouse, T-SQL → Warehouse;
+multi-table transactions → Warehouse; unstructured or unclear data → Lakehouse.
 
-**Warehouse (Alternative):**
-- T-SQL optimized
-- No Direct Lake (Import/DirectQuery only)
-- Better for classical DWH patterns
-- Less portable
+**Lakehouse (recommended):**
+- Spark/notebooks, Delta tables, shortcuts without copying; Materialized Lake Views
+- Learn's recommended use includes the "Medallion lakehouse architecture with bronze, silver,
+  and gold zones"
+- Its SQL analytics endpoint is read-only: "Full DQL, no DML, and limited DDL"
 
-For this framework, **Lakehouse** is the recommended choice.
+**Warehouse (option):**
+- T-SQL development with "Full DQL, DML, and DDL T-SQL support with full transaction support",
+  including multi-table ACID transactions
+- Learn's recommended use: "Enterprise data warehousing", SQL-based BI
+- Also stores Delta in OneLake and can be read by Direct Lake ("Direct Lake is ideal for
+  semantic models connecting to large Fabric lakehouses, warehouses, …", Learn *Direct Lake
+  overview*) — Direct Lake does not separate the two
+
+For this framework, **Lakehouse** is the recommended choice: the stack is Spark/notebook-first,
+MLV and shortcuts are lakehouse features, and no gold path needs multi-table transactions.
+Where generated: `domains[].gold_target` (`lakehouse` default, `mlv`, `warehouse` refused until
+generated) in the architecture-blueprint inputs; `gold_target` in
+`products/fabric/orchestrator/config.yaml`.
 
 ## 6.5 Data Mesh: Domains, Workspaces & Publishing (ADR-0015, pattern P3)
 

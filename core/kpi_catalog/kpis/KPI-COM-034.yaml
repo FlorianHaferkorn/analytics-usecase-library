@@ -1,0 +1,53 @@
+kpi_id: KPI-COM-034
+synonyms:
+- E-Commerce Konversionsrate
+- Online conversion rate
+kpi_key: E-Commerce Conversion Rate
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: Growth
+domain_tag:
+- Commercial
+- Growth
+use_case_ref:
+- COM-006
+action_code_ref:
+- C-E1.1
+calc_type: rate
+good_is: higher
+business:
+  purpose: Measures the share of web-shop sessions that end in a purchase.
+  definition: Sessions with at least one purchase / total sessions.
+  grain_scope: Web shop/device/traffic source; daily.
+  unit_format: percent_1
+  interpretation: Higher is better; operational driver of e-commerce revenue. Comparable over time only with a fixed
+    session definition and documented bot filtering; peer values differ strongly by product category.
+technical:
+  measure_name: E-Commerce Conversion Rate
+  description: Purchasing sessions divided by all sessions (web analytics).
+  depends_on_measures: []
+  lineage: []
+  calculation:
+    op: hitl
+    blocked_by: data_contract
+    reason: No ALUCA data contract carries web-analytics sessions; a session-grain fact (session id, purchase flag)
+      is needed before the rate can be computed.
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  - Bot traffic excluded by a documented rule
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 02.10.2026
+standard_ref:
+- standard: Web analytics (convention)
+  name: E-commerce conversion rate
+  alignment: none
+  note: Session-based conversion is a web-analytics convention; session definition and bot filtering differ between
+    analytics tools, so the value is tool-dependent.

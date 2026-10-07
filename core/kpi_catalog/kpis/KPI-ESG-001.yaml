@@ -1,0 +1,65 @@
+kpi_id: KPI-ESG-001
+synonyms:
+- Scope 1+2 CO2 Emissionen
+- Scope 1 and 2 GHG emissions
+kpi_key: Scope 1+2 CO2 Emissions
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: ESG
+domain_tag:
+- ESG
+- Environment
+use_case_ref:
+- ESG-001
+action_code_ref:
+- E-S1.1
+calc_type: quantity
+good_is: lower
+business:
+  purpose: Measures greenhouse-gas emissions from own operations and purchased energy.
+  definition: Scope 1 emissions + Scope 2 emissions (market-based), in tonnes CO2 equivalent.
+  grain_scope: Site/scope; annual inventory, monthly where metered.
+  unit_format: tco2e_0
+  interpretation: Lower is better; an annual GHG inventory makes in-year trends invisible until consolidation.
+    State the Scope 2 method (market-based) next to the value.
+technical:
+  measure_name: Scope 1+2 CO2 Emissions
+  description: Sum of Scope 1 and Scope 2 emissions in tCO2e.
+  depends_on_measures: []
+  lineage:
+  - fact_emissions.Emissions tCO2e
+  - dim_emission_scope.ScopeCode
+  calculation:
+    op: hitl
+    blocked_by: grammar
+    reason: CALCULATE ( SUM ( fact_emissions[Emissions tCO2e] ), dim_emission_scope[ScopeCode] IN { "SCOPE_1",
+      "SCOPE_2" } ) — a sum under a column-value filter; the grammar has no filtered
+      sum over a related dimension's column (count_filtered/avg_filtered filter only the KPI's own lineage table).
+    pattern: calculate_sum_with_dimension_filter
+    occurrences_in_corpus: 0
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: annually
+  validation_process: manual review
+  qa_rules:
+  - Emissions >= 0
+  - Scope 2 method (market-based) documented per reporting year
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 02.10.2026
+standard_ref:
+- standard: GHG Protocol
+  name: Corporate Standard — Scope 1 and Scope 2
+  url: https://ghgprotocol.org/corporate-standard
+  alignment: partial
+  note: Scope boundaries follow the GHG Protocol Corporate Standard; its Scope 2 Guidance asks for both location-based
+    and market-based Scope 2 figures, this KPI carries the market-based one only.
+- standard: ESRS E1
+  id: E1-6
+  name: Gross Scopes 1, 2, 3 and Total GHG emissions
+  alignment: partial
+  note: ESRS E1-6 discloses Scope 1, Scope 2 and Scope 3 separately plus a total; this KPI is the Scope 1+2 subtotal
+    and not a full E1-6 disclosure.

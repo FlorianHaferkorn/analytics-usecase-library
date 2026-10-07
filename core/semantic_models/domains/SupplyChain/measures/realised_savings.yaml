@@ -1,0 +1,30 @@
+measure_name: Realised Savings %
+is_kpi_measure: true
+kpi_id_ref: KPI-SCM-023
+semantic_model: SupplyChain_SemanticModel
+display_folder: 05_Procurement
+category: KPI
+expression:
+  logical: Realised Savings % = DIVIDE ( SUM ( fact_procurement[Savings Amount] ), SUM ( fact_procurement[Savings Target Amount] ) )
+  aggregation_method: ratio
+documentation:
+  description: Realised procurement savings divided by the savings target.
+  notes: 'Grain: category/supplier, monthly, YTD. Unit: %.
+
+    Lineage: fact_procurement[Savings Amount], fact_procurement[Savings Target Amount].
+
+    Expression synthesized from the governed catalog calculation (KPI-SCM-023, op ratio) via
+    tooling/superversion/targets/dax_synth.py; not yet measured against Aurora gold data.
+
+    QA: Denominator > 0 for reported slices.
+
+    '
+dependencies:
+  columns:
+  - fact_procurement[Savings Amount]
+  - fact_procurement[Savings Target Amount]
+governance:
+  owner: Supply Chain Analytics
+  status: experimental
+  version: v0.1
+  last_review: 02.10.2026

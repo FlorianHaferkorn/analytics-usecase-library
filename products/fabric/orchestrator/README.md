@@ -23,21 +23,64 @@ Ein Schlagwort steuert die Workspace-Matrix; Wechsel jederzeit möglich (gleiche
 | **compact** | 3 | `Sales_Dev`, `Sales_Test`, `Sales_Prod` (ein Workspace pro Environment, logische Trennung innerhalb) |
 
 - **Enterprise:** Strikte Compute-Trennung (Spark/SQL/Semantic), OneLake Shortcuts Src→Trf, volle Governance.
-- **Compact:** Pragmatisch für KMU/Mid-Size; Lakehouse (Bronze/Silver) + Warehouse-Schema (Gold) + Reports im selben Workspace.
+- **Compact:** Pragmatisch für KMU/Mid-Size; Bronze/Silver und Gold logisch getrennt im selben Workspace wie die Reports. Im Code legt `compact` je Environment-Workspace nur ein Lakehouse an (`ItemProvisioner.provision_domain`, Layer `Src`) — `gold_target` wirkt hier nicht.
 
 ### Workspace-Matrix (Enterprise: 9 pro Domain)
 
 | Layer | Dev | Test | Prod |
 |-------|-----|------|------|
 | **Src** (Bronze/Silver) | `Sales_Src_Dev` | `Sales_Src_Test` | `Sales_Src_Prod` |
-| **Trf** (Gold, Warehouse) | `Sales_Trf_Dev` | `Sales_Trf_Test` | `Sales_Trf_Prod` |
+| **Trf** (Gold; Lakehouse oder Warehouse, `gold_target`) | `Sales_Trf_Dev` | `Sales_Trf_Test` | `Sales_Trf_Prod` |
 | **Anl** (Semantic Models) | `Sales_Anl_Dev` | `Sales_Anl_Test` | `Sales_Anl_Prod` |
 
 ### Layer-Definitionen
 
 - **Src (Source/Ingest)**: Lakehouse für Bronze (Raw) & Silver (Cleaned). Spark-basiert.
-- **Trf (Transform/Warehouse)**: Warehouse für Gold (Curated). dbt-fabric (T-SQL).
+- **Trf (Transform/Gold)**: Gold (Curated), je nach `gold_target`:
+  - `lakehouse` — **Empfehlung**: Delta-Tabellen im Trf-Lakehouse, dbt-Skelett für
+    `dbt-fabricspark` (Spark SQL über die Fabric-Livy-API).
+  - `warehouse` — **Vorgabe** (ohne Schlüssel in `config.yaml`, unverändertes Verhalten):
+    Warehouse, dbt-Skelett für `dbt-fabric` (T-SQL).
 - **Anl (Analytics/Serving)**: Semantic Models (Direct Lake) & Power BI Reports.
+
+### Gold-Ziel: Lakehouse empfohlen, Warehouse wählbar (ADR-0024)
+
+Entscheidung 02.10.2026 (`docs/architecture/adr/0024-gold-ziel-mlv-neben-dbt-warehouse.md`):
+Lakehouse ist die Empfehlung, Warehouse bleibt Option. MS Learn *Choose between Warehouse and
+Lakehouse* (`fabric/fundamentals/decision-guide-lakehouse-warehouse`, gelesen 02.10.2026) gibt
+keine Pauschalempfehlung, sondern Entscheidungspunkte: Spark-Entwicklung → Lakehouse, T-SQL →
+Warehouse; Multi-Table-Transaktionen → Warehouse; unstrukturierte oder unklare Daten →
+Lakehouse; „Medallion lakehouse architecture with bronze, silver, and gold zones“ steht beim
+Lakehouse, „Enterprise data warehousing“ beim Warehouse. Der SQL-Analytics-Endpunkt des
+Lakehouse ist nur lesend („Full DQL, no DML, and limited DDL“). Für ALUCA spricht das für das
+Lakehouse, weil der Stack Spark-/Notebook-first ist, Materialized Lake Views und OneLake-
+Shortcuts Lakehouse-Funktionen sind und keine Multi-Table-Transaktionen gebraucht werden.
+Direct Lake unterscheidet die beiden nicht: es liest Lakehouse und Warehouse (Learn
+*Direct Lake overview*). Wer T-SQL-
+Entwicklung oder Multi-Table-Transaktionen braucht, wählt `warehouse`.
+
+| `gold_target` | Trf-Item (`--provision-items`) | dbt-Skelett (`--generate-templates`) |
+|---|---|---|
+| `warehouse` (Vorgabe) | `Warehouse` `<domain>_trf` | `dbt-fabric`, Profil `fabric`, T-SQL |
+| `lakehouse` (empfohlen) | `Lakehouse` `<domain>_trf` (ohne Schemas) | `dbt-fabricspark`, Profil `fabricspark`, `method: livy`, Spark SQL |
+
+Ein ausdrückliches `item_provisioner.layer_items.Trf` hat Vorrang vor `gold_target`.
+
+Warum die Vorgabe nicht umgestellt ist: ein `config.yaml` ohne Schlüssel soll in einem
+bestehenden Mandanten nicht plötzlich ein Lakehouse statt eines Warehouse anlegen. **Keiner der
+beiden Pfade ist von hier aus gegen einen Mandanten gelaufen**; die Tests
+(`tests/test_gold_target.py`) prüfen Item-Typ und Skelett, nicht die Ausführung. Beim
+Lakehouse-Pfad legt `init-domain` außerdem erstmals das Ziel an, das die OneLake-Shortcuts
+`Src → Trf` suchen (Lakehouse `<domain>_trf`); mit `warehouse` werden sie übersprungen
+(„lakehouse not yet provisioned“).
+
+**Status `dbt-fabricspark`** (gemessen 02.10.2026): Microsoft-Repository
+`github.com/microsoft/dbt-fabricspark`, PyPI 1.13.6 mit Klassifikator
+„Development Status :: 5 - Production/Stable“ (PyPI-JSON-API). MS Learn *dbt job in Microsoft
+Fabric* (`fabric/data-factory/dbt-job-overview`) führt den Adapter als „Fabric Lakehouse“ in der
+Fabric-dbt-Job-Laufzeit 1.0 (Adapter 1.12.2); das Feature **dbt job selbst ist Preview**
+(Mandanteneinstellung „dbt jobs (preview)“). Learn nennt keinen eigenen GA-/Preview-Status für den
+Adapter. Er spricht die Fabric-Livy-API an, laut *What's new archive* „Livy REST API (GA)“.
 
 ### Data Linkage (Zero-Copy)
 
@@ -98,7 +141,8 @@ pip install -r requirements.txt
 - `requests` (Fabric REST APIs)
 - `typer` (CLI)
 - `pyyaml` (Config)
-- `dbt-fabric` (optional, für Template-Generierung)
+- `dbt-fabric` (optional, zum Ausführen des Warehouse-Skeletts) bzw. `dbt-fabricspark` (optional,
+  Lakehouse-Skelett) — die Generierung selbst braucht keins von beiden
 
 ---
 
@@ -107,6 +151,9 @@ pip install -r requirements.txt
 Kopieren Sie `config.yaml.example` → `config.yaml` und passen Sie an:
 
 ```yaml
+# Gold-Ziel des Trf-Layers: lakehouse (Empfehlung) | warehouse (Vorgabe ohne Schlüssel)
+gold_target: lakehouse
+
 fabric:
   tenant_id: "YOUR_TENANT_ID"
   authority: "https://login.microsoftonline.com/{tenant_id}"
@@ -203,7 +250,7 @@ python orchestrator.py create-feature --domain Sales --feature-name jira-123 --s
 1. Enterprise: `Sales_Src_Feat_jira-123`, `Sales_Trf_Feat_jira-123`, `Sales_Anl_Feat_jira-123`; Compact: `Sales_Feat_jira-123`
 2. Weist kleine Dev-Capacity zu (Kostenoptimierung)
 3. Verknüpft mit Feature-Branch: `feature/jira-123`
-4. Optional: Generiert Spark Notebook + dbt Skeleton lokal
+4. Optional: Generiert Spark Notebook + dbt Skeleton lokal (Adapter nach `gold_target`)
 
 ---
 
@@ -365,9 +412,9 @@ Generiert für Src-Layer:
 spark.read.format("delta").load("/bronze/sales/transactions").write.mode("overwrite").save("/silver/sales/transactions_cleaned")
 ```
 
-### dbt-fabric Template
+### dbt Template (nach `gold_target`)
 
-Generiert für Trf-Layer:
+Generiert für Trf-Layer. `gold_target: warehouse` (Vorgabe) — dbt-fabric:
 
 ```yaml
 # profiles.yml
@@ -383,6 +430,24 @@ fabric:
 ```sql
 -- models/gold/fact_sales.sql
 SELECT * FROM silver.transactions_cleaned
+```
+
+`gold_target: lakehouse` (Empfehlung) — dbt-fabricspark (Felder nach dem Adapter-README):
+
+```yaml
+# profiles.yml
+fabricspark:
+  target: dev
+  outputs:
+    dev:
+      type: fabricspark
+      method: livy
+      endpoint: https://api.fabric.microsoft.com/v1
+      workspaceid: "{{ env_var('FABRIC_TRF_WORKSPACE_ID_DEV') }}"
+      lakehouseid: "{{ env_var('FABRIC_TRF_LAKEHOUSE_ID_DEV') }}"
+      lakehouse: sales_trf
+      schema: sales_trf        # Lakehouse ohne Schemas: schema = lakehouse
+      authentication: SPN
 ```
 
 ---
@@ -434,6 +499,8 @@ Dieses Tool ist Teil von ALUCA (Analytics Library of Use Cases). Siehe root READ
 
 ## Referenzen
 
+- [Choose between Warehouse and Lakehouse](https://learn.microsoft.com/fabric/fundamentals/decision-guide-lakehouse-warehouse)
+- [dbt job in Microsoft Fabric — supported adapters](https://learn.microsoft.com/fabric/data-factory/dbt-job-overview)
 - [Microsoft Fabric REST API](https://learn.microsoft.com/en-us/rest/api/fabric/articles/using-fabric-apis)
 - [Deployment Pipelines API](https://learn.microsoft.com/en-us/fabric/cicd/deployment-pipelines/pipeline-automation-fabric)
 - [Git Integration API](https://learn.microsoft.com/en-us/fabric/cicd/git-integration/git-integration-process)

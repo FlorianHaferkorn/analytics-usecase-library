@@ -45,6 +45,11 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
 3. Make small, focused changes. One PR per Issue.
 4. **If you recognize that this task requires a skill or tool we don't yet have** (e.g. new artifact type, new domain): mention this need in the PR body so it can be prioritized.
 5. Follow all rules in `docs/agent/rules/` — especially `framework-conventions.md`, `stage1-awareness.md` and `learning-routing.md`.
+6. **Scratch files live in one folder per session** (Meridian D-658, 02.10.2026). Commit messages for
+   `git commit -F`, PR bodies for `--body-file`, patch scripts and logs go to `%TEMP%\claude-<session>`
+   (Windows) or `${TMPDIR:-/tmp}/claude-<session>`. Cleaning up means deleting that folder, **never** a
+   pattern in `%TEMP%` (`msg_*.txt`, `body*.md`): on 02.10.2026 such a pattern removed 101 files,
+   including files of other sessions on the same machine.
 
 ## SSOT audit findings (insertable remediation)
 

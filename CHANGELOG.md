@@ -18,6 +18,18 @@ The `[1.0.0]` release marks the Lean Core v1.0 consolidation: a production-ready
 
 ### Added
 
+- **Six library KPIs, each wired into a use case (02.10.2026, D-594 Nachtrag 1).**
+  `KPI-SCM-028` Picks per Labor Hour (supporting in `SCM-002`), `KPI-ESG-002` Supplier ESG
+  Compliance % (supporting in `SCM-004`), `KPI-COM-032` E-Commerce Revenue Share and
+  `KPI-COM-034` E-Commerce Conversion Rate (new use case `COM-006` E-Commerce Channel
+  Performance), `KPI-COM-033` Private Label Penetration % (new retail use case `COM-IND-R002`
+  Private Label Performance), `KPI-ESG-001` Scope 1+2 CO2 Emissions (new use case `ESG-001`
+  Scope 1+2 Emissions) — definitions taken from the Meridian organisation catalog, no client
+  targets. The reference rule of `validate_kpi_catalog.ps1` and the registry orphan detection
+  are unchanged (no consumer field). Unit token `tco2e_0`; standards `GHG Protocol`,
+  `ESRS E1`, `ISO 20400`, `WERC DC Measures`, `Web analytics (convention)`; roles
+  `sustainability_controlling_lead`, `esg_reporting_bi_lead` (Aurora org roles).
+
 ### Changed
 
 - **KPI de-duplication (physical removal).** Executing the KPI_DEDUP_MIGRATION_RUNBOOK

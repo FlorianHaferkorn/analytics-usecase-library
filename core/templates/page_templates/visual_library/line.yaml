@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "1.1.2"
+version: "1.2.0"
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -40,12 +40,15 @@ data_slots:
   field_date: {role: time, required: true}
   plan_field: {role: plan, required: false}
   fc_field: {role: forecast, required: false}   # FC (IBCS UN 3.2): dashed, never drawn as plan (BO-021)
+  py_field: {role: prior, required: false}      # PY (IBCS UN 3.2): grey solid, behind AC; never plan or FC (BO-052)
 
 canonical_params:
   col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
   entity: "_Measures"
   measure: "Gross Margin %"
   target_measure: "Plan Gross Margin %"
+  fc_measure: "Gross Margin % FC"       # native FC series (line@ibcs powerbi_native, BO-116)
+  prior_measure: "Gross Margin % PY"    # native PY series (line@ibcs powerbi_native, BO-052)
   category_entity: "dim_date"
   category_prop: "Date"
   field: "gm"
@@ -56,6 +59,9 @@ canonical_params:
   col_end: "#A4262C"
   plan_field: "gm_plan"
   fc_field: "gm_fc"
+  py_field: "gm_py"
+  col_py: "#8C8C8C"               # PY grey: a thin line needs 3:1 on white (3.4:1; WCAG 1.4.11), unlike a PY bar
+  label_py: "PY"                  # direct label of the PY line (IBCS abbreviation; caller may pass "VJ")
 
 preview_svg: |
   <svg viewBox="0 0 340 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Trend line">
@@ -111,6 +117,11 @@ realizations:
         "data": { "name": "dataset" },
         "encoding": { "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } } },
         "layer": [
+          { "mark": { "type": "line", "color": "{{col_py}}", "strokeWidth": 1.5 },
+            "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
+          { "transform": [ { "filter": "isValid(datum['{{py_field}}'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._q == 1" } ],
+            "mark": { "type": "text", "text": "{{label_py}}", "align": "left", "dx": 4, "dy": 12, "color": "{{col_py}}" },
+            "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
           { "mark": { "type": "line", "color": "{{col_line}}", "strokeWidth": 2.5 },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
           { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [5, 4] },
@@ -144,6 +155,7 @@ realizations:
         <XAxis dataKey="{{field_date}}" />
         <YAxis domain={['auto', 'auto']} />
         <ReferenceLine y={{{target_val}}} stroke="{{col_ref}}" strokeDasharray="5 4" />
+        <Line type="monotone" dataKey="{{py_field}}" stroke="{{col_py}}" strokeWidth={1.5} dot={false} />
         <Line type="monotone" dataKey="{{field}}" stroke="{{col_line}}" strokeWidth={2.5} dot={false} />
       </LineChart>
 
@@ -153,7 +165,7 @@ realizations:
 # STRUCTURAL — native gets a second Y measure; Vega/Recharts get a second line series.
 profiles:
   ibcs:
-    note: 'IBCS 2.0: AC and PL in the same colour, scenario on the markers — AC solid, PL outlined (UN 3.2); value axis from zero (CH 1.1), replaced by labels (SI 3.1).'
+    note: 'Follows the IBCS notation: AC and PL in the same colour, scenario on the markers — AC solid, PL outlined; PY = AC at 50 % (py_tint_alpha) behind AC; FC dashed (UN 3.2); value axis from zero (CH 1.1), replaced by labels (SI 3.1). Native lineChart has no hollow marker: PL in col_pl there.'
     rule_refs:
     - CH 1.1
     - SI 3.1
@@ -177,10 +189,26 @@ profiles:
               "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
               "Y": { "projections": [
                 { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" },
-                { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{target_measure}}" } }, "queryRef": "{{entity}}.{{target_measure}}" }
+                { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{target_measure}}" } }, "queryRef": "{{entity}}.{{target_measure}}" },
+                { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{fc_measure}}" } }, "queryRef": "{{entity}}.{{fc_measure}}" },
+                { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{prior_measure}}" } }, "queryRef": "{{entity}}.{{prior_measure}}" }
               ] }
             } },
-            "objects": { "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ] }
+            "objects": {
+              "dataPoint": [
+                { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_ac}}'" } } } } } }, "selector": { "metadata": "{{entity}}.{{measure}}" } },
+                { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_pl}}'" } } } } } }, "selector": { "metadata": "{{entity}}.{{target_measure}}" } },
+                { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_ac}}'" } } } } } }, "selector": { "metadata": "{{entity}}.{{fc_measure}}" } },
+                { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_ac}}'" } } } } } }, "selector": { "metadata": "{{entity}}.{{prior_measure}}" } }
+              ],
+              "lineStyles": [
+                { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'solid'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "showMarker": { "expr": { "Literal": { "Value": "true" } } }, "markerShape": { "expr": { "Literal": { "Value": "'circle'" } } } }, "selector": { "metadata": "{{entity}}.{{measure}}" } },
+                { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'solid'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "showMarker": { "expr": { "Literal": { "Value": "true" } } }, "markerShape": { "expr": { "Literal": { "Value": "'circle'" } } } }, "selector": { "metadata": "{{entity}}.{{target_measure}}" } },
+                { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'dashed'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "showMarker": { "expr": { "Literal": { "Value": "false" } } } }, "selector": { "metadata": "{{entity}}.{{fc_measure}}" } },
+                { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'solid'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "strokeTransparency": { "expr": { "Literal": { "Value": "50D" } } }, "showMarker": { "expr": { "Literal": { "Value": "false" } } } }, "selector": { "metadata": "{{entity}}.{{prior_measure}}" } }
+              ],
+              "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ]
+            }
           }
       powerbi_svg_dax:
         applicable: false
@@ -207,6 +235,35 @@ profiles:
               }
             },
             "layer": [
+              {
+                "mark": {
+                  "type": "line",
+                  "color": "{{col_ac}}",
+                  "opacity": 0.5,
+                  "strokeWidth": 1.5,
+                  "point": {
+                    "filled": true,
+                    "color": "{{col_ac}}",
+                    "opacity": 0.5,
+                    "size": 20
+                  }
+                },
+                "encoding": {
+                  "y": {
+                    "field": "{{py_field}}",
+                    "type": "quantitative",
+                    "axis": null,
+                    "scale": {
+                      "zero": true
+                    }
+                  }
+                }
+              },
+              {
+                "transform": [ { "filter": "isValid(datum['{{py_field}}'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._q == 1" } ],
+                "mark": { "type": "text", "text": "{{label_py}}", "align": "left", "dx": 4, "dy": 12, "color": "{{col_ink}}" },
+                "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative", "axis": null } }
+              },
               {
                 "mark": {
                   "type": "line",
@@ -311,6 +368,7 @@ profiles:
           <LineChart data={data} width={640} height={220}>
             <XAxis dataKey="{{field_date}}" />
             <YAxis domain={['auto', 'auto']} />
+            <Line type="monotone" dataKey="{{py_field}}" stroke="{{col_ac}}" strokeOpacity={0.5} strokeWidth={1.5} dot={false} />
             <Line type="monotone" dataKey="{{plan_field}}" stroke="{{col_pl}}" strokeWidth={1.5} strokeDasharray="4 3" dot={false} />
             <Line type="monotone" dataKey="{{field}}" stroke="{{col_line}}" strokeWidth={2.5} dot={false} />
           </LineChart>
@@ -322,4 +380,4 @@ profiles:
 
 determinism:
   golden_dir: golden
-  notes: "Pure {{param}} fill; golden-frozen. Native uses the verified y1AxisReferenceLine; Vega layers line+rule+last-point. IBCS profile plots plan as a scenario line (native = 2nd Y measure)."
+  notes: "Pure {{param}} fill; golden-frozen. Native uses the verified y1AxisReferenceLine; Vega layers line+rule+last-point. IBCS profile plots plan as a scenario line (native = 2nd Y measure), FC dashed and PY grey as 3rd/4th Y measure, styled per series by metadata selector (BO-116, BO-052)."

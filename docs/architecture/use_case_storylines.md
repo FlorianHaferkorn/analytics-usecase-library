@@ -133,6 +133,60 @@
 - **[300s evidence]** grain `opportunity`, worst-first by `KPI-COM-026` (ascending), Top-20 · action panel
 **Decision payoff (actions):** C-P1.1
 
+## COM-006 — E-Commerce Channel Performance
+
+**Causal thread:** `KPI-COM-034` → `KPI-COM-032` (maximize). With traffic and order value held, the e-commerce revenue share moves with the share of sessions that end in a purchase, so KPI-COM-034 is the first lever to read. Traffic and order value have no catalog KPI yet and stay outside this use case.
+
+### Page 1 Summary · T1_Strategic_Overview
+**Spine question:** Is the e-commerce share of revenue growing as planned?
+- **[3s verdict]** `KPI-COM-032` vs_py (higher_is_better)
+- **[30s Q1]** Is the e-commerce share of revenue rising month over month?
+    - visual: `line_chart` · `KPI-COM-032`
+    - answer: The e-commerce share rises only while online net sales grow faster than total net sales
+    - so what → A flat share while total sales grow means the online channel only follows the market and needs its own levers.
+- **[30s Q2]** Is session conversion the reason the share stalls?
+    - visual: `line_chart` · `KPI-COM-034`
+    - answer: Session conversion drops earlier than the e-commerce share when the shop loses buyers
+    - so what → If conversion falls while traffic holds, shop experience and checkout come before more traffic spend.
+- **[30s Q3]** Which regions hold the e-commerce share back?
+    - visual: `horizontal_bar_chart` · `KPI-COM-032`
+    - answer: A few regions hold the e-commerce share below the rest of the business
+    - so what → Channel programmes start in the regions with the lowest share, not with a company-wide push.
+
+↓ handoff →
+
+### Page 2 Execution · T3_Operational_Monitoring
+**Spine question:** Which regions and categories hold the e-commerce share back the most?
+- **[300s evidence]** grain `invoice_line`, worst-first by `KPI-COM-032` (ascending), Top-20
+**Decision payoff (actions):** C-E1.1
+
+## ESG-001 — Scope 1+2 Emissions
+
+**Headline KPI:** `KPI-ESG-001`.
+
+### Page 1 Summary · T1_Strategic_Overview
+**Spine question:** Are Scope 1+2 emissions falling year over year?
+- **[3s verdict]** `KPI-ESG-001` vs_py (lower_is_better)
+- **[30s Q1]** Do Scope 1+2 emissions fall from period to period?
+    - visual: `line_chart` · `KPI-ESG-001`
+    - answer: The Scope 1+2 total falls only when the largest sites cut more than smaller sites add
+    - so what → A flat trend despite running measures means the measures sit in sites with a small share of the total.
+- **[30s Q2]** Does own combustion or purchased energy fall faster?
+    - visual: `line_chart` · `KPI-ESG-001`
+    - answer: Scope 1 and Scope 2 fall at different rates, so fuel switching and energy purchasing are separate levers
+    - so what → A Scope 2 line that falls slower than Scope 1 points at the energy contract (market-based instruments) before site investments.
+- **[30s Q3]** Which sites carry most of the Scope 1+2 total?
+    - visual: `horizontal_bar_chart` · `KPI-ESG-001`
+    - answer: A few sites carry most of the Scope 1+2 total
+    - so what → Reduction programmes start where the site share is largest.
+
+↓ handoff →
+
+### Page 2 Execution · T3_Operational_Monitoring
+**Spine question:** Which sites and scopes should the reduction programme target first?
+- **[300s evidence]** grain `site_scope_month`, worst-first by `KPI-ESG-001` (descending), Top-20
+**Decision payoff (actions):** E-S1.1
+
 ## FIN-001 — Cash & Liquidity Performance
 
 **Causal thread:** `KPI-FIN-001` → `KPI-FIN-006` (minimize). Reducing KPI-FIN-001 is the primary lever for minimizing KPI-FIN-006.
@@ -413,6 +467,7 @@
 **Spine question:** Which categories and suppliers should the savings-recovery effort target first?
 - **[300s evidence]** grain `purchase_order_line`, worst-first by `KPI-SCM-023` (ascending), Top-20 · action panel
 **Decision payoff (actions):** S-P1.1
+**Cross-domain pull:** ESG (1: `KPI-ESG-002`)
 
 ## XD-001 — Service Level Performance
 
@@ -542,3 +597,27 @@
 **Decision payoff (actions):** C-M3.1
 **Cross-domain pull:** Commercial (5: `KPI-COM-022`, `KPI-COM-023`, `KPI-COM-024` +2)
 **Connects to use cases:** COM-004
+
+## COM-IND-R002 — Private Label Performance
+
+**Headline KPI:** `KPI-COM-033`.
+
+### Page 1 Summary · T1_Strategic_Overview
+**Spine question:** Is the private-label share of revenue growing in the categories we steer?
+- **[3s verdict]** `KPI-COM-033` vs_py (higher_is_better)
+- **[30s Q1]** Does the private-label share rise from month to month?
+    - visual: `line_chart` · `KPI-COM-033`
+    - answer: The private-label share rises only while own-brand sales grow faster than total net sales
+    - so what → A flat share while total sales grow means the own-brand programme only follows the market.
+- **[30s Q2]** Which categories carry the private-label share?
+    - visual: `horizontal_bar_chart` · `KPI-COM-033`
+    - answer: A few categories carry a higher private-label share than the rest of the assortment
+    - so what → Own-brand assortment and pricing work starts in the categories with the lowest share against their peers.
+
+↓ handoff →
+
+### Page 2 Execution · T3_Operational_Monitoring
+**Spine question:** Which categories and regions lag on private-label share the most?
+- **[300s evidence]** grain `invoice_line`, worst-first by `KPI-COM-033` (ascending), Top-20
+**Decision payoff (actions):** C-M2.3
+**Cross-domain pull:** Commercial (2: `KPI-COM-033`, `KPI-COM-005`)

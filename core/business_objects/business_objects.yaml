@@ -855,7 +855,8 @@ business_objects:
     table: dim_emission_scope
     schema: null
     layer: null
-  kpi_ids: []
+  kpi_ids:
+  - KPI-ESG-001
 - id: BO-016
   name:
     de: null
@@ -1428,7 +1429,8 @@ business_objects:
     table: dim_org
     schema: null
     layer: null
-  kpi_ids: []
+  kpi_ids:
+  - KPI-COM-032
 - id: BO-024
   name:
     de: null
@@ -3912,7 +3914,8 @@ business_objects:
     table: fact_emissions
     schema: null
     layer: null
-  kpi_ids: []
+  kpi_ids:
+  - KPI-ESG-001
 - id: BO-058
   name:
     de: null
@@ -7741,6 +7744,8 @@ business_objects:
   - KPI-COM-023
   - KPI-COM-024
   - KPI-COM-025
+  - KPI-COM-032
+  - KPI-COM-033
   - KPI-CUS-005
   - KPI-CUS-007
   - KPI-FIN-011
@@ -8410,7 +8415,8 @@ business_objects:
     table: fact_warehouse
     schema: null
     layer: null
-  kpi_ids: []
+  kpi_ids:
+  - KPI-SCM-028
 - id: BO-107
   name:
     de: null

@@ -33,6 +33,7 @@ factsheet_type: business
 
 - Are savings realised against target by category?
 - Is the leak off-contract buying, price variance, or supplier reliability?
+- Which Tier-1 suppliers lack a passed ESG audit (KPI-ESG-002), read next to supplier risk?
 - Which categories and suppliers should recovery target first?
 
 ---
@@ -47,6 +48,7 @@ factsheet_type: business
 | KPI-SCM-026 | Influencing |
 | KPI-SCM-027 | Supporting |
 | KPI-SCM-022 | Supporting |
+| KPI-ESG-002 | Supporting |
 
 **Action Codes:** S-P1.1
 

@@ -12,7 +12,7 @@
 
 ## Leistungsübersicht
 
-| Position | USD/Monat | USD/Jahr |
+| Position | {{ currency }}/Monat | {{ currency }}/Jahr |
 |----------|-----------|----------|
 | Plattform (Capacity + Lizenzen) | {{ total_month }} | {{ total_year }} |
 | Implementierung (einmalig) | — | {{ implementation_one_time }} |
@@ -22,8 +22,8 @@ Details: {{ building_blocks_table }}
 
 ## TCO
 
-- TCO (3 Jahre): {{ tco_3y }} USD
-- TCO (5 Jahre): {{ tco_5y }} USD
+- TCO (3 Jahre): {{ tco_3y }} {{ currency }}
+- TCO (5 Jahre): {{ tco_5y }} {{ currency }}
 
 ## Implementierung / Meilensteine
 

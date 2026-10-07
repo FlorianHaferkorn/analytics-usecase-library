@@ -28,8 +28,9 @@ Provide a governed, auditable product for proposal costing and pricing decisions
 ## Price sources
 
 - **Fabric capacity:** [Microsoft Fabric pricing (Azure)](https://azure.microsoft.com/pricing/details/microsoft-fabric/) — Pay-as-you-go USD/month; ~41% savings with 1- or 3-year reservation.
-- **Power BI Pro / PPU:** [Power BI pricing](https://powerbi.microsoft.com/pricing/) — List prices USD (annual commitment); Pro $14, PPU $24 per user/month.
-- All amounts in this product are **USD**. Regional and contractual variations apply; treat as reference only.
+- **Power BI Pro / PPU:** [Power BI pricing](https://powerbi.microsoft.com/pricing/) — List prices USD (annual commitment); Pro $14, PPU $24 per user/month. EUR list prices (microsoft.com/de-de, excl. VAT, read 02.10.2026): Pro 12.10 EUR, PPU 20.80 EUR; used by the run-cost delta, never derived from USD.
+- **Region:** capacity, OneLake storage, overage and the Planning share are priced at the regional Pay-as-you-go rate from `cost_drivers.yaml` -> `fabric_regions` (Azure Retail Prices API, 01.10.2026; default West Europe, 0.22 USD per CU hour). The SKU table (East US, 0.18 USD) is only the fallback for a region without an entry, and the breakdown says so (`price_basis: sku_table_us`).
+- **Currency:** USD by default; `--currency EUR` (or `currency: EUR` in the run config) prices every Microsoft line from Microsoft's own EUR list (capacity, OneLake, overage, Planning share from `fabric_regions`; Pro 12.10 / PPU 20.80 EUR). Nothing is converted: a region without EUR rate, a package without `implementation_fixed_eur` or FTE work without `implementation_eur_per_fte_month` stops with an error. Templates print the currency from the result. Contractual discounts are not modelled; treat as reference only.
 
 ## Capacity overage and Fabric Planning
 
@@ -38,6 +39,7 @@ Facts from Microsoft Learn (read 29.09.2026) live in `tooling/superversion/capac
 - **Overage** (`enterprise/capacity-overage-overview`, `enable-capacity-overage`; GA Sep 2026): on by default for every new F capacity, default threshold 25 % of the daily CU hours (F2 48, F8 192, F64 1,536 CU h/day), billed on a separate meter at 3× the PAYG rate, rolling 24-hour threshold in CU hours, **no hard cap**; quota needed = threshold / 24 CU.
 - **Line in the quote:** maximum overage cost per day ≈ threshold × 3 × PAYG price per CU hour. Derived, not measured; real charges can be higher because the threshold is checked every 5 minutes and running operations continue. The PAYG CU-hour price is derived from `cost_drivers.yaml` (monthly price / (CU × 730 h)). The line is contingent and never added to the total.
 - **Mandatory customer question:** “Overage off, or threshold X CU hours?” It stays in `customer_questions` until `overage_enabled: false` or `overage_threshold_cu_hours` is set (run-config or `--overage-off` / `--overage-threshold-cu-hours`).
+- **Region question:** without an explicit `region` (run-config or `--region`) the capacity is priced in `default_region` and `customer_questions` carries "Azure region not confirmed" with the price difference to Germany West Central in the offer currency (EUR 01.10.2026: +2.5 % per CU hour; USD: same rate). It disappears once the region is set.
 - **Fabric Planning** (`iq/plan/resources/billing-fabric-plan`): 30-day sessions (730 h) at 847 (Planner), 168 (Stakeholder), 37 (Viewer) CU hours, consumed from the capacity. Run-config `planning_sessions` yields load, share of the prod SKU, a check against the recommended 30 % buffer and the USD equivalent (already inside the capacity price, not added). Automation jobs are not costed: Learn gives “2 CU” per job without a time unit.
 
 ## Output and proposal readiness
