@@ -94,7 +94,11 @@ def test_ex21_annotation_hebt_nicht_auf(tmp_path):
 
 
 def test_ex21_karte_ist_frei(tmp_path):
-    assert _befunde(tmp_path, _typ("map")) == []
+    # EX 2.1 greift nicht bei Karten. Seit 07.10.2026 ist der Bing-`map` aber von Microsoft
+    # abgekuendigt (MS-DEPRECATED, Ersatz azureMap); das ist der einzige Befund, kein IBCS.
+    (b,) = _befunde(tmp_path, _typ("map"))
+    assert "IBCS" not in b.message and "azureMap" in b.expected
+    assert _befunde(tmp_path / "azure", _typ("azureMap")) == []
 
 
 # ── EX 2.2 Tacho ───────────────────────────────────────────────────────────────

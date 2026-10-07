@@ -142,6 +142,8 @@ The following visuals are **not allowed** under any circumstances:
 - Gauge / Speedometer charts
 - Radar charts
 - Tree maps (unless explicitly approved)
+- Visuals deprecated by Microsoft: `card` / `multiRowCard` (use `cardVisual`), `map` / `filledMap`
+  (use `azureMap`), `qnaVisual` (use Copilot)
 - Custom visuals without governance approval
 
 ---

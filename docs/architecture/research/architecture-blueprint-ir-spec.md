@@ -1360,6 +1360,15 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                   "type": "string"
                 }
               },
+              "gold_target": {
+                "enum": [
+                  "lakehouse",
+                  "mlv",
+                  "warehouse"
+                ],
+                "default": "lakehouse",
+                "description": "Where this domain's gold is materialised (D-672, mirrors ALUCA ADR-0024 §8 `domains[].gold_target`). `lakehouse` (default and recommendation) = Delta tables built by the silver-to-gold transforms; absent means lakehouse and changes nothing. `mlv` = Materialized Lake Views in a schema-enabled lakehouse (routed per domain by ALUCA's Fabric target; Meridian's own CLI switches MLV per run with --emit-mlv). `warehouse` = gold in a Fabric Warehouse (T-SQL, multi-table transactions per MS Learn decision guide): CREATE TABLE plus a load script TRUNCATE + INSERT ... SELECT from the silver lakehouse via three-part names, the warehouse item in the apply plan, no silver-to-gold transform for the domain's own products. Direct Lake serves both stores."
+              },
               "row_security": {
                 "type": "object",
                 "description": "The row-security cut of this domain: what separates who sees what. Declared here because it is an architecture fact — it decides which columns must survive into every protected gold table — and because OneLake security cannot derive it: its predicates are static T-SQL with no caller identity to read. Exactly one of two forms: a FLAT cut (column + values), one role per value; or a HIERARCHICAL cut (levels + grants), where every protected row carries its ancestors on each level so that one grant covers every descendant. Measured against a real 7-level org hierarchy: a single grant naming ONE node returned the rows of 59 descendant nodes (177 of 540), none of which appears in the predicate.",

@@ -71,6 +71,12 @@ DENY_VISUALTYPES: dict[str, dict] = {
     "pieChartVisual": {"deny": "pie_gt_4", "use": "donut (<=3 parts) or bar_ranking"},
     "ribbonChart":  {"deny": "color_as_decoration", "use": "line / column_time (rank-over-time reads cleaner)"},
     "funnel":       {"deny": "color_as_decoration", "use": "bar_ranking (worst-first) or sankey for true flow"},
+    # Von Microsoft abgekuendigt (Abgleich 07.10.2026, skills-for-fabric map.md / card.md).
+    "map":          {"deny": "deprecated_map", "use": "azureMap"},
+    "filledMap":    {"deny": "deprecated_map", "use": "azureMap"},
+    "qnaVisual":    {"deny": "qna_visual", "use": "Copilot (the Q&A visual is deprecated)"},
+    "card":         {"deny": "legacy_card", "use": "cardVisual"},
+    "multiRowCard": {"deny": "legacy_card", "use": "cardVisual"},
 }
 
 

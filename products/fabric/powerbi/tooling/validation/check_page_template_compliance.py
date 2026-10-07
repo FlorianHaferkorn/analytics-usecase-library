@@ -73,7 +73,7 @@ def _aus_registry() -> Dict[str, List[str]]:
 # Alt-Schreibweisen (Bracket-Vokabular vor ADR-0018). Sie ergaenzen die abgeleitete
 # Tabelle; fuer einen NEUEN Typ ist hier nichts einzutragen.
 VISUAL_TYPE_MAP: Dict[str, List[str]] = {
-    "kpi_card":              ["cardVisual", "kpiVisual", "card"],
+    "kpi_card":              ["cardVisual", "kpiVisual"],
     "trend_line":            ["lineChart", "lineClusteredColumnComboChart", "lineStackedColumnComboChart"],
     "line_chart":            ["lineChart", "lineClusteredColumnComboChart", "lineStackedColumnComboChart"],
     "bar_chart":             ["barChart", "clusteredBarChart", "clusteredColumnChart", "columnChart"],
@@ -87,7 +87,7 @@ VISUAL_TYPE_MAP: Dict[str, List[str]] = {
     # das nur eine Schreibweise kennt, faellt beim Umbenennen still auf "kein
     # Treffer" zurueck — und eine Compliance-Pruefung ohne Treffer sieht aus wie
     # eine bestandene.
-    "kpi_card_with_delta":   ["cardVisual", "kpiVisual", "card"],
+    "kpi_card_with_delta":   ["cardVisual", "kpiVisual"],
     "horizontal_bar_chart":  ["barChart", "clusteredBarChart"],
     "column_chart":          ["clusteredColumnChart", "columnChart"],
     "waterfall_chart":       ["waterfallChart"],
@@ -95,8 +95,9 @@ VISUAL_TYPE_MAP: Dict[str, List[str]] = {
 }
 
 # VEREINIGEN, nicht ueberschreiben. Die Registry sagt, was sanktioniert ist; die Liste
-# oben traegt zusaetzlich akzeptierte PBIR-Aliase desselben Visuals (`kpiVisual`/`card`
-# sind dieselbe Karte). Ein `update()` haette `kpi_card_with_delta` von drei akzeptierten
+# oben traegt zusaetzlich akzeptierte PBIR-Aliase desselben Visuals (`kpiVisual` ist
+# dieselbe Karte; das abgekuendigte `card` ist seit 07.10.2026 gesperrt, Ersatz
+# `cardVisual`). Ein `update()` haette `kpi_card_with_delta` von den akzeptierten
 # Namen auf einen verengt und dadurch Falschwarnungen auf bestehenden dist-Reports
 # erzeugt — eine Pruefung, die neu meckert, ohne dass sich etwas verschlechtert hat,
 # wird abgeschaltet statt gelesen.

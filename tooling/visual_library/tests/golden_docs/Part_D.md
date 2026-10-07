@@ -20,7 +20,7 @@
 | **evidence_detail** | Which rows are worst — and what is the next action? | `matrix_evidence` | detail | `matrix_evidence` · `matrix_sparkline` · `matrix_bullet` · `matrix_delta_pill` · `column_time` · `dumbbell` · `bar_stacked` |
 | **value_verdict** | What is the headline value and its verdict? | `kpi_card_spark` | pulse | `kpi_card_spark` · `kpi_card_bullet` · `kpi_card_sparkbar` |
 
-**Deny (never emit):** `pie_gt_4` · `three_d` · `gauge` · `radar` · `dual_axis_no_reason` · `color_as_decoration` · `powerbi_smart_narrative`.
+**Deny (never emit):** `pie_gt_4` · `three_d` · `gauge` · `radar` · `dual_axis_no_reason` · `color_as_decoration` · `powerbi_smart_narrative` · `deprecated_map` · `qna_visual` · `legacy_card`.
 
 **Situational / out:** `sankey` and `decomposition_tree` are situational [`Visual_Whitelist.md`](../../../../../core/templates/page_templates/governance/Visual_Whitelist.md) extensions (flow-structure only / Detail drill, one measure); `powerbi_smart_narrative` is out for Power BI (templated / unreliable) and kept other-tools only.
 

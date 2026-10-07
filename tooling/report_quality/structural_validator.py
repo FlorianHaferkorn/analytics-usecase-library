@@ -205,9 +205,12 @@ class Diagrammregel:
     severity: Severity
     ersatz: str
     ausnahme: str | None       # Katalog-Ausnahme, die per Annotation erklaert werden darf; None = keine
+    herkunft: str | None = None  # eigene Quellenangabe (z. B. Microsoft-Abkuendigung) statt IBCS/Hausregel
 
     @property
     def quelle(self) -> str:
+        if self.herkunft is not None:
+            return self.herkunft
         if self.seite is None:
             return f"{self.regel_id} (Hausregel, Boutique-Craft-Rubric)"
         return f"IBCS 2.0 {self.regel_id}, S. {self.seite}"
@@ -239,6 +242,23 @@ EX_2_5 = Diagrammregel(
 )
 HAUS_TREEMAP = Diagrammregel("BC-CHART-08", None, "critical", "Balken (bar_ranking)", None)
 
+# Von Microsoft abgekuendigte PBIR-visualTypes mit offiziellem Ersatz (Abgleich 07.10.2026:
+# Learn power-bi/developer/agentic/*, microsoft/skills-for-fabric references/authoring/map.md
+# und card.md). Spiegel in visual_validator._DEPRECATED_PBI_TYPES (products/ — Paketgrenze,
+# daher kein Import); Gleichheit erzwingt tooling/tests/test_forbidden_charts.py.
+DEPRECATED_VISUAL_TYPES: dict[str, str] = {
+    "map": "azureMap",
+    "filledMap": "azureMap",
+    "qnaVisual": "Copilot (the Q&A visual is deprecated)",
+    "card": "cardVisual",
+    "multiRowCard": "cardVisual",
+}
+_MS_HERKUNFT = "von Microsoft abgekuendigt, offizielle Authoring-Skill (Abgleich 07.10.2026)"
+MS_ABGEKUENDIGT: dict[str, Diagrammregel] = {
+    typ: Diagrammregel("MS-DEPRECATED", None, "critical", ersatz, None, herkunft=_MS_HERKUNFT)
+    for typ, ersatz in DEPRECATED_VISUAL_TYPES.items()
+}
+
 # Exakte PBIR-visualTypes. Radar/Spinnennetz gibt es nur als Custom Visual mit
 # wechselnder Kennung, Tacho auch als Custom Visual -- beides per Teilwort (siehe unten).
 VERBOTSLISTE: dict[str, Diagrammregel] = {
@@ -247,6 +267,7 @@ VERBOTSLISTE: dict[str, Diagrammregel] = {
     "gauge": EX_2_2,
     "funnel": EX_2_3_TRICHTER,
     "treemap": HAUS_TREEMAP,
+    **MS_ABGEKUENDIGT,
 }
 TEILWORT_REGELN: tuple[tuple[str, Diagrammregel], ...] = (
     ("radar", EX_2_3_RADAR),
@@ -331,8 +352,8 @@ def _ampel_stufen(visual: dict) -> int | None:
 
 @dataclass
 class ForbiddenVisualTypes:
-    """Verbotsliste der Diagrammtypen: IBCS 2.0 EX 2.1 bis EX 2.5 (Warnung, mit Ausnahmen)
-    plus Hausregel BC-CHART-08 fuer Treemap (kritisch, keine IBCS-Quelle)."""
+    """Verbotsliste der Diagrammtypen: IBCS 2.0 EX 2.1 bis EX 2.5 (Warnung, mit Ausnahmen),
+    Hausregel BC-CHART-08 fuer Treemap und die von Microsoft abgekuendigten Typen (kritisch)."""
 
     regeln: dict[str, Diagrammregel] = field(default_factory=lambda: dict(VERBOTSLISTE))
     name: str = "visual:forbidden-type"
