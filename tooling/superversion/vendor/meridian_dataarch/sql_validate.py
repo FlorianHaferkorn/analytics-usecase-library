@@ -23,8 +23,15 @@ from __future__ import annotations
 
 import re
 
-# target SQL family per stack for the optional deep parse.
-_DIALECT = {"fabric": "spark", "databricks": "spark", "snowflake": "snowflake"}
+# target SQL family per stack for the optional deep parse. `fabric-warehouse` is the Fabric Warehouse
+# (T-SQL): its files under `warehouse/` are T-SQL, not Spark SQL (D-672). Until 02.10.2026 they were
+# parsed as Spark, where `IF OBJECT_ID(…) CREATE TABLE` only "fell back to a Command" — no check at all.
+_DIALECT = {"fabric": "spark", "databricks": "spark", "snowflake": "snowflake",
+            "fabric-warehouse": "tsql"}
+# T-SQL statements sqlglot has no grammar for (sqlglot 30.x): `THROW` (Learn: applies to Warehouse in
+# Microsoft Fabric, read 02.10.2026). Covered structurally, like the MLV DDL wrapper; the rest of the
+# batch is still parsed.
+_OHNE_GRAMMATIK_RE = re.compile(r"^\s*THROW\b[^;]*;\s*$", re.I | re.M)
 _PLACEHOLDER_RE = re.compile(r"<[^>\n]+>")
 
 
@@ -71,20 +78,31 @@ def parse_errors(sql: str, dialect: str = "fabric") -> list[str]:
     if sqlglot is not None and not problems:
         target = _DIALECT.get(dialect, "spark")
         to_parse = _select_of_mlv(executable) or executable
+        if target == "tsql":
+            to_parse = _OHNE_GRAMMATIK_RE.sub("", to_parse).strip()
         try:
-            sqlglot.parse_one(to_parse, read=target)
+            if target == "tsql":
+                if to_parse:                                 # a THROW-only file: structural only
+                    sqlglot.parse(to_parse, read=target)
+            else:
+                sqlglot.parse_one(to_parse, read=target)
         except Exception as exc:                             # sqlglot.errors.ParseError et al.
             problems.append(f"sqlglot ({target}) parse error: {str(exc).splitlines()[0]}")
     return problems
 
 
 def validate_artifacts(files: dict[str, str], dialect: str = "fabric") -> dict[str, list[str]]:
-    """Validate a ``{relpath: content}`` emitter surface; return only the entries with problems."""
+    """Validate a ``{relpath: content}`` emitter surface; return only the entries with problems.
+
+    Files under ``warehouse/`` on Fabric are T-SQL for the Warehouse and are parsed as such (D-672).
+    """
     out: dict[str, list[str]] = {}
     for rel, content in files.items():
         if not rel.endswith(".sql"):
             continue
-        errs = parse_errors(content, dialect)
+        dialekt = ("fabric-warehouse" if dialect == "fabric" and rel.startswith("warehouse/")
+                   else dialect)
+        errs = parse_errors(content, dialekt)
         if errs:
             out[rel] = errs
     return out
