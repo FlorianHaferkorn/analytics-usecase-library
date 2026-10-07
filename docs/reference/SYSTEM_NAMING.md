@@ -106,7 +106,7 @@ Settings reference: `.claude/settings.json` → `hooks.PostToolUse[].hooks[].com
 
 | File | Why unchanged |
 |------|--------------|
-| `tooling/git-hooks/pre-commit` | Git hook file — must be named exactly `pre-commit` |
+| `.githooks/pre-commit` | Git hook file — must be named exactly `pre-commit` |
 | `products/fabric/powerbi/deployment/.azure-pipelines/*.yml` | Azure DevOps pipeline names are consumed by external tooling |
 | Action code YAML files (`C-M2.1.yaml`, etc.) | IDs defined by [`TAXONOMY.md`](TAXONOMY.md); rename would break cross-references |
 | `UseCase_Bracket.yaml` | Well-established cross-repo contract name; schema validators reference it |
