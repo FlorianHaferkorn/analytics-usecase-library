@@ -24,6 +24,16 @@ Belege (per Learn-MCP gelesen am 30.09.2026):
 * ``fabric/admin/find-fabric-home-region`` — Heimatregion: Hilfe → About → „Your data is stored in".
 * ``power-bi/create-reports/copilot-prepare-data-ai-verified-answers`` — „Copilot doesn't return
   verified answers when Fabric IQ is enabled".
+
+Nachtrag D-644 (Learn-MCP gelesen am 01.10.2026):
+
+* ``fabric/iq/connectors/fabric-iq-mcp``, Abschnitt „Authenticate" — die drei delegierten
+  Berechtigungen brauchen ab Werk keine Admin-Zustimmung; der Tenant-Admin kann die
+  Benutzerzustimmung einschraenken oder einen Admin-Genehmigungsablauf verlangen; das gilt fuer
+  den ganzen Endpunkt, nicht je Client.
+* Microsoft Purview Service Description, Abschnitt „DLP for Microsoft Copilot" — DLP, das Copilot
+  die Verarbeitung gelabelter Dateien verbietet, erst ab Microsoft 365 E5 bzw. Purview-Suite;
+  DLP auf Prompts fuer alle Copilot-Nutzer.
 """
 from __future__ import annotations
 
@@ -36,6 +46,8 @@ from core.dataarch_engine.blueprint.stack_capabilities import (
 )
 
 GEPRUEFT_AM = "2026-09-30"
+#: Stand der Nachtraege aus D-644 (Zustimmungsrichtlinie, DLP-Lizenz).
+GEPRUEFT_AM_D626 = "2026-10-01"
 
 WERTE: tuple[str, ...] = ("fabric_copilot", "m365_copilot", "byo_agent_mcp", "keiner", "unbekannt")
 #: Werte, die keine anderen neben sich dulden.
@@ -47,6 +59,8 @@ QUELLE_MCP = "learn.microsoft.com/fabric/iq/connectors/fabric-iq-mcp"
 QUELLE_M365 = "learn.microsoft.com/fabric/iq/connectors/microsoft-365-copilot-overview"
 QUELLE_HEIMATREGION = "learn.microsoft.com/fabric/admin/find-fabric-home-region"
 QUELLE_VERIFIED = "learn.microsoft.com/power-bi/create-reports/copilot-prepare-data-ai-verified-answers"
+QUELLE_PURVIEW_LIZENZ = ("learn.microsoft.com/office365/servicedescriptions/microsoft-365-service-descriptions/"
+                         "microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description")
 
 #: Fabric IQ MCP als Feldsatz (gleiche Fakten wie ``products/meridian_copilot_readiness/server/
 #: zweck_matrix.yaml`` → ``referenz.fabric_iq_mcp``; ein Test stellt beide gegeneinander).
@@ -61,6 +75,10 @@ FABRIC_IQ_MCP: dict[str, Any] = {
     "kapazitaet_noetig": False,
     "nur_lesend": True,
     "zeilen_standard": 250,
+    #: Benutzerzustimmung zu den drei Berechtigungen ist ab Werk erlaubt und vom Tenant-Admin
+    #: einschraenkbar, fuer den ganzen Endpunkt (D-644).
+    "zustimmung_ohne_admin": True,
+    "zustimmung_einschraenkbar": True,
 }
 
 KUNDENFRAGE = ("Auf welchen Wegen soll KI auf Ihre Fabric- und Power-BI-Daten zugreifen dürfen: "
@@ -154,6 +172,11 @@ def _mcp_abschnitt(bp: dict) -> list[str]:
         "delegiert " + ", ".join(f"`{p}`" for p in m["delegierte_berechtigungen"])
         + ". Ohne Admin-Zustimmung zustimmbar, soweit die Zustimmungsrichtlinie des Mandanten "
         "das zulaesst; keine Anwendungsberechtigungen (App-only unterstuetzt Microsoft nicht).",
+        "- [ ] Zustimmungsrichtlinie entschieden (D-644): duerfen Nutzer den drei Berechtigungen "
+        "selbst zustimmen, oder laeuft jede neue MCP-App ueber den Admin-Genehmigungsablauf? Die "
+        "Einstellung gilt fuer den ganzen Endpunkt, nicht je Client. Empfehlung: "
+        "Admin-Genehmigung, solange keine Liste erlaubter Clients beschlossen ist. Antwort: "
+        "`________________`",
         "- [ ] Kein `Authorization`-Header mit festem Token in der Client-Konfiguration.",
         "- [ ] Modelleinstellung je Semantikmodell (Abschnitt 2, `BK-Z08`) gilt auch hier: sie "
         "nennt „Microsoft's MCP tools\" ausdruecklich.", "",
@@ -165,7 +188,8 @@ def _mcp_abschnitt(bp: dict) -> list[str]:
         *(["", "> **Warnung:** mindestens eine Kapazitaet liegt in einer Power-BI-only-Region."]
           if rb["warnung"] else []),
         "", f"Beleg: Learn `{QUELLE_MCP.split('learn.microsoft.com/')[1]}`, "
-        f"`{QUELLE_HEIMATREGION.split('learn.microsoft.com/')[1]}` (gelesen {GEPRUEFT_AM}).", "",
+        f"`{QUELLE_HEIMATREGION.split('learn.microsoft.com/')[1]}` (gelesen {GEPRUEFT_AM}); "
+        f"Zustimmungsrichtlinie: Abschnitt „Authenticate\" (gelesen {GEPRUEFT_AM_D626}).", "",
     ]
 
 
@@ -201,11 +225,16 @@ def sicherheitsbasis_abschnitt(bp: dict, nummer: int) -> list[str]:
                 "(die Verarbeitung laeuft in den USA oder der EU).",
                 "- [ ] Keine Semantikmodelle auf Embedded-Kapazitaet (A/EM) als Antwortquelle "
                 "vorgesehen.",
+                "- [ ] Lizenz fuer DLP auf Copilot geklaert (D-644): Copilot die Verarbeitung "
+                "gelabelter Power-BI-Inhalte per DLP verbieten geht erst mit Microsoft 365 E5 bzw. "
+                "Purview-Suite. Mit E3 oder Business Premium wirkt DLP nur auf Prompts; dann die "
+                "Modelleinstellung je Semantikmodell (`BK-Z08`) nutzen. Lizenz: `________________`",
                 "- [ ] Regionspruefung: Heimatregion des Mandanten mit breiter Fabric-"
                 "Unterstuetzung, keine Power-BI-only-Region (Fabric → Hilfe → About → „Your data "
                 "is stored in\").",
                 "", f"Beleg: Learn `{QUELLE_M365.split('learn.microsoft.com/')[1]}` (gelesen "
-                f"{GEPRUEFT_AM}).", ""]
+                f"{GEPRUEFT_AM}); DLP-Lizenz: Microsoft Purview Service Description, Abschnitt "
+                f"„DLP for Microsoft Copilot\" (gelesen {GEPRUEFT_AM_D626}).", ""]
     else:
         out += ["Empfehlung **aus** (No users): kein Zugangsweg `m365_copilot` im Bauplan.", ""]
     out += ["**Datenschutz (DSGVO):** Antworten verlassen Power BI und mischen sich in Microsoft "

@@ -716,6 +716,73 @@ CATALOG: list[dict[str, Any]] = [
                   "users without it, capabilities not published)",
         "source": _L + "fabric/iq/connectors/copilot-power-bi-fabric",
     },
+    # --- 01.10.2026: Exportwege nach Format (D-627, Signal SIG-2610-002) ---
+    #
+    # Zwei Felder statt Saetzen: ``label_vererbung`` (welches Sensitivity Label die Datei bekommt:
+    # ``modell``, ``bericht`` oder ``keine``) und ``max_zeilen`` (Obergrenze laut Learn). Daran haengt
+    # die Empfehlung: ein Format ohne Label wird nicht fuer die ganze Organisation geoeffnet, wenn der
+    # Mandant Labels nutzt. Microsoft empfiehlt sonst, Export fuer die meisten Nutzer offen zu lassen
+    # (power-bi/guidance/powerbi-implementation-planning-info-protection). Gelesen per Learn-MCP am
+    # 01.10.2026: `fabric/admin/service-admin-portal-export-sharing`,
+    # `power-bi/visuals/power-bi-visualization-export-data` (Excel live 500.000, Excel 150.000,
+    # CSV 30.000; „The first two support sensitivity labels"), `fabric/governance/information-
+    # protection` (labelbasierte Zugriffskontrolle gilt nicht fuer .csv/.txt).
+    {
+        "id": 32, "name": "Export to Excel",
+        "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["base"],
+        "default": "unverified — the settings page does not pin it",
+        "target": "on for the organisation",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST / sempy — or portal",
+        "why": ("statischer Excel-Export aus einem Visual; die Datei erbt das Label des Berichts und "
+                "dessen Verschluesselung"),
+        "required": "yes",
+        "label_vererbung": "bericht", "max_zeilen": 150000,
+        "source": _L + "fabric/admin/service-admin-portal-export-sharing",
+    },
+    {
+        "id": 33, "name": "Users can work with semantic models in Excel using a live connection",
+        "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["base"],
+        "default": "unverified — the settings page does not pin it",
+        "target": "on for the organisation",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST / sempy — or portal",
+        "why": ("Excel mit Live-Verbindung und Analyze in Excel ueber den XMLA-Endpunkt; bis 500.000 "
+                "Zeilen, die Datei erbt das Label des Semantikmodells, RLS greift weiter"),
+        "required": "yes",
+        "label_vererbung": "modell", "max_zeilen": 500000,
+        # UNKLAR (SIG-2610-002): die Feature Summary hebt auch „Data with current layout" auf 500.000,
+        # Learn nennt am 01.10.2026 dafuer weiter 150.000 Datenschnittpunkte. Fuer die Empfehlung
+        # unerheblich; kein ``grenzen``-Eintrag, weil es kein Verfahrensschritt ist.
+        "source": _L + "fabric/admin/service-admin-portal-export-sharing",
+    },
+    {
+        "id": 34, "name": "Export to .csv",
+        "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["base"],
+        "default": "unverified — the settings page does not pin it",
+        "target": "when the tenant uses sensitivity labels: only a named security group; otherwise on "
+                  "for the organisation",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST / sempy — or portal",
+        "why": ("der einzige Exportweg ohne Label: eine CSV-Datei verliert Beschriftung und "
+                "Verschluesselung, labelbasierte Zugriffskontrolle greift fuer .csv nicht"),
+        "required": "yes",
+        "label_vererbung": "keine", "max_zeilen": 30000,
+        "source": _L + "fabric/admin/service-admin-portal-export-sharing",
+    },
+    {
+        "id": 35, "name": "Download reports",
+        "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["base"],
+        "default": "unverified — the settings page does not pin it",
+        "target": "the report-creator group, not the whole organisation",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST / sempy — or portal",
+        "why": ("laedt .pbix-Dateien und paginierte Berichte herunter; bei Import-Modellen liegen die "
+                "Daten damit vollstaendig auf dem Rechner"),
+        "required": "yes",
+        "label_vererbung": "bericht", "max_zeilen": None,
+        "source": _L + "fabric/admin/service-admin-portal-export-sharing",
+    },
 ]
 
 _BY_ID = {s["id"]: s for s in CATALOG}
