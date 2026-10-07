@@ -32,6 +32,17 @@ Net Sales 12/2024 (aktive Dateien `fact_sales`, `DateKey` 20241201–20241231, D
 pyarrow über die Partition `Fiscal Year=2024/Fiscal Month=12` gestellt): 439.447.179,34 in
 198.303 Zeilen, gleich im ersten Paket, in `origin/main` und im entpackten neuen Paket.
 
+**Nächster Datenstand (offen, 07.10.2026): `fact_fulfillment` neu.** Branch `runde/2026-10-07-aurora-otif-daten` ändert nur diese Tabelle (siehe `gold/README.md`); der Lock zeigt bis zur Veröffentlichung weiter auf `29c`. Gemessen im Arbeitsbaum (29c geholt, dann `gold/generate_fulfillment_gold.py`, 4,6 s): 925.005 Zeilen (vorher 8.751), 2,37 MB auf der Platte, die übrigen 454 Dateien laut Lock-Vergleich (Größe und SHA-256) unverändert; `packen` ergab ein Archiv von 617.359.360 Bytes (29c: 615.075.840). Das Archiv ist nicht bytegleich nachbaubar (Delta-Dateinamen tragen eine UUID), deshalb packt der Owner selbst:
+
+```bash
+python showcases/aurora_group/data/showdaten.py holen        # Stand 29c
+python showcases/aurora_group/data/gold/generate_fulfillment_gold.py
+python showcases/aurora_group/data/showdaten.py packen --aus-dir /tmp/showdaten --tag showdaten-aurora-2026-10-07
+cp /tmp/showdaten/showdaten.lock.json showcases/aurora_group/data/showdaten.lock.json   # committen
+gh release create showdaten-aurora-2026-10-07 /tmp/showdaten/aurora_gold_2026-10-07.tar \
+  --repo FlorianHaferkorn/analytics-usecase-library --title "Aurora-Showdaten showdaten-aurora-2026-10-07"
+```
+
 **Warum ein Archiv und kein Generator-Neulauf** (gemessen 29.09.2026, Methode: die ganze
 Kette in einer Kopie von `HEAD` ohne Daten gefahren, `deltalake==1.6.2` –
 `generate_gold_layer_contract_v2.py`, `generate_aurora_gold.py`, `generate_gapfill_gold.py`,
