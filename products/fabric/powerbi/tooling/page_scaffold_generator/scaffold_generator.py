@@ -78,6 +78,7 @@ class PageScaffoldGenerator:
         self.page_builder.assert_statement_titles = self.page_config.get("assert_statement_titles", True)
         # Sprache des Alt-Texts aus dem Bracket (ux_layout_rules.report_locale, Default en-US).
         self.page_builder.report_locale = self.page_config.get("report_locale")
+        self.page_builder.text_measures = frozenset(self.page_config.get("text_measures") or ())
 
         # Speaking page ID (human-readable; no Power BI default hex IDs)
         # e.g. Page_COM001_Overview, Page_COM001_Detail
@@ -183,7 +184,8 @@ class PageScaffoldGenerator:
         # 01.10.2026). Haupt-Slots tragen ihn schon (mit Vergleichsreihe); apply_alt_text laesst
         # vorhandenen Alt-Text stehen.
         for _vis in page_structure["visuals"] + page_structure.get("slicers", []):
-            apply_alt_text(_vis, locale=self.page_builder.report_locale)
+            apply_alt_text(_vis, locale=self.page_builder.report_locale,
+                           text_measures=self.page_builder.text_measures)
 
         self.page_structure = {
             "metadata": page_metadata,

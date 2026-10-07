@@ -41,7 +41,21 @@ def test_bar_chart_is_clean(tmp_path):
 
 def test_forbidden_set_is_the_governed_one():
     # the reuse guarantee: the forbidden set lives in the invariant, not here
-    assert ForbiddenVisualTypes().forbidden == {"pieChart", "donutChart", "gauge", "treemap"}
+    # (IBCS 2.0 EX 2.1-2.3 since 02.10.2026: funnel added; radar/custom gauges by substring)
+    assert ForbiddenVisualTypes().forbidden == {"pieChart", "donutChart", "gauge", "treemap", "funnel"}
+
+
+def test_declared_exception_is_not_a_violation(tmp_path):
+    rep = _report_with_visual(tmp_path, "gauge")
+    vj = next(rep.rglob("visual.json"))
+    body = json.loads(vj.read_text(encoding="utf-8"))
+    body["annotations"] = [{"name": "ibcs.ausnahme", "value": "EX 2.2: Leitstand"}]
+    vj.write_text(json.dumps(body), encoding="utf-8")
+    assert forbidden_in(rep) == []
+    # Gegenprobe: ohne Annotation zaehlt der Tacho
+    body.pop("annotations")
+    vj.write_text(json.dumps(body), encoding="utf-8")
+    assert forbidden_in(rep) == ["gauge"]
 
 
 def test_committed_dist_has_no_forbidden_types():

@@ -111,7 +111,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Days in Inventory, Inventory Turnover, Stockout Rate % and OTIF %'"
+                  "Value": "'Current values of Days in Inventory, Inventory Turnover, Stockout Rate % and OTIF %'"
                 }
               }
             }

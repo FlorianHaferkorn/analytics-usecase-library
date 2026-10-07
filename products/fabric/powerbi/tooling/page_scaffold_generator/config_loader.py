@@ -12,7 +12,7 @@ import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
-from .alt_text import bracket_locale
+from .alt_text import bracket_locale, text_measures
 
 # Threshold units that were KPI-ID suffixes before D-594 and were never displayed; same set as
 # tooling/generator_core/ir/compiler.py SUFFIX_UNITS (tooling/tests/test_kpi_id_migration.py).
@@ -1083,6 +1083,8 @@ class ConfigLoader:
                 "report_canvas": report_canvas,
                 # Sprache der vom Generator formulierten Texte (Alt-Text), alt_text.bracket_locale.
                 "report_locale": bracket_locale(bracket),
+                # Text-Measures des gebundenen Modells (formatString @) fuer den Kachel-Alt-Text.
+                "text_measures": text_measures(self._target_model_dir(bracket)),
                 "needs_action_panel": False,
                 "slots": slots,
                 "component_3s": dict(c3s) if isinstance(c3s, dict) else {},
@@ -1274,6 +1276,8 @@ class ConfigLoader:
                 "report_canvas": report_canvas,
                 # Sprache der vom Generator formulierten Texte (Alt-Text), alt_text.bracket_locale.
                 "report_locale": bracket_locale(bracket),
+                # Text-Measures des gebundenen Modells (formatString @) fuer den Kachel-Alt-Text.
+                "text_measures": text_measures(self._target_model_dir(bracket)),
                 "needs_action_panel": has_action_panel,
                 "slots": slots,
                 "card_kpi_ids": card_kpi_ids,

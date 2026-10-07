@@ -111,7 +111,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'CLV (Customer Lifetime Value), Customer Lifetime Revenue Amount, Customer Retention % and Churned Customers'"
+                  "Value": "'Current values of CLV (Customer Lifetime Value), Customer Lifetime Revenue Amount, Customer Retention % and Churned Customers'"
                 }
               }
             }

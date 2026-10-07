@@ -111,7 +111,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'First Pass Yield %, Scrap Rate %, Rework Rate % and Cost of Poor Quality'"
+                  "Value": "'Current values of First Pass Yield %, Scrap Rate %, Rework Rate % and Cost of Poor Quality'"
                 }
               }
             }

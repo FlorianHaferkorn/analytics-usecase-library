@@ -111,7 +111,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Unit Cost Amount, COGS % of Sales, OpEx vs Plan % and Material Cost %'"
+                  "Value": "'Current values of Unit Cost Amount, COGS % of Sales, OpEx vs Plan % and Material Cost %'"
                 }
               }
             }

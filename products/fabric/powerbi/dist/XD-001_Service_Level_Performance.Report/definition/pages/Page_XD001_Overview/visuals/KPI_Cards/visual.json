@@ -111,7 +111,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'SLA Attainment %, Backlog Count, First Contact Resolution % and Average Handling Time (minutes)'"
+                  "Value": "'Current values of SLA Attainment %, Backlog Count, First Contact Resolution % and Average Handling Time (minutes)'"
                 }
               }
             }

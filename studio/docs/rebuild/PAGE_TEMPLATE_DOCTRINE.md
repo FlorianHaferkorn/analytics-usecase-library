@@ -41,7 +41,7 @@ Every rule in this document carries one of four status labels:
 | S6 | Hick (1952) / Hyman (1953), choice reaction time law | Slicer count limits | evidence-backed |
 | S7 | Few (**2006**), *Information Dashboard Design*, O'Reilly | Dashboard hierarchy, attention management | evidence-backed |
 | S8 | Few (2005), *Bullet Graph Design Specification*, Perceptual Edge | Bullet graph rules | evidence-backed |
-| S9 | IBCS — International Business Communication Standards (2021 edition) | Scenario notation, variance semantics, SUCCESS rules | evidence-backed |
+| S9 | IBCS Standards Version 2.0 (IBCS Association 2026, CC BY-SA 4.0) / ISO 24896 *Notation for business reporting* (UNIFY follows ISO 24896 Clause 4, IBCS 2.0 p. 25); rules as catalogued in `docs/architecture/research/2026-09-30_visual-stack-r1/ibcs_v2.yaml` | Scenario notation, variance semantics, SUCCESS rules | evidence-backed |
 | S10 | SQLBI / Buhler (2024), "The 3-30-300 Rule" | Layer structure, zone order | **heuristic** — see note |
 | S11 | Tufte (1983), *The Visual Display of Quantitative Information* | Data-ink ratio, small multiples, axes | evidence-backed |
 | S12 | Microsoft Power BI design guidance (2025) | Production layout, accessibility, performance | evidence-backed |
@@ -160,7 +160,13 @@ Rules:
 - Both absolute and relative variance must be shown simultaneously on variance visuals
 - Reference scenario must always be visible (Plan bar or line as reference, not hidden)
 
-**Source:** IBCS SUCCESS rules (2021), specifically UNIFY U4 (consistent scenario notation) and EXPRESS E3 (show absolute + relative variance).
+**Source:** IBCS Version 2.0 (2026) / ISO 24896 — UN 3.2 *Unify scenarios* (p. 44, scenario notation), UN 4.1 *Unify scenario analyses* (p. 51, variance notation) and EX 4.2 *Add variances* (p. 141). Rule ids before 2.0 (2021 edition: U4, E3) are superseded.
+
+> **Deviation from IBCS 2.0 (open, 02.10.2026):** the two colour bullets above predate 2.0.
+> UN 4.1 (p. 51) colours variances by rating: desirable bright green, undesirable dark red,
+> not rated blue; colour-vision fallback blue-green for desirable, black/white fallback in
+> greys. The Visual Library profile `ibcs` (`_notation_profiles.yaml`) already follows UN 4.1.
+> Aligning this table is a separate decision (it touches Studio CSS and template tokens).
 
 ### 3.6 Reading Patterns [S7, S12]
 
