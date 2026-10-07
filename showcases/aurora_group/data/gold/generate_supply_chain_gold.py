@@ -29,6 +29,8 @@ from _generator_utils import (
     FACTS_END,
 )
 from _model_columns import fact_inventory_spalten  # noqa: E402 -- nach sys.path; A-24 COGS Amount
+from _fulfillment import alten_zufallsstrom_vorspulen, erzeuge as erzeuge_fulfillment  # noqa: E402
+from _fulfillment import lies_tabelle  # noqa: E402
 
 # Initialize
 RANDOM_SEED = 12345
@@ -189,64 +191,18 @@ fmt = write_fact_delta(fact_inv_dir, fact_inventory_spalten(pd.DataFrame(rows_in
                        partition_by=["Fiscal Year"])
 print(f"Written fact_inventory ({len(rows_inv):,} records) [{fmt}]")
 
-# fact_fulfillment (order grain) - Daily orders with seasonality
+# fact_fulfillment (Sendung) -- Logik in _fulfillment.py (07.10.2026): OTIF = On-Time AND In-Full,
+# OrgKey = DC der Lane, Guardrail-Volumen auf den Hauptlanes, On-Time-Abfall in zwei Lanes.
+# Eigener Zufallsstrom; der alte Block wird nur vorgespult, damit fact_stockout und fact_forecast
+# dieselben Ziehungen bekommen wie bisher.
 fact_fulfill_dir = facts / "fact_fulfillment"
-fact_fulfill_dir.mkdir(parents=True, exist_ok=True)
-rows_fulfill = []
-
-# Sample dates (daily or every few days)
-sampled_dates_fulfill = fact_dates[::1]  # Daily
-
-print(f"Generating fact_fulfillment for {len(sampled_dates_fulfill)} dates × {len(org_keys[:5])} orgs × {len(product_keys[:15])} products × {len(lane_keys[:5])} lanes...")
-
-for date_obj in sampled_dates_fulfill:
-    date_key = int(date_obj.strftime('%Y%m%d'))
-    
-    # Apply seasonality to order volume
-    seasonality_factor = apply_combined_seasonality(
-        date_obj,
-        base_factor=1.0,
-        monthly_weight=0.6,
-        weekly_weight=0.4,
-        seed=RANDOM_SEED,
-    )
-    
-    # Number of orders per day varies with seasonality
-    orders_per_day = max(1, int(5 * seasonality_factor))
-    
-    for _ in range(orders_per_day):
-        ok = random.choice(org_keys[:5])
-        pk = random.choice(product_keys[:15])
-        lk = random.choice(lane_keys[:5])
-        
-        # OTIF metrics (85-95% success rates)
-        otif_flag = random.random() < 0.90
-        on_time_flag = random.random() < 0.92
-        in_full_flag = random.random() < 0.95
-        order_correct_flag = random.random() < 0.98
-        
-        order_qty = max(10, int(100 * seasonality_factor * random.uniform(0.7, 1.3)))
-        
-        # Penalties and expedite costs only if not OTIF
-        penalty_amount = random.uniform(100, 500) if not otif_flag else 0.0
-        expedite_cost = random.uniform(200, 800) if not on_time_flag else 0.0
-        
-        rows_fulfill.append({
-            "DateKey": date_key,
-            "OrgKey": ok,
-            "ProductKey": pk,
-            "LaneKey": lk,
-            "OTIF Flag": otif_flag,
-            "On-Time Flag": on_time_flag,
-            "In-Full Flag": in_full_flag,
-            "Order Correct Flag": order_correct_flag,
-            "Order Qty": float(order_qty),
-            "Penalty Amount": round(penalty_amount, 2),
-            "Expedite Cost": round(expedite_cost, 2),
-        })
-
-fmt = write_fact_delta(fact_fulfill_dir, pd.DataFrame(rows_fulfill), partition_by=["Fiscal Year"])
-print(f"Written fact_fulfillment ({len(rows_fulfill):,} records) [{fmt}]")
+_alt_tage = fact_dates[::1]
+print(f"Generating fact_fulfillment for {len(_alt_tage)} dates x {len(rows_lane)} lanes (_fulfillment.py)...")
+alten_zufallsstrom_vorspulen(random, _alt_tage, org_keys, product_keys, lane_keys, RANDOM_SEED)
+df_fulfill = erzeuge_fulfillment(pd.DataFrame(rows_lane), lies_tabelle(dims / "dim_org"),
+                                 lies_tabelle(dims / "dim_product"), _alt_tage, RANDOM_SEED)
+fmt = write_fact_delta(fact_fulfill_dir, df_fulfill, partition_by=["Fiscal Year"])
+print(f"Written fact_fulfillment ({len(df_fulfill):,} records) [{fmt}]")
 
 # fact_stockout (location_sku_day) - Daily stockout tracking with seasonality
 fact_stock_dir = facts / "fact_stockout"
