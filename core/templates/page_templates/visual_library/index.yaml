@@ -119,7 +119,9 @@ notation_profiles:
   implemented_print_safe: [deviation_bar, bar_ranking, line, waterfall_pvm, bullet]   # idioms that carry a CVAA/print-safe overlay
 
 # governed deny-list (never emit)
-deny: [pie_gt_4, three_d, gauge, radar, dual_axis_no_reason, color_as_decoration, powerbi_smart_narrative]
+# deprecated_map / qna_visual / legacy_card: von Microsoft abgekuendigte PBIR-Typen (map/filledMap -> azureMap,
+# qnaVisual -> Copilot, card/multiRowCard -> cardVisual; Abgleich 07.10.2026, skills-for-fabric map.md/card.md).
+deny: [pie_gt_4, three_d, gauge, radar, dual_axis_no_reason, color_as_decoration, powerbi_smart_narrative, deprecated_map, qna_visual, legacy_card]
 
 # realised so far (rest scaffolded per increment)
 implemented: [deviation_bar, line, bar_ranking, waterfall_pvm, area_stacked, indexed_line, matrix_evidence, scatter, donut, bullet, slope, stacked_100, lollipop, histogram, boxplot, small_multiples, sankey, decomposition_tree, bar_absolute, waterfall_buildup, waterfall_variance, kpi_card_spark, kpi_card_bullet, kpi_card_sparkbar, matrix_sparkline, matrix_bullet, matrix_delta_pill, column_time, dumbbell, bar_stacked, variance_pin, multi_tier_column]

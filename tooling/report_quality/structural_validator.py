@@ -180,9 +180,24 @@ class RequiredSlots:
         ]
 
 
+# Von Microsoft abgekuendigte PBIR-visualTypes mit offiziellem Ersatz (Abgleich 07.10.2026:
+# Learn power-bi/developer/agentic/*, microsoft/skills-for-fabric references/authoring/map.md
+# und card.md). Spiegel in visual_validator._DEPRECATED_PBI_TYPES (products/ — Paketgrenze,
+# daher kein Import); Gleichheit erzwingt tooling/tests/test_forbidden_charts.py.
+DEPRECATED_VISUAL_TYPES: dict[str, str] = {
+    "map": "azureMap",
+    "filledMap": "azureMap",
+    "qnaVisual": "Copilot (the Q&A visual is deprecated)",
+    "card": "cardVisual",
+    "multiRowCard": "cardVisual",
+}
+
+
 @dataclass
 class ForbiddenVisualTypes:
-    forbidden: set[str] = field(default_factory=lambda: {"pieChart", "donutChart", "gauge", "treemap"})
+    forbidden: set[str] = field(
+        default_factory=lambda: {"pieChart", "donutChart", "gauge", "treemap"} | set(DEPRECATED_VISUAL_TYPES)
+    )
     severity: Severity = "critical"
     name: str = "visual:forbidden-type"
 
@@ -191,13 +206,14 @@ class ForbiddenVisualTypes:
         for visual_name, visual in page.visuals.items():
             visual_type = visual.get("visual", {}).get("visualType")
             if visual_type in self.forbidden:
+                replacement = DEPRECATED_VISUAL_TYPES.get(visual_type)
                 violations.append(
                     Violation(
                         self.name,
                         self.severity,
                         visual_pointer(report.report_dir, page, visual_name, "visual/visualType"),
-                        "Forbidden visual type",
-                        expected=f"not in {sorted(self.forbidden)}",
+                        f"Deprecated visual type — use {replacement}" if replacement else "Forbidden visual type",
+                        expected=replacement or f"not in {sorted(self.forbidden)}",
                         actual=visual_type,
                     )
                 )

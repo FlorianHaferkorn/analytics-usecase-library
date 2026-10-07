@@ -9,7 +9,9 @@ import json
 from pathlib import Path
 
 from tooling.validation.check_forbidden_charts import forbidden_in
-from tooling.report_quality.structural_validator import ForbiddenVisualTypes
+import pytest
+
+from tooling.report_quality.structural_validator import DEPRECATED_VISUAL_TYPES, ForbiddenVisualTypes
 
 REPO = Path(__file__).resolve().parents[2]
 _DIST = REPO / "products/fabric/powerbi/dist"
@@ -41,7 +43,36 @@ def test_bar_chart_is_clean(tmp_path):
 
 def test_forbidden_set_is_the_governed_one():
     # the reuse guarantee: the forbidden set lives in the invariant, not here
-    assert ForbiddenVisualTypes().forbidden == {"pieChart", "donutChart", "gauge", "treemap"}
+    assert ForbiddenVisualTypes().forbidden == {
+        "pieChart", "donutChart", "gauge", "treemap",
+        "map", "filledMap", "qnaVisual", "card", "multiRowCard",
+    }
+
+
+@pytest.mark.parametrize("visual_type,replacement", [
+    ("filledMap", "azureMap"),
+    ("map", "azureMap"),
+    ("qnaVisual", "Copilot"),
+    ("card", "cardVisual"),
+    ("multiRowCard", "cardVisual"),
+])
+def test_deprecated_visual_type_is_flagged_with_replacement(tmp_path, visual_type, replacement):
+    hits = forbidden_in(_report_with_visual(tmp_path, visual_type))
+    assert hits == [visual_type]
+    assert replacement in DEPRECATED_VISUAL_TYPES[visual_type]
+
+
+@pytest.mark.parametrize("visual_type", ["cardVisual", "azureMap"])
+def test_replacement_visual_type_is_clean(tmp_path, visual_type):
+    assert forbidden_in(_report_with_visual(tmp_path, visual_type)) == []
+
+
+def test_deprecated_list_mirrors_the_scaffold_validator():
+    # Paketgrenze: products/ und tooling/ halten je eine Kopie; diese Gleichheit ist die Kopplung.
+    import sys
+    sys.path.insert(0, str(REPO / "products/fabric/powerbi/tooling"))
+    from page_scaffold_generator import visual_validator as vv
+    assert vv._DEPRECATED_PBI_TYPES == DEPRECATED_VISUAL_TYPES
 
 
 def test_committed_dist_has_no_forbidden_types():

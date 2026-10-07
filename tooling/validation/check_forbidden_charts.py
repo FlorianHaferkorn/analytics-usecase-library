@@ -5,6 +5,9 @@ check_forbidden_charts.py — Boutique rubric BC-CHART-08 gate (chart type fits 
 "Chart type fits the message; forbidden expressive types barred" (Boutique-Craft-Rubric
 BC-CHART-08, Craft-Core §5.4 / IBCS). Pie / donut / gauge / treemap distort or decorate
 instead of comparing — a boutique report never ships them.
+The same invariant also bars the visual types Microsoft has deprecated (map / filledMap ->
+azureMap, qnaVisual -> Copilot, card / multiRowCard -> cardVisual; see
+structural_validator.DEPRECATED_VISUAL_TYPES).
 
 Tool-Reuse: this is a thin CLI over the EXISTING `ForbiddenVisualTypes` invariant in
 tooling/report_quality/structural_validator.py — the forbidden set and the PBIR walk
