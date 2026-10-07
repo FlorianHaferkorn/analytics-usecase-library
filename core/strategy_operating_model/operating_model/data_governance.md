@@ -179,8 +179,8 @@ Both run as pre-commit hooks for continuous governance.
 
 ### 8.3. Pre-Commit Enforcement
 
-A pre-commit hook (`tooling/git-hooks/pre-commit`) runs the Registry Engine in strict mode before every commit.
-Installation: `tooling/git-hooks/install_precommit.ps1`.
+The versioned pre-commit hook (`.githooks/pre-commit`) runs the Registry Engine in strict mode whenever `core/` files are staged.
+Activation: `git config core.hooksPath .githooks` (set by the Claude Code SessionStart hook; on Windows `tooling/git-hooks/install_precommit.ps1`).
 
 Failed validation blocks the commit.
 This ensures the repository never contains broken links or ungoverned artifacts.
