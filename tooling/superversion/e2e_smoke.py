@@ -5,8 +5,10 @@ fails if any stage is red:
 
     Bracket → from_aluca → CanonicalModel
             → Golden-Thread gate (I-3.4)
-            → TMDL emit (I-3.2)  + TMDL hard-rule hook
+            → contract binding (data contract → columns, dimensions, relationships)
+            → TMDL emit (I-3.2)  + TMDL hard-rule hook + full-model parse round trip
             → PBIR emit (I-3.3)  + official `powerbi-report-author validate`
+                                 + every field binding resolves in the emitted model
 
 Run it:
     python -m tooling.superversion.e2e_smoke                 # default: COM-001
@@ -41,6 +43,7 @@ from pathlib import Path, PurePath, PureWindowsPath
 from typing import Optional
 
 from tooling.superversion.canonical_contract import CanonicalModel
+from tooling.superversion.contract_binding import bind_bracket_file, dangling_references
 from tooling.superversion.from_aluca import from_bracket_file
 from tooling.superversion.golden_thread import GoldenThreadError, assert_golden_thread
 from tooling.superversion.targets import base
@@ -305,8 +308,56 @@ def _stage_slots(bracket: Path, kpis: Path) -> StageResult:
                        f"{len(rows)} page(s), all mandatory slots present")
 
 
+def _stage_contract(bracket: Path, model: CanonicalModel) -> tuple[StageResult, CanonicalModel]:
+    """Bind the canonical model to the bracket's data contract (columns, dimensions,
+    relationships, qualified visual fields). Gaps and contract deviations WARN — the
+    model still opens; what the contract does not answer stays a visible placeholder."""
+    try:
+        bound, findings = bind_bracket_file(model, bracket)
+    except Exception as exc:  # noqa: BLE001 — a broken binding must be loud
+        return StageResult("contract", "FAIL", f"{type(exc).__name__}: {exc}"), model
+    sm = bound.semantic
+    summary = (f"{len(sm.tables)} tables, {len(sm.relationships)} relationships, "
+               f"{sum(len(t.columns) for t in sm.tables)} columns")
+    dangling = dangling_references(bound)
+    notes = [str(f) for f in findings if f.kind in ("gap", "widened")]
+    notes += [f"dangling: {d}" for d in dangling]
+    if notes:
+        preview = "; ".join(notes[:3])
+        more = f"; +{len(notes) - 3} more" if len(notes) > 3 else ""
+        return StageResult("contract", "WARN", f"{summary} — {preview}{more}"), bound
+    return StageResult("contract", "PASS", summary), bound
+
+
+def _parse_emitted_model(dest: Path, model: CanonicalModel):
+    """Round trip of the WHOLE emitted model folder through the vendored Meridian
+    `tmdl_parser.parse_model` (tables, relationships, database.tmdl)."""
+    from tooling.superversion import _meridian_vendor
+
+    parser = _meridian_vendor._load_module(
+        "_e2e_tmdl_parser", _meridian_vendor.VENDOR_DIR / "core/pbi_engine/parsers/tmdl_parser.py")
+    return parser.parse_model(dest / f"{model.semantic.name}.SemanticModel")
+
+
 def _stage_tmdl(model: CanonicalModel, dest: Path) -> StageResult:
     files = base.render("tmdl", model, dest)
+    required = [f"{model.semantic.name}.SemanticModel/{p}" for p in
+                ("definition.pbism", ".platform", "definition/database.tmdl",
+                 "definition/model.tmdl")]
+    missing = [p for p in required if not (dest / p).is_file()]
+    if missing:
+        return StageResult("tmdl", "FAIL", f"semantic model incomplete, missing: {', '.join(missing)}")
+    try:
+        parsed = _parse_emitted_model(dest, model)
+    except Exception as exc:  # noqa: BLE001 — unparseable model is a red stage
+        return StageResult("tmdl", "FAIL", f"model does not parse: {type(exc).__name__}: {exc}")
+    if (len(parsed.tables) != len(model.semantic.tables)
+            or len(parsed.relationships) != len(model.semantic.relationships)
+            or any(not t.has_partition for t in parsed.tables)):
+        return StageResult("tmdl", "FAIL",
+                           f"round trip differs: {len(parsed.tables)}/{len(model.semantic.tables)} "
+                           f"tables, {len(parsed.relationships)}/{len(model.semantic.relationships)} "
+                           "relationships, or a table without partition")
     bash = resolve_bash()
     if _TMDL_HOOK.exists() and bash:
         for f in files:
@@ -319,20 +370,65 @@ def _stage_tmdl(model: CanonicalModel, dest: Path) -> StageResult:
                 output = _decode_process_output(proc.stdout) + _decode_process_output(proc.stderr)
                 return StageResult("tmdl", "FAIL",
                                    f"hook blocked {f.name}: {output.strip()[:200]}")
-        return StageResult("tmdl", "PASS", f"{len(files)} file(s), hard-rule hook green")
+        return StageResult("tmdl", "PASS", f"{len(files)} file(s), hard-rule hook green, "
+                                           f"model parses ({len(parsed.tables)} tables, "
+                                           f"{len(parsed.relationships)} relationships)")
     # Fallback structural check when the hook script is absent, or there is no
     # `bash` on PATH to run it (e.g. plain Windows without WSL/Git Bash — I-10.1:
     # a missing `bash` must degrade to this check, not crash with WinError 2).
     for f in files:
+        if f.suffix != ".tmdl":   # .platform / definition.pbism are JSON, not TMDL
+            continue
         for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
             if line.startswith("  ") or ":=" in line:
                 return StageResult("tmdl", "FAIL", f"{f.name}:{i} violates TMDL hard-rules")
-    return StageResult("tmdl", "PASS", f"{len(files)} file(s), structural check (hook or bash absent)")
+    return StageResult("tmdl", "PASS", f"{len(files)} file(s), structural check (hook or bash absent), "
+                                       f"model parses ({len(parsed.tables)} tables, "
+                                       f"{len(parsed.relationships)} relationships)")
+
+
+def unresolved_bindings(model: CanonicalModel, report_dir: Path) -> tuple[list[str], int]:
+    """(field references in the emitted PBIR that the semantic model does not contain,
+    number of declared `_HITL` placeholders). The official validator runs with
+    `--no-schema` against the report alone and cannot see this; Desktop can — a
+    dangling field renders the visual broken."""
+    known = {(t.name, c.name) for t in model.semantic.tables for c in t.columns}
+    known |= {(t.name, m.name) for t in model.semantic.tables for m in t.measures}
+    dangling: list[str] = []
+    placeholders = 0
+
+    def walk(node, where):
+        nonlocal placeholders
+        if isinstance(node, dict):
+            for kind in ("Column", "Measure"):
+                ref = node.get(kind)
+                if isinstance(ref, dict) and "Property" in ref:
+                    entity = ref.get("Expression", {}).get("SourceRef", {}).get("Entity")
+                    if entity == pbir._HITL_ENTITY:
+                        placeholders += 1
+                    elif (entity, ref["Property"]) not in known:
+                        dangling.append(f"{where}: {entity}.{ref['Property']}")
+            for v in node.values():
+                walk(v, where)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v, where)
+
+    for vf in sorted(report_dir.glob("definition/pages/*/visuals/*/visual.json")):
+        walk(json.loads(vf.read_text(encoding="utf-8")).get("visual", {}).get("query", {}),
+             vf.parent.name)
+    return dangling, placeholders
 
 
 def _stage_pbir(model: CanonicalModel, dest: Path, *, require_cli: bool) -> StageResult:
     base.render("pbir", model, dest)
     report_dir = dest / f"{model.report.name}.Report"
+    # ADVISORY for now (07.10.2026): measured over all 22 brackets, the unbound model had
+    # 57 such bindings, the contract-bound one 4 in 4 brackets (2x `dim_pvm_driver.Driver`
+    # in COM-001/COM-002, `dim_date.Date` in COM-005, `dim_org.SiteName` in ESG-001).
+    # Failing here would turn the CI smoke (COM-001) red over gaps that predate the
+    # check — the landing path the page_slots stage took. Harden to FAIL once closed.
+    dangling, _ = unresolved_bindings(model, report_dir)
     cli_path = shutil.which(_PBIR_CLI)
     if cli_path is None:
         if require_cli:
@@ -348,6 +444,12 @@ def _stage_pbir(model: CanonicalModel, dest: Path, *, require_cli: bool) -> Stag
     except (json.JSONDecodeError, KeyError):
         return StageResult("pbir", "FAIL", f"validator output unparseable (rc={proc.returncode})")
     errors = data.get("errorCount", -1)
+    if errors == 0 and dangling:
+        return StageResult(
+            "pbir", "WARN",
+            f"check_pbir 0 errors ({data.get('warningCount', 0)} warn), but {len(dangling)} "
+            f"field binding(s) not in the semantic model: {', '.join(dangling[:4])}",
+        )
     if errors == 0:
         gaps = pbir.hitl_gaps(model)
         if gaps:
@@ -393,6 +495,9 @@ def run(bracket: Path, *, kpis: Path = _KPIS, require_cli: bool = False,
 
     # Stage 3 — Pflicht-Slots je Seitenvariante (template_manifest.yaml).
     results.append(_stage_slots(bracket, kpis))
+    # Stage 3b — physical model from the data contract (I-3 delivery step).
+    contract_result, model = _stage_contract(bracket, model)
+    results.append(contract_result)
     # Stage 4 — TMDL emit + hard-rule gate.
     results.append(_stage_tmdl(model, dest))
     # Stage 4 — PBIR emit + official validator gate.
