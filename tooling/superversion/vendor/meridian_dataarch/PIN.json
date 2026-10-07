@@ -1,12 +1,12 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "1bba46eacedc5d0c4de3bbcc6efa600b85b1d8fa",
+  "source_commit": "cd3f5fe3f7cb116703f67f54c6a4847ad1e9c270",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
       "path": "admin_settings.py",
-      "sha256": "a7d84c8c37dae62b624c686caf3edc811ad3e87fb6509c1017f86c5342174ea7"
+      "sha256": "afc73ae6e6f17b9fec6c2c2b313ee570c7f8d6f16aadaa4bda3dfc6155e3f914"
     },
     {
       "path": "capacity_recommend.py",
@@ -126,7 +126,7 @@
     },
     {
       "path": "provision_purview.py",
-      "sha256": "4557f4406924b2be4dbaabf23228c51725580d8546b9ab61b97db6ef2021e01f"
+      "sha256": "55416d70c5195091eb9c08f8cae229d7b44c7fa1efe0052003046b8f78bba021"
     },
     {
       "path": "provision_terraform.py",
@@ -138,7 +138,7 @@
     },
     {
       "path": "ki_zugang.py",
-      "sha256": "cf81220ffc26e4f99c9295b12e6d4f106b556f9c7286607fb317f02e20e755f7"
+      "sha256": "570b9c401a8499c1dbfe73251eaa7701a5a81b4b6739654566dcfb4b0032ed08"
     },
     {
       "path": "provision_transforms.py",
