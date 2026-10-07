@@ -355,12 +355,16 @@ def _stage_pbir(model: CanonicalModel, dest: Path, *, require_cli: bool) -> Stag
             suffix = f"; +{len(gaps) - 2} more" if len(gaps) > 2 else ""
             return StageResult(
                 "pbir", "WARN",
-                f"check_pbir 0 errors ({data.get('warningCount', 0)} warn), "
+                f"check_pbir --no-schema 0 errors ({data.get('warningCount', 0)} warn; "
+                f"Schema nicht geprueft), "
                 f"but {len(gaps)} connector HITL gap(s): {preview}{suffix}",
             )
-        return StageResult("pbir", "PASS", f"check_pbir 0 errors ({data.get('warningCount', 0)} warn)")
+        # `--no-schema` ist der Offline-Preflight: die Meldung sagt das, damit „0 errors“ nicht
+        # als Schemapruefung gelesen wird (02.10.2026; die volle Pruefung macht die dist-Ratsche).
+        return StageResult("pbir", "PASS", f"check_pbir --no-schema 0 errors "
+                                           f"({data.get('warningCount', 0)} warn; Schema nicht geprueft)")
     diags = ", ".join((data.get("diagnostics") or {}).keys())
-    return StageResult("pbir", "FAIL", f"check_pbir {errors} error(s): {diags}")
+    return StageResult("pbir", "FAIL", f"check_pbir --no-schema {errors} error(s): {diags}")
 
 
 def run(bracket: Path, *, kpis: Path = _KPIS, require_cli: bool = False,
