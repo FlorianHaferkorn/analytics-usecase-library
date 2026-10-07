@@ -349,14 +349,15 @@ vorgaenge:
 - signal: SIG-2609-005
   artefakt: ALUCA-PBI-GENERATOR
   risiko: T1
-  status: entschieden
+  status: verifiziert
   faellig: '2026-10-15'
   entscheidung: umsetzen
   wiedervorlage: null
   begruendung: 'Vorschlag angenommen: Vorschlag prüfen (Official-First): offizielle Skills gegen TMDL-/PBIR-Hardrules
     (AGENTS.md) halten.'
   d_eintrag: null
-  belege: []
+  belege:
+  - Meridian research/signale/vorschlaege/2026-10-07_Analyse_Skills-Abgleich-SIG-2609-005.md, Spalte ALUCA
   verlauf:
   - am: '2026-10-01'
     status: triage
@@ -370,6 +371,14 @@ vorgaenge:
     status: entschieden
     von: flo
     notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-681 (Befund geführt)
+  - am: '2026-10-07'
+    status: verifiziert
+    von: agent
+    notiz: Umsetzung D-681 (Befund geführt)
   vorlage: research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-C-Pruefungen-und-Previews.md
 - signal: SIG-2609-006
   artefakt: ALUCA-AGENT-SKILLS
@@ -618,14 +627,17 @@ vorgaenge:
 - signal: SIG-2609-010
   artefakt: ALUCA-KAPAZITAET
   risiko: T1
-  status: entschieden
+  status: verifiziert
   faellig: '2026-10-15'
   entscheidung: umsetzen
   wiedervorlage: null
   begruendung: 'Vorschlag angenommen: Vorschlag prüfen: tooling/superversion/capacity.py führt F64 als
     Lizenzschwelle (Z.18); sicherstellen, dass Copilot ab F2 empfohlen wird, sonst ergänzen.'
   d_eintrag: null
-  belege: []
+  belege:
+  - tooling/superversion/capacity.py führt F64 nur als Pro-freie Viewer-Schwelle; Copilot ab F2 steht
+    in vendor/meridian_dataarch/capacity_recommend.py:28 und admin_settings.py:224 (grep 07.10.2026);
+    Learn bestätigt F2+ (gegenproben.yaml)
   verlauf:
   - am: '2026-10-01'
     status: triage
@@ -639,6 +651,14 @@ vorgaenge:
     status: entschieden
     von: flo
     notiz: Statuswechsel
+  - am: '2026-10-07'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-681 (Prüfung ohne Änderungsbedarf)
+  - am: '2026-10-07'
+    status: verifiziert
+    von: agent
+    notiz: Umsetzung D-681 (Prüfung ohne Änderungsbedarf)
   vorlage: research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-C-Pruefungen-und-Previews.md
 - signal: SIG-2609-010
   artefakt: ALUCA-PBI-GENERATOR
