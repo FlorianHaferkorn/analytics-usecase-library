@@ -1,0 +1,1051 @@
+# Vorgänge: je Signal und Artefakt ein Eintrag (research/signale/README.md, „Lifecycle“).
+# `python3 scripts/signale.py vorgaenge <deklaration> --fortschreiben` legt fehlende an und
+# setzt abgelaufene Wiedervorlagen zurück. Statuswechsel: `status` setzen UND eine Zeile an
+# `verlauf` anhängen (am, status, von, notiz); ältere Zeilen nie ändern.
+version: 1
+vorgaenge:
+- signal: SIG-2609-001
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-14'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-001
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: nicht_relevant
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: copilot_readiness prüft Modell-Metadaten; die gelten für Copilot Chat/Cowork genauso, am
+    Werkzeug ändert sich nichts.
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: nicht_relevant
+    von: agent
+    notiz: erste Triage
+- signal: SIG-2609-001
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-002
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-14'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-002
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: verifiziert
+  faellig: '2026-10-15'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'DPIA 12.4: Gesprächslabel, Exportvererbung, Label-DLP erst ab E5 (ADR-0025, C-26).'
+  d_eintrag: D-644
+  belege: &id001
+  - 'compliance/DPIA.md 12.4, compliance/_INDEX.md C-26, docs/architecture/adr/0025: check_index --strict
+    0 harte Befunde, markdownlint-cli2 0 issues, 01.10.2026'
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket A umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-644
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün
+- signal: SIG-2609-002
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: nicht_relevant
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: DLP und Labels prüft copilot_readiness nicht; Compliance-Aspekt läuft unter ALUCA-COMPLIANCE.
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: nicht_relevant
+    von: agent
+    notiz: erste Triage
+- signal: SIG-2609-002
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-003
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: nicht_relevant
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: Zweiter Copilot-Einstieg ändert nichts an den Modell-Metadaten, die das Werkzeug prüft.
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: nicht_relevant
+    von: agent
+    notiz: erste Triage
+- signal: SIG-2609-003
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-004
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: entschieden
+  faellig: '2026-10-15'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-01'
+  begruendung: 'Vorschlag beobachten (angekündigt): Modell-Einstellung später als TOM in DPIA/ai_egress_measures.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Vorschlag angenommen: beobachten bis 2026-12-01'
+- signal: SIG-2609-004
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: entschieden
+  faellig: '2026-10-15'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-01'
+  begruendung: 'Vorschlag beobachten (angekündigt): bei Verfügbarkeit die Modell-Einstellung als Prüfpunkt
+    in copilot_readiness.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Vorschlag angenommen: beobachten bis 2026-12-01'
+- signal: SIG-2609-004
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: entschieden
+  faellig: '2026-10-15'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-01'
+  begruendung: 'Vorschlag beobachten (angekündigt): TMDL-Eigenschaft bei Verfügbarkeit in den Generator.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Vorschlag angenommen: beobachten bis 2026-12-01'
+- signal: SIG-2609-005
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: geschlossen
+  faellig: '2026-10-08'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'docs/agent/skills (generate-and-validate-pbi-report, fabric-powerbi-validation) um einen
+    Abschnitt zu den offiziellen Power-BI-Skills ergänzen: wann ALUCA-Skill, wann offizieller Skill.'
+  d_eintrag: null
+  belege:
+  - 'docs/agent/agent-developer-tools.md: Abschnitt „Welches Werkzeug für welche Schicht“, ALUCA-Skills
+    für governte Inhalte, offizielle Werkzeuge je Schicht'
+  - check_index.py --strict 0 harte Befunde, markdownlint-cli2 0 issues, 01.10.2026
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: agent
+    notiz: 'T0, vom Agenten entschieden: umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: T0-Umsetzung
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Gates grün
+  - am: '2026-10-01'
+    status: geschlossen
+    von: agent
+    notiz: Doku ohne Auslieferung an Kunden
+- signal: SIG-2609-005
+  artefakt: ALUCA-DEPLOY
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-005
+  artefakt: ALUCA-PBI-BERICHTE
+  risiko: T2
+  status: nicht_relevant
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: Agentic Experiences ändern die ausgelieferten Berichte nicht; Werkzeugseite unter ALUCA-PBI-GENERATOR.
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: nicht_relevant
+    von: agent
+    notiz: erste Triage
+- signal: SIG-2609-005
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: entschieden
+  faellig: '2026-10-15'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'Vorschlag angenommen: Vorschlag prüfen (Official-First): offizielle Skills gegen TMDL-/PBIR-Hardrules
+    (AGENTS.md) halten.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  vorlage: research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-C-Pruefungen-und-Previews.md
+- signal: SIG-2609-006
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: entschieden
+  faellig: '2026-10-08'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-01'
+  begruendung: Remote Authoring MCP ist Preview; bei GA in docs/agent/agent-developer-tools.md aufnehmen.
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: agent
+    notiz: 'T0, vom Agenten entschieden: beobachten'
+- signal: SIG-2609-006
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: nicht_relevant
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: Der Generator schreibt Dateien; ein Remote-MCP-Bearbeitungsweg ändert daran nichts.
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: nicht_relevant
+    von: agent
+    notiz: erste Triage
+- signal: SIG-2609-008
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T2
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-008
+  artefakt: ALUCA-DEPLOY
+  risiko: T2
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-008
+  artefakt: ALUCA-PBI-BERICHTE
+  risiko: T2
+  status: geschlossen
+  faellig: '2026-10-15'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'Bereits erfüllt, kein Änderungsbedarf. Vorschlag schließen als bereits erfüllt: dist/*.Report
+    liegen im PBIR-Format vor (definition/pages, gemessen 01.10.2026).'
+  d_eintrag: null
+  belege:
+  - 'Gemessen 01.10.2026: 17 von 17 products/fabric/powerbi/dist/*.Report haben definition/pages (PBIR),
+    0 mit report.json im Legacy-Format an der Wurzel.'
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Vorschlag angenommen: bereits erfüllt'
+  - am: '2026-10-01'
+    status: geschlossen
+    von: flo
+    notiz: geschlossen mit Messbeleg
+- signal: SIG-2609-008
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T2
+  status: geschlossen
+  faellig: '2026-10-15'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'Bereits erfüllt, kein Änderungsbedarf. Vorschlag schließen als bereits erfüllt: Gemessen
+    01.10.2026, products/fabric/powerbi/dist/*.Report hat definition/pages, report.json, version.json
+    (PBIR). Mit diesem Beleg kann Flo direkt auf geschlossen gehen.'
+  d_eintrag: null
+  belege:
+  - 'Gemessen 01.10.2026: der Generator erzeugt PBIR; 17 von 17 Reports in dist mit definition/pages,
+    0 Legacy-report.json.'
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Vorschlag angenommen: bereits erfüllt'
+  - am: '2026-10-01'
+    status: geschlossen
+    von: flo
+    notiz: geschlossen mit Messbeleg
+- signal: SIG-2609-009
+  artefakt: ALUCA-COPILOT
+  risiko: T2
+  status: verifiziert
+  faellig: '2026-10-15'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: Q&A-Oberflächen enden 02/2027; der Q&A-Schalter am Modell bleibt laut Learn (gelesen 01.10.2026,
+    copilot-prepare-data-ai) Voraussetzung von Prep data for AI. Anleitung präzisiert statt gestrichen
+    (D-624).
+  d_eintrag: D-624
+  belege:
+  - 'products/fabric/powerbi/tooling/copilot_readiness/README.md: Checklistenpunkt Q&A-Schalter am Modell
+    (D-624)'
+  - 'bereits vorher umgesetzt: products/fabric/powerbi/tooling/linguistic_schema.py Docstring und tooling/health_scorecard.py
+    H8_CONSUMERS = (''copilot'',), Learn 29.09.2026'
+  - 'scripts/check_index.py --strict: 0 harte Befunde, 01.10.2026'
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-624
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün
+- signal: SIG-2609-009
+  artefakt: ALUCA-PBI-BERICHTE
+  risiko: T2
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-009
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T2
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-010
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: nicht_relevant
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: copilot_readiness dimensioniert keine Capacity; Lizenzaspekt unter ALUCA-KAPAZITAET.
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: nicht_relevant
+    von: agent
+    notiz: erste Triage
+- signal: SIG-2609-010
+  artefakt: ALUCA-KAPAZITAET
+  risiko: T1
+  status: entschieden
+  faellig: '2026-10-15'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'Vorschlag angenommen: Vorschlag prüfen: tooling/superversion/capacity.py führt F64 als
+    Lizenzschwelle (Z.18); sicherstellen, dass Copilot ab F2 empfohlen wird, sonst ergänzen.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-07'
+    status: entschieden
+    von: flo
+    notiz: Statuswechsel
+  vorlage: research/signale/vorschlaege/2026-10-01_Entscheidung_Paket-C-Pruefungen-und-Previews.md
+- signal: SIG-2609-010
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-011
+  artefakt: ALUCA-COPILOT
+  risiko: T2
+  status: nicht_relevant
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: Narrative-Visual betrifft Berichte; das Werkzeug prüft Modelle.
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: nicht_relevant
+    von: agent
+    notiz: erste Triage
+- signal: SIG-2609-011
+  artefakt: ALUCA-PBI-BERICHTE
+  risiko: T2
+  status: nicht_relevant
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: 'Gemessen 01.10.2026: dist enthält keine Narrative-/Q&A-Visuals (visualType: slicer 77,
+    cardVisual 69, tableEx 22, lineChart 18, textbox 16, clusteredBarChart 13, waterfallChart 5).'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: nicht_relevant
+    von: agent
+    notiz: erste Triage
+- signal: SIG-2609-011
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T2
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-015
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: entschieden
+  faellig: '2026-10-15'
+  entscheidung: beobachten
+  wiedervorlage: '2026-11-01'
+  begruendung: 'Learn: Restrict access Preview; bei GA als technische Maßnahme in DPIA 6.1.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket B, beobachten bis 2026-11-01'
+- signal: SIG-2609-017
+  artefakt: ALUCA-KAPAZITAET
+  risiko: T1
+  status: geschlossen
+  faellig: '2026-10-15'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'Bereits erfüllt, kein Änderungsbedarf. Vorschlag verifizieren und schließen: tooling/superversion/capacity.py
+    Z.82–93 bildet Overage ab (standardmäßig an, Faktor 3, Learn verifiziert 29.09.2026).'
+  d_eintrag: null
+  belege:
+  - 'Gemessen 01.10.2026: tooling/superversion/capacity.py Z.82–96 (Overage standardmäßig an, OVERAGE_PRICE_MULTIPLIER
+    = 3, Schwelle 25 %, Learn verifiziert 29.09.2026).'
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Vorschlag angenommen: bereits erfüllt'
+  - am: '2026-10-01'
+    status: geschlossen
+    von: flo
+    notiz: geschlossen mit Messbeleg
+- signal: SIG-2609-018
+  artefakt: ALUCA-KAPAZITAET
+  risiko: T1
+  status: entschieden
+  faellig: '2026-10-15'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-01'
+  begruendung: 'Vorschlag beobachten (angekündigt): F0/On-demand erst mit Preisliste in capacity.py.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Vorschlag angenommen: beobachten bis 2026-12-01'
+- signal: SIG-2609-019
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-14'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-019
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: entschieden
+  faellig: '2026-10-15'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-01'
+  begruendung: 'Vorschlag beobachten bis GA (Preview): Ontologie aus Semantic Models als Readiness-Aspekt.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Vorschlag angenommen: beobachten bis 2026-12-01'
+- signal: SIG-2609-019
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: entschieden
+  faellig: '2026-10-15'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-01'
+  begruendung: 'Vorschlag beobachten bis GA (Preview): tooling/ontology gegen die neue Ontology mit DAX-Measures
+    abgleichen.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Vorschlag angenommen: beobachten bis 2026-12-01'
+- signal: SIG-2609-020
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-14'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-020
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: entschieden
+  faellig: '2026-10-15'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-01'
+  begruendung: 'Vorschlag beobachten bis GA (Preview): Data-Agent-Feedback berührt die Anweisungen, die
+    copilot_readiness heute nicht prüft.'
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Vorschlag angenommen: beobachten bis 2026-12-01'
+- signal: SIG-2609-020
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: triage
+  faellig: '2026-10-21'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-021
+  artefakt: ALUCA-AGENT-SKILLS
+  risiko: T0
+  status: triage
+  faellig: '2026-10-14'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: null
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-07'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+- signal: SIG-2609-021
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: verifiziert
+  faellig: '2026-10-15'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'DPIA 12.4: neuer Abfluss an KI-Clients, Zustimmungsrichtlinie, Modelleinstellung (ADR-0025,
+    C-26).'
+  d_eintrag: D-644
+  belege: *id001
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket A umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-644
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün
+- signal: SIG-2609-021
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: verifiziert
+  faellig: '2026-10-15'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'README Bekannte Grenzen: Fabric IQ MCP, Verified Answers bei aktiviertem Fabric IQ, Verweis
+    DPIA 12.4.'
+  d_eintrag: D-644
+  belege:
+  - products/fabric/powerbi/tooling/copilot_readiness/README.md, markdownlint-cli2 0 issues, 01.10.2026
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket A umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-644
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün
+- signal: SIG-2609-021
+  artefakt: ALUCA-PBI-GENERATOR
+  risiko: T1
+  status: nicht_relevant
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: Fabric IQ MCP ist ein Lesezugang; der Generator ist nicht berührt.
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: nicht_relevant
+    von: agent
+    notiz: erste Triage
+- signal: SIG-2609-023
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: entschieden
+  faellig: '2026-10-15'
+  entscheidung: beobachten
+  wiedervorlage: '2026-12-01'
+  begruendung: Vorschlag beobachten bis GA (Preview).
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Vorschlag angenommen: beobachten bis 2026-12-01'
+- signal: SIG-2609-023
+  artefakt: ALUCA-COPILOT
+  risiko: T1
+  status: nicht_relevant
+  faellig: '2026-10-15'
+  entscheidung: null
+  wiedervorlage: null
+  begruendung: Data Engineering Agent betrifft keine Modell-Metadaten.
+  d_eintrag: null
+  belege: []
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: nicht_relevant
+    von: agent
+    notiz: erste Triage
+- signal: SIG-2609-026
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: verifiziert
+  faellig: '2026-10-15'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'DPIA: Export nach Format und Label (ADR-0023, C-27).'
+  d_eintrag: D-627
+  belege: &id002
+  - compliance/DPIA.md Abschnitt 5 und 6.1, compliance/_INDEX.md C-27, docs/architecture/adr/0023; check_index
+    --strict 0 harte Befunde, markdownlint-cli2 0 issues, 01.10.2026
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: erste Triage
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket B umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-627
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün
+- signal: SIG-2610-002
+  artefakt: ALUCA-COMPLIANCE
+  risiko: T2
+  status: verifiziert
+  faellig: '2026-10-15'
+  entscheidung: umsetzen
+  wiedervorlage: null
+  begruendung: 'DPIA: Export nach Format und Label (ADR-0023, C-27).'
+  d_eintrag: D-627
+  belege: *id002
+  verlauf:
+  - am: '2026-10-01'
+    status: triage
+    von: agent
+    notiz: angelegt aus Deklaration
+  - am: '2026-10-01'
+    status: bewerten
+    von: agent
+    notiz: Triage, Paket B
+  - am: '2026-10-01'
+    status: entschieden
+    von: flo
+    notiz: 'Flo: Paket B umsetzen'
+  - am: '2026-10-01'
+    status: in_umsetzung
+    von: agent
+    notiz: Umsetzung D-627
+  - am: '2026-10-01'
+    status: verifiziert
+    von: agent
+    notiz: Tests und Gates grün

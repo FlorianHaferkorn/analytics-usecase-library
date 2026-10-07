@@ -53,6 +53,25 @@ Tag zeigt nicht mehr auf den gepinnten Commit (`pin_moved`), neuerer SemVer-Tag
   Skill baut, gehen wie jede andere Änderung über Git → PR → fabric-cicd, nie direkt in einen
   Kunden-Workspace.
 
+## Welches Werkzeug für welche Schicht (SIG-2609-005, SIG-2609-021; Learn gelesen 01.10.2026)
+
+Quellen: `power-bi/developer/mcp/mcp-servers-overview`, `power-bi/developer/mcp/power-bi-authoring-mcp`,
+`fabric/iq/connectors/fabric-iq-mcp`, `power-bi/developer/agentic/power-bi-report-authoring-skill-overview`.
+
+| Aufgabe | Werkzeug | Status | Unsere Regel |
+|---|---|---|---|
+| Governte Modelle und Berichte aus Spec bzw. Bracket erzeugen | ALUCA-Skills `generate-and-validate-pbi-report`, `add-usecase-scaffold` (Golden Thread) | eigen | bleibt; kein offizielles Werkzeug kennt KPI-Katalog und Action Codes |
+| Modell ändern, DAX prüfen, Best Practices anwenden | Power BI Authoring MCP, lokal (`@microsoft/powerbi-modeling-mcp`, in `.mcp.json` auf 1.0.0 gepinnt) | GA | für Prüfen und gezielte Änderungen an PBIP/TMDL auf der Platte und in Dev-Workspaces |
+| dasselbe ohne Installation | Authoring MCP, gehostet (`api.fabric.microsoft.com/v1/mcp/powerbi/authoring`) | Preview | nicht für Kundenarbeit; braucht die Tenant-Einstellung „Users can use the Power BI Model Context Protocol server endpoint“; nie zusammen mit dem lokalen registrieren |
+| Berichtsschicht (PBIR) von Hand nachbearbeiten | Power BI Report Authoring Skill, `validate-report` | offiziell | nur Nachbearbeitung; Prüfung über die gepinnte `powerbi-report-author`-CLI bleibt Pflicht |
+| Bericht in Desktop öffnen, neu laden, Screenshot | Power BI Desktop Bridge | offiziell | Sichtprüfung, keine Quelle für Änderungen |
+| Fragen an fertige, governte Modelle beantworten | Fabric IQ MCP (`fabriciq.svc.cloud.microsoft/v1/mcp/fabriciq`) mit Skill `fabriciq` | GA, nur lesend | Konsum, nicht Bau; wirkt mit den Rechten des Angemeldeten, RLS und OLS greifen, Build-Recht nicht nötig |
+
+Der Authoring MCP darf DAX ausführen, ist aber laut Learn nicht für Antworten an Fachanwender
+gedacht; dafür ist Fabric IQ der vorgesehene Weg. Für Kunden heißt Fabric IQ MCP: ein neuer Weg,
+auf dem Modelldaten an KI-Clients gehen. Welche Clients erlaubt sind, ist eine Governance-
+Entscheidung (Vorgänge SIG-2609-021 in Governance, KI-Assessment und Compliance).
+
 ## Fabric Notebook Toolkit
 
 CLI `fntk`, PyPI `fabric-notebook-toolkit`, Pin `0.0.1a10` (Eintrag
