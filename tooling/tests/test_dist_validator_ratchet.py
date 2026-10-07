@@ -68,10 +68,32 @@ def _cli_args(report: Path) -> list[str]:
 BASELINE_ERRORS = 25
 
 
+#: Code, mit dem die CLI ein nicht ladbares ``$schema`` meldet -- als *Warning*. Dann lief
+#: die Schemapruefung fuer diese Datei nicht, ``errorCount`` zaehlt nur den Rest. Gemessen am
+#: 02.10.2026 (CLI 0.4.0, Sandbox ohne Zugang zu developer.microsoft.com): COM-001 meldet
+#: 25 Errors = Baseline und 7 dieser Warnings -- die Ratsche waere ohne Schemapruefung gruen.
+#: Gleiche Regel wie Freelancing ``scripts/check_pbir.py`` (D-613): nicht gelaufen ist kein Gruen.
+NICHT_GEPRUEFT = "PBIR_SCHEMA_UNREACHABLE"
+
+
+def nicht_geprueft(daten: dict) -> list[str]:
+    """Die ``$schema``-URLs, deren Pruefung der Validator ausgelassen hat (leer = alles geprueft)."""
+    eintrag = (daten.get("diagnostics") or {}).get(NICHT_GEPRUEFT) or {}
+    return [str(i.get("message", ""))[:160] for i in (eintrag.get("items") or [])]
+
+
 def _validate(report: Path) -> dict:
     proc = subprocess.run(_cli_args(report),
                           capture_output=True, text=True, cwd=str(REPO), encoding="utf-8", errors="replace")
-    return (json.loads(proc.stdout) or {}).get("data", {})
+    daten = (json.loads(proc.stdout) or {}).get("data", {})
+    offen = nicht_geprueft(daten)
+    if offen:
+        grund = (f"{report.name}: Schemapruefung nicht gelaufen, {len(offen)} $schema nicht "
+                 f"ladbar ({NICHT_GEPRUEFT}), z. B. {offen[0]}")
+        if os.environ.get("ALUCA_PBIR_CLI_PFLICHT", "") == "1":
+            pytest.fail(grund + " -- mit ALUCA_PBIR_CLI_PFLICHT=1 ist das rot, kein stilles Gruen.")
+        pytest.skip(grund)
+    return daten
 
 
 @pytest.mark.braucht_pbir_cli
@@ -102,3 +124,14 @@ def test_baseline_is_not_stale():
     assert schlechteste >= BASELINE_ERRORS, (
         f"schlechtester Report hat {schlechteste} Fehler, Baseline steht auf "
         f"{BASELINE_ERRORS} — Fortschritt eintragen, sonst schuetzt die Ratsche zu wenig.")
+
+
+def test_nicht_geprueft_erkennt_nicht_ladbare_schemas():
+    """Ohne CLI pruefbar: die Erkennung selbst (Form wie CLI 0.4.0, gemessen 02.10.2026)."""
+    daten = {"errorCount": 25, "diagnostics": {
+        NICHT_GEPRUEFT: {"severity": "warning", "items": [
+            {"message": 'JSON Schema "https://developer.microsoft.com/json-schemas/x" could not be fetched'}]},
+        "PBIR_THEME_VISUAL_PROP_UNKNOWN": {"severity": "error", "items": [{}]}}}
+    assert len(nicht_geprueft(daten)) == 1
+    assert nicht_geprueft({"errorCount": 25, "diagnostics": {}}) == []
+    assert nicht_geprueft({}) == []
