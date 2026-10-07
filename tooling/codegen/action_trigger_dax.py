@@ -19,16 +19,27 @@ Lesart der Schwelle (Entscheidung Flo, 23.09.2026):
   ersten Tag der Auswahl. Ohne Basis-Daten feuert die Stufe nicht.
 - `unit: '%' | pp | pct` heisst: der Wert steht in Prozent (92.0 = 92 %).
 
-Ausgewertet seit 23.09.2026 (R6.4b): `persistence` bei Monats-Granularitaet (die Bedingung
-gilt auch in den n-1 Monaten vor dem letzten ausgewaehlten, per Monatsindex-Shift wie
-'CCC Days PM', mit verschobener Basis) und
-`volume_guardrail`, wo die Guardrail-KPI im Modell existiert. Nicht ausgewertet und im
-Bericht benannt: Persistenz bei Wochen-/Tages-Granularitaet, Guardrails ohne Measure im
-Modell, `gating_rules` (Prosa, keine Bedingung).
+Grain, Persistenz, Guardrail (R6.4b 23.09.2026, Wochen/Tage seit 07.10.2026):
+
+- Der Zeit-Anteil des `evaluation.grain` (letztes Token: day | week | month) ist die Periode.
+  Woche (ISO, Montag bis Sonntag) und Tag werden auf der eigenen Periode gerechnet: die
+  Periode, die den letzten ausgewaehlten Tag enthaelt, per `'dim_date'[Date]`-Grenzen in VARs.
+  Beim Monat bleibt Periode 0 die Auswahl des Berichts (er filtert monatlich).
+- `persistence`: die Stufe gilt nur, wenn ihre Bedingung in den n-1 Perioden davor ebenfalls
+  galt (n = `min_consecutive_periods`, die letzte Periode eingeschlossen). `window.unit` muss
+  zum Grain passen, n <= `window.length`.
+- `volume_guardrail` gilt je Periode (Mindestmenge des Slots), nicht nur fuer die Auswahl.
+- Eine Periode ohne KPI-Wert loest nie aus (`NOT ISBLANK`): keine Daten sind keine Abweichung.
+- Nicht ausgewertet, im Bericht je Code mit Grund (`Ergebnis.nicht_ausgewertet`): `grain_slot`
+  (der Nicht-Zeit-Anteil, etwa lane x dc, wird nicht je Auspraegung iteriert; die Bedingung
+  gilt im Filterkontext), `grain_zeit` (kein Zeit-Anteil oder `dim_date[Date]` fehlt),
+  `persistence` (dann mit demselben Grund), Guardrails ohne Measure im Modell,
+  `gating_rules` (Prosa, keine Bedingung).
 
 CLI:
     python -m tooling.codegen.action_trigger_dax            # Abweichungen melden (rc 1)
     python -m tooling.codegen.action_trigger_dax --write    # dist/ nachziehen
+    python -m tooling.codegen.action_trigger_dax --detail   # je Code die Gruende
 """
 from __future__ import annotations
 
@@ -81,7 +92,8 @@ class Ergebnis:
     neu: str | None = None
     alt: str = ""
     fehler: str | None = None
-    nicht_ausgewertet: list[str] = field(default_factory=list)
+    # Regel -> Grund, warum der Ausdruck sie nicht (oder nur teilweise) auswertet.
+    nicht_ausgewertet: dict[str, str] = field(default_factory=dict)
 
 
 def _kpi_formate() -> dict[str, str]:
@@ -173,100 +185,191 @@ def _basis_ausdruck(ref: str, tage: int) -> str:
     )
 
 
+# Zeit-Anteil eines `evaluation.grain` (letztes Token): Laenge der Periode in Tagen, Monat
+# ohne feste Laenge. Alles vor dem Zeit-Token ist der Slot (lane_dc_week -> lane, dc).
+ZEIT = {"day": 1, "week": 7, "month": None}
+_FENSTER_EINHEIT = {"days": "day", "weeks": "week", "months": "month"}
+# Spalten, die die Periodenauswertung im Zielmodell braucht.
+DATUM = "dim_date.Date"
+
+
+def grain_teile(grain: str) -> tuple[str | None, list[str]]:
+    """`lane_dc_week` -> ("week", ["lane", "dc"]); `promotion` -> (None, ["promotion"])."""
+    teile = [t for t in str(grain or "").split("_") if t]
+    if teile and teile[-1] in ZEIT:
+        return teile[-1], teile[:-1]
+    return None, teile
+
+
+def _perioden_grenzen(zeit: str, n: int, eigene_periode: bool) -> list[str]:
+    """VARs `_s<k>`/`_e<k>` (erster/letzter Tag der Periode k vor der letzten ausgewaehlten).
+
+    Woche nach ISO (Montag bis Sonntag, wie `dim_date[Week]` = `%G-W%V`). Beim Monat bleibt
+    Periode 0 die Auswahl des Berichts (er filtert monatlich); Grenzen braucht es dort erst
+    ab Periode 1.
+    """
+    out = ["VAR _ende = MAX ( 'dim_date'[Date] )"]
+    if zeit == "month":
+        for k in range(1, n):
+            out.append(f"VAR _s{k} = DATE ( YEAR ( _ende ), MONTH ( _ende ) - {k}, 1 )")
+            out.append(f"VAR _e{k} = EOMONTH ( _s{k}, 0 )")
+        return out
+    tage = ZEIT[zeit]
+    if eigene_periode:
+        if zeit == "week":
+            out.append("VAR _s0 = _ende - WEEKDAY ( _ende, 2 ) + 1")
+            out.append("VAR _e0 = _s0 + 6")
+        else:
+            out.append("VAR _s0 = _ende")
+            out.append("VAR _e0 = _ende")
+    for k in range(1, n):
+        out.append(f"VAR _s{k} = _s0 - {tage * k}")
+        out.append(f"VAR _e{k} = _e0 - {tage * k}")
+    return out
+
+
+def _in_periode(ausdruck: str, k: int) -> str:
+    return (f"CALCULATE ( {ausdruck}, REMOVEFILTERS ( 'dim_date' ), "
+            f"'dim_date'[Date] >= _s{k}, 'dim_date'[Date] <= _e{k} )")
+
+
 def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
-             definiert: set[str] | None = None) -> tuple[str, list[str]]:
-    """Den Ausdruck fuer einen Action-Code und die Regeln, die er nicht auswertet.
+             definiert: set[str] | None = None,
+             spalten: set[str] | None = None) -> tuple[str, dict[str, str]]:
+    """Den Ausdruck fuer einen Action-Code und die Regeln, die er nicht auswertet (mit Grund).
 
     `definiert` sind die Measures, die das Zielmodell wirklich fuehrt. Die Namenskarte
     kennt jede Katalog-KPI, auch solche, die im Modell fehlen; ohne diesen Abgleich
-    zeigte der Ausdruck ins Leere.
+    zeigte der Ausdruck ins Leere. `spalten` sind die Spalten des Zielmodells als
+    `tabelle.spalte`; `None` heisst ungeprueft (synthetische Tests).
     """
     code = ac["id"]
-    levels = ((ac.get("trigger") or {}).get("levels")) or {}
+    trigger = ac.get("trigger") or {}
+    levels = trigger.get("levels") or {}
     if not all(isinstance(levels.get(L), dict) for L in ("L1", "L2", "L3")):
         raise Fehler(f"{code}: trigger.levels fuehrt nicht L1 bis L3")
-    vars_, refs, basis = [], {}, {}
+    refs: dict[str, str] = {}
     for L in ("L3", "L2", "L1"):
         kid = (levels[L].get("condition") or {}).get("metric_kpi_id")
         if kid not in measure_name or (definiert is not None and measure_name[kid] not in definiert):
             raise Fehler(f"{code} {L}: KPI {kid!r} hat im Modell kein Measure")
         if kid not in refs:
             refs[kid] = f"[{measure_name[kid]}]"
+    idx = {kid: i for i, kid in enumerate(refs)}
     fenster = ((((ac.get("impact_valuation") or {}).get("success_window") or {})
                 .get("success_criteria") or {}).get("baseline_window"))
-    for i, kid in enumerate(refs):
-        vars_.append(f"VAR _v{i} = {refs[kid]}")
-        if any(_braucht_basis(levels[L].get("condition") or {})
-               and levels[L]["condition"].get("metric_kpi_id") == kid for L in levels):
-            if not fenster:
-                raise Fehler(f"{code}: relative Schwelle, aber kein baseline_window")
-            vars_.append(f"VAR _b{i} = {_basis_ausdruck(refs[kid], _tage(fenster))}")
-            basis[kid] = f"_b{i}"
-    idx = {kid: i for i, kid in enumerate(refs)}
+    mit_basis = {kid for kid in refs
+                 if any(_braucht_basis(levels[L].get("condition") or {})
+                        and levels[L]["condition"].get("metric_kpi_id") == kid for L in levels)}
+    if mit_basis and not fenster:
+        raise Fehler(f"{code}: relative Schwelle, aber kein baseline_window")
+
+    ev = trigger.get("evaluation") or {}
+    offen: dict[str, str] = {}
+
+    # --- Grain: Zeit-Anteil und Slot ------------------------------------------------------
+    # Die Stufe wird je Periode des Grains geprueft (Woche, Tag, Monat). Der Slot (lane x dc)
+    # wird nicht je Auspraegung iteriert: die Bedingung gilt im Filterkontext des Berichts.
+    # Das ist eine Luecke und steht als Feld im Bericht, nicht still im Ausdruck.
+    grain = str(ev.get("grain") or "")
+    zeit, slot = grain_teile(grain)
+    if slot:
+        offen["grain_slot"] = (f"Slot {' x '.join(slot)} aus grain {grain!r} nicht je Auspraegung "
+                               "ausgewertet; Bedingung gilt im Filterkontext des Berichts")
+    if zeit is None:
+        offen["grain_zeit"] = f"grain {grain!r} hat keinen Zeit-Anteil (day/week/month)"
+    elif spalten is not None and DATUM not in spalten:
+        offen["grain_zeit"] = f"Spalte {DATUM} fehlt im Modell; Periode {zeit} nicht abbildbar"
+        zeit = None
+
+    # --- Persistenz: die Stufe gilt nur, wenn sie in n Perioden in Folge gilt -------------
+    pers = ev.get("persistence") or {}
+    n = int(pers.get("min_consecutive_periods") or 1) if pers.get("required") else 1
+    if n > 1:
+        fe = ev.get("window") or {}
+        einheit = str(fe.get("unit") or "periods")
+        laenge = fe.get("length")
+        if zeit is None:
+            offen["persistence"] = offen["grain_zeit"]
+        elif einheit != "periods" and _FENSTER_EINHEIT.get(einheit) != zeit:
+            offen["persistence"] = f"window.unit {einheit!r} passt nicht zu grain {grain!r}"
+        elif laenge is not None and n > int(laenge):
+            offen["persistence"] = f"min_consecutive_periods {n} > window.length {laenge}"
+        if "persistence" in offen:
+            n = 1
+    # Woche und Tag rechnen auch Periode 0 auf der eigenen Periode, nicht auf der Auswahl.
+    eigene_periode = zeit in ("week", "day")
+    if eigene_periode and mit_basis:
+        raise Fehler(f"{code}: Basis ist ein Monatsdurchschnitt; gegen eine {zeit}-Periode "
+                     "nicht vergleichbar (Basis je Periode nicht definiert)")
+
+    # --- Mengen-Guardrail: je Periode, unter der Mindestmenge ist es Rauschen -------------
+    vg = (ev.get("minimum_data") or {}).get("volume_guardrail") or {}
+    guard = None
+    if vg.get("enabled"):
+        gk = vg.get("metric_kpi_id")
+        op = {"gte": ">=", "gt": ">", "lte": "<=", "lt": "<"}.get(vg.get("comparator"))
+        if gk in measure_name and (definiert is None or measure_name[gk] in definiert) and op:
+            guard = (f"[{measure_name[gk]}]", op, _zahl(float(vg["value"])))
+        else:
+            offen["volume_guardrail"] = (f"Guardrail-KPI {gk!r} hat im Modell kein Measure"
+                                         if op else f"Vergleich {vg.get('comparator')!r} unbekannt")
+
+    # --- Variablen: Grenzen, dann Werte je Periode ---------------------------------------
+    vars_: list[str] = []
+    if eigene_periode or n > 1:
+        vars_ += _perioden_grenzen(zeit, n, eigene_periode)
+
+    def wert(ausdruck: str, k: int) -> str:
+        return _in_periode(ausdruck, k) if (k > 0 or eigene_periode) else ausdruck
+
+    def suffix(k: int) -> str:
+        return f"_{k}" if k else ""
+
+    for kid, i in idx.items():
+        for k in range(n):
+            vars_.append(f"VAR _v{i}{suffix(k)} = {wert(refs[kid], k)}")
+            if kid in mit_basis:
+                # geklammert: der Basis-Ausdruck hat eigene VARs und ein eigenes RETURN
+                b = f"( {_basis_ausdruck(refs[kid], _tage(fenster))} )"
+                vars_.append(f"VAR _b{i}{suffix(k)} = {wert(b, k)}")
+    if guard:
+        for k in range(n):
+            vars_.append(f"VAR _g{suffix(k)} = {wert(guard[0], k)}")
+
     steps = ((ac.get("operational_execution") or {}).get("steps")) or []
     schritte = (" & " + NL + " & ").join(_dax_str("→ " + " ".join(str(s).split())) for s in steps)
+    periode = {"week": " & \" (week of \" & FORMAT ( _s0, \"yyyy-mm-dd\" ) & \")\"",
+               "day": " & \" (\" & FORMAT ( _s0, \"yyyy-mm-dd\" ) & \")\""}.get(zeit, "") \
+        if eigene_periode else ""
 
     def text(L: str, kid: str) -> str:
         fmt = FORMAT.get(formate.get(kid, ""))
         if fmt is None:
             raise Fehler(f"{code}: unit_format {formate.get(kid)!r} von {kid} ohne Formatregel")
         teile = [_dax_str(f"{SEVERITY[L]} — {code} — {ac.get('name', code)}"),
-                 _dax_str(f"Owner: {ac.get('owner_role', '')} | ") + f" & FORMAT ( _v{idx[kid]}, {_dax_str(fmt)} )"]
+                 _dax_str(f"Owner: {ac.get('owner_role', '')} | ")
+                 + f" & FORMAT ( _v{idx[kid]}, {_dax_str(fmt)} ){periode}"]
         if schritte:
             teile.append(schritte)
         return (" & " + NL + " & ").join(teile)
 
-    ev = ((ac.get("trigger") or {}).get("evaluation")) or {}
-    offen = []
-
-    # Persistenz: die Stufe gilt nur, wenn ihre Bedingung auch in den n-1 Vormonaten galt.
-    # Umsetzbar nur fuer Monats-Granularitaet -- der Report filtert monatlich; eine Woche
-    # um sieben Tage zu verschieben, waehrend ein Monat ausgewaehlt ist, prueft etwas anderes.
-    pers = ev.get("persistence") or {}
-    n = int(pers.get("min_consecutive_periods") or 1) if pers.get("required") else 1
-    g = str(ev.get("grain") or "")
-    monatlich = g == "month" or g.endswith("_month")
-    if n > 1 and not monatlich:
-        offen.append("persistence")
-        n = 1
-
-    def vormonate(cond: dict, kid: str, fmt: str) -> str:
-        if n <= 1:
-            return ""
-        ref = refs[kid]
-        b = f"( {_basis_ausdruck(ref, _tage(fenster))} )" if kid in basis else "BLANK ()"
-        innen = _bedingung(cond, ref, b, fmt)
-        # Monatsindex-Shift statt DATEADD, dasselbe Muster wie 'CCC Days PM' im Finance-Modell:
-        # dim_date ist nicht als Datumstabelle markiert, ein Slicer auf CalendarYearMonth
-        # bliebe neben DATEADD stehen und die Schnittmenge waere leer.
-        return "".join(
-            f" && CALCULATE ( {innen}, REMOVEFILTERS ( 'dim_date' ), FILTER ( ALL ( 'dim_date' ), "
-            f"'dim_date'[Year] * 12 + 'dim_date'[MonthNumber] = _idx - {k} ) )"
-            for k in range(1, n))
-
-    # Mengen-Guardrail: unter der Mindestmenge ist die Abweichung Rauschen, keine Aktion.
-    vg = (ev.get("minimum_data") or {}).get("volume_guardrail") or {}
-    schutz = ""
-    if vg.get("enabled"):
-        gk = vg.get("metric_kpi_id")
-        op = {"gte": ">=", "gt": ">", "lte": "<=", "lt": "<"}.get(vg.get("comparator"))
-        if gk in measure_name and (definiert is None or measure_name[gk] in definiert) and op:
-            schutz = f" && [{measure_name[gk]}] {op} {_zahl(float(vg['value']))}"
-        else:
-            offen.append("volume_guardrail")
-
-    if n > 1:
-        vars_.append("VAR _idx = MAX ( 'dim_date'[Year] ) * 12 + MAX ( 'dim_date'[MonthNumber] )")
     ausdruck = "BLANK ()"
     for L in ("L1", "L2", "L3"):              # von innen nach aussen: L3 wird zuerst geprueft
         cond = levels[L].get("condition") or {}
         kid = cond["metric_kpi_id"]
         fmt = formate.get(kid, "")
-        bed = _bedingung(cond, f"_v{idx[kid]}", basis.get(kid, "BLANK ()"), fmt)
-        bed = f"( {bed} ){vormonate(cond, kid, fmt)}{schutz}"
-        ausdruck = f"IF ( {bed}, {text(L, kid)}, {ausdruck} )"
-    if (ac.get("trigger") or {}).get("gating_rules"):
-        offen.append("gating_rules")
+        teile = []
+        for k in range(n):
+            v = f"_v{idx[kid]}{suffix(k)}"
+            b = f"_b{idx[kid]}{suffix(k)}" if kid in mit_basis else "BLANK ()"
+            t = f"NOT ISBLANK ( {v} ) && ( {_bedingung(cond, v, b, fmt)} )"
+            if guard:
+                t += f" && _g{suffix(k)} {guard[1]} {guard[2]}"
+            teile.append(f"( {t} )")
+        ausdruck = f"IF ( {' && '.join(teile)}, {text(L, kid)}, {ausdruck} )"
+    if trigger.get("gating_rules"):
+        offen["gating_rules"] = "Prosa, keine auswertbare Bedingung"
     return " ".join(vars_) + " RETURN " + ausdruck, offen
 
 
@@ -288,19 +391,22 @@ def pruefe(schreiben: bool = False) -> list[Ergebnis]:
             continue
         text = tmdl.read_text(encoding="utf-8")
         namen = loader.measure_map_for_model(model_dir)
-        definiert = set(loader._model_symbols_for_dir(model_dir).measure_names)
+        sym = loader._model_symbols_for_dir(model_dir)
+        definiert = set(sym.measure_names)
+        spalten = {f"{t}.{c}" for t, tab in sym.tables.items() for c in tab.columns}
         ersatz = {}
         for m in _MEASURE_LINE.finditer(text):
             e = Ergebnis(model_dir.name, m.group(2), m.group(3), alt=m.group(4))
             ac = codes.get(e.code)
-            if e.code in NICHT_ABLEITBAR or f"{model_dir.name}:{e.code}" in NICHT_ABLEITBAR:
-                e.nicht_ausgewertet = ["nicht_ableitbar"]
+            ausnahme = NICHT_ABLEITBAR.get(f"{model_dir.name}:{e.code}") or NICHT_ABLEITBAR.get(e.code)
+            if ausnahme:
+                e.nicht_ausgewertet = {"nicht_ableitbar": ausnahme[0]}
                 out.append(e)
                 continue
             try:
                 if ac is None:
                     raise Fehler(f"kein Action-Code {e.code!r} in core/action_codes")
-                e.neu, e.nicht_ausgewertet = dax_fuer(ac, namen, formate, definiert)
+                e.neu, e.nicht_ausgewertet = dax_fuer(ac, namen, formate, definiert, spalten)
             except Fehler as exc:
                 e.fehler = str(exc)
             out.append(e)
@@ -315,6 +421,7 @@ def pruefe(schreiben: bool = False) -> list[Ergebnis]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--write", action="store_true", help="dist/ nachziehen")
+    ap.add_argument("--detail", action="store_true", help="je Code die nicht ausgewerteten Regeln mit Grund")
     args = ap.parse_args(argv)
     ergebnisse = pruefe(schreiben=args.write)
     abweichend = [e for e in ergebnisse if e.neu is not None and e.neu != e.alt]
@@ -330,6 +437,10 @@ def main(argv: list[str] | None = None) -> int:
             offen.setdefault(r, []).append(e.code)
     for r, cs in sorted(offen.items()):
         print(f"NICHT AUSGEWERTET  {r}: {len(cs)} Codes")
+    if args.detail:
+        for e in ergebnisse:
+            for r, grund in sorted(e.nicht_ausgewertet.items()):
+                print(f"  {e.modell} {e.code} {r}: {grund}")
     print(f"{len(ergebnisse)} Action-Measures, {len(ergebnisse) - len(fehler)} erzeugbar, "
           f"{len(fehler)} Fehler, {0 if args.write else len(abweichend)} abweichend")
     return 1 if fehler or (abweichend and not args.write) else 0
