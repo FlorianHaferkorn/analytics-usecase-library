@@ -22,6 +22,7 @@ owns: "*.py"
 | Massenänderung (Sweep) gegenprüfen | `pruefe_sweep.py` | Einzel-Gates |
 | Showcase-Delta-Tabellen geändert | `check_showcase_delta.py` | `check_plattform.py` |
 | Semantic Model gegen Gold-Daten prüfen (fehlende `sourceColumn`, Ledger A-24) | [`../tooling/validation/check_model_vs_gold.py`](../tooling/validation/check_model_vs_gold.py) (liest `_metadata`/`_active_paths` von hier) | `check_plattform.py` |
+| Secret-Baseline-Tor rot (CI `python-checks` oder pre-commit), neuer Fund oder Pin-Hash gemeldet | [`../products/fabric/powerbi/deployment/scripts/secret_scan_gate.py`](../products/fabric/powerbi/deployment/scripts/secret_scan_gate.py) `--baseline` (Doku: [`../products/fabric/powerbi/deployment/.azure-pipelines/README.md`](../products/fabric/powerbi/deployment/.azure-pipelines/README.md) „Secret Baseline Gate“) | `check_index.py` |
 | Neues Repo mit dem Claude Repo Kit einrichten | `repo_kit_init.py` | Gates |
 
 ## 2. Register
