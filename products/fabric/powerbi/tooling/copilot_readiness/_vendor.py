@@ -32,8 +32,9 @@ _PKG_PARENT = "products.meridian_copilot_readiness"
 _PKG = "products.meridian_copilot_readiness.generator"
 
 # The kernel modules ALUCA calls. `loader` carries the intermediate form (`CopilotCore`),
-# the other three render the three "Prep data for AI" contents.
-KERNEL_MODULES = ("loader", "instructions", "verified_answers", "data_schema")
+# the next three render the three "Prep data for AI" contents, `zugangswege` holds the
+# Microsoft 365 Copilot Chat/Cowork access paths as fields (Meridian D-681, ALUCA D-686).
+KERNEL_MODULES = ("loader", "instructions", "verified_answers", "data_schema", "zugangswege")
 
 
 class VendorUnavailable(RuntimeError):

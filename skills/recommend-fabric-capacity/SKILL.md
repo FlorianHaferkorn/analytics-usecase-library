@@ -1,7 +1,7 @@
 ---
 name: recommend-fabric-capacity
 description: "Recommend a Fabric capacity: SKU floor, reserved vs pay-as-you-go, region, and split. Use when sizing a capacity, answering reservation or pricing questions, filling platform.capacity_sku, or when a customer asks which F-SKU or region to buy."
-version: "1.0.0"
+version: "1.1.0"
 license: MIT
 source: ALUCA (Analytics Library of Use Cases) — governance overlay
 ---
@@ -53,6 +53,7 @@ Two conclusions that come up in almost every conversation:
 
 - **F4 to F8 does not raise any model-size limit.** Memory per model, Direct Lake rows and model size are identical. The first jump is F16. Anyone moving to F8 out of model-size concern gains nothing; what they gain is parallelism and burst headroom.
 - **F64 is a licensing threshold, not a performance one.** Below F64 every viewer needs a Pro licence. With more than roughly 30 to 40 viewers this usually decides the SKU on its own.
+- **Copilot and data agents start at F2, not F64.** Any paid capacity from F2 (or P1) runs Copilot in Fabric and Power BI; trial capacities do not. A Fabric Copilot capacity (at least F2, home region only) can bill all Copilot use of assigned users, including Pro/PPU workspaces and Power BI Desktop. `recommend()` returns this under `copilot` (Learn `fabric/fundamentals/copilot-enable-fabric` and `fabric/enterprise/fabric-copilot-capacity`, read 2026-10-07; ALUCA D-686, SIG-2609-010).
 
 ## Procurement rules
 

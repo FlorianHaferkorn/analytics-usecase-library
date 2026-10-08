@@ -228,7 +228,7 @@
         },
         "synonyms": {
           "type": "array",
-          "description": "Curated natural-language synonyms — projected into the model linguistic schema (cultures/linguisticMetadata) for Copilot/Q&A and into the `///` Synonyms facet.",
+          "description": "Curated natural-language synonyms — projected into the model linguistic schema (cultures/linguisticMetadata) for Copilot and into the `///` Synonyms facet. The Q&A switch on the model stays a prerequisite of Prep data for AI; the Q&A surfaces (Q&A visual, dashboard Q&A, suggested questions) end in February 2027 and are neither generated nor recommended (D-686, SIG-2609-009, as Meridian D-624).",
           "items": {
             "type": "string"
           }
