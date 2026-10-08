@@ -56,10 +56,10 @@
       "*": {
         "padding": [
           {
-            "left": 10,
-            "right": 10,
-            "top": 10,
-            "bottom": 10
+            "top": 8,
+            "right": 12,
+            "bottom": 8,
+            "left": 12
           }
         ],
         "background": [
@@ -73,18 +73,6 @@
             "transparency": 0
           }
         ],
-        "border": [
-          {
-            "show": true,
-            "width": 0.5,
-            "radius": 8,
-            "color": {
-              "solid": {
-                "color": "#FFFFFF"
-              }
-            }
-          }
-        ],
         "divider": [
           {
             "show": false
@@ -95,23 +83,6 @@
             "customizeSpacing": true,
             "spaceBelowTitle": 8,
             "spaceBelowSubTitle": 10
-          }
-        ],
-        "dropShadow": [
-          {
-            "show": true,
-            "preset": "Custom",
-            "position": "Outer",
-            "shadowSpread": 0.1,
-            "shadowDistance": 1,
-            "transparency": 90,
-            "color": {
-              "solid": {
-                "color": "#000000"
-              }
-            },
-            "shadowBlur": 8,
-            "angle": 60
           }
         ],
         "fill": [
@@ -127,7 +98,7 @@
         "title": [
           {
             "show": true,
-            "fontSize": 16,
+            "fontSize": 12,
             "fontFamily": "Inter"
           }
         ],
@@ -188,6 +159,11 @@
           {
             "fontSize": 14,
             "fontFamily": "Inter"
+          }
+        ],
+        "valueAxis": [
+          {
+            "start": 0
           }
         ]
       }
@@ -252,7 +228,7 @@
         ],
         "background": [
           {
-            "show": false
+            "show": true
           }
         ],
         "border": [
@@ -378,6 +354,11 @@
             "show": true,
             "showTitle": false
           }
+        ],
+        "lineStyles": [
+          {
+            "lineChartType": "linear"
+          }
         ]
       }
     },
@@ -500,28 +481,12 @@
       "*": {
         "categoryAxis": [
           {
-            "gridlineShow": true,
-            "gridlineStyle": "dotted",
-            "gridlineThickness": 1,
-            "gridlineColor": {
-              "solid": {
-                "color": "#E6E6E6"
-              }
-            },
-            "gridlineTransparency": 20
+            "gridlineShow": true
           }
         ],
         "valueAxis": [
           {
-            "gridlineShow": true,
-            "gridlineStyle": "dotted",
-            "gridlineThickness": 1,
-            "gridlineColor": {
-              "solid": {
-                "color": "#E6E6E6"
-              }
-            },
-            "gridlineTransparency": 20
+            "gridlineShow": true
           }
         ],
         "markers": [
@@ -728,7 +693,7 @@
         ],
         "background": [
           {
-            "show": false
+            "show": true
           }
         ],
         "border": [
@@ -1129,10 +1094,10 @@
           {
             "color": {
               "solid": {
-                "color": "#E6E6E6"
+                "color": "#F7F7F7"
               }
             },
-            "transparency": 80
+            "transparency": 0
           }
         ],
         "filterCard": [

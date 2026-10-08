@@ -181,8 +181,9 @@ Height check per card (line height `ceil(pt × 25/16)` px, as Meridian MLINT008)
   available = slot height − container padding (top+bottom) − card padding (top+bottom)
 
 Card padding comes from the base theme: Classic `CY26SU10` 12/12, `Fluent2-CY26SU10` 14/16.
-Container padding comes from the custom theme (`visualStyles."*"."*".padding`, 10/10 today).
-At 70 px: 70 − 20 − 30 = 20 px available (Fluent 2). At 156 px: 156 − 20 − 30 = 106 px.
+Container padding comes from the custom theme (`visualStyles."*"."*".padding`, top/bottom 8/8 since
+08.10.2026, Meridian D-685 via the theme engine; 10/10 before). At 70 px: 70 − 16 − 30 = 24 px
+available (Fluent 2). At 156 px: 156 − 16 − 30 = 110 px.
 
 Aspect ratio rule: Charts target a 2:1 width:height ratio for readability.
 KPI card max: 6 per row at standard size. Use compact when ≥5 cards required.

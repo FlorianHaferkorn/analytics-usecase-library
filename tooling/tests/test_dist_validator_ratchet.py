@@ -65,7 +65,14 @@ def _cli_args(report: Path) -> list[str]:
 #: `horizontal_bar_chart`; der eine ECHTE Bruecke (COM-001LY) nutzt jetzt das
 #: Muster, das COM-002 seit jeher vormacht — dim_pvm_driver als Kategorie, eine
 #: Measure auf Y. Was bleibt, sind die Theme-Eigenschaften (Uebergabepunkt A).
-BASELINE_ERRORS = 25
+#:
+#: 25 -> 2 am 08.10.2026: dist traegt das Engine-Theme (Freelancing products/pbi_theme 0.6.0,
+#: Meridian D-685/D-710, Spiegel c9efa687). CLI 0.5.0 `validate --format json` ueber 17 Reports:
+#: 423 -> 32 Errors, 0 im Theme; je Report hoechstens 2 (15 Generator-Reports: `calloutValue`
+#: an cardVisual und `text.text` an der Header-Textbox; COM-001LY: `calloutValue` und
+#: `dataLabels`; FIN-001: 0). Gemessen ohne Zugang zu
+#: developer.microsoft.com (7 x PBIR_SCHEMA_UNREACHABLE je Report), wie die Messungen davor.
+BASELINE_ERRORS = 2
 
 
 #: Code, mit dem die CLI ein nicht ladbares ``$schema`` meldet -- als *Warning*. Dann lief

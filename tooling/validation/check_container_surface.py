@@ -18,6 +18,12 @@ Entschieden am 03.08.2026 (Weg A): das Kartensystem ist legitim, die Regel meint
 steht in `tokens/color_semantics.yaml` → `container_baseline` — dort, wo `surface.card`
 ohnehin seit jeher steht. Dieser Pruefer misst gegen sie, nicht gegen "nichts".
 
+Abgeloest am 08.10.2026 (Meridian D-685/D-710, Entscheidung Flo): die Grundlinie ist die des
+Basistheme-Ausgleichs — Innenabstand 8/12/8/12, Rahmen 1 px #E6E6E6 mit 8 px Rundung, kein
+Schatten. Rahmen und Schatten setzt seitdem das Basistheme Fluent2-CY26SU10, nicht das eigene
+Theme; gemessen wird deshalb das WIRKSAME Theme (`base_theme.wirksame_visual_styles`, dort die
+Vorrangannahme). Weg A steht als `container_baseline_weg_a` in den Tokens (Historie).
+
 Drei Haelften (die Regel nennt zwei, das Artefakt hat drei Ebenen)
 ------------------------------------------------------------------
 1. **Weissraum-Ordnung** aus `tokens/layout_grid.yaml`: zone_gap > gutter > padding.
@@ -67,6 +73,34 @@ def _erste(objekt: Any) -> dict:
     return objekt if isinstance(objekt, dict) else {}
 
 
+def _aus(eintrag: dict) -> bool:
+    """True, wenn ein Objekt ausdruecklich ausgeschaltet ist (`show: false`, auch als Literal)."""
+    show = eintrag.get("show")
+    if isinstance(show, dict):
+        show = (((show.get("expr") or {}).get("Literal") or {}).get("Value"))
+    return show is False or (isinstance(show, str) and show.strip().lower() == "false")
+
+
+def wirksamer_stern(report: Path) -> Optional[dict]:
+    """``visualStyles["*"]["*"]`` des wirksamen Themes (Basistheme + eigenes Theme).
+
+    None, wenn das eigene Theme fehlt. Fehlt das Basistheme, steht das eigene Theme allein da;
+    ``pruefe_dist`` meldet das als eigenen Befund. Vorrangannahme: base_theme.wirksame_visual_styles.
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    if str(REPO) not in sys.path:
+        sys.path.insert(0, str(REPO))
+    from check_palette_monochrome import aktives_theme
+    from tooling.report_quality.base_theme import basistheme_des_berichts, wirksame_visual_styles
+
+    tj = aktives_theme(report)
+    if tj is None:
+        return None
+    eigenes = json.loads(tj.read_text(encoding="utf-8"))
+    styles = wirksame_visual_styles(eigenes, basistheme_des_berichts(report))
+    return (styles.get("*") or {}).get("*") or {}
+
+
 def _zahl(wert: Any) -> Optional[float]:
     """Zahl aus einem PBIR-Wert oder einem blanken Literal. None, wenn keine da ist."""
     if isinstance(wert, (int, float)):
@@ -106,7 +140,7 @@ def pruefe_container(objekte: dict, basis: dict, wo: str) -> list[str]:
             verstoesse.append(f"{wo}: `{schluessel[verboten.lower()]}` ist ausdruecklich "
                               f"nie erlaubt (container_baseline.never)")
 
-    if "border" in schluessel:
+    if "border" in schluessel and not _aus(_erste(objekte[schluessel["border"]])):
         b = _erste(objekte[schluessel["border"]])
         grenzen = basis.get("border") or {}
         for feld, schranke in (("width", "width_max_px"), ("radius", "radius_max_px")):
@@ -119,6 +153,13 @@ def pruefe_container(objekte: dict, basis: dict, wo: str) -> list[str]:
         if name in schluessel:
             s = _erste(objekte[schluessel[name]])
             g = basis.get("drop_shadow") or {}
+            if _aus(s):
+                continue  # ausgeschalteter Schatten wird nicht gezeichnet
+            if g.get("allowed") is False:
+                gesetzt = ", ".join(sorted(k for k in s if k != "show")) or "show"
+                verstoesse.append(f"{wo}: Schatten sichtbar ({gesetzt}) — die Grundlinie "
+                                  f"erlaubt keinen Schatten (container_baseline.drop_shadow)")
+                continue
             paare = (("transparency", "transparency_min_pct", "unter"),
                      ("shadowDistance", "distance_max_px", "ueber"),
                      ("shadowBlur", "blur_max_px", "ueber"),
@@ -135,8 +176,9 @@ def pruefe_container(objekte: dict, basis: dict, wo: str) -> list[str]:
 
     if "padding" in schluessel:
         p = _erste(objekte[schluessel["padding"]])
-        grenze = (basis.get("padding") or {}).get("max_px")
+        pg = basis.get("padding") or {}
         for seite in ("left", "right", "top", "bottom"):
+            grenze = pg.get(f"{seite}_max_px", pg.get("max_px"))
             wert = _zahl(p.get(seite))
             if wert is not None and grenze is not None and wert > grenze:
                 verstoesse.append(f"{wo}: padding.{seite} {wert:g} > Grundlinie {grenze:g}")
@@ -158,12 +200,18 @@ def pruefe_dist(dist: Optional[Path] = None) -> tuple[list[str], int]:
     treffer += pruefe_weissraum(spacing)
     geprueft += 1
 
+    if str(REPO) not in sys.path:
+        sys.path.insert(0, str(REPO))
+    from tooling.report_quality.base_theme import basistheme_des_berichts
+
     for report in sorted(wurzel.glob("*.Report")):
-        if (tj := aktives_theme(report)) is not None:
-            theme = json.loads(tj.read_text(encoding="utf-8"))
-            stern = ((theme.get("visualStyles") or {}).get("*") or {}).get("*") or {}
+        if aktives_theme(report) is not None:
+            if basistheme_des_berichts(report) is None:
+                treffer.append(f"{report.name}: Basistheme nicht aufloesbar — wirksames Theme "
+                               f"nicht messbar")
+            stern = wirksamer_stern(report) or {}
             geprueft += 1
-            treffer += pruefe_container(stern, basis, f"{report.name} Theme '*'")
+            treffer += pruefe_container(stern, basis, f"{report.name} Theme '*' (wirksam)")
 
     for vj in sorted(wurzel.glob("*.Report/definition/pages/*/visuals/*/visual.json")):
         objekte = ((json.loads(vj.read_text(encoding="utf-8")) or {}).get("visual")
