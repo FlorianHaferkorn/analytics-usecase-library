@@ -18,7 +18,9 @@ if __name__ == "__main__":
     if str(_parent.parent) not in sys.path:
         sys.path.insert(0, str(_parent.parent))
 
-from page_scaffold_generator.grid_calculator import GridCalculator, enforce_slicer_floor, zone0_offset
+from page_scaffold_generator.grid_calculator import (
+    ZONE0_HEADER_HEIGHT, GridCalculator, enforce_slicer_floor, zone0_offset,
+)
 
 
 def load_blueprint(path: Path) -> Dict[str, Any]:
@@ -52,7 +54,15 @@ def apply_layout_to_page(
     # Traegt die Seite einen Big-Idea-Header, liegt das Raster darunter -- dieselbe Regel
     # wie im Seitenbauer (grid_calculator.zone0_offset), sonst schiebt dieser Schritt das
     # KPI-Band wieder unter den Header.
-    zone0 = zone0_offset((page_dir / "visuals" / "Header" / "visual.json").exists(), gutter)
+    # Die Hoehe kommt aus dem Header selbst: der Titelblock (A-34) ist hoeher als die Kopfzeile.
+    _header_json = page_dir / "visuals" / "Header" / "visual.json"
+    _header_h = ZONE0_HEADER_HEIGHT
+    if _header_json.exists():
+        try:
+            _header_h = json.loads(_header_json.read_text(encoding="utf-8"))["position"]["height"]
+        except (ValueError, KeyError, TypeError):
+            pass
+    zone0 = zone0_offset(_header_json.exists(), gutter, _header_h)
     calc = GridCalculator(canvas_width=w, canvas_height=h - zone0, outer_margin=outer_margin, gutter=gutter)
 
     slots_list = blueprint.get("slots") or []

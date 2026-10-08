@@ -57,13 +57,13 @@ The sentences chain: **Signal** (KPI band) → **Driver** (trend) → **Cause** 
 
 ### A.4 The title contract (correction to draft v1 — defers to `title_policy.py`)
 
-BC-NARR-01 ("say it in the title") is right for a **human-authored** report read *after* the data is known. A **generated, static** report is different: at build time the data is unknown and a classic BI title can't recompute, so a hard-coded conclusion **can contradict the chart** the moment the numbers move. The governed rule therefore splits three roles — and promotes the conclusion only where the tool can stand behind it:
+BC-NARR-01 read "say it in the title" until 08.10.2026; since A-34 (IBCS 2.0 UN 2.1/2.2) titles describe and the conclusion has its own key-message slot, never the title (`studio/docs/rebuild/PAGE_TEMPLATE_DOCTRINE.md` §3.9). A **generated, static** report adds a second reason: at build time the data is unknown and a classic BI title can't recompute, so a hard-coded conclusion **can contradict the chart** the moment the numbers move. The governed rule therefore splits three roles — and promotes the conclusion only where the tool can stand behind it:
 
 | Slot | Content | Honest because |
 |---|---|---|
 | **title** | **descriptor** — *what* the visual shows ("OEE %, last 6 periods") | data-independent; can never lie |
 | **subtitle** | the **question** the visual answers | true regardless of the data ("nothing unusual" is a valid read) |
-| **verdict** (`message`) — rendered by capability | `statement_title` (verified + live + whole-subject scalar) → `annotation` (verified + live, Top-N/"where" claim) → `kpi_status` (verified, static: value + semantic delta) → `omit` (unverified: shown nowhere) | never asserts more than the tool can compute |
+| **verdict** (`message`) — rendered by capability | `key_message` (verified + live + whole-subject scalar: the key-message slot above the title; `statement_title` locked since A-34) → `annotation` (verified + live, Top-N/"where" claim) → `kpi_status` (verified, static: value + semantic delta) → `omit` (unverified: shown nowhere) | never asserts more than the tool can compute |
 
 This is exactly what the reference dashboards do: the verdict lives in a **delta pill** (`kpi_status`) or a **mark annotation** ("Worst semester" / "Best semester"), not the chart title. Top-N / "concentrated in a few" claims stay in the question or the evidence area — a measure-driven title can't receive the visual's own Top-N filter and would silently miscompute.
 
@@ -90,7 +90,7 @@ Two pages (repo 3-30-300), whitelist visuals only. Governed page-type → archet
 |---|---|
 | BC-CHART-01 | € and % never share an axis — split visuals or dual labelled axes. |
 | BC-CHART-10 | Every evidence matrix sorted worst-first, curated to Top-N. |
-| BC-NARR-01 | Titles follow the A.4 contract (descriptor / question / verified verdict). |
+| BC-NARR-01 | Titles follow the A.4 contract (descriptor / question / verified verdict); the verdict is never the title (A-34). |
 | BC-BRAND-01 | One composed theme (A.2); never the renderer default. |
 | BC-COLOR-02 | Colour semantic only; one highlight per page; scenarios by pattern, not colour. |
 

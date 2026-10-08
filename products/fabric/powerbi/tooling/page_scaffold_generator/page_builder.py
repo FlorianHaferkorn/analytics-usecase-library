@@ -11,7 +11,8 @@ from .layout_calculator import LayoutCalculator, Position
 from .grid_calculator import GridCalculator, GridPosition, ZONE0_HEADER_HEIGHT, zone0_offset, enforce_slicer_floor
 from .visual_builder import VisualBuilder
 from .slicer_builder import SlicerBuilder
-from .title_policy import resolve_header
+from .title_policy import DEFAULT_KEY_MESSAGE_POSITION, TitleLines, resolve_header
+from .title_block import TITLE_BLOCK_HEIGHT, build_title_objects
 from .alt_text import apply_alt_text
 from products.fabric.powerbi.tooling.schema_registry import PAGE_SCHEMA as _PAGE_SCHEMA
 
@@ -61,18 +62,23 @@ class PageBuilder:
 
     PAGE_SCHEMA = _PAGE_SCHEMA
     
-    def __init__(self, assert_statement_titles: bool = True):
+    def __init__(self, assert_statement_titles: bool = False):
         """Initialize page builder.
 
-        ``assert_statement_titles`` (title_policy): when True (default, data-backed reports) the
-        governed exhibit **message** leads as the visual header (IBCS statement title, authored knowing
-        the data). Set False for a report generated **without known data** — then the always-true
-        **question** leads and the message renders as a framed *expected-finding* subtitle, so a static
-        title can never contradict the chart (see title_policy.py)."""
+        ``assert_statement_titles`` (title_policy): whether the governed exhibit **message** is
+        value-verified. Default False (A-34, 08.10.2026; before: True): the **question** leads the
+        visual header and the message follows as framed *expected-finding* subtitle. True only drops
+        the frame — the message never becomes the visual title (IBCS UN 2.2, D-641).
+
+        ``title_lines`` / ``key_message_position``: page title block (IBCS UN 2.1/2.2). When set, the
+        Zone-0 ``Header`` renders the key message above the three title lines who / what / when
+        (``title_block.py``); unset, the Header stays the one-line Big-Idea textbox."""
         self.layout_calculator = LayoutCalculator()
         self.visual_builder = VisualBuilder()
         self.slicer_builder = SlicerBuilder()
         self.assert_statement_titles = assert_statement_titles
+        self.title_lines: Optional[TitleLines] = None
+        self.key_message_position: str = DEFAULT_KEY_MESSAGE_POSITION
         # Sprache des Alt-Texts (ux_layout_rules.report_locale, gesetzt von PageScaffoldGenerator);
         # None -> Englisch wie vor dem 01.10.2026.
         self.report_locale: Optional[str] = None
@@ -128,7 +134,10 @@ class PageBuilder:
         # die visuelle Abnahme (R1.6) nie stattfand. Das Raster rechnet deshalb mit der Flaeche
         # unter Zone 0 und wird darunter verschoben.
         _probe = GridCalculator(canvas_width=w, canvas_height=h)
-        zone0 = zone0_offset(bool(big_idea_text), _probe._gutter)
+        # Titelblock (A-34): Kernaussage ueber drei Titelzeilen, hoeher als die Kopfzeile.
+        _title_lines = self.title_lines
+        _header_h = TITLE_BLOCK_HEIGHT if _title_lines else ZONE0_HEADER_HEIGHT
+        zone0 = zone0_offset(bool(big_idea_text) or bool(_title_lines), _probe._gutter, _header_h)
         calc = GridCalculator(canvas_width=w, canvas_height=h - zone0) if zone0 else _probe
         slots_list = grid_blueprint.get("slots") or []
         visuals: List[Dict[str, Any]] = []
@@ -176,8 +185,8 @@ class PageBuilder:
                 "category_property": _cat_prop,
                 # Als Vergleichsreihe gezeichnete Measures: der Alt-Text sagt "compared with".
                 "comparison_measures": _vergleich,
-                # BC-NARR-01 (K2): the governed exhibit statement + the question it answers.
-                # title_policy decides which becomes the static header (question by default).
+                # BC-NARR-01: the governed exhibit statement + the question it answers. The question
+                # leads the header, the statement follows as subtitle (title_policy, A-34).
                 "message": (_c_item.get("message") or "").strip() or None,
                 "question": (_c_item.get("question") or "").strip() or None,
             }
@@ -305,12 +314,12 @@ class PageBuilder:
                 _binding = _main_slot_binding[slot_id]
                 _ux_vt = _binding["visual_type"]
                 _measures = _binding["measures"]
-                # Label for naming/tooltip; the governed statement (message) renders as the header (BC-NARR-01).
+                # Label for naming/tooltip; the question leads the header, never the message (BC-NARR-01, A-34).
                 _label = (_measures[0] if len(_measures) == 1 else slot_id).replace("_", " ").replace(".", " ")
                 _cat_entity = _binding.get("category_entity")
                 _cat_prop = _binding.get("category_property")
-                # title_policy: question leads the static header; message = framed expected-finding
-                # subtitle (unless value-verified/dynamic — wired via value_verified when available).
+                # title_policy: question leads the header; message = subtitle, framed as expected
+                # finding unless value-verified (A-34: never the title).
                 _hdr, _sub = resolve_header(_binding.get("question"), _binding.get("message"),
                                             value_verified=self.assert_statement_titles)
                 vis = self.visual_builder.build_by_ux_visual_type(
@@ -452,7 +461,22 @@ class PageBuilder:
             vis["position"]["tabOrder"] = tab + i
             visuals.append(vis)
 
-        if big_idea_text:
+        if _title_lines:
+            # A-34 (IBCS UN 2.1/2.2, Freelancing D-641): Titelblock oben links -- Kernaussage
+            # (big_idea, ungeprueft als Erwartung gerahmt) ueber wer / was / wann. Name "Header"
+            # bleibt, damit BIG_IDEA_HEADER_ZONE und apply_page_layout ihn finden.
+            visuals.append(
+                {
+                    "$schema": self.visual_builder.VISUAL_SCHEMA,
+                    "name": "Header",
+                    "position": {"x": 32, "y": 32, "z": 10000, "height": TITLE_BLOCK_HEIGHT, "width": 1856, "tabOrder": 2999},
+                    "visual": {
+                        "visualType": "textbox",
+                        "objects": build_title_objects(_title_lines, big_idea_text, self.key_message_position),
+                    },
+                }
+            )
+        elif big_idea_text:
             # R2.3 / BIG_IDEA_HEADER_ZONE (design_rules.yaml): Header (Zone 0, above the
             # KPI band) renders page_1_summary.big_idea verbatim. Fixed absolute
             # position -- Zone 0 sits above the grid's slot area, not inside it.
@@ -715,7 +739,7 @@ class PageBuilder:
                 # Resolve to DAX measure names for visual binding (semantic model uses measure names, not KPI IDs)
                 kpi_to_measure = kpi_id_to_measure_name or {}
                 measures = [kpi_to_measure.get(k, k) for k in kpi_ids_clean]
-                # Label for naming/tooltip; the governed statement (message) renders as the header (BC-NARR-01).
+                # Label for naming/tooltip; the question leads the header, never the message (BC-NARR-01, A-34).
                 display_title = measures[0] if len(measures) == 1 else (", ".join(measures[:3])[:40] if measures else f"Visual_{i + 1}")
                 title = display_title.replace(".", " ").replace("_", " ").title()
                 _hdr2, _sub2 = resolve_header(item.get("question"), item.get("message"),

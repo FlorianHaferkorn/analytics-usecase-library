@@ -91,3 +91,17 @@ def test_no_label_titles_across_all_brackets():
         if failed:
             offenders.append((b.relative_to(REPO), lines))
     assert not offenders, f"BC-NARR-01 label-title violations: {offenders}"
+
+
+# ── A-34 / D-641: the message is the key message, never the title ──────────────
+def test_message_never_leads_the_header():
+    """BC-NARR-01 since 08.10.2026: title_policy keeps the message out of the header, verified or not,
+    with or without a question (IBCS UN 2.2)."""
+    from tooling.validation.check_exhibit_message import message_leads_header
+
+    with_q = {"question": "Is gross margin holding against plan?", "message": "GM fell 12% vs plan"}
+    without_q = {"message": "GM fell 12% vs plan"}
+    for ex in (with_q, without_q):
+        for verified in (False, True):
+            assert message_leads_header(ex, verified) is False
+    assert message_leads_header({"question": "Q?"}) is False

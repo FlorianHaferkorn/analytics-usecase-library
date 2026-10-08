@@ -1,13 +1,18 @@
-#!/usr/bin/env python3
 """
 check_exhibit_message.py — Boutique rubric BC-NARR-01 structural validator
 
-Enforces the "title = statement, not label" rule of the Boutique-Craft Rubric
-(core/templates/page_templates/governance/Boutique_Craft_Rubric.md, rule BC-NARR-01)
-at the INTENT layer: every 30-second-layer exhibit (component_30s) should carry a
-`message` that reads as a conclusion (IBCS SAY), not a bare "<metric> by <dimension>"
-label. This is the K2 slice of docs/plans/KONZEPT_REPORT_QUALITAET.md — "Aussage als Daten" —
-and the structural seed of the K6 rubric gate.
+BC-NARR-01 since 08.10.2026 (A-34, IBCS 2.0 UN 2.1/2.2; Freelancing D-641): titles describe, the
+conclusion sits in its own key-message slot and never in the title. Until then the rule read
+"title = statement, not label". Two structural halves, both at the INTENT layer:
+
+1. Key message present and a conclusion: every 30-second-layer exhibit (component_30s) carries a
+   `message` that reads as a conclusion, not a bare "<metric> by <dimension>" label. The message is
+   the key message (UN 2.1), no longer the title.
+2. Message never the title: the header that `tooling/reporting/title_policy.resolve_header` picks for
+   the exhibit (with the bracket's `title_statements_verified`) is not the message.
+
+Rubric: core/templates/page_templates/tokens/boutique_craft_rubric.yaml (BC-NARR-01). Origin: K2 slice
+of docs/plans/KONZEPT_REPORT_QUALITAET.md — "Aussage als Daten".
 
 Scope: renderer-agnostic. Validates the governed bracket intent, not a PBIR render.
 
@@ -18,8 +23,9 @@ Usage:
     python tooling/validation/check_exhibit_message.py --strict         # missing message = fail
 
 Exit codes:
-    0 — all present messages are statements (or --exit-zero)
-    1 — a message reads as a label (BC-NARR-01 violation), or --strict and a message is missing
+    0 — all present messages are statements and none leads a header (or --exit-zero)
+    1 — a message reads as a label or would lead the header (BC-NARR-01 violation), or --strict and a
+        message is missing
 """
 from __future__ import annotations
 
@@ -38,6 +44,10 @@ except ImportError:  # pragma: no cover
     raise
 
 REPO = Path(__file__).resolve().parents[2]
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+
+from tooling.reporting.title_policy import resolve_header  # noqa: E402
 
 # A bare label: "<metric> by <dimension>" with no further structure (no comma, colon,
 # verb, etc.). Char class deliberately excludes ',' ':' '—' so real statements that
@@ -72,7 +82,7 @@ def classify_message(message: Optional[str]) -> tuple[Optional[bool], str]:
     Pure function — unit-tested in tooling/tests/test_exhibit_message.py.
     """
     if message is None or not str(message).strip():
-        return None, "no message set — visual title will fall back to a label (BC-NARR-01)"
+        return None, "no message set — the key-message slot stays empty (BC-NARR-01)"
 
     text = str(message).strip()
     if _LABEL_RE.match(text):
@@ -100,6 +110,18 @@ def _exhibits(bracket: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
+def message_leads_header(exhibit: dict[str, Any], verified: bool = False) -> bool:
+    """True when title_policy would put the exhibit's message into the header (BC-NARR-01 since A-34).
+
+    Pure function — unit-tested in tooling/tests/test_exhibit_message.py.
+    """
+    message = (exhibit.get("message") or "").strip()
+    if not message:
+        return False
+    header, _ = resolve_header(exhibit.get("question"), message, value_verified=verified)
+    return header == message
+
+
 def check_bracket(path: Path) -> tuple[int, int, int, list[str]]:
     """Return (passed, warned, failed, messages) for one bracket."""
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
@@ -108,8 +130,13 @@ def check_bracket(path: Path) -> tuple[int, int, int, list[str]]:
     exhibits = _exhibits(data)
     if not exhibits:
         return 0, 0, 0, []
+    verified = bool((data.get("ux_layout_rules") or {}).get("title_statements_verified", False))
     for ex in exhibits:
         slot = ex.get("slot_id") or ex.get("visual_type") or "?"
+        if message_leads_header(ex, verified):
+            failed += 1
+            lines.append(f"    ✗ {slot}: message would lead the header — titles describe (BC-NARR-01, D-641)")
+            continue
         status, reason = classify_message(ex.get("message"))
         if status is True:
             passed += 1
@@ -148,7 +175,7 @@ def main() -> int:
 
     print(
         f"\nBC-NARR-01: {total_passed} statement(s), {total_warned} advisory, "
-        f"{total_failed} label violation(s)."
+        f"{total_failed} violation(s)."
     )
     if args.exit_zero:
         return 0

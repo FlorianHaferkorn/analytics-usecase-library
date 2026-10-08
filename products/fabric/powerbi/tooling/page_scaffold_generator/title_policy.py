@@ -11,5 +11,6 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from tooling.reporting.title_policy import (  # noqa: F401,E402
-    EXPECTED_PREFIX, resolve_header, title_context_safe,
+    DEFAULT_KEY_MESSAGE_POSITION, EXPECTED_PREFIX, TitleLines, check_key_message_position, ibcs_lines,
+    resolve_header, title_context_safe, title_lines_from,
 )

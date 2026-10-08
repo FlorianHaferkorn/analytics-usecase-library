@@ -1061,6 +1061,10 @@ class ConfigLoader:
             # Charttiteln stellten einen Befund fest, der an keinen Daten hing (R6.2). Jetzt
             # fuehrt die Frage, die Aussage steht als "Expected finding --" darunter.
             assert_statement_titles = bool(ux.get("title_statements_verified", False))
+            # Titelblock (A-34, IBCS UN 2.2): wer / was / wann aus page_1_summary.title_lines.
+            # Nicht abgeleitet: Berichtseinheit und Zeitraum kennt nur der Bracket bzw. Kunde.
+            from .title_policy import title_lines_from
+            title_lines = title_lines_from(p1.get("title_lines"))
             # Kopfzeile nach derselben Regel (R6.2): ungeprueft fuehrt die Frage der Seite,
             # die Big Idea folgt als Erwartung. design_rules BIG_IDEA_HEADER_ZONE prueft, dass
             # sie woertlich enthalten bleibt.
@@ -1099,6 +1103,7 @@ class ConfigLoader:
                 "intent_rules_version": intent_rules_version,
                 "big_idea_text": big_idea_text,
                 "assert_statement_titles": assert_statement_titles,
+                "title_lines": title_lines,
                 "semantic_delta_cards": semantic_delta_cards,
             }
 
