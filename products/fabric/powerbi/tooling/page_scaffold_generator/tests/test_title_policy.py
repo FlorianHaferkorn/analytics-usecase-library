@@ -324,17 +324,18 @@ def test_apply_page_layout_falls_back_on_bad_header_height(tmp_path, height):
     for name, pos in (("Header", {"x": 32, "y": 32, "height": height, "width": 1856}),
                       ("KPI_Cards", {"x": 0, "y": 0, "height": 10, "width": 10})):
         (page / "visuals" / name).mkdir(parents=True)
-        (page / "visuals" / name / "visual.json").write_text(_json.dumps({"name": name, "position": pos}))
+        (page / "visuals" / name / "visual.json").write_text(
+            _json.dumps({"name": name, "position": pos}), encoding="utf-8")
     blueprint = {"canvas": {"width": 1920, "height": 1080}, "slots": [{"slot_id": "KPI_Cards", "grid": [0, 0, 12, 2]}]}
     apply_layout_to_page(tmp_path, "P", blueprint)
-    kpi = _json.loads((page / "visuals" / "KPI_Cards" / "visual.json").read_text())
+    kpi = _json.loads((page / "visuals" / "KPI_Cards" / "visual.json").read_text(encoding="utf-8"))
     ref = tmp_path / "R"
     (ref / "visuals" / "Header").mkdir(parents=True)
     (ref / "visuals" / "KPI_Cards").mkdir(parents=True)
     (ref / "visuals" / "Header" / "visual.json").write_text(_json.dumps(
-        {"name": "Header", "position": {"height": ZONE0_HEADER_HEIGHT}}))
+        {"name": "Header", "position": {"height": ZONE0_HEADER_HEIGHT}}), encoding="utf-8")
     (ref / "visuals" / "KPI_Cards" / "visual.json").write_text(_json.dumps(
-        {"name": "KPI_Cards", "position": {"x": 0, "y": 0, "height": 10, "width": 10}}))
+        {"name": "KPI_Cards", "position": {"x": 0, "y": 0, "height": 10, "width": 10}}), encoding="utf-8")
     apply_layout_to_page(tmp_path, "R", blueprint)
-    kpi_ref = _json.loads((ref / "visuals" / "KPI_Cards" / "visual.json").read_text())
+    kpi_ref = _json.loads((ref / "visuals" / "KPI_Cards" / "visual.json").read_text(encoding="utf-8"))
     assert kpi["position"]["y"] == kpi_ref["position"]["y"]
