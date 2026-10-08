@@ -37,7 +37,7 @@
   --brand-color-heading:          var(--brand-neutral-900);
 
   /* Typography */
-  --brand-font-primary:   Segoe UI, system-ui, -apple-system, sans-serif;
+  --brand-font-primary:   Inter, Segoe UI, system-ui, -apple-system, sans-serif;
   --brand-font-secondary: var(--brand-font-primary);
   --brand-font-mono:      Cascadia Code, Consolas, 'Courier New', monospace;
 

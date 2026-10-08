@@ -65,12 +65,15 @@ surface:
 # `surface.card` steht seit jeher hier. Entschieden ist deshalb: das Kartensystem ist
 # legitim, und die Regeln meinen "keine Dekoration UEBER das Kartensystem hinaus".
 #
+# ABGELOEST am 08.10.2026 durch Meridian D-685/D-710 (Entscheidung Flo 08.10.2026, siehe
+# `container_baseline` unten). Weg A (Flo 03.08.2026) bleibt als Historie stehen; kein
+# Pruefer liest diesen Block.
 # Damit dieser Satz pruefbar wird statt bloss gemeint, steht die Grundlinie hier —
 # und zwar als OBERGRENZE, nicht als Sollwert. Die Werte sind die des heute
 # beschlossenen Themes (Aurora Monochromatic Light); sanktioniert ist genau diese
 # Erhebung, alles Staerkere ist Dekoration. Kein Toleranzaufschlag, weil jeder
 # Aufschlag eine Entscheidung waere, die niemand getroffen hat.
-container_baseline:
+container_baseline_weg_a:
   background:
     allowed: true
     from_tokens: [page, card, row_alt]   # nur Flaechen aus `surface`
@@ -89,6 +92,35 @@ container_baseline:
     max_px: 10
   # Ausdruecklich NIE: Zierrat in jeder Lesart, unabhaengig vom Kartensystem.
   never: [gradient, bevel, glow, glass, image]
+
+# Grundlinie seit 08.10.2026 (Meridian D-685 „Basistheme Fluent2-CY26SU10 mit Ausgleich“,
+# D-710 Engine; Entscheidung Flo 08.10.2026: Grundlinie auf D-685 heben). Weiterhin eine
+# OBERGRENZE ohne Toleranzaufschlag, erhoben am WIRKSAMEN Theme (Basistheme + eigenes Theme,
+# `tooling/report_quality/base_theme.wirksame_visual_styles`): Rahmen hellgrau 1 px mit 8 px
+# Rundung und kein Schatten kommen aus Fluent2, der Innenabstand 8/12/8/12 aus dem eigenen Theme.
+container_baseline:
+  decided: "2026-10-08"
+  source: "Meridian D-685, D-710"
+  supersedes: container_baseline_weg_a
+  background:
+    allowed: true
+    from_tokens: [page, card, row_alt]   # nur Flaechen aus `surface`
+  border:
+    allowed: true
+    width_max_px: 1
+    radius_max_px: 8
+    color: "#E6E6E6"                     # Fluent2-CY26SU10 `*`.border
+  drop_shadow:
+    allowed: false                       # D-685: Schatten aus; jeder sichtbare Schatten ist Dekoration
+  padding:
+    max_px: 12                           # groesste Seite; je Seite gilt der genauere Wert
+    top_max_px: 8
+    right_max_px: 12
+    bottom_max_px: 8
+    left_max_px: 12
+  # Ausdruecklich NIE: Zierrat in jeder Lesart, unabhaengig vom Kartensystem.
+  never: [gradient, bevel, glow, glass, image]
+
 text:
   primary:   "#201F1E"  # titles, values, labels
   secondary: "#605E5C"  # axis labels, footnotes (muted)
