@@ -30,7 +30,7 @@ GUARD = REPO / "products" / "fabric" / "powerbi" / "tooling" / "desktop_guard.py
 MERIDIAN_REL = "core/pbi_engine/desktop_guard.py"
 
 #: sha256 of the peer file. Change it only together with the Meridian peer, byte-identically.
-GUARD_SHA256 = "af7f861120f9a3df240286bb8a8f3000d0cf284402d83df082c2285b42cec88f"
+GUARD_SHA256 = "af7f861120f9a3df240286bb8a8f3000d0cf284402d83df082c2285b42cec88f"  # pragma: allowlist secret
 
 
 def _sha(path: Path) -> str:
