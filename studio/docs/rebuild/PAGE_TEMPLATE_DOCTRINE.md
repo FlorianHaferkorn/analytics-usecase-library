@@ -224,8 +224,8 @@ never judges; the conclusion has its own slot.
 | Element | Rule | Field / code |
 |---|---|---|
 | Page title | Three lines: **who** (reporting unit), **what** (measure bold, unit normal: "Gross margin in %"), **when** (period, scenarios, variances: "Jan..Dec 2026, AC and PL"). No evaluative words. | `page_1_summary.title_lines {who, what, unit, when}`; `title_policy.TitleLines` |
-| Key message | Own slot at one fixed position, above the page title (`above_title`, the default; `right_of_title` allowed by the standard, not rendered in PBIR). | `big_idea` → first paragraph of the Zone-0 title block (`page_scaffold_generator/title_block.py`) |
-| Visual header | The governed question leads; the exhibit message follows as subtitle (framed "Expected finding —" until value-verified). The message is **never** the visual title. | `title_policy.resolve_header` |
+| Key message | Own slot at one fixed position, above the page title (`above_title`, the default; `right_of_title` allowed by the standard, not rendered in PBIR). Unverified it is always framed "Expected finding —". The block grows with the wrapped key message, the grid moves below it. | `big_idea` → first paragraph of the Zone-0 title block (`page_scaffold_generator/title_block.py`); position `page_1_summary.key_message_position`; `title_policy.frame_key_message` |
+| Visual header | The governed question leads; the exhibit message follows as subtitle (framed "Expected finding —" until value-verified). The message is **never** the visual title — checked on the committed PBIR. | `title_policy.resolve_header`; `tooling/validation/check_exhibit_message.py` |
 | Tool-neutral contract | Title = descriptor (or line 2), verdict rendered as `key_message` / `annotation` / `kpi_status` / `omit`. `statement_title` is locked. | `title_policy.title_contract`, `LOCKED_VERDICT_RENDERS` |
 | Small screens | The three lines joined with " \| " in one line. | `title_policy.single_line` |
 

@@ -93,15 +93,52 @@ def test_no_label_titles_across_all_brackets():
     assert not offenders, f"BC-NARR-01 label-title violations: {offenders}"
 
 
-# ── A-34 / D-641: the message is the key message, never the title ──────────────
-def test_message_never_leads_the_header():
-    """BC-NARR-01 since 08.10.2026: title_policy keeps the message out of the header, verified or not,
-    with or without a question (IBCS UN 2.2)."""
-    from tooling.validation.check_exhibit_message import message_leads_header
+# ── A-34 / D-641: checked on the RENDERED titles, classifier always runs ───────
+def _bracket(tmp_path, name, exhibits):
+    import yaml
+    d = tmp_path / "usecases" / name
+    d.mkdir(parents=True)
+    (d / "UseCase_Bracket.yaml").write_text(yaml.safe_dump(
+        {"ux_layout_rules": {"page_1_summary": {"component_30s": exhibits}}}), encoding="utf-8")
+    return d / "UseCase_Bracket.yaml"
 
-    with_q = {"question": "Is gross margin holding against plan?", "message": "GM fell 12% vs plan"}
-    without_q = {"message": "GM fell 12% vs plan"}
-    for ex in (with_q, without_q):
-        for verified in (False, True):
-            assert message_leads_header(ex, verified) is False
-    assert message_leads_header({"question": "Q?"}) is False
+
+def _visual(dist, name, title):
+    import json
+    vd = dist / f"{name}.Report" / "definition" / "pages" / "P" / "visuals" / "Main_1"
+    vd.mkdir(parents=True)
+    lit = "'" + title.replace("'", "''") + "'"
+    (vd / "visual.json").write_text(json.dumps({"visual": {"visualContainerObjects": {"title": [
+        {"properties": {"text": {"expr": {"Literal": {"Value": lit}}}}}]}}}), encoding="utf-8")
+
+
+def test_rendered_title_carrying_the_message_fails(tmp_path):
+    msg = "Gross Margin fell 12% vs plan"
+    b = _bracket(tmp_path, "XX-001_Test", [{"slot_id": "Main_1", "question": "Is GM holding?", "message": msg}])
+    dist = tmp_path / "dist"
+    _visual(dist, "XX-001_Test", "  gross margin FELL 12% vs plan ")
+    _, _, failed, lines = check_bracket(b, dist)
+    assert failed == 1 and any("title is the message" in ln for ln in lines)
+
+
+def test_rendered_descriptive_title_passes(tmp_path):
+    b = _bracket(tmp_path, "XX-002_Test", [{"slot_id": "Main_1", "question": "Is GM holding?",
+                                            "message": "Gross Margin fell 12% vs plan"}])
+    dist = tmp_path / "dist"
+    _visual(dist, "XX-002_Test", "Is GM holding?")
+    passed, _, failed, lines = check_bracket(b, dist)
+    assert (passed, failed) == (1, 0) and not any("NOT CHECKED" in ln for ln in lines)
+
+
+def test_without_report_rendered_titles_are_not_checked(tmp_path):
+    b = _bracket(tmp_path, "XX-003_Test", [{"slot_id": "Main_1", "message": "Gross Margin fell 12% vs plan"}])
+    _, _, failed, lines = check_bracket(b, tmp_path / "dist")
+    assert failed == 0 and any("NOT CHECKED" in ln for ln in lines)
+
+
+def test_classifier_runs_even_when_question_equals_message(tmp_path):
+    # Befund 2: a label message that equals the question used to skip classify_message
+    b = _bracket(tmp_path, "XX-004_Test", [{"slot_id": "Main_1", "question": "Revenue by Month",
+                                            "message": "Revenue by Month"}])
+    _, _, failed, lines = check_bracket(b, tmp_path / "dist")
+    assert failed == 1 and any("reads as a label" in ln for ln in lines)

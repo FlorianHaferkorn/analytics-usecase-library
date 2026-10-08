@@ -59,9 +59,12 @@ def apply_layout_to_page(
     _header_h = ZONE0_HEADER_HEIGHT
     if _header_json.exists():
         try:
-            _header_h = json.loads(_header_json.read_text(encoding="utf-8"))["position"]["height"]
+            _h = json.loads(_header_json.read_text(encoding="utf-8"))["position"]["height"]
         except (ValueError, KeyError, TypeError):
-            pass
+            _h = None
+        # Nur eine positive Zahl gilt; null, Text oder bool -> Rueckfall auf die Kopfzeilenhoehe.
+        if isinstance(_h, (int, float)) and not isinstance(_h, bool) and _h > 0:
+            _header_h = _h
     zone0 = zone0_offset(_header_json.exists(), gutter, _header_h)
     calc = GridCalculator(canvas_width=w, canvas_height=h - zone0, outer_margin=outer_margin, gutter=gutter)
 

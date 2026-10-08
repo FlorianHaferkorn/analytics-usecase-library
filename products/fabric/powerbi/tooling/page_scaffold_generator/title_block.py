@@ -14,16 +14,58 @@ this module only builds the PBIR object. Same structure as Meridian
 """
 from __future__ import annotations
 
+import math
 from typing import Any, Dict, List, Optional
 
 from .title_policy import DEFAULT_KEY_MESSAGE_POSITION, TitleLines, ibcs_lines
 
-#: Height of the title block on the 1920×1080 canvas: key message (14 pt) plus three lines (11 pt).
-#: Same value as Meridian ``title_block.HOEHE_PX``.
+#: Minimum height of the title block on the 1920×1080 canvas: key message (14 pt) plus three lines
+#: (11 pt). Same value as Meridian ``title_block.HOEHE_PX``. Longer key messages wrap and the block
+#: grows (``title_block_height``).
 TITLE_BLOCK_HEIGHT = 112
+#: Width of the title textbox (canvas 1920 minus the 32 px outer margins).
+TITLE_BLOCK_WIDTH = 1856
 
 _SIZE_KEY_MESSAGE = 14
 _SIZE_LINE = 11
+
+#: Wrap estimate. ANNAHME, ungeprueft (kein Desktop-Render im Container): mittlere Zeichenbreite
+#: von Segoe UI als Anteil der Schriftgroesse, fett gerechnet und damit eher zu breit -- zu breit
+#: geschaetzt heisst eine Zeile zu viel Platz, zu schmal hiesse abgeschnittener Text. Gleiche
+#: Rolle wie Meridians ``ZEICHEN_BREITE``; messen, sobald ein Render da ist.
+CHAR_WIDTH_EM = 0.6
+LINE_HEIGHT_EM = 1.4
+#: Inner padding of a Power BI textbox, top plus bottom (ANNAHME, ungeprueft).
+PADDING_PX = 16
+
+
+def _px(size_pt: float) -> float:
+    return size_pt * 96 / 72
+
+
+def wrapped_lines(text: str, size_pt: float, width_px: float = TITLE_BLOCK_WIDTH - PADDING_PX) -> int:
+    """Lines a paragraph needs at ``size_pt`` in ``width_px`` (greedy word wrap, estimated widths)."""
+    per_line = max(1, int(width_px // (_px(size_pt) * CHAR_WIDTH_EM)))
+    lines, used = 1, 0
+    for word in (text or "").split():
+        need = len(word) if used == 0 else used + 1 + len(word)
+        if need <= per_line:
+            used = need
+        else:
+            lines += 1 + (len(word) - 1) // per_line
+            used = len(word) % per_line or per_line
+    return lines
+
+
+def title_block_height(lines: TitleLines, key_message: Optional[str] = None,
+                       position: str = DEFAULT_KEY_MESSAGE_POSITION) -> int:
+    """Height in px the block needs: each paragraph's wrapped lines × line height, at least
+    ``TITLE_BLOCK_HEIGHT``. The grid moves down by exactly this height (page_builder)."""
+    total = 0.0
+    for role, text in ibcs_lines(lines, key_message, position):
+        size = _SIZE_KEY_MESSAGE if role == "key_message" else _SIZE_LINE
+        total += wrapped_lines(text, size) * _px(size) * LINE_HEIGHT_EM
+    return max(TITLE_BLOCK_HEIGHT, math.ceil(total + PADDING_PX))
 
 
 def _run(value: str, *, bold: bool = False, size: int = _SIZE_LINE) -> Dict[str, Any]:

@@ -114,8 +114,10 @@ def ibcs_lines(lines: TitleLines, key_message: Optional[str] = None,
     """Presentation (a): key message above three title lines, as ``(role, text)``.
 
     Roles: ``key_message``, ``who``, ``what``, ``when``. Empty lines drop out; the key message is only in
-    the sequence for ``above_title`` (``right_of_title`` is placed beside it by the renderer).
+    the sequence for ``above_title`` (``right_of_title`` is placed beside it by the renderer). An unknown
+    ``position`` raises ``ValueError`` (``check_key_message_position``).
     """
+    position = check_key_message_position(position)
     out: list = []
     if key_message and position == "above_title":
         out.append(("key_message", key_message))
@@ -158,6 +160,11 @@ def title_context_safe(text: Optional[str]) -> bool:
     return _LOCAL_FILTER_CLAIM.search(t) is None
 
 
+def _norm(text: str) -> str:
+    """Compare form: whitespace collapsed, case folded."""
+    return " ".join(text.split()).casefold()
+
+
 def title_contract(descriptor: Optional[str], question: Optional[str], verdict: Optional[str],
                    *, verdict_verified: bool = False, tool_live_compute: bool = False,
                    context_safe: Optional[bool] = None, title_lines: Optional[TitleLinesLike] = None,
@@ -168,8 +175,9 @@ def title_contract(descriptor: Optional[str], question: Optional[str], verdict: 
       • title       = ``descriptor`` — a true, data-independent statement of WHAT the visual shows
                       ("Stage Conversion %, last 12 months"). Same on every tool; can never lie. Without a
                       descriptor, line 2 of ``title_lines`` ("measure in unit") is the title.
-      • title_lines = ``{who, what, when}`` (IBCS UN 2.2), ``None`` when not given. ``what`` carries the
-                      unit ("Gross margin in %").
+      • title_lines = ``{who, what, unit, when}`` (IBCS UN 2.2), ``None`` when not given — the same form as
+                      ``TitleLines`` and the bracket field ``page_1_summary.title_lines``: ``what`` is the
+                      measure, ``unit`` separate (line 2 renders "what in unit").
       • subtitle    = the governed ``question`` the visual answers — the interpretation aid.
       • verdict     = the governed message / Einordnung — a SEPARATE element, never the title (D-641):
                      'key_message' — verified AND context-safe AND live/scalar → the verdict leads in the
@@ -179,15 +187,14 @@ def title_contract(descriptor: Optional[str], question: Optional[str], verdict: 
                      'omit'        — not verified → shown nowhere (never fabricated; the user reads).
                      'statement_title' (until 08.10.2026) is locked: ``LOCKED_VERDICT_RENDERS``.
 
-    Raises ``ValueError`` when the descriptor *is* the verdict — that would be the statement title again.
+    Raises ``ValueError`` when the title *is* a rendered verdict (compared case- and whitespace-insensitive) —
+    that would be the statement title again. An omitted verdict is shown nowhere and is not compared.
 
     Returns {title, title_lines, subtitle, verdict, verdict_render, key_message_position}."""
     lines = title_lines_from(title_lines)
     position = check_key_message_position(key_message_position)
     v = (verdict or "").strip() or None
     title = (descriptor or "").strip() or (lines.what_line() if lines else None)
-    if v and title and title == v:
-        raise ValueError("D-641: the title must describe, the verdict belongs in the key-message slot")
     safe = title_context_safe(v) if context_safe is None else context_safe
     if not v or not verdict_verified:
         render = "omit"
@@ -197,8 +204,10 @@ def title_contract(descriptor: Optional[str], question: Optional[str], verdict: 
         render = "annotation"
     else:
         render = "kpi_status"
+    if render != "omit" and title and _norm(title) == _norm(v):
+        raise ValueError("D-641: the title must describe, the verdict belongs in the key-message slot")
     return {"title": title,
-            "title_lines": ({"who": lines.who, "what": lines.what_line(), "when": lines.when}
+            "title_lines": ({"who": lines.who, "what": lines.what, "unit": lines.unit, "when": lines.when}
                             if lines else None),
             "subtitle": (question or "").strip() or None,
             "verdict": v,
@@ -234,3 +243,16 @@ def resolve_header(
     # backed. A static value-verified statement is a STRING, no filter-context trap.
     backed = value_verified or (dynamic_narrative and title_context_safe(m))
     return q, (m if backed else f"{EXPECTED_PREFIX}{m}")
+
+
+def frame_key_message(message: Optional[str], question: Optional[str] = None, *,
+                      value_verified: bool = False) -> Optional[str]:
+    """The page's key message as rendered in the header / title block (UN 2.1), by the rule of
+    ``resolve_header``: verified → as is; unverified → always framed as *expected finding*, after the
+    page's question when there is one. Never an unframed, unverified statement.
+    """
+    m = (message or "").strip() or None
+    if not m or value_verified:
+        return m
+    q = (question or "").strip()
+    return f"{q}  \u00b7  {EXPECTED_PREFIX}{m}" if q else f"{EXPECTED_PREFIX}{m}"

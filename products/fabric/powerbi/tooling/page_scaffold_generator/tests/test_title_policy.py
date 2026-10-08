@@ -9,12 +9,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from page_scaffold_generator.title_policy import EXPECTED_PREFIX, resolve_header, title_context_safe
 import pytest
 
-from page_scaffold_generator.title_block import TITLE_BLOCK_HEIGHT, build_title_objects, textbox_paragraphs
+from page_scaffold_generator.title_block import (
+    TITLE_BLOCK_HEIGHT, build_title_objects, textbox_paragraphs, title_block_height, wrapped_lines,
+)
 from tooling.reporting.title_policy import (
-    LOCKED_VERDICT_RENDERS, VERDICT_RENDERS, TitleLines, hybrid, ibcs_lines, single_line, title_contract,
-    title_lines_from,
+    EXPECTED_PREFIX as _PREFIX, LOCKED_VERDICT_RENDERS, VERDICT_RENDERS, TitleLines, frame_key_message, hybrid,
+    ibcs_lines, single_line, title_contract, title_lines_from,
 )
 
+REPO_ROOT = Path(__file__).resolve().parents[6]
 Q = "Is the coverage gap a volume problem or a conversion problem?"
 M = "Win rate is dragging coverage below plan, not a shortage of open opportunities"
 
@@ -136,6 +139,15 @@ def test_contract_never_returns_a_locked_render():
 def test_contract_refuses_the_verdict_as_title():
     with pytest.raises(ValueError, match="D-641"):
         title_contract(V, Q, V, verdict_verified=True)
+    # normalised: case and whitespace do not hide the statement title
+    with pytest.raises(ValueError, match="D-641"):
+        title_contract("  conversion LEAKS at   mid-stage ", Q, V, verdict_verified=True)
+
+
+def test_contract_does_not_refuse_an_omitted_verdict():
+    # Befund 6: unverified → omitted, shown nowhere → no statement title, no error
+    c = title_contract(V, Q, V)
+    assert c["verdict_render"] == "omit" and c["title"] == V
 
 
 # --- title_lines {who, what, when} (IBCS UN 2.2) ------------------------------------------------
@@ -145,8 +157,8 @@ LINES = {"who": "Aurora Group", "what": "Gross margin", "unit": "%", "when": "Ja
 
 def test_contract_carries_title_lines():
     c = title_contract(None, Q, None, title_lines=LINES)
-    assert c["title_lines"] == {"who": "Aurora Group", "what": "Gross margin in %",
-                                "when": "Jan..Dec 2026, AC and PL"}
+    # same form as TitleLines and the bracket field: measure and unit separate (Befund 7)
+    assert c["title_lines"] == LINES
     # without a descriptor the measure line is the title
     assert c["title"] == "Gross margin in %"
     # with a descriptor the descriptor stays the title; the lines travel alongside
@@ -166,6 +178,47 @@ def test_key_message_position_is_checked():
         "right_of_title"
     with pytest.raises(ValueError, match="position"):
         title_contract(DESC, Q, None, key_message_position="below_chart")
+    with pytest.raises(ValueError, match="position"):
+        ibcs_lines(title_lines_from(LINES), "GM fell", "below_chart")
+
+
+def test_unverified_key_message_is_always_framed():
+    # Befund 1: without a decision question the unverified big idea stood unframed in the header
+    assert frame_key_message("GM is under pressure") == _PREFIX + "GM is under pressure"
+    assert frame_key_message("GM is under pressure", "Is GM holding?") == \
+        "Is GM holding?  \u00b7  " + _PREFIX + "GM is under pressure"
+    assert frame_key_message("GM is under pressure", value_verified=True) == "GM is under pressure"
+    assert frame_key_message(None) is None
+
+
+def test_config_loader_frames_big_idea_without_question(monkeypatch):
+    from page_scaffold_generator.config_loader import ConfigLoader
+    loader = ConfigLoader(REPO_ROOT)
+    orig = loader.load_use_case_bracket
+
+    def ohne_frage(uc):
+        b = orig(uc)
+        b["ux_layout_rules"]["page_1_summary"].pop("decision_question", None)
+        b["ux_layout_rules"]["page_1_summary"]["key_message_position"] = "above_title"
+        return b
+    monkeypatch.setattr(loader, "load_use_case_bracket", ohne_frage)
+    cfg = loader.get_page_config("COM-002", "overview")
+    assert cfg["big_idea_text"].startswith(_PREFIX)
+    assert cfg["key_message_position"] == "above_title"
+
+
+def test_config_loader_rejects_unknown_key_message_position(monkeypatch):
+    from page_scaffold_generator.config_loader import ConfigLoader
+    loader = ConfigLoader(REPO_ROOT)
+    orig = loader.load_use_case_bracket
+
+    def falsch(uc):
+        b = orig(uc)
+        b["ux_layout_rules"]["page_1_summary"]["key_message_position"] = "below_chart"
+        return b
+    monkeypatch.setattr(loader, "load_use_case_bracket", falsch)
+    with pytest.raises(ValueError, match="position"):
+        loader.get_page_config("COM-002", "overview")
 
 
 def test_presentations_share_one_content():
@@ -230,3 +283,58 @@ def test_page_builder_renders_title_block_and_moves_grid_below():
     kpi_b = next(v for v in b["visuals"] if v["name"] != "Header")
     assert kpi_b["position"]["y"] - kpi_a["position"]["y"] == TITLE_BLOCK_HEIGHT - head_a["position"]["height"]
     assert kpi_b["position"]["y"] >= head_b["position"]["y"] + TITLE_BLOCK_HEIGHT
+
+
+def test_title_block_grows_with_long_key_message():
+    # Befund 5: 300 characters of big idea plus question no longer fit 112 px
+    lines = title_lines_from(LINES)
+    long_msg = frame_key_message("Gross margin is under pressure because " + "price and mix " * 18,
+                                 "Is our gross margin holding against price and mix pressure?")
+    assert wrapped_lines(long_msg, 14) >= 2
+    h = title_block_height(lines, long_msg)
+    assert h > TITLE_BLOCK_HEIGHT
+    assert title_block_height(lines, "GM fell") == TITLE_BLOCK_HEIGHT
+    from page_scaffold_generator.page_builder import PageBuilder
+    b = PageBuilder()
+    b.title_lines = lines
+    page = _grid_page(b, long_msg)
+    head = next(v for v in page["visuals"] if v["name"] == "Header")
+    kpi = next(v for v in page["visuals"] if v["name"] != "Header")
+    assert head["position"]["height"] == h
+    assert kpi["position"]["y"] >= head["position"]["y"] + h
+
+
+def test_template_path_refuses_title_lines():
+    # Befund 4: the legacy template path has no title block → loud error, not a silent drop
+    from page_scaffold_generator.page_builder import PageBuilder
+    b = PageBuilder()
+    b.title_lines = title_lines_from(LINES)
+    with pytest.raises(ValueError, match="grid path"):
+        b.build_page_structure(slots={}, template="T1", card_measure_names=["Gross Margin %"])
+    PageBuilder().build_page_structure(slots={}, template="T1", card_measure_names=["Gross Margin %"])
+
+
+@pytest.mark.parametrize("height", [None, "112", True, 0, -5])
+def test_apply_page_layout_falls_back_on_bad_header_height(tmp_path, height):
+    # Befund 9: null / text / bool / non-positive height → fallback to ZONE0_HEADER_HEIGHT
+    import json as _json
+    from page_scaffold_generator.apply_page_layout import apply_layout_to_page
+    from page_scaffold_generator.grid_calculator import ZONE0_HEADER_HEIGHT
+    page = tmp_path / "P"
+    for name, pos in (("Header", {"x": 32, "y": 32, "height": height, "width": 1856}),
+                      ("KPI_Cards", {"x": 0, "y": 0, "height": 10, "width": 10})):
+        (page / "visuals" / name).mkdir(parents=True)
+        (page / "visuals" / name / "visual.json").write_text(_json.dumps({"name": name, "position": pos}))
+    blueprint = {"canvas": {"width": 1920, "height": 1080}, "slots": [{"slot_id": "KPI_Cards", "grid": [0, 0, 12, 2]}]}
+    apply_layout_to_page(tmp_path, "P", blueprint)
+    kpi = _json.loads((page / "visuals" / "KPI_Cards" / "visual.json").read_text())
+    ref = tmp_path / "R"
+    (ref / "visuals" / "Header").mkdir(parents=True)
+    (ref / "visuals" / "KPI_Cards").mkdir(parents=True)
+    (ref / "visuals" / "Header" / "visual.json").write_text(_json.dumps(
+        {"name": "Header", "position": {"height": ZONE0_HEADER_HEIGHT}}))
+    (ref / "visuals" / "KPI_Cards" / "visual.json").write_text(_json.dumps(
+        {"name": "KPI_Cards", "position": {"x": 0, "y": 0, "height": 10, "width": 10}}))
+    apply_layout_to_page(tmp_path, "R", blueprint)
+    kpi_ref = _json.loads((ref / "visuals" / "KPI_Cards" / "visual.json").read_text())
+    assert kpi["position"]["y"] == kpi_ref["position"]["y"]

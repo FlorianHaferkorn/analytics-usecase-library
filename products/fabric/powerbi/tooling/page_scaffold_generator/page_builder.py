@@ -12,7 +12,7 @@ from .grid_calculator import GridCalculator, GridPosition, ZONE0_HEADER_HEIGHT, 
 from .visual_builder import VisualBuilder
 from .slicer_builder import SlicerBuilder
 from .title_policy import DEFAULT_KEY_MESSAGE_POSITION, TitleLines, resolve_header
-from .title_block import TITLE_BLOCK_HEIGHT, build_title_objects
+from .title_block import build_title_objects, title_block_height
 from .alt_text import apply_alt_text
 from products.fabric.powerbi.tooling.schema_registry import PAGE_SCHEMA as _PAGE_SCHEMA
 
@@ -136,7 +136,9 @@ class PageBuilder:
         _probe = GridCalculator(canvas_width=w, canvas_height=h)
         # Titelblock (A-34): Kernaussage ueber drei Titelzeilen, hoeher als die Kopfzeile.
         _title_lines = self.title_lines
-        _header_h = TITLE_BLOCK_HEIGHT if _title_lines else ZONE0_HEADER_HEIGHT
+        # Hoehe aus der Zeilenzahl (lange Kernaussagen brechen um), das Raster rueckt entsprechend.
+        _header_h = (title_block_height(_title_lines, big_idea_text, self.key_message_position)
+                     if _title_lines else ZONE0_HEADER_HEIGHT)
         zone0 = zone0_offset(bool(big_idea_text) or bool(_title_lines), _probe._gutter, _header_h)
         calc = GridCalculator(canvas_width=w, canvas_height=h - zone0) if zone0 else _probe
         slots_list = grid_blueprint.get("slots") or []
@@ -469,7 +471,7 @@ class PageBuilder:
                 {
                     "$schema": self.visual_builder.VISUAL_SCHEMA,
                     "name": "Header",
-                    "position": {"x": 32, "y": 32, "z": 10000, "height": TITLE_BLOCK_HEIGHT, "width": 1856, "tabOrder": 2999},
+                    "position": {"x": 32, "y": 32, "z": 10000, "height": _header_h, "width": 1856, "tabOrder": 2999},
                     "visual": {
                         "visualType": "textbox",
                         "objects": build_title_objects(_title_lines, big_idea_text, self.key_message_position),
@@ -650,6 +652,13 @@ class PageBuilder:
                 comparison_refs=comparison_refs,
                 kpi_band_delta=kpi_band_delta,
             )
+
+        # Titelblock (A-34) gibt es nur im Raster-Pfad: hier gibt es keinen Header-Streifen, ueber
+        # den das Layout rutschen koennte. Laut abbrechen statt die Titelzeilen still zu verlieren.
+        if self.title_lines:
+            raise ValueError(
+                "page_1_summary.title_lines needs the grid path (template_id / grid_blueprint); the "
+                f"legacy template path ({template}) has no title block (A-34)")
 
         # Determine slicer placement (default: top)
         has_side_slicers = False  # Can be made configurable

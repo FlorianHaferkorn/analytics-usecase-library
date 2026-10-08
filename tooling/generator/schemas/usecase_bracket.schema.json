@@ -210,6 +210,14 @@
               "maxLength": 300,
               "description": "One-sentence narrative anchor for this page (Knaflic Big Idea). Template: '[Domain] is [on/off] track — [KPI] is [Δ], [momentum].' See Storytelling_Principles.md §2."
             },
+            "key_message_position": {
+              "type": "string",
+              "enum": [
+                "above_title",
+                "right_of_title"
+              ],
+              "description": "Position of the page key message relative to the title (IBCS 2.0 UN 2.1, ALUCA A-34). Default above_title; the PBIR title block renders above_title only and rejects right_of_title (page_scaffold_generator/title_block.py)."
+            },
             "title_lines": {
               "type": "object",
               "additionalProperties": false,

@@ -8,8 +8,10 @@ conclusion sits in its own key-message slot and never in the title. Until then t
 1. Key message present and a conclusion: every 30-second-layer exhibit (component_30s) carries a
    `message` that reads as a conclusion, not a bare "<metric> by <dimension>" label. The message is
    the key message (UN 2.1), no longer the title.
-2. Message never the title: the header that `tooling/reporting/title_policy.resolve_header` picks for
-   the exhibit (with the bracket's `title_statements_verified`) is not the message.
+2. Message never the title, checked on the RENDERED report: no visual title in the committed PBIR
+   (`products/fabric/powerbi/dist/<use case>.Report/**/visual.json`, `visualContainerObjects.title`)
+   equals an exhibit message (case- and whitespace-insensitive). A bracket without a committed report
+   is reported as NOT CHECKED, never as passed.
 
 Rubric: core/templates/page_templates/tokens/boutique_craft_rubric.yaml (BC-NARR-01). Origin: K2 slice
 of docs/plans/KONZEPT_REPORT_QUALITAET.md — "Aussage als Daten".
@@ -30,6 +32,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -44,10 +47,6 @@ except ImportError:  # pragma: no cover
     raise
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
-
-from tooling.reporting.title_policy import resolve_header  # noqa: E402
 
 # A bare label: "<metric> by <dimension>" with no further structure (no comma, colon,
 # verb, etc.). Char class deliberately excludes ',' ':' '—' so real statements that
@@ -110,19 +109,57 @@ def _exhibits(bracket: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
-def message_leads_header(exhibit: dict[str, Any], verified: bool = False) -> bool:
-    """True when title_policy would put the exhibit's message into the header (BC-NARR-01 since A-34).
+DIST = REPO / "products" / "fabric" / "powerbi" / "dist"
 
-    Pure function — unit-tested in tooling/tests/test_exhibit_message.py.
+
+def _norm(text: str) -> str:
+    return " ".join(text.split()).casefold()
+
+
+def _literal(entries: Any) -> Optional[str]:
+    """Text of a PBIR ``[{properties: {text: {expr: {Literal: {Value}}}}}]`` entry, unquoted."""
+    try:
+        raw = entries[0]["properties"]["text"]["expr"]["Literal"]["Value"]
+    except (KeyError, IndexError, TypeError):
+        return None
+    if isinstance(raw, str) and len(raw) >= 2 and raw[0] == raw[-1] == "'":
+        return raw[1:-1].replace("''", "'")
+    return raw if isinstance(raw, str) else None
+
+
+def rendered_titles(report_dir: Path) -> list[tuple[str, str]]:
+    """``(visual path, title)`` of every visual title in a committed PBIR report
+    (``visualContainerObjects.title``, the header Power BI draws above the visual)."""
+    out: list[tuple[str, str]] = []
+    for vj in sorted(report_dir.glob("definition/pages/*/visuals/*/visual.json")):
+        try:
+            data = json.loads(vj.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        vco = (data.get("visual") or {}).get("visualContainerObjects") or {}
+        title = _literal(vco.get("title"))
+        if title and title.strip():
+            out.append((vj.relative_to(report_dir).as_posix(), title))
+    return out
+
+
+def rendered_title_findings(bracket_path: Path, exhibits: list[dict[str, Any]],
+                            dist: Path = DIST) -> tuple[bool, list[str]]:
+    """BC-NARR-01 against the RENDERED report: no visual title may carry an exhibit message.
+
+    Returns ``(checked, findings)``. ``checked`` is False when the bracket has no committed report under
+    ``dist`` — then nothing was compared ("not checked", never "passed").
     """
-    message = (exhibit.get("message") or "").strip()
-    if not message:
-        return False
-    header, _ = resolve_header(exhibit.get("question"), message, value_verified=verified)
-    return header == message
+    report = dist / f"{bracket_path.parent.name}.Report"
+    if not report.is_dir():
+        return False, []
+    messages = {_norm(m): m for m in ((ex.get("message") or "").strip() for ex in exhibits) if m}
+    findings = [f"{vis}: title is the message {title!r} — titles describe (BC-NARR-01, D-641)"
+                for vis, title in rendered_titles(report) if _norm(title) in messages]
+    return True, findings
 
 
-def check_bracket(path: Path) -> tuple[int, int, int, list[str]]:
+def check_bracket(path: Path, dist: Path = DIST) -> tuple[int, int, int, list[str]]:
     """Return (passed, warned, failed, messages) for one bracket."""
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     passed = warned = failed = 0
@@ -130,13 +167,8 @@ def check_bracket(path: Path) -> tuple[int, int, int, list[str]]:
     exhibits = _exhibits(data)
     if not exhibits:
         return 0, 0, 0, []
-    verified = bool((data.get("ux_layout_rules") or {}).get("title_statements_verified", False))
     for ex in exhibits:
         slot = ex.get("slot_id") or ex.get("visual_type") or "?"
-        if message_leads_header(ex, verified):
-            failed += 1
-            lines.append(f"    ✗ {slot}: message would lead the header — titles describe (BC-NARR-01, D-641)")
-            continue
         status, reason = classify_message(ex.get("message"))
         if status is True:
             passed += 1
@@ -146,6 +178,11 @@ def check_bracket(path: Path) -> tuple[int, int, int, list[str]]:
         else:
             warned += 1
             lines.append(f"    WARN {slot}: {reason}")
+    checked, findings = rendered_title_findings(path, exhibits, dist)
+    failed += len(findings)
+    lines += [f"    ✗ {f}" for f in findings]
+    if not checked:
+        lines.append("    NOT CHECKED rendered titles: no committed report under dist/")
     return passed, warned, failed, lines
 
 
@@ -164,8 +201,11 @@ def main() -> int:
             return 1
 
     total_failed = total_warned = total_passed = 0
+    not_checked = with_exhibits = 0
     for b in brackets:
         passed, warned, failed, lines = check_bracket(b)
+        with_exhibits += bool(lines or passed or warned or failed)
+        not_checked += any("NOT CHECKED" in ln for ln in lines)
         total_passed += passed
         total_warned += warned
         total_failed += failed
@@ -177,6 +217,8 @@ def main() -> int:
         f"\nBC-NARR-01: {total_passed} statement(s), {total_warned} advisory, "
         f"{total_failed} violation(s)."
     )
+    print(f"Rendered titles: {with_exhibits - not_checked} report(s) checked, {not_checked} NOT CHECKED "
+          f"(no committed report).")
     if args.exit_zero:
         return 0
     fail = total_failed > 0 or (args.strict and total_warned > 0)

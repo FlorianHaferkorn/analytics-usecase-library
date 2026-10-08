@@ -77,6 +77,8 @@ class PageScaffoldGenerator:
         self.page_builder.assert_statement_titles = self.page_config.get("assert_statement_titles", False)
         # Titelblock (A-34): page_1_summary.title_lines -> Kernaussage ueber wer / was / wann.
         self.page_builder.title_lines = self.page_config.get("title_lines") if self.page_name == "overview" else None
+        self.page_builder.key_message_position = (self.page_config.get("key_message_position")
+                                                  or self.page_builder.key_message_position)
         # Sprache des Alt-Texts aus dem Bracket (ux_layout_rules.report_locale, Default en-US).
         self.page_builder.report_locale = self.page_config.get("report_locale")
         self.page_builder.text_measures = frozenset(self.page_config.get("text_measures") or ())

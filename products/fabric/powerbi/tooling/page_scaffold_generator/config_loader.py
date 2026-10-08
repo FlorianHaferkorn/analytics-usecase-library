@@ -1063,15 +1063,16 @@ class ConfigLoader:
             assert_statement_titles = bool(ux.get("title_statements_verified", False))
             # Titelblock (A-34, IBCS UN 2.2): wer / was / wann aus page_1_summary.title_lines.
             # Nicht abgeleitet: Berichtseinheit und Zeitraum kennt nur der Bracket bzw. Kunde.
-            from .title_policy import title_lines_from
+            from .title_policy import check_key_message_position, frame_key_message, title_lines_from
             title_lines = title_lines_from(p1.get("title_lines"))
+            # Position der Kernaussage (UN 2.1) aus dem Bracket; unbekannt = Fehler.
+            key_message_position = check_key_message_position(p1.get("key_message_position"))
             # Kopfzeile nach derselben Regel (R6.2): ungeprueft fuehrt die Frage der Seite,
-            # die Big Idea folgt als Erwartung. design_rules BIG_IDEA_HEADER_ZONE prueft, dass
-            # sie woertlich enthalten bleibt.
-            _frage = (p1.get("decision_question") or "").strip()
-            if big_idea_text and not assert_statement_titles and _frage:
-                from .title_policy import EXPECTED_PREFIX
-                big_idea_text = f"{_frage}  \u00b7  {EXPECTED_PREFIX}{big_idea_text}"
+            # die Big Idea folgt als Erwartung -- auch ohne Frage gerahmt (A-34; bis 08.10.2026
+            # stand sie dann ungerahmt da). design_rules BIG_IDEA_HEADER_ZONE prueft, dass sie
+            # woertlich enthalten bleibt.
+            big_idea_text = frame_key_message(big_idea_text, p1.get("decision_question"),
+                                              value_verified=assert_statement_titles)
             # Gap A opt-in: split the vs-plan variance into its own sign-coloured KPI card.
             # Default False so only opted-in reports (COM-002 reference) change; the rest keep
             # their single KPI band until deliberately migrated.
@@ -1104,6 +1105,7 @@ class ConfigLoader:
                 "big_idea_text": big_idea_text,
                 "assert_statement_titles": assert_statement_titles,
                 "title_lines": title_lines,
+                "key_message_position": key_message_position,
                 "semantic_delta_cards": semantic_delta_cards,
             }
 
