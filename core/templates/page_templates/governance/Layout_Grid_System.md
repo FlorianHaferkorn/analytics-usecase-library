@@ -123,17 +123,17 @@ Note: Header sits in Zone 0 (row 0) — the Big Idea, never a slicer, never opti
 | Slot ID        | col | row | col_span | row_span | x (px) | y (px) | w (px) | h (px) |
 |----------------|-----|-----|----------|----------|--------|--------|--------|--------|
 | Slicer_Pane    |   0 |   0 |        2 |       12 |     32 |     32 |    189 |    656 |
-| Smart_Narrative|   2 |   0 |       10 |        1 |    237 |     32 |   1011 |     40 |
-| Detail_Matrix  |   2 |   1 |       10 |       11 |    237 |     88 |   1011 |    600 |
+| Smart_Narrative|   2 |   0 |       10 |        2 |    237 |     32 |   1011 |     96 |
+| Detail_Matrix  |   2 |   2 |       10 |       10 |    237 |    144 |   1011 |    544 |
 
 ### Detail Page — with Action Panel (T4 prescriptive)
 
 | Slot ID        | col | row | col_span | row_span | x (px) | y (px) | w (px) | h (px) |
 |----------------|-----|-----|----------|----------|--------|--------|--------|--------|
 | Slicer_Pane    |   0 |   0 |        2 |       12 |     32 |     32 |    189 |    656 |
-| Smart_Narrative|   2 |   0 |        8 |        1 |    237 |     32 |    805 |     40 |
-| Detail_Matrix  |   2 |   1 |        8 |       11 |    237 |     88 |    805 |    600 |
-| ActionPanel    |  10 |   1 |        2 |       11 |   1058 |     88 |    189 |    600 |
+| Smart_Narrative|   2 |   0 |        8 |        2 |    237 |     32 |    805 |     96 |
+| Detail_Matrix  |   2 |   2 |        8 |       10 |    237 |    144 |    805 |    544 |
+| ActionPanel    |  10 |   2 |        2 |       10 |   1058 |    144 |    189 |    544 |
 
 ---
 
@@ -165,8 +165,24 @@ Reference sizes at 1280×720 design base. Scale proportionally for other canvas 
 | Exception table      | 1216px full | 320px+     | —         | —         |
 | Detail matrix        | slot width  | slot height| —         | —         |
 | Slicer pane (left)   | 189px (2 LU)| 656px full | —         | —         |
-| Action panel (right) | 189px (2 LU)| 600px (11 LU)| —       | —         |
-| Smart narrative      | slot width  | 40px (1 LU)| —         | —         |
+| Action panel (right) | 189px (2 LU)| 544px (10 LU)| —       | —         |
+| Smart narrative      | slot width  | 96px (2 LU)| —         | —         |
+
+### Card height (cardVisual: label above value)
+
+A card visual shows its label (12 pt) above its value, and the value uses the `callout` text
+class (40 pt in the ALUCA theme). One grid row (70 px on the 1920×1080 production grid) cannot
+hold that, so card slots span at least **2 LU** (156 px production, 96 px design base).
+Applies to `Smart_Narrative` and the `Last_Refresh` card that shares its row.
+
+Height check per card (line height `ceil(pt × 25/16)` px, as Meridian MLINT008):
+
+  need      = line(callout) + line(label)          = 63 + 19 = 82 px  (+ verticalSpacing 8 = 90)
+  available = slot height − container padding (top+bottom) − card padding (top+bottom)
+
+Card padding comes from the base theme: Classic `CY26SU10` 12/12, `Fluent2-CY26SU10` 14/16.
+Container padding comes from the custom theme (`visualStyles."*"."*".padding`, 10/10 today).
+At 70 px: 70 − 20 − 30 = 20 px available (Fluent 2). At 156 px: 156 − 20 − 30 = 106 px.
 
 Aspect ratio rule: Charts target a 2:1 width:height ratio for readability.
 KPI card max: 6 per row at standard size. Use compact when ≥5 cards required.
