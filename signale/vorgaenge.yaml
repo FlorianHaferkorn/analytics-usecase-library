@@ -1385,6 +1385,10 @@ vorgaenge:
   belege:
   - 17/17 ALUCA-dist-Berichte per apply_report_theme --sync-base-theme umgezogen, --check 0 abweichend;
     powerbi-report-author 0.5.0 unveränderter Rückstand 423 (07.10.2026)
+  - 'Korrektur 08.10.2026: Der Beleg vom 07.10. nannte den Ausgleich, dist trug ihn nicht (altes Theme
+    Stand #417). Jetzt Engine-Theme 0.6.0 (Freelancing c9efa687, D-685/D-710) per apply_report_theme --batch
+    auf 17/17 dist-Berichte, ALUCA 9347850e; powerbi-report-author 0.5.0 validate --format json: 423 ->
+    32 Errors, 0 im Theme'
   verlauf:
   - am: '2026-10-07'
     status: triage
