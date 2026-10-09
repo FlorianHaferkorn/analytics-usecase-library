@@ -71,11 +71,14 @@ class PageScaffoldGenerator:
         if self.config is None:
             self.load_config()
 
-        # title_policy per-bracket opt-in: when the bracket declares its exhibit statements are
-        # not value-verified (title_statements_verified: false), the PageBuilder renders honest,
-        # question-first headers instead of asserting the message as a static title. Default True
-        # preserves every other report's current output (see title_policy.py / config_loader).
-        self.page_builder.assert_statement_titles = self.page_config.get("assert_statement_titles", True)
+        # title_policy: are the exhibit statements value-verified (title_statements_verified)?
+        # Default False (A-34, 08.10.2026; config_loader already defaulted to False since R6.2).
+        # The question leads every visual header; the message is never the title (D-641).
+        self.page_builder.assert_statement_titles = self.page_config.get("assert_statement_titles", False)
+        # Titelblock (A-34): page_1_summary.title_lines -> Kernaussage ueber wer / was / wann.
+        self.page_builder.title_lines = self.page_config.get("title_lines") if self.page_name == "overview" else None
+        self.page_builder.key_message_position = (self.page_config.get("key_message_position")
+                                                  or self.page_builder.key_message_position)
         # Sprache des Alt-Texts aus dem Bracket (ux_layout_rules.report_locale, Default en-US).
         self.page_builder.report_locale = self.page_config.get("report_locale")
         self.page_builder.text_measures = frozenset(self.page_config.get("text_measures") or ())
