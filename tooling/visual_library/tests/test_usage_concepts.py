@@ -93,3 +93,19 @@ def test_status_focus_keeps_rated_colours_and_greys_the_rest():
 def test_counter_check_story_focus_greys_rated_colours():
     out = render.with_focus(_spec(), GREY)
     assert out["layer"][0]["encoding"]["color"]["condition"][0]["value"] == GREY
+
+
+def test_focus_is_true_or_status_only():
+    """Steward review 09.10.2026: any other truthy `focus` (typo 'Status', 'yes') silently greyed the rated
+    conditions and switched off the accent. Only absent/False, True (story) or 'status' (monitoring) are valid."""
+    bad = {p: render.profile_def(p).get("focus") for p in render.all_profiles()
+           if render.profile_def(p).get("focus") not in (None, False, True, "status")}
+    assert bad == {}
+
+
+def test_unknown_profile_is_an_error_not_an_exclusion():
+    """Steward review 09.10.2026: a misspelled profile read as 'combination excluded'."""
+    import pytest
+    with pytest.raises(KeyError):
+        render.usage_allows("monitoring", "Monitoring")
+    assert render.usage_allows("monitoring", "monitoring") in (True, False)

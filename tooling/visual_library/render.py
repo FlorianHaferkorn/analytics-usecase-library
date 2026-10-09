@@ -249,8 +249,10 @@ def usage_concepts() -> dict:
 
 
 def usage_allows(concept: str, profile: str) -> bool:
-    """True if the notation/style `profile` may be combined with the usage `concept`."""
+    """True if the notation/style `profile` may be combined with the usage `concept`. An unknown profile raises
+    KeyError like an unknown concept — a typo must not read as an excluded combination."""
     c = (usage_concepts().get("concepts") or {})[concept]
+    profile_def(profile)
     return profile in (c.get("profiles") or [])
 
 
