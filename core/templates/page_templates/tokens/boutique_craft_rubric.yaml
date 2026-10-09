@@ -9,13 +9,43 @@
 #           governance/Color_Semantics_Formatting.md · IBCS/ISO 24896
 # Consumed by (planned, K6): tooling/report_quality/ (structural checks) +
 #           LLM-judge (judge checks). NOT yet wired — K1 defines, K6 enforces.
-# Shared IP: mirrored with Meridian (Freelancing: meridian/design/boutique-craft-rubric.yaml).
-#           Separate tools, shared craft knowledge — keep the two in sync deliberately.
-# Schema version: 1.0
+# Shared IP: THIS FILE IS THE SOURCE of the rules both tools share (A-35, 09.10.2026; Freelancing
+#           D-729, BO-244/BO-263). Common per rule: id, statement, severity, weight, concept /
+#           not_concept, gilt_fuer, thresholds; dimensions, weights, concepts, frontends, scoring.
+#           Tool-own per rule: check, machine_hint, source, validator / validator_blocked (ALUCA).
+#           Meridian mirrors this file (meridian/vendor/aluca/visual_library, scripts/
+#           check_aluca_mirror.py) and GENERATES meridian/design/boutique-craft-rubric.yaml from the
+#           mirror plus its overlay (machine_hint, source, check) — change a common field here, never
+#           there.
+# Schema version: 1.1 (09.10.2026, A-35; Meridian D-719): optional rule fields `concept` /
+#           `not_concept` (design-concept scope), `gilt_fuer` (feasibility per frontend) and
+#           `thresholds` (named limits of the statement); two new dimensions `transparency` and
+#           `dataviz_base` (Frontend-Mindeststandard). Until 1.1 the two files differed in 7
+#           statements and in the BC-LAYOUT-04 threshold (ALUCA ≤7 elements per zone, Meridian ≤5
+#           KPI tiles per page); since 1.1 one wording, BC-LAYOUT-04 carries both limits.
 
-schema_version: "1.0"
+schema_version: "1.1"
 rubric_id: boutique_craft
-rubric_version: "1.0"
+rubric_version: "1.1"
+
+# ── Design concepts (1.1) ────────────────────────────────────────────────────
+# A design concept is a choice (client or owner), never a general rule. In Meridian the carrier
+# is the organisation's `core/reporting.json` `visual_profile`; its notation comes from the
+# Visual Library profile register (_notation_profiles.yaml). Rule scope:
+#   no field            → applies under every concept (Mindeststandard)
+#   concept: ibcs       → applies only when the chosen notation is `ibcs`
+#   not_concept: ibcs   → applies under every concept except `ibcs`
+# A rule out of scope is `not_applicable`: it leaves the weighting of its dimension
+# (dimension weights still sum to 100; rule weights are renormalised over applicable rules).
+concepts:
+  default: house_default
+  known: [house_default, ibcs, print_safe, fluent, editorial, minimal, story]
+
+# ── Frontends (1.1) ──────────────────────────────────────────────────────────
+# `gilt_fuer` on a rule records feasibility per frontend: `nativ` (platform does it),
+# `ersatz: <how>` (platform cannot, named substitute satisfies the rule), or
+# `entfaellt: <why>` (not applicable on that frontend). Missing frontend = nativ.
+frontends: [meridian_studio, fabric_cockpit, powerbi, web_html, aluca_evidence]
 
 # ── Scoring model ────────────────────────────────────────────────────────────
 # Each rule scored 0.0 (fail) / 0.5 (partial) / 1.0 (pass) at evaluation time.
@@ -30,10 +60,12 @@ scoring:
   levels: { fail: 0.0, partial: 0.5, pass: 1.0 }
 
 # ── Dimensions (weights sum to 100) ──────────────────────────────────────────
+# 1.1: color 12 · typography 10 · layout 12 · chart_craft 22 · narrative 16 · brand 6
+#      · transparency 10 · dataviz_base 12 (was 15/12/15/28/20/10 in 1.0).
 dimensions:
 
   - id: color
-    weight: 15
+    weight: 12
     rules:
       - id: BC-COLOR-01
         statement: "One neutral ground + exactly one accent; context muted, focus highlighted."
@@ -88,7 +120,7 @@ dimensions:
         source: "Craft-Core §5.1; Storytelling_Principles.md §9"
 
   - id: typography
-    weight: 12
+    weight: 10
     rules:
       - id: BC-TYPE-01
         statement: "One font family across the report; vary only weight and size."
@@ -149,7 +181,7 @@ dimensions:
         source: "Craft-Core §5.2; Storytelling_Principles.md §10"
 
   - id: layout
-    weight: 15
+    weight: 12
     rules:
       - id: BC-LAYOUT-01
         statement: "Strict grid; all card edges and chart baselines aligned to the grid."
@@ -190,18 +222,20 @@ dimensions:
         machine_hint: "no element ≥1.5× the visual weight of peers in the 3-second zone"
         source: "Craft-Core §5.3; Storytelling_Principles.md §4"
       - id: BC-LAYOUT-04
-        statement: "No metric overload — ≤7 KPIs/elements per zone."
+        # 1.1: both limits (ALUCA ≤7 elements per zone, Meridian ≤5 KPI tiles per page), one rule.
+        statement: "No metric overload — ≤5 KPI tiles per page and ≤7 KPIs/elements per zone."
         severity: minor
         weight: 3
+        thresholds: { kpi_tiles_per_page_max: 5, elements_per_zone_max: 7 }
         check: structural
-        machine_hint: "elements in a zone > 7"
+        machine_hint: "elements in a zone > 7 (check_zone_density.py); KPI tiles per page > 5 not yet checked here"
         source: "Craft-Core §5.7; Storytelling_Principles.md §4"
 
         validator:
           script: check_zone_density.py
           args: ["--strict"]
   - id: chart_craft
-    weight: 28
+    weight: 22
     rules:
       - id: BC-CHART-01
         statement: "No mixed scale on one axis — one unit / one measure family per axis."
@@ -227,6 +261,7 @@ dimensions:
         statement: "Direct labelling at line ends/points instead of a legend where feasible (≤5 series)."
         severity: major
         weight: 3
+        concept: ibcs   # 1.1: IBCS end-of-line labels replace the legend; elsewhere BC-DV-05 applies
         check: judge
         machine_hint: "legend present with ≤5 series and no direct labels"
         source: "Craft-Core §5.4; Storytelling_Principles.md §8"
@@ -277,7 +312,7 @@ dimensions:
         machine_hint: ">1 emphasised element (bold/colour) competing in one visual"
         source: "Craft-Core §5.4; Ware 2013; Knaflic 2015"
       - id: BC-CHART-08
-        statement: "Chart type fits the message (time→line, ranking→bar, part-whole→stacked, correlation→scatter)."
+        statement: "Chart type fits the message (time→line, ranking→bar, part-whole→stacked, correlation→scatter); forbidden expressive types barred (no pie/donut/gauge/radar/3D)."
         severity: major
         weight: 3
         check: structural
@@ -307,8 +342,28 @@ dimensions:
         validator:
           script: check_evidence_sort.py
           args: ["--strict"]
+      # 1.1 (A-35; Meridian D-719): IBCS-scoped rules. No ALUCA validator yet — `validator_blocked:
+      # not_yet_wired` names the gap (test_rubric_integrity counts it).
+      - id: BC-IBCS-01
+        statement: "Chart types IBCS says to replace (pie/donut, gauge, radar, funnel, traffic lights) are replaced or carry a declared IBCS exception."
+        severity: major
+        weight: 3
+        concept: ibcs
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "visual_type in the IBCS EX 2.1–2.5 set without a declared exception"
+        source: "IBCS 2.0 EXPRESS EX 2.1–EX 2.5 (S. 136–138); A-35 (Meridian D-719, RL024)"
+      - id: BC-IBCS-02
+        statement: "Scenario notation per IBCS UN 3.2: AC solid dark, PY light grey, PL outlined, FC hatched/dashed — identical across all charts."
+        severity: major
+        weight: 3
+        concept: ibcs
+        check: judge
+        machine_hint: "scenario series (AC/PY/PL/FC) not drawn in the scenario fill of _notation_profiles.yaml ibcs"
+        source: "IBCS 2.0 UNIFY UN 3.2; _notation_profiles.yaml (ibcs.rules.scenario_fill); A-35"
   - id: narrative
-    weight: 20
+    weight: 16
     rules:
       - id: BC-NARR-01
         # Umgedreht am 08.10.2026 (A-34, IBCS 2.0 UN 2.1/2.2; Freelancing D-641, dort
@@ -362,7 +417,7 @@ dimensions:
         machine_hint: "key finding not annotated on the visual"
         source: "Craft-Core §5.5; Storytelling_Principles.md §8"
       - id: BC-NARR-06
-        statement: "AI/generated narrative is grounded — every number traceable to a governed measure, provenance shown, filter-live."
+        statement: "AI/generated narrative is grounded — every number traceable to a governed measure, provenance shown, filter-live (no fabrication)."
         severity: major
         weight: 2
         check: structural
@@ -377,7 +432,7 @@ dimensions:
         source: "Craft-Core §6.2/§6.4; Storytelling_Principles.md §13"
 
   - id: brand
-    weight: 10
+    weight: 6
     rules:
       - id: BC-BRAND-01
         statement: "A composed custom theme — never the renderer default."
@@ -390,7 +445,7 @@ dimensions:
           script: check_custom_theme.py
           args: ["--strict"]
       - id: BC-BRAND-02
-        statement: "Consistent, recognisable identity across all reports (looks like one firm)."
+        statement: "Consistent, recognisable client identity across all reports (looks like one firm)."
         severity: major
         weight: 4
         check: both
@@ -404,3 +459,170 @@ dimensions:
         validator:
           script: check_custom_theme.py
           args: ["--consistency", "--strict"]
+
+  # ── 1.1 (A-35; Meridian D-719): Frontend-Mindeststandard — Transparenz ──────
+  # Claude Dashboards (Beta 08.10.2026, secondary sources) shows the query behind every number on
+  # click and explains its logic, and stamps freshness per chart; the governed KPI definition goes
+  # further (catalog, target, action code, lineage). ALUCA validators: none yet (not_yet_wired).
+  - id: transparency
+    weight: 10
+    rules:
+      - id: BC-TRANS-01
+        statement: "Every number answers 'where does this come from': a click/focus on any KPI or chart shows the query behind it (DAX/SQL as executed)."
+        severity: major
+        weight: 3
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "KPI tile / chart without a reachable query view (dax/sql text bound to the element)"
+        source: "Claude Dashboards Beta 08.10.2026 (secondary sources); A-35"
+        gilt_fuer:
+          powerbi: "ersatz: Detail-/Tooltipseite je KPI mit governter Definition und Measure-Beschreibung (///); die DAX-Abfrage selbst zeigt ein PBI-Visual nicht"
+          aluca_evidence: "nativ: SQL-Block je Abfrage auf der Seite (Evidence-Abfrageansicht)"
+      - id: BC-TRANS-02
+        statement: "The same click shows the governed KPI definition: catalog id, business definition, target/threshold, action code, owner and lineage — referenced from the catalog, never restated."
+        severity: major
+        weight: 3
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "KPI detail lacks one of kpi_id / definition / target / action_code / lineage"
+        source: "Golden Thread (core/kpi_catalog, core/action_codes); A-35"
+        gilt_fuer:
+          powerbi: "ersatz: Drillthrough-/Tooltipseite mit Katalogfeldern als Textbaustein oder Measure-Beschreibung"
+      - id: BC-TRANS-03
+        statement: "'Explain the logic' in plain language, generated from the catalog definition and the query — grounded, not free LLM text."
+        severity: minor
+        weight: 1
+        check: judge
+        machine_hint: "explanation text not derived from governed definition / query"
+        source: "Claude Dashboards Beta 08.10.2026 ('erkläre die Logik'); Craft-Core §6.2 (grounding)"
+        gilt_fuer:
+          powerbi: "ersatz: Beschreibungstext auf der Detailseite (statisch aus dem Katalog)"
+      - id: BC-TRANS-04
+        statement: "Freshness stamp per chart (data as-of), visible without interaction."
+        severity: major
+        weight: 2
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "chart / KPI without an as-of timestamp bound to its data"
+        source: "Claude Dashboards Beta 08.10.2026 (Aktualitätsstempel je Chart); A-35"
+        gilt_fuer:
+          powerbi: "ersatz: Datenstand-Measure (letzte Aktualisierung) je Seite im Kopf; je Visual nur über Tooltip"
+      - id: BC-TRANS-05
+        statement: "Deadline warning: data older than its freshness SLA is marked stale (icon + label), never shown as current."
+        severity: major
+        weight: 1
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "no comparison of as-of against the data contract's freshness SLA"
+        source: "Data contract freshness (core/data_contracts); A-35"
+
+  # ── 1.1 (A-35; Meridian D-719): Frontend-Mindeststandard — Dataviz-Basisregeln ──
+  # The chart method behind Claude Dashboards (dataviz skill, read 09.10.2026): form first, colour
+  # by job, validated palette, thin marks, no dual axis, legend rules, text tokens, reserved status
+  # colours, hover tooltip by default, one filter row, table view, own dark mode, render + visual
+  # check. Applies under every concept unless scoped.
+  - id: dataviz_base
+    weight: 12
+    rules:
+      - id: BC-DV-01
+        statement: "Never a dual axis — two value scales on one plot; use two charts or index to one scale."
+        severity: knock_out
+        weight: 3
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "combo chart with a bound secondary value axis (Y2) / two y-scales in one spec"
+        source: "dataviz skill references/anti-patterns.md (dual-axis); BC-CHART-01 (mixed scale)"
+      - id: BC-DV-02
+        statement: "Every categorical palette passes the palette validator before use: CVD ΔE (OKLab×100) ≥ 8 for adjacent slots under protan/deutan, normal-vision floor ≥ 15, lightness band and chroma floor per mode, ≥ 3:1 against the surface or a relief channel (labels / table view). An unchecked palette is a knock-out."
+        severity: knock_out
+        weight: 3
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "categorical palette not run through tooling/visual_library/contrast.py palette gate, or FAIL"
+        source: "dataviz skill references/color-formula.md (six checks); tooling/visual_library/contrast.py"
+      - id: BC-DV-03
+        statement: "Colour by job: categorical in a fixed slot order, sequential one hue light→dark, diverging two poles around a grey midpoint; never a value ramp on nominal categories."
+        severity: major
+        weight: 2
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "sequential ramp spans >1 hue / diverging midpoint chromatic / nominal bars coloured by value"
+        source: "dataviz skill references/color-formula.md (four jobs); tokens/color_semantics.yaml"
+      - id: BC-DV-04
+        statement: "Colour follows the entity, not its rank: a series keeps its colour across filters, sorts and pages."
+        severity: major
+        weight: 1
+        check: judge
+        machine_hint: "series colour assigned by position after sort/filter"
+        source: "dataviz skill references/color-formula.md (fixed order, never cycled)"
+      - id: BC-DV-05
+        statement: "Legend from two series on; a single series has no legend (the title names it); direct labels selectively, at most four."
+        severity: minor
+        weight: 1
+        not_concept: ibcs   # IBCS replaces the legend by end-of-line labels (BC-CHART-03)
+        check: judge
+        machine_hint: "legend on a single-series chart / ≥2 series without legend or direct labels / >4 direct labels"
+        source: "dataviz skill references/marks-and-anatomy.md (labels & legend)"
+      - id: BC-DV-06
+        statement: "Text in text tokens: labels, values, legends and axes use text colours, never a series or brand colour; status colours reserved and always with icon + label."
+        severity: minor
+        weight: 1
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "title/label colour token is a data/brand colour"
+        source: "dataviz skill references/marks-and-anatomy.md; BC-COLOR-03 (status pairing)"
+      - id: BC-DV-07
+        statement: "Hover/focus tooltip on every data mark by default; it enhances, never gates (every value also reachable via labels or the table view)."
+        severity: major
+        weight: 2
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "data visual without tooltip / value reachable only by hover"
+        source: "dataviz skill references/interaction.md (tooltips & hover)"
+      - id: BC-DV-08
+        statement: "Filters in one row above the charts they scope; every chart, stat and table re-renders against the same slice; date range first."
+        severity: major
+        weight: 1
+        check: judge
+        machine_hint: "filter inside a chart card / per-chart filter / filters split across rows"
+        source: "dataviz skill references/interaction.md (filters & time ranges)"
+      - id: BC-DV-09
+        statement: "Table view for every chart: the data behind the graphic is one click away (and exportable)."
+        severity: major
+        weight: 2
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "chart without a table toggle / show-as-table"
+        source: "dataviz skill references/anti-patterns.md (no table view)"
+        gilt_fuer:
+          powerbi: "nativ: 'Als Tabelle anzeigen' im Visual-Kopf"
+      - id: BC-DV-10
+        statement: "Own dark mode: dark palette and surfaces validated separately (not inverted), charts follow the host theme."
+        severity: minor
+        weight: 1
+        check: structural
+        validator: null
+        validator_blocked: not_yet_wired
+        machine_hint: "no dark palette / dark palette not run through the validator"
+        source: "dataviz skill references/palette.md (light/dark instance)"
+        gilt_fuer:
+          powerbi: "entfaellt: Power-BI-Berichte haben keinen Dunkelmodus für Leser; das Theme bleibt hell"
+      - id: BC-DV-11
+        statement: "Rendered and visually checked before delivery (headless render + screenshot review), not only validated."
+        severity: minor
+        weight: 1
+        check: structural
+        validator: null
+        validator_blocked: render_verification
+        machine_hint: "no render evidence (screenshot) for the delivered version"
+        source: "dataviz skill (render + visual check); KONZEPT_REPORT_QUALITAET.md (render-based judge)"
