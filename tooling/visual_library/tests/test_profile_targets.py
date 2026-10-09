@@ -49,6 +49,8 @@ def test_style_profiles_cite_the_corpus():
             ref = str(src).split(" ")[0]
             if d.get("status") == "experimental" and "summary" in src:
                 continue
+            if d.get("basis") == "derivation" and str(src).startswith("derivation:"):
+                continue  # ADR-0026: a derived rule names its basis and says it is not a corpus entry
             assert ref in ids, f"{pid}: source '{ref}' is not an entry of the R1 corpus"
 
 
