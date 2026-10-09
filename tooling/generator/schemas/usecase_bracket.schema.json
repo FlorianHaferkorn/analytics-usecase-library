@@ -150,6 +150,16 @@
           "type": "string",
           "description": "Report pattern (e.g. 2-Page-Lead)."
         },
+        "usage_concept": {
+          "type": "string",
+          "enum": [
+            "entscheidung",
+            "narrativ",
+            "monitoring",
+            "explorativ"
+          ],
+          "description": "Usage concept of the use case's pages (ADR-0026): how a page is built and read, independent of the notation profile it is drawn in. Values are the keys of core/templates/page_templates/visual_library/_usage_concepts.yaml (tested). Omit to inherit the registry default (entscheidung) or the consumer's choice (Meridian reporting.json)."
+        },
         "intent_rules_version": {
           "type": "integer",
           "enum": [

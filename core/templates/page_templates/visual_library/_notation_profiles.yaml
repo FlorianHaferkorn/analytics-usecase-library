@@ -175,9 +175,9 @@ profiles:
     base_notation: house_default
     is_default: false
     description: >
-      Statement headline and qualifier subtitle, horizontal major grid only, emphasised
-      zero line, no axis titles or ticks, direct labels over legends, one highlight
-      colour against grey.
+      Descriptive title, the key message in its own field next to it (ADR-0026, Meridian D-641),
+      horizontal major grid only, emphasised zero line, no axis titles or ticks, direct labels
+      over legends, one highlight colour against grey.
     source:
       - "editorial-027 (BBC: horizontal major grid #cbcbcb, zero line #333333)"
       - "editorial-026 (BBC: no axis titles or ticks, legend top)"
@@ -185,7 +185,10 @@ profiles:
       - "editorial-017 (Urban: bar-to-gap ratio 2)"
       - "editorial-016 (Urban: direct labels up to 3 series)"
     rules:
-      titles:  "headline states the finding, subtitle carries measure, unit, period"
+      # Newsroom styles put the finding into the headline (BBC, Urban, ONS in the R1 corpus). Here the
+      # title stays descriptive and the finding moves to key_message (Meridian D-641, ADR-0026): a static
+      # title that carries a verdict can contradict the chart once filters change (title_policy.py).
+      titles:  "descriptive title; the finding is the separate key message; subtitle carries measure, unit, period"
       grid:    "horizontal major grid only, zero line emphasised"
       labels:  "direct labels up to 3 series, legend on top otherwise"
     vegalite_config:
@@ -203,6 +206,9 @@ profiles:
     base_notation: house_default
     is_default: false
     status: experimental   # sources only as search excerpts in R1 (L-3)
+    # Not offered to customers (ADR-0026, Meridian D-720 OE-7) until the Tufte/SWD sources are read in
+    # the original; kept in the registry so the renderer and its tests still cover it.
+    offered: false
     description: >
       Maximum data-ink: no frame, no ticks, no grid, one focus colour against grey,
       sparklines embedded in text and tables.
@@ -245,3 +251,35 @@ profiles:
       axisX: {grid: false}
       legend: {orient: top, labelFontSize: 11}
       title: {fontSize: 16, subtitleFontSize: 13, anchor: start}
+
+  monitoring:
+    name: "Monitoring — grey until a threshold is breached"
+    kind: style
+    base_notation: house_default
+    is_default: false
+    status: experimental   # derivation, not read in the original (see basis)
+    # basis: derivation — the rule is derived from the High-Performance-HMI principle of ANSI/ISA-101.01
+    # ("grey in normal operation, colour only for abnormal states"), known from secondary sources only;
+    # the standard itself is paywalled and was not read (ADR-0026). Sources below that are not corpus
+    # entries start with "derivation:".
+    basis: derivation
+    focus: status          # data marks grey; colours that a rating CONDITION assigns (good/bad) stay (render.with_focus)
+    description: >
+      Operations view in the manner of a control-room display: every data mark grey in the normal
+      state, colour only where a rated condition (threshold, target) is breached, light horizontal
+      grid, dense small multiples and sparklines. The status colours come from the semantic
+      tokens, never from the brand.
+    source:
+      - "derivation: ANSI/ISA-101.01-2015 High-Performance HMI principle via secondary sources (control.com 'Going Gray: A New HMI Standard'); standard not read"
+      - "editorial-027 (BBC: horizontal major grid only)"
+    rules:
+      focus:   "every data mark grey; only rated conditions (bad/good against a threshold) keep their status colour"
+      grid:    "light horizontal grid, no vertical grid, no frame"
+      density: "one screen, no scrolling; small multiples and sparklines over large single charts"
+      motion:  "no animation except the change into an alarm state (Meridian D-721); auto-refresh pausable (WCAG 2.2.2)"
+    vegalite_config:
+      font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
+      view: {stroke: null}
+      axis: {title: null, ticks: false, domain: false, gridColor: "#E6E6E6", labelFontSize: 11}
+      axisX: {grid: false}
+      legend: {orient: top, labelFontSize: 11}
