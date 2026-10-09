@@ -263,7 +263,7 @@ profiles:
     # the standard itself is paywalled and was not read (ADR-0026). Sources below that are not corpus
     # entries start with "derivation:".
     basis: derivation
-    focus: status          # data marks grey; colours that a rating CONDITION assigns (good/bad) stay (render.with_focus)
+    focus: status          # data marks grey; only a condition BREACHED in the measure's direction keeps its colour (render.with_status_breach + with_focus, ADR-0026 §6)
     description: >
       Operations view in the manner of a control-room display: every data mark grey in the normal
       state, colour only where a rated condition (threshold, target) is breached, light horizontal
@@ -273,7 +273,7 @@ profiles:
       - "derivation: ANSI/ISA-101.01-2015 High-Performance HMI principle via secondary sources (control.com 'Going Gray: A New HMI Standard'); standard not read"
       - "editorial-027 (BBC: horizontal major grid only)"
     rules:
-      focus:   "every data mark grey; only rated conditions (bad/good against a threshold) keep their status colour"
+      focus:   "every data mark grey; colour only where a condition is breached in the measure's direction (polarity); sign colouring (deviation_bar, lollipop, variance and waterfall bars) does not apply, a good deviation stays grey (ADR-0026 §6)"
       grid:    "light horizontal grid, no vertical grid, no frame"
       density: "one screen, no scrolling; small multiples and sparklines over large single charts"
       motion:  "no animation except the change into an alarm state (Meridian D-721); auto-refresh pausable (WCAG 2.2.2)"

@@ -647,6 +647,48 @@ def with_focus(spec: dict, grey: str, keep_conditions: bool = False) -> dict:
     return walk(spec)
 
 
+def polarity_of(eff: dict) -> str:
+    """Richtung als `polarity` (1 = höher ist besser, -1 = niedriger ist besser): aus `polarity`, sonst aus `direction`
+    (`lower_is_better` → -1), sonst 1."""
+    if "polarity" in eff:
+        return str(eff["polarity"])
+    return "-1" if str(eff.get("direction")) == "lower_is_better" else "1"
+
+
+def with_status_breach(spec: dict, entry: dict, eff: dict) -> dict:
+    """Profil `monitoring` (ADR-0026 §6, Florian 09.10.2026): Farbe nur bei verletzter Bedingung, nach Richtung.
+
+    Jede Farbbedingung, die `status_breach` des Idioms als `when` nennt (Vorzeichen oder Lage zum Ziel ohne Richtung),
+    bekommt den Test `breach` (verletzt in der Richtung `polarity`). Danach färbt `with_focus(keep_conditions=True)`
+    nur noch diese Bedingung; eine gute Abweichung bleibt grau. Andere Bedingungen bleiben unberührt."""
+    params = {**eff, "polarity": polarity_of(eff)}
+    tausch = {fill(r["when"], params): fill(r["breach"], params) for r in entry.get("status_breach") or []}
+    if not tausch:
+        return spec
+
+    def cond(c):
+        return {**c, "test": tausch[c["test"]]} if isinstance(c, dict) and c.get("test") in tausch else c
+
+    def channel(v):
+        if not isinstance(v, dict) or "condition" not in v:
+            return v
+        c = v["condition"]
+        return {**v, "condition": [cond(x) for x in c] if isinstance(c, list) else cond(c)}
+
+    def walk(node):
+        if isinstance(node, dict):
+            out = {k: walk(v) for k, v in node.items()}
+            if "mark" in out and _mark_kind(out) != "text" and isinstance(out.get("encoding"), dict):
+                out["encoding"] = {k: (channel(v) if k in ("color", "fill", "stroke") else v)
+                                   for k, v in out["encoding"].items()}
+            return out
+        if isinstance(node, list):
+            return [walk(v) for v in node]
+        return node
+
+    return walk(spec)
+
+
 def with_highlight(spec: dict, field: str, values: "list | None" = None, temporal: bool = False,
                    accent: "str | None" = None) -> dict:
     """Kernaussage hervorheben (D-638 Nachtrag, feat-109): zwei Vega-Parameter, `kernaussage` (an/aus,
@@ -787,6 +829,9 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     if params and params.get("time_format"):
         spec = with_time_axis(spec, str(params["time_format"]), params.get("time_ticks"))
     focus = profile_def(profile).get("focus")
+    if focus == "status":
+        # monitoring: Vorzeichen-Färbung gilt nicht, nur die Verletzung in der Richtung der Kennzahl (ADR-0026 §6).
+        spec = with_status_breach(spec, load_entry(idiom), eff)
     if focus:
         # story: Daten grau; das Grau kommt vom Aufrufer (Brand-Tokens, Klasse C), sonst ein Grau mit 3,4:1 auf Weiß.
         # monitoring (focus: status): dasselbe Grau, Bewertungsbedingungen behalten ihre Statusfarbe (ADR-0026).

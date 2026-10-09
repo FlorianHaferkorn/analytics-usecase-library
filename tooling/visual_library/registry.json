@@ -227,7 +227,7 @@
     {
       "id": "deviation_bar",
       "name": "Deviation bar",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -254,7 +254,7 @@
         "cols": 3,
         "rows": 2
       },
-      "checksum": "sha256:fb9c33806b10941762fb140d42896db771cb74724d7b5d72e372a27bc9cf43fd"
+      "checksum": "sha256:0964af78d9f5486f0cbc2dc63c6c83236e325955e4dd667e3ee91cc62f39f770"
     },
     {
       "id": "donut",
@@ -472,7 +472,7 @@
     {
       "id": "lollipop",
       "name": "Lollipop",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -494,7 +494,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:654e4ccb3c4b239813fa0518390825e9480346ac203222974461c8b226eaf76e"
+      "checksum": "sha256:03b841020b85f666a21b3cc9476144d58e02e5351f9c8f994156eb9ddf8b3e81"
     },
     {
       "id": "matrix_bullet",
@@ -601,7 +601,7 @@
     {
       "id": "multi_tier_column",
       "name": "Multi-tier column chart (values, ΔPY, ΔPY%)",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -623,7 +623,7 @@
         "cols": 6,
         "rows": 6
       },
-      "checksum": "sha256:0c6fdabb5b22aa58945c4f86044d4bd983cd6e26ce134abd8742a88ba4caf214"
+      "checksum": "sha256:2e9ef4f94be84752858a7253fd0abdb80e7438c7cb2b77ebccfe76f09ab91b20"
     },
     {
       "id": "sankey",
@@ -761,7 +761,7 @@
     {
       "id": "variance_pin",
       "name": "Variance pins (relative variance)",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -784,7 +784,7 @@
         "cols": 4,
         "rows": 3
       },
-      "checksum": "sha256:e49735ded4f3e1afcaa768a0f8e32bfcf8670ac35afb576b7b7a7ba5f88d3dc2"
+      "checksum": "sha256:6c78c937c82692507f7a7af2899189bc407e3f0a57e4b10be2b358168a6b5855"
     },
     {
       "id": "waterfall_buildup",
@@ -817,7 +817,7 @@
     {
       "id": "waterfall_pvm",
       "name": "Waterfall bridge (PVM)",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -841,12 +841,12 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:d0f142bb7fdbdc5211346f1b6cd5127d840b5f7fc8cfa441def1531e57484d4e"
+      "checksum": "sha256:419448005e7eb6583463857983f9afd0714d7a66b1c814a38176f3f4fd84ce1a"
     },
     {
       "id": "waterfall_variance",
       "name": "Waterfall (variance bridge)",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -869,7 +869,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:93383fa6194e62bd554c3a6606ef0b1523de5b544ec83fcfb294eb4244f490b9"
+      "checksum": "sha256:7bf2f043a90a26715151b9d17eefaaa3bef63b25a09f2bbd063b506da12d8fe3"
     }
   ]
 }

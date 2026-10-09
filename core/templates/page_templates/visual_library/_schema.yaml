@@ -135,3 +135,16 @@ tools:
 #                                                        # that param (the endpoint keeps the ink,
 #                                                        # never the sample's "below target" red)
 # Optional data_slots that are not bound are removed the same way (no sample column name).
+
+# --- status_breach (OPTIONAL; ADR-0026 §6, 09.10.2026) ---
+# Profil `monitoring` (`focus: status`): Farbe nur bei verletzter Bedingung, nach Richtung. Eine Bedingung, die nur
+# nach dem Vorzeichen (`< 0`) oder nach der Lage zum Ziel ohne Richtung (`< {{target_val}}`) färbt, gilt im Monitoring
+# nicht: dort färbt der Renderer nur, was die Bedingung in ihrer Richtung verletzt (`polarity` 1 = höher ist besser,
+# -1 = niedriger ist besser; ohne Angabe 1). Jeder Eintrag nennt den Test des house_default-Templates (`when`) und den
+# Test, der ihn im Monitoring ersetzt (`breach`); beide sind Templates über dieselben {{params}}. Eine gute Abweichung
+# bleibt grau. Pflicht für jedes Idiom, dessen Vega-Lite-Spur eine Farbe per Bedingung vergibt, deren Test nicht
+# schon von `polarity` abhängt (test_usage_concepts.py: test_monitoring_colours_only_by_direction).
+#
+#   status_breach:
+#     - when:   "datum['{{field}}'] < 0"
+#       breach: "datum['{{field}}'] * {{polarity}} < 0"
