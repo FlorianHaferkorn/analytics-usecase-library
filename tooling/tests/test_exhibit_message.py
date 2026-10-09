@@ -142,3 +142,34 @@ def test_classifier_runs_even_when_question_equals_message(tmp_path):
                                             "message": "Revenue by Month"}])
     _, _, failed, lines = check_bracket(b, tmp_path / "dist")
     assert failed == 1 and any("reads as a label" in ln for ln in lines)
+
+
+def test_variant_report_is_checked_too(tmp_path):
+    # Review Steward 09.10.2026: `<bracket>_<variant>.Report` (COM-001 ..._vs_Plan_LY) was never compared.
+    msg = "Gross Margin fell 12% vs plan"
+    b = _bracket(tmp_path, "XX-005_Test", [{"slot_id": "Main_1", "question": "Is GM holding?", "message": msg}])
+    dist = tmp_path / "dist"
+    _visual(dist, "XX-005_Test", "Is GM holding?")
+    _visual(dist, "XX-005_Test_vs_Plan_LY", msg)
+    _, _, failed, lines = check_bracket(b, dist)
+    assert failed == 1 and any("XX-005_Test_vs_Plan_LY.Report" in ln for ln in lines)
+
+
+def test_warn_line_quoting_not_checked_does_not_count_as_not_checked(tmp_path, monkeypatch, capsys):
+    # Review Steward 09.10.2026: the summary counted any line containing "NOT CHECKED" as an unchecked report.
+    import yaml
+    from tooling.validation import check_exhibit_message as cem
+    d = tmp_path / "core" / "usecases" / "XX-006_Test"
+    d.mkdir(parents=True)
+    (d / "UseCase_Bracket.yaml").write_text(yaml.safe_dump({"ux_layout_rules": {"page_1_summary": {
+        "component_30s": [{"slot_id": "NOT CHECKED", "question": "Q?"}]}}}), encoding="utf-8")
+    dist = tmp_path / "dist"
+    _visual(dist, "XX-006_Test", "Q?")
+    orig = cem.check_bracket
+    monkeypatch.setattr(cem, "REPO", tmp_path)
+    monkeypatch.setattr(cem, "check_bracket", lambda b: orig(b, dist))
+    monkeypatch.setattr("sys.argv", ["check_exhibit_message", "--exit-zero"])
+    cem.main()
+    out = capsys.readouterr().out
+    assert "WARN NOT CHECKED" in out
+    assert "1 report(s) checked, 0 NOT CHECKED" in out

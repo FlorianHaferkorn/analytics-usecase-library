@@ -314,7 +314,7 @@ def test_template_path_refuses_title_lines():
     PageBuilder().build_page_structure(slots={}, template="T1", card_measure_names=["Gross Margin %"])
 
 
-@pytest.mark.parametrize("height", [None, "112", True, 0, -5])
+@pytest.mark.parametrize("height", [None, "112", True, 0, -5, float("inf")])
 def test_apply_page_layout_falls_back_on_bad_header_height(tmp_path, height):
     # Befund 9: null / text / bool / non-positive height → fallback to ZONE0_HEADER_HEIGHT
     import json as _json
@@ -339,3 +339,14 @@ def test_apply_page_layout_falls_back_on_bad_header_height(tmp_path, height):
     apply_layout_to_page(tmp_path, "R", blueprint)
     kpi_ref = _json.loads((ref / "visuals" / "KPI_Cards" / "visual.json").read_text(encoding="utf-8"))
     assert kpi["position"]["y"] == kpi_ref["position"]["y"]
+
+
+def test_wrapped_lines_long_first_word_does_not_add_an_empty_line():
+    # Review Steward 09.10.2026: a word longer than one line on an empty line counted one line too many.
+    per_line = wrapped_lines("x" * 10_000, 14) - 1  # sanity: many lines
+    assert per_line > 0
+    from page_scaffold_generator.title_block import CHAR_WIDTH_EM, PADDING_PX, TITLE_BLOCK_WIDTH, _px
+    n = int((TITLE_BLOCK_WIDTH - PADDING_PX) // (_px(14) * CHAR_WIDTH_EM))
+    assert wrapped_lines("x" * n, 14) == 1
+    assert wrapped_lines("x" * (n + 6), 14) == 2
+    assert wrapped_lines("ab " + "x" * (n + 6), 14) == 3

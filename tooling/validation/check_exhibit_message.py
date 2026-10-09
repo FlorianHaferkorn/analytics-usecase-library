@@ -112,6 +112,10 @@ def _exhibits(bracket: dict[str, Any]) -> list[dict[str, Any]]:
 DIST = REPO / "products" / "fabric" / "powerbi" / "dist"
 
 
+#: Prefix of the one line that marks a bracket as not checked (a WARN line may quote "NOT CHECKED").
+NOT_CHECKED = "    NOT CHECKED rendered titles"
+
+
 def _norm(text: str) -> str:
     return " ".join(text.split()).casefold()
 
@@ -150,12 +154,14 @@ def rendered_title_findings(bracket_path: Path, exhibits: list[dict[str, Any]],
     Returns ``(checked, findings)``. ``checked`` is False when the bracket has no committed report under
     ``dist`` — then nothing was compared ("not checked", never "passed").
     """
-    report = dist / f"{bracket_path.parent.name}.Report"
-    if not report.is_dir():
+    name = bracket_path.parent.name
+    # The bracket's report and its variants (`<name>_<variant>.Report`, e.g. COM-001 ..._vs_Plan_LY).
+    reports = [r for r in [dist / f"{name}.Report", *sorted(dist.glob(f"{name}_*.Report"))] if r.is_dir()]
+    if not reports:
         return False, []
     messages = {_norm(m): m for m in ((ex.get("message") or "").strip() for ex in exhibits) if m}
-    findings = [f"{vis}: title is the message {title!r} — titles describe (BC-NARR-01, D-641)"
-                for vis, title in rendered_titles(report) if _norm(title) in messages]
+    findings = [f"{rep.name}/{vis}: title is the message {title!r} — titles describe (BC-NARR-01, D-641)"
+                for rep in reports for vis, title in rendered_titles(rep) if _norm(title) in messages]
     return True, findings
 
 
@@ -182,7 +188,7 @@ def check_bracket(path: Path, dist: Path = DIST) -> tuple[int, int, int, list[st
     failed += len(findings)
     lines += [f"    ✗ {f}" for f in findings]
     if not checked:
-        lines.append("    NOT CHECKED rendered titles: no committed report under dist/")
+        lines.append(f"{NOT_CHECKED}: no committed report under dist/")
     return passed, warned, failed, lines
 
 
@@ -205,7 +211,7 @@ def main() -> int:
     for b in brackets:
         passed, warned, failed, lines = check_bracket(b)
         with_exhibits += bool(lines or passed or warned or failed)
-        not_checked += any("NOT CHECKED" in ln for ln in lines)
+        not_checked += any(ln.startswith(NOT_CHECKED) for ln in lines)
         total_passed += passed
         total_warned += warned
         total_failed += failed

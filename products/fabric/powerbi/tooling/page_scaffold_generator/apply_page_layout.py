@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 import argparse
 import json
+import math
 import sys
 
 # Allow running as script
@@ -63,7 +64,7 @@ def apply_layout_to_page(
         except (ValueError, KeyError, TypeError):
             _h = None
         # Nur eine positive Zahl gilt; null, Text oder bool -> Rueckfall auf die Kopfzeilenhoehe.
-        if isinstance(_h, (int, float)) and not isinstance(_h, bool) and _h > 0:
+        if isinstance(_h, (int, float)) and not isinstance(_h, bool) and math.isfinite(_h) and _h > 0:
             _header_h = _h
     zone0 = zone0_offset(_header_json.exists(), gutter, _header_h)
     calc = GridCalculator(canvas_width=w, canvas_height=h - zone0, outer_margin=outer_margin, gutter=gutter)

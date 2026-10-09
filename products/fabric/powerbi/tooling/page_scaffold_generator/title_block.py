@@ -52,7 +52,8 @@ def wrapped_lines(text: str, size_pt: float, width_px: float = TITLE_BLOCK_WIDTH
         if need <= per_line:
             used = need
         else:
-            lines += 1 + (len(word) - 1) // per_line
+            # A word that does not fit an empty line starts on that line; only its overflow adds lines.
+            lines += (0 if used == 0 else 1) + (len(word) - 1) // per_line
             used = len(word) % per_line or per_line
     return lines
 
