@@ -216,6 +216,31 @@ Praktische Regel: ein Pflicht-Slot startet auf `warning` und steigt auf `error`,
 echte Läufe das tragen. Herleitung und Messstand in
 [`docs/plans/KONZEPT_LAYOUT_SYSTEM.md` §15](../../../docs/plans/KONZEPT_LAYOUT_SYSTEM.md).
 
+### 3.9 Titles and Key Message — IBCS UN 2.1 / UN 2.2 [S9]
+
+Decided 08.10.2026 (ALUCA ledger A-34, mirror of Freelancing D-641). A title **describes**, it
+never judges; the conclusion has its own slot.
+
+| Element | Rule | Field / code |
+|---|---|---|
+| Page title | Three lines: **who** (reporting unit), **what** (measure bold, unit normal: "Gross margin in %"), **when** (period, scenarios, variances: "Jan..Dec 2026, AC and PL"). No evaluative words. | `page_1_summary.title_lines {who, what, unit, when}`; `title_policy.TitleLines` |
+| Key message | Own slot at one fixed position, above the page title (`above_title`, the default; `right_of_title` allowed by the standard, not rendered in PBIR). Unverified it is always framed "Expected finding —". The block grows with the wrapped key message, the grid moves below it. | `big_idea` → first paragraph of the Zone-0 title block (`page_scaffold_generator/title_block.py`); position `page_1_summary.key_message_position`; `title_policy.frame_key_message` |
+| Visual header | The governed question leads; the exhibit message follows as subtitle (framed "Expected finding —" until value-verified). The message is **never** the visual title — checked on the committed PBIR. | `title_policy.resolve_header`; `tooling/validation/check_exhibit_message.py` |
+| Tool-neutral contract | Title = descriptor (or line 2), verdict rendered as `key_message` / `annotation` / `kpi_status` / `omit`. `statement_title` is locked. | `title_policy.title_contract`, `LOCKED_VERDICT_RENDERS` |
+| Small screens | The three lines joined with " \| " in one line. | `title_policy.single_line` |
+
+Presentation per variant: IBCS and the PBIR output render three lines with the key message above;
+Story and Brand render one line with the measure bold and the subtitle "who · when"
+(`title_policy.hybrid`). The content (who, what, when, key message) is held once.
+
+**Superseded:** "say it in the title" (BC-NARR-01 until 08.10.2026, `assert_statement_titles=True` as
+the `PageBuilder` default). A static title that carries a statement can contradict the chart below
+it, and UN 2.2 sets `evaluative_words_allowed: false`.
+
+**Source:** IBCS Version 2.0 (2026) / ISO 24896 — UN 2.1 *Unify key messages* (p. 28), UN 2.2 *Unify
+titles and subtitles* (p. 29), UN 1.2 units (p. 26), as catalogued in
+`docs/architecture/research/2026-09-30_visual-stack-r1/ibcs_v2.yaml`.
+
 ---
 
 ## 4. Design Canvas and Grid
@@ -261,6 +286,7 @@ The following are **never permitted**, regardless of use case:
 | Exploratory controls on T1/T2/T4 | S3 — wrong domain task; exploration ≠ decision orientation |
 | Custom visuals without governance approval | S12 — performance, accessibility, rendering stability |
 | More than 8 driver bars in a waterfall | S5 — exceeds working memory; group smaller items as "Other" |
+| A title that carries a statement or an evaluative word | S9 — IBCS 2.0 UN 2.2; the conclusion belongs in the key-message slot (UN 2.1, §3.9) |
 
 ---
 
@@ -292,6 +318,7 @@ Elements **not adopted**:
 | Max 3 slicers | evidence-backed | S6 |
 | No vertical scroll | evidence-backed | S4 |
 | IBCS variance notation | evidence-backed | S9 |
+| Descriptive three-line title, key message above (§3.9) | evidence-backed | S9 |
 | Z/F reading patterns | evidence-backed | S7, S12 |
 | 1280×720 design base | project-specific | S12 (PBI default) |
 | 12×12 LU grid | meridian-inspired | S11 (data-ink) |
