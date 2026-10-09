@@ -33,10 +33,13 @@ Nachgemessen am 07.10.2026 (CLI 0.4.0, `validate --format json`, alle 17 dist-Re
 16 × 25 und 1 × 23 (423 Errors), nachher 15 × 23, FIN-001 23, COM-001LY 25 (393). Die 25 waren
 keine Katalogluecke, sondern Quellfehler: der Generator schrieb `calloutValue` an `cardVisual`
 und `text.text` an die Header-Textbox (beide behoben, 15 Reports neu erzeugt). Die 23 im Theme
-stammen aus einem veralteten dist-Theme; das vendorte Engine-Theme haette 0, nimmt aber die
-globale Nullbasis (BC-CHART-09) weg und wechselt die Schrift — Engine-Korrektur offen.
-COM-001_Sales_Performance_vs_Plan_LY bleibt bei 25 (keine Generator-Eingabe). Offline
-gefuehrt in `test_dist_formatting_catalogue.py`.
+stammten aus dem veralteten dist-Theme; seit 08.10.2026 traegt dist das Engine-Theme
+(D-685/D-710), dort 0 Befunde.
+
+Nachgemessen am 09.10.2026 (CLI 0.5.0, `validate --format json`, alle 17 dist-Reports, Stand
+nach Zusammenfuehrung der Emitter-Korrektur mit dem Engine-Theme): 16 × 0, COM-001LY 2
+(`calloutValue` an cardVisual, `dataLabels` an clusteredBarChart; Variante ohne Bracket, keine
+Generator-Eingabe), Summe 2. Offline gefuehrt in `test_dist_formatting_catalogue.py`.
 """
 from __future__ import annotations
 
@@ -75,17 +78,45 @@ def _cli_args(report: Path) -> list[str]:
 #: Muster, das COM-002 seit jeher vormacht — dim_pvm_driver als Kategorie, eine
 #: Measure auf Y. Was bleibt, sind die Theme-Eigenschaften (Uebergabepunkt A).
 #:
-#: 07.10.2026: cardVisual `value` statt `calloutValue`, Textbox `general.paragraphs` statt
-#: `text.text` — 15 Reports 25 -> 23. Der schlechteste bleibt COM-001LY mit 25 (Theme 23 +
-#: `calloutValue` + `dataLabels`, handgepflegte Variante ohne Bracket), daher Baseline 25.
-#: Faellt COM-001LY oder das Theme, gehoert die Zahl gesenkt (test_baseline_is_not_stale).
-BASELINE_ERRORS = 25
+#: 25 -> 2 am 08.10.2026: dist traegt das Engine-Theme (Freelancing products/pbi_theme 0.6.0,
+#: Meridian D-685/D-710, Spiegel c9efa687). CLI 0.5.0 `validate --format json` ueber 17 Reports:
+#: 423 -> 32 Errors, 0 im Theme; je Report hoechstens 2 (15 Generator-Reports: `calloutValue`
+#: an cardVisual und `text.text` an der Header-Textbox; COM-001LY: `calloutValue` und
+#: `dataLabels`; FIN-001: 0). Gemessen ohne Zugang zu
+#: developer.microsoft.com (7 x PBIR_SCHEMA_UNREACHABLE je Report), wie die Messungen davor.
+#:
+#: 09.10.2026, Emitter-Korrektur (cardVisual `value`, Textbox `general.paragraphs`) auf dem
+#: Engine-Theme: 15 Generator-Reports 2 -> 0, FIN-001 0, COM-001LY 2 (Summe 32 -> 2). Der
+#: schlechteste bleibt COM-001LY, daher Baseline weiter 2; faellt er, gehoert die Zahl auf 0.
+BASELINE_ERRORS = 2
+
+
+#: Code, mit dem die CLI ein nicht ladbares ``$schema`` meldet -- als *Warning*. Dann lief
+#: die Schemapruefung fuer diese Datei nicht, ``errorCount`` zaehlt nur den Rest. Gemessen am
+#: 02.10.2026 (CLI 0.4.0, Sandbox ohne Zugang zu developer.microsoft.com): COM-001 meldet
+#: 25 Errors = Baseline und 7 dieser Warnings -- die Ratsche waere ohne Schemapruefung gruen.
+#: Gleiche Regel wie Freelancing ``scripts/check_pbir.py`` (D-613): nicht gelaufen ist kein Gruen.
+NICHT_GEPRUEFT = "PBIR_SCHEMA_UNREACHABLE"
+
+
+def nicht_geprueft(daten: dict) -> list[str]:
+    """Die ``$schema``-URLs, deren Pruefung der Validator ausgelassen hat (leer = alles geprueft)."""
+    eintrag = (daten.get("diagnostics") or {}).get(NICHT_GEPRUEFT) or {}
+    return [str(i.get("message", ""))[:160] for i in (eintrag.get("items") or [])]
 
 
 def _validate(report: Path) -> dict:
     proc = subprocess.run(_cli_args(report),
                           capture_output=True, text=True, cwd=str(REPO), encoding="utf-8", errors="replace")
-    return (json.loads(proc.stdout) or {}).get("data", {})
+    daten = (json.loads(proc.stdout) or {}).get("data", {})
+    offen = nicht_geprueft(daten)
+    if offen:
+        grund = (f"{report.name}: Schemapruefung nicht gelaufen, {len(offen)} $schema nicht "
+                 f"ladbar ({NICHT_GEPRUEFT}), z. B. {offen[0]}")
+        if os.environ.get("ALUCA_PBIR_CLI_PFLICHT", "") == "1":
+            pytest.fail(grund + " -- mit ALUCA_PBIR_CLI_PFLICHT=1 ist das rot, kein stilles Gruen.")
+        pytest.skip(grund)
+    return daten
 
 
 @pytest.mark.braucht_pbir_cli
@@ -116,3 +147,14 @@ def test_baseline_is_not_stale():
     assert schlechteste >= BASELINE_ERRORS, (
         f"schlechtester Report hat {schlechteste} Fehler, Baseline steht auf "
         f"{BASELINE_ERRORS} — Fortschritt eintragen, sonst schuetzt die Ratsche zu wenig.")
+
+
+def test_nicht_geprueft_erkennt_nicht_ladbare_schemas():
+    """Ohne CLI pruefbar: die Erkennung selbst (Form wie CLI 0.4.0, gemessen 02.10.2026)."""
+    daten = {"errorCount": 25, "diagnostics": {
+        NICHT_GEPRUEFT: {"severity": "warning", "items": [
+            {"message": 'JSON Schema "https://developer.microsoft.com/json-schemas/x" could not be fetched'}]},
+        "PBIR_THEME_VISUAL_PROP_UNKNOWN": {"severity": "error", "items": [{}]}}}
+    assert len(nicht_geprueft(daten)) == 1
+    assert nicht_geprueft({"errorCount": 25, "diagnostics": {}}) == []
+    assert nicht_geprueft({}) == []

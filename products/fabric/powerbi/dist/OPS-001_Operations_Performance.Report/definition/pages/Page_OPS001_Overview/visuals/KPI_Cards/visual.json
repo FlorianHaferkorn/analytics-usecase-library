@@ -114,7 +114,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Overall Equipment Effectiveness (OEE) %, Availability %, Performance % and Quality %'"
+                  "Value": "'Current values of Overall Equipment Effectiveness (OEE) %, Availability %, Performance % and Quality %'"
                 }
               }
             }

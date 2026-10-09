@@ -141,6 +141,39 @@ def _gold_kinds(blueprint: dict) -> dict[str, str]:
             for p in blueprint.get("medallion", {}).get("gold", {}).get("data_products", [])}
 
 
+#: D-672 — wo das Gold einer Domaene entsteht (`mesh.domains[].gold_target`, Spiegel von ALUCA
+#: ADR-0024 §8). Die erste ist Vorgabe und Empfehlung (Florian, 02.10.2026: „Lakehouse ist die
+#: Recommendation, Warehouse eine Option"). Ein fehlendes Feld heisst `lakehouse`.
+GOLD_ZIELE: tuple[str, ...] = ("lakehouse", "mlv", "warehouse")
+
+#: Das Lakehouse, dessen SQL-Analyseendpunkt Silber traegt, wenn der Aufrufer keines nennt —
+#: dieselbe Vorgabe wie ``provision_apply.emit_apply(lakehouse=…)``, also das Lakehouse, das der
+#: Apply-Plan anlegt. Kein ``<platzhalter>``: der waere im ausfuehrbaren SQL ein Verstoss gegen
+#: ``sql_validate`` (kein ``<…>`` ausserhalb von Kommentaren).
+SILBER_LAKEHOUSE_VORGABE = "analytics_gold"
+
+
+def gold_ziel(d: dict) -> str:
+    """Das Gold-Ziel einer Domaene; ohne Angabe (oder mit unbekanntem Wert) ``lakehouse``."""
+    z = (d or {}).get("gold_target")
+    return z if z in GOLD_ZIELE else GOLD_ZIELE[0]
+
+
+def warehouse_domaenen(blueprint: dict) -> list[str]:
+    """Die Domaenen (Namen, sortiert), deren Gold im Warehouse entsteht (D-672)."""
+    return sorted(d.get("name", "") for d in blueprint.get("mesh", {}).get("domains", []) or []
+                  if gold_ziel(d) == "warehouse")
+
+
+def _konforme_produkte(domains: list[dict]) -> set[str]:
+    """Gold-Produkte, die mehr als eine Domaene speist — sie werden einmal gebaut (``_conformed``)."""
+    zaehl: dict[str, int] = {}
+    for d in domains:
+        for p in d.get("data_products", []) or []:
+            zaehl[p] = zaehl.get(p, 0) + 1
+    return {p for p, n in zaehl.items() if n > 1}
+
+
 def _sources_for_domain(blueprint: dict, domain_ident: str) -> list[str]:
     """Sources owned by a domain — by the EXPLICIT ``domain`` the IR carries.
 
@@ -1640,6 +1673,13 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
                             f"({kinds.get(product, 'fact')})  ·  speist die konforme Dimension, "
                             f"s. `transforms/_conformed/silver_to_gold__{_ident(product)}.sql`")
                 continue
+            # D-672: Gold dieser Domaene entsteht im Warehouse. Ein `silver_to_gold__*` daneben
+            # waere eine zweite Gold-Familie auf demselben Produkt — wer zuletzt laeuft, gewinnt.
+            if gold_ziel(d) == "warehouse":
+                flow.append(f"- `{silver_tbl}` → Warehouse ({kinds.get(product, 'fact')}) "
+                            f"`{product}`  ·  Gold im Warehouse (D-672), s. "
+                            f"`warehouse/{ddir}/load_gold_{_ident(product)}.sql`")
+                continue
             kind = kinds.get(product, "fact")
             gold_tbl = layer_ref("gold", _ident(product), schemas)
             rel = f"transforms/{ddir}/silver_to_gold__{_ident(product)}.sql"
@@ -2098,6 +2138,8 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
         for product in sorted(d.get("data_products", [])):
             if product in _conformed:
                 continue                          # EIN MERGE unter `_conformed/`, siehe unten
+            if gold_ziel(d) == "warehouse":
+                continue                          # D-672: Gold im Warehouse, kein Lakehouse-MERGE
             kind = kinds.get(product, "fact")
             gold_tbl = layer_ref("gold", _ident(product), schemas)
             rel = f"transforms/incremental/{ddir}/silver_to_gold__{_ident(product)}.sql"
@@ -2427,10 +2469,15 @@ def _warehouse_columns(table: dict, contract_ref: str) -> str | None:
     zeilen = [f"    -- Projektion aus dem governten Katalog. Zeichenkettenlaengen sind eine "
               f"Vorgabe (VARCHAR(255)) und keine Messung —",
               f"    -- die tatsaechlichen Laengen stehen im Silber-Vertrag {contract_ref}."]
+    # D-672: Quellspalten heissen, wie sie heissen (`Cost Code`). Ungeklammert ist das kein
+    # T-SQL — sichtbar wurde es erst, als `sql_validate` warehouse/ als T-SQL las statt als Spark,
+    # wo die Datei nur als „Command" durchrutschte. Einfache Namen bleiben unveraendert.
+    namen = {c: (c if _EINFACHER_NAME.match(c) else _tsql_name(c)) for c in spalten}
+    breite = max(len(n) for n in namen.values())
     for c in spalten:
         typ = _LOGICAL_TO_TSQL.get(str(typen.get(c, "")).lower(), "VARCHAR(255)")
         null = "NOT NULL" if c in schluessel else "    NULL"
-        zeilen.append(f"    {c.ljust(breite)}  {typ.ljust(13)} {null},")
+        zeilen.append(f"    {namen[c].ljust(breite)}  {typ.ljust(13)} {null},")
     zeilen[-1] = zeilen[-1].rstrip(",")
     return "\n".join(zeilen)
 
@@ -2495,6 +2542,123 @@ def _warehouse_ddl(name: str, kind: str, contract_ref: str, schemas: bool = Fals
               f"CREATE TABLE {tbl} (\n{cols}\n);\n")
 
 
+def _tsql_name(name: str) -> str:
+    """Ein Bezeichner in T-SQL-Klammern (``]`` verdoppelt) — Quellspalten heissen, wie sie heissen."""
+    return "[" + (name or "").replace("]", "]]") + "]"
+
+
+def _silber_dreiteilig(silber_lakehouse: str, quelle_ident: str, schemas: bool) -> str:
+    """``[<lakehouse>].[silver].[x]`` bzw. ``[<lakehouse>].[dbo].[silver_x]`` (Cross-Database-Query).
+
+    Dieselbe Namensregel wie der Lakehouse-Pfad (``layer_ref``); der erste Teil ist das Lakehouse,
+    dessen SQL-Analyseendpunkt Silber traegt. Learn *Ingest data into your Warehouse using
+    Transact-SQL* (gelesen 02.10.2026): ``INSERT … SELECT`` darf ueber
+    ``[warehouse_or_lakehouse_name.][schema_name.]table_name`` aus einem Lakehouse lesen.
+    """
+    ref = layer_ref("silver", quelle_ident, schemas)
+    schema, tabelle = ref.split(".", 1) if schemas else ("dbo", ref)
+    return ".".join(_tsql_name(t) for t in (silber_lakehouse, schema, tabelle))
+
+
+def _tsql_literal(text: str) -> str:
+    return "'" + text.replace("'", "''") + "'"
+
+
+def _warehouse_load_abbruch(name: str, kind: str, gold_tbl: str, contract_ref: str,
+                            grund: str) -> str:
+    """Eine Ladedatei, die laut scheitert, statt leeres oder falsches Gold zu liefern.
+
+    ``THROW`` statt eines Kommentars: eine Datei, die nur aus Kommentaren besteht, laeuft im
+    Apply-Plan gruen durch, und das Warehouse bleibt leer. Genau das ist ADR-0024 §8.4 Punkt 1.
+    """
+    meldung = f"gold {name}: {grund}"
+    return (f"-- silver → gold (Warehouse, D-672) — load {kind} '{name}' into {gold_tbl}.\n"
+            f"-- Contract: {contract_ref}\n"
+            f"-- NICHT LADBAR: {grund}\n"
+            f"-- TODO(contract:{contract_ref}): Projektion festlegen, dann neu generieren.\n"
+            f"THROW 50000, {_tsql_literal(meldung[:2000])}, 1;\n")
+
+
+def _warehouse_load(name: str, kind: str, contract_ref: str, quellen: list[str],
+                    silber_lakehouse: str, schemas: bool = False, table: dict | None = None,
+                    spalten_je_quelle: dict[str, list[str]] | None = None,
+                    hat_bezuege: bool = False) -> str:
+    """T-SQL-Ladeschritt Silber → Gold im Warehouse (D-672): ein Vollaufbau in EINER Transaktion.
+
+    ``TRUNCATE TABLE`` + ``INSERT … SELECT`` statt ``CTAS``: die Tabellenform steht schon in
+    ``gold_<p>.sql`` (und im SDK-Projekt, D-605), sie hier ein zweites Mal zu bilden hiesse zwei
+    Wahrheiten. Learn *Transactions in Fabric Data Warehouse* (gelesen 02.10.2026): ``TRUNCATE
+    TABLE`` ist in einer expliziten Transaktion erlaubt, und eine Transaktion darf den
+    SQL-Analyseendpunkt eines Lakehouse **im selben Workspace** lesen. Wer liest, sieht damit
+    altes oder neues Gold, nie ein leeres.
+
+    Nicht nachgebaut (der Lakehouse-Pfad kann es, dieser nicht): Historisierung (SCD),
+    Ersatzschluessel ueber Bezuege, Wasserzeichen. Wo der Katalog eines davon verlangt, bricht
+    die Datei ab, statt still eine flachere Tabelle zu liefern.
+    """
+    gold_tbl = layer_ref("gold", _ident(name), schemas)
+    if not schemas:
+        gold_tbl = f"dbo.{gold_tbl}"
+    spalten = sorted(set((table or {}).get("columns") or []))
+    if not spalten:
+        return _warehouse_load_abbruch(
+            name, kind, gold_tbl, contract_ref,
+            "kein governter Katalog mit Spalten - die DDL traegt Platzhalterspalten, "
+            "ein INSERT darauf waere erfunden")
+    if ((table or {}).get("historisierung") or {}).get("form") == "scd" or hat_bezuege:
+        return _warehouse_load_abbruch(
+            name, kind, gold_tbl, contract_ref,
+            "Historisierung (SCD) oder Ersatzschluessel ueber Bezuege sind im Warehouse-Pfad "
+            "nicht nachgebaut - der Lakehouse-Pfad (transforms/) traegt sie")
+    if not quellen:
+        return _warehouse_load_abbruch(name, kind, gold_tbl, contract_ref,
+                                       "keine Silber-Herkunft bekannt")
+    if len(quellen) > 1 and not _formgleich(spalten_je_quelle):
+        return _warehouse_load_abbruch(
+            name, kind, gold_tbl, contract_ref,
+            f"{len(quellen)} Herkuenfte mit verschiedener Spaltenmenge - ob UNION oder JOIN, "
+            "entscheidet der Fachbereich")
+    refs = [_silber_dreiteilig(silber_lakehouse, _ident(q), schemas) for q in quellen]
+    if len(refs) == 1:
+        von = refs[0]
+    else:
+        von = ("(\n" + "\n    UNION ALL\n".join(f"    SELECT * FROM {r}" for r in refs)
+               + "\n) AS quelle")
+    masse = (table or {}).get("measure_sources") or {}
+    auswahl = []
+    for c in spalten:
+        q = masse.get(c)
+        auswahl.append(f"    {_tsql_name(q)} AS {_tsql_name(c)}" if q and q != c
+                       else f"    {_tsql_name(c)}")
+    ziel = ", ".join(_tsql_name(c) for c in spalten)
+    grain = (table or {}).get("grain") or ""
+    kopf = (f"-- silver → gold (Warehouse, D-672) — load {kind} '{name}' into {gold_tbl}.\n"
+            f"-- Contract: {contract_ref}\n"
+            + (f"-- Grain: {grain}\n" if grain else "")
+            + f"-- Silber aus {silber_lakehouse} (SQL-Analyseendpunkt, selber Workspace): "
+              f"{', '.join(refs)}.\n"
+            + ("-- UNION ALL, nicht UNION — ob zwei gleiche Zeilen eine Dublette sind, entscheidet "
+               "der Fachbereich.\n" if len(refs) > 1 else "")
+            + "-- Vollaufbau in einer Transaktion: wer liest, sieht altes oder neues Gold, nie ein "
+              "leeres.\n"
+            + "-- Voraussetzung: gold_" + _ident(name) + ".sql ist gelaufen (Tabelle existiert).\n")
+    return (kopf
+            + "BEGIN TRANSACTION;\n"
+            + f"TRUNCATE TABLE {gold_tbl};\n"
+            + f"INSERT INTO {gold_tbl} ({ziel})\n"
+            + "SELECT\n" + ",\n".join(auswahl) + f"\nFROM {von};\n"
+            + "COMMIT TRANSACTION;\n")
+
+
+def _warehouse_quellen(blueprint: dict, governed_catalog: dict | None, d: dict,
+                       domains: list[dict], product: str) -> list[str]:
+    """Die Silber-Herkuenfte (Quell-Idents) eines Produkts — derselbe Zuschnitt wie ``emit_transforms``."""
+    herkunft = _herkunft_je_domaene(blueprint, governed_catalog, d, domains)
+    if herkunft:
+        return list(herkunft.get(_ident(product), []))
+    return [_ident(d.get("name", ""))]
+
+
 # --- D-605 Stufe 1: deklaratives SDK-Style-Projekt aus derselben Quelle -----------------------
 #
 # Die Skripte oben bleiben der Laufweg (``run_sql_ddl``). Das Projekt ist das Offline-Tor: ``dotnet
@@ -2540,7 +2704,8 @@ def _sqlproj_xml(name: str) -> str:
 
 def emit_warehouse_project(blueprint: dict, schemas: bool = False,
                            governed_catalog: dict | None = None,
-                           name: str = WAREHOUSE_PROJEKT_NAME) -> dict[str, str]:
+                           name: str = WAREHOUSE_PROJEKT_NAME,
+                           nur_domaenen: list[str] | None = None) -> dict[str, str]:
     """Gold als deklaratives SDK-Style-Projekt (``path → content``) unter ``warehouse/sqlproj/``.
 
     Eine Datei je Objekt im Layout Schema/Objekttyp (``<schema>/Tables/<tabelle>.sql``), dazu
@@ -2554,9 +2719,15 @@ def emit_warehouse_project(blueprint: dict, schemas: bool = False,
     out: dict[str, str] = {f"{WAREHOUSE_PROJEKT_DIR}/{name}.sqlproj": _sqlproj_xml(name)}
     if schemas:
         out[f"{WAREHOUSE_PROJEKT_DIR}/Security/gold.sql"] = "CREATE SCHEMA [gold];\n"
-    for d in sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", "")):
+    domains = sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
+    konform = _konforme_produkte(domains) if nur_domaenen is not None else set()
+    for d in domains:
+        if nur_domaenen is not None and d.get("name") not in nur_domaenen:
+            continue
         c_ref = _domain_contract(d, contract_ref)
         for product in sorted(d.get("data_products", [])):
+            if product in konform:
+                continue                    # D-672: konform → Lakehouse-Pfad, wie emit_warehouse_gold
             kind = kinds.get(product, "fact")
             table = _catalog_table(governed_catalog, _ident(product))
             cols = (_warehouse_columns(table or {}, c_ref)
@@ -2570,13 +2741,21 @@ def emit_warehouse_project(blueprint: dict, schemas: bool = False,
 
 def emit_warehouse_gold(blueprint: dict, schemas: bool = False,
                         governed_catalog: dict | None = None,
-                        sqlproj: bool = False) -> dict[str, str]:
+                        sqlproj: bool = False,
+                        nur_domaenen: list[str] | None = None,
+                        silber_lakehouse: str = SILBER_LAKEHOUSE_VORGABE) -> dict[str, str]:
     """Return gold as **Fabric Warehouse** T-SQL DDL (``path → content``) — the Warehouse-endpoint pattern.
 
     The alternative to lakehouse-Delta gold (research §4 deployment-patterns: Bronze/Silver-Lakehouse +
     Gold-Warehouse, chosen by team preference). One ``CREATE TABLE`` per gold product in the warehouse's
     ``dbo`` schema, kind-aware, with ``TODO(contract:<ref>)`` markers where the domain columns go —
     honest by construction (the IR knows the products + kinds, not the business columns).
+
+    D-672: next to every DDL a **load script** ``warehouse/<dom>/load_gold_<p>.sql`` (``TRUNCATE`` +
+    ``INSERT … SELECT`` from silver in one transaction, see ``_warehouse_load``). ``nur_domaenen``
+    restricts the emission to the domains whose ``gold_target`` is ``warehouse``; ``None`` keeps the
+    run-wide behaviour of ``--emit-warehouse`` (every domain). ``silber_lakehouse`` is the lakehouse
+    whose SQL analytics endpoint carries silver — in the same workspace as the warehouse.
     """
     med = blueprint.get("medallion", {})
     contract_ref = med.get("silver", {}).get("data_contract_ref", "<silver-contract>")
@@ -2584,27 +2763,57 @@ def emit_warehouse_gold(blueprint: dict, schemas: bool = False,
     out: dict[str, str] = {}
     doc = ["# Gold as Fabric Warehouse (generated — T-SQL / Warehouse endpoint)", "",
            "Warehouse-endpoint gold (research §4 deployment-pattern: Bronze/Silver-Lakehouse + "
-           "Gold-Warehouse). One `CREATE TABLE` per gold product; populate via CTAS/`COPY INTO` from "
-           "silver. **Honest boundary**: the IR gives product + kind, not the business columns "
-           "(those live in the silver data contract → `TODO(contract:…)`).", "",
+           "Gold-Warehouse). One `CREATE TABLE` per gold product and one load script "
+           "(`load_gold_*.sql`, D-672): `TRUNCATE` + `INSERT … SELECT` from silver in one "
+           f"transaction, silver read through three-part names from `{silber_lakehouse}` "
+           "(cross-database query, same workspace). Lakehouse gold stays the recommendation; "
+           "the warehouse is the option for T-SQL development and multi-table transactions "
+           "(MS Learn decision guide lakehouse vs. warehouse). **Honest boundary**: the IR gives "
+           "product + kind, not the business columns (those live in the silver data contract → "
+           "`TODO(contract:…)`); a load script without catalog columns stops with `THROW`.", "",
            "**Column descriptions are not emitted here** (I-21 W5.6 e): MS Learn *T-SQL surface "
            "area in Fabric Data Warehouse* (read 2026-09-29) documents neither `COMMENT` nor "
            "extended properties (`sp_addextendedproperty`) for Warehouse tables. Lakehouse gold "
            "carries them as `ALTER COLUMN … COMMENT` (documented for Delta tables).", "",
-           "| Domain | Product | Kind | DDL |", "|---|---|---|---|"]
-    for d in sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", "")):
+           "| Domain | Product | Kind | DDL | Load |", "|---|---|---|---|---|"]
+    domains = sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
+    konform = _konforme_produkte(domains)
+    for d in domains:
+        if nur_domaenen is not None and d.get("name") not in nur_domaenen:
+            continue
         c_ref = _domain_contract(d, contract_ref)
         ddir = _dirslug(d["name"])
         for product in sorted(d.get("data_products", [])):
+            # Ein konformes Produkt mehrerer Domaenen baut der Lakehouse-Pfad EINMAL
+            # (`transforms/_conformed/`); je Domaene waehlbar ist es nur, wenn es ihr allein gehoert.
+            if nur_domaenen is not None and product in konform:
+                doc.append(f"| {d['name']} | `{product}` | {kinds.get(product, 'fact')} | — "
+                           "(konform, Lakehouse-Pfad) | — |")
+                continue
             kind = kinds.get(product, "fact")
+            table = _catalog_table(governed_catalog, _ident(product))
             rel = f"warehouse/{ddir}/gold_{_ident(product)}.sql"
-            out[rel] = _warehouse_ddl(product, kind, c_ref, schemas=schemas,
-                                      table=_catalog_table(governed_catalog, _ident(product)))
-            doc.append(f"| {d['name']} | `{product}` | {kind} | `{rel}` |")
+            out[rel] = _warehouse_ddl(product, kind, c_ref, schemas=schemas, table=table)
+            lade = f"warehouse/{ddir}/load_gold_{_ident(product)}.sql"
+            if _generator_fuer(blueprint, product):
+                gold_tbl = (layer_ref("gold", _ident(product), schemas) if schemas
+                            else f"dbo.{layer_ref('gold', _ident(product), schemas)}")
+                out[lade] = _warehouse_load_abbruch(
+                    product, kind, gold_tbl, c_ref,
+                    "erzeugtes Produkt (generated) - keine Silber-Projektion")
+            else:
+                out[lade] = _warehouse_load(
+                    product, kind, c_ref,
+                    _warehouse_quellen(blueprint, governed_catalog, d, domains, product),
+                    silber_lakehouse, schemas=schemas, table=table,
+                    spalten_je_quelle=(table or {}).get("source_columns") or {},
+                    hat_bezuege=bool(scd_bezuege(governed_catalog, product, schemas)))
+            doc.append(f"| {d['name']} | `{product}` | {kind} | `{rel}` | `{lade}` |")
     if sqlproj:
         # D-605 Stufe 1: dieselbe Quelle, zweite Form. Nur unter Flag; Laufweg bleiben die Skripte.
         out.update(emit_warehouse_project(blueprint, schemas=schemas,
-                                          governed_catalog=governed_catalog))
+                                          governed_catalog=governed_catalog,
+                                          nur_domaenen=nur_domaenen))
         doc += ["", "## Declarative SDK-style project (D-605 stage 1)", "",
                 f"`{WAREHOUSE_PROJEKT_DIR}/{WAREHOUSE_PROJEKT_NAME}.sqlproj` — the same tables as "
                 "declarative `CREATE TABLE` (no `IF` guards), one file per object. It is an "

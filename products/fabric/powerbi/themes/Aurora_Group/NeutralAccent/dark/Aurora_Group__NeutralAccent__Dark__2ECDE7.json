@@ -179,6 +179,11 @@
             "fontSize": 12,
             "fontFamily": "Inter"
           }
+        ],
+        "valueAxis": [
+          {
+            "start": 0
+          }
         ]
       }
     },

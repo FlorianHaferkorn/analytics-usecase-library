@@ -114,7 +114,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Promo ROI %, Incremental Sales Amount, GM % During Promo and List Price Amount'"
+                  "Value": "'Current values of Promo ROI %, Incremental Sales Amount, GM % During Promo and List Price Amount'"
                 }
               }
             }

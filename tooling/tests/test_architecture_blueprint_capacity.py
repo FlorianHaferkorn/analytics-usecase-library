@@ -218,3 +218,15 @@ def test_recommendation_is_deterministic():
     bp = _bp({"largest_model_gb": 4, "operating_hours_per_week": 168,
               "chargeback_per_use_case": True, "viewers": 50}, domains=2)
     assert recommend(bp) == recommend(bp)
+
+
+def test_copilot_minimum_is_f2_not_f64():
+    """SIG-2609-010 (D-686): Copilot and data agents need a paid F2+, F64 is licensing only."""
+    out = recommend(_bp())
+    cop = out["copilot"]
+    assert cop["min_sku"] == "F2"
+    assert "F2" in cop["statement"] and "no reason to buy F64" in cop["statement"]
+    assert any("copilot-enable-fabric" in s for s in cop["sources"])
+    # same figure as the byte-identical Meridian mirror
+    from tooling.superversion._dataarch_vendor import load_module
+    assert load_module("capacity_recommend")._FEATURE_MIN == cop["min_sku"]

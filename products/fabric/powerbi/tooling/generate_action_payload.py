@@ -148,9 +148,11 @@ def build_action_panel_text(
 ACTION_PANEL_TEMPLATE: Dict[str, Any] = {
     "$schema": _VISUAL_SCHEMA,
     "name": "ActionPanel",
+    # Slot ActionPanel aus core/templates/page_templates/grid_templates/action_matrix.json
+    # (ab Zeile 2, 10 Zeilen hoch seit 08.10.2026; darueber Smart_Narrative und Last_Refresh).
     "position": {
-        "x": 1592, "y": 118, "z": 15000,
-        "height": 930, "width": 296, "tabOrder": 3003
+        "x": 1592, "y": 204, "z": 15000,
+        "height": 844, "width": 296, "tabOrder": 3003
     },
     "visual": {
         "visualType": "textbox",

@@ -1125,8 +1125,8 @@ class VisualBuilder:
         # bracket; the governed generator is where the deny-list is hard-enforced.
         _deny_ux = {
             "gauge": ("gauge", "bullet"), "gauge_chart": ("gauge", "bullet"),
-            "pie": ("pie_gt_4", "donut (<=4 parts) or bar_chart"),
-            "pie_chart": ("pie_gt_4", "donut (<=4 parts) or bar_chart"),
+            "pie": ("pie_gt_4", "donut (<=3 parts, IBCS 2.0 EX 2.1) or bar_chart"),
+            "pie_chart": ("pie_gt_4", "donut (<=3 parts, IBCS 2.0 EX 2.1) or bar_chart"),
             "radar": ("radar", "bar_chart or line"), "spider": ("radar", "bar_chart or line"),
             "3d": ("three_d", "a 2D chart"), "three_d": ("three_d", "a 2D chart"),
             "funnel": ("color_as_decoration", "bar_chart (worst-first), or sankey for a true flow"),

@@ -79,6 +79,33 @@ MODEL_REFRESH_PARALLELISM: dict[str, int] = {
 # licenses#workspace-types — below F64 every Power BI viewer needs a Pro licence.
 FREE_VIEWER_MIN_SKU = "F64"
 
+# --- Copilot and data agents (learn.microsoft.com, read 2026-10-07; D-686, SIG-2609-010) ----
+# fundamentals/copilot-enable-fabric#prerequisites: "A paid Fabric capacity (F2 or higher) or a
+# Power BI Premium capacity (P1 or higher)"; trial SKUs are not supported. Copilot is therefore
+# no reason for F64 — F64 stays a licensing threshold only. enterprise/fabric-copilot-capacity:
+# a Fabric Copilot capacity bundles Copilot billing, needs at least F2 or P1, home region only,
+# and also serves Pro/PPU workspaces and Power BI Desktop. Same figure as the vendored
+# ``capacity_recommend._FEATURE_MIN`` (Meridian).
+COPILOT_MIN_SKU = "F2"
+COPILOT_SOURCES = ("learn.microsoft.com/fabric/fundamentals/copilot-enable-fabric",
+                   "learn.microsoft.com/fabric/enterprise/fabric-copilot-capacity")
+COPILOT_READ_ON = "2026-10-07"
+
+
+def copilot_minimum() -> dict:
+    """Copilot / data agents: paid F2 or higher, never a reason to size up to F64."""
+    return {
+        "min_sku": COPILOT_MIN_SKU,
+        "statement": (f"Copilot in Fabric and Power BI and Fabric data agents run on any paid "
+                      f"capacity from {COPILOT_MIN_SKU} (or P1); trial capacities are not "
+                      f"supported. Copilot is no reason to buy {FREE_VIEWER_MIN_SKU}."),
+        "copilot_capacity": ("A Fabric Copilot capacity (at least F2 or P1, home region only) "
+                             "bills all Copilot use of assigned users in one place, including "
+                             "Pro/PPU workspaces and Power BI Desktop."),
+        "sources": list(COPILOT_SOURCES),
+        "read_on": COPILOT_READ_ON,
+    }
+
 # --- Capacity overage (learn.microsoft.com, verified 2026-09-29) --------------------
 # enterprise/capacity-overage-overview + enterprise/enable-capacity-overage; GA Sep 2026
 # per fundamentals/whats-new. Overage is ON by default for every newly created F capacity,
@@ -516,6 +543,7 @@ def recommend(blueprint: dict, prices: dict | None = None,
         "procurement": proc,
         "split": spl,
         "unknowns": unknowns,
+        "copilot": copilot_minimum(),
     }
     overage_sku = assigned if assigned in CU_HOURS_PER_DAY else floor
     if overage_sku:

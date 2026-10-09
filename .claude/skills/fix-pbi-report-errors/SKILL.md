@@ -1,7 +1,7 @@
 ---
 name: fix-pbi-report-errors
 description: "Diagnose and fix Power BI report and semantic model errors and record each fix in the knowledge base. Use when Power BI Desktop shows an error opening a report, visuals are empty or fields land in filters, TMDL validation fails, measures are missing or DAX errors, or the PBI pipeline/orchestrator reports errors."
-version: "1.1.0"
+version: "1.1.1"
 license: MIT
 source: ALUCA (Analytics Library of Use Cases) — governance overlay
 ---
@@ -55,6 +55,7 @@ Ist das Fehlermuster bereits dokumentiert?
 | Report öffnet auf falscher Seite | `activePageName` in `pages.json` überschrieben | `pbip_writer.py` / `pages.json` |
 | Schema-Fehler beim Öffnen | Fehlende/falsche `$schema` in `.pbip`, `definition.pbir`, `version.json` | `pbip_writer.py` / generierte JSON-Dateien |
 | `datasetReference` Fehler | `datasetReference` in `report.json` statt in `definition.pbir` | `pbip_writer.py` |
+| Report mit `report.json` voller `sections`/`visualContainers` | PBIR-Legacy-Form (fremder oder alter Report). PBIR ist GA und Standard; Desktop konvertiert beim Speichern ohne Rückfrage nach PBIR (Sicherung 30 Tage Desktop, 28 Tage Dienst). ALUCA erzeugt keine Legacy-Form mehr (D-686) | In Desktop öffnen und speichern, dann gegen die PBIR-Struktur prüfen; nie von Hand nach Legacy zurückbauen |
 | Visual-Ordner nicht ladbar | Sonderzeichen im Ordnernamen (`,` `:` etc.) | `page_builder.py` |
 | Theme nicht erkannt | `apply_report_theme.ps1` fehlgeschlagen | `report.json` → `themeCollection.customTheme` |
 

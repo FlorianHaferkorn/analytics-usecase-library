@@ -2,19 +2,18 @@
 
 Anlass (07.10.2026): `powerbi-report-author validate` (Pin 0.4.0) meldete in jedem der 17
 dist-Reports 23 Theme-Befunde (`PBIR_THEME_VISUAL_PROP_UNKNOWN` 18, `PBIR_FORMATTING_OBJECT_UNKNOWN`
-5). Ursache: dist traegt ein veraltetes Aurora-Theme (Stand #421), nicht die vendorte Ausgabe der
+5). Ursache: dist trug ein veraltetes Aurora-Theme (Stand #421), nicht die vendorte Ausgabe der
 Theme-Engine (`products/fabric/powerbi/themes/`, PIN.json), die keinen dieser Befunde hat.
 
-Das Engine-Theme wird bewusst NICHT uebernommen (Stand 07.10.2026): es nimmt die globale
-Nullbasis `valueAxis.start = 0` weg (BC-CHART-09, `test_theme_consistency.py`) und setzt
-`fontFace` Inter statt der Brand-Schrift Segoe UI (`showcases/aurora_group/brand/brand_spec.yaml`).
-Beides gehoert in die Engine (Freelancing `products/pbi_theme`), danach `--write-themes` und
-`apply_report_theme`. Bis dahin halten die Tests den dist-Bestand als Ratsche fest.
+Seit 08.10.2026 traegt dist das Engine-Theme 0.6.0 (Meridian D-685/D-710, #609): globale Nullbasis
+`valueAxis.start = 0` (BC-CHART-09) und Schrift Inter (`showcases/aurora_group/brand/brand_spec.yaml`,
+primary "Inter, Segoe UI, ..."). Die Theme-Tests verlangen deshalb `== []`; das alte Theme bleibt
+als Fixture fuer die Gegenprobe.
 
 Die Pruefung laeuft offline ueber `tooling/report_quality/formatting_metadata.py` und den Snapshot
 `tooling/schemas/pbir/formatting_metadata_snapshot.json`. Der erste Test ist die Gegenprobe: am
 bis 07.10.2026 ausgelieferten Theme muss der Checker genau die 23 Befunde der CLI finden —
-sonst prueft er nichts.
+sonst prueft er nichts, und `== []` am heutigen Theme waere kein Beleg.
 """
 from __future__ import annotations
 
@@ -44,7 +43,7 @@ CLI_BEFUNDE_ALTES_THEME = {
     "shape:header",
 }
 
-#: Offene Befunde, die keine Generator-Eingabe haben (Stand 07.10.2026). Die Variante
+#: Offene Befunde ohne Generator-Eingabe (Stand 07.10.2026, nachgemessen 09.10.2026). Die Variante
 #: COM-001_Sales_Performance_vs_Plan_LY hat keinen eigenen Bracket (KNOWN_ERRORS: "Benannte
 #: Variante ohne eigenen Bracket"); ihre Visuals werden nicht erzeugt und nicht von Hand
 #: gepatcht. Faellt ein Eintrag weg, gehoert er hier gestrichen (test_open_findings_not_stale).
@@ -81,26 +80,25 @@ def test_vendored_engine_themes_have_no_unknown_entries(theme: Path):
     assert fm.unknown_theme_entries(json.loads(theme.read_text(encoding="utf-8"))) == []
 
 
+def _shipped_theme(report: Path) -> dict:
+    return json.loads((report / "StaticResources/RegisteredResources" / THEME_FILE).read_text(encoding="utf-8"))
+
+
 @pytest.mark.parametrize("report", sorted(DIST.glob("*.Report")), ids=lambda p: p.name)
 def test_dist_custom_theme_findings_do_not_grow(report: Path):
-    """dist-Theme: hoechstens die 23 bekannten Befunde (Ratsche bis zur Engine-Korrektur).
-
-    Wird das Engine-Theme uebernommen, faellt die Menge auf 0 — dann gehoert dieser Test auf
-    `== []` umgestellt (test_dist_theme_findings_not_stale meldet das).
-    """
-    shipped = json.loads((report / "StaticResources/RegisteredResources" / THEME_FILE).read_text(encoding="utf-8"))
-    neu = set(fm.unknown_theme_entries(shipped)) - CLI_BEFUNDE_ALTES_THEME
-    assert not neu, f"{report.name}: neue unbekannte Theme-Eintraege: {sorted(neu)}"
+    """dist-Theme: keine unbekannten Eintraege (Engine-Theme seit 08.10.2026, D-685/D-710)."""
+    befunde = fm.unknown_theme_entries(_shipped_theme(report))
+    assert befunde == [], f"{report.name}: unbekannte Theme-Eintraege: {sorted(befunde)}"
 
 
 def test_dist_theme_findings_not_stale():
+    """Ueber alle Reports: die 23 Befunde des alten Themes sind weg und kommen nicht zurueck."""
     befunde: set[str] = set()
     for report in _reports():
-        shipped = json.loads((report / "StaticResources/RegisteredResources" / THEME_FILE).read_text(encoding="utf-8"))
-        befunde.update(fm.unknown_theme_entries(shipped))
-    assert befunde == CLI_BEFUNDE_ALTES_THEME, (
-        "Theme-Befunde in dist haben sich veraendert (Engine-Theme uebernommen?) — Ratsche "
-        f"nachziehen. Jetzt: {sorted(befunde)}")
+        befunde.update(fm.unknown_theme_entries(_shipped_theme(report)))
+    assert sorted(befunde) == [], (
+        "Theme-Befunde in dist (altes Theme zurueck oder Engine-Theme veraendert?): "
+        f"{sorted(befunde)}; alt davon: {sorted(befunde & CLI_BEFUNDE_ALTES_THEME)}")
 
 
 def test_dist_visual_objects_known_except_documented_open():

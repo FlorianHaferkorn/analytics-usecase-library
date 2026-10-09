@@ -100,7 +100,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Gross Margin %, Price Realization % and Gross Margin Amount'"
+                  "Value": "'Current values of Gross Margin %, Price Realization % and Gross Margin Amount'"
                 }
               }
             }

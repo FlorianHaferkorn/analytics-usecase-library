@@ -28,7 +28,7 @@ Define how strategy is translated into governed analytics and action at scale.
 - Stage 1 (CI gate): `tooling/run_stage1_checks.ps1`
 - Registry audit: `tooling/ontology/registry_builder.py --strict`
 - Full checks: `tooling/run_all_checks.ps1`
-- Pre-commit: `tooling/git-hooks/pre-commit` (runs registry in strict mode)
+- Pre-commit: `.githooks/pre-commit` via `core.hooksPath` (runs registry in strict mode when `core/` is staged)
 
 ## Artifact design laws
 

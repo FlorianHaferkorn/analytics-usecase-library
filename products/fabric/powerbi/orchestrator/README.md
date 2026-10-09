@@ -41,7 +41,7 @@ Orchestration and report generation for semantic models and reports (PBIP) from 
 **Aurora Custom Theme:** Nach der Report-Erzeugung wird ein Custom Theme auf jeden Report angewendet. Das Theme kommt **nur aus Konfiguration oder Parameter** (nicht hardcodiert). Wenn du **kein** `-ThemeName` übergibst, liest der Orchestrator das Default aus `showcases/aurora_group/theme_config.json` (`defaultThemeName`; aktuell: Aurora Monochromatic Light). Überschreiben: `-ThemeName "Aurora_Group__Monochromatic__Dark__#2ECDE7"` oder anderer Theme-Name aus `products/fabric/powerbi/themes/` (vendort, `#` optional) (z. B. Aurora_Group, Brand_Blue; Konzepte: Monochromatic, Analog, Divergent, NeutralAccent; Light/Dark).
 
 - Build runs **Registry** first, then measures, tables, **relationships** (per domain, with AutoDetect fallback so relationships are never missing), **hierarchies**, **diagram layout** (Model View), validation, and **report generation** (UX Engine: overview + detail per use case, with `datasetReference`).
-- If no Python 3 is found (py -3 / python3 / python), report generation falls back to report_generator.ps1 (sections only, no visuals).
+- If no Python 3 is found (py -3 / python3 / python), report generation stops with an error. The former fallback `report_generator.ps1` wrote the PBIR-Legacy shape and is retired (D-686): PBIR is GA and the default format, Power BI Desktop converts legacy reports silently on save.
 - **Quality checks are a hard gate:** any ERROR/FAIL from `run_all_checks.ps1` fails the build.
 
 **Output (single Fabric dist):**

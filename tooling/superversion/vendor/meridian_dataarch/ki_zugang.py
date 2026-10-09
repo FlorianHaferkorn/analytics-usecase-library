@@ -23,7 +23,12 @@ Belege (per Learn-MCP gelesen am 30.09.2026):
   an, Verarbeitung in den USA oder der EU, Embedded-Kapazitaeten (A/EM) nicht unterstuetzt.
 * ``fabric/admin/find-fabric-home-region`` — Heimatregion: Hilfe → About → „Your data is stored in".
 * ``power-bi/create-reports/copilot-prepare-data-ai-verified-answers`` — „Copilot doesn't return
-  verified answers when Fabric IQ is enabled".
+  verified answers when Fabric IQ is enabled"; gemeint ist der Fabric-IQ-Schalter im Copilot-Bereich
+  eines Power-BI-Berichts (``power-bi/create-reports/copilot-ask-data-question``).
+
+Nachtrag 07.10.2026 (Learn-MCP): ``fabric/iq/connectors/cowork-overview`` — Cowork laeuft auf Fabric
+IQ conversational analytics mit „Support for Power BI tooling such as Verified Answers and schema
+selection". Die Seite zu Copilot Chat nennt Verified Answers nicht.
 
 Nachtrag D-644 (Learn-MCP gelesen am 01.10.2026):
 
@@ -59,6 +64,7 @@ QUELLE_MCP = "learn.microsoft.com/fabric/iq/connectors/fabric-iq-mcp"
 QUELLE_M365 = "learn.microsoft.com/fabric/iq/connectors/microsoft-365-copilot-overview"
 QUELLE_HEIMATREGION = "learn.microsoft.com/fabric/admin/find-fabric-home-region"
 QUELLE_VERIFIED = "learn.microsoft.com/power-bi/create-reports/copilot-prepare-data-ai-verified-answers"
+QUELLE_COWORK = "learn.microsoft.com/fabric/iq/connectors/cowork-overview"
 QUELLE_PURVIEW_LIZENZ = ("learn.microsoft.com/office365/servicedescriptions/microsoft-365-service-descriptions/"
                          "microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description")
 
@@ -251,9 +257,12 @@ def sicherheitsbasis_abschnitt(bp: dict, nummer: int) -> list[str]:
                 "python -m products.meridian_copilot_readiness --core <meridian-core> "
                 "--output <ziel>/copilot_readiness/",
                 "```", "",
-                "Grenze: Copilot liefert keine Verified answers, wenn Fabric IQ eingeschaltet ist "
-                f"(Learn `{QUELLE_VERIFIED.split('learn.microsoft.com/')[1]}`). Dass Microsoft 365 "
-                "Copilot die AI-Anweisungen des Modells liest, ist **ANNAHME, ungeprueft**.", ""]
+                "Grenze: Im Copilot-Bereich eines Power-BI-Berichts liefert Copilot keine Verified "
+                "answers, wenn dort Fabric IQ eingeschaltet ist "
+                f"(Learn `{QUELLE_VERIFIED.split('learn.microsoft.com/')[1]}`). Cowork nutzt "
+                f"Verified answers (Learn `{QUELLE_COWORK.split('learn.microsoft.com/')[1]}`); fuer "
+                "Copilot Chat nennt Learn nichts. Dass Microsoft 365 Copilot die AI-Anweisungen des "
+                "Modells liest, ist **ANNAHME, ungeprueft**.", ""]
     if w["mcp_einrichtung"]:
         out += _mcp_abschnitt(bp)
     if w["zugaenge"] == ["keiner"]:

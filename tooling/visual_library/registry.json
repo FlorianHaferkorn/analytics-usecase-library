@@ -259,7 +259,7 @@
     {
       "id": "donut",
       "name": "Donut",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -281,7 +281,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:c81c8250d9e1146c5c6cd62a124c82b211717e07477296dd50c0a7fb68850934"
+      "checksum": "sha256:56fbe511d97f3a19ec9e60301dc7cc450aff2d3c512129b0f8217282b7c60675"
     },
     {
       "id": "dumbbell",

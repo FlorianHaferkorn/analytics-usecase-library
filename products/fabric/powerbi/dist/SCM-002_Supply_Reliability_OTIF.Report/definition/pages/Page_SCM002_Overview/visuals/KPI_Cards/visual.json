@@ -114,7 +114,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'OTIF %, On-Time %, In-Full % and Stockout Impact %'"
+                  "Value": "'Current values of OTIF %, On-Time %, In-Full % and Stockout Impact %'"
                 }
               }
             }

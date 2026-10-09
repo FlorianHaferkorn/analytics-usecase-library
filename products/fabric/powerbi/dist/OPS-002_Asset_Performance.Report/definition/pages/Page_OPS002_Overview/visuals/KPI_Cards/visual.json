@@ -114,7 +114,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'MTBF (hours), Availability %, MTTR (hours) and Unplanned Downtime %'"
+                  "Value": "'Current values of MTBF (hours), Availability %, MTTR (hours) and Unplanned Downtime %'"
                 }
               }
             }

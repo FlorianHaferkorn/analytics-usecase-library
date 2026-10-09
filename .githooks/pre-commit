@@ -1,4 +1,80 @@
 #!/usr/bin/env sh
-# claude-repo-kit: strict Drift-Gate (zero-dependency; `make check` bleibt für lokal/CI).
-if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi
-"$PY" scripts/check_index.py --strict || exit 1
+# Einziger pre-commit-Hook des Repos. Bis 07.10.2026 gab es zusaetzlich
+# tooling/git-hooks/pre-commit; dessen Tore sind hier zusammengelegt. Aktiv ueber
+# `git config core.hooksPath .githooks` -- setzt der SessionStart
+# (.claude/hooks/activate_git_hooks.sh), unter Windows tooling/git-hooks/install_precommit.ps1.
+#
+# Tore (Muster: schnell, nur bei relevanten gestagten Dateien; Fund = Abbruch, fehlendes
+# Werkzeug -> lautes [UNGEPRUEFT] auf stderr statt Block; hart prueft die CI):
+#   1  Drift-Gate check_index.py --strict     jeder Commit
+#   2  Kundenkennungen                        jeder Commit, gestagte Dateien; ohne Sperrliste [UNGEPRUEFT]
+#   3  Secret-Baseline-Tor                    jeder Commit, gestagte Dateien; ohne Werkzeug [UNGEPRUEFT]
+#   4  Ruff-Sperrklinke                       nur bei gestagtem .py; ohne ruff [UNGEPRUEFT]
+#   5  Ontologie-Registry (strict)            nur bei gestagtem core/
+export PYTHONUTF8=1  # cp1252-UnicodeEncodeError unter Windows, wenn Befunde Umlaute tragen
+
+# Tor 1 -- claude-repo-kit: strict Drift-Gate (zero-dependency; `make check` bleibt für lokal/CI).
+# Interpreter: py-Launcher zuerst -- unter Windows ist `python3` oft nur der Store-Platzhalter,
+# der mit 9009 endet und jeden Commit anhielte (Linie des frueheren tooling/git-hooks-Hooks).
+if command -v py >/dev/null 2>&1; then PY="py -3"
+elif command -v python3 >/dev/null 2>&1; then PY=python3
+elif command -v python >/dev/null 2>&1; then PY=python
+else
+  echo "pre-commit: Python 3 nicht gefunden - Commit abgebrochen (das Drift-Gate braucht Python)." >&2
+  exit 1
+fi
+$PY scripts/check_index.py --strict || exit 1
+
+# Tor 2 -- Kundenkennungen (04.09.2026; bis 07.10.2026 Gate 1.5 in tooling/git-hooks/pre-commit).
+# Nur gestagte Dateien: ein Hook, der den ganzen Baum scannte, blockierte jeden Commit, bis der
+# Rueckstand weg ist. Voller Lauf: `python tooling/validation/check_kundendaten.py`.
+# Die Sperrliste ist gitignoriert und fehlt in Cloud-Sitzungen und frischen Klonen -> dann laeuft
+# der Pruefer nicht und der Commit traegt ein lautes [UNGEPRUEFT] (29.09.2026). Ist sie da, bricht
+# jeder Nicht-Null-Ausgang ab (1 Fund, 2 [ABBRUCH] des Pruefers): ein Pruefer, der mit seinen
+# Regeln scheitert, meldet nicht gruen. Bereitstellen: `.kundendaten-sperrliste.json` im
+# Repo-Wurzelordner oder `KUNDENDATEN_SPERRLISTE=<pfad>` (z. B. aus einem Umgebungs-Secret).
+if [ -n "${KUNDENDATEN_SPERRLISTE:-}" ] && [ -f "$KUNDENDATEN_SPERRLISTE" ]; then
+  $PY tooling/validation/check_kundendaten.py --staged --leise --sperrliste "$KUNDENDATEN_SPERRLISTE" || exit 1
+elif [ -f .kundendaten-sperrliste.json ]; then
+  $PY tooling/validation/check_kundendaten.py --staged --leise || exit 1
+else
+  echo "[UNGEPRUEFT] Kundendaten - keine Sperrliste (.kundendaten-sperrliste.json bzw." >&2
+  echo "             KUNDENDATEN_SPERRLISTE). Dieser Commit ist NICHT auf Kundenkennungen geprueft." >&2
+fi
+
+# Tor 3 -- Secret-Baseline-Tor (07.10.2026): gestagte Dateien gegen .secrets.baseline
+# (detect-secrets-hook, Pin = "version" der Baseline). 1 = neuer Fund -> Commit abbrechen.
+# 2 = nicht gelaufen (Werkzeug fehlt / falsche Version) -> laut melden, nicht blockieren: der
+# versionierte Hook reist in Umgebungen ohne die Abhaengigkeit (repo_kit_init.py, v3.24); hart
+# prueft CI python-checks.
+$PY products/fabric/powerbi/deployment/scripts/secret_scan_gate.py --baseline --staged
+rc=$?
+if [ "$rc" -eq 1 ]; then exit 1; fi
+if [ "$rc" -ne 0 ]; then
+  echo "[UNGEPRUEFT] Secret-Baseline-Tor nicht gelaufen (Exit $rc) - Commit ohne Secret-Scan." >&2
+fi
+
+# Tor 4 -- Ruff-Sperrklinke (29.09.2026): nur wenn .py gestagt ist; die Baseline zaehlt je Regel
+# ueber den ganzen Baum (gemessen 0,3 s, ruff 0.16.9), deshalb ohne Dateifilter. 1 = Regel ueber
+# eingefrorenem Stand -> Commit abbrechen. 2 = nicht gelaufen (kein ruff) -> [UNGEPRUEFT], nicht
+# blockieren: ein Hook, der in jedem frischen Klon ohne ruff jeden Commit anhielte, wuerde mit
+# --no-verify umgangen und hielte dann auch die anderen Tore nicht mehr. Hart prueft CI
+# stage1.yml (--pin-pflicht).
+if git diff --cached --name-only --diff-filter=ACMR | grep -qE '\.py$'; then
+  $PY scripts/check_lint_ratchet.py
+  rc=$?
+  if [ "$rc" -eq 1 ]; then exit 1; fi
+  if [ "$rc" -ne 0 ]; then
+    echo "[UNGEPRUEFT] Ruff-Sperrklinke nicht gelaufen (Exit $rc) - Commit ohne Lint-Pruefung." >&2
+  fi
+fi
+
+# Tor 5 -- Ontologie-Registry strict (bis 07.10.2026 Gate 2 in tooling/git-hooks/pre-commit):
+# nur wenn core/ gestagt ist (gemessen ~1,5 s am 07.10.2026). Ausgabe nach tooling/ontology/out/
+# (gitignoriert). Reines Python ohne Zusatzwerkzeug, daher kein [UNGEPRUEFT]-Zweig: jeder
+# Nicht-Null-Ausgang ist ein Befund.
+if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^core/'; then
+  echo "pre-commit: core/ gestagt - Ontologie-Registry (strict) ..."
+  $PY tooling/ontology/registry_builder.py --out-dir tooling/ontology/out --strict || exit 1
+fi
+exit 0

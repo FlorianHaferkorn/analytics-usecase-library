@@ -114,7 +114,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Forecast Accuracy %, Forecast MAPE %, Forecast Bias % and Service Impact %'"
+                  "Value": "'Current values of Forecast Accuracy %, Forecast MAPE %, Forecast Bias % and Service Impact %'"
                 }
               }
             }
