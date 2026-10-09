@@ -51,7 +51,7 @@ brand 10.
 | BC-COLOR-02 | Colour used decoratively / to distinguish equal-rank categories |
 | BC-CHART-01 | Mixed scale on one axis |
 | BC-CHART-10 | Evidence table unsorted / no Top-N |
-| BC-NARR-01 | Exhibit title is a label, not a conclusion |
+| BC-NARR-01 | Title carries the conclusion instead of describing it; key-message slot empty (rule reversed 08.10.2026, A-34 / IBCS UN 2.1/2.2 — before: title is a label, not a conclusion) |
 | BC-BRAND-01 | Renderer default theme (no composed custom theme) |
 
 ## 3. Relationship to the existing gates

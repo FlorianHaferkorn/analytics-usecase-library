@@ -169,7 +169,7 @@
         },
         "title_statements_verified": {
           "type": "boolean",
-          "description": "Are the curated exhibit statements value-verified against the data? Default false since 2026-09-23 (R6.2): until then the default was true and 15 of 20 brackets claimed a verification that never happened. When false, the generator renders the always-true QUESTION as header and the message as a framed 'Expected finding --' subtitle (tooling/reporting/title_policy.py, read in page_scaffold_generator/config_loader.py). COM-002 is the reference."
+          "description": "Are the curated exhibit statements value-verified against the data? Default false since 2026-09-23 (R6.2): until then the default was true and 15 of 20 brackets claimed a verification that never happened. The QUESTION always leads the visual header and the message follows as subtitle, never as title (A-34, IBCS UN 2.2, since 2026-10-08). When false, the subtitle is framed 'Expected finding --'; true only drops the frame (tooling/reporting/title_policy.py, read in page_scaffold_generator/config_loader.py). COM-002 is the reference."
         },
         "semantic_delta_cards": {
           "type": "boolean",
@@ -219,6 +219,43 @@
               "type": "string",
               "maxLength": 300,
               "description": "One-sentence narrative anchor for this page (Knaflic Big Idea). Template: '[Domain] is [on/off] track — [KPI] is [Δ], [momentum].' See Storytelling_Principles.md §2."
+            },
+            "key_message_position": {
+              "type": "string",
+              "enum": [
+                "above_title",
+                "right_of_title"
+              ],
+              "description": "Position of the page key message relative to the title (IBCS 2.0 UN 2.1, ALUCA A-34). Default above_title; the PBIR title block renders above_title only and rejects right_of_title (page_scaffold_generator/title_block.py)."
+            },
+            "title_lines": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "who",
+                "what"
+              ],
+              "properties": {
+                "who": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Line 1: reporting unit (organisation, business unit)."
+                },
+                "what": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Line 2: measure name, rendered bold."
+                },
+                "unit": {
+                  "type": "string",
+                  "description": "Unit after the measure, rendered normal as 'in <unit>' (ISO 4217 with prefix, e.g. mEUR, or %)."
+                },
+                "when": {
+                  "type": "string",
+                  "description": "Line 3: period, scenarios and variances (e.g. 'Jan..Dec 2026, AC and PL')."
+                }
+              },
+              "description": "Page title after IBCS 2.0 UN 2.2 (ALUCA A-34, Freelancing D-641): three descriptive lines who / what / when, no evaluative words. When set, the overview Header renders the title block: big_idea as key message (UN 2.1) above the three lines (page_scaffold_generator/title_block.py). Optional; absent, the Header stays the one-line big_idea textbox."
             },
             "page_type": {
               "type": "string",

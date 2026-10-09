@@ -311,7 +311,12 @@ dimensions:
     weight: 20
     rules:
       - id: BC-NARR-01
-        statement: "Every exhibit title is a conclusion/statement, not a label ('GM fell 12% vs plan', not 'GM by month')."
+        # Umgedreht am 08.10.2026 (A-34, IBCS 2.0 UN 2.1/2.2; Freelancing D-641, dort
+        # meridian/design/boutique-craft-rubric.yaml BC-NARR-01, Wortlaut gleich). Bis dahin
+        # verlangte die Regel das Gegenteil (Titel = Aussage). Strukturelle Haelfte: jedes
+        # Exhibit traegt eine Aussage (`message`) fuer den Kernaussage-Platz, und die
+        # Titel-Politik setzt sie nie als Titel (title_policy.resolve_header).
+        statement: "Titles describe (who / what in unit / when), the conclusion sits in its own key-message slot above the page title ('Gross margin in %' + key message 'GM fell 12% vs plan'), never in the title. Until D-641 this rule demanded the opposite (title-as-statement)."
         severity: knock_out
         weight: 5
         check: both
@@ -320,8 +325,8 @@ dimensions:
         # eigenen Kopf so ('structural seed'). Stand `judge` hier allein,
         # verwarf die Scorecard das Judge-Urteil still — die Deklaration
         # war tot, und niemand konnte das sehen.
-        machine_hint: "title matches '<dimension> by <dimension>' pattern / contains no verb or number"
-        source: "Craft-Core §5.4/§5.5; IBCS SAY"
+        machine_hint: "exhibit message missing or reads as a label (key-message slot empty); title_policy lets the message lead a header"
+        source: "IBCS 2.0 UN 2.1/UN 2.2; A-34 / D-641 (08.10.2026), replaces 'Craft-Core §5.4/§5.5; IBCS SAY' (title-as-statement)"
         validator:
           script: check_exhibit_message.py
           args: []
