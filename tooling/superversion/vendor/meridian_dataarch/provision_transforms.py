@@ -27,6 +27,7 @@ This module **does not execute** anything — it only emits text.
 from __future__ import annotations
 
 import re
+from typing import Callable
 
 import yaml
 
@@ -1381,6 +1382,54 @@ def _text_verbund_sql(governed_catalog: dict | None, product: str, herkunft: lis
     return sql, kopf + befund
 
 
+def vererbung_von(governed_catalog: dict | None, product: str, quelle: str,
+                  ref: Callable[[str], str], z: Callable[[str], str],
+                  extra: tuple[str, ...] = ()) -> tuple[str, list[str]] | None:
+    """Die FROM-Quelle einer Position mit ihren Kopffeldern per Join (BO-171, D-691) — oder ``None``.
+
+    Greift nur, wenn der Katalog fuer diese Quelle eine ``vererbung`` fuehrt (aus den ``inherits`` des
+    Standardpakets). Bis 07.10.2026 las Gold die geerbten Felder aus der Positionsquelle (`SELECT FKDAT,
+    VBTYP, KUNAG FROM silver.order_to_cash_vbrp`); ein echtes S/4 fuehrt sie dort nicht (Cortex vbrp.yaml:
+    kein VBTYP). Das D-542-Muster: eine abgeleitete Tabelle, die Position mit ihren eigenen Feldern
+    (ausdruecklich aufgezaehlt, kein ``p.*`` — traegt die Position ein gleichnamiges Feld wie VBAP.ERDAT,
+    gewinnt der Kopf, wie das Paket es deklariert), LEFT JOIN je Kopf ueber den GANZEN Kopfschluessel
+    (``vererbung_paare``): eine Position ohne Kopf bleibt stehen, keine Position wird vervielfacht.
+
+    ``ref`` macht aus einem Quellnamen die Tabellenreferenz (Lakehouse ``silver.<q>``, Warehouse Drei-Teil-
+    Name), ``z`` zitiert eine Spalte; ``extra`` sind weitere Positionsfelder (das Wasserzeichen)."""
+    return vererbung_aus_tabelle(_catalog_table(governed_catalog, _ident(product)), quelle, ref, z, extra)
+
+
+def vererbung_aus_tabelle(kat_t: dict | None, quelle: str, ref: Callable[[str], str], z: Callable[[str], str],
+                          extra: tuple[str, ...] = ()) -> tuple[str, list[str]] | None:
+    """``vererbung_von`` fuer eine schon gefundene Katalogtabelle (Warehouse-Pfad, D-672)."""
+    e = ((kat_t or {}).get("vererbung") or {}).get(quelle)
+    if not e:
+        return None
+    geerbt = {f for k in e["koepfe"] for f in k["felder"]}
+    spalten = [f"p.{z(c)}" for c in sorted(set(e.get("eigene") or []) | (set(extra) - geerbt))]
+    joins, kopf = [], []
+    for i, k in enumerate(e["koepfe"], 1):
+        if not k.get("auf"):
+            # Eine leere Join-Bedingung waere `ON ` -- ein Syntaxfehler erst in der Engine (Review 08.10.2026).
+            raise ValueError(f"Vererbung {quelle} <- {k.get('kopf')}: keine Feldpaare -- der Join hat keine Bedingung")
+        spalten += [f"k{i}.{z(f)}" for f in k["felder"]]
+        auf = " AND ".join(f"k{i}.{z(b)} = p.{z(a)}" for a, b in k["auf"])
+        joins.append(f"    LEFT JOIN {ref(k['kopf'])} AS k{i} ON {auf}")
+        kopf.append(f"Kopffelder per Join (BO-171, D-691): {', '.join(k['felder'])} aus {k['kopf']} "
+                    f"ueber {', '.join(f'{a} = {b}' for a, b in k['auf'])}.")
+    kopf.append("LEFT JOIN ueber den ganzen Kopfschluessel: jede Position genau einmal, auch ohne Kopf.")
+    sql = ("(\n    SELECT\n        " + ",\n        ".join(spalten) + f"\n    FROM {ref(quelle)} AS p\n"
+           + "\n".join(joins) + "\n)")
+    return sql, kopf
+
+
+def _wasserzeichen_feld(governed_catalog: dict | None, product: str, herkunft: list[str]) -> tuple[str, ...]:
+    """Das Quellfeld des Wasserzeichens (D-549), das die Position zusaetzlich liefern muss."""
+    wz = gold_wasserzeichen(governed_catalog, product, herkunft) or {}
+    return (wz["spalte"],) if wz.get("spalte") else ()
+
+
 def _konforme_quellen(blueprint: dict, governed_catalog: dict | None, product: str,
                       contributing: list[str], domains: list[dict],
                       schemas: bool, stack: str = "fabric",
@@ -1731,9 +1780,17 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
                                                          je_quelle, c_ref)
                 flow.append(f"- *(Zusammenführung offen: UNION oder JOIN)* → {gold_tbl}  ·  `{rel}`")
                 continue
-            out[rel] = _silver_to_gold(product, kind, von[0] if len(von) == 1 else von, c_ref, dl,
+            eigen_q = herkunft.get(_ident(product), [])
+            erbe = (vererbung_von(governed_catalog, product, eigen_q[0],
+                                  lambda q: layer_ref("silver", _ident(q), schemas),
+                                  lambda c: zitiere(c, stack),
+                                  _wasserzeichen_feld(governed_catalog, product, eigen_q))
+                    if len(von) == 1 and len(eigen_q) == 1 else None)
+            out[rel] = _silver_to_gold(product, kind, erbe[0] if erbe else (von[0] if len(von) == 1 else von),
+                                       c_ref, dl,
                                        gold_tbl=gold_tbl,
                                        table=_catalog_table(governed_catalog, _ident(product)),
+                                       kopf_extra=erbe[1] if erbe else None,
                                        wasserzeichen=gold_wasserzeichen(
                                            governed_catalog, product,
                                            herkunft.get(_ident(product), [])),
@@ -2168,6 +2225,14 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
                 governed_catalog, product, herkunft.get(_ident(product), []), schemas, stack,
                 entscheidung_fuer(entscheidungen, "DATA-TEXTSPRACHE", d["name"])
                 or TEXTSPRACHE_VORGABE) if len(eigene) > 1 else None
+            eigen_q = herkunft.get(_ident(product), [])
+            erbe = (vererbung_von(governed_catalog, product, eigen_q[0],
+                                  lambda q: layer_ref("silver", _ident(q), schemas),
+                                  lambda c: zitiere(c, stack),
+                                  _wasserzeichen_feld(governed_catalog, product, eigen_q))
+                    if not verbund and len(eigen_q) == 1 else None)
+            if erbe:
+                verbund = erbe
             out[rel] = _silver_to_gold_incremental(
                 product, kind, [verbund[0]] if verbund else (eigene or [silver_tbl]), c_ref, dl,
                 gold_tbl, star,
@@ -2619,7 +2684,13 @@ def _warehouse_load(name: str, kind: str, contract_ref: str, quellen: list[str],
             f"{len(quellen)} Herkuenfte mit verschiedener Spaltenmenge - ob UNION oder JOIN, "
             "entscheidet der Fachbereich")
     refs = [_silber_dreiteilig(silber_lakehouse, _ident(q), schemas) for q in quellen]
-    if len(refs) == 1:
+    erbe = (vererbung_aus_tabelle(table, quellen[0],
+                                  lambda q: _silber_dreiteilig(silber_lakehouse, _ident(q), schemas), _tsql_name)
+            if len(quellen) == 1 else None)
+    if erbe:
+        # BO-171 (D-691): Kopffelder per Join vom Kopf, wie im Lakehouse-Pfad; T-SQL verlangt den Alias.
+        von = erbe[0] + " AS quelle"
+    elif len(refs) == 1:
         von = refs[0]
     else:
         von = ("(\n" + "\n    UNION ALL\n".join(f"    SELECT * FROM {r}" for r in refs)
@@ -2639,6 +2710,7 @@ def _warehouse_load(name: str, kind: str, contract_ref: str, quellen: list[str],
               f"{', '.join(refs)}.\n"
             + ("-- UNION ALL, nicht UNION — ob zwei gleiche Zeilen eine Dublette sind, entscheidet "
                "der Fachbereich.\n" if len(refs) > 1 else "")
+            + "".join(f"-- {z}\n" for z in (erbe[1] if erbe else []))
             + "-- Vollaufbau in einer Transaktion: wer liest, sieht altes oder neues Gold, nie ein "
               "leeres.\n"
             + "-- Voraussetzung: gold_" + _ident(name) + ".sql ist gelaufen (Tabelle existiert).\n")
@@ -3432,6 +3504,11 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
             eigene = [layer_ref("silver", _ident(q), schemas)
                       for q in herkunft.get(pident, [])]
             von = eigene[0] if len(eigene) == 1 else silver_tbl
+            _erbe = (vererbung_von(governed_catalog, product, herkunft[pident][0],
+                                   lambda q: layer_ref("silver", _ident(q), schemas), zitiere)
+                     if len(eigene) == 1 else None)
+            if _erbe:
+                von = _erbe[0]     # BO-171 (D-691): Kopffelder per Join, wie im Transform-Pfad
             columns = _mlv_catalog_columns(governed_catalog, pident)
             kat = _catalog_table(governed_catalog, pident)
             key_col = _mlv_key_column(pident, kind, columns, kat,
