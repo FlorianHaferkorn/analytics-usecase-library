@@ -1,12 +1,13 @@
 {
   "template_id": "action_matrix",
   "description": "The Action Matrix (Detail / 300s). Operative Liste für direkte Maßnahmen.",
+  "_provenance": "Smart_Narrative (und Last_Refresh in derselben Zeile) seit 08.10.2026 zwei Rasterzeilen hoch (156 px statt 70 px), Detail_Matrix und ActionPanel eine Zeile kürzer. Grund: eine Karte zeigt Beschriftung 12 pt (19 px) und Wert als callout 40 pt (63 px), dazu Innenabstand der Karte unter Fluent2-CY26SU10 14/16 und Containerabstand 10/10; auf 70 px blieben 20 px Inhaltsfläche bei 82 px Bedarf. Rechnung: governance/Layout_Grid_System.md, Abschnitt \"Card height\".",
   "canvas": { "width": 1920, "height": 1080 },
   "slots": [
     { "slot_id": "Slicer_Pane", "grid": [0, 0, 2, 6], "visual_type_hint": "slicer" },
     { "slot_id": "Slicer_Entity", "grid": [0, 6, 2, 6], "visual_type_hint": "slicer_entity" },
-    { "slot_id": "Smart_Narrative", "grid": [2, 0, 8, 1], "visual_type_hint": "textbox" },
-    { "slot_id": "Detail_Matrix", "grid": [2, 1, 8, 11], "visual_type_hint": "tableEx" },
-    { "slot_id": "ActionPanel", "grid": [10, 1, 2, 11], "visual_type_hint": "textbox" }
+    { "slot_id": "Smart_Narrative", "grid": [2, 0, 8, 2], "visual_type_hint": "textbox" },
+    { "slot_id": "Detail_Matrix", "grid": [2, 2, 8, 10], "visual_type_hint": "tableEx" },
+    { "slot_id": "ActionPanel", "grid": [10, 2, 2, 10], "visual_type_hint": "textbox" }
   ]
 }

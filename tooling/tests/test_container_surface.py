@@ -31,28 +31,72 @@ def test_baseline_is_declared_not_assumed():
     """
     basis = ccs.grundlinie()
     assert basis.get("never"), "keine `never`-Liste — dann waere Verlauf erlaubt"
-    assert (basis.get("drop_shadow") or {}).get("transparency_min_pct") is not None
+    assert "allowed" in (basis.get("drop_shadow") or {}), "Schatten nicht entschieden"
+    assert (basis.get("border") or {}).get("width_max_px") is not None
+    assert basis.get("source") and basis.get("decided"), "Grundlinie ohne Herkunft"
 
 
 def test_baseline_matches_the_decided_theme():
     """Die Grundlinie ist die Erhebung des BESCHLOSSENEN Themes, kein Wunschwert.
 
-    Faellt dieser Test, sind Theme und Grundlinie auseinandergelaufen — dann ist
-    entweder das Theme veraendert worden oder die Grundlinie, und beides braucht eine
-    Entscheidung statt einer stillen Anpassung.
+    Seit 08.10.2026 (Meridian D-685/D-710) gemessen am WIRKSAMEN Theme: Rahmen und Schatten
+    kommen aus dem Basistheme Fluent2-CY26SU10, der Innenabstand aus dem eigenen Theme. Faellt
+    dieser Test, sind Theme und Grundlinie auseinandergelaufen — das braucht eine Entscheidung
+    statt einer stillen Anpassung.
     """
-    from check_palette_monochrome import aktives_theme
-
     report = sorted((REPO / "products/fabric/powerbi/dist").glob("*.Report"))[0]
-    theme = json.loads(aktives_theme(report).read_text(encoding="utf-8"))
-    stern = theme["visualStyles"]["*"]["*"]
+    stern = ccs.wirksamer_stern(report)
     basis = ccs.grundlinie()
-    schatten = (stern.get("dropShadow") or [{}])[0]
-    assert schatten.get("transparency") == basis["drop_shadow"]["transparency_min_pct"]
-    assert schatten.get("shadowDistance") == basis["drop_shadow"]["distance_max_px"]
     rahmen = (stern.get("border") or [{}])[0]
+    assert rahmen.get("show") is True
     assert rahmen.get("width") == basis["border"]["width_max_px"]
     assert rahmen.get("radius") == basis["border"]["radius_max_px"]
+    assert rahmen["color"]["solid"]["color"].upper() == basis["border"]["color"]
+    schatten = (stern.get("dropShadow") or [{}])[0]
+    assert basis["drop_shadow"]["allowed"] is False and schatten.get("show") is False
+    pad = (stern.get("padding") or [{}])[0]
+    for seite in ("top", "right", "bottom", "left"):
+        assert pad.get(seite) == basis["padding"][f"{seite}_max_px"], seite
+
+
+def _mutierte_kopie(tmp_path: Path, mutation) -> Path:
+    import shutil
+
+    from check_palette_monochrome import aktives_theme
+
+    src = sorted((REPO / "products/fabric/powerbi/dist").glob("*.Report"))[0]
+    dist = tmp_path / "dist"
+    ziel = dist / src.name
+    shutil.copytree(src, ziel)
+    thf = aktives_theme(ziel)
+    theme = json.loads(thf.read_text(encoding="utf-8"))
+    mutation(theme["visualStyles"]["*"]["*"])
+    thf.write_text(json.dumps(theme), encoding="utf-8")
+    return dist
+
+
+@pytest.mark.parametrize("mutation,erwartet", [
+    (lambda st: st.__setitem__("border", [{"show": True, "width": 2}]), "Rahmen-width 2"),
+    (lambda st: st.__setitem__("dropShadow", [{"show": True}]), "Schatten sichtbar"),
+    (lambda st: st.__setitem__("padding", [{"top": 10, "right": 12, "bottom": 8, "left": 12}]),
+     "padding.top 10"),
+], ids=["rahmen_2px", "schatten_an", "padding_oben_10"])
+def test_gegenprobe_wirksames_theme_feuert(tmp_path, mutation, erwartet):
+    """Gegenprobe: was das eigene Theme ueber das Basistheme legt, wird gemessen."""
+    dist = _mutierte_kopie(tmp_path, mutation)
+    treffer, _ = ccs.pruefe_dist(dist)
+    assert any(erwartet in t for t in treffer), treffer
+
+
+def test_gegenprobe_basistheme_wird_gelesen(tmp_path):
+    """Ein Basistheme mit Schatten an muss feuern, obwohl das eigene Theme keinen setzt."""
+    dist = _mutierte_kopie(tmp_path, lambda st: None)
+    bt = next(dist.glob("*.Report/StaticResources/SharedResources/BaseThemes/*.json"))
+    basis = json.loads(bt.read_text(encoding="utf-8"))
+    basis["visualStyles"]["*"]["*"]["dropShadow"][0]["show"] = True
+    bt.write_text(json.dumps(basis), encoding="utf-8")
+    treffer, _ = ccs.pruefe_dist(dist)
+    assert any("Schatten sichtbar" in t for t in treffer), treffer
 
 
 @pytest.mark.parametrize("objekte,erwartet", [
@@ -72,13 +116,11 @@ def test_the_sanctioned_card_system_stays_silent():
     """Genau der beschlossene Stand darf nicht anschlagen — sonst waere Weg A wirkungslos."""
     basis = ccs.grundlinie()
     sanktioniert = {
-        "dropShadow": [{"properties": {
-            "transparency": basis["drop_shadow"]["transparency_min_pct"],
-            "shadowDistance": basis["drop_shadow"]["distance_max_px"],
-            "shadowBlur": basis["drop_shadow"]["blur_max_px"],
-            "shadowSpread": basis["drop_shadow"]["spread_max"]}}],
+        "dropShadow": [{"properties": {"show": False, "transparency": 86}}],
         "border": [{"properties": {"width": basis["border"]["width_max_px"],
                                    "radius": basis["border"]["radius_max_px"]}}],
+        "padding": [{"properties": {s: basis["padding"][f"{s}_max_px"]
+                                    for s in ("top", "right", "bottom", "left")}}],
     }
     assert ccs.pruefe_container(sanktioniert, basis, "T") == []
 

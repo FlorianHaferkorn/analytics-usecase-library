@@ -261,7 +261,7 @@ Typography establishes information hierarchy before the reader consciously proce
 | Role | Size | Weight | Usage |
 |---|---|---|---|
 | `page_title` | 16–18pt | Regular | Page / report title (decision question) |
-| `section_header` | 13–14pt | Semibold | Visual title (question-oriented) |
+| `section_header` | 12pt | Semibold | Visual title (question-oriented); 12 pt per Meridian D-685 |
 | `kpi_value` | 28–36pt | Bold | Hero number on KPI card |
 | `kpi_delta` | 13–14pt | Regular | Variance value + icon on KPI card |
 | `kpi_label` | 10–11pt | Regular, muted | KPI name below the value |

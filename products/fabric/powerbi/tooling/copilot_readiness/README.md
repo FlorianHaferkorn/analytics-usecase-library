@@ -8,6 +8,7 @@ Erzeugt deterministisch (kein LLM, kein Netzwerk) die drei Inhalte des Power-BI-
 | `ai_instructions.txt` (Eingabefeld) / `ai_instructions.md` (Review) | Prep data for AI → AI instructions |
 | `verified_answer_candidates.json` | Report-Visual → „Set up a verified answer“ (nur **Kandidaten**, Freigabe durch einen Menschen) |
 | `ai_data_schema.json` | Prep data for AI → AI data schema (Empfehlung include/exclude) |
+| `zugangswege.md` | Readiness-Kriterium: Zugang über Microsoft 365 Copilot Chat und Cowork (Lizenz, Sicherheit, DLP, Verified Answers, Tenant-Einstellungen; D-686, SIG-2609-001/-002) |
 
 Quelle der Service-Schritte: [Prepare your data for AI](https://learn.microsoft.com/power-bi/create-reports/copilot-prepare-data-ai);
 Einordnung: `../../docs/tmdl_best_practices.md` (Abschnitt Prep for AI). Keine dokumentierte
@@ -25,7 +26,7 @@ von Hand editieren.
 
 | Teil | Ort | Heimat |
 |---|---|---|
-| Kern: Zwischenform `CopilotCore` + drei Renderer | `vendor/meridian_copilot_readiness/` (+ `PIN.json`) | Meridian `products/meridian_copilot_readiness/generator` |
+| Kern: Zwischenform `CopilotCore` + drei Renderer + Zugangswege-Felder (`zugangswege.py`) | `vendor/meridian_copilot_readiness/` (+ `PIN.json`) | Meridian `products/meridian_copilot_readiness/generator` |
 | Import-Brücke + Integritätsprüfung | `_vendor.py` | ALUCA |
 | Adapter: Katalog, Bracket, Action Codes, Datenverträge → Zwischenform | `adapter.py` | ALUCA |
 | Format-Signatur (Parität zu Meridian) | `parity.py`, Referenz `../tests/fixtures/copilot_readiness/meridian_format.json` | ALUCA |
@@ -95,9 +96,11 @@ Checkliste je veröffentlichtem Modell:
 ## Bekannte Grenzen
 
 - Fabric IQ MCP (GA, nur lesend) gibt eigenen Agenten Zugriff auf Modell-Metadaten und Werte.
-  Ist Fabric IQ aktiviert, liefert Copilot keine Verified Answers (Learn
-  `power-bi/create-reports/copilot-prepare-data-ai-verified-answers`, in Meridian gelesen
-  30.09.2026, `ki_zugang.py`). Datenschutz und Zustimmungsrichtlinie: `compliance/DPIA.md` 12.4
+- Verified Answers: Im Copilot-Bereich eines Berichts liefert Copilot keine, wenn dort Fabric IQ
+  eingeschaltet ist (Learn `power-bi/create-reports/copilot-prepare-data-ai-verified-answers`,
+  „General limitations“, gelesen 07.10.2026). Cowork unterstützt sie (Learn
+  `fabric/iq/connectors/cowork-overview`), für Copilot Chat nennt Learn nichts. Die Ausgabe
+  `zugangswege.md` führt das je Zugangsweg. Datenschutz und Zustimmungsrichtlinie: `compliance/DPIA.md` 12.4
   (ADR-0025).
 - Regel- und Anleitungstexte des Kerns sind deutsch, Definitionen bleiben englisch wie im Katalog.
 - Die Trigger-Phrasen sind Vorlagen des Kerns; `example_question` aus dem Katalog wird nicht eingespielt.
