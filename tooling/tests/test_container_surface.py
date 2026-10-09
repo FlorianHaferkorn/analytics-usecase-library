@@ -91,10 +91,14 @@ def test_gegenprobe_wirksames_theme_feuert(tmp_path, mutation, erwartet):
 def test_gegenprobe_basistheme_wird_gelesen(tmp_path):
     """Ein Basistheme mit Schatten an muss feuern, obwohl das eigene Theme keinen setzt."""
     dist = _mutierte_kopie(tmp_path, lambda st: None)
-    bt = next(dist.glob("*.Report/StaticResources/SharedResources/BaseThemes/*.json"))
-    basis = json.loads(bt.read_text(encoding="utf-8"))
-    basis["visualStyles"]["*"]["*"]["dropShadow"][0]["show"] = True
-    bt.write_text(json.dumps(basis), encoding="utf-8")
+    # Alle Basistheme-Dateien aller Berichte; welche report.json nennt, entscheidet der Prüfer.
+    # Nur die erste per glob zu nehmen hing von der Dateisystem-Reihenfolge ab (CI rot am
+    # 09.10.2026: das verwaiste Base_Theme_Template_V1.json ohne dropShadow lag dort vorne).
+    for bt in dist.glob("*.Report/StaticResources/SharedResources/BaseThemes/*.json"):
+        basis = json.loads(bt.read_text(encoding="utf-8"))
+        stern = basis.setdefault("visualStyles", {}).setdefault("*", {}).setdefault("*", {})
+        stern["dropShadow"] = [{"show": True}]
+        bt.write_text(json.dumps(basis), encoding="utf-8")
     treffer, _ = ccs.pruefe_dist(dist)
     assert any("Schatten sichtbar" in t for t in treffer), treffer
 
