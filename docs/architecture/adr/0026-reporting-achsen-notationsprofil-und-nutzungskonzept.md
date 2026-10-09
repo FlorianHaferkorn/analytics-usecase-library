@@ -59,3 +59,26 @@ IBCS 2.0 trennt selbst Notation von Composition.
   - ob `title_contract` die Option `statement_title` verliert (D-641 nennt das als ALUCA-Folge);
   - die Meridian-Seite (Feld `usage_concept` in `reporting.json`, Cockpit-Default, Umstellung von
     Aurora/Stratus): Meridian BO-265 bis BO-267.
+
+## 6. Nachtrag 09.10.2026: im Monitoring Farbe nur bei verletzter Bedingung, nach Richtung
+
+**Entscheidung Florian 09.10.2026.** Vorzeichen-Färbung gilt im Profil `monitoring` nicht. Gefärbt wird nur, was
+eine Bedingung in der Richtung der Kennzahl verletzt (`polarity` 1 = höher ist besser, -1 = niedriger ist besser);
+eine gute Abweichung bleibt grau.
+
+- **Anlass:** `with_focus(keep_conditions=True)` behielt jede Farbbedingung. Sechs Idiome färben im
+  house_default-Template nach dem Vorzeichen (`deviation_bar`, `variance_pin`, `multi_tier_column` zweimal,
+  `waterfall_pvm`, `waterfall_variance`: `< 0`) oder nach der Lage zum Ziel ohne Richtung (`lollipop`:
+  `< target_val`). Bei einer Kennzahl „niedriger ist besser“ wurde damit eine gute Abweichung rot.
+- **Form (Maschinenform):** optionales Feld `status_breach` je Idiom (`_schema.yaml`): je Bedingung der Test des
+  Templates (`when`) und der Test, der ihn im Monitoring ersetzt (`breach`, mit `{{polarity}}`).
+  `render.with_status_breach` tauscht die Tests, bevor `with_focus` das übrige grau setzt; `polarity_of` liest
+  `polarity`, sonst `direction`, sonst 1. Andere Profile sind unberührt (Goldens unverändert).
+- **Tests** (`tooling/visual_library/tests/test_usage_concepts.py`): jede Farbbedingung jedes Idioms im Monitoring
+  hängt von der Richtung ab (`test_monitoring_colours_only_by_direction`, mit Gegenprobe: unter `house_default`
+  färben die sechs weiter nach dem Vorzeichen); `deviation_bar` gute Abweichung grau, schlechte rot, für beide
+  Richtungen; `lollipop` unter dem Ziel grau bei „niedriger ist besser“. Gegenprobe gemessen: ohne den Tausch fallen
+  drei der Tests.
+- **Nicht geändert:** Serienfarben mit Legende (`area_stacked`, `bar_stacked`, `donut`, `stacked_100`) bleiben wie in
+  §2 Nr. 4 (Feldskala, `with_focus` lässt sie); ob das Monitoring sie ebenfalls grau setzt, ist nicht entschieden.
+  `bar_ranking` färbte schon nach Richtung und Ziel.
