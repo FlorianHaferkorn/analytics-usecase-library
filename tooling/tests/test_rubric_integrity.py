@@ -110,7 +110,14 @@ def test_open_gaps_are_counted_not_creeping():
     # 5 -> 4 am 05.08.2026: BC-TYPE-02 verdrahtet. Die alte Begruendung ("braucht
     # Render-Verifikation") war ein Fehlschluss — Power BI hat keine Eigenschaft fuer
     # Tabellenziffern, also IST die Schriftwahl die Regel, und die steht im Theme.
-    assert len(ohne_validator) == 4, (
-        f"{len(ohne_validator)} structural-Regeln ohne Validator (erwartet 4): "
-        f"{sorted(ohne_validator)}. Weniger = Fortschritt, Zahl anpassen. Mehr = eine "
+    # 4 -> 17 am 09.10.2026 (A-35, Rubrik 1.1): 13 Regeln aus der gemeinsamen Fassung (Meridian
+    # D-719) ohne ALUCA-Validator, je `validator_blocked: not_yet_wired` (BC-DV-11:
+    # render_verification). Keine stille Erweiterung: die Menge ist benannt, getrennt vom Altbestand.
+    alt = {"BC-COLOR-03", "BC-COLOR-04", "BC-CHART-05", "BC-NARR-06"}
+    neu_1_1 = {"BC-IBCS-01", "BC-TRANS-01", "BC-TRANS-02", "BC-TRANS-04", "BC-TRANS-05", "BC-DV-01",
+               "BC-DV-02", "BC-DV-03", "BC-DV-06", "BC-DV-07", "BC-DV-09", "BC-DV-10", "BC-DV-11"}
+    assert set(ohne_validator) == alt | neu_1_1, (
+        f"{len(ohne_validator)} structural-Regeln ohne Validator (erwartet {len(alt | neu_1_1)}): "
+        f"{sorted(ohne_validator)}. Weniger = Fortschritt, Menge anpassen. Mehr = eine "
         f"neue Regel behauptet Pruefbarkeit, ohne sie zu liefern.")
+    assert len(ohne_validator) == 17

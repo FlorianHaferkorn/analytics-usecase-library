@@ -11,12 +11,16 @@
 > format. The same bar applies to Power BI, Web and PDF renders — each at its own
 > fidelity limit (Concept §3).
 >
-> **Shared IP.** Mirrored with the Meridian initiative
-> (`Freelancing: meridian/design/boutique-craft-rubric.*`). Separate tools, shared
-> craft knowledge — kept in sync deliberately.
+> **Shared IP — this repo is the source (A-35, 09.10.2026).** The YAML here holds the rules
+> both tools share (statement, severity, weight, concept scope, `gilt_fuer`, thresholds,
+> dimensions and weights). Meridian mirrors it (`Freelancing: meridian/vendor/aluca/visual_library`)
+> and generates its own file (`meridian/design/boutique-craft-rubric.yaml`) from the mirror plus
+> a tool overlay (`check`, `machine_hint`, `source`). A common field changes here, never there.
 >
-> **Status:** Draft · v1.0 · 2026-07-10 · Definition only. Enforcement (structural
-> checks + LLM-judge) is **K6**, not wired yet.
+> **Status:** v1.1 · 2026-10-09 (v1.0 2026-07-10). Enforcement (structural checks + LLM-judge)
+> is **K6**: 20 rules scored by the live scorecard, coverage 54.6 % of the 100-point rubric
+> (measured 09.10.2026 with `tooling/report_quality/boutique_scorecard.py` and the spec-heuristic
+> judge; 73.4 % under v1.0 — same rules scored, the new dimensions have no ALUCA validator yet).
 
 ---
 
@@ -31,7 +35,9 @@ It is **not** a new theory. It compresses the repo's own authorities
 (`Storytelling_Principles.md`, `Layout_Grid_System.md`, `Color_Semantics_Formatting.md`,
 IBCS/ISO 24896) into 30 rules across 6 dimensions, each with an ID, severity, weight
 and a check-mode (`structural` = machine-checkable, `judge` = semi-automatic LLM +
-human). Every rule cites its source in the YAML.
+human). Every rule cites its source in the YAML. Version 1.1 adds two IBCS-scoped rules
+(`concept: ibcs`) and two dimensions from the Meridian Frontend-Mindeststandard
+(`transparency`, `dataviz_base`, 16 rules): 48 rules across 8 dimensions.
 
 ## 2. Scoring model
 
@@ -41,8 +47,15 @@ human). Every rule cites its source in the YAML.
 - **PASS iff** `total_score_pct ≥ 70` **AND** `knock_out` violations = 0.
 
 Dimension weights (chart-craft and narrative carry the most — that is where "wow"
-lives): color 15 · typography 12 · layout 15 · **chart_craft 28** · **narrative 20** ·
-brand 10.
+lives), since v1.1: color 12 · typography 10 · layout 12 · **chart_craft 22** · **narrative 16** ·
+brand 6 · transparency 10 · dataviz_base 12 (v1.0: 15 · 12 · 15 · 28 · 20 · 10).
+
+**Design concepts and frontends (v1.1).** `concept: ibcs` scopes a rule to the IBCS notation,
+`not_concept: ibcs` to every other; an out-of-scope rule is not applicable and its weight is
+renormalised. `gilt_fuer` records per frontend whether a rule is `nativ`, met by a named
+`ersatz`, or `entfaellt`. `thresholds` names the limits a statement uses (BC-LAYOUT-04:
+≤5 KPI tiles per page **and** ≤7 elements per zone — the two former readings of ALUCA and
+Meridian, both kept).
 
 **Knock-outs (any one → automatic fail, regardless of score):**
 
@@ -53,6 +66,8 @@ brand 10.
 | BC-CHART-10 | Evidence table unsorted / no Top-N |
 | BC-NARR-01 | Title carries the conclusion instead of describing it; key-message slot empty (rule reversed 08.10.2026, A-34 / IBCS UN 2.1/2.2 — before: title is a label, not a conclusion) |
 | BC-BRAND-01 | Renderer default theme (no composed custom theme) |
+| BC-DV-01 | Dual axis — two value scales on one plot (v1.1) |
+| BC-DV-02 | Categorical palette not run through the palette validator (v1.1) |
 
 ## 3. Relationship to the existing gates
 
