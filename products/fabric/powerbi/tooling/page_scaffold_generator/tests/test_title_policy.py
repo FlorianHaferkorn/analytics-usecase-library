@@ -273,8 +273,10 @@ def test_page_builder_renders_title_block_and_moves_grid_below():
     b = _grid_page(with_lines, "GM is under pressure")
     head_a = next(v for v in a["visuals"] if v["name"] == "Header")
     head_b = next(v for v in b["visuals"] if v["name"] == "Header")
-    # without title_lines: the one-line Header as before (dist unchanged)
-    assert "text" in head_a["visual"]["objects"]
+    # without title_lines: the one-line Header as before -- one paragraph with the big idea
+    # (PBIR textbox form general.paragraphs since #601; text.text is no textbox property)
+    assert textbox_paragraphs(head_a) == ["GM is under pressure"]
+    assert "text" not in head_a["visual"]["objects"]
     # with title_lines: key message above who / what / when, taller block
     assert textbox_paragraphs(head_b) == ["GM is under pressure", "Aurora Group", "Gross margin in %",
                                           "Jan..Dec 2026, AC and PL"]

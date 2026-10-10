@@ -14,6 +14,12 @@ Usage::
 
 The output path defaults to ``tooling/schemas/pbir/authoring_metadata_snapshot.json``.
 
+``--formatting-only`` vendors the formatting catalogue instead (07.10.2026): per visual type
+the formatting objects with their property names, plus the shared visual container objects,
+from ``formatting effective-properties`` / ``formatting list-vcos``. Output
+``tooling/schemas/pbir/formatting_metadata_snapshot.json``; read offline by
+``tooling/report_quality/formatting_metadata.py`` (theme and visual.json object checks).
+
 ``--base-theme-only`` vendors the base theme instead (Meridian D-587): it runs
 ``scaffold --offline`` of the pinned CLI in a temp dir and copies the scaffolded
 ``BaseThemes/<name>.json`` byte-for-byte to ``tooling/schemas/pbir/base_themes/``.
@@ -33,6 +39,7 @@ from pathlib import Path
 
 DEFAULT_CLI = "powerbi-report-author"
 DEFAULT_OUT = Path("tooling/schemas/pbir/authoring_metadata_snapshot.json")
+DEFAULT_FORMATTING_OUT = Path("tooling/schemas/pbir/formatting_metadata_snapshot.json")
 
 
 def _run_json(cli: str, args: list[str]) -> dict:
@@ -67,6 +74,43 @@ def build_snapshot(cli: str = DEFAULT_CLI) -> dict:
                 "tooling/report_quality/refresh_authoring_metadata.py (ADR 0001)."
             ),
         },
+        "visualTypes": visual_types,
+    }
+
+
+def build_formatting_snapshot(cli: str = DEFAULT_CLI) -> dict:
+    """Formatting catalogue of every visual type: ``{visualType: {object: [property, ...]}}``.
+
+    Only names are kept (sorted) -- enough to tell a known object/property from an unknown
+    one, small enough to diff. Shared visual container objects (title, padding, ...) are
+    listed once under ``visualContainerObjects``.
+    """
+    version = cli_version(cli)
+    catalog = _run_json(cli, ["catalog", "list"])
+    type_ids = [t["visualType"] if isinstance(t, dict) else t for t in catalog.get("visualTypes", [])]
+    visual_types: dict[str, dict[str, list[str]]] = {}
+    for visual_type in sorted(type_ids):
+        try:
+            eff = _run_json(cli, ["formatting", "effective-properties", visual_type])
+        except subprocess.CalledProcessError:
+            continue  # type without capabilities in the CLI (e.g. deprecated entry)
+        visual_types[visual_type] = {
+            obj: sorted(props) for obj, props in sorted((eff.get("visualObjects") or {}).items())
+        }
+    vcos = _run_json(cli, ["formatting", "list-vcos"]).get("visualContainerObjects") or []
+    return {
+        "_meta": {
+            "cli": "@microsoft/powerbi-report-authoring-cli",
+            "cliVersion": version,
+            "generatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "visualTypeCount": len(visual_types),
+            "note": (
+                "Formatting objects and property names per visual type, from "
+                "`formatting effective-properties` and `formatting list-vcos`. Do not "
+                "hand-edit -- regenerate with refresh_authoring_metadata.py --formatting-only."
+            ),
+        },
+        "visualContainerObjects": {v["name"]: sorted(v.get("properties") or []) for v in vcos},
         "visualTypes": visual_types,
     }
 
@@ -122,7 +166,26 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT, help="Where to write the snapshot JSON.")
     parser.add_argument("--base-theme-only", action="store_true",
                         help="Vendor the scaffolded base theme (D-587) instead of the role snapshot.")
+    parser.add_argument("--formatting-only", action="store_true",
+                        help="Vendor the formatting catalogue (objects/properties per visual type).")
     args = parser.parse_args(argv)
+
+    if args.formatting_only:
+        out = args.out if args.out != DEFAULT_OUT else DEFAULT_FORMATTING_OUT
+        try:
+            snapshot = build_formatting_snapshot(args.cli)
+        except FileNotFoundError:
+            print(f"ERROR: '{args.cli}' not found on PATH.", file=sys.stderr)
+            return 2
+        except subprocess.CalledProcessError as exc:
+            print(f"ERROR: {args.cli} failed: {exc.stderr or exc}", file=sys.stderr)
+            return 1
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(snapshot, indent=1, ensure_ascii=False, sort_keys=True) + "\n",
+                       encoding="utf-8", newline="\n")
+        print(f"Wrote {out} ({snapshot['_meta']['visualTypeCount']} visual types, "
+              f"CLI {snapshot['_meta']['cliVersion']})")
+        return 0
 
     if args.base_theme_only:
         try:

@@ -301,6 +301,13 @@ errors:
   #
   # Die Trennung braucht Power BI Desktop (L10). Bis dahin sind beide Klassen hier
   # benannt, damit der Desktop-Termin billig ist statt eine Neuerhebung.
+  #
+  # Geklaert 07.10.2026, behoben 08./09.10.2026: keine Katalogluecke. Die Theme-Befunde
+  # stammten aus dem veralteten dist-Theme (seit #609 Engine-Theme 0.6.0, D-685/D-710:
+  # 0 Befunde), `calloutValue`/`text.text`/`dataLabels` aus dem Generator (#601). CLI 0.5.0
+  # am 09.10.2026: 16 dist-Reports 0 Errors, COM-001_Sales_Performance_vs_Plan_LY 2 (ohne
+  # Generator-Eingabe). Beide Signaturen bleiben als Erkenner fuer Rueckfaelle stehen;
+  # Volltext KNOWN_ERRORS_AND_FIXES.md, Zeilen `PBIR_THEME_VISUAL_PROP_UNKNOWN` (18) ff.
 
   - id: pbir_theme_prop_unknown_catalog_gap
     signature: "PBIR_THEME_VISUAL_PROP_UNKNOWN.*(padding\\.(top|bottom|left|right)|markers\\.marker(Shape|Size)|lineStyles\\.(strokeLineCap|areaTransparency)|(column|row)Headers\\.backColor)"

@@ -12,16 +12,18 @@
   "visual": {
     "visualType": "textbox",
     "objects": {
-      "text": [
+      "general": [
         {
           "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Is asset availability sufficient to meet the production plan?  ·  Expected finding — Asset availability is declining — maintenance backlog is accumulating faster than resolution, and OEE compression signals near-term production risk.'"
-                }
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Is asset availability sufficient to meet the production plan?  ·  Expected finding — Asset availability is declining — maintenance backlog is accumulating faster than resolution, and OEE compression signals near-term production risk."
+                  }
+                ]
               }
-            }
+            ]
           }
         }
       ]

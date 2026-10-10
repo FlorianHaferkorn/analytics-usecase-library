@@ -9,7 +9,7 @@ import uuid
 from typing import Dict, Any, List, Optional
 from .layout_calculator import LayoutCalculator, Position
 from .grid_calculator import GridCalculator, GridPosition, ZONE0_HEADER_HEIGHT, zone0_offset, enforce_slicer_floor
-from .visual_builder import VisualBuilder
+from .visual_builder import VisualBuilder, textbox_objects, unquote_literal
 from .slicer_builder import SlicerBuilder
 from .title_policy import DEFAULT_KEY_MESSAGE_POSITION, TitleLines, resolve_header
 from .title_block import build_title_objects, title_block_height
@@ -244,17 +244,7 @@ class PageBuilder:
                             },
                             "visual": {
                                 "visualType": "textbox",
-                                "objects": {
-                                    "text": [
-                                        {
-                                            "properties": {
-                                                "text": {
-                                                    "expr": {"Literal": {"Value": text_value}}
-                                                }
-                                            }
-                                        }
-                                    ]
-                                }
+                                "objects": textbox_objects(unquote_literal(text_value)),
                             }
                         }
                     vis["position"]["tabOrder"] = tab + i
@@ -424,8 +414,7 @@ class PageBuilder:
             elif visual_type == "textbox":
                 vis = self.visual_builder._build_base_visual("textbox", position, tab_order=tab + i, name=slot_id)
                 _sn_raw = smart_narrative_text or "Filtering active – review current selection."
-                _sn_escaped = _sn_raw.replace("'", "''")
-                vis["visual"]["objects"] = {"text": [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{_sn_escaped}'"}}}}}]}
+                vis["visual"]["objects"] = textbox_objects(_sn_raw)
             elif visual_type == "tableEx" and slot_id == "Detail_Matrix":
                 vis = self.visual_builder.build_table(
                     position, columns=detail_dim_cols, measures=detail_measures, name=slot_id,
@@ -484,7 +473,6 @@ class PageBuilder:
             # position -- Zone 0 sits above the grid's slot area, not inside it.
             # Position/tabOrder match the R1.1 precedent (COM-002 Header, hand-applied
             # before this generator path existed).
-            _big_idea_escaped = big_idea_text.replace("'", "''")
             visuals.append(
                 {
                     "$schema": self.visual_builder.VISUAL_SCHEMA,
@@ -492,11 +480,7 @@ class PageBuilder:
                     "position": {"x": 32, "y": 32, "z": 10000, "height": ZONE0_HEADER_HEIGHT, "width": 1856, "tabOrder": 2999},
                     "visual": {
                         "visualType": "textbox",
-                        "objects": {
-                            "text": [
-                                {"properties": {"text": {"expr": {"Literal": {"Value": f"'{_big_idea_escaped}'"}}}}}
-                            ]
-                        },
+                        "objects": textbox_objects(big_idea_text),
                     },
                 }
             )
@@ -867,21 +851,7 @@ class PageBuilder:
                 },
                 "visual": {
                     "visualType": "textbox",
-                    "objects": {
-                        "text": [
-                            {
-                                "properties": {
-                                    "text": {
-                                        "expr": {
-                                            "Literal": {
-                                                "Value": teaser_text
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    }
+                    "objects": textbox_objects(unquote_literal(teaser_text))
                 }
             }
             visuals.append(action_panel_visual)
@@ -901,21 +871,7 @@ class PageBuilder:
                 },
                 "visual": {
                     "visualType": "textbox",
-                    "objects": {
-                        "text": [
-                            {
-                                "properties": {
-                                    "text": {
-                                        "expr": {
-                                            "Literal": {
-                                                "Value": "'Key actions from variance → see Detail or T4'"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    }
+                    "objects": textbox_objects(unquote_literal("'Key actions from variance → see Detail or T4'"))
                 }
             }
             visuals.append(action_panel_visual)

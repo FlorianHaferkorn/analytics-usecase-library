@@ -26,16 +26,19 @@
           }
         }
       ],
-      "calloutValue": [
+      "value": [
         {
           "properties": {
-            "displayUnits": {
+            "labelDisplayUnits": {
               "expr": {
                 "Literal": {
-                  "Value": "0L"
+                  "Value": "0D"
                 }
               }
             }
+          },
+          "selector": {
+            "id": "default"
           }
         }
       ]

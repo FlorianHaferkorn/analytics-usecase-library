@@ -158,7 +158,9 @@ ACTION_PANEL_TEMPLATE: Dict[str, Any] = {
         "visualType": "textbox",
         "query": {"queryState": {"Data": {"projections": []}}},
         "objects": {
-            "text": [{"properties": {"text": {"expr": {"Literal": {"Value": "''"}}}}}]
+            # PBIR textbox text: general.paragraphs[].textRuns[].value (plain string). text.text
+            # is not a textbox property (PBIR_FORMATTING_PROP_UNKNOWN, CLI Pin 0.4.0).
+            "general": [{"properties": {"paragraphs": [{"textRuns": [{"value": ""}]}]}}]
         }
     }
 }
@@ -180,9 +182,8 @@ def write_action_panel_visual(report_dir: Path, text: str) -> Path:
     out_path = panel_dir / "visual.json"
 
     visual = json.loads(json.dumps(ACTION_PANEL_TEMPLATE))  # deep copy
-    # Escape single-quotes for Power BI literal strings
-    escaped = text.replace("'", "''")
-    visual["visual"]["objects"]["text"][0]["properties"]["text"]["expr"]["Literal"]["Value"] = f"'{escaped}'"
+    # textRuns carry plain text -- no PBIR literal quoting/escaping.
+    visual["visual"]["objects"]["general"][0]["properties"]["paragraphs"][0]["textRuns"][0]["value"] = text
 
     out_path.write_text(json.dumps(visual, indent=2, ensure_ascii=False), encoding="utf-8", newline="\n")
     return out_path

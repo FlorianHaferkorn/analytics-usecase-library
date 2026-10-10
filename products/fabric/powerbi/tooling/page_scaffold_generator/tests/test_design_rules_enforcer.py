@@ -238,6 +238,27 @@ class TestBigIdeaHeaderZone:
         )
         assert errors == []
 
+    @staticmethod
+    def _paragraph_header(text: str) -> dict:
+        """PBIR textbox shape the generator emits since 07.10.2026 (general.paragraphs)."""
+        return {
+            "name": "Header",
+            "visual": {"objects": {"general": [{"properties": {
+                "paragraphs": [{"textRuns": [{"value": text}]}]}}]}},
+        }
+
+    def test_conformant_with_paragraph_textbox(self):
+        errors = dre.check_header_text_equals_big_idea(
+            self.RULE, self.BIG_IDEA, [self._paragraph_header("Q?  ·  Expected finding — " + self.BIG_IDEA)]
+        )
+        assert errors == []
+
+    def test_violation_with_paragraph_textbox_text_differs(self):
+        errors = dre.check_header_text_equals_big_idea(
+            self.RULE, self.BIG_IDEA, [self._paragraph_header("Something else entirely")]
+        )
+        assert len(errors) == 1 and errors[0].startswith("BIG_IDEA_HEADER_ZONE:")
+
 
 # ---------------------------------------------------------------------------
 # Real-data regression: COM-002 is the migrated, conformant reference Bracket

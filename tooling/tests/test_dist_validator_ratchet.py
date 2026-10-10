@@ -28,6 +28,18 @@ Nachgemessen am 30.09.2026 (CLI 0.4.0): unverändert 16 × 25 und 1 × 23. Der o
 käme auf 0, trägt aber nur 105 statt 211 Visuals und 39 von 133 im dist-Modell auflösbare
 Bindungen; `dist/` bleibt deshalb auf dem Prototyp und die Ratsche auf 25
 (`docs/architecture/research/2026-09-30_a18-dist-emit-messung.md`, A-18).
+
+Nachgemessen am 07.10.2026 (CLI 0.4.0, `validate --format json`, alle 17 dist-Reports): vorher
+16 × 25 und 1 × 23 (423 Errors), nachher 15 × 23, FIN-001 23, COM-001LY 25 (393). Die 25 waren
+keine Katalogluecke, sondern Quellfehler: der Generator schrieb `calloutValue` an `cardVisual`
+und `text.text` an die Header-Textbox (beide behoben, 15 Reports neu erzeugt). Die 23 im Theme
+stammten aus dem veralteten dist-Theme; seit 08.10.2026 traegt dist das Engine-Theme
+(D-685/D-710), dort 0 Befunde.
+
+Nachgemessen am 09.10.2026 (CLI 0.5.0, `validate --format json`, alle 17 dist-Reports, Stand
+nach Zusammenfuehrung der Emitter-Korrektur mit dem Engine-Theme): 16 × 0, COM-001LY 2
+(`calloutValue` an cardVisual, `dataLabels` an clusteredBarChart; Variante ohne Bracket, keine
+Generator-Eingabe), Summe 2. Offline gefuehrt in `test_dist_formatting_catalogue.py`.
 """
 from __future__ import annotations
 
@@ -72,6 +84,10 @@ def _cli_args(report: Path) -> list[str]:
 #: an cardVisual und `text.text` an der Header-Textbox; COM-001LY: `calloutValue` und
 #: `dataLabels`; FIN-001: 0). Gemessen ohne Zugang zu
 #: developer.microsoft.com (7 x PBIR_SCHEMA_UNREACHABLE je Report), wie die Messungen davor.
+#:
+#: 09.10.2026, Emitter-Korrektur (cardVisual `value`, Textbox `general.paragraphs`) auf dem
+#: Engine-Theme: 15 Generator-Reports 2 -> 0, FIN-001 0, COM-001LY 2 (Summe 32 -> 2). Der
+#: schlechteste bleibt COM-001LY, daher Baseline weiter 2; faellt er, gehoert die Zahl auf 0.
 BASELINE_ERRORS = 2
 
 

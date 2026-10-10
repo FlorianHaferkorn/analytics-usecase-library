@@ -12,16 +12,18 @@
   "visual": {
     "visualType": "textbox",
     "objects": {
-      "text": [
+      "general": [
         {
           "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Is resource utilization sustainable without degrading service quality?  ·  Expected finding — Resource utilization is above sustainable threshold — occupancy peaks in two teams are creating burnout risk and reducing service quality consistency.'"
-                }
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Is resource utilization sustainable without degrading service quality?  ·  Expected finding — Resource utilization is above sustainable threshold — occupancy peaks in two teams are creating burnout risk and reducing service quality consistency."
+                  }
+                ]
               }
-            }
+            ]
           }
         }
       ]

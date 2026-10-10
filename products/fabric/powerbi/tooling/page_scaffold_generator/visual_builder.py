@@ -17,6 +17,32 @@ from products.fabric.powerbi.tooling.schema_registry import VISUAL_SCHEMA as _VI
 _WATERFALL_Y_MAX = 1
 
 
+def textbox_objects(text: str, align: Optional[str] = None) -> Dict[str, Any]:
+    """``visual.objects`` of a PBIR ``textbox`` carrying ``text`` as one paragraph.
+
+    The text lives in ``general.paragraphs[].textRuns[].value`` (plain string, no PBIR
+    literal quoting) -- the shape Power BI Desktop writes and the one ``adapters/pbip.py``
+    already emits. The former ``text.text`` literal is not a textbox property: the official
+    catalogue (``powerbi-report-author formatting describe-object textbox text``, Pin 0.4.0)
+    lists only ``fontSize``/``fontFamily``/``color`` there, and ``validate`` reports
+    ``PBIR_FORMATTING_PROP_UNKNOWN`` (gemessen 07.10.2026, 15 Header in dist/).
+    """
+    paragraph: Dict[str, Any] = {"textRuns": [{"value": text}]}
+    if align:
+        paragraph["horizontalTextAlignment"] = align
+    return {"general": [{"properties": {"paragraphs": [paragraph]}}]}
+
+
+def unquote_literal(value: str) -> str:
+    """Plain text of a single-quoted PBIR string literal (``'It''s'`` -> ``It's``).
+
+    Values without the surrounding quotes are returned unchanged, so callers can pass either.
+    """
+    if len(value) >= 2 and value.startswith("'") and value.endswith("'"):
+        return value[1:-1].replace("''", "'")
+    return value
+
+
 class VisualBuilder:
     """Builds visual JSON structures for PBIP format."""
 
@@ -197,12 +223,17 @@ class VisualBuilder:
                     }
                 }
             ],
-            # Auto display units: Power BI auto-scales large amounts to K / M / B
-            "calloutValue": [
+            # Auto display units: Power BI auto-scales large amounts to K / M / B.
+            # cardVisual (new card) carries the callout in ``value`` (selector default),
+            # property ``labelDisplayUnits`` (enum "0" = Auto). ``calloutValue`` is not in the
+            # official catalogue for cardVisual (Pin 0.4.0: ``formatting list-objects cardVisual``;
+            # ``formatting describe-property cardVisual value labelDisplayUnits``).
+            "value": [
                 {
                     "properties": {
-                        "displayUnits": {"expr": {"Literal": {"Value": "0L"}}}
-                    }
+                        "labelDisplayUnits": {"expr": {"Literal": {"Value": "0D"}}}
+                    },
+                    "selector": {"id": "default"}
                 }
             ]
         }
@@ -467,8 +498,10 @@ class VisualBuilder:
                 "Y": {"projections": y_proj},
             }
         }
+        # Data labels of cartesian charts are the object "labels"; "dataLabels" is unknown
+        # for clusteredColumnChart (official catalogue, Pin 0.4.0), same as for the bar chart.
         visual["visual"]["objects"] = {
-            "dataLabels": [
+            "labels": [
                 {
                     "properties": {
                         "show": {"expr": {"Literal": {"Value": "true"}}},
