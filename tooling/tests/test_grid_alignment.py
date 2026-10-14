@@ -45,7 +45,7 @@ def test_pre_l13_geometry_is_caught():
     """Die real gefundenen Werte: Spanne 3.929 statt 4.00.
 
     Kein erfundenes Beispiel — das ist die Geometrie, die
-    COM-001_Sales_Performance_vs_Plan_LY vor der Korrektur trug, und exakt die Zahl,
+    handgepflegte LY-Variante von COM-001 (entfernt 14.10.2026) vor der Korrektur trug, und exakt die Zahl,
     die L13 als Defekt benannt hat.
     """
     grund = cga.abweichung(_pos(1291, 597), _params())

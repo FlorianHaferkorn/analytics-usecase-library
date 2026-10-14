@@ -155,7 +155,8 @@ def rendered_title_findings(bracket_path: Path, exhibits: list[dict[str, Any]],
     ``dist`` — then nothing was compared ("not checked", never "passed").
     """
     name = bracket_path.parent.name
-    # The bracket's report and its variants (`<name>_<variant>.Report`, e.g. COM-001 ..._vs_Plan_LY).
+    # The bracket's report and its variants (`<name>_<variant>.Report`). dist/ holds none since
+    # 14.10.2026 (COM-001's LY variant removed, A-30 E4); the glob stays for any future variant.
     reports = [r for r in [dist / f"{name}.Report", *sorted(dist.glob(f"{name}_*.Report"))] if r.is_dir()]
     if not reports:
         return False, []

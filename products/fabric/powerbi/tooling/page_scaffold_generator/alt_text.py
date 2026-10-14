@@ -484,7 +484,7 @@ def report_locale(report_dir: Path, repo_root: Optional[Path] = None) -> str:
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         description="Alt-Text in bestehende PBIR-Reports schreiben (Reports ohne Generatorpfad, "
-                    "z. B. FIN-001 und COM-001_Sales_Performance_vs_Plan_LY). Sprache aus "
+                    "z. B. FIN-001). Sprache aus "
                     "ux_layout_rules.report_locale des Brackets.")
     parser.add_argument("reports", nargs="+", type=Path, help="Pfad(e) zu <Name>.Report")
     parser.add_argument("--model", type=Path, default=None,

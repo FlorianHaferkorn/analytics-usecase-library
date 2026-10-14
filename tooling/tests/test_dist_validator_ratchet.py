@@ -40,6 +40,12 @@ Nachgemessen am 09.10.2026 (CLI 0.5.0, `validate --format json`, alle 17 dist-Re
 nach Zusammenfuehrung der Emitter-Korrektur mit dem Engine-Theme): 16 × 0, COM-001LY 2
 (`calloutValue` an cardVisual, `dataLabels` an clusteredBarChart; Variante ohne Bracket, keine
 Generator-Eingabe), Summe 2. Offline gefuehrt in `test_dist_formatting_catalogue.py`.
+
+Nachgemessen am 14.10.2026 (CLI 0.5.0, `validate --format json`, alle 16 dist-Reports nach dem
+Entfernen der LY-Variante, A-30 E4 abgeaendert): 16 × 0, Summe 0. Gegenprobe: dieselbe CLI auf
+die entfernte Variante aus `origin/main` meldet weiter 2 (`PBIR_FORMATTING_OBJECT_UNKNOWN`), die
+0 ist also kein Nicht-Lauf. Schemapruefung wie zuvor nicht gelaufen (7 x PBIR_SCHEMA_UNREACHABLE
+je Report, Sandbox ohne Zugang zu developer.microsoft.com).
 """
 from __future__ import annotations
 
@@ -88,7 +94,10 @@ def _cli_args(report: Path) -> list[str]:
 #: 09.10.2026, Emitter-Korrektur (cardVisual `value`, Textbox `general.paragraphs`) auf dem
 #: Engine-Theme: 15 Generator-Reports 2 -> 0, FIN-001 0, COM-001LY 2 (Summe 32 -> 2). Der
 #: schlechteste bleibt COM-001LY, daher Baseline weiter 2; faellt er, gehoert die Zahl auf 0.
-BASELINE_ERRORS = 2
+#:
+#: 2 -> 0 am 14.10.2026: COM-001LY ist entfernt (A-30 E4 abgeaendert), die 16 verbliebenen
+#: Reports melden mit CLI 0.5.0 je 0 Errors.
+BASELINE_ERRORS = 0
 
 
 #: Code, mit dem die CLI ein nicht ladbares ``$schema`` meldet -- als *Warning*. Dann lief
