@@ -16,6 +16,7 @@ Use cases and reports **reference** governed definitions — they do not define 
 | Semantic model conventions | `core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md` |
 | Page templates | `core/templates/page_templates/` |
 | Schema authority | `tooling/generator/schemas/` |
+| Fabric/Power-BI changes affecting ALUCA (signals, open cases) | `signale/` (register in Freelancing `research/signale/`, D-623) |
 
 ---
 
@@ -66,6 +67,7 @@ Run all scripts from the **repository root**.
 | Task | Command |
 |---|---|
 | Python test suite | `python3 -m pytest tooling/tests/ products/ -q` |
+| Activate the pre-commit hook (once per clone; single hook `.githooks/pre-commit`) | `git config core.hooksPath .githooks` (Windows: `.\tooling\git-hooks\install_precommit.ps1`) |
 | OSS stack validation | `bash products/open_source_stack/tooling/run_oss_checks.sh` |
 | OSS report generation | `python3 products/oss_adapters/orchestrator/orchestrate_oss.py --bracket <path> --adapter metabase` |
 | Registry build | `python3 tooling/ontology/registry_builder.py --repo-root .` |

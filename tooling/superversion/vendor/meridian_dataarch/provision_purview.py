@@ -23,6 +23,14 @@ from typing import Any
 #: Marker fuer Tenant-Fakten, die der Bauplan nicht kennt (wie UNRESOLVED in provision_ingestion).
 OFFEN = "TODO-TENANT-ID"
 
+#: Status der DLP-Aktion „Restrict access" fuer Fabric und Power BI, eine Stelle fuer alle Texte
+#: (provision_platform, betriebskanon BK-Z08, die PowerShell-Vorlage hier). Learn
+#: `purview/dlp-powerbi-get-started` nennt sie am 01.10.2026 „Restrict access (preview)", die
+#: Fabric-September-Feature-Summary GA (Widerspruch, SIG-2609-015, D-627). Beim Wechsel auf GA nur
+#: diese Zeile aendern; `test_restrict_access_status_eine_stelle` haelt die Texte zusammen.
+RESTRICT_ACCESS_STATUS = "Preview"
+RESTRICT_ACCESS_GEPRUEFT = "2026-10-01"
+
 BAUSTEINE: tuple[str, ...] = ("labels", "dlp", "data_map", "unified_catalog", "audit", "data_quality")
 
 _LEARN = "https://learn.microsoft.com"
@@ -211,7 +219,8 @@ def _dlp(bp: dict) -> str:
         '"Value":[{"groups":[{"Operator":"Or","labels":[{"name":"<Label-Name>","type":"Sensitivity"}]}]}]}]}}',
         "'@",
         'New-DlpComplianceRule -Name "Fabric-DLP-Label" -Policy "Fabric-DLP" -AdvancedRule $Regel -GenerateAlert $true -NotifyUser Owner',
-        "# 'Restrict access' (Preview) ist auf Learn nur als Portal-Aktion beschrieben. ANNAHME, ungeprueft:",
+        f"# 'Restrict access' ({RESTRICT_ACCESS_STATUS}) ist auf Learn nur als Portal-Aktion beschrieben. "
+        "ANNAHME, ungeprueft:",
         "# -BlockAccess $true -AccessScope NotInOrganization -BlockAccessScope PerUser",
         "# Nach der Testphase: Set-DlpCompliancePolicy -Identity \"Fabric-DLP\" -Mode Enable",
     ]

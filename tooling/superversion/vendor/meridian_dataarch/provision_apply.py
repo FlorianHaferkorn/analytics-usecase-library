@@ -129,6 +129,21 @@ def gold_workspace_of(bp: dict, domain_name: str | None = None,
     return kandidaten[0]["name"] if kandidaten else fallback
 
 
+def warehouse_name_for(lakehouse: str) -> str:
+    """Der Name des Gold-Warehouse neben einem Lakehouse: Typkuerzel ``lh`` → ``wh`` (D-672).
+
+    Bis 02.10.2026 hiess das Warehouse wie das Lakehouse (``…/lh_x.Warehouse``). Das verletzt die
+    Namenskonvention (der Typ ist das einzige Pflichtsegment, §2.2/§5.1, ``test_naming_gate``) und
+    macht den Drei-Teil-Namen des Ladeschritts mehrdeutig: ``[lh_x].[silver].[t]`` muss das
+    Lakehouse meinen, nicht das Warehouse. Ein Name ohne ``lh``-Segment bekommt ``wh_`` davor.
+    """
+    teile = (lakehouse or "").split("_")
+    if "lh" in teile:
+        teile[teile.index("lh")] = "wh"
+        return "_".join(teile)
+    return f"wh_{lakehouse}"
+
+
 def _artifact_candidates(gp: str, dom_slug: str, stack: str) -> list[str]:
     """Die Pfade, unter denen ein Gold-Produkt emittiert sein *kann* — in Importreihenfolge.
 
@@ -209,6 +224,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     """
     from core.dataarch_engine.blueprint.decision_proposals import entscheidung_fuer
     from core.dataarch_engine.blueprint.provision_governance import ONELAKE_ROLLEN_MODI
+    warehouse = warehouse_name_for(lakehouse)
 
     if onelake_rollen_modus not in ONELAKE_ROLLEN_MODI:
         raise ValueError(f"onelake_rollen_modus {onelake_rollen_modus!r} unbekannt — erlaubt: "
@@ -230,6 +246,12 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
         for pn in d.get("data_products", []):
             dom_of.setdefault(pn, _dirslug(d["name"]))
             ws_of.setdefault(pn, gold_workspace_of(bp, d.get("name"), fallback=target_ws))
+    # D-672: Domaenen mit Gold im Warehouse und ihre eigenen (nicht konformen) Produkte.
+    from core.dataarch_engine.blueprint.provision_transforms import _konforme_produkte, warehouse_domaenen
+    wh_doms = warehouse_domaenen(bp)
+    _konform = _konforme_produkte(domains)
+    wh_produkte = sorted({pn for d in domains if d.get("name") in wh_doms
+                          for pn in d.get("data_products", []) or [] if pn not in _konform})
     # Quelle → Domäne (für den Artefaktverweis der Ingestion-Schritte)
     src_dom: dict[str, str] = {}
     for d in domains:
@@ -300,7 +322,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     if entscheidung_fuer(entscheidungen, "PLAT-LHTOPO", "") == "gold_warehouse":
         for name, role in workspaces:
             if role in LAKEHOUSE_ROLES:
-                add("create_warehouse", f"{name}.Workspace/{lakehouse}.Warehouse",
+                add("create_warehouse", f"{name}.Workspace/{warehouse}.Warehouse",
                     "core-mcp:create-item | fab mkdir", "human",
                     "Entschieden: PLAT-LHTOPO = gold_warehouse. Gold als Warehouse fuer "
                     "T-SQL-Serving mit vollem DML; kennt keine Materialized Lake Views, Direct "
@@ -308,6 +330,31 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
                     "data-warehousing). Nebenwirkung: Schreiben ueber T-SQL erzwingt den "
                     "delegierten Modus, die OneLake-Rollen werden wirkungslos.",
                     present("terraform/main.tf") or present("provision.sh"))
+    # D-672: eine Domaene mit `gold_target = warehouse` braucht ihr Warehouse auch ohne die
+    # Entscheidung PLAT-LHTOPO — sonst liefe `run_sql_ddl` gegen ein Item, das niemand anlegt
+    # (ALUCA ADR-0024 §8.4 Punkt 2). Je Gold-Workspace dieser Domaenen genau ein Schritt; was
+    # PLAT-LHTOPO schon angelegt hat, kommt nicht ein zweites Mal.
+    # Der Laufschalter (`sql_ddl_layers` mit "warehouse") meint alle Domaenen — auch dann fehlte
+    # das Item bisher, wenn PLAT-LHTOPO nicht entschieden war.
+    _wh_fuer = ([d.get("name", "") for d in domains] if "warehouse" in sql_ddl_layers else wh_doms)
+    _schon = {op["target"] for op in plan if op["action"] == "create_warehouse"}
+    _je_ws: dict[str, list[str]] = {}
+    for dn in _wh_fuer:
+        _je_ws.setdefault(gold_workspace_of(bp, dn, fallback=target_ws), []).append(dn)
+    for _ws, _doms in sorted(_je_ws.items()):
+        _ziel = f"{_ws}.Workspace/{warehouse}.Warehouse"
+        if _ziel in _schon:
+            continue
+        _grund = ("gold_target = warehouse" if "warehouse" not in sql_ddl_layers
+                  else "Warehouse-Schicht im Lauf (--emit-warehouse)")
+        add("create_warehouse", _ziel, "core-mcp:create-item | fab mkdir", "human",
+            f"{_grund} ({', '.join(sorted(_doms))}). Gold als Warehouse fuer T-SQL-Entwicklung "
+            "und Multi-Table-Transaktionen; Lakehouse bleibt die Empfehlung. Das Warehouse liest "
+            "Silber per Drei-Teil-Namen aus dem Lakehouse und muss dafuer im selben Workspace "
+            "liegen (MS Learn fabric/data-warehouse/transactions, gelesen 02.10.2026). "
+            "Nebenwirkung: Schreiben ueber T-SQL erzwingt den delegierten Modus, OneLake-Rollen "
+            "greifen dort nicht.",
+            present("terraform/main.tf") or present("provision.sh"))
     for d in domains:
         # `preview=false` ist Pflichtparameter (Release-Version); Aufrufer muss Fabric-Administrator
         # sein — Dienstprinzipal wird unterstützt. Geprüft 31.07.2026 gegen
@@ -405,6 +452,13 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     # Plan darf sie aber nicht verstecken: statt zwei Materialisierungen stillschweigend
     # hintereinanderzustellen, steht die Wahl als eigener, freigabepflichtiger Schritt davor.
     doppelt = [lay for lay in ("mlv", "warehouse") if lay in sql_ddl_layers]
+    # D-672: die Warehouse-Schicht gilt auch ohne Laufschalter, sobald eine Domaene sie waehlt —
+    # dann aber nur fuer deren Produkte. Der Laufschalter (`sql_ddl_layers`) bleibt: alle Produkte.
+    ddl_produkte = {"mlv": gold_products,
+                    "warehouse": gold_products if "warehouse" in sql_ddl_layers else wh_produkte}
+    ddl_schichten = [lay for lay in ("mlv", "warehouse")
+                     if lay in sql_ddl_layers or (lay == "warehouse" and wh_produkte)]
+    doppelt = ddl_schichten
     if len(doppelt) > 1 and gold_products:
         add("decide_gold_store",
             f"{target_ws}.Workspace — {len(gold_products)} Gold-Produkt(e) in "
@@ -417,26 +471,37 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
             "OneLake-Rollen wirkungslos, weil Schreiben ueber T-SQL den delegierten Modus erzwingt.")
 
     # execute the emitted SQL DDL (MLV / warehouse) — a CREATE statement is run, not imported
-    for layer in ("mlv", "warehouse"):
-        if layer not in sql_ddl_layers:
-            continue
+    for layer in ddl_schichten:
         # D-529: der Refresh einer MLV laeuft NICHT von selbst — er braucht einen Ausloeser, und
         # der ist ein eigener Schritt unten. Und das Ziel ist das **Lakehouse** (Spark SQL):
         # der SQL-Analyseendpunkt ist nur lesend und kennt `CREATE MATERIALIZED LAKE VIEW` nicht.
         once = ("once — the refresh runs only when triggered (step schedule_mlv_refresh)"
                 if layer == "mlv" else "re-runnable (idempotent DDL)")
-        ziel = "Lakehouse (Spark SQL)" if layer == "mlv" else "SQL endpoint"
-        werkzeug = "notebook %%sql | fab" if layer == "mlv" else "fab / rest:/sql/query | notebook %%sql"
-        for gp in gold_products:
+        # D-672: die Warehouse-DDL laeuft im WAREHOUSE. Bis 02.10.2026 stand hier „SQL endpoint" —
+        # der SQL-Analyseendpunkt eines Lakehouse ist nur lesend und kennt kein CREATE TABLE.
+        ziel = "Lakehouse (Spark SQL)" if layer == "mlv" else f"{warehouse}.Warehouse (T-SQL)"
+        werkzeug = ("notebook %%sql | fab" if layer == "mlv"
+                    else "Warehouse SQL-Editor | rest:/sql/query | sqlcmd")
+        for gp in ddl_produkte[layer]:
             # match each emitter's on-disk filename exactly: mlv/<dom>/<p>.mlv.sql · warehouse/<dom>/gold_<p>.sql
             fname = f"{_ident(gp)}.mlv.sql" if layer == "mlv" else f"gold_{_ident(gp)}.sql"
             rel = f"{layer}/{dom_of.get(gp, 'gold')}/{fname}"
             ws = ws_of.get(gp, target_ws)
             add("run_sql_ddl", f"{ws}.Workspace {ziel} ← render/{stack}/{rel}",
                 werkzeug, "human",
-                f"execute the generated {layer} DDL for '{gp}' against the SQL endpoint — {once}",
+                f"execute the generated {layer} DDL for '{gp}' against the "
+                f"{'lakehouse' if layer == 'mlv' else 'warehouse'} — {once}",
                 # der Pfad ist hier deklariert, nicht gesucht: die DDL-Schicht lief in diesem Lauf
                 present(rel) or rel)
+            if layer == "warehouse":
+                # D-672: ohne Ladeschritt bleibt das Warehouse-Gold leer (ADR-0024 §8.4 Punkt 1).
+                lade = f"{layer}/{dom_of.get(gp, 'gold')}/load_gold_{_ident(gp)}.sql"
+                add("load_warehouse_gold", f"{ws}.Workspace {ziel} ← render/{stack}/{lade}",
+                    werkzeug, "human",
+                    f"load '{gp}' from silver: TRUNCATE + INSERT … SELECT in one transaction, silver "
+                    f"via three-part names from {lakehouse} (same workspace). Re-runnable; run after "
+                    "silver is loaded. A file that stops with THROW names what the catalog lacks.",
+                    present(lade) or lade)
         if layer == "mlv" and present("mlv/execution_definition.json"):
             # D-621: der Graph-Zeitplan braucht zuerst die Execution Definition; ihre ID
             # gehoert in refresh_schedule.json, sonst scheitert der Zeitplan laut.
@@ -865,8 +930,13 @@ def emit_apply(bp: dict, stack: str = "fabric", workspace: str = PLACEHOLDER_WOR
                lakehouse: str = "analytics_gold", sql_ddl_layers: tuple[str, ...] = (),
                emitted: set[str] | None = None,
                semantic_model: bool = False,
-               onelake_rollen_modus: str = "gesamt") -> dict[str, str]:
+               onelake_rollen_modus: str = "gesamt",
+               entscheidungen: dict | None = None) -> dict[str, str]:
     """Return the apply/MCP-integration artifact set (path → content). Fabric-specific.
+
+    ``entscheidungen`` (D-672) wird an ``build_apply_plan`` durchgereicht — bis 02.10.2026 fiel es
+    hier weg, und `PLAT-NET`/`PLAT-LHTOPO` erreichten den emittierten Plan nie (ALUCA ADR-0024 §8.4
+    Punkt 2), nur den direkt gerufenen.
 
     ``sql_ddl_layers`` (``"mlv"``/``"warehouse"``) adds ``run_sql_ddl`` steps for the emitted SQL DDL so
     the apply runbook actually deploys it (see ``build_apply_plan``).
@@ -879,7 +949,8 @@ def emit_apply(bp: dict, stack: str = "fabric", workspace: str = PLACEHOLDER_WOR
     plan = build_apply_plan(bp, workspace=workspace, lakehouse=lakehouse, stack=stack,
                             sql_ddl_layers=sql_ddl_layers, emitted=emitted,
                             semantic_model=semantic_model,
-                            onelake_rollen_modus=onelake_rollen_modus)
+                            onelake_rollen_modus=onelake_rollen_modus,
+                            entscheidungen=entscheidungen)
     return {
         "apply/APPLY_PLAN.json": json.dumps(plan, indent=2, ensure_ascii=False) + "\n",
         "apply/APPLY_PLAN.md": _apply_md(plan),

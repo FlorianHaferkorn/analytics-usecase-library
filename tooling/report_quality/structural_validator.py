@@ -180,27 +180,244 @@ class RequiredSlots:
         ]
 
 
+# ── Verbotsliste: IBCS 2.0 EX 2.1 bis EX 2.5 plus Hausregel BC-CHART-08 ──────────────────
+#
+# Quelle der IBCS-Regeln: IBCS Standards Version 2.0 (IBCS Association 2026, CC BY-SA 4.0),
+# Abschnitt EXPRESS, Gruppe EX 2 „Replace inappropriate chart types", wie katalogisiert in
+# `docs/architecture/research/2026-09-30_visual-stack-r1/ibcs_v2.yaml` (Feld `seite`).
+# IBCS sagt „replace" mit Ausnahmen, nicht „never" -- daher Schwere `warning`. Die Seitenzahlen
+# hier sind Konstanten mit Nachbar: `test_ibcs_ex2_verbotsliste.py` liest sie gegen den Katalog.
+#
+# Ausnahmen sind Daten, keine Prosa: ein Visual erklaert sie ueber die PBIR-Annotation
+# `{"name": "ibcs.ausnahme", "value": "EX 2.2: <Begruendung>"}` (visualContainer-Schema, Feld
+# `annotations`). Eine anerkannte Ausnahme erzeugt einen `info`-Befund statt keines -- ein
+# Wachhund, der still wird, sieht aus wie einer, der nichts gefunden hat.
+
+AUSNAHME_ANNOTATION = "ibcs.ausnahme"
+
+
+@dataclass(frozen=True)
+class Diagrammregel:
+    """Eine Zeile der Verbotsliste."""
+
+    regel_id: str              # "EX 2.1" (IBCS 2.0) oder "BC-CHART-08" (Hausregel)
+    seite: int | None          # Seite im IBCS-2.0-Original laut Katalog; None = keine IBCS-Regel
+    severity: Severity
+    ersatz: str
+    ausnahme: str | None       # Katalog-Ausnahme, die per Annotation erklaert werden darf; None = keine
+    herkunft: str | None = None  # eigene Quellenangabe (z. B. Microsoft-Abkuendigung) statt IBCS/Hausregel
+
+    @property
+    def quelle(self) -> str:
+        if self.herkunft is not None:
+            return self.herkunft
+        if self.seite is None:
+            return f"{self.regel_id} (Hausregel, Boutique-Craft-Rubric)"
+        return f"IBCS 2.0 {self.regel_id}, S. {self.seite}"
+
+
+EX_2_1 = Diagrammregel(
+    "EX 2.1", 136, "warning", "Balken oder gestapelte Saeulen",
+    # Die Katalog-Ausnahme (Torte auf einem Kartenpunkt, hoechstens 3 Werte) ist in PBIR ein
+    # Karten-Visual mit Legende, nie ein pieChart/donutChart -- daher hier nicht erklaerbar.
+    None,
+)
+EX_2_2 = Diagrammregel(
+    "EX 2.2", 136, "warning", "Balken/Saeulen oder Bullet (kpi_card_bullet)",
+    "Echtzeit-Monitoring UND semantische Faerbung der aktuellen Abweichung (keine Wertbaender) "
+    "UND Ziel und Deutung sofort klar -- alle drei Kriterien",
+)
+EX_2_3_RADAR = Diagrammregel(
+    "EX 2.3", 137, "warning", "Balken",
+    "Kreisanordnung traegt Bedeutung (z. B. Himmelsrichtung)",
+)
+EX_2_3_TRICHTER = Diagrammregel("EX 2.3", 137, "warning", "Balken (bar_ranking) oder Sankey", None)
+EX_2_4 = Diagrammregel(
+    "EX 2.4", 138, "warning", "Small Multiples (eine Linie je Chart)",
+    "exakter Hoehenvergleich der Linien noetig",
+)
+EX_2_5 = Diagrammregel(
+    "EX 2.5", 138, "warning", "Balken oder Tabellenbalken",
+    "binaere Aussage oder Ziel-/Schwellen-Compliance, Hoehe der Abweichung irrelevant",
+)
+HAUS_TREEMAP = Diagrammregel("BC-CHART-08", None, "critical", "Balken (bar_ranking)", None)
+
+# Von Microsoft abgekuendigte PBIR-visualTypes mit offiziellem Ersatz (Abgleich 07.10.2026:
+# Learn power-bi/developer/agentic/*, microsoft/skills-for-fabric references/authoring/map.md
+# und card.md). Spiegel in visual_validator._DEPRECATED_PBI_TYPES (products/ — Paketgrenze,
+# daher kein Import); Gleichheit erzwingt tooling/tests/test_forbidden_charts.py.
+DEPRECATED_VISUAL_TYPES: dict[str, str] = {
+    "map": "azureMap",
+    "filledMap": "azureMap",
+    "qnaVisual": "Copilot (the Q&A visual is deprecated)",
+    "card": "cardVisual",
+    "multiRowCard": "cardVisual",
+}
+_MS_HERKUNFT = "von Microsoft abgekuendigt, offizielle Authoring-Skill (Abgleich 07.10.2026)"
+MS_ABGEKUENDIGT: dict[str, Diagrammregel] = {
+    typ: Diagrammregel("MS-DEPRECATED", None, "critical", ersatz, None, herkunft=_MS_HERKUNFT)
+    for typ, ersatz in DEPRECATED_VISUAL_TYPES.items()
+}
+
+# Exakte PBIR-visualTypes. Radar/Spinnennetz gibt es nur als Custom Visual mit
+# wechselnder Kennung, Tacho auch als Custom Visual -- beides per Teilwort (siehe unten).
+VERBOTSLISTE: dict[str, Diagrammregel] = {
+    "pieChart": EX_2_1,
+    "donutChart": EX_2_1,
+    "gauge": EX_2_2,
+    "funnel": EX_2_3_TRICHTER,
+    "treemap": HAUS_TREEMAP,
+    **MS_ABGEKUENDIGT,
+}
+TEILWORT_REGELN: tuple[tuple[str, Diagrammregel], ...] = (
+    ("radar", EX_2_3_RADAR),
+    ("spider", EX_2_3_RADAR),
+    ("gauge", EX_2_2),
+)
+# EX 2.4: mehr als 3-4 sich kreuzende Linien. Der Katalog-Test setzt die Grenze bei <= 4.
+SPAGHETTI_TYPEN = frozenset({"lineChart", "areaChart"})
+SPAGHETTI_MAX_LINIEN = 4
+# EX 2.5: eine Ampel ist ein Symbol mit drei Stufen; zwei Stufen sind die binaere Ausnahme.
+AMPEL_PROPERTIES = frozenset({"icon", "iconSet"})
+
+
+def regel_fuer_typ(visual_type: str | None) -> Diagrammregel | None:
+    """Die Verbotsregel eines visualType, oder None, wenn der Typ nicht auf der Liste steht."""
+    if not visual_type:
+        return None
+    if visual_type in VERBOTSLISTE:
+        return VERBOTSLISTE[visual_type]
+    low = visual_type.lower()
+    for wort, regel in TEILWORT_REGELN:
+        if wort in low:
+            return regel
+    return None
+
+
+def _erklaerte_ausnahme(visual: dict, regel: Diagrammregel) -> str | None:
+    """Wert der Annotation `ibcs.ausnahme`, wenn sie diese Regel nennt und der Katalog eine
+    Ausnahme kennt; sonst None."""
+    if regel.ausnahme is None:
+        return None
+    for a in visual.get("annotations") or []:
+        if not isinstance(a, dict) or a.get("name") != AUSNAHME_ANNOTATION:
+            continue
+        wert = str(a.get("value") or "").strip()
+        if wert.startswith(regel.regel_id):
+            return wert
+    return None
+
+
+def _linien(visual: dict) -> tuple[int, bool, bool]:
+    """(Anzahl Measures auf Y/Y2, Series-Feld gebunden, Small Multiples gebunden)."""
+    qs = ((visual.get("visual") or {}).get("query") or {}).get("queryState") or {}
+
+    def n(rolle: str) -> int:
+        return len((qs.get(rolle) or {}).get("projections") or [])
+
+    return n("Y") + n("Y2"), n("Series") > 0, n("Rows") > 0
+
+
+def _literale(knoten: object) -> set[str]:
+    out: set[str] = set()
+    if isinstance(knoten, dict):
+        lit = knoten.get("Literal")
+        if isinstance(lit, dict) and isinstance(lit.get("Value"), str):
+            out.add(lit["Value"])
+        for v in knoten.values():
+            out |= _literale(v)
+    elif isinstance(knoten, list):
+        for v in knoten:
+            out |= _literale(v)
+    return out
+
+
+def _ampel_stufen(visual: dict) -> int | None:
+    """Stufen einer Symbol-Formatierung: 0 = keine Symbole, n = verschiedene Literale,
+    None = Symbole vorhanden, aber Stufenzahl nicht statisch bestimmbar (Measure-gesteuert)."""
+    objects = (visual.get("visual") or {}).get("objects") or {}
+    gefunden = False
+    stufen: set[str] = set()
+    for eintraege in objects.values():
+        for e in eintraege if isinstance(eintraege, list) else [eintraege]:
+            props = (e.get("properties") or {}) if isinstance(e, dict) else {}
+            for name, wert in props.items():
+                if name in AMPEL_PROPERTIES:
+                    gefunden = True
+                    stufen |= _literale(wert)
+    if not gefunden:
+        return 0
+    return len(stufen) or None
+
+
 @dataclass
 class ForbiddenVisualTypes:
-    forbidden: set[str] = field(default_factory=lambda: {"pieChart", "donutChart", "gauge", "treemap"})
-    severity: Severity = "critical"
+    """Verbotsliste der Diagrammtypen: IBCS 2.0 EX 2.1 bis EX 2.5 (Warnung, mit Ausnahmen),
+    Hausregel BC-CHART-08 fuer Treemap und die von Microsoft abgekuendigten Typen (kritisch)."""
+
+    regeln: dict[str, Diagrammregel] = field(default_factory=lambda: dict(VERBOTSLISTE))
     name: str = "visual:forbidden-type"
+
+    @property
+    def forbidden(self) -> set[str]:
+        """Die exakt gelisteten visualTypes (Teilwort-Regeln fuer Custom Visuals kommen dazu)."""
+        return set(self.regeln)
+
+    def _regel(self, visual_type: str | None) -> Diagrammregel | None:
+        if not visual_type:
+            return None
+        if visual_type in self.regeln:
+            return self.regeln[visual_type]
+        if visual_type in VERBOTSLISTE:
+            return None  # bewusst aus `regeln` genommen
+        return regel_fuer_typ(visual_type)
+
+    def _befund(self, report: ParsedReport, page: ParsedPage, visual_name: str, visual: dict,
+                regel: Diagrammregel, was: str, actual: object, severity: Severity | None = None,
+                ) -> Violation:
+        pointer = visual_pointer(report.report_dir, page, visual_name, "visual/visualType")
+        ausnahme = _erklaerte_ausnahme(visual, regel)
+        if ausnahme is not None:
+            return Violation(self.name, "info", pointer,
+                             f"Forbidden visual type {was}: Ausnahme erklaert ({regel.quelle})",
+                             expected=f"Ausnahme laut Katalog: {regel.ausnahme}", actual=ausnahme)
+        hinweis = (f"; Ausnahme per Annotation '{AUSNAHME_ANNOTATION}': {regel.ausnahme}"
+                   if regel.ausnahme else "")
+        return Violation(self.name, severity or regel.severity, pointer,
+                         f"Forbidden visual type {was} ({regel.quelle}){hinweis}",
+                         expected=f"ersetzen durch: {regel.ersatz}", actual=actual)
 
     def check(self, report: ParsedReport, page: ParsedPage) -> list[Violation]:
         violations: list[Violation] = []
         for visual_name, visual in page.visuals.items():
-            visual_type = visual.get("visual", {}).get("visualType")
-            if visual_type in self.forbidden:
-                violations.append(
-                    Violation(
-                        self.name,
-                        self.severity,
-                        visual_pointer(report.report_dir, page, visual_name, "visual/visualType"),
-                        "Forbidden visual type",
-                        expected=f"not in {sorted(self.forbidden)}",
-                        actual=visual_type,
-                    )
-                )
+            visual_type = (visual.get("visual") or {}).get("visualType")
+            regel = self._regel(visual_type)
+            if regel is not None:
+                violations.append(self._befund(report, page, visual_name, visual, regel,
+                                               f"'{visual_type}'", visual_type))
+                continue
+            if visual_type in SPAGHETTI_TYPEN:
+                anzahl, series, multiples = _linien(visual)
+                # Small Multiples sind der Ersatz, den EX 2.4 verlangt.
+                if not multiples and anzahl > SPAGHETTI_MAX_LINIEN:
+                    violations.append(self._befund(
+                        report, page, visual_name, visual, EX_2_4,
+                        f"'{visual_type}' als Spaghetti ({anzahl} Linien > {SPAGHETTI_MAX_LINIEN})",
+                        visual_type))
+                elif not multiples and series:
+                    # Linienzahl haengt an den Daten des Series-Felds: statisch nicht entscheidbar.
+                    violations.append(self._befund(
+                        report, page, visual_name, visual, EX_2_4,
+                        f"'{visual_type}' mit Series-Feld (Linienzahl datenabhaengig, "
+                        "nicht statisch geprueft)", visual_type, severity="info"))
+            stufen = _ampel_stufen(visual)
+            if stufen == 2:
+                continue  # binaere Aussage: Ausnahme laut EX 2.5
+            if stufen is None or stufen >= 3:
+                was = (f"'{visual_type}' mit Ampelsymbolen ({stufen} Stufen)" if stufen
+                       else f"'{visual_type}' mit Ampelsymbolen (Stufenzahl Measure-gesteuert)")
+                violations.append(self._befund(report, page, visual_name, visual, EX_2_5, was,
+                                               visual_type))
         return violations
 
 

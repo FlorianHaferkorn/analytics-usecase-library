@@ -162,7 +162,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'CLV (Customer Lifetime Value) vs PY'"
+                  "Value": "'CLV (Customer Lifetime Value) vs PY: current value'"
                 }
               }
             }

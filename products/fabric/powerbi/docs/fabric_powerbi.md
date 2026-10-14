@@ -348,7 +348,7 @@ BI_Experiments
 
 **Customer rollout:** When rolling the framework out to customers, keep report look consistent: (1) Default theme can come from `products/fabric/powerbi/themes/` (vendored engine output) or `tooling/theme_defaults.json`. (2) Validation uses the schema pinned in `schema_registry.py`. (3) For every new report, use the page scaffold generator with `--theme <name>` so the theme is applied in one step, or run `apply_report_theme` so all reports share the same base + custom theme.
 
-**Theme applied and documented:** For finalized reports, document the **theme name** (e.g. `CY26SU10` or a custom theme from Theme Generator), **path to theme JSON** (e.g. `products/fabric/powerbi/themes/` or report `StaticResources/RegisteredResources/`), and **how to apply** (run `apply_report_theme.py` from the tools folder, or use the page scaffold generator with `--theme <name>`). See `tooling/theme_paths.py` and `tooling/apply_report_theme.py`.
+**Theme applied and documented:** For finalized reports, document the **theme name** (e.g. `Fluent2-CY26SU10` or a custom theme from Theme Generator), **path to theme JSON** (e.g. `products/fabric/powerbi/themes/` or report `StaticResources/RegisteredResources/`), and **how to apply** (run `apply_report_theme.py` from the tools folder, or use the page scaffold generator with `--theme <name>`). See `tooling/theme_paths.py` and `tooling/apply_report_theme.py`.
 
 ## 9.5 Report Documentation Generator
 

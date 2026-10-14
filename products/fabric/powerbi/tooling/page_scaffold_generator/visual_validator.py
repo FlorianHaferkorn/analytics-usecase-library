@@ -47,8 +47,7 @@ _FALLBACK_ROLES: Dict[str, Optional[set]] = {
     "tableEx": {"Values"},
     "pivotTable": {"Rows", "Values"},
     "cardVisual": {"Data"},
-    "card": {"Data"},
-    "multiRowCard": {"Data"},
+    "azureMap": {"Category"},  # sanctioned replacement for the deprecated map/filledMap
     "textbox": None,
     "actionButton": None,
     "shape": None,
@@ -60,7 +59,6 @@ _FALLBACK_ROLES: Dict[str, Optional[set]] = {
 # keep their _FALLBACK_ROLES value and are NOT overwritten by the snapshot:
 #   clusteredColumnChart -> {Y}            (Category optional: PVM decomposition view)
 #   pivotTable           -> {Rows, Values} (stricter than official {Values})
-#   card / multiRowCard  -> {Data}         (legacy cards driven like cardVisual)
 #   stacked* / funnelChart                 (absent from the official catalogue v0.1.1)
 #   hundredPercentStackedBarChart -> {Category, Y}  (CLI 0.4.0 lists only {Y} as required,
 #                                   measured 29.09.2026 via refresh_authoring_metadata; we keep
@@ -69,8 +67,6 @@ _LOCAL_ROLE_POLICY = frozenset({
     "clusteredColumnChart",
     "hundredPercentStackedBarChart",
     "pivotTable",
-    "card",
-    "multiRowCard",
     "stackedBarChart",
     "stackedColumnChart",
     "funnelChart",
@@ -117,7 +113,7 @@ _ABSTRACT_TO_PBI: Dict[str, set] = {
                             "stackedBarChart", "stackedColumnChart"},
     "scatter_plot":        {"scatterChart"},
     "funnel_chart":        {"funnelChart"},
-    "kpi_card":            {"cardVisual", "card"},
+    "kpi_card":            {"cardVisual"},
     "kpi_card_hero":       {"cardVisual"},
     "kpi_card_compact":    {"cardVisual"},
     "status_tile":         {"cardVisual"},
@@ -131,12 +127,24 @@ _ABSTRACT_TO_PBI: Dict[str, set] = {
     "sparkline":           {"lineChart"},
 }
 
+# PBI visual types that Microsoft has deprecated, with the official replacement.
+# Source: Learn power-bi/developer/agentic/* and microsoft/skills-for-fabric
+# references/authoring/map.md (map/filledMap -> azureMap; qnaVisual deprecated in favour
+# of Copilot) and card.md (legacy card/multiRowCard -> cardVisual). Abgleich 07.10.2026.
+_DEPRECATED_PBI_TYPES: Dict[str, str] = {
+    "map": "azureMap",
+    "filledMap": "azureMap",
+    "qnaVisual": "Copilot (the Q&A visual is deprecated)",
+    "card": "cardVisual",
+    "multiRowCard": "cardVisual",
+}
+
 # PBI visual types that are globally disallowed regardless of slot.
-# Source: core/templates/page_templates/governance/Visual_Whitelist.md
+# Source: core/templates/page_templates/governance/Visual_Whitelist.md + the deprecations above.
 _GLOBALLY_DISALLOWED_PBI_TYPES = frozenset({
     "pieChart", "donutChart", "gauge", "gaugeVisual",
-    "radarChart", "treemap", "filled_map", "ribbonChart",
-})
+    "radarChart", "treemap", "ribbonChart",
+}) | frozenset(_DEPRECATED_PBI_TYPES)
 
 # Characters not allowed in visual folder names (cause path/load issues in Power BI)
 _UNSAFE_NAME_CHARS = re.compile(r'[,:\\/]')
@@ -168,10 +176,12 @@ def validate_slot_compliance(
 
     # 1. Global hard disallowed (governance: never use, any slot)
     if pbi_visual_type in _GLOBALLY_DISALLOWED_PBI_TYPES:
-        errors.append(
-            f"Slot '{slot_id}': '{pbi_visual_type}' is globally disallowed "
-            f"(governance hard rule — see Visual_Whitelist.md)"
+        replacement = _DEPRECATED_PBI_TYPES.get(pbi_visual_type)
+        reason = (
+            f"deprecated by Microsoft — use {replacement}" if replacement
+            else "governance hard rule — see Visual_Whitelist.md"
         )
+        errors.append(f"Slot '{slot_id}': '{pbi_visual_type}' is globally disallowed ({reason})")
         return errors  # per-slot checks irrelevant if globally forbidden
 
     if not slot_mapping:
@@ -248,7 +258,7 @@ def validate_visual(
     actual_roles = set(query_state.keys())
     if expected_roles is not None:
         # "Data" role is only valid for card-type visuals
-        if "Data" in actual_roles and visual_type not in ("cardVisual", "card", "multiRowCard"):
+        if "Data" in actual_roles and visual_type != "cardVisual":
             errors.append(
                 f"Visual '{name}' ({visual_type}): uses 'Data' queryState role "
                 f"(fields land in filter, not field wells). Expected roles: {sorted(expected_roles)}"
@@ -305,8 +315,8 @@ def validate_visual(
             f"Visual '{name}': y({y}) + height({h}) = {y + h} exceeds canvas height {canvas_height}"
         )
 
-    # 6. Slot whitelist compliance (only when slot_mapping provided)
-    if slot_mapping is not None and visual_type:
+    # 6. Global disallow list (always) + slot whitelist compliance (when slot_mapping provided)
+    if visual_type:
         errors.extend(
             validate_slot_compliance(name, visual_type, template_id=template_id, slot_mapping=slot_mapping)
         )

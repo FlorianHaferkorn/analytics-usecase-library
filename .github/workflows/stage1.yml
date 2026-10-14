@@ -115,7 +115,19 @@ jobs:
           # requests UND msal: die Orchestrator-Tests (`products/fabric/orchestrator/tests/`,
           # u. a. die 429-errorCode-Behandlung aus I-21 W2.8) ueberspringen sich ohne sie —
           # bis 30.09.2026 liefen hier test_governance und der Verdrahtungstest nie.
-          pip install pyyaml jsonschema pytest pytest-xdist typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow requests msal ruff==0.16.9
+          pip install pyyaml jsonschema pytest pytest-xdist typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow requests msal ruff==0.16.9 detect-secrets==1.5.0
+
+      # Secret-Baseline-Tor (07.10.2026): jede git-getrackte Datei gegen .secrets.baseline
+      # (detect-secrets-hook). Rot = ein Fund, der nicht in der Baseline steht (Exit 1), oder
+      # das Tor lief nicht (Exit 2: Werkzeug fehlt, Version != Baseline-Pin, Hook-Fehler).
+      # Hash-Zeilen (PIN.json, showdaten.lock.json, visreg-Signaturen) filtert die Baseline
+      # strukturell (HASH_LINE_PATTERNS in secret_scan_gate.py), nicht Fund fuer Fund.
+      # Der Pin in "Install dependencies" ist das Feld "version" der Baseline: eine andere
+      # Version bringt andere Plugins und Funde. Die Erklaerung steht hier und nicht im
+      # run-Block, weil der YAML-Scanner Kommentare in einem Block-Skalar als Wert liest
+      # (gemessen 07.10.2026: ein Satz mit dem Werkzeugnamen dort war ein "Secret Keyword").
+      - name: Secret-Baseline-Tor (blockierend)
+        run: python products/fabric/powerbi/deployment/scripts/secret_scan_gate.py --baseline
 
       # Ruff lief bis 29.09.2026 nirgends (2768 Befunde in 15 Regeln). Sperrklinke statt
       # Tor: je Regel eingefroren in scripts/lint_baseline.json, darf nur sinken.

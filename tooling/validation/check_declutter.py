@@ -84,20 +84,29 @@ def theme_chartjunk(report_dir: Path) -> list[str]:
     Deckung; das ist schlimmer als ein fehlender.
 
     Was hier NICHT passiert: das Kartensystem verbieten. Entscheidung Flo vom 03.08.2026
-    (Weg A) — Hintergrund, Rahmen und die dokumentierte Erhebung sind sanktioniert und
+    (Weg A), seit 08.10.2026 auf Meridian D-685 gehoben und am wirksamen Theme (Basistheme +
+    eigenes Theme) gemessen — Hintergrund, Rahmen und die dokumentierte Erhebung sind sanktioniert und
     stehen als Obergrenze in `tokens/color_semantics.yaml` → `container_baseline`.
     Dieser Pruefer meldet nur, was DARUEBER hinausgeht, plus die Objekte, die in jeder
     Lesart Zierrat sind (Verlauf, Fase, Glow).
     """
     sys.path.insert(0, str(Path(__file__).resolve().parent))
+    _root = str(Path(__file__).resolve().parents[2])
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
     from check_container_surface import grundlinie, pruefe_container   # eine Grundlinie
     from check_palette_monochrome import aktives_theme                 # eine Theme-Quelle
+    from tooling.report_quality.base_theme import basistheme_des_berichts, wirksame_visual_styles
 
     tj = aktives_theme(report_dir)
     if tj is None:
         return ["kein aufloesbares customTheme — Chart-Chrome nicht pruefbar"]
     theme = json.loads(tj.read_text(encoding="utf-8"))
-    styles = theme.get("visualStyles") or {}
+    # Seit D-685 setzt das Basistheme Rahmen und Schatten: gemessen wird das wirksame Theme.
+    basis_theme = basistheme_des_berichts(report_dir)
+    if basis_theme is None:
+        return ["Basistheme nicht aufloesbar — wirksames Chart-Chrome nicht pruefbar"]
+    styles = wirksame_visual_styles(theme, basis_theme)
     basis = grundlinie()
     befunde: list[str] = []
     # `*` gilt fuer alle Typen, danach die namentlich gefuehrten Chart-Familien.

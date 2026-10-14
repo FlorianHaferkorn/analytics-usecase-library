@@ -373,8 +373,92 @@ def _merge_catalog_synonyms(candidates: dict, src: AlucaSources) -> dict:
     return candidates
 
 
+#: Verified Answers und Fabric IQ (SIG-2609-001, D-686). Learn
+#: ``power-bi/create-reports/copilot-prepare-data-ai-verified-answers``, Abschnitt „General
+#: limitations“, gelesen 07.10.2026 per Learn-MCP: „Copilot doesn't return verified answers when
+#: Fabric IQ is enabled“; der Link zeigt auf den Fabric-IQ-Schalter im Copilot-Bereich eines
+#: Berichts (``copilot-ask-data-question``). Cowork unterstützt Verified Answers laut eigener Seite
+#: (Feld ``modellvorbereitung_wirkt`` im gespiegelten ``zugangswege``).
+QUELLE_VERIFIED_ANSWERS = ("https://learn.microsoft.com/power-bi/create-reports/"
+                           "copilot-prepare-data-ai-verified-answers")
+VERIFIED_ANSWERS_GELESEN_AM = "2026-10-07"
+
+#: Label-DLP ab E5 (SIG-2609-002): die Aussage lebt in der DSFA, hier nur der Verweis.
+DPIA_KI_ABSCHNITT = "compliance/DPIA.md, Abschnitt 12.4"
+DPIA_ADR = "ADR-0025"
+
+
+def _zugang_wert(value: Any) -> str:
+    """Feldwert als Tabellentext; ``None`` heißt „die Quelle sagt nichts“, nicht „nein“."""
+    if value is None:
+        return "laut Quelle offen"
+    if value is True:
+        return "ja"
+    if value is False:
+        return "nein"
+    if isinstance(value, tuple):
+        return ", ".join(value)
+    return {"ga": "GA (allgemein verfügbar)", "preview": "Preview"}.get(value, str(value))
+
+
+def render_zugangswege(usecase_id: str, zugangswege: Any) -> str:
+    """Zugangswege über Microsoft 365 Copilot (Chat, Cowork) als Readiness-Kriterium.
+
+    Die Felder stammen aus dem gespiegelten Meridian-Modul ``zugangswege`` (D-681); ALUCA
+    rendert nur die Tabelle, definiert keine Voraussetzung selbst.
+    """
+    wege = zugangswege.ZUGANGSWEGE
+    zeilen = ["| Kriterium | " + " | ".join(w["name"] for w in wege) + " |",
+              "|---|" + "---|" * len(wege)]
+    for feld, label in zugangswege.KRITERIEN_ZEILEN:
+        zeilen.append(f"| {label} | " + " | ".join(_zugang_wert(w[feld]) for w in wege) + " |")
+    out = [
+        f"# Zugang über Microsoft 365 Copilot (Chat und Cowork) — {usecase_id}",
+        "",
+        f"Quelle: {ALUCA_HERKUNFT}, Felder aus dem gespiegelten Meridian-Modul `zugangswege` "
+        f"({zugangswege.ENTSCHEIDUNG}, {zugangswege.SIGNAL}).",
+        "",
+        "Fachanwender fragen die Power-BI-Daten dieses Use Case auch außerhalb von Power BI ab. "
+        "Beide Wege sind Kriterien der Copilot-Readiness. Sie sind nicht dasselbe wie Copilot im "
+        "Copilot-Bereich des Berichts.",
+        "",
+        *zeilen,
+        "",
+        "„Laut Quelle offen“ heißt: Die Microsoft-Seite des Zugangswegs sagt dazu nichts.",
+        "",
+        "## Verified Answers",
+        "",
+        "- Im Copilot-Bereich eines Power-BI-Berichts liefert Copilot keine Verified Answers, "
+        "wenn dort Fabric IQ eingeschaltet ist.",
+        "- Cowork unterstützt Verified Answers und die Schema-Auswahl.",
+        "- Für Copilot Chat nennt Learn dazu nichts.",
+        "",
+        f"Quelle: {QUELLE_VERIFIED_ANSWERS} (gelesen {VERIFIED_ANSWERS_GELESEN_AM}).",
+        "",
+        "## DLP auf Microsoft 365 Copilot (Lizenzstufe)",
+        "",
+        "- Eine DLP-Richtlinie kann Copilot die Verarbeitung gelabelter Power-BI-Inhalte "
+        "verbieten. Das setzt Microsoft 365 E5 oder die Purview-Suite voraus.",
+        "- Mit E3 oder Business Premium wirkt DLP nur auf Prompts.",
+        "- In Cowork wird DLP laut Learn nicht unterstützt (Zeile „DLP wirkt“).",
+        "",
+        f"Einordnung und Quelle: `{DPIA_KI_ABSCHNITT}` ({DPIA_ADR}, SIG-2609-002).",
+        "",
+        "## Tenant-Einstellungen",
+        "",
+    ]
+    for w in wege:
+        out += [f"{w['name']}:", ""]
+        for t in w["tenant_einstellungen"]:
+            ab_werk = f", ab Werk {t['ab_werk']}" if t["ab_werk"] else ""
+            out.append(f"- {t['ort']}: „{t['name']}“ (nötig: {t['noetig_wenn']}{ab_werk})")
+        out += ["", f"Quelle: {w['quelle']} (gelesen {w['gelesen_am']}, "
+                    f"gegengeprüft {w['gegengeprueft_am']})", ""]
+    return "\n".join(out)
+
+
 def render_all(usecase_id: str, src: AlucaSources | None = None) -> dict[str, str]:
-    """The three "Prep data for AI" contents for one use case, as file name → text."""
+    """The three "Prep data for AI" contents plus the Copilot access paths, as file name → text."""
     import json
 
     src = src or AlucaSources()
@@ -389,4 +473,5 @@ def render_all(usecase_id: str, src: AlucaSources | None = None) -> dict[str, st
         "ai_instructions.txt": txt,
         "verified_answer_candidates.json": json.dumps(candidates, ensure_ascii=False, indent=2) + "\n",
         "ai_data_schema.json": json.dumps(schema, ensure_ascii=False, indent=2) + "\n",
+        "zugangswege.md": render_zugangswege(usecase_id, kernel["zugangswege"]),
     }

@@ -212,6 +212,41 @@ def _ir_generate(
     return 0
 
 
+def desktop_guard_check(report_dir: Path, allow_desktop_open: bool = False) -> int:
+    """Guard before writing a .Report folder (Skills-Abgleich R3/R4, ALUCA D-687).
+
+    Peer of Meridian ``core/pbi_engine/desktop_guard.py`` (byte-identical copy in
+    ``products/fabric/powerbi/tooling/desktop_guard.py``), called the way Meridian's
+    ``pbi_report_kit.pipeline`` calls it:
+
+    * stale Desktop session (loaded before newer file changes) -> warning only;
+    * uncommitted git changes under the target report (R3) -> warning only;
+    * target open in Power BI Desktop (R4) -> returns 3 and nothing is written, unless
+      ``allow_desktop_open``.
+
+    Without Windows, Desktop or the bridge the guard finds no sessions and returns 0, so CI
+    and Linux runs are unaffected. Returns 0 when writing may proceed.
+    """
+    from products.fabric.powerbi.tooling import desktop_guard
+
+    report_dir = Path(report_dir)
+    stale = desktop_guard.stale_sessions(report_dir.parent)
+    if stale:
+        print(desktop_guard.format_stale_warning(stale), file=sys.stderr)
+    offen = desktop_guard.uncommitted_changes(report_dir)
+    if offen:
+        print(desktop_guard.format_uncommitted_warning(offen, report_dir), file=sys.stderr)
+    if allow_desktop_open:
+        return 0
+    hits = desktop_guard.blocking_sessions(report_dir)
+    if hits:
+        print(desktop_guard.format_warning(hits, report_dir), file=sys.stderr)
+        print("ERROR: report generation aborted, the target is open in Power BI Desktop. "
+              "--allow-desktop-open overrides this on purpose.", file=sys.stderr)
+        return 3
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
@@ -262,6 +297,11 @@ def main() -> int:
         help="Always full generate (overwrite); do not use delta update even if report exists.",
     )
     parser.add_argument(
+        "--allow-desktop-open",
+        action="store_true",
+        help="Write even if the target report is open in Power BI Desktop (desktop guard, D-687 R4).",
+    )
+    parser.add_argument(
         "--allow-deprecated-prototype",
         action="store_true",
         help="Opt in to the DEPRECATED prototype renderer (I-3.3 rollback path). "
@@ -302,6 +342,9 @@ def main() -> int:
     else:
         output_path = get_default_report_output_path(repo_root, use_case_id).resolve()
         print(f"Output (default): {output_path}", file=sys.stderr)
+    guard = desktop_guard_check(output_path, allow_desktop_open=args.allow_desktop_open)
+    if guard:
+        return guard
     output_path.mkdir(parents=True, exist_ok=True)
 
     # Resolve dataset reference: explicit arg > bracket domain > generic fallback

@@ -35,7 +35,7 @@ color:
   mode: light
 typography:
   font_family:
-    primary: Segoe UI, system-ui, -apple-system, sans-serif
+    primary: Inter, Segoe UI, system-ui, -apple-system, sans-serif
     secondary: null
     monospace: Cascadia Code, Consolas, 'Courier New', monospace
   type_scale:

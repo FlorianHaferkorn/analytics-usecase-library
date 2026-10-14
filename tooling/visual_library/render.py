@@ -37,6 +37,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 LIB = REPO_ROOT / "core" / "templates" / "page_templates" / "visual_library"
 NOTATION = LIB / "_notation_profiles.yaml"
+USAGE = LIB / "_usage_concepts.yaml"
 _LAYOUT_GRID = yaml.safe_load(
     (LIB.parent / "tokens" / "layout_grid.yaml").read_text(encoding="utf-8"))
 
@@ -232,6 +233,27 @@ def all_profiles(kind: "str | None" = None) -> "list[str]":
     """Registered profile ids, optionally only one kind (notation | style)."""
     profs = _registry().get("profiles") or {}
     return [p for p, d in profs.items() if kind is None or d.get("kind", "notation") == kind]
+
+
+def offered_profiles() -> "list[str]":
+    """Profiles a customer may choose (ADR-0026): every registered profile except those marked
+    `offered: false` (e.g. `minimal` until its sources are read). The renderer still covers all."""
+    profs = _registry().get("profiles") or {}
+    return [p for p, d in profs.items() if d.get("offered", True) is not False]
+
+
+def usage_concepts() -> dict:
+    """The usage-concept registry (ADR-0026): how a page is built and read, independent of the
+    notation profile it is drawn in. See _usage_concepts.yaml."""
+    return _yaml(USAGE)
+
+
+def usage_allows(concept: str, profile: str) -> bool:
+    """True if the notation/style `profile` may be combined with the usage `concept`. An unknown profile raises
+    KeyError like an unknown concept — a typo must not read as an excluded combination."""
+    c = (usage_concepts().get("concepts") or {})[concept]
+    profile_def(profile)
+    return profile in (c.get("profiles") or [])
 
 
 def notation_of(profile: str) -> str:
@@ -578,11 +600,15 @@ def _mark_kind(node: dict) -> "str | None":
     return m if isinstance(m, str) else (m or {}).get("type") if isinstance(m, dict) else None
 
 
-def with_focus(spec: dict, grey: str) -> dict:
+def with_focus(spec: dict, grey: str, keep_conditions: bool = False) -> dict:
     """Profil mit `focus` (story): jede Datenmarke grau (Farben aus dem Template, ob fest oder als Bedingung
     der Bewertung). Textmarken behalten ihre Farbe — Beschriftung trägt Textfarbe, nie Serienfarbe. Feldbasierte
     Farbskalen (Serien mit Legende) bleiben: ihre Unterscheidung trägt Information. Die Akzentfarbe vergibt
-    erst die Kernaussage (with_highlight mit accent)."""
+    erst die Kernaussage (with_highlight mit accent).
+
+    `keep_conditions` (Profil `monitoring`, `focus: status`, ADR-0026): nur die feste Farbe wird grau; was eine
+    Bedingung der Bewertung färbt (gut/schlecht gegen Schwelle oder Ziel), behält die Statusfarbe — grau im
+    Normalzustand, Farbe nur bei Abweichung."""
     hexa = re.compile(r"^#[0-9a-fA-F]{6}$")
 
     def grey_of(v):
@@ -592,7 +618,7 @@ def with_focus(spec: dict, grey: str) -> dict:
         if not isinstance(enc_val, dict) or "field" in enc_val:
             return enc_val
         out = {k: grey_of(v) for k, v in enc_val.items()}
-        if "condition" in enc_val:
+        if "condition" in enc_val and not keep_conditions:
             conds = enc_val["condition"] if isinstance(enc_val["condition"], list) else [enc_val["condition"]]
             fixed = [{**c, "value": grey_of(c.get("value"))} if isinstance(c, dict) else c for c in conds]
             out["condition"] = fixed if isinstance(enc_val["condition"], list) else fixed[0]
@@ -613,6 +639,48 @@ def with_focus(spec: dict, grey: str) -> dict:
                         enc[ch] = channel(enc[ch])
                 if enc:
                     out["encoding"] = enc
+            return out
+        if isinstance(node, list):
+            return [walk(v) for v in node]
+        return node
+
+    return walk(spec)
+
+
+def polarity_of(eff: dict) -> str:
+    """Richtung als `polarity` (1 = höher ist besser, -1 = niedriger ist besser): aus `polarity`, sonst aus `direction`
+    (`lower_is_better` → -1), sonst 1."""
+    if "polarity" in eff:
+        return str(eff["polarity"])
+    return "-1" if str(eff.get("direction")) == "lower_is_better" else "1"
+
+
+def with_status_breach(spec: dict, entry: dict, eff: dict) -> dict:
+    """Profil `monitoring` (ADR-0026 §6, Florian 09.10.2026): Farbe nur bei verletzter Bedingung, nach Richtung.
+
+    Jede Farbbedingung, die `status_breach` des Idioms als `when` nennt (Vorzeichen oder Lage zum Ziel ohne Richtung),
+    bekommt den Test `breach` (verletzt in der Richtung `polarity`). Danach färbt `with_focus(keep_conditions=True)`
+    nur noch diese Bedingung; eine gute Abweichung bleibt grau. Andere Bedingungen bleiben unberührt."""
+    params = {**eff, "polarity": polarity_of(eff)}
+    tausch = {fill(r["when"], params): fill(r["breach"], params) for r in entry.get("status_breach") or []}
+    if not tausch:
+        return spec
+
+    def cond(c):
+        return {**c, "test": tausch[c["test"]]} if isinstance(c, dict) and c.get("test") in tausch else c
+
+    def channel(v):
+        if not isinstance(v, dict) or "condition" not in v:
+            return v
+        c = v["condition"]
+        return {**v, "condition": [cond(x) for x in c] if isinstance(c, list) else cond(c)}
+
+    def walk(node):
+        if isinstance(node, dict):
+            out = {k: walk(v) for k, v in node.items()}
+            if "mark" in out and _mark_kind(out) != "text" and isinstance(out.get("encoding"), dict):
+                out["encoding"] = {k: (channel(v) if k in ("color", "fill", "stroke") else v)
+                                   for k, v in out["encoding"].items()}
             return out
         if isinstance(node, list):
             return [walk(v) for v in node]
@@ -760,12 +828,17 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     spec = with_tooltips(spec, idiom, eff)
     if params and params.get("time_format"):
         spec = with_time_axis(spec, str(params["time_format"]), params.get("time_ticks"))
-    if profile_def(profile).get("focus"):
-        # story: Daten grau; das Grau kommt vom Aufrufer (Brand-Tokens, Klasse C), sonst ein Grau mit 3,4:1 auf Weiß
-        spec = with_focus(spec, str((params or {}).get("focus_grey") or FOCUS_GREY))
+    focus = profile_def(profile).get("focus")
+    if focus == "status":
+        # monitoring: Vorzeichen-Färbung gilt nicht, nur die Verletzung in der Richtung der Kennzahl (ADR-0026 §6).
+        spec = with_status_breach(spec, load_entry(idiom), eff)
+    if focus:
+        # story: Daten grau; das Grau kommt vom Aufrufer (Brand-Tokens, Klasse C), sonst ein Grau mit 3,4:1 auf Weiß.
+        # monitoring (focus: status): dasselbe Grau, Bewertungsbedingungen behalten ihre Statusfarbe (ADR-0026).
+        spec = with_focus(spec, str((params or {}).get("focus_grey") or FOCUS_GREY), keep_conditions=focus == "status")
     if params and params.get("highlight"):
         h = params["highlight"]
-        accent = params.get("accent") if profile_def(profile).get("focus") else None
+        accent = params.get("accent") if focus is True else None
         spec = with_highlight(spec, h["field"], list(h.get("values") or []), bool(h.get("temporal")), accent)
     config = vegalite_config(profile)
     lang = str((params or {}).get("lang") or "de")

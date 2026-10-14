@@ -18,12 +18,10 @@ function Invoke-Phase5ReportGeneration {
         } catch { continue }
     }
     if (-not $pyCmd) {
-        Write-Host "  WARNING: Python 3 not found; falling back to report_generator.ps1 (empty visuals)" -ForegroundColor Yellow
-        foreach ($ucId in $reportUseCases) {
-            & (Join-Path $script:OrchestratorRoot "report_generator.ps1") -UseCase $ucId -OutputPath $distReportRoot -ErrorAction Stop | Out-Null
-            Write-Host "  Report structure created for $ucId (fallback)" -ForegroundColor Green
-        }
-        return
+        # No PowerShell fallback any more (D-686, SIG-2609-005/-008): the old report_generator.ps1
+        # wrote the PBIR-Legacy shape. PBIR is GA and the default format; only the Python
+        # generator emits it.
+        throw "Python 3 not found (py -3 / python3 / python). Report generation needs Python 3; there is no PBIR-Legacy fallback."
     }
     $pyExe = ($pyCmd -split " ")[0]
     $pySplit = $pyCmd -split " "

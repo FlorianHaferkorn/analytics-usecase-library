@@ -26,16 +26,19 @@
           }
         }
       ],
-      "calloutValue": [
+      "value": [
         {
           "properties": {
-            "displayUnits": {
+            "labelDisplayUnits": {
               "expr": {
                 "Literal": {
-                  "Value": "0L"
+                  "Value": "0D"
                 }
               }
             }
+          },
+          "selector": {
+            "id": "default"
           }
         }
       ]
@@ -111,7 +114,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Forecast Accuracy %, Forecast MAPE %, Forecast Bias % and Service Impact %'"
+                  "Value": "'Current values of Forecast Accuracy %, Forecast MAPE %, Forecast Bias % and Service Impact %'"
                 }
               }
             }

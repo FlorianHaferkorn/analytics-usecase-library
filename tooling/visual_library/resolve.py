@@ -62,12 +62,21 @@ def native_type_index() -> dict[str, list[str]]:
 
 # PBIR visualTypes that violate the governed deny-list, with the sanctioned replacement idiom.
 # Grounded in index.yaml `deny` + color_semantics / pbi-design chart governance.
+# Donut max. 3 parts: IBCS 2.0 EX 2.1, p. 136 ("not more than two or three values per pie chart",
+# catalogue docs/architecture/research/2026-09-30_visual-stack-r1/ibcs_v2.yaml). The deny id
+# `pie_gt_4` is a stable cross-repo id and keeps its name.
 DENY_VISUALTYPES: dict[str, dict] = {
     "gaugeVisual":  {"deny": "gauge", "use": "bullet (Few's governed gauge replacement) or kpi_card_bullet"},
-    "pieChart":     {"deny": "pie_gt_4", "use": "donut (<=4 parts) or bar_ranking / stacked_100"},
-    "pieChartVisual": {"deny": "pie_gt_4", "use": "donut (<=4 parts) or bar_ranking"},
+    "pieChart":     {"deny": "pie_gt_4", "use": "donut (<=3 parts) or bar_ranking / stacked_100"},
+    "pieChartVisual": {"deny": "pie_gt_4", "use": "donut (<=3 parts) or bar_ranking"},
     "ribbonChart":  {"deny": "color_as_decoration", "use": "line / column_time (rank-over-time reads cleaner)"},
     "funnel":       {"deny": "color_as_decoration", "use": "bar_ranking (worst-first) or sankey for true flow"},
+    # Von Microsoft abgekuendigt (Abgleich 07.10.2026, skills-for-fabric map.md / card.md).
+    "map":          {"deny": "deprecated_map", "use": "azureMap"},
+    "filledMap":    {"deny": "deprecated_map", "use": "azureMap"},
+    "qnaVisual":    {"deny": "qna_visual", "use": "Copilot (the Q&A visual is deprecated)"},
+    "card":         {"deny": "legacy_card", "use": "cardVisual"},
+    "multiRowCard": {"deny": "legacy_card", "use": "cardVisual"},
 }
 
 

@@ -111,7 +111,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Net Sales Amount, Net Sales % vs Plan, Delta% Net Sales and Price Effect Amount'"
+                  "Value": "'Current values of Net Sales Amount, Net Sales % vs Plan, Delta% Net Sales and Price Effect Amount'"
                 }
               }
             }

@@ -269,6 +269,45 @@ class TestSlotCompliance:
         errors = validate_slot_compliance("KPI_Cards", "donutChart")
         assert any("globally disallowed" in e for e in errors), errors
 
+    @pytest.mark.parametrize("visual_type,replacement", [
+        ("filledMap", "azureMap"),
+        ("map", "azureMap"),
+        ("qnaVisual", "Copilot"),
+        ("card", "cardVisual"),
+        ("multiRowCard", "cardVisual"),
+    ])
+    def test_deprecated_type_rejected_with_replacement(self, visual_type, replacement):
+        errors = validate_slot_compliance("Main_1", visual_type)
+        assert len(errors) == 1, errors
+        assert "globally disallowed" in errors[0] and replacement in errors[0], errors
+
+    @pytest.mark.parametrize("visual_type", ["cardVisual", "azureMap"])
+    def test_replacement_type_accepted(self, visual_type):
+        assert validate_slot_compliance("Main_1", visual_type) == []
+
+    def test_kpi_card_slot_maps_only_to_card_visual(self):
+        from page_scaffold_generator.visual_validator import _ABSTRACT_TO_PBI
+        assert _ABSTRACT_TO_PBI["kpi_card"] == {"cardVisual"}
+
+    def test_validate_visual_rejects_legacy_card_without_slot_mapping(self):
+        visual = {
+            "$schema": "https://example.com/schema.json",
+            "name": "KPI_1",
+            "position": {"x": 0, "y": 0, "z": 0, "height": 100, "width": 200, "tabOrder": 1},
+            "visual": {"visualType": "card", "query": {"queryState": {"Data": {}}}},
+        }
+        errors = validate_visual(visual)
+        assert any("globally disallowed" in e and "cardVisual" in e for e in errors), errors
+
+    def test_validate_visual_accepts_azure_map(self):
+        visual = {
+            "$schema": "https://example.com/schema.json",
+            "name": "Map_1",
+            "position": {"x": 0, "y": 0, "z": 0, "height": 300, "width": 400, "tabOrder": 1},
+            "visual": {"visualType": "azureMap", "query": {"queryState": {"Category": {}}}},
+        }
+        assert validate_visual(visual) == []
+
     def test_line_chart_allowed_in_main1(self):
         errors = validate_slot_compliance("Main_1", "lineChart", slot_mapping=self.SLOT_MAPPING)
         assert errors == [], errors

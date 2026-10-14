@@ -11,7 +11,7 @@
 # them. The authoritative gate until the window reopens is LOCAL:
 #   python -m pytest tooling/superversion/ tooling/tests/test_dist_validator_ratchet.py -q -rs
 #   python scripts/check_index.py --strict
-# (mit powerbi-report-author 0.4.0 auf PATH und ALUCA_PBIR_CLI_PFLICHT=1, wie unten)
+# (mit powerbi-report-author 0.5.0 auf PATH und ALUCA_PBIR_CLI_PFLICHT=1, wie unten)
 # (both must be green before commit). This workflow becomes meaningful again
 # once the quota window reopens.
 
@@ -100,13 +100,13 @@ jobs:
         # npm 0.1.4 statt 0.1.1, die neuere Fassung prueft `.platform`, und der Lauf wurde rot
         # auf einem Commit, der daran nichts geaendert hatte. Ein Pin, der nur an einer Stelle
         # gilt, ist kein Pin.
-        run: npm install -g @microsoft/powerbi-report-authoring-cli@0.4.0
+        run: npm install -g @microsoft/powerbi-report-authoring-cli@0.5.0
 
       - name: Show validator version (must equal the pin)
         run: |
           v="$(powerbi-report-author --version)"
           echo "powerbi-report-author $v"
-          test "$v" = "0.4.0"
+          test "$v" = "0.5.0"
 
       # Laeuft NACH der CLI-Installation (bis 29.09.2026 lief er davor: der offizielle
       # Validator-Test und die dist-Ratsche wurden hier still uebersprungen, der Lauf war

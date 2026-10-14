@@ -162,7 +162,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Gross Margin % vs Plan'"
+                  "Value": "'Gross Margin % vs Plan: current value'"
                 }
               }
             }

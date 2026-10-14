@@ -516,6 +516,8 @@ def emit(blueprint: dict,
         lines.append("- Recommended floor: **not derivable** from the declared sizing inputs.")
     if cap.get("conflict"):
         lines.append(f"- **Conflict:** {cap['conflict']}")
+    if cap.get("copilot"):
+        lines.append(f"- Copilot / data agents: {cap['copilot']['statement']}")
     proc = cap.get("procurement", {})
     if proc.get("model"):
         lines.append(f"- Procurement: **{proc['model']}** — {proc.get('reason', '')}")

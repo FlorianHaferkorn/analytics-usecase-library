@@ -137,33 +137,34 @@ Template Sections:
   - Sparklines: GM% vs Plan
     -> Sparkline Custom Visual, Y=[Gross Margin %], Comparison=[Gross Margin % vs Plan]
 
-# Output: COM-001.Report/definition/report.json
+# Output (PBIR, GA and default format — no report.json with "sections"/"visualContainers"):
+#   COM-001_Sales_Performance.Report/definition.pbir                      datasetReference byPath
+#   .../definition/report.json, version.json, pages/pages.json            report metadata, page order
+#   .../definition/pages/Page_COM001_Overview/page.json                   one folder per page
+#   .../definition/pages/Page_COM001_Overview/visuals/KPI_Cards/visual.json   one folder per visual
 
+# visual.json (shortened, as generated in dist/):
 {
-  "pages": [
-    {
-      "name": "Overview",
-      "displayName": "Overview",
-      "width": 1280,
-      "height": 720,
-      "visualContainers": [
-        {
-          "config": "{ type: 'card', x: 0, y: 0, width: 300, height: 150 }",
-          "query": {
-            "Commands": [{ "SemanticQueryDataShapeCommand": { "Query": { "Select": [{ "Measure": { "Expression": { "SourceRef": { "Source": "_Measures" } }, "Property": "Net Sales Amount" } }] } } }]
-          }
-        }
-      ]
-    }
-  ]
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "KPI_Cards",
+  "position": { "x": 32, "y": 104, "z": 10000, "height": 144, "width": 1856, "tabOrder": 3000 },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": { "queryState": { "Data": { "projections": [
+      { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Net Sales Amount" } },
+        "queryRef": "_Measures.Net Sales Amount", "nativeQueryRef": "Net Sales Amount" }
+    ] } } }
+  }
 }
+# Power BI Desktop converts PBIR-Legacy reports to PBIR silently on save (backup 30 days in
+# Desktop, 28 days in the service). ALUCA emits PBIR only (D-686, SIG-2609-008).
 ```
 
 ### Visual Type Mapping
 
 | Template Keyword | Power BI Visual | Config |
 |------------------|-----------------|--------|
-| KPI Card | Card | Basic value display |
+| KPI Card | Card (`cardVisual`; legacy `card`/`multiRowCard` are on the deny-list) | Basic value display |
 | Trend Chart | Line Chart | X=Date, Y=Measure, Legend optional |
 | Waterfall | Waterfall | Category=breakdown dim, Y=delta measure |
 | Heatmap | Matrix + Conditional Formatting | Rows=dim1, Cols=dim2, Values=measure |
@@ -245,8 +246,8 @@ mcp_powerbi-model_relationship_operations -Operation "create" -RelationshipDefin
 
 # To: Report Generator
 Generate-ReportPage -PageName "Overview" -Visuals @(
-  @{ type="card"; measure="Net Sales Amount"; position=@{x=0;y=0} },
-  @{ type="card"; measure="Gross Margin %"; position=@{x=320;y=0} }
+  @{ type="cardVisual"; measure="Net Sales Amount"; position=@{x=0;y=0} },
+  @{ type="cardVisual"; measure="Gross Margin %"; position=@{x=320;y=0} }
 )
 ```
 
@@ -369,11 +370,12 @@ showcases/aurora_group/
     COM-001.Report/
       .platform
       definition/
-        report.json              ← Generated from page template
+        report.json              ← PBIR report metadata (theme, settings)
+        version.json
         pages/
-          Overview.json
-          Drivers.json
-          Details.json
+          pages.json             ← page order
+          Overview/page.json     ← one folder per page (PBIR)
+          Overview/visuals/<visual>/visual.json
   logs/
     orchestration_COM-001_20260202_143022.log
     validation_results.json

@@ -185,7 +185,8 @@ def test_kein_titel_und_kein_visualtyp_im_alt_text() -> None:
 
 def test_slicer_card_textbox_shape() -> None:
     assert at.describe(_v("slicer", {"Values": {"projections": [_c("dim_org", "OrgName")]}})) == "Filter by Org Name"
-    assert at.describe(_v("cardVisual", {"Data": {"projections": [_m("A"), _m("B"), _m("C")]}})) == "A, B and C"
+    assert at.describe(_v("cardVisual", {"Data": {"projections": [_m("A"), _m("B"), _m("C")]}})) == \
+        "Current values of A, B and C"
     tb = _v("textbox", objects={"text": [{"properties": {"text": {"expr": {"Literal": {"Value": "'It''s on'"}}}}}]})
     assert at.describe(tb) == "It's on"
     assert at.describe(_v("shape")) is None
@@ -210,7 +211,7 @@ def test_vorhandener_alt_text_bleibt_und_hochkomma_wird_verdoppelt() -> None:
     v = _v("cardVisual", {"Data": {"projections": [_m("Owner's Margin")]}})
     at.apply_alt_text(v)
     assert v["visual"]["visualContainerObjects"]["general"][0]["properties"]["altText"] == {
-        "expr": {"Literal": {"Value": "'Owner''s Margin'"}}}
+        "expr": {"Literal": {"Value": "'Owner''s Margin: current value'"}}}
     v["visual"]["visualContainerObjects"]["general"][0]["properties"]["altText"]["expr"]["Literal"]["Value"] = "'x'"
     at.apply_alt_text(v)
     assert _alt(v) == "x"
@@ -224,13 +225,15 @@ def test_apply_to_report_aendert_nur_alt_text(tmp_path: Path) -> None:
     p = tmp_path / "R.Report" / "definition" / "pages" / "P" / "visuals" / "V" / "visual.json"
     p.parent.mkdir(parents=True)
     p.write_text(raw, encoding="utf-8")
-    assert at.apply_to_report(tmp_path / "R.Report") == [p]
+    with pytest.warns(at.UnknownModelWarning):  # kein definition.pbir: Text-Measures unbekannt
+        assert at.apply_to_report(tmp_path / "R.Report") == [p]
     new = p.read_text(encoding="utf-8")
     old_lines, new_lines = raw.splitlines(), new.splitlines()
     removed = [line for line in old_lines if line not in new_lines]
     assert all(line + "," in new_lines for line in removed)
-    assert _alt(json.loads(new)) == "Cash"
-    assert at.apply_to_report(tmp_path / "R.Report") == []  # zweiter Lauf: nichts mehr zu tun
+    assert _alt(json.loads(new)) == "Cash: current value"
+    with pytest.warns(at.UnknownModelWarning):
+        assert at.apply_to_report(tmp_path / "R.Report") == []  # zweiter Lauf: nichts mehr zu tun
 
 
 # --- Sprache (ux_layout_rules.report_locale, 01.10.2026) -----------------------------------------
@@ -251,7 +254,7 @@ _FAELLE = [  # (Visual, Vergleichsreihen, en, de) je Visualtyp
     (_v("slicer", {"Values": {"projections": [_c("dim_org", "OrgName")]}}), [],
      "Filter by Org Name", "Filtern nach Org Name"),
     (_v("cardVisual", {"Data": {"projections": [_m("A"), _m("B"), _m("C")]}}), [],
-     "A, B and C", "A, B und C"),
+     "Current values of A, B and C", "Aktuelle Werte von A, B und C"),
     (_v("tableEx", {"Values": {"projections": [_c("dim_org", "OrgName"), _c("dim_org", "Region"),
                                                _m("Cash")]}}), [],
      "Cash by Org Name and Region", "Cash nach Org Name und Region"),
@@ -371,9 +374,11 @@ def test_fin001_dist_traegt_deutschen_alt_text() -> None:
     texte = _dist_alt(FIN001)
     assert sum(any(p in t for p in _DEUTSCH) for t in texte) >= 9  # gemessen 01.10.2026: 9 von 13
     assert not any(p in t for t in texte for p in (" compared with ", "Filter by ", " by "))
+    texte = at.text_measures(at.report_model_dir(FIN001))  # Text-Kacheln ohne "aktueller Wert"
     for path in sorted((FIN001 / "definition" / "pages").glob("*/visuals/*/visual.json")):
         v = json.loads(path.read_text(encoding="utf-8"))
-        assert _alt(v) == at.describe(v, locale="de-DE") or v["visual"]["visualType"] == "shape", path
+        assert (_alt(v) == at.describe(v, locale="de-DE", text_measures=texte)
+                or v["visual"]["visualType"] == "shape"), path
 
 
 @pytest.mark.parametrize("report", sorted(p.name for p in DIST.glob("*.Report") if p != FIN001))
@@ -387,6 +392,8 @@ def test_werkzeug_liest_sprache_aus_dem_bracket(tmp_path: Path) -> None:
     import shutil
     kopie = tmp_path / FIN001.name
     shutil.copytree(FIN001, kopie)
+    # byPath-Nachbar: ohne Modell bricht das Werkzeug ab (Text-Measures unbekannt)
+    shutil.copytree(DIST / "Finance.SemanticModel", tmp_path / "Finance.SemanticModel")
     assert at.report_locale(kopie) == "de-DE"
     assert at.main([str(kopie)]) == 0
     assert _dist_alt(kopie) == _dist_alt(FIN001)  # dist ist schon erzeugt: nichts zu tun
@@ -399,3 +406,142 @@ def test_werkzeug_liest_sprache_aus_dem_bracket(tmp_path: Path) -> None:
             p.read_text(encoding="utf-8").splitlines()
         assert len(alt) == len(neu)
         assert all(a == b or '"Value"' in a for a, b in zip(alt, neu)), p
+
+
+# --- Kacheln und lokalisierte Kennzahlnamen (02.10.2026) -------------------------------------------
+
+
+def test_kachel_nennt_kennzahl_und_aktuellen_wert() -> None:
+    card = _v("cardVisual", {"Data": {"projections": [_m("Net Sales")]}})
+    assert at.describe(card) == "Net Sales: current value"
+    assert at.describe(card, locale="de-DE") == "Net Sales: aktueller Wert"
+    assert at.describe(_v("cardVisual", {"Data": {"projections": [_m("Net Sales"), _m("Net Sales PY")]}}),
+                       ["Net Sales PY"]) == "Net Sales: current value compared with Net Sales PY"
+    # Gegenprobe: ein Chart mit derselben Bindung bekommt keine Kachelform
+    assert at.describe(_v("clusteredBarChart", {"Y": {"projections": [_m("Net Sales")]}})) == "Net Sales"
+
+
+def test_kpi_visual_zielwert_ist_vergleich() -> None:
+    kpi = _v("kpi", {"Indicator": {"projections": [_m("OTIF %")]}, "Goal": {"projections": [_m("OTIF Target")]},
+                     "TrendLine": {"projections": [_c("dim_date", "Month")]}})
+    assert at.describe(kpi) == "OTIF %: current value compared with OTIF Target by Month"
+
+
+def test_alte_kachelform_wird_ersetzt_handtext_nicht() -> None:
+    card = _v("cardVisual", {"Data": {"projections": [_m("Cash")]}})
+    card["visual"]["visualContainerObjects"] = {"general": [{"properties": {"altText": {
+        "expr": {"Literal": {"Value": "'Cash'"}}}}}]}
+    at.apply_alt_text(card, replace_generated=True)
+    assert _alt(card) == "Cash: current value"
+    card["visual"]["visualContainerObjects"]["general"][0]["properties"]["altText"]["expr"]["Literal"]["Value"] = "'Hand'"
+    at.apply_alt_text(card, replace_generated=True)
+    assert _alt(card) == "Hand"
+
+
+def test_ausdruck_als_alt_text_bleibt() -> None:
+    """Learn: dynamischer Alt-Text per Measure (bedingte Formatierung) -- nie ueberschreiben."""
+    card = _v("cardVisual", {"Data": {"projections": [_m("Cash")]}})
+    expr = {"expr": {"Measure": {"Expression": {"SourceRef": {"Entity": "_Measures"}}, "Property": "Cash Alt"}}}
+    card["visual"]["visualContainerObjects"] = {"general": [{"properties": {"altText": expr}}]}
+    at.apply_alt_text(card, replace_generated=True)
+    assert card["visual"]["visualContainerObjects"]["general"][0]["properties"]["altText"] == expr
+
+
+def test_lokalisierter_kennzahlname_nur_wenn_gefuehrt() -> None:
+    card = _v("cardVisual", {"Data": {"projections": [_m("Net Sales"), _m("Net Sales PY")]}})
+    namen = {"Net Sales": {"de": "Nettoumsatz"}}
+    assert at.describe(card, ["Net Sales PY"], locale="de-DE", kpi_namen=namen) == \
+        "Nettoumsatz: aktueller Wert im Vergleich zu Net Sales PY"
+    assert at.describe(card, ["Net Sales PY"], locale="en-US", kpi_namen=namen) == \
+        "Net Sales: current value compared with Net Sales PY"
+
+
+def test_katalog_fuehrt_keine_namen_je_sprache() -> None:
+    """Lueckenmessung: kein KPI im Katalog fuehrt einen Namen je Sprache. Wird dieser Test rot,
+    gibt es die Quelle -- dann `kpi_namen` aus dem Katalog an den Generator anschliessen."""
+    import yaml
+    sprachfelder = []
+    for f in sorted((REPO / "core" / "kpi_catalog" / "kpis").glob("*.yaml")):
+        kpi = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        for teil in (kpi, kpi.get("business") or {}, kpi.get("technical") or {}):
+            sprachfelder += [f"{f.name}:{k}" for k in teil
+                             if any(t in k.lower() for t in ("_de", "_en", "i18n", "locale", "translation"))]
+    assert sprachfelder == []
+
+
+# --- Text-Measures auf Kacheln (03.10.2026) ------------------------------------------------------
+
+COMMERCIAL = DIST / "Commercial.SemanticModel"
+
+
+def test_text_measures_aus_dem_modell() -> None:
+    """formatString @ im TMDL ist die Quelle; Kennzahlen mit Zahlformat sind keine Text-Measures."""
+    texte = at.text_measures(COMMERCIAL)
+    assert {"Narrative Text (COM)", "Last Refresh (COM)", "Active Actions Text"} <= texte
+    assert "Net Sales Amount" not in texte
+    assert at.text_measures(None) == frozenset()
+    gesamt = sum(len(at.text_measures(m)) for m in DIST.glob("*.SemanticModel"))
+    assert gesamt == 70  # gemessen 03.10.2026, fuenf dist-Modelle
+
+
+def test_kachel_mit_text_measure_nennt_nur_den_namen() -> None:
+    card = _v("cardVisual", {"Data": {"projections": [_m("Narrative Text (COM)")]}})
+    texte = {"Narrative Text (COM)"}
+    assert at.describe(card, text_measures=texte) == "Narrative Text (COM)"
+    assert at.describe(card, locale="de-DE", text_measures=texte) == "Narrative Text (COM)"
+    # Gegenprobe: ein Kennzahl-Measure auf derselben Kachelart behaelt "aktueller Wert"
+    zahl = _v("cardVisual", {"Data": {"projections": [_m("Net Sales")]}})
+    assert at.describe(zahl, locale="de-DE", text_measures=texte) == "Net Sales: aktueller Wert"
+    # gemischt: nicht nur Text -> Kachelform bleibt
+    gemischt = _v("cardVisual", {"Data": {"projections": [_m("Net Sales"), _m("Narrative Text (COM)")]}})
+    assert at.describe(gemischt, text_measures=texte) == "Current values of Net Sales and Narrative Text (COM)"
+
+
+def test_erzeugte_kachelform_wird_fuer_text_measure_ersetzt() -> None:
+    card = _v("cardVisual", {"Data": {"projections": [_m("Last Refresh (COM)")]}})
+    card["visual"]["visualContainerObjects"] = {"general": [{"properties": {"altText": {
+        "expr": {"Literal": {"Value": "'Last Refresh (COM): current value'"}}}}}]}
+    at.apply_alt_text(card, replace_generated=True, text_measures={"Last Refresh (COM)"})
+    assert _alt(card) == "Last Refresh (COM)"
+
+
+def test_generator_text_kacheln_ohne_aktuellen_wert() -> None:
+    texte = {v["name"]: _alt(v) for v in _generiert("COM-001")}
+    assert texte["Smart_Narrative"] == "Narrative Text (COM)"
+    assert texte["Last_Refresh"] == "Last Refresh (COM)"
+
+
+def _dist_kacheln():
+    for report in sorted(DIST.glob("*.Report")):
+        texte = at.text_measures(at.report_model_dir(report))
+        for p in sorted((report / "definition" / "pages").glob("*/visuals/*/visual.json")):
+            v = json.loads(p.read_text(encoding="utf-8"))
+            if (v.get("visual") or {}).get("visualType") in at.CARD_TYPES:
+                yield report, p, v, texte
+
+
+def test_dist_text_kacheln_ohne_aktuellen_wert() -> None:
+    nur_text = [(p, _alt(v)) for _r, p, v, texte in _dist_kacheln()
+                if all(m in texte for m in at._measure_properties(v["visual"]))]
+    assert len(nur_text) == 50  # gemessen 03.10.2026: Narrative, Last Refresh, Active Actions in 17 Reports
+    falsch = [(str(p), t) for p, t in nur_text if not t or "current value" in t or "aktueller Wert" in t]
+    assert falsch == []
+    # Gegenprobe: Kacheln mit Kennzahlen behalten die Kachelform
+    zahl = [_alt(v) for _r, _p, v, texte in _dist_kacheln()
+            if not all(m in texte for m in at._measure_properties(v["visual"]))]
+    assert zahl and all("current value" in t or "aktueller Wert" in t or "Current values" in t
+                        or "Aktuelle Werte" in t for t in zahl)
+
+
+def test_report_model_dir_folgt_definition_pbir() -> None:
+    assert at.report_model_dir(DIST / "COM-001_Sales_Performance.Report") == COMMERCIAL.resolve()
+
+
+def test_werkzeug_ohne_modell_bricht_ab(tmp_path: Path) -> None:
+    """Ohne Semantikmodell sind Text-Measures unbekannt: das Werkzeug raet nicht, es bricht ab."""
+    import shutil
+    kopie = tmp_path / FIN001.name
+    shutil.copytree(FIN001, kopie)
+    assert at.main([str(kopie)]) == 1
+    assert _dist_alt(kopie) == _dist_alt(FIN001)
+    assert at.main([str(kopie), "--model", str(DIST / "Finance.SemanticModel")]) == 0

@@ -5,6 +5,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library"))
 import render  # noqa: E402
@@ -78,3 +80,22 @@ def test_idiom_card_surfaces_version_and_status():
     r = resolve.resolve_purpose("part_to_whole")
     assert r["best"]["status"] in {"active", "experimental", "deprecated"}
     assert r["best"]["version"]
+
+
+@pytest.mark.parametrize("visual_type,rule,replacement", [
+    ("filledMap", "deprecated_map", "azureMap"),
+    ("map", "deprecated_map", "azureMap"),
+    ("qnaVisual", "qna_visual", "Copilot"),
+    ("card", "legacy_card", "cardVisual"),
+    ("multiRowCard", "legacy_card", "cardVisual"),
+])
+def test_audit_denies_deprecated_types(tmp_path, visual_type, rule, replacement):
+    f = tmp_path / "v.json"
+    f.write_text(json.dumps({"visual": {"visualType": visual_type}}), encoding="utf-8")
+    r = resolve.audit_visual(str(f))
+    assert r["verdict"] == "denied" and r["deny_rule"] == rule and replacement in r["use_instead"]
+
+
+def test_every_deny_rule_of_the_audit_is_governed_in_index():
+    deny = set(resolve._index()["deny"])
+    assert {d["deny"] for d in resolve.DENY_VISUALTYPES.values()} <= deny

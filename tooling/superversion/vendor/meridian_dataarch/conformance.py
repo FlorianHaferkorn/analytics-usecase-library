@@ -220,6 +220,29 @@ def _kapazitaet_anlage(blueprint: dict, add) -> None:
             add(P4, "capacity_create_invalid", "error", befund)
 
 
+def _silber_ausser_gold_workspace(domain: dict) -> list[tuple[str, str, str]]:
+    """``(stufe, silber_ws, gold_ws)`` je Stufe, in der Silber nicht im Gold-Workspace liegt.
+
+    Gold liegt im Workspace mit einer Lakehouse-Rolle (``LAKEHOUSE_ROLES``: ``data`` unter
+    `per_domain`, ``gold`` unter `per_layer`/zentraler Aufbereitung, ``mixed`` unter `single`) —
+    dieselbe Wahl wie ``provision_apply.gold_workspace_of``, wo das Warehouse angelegt wird.
+    Silber liegt in einem Workspace mit Rolle ``silver``, wenn die Domaene einen hat, sonst im
+    Gold-Workspace (die Lakehouse-Rollen tragen alle drei Schichten). Verglichen wird je Stufe,
+    weil Umgebungen eigene Workspaces sind.
+    """
+    from core.dataarch_engine.blueprint.governance_strategy import LAKEHOUSE_ROLES
+    je_stufe: dict[str, list[dict]] = {}
+    for ws in domain.get("workspaces") or []:
+        je_stufe.setdefault(str(ws.get("stage") or ""), []).append(ws)
+    befunde: list[tuple[str, str, str]] = []
+    for stufe, liste in sorted(je_stufe.items()):
+        gold = next((w["name"] for w in liste if w.get("role") in LAKEHOUSE_ROLES), None)
+        silber = next((w["name"] for w in liste if w.get("role") == "silver"), None)
+        if gold and silber and silber != gold:
+            befunde.append((stufe, silber, gold))
+    return befunde
+
+
 def conformance(blueprint: dict) -> ConformanceResult:
     findings: list[Finding] = []
 
@@ -322,7 +345,12 @@ def conformance(blueprint: dict) -> ConformanceResult:
     # join indexes"; "Prefer append-friendly update patterns where possible". Info, weil der
     # Vollaufbau korrekt ist — er kostet nur das inkrementelle Framing.
     from core.dataarch_engine.blueprint.storage_mode import DIRECT_LAKE_ONELAKE, resolve_storage_mode
-    fakten = sorted(str(p.get("name")) for p in gold if p.get("kind", "fact") == "fact")
+    # D-672: Produkte einer Warehouse-Domaene laufen nicht ueber `CREATE OR REPLACE TABLE`, sondern
+    # ueber `TRUNCATE` + `INSERT … SELECT` im Warehouse — der Befund unten beschreibt sie nicht.
+    im_warehouse = {p for d in blueprint.get("mesh", {}).get("domains", []) or []
+                    if d.get("gold_target") == "warehouse" for p in d.get("data_products") or []}
+    fakten = sorted(str(p.get("name")) for p in gold if p.get("kind", "fact") == "fact"
+                    and p.get("name") not in im_warehouse)
     try:
         _modus = resolve_storage_mode(blueprint)
     except ValueError:
@@ -351,6 +379,37 @@ def conformance(blueprint: dict) -> ConformanceResult:
     for d in domains:
         if not d.get("workspaces"):
             add(P3, "domain_no_workspace", "error", f"domain '{d.get('name')}' has no workspace")
+        # D-672: Gold im Warehouse wird ueber T-SQL geschrieben; das verlangt den delegierten Modus
+        # des SQL-Endpunkts, in dem OneLake-Sicherheitsrollen nicht greifen (MS Learn
+        # onelake/security/sql-analytics-endpoint-onelake-security). Ein erklaerter Zeilenschnitt
+        # dieser Domaene entstuende als Rolle und truege niemanden.
+        if d.get("gold_target") == "warehouse" and d.get("row_security"):
+            add(P3, "row_security_on_warehouse_gold", "error",
+                f"domain '{d.get('name')}' declares row_security with gold_target=warehouse — "
+                "OneLake security roles do not apply in the delegated mode a T-SQL write path "
+                "needs; keep this domain's gold in the lakehouse or build the cut as T-SQL RLS "
+                "in the warehouse")
+        # D-672 Nachtrag (03.10.2026): der Ladeschritt `load_gold_<p>.sql` liest Silber per
+        # Drei-Teil-Namen ueber den SQL-Analyseendpunkt des Silber-Lakehouse. Das reicht nur
+        # innerhalb EINES Workspace. MS Learn fabric/data-warehouse/ingest-data (gelesen
+        # 03.10.2026 ueber das Microsoft-Learn-MCP): "Use Transact-SQL features such as
+        # INSERT...SELECT, SELECT INTO, or CREATE TABLE AS SELECT (CTAS) to read data from tables
+        # that reference other warehouses, lakehouses, or mirrored databases within the same
+        # workspace." — und fabric/data-warehouse/query-warehouse: "You can write cross database
+        # queries to warehouses and databases in the current active workspace". Liegt Silber in
+        # einem eigenen Workspace (`per_layer`, oder ausdruecklich gesetzte Workspaces mit Rolle
+        # `silver`), findet der Ladeschritt die Quelle nicht.
+        if d.get("gold_target") == "warehouse":
+            for stufe, silber_ws, gold_ws in _silber_ausser_gold_workspace(d):
+                add(P3, "warehouse_gold_silver_other_workspace", "error",
+                    f"domain '{d.get('name')}' has gold_target=warehouse, but silver lies in "
+                    f"workspace '{silber_ws}' and gold in '{gold_ws}'"
+                    + (f" (stage {stufe})" if stufe else "")
+                    + " — the warehouse load reads silver via three-part names, and T-SQL "
+                    "cross-database reads work only within the same workspace (MS Learn "
+                    "fabric/data-warehouse/ingest-data, query-warehouse); put silver and the "
+                    "warehouse in one workspace, keep this domain's gold in the lakehouse, or "
+                    "expose silver to the gold workspace through a OneLake shortcut (not emitted)")
         pub = d.get("publishing", {})
         if d.get("data_products") and pub.get("endorsement") == "none":
             add(P3, "unpublished_products", "warn",

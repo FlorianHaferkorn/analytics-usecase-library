@@ -27,9 +27,13 @@ class GridPosition:
 ZONE0_HEADER_HEIGHT = 56
 
 
-def zone0_offset(has_header: bool, gutter: float) -> int:
-    """Wie weit das Raster unter den Header rutscht: Headerhoehe plus ein Gutter."""
-    return int(ZONE0_HEADER_HEIGHT + gutter) if has_header else 0
+def zone0_offset(has_header: bool, gutter: float, height: float = ZONE0_HEADER_HEIGHT) -> int:
+    """Wie weit das Raster unter den Header rutscht: Headerhoehe plus ein Gutter.
+
+    ``height``: Hoehe des Headers. Der Titelblock (A-34, ``title_block.TITLE_BLOCK_HEIGHT``) ist
+    hoeher als die einzeilige Big-Idea-Kopfzeile; beide Positionierer lesen die Hoehe des Headers.
+    """
+    return int(height + gutter) if has_header else 0
 
 
 # Mindesthoehe eines Dropdown-Slicers, laut offiziellem Validator (powerbi-report-author

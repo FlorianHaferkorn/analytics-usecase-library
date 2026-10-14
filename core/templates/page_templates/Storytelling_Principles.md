@@ -49,6 +49,9 @@ It is **not** a title. It is the conclusion that the reader should leave the pag
   `page_1_summary.decision_question` and the Big Idea follows as "Expected finding — …"
   (`tooling/reporting/title_policy.py`; decided 2026-09-23, R6.2). A static header must not
   assert a finding that the next refresh can contradict.
+- With `page_1_summary.title_lines` the Header becomes the IBCS title block (A-34, 08.10.2026,
+  UN 2.1/2.2): the Big Idea is the key message above three descriptive title lines who / what in
+  unit / when (`page_scaffold_generator/title_block.py`, PAGE_TEMPLATE_DOCTRINE.md §3.9).
 - `page_1_summary.decision_question` is the governed question the Big Idea answers; it leads the
   header in the unverified case and grounds authoring and evidence-table framing.
 - The **Smart Narrative** on the Detail page restates the Big Idea's answer in the current filter
@@ -258,7 +261,7 @@ Typography establishes information hierarchy before the reader consciously proce
 | Role | Size | Weight | Usage |
 |---|---|---|---|
 | `page_title` | 16–18pt | Regular | Page / report title (decision question) |
-| `section_header` | 13–14pt | Semibold | Visual title (question-oriented) |
+| `section_header` | 12pt | Semibold | Visual title (question-oriented); 12 pt per Meridian D-685 |
 | `kpi_value` | 28–36pt | Bold | Hero number on KPI card |
 | `kpi_delta` | 13–14pt | Regular | Variance value + icon on KPI card |
 | `kpi_label` | 10–11pt | Regular, muted | KPI name below the value |

@@ -1,0 +1,76 @@
+# Visual Library — usage concepts (ADR-0026)
+# ------------------------------------------------------------------
+# A notation profile (_notation_profiles.yaml) says how a chart is DRAWN. A usage concept says
+# how a PAGE is built and read: page structure, density, interaction. The two are independent
+# axes — "IBCS x monitoring" is a valid page — with the exclusions listed per concept below.
+# IBCS 2.0 separates Notation from Composition in the same way.
+#
+# Meridian carries the choice in reporting.json (`visual_profile` x `usage_concept`, D-720);
+# a use case may state its own page concept in UseCase_Bracket.yaml
+# (ux_layout_rules.usage_concept). The enum there is tested against this file.
+#
+# `profiles` lists the OFFERED profiles allowed under a concept (offered: false profiles such as
+# `minimal` never appear). The combination table is a derivation from the concept rules, not
+# measured with readers (ADR-0026 §3).
+
+schema_version: 1
+default: entscheidung
+
+concepts:
+
+  entscheidung:
+    name: "Decision — question, computed key message, threshold and owner, next action"
+    is_default: true
+    description: >
+      Every page answers one governed question and ends in an action. Order on the page: question,
+      computed key message (shown only when verified), threshold and owner from the action-code
+      catalogue, next action, then the evidence (KPI band, 2 to 4 charts, table).
+    page_structure: [question, key_message, threshold_owner, next_action, evidence]
+    density: "one question per page; KPI band plus 2-4 evidence visuals (practice assumption)"
+    interaction: "filter and drill to the evidence; the key message never depends on an interaction"
+    source:
+      - "derivation: Golden Thread question -> key message -> action code (core/action_codes/)"
+      - "Minto, Pyramid Principle (answer first, SCQ) — author's website excerpt only"
+    profiles: [house_default, ibcs, print_safe, fluent, editorial, story]
+
+  narrativ:
+    name: "Narrative — one message across a short sequence of pages"
+    is_default: false
+    description: >
+      Management reporting that explains one message: answer first, then grouped evidence, one
+      accent against grey, a linear page sequence with little interaction.
+    page_structure: [key_message, evidence_groups, next_steps]
+    density: "low; one chart per message"
+    interaction: "minimal; pages read in order"
+    source:
+      - "Knaflic, Storytelling with Data (2015) — secondary summaries only"
+      - "Minto, Pyramid Principle — author's website excerpt only"
+    profiles: [house_default, ibcs, print_safe, editorial, story]
+
+  monitoring:
+    name: "Monitoring — the state at a glance, deviations stand out"
+    is_default: false
+    description: >
+      Operations view on one screen without scrolling: grey in the normal state, colour only for a
+      breached threshold, dense sparklines and small multiples, pausable auto-refresh.
+    page_structure: [status_band, exceptions, trend_small_multiples]
+    density: "high; one screen"
+    interaction: "filter by area/shift; auto-refresh must be pausable (WCAG 2.2 SC 2.2.2)"
+    source:
+      - "Few, Information Dashboard Design (single screen) — secondary sources only"
+      - "derivation: ANSI/ISA-101.01-2015 High-Performance HMI — secondary sources only, standard not read"
+    profiles: [house_default, ibcs, print_safe, fluent, monitoring]
+
+  explorativ:
+    name: "Exploratory — overview first, zoom and filter, details on demand"
+    is_default: false
+    description: >
+      Analyst pages behind the decision pages (drill target): full filter and drill depth, small
+      multiples instead of trend animation, the table always reachable.
+    page_structure: [overview, filters, detail]
+    density: "medium to high"
+    interaction: "full filter, drill and details on demand"
+    source:
+      - "Shneiderman 1996, The Eyes Have It (IEEE VL, pp. 336-343) — bibliography and excerpt only"
+      - "Robertson et al. 2008, Effectiveness of Animation in Trend Visualization (IEEE TVCG 14(6)) — read: small multiples more accurate than animation for analysis"
+    profiles: [house_default, ibcs, print_safe, fluent]

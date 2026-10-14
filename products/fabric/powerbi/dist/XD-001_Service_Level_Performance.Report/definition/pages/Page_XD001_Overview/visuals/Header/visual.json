@@ -12,16 +12,18 @@
   "visual": {
     "visualType": "textbox",
     "objects": {
-      "text": [
+      "general": [
         {
           "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Is the service organization resolving cases fast enough to prevent backlog growth?  ·  Expected finding — Service backlog is growing — first-contact resolution rate is declining and case escalation volume is rising, signalling a capacity or capability gap.'"
-                }
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Is the service organization resolving cases fast enough to prevent backlog growth?  ·  Expected finding — Service backlog is growing — first-contact resolution rate is declining and case escalation volume is rising, signalling a capacity or capability gap."
+                  }
+                ]
               }
-            }
+            ]
           }
         }
       ]

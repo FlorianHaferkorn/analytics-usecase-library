@@ -228,3 +228,26 @@ def test_the_bound_models_own_measure_passes(tmp_path: Path):
     _model(tmp_path, "SupplyChain", ["OTIF %"])
     _bind(report, "Finance", "OTIF % (FIN)")
     assert validate_report_measure_references(tmp_path) == []
+
+
+def _setze_spalte(report: Path, table: str, column: str) -> None:
+    f = report / "definition/pages/Page_COM001_Overview/visuals/Main_1/visual.json"
+    data = json.loads(f.read_text(encoding="utf-8"))
+    data["visual"]["query"]["queryState"]["Category"] = {"projections": [{"field": {"Column": {
+        "Expression": {"SourceRef": {"Entity": table}}, "Property": column}}}]}
+    f.write_text(json.dumps(data), encoding="utf-8")
+
+
+def test_a_column_missing_in_the_bound_model_is_flagged(tmp_path: Path):
+    """R5 (D-687): Visuals binden nur an vorhandene Modellobjekte, auch Spalten."""
+    report = _minimal_report(tmp_path)
+    _model(tmp_path, "Finance", ["Cash"])
+    (tmp_path / "Finance.SemanticModel/definition/tables/dim_date.tmdl").write_text(
+        "table dim_date\n\n\tcolumn Month\n\t\tdataType: string\n", encoding="utf-8")
+    _bind(report, "Finance", "Cash")
+    _setze_spalte(report, "dim_date", "Quarter")
+    violations = validate_report_measure_references(tmp_path)
+    assert [(v.check, v.actual) for v in violations] == [("dax-reference:missing-column", "dim_date[Quarter]")]
+    # Gegenprobe: dieselbe Anordnung mit vorhandener Spalte besteht.
+    _setze_spalte(report, "dim_date", "Month")
+    assert validate_report_measure_references(tmp_path) == []

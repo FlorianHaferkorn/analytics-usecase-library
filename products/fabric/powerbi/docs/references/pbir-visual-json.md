@@ -70,8 +70,8 @@ Common values for `visual.visualType`:
 
 | Value | Visual |
 |---|---|
-| `card` | Card (single value KPI) |
-| `multiRowCard` | Multi-row card |
+| `cardVisual` | Card (single or multiple KPI values) — replaces the deprecated `card` / `multiRowCard` |
+| `azureMap` | Map — replaces the deprecated `map` / `filledMap` |
 | `kpiVisual` | KPI visual |
 | `lineChart` | Line chart |
 | `barChart` | Clustered bar chart |
@@ -88,6 +88,10 @@ Common values for `visual.visualType`:
 | `scatterChart` | Scatter chart |
 | `ribbonChart` | Ribbon chart |
 | `funnel` | Funnel chart |
+
+Deprecated by Microsoft and rejected by the ALUCA validators (`visual_validator._DEPRECATED_PBI_TYPES`,
+`structural_validator.DEPRECATED_VISUAL_TYPES`): `card`, `multiRowCard` (→ `cardVisual`), `map`, `filledMap`
+(→ `azureMap`), `qnaVisual` (→ Copilot).
 
 ---
 

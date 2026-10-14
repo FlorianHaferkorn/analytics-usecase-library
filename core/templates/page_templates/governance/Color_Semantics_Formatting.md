@@ -139,7 +139,7 @@ Scale up by ~1.5× for 1920×1080 production canvas or add +2pt minimum for PDF 
 | Token           | Size       | Weight          | Color token    | Usage                                         |
 |-----------------|------------|-----------------|----------------|-----------------------------------------------|
 | page_title      | 16–18pt    | Regular         | text.primary   | Page / report title (decision question)       |
-| section_header  | 13–14pt    | Semibold        | text.primary   | Visual title (question-oriented)              |
+| section_header  | 12pt       | Semibold        | text.primary   | Visual title (question-oriented); 12 pt per Meridian D-685 |
 | kpi_value       | 28–36pt    | Bold            | text.primary   | Hero number on KPI card                       |
 | kpi_delta       | 13–14pt    | Regular         | semantic.*     | Variance value + icon on KPI card             |
 | kpi_label       | 10–11pt    | Regular         | text.secondary | KPI name below the value (muted)              |
@@ -154,6 +154,11 @@ Accepted families: Segoe UI (Fabric/PBI), Inter, Roboto, Open Sans (web/OSS tool
 Tabular numerals required for any column of numbers users compare vertically.
 Monospace override: Use JetBrains Mono (or ui-monospace / Consolas as fallback) for KPI hero
 values, data-bar values, action code IDs, and any column of numbers requiring strict alignment.
+
+Visual titles: 12 pt (Meridian D-685, 08.10.2026). The Power BI theme sets it
+(`visualStyles."*"."*".title.fontSize`, vendored from the Freelancing theme engine) so that
+compact tiles under the base theme `Fluent2-CY26SU10` keep their content; it matches the
+Power BI body minimum in `showcases/aurora_group/brand/brand_spec.yaml` (`tool_minimums.powerbi.body_pt: 12`).
 
 Source authority: Storytelling_Principles.md §10
 

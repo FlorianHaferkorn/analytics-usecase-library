@@ -46,7 +46,7 @@ skills:
 
   fix-pbi-report-errors:
     name: fix-pbi-report-errors
-    version: "1.1.0"
+    version: "1.1.1"
     description: "Diagnose and fix Power BI report and semantic model errors and record each fix in the knowledge base. Use when Power BI Desktop shows an error opening a report, visuals are empty or fields land in filters, TMDL validation fails, measures are missing or DAX errors, or the PBI pipeline/orchestrator reports errors."
 
   fix-stage1-failure:
@@ -56,7 +56,7 @@ skills:
 
   generate-and-validate-pbi-report:
     name: generate-and-validate-pbi-report
-    version: "1.1.0"
+    version: "1.2.0"
     description: "Generate and validate a Power BI report and semantic model (PBIP/TMDL/PBIR) for a use case in an iterative loop until all checks pass. Use when generating or regenerating a Power BI report from a UseCase_Bracket, building or updating a semantic model with measures, or refreshing reports after UseCase_Bracket.yaml changes."
 
   generate-oss-dashboard:
@@ -71,7 +71,7 @@ skills:
 
   recommend-fabric-capacity:
     name: recommend-fabric-capacity
-    version: "1.0.0"
+    version: "1.1.0"
     description: "Recommend a Fabric capacity: SKU floor, reserved vs pay-as-you-go, region, and split. Use when sizing a capacity, answering reservation or pricing questions, filling platform.capacity_sku, or when a customer asks which F-SKU or region to buy."
 
   stage1-pre-commit:

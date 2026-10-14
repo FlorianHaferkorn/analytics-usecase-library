@@ -26,16 +26,19 @@
           }
         }
       ],
-      "calloutValue": [
+      "value": [
         {
           "properties": {
-            "displayUnits": {
+            "labelDisplayUnits": {
               "expr": {
                 "Literal": {
-                  "Value": "0L"
+                  "Value": "0D"
                 }
               }
             }
+          },
+          "selector": {
+            "id": "default"
           }
         }
       ]
@@ -111,7 +114,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'SLA Attainment %, Backlog Count, First Contact Resolution % and Average Handling Time (minutes)'"
+                  "Value": "'Current values of SLA Attainment %, Backlog Count, First Contact Resolution % and Average Handling Time (minutes)'"
                 }
               }
             }

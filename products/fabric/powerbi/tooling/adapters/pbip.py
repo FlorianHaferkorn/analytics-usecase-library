@@ -75,7 +75,7 @@ _CANVAS_W, _CANVAS_H = _canvas()
 
 # IR VisualType → Power BI PBIP visualType strings
 _VISUAL_TYPE_MAP: Dict[VisualType, List[str]] = {
-    VisualType.KPI_CARD:        ["cardVisual", "kpiVisual", "card"],
+    VisualType.KPI_CARD:        ["cardVisual", "kpiVisual"],  # legacy `card` deprecated -> cardVisual
     VisualType.TREND_LINE:      ["lineChart", "lineClusteredColumnComboChart"],
     VisualType.BAR_CHART:       ["clusteredBarChart", "clusteredColumnChart", "barChart"],
     VisualType.WATERFALL:       ["waterfallChart"],

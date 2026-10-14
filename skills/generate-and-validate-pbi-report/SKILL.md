@@ -1,7 +1,7 @@
 ---
 name: generate-and-validate-pbi-report
 description: "Generate and validate a Power BI report and semantic model (PBIP/TMDL/PBIR) for a use case in an iterative loop until all checks pass. Use when generating or regenerating a Power BI report from a UseCase_Bracket, building or updating a semantic model with measures, or refreshing reports after UseCase_Bracket.yaml changes."
-version: "1.1.0"
+version: "1.2.0"
 license: MIT
 source: ALUCA (Analytics Library of Use Cases) — governance overlay
 ---
@@ -20,6 +20,15 @@ Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Cod
 - Semantic Model mit Measures aufbauen oder aktualisieren
 - Nach Änderungen an UseCase_Bracket.yaml die Reports aktualisieren
 - Report-Fehler systematisch beheben und den Generator verbessern
+
+## Format
+
+PBIR ist allgemein verfügbar (GA) und das Standardformat für Power-BI-Berichte. Power BI Desktop
+konvertiert Berichte im PBIR-Legacy-Format (ein `report.json` mit `sections`/`visualContainers`)
+beim Speichern ohne Rückfrage nach PBIR; die Sicherung bleibt 30 Tage (Desktop) bzw. 28 Tage
+(Dienst). ALUCA erzeugt nur PBIR: `definition/report.json` (Berichtsmetadaten),
+`definition/pages/<Seite>/page.json`, `.../visuals/<Visual>/visual.json`, `definition.pbir`
+(D-686, SIG-2609-008).
 
 ## Workflow
 
@@ -78,6 +87,29 @@ Der Generator führt automatisch **Self-Validation** durch (`visual_validator.py
 Bei Fehlern: Generator wirft `ValueError` mit klarer Fehlermeldung → **Schritt 5**.
 
 ### 4. Post-Generation Validierung
+
+**Pflicht: offizieller PBIR-Validator** (Skills-Abgleich R2, D-687). Microsofts Report-Skill
+verlangt `powerbi-report-author validate`; gepinnt ist 0.5.0 wie in
+`.github/workflows/superversion.yml` und in Meridian. Ein Report gilt erst als fertig, wenn der
+Validator ohne `error` durchläuft.
+
+```bash
+npm install -g @microsoft/powerbi-report-authoring-cli@0.5.0   # einmalig; --version muss 0.5.0 sein
+powerbi-report-author validate products/fabric/powerbi/dist/<UC>_<Title>.Report --no-schema
+
+# Gleicher Lauf über alle Reports im ALUCA-Gate (Tier 1 nur mit Opt-in):
+PBI_QUALITY_ALLOW_EXTERNAL=1 python -m tooling.report_quality.cli --summary
+```
+
+**Bewusst offen: Host-Preview mit Screenshot.** Die offizielle Skill schließt erst nach einer
+Vorschau im Host mit Screenshot ab. Das braucht Power BI Desktop unter Windows; solange es keinen
+Windows-Runner gibt, bleibt dieser Schritt offen und ist kein Abschlusskriterium. Lokal unter
+Windows: `tooling/pbi_validate_after_impl.ps1` (unten, optional).
+
+**Desktop-Guard vor dem Schreiben** (R3/R4, D-687): `generate_full_report.py` bricht ab, wenn der
+Ziel-Report in Power BI Desktop offen ist (`--allow-desktop-open` übergeht das bewusst), und warnt
+bei uncommitteten Änderungen im Ziel. Guard: `products/fabric/powerbi/tooling/desktop_guard.py`
+(Peer von Meridian `core/pbi_engine/desktop_guard.py`).
 
 ```bash
 # Schema drift gate (immer ausführen — prüft alle $schema URLs)
@@ -148,12 +180,14 @@ Dies ist die wichtigste Phase. Jeder neue Fehler **muss** in eine dauerhafte Pr�
 ## Validierungscheckliste
 
 ### Report Visuals
-- [ ] Charts (lineChart, waterfallChart, clusteredBarChart, etc.): queryState hat `Category` + `Y`
-- [ ] Tables (tableEx): queryState hat `Values`
-- [ ] Cards (cardVisual): queryState hat `Data`
-- [ ] Matrix (pivotTable): queryState hat `Rows` + `Values`
-- [ ] Scatter (scatterChart): queryState hat `X` + `Y`
-- [ ] Kein Visual verwendet `"Data"` Rolle außer cardVisual und textbox
+
+Automatisch geprüft, keine Handcheckliste (Skills-Abgleich R5, D-687):
+
+| Prüfung | Gate | Lauf |
+|---|---|---|
+| Jede Measure- und Spaltenbindung existiert im TMDL des gebundenen Modells (`definition.pbir`) | `tooling/report_quality/dax_reference_validator.py` (`dax-reference:missing-measure`, `dax-reference:missing-column`, critical) | `python -m tooling.report_quality.cli --summary`; in `run_fabric_checks.ps1` über `check_report_quality.ps1` |
+| Charts und Tabellen haben Projektionen, Pflicht-Slots je Seite | `products/fabric/powerbi/tooling/validate_bindings.py` | CI-Job „Python checks + report bindings“ (`.github/workflows/stage1.yml`) |
+| queryState-Rollen je Visual-Typ (Charts `Category`+`Y`, `tableEx` `Values`, `cardVisual` `Data`, `pivotTable` `Rows`+`Values`, `scatterChart` `X`+`Y`) | `page_scaffold_generator/visual_validator.py` | beim Generieren (Self-Validation) |
 
 ### PBIP-Struktur
 - [ ] `definition.pbir` vorhanden mit `definitionProperties/2.0.0` Schema

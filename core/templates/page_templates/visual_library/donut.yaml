@@ -1,7 +1,7 @@
 # Visual Library entry — donut  (schema: _schema.yaml)
 id: donut
 name: Donut
-version: "1.0.0"
+version: "1.1.0"
 status: active        # active | deprecated | experimental
 purpose: [part_to_whole]
 zone: [analysis]
@@ -12,20 +12,20 @@ alternatives: [stacked_100]
 encoding:
   theta: quantitative               # angle = share
   color: category_content_reference
-  guard: max_4_segments             # <= 4 parts; else use a sorted bar
+  guard: max_3_segments             # <= 3 parts (IBCS 2.0 EX 2.1, S. 136); else use a sorted bar
 
 anti_patterns:
-  - pie_or_donut_gt_4               # governed deny above 4 segments
+  - pie_or_donut_gt_4               # governed deny above 3 segments (id kept stable, see _anti_patterns.yaml)
   - many_thin_slivers
   - 3d_or_exploded
 
 params:
-  category: {role: category, type: category, required: true, max: 4}
+  category: {role: category, type: category, required: true, max: 3}
   value:    {role: value, required: true}
   entity:   {role: table, default: _Measures}
 
 data_fit:
-  category: {type: category, min: 2, max: 4, on_violation: pie_or_donut_gt_4}
+  category: {type: category, min: 2, max: 3, on_violation: pie_or_donut_gt_4}
   value: {min: 1, max: 1}
 
 tokens:
@@ -106,4 +106,4 @@ realizations:
 
 determinism:
   golden_dir: golden
-  notes: "<= 4 segments (governed); series colours from the brand palette. SVG-DAX n/a (arc paths)."
+  notes: "<= 3 segments (governed, IBCS 2.0 EX 2.1); series colours from the brand palette. SVG-DAX n/a (arc paths)."

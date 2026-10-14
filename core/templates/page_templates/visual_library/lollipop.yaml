@@ -1,7 +1,7 @@
 # Visual Library entry — lollipop  (schema: _schema.yaml)
 id: lollipop
 name: Lollipop
-version: "1.0.0"
+version: "1.1.0"
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
@@ -33,6 +33,12 @@ tokens:
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
 data_values: [target_val]   # a target, not a style: from params or removed (A-31 R6)
+
+# Monitoring (ADR-0026 §6): Farbe nur bei verletzter Bedingung, nach Richtung — nie nach dem Vorzeichen allein.
+status_breach:
+  - when:   "datum['{{field}}'] < {{target_val}}"
+    breach: "(datum['{{field}}'] - {{target_val}}) * {{polarity}} < 0"
+
 data_slots:
   field: {role: value, required: true}
   field_cat: {role: category, required: true}

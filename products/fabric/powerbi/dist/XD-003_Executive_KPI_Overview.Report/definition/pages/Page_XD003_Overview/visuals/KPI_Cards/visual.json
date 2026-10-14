@@ -26,16 +26,19 @@
           }
         }
       ],
-      "calloutValue": [
+      "value": [
         {
           "properties": {
-            "displayUnits": {
+            "labelDisplayUnits": {
               "expr": {
                 "Literal": {
-                  "Value": "0L"
+                  "Value": "0D"
                 }
               }
             }
+          },
+          "selector": {
+            "id": "default"
           }
         }
       ]
@@ -111,7 +114,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Enterprise Value-at-Risk Index, Gross Margin % (XD), Delta% Net Sales (XD) and CLV (Customer Lifetime Value)'"
+                  "Value": "'Current values of Enterprise Value-at-Risk Index, Gross Margin % (XD), Delta% Net Sales (XD) and CLV (Customer Lifetime Value)'"
                 }
               }
             }

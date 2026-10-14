@@ -226,7 +226,7 @@ slots:
       col: 2
       row: 0
       col_span: 10    # Shrinks to col_span=8 when ActionPanel is active (T4)
-      row_span: 1
+      row_span: 2     # card: label + 40 pt value need 2 LU (Layout_Grid_System.md "Card height")
     rules:
       - "≤ 2 sentences. Quantified. Present tense. No hedging."
       - "Must answer the Big Idea for the current filter context — never a generic placeholder."
@@ -243,9 +243,9 @@ slots:
       alternative_condition: "matrix when data is aggregated / hierarchical across multiple dimensions"
     grid:
       col: 2
-      row: 1
+      row: 2
       col_span: 10    # Shrinks to col_span=8 when ActionPanel is active (T4)
-      row_span: 11
+      row_span: 10
     rules:
       - "Entity name is always the leftmost column — F-pattern anchor."
       - "Column order: Entity | Value | Δ abs | Δ% | Secondary measures | Sparkline (rightmost)"

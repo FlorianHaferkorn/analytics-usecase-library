@@ -1,7 +1,7 @@
 # Visual Library entry — waterfall_variance  (schema: _schema.yaml)
 id: waterfall_variance
 name: Waterfall (variance bridge)
-version: "1.1.0"
+version: "1.2.0"
 status: active        # active | deprecated | experimental
 purpose: [contribution_to_change]
 zone: [analysis]
@@ -36,6 +36,12 @@ tokens:
   col_total: ink                        # #0F2430 the two anchor totals
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+
+# Monitoring (ADR-0026 §6): Farbe nur bei verletzter Bedingung, nach Richtung — nie nach dem Vorzeichen allein.
+status_breach:
+  - when:   "datum['{{field_val}}'] < 0"
+    breach: "datum['{{field_val}}'] * {{polarity}} < 0"
+
 data_slots:
   field: {role: step, required: true}
   field_val: {role: variance, required: true}

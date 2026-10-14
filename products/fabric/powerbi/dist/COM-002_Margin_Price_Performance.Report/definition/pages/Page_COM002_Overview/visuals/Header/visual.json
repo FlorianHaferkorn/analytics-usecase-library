@@ -12,16 +12,18 @@
   "visual": {
     "visualType": "textbox",
     "objects": {
-      "text": [
+      "general": [
         {
           "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Is our gross margin holding against price and mix pressure?  ·  Expected finding — Gross Margin is under pressure — price concessions and adverse mix in key SKUs are compressing contribution; guardrails and mix optimization are the priority levers.'"
-                }
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Is our gross margin holding against price and mix pressure?  ·  Expected finding — Gross Margin is under pressure — price concessions and adverse mix in key SKUs are compressing contribution; guardrails and mix optimization are the priority levers."
+                  }
+                ]
               }
-            }
+            ]
           }
         }
       ]

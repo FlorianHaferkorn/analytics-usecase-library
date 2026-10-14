@@ -14,7 +14,7 @@ Der Konzeptentwurf schlug `layout_systems/ibcs/rules.yaml` vor. Gemessen am
 
   * `visual_registry.yaml`         — `quality_rules` je Informationsblock (11 IBCS-Bezuege)
   * `design_rules.yaml`            — formale Constraints (0 IBCS-Bezuege: Hausregeln)
-  * `tokens/boutique_craft_rubric.yaml` — 30 Regeln / 6 Dimensionen (7 IBCS-Bezuege)
+  * `tokens/boutique_craft_rubric.yaml` — 48 Regeln / 8 Dimensionen seit 1.1 (A-35; 1.0: 30 / 6, 7 IBCS-Bezuege)
   * lebende Validatoren (`title_policy`, `check_deviation_display`, `check_forbidden_charts`)
 
 Jede dieser Quellen traegt ihre Herkunft bereits im Feld `source`. Was fehlte, war

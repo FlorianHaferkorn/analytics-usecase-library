@@ -145,3 +145,13 @@ def test_the_baseline_file_is_readable_and_names_its_measurement_date():
     d = json.loads(mod.BASELINE.read_text("utf-8"))
     dt.date.fromisoformat(d["gemessen"])
     assert all(isinstance(n, int) and n > 0 for n in d["regeln"].values())
+
+
+def test_the_versioned_pre_commit_hook_runs_the_ratchet_only_for_staged_py():
+    # .githooks/pre-commit ist der Hook, den der SessionStart setzt (core.hooksPath). Bis
+    # 07.10.2026 rief er die Sperrklinke nicht auf, obwohl scripts/_INDEX.md es behauptete.
+    text = (_PFAD.parents[1] / ".githooks" / "pre-commit").read_text(encoding="utf-8")
+    block = text[text.index("scripts/check_lint_ratchet.py") - 200:]
+    assert "grep -qE '\\.py$'" in block
+    assert 'if [ "$rc" -eq 1 ]; then exit 1; fi' in block
+    assert "[UNGEPRUEFT] Ruff-Sperrklinke" in block

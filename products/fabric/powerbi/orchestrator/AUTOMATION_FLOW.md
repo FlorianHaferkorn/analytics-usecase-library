@@ -37,7 +37,7 @@ graph TB
 - Power BI Desktop installiert (mit TMDL View Support)
 - Analysis Services TMDL Extension für VS Code
 - PBIP-Projekt im Git-Repo
-- **Python 3.x** für Registry, page_scaffold_generator (Report-Erstellung mit Visuals). Auf Windows wird Python typischerweise über den **py-Launcher** aufgerufen (z. B. `py -3`); der Orchestrator verwendet `py -3`, `python3` oder `python` in dieser Reihenfolge. Ohne Python: Fallback auf report_generator.ps1 (nur Report-Struktur, keine UX-Engine).
+- **Python 3.x** für Registry, page_scaffold_generator (Report-Erstellung mit Visuals). Auf Windows wird Python typischerweise über den **py-Launcher** aufgerufen (z. B. `py -3`); der Orchestrator verwendet `py -3`, `python3` oder `python` in dieser Reihenfolge. Ohne Python bricht die Report-Erzeugung mit Fehler ab; den früheren Fallback `report_generator.ps1` (PBIR-Legacy-Form mit `sections`) gibt es nicht mehr (D-686).
 
 **Connection Setup Script:**
 ```powershell
@@ -323,11 +323,11 @@ if (-not $validationPassed) {
 # Invoke-Phase5ReportGeneration (generate_phase5_reports.ps1)
 # - Python: py -3 / python3 / python → generate_full_report.py (--use-case, --output, --dataset-reference, --repo-root)
 #   Input: UseCase_Bracket.yaml ux_layout_rules, core/templates/page_templates/ (Slot_Definitions, Visual_to_Slot_Mapping).
-#   Output: products\fabric\powerbi\dist\<UC>_<Title>.Report (definition/report.json, definition/pages/, definition.pbir).
+#   Output: products\fabric\powerbi\dist\<UC>_<Title>.Report im PBIR-Format (definition/report.json, definition/pages/<Seite>/page.json, .../visuals/<Visual>/visual.json, definition.pbir).
 #   datasetReference in definition.pbir (nicht in report.json; PBIP/Fabric 3.0). Pfad relativ zum Report, z. B. ..\Commercial.SemanticModel.
 # - Basis-Theme: apply_report_theme.ps1 -SyncBaseTheme (Quelle tooling/report_quality/base_theme.py, D-587), je Report, mit und ohne Custom Theme.
 # - Theme: theme_config.json (defaultThemeName) oder -ThemeName → apply_report_theme.ps1.
-# - Ohne Python: Fallback report_generator.ps1 (nur Struktur, keine Visuals).
+# - Ohne Python: Abbruch mit Fehler, kein PBIR-Legacy-Fallback (D-686, SIG-2609-008).
 # ===========================================
 # PHASE 6: VALIDATE FABRIC OUTPUT
 # ===========================================
@@ -532,7 +532,9 @@ function Import-MeasuresFromTMDL {
    - **datasetReference** wird in **definition.pbir** gesetzt (nicht in report.json; PBIP/Fabric 3.0). Relativer Pfad zum Domain-Modell im selben dist, z. B. `..\Commercial.SemanticModel` (über `Get-DatasetReferenceRelativeFromReport` in map_aurora_domains.ps1).
 3. **Basis-Theme:** `apply_report_theme.ps1 -SyncBaseTheme` schreibt `StaticResources/SharedResources/BaseThemes/<name>.json` aus der vendorten Kopie in `tooling/report_quality/base_theme.py` und setzt `themeCollection.baseTheme` plus den SharedResources-Eintrag (D-587; einziger Bezugsweg, kein fester Theme-Name im Orchestrator). Läuft auch ohne Custom Theme.
 4. **Theme:** Aus `showcases/aurora_group/theme_config.json` (`defaultThemeName`) oder Parameter `-ThemeName`; Anwendung via **apply_report_theme.ps1** (Theme aus `products/fabric/powerbi/themes/`, vendort aus Freelancing `products/pbi_theme`).
-5. **Fallback:** Wenn kein Python gefunden wird → **report_generator.ps1** (nur Report-Struktur/Sections, keine Visuals).
+5. **Kein Fallback:** Wenn kein Python gefunden wird, bricht Phase 5 mit Fehler ab. Der frühere Fallback `report_generator.ps1` schrieb die PBIR-Legacy-Form (`sections`) und ist stillgelegt (D-686).
+
+**Format:** PBIR ist allgemein verfügbar (GA) und Standardformat. Power BI Desktop konvertiert Berichte im PBIR-Legacy-Format beim Speichern ohne Rückfrage nach PBIR (Sicherung 30 Tage in Desktop, 28 Tage im Dienst; SIG-2609-008). ALUCA erzeugt nur PBIR.
 
 ### Validierung nach Report (Phase 6 im Orchestrator)
 

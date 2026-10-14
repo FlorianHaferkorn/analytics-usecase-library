@@ -103,7 +103,7 @@ class GeneratorAdapter(ABC):
         Map IR VisualType values to one or more platform type strings.
 
         Example (PBIP):
-            {VisualType.KPI_CARD: ["cardVisual", "kpiVisual", "card"], ...}
+            {VisualType.KPI_CARD: ["cardVisual", "kpiVisual"], ...}
         Example (Metabase):
             {VisualType.KPI_CARD: ["scalar"], ...}
         """

@@ -613,6 +613,11 @@ COPILOT_MIRRORED_FILES = (
     "instructions.py",
     "verified_answers.py",
     "data_schema.py",
+    # Zugangswege ueber Microsoft 365 Copilot Chat und Cowork als Readiness-Kriterium (Meridian
+    # D-681, ALUCA-Vorgang SIG-2609-001 x ALUCA-PBI-GENERATOR, D-686): reine Felddaten je Weg mit
+    # Learn-Beleg, nur `typing`. Gespiegelt statt nachgebaut, damit beide Repos dieselben
+    # Voraussetzungen nennen; ALUCA rendert daraus `zugangswege.md` je Use Case.
+    "zugangswege.py",
 )
 
 

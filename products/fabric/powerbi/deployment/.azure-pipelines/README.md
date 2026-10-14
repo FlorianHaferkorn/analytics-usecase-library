@@ -252,10 +252,59 @@ findings; 1 = findings; 2 = the scan did not run (tool missing, tool error, empt
 - Measured 01.10.2026 (local `detect-secrets 1.5.0`): scope 0 findings in 26 files; a planted
   AWS key in a test copy gives exit 1. The whole repository has 630 findings in 50 files
   without a baseline, which is why the gate is scoped and not repo-wide.
-- Open: a repo-wide `.secrets.baseline`. Re-measured 01.10.2026 (`detect-secrets scan`,
-  1.5.0, git-tracked files): still 630 findings in 50 files, gate scope still 0 in 26. Writing
-  the baseline is one command, but it would accept all 630 unreviewed; it is created only
-  together with a per-finding review (`detect-secrets audit`).
+- Repo-wide `.secrets.baseline` (02.10.2026, `detect-secrets scan` 1.5.0 over the git-tracked
+  files): 720 findings in 57 files, each reviewed, all false positives (`is_secret: false`):
+  677 hex strings are SHA-256/commit pins, visreg dHash/colour signatures and PBIR object
+  names; 21 base64 strings are SRI `integrity` hashes, file names and two test-only
+  `AUTH_SECRET` stubs; 20 keywords are placeholders (`your-client-secret`, `change-me…`),
+  env-variable names and test fixtures; 1 private-key header without key material in an
+  egress test case; 1 `ghp_xxx…` placeholder.
+
+### Secret Baseline Gate (repository-wide, since 07.10.2026)
+
+The baseline is a gate now, not a document. `scripts/secret_scan_gate.py --baseline` runs
+`detect-secrets-hook --baseline .secrets.baseline` (same entry point via
+`python -m detect_secrets.pre_commit_hook`) against a temporary copy of the baseline, so the
+gate never rewrites it. Red = a finding that is not in the baseline.
+
+| Where | Call | Scope | Tool missing / other version |
+|---|---|---|---|
+| GitHub Actions `stage1.yml`, job `python-checks`, step `Secret-Baseline-Tor (blockierend)` | `secret_scan_gate.py --baseline` | all git-tracked files | Exit 2, job red |
+| Versioned `.githooks/pre-commit` (`git config core.hooksPath .githooks`) | `secret_scan_gate.py --baseline --staged` | staged files (added/modified/renamed) | `[UNGEPRUEFT]` on stderr, commit not blocked (the hook travels to environments without the tool; CI is the hard gate) |
+
+- **Pin:** the installed detect-secrets must equal the baseline's `version` (1.5.0); the same pin
+  stands in `stage1.yml` and `_template_build_solution.yml` (test
+  `test_secret_baseline_gate.py`). Otherwise exit 2 — another version brings other plugins.
+- **Structural hash filter instead of per-hash review:** machine-written hash lines are
+  filtered by `HASH_LINE_PATTERNS` in the gate, stored in the baseline (`filters_used`,
+  `should_exclude_line`), which is where the hook reads them from. Each pattern pins the key
+  **and** the exact value shape on a whole JSON line, so any other string in the same file is
+  still scanned (no file exclusion):
+
+  | Pattern (key → value) | Written by | Why it is only a hash |
+  |---|---|---|
+  | `sha256`, `*_sha256` → 64 lowercase hex | `check_dataarch_mirror.py`, `check_superversion_pins.py`, `showdaten.py`, dax_smoke, egress cases | `hashlib.sha256().hexdigest()` |
+  | `commit`, `source_commit` → 40 lowercase hex | Meridian mirrors (`PIN.json`), upstream pins | git commit id |
+  | `dhash` → 64 hex | `tooling/visual_library/visreg.py` | 256-bit difference hash |
+  | `color` → 192 bytes `00`–`1f` | `visreg.py` `_color_grid` | 8×8×3 grid of 5-bit values |
+  | `_regelstand` → 12 hex | `scripts/check_plattform.py` | rule-body fingerprint |
+
+  Measured 07.10.2026 over the 4298 git-tracked files: every line with one of these keys and a
+  literal value matches its pattern; the non-matching lines are code (`"sha256": _sha256(…)`).
+  Rescan `detect-secrets scan --baseline .secrets.baseline --exclude-lines …` (the five
+  patterns): 720 → 52 findings in 35 files; the 668 removed entries all sit on pattern lines
+  (checked entry by entry), the 52 kept are a subset of the reviewed 02.10.2026 set and keep
+  `is_secret: false` (hand-written test/doc constants, SRI hashes, placeholders).
+- **Counter-check (07.10.2026, local, detect-secrets 1.5.0):** a planted AWS access key in a
+  staged file gives exit 1; a changed SHA-256 in `tooling/superversion/vendor/meridian_dataarch/PIN.json`
+  stays exit 0. The same pair runs as a test in a throw-away git repository
+  (`test_real_hook_reds_a_planted_key_and_keeps_a_new_pin_hash_green`).
+- **Stale baseline:** moved line numbers or vanished findings are printed as a note (exit 0);
+  refresh with `detect-secrets scan --baseline .secrets.baseline`, then `detect-secrets audit`.
+- **False positive in a new file:** inline `# pragma: allowlist secret`, or rescan the baseline
+  and mark the entry in `detect-secrets audit .secrets.baseline`. Never widen a hash pattern for
+  a value that is not tool-written.
+
 - First choice on Azure Repos is **GitHub Advanced Security for Azure DevOps** secret scanning
   with push protection (repository setting; Learn `azure/devops/repos/security/
   github-advanced-security-secret-scanning`). The gate covers repositories without it.

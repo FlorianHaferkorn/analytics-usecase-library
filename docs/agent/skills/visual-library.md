@@ -51,7 +51,7 @@ resolver — it never restates the catalog.
 
 ## Deny (never emit)
 
-`pie_gt_4 · three_d · gauge · radar · dual_axis_no_reason · color_as_decoration · powerbi_smart_narrative`
+`pie_gt_4 · three_d · gauge · radar · dual_axis_no_reason · color_as_decoration · powerbi_smart_narrative · deprecated_map · qna_visual · legacy_card`
 — the live list is `index.yaml: deny`; `resolve.py audit` enforces it.
 
 ## Do NOT

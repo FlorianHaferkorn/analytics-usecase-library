@@ -7,7 +7,7 @@
 # and lives in the SVG-DAX track (one pin per table row, CO 4.4).
 id: variance_pin
 name: Variance pins (relative variance)
-version: "1.0.0"
+version: "1.1.0"
 status: active        # active | deprecated | experimental
 purpose: [deviation_from_target]
 zone: [analysis]
@@ -42,6 +42,12 @@ tokens:
   col_head: ink                         # #0F2430 pin head
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+
+# Monitoring (ADR-0026 §6): Farbe nur bei verletzter Bedingung, nach Richtung — nie nach dem Vorzeichen allein.
+status_breach:
+  - when:   "datum['{{field}}'] < 0"
+    breach: "datum['{{field}}'] * {{polarity}} < 0"
+
 data_slots:
   field:      {role: variance, required: true}
   field_date: {role: time,     required: true}
