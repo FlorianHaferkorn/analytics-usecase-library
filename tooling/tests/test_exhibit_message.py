@@ -145,7 +145,8 @@ def test_classifier_runs_even_when_question_equals_message(tmp_path):
 
 
 def test_variant_report_is_checked_too(tmp_path):
-    # Review Steward 09.10.2026: `<bracket>_<variant>.Report` (COM-001 ..._vs_Plan_LY) was never compared.
+    # Review Steward 09.10.2026: `<bracket>_<variant>.Report` was never compared (then COM-001's LY
+    # variant, removed 14.10.2026). The synthetic report below keeps the variant path covered.
     msg = "Gross Margin fell 12% vs plan"
     b = _bracket(tmp_path, "XX-005_Test", [{"slot_id": "Main_1", "question": "Is GM holding?", "message": msg}])
     dist = tmp_path / "dist"

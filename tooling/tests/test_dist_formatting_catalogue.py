@@ -43,14 +43,11 @@ CLI_BEFUNDE_ALTES_THEME = {
     "shape:header",
 }
 
-#: Offene Befunde ohne Generator-Eingabe (Stand 07.10.2026, nachgemessen 09.10.2026). Die Variante
-#: COM-001_Sales_Performance_vs_Plan_LY hat keinen eigenen Bracket (KNOWN_ERRORS: "Benannte
-#: Variante ohne eigenen Bracket"); ihre Visuals werden nicht erzeugt und nicht von Hand
-#: gepatcht. Faellt ein Eintrag weg, gehoert er hier gestrichen (test_open_findings_not_stale).
-OFFEN_OHNE_GENERATOR = {
-    "COM-001_Sales_Performance_vs_Plan_LY.Report/Page_COM001LY_Overview/KPI_Cards: calloutValue",
-    "COM-001_Sales_Performance_vs_Plan_LY.Report/Page_COM001LY_Overview/Main_3: dataLabels",
-}
+#: Offene Befunde ohne Generator-Eingabe. Leer seit 14.10.2026: beide Eintraege stammten aus der
+#: handgepflegten LY-Variante von COM-001 ohne eigenen Bracket, die entfernt ist (A-30 E4
+#: abgeaendert). Kommt ein Eintrag hinzu, gehoert er mit Datum und Grund hierher;
+#: test_open_findings_not_stale meldet ihn, sobald er wegfaellt.
+OFFEN_OHNE_GENERATOR: set[str] = set()
 
 
 def _reports() -> list[Path]:

@@ -134,7 +134,7 @@ The generator reads from these governance files:
     generator composes itself, today the visual alt text (`alt_text.py`, phrase table `PHRASES`
     with `en` and `de`). Measure and column names stay as bound; authored bracket texts (titles,
     questions, messages) are not translated. A language without phrases falls back to English with
-    an `UnknownLocaleWarning`. Reports without a generator path (FIN-001, COM-001LY) take the same
+    an `UnknownLocaleWarning`. Reports without a generator path (FIN-001; COM-001's hand-kept LY variant was removed on 14.10.2026) take the same
     setting via `python -m products.fabric.powerbi.tooling.page_scaffold_generator.alt_text <X.Report>`
     (bracket found by the use case ID in the folder name; `--locale` only for reports without one).
     Cards bound only to text measures (`formatString: @` in the bound model, e.g. `Narrative Text

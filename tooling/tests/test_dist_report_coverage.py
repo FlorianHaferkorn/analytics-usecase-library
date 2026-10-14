@@ -118,8 +118,8 @@ class TestDistCoverage:
         bracket_stems = {bd.name for bd in _all_bracket_dirs()}
         dist_names = {d.name for d in _dist_report_dirs()}
         # A report is backed if it matches a bracket exactly, or is a named variant
-        # of one (e.g. COM-001_Sales_Performance_vs_Plan_LY.Report is a variant of the
-        # COM-001_Sales_Performance bracket). Truly stray reports still fail.
+        # of one (`<bracket>_<variant>.Report`; the only one, COM-001's hand-kept LY
+        # variant, was removed on 14.10.2026, A-30 E4). Truly stray reports still fail.
         orphans = {
             name for name in dist_names
             if not any(name == f"{stem}.Report" or name.startswith(f"{stem}_") for stem in bracket_stems)

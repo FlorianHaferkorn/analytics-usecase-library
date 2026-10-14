@@ -29,7 +29,8 @@ from page_scaffold_generator import scaffold_generator as sg  # noqa: E402
 BPA = REPO / "tooling" / "linters" / "powerbi" / "bpa-rules-report.json"
 DIST = REPO / "products" / "fabric" / "powerbi" / "dist"
 
-#: Use Cases mit Generatorpfad (FIN-001 und COM-001LY sind handgebaut, R5.1 vom 23.09.2026).
+#: Use Cases mit Generatorpfad (FIN-001 ist handgebaut, R5.1 vom 23.09.2026; die LY-Variante von
+#: COM-001 war es ebenfalls und ist seit 14.10.2026 entfernt).
 GENERATOR_UCS = ["COM-001", "COM-002", "COM-003", "COM-004", "FIN-002", "OPS-001", "OPS-002", "OPS-003",
                  "SCM-001", "SCM-002", "SCM-003", "XD-001", "XD-002", "XD-003", "XD-004"]
 
@@ -126,8 +127,9 @@ def test_dist_report_traegt_alt_text(report: str) -> None:
     assert befunde(visuals) == []
 
 
-def test_siebzehn_dist_reports() -> None:
-    assert len(list(DIST.glob("*.Report"))) == 17
+def test_sechzehn_dist_reports() -> None:
+    # 17 -> 16 am 14.10.2026: LY-Variante von COM-001 entfernt (A-30 E4 abgeaendert).
+    assert len(list(DIST.glob("*.Report"))) == 16
 
 
 # --- Regeln aus Learn / BPA ----------------------------------------------------------------------
@@ -523,7 +525,9 @@ def _dist_kacheln():
 def test_dist_text_kacheln_ohne_aktuellen_wert() -> None:
     nur_text = [(p, _alt(v)) for _r, p, v, texte in _dist_kacheln()
                 if all(m in texte for m in at._measure_properties(v["visual"]))]
-    assert len(nur_text) == 50  # gemessen 03.10.2026: Narrative, Last Refresh, Active Actions in 17 Reports
+    # gemessen 03.10.2026: 50 (Narrative, Last Refresh, Active Actions in 17 Reports); 48 seit
+    # 14.10.2026, die entfernte LY-Variante trug Smart_Narrative und ActionPanel (kein Last_Refresh).
+    assert len(nur_text) == 48
     falsch = [(str(p), t) for p, t in nur_text if not t or "current value" in t or "aktueller Wert" in t]
     assert falsch == []
     # Gegenprobe: Kacheln mit Kennzahlen behalten die Kachelform
