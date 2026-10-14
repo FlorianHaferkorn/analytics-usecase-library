@@ -86,3 +86,61 @@ def test_schema_parity_with_spec_block():
         "architecture_blueprint.schema.json has drifted from the IR spec's schema block; "
         "they must stay identical (and the spec is mirrored byte-identical across repos)."
     )
+
+
+_STREAM = {
+    "stream": "es_maschinendaten",
+    "source": "Werk Nord Sensoren",
+    "source_system": "Azure IoT Hub",
+    "source_kind": "iot_hub",
+    "destinations": ["eventhouse", "activator"],
+    "eventhouse": "eh_produktion",
+    "onelake_availability": True,
+    "rationale": "Maschinenzustand je Minute, Alarm bei Stillstand",
+}
+
+
+def test_realtime_stream_validates():
+    """D-764: an Eventstream with Eventhouse and Activator destinations is a valid realtime[] entry."""
+    instance = _spec_example_block()
+    instance["realtime"] = [dict(_STREAM)]
+    Draft202012Validator(_load_schema()).validate(instance)
+
+
+def test_realtime_without_entries_changes_nothing():
+    """realtime[] is optional: the worked example without it stays valid (additive change)."""
+    instance = _spec_example_block()
+    assert "realtime" not in instance
+    Draft202012Validator(_load_schema()).validate(instance)
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        pytest.param({"eventhouse": None}, id="eventhouse-destination-needs-name"),
+        pytest.param({"destinations": []}, id="no-destination"),
+        pytest.param({"destinations": ["eventhouse", "eventhouse"]}, id="duplicate-destination"),
+        pytest.param({"destinations": ["derived_stream"]}, id="derived-stream-is-no-destination"),
+        pytest.param({"source_kind": "copy"}, id="unknown-source-kind"),
+        pytest.param({"access_mode": "copy"}, id="no-ingestion-fields"),
+    ],
+)
+def test_realtime_rejects(change):
+    entry = dict(_STREAM)
+    for key, value in change.items():
+        if value is None:
+            entry.pop(key)
+        else:
+            entry[key] = value
+    instance = _spec_example_block()
+    instance["realtime"] = [entry]
+    with pytest.raises(ValidationError):
+        Draft202012Validator(_load_schema()).validate(instance)
+
+
+def test_realtime_lakehouse_only_needs_no_eventhouse():
+    entry = {k: v for k, v in _STREAM.items() if k not in ("eventhouse", "onelake_availability")}
+    entry["destinations"] = ["lakehouse"]
+    instance = _spec_example_block()
+    instance["realtime"] = [entry]
+    Draft202012Validator(_load_schema()).validate(instance)
