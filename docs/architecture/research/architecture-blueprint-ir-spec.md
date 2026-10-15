@@ -1120,6 +1120,94 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
         ]
       }
     },
+    "realtime": {
+      "type": "array",
+      "description": "Real-time items (D-764): one entry per Fabric Eventstream. A streaming source (Event Hubs, IoT Hub, Kafka, CDC, MQTT, cloud streams, Fabric events, custom endpoint) is NOT an ingestion[] copy: it runs through an Eventstream that fans out to one or more destinations (Microsoft Learn, 'Overview of Microsoft Fabric eventstreams', supported destinations). Absent or empty = no real-time path; nothing else changes.",
+      "items": {
+        "type": "object",
+        "required": [
+          "stream",
+          "source",
+          "source_kind",
+          "destinations",
+          "rationale"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "stream": {
+            "type": "string",
+            "description": "Name of the Eventstream item."
+          },
+          "source": {
+            "type": "string"
+          },
+          "source_system": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Owning domain (its name), as in ingestion[].domain."
+          },
+          "source_kind": {
+            "enum": [
+              "event_hubs",
+              "iot_hub",
+              "kafka",
+              "cdc",
+              "mqtt",
+              "cloud_stream",
+              "fabric_events",
+              "custom_endpoint"
+            ],
+            "description": "Eventstream source class. `kafka` covers Apache Kafka and Confluent Cloud; `cdc` = database change data capture (Azure SQL, PostgreSQL, MySQL, Cosmos DB); `cloud_stream` = Amazon Kinesis, Google Pub/Sub; `fabric_events` = Fabric workspace item or OneLake events, Azure Blob Storage events."
+          },
+          "destinations": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "eventhouse",
+                "lakehouse",
+                "activator",
+                "custom_endpoint",
+                "spark_notebook"
+              ]
+            },
+            "description": "Where the stream is routed. A derived stream is an intermediate step inside the Eventstream, not a destination, and is therefore not listed. `spark_notebook` is a Preview destination on Microsoft Learn (14.10.2026)."
+          },
+          "eventhouse": {
+            "type": "string",
+            "description": "Name of the target Eventhouse (KQL database). Required when destinations contains `eventhouse`."
+          },
+          "onelake_availability": {
+            "type": "boolean",
+            "description": "True = the Eventhouse tables are also exposed as Delta in OneLake (Eventhouse OneLake availability), so lakehouse and Direct Lake consumers read them without a copy. Absent = not stated; consumers must not assume it."
+          },
+          "rationale": {
+            "type": "string",
+            "description": "Why this source is streamed instead of landed in batch."
+          }
+        },
+        "if": {
+          "properties": {
+            "destinations": {
+              "contains": {
+                "const": "eventhouse"
+              }
+            }
+          },
+          "required": [
+            "destinations"
+          ]
+        },
+        "then": {
+          "required": [
+            "eventhouse"
+          ]
+        }
+      }
+    },
     "medallion": {
       "type": "object",
       "description": "P2 Medallion — bronze is an immutable system of record; no layer-skipping.",
@@ -2361,22 +2449,51 @@ mirroring the existing ALUCA `canonical_contract` / Meridian `_canonical_mirror`
 
 ## 7. `schema_version` bump policy
 
-Pre-1.0 the IR carries `schema_version` `0.MINOR.PATCH`:
+Pre-1.0 the IR carries `schema_version` `0.MINOR.PATCH`; the schema pins it as
+`const: "0.1.0"`. Rule since D-769 (15.10.2026), which replaces the earlier patch-bump rule
+that the `const` never allowed to apply:
 
-- **Additive / safe** (new optional field, new enum value with a safe default) → **patch**
-  (`0.1.0 → 0.1.1`). Renderers ignore unknown-but-optional input tolerantly.
+- **Additive / safe** (new optional field, new enum value with a safe default) → **no bump
+  pre-1.0**. Renderers ignore unknown-but-optional input tolerantly, so a patch number would
+  carry less than the field list below. Each such change adds a row to that list, with its
+  D-number, in both mirrors.
 - **Breaking** (rename/remove a field, tighten `required`, remove an enum value) →
-  **minor** (`0.1.x → 0.2.0`) with a migration note in both alignment docs.
-- **Both repos bump in the same commit-pair.** A version skew between the mirrors is
-  itself a parity failure (§6).
+  **minor** (`0.1.x → 0.2.0`), the `const` moves with it, plus a migration note in both
+  alignment docs.
+- **From 1.0 on**, additive changes bump the patch again, and the `const` becomes an `enum`
+  of the supported versions (D-769, option a, deferred to that step).
+- **Both repos change in the same commit-pair.** A skew between the mirrors, in the schema
+  or in this list, is itself a parity failure (§6).
 - Rendered artifacts and audit scorecards **record the `schema_version` they were
   produced against** (provenance), consistent with ALUCA attestation / Meridian
   `pbi_gatekeeper --attest`.
 
+### 7.1 Additive fields since 0.1.0 (no bump, per the rule above)
+
+Sources: the decision named in each row, the field's own `description` in the schema, and the
+comparison log next to the parity hash in Meridian's `test_arch_blueprint.py`.
+
+| Field | Decision |
+|---|---|
+| `governance.*.zielbild`, `platform.*.zielbild` (target-state markers) | D-340 |
+| `governance.proposed_stages` | D-341 |
+| `platform.encryption`, `platform.capacities[].overage` / `surge_protection` / `notifications` / `spark`, `mesh.domains[].workspaces[].surge_class`, `governance.security.onelake_areas` | I-21, D-614 |
+| `medallion.platinum.storage_mode` | D-590 |
+| `platform.planning` | D-595 |
+| `platform.capacities[].stages` | D-596 |
+| `mesh.domains[].workspaces[].role` value `data`, `governance.workspace_strategy` description | D-600 |
+| `platform.capacities[].provisioning` (`existing` \| `create`) | azapi round, 30.09.2026 |
+| `platform.ai_zugang` | D-606 |
+| `ingestion[].access_mode` value `file_mlv`, `ingestion[].file_mlv` | D-619 |
+| `governance.purview` | D-620 |
+| `ingestion[].file_mlv.trigger`, `.dateipfad_spalte`, `.defekte_zeilen_spalte` | D-621 |
+| `mesh.domains[].gold_target` | D-672 |
+| `realtime[]` | D-764 |
+
 ## 8. Still open (before code)
 
 - The **field-level tie-back** for a few Meridian fields that need a *new* attribute on
-  `data_architecture.json` (`ingestion[].access_mode`) — additive schema change, paired
-  with a `schema_version` patch.
+  `data_architecture.json` (`ingestion[].access_mode`) — additive schema change, a new row
+  in §7.1 and no `schema_version` bump (D-769).
 - Whether `render` provisioning stays plan-only (emitting a runbook) vs. live `fab`
   provisioning — gated by tenant access, like the existing Premium-floor F1/F6 caveats.

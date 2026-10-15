@@ -1065,6 +1065,94 @@
         ]
       }
     },
+    "realtime": {
+      "type": "array",
+      "description": "Real-time items (D-764): one entry per Fabric Eventstream. A streaming source (Event Hubs, IoT Hub, Kafka, CDC, MQTT, cloud streams, Fabric events, custom endpoint) is NOT an ingestion[] copy: it runs through an Eventstream that fans out to one or more destinations (Microsoft Learn, 'Overview of Microsoft Fabric eventstreams', supported destinations). Absent or empty = no real-time path; nothing else changes.",
+      "items": {
+        "type": "object",
+        "required": [
+          "stream",
+          "source",
+          "source_kind",
+          "destinations",
+          "rationale"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "stream": {
+            "type": "string",
+            "description": "Name of the Eventstream item."
+          },
+          "source": {
+            "type": "string"
+          },
+          "source_system": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Owning domain (its name), as in ingestion[].domain."
+          },
+          "source_kind": {
+            "enum": [
+              "event_hubs",
+              "iot_hub",
+              "kafka",
+              "cdc",
+              "mqtt",
+              "cloud_stream",
+              "fabric_events",
+              "custom_endpoint"
+            ],
+            "description": "Eventstream source class. `kafka` covers Apache Kafka and Confluent Cloud; `cdc` = database change data capture (Azure SQL, PostgreSQL, MySQL, Cosmos DB); `cloud_stream` = Amazon Kinesis, Google Pub/Sub; `fabric_events` = Fabric workspace item or OneLake events, Azure Blob Storage events."
+          },
+          "destinations": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "eventhouse",
+                "lakehouse",
+                "activator",
+                "custom_endpoint",
+                "spark_notebook"
+              ]
+            },
+            "description": "Where the stream is routed. A derived stream is an intermediate step inside the Eventstream, not a destination, and is therefore not listed. `spark_notebook` is a Preview destination on Microsoft Learn (14.10.2026)."
+          },
+          "eventhouse": {
+            "type": "string",
+            "description": "Name of the target Eventhouse (KQL database). Required when destinations contains `eventhouse`."
+          },
+          "onelake_availability": {
+            "type": "boolean",
+            "description": "True = the Eventhouse tables are also exposed as Delta in OneLake (Eventhouse OneLake availability), so lakehouse and Direct Lake consumers read them without a copy. Absent = not stated; consumers must not assume it."
+          },
+          "rationale": {
+            "type": "string",
+            "description": "Why this source is streamed instead of landed in batch."
+          }
+        },
+        "if": {
+          "properties": {
+            "destinations": {
+              "contains": {
+                "const": "eventhouse"
+              }
+            }
+          },
+          "required": [
+            "destinations"
+          ]
+        },
+        "then": {
+          "required": [
+            "eventhouse"
+          ]
+        }
+      }
+    },
     "medallion": {
       "type": "object",
       "description": "P2 Medallion — bronze is an immutable system of record; no layer-skipping.",
