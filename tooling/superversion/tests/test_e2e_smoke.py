@@ -28,8 +28,8 @@ def test_console_safe_replaces_only_unencodable_glyphs():
 def test_run_com001_no_stage_fails():
     results = e2e_smoke.run(COM001)
     stages = _by_name(results)
-    # All five stages are present and none failed (pbir may SKIP without the CLI).
-    assert set(stages) == {"source", "golden_thread", "page_slots", "tmdl", "pbir"}
+    # All six stages are present and none failed (pbir may SKIP without the CLI).
+    assert set(stages) == {"source", "golden_thread", "page_slots", "contract", "tmdl", "pbir"}
     assert not any(r.failed for r in results), [str(r) for r in results]
     assert stages["source"].status == "PASS"
     assert stages["golden_thread"].status == "PASS"

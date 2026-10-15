@@ -2,7 +2,21 @@
 
 First concrete adapter on the I-3.1 contract (ADR-0006): emits a Power BI **TMDL**
 semantic model FROM the canonical model — one `<table>.tmdl` per table under
-`<Model>.SemanticModel/definition/tables/`.
+`<Model>.SemanticModel/definition/tables/`, plus (since 07.10.2026) the item frame that
+makes the folder a semantic model Power BI Desktop can open, in the Microsoft layout
+(Learn, "Power BI Desktop project semantic model folder" / "TMDL folder structure"):
+`definition.pbism` (required), `.platform`, `definition/database.tmdl`,
+`definition/model.tmdl`, `definition/relationships.tmdl` (when the model has any), and a
+partition per table. `database`/`model`/`pbism` are rendered from the governed base
+templates in `core/strategy_operating_model/operating_model/reference/tmdl_base_templates/`
+(the same source `table_ops.ps1 -Operation WriteModelFiles` uses — reused, not copied).
+
+Partitions: a table whose canonical model carries an `m_expression` gets it verbatim;
+every other table gets an **empty typed table** (`#table(type table [...], {})`) — the
+model opens and refreshes with 0 rows, no data source is invented. Binding the real
+source (Import vs Direct Lake, Gold path, `source_column` renames) is the delivery
+connector's decision and is listed by `datasource_gaps()`. A table without columns
+(the `_Measures` home) gets the hidden `Column1` the legacy models use.
 
 This is the **stack step where dialect/DAX is materialized** (Invariant I1: the
 source adapter `from_aluca` stays dialect-neutral; DAX is filled HERE). ALUCA defines
@@ -31,12 +45,33 @@ TMDL hard-rules (AGENTS.md, enforced by `.claude/hooks/validate_tmdl_style.sh`):
 from __future__ import annotations
 
 import json
+import re
+from pathlib import Path
 
 from tooling.superversion.canonical_contract import CanonicalModel
 from tooling.superversion.targets import dax_synth
 from tooling.superversion.targets.base import TargetAdapter, register
 
 TAB = "\t"
+
+_TEMPLATES = (Path(__file__).resolve().parents[3] / "core" / "strategy_operating_model"
+              / "operating_model" / "reference" / "tmdl_base_templates")
+#: Culture of the governed WriteModelFiles path (`table_ops.ps1 -Culture`, default de-DE).
+#: The canonical model carries no culture; this is the repo's documented default, not a guess.
+DEFAULT_CULTURE = "de-DE"
+_PLATFORM_SCHEMA = ("https://developer.microsoft.com/json-schemas/fabric/gitIntegration/"
+                    "platformProperties/2.0.0/schema.json")
+_BARE_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+#: TOM data type → Power Query type used in the placeholder partition's table type.
+_M_TYPE = {
+    "int64": "Int64.Type",
+    "double": "number",
+    "decimal": "Currency.Type",
+    "boolean": "logical",
+    "string": "text",
+    "datetime": "datetime",
+}
+_PLACEHOLDER_COLUMN = "Column1"
 
 _GENERIC_HITL_REASON = "define DAX dialect (ALUCA carries meaning, not DAX)"
 
@@ -93,37 +128,147 @@ def _render_measure(measure) -> list[str]:
     return lines
 
 
+def quote_name(name: str) -> str:
+    """TMDL object name: bare when it is a plain identifier, else single-quoted with
+    embedded quotes doubled (`'OTIF Flag'`, `'SCM-002_x'`)."""
+    if _BARE_NAME.fullmatch(name):
+        return name
+    return "'" + name.replace("'", "''") + "'"
+
+
 def _render_column(column) -> list[str]:
-    lines = [f"{TAB}column {column.name}"]
+    lines: list[str] = []
+    doc = _one_line(getattr(column, "description", ""))
+    if doc:
+        lines.append(f"{TAB}/// {doc}")
+    lines.append(f"{TAB}column {quote_name(column.name)}")
     if column.data_type:
         lines.append(f"{TAB}{TAB}dataType: {column.data_type}")
     if getattr(column, "is_hidden", False):
         lines.append(f"{TAB}{TAB}isHidden")
+    if not getattr(column, "expression", ""):
+        lines.append(f"{TAB}{TAB}sourceColumn: {column.name}")
     # numeric columns must carry summarizeBy (hard-rule); default to none if unset
     lines.append(f"{TAB}{TAB}summarizeBy: {column.summarize_by or 'none'}")
     return lines
 
 
+def _m_field(name: str) -> str:
+    return '#"' + name.replace('"', '""') + '"'
+
+
+def _partition_source(table, columns) -> str:
+    if getattr(table, "m_expression", ""):
+        return table.m_expression.strip()
+    fields = ", ".join(
+        f"{_m_field(c.name)} = {_M_TYPE.get((c.data_type or '').lower(), 'text')}"
+        for c in columns if not getattr(c, "expression", "")
+    )
+    return f"let\n\tSource = #table(type table [{fields}], {{}})\nin\n\tSource"
+
+
+def _render_partition(table, columns) -> list[str]:
+    lines: list[str] = []
+    if not getattr(table, "m_expression", ""):
+        lines.append(f"{TAB}/// HITL: placeholder partition (empty typed table, 0 rows) — "
+                     "bind the data source in delivery")
+    lines += [f"{TAB}partition {quote_name(table.name)} = m", f"{TAB}{TAB}mode: import",
+              f"{TAB}{TAB}source ="]
+    lines += [f"{TAB}{TAB}{TAB}{line}" for line in _partition_source(table, columns).splitlines()]
+    return lines
+
+
+def _emitted_columns(table) -> list:
+    """The table's columns; a column-less table (measure home) gets the hidden `Column1`
+    the legacy `_Measures` tables carry — TOM needs a column for an import partition."""
+    if table.columns:
+        return list(table.columns)
+    from tooling.superversion.canonical_contract import Column
+    return [Column(name=_PLACEHOLDER_COLUMN, data_type="string", is_hidden=True)]
+
+
 def render_table(table) -> str:
     """Render one table to TMDL text (tabs, hard-rule compliant)."""
-    blocks: list[str] = [f"table {table.name}"]
-    for col in table.columns:
+    blocks: list[str] = []
+    doc = _one_line(getattr(table, "description", ""))
+    if doc:
+        blocks.append(f"/// {doc}")
+    blocks.append(f"table {quote_name(table.name)}")
+    columns = _emitted_columns(table)
+    for col in columns:
         blocks.append("")
         blocks.extend(_render_column(col))
     for measure in table.measures:
         blocks.append("")
         blocks.extend(_render_measure(measure))
+    blocks.append("")
+    blocks.extend(_render_partition(table, columns))
+    return "\n".join(blocks) + "\n"
+
+
+def _template(name: str) -> str:
+    return (_TEMPLATES / name).read_text(encoding="utf-8")
+
+
+def _column_ref(table: str, column: str) -> str:
+    return f"{quote_name(table)}.{quote_name(column)}"
+
+
+def render_relationships(relationships) -> str:
+    blocks: list[str] = []
+    for rel in relationships:
+        name = f"{rel.from_table}_{rel.from_column}_{rel.to_table}"
+        if blocks:
+            blocks.append("")
+        blocks.append(f"relationship {quote_name(name)}")
+        if not rel.is_active:
+            blocks.append(f"{TAB}isActive: false")
+        if rel.cross_filter:
+            blocks.append(f"{TAB}crossFilteringBehavior: {rel.cross_filter}")
+        blocks.append(f"{TAB}fromColumn: {_column_ref(rel.from_table, rel.from_column)}")
+        blocks.append(f"{TAB}toColumn: {_column_ref(rel.to_table, rel.to_column)}")
     return "\n".join(blocks) + "\n"
 
 
 def emit(canonical: CanonicalModel) -> dict[str, str]:
     """Canonical model → {path: TMDL content}. Deterministic (Invariant I2)."""
     model = canonical.semantic
-    base = f"{model.name}.SemanticModel/definition/tables"
+    item = f"{model.name}.SemanticModel"
+    base = f"{item}/definition/tables"
     out: dict[str, str] = {}
+    out[f"{item}/.platform"] = json.dumps({
+        "$schema": _PLATFORM_SCHEMA,
+        "metadata": {"type": "SemanticModel", "displayName": model.name},
+        # Nullkennung wie im PBIR-Target: vergeben wird beim Import, eine erfundene GUID
+        # kollidiert beim naechsten.
+        "config": {"version": "2.0", "logicalId": "00000000-0000-0000-0000-000000000000"},
+    }, indent=2, ensure_ascii=False) + "\n"
+    out[f"{item}/definition.pbism"] = _template("definition.pbism.template").rstrip() + "\n"
+    database = _template("database.tmdl.template").replace("{{MODEL_NAME}}", quote_name(model.name))
+    if model.compatibility_level:
+        database = re.sub(r"compatibilityLevel: \d+",
+                          f"compatibilityLevel: {model.compatibility_level}", database)
+    out[f"{item}/definition/database.tmdl"] = database.rstrip() + "\n"
+    model_tmdl = _template("model.tmdl.template").replace("{{CULTURE}}", DEFAULT_CULTURE).rstrip()
+    refs = "\n".join(f"ref table {quote_name(t.name)}" for t in model.tables)
+    out[f"{item}/definition/model.tmdl"] = model_tmdl + "\n" + (f"\n{refs}\n" if refs else "")
+    if model.relationships:
+        out[f"{item}/definition/relationships.tmdl"] = render_relationships(model.relationships)
     for table in model.tables:
         out[f"{base}/{table.name}.tmdl"] = render_table(table)
     return out
+
+
+def table_files(emitted: dict[str, str]) -> dict[str, str]:
+    """Only the `definition/tables/*.tmdl` entries of an `emit()` result."""
+    return {k: v for k, v in emitted.items() if "/definition/tables/" in k}
+
+
+def datasource_gaps(canonical: CanonicalModel) -> list[str]:
+    """Tables whose partition is the empty placeholder (no `m_expression`): the data
+    source is a delivery decision, not something ALUCA carries."""
+    return [f"{t.name}: placeholder partition (0 rows) — bind the data source in delivery"
+            for t in canonical.semantic.tables if not getattr(t, "m_expression", "")]
 
 
 def hitl_gaps(canonical: CanonicalModel) -> list[str]:

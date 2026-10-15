@@ -30,6 +30,7 @@ import yaml
 
 from tooling.superversion import e2e_smoke  # registers tmdl+pbir targets on import
 from tooling.superversion.eval import refinement, wirkung
+from tooling.superversion.contract_binding import bind_bracket_file
 from tooling.superversion.from_aluca import from_bracket_file
 from tooling.superversion.layer_tools import engines
 from tooling.superversion.targets import base as targets
@@ -59,6 +60,11 @@ def resolve_bracket(reference: Path) -> Path:
     if len(matches) > 1:
         raise ValueError(f"ambiguous bracket id '{bracket_id}': {len(matches)} matches")
     return matches[0].resolve()
+
+
+#: Targets whose artifacts the E2E gate verifies against the contract-bound model (Power BI).
+#: OSI/Databricks still emit the unbound canonical model — extending them is a follow-up.
+_CONTRACT_BOUND_TARGETS = frozenset({"tmdl", "pbir"})
 
 
 def precore(bracket_path: Path, kpis_dir: Path) -> dict:
@@ -98,6 +104,10 @@ def generate(
 
     # Artifact manifest — emit the chosen target from the canonical model (no disk write).
     model = from_bracket_file(bracket_path, kpis_dir)
+    if target in _CONTRACT_BOUND_TARGETS:
+        # Same physical model the gate below emits and checks (e2e contract stage) —
+        # otherwise the artifacts would be the unbound, measure-only model.
+        model, _ = bind_bracket_file(model, bracket_path)
     emitted = targets.get(target).emit(model)
     artifacts = []
     for path, content in emitted.items():

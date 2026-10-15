@@ -201,3 +201,22 @@ def sanctioned_visual_type(visual_type: str) -> "str | None":
         return None
     idiom = ALUCA_VISUAL_IDIOM.get(visual_type)
     return native_visual_type(idiom) if idiom else None
+
+
+def category_axis_type(visual_type: str) -> "str | None":
+    """The governed ``params.category.type`` of the idiom behind an ALUCA ``visual_type``
+    (``"date"`` for the line idioms, ``"category"`` for rankings), or None when the visual_type
+    maps to no charted idiom or the idiom declares no category axis.
+
+    Read by the contract binding (``tooling/superversion/contract_binding.py``): only a
+    ``date`` axis can be filled from the data contract without a business choice — the
+    contract names exactly one date column per date dimension, whereas *which* category a
+    ranking groups by is the bracket's decision and stays a HITL placeholder."""
+    idiom = ALUCA_VISUAL_IDIOM.get((visual_type or "").strip().lower())
+    if not idiom:
+        return None
+    entry = yaml.safe_load((_LIB / f"{idiom}.yaml").read_text(encoding="utf-8")) or {}
+    category = (entry.get("params") or {}).get("category")
+    if not isinstance(category, dict):
+        return None
+    return category.get("type")
