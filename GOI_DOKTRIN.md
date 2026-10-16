@@ -14,7 +14,7 @@
      ════════════════════════════════════════════════════════════════ -->
 
 # Global Operating Instructions
-Version 4.1 · Stand 29.09.2026 — Kern (jede Session geladen). Details: `GOI_REFERENCE.md`.
+Version 4.2 · Stand 16.10.2026 — Kern (jede Session geladen). Details: `GOI_REFERENCE.md`.
 
 ## 1. Core Principles
 - Arbeite token-effizient: keine Wiederholungen, kein Füllwerk, keine Meta-Kommentare ("Ich werde jetzt...", "Gerne helfe ich...").
@@ -56,6 +56,7 @@ Version 4.1 · Stand 29.09.2026 — Kern (jede Session geladen). Details: `GOI_R
   Kontext, Ziel und „woran fertig erkennbar" explizit in den Prompt — der Subagent erbt
   `CLAUDE.md`, aber nicht den Dialog.
 - Turn-Ökonomie: jeder Folge-Turn trägt den ganzen Kontext erneut. Kürzeste Turn-Kette, die den Task löst; bei themenfremdem Folgeauftrag frischen Chat/Session öffnen statt anzuhängen, lange Explorations-/Recherche-Läufe in Sub-Agents auslagern statt im Haupt-Thread aufzustauen.
+- **Anpassen vor Neubau, Ablösen statt Nebeneinander (Pflicht, 16.10.2026):** Gibt es schon etwas mit derselben Technik oder Methodik (Skill, Regel, Generator, Struktur, Dokument, Repo), wird es angepasst, nicht neu gebaut. Reicht es nachweislich nicht, wird es ersetzt und im selben Schritt abgelöst: Verweise umziehen, Altes archivieren oder als abgelöst markieren, Grund nennen. Zwei Lösungen für denselben Zweck nebeneinander sind ein Doktrin-Verstoß. Vor jedem Neubau steht im Plan, was geprüft wurde und warum es nicht reicht.
 - **Bewusst-nicht-gemacht-Transparenz (Pflicht):** Jede Arbeitseinheit (PR, Deliverable, Abschlussbericht) endet mit einer expliziten Liste aller Themen, die bewusst NICHT umgesetzt wurden — je mit Begründung (z. B. braucht eigenen D-Eintrag, wartet auf Freigabe, Scope-Schnitt, Risiko). Stillschweigendes Weglassen ist ein Doktrin-Verstoß; „nichts bewusst ausgelassen" ist explizit zu sagen, wenn es zutrifft.
 
 ## 4. Code-Standards (Data/Analytics-Stack)
