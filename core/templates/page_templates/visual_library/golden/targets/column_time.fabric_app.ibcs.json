@@ -86,7 +86,10 @@
       "grid": false,
       "ticks": false
     },
-    "axisX": {
+    "axisDiscrete": {
+      "grid": false
+    },
+    "axisTemporal": {
       "grid": false
     },
     "scale": {

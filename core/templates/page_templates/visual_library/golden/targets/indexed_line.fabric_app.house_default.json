@@ -12,8 +12,9 @@
       {
         "mark": {
           "type": "line",
+          "interpolate": "monotone",
           "color": "#0078D4",
-          "strokeWidth": 2.5
+          "strokeWidth": 2
         },
         "encoding": {
           "x": {
@@ -52,7 +53,7 @@
       {
         "mark": {
           "type": "rule",
-          "color": "#94A0AC",
+          "color": "#605E5C",
           "strokeDash": [
             2,
             2
@@ -78,7 +79,10 @@
       "title": null,
       "labelFontSize": 11
     },
-    "axisX": {
+    "axisDiscrete": {
+      "grid": false
+    },
+    "axisTemporal": {
       "grid": false
     },
     "scale": {

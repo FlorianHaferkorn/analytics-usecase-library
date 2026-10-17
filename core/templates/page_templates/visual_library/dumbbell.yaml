@@ -1,13 +1,15 @@
 # Visual Library entry — dumbbell  (schema: _schema.yaml)
 id: dumbbell
 name: Dumbbell (before / after)
-version: "1.0.0"
+version: "1.0.1"   # 1.0.1 (17.10.2026): Startpunkt #8C8C8C (3:1)
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor; px derived from layout_grid.yaml
 best_form_for: null
 alternatives: [bar_ranking, lollipop, deviation_bar]
+y_basis: "position"     # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: x           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   two_points: position_start_end    # two positions per row (e.g. PY vs AC)
@@ -31,7 +33,7 @@ data_fit:
 
 tokens:
   col_stem:  surface.row_alt_ink     # #C8CED5 connector
-  col_start: color_semantics.neutral # #94A0AC baseline dot
+  col_start: color_semantics.neutral # #8C8C8C baseline dot
   col_end:   ink                     # #0F2430 current dot
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
@@ -50,7 +52,7 @@ canonical_params:
   field_start: "gm_py"
   field_end: "gm"
   col_stem: "#C8CED5"
-  col_start: "#94A0AC"
+  col_start: "#8C8C8C"
   col_end: "#0F2430"
 
 preview_svg: |

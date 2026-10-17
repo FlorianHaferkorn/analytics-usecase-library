@@ -1,13 +1,15 @@
 # Visual Library entry — scatter  (schema: _schema.yaml)
 id: scatter
 name: Scatter plot
-version: "1.0.0"
+version: "1.0.1"   # 1.0.1 (17.10.2026): Golden neu eingefroren: Profilgitter je Achsentyp
 status: active        # active | deprecated | experimental
 purpose: [correlation]
 zone: [analysis]
 min_size: {cols: 3, rows: 5}   # grid units — canvas-relative legibility floor (≈292×264px @1280, 438×396px @1920; px derived from layout_grid.yaml)
 best_form_for: correlation
 alternatives: []
+y_basis: "position"     # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: xy          # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   x: quantitative

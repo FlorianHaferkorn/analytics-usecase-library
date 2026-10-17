@@ -8,10 +8,50 @@
     "data": {
       "name": "dataset"
     },
-    "mark": {
-      "type": "line",
-      "point": true
-    },
+    "transform": [
+      {
+        "calculate": "min(isValid(datum['gm']) ? datum['gm'] : 1e300)",
+        "as": "_yu_z"
+      },
+      {
+        "calculate": "max(isValid(datum['gm']) ? datum['gm'] : -1e300)",
+        "as": "_yo_z"
+      },
+      {
+        "joinaggregate": [
+          {
+            "op": "min",
+            "field": "_yu_z",
+            "as": "_yu"
+          },
+          {
+            "op": "max",
+            "field": "_yo_z",
+            "as": "_yo"
+          }
+        ]
+      },
+      {
+        "calculate": "min(datum._yu)",
+        "as": "_ylo"
+      },
+      {
+        "calculate": "max(datum._yo)",
+        "as": "_yhi"
+      },
+      {
+        "calculate": "max(abs(datum._yhi), abs(datum._ylo))",
+        "as": "_ytop"
+      },
+      {
+        "calculate": "datum._yhi > -1e299 && datum._ytop > 0 && datum._ytop < 1e299 && datum._yhi - datum._ylo < 0.25 * datum._ytop",
+        "as": "_yangepasst"
+      },
+      {
+        "calculate": "datum._yangepasst ? datum._ylo - max((datum._yhi - datum._ylo) * 0.1, datum._ytop * 0.01) : 0",
+        "as": "_ybasis"
+      }
+    ],
     "encoding": {
       "x": {
         "field": "period",
@@ -29,31 +69,93 @@
         "axis": {
           "title": null
         }
-      },
-      "color": {
-        "field": "unit",
-        "type": "nominal",
-        "legend": null
-      },
-      "tooltip": [
-        {
-          "field": "unit",
-          "type": "nominal",
-          "title": "unit"
+      }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "rule",
+          "opacity": 0,
+          "strokeWidth": 0
         },
-        {
-          "field": "period",
-          "type": "nominal",
-          "title": "period"
-        },
-        {
-          "field": "gm",
-          "type": "quantitative",
-          "title": "gm",
-          "format": ",.1~f"
+        "encoding": {
+          "y": {
+            "field": "_ybasis",
+            "type": "quantitative"
+          }
         }
-      ]
-    }
+      },
+      {
+        "mark": {
+          "type": "line",
+          "point": true
+        },
+        "encoding": {
+          "color": {
+            "field": "unit",
+            "type": "nominal",
+            "legend": null
+          },
+          "tooltip": [
+            {
+              "field": "unit",
+              "type": "nominal",
+              "title": "unit"
+            },
+            {
+              "field": "period",
+              "type": "nominal",
+              "title": "period"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": "datum._yangepasst"
+          },
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_yb"
+              }
+            ]
+          },
+          {
+            "filter": "datum._yb == 1"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "text": "≈",
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "color": "#605E5C",
+          "align": "center",
+          "baseline": "middle",
+          "description": "Achse beginnt nicht bei null",
+          "tooltip": null
+        },
+        "encoding": {
+          "x": {
+            "value": 0
+          },
+          "y": {
+            "value": {
+              "expr": "height"
+            }
+          }
+        }
+      }
+    ]
   },
   "configVegaLite": {
     "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
@@ -67,7 +169,10 @@
       "title": null,
       "labelFontSize": 11
     },
-    "axisX": {
+    "axisDiscrete": {
+      "grid": false
+    },
+    "axisTemporal": {
       "grid": false
     },
     "scale": {

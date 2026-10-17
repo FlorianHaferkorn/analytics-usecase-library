@@ -53,6 +53,13 @@ surface:
   page:    "#F5F5F5"   # page background
   card:    "#FFFFFF"   # visual / card background
   row_alt: "#F9F9F9"   # alternating table row
+  zebra:   "#F3F3F3"   # zebra stripe from 10 rows x 4 columns (Regel zebra, visual_library/_gestaltungsregeln.yaml; Florian 17.10.2026 W3)
+
+# Marks without a rating (Regel markenkontrast, visual_library/_gestaltungsregeln.yaml; 17.10.2026):
+# a mark that carries a statement reaches 3:1 on white (WCAG 2.2 SC 1.4.11).
+marks:
+  reference: "#605E5C"   # target, plan, base and zero lines (= semantic.neutral, 6.46:1)
+  context:   "#8C8C8C"   # comparison and context marks (3.36:1; = render.FOCUS_GREY)
 
 
 # Sanktionierte Grundlinie des Kartensystems (Entscheidung Flo, 03.08.2026 — Weg A)

@@ -1,0 +1,10 @@
+VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( 'dim_org'[OrgName] ), [Gross Margin %] ), REMOVEFILTERS ( 'dim_org'[OrgName] ) )
+VAR _x = DIVIDE ( [Gross Margin % PY], _max ) * 92 + 4
+VAR _a = DIVIDE ( [Gross Margin %], _max ) * 92 + 4
+RETURN
+    IF ( HASONEVALUE ( 'dim_org'[OrgName] ),
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+          & "<line x1='" & _x & "' y1='7' x2='" & _a & "' y2='7' stroke='#C8CED5' stroke-width='3'/>"
+          & "<circle cx='" & _x & "' cy='7' r='4' fill='#94A0AC'/>"
+          & "<circle cx='" & _a & "' cy='7' r='4' fill='#0F2430'/>"
+          & "</svg>" )

@@ -1,13 +1,15 @@
 # Visual Library entry — kpi_card_sparkbar  (schema: _schema.yaml)
 id: kpi_card_sparkbar
 name: KPI card · value + column trend
-version: "1.0.0"
+version: "1.0.1"   # 1.0.1 (17.10.2026): Kontextbalken #8C8C8C (3:1)
 status: active        # active | deprecated | experimental
 purpose: [value_verdict]
 zone: [pulse]
 min_size: {cols: 3, rows: 3}   # grid units — canvas-relative legibility floor (≈292×152px @1280, 438×228px @1920; px derived from layout_grid.yaml)
 best_form_for: null
 alternatives: [kpi_card_spark, kpi_card_bullet, column_time]
+y_basis: "null"         # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: y           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   value: headline_number            # the number (rank 1)
@@ -29,7 +31,7 @@ tokens:
   col_ink:  text.primary             # #0F2430 value
   col_pos:  color_semantics.positive # #107C10
   col_neg:  color_semantics.negative # #A4262C
-  col_bar:  surface.row_alt_ink      # #C8CED5 trend columns (recede)
+  col_bar:  marks.context            # #8C8C8C trend columns (recede, 3.36:1)
 
 canonical_params:
   entity: "_Measures"
@@ -44,7 +46,7 @@ canonical_params:
   col_ink: "#0F2430"
   col_pos: "#107C10"
   col_neg: "#A4262C"
-  col_bar: "#C8CED5"
+  col_bar: "#8C8C8C"
 
 preview_svg: |
   <svg viewBox="0 0 240 90" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KPI card with column trend">

@@ -50,6 +50,7 @@ def build_tokens() -> dict:
     color["brand"] = {"primary": _color(brand.get("primary")), "secondary": _color(brand.get("secondary"))}
     color["brand"]["data"] = {f"slot_{i}": _color(c) for i, c in enumerate(brand.get("data_colors", []))}
     color["surface"] = {k: _color(v) for k, v in cs.get("surface", {}).items()}
+    color["marks"] = {k: _color(v) for k, v in cs.get("marks", {}).items()}
     color["text"] = {k: _color(v) for k, v in cs.get("text", {}).items()}
     color["border"] = {k: _color(v) for k, v in cs.get("border", {}).items()}
     color["colorblind_safe"] = {k: _color(v) for k, v in cs.get("colorblind_safe", {}).items()}

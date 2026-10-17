@@ -1,8 +1,8 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "data": { "name": "dataset" },
+  "params": [ { "name": "_n_daten", "expr": "max(length(data('dataset')), length(data('source_0')))" }, { "name": "_beschriftet", "expr": "_n_daten > 0 && _n_daten < 10" } ],
   "transform": [
-    { "joinaggregate": [ { "op": "count", "as": "_n" } ] },
     { "window": [ { "op": "sum", "field": "value", "as": "cum" } ], "frame": [null, 0] },
     { "calculate": "datum.cum - datum['value']", "as": "prev" }
   ],
@@ -12,9 +12,9 @@
   "layer": [
     { "mark": { "type": "bar", "color": "#0078D4" },
       "encoding": {
-      "y": { "field": "prev", "type": "quantitative", "axis": { "title": null }, "scale": { "padding": 16 } },
+      "y": { "field": "prev", "type": "quantitative", "axis": { "title": null, "tickCount": { "expr": "_beschriftet ? 0 : ceil(height/40)" }, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } }, "scale": { "padding": 16 } },
       "y2": { "field": "cum" } } },
     { "mark": { "type": "text", "baseline": "bottom", "dy": -4, "color": "#201F1E" },
-      "encoding": { "y": { "field": "cum", "type": "quantitative" }, "text": { "field": "value", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "datum._n < 10", "value": 1 }, "value": 0 } } }
+      "encoding": { "y": { "field": "cum", "type": "quantitative" }, "text": { "field": "value", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } }
   ]
 }

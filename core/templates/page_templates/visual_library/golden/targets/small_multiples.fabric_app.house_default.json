@@ -16,6 +16,7 @@
     "spec": {
       "mark": {
         "type": "line",
+        "interpolate": "monotone",
         "color": "#0F2430"
       },
       "encoding": {
@@ -67,7 +68,10 @@
       "title": null,
       "labelFontSize": 11
     },
-    "axisX": {
+    "axisDiscrete": {
+      "grid": false
+    },
+    "axisTemporal": {
       "grid": false
     },
     "scale": {

@@ -8,6 +8,8 @@ zone: [detail]
 min_size: {cols: 5, rows: 4}   # grid units — the HOST tableEx/matrix floor (the cell chart is per-row); px derived from layout_grid.yaml
 best_form_for: null
 alternatives: [line, matrix_evidence]
+y_basis: "angepasst"    # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: y           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   trend: sparkline_line             # a per-row micro trend over time, in the cell

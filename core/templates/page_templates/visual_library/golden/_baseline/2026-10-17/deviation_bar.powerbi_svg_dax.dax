@@ -1,0 +1,10 @@
+VAR _dlt = [Gross Margin % vs Plan]
+VAR _col = IF ( _dlt < 0, "#A4262C", "#107C10" )
+VAR _len = MIN ( ABS ( _dlt ) / 0.05 * 146, 146 )
+VAR _x   = IF ( _dlt < 0, 170 - _len, 170 )
+RETURN
+    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 340 60'>"
+      & "<rect x='24' y='24' width='292' height='12' rx='6' fill='#EFF2F5'/>"
+      & "<rect x='" & _x & "' y='24' width='" & _len & "' height='12' rx='3' fill='" & _col & "'/>"
+      & "<line x1='170' y1='19' x2='170' y2='41' stroke='#586472' stroke-width='1.5'/>"
+      & "</svg>"

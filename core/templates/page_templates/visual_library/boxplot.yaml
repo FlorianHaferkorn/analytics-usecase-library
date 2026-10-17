@@ -1,13 +1,15 @@
 # Visual Library entry — boxplot  (schema: _schema.yaml)
 id: boxplot
 name: Box plot
-version: "1.0.0"
+version: "1.0.1"   # 1.0.1 (17.10.2026): Golden neu eingefroren: Profilgitter je Achsentyp
 status: active        # active | deprecated | experimental
 purpose: [distribution]
 zone: [analysis]
 min_size: {cols: 3, rows: 4}   # grid units — canvas-relative legibility floor (≈292×208px @1280, 438×312px @1920; px derived from layout_grid.yaml)
 best_form_for: null                 # distribution across groups (histogram for one variable)
 alternatives: [histogram]
+y_basis: "position"     # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: x           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   box: q1_to_q3

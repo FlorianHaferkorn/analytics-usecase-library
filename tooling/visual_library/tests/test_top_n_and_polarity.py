@@ -72,7 +72,8 @@ def test_rest_with_sum_is_one_bar_last_and_neutral():
     assert s["categories"][-1] == "Übrige (3)"
     assert "92" in s["labels"], "30 + 22 + 40 folded into the rest"
     rest = max(s["bars"])                       # lowest on the chart = last row
-    assert rest[2] == "#94A0AC", "a rest is not rated against the per-item target"
+    # 17.10.2026: Kontextfarbe #8C8C8C statt #94A0AC (2,6:1 auf Weiß, unter der 3:1-Regel markenkontrast)
+    assert rest[2] == "#8C8C8C", "a rest is not rated against the per-item target"
     assert len(s["bars"]) == 6
 
 

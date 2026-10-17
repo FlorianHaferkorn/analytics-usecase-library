@@ -1,13 +1,15 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "1.2.2"   # 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
+version: "2.0.0"   # 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
 best_form_for: time_comparison
 alternatives: [area_stacked, small_multiples, indexed_line, slope]
+y_basis: "null_oder_angepasst" # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: y           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   x: temporal
@@ -30,11 +32,12 @@ params:
 
 tokens:
   col_line: ink                     # #0F2430 hero line
-  col_ref:  color_semantics.neutral # #94A0AC target reference
+  col_ref:  color_semantics.neutral # #605E5C target reference
+  col_alert: color_semantics.negative # #A4262C alarm line
   col_end:  color_semantics.negative# endpoint (semantic by sign at gen time)
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
-data_values: {target_val: null, col_end: col_line}   # data, not style: from params; else removed (null) or the named fallback (A-31 R6)
+data_values: {target_val: null, alert_val: null, col_end: col_line}   # data, not style: from params; else removed (null) or the named fallback (A-31 R6)
 data_slots:
   field: {role: value, required: true}
   field_date: {role: time, required: true}
@@ -55,7 +58,10 @@ canonical_params:
   field_date: "month"
   target_val: "44.1"
   col_line: "#0F2430"
-  col_ref: "#94A0AC"
+  col_ref: "#605E5C"               # reference marks 6.46:1 (≥ 3:1, WCAG 1.4.11; Regel markenkontrast)
+  alert_val: "42.0"
+  col_alert: "#A4262C"             # alarm line = semantic.negative (7.26:1)
+  label_alert: "Alarm"
   col_end: "#A4262C"
   plan_field: "gm_plan"
   fc_field: "gm_fc"
@@ -115,20 +121,39 @@ realizations:
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "data": { "name": "dataset" },
+        "transform": [
+          { "calculate": "min(isValid(datum['{{field}}']) ? datum['{{field}}'] : 1e300, isValid(datum['{{plan_field}}']) ? datum['{{plan_field}}'] : 1e300, isValid(datum['{{py_field}}']) ? datum['{{py_field}}'] : 1e300, isValid(datum['{{fc_field}}']) ? datum['{{fc_field}}'] : 1e300)", "as": "_yu_z" },
+          { "calculate": "max(isValid(datum['{{field}}']) ? datum['{{field}}'] : -1e300, isValid(datum['{{plan_field}}']) ? datum['{{plan_field}}'] : -1e300, isValid(datum['{{py_field}}']) ? datum['{{py_field}}'] : -1e300, isValid(datum['{{fc_field}}']) ? datum['{{fc_field}}'] : -1e300)", "as": "_yo_z" },
+          { "joinaggregate": [ { "op": "min", "field": "_yu_z", "as": "_yu" }, { "op": "max", "field": "_yo_z", "as": "_yo" } ] },
+          { "calculate": "min(datum._yu, isValid({{target_val}}) ? {{target_val}} : 1e300, isValid({{alert_val}}) ? {{alert_val}} : 1e300)", "as": "_ylo" },
+          { "calculate": "max(datum._yo, isValid({{target_val}}) ? {{target_val}} : -1e300, isValid({{alert_val}}) ? {{alert_val}} : -1e300)", "as": "_yhi" },
+          { "calculate": "max(abs(datum._yhi), abs(datum._ylo))", "as": "_ytop" },
+          { "calculate": "datum._yhi > -1e299 && datum._ytop > 0 && datum._ytop < 1e299 && datum._yhi - datum._ylo < 0.25 * datum._ytop", "as": "_yangepasst" },
+          { "calculate": "datum._yangepasst ? datum._ylo - max((datum._yhi - datum._ylo) * 0.1, datum._ytop * 0.01) : 0", "as": "_ybasis" }
+        ],
         "encoding": { "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } } },
         "layer": [
-          { "mark": { "type": "line", "color": "{{col_py}}", "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
+          { "mark": { "type": "rule", "opacity": 0, "strokeWidth": 0 }, "encoding": { "y": { "field": "_ybasis", "type": "quantitative" } } },
+          { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_py}}", "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
           { "transform": [ { "filter": "isValid(datum['{{py_field}}'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._q == 1" } ],
             "mark": { "type": "text", "text": "{{label_py}}", "align": "left", "dx": 4, "dy": 12, "color": "{{col_py}}" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
-          { "mark": { "type": "line", "color": "{{col_line}}", "strokeWidth": 2, "strokeCap": "round", "strokeJoin": "round" },
+          { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_line}}", "strokeWidth": 2, "strokeCap": "round", "strokeJoin": "round" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null, "domain": false, "ticks": false, "gridDash": [2, 4], "gridOpacity": 0.8 } } } },
           { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "strokeDash": [1, 4], "strokeCap": "round" },
             "encoding": { "y": { "datum": {{target_val}} } } },
-          { "mark": { "type": "line", "color": "{{col_ref}}", "strokeDash": [4, 4], "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
+          { "mark": { "type": "rule", "color": "{{col_alert}}", "strokeWidth": 1, "strokeDash": [4, 2], "strokeCap": "round" },
+            "encoding": { "y": { "datum": {{alert_val}} } } },
+          { "transform": [ { "window": [ { "op": "row_number", "as": "_a" } ] }, { "filter": "datum._a == 1" } ],
+            "mark": { "type": "text", "text": "{{label_alert}}", "align": "left", "dx": 4, "dy": 10, "color": "{{col_alert}}" },
+            "encoding": { "x": { "value": 0 }, "y": { "datum": {{alert_val}} } } },
+          { "transform": [ { "filter": "datum._yangepasst" }, { "window": [ { "op": "row_number", "as": "_yb" } ] }, { "filter": "datum._yb == 1" } ],
+            "mark": { "type": "text", "text": "≈", "fontSize": 14, "fontWeight": "bold", "color": "{{col_ref}}", "align": "center", "baseline": "middle", "description": "Achse beginnt nicht bei null" },
+            "encoding": { "x": { "value": 0 }, "y": { "value": { "expr": "height" } } } },
+          { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_ref}}", "strokeDash": [4, 4], "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
             "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
-          { "mark": { "type": "line", "color": "{{col_line}}", "strokeDash": [1, 4], "strokeWidth": 1.75, "strokeCap": "round" },
+          { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_line}}", "strokeDash": [1, 4], "strokeWidth": 1.75, "strokeCap": "round" },
             "encoding": { "y": { "field": "{{fc_field}}", "type": "quantitative" } } },
           { "transform": [ { "window": [ { "op": "row_number", "as": "_p" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._p == 1" } ],
             "mark": { "type": "text", "text": "Plan", "align": "left", "dx": 4, "dy": -8, "color": "{{col_ref}}" },
@@ -172,7 +197,7 @@ profiles:
     - UN 3.2
     param_overrides:
       plan_field: gm_plan
-      col_pl: '#94A0AC'
+      col_pl: '#8C8C8C'
       col_ac: '#404040'
       col_good: '#5B9A35'
       col_bad: '#A4262C'
@@ -238,6 +263,7 @@ profiles:
               {
                 "mark": {
                   "type": "line",
+                  "interpolate": "monotone",
                   "color": "{{col_ac}}",
                   "opacity": 0.5,
                   "strokeWidth": 1.5,
@@ -267,6 +293,7 @@ profiles:
               {
                 "mark": {
                   "type": "line",
+                  "interpolate": "monotone",
                   "color": "{{col_ac}}",
                   "strokeWidth": 1.5,
                   "point": {
@@ -290,6 +317,7 @@ profiles:
               {
                 "mark": {
                   "type": "line",
+                  "interpolate": "monotone",
                   "color": "{{col_ac}}",
                   "strokeWidth": 1.5,
                   "point": {
@@ -312,6 +340,7 @@ profiles:
               {
                 "mark": {
                   "type": "line",
+                  "interpolate": "monotone",
                   "color": "{{col_ac}}",
                   "strokeWidth": 1.5,
                   "strokeDash": [3, 2]

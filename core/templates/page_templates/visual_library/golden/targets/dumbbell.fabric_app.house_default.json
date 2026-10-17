@@ -41,7 +41,7 @@
         "mark": {
           "type": "circle",
           "size": 90,
-          "color": "#94A0AC"
+          "color": "#8C8C8C"
         },
         "encoding": {
           "x": {
@@ -115,7 +115,10 @@
       "title": null,
       "labelFontSize": 11
     },
-    "axisX": {
+    "axisDiscrete": {
+      "grid": false
+    },
+    "axisTemporal": {
       "grid": false
     },
     "scale": {

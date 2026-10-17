@@ -1,0 +1,245 @@
+# Visual Library — Gestaltungsregeln (Regeln als Felder, nicht als Prosa)
+# ------------------------------------------------------------------
+# Was ein Chart zeigt, entscheidet das Idiom (purpose); wie es gezeichnet wird, entscheiden das Profil
+# (_notation_profiles.yaml) und diese Regeln. Jede Regel trägt ihre Schwelle als Feld, ihren Stand als
+# `umsetzung.status` und ihren Test als Pfad; `tooling/visual_library/gestaltung.py` liest die Felder,
+# `tooling/visual_library/tests/test_gestaltungsregeln.py` prüft Felder, Idiome und Goldens dagegen.
+#
+# Quelle der Regeln: Entscheidungen Florian Haferkorn vom 17.10.2026 zur Vergleichsseite der Visual-Recherche
+# (W1 Eckenradius, W2 Beschriftung gegen Gitter, W3 Zebra, Achsen/Nullbasis, Linienverlauf) und der
+# Musterkatalog derselben Recherche (Kürzel B3, B4, T3 … in `muster`). Bericht der Runde:
+# Meridian docs/runden/2026-10-17_Bericht_visuals.md.
+#
+# umsetzung.status:
+#   umgesetzt   die Regel wirkt in den genannten Spuren, ein Test hält sie
+#   teilweise   wirkt in einem Teil der Spuren; `offen` nennt den Rest
+#   offen       als Feld festgehalten, wirkt noch nicht; `offen` nennt den Grund
+# Ein offener Rest steht in Meridian `meridian/studio/bewusst_offen.json` mit diesem Pfad und der Regel-ID in
+# `quelle` (meridian/tests/test_gestaltungsregeln_spiegel.py).
+# Externe Formulierung bei IBCS: „folgt der IBCS-Notation“, nie „IBCS-konform“ (IBCS® ist eine Marke).
+
+schema_version: 1
+
+regeln:
+
+  eckenradius:
+    muster: [B3]
+    entscheidung: "W1 (Florian 17.10.2026): Radius je Mandant im Design Pack wählbar"
+    regel: >
+      Den Radius der Balkenenden wählt das Design Pack je Mandant (`chart.bar_corner_radius`, Vega-Lite
+      `bar.cornerRadiusEnd`). Das Profil ibcs erzwingt 0 (keine abgerundeten Datenenden, SI 2.1); der Radius am
+      Container bleibt Sache des Packs (border.radius).
+    pack_feld: chart.bar_corner_radius
+    vegalite: bar.cornerRadiusEnd
+    profil_max: {ibcs: 0}
+    umsetzung:
+      status: umgesetzt
+      wo: ["_notation_profiles.yaml ibcs vegalite_config bar.cornerRadius 0",
+           "Meridian Cockpit (visuals.pack_chart_config) und HTML-Vorschau lesen chart.bar_corner_radius"]
+      test: [tooling/visual_library/tests/test_gestaltungsregeln.py]
+
+  beschriftung_gitter:
+    muster: [B4]
+    entscheidung: "W2 (Florian 17.10.2026): Datenbeschriftung an -> Gitter und Werteachse aus; aus -> Wertegitter an"
+    regel: >
+      Ein Chart, dessen Werte direkt beschriftet sind, zeigt weder Wertegitter noch Werteachse. Ohne Beschriftung
+      zeigt er das Wertegitter. Kategorie- und Zeitachsen tragen nie ein Gitter. „Werteachse“ heißt je Ausrichtung
+      die quantitative Achse: y bei Säulen, Linien und Wasserfällen, x bei liegenden Balken.
+    schwelle_kategorien: 10        # beschriftet, solange weniger als 10 Kategorien gezeichnet werden
+    signal: _beschriftet           # Vega-Lite-Parameter der Templates: _n_daten > 0 && _n_daten < 10
+    zaehler: "max(length(data('dataset')), length(data('source_0')))"
+    zaehler_grund: >
+      Deneb benennt die Daten `dataset`; die Cockpit-Shell (fabric-visuals VegaVisual, eine Tabelle) bettet sie
+      unbenannt ein (`data: {values}`, gelesen im Paketquelltext 17.10.2026), Vega-Lite nennt sie dann `source_0`.
+      Findet der Zähler keine der beiden Quellen, ist er 0: dann keine Beschriftung und Werteachse an, nie beides aus.
+    gitter_nach_achsentyp: {quantitativ: an, diskret: aus, zeit: aus}
+    aus_mechanik: "tickCount 0 auf der Werteachse (Gitter, Ticks und Beschriftung zugleich); labelOpacity als Ausdruck setzt die Überlappungsprüfung von Vega wieder auf 1 (gemessen 17.10.2026, vl_convert 1.9.0)"
+    umsetzung:
+      status: umgesetzt
+      wo: ["_notation_profiles.yaml: axisDiscrete/axisTemporal statt axisX (Gitter je Achsentyp)",
+           "bar_ranking, bar_absolute, column_time, variance_pin, waterfall_buildup, waterfall_pvm, waterfall_variance (deneb_vegalite)",
+           "Meridian chart_grenzen.json je Ausrichtung"]
+      test: [tooling/visual_library/tests/test_gestaltungsregeln.py]
+
+  zebra:
+    muster: [T3]
+    entscheidung: "W3 (Florian 17.10.2026): Zebra ab 10 Zeilen und 4 Spalten, #F3F3F3, aus bei Heatmap und Datenbalken"
+    regel: >
+      Tabellen ab 10 Zeilen und 4 Spalten bekommen Zebra-Streifen. Zellen, deren Farbe einen Wert trägt
+      (Heatmap, Datenbalken), bekommen keine. Die Streifenfarbe ist ein Token, kein Markenwert.
+    min_zeilen: 10
+    min_spalten: 4
+    farbe: "#F3F3F3"
+    farbe_dunkel: "rgba(255, 255, 255, 0.05)"
+    token: color_semantics.surface.zebra
+    aus_bei: [heatmap, datenbalken]
+    umsetzung:
+      status: teilweise
+      wo: ["color_semantics.yaml surface.zebra", "Meridian Cockpit-Tabelle (DataGrid) liest components.table.zebra (BO-365)"]
+      test: [tooling/visual_library/tests/test_gestaltungsregeln.py]
+      offen: "PBIR tableEx/pivotTable: Zebra hängt an der Zeilenzahl, die erst zur Laufzeit feststeht; nativ nur als festes Streifenmuster"
+
+  werteachse_basis:
+    muster: [K8, L5]
+    entscheidung: "Achsen (Florian 17.10.2026, Empfehlung nach Best Practice, gilt bis Widerspruch)"
+    regel: >
+      Balken, Säulen und Flächen beginnen immer bei 0 (die Länge kodiert den Wert). Linien beginnen bei 0, außer die
+      Spannweite der Daten einschließlich Ziel- und Alarmlinie ist kleiner als 25 % des Betragsmaximums (Quoten
+      wie OTIF): dann beginnt die Achse knapp unter dem kleinsten Wert, schließt Ziel und Alarm ein und trägt eine
+      sichtbare Achsenbruch-Markierung. Sparklines skalieren datenangepasst ohne Achse, mit Planband als Referenz.
+      Indexierte Reihen beziehen sich auf die Basis 100.
+    feld: y_basis                  # je Idiom, Werte unten
+    klassen:
+      "null": "Werteachse immer ab 0 (Länge kodiert den Wert)"
+      null_oder_angepasst: "ab 0; unter der Spannweitenschwelle angepasst mit Achsenbruch"
+      angepasst: "datenangepasst ohne Achse (Sparkline), Planband als Referenz"
+      index: "Basis 100 (indexierte Daten)"
+      position: "Position auf gemeinsamer Skala ohne Nullbezug (Streuung, Verteilung, Spannweite)"
+      entfaellt: "keine Werteachse (Tabelle, Karte, Anteil, Fluss)"
+    schwelle_spannweite: 0.25      # Spannweite / Betragsmaximum, strikt kleiner
+    abstand_unten: 0.1             # Achse beginnt 10 % der Spannweite unter dem kleinsten Wert (mind. 1 % des Maximums)
+    achsenbruch: {zeichen: "≈", farbe: "#605E5C"}
+    umsetzung:
+      status: teilweise
+      wo: ["line (house_default, print_safe) und slope: deneb_vegalite, fabric_app, html_vegalite",
+           "Längen-Idiome: test_zero_baseline_all_profiles.py"]
+      test: [tooling/visual_library/tests/test_gestaltungsregeln.py, tooling/visual_library/tests/test_zero_baseline_all_profiles.py]
+      offen: "powerbi_native (valueAxis.start per Measure), small_multiples (Facette), Planband der Sparklines, Abweichung zum Plan als Δ-Chart ab 0; IBCS-Linie bleibt nach CH 1.1 ab 0"
+
+  linienverlauf:
+    muster: [L1, L2]
+    entscheidung: "Achsen (Florian 17.10.2026): Linien monoton geglättet ohne Punkte; Nachtrag zu Meridian D-685"
+    regel: >
+      Linien verlaufen monoton kubisch (Vega-Lite `interpolate: monotone`, wie d3 curveMonotoneX): die Kurve läuft
+      durch jeden Wert und schießt nie über. Keine Punkte je Wert; erhalten bleiben der Endpunkt (Urteil am
+      letzten Ist), der Hover-Ring und die Szenariomarker der IBCS-Notation (UN 3.2). Ist-Linie 2 px.
+    interpolation: monotone
+    punkte_je_wert: false
+    ist_strich_px: 2
+    umsetzung:
+      status: teilweise
+      wo: ["line (alle Profile), indexed_line, small_multiples: deneb_vegalite; web_recharts war schon monotone"]
+      test: [tooling/visual_library/tests/test_gestaltungsregeln.py]
+      offen: "Power BI nativ kennt nur linear, smooth und step (lineStyles.lineChartType); ob smooth monoton verläuft, ist nicht gemessen"
+
+  markenkontrast:
+    muster: [A1, N1, N5, K4, S5]
+    entscheidung: "Top 15 Rang 1 (Musterkatalog 17.10.2026)"
+    regel: >
+      Marken, die eine Aussage tragen (Ziel-, Plan-, Basis-, Null- und Vergleichslinien, Sparklines, Startpunkte),
+      erreichen auf Weiß mindestens 3:1 (WCAG 1.4.11). Referenzmarken in #605E5C, Kontextmarken in #8C8C8C.
+      Flächen hinter Text oder Daten (Spuren, Bänder, Stiele, Tönungen, Szenario-Füllungen der IBCS-Notation)
+      sind Dekor und stehen mit Grund in `ausnahmen`.
+    min_kontrast: 3.0
+    farben: {referenz: "#605E5C", kontext: "#8C8C8C"}
+    token: {referenz: color_semantics.marks.reference, kontext: color_semantics.marks.context}
+    ausnahmen:
+      deviation_bar: {col_track: dekor_spur}
+      bullet: {col_band1: dekor_band, col_band2: dekor_band, col_band3: dekor_band}
+      lollipop: {col_stem: dekor_stiel}
+      dumbbell: {col_stem: dekor_stiel}
+      kpi_card_bullet: {col_track: dekor_spur}
+      matrix_delta_pill: {tint_pos: toenung_hinter_text, tint_neg: toenung_hinter_text}
+      bar_ranking: {col_py: szenario_flaeche_ibcs}
+      multi_tier_column: {col_py: szenario_flaeche}
+    gruende:
+      dekor_spur: "Spur hinter dem Wertbalken; der Wert liegt im Balken"
+      dekor_band: "Qualitativer Bereich hinter dem Balken (Bullet-Grafik)"
+      dekor_stiel: "Verbinder zwischen zwei Marken, die selbst ≥ 3:1 sind"
+      toenung_hinter_text: "Hintergrund einer Zahl, die selbst ≥ 4,5:1 hat"
+      szenario_flaeche_ibcs: "Vorjahr als hellere Fläche (IBCS UN 3.2); der Wert steht als Beschriftung daneben"
+      szenario_flaeche: "Vorjahr als hellere Säule hinter dem Ist; der Wert steht als Beschriftung daneben"
+    umsetzung:
+      status: umgesetzt
+      wo: ["line, bar_ranking, indexed_line, slope, dumbbell, kpi_card_spark, kpi_card_sparkbar (canonical_params)"]
+      test: [tooling/visual_library/tests/test_gestaltungsregeln.py]
+
+  kpi_abweichung_richtung:
+    muster: [K1]
+    entscheidung: "Top 15 Rang 2 (Musterkatalog 17.10.2026); Meridian D-720 Wahl 4"
+    regel: >
+      Die Abweichung einer KPI-Karte färbt nach der Richtung der Kennzahl (`polarity`, nativ `goals.direction` und
+      `status.direction`), nie nach dem Vorzeichen. Das Pfeilzeichen zeigt die Richtung der Veränderung.
+    umsetzung:
+      status: umgesetzt
+      wo: ["kpi_card_spark (powerbi_svg_dax, powerbi_native)"]
+      test: [tooling/visual_library/tests/test_gestaltungsregeln.py]
+
+  saeulen_neutral:
+    muster: [S1]
+    entscheidung: "Top 15 Rang 5 (Musterkatalog 17.10.2026)"
+    regel: "Säulen über die Zeit sind neutral (ink #0F2430); Farbe nur mit Aussage (Hervorhebung, Bewertung)."
+    umsetzung:
+      status: umgesetzt
+      wo: ["column_time canonical_params col_bar"]
+      test: [tooling/visual_library/tests/test_gestaltungsregeln.py]
+
+  nulllinie:
+    muster: [B8]
+    entscheidung: "Top 15 Rang 9 (Musterkatalog 17.10.2026)"
+    regel: "Die Nulllinie einer Abweichung ist 1,5 px stark und #605E5C (6,46:1); das übrige Gitter bleibt 1 px hell."
+    breite_px: 1.5
+    farbe: "#605E5C"
+    umsetzung:
+      status: umgesetzt
+      wo: ["deviation_bar, variance_pin, multi_tier_column (deneb_vegalite)"]
+      test: [tooling/visual_library/tests/test_gestaltungsregeln.py]
+
+  # --- als Feld festgehalten, noch ohne Wirkung (je mit Grund; Meridian bewusst_offen.json) -------------------
+
+  laufende_periode:
+    muster: [S2, L4]
+    regel: "Die laufende, unvollständige Periode ist abgesetzt (Säule als Umriss, Linie mit hohlem Endpunkt), die letzte vollständige betont."
+    umsetzung: {status: offen, offen: "braucht die Datenrolle der laufenden Periode (Snapshot trend.laufend) im Idiom; eigene Datenrolle, nicht nur eine Eigenschaft"}
+
+  serienlabel:
+    muster: [L3]
+    regel: "Linien mit 2 bis 4 Reihen tragen ihr Label am Linienende statt einer Legende."
+    max_reihen: 4
+    umsetzung: {status: offen, offen: "nativ seriesLabels erst nach powerbi-report-author validate an einem Bericht; Vega: Text am letzten Punkt je Reihe, Kollision G14 messen"}
+
+  tabellen_linien:
+    muster: [T1, T2]
+    regel: "Tabellen mit Tabellenziffern, nur waagrechten Haarlinien, ohne Außenrahmen und ohne senkrechte Linien."
+    umsetzung: {status: offen, offen: "PBIR tableEx grid-Eigenschaften und Cockpit-Tabelle (DataGrid) je am Bestand messen"}
+
+  sparkline_skala:
+    muster: [T6, SP1]
+    regel: "Sparklines einer Tabellenspalte teilen eine Skala (scale shared); je Zeile nur mit Referenzlinie und Hinweis."
+    umsetzung: {status: offen, offen: "ändert die Lesart von matrix_sparkline (MAJOR); eigene Runde"}
+
+  kpi_abweichungen:
+    muster: [K2]
+    regel: "KPI-Karte: Wert, Abweichung absolut und relativ mit Bezug, höchstens zwei Vergleiche."
+    max_vergleiche: 2
+    umsetzung: {status: offen, offen: "Leser für components.kpi_card.max_deviations (BO-365) und SVG-Template; Grenzstand im Cockpit-Tor"}
+
+  zielband:
+    muster: [L7, SP5]
+    regel: "Zielkorridor als Band ohne Kontur (#ECECEC), Grenzen aus dem KPI-Katalog."
+    umsetzung: {status: offen, offen: "Bandgrenzen kommen aus dem Katalog (Golden Thread), neue Datenwerte je Idiom"}
+
+  achsentext:
+    muster: [A3]
+    regel: "Achsen- und Legendentext im Cockpit 12 px statt 10 px."
+    umsetzung: {status: offen, offen: "erst nach grünem Cockpit-Tor G14/G15 mit der größeren Schrift"}
+
+  abweichungsflaeche:
+    muster: [L6]
+    regel: "Fläche zwischen Ist und Plan in Richtungsfarbe (20 % Deckkraft), Linien darüber."
+    umsetzung: {status: offen, offen: "neue Variante von line mit eigener Datenlogik (Aufwand L)"}
+
+  matrix_hierarchie:
+    muster: [M1]
+    regel: "Matrix mit Hierarchie auf beiden Achsen, eingefrorenen Zeilenköpfen und Zwischensummen (pivotTable)."
+    umsetzung: {status: offen, offen: "neues Idiom mit vier Spuren (Aufwand L)"}
+
+  ereignismarker:
+    muster: [L8]
+    regel: "Ereignisse als senkrechte Regel 1 px #605E5C mit Text 11 px, Daten aus einer governten Ereignistabelle."
+    umsetzung: {status: offen, offen: "neue Datenrolle event und Ereignistabelle (Meridian BO-401)"}
+
+  pfeil:
+    muster: [N2]
+    regel: "Genau zwei Zeitpunkte mit Richtung: dumbbell mit marker arrow, Spitze am Ist, Farbe nach Richtung."
+    umsetzung: {status: offen, offen: "Parameter marker im Idiom dumbbell mit Richtungsfarbe (Aufwand M)"}

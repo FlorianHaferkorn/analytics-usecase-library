@@ -1,0 +1,12 @@
+VAR _S = ADDCOLUMNS ( VALUES ( 'dim_period'[Period] ), "@v", [Gross Margin %] )
+VAR _min = MINX ( _S, [@v] )
+VAR _max = MAXX ( _S, [@v] )
+VAR _first = MINX ( _S, 'dim_period'[Period] )
+VAR _last  = MAXX ( _S, 'dim_period'[Period] )
+VAR _y1 = INT ( 30 - 30 * DIVIDE ( MINX ( FILTER ( _S, 'dim_period'[Period] = _first ), [@v] ) - _min, _max - _min ) )
+VAR _y2 = INT ( 30 - 30 * DIVIDE ( MINX ( FILTER ( _S, 'dim_period'[Period] = _last ), [@v] ) - _min, _max - _min ) )
+RETURN
+    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30'>"
+      & "<line x1='6' y1='" & _y1 & "' x2='94' y2='" & _y2 & "' stroke='#94A0AC' stroke-width='2'/>"
+      & "<circle cx='6' cy='" & _y1 & "' r='3' fill='#94A0AC'/><circle cx='94' cy='" & _y2 & "' r='3' fill='#94A0AC'/>"
+      & "</svg>"

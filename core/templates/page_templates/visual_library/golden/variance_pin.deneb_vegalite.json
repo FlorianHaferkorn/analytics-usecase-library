@@ -1,14 +1,14 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "data": { "name": "dataset" },
-  "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] } ],
+  "params": [ { "name": "_n_daten", "expr": "max(length(data('dataset')), length(data('source_0')))" }, { "name": "_beschriftet", "expr": "_n_daten > 0 && _n_daten < 10" } ],
   "layer": [
     { "mark": { "type": "bar", "width": { "band": 0.1 } },
       "encoding": {
         "x": { "field": "month", "type": "ordinal", "timeUnit": "yearmonth", "axis": { "title": null, "labelAngle": 0, "format": "%m/%y", "labelOverlap": true, "labelSeparation": 6 } },
-        "y": { "field": "delta_pl_pct", "type": "quantitative", "axis": { "title": null, "format": "+.1~%" }, "scale": { "padding": 18 } },
+        "y": { "field": "delta_pl_pct", "type": "quantitative", "axis": { "title": null, "format": "+.1~%", "tickCount": { "expr": "_beschriftet ? 0 : ceil(height/40)" }, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } }, "scale": { "padding": 18 } },
         "color": { "condition": { "test": "datum['delta_pl_pct'] < 0", "value": "#A4262C" }, "value": "#107C10" } } },
-    { "mark": { "type": "rule", "color": "#586472" }, "encoding": { "y": { "datum": 0 } } },
+    { "mark": { "type": "rule", "color": "#605E5C", "strokeWidth": 1.5 }, "encoding": { "y": { "datum": 0 } } },
     { "mark": { "type": "point", "shape": "circle", "filled": true, "color": "#0F2430", "size": 36, "opacity": 1 },
       "encoding": {
         "x": { "field": "month", "type": "ordinal", "timeUnit": "yearmonth" },
@@ -18,6 +18,6 @@
         "x": { "field": "month", "type": "ordinal", "timeUnit": "yearmonth" },
         "y": { "field": "delta_pl_pct", "type": "quantitative" },
         "text": { "field": "delta_pl_pct", "type": "quantitative", "format": "+.1~%" },
-        "opacity": { "condition": { "test": "datum._n < 10", "value": 1 }, "value": 0 } } }
+        "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } }
   ]
 }

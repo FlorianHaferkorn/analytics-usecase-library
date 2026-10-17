@@ -1,13 +1,15 @@
 # Visual Library entry — deviation_bar  (schema: _schema.yaml)
 id: deviation_bar
 name: Deviation bar
-version: "1.2.0"
+version: "1.2.1"   # 1.2.1 (17.10.2026): Nulllinie 1.5 px #605E5C
 status: active        # active | deprecated | experimental
 purpose: [deviation_from_target, compare_categories]
 zone: [pulse, analysis]
 min_size: {cols: 3, rows: 2}   # grid units — canvas-relative legibility floor (≈292×96px @1280, 438×144px @1920; px derived from layout_grid.yaml)
 best_form_for: deviation_from_target
 alternatives: [bullet]   # the IBCS reading (retired id `ibcs_overlapped`) is now `deviation_bar` under profile: ibcs
+y_basis: "null"         # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: x           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   magnitude: length_position        # Cleveland-McGill rank 1-3
@@ -28,7 +30,7 @@ params:
 tokens:
   col_pos:   color_semantics.positive     # #107C10
   col_neg:   color_semantics.negative     # #A4262C
-  col_zero:  color_semantics.neutral      # #586472 (axis)
+  col_zero:  color_semantics.neutral      # #605E5C (axis)
   col_track: surface.row_alt              # #EFF2F5
 
 # frozen sample that fills the templates for the golden test (same in -> same out)
@@ -48,7 +50,7 @@ canonical_params:
   field: "gm_vs_plan"
   col_neg: "#A4262C"
   col_pos: "#107C10"
-  col_zero: "#586472"
+  col_zero: "#605E5C"
   col_track: "#EFF2F5"
   viewbox: "0 0 340 60"
   zero_x: "170"
@@ -109,7 +111,7 @@ realizations:
             "encoding": {
               "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null }, "scale": { "domainMid": 0 } },
               "color": { "condition": { "test": "datum['{{field}}'] < 0", "value": "{{col_neg}}" }, "value": "{{col_pos}}" } } },
-          { "mark": { "type": "rule", "color": "{{col_zero}}" }, "encoding": { "x": { "datum": 0 } } }
+          { "mark": { "type": "rule", "color": "{{col_zero}}", "strokeWidth": 1.5 }, "encoding": { "x": { "datum": 0 } } }
         ]
       }
 

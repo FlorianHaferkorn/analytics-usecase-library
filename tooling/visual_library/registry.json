@@ -7,7 +7,7 @@
     {
       "id": "area_stacked",
       "name": "Stacked area",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -29,12 +29,12 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:32f783ebae76f8fdabafc72bd1cc7dcd70c69795358357a3d73044c4f9ace4bc"
+      "checksum": "sha256:ff6ac241a98b18909a61da8a08a1886c26a97bc27b4caac58b1fd33d7aa11fc4"
     },
     {
       "id": "bar_absolute",
       "name": "Bar (absolute magnitude)",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -57,12 +57,12 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:d99dd07299edabc7fd31f49a9f00c6db90b576ec270ebc2f57bdaabd0fd385cc"
+      "checksum": "sha256:df81bf2a5dac06d231d088d1aa3cdfca7f3d480c81777f1591c5e919008864f1"
     },
     {
       "id": "bar_ranking",
       "name": "Bar ranking",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -87,12 +87,12 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:991832c76a4c846a809c2f33c58a9253e11e13f9f3835d9cbd9b4cce58dc60cc"
+      "checksum": "sha256:cca14971beeee191c466188d8bc4d9c590fe4eb634cf42b9dd169b21f32eae0e"
     },
     {
       "id": "bar_stacked",
       "name": "Stacked bar (absolute)",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -114,12 +114,12 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:ccd815c04d7199ea55a9cb2f9b5d6497d451c102c3d29782a35df7a12b348d46"
+      "checksum": "sha256:9ce3d0646d89a2b1d90cce1d39923c864e9ca41d923b1f90122094bf4415ee0d"
     },
     {
       "id": "boxplot",
       "name": "Box plot",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -139,12 +139,12 @@
         "cols": 3,
         "rows": 4
       },
-      "checksum": "sha256:3b8aac977ea1dc450a7f6dcc6a02f505f5915e461888c1c9c520c4e4a392f70d"
+      "checksum": "sha256:74a87dfe7ca8fd17a9db2c78fee9ddd94a6b428b8a36afae0c4dfa29e19ae68c"
     },
     {
       "id": "bullet",
       "name": "Bullet graph",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -169,12 +169,12 @@
         "cols": 3,
         "rows": 2
       },
-      "checksum": "sha256:5f9c97a116b5aa590bc37c932d768ac0ea67382cc5b4fbc665d9240c85c1fa4e"
+      "checksum": "sha256:2f7bab6ee3e6eb81f0569cf66b993786531c8413e72b2b31129b5be74fc38b22"
     },
     {
       "id": "column_time",
       "name": "Column chart over time",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -197,7 +197,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:a5115f46207252e18124585a1caf89b467bc22bc8647d6f9fa9ed25f11446afd"
+      "checksum": "sha256:8c8a5632ec763d7a9c03cba01dd2ab31b374bcdc2daa8849bdc722a26dfe1250"
     },
     {
       "id": "decomposition_tree",
@@ -222,12 +222,12 @@
         "cols": 6,
         "rows": 7
       },
-      "checksum": "sha256:b3554e307b8e6ba0bb7cdc57adef58212e9bfc8b8d8c14d9454c991729153c70"
+      "checksum": "sha256:b4f59f23b2be1fe1679b7e58996aa485914e388a400ba2bdf918fa5ecb201d46"
     },
     {
       "id": "deviation_bar",
       "name": "Deviation bar",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -254,12 +254,12 @@
         "cols": 3,
         "rows": 2
       },
-      "checksum": "sha256:0964af78d9f5486f0cbc2dc63c6c83236e325955e4dd667e3ee91cc62f39f770"
+      "checksum": "sha256:7328be2012b20a38863c4f110ffa117a18864fdc128f20335c9de480e5d7f4ef"
     },
     {
       "id": "donut",
       "name": "Donut",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -281,12 +281,12 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:56fbe511d97f3a19ec9e60301dc7cc450aff2d3c512129b0f8217282b7c60675"
+      "checksum": "sha256:3255d426ecbfa1f3f53e15cc134795b5c7f4ba56102ee35338ca5f4e9781ccc6"
     },
     {
       "id": "dumbbell",
       "name": "Dumbbell (before / after)",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -307,12 +307,12 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:962bcccf705dfc435d65f32f51d3e4f9b58b7bd98c75de1cc8378d4799bb95da"
+      "checksum": "sha256:a666d590093c3d51fcc8ac516f481322ddee20fc6e13fdc5e82b5c18c5f45599"
     },
     {
       "id": "histogram",
       "name": "Histogram",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -333,12 +333,12 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:bb9fed8014270a6d0922a85642f833116a62ee673bc0bfdd3f994c8d144bd459"
+      "checksum": "sha256:377a1a754653e79388a1ed27e0a26e565d220139e54ea8a7d8fffc9928011f0b"
     },
     {
       "id": "indexed_line",
       "name": "Indexed line",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -361,7 +361,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:ba9f63d3d542c41d134a797e45cb28fc62b35095b21bcdff0c7bbd1549639e82"
+      "checksum": "sha256:d9d4fcf174fee6defe78451560f11cbf08061c9b1682d40511545bf2ef95173d"
     },
     {
       "id": "kpi_card_bullet",
@@ -386,12 +386,12 @@
         "cols": 3,
         "rows": 3
       },
-      "checksum": "sha256:35858f2ca99524f01bb4fa62bd1aec31b03822932e2d2fc69f2e4fbb9792f9d6"
+      "checksum": "sha256:9c8ba1d2ffc94e6656f2763f57ed5fad9e79db047ebe26cef4ba3ee106111e0f"
     },
     {
       "id": "kpi_card_spark",
       "name": "KPI card · value + spark + delta",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -412,12 +412,12 @@
         "cols": 3,
         "rows": 3
       },
-      "checksum": "sha256:8d797bf2e763ce29c1136e8ae5ed1d69543916ff5e7fa71bfd1bed37c56572b1"
+      "checksum": "sha256:4432a16c092549c1962182f6e1d79b040efa438fb7c731a2024cbd20815ad4fc"
     },
     {
       "id": "kpi_card_sparkbar",
       "name": "KPI card · value + column trend",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -437,12 +437,12 @@
         "cols": 3,
         "rows": 3
       },
-      "checksum": "sha256:a3decbe6ded146a31339d407a936cfe261d4d804c36656d4b0dec97d6728fdfe"
+      "checksum": "sha256:0e98c62d65b6fb4e3ceb941ffce1cf93f2ddbcdf61d2851215b253e0989bdef3"
     },
     {
       "id": "line",
       "name": "Trend line",
-      "version": "1.2.2",
+      "version": "2.0.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -467,12 +467,12 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:795507eff0e9352e97b7d05dca058e4b3d789f13fee2a223c79436f9cbdd14cf"
+      "checksum": "sha256:29b34934b660bb600b62eabf926edfff65d941c1cc8e52b4c2769526d3e859a5"
     },
     {
       "id": "lollipop",
       "name": "Lollipop",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -494,7 +494,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:03b841020b85f666a21b3cc9476144d58e02e5351f9c8f994156eb9ddf8b3e81"
+      "checksum": "sha256:2fdc04764b0217e56eab75bb4748a54755041fb8d58953ee93f4e75e1189a6bf"
     },
     {
       "id": "matrix_bullet",
@@ -519,7 +519,7 @@
         "cols": 5,
         "rows": 4
       },
-      "checksum": "sha256:9464fa56aa2dc6836df426fe8ccbfb42b5456c237f89e0a04e9cd3162f3696f8"
+      "checksum": "sha256:1de4a6845e91aae7b433c076bf96ad78354b26a3790aca6aad10f52465eca412"
     },
     {
       "id": "matrix_delta_pill",
@@ -544,7 +544,7 @@
         "cols": 5,
         "rows": 4
       },
-      "checksum": "sha256:e5d1cc93cb999b87ac3c8fcc474a4bc6d96fdfe1028fdf586bf4c0fde332c46c"
+      "checksum": "sha256:569154b13cf80a8d24dc250fbb15f7ee8148946d63a016209252807386a6d6f6"
     },
     {
       "id": "matrix_evidence",
@@ -570,7 +570,7 @@
         "cols": 5,
         "rows": 6
       },
-      "checksum": "sha256:c61e1fe379cfe8ed8e9414fd8c3a9bfbbea0678db148d8db1b46a016f2dcc77c"
+      "checksum": "sha256:5b9e9f8572586a1dc8d92c3f4d7482f1e1ed9fc29f419742ad53bff1912e9fbc"
     },
     {
       "id": "matrix_sparkline",
@@ -596,12 +596,12 @@
         "cols": 5,
         "rows": 4
       },
-      "checksum": "sha256:649bb7ff2bbdd5a624e931811254aa34dda3aea03cf3747a2ccfd206103dafcc"
+      "checksum": "sha256:fe0b3d4831c4c8035b03e3c85c40a37362c8a4ef051e5a4169d08a3ef00897ce"
     },
     {
       "id": "multi_tier_column",
       "name": "Multi-tier column chart (values, ΔPY, ΔPY%)",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -623,7 +623,7 @@
         "cols": 6,
         "rows": 6
       },
-      "checksum": "sha256:2e9ef4f94be84752858a7253fd0abdb80e7438c7cb2b77ebccfe76f09ab91b20"
+      "checksum": "sha256:54a21df60ff7ce77f53388be092f4a0977da54ee69c806070dea921b11f4180d"
     },
     {
       "id": "sankey",
@@ -648,12 +648,12 @@
         "cols": 5,
         "rows": 6
       },
-      "checksum": "sha256:946672b69d2426ce55a9871dd877b1f1644c316320ddccf8981e26f7e9ac4776"
+      "checksum": "sha256:4522a1c1001aaf8266f79fc8dc135f55345241703332bf54b505d85a3404f838"
     },
     {
       "id": "scatter",
       "name": "Scatter plot",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -675,12 +675,12 @@
         "cols": 3,
         "rows": 5
       },
-      "checksum": "sha256:f155f41130e15fb2ec4f4c4f3240d35383ef802eaa9252896243be09bee81898"
+      "checksum": "sha256:4fda3e49bddd7b190cff468864dba0c36a755f6f761245b410df590a0856548b"
     },
     {
       "id": "slope",
       "name": "Slope chart",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -703,12 +703,12 @@
         "cols": 3,
         "rows": 5
       },
-      "checksum": "sha256:77ff0fdc5d6566ce8fd2f63493ae8787f2d448a3805b3fece0bc31a9b9666ad3"
+      "checksum": "sha256:61669c91bea98b210ec4f5230cce24b092cf2f88f24bc35109dd2ebb123ab0d2"
     },
     {
       "id": "small_multiples",
       "name": "Small multiples",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -729,12 +729,12 @@
         "cols": 5,
         "rows": 6
       },
-      "checksum": "sha256:86db2766840c504d9c5b385882c5cc914406d348295349ebec19b9c40fcffd15"
+      "checksum": "sha256:e65f68d23212b92ed9087ca80b1e31a2a155e812fe2ff2b9da1bd183ee6fd6df"
     },
     {
       "id": "stacked_100",
       "name": "100% stacked bar",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -756,12 +756,12 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:484bd6d15e7a4c5dda7e2e7254e5e8ee245633f5fba50d9d87417922446bf2f8"
+      "checksum": "sha256:2f3fffe84acf05dee8dae306e11f196304e4b7bc977706255fd6d7e8c0814fc4"
     },
     {
       "id": "variance_pin",
       "name": "Variance pins (relative variance)",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -784,12 +784,12 @@
         "cols": 4,
         "rows": 3
       },
-      "checksum": "sha256:6c78c937c82692507f7a7af2899189bc407e3f0a57e4b10be2b358168a6b5855"
+      "checksum": "sha256:2809290f5cfff13da1540b7abba32c62a040701f296b6d095907b0b87bda2dfb"
     },
     {
       "id": "waterfall_buildup",
       "name": "Waterfall (buildup to total)",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -812,12 +812,12 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:8a25b6293fe8f8950b5a1822f9cf02fcc0f73b5e00bc00ca6fc6e8348952510c"
+      "checksum": "sha256:b10f76ba473813fbf6aee80ca4ba85b6dff739ac0d948137779d1a1dfa7414ec"
     },
     {
       "id": "waterfall_pvm",
       "name": "Waterfall bridge (PVM)",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -841,12 +841,12 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:419448005e7eb6583463857983f9afd0714d7a66b1c814a38176f3f4fd84ce1a"
+      "checksum": "sha256:0ac9df97b0e0c926348e828700c824594ca31f7b0f6b10918f5facbb536a52dc"
     },
     {
       "id": "waterfall_variance",
       "name": "Waterfall (variance bridge)",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -869,7 +869,7 @@
         "cols": 4,
         "rows": 5
       },
-      "checksum": "sha256:7bf2f043a90a26715151b9d17eefaaa3bef63b25a09f2bbd063b506da12d8fe3"
+      "checksum": "sha256:bfc98e495d77fe3ce01931677e0f127636ebee94157dd91cdda4ebd5d7e33227"
     }
   ]
 }

@@ -1,13 +1,15 @@
 # Visual Library entry — area_stacked  (schema: _schema.yaml)
 id: area_stacked
 name: Stacked area
-version: "1.0.0"
+version: "1.0.1"   # 1.0.1 (17.10.2026): Golden neu eingefroren: Profilgitter je Achsentyp
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
 best_form_for: null                 # composition-over-time variant; `line` is the level best form
 alternatives: [line, small_multiples, indexed_line]
+y_basis: "null"         # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: y           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   x: temporal
