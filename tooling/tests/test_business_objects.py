@@ -29,7 +29,8 @@ REPO = Path(__file__).resolve().parents[2]
 MERIDIAN_REL = "meridian/core/schemas/business_object.schema.json"
 
 #: sha256 of the LF-normalised schema. Change it only together with the Meridian peer file.
-SCHEMA_SHA256 = "654e48c9765d77fa4d560d045d137e14454841a04730a6318a0143ed44fb2c23"
+#: 17.10.2026 (BO-328): kpi_id nur noch Form (^KPI-[A-Z][A-Z0-9]{2}-\d{3}$), vorher 654e48c9….
+SCHEMA_SHA256 = "4a8dfa2ba4a02cdb773fe5803b69f61e91cb6681d9ba41a6c1d0505c22da39c5"
 
 
 @pytest.fixture(scope="module")

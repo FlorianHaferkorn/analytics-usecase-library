@@ -1214,7 +1214,7 @@ def emit_cicd(blueprint: dict, architecture_path: str = "data_architecture.json"
             out["cicd/deploy_customers.sh"] = _wire_python_gates(emit_isv_release(blueprint, git))
             out["cicd/customers.example.json"] = (
                 '{\n  "customers": [\n'
-                '    {"name": "aurora", "workspace_id": "<aurora-prod-workspace-id>", "environment": "prod"}\n'
+                '    {"name": "<kunde>", "workspace_id": "<kunde-prod-workspace-id>", "environment": "prod"}\n'
                 '  ]\n}\n')
         elif deployment_model == "items-api-trunk":
             # Co-emit the fabric-cicd mechanism (Tool-Reuse, same fabric-cicd/ location) + a gated driver.

@@ -92,6 +92,10 @@ MIRRORED_FILES = (
     # gespiegeltes Modul, das ein nicht gespiegeltes importiert, bricht hier beim ersten Aufruf.
     "fabric_schedule.py",
     "naming.py",
+    # Bereichskuerzel des Standards (§5.4) als Daten, die naming.py liest (Meridian BO-332,
+    # 17.10.2026): Vorrang hat governance.data_domains[].kpi_prefix des Mandanten, diese Tabelle
+    # ist nur Ersatz. Ohne den Eintrag braeche naming.py hier beim Laden.
+    "naming_bereichskuerzel.json",
     "provision_connectivity.py",
     "provision_governance.py",
     "provision_lifecycle.py",

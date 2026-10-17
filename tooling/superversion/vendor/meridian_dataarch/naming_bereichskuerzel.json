@@ -1,0 +1,14 @@
+{
+  "_description": "Bereichskuerzel der Namenskonvention (Standard Paragraf 5.4) als Ersatz. Vorrang hat der Mandant: governance.data_domains[].kpi_prefix, klein geschrieben (BO-332, Entscheidung Florian 16.10.2026). Diese Tabelle greift nur fuer einen Bereich ohne kpi_prefix. Daten statt Code, weil Bereichsnamen Mandantenvokabular sind und der Kern sie nicht als Code fuehrt (D-735, Reinheitstor check_generators). Gelesen von naming.py (bereichskuerzel); nach ALUCA gespiegelt wie naming.py (aluca_spiegelmenge.json).",
+  "quelle": "Microsoft Fabric Enterprise Naming Convention Standard v1.0 (rev. 15.04.2026), Paragraf 5.4",
+  "kuerzel": {
+    "customer": "cust",
+    "enterprise": "ent",
+    "finance": "fin",
+    "human_resources": "hr",
+    "marketing": "mktg",
+    "operations": "ops",
+    "sales": "sales",
+    "supply_chain": "supply"
+  }
+}

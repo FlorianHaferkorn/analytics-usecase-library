@@ -30,8 +30,10 @@ Applied at the emit boundary (CLI) so the shared IR contract is untouched.
 """
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
 # --- registry (standard §5) ----------------------------------------------------------
 #: Fabric item type → abbreviation (§5.1). Two entries are house extensions the standard
@@ -72,11 +74,13 @@ EXPERIENCE_ABBREVIATIONS: dict[str, str] = {
 #: intermediate stages (``150``) without renumbering.
 LAYER_BANDS: dict[str, str] = {"bronze": "100", "silver": "200", "gold": "300"}
 
-#: Domain / project abbreviations (§5.4).
-DOMAIN_ABBREVIATIONS: dict[str, str] = {
-    "finance": "fin", "human_resources": "hr", "sales": "sales", "marketing": "mktg",
-    "supply_chain": "supply", "customer": "cust", "operations": "ops", "enterprise": "ent",
-}
+#: Domain / project abbreviations (§5.4) — **only the fallback** (BO-332, 16.10.2026). The
+#: tenant's own prefix wins: ``governance.data_domains[].kpi_prefix``, lower-cased, see
+#: :func:`bereichskuerzel`. The standard's table lives as data next to this module
+#: (``naming_bereichskuerzel.json``): domain names are tenant vocabulary, and the core does not
+#: carry them as code (D-735).
+DOMAIN_ABBREVIATIONS: dict[str, str] = dict(json.loads(
+    (Path(__file__).with_name("naming_bereichskuerzel.json")).read_text(encoding="utf-8"))["kuerzel"])
 
 #: ML algorithm suffixes (§3.10).
 ALGORITHM_SUFFIXES: dict[str, str] = {
@@ -147,6 +151,25 @@ def normalize(text: str) -> str:
 
 def _segments(name: str) -> list[str]:
     return [s for s in name.split("_") if s]
+
+
+def bereichskuerzel(slug: str, data_domains: list[dict] | None = None) -> tuple[str, str]:
+    """(Kürzel, Herkunft) für den Fachbereich ``slug`` — Herkunft ``mandant`` | ``standard`` | ``slug``.
+
+    Vorrang hat der Mandant (BO-332): ``kpi_prefix`` des Eintrags in
+    ``governance.data_domains`` mit diesem ``slug``, klein geschrieben (``COM`` → ``com``).
+    Ohne ihn die Tabelle des Standards (§5.4, :data:`DOMAIN_ABBREVIATIONS`), sonst der
+    normalisierte Slug selbst — nie ein erfundenes Kürzel.
+    """
+    key = normalize(slug)
+    for d in data_domains or ():
+        if isinstance(d, dict) and normalize(str(d.get("slug") or "")) == key:
+            prefix = d.get("kpi_prefix")
+            if isinstance(prefix, str) and normalize(prefix):
+                return normalize(prefix), "mandant"
+    if key in DOMAIN_ABBREVIATIONS:
+        return DOMAIN_ABBREVIATIONS[key], "standard"
+    return key, "slug"
 
 
 def validate(name: str, kind: str | None = None, *, is_table: bool = False,
