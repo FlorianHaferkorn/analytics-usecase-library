@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "1.2.0"
+version: "1.2.1"   # 1.2.1 (17.10.2026): Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -117,29 +117,29 @@ realizations:
         "data": { "name": "dataset" },
         "encoding": { "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } } },
         "layer": [
-          { "mark": { "type": "line", "color": "{{col_py}}", "strokeWidth": 1.5 },
+          { "mark": { "type": "line", "color": "{{col_py}}", "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
           { "transform": [ { "filter": "isValid(datum['{{py_field}}'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._q == 1" } ],
             "mark": { "type": "text", "text": "{{label_py}}", "align": "left", "dx": 4, "dy": 12, "color": "{{col_py}}" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
-          { "mark": { "type": "line", "color": "{{col_line}}", "strokeWidth": 2.5 },
-            "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
-          { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [5, 4] },
+          { "mark": { "type": "line", "color": "{{col_line}}", "strokeWidth": 2, "strokeCap": "round", "strokeJoin": "round" },
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null, "domain": false, "ticks": false, "gridDash": [2, 4], "gridOpacity": 0.8 } } } },
+          { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "strokeDash": [1, 4], "strokeCap": "round" },
             "encoding": { "y": { "datum": {{target_val}} } } },
-          { "mark": { "type": "line", "color": "{{col_ref}}", "strokeDash": [5, 4], "strokeWidth": 1.5 },
+          { "mark": { "type": "line", "color": "{{col_ref}}", "strokeDash": [4, 4], "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
             "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
-          { "mark": { "type": "line", "color": "{{col_line}}", "strokeDash": [2, 3], "strokeWidth": 2 },
+          { "mark": { "type": "line", "color": "{{col_line}}", "strokeDash": [1, 4], "strokeWidth": 1.75, "strokeCap": "round" },
             "encoding": { "y": { "field": "{{fc_field}}", "type": "quantitative" } } },
           { "transform": [ { "window": [ { "op": "row_number", "as": "_p" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._p == 1" } ],
             "mark": { "type": "text", "text": "Plan", "align": "left", "dx": 4, "dy": -8, "color": "{{col_ref}}" },
             "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
           { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
-            "mark": { "type": "point", "filled": true, "size": 60, "color": "{{col_end}}" },
+            "mark": { "type": "point", "shape": "circle", "filled": true, "size": 36, "color": "{{col_end}}" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } },
           { "params": [ { "name": "hover", "select": { "type": "point", "fields": ["{{field_date}}"], "nearest": true, "on": "pointerover", "clear": "pointerout" } } ],
-            "mark": { "type": "rule", "color": "{{col_ref}}" },
-            "encoding": { "opacity": { "condition": { "param": "hover", "empty": false, "value": 0.8 }, "value": 0 } } },
-          { "mark": { "type": "point", "filled": true, "size": 50, "color": "{{col_line}}" },
+            "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1 },
+            "encoding": { "opacity": { "condition": { "param": "hover", "empty": false, "value": 0.5 }, "value": 0 } } },
+          { "mark": { "type": "point", "shape": "circle", "filled": false, "strokeWidth": 2, "size": 56, "color": "{{col_line}}" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative" },
                           "opacity": { "condition": { "param": "hover", "empty": false, "value": 1 }, "value": 0 } } },
           { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],

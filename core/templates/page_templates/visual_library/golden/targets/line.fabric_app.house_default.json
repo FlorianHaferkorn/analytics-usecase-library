@@ -22,7 +22,9 @@
         "mark": {
           "type": "line",
           "color": "#8C8C8C",
-          "strokeWidth": 1.5
+          "strokeWidth": 1.25,
+          "strokeCap": "round",
+          "strokeJoin": "round"
         },
         "encoding": {
           "y": {
@@ -106,7 +108,9 @@
         "mark": {
           "type": "line",
           "color": "#0F2430",
-          "strokeWidth": 2.5
+          "strokeWidth": 2,
+          "strokeCap": "round",
+          "strokeJoin": "round"
         },
         "encoding": {
           "y": {
@@ -116,7 +120,14 @@
               "zero": false
             },
             "axis": {
-              "title": null
+              "title": null,
+              "domain": false,
+              "ticks": false,
+              "gridDash": [
+                2,
+                4
+              ],
+              "gridOpacity": 0.8
             }
           },
           "tooltip": [
@@ -157,10 +168,12 @@
         "mark": {
           "type": "rule",
           "color": "#94A0AC",
+          "strokeWidth": 1,
           "strokeDash": [
-            5,
+            1,
             4
-          ]
+          ],
+          "strokeCap": "round"
         },
         "encoding": {
           "y": {
@@ -173,10 +186,12 @@
           "type": "line",
           "color": "#94A0AC",
           "strokeDash": [
-            5,
+            4,
             4
           ],
-          "strokeWidth": 1.5
+          "strokeWidth": 1.25,
+          "strokeCap": "round",
+          "strokeJoin": "round"
         },
         "encoding": {
           "y": {
@@ -222,10 +237,11 @@
           "type": "line",
           "color": "#0F2430",
           "strokeDash": [
-            2,
-            3
+            1,
+            4
           ],
-          "strokeWidth": 2
+          "strokeWidth": 1.75,
+          "strokeCap": "round"
         },
         "encoding": {
           "y": {
@@ -327,8 +343,9 @@
         ],
         "mark": {
           "type": "point",
+          "shape": "circle",
           "filled": true,
-          "size": 60,
+          "size": 36,
           "color": "#A4262C"
         },
         "encoding": {
@@ -387,14 +404,15 @@
         ],
         "mark": {
           "type": "rule",
-          "color": "#94A0AC"
+          "color": "#94A0AC",
+          "strokeWidth": 1
         },
         "encoding": {
           "opacity": {
             "condition": {
               "param": "hover",
               "empty": false,
-              "value": 0.8
+              "value": 0.5
             },
             "value": 0
           },
@@ -435,8 +453,10 @@
       {
         "mark": {
           "type": "point",
-          "filled": true,
-          "size": 50,
+          "shape": "circle",
+          "filled": false,
+          "strokeWidth": 2,
+          "size": 56,
           "color": "#0F2430"
         },
         "encoding": {
