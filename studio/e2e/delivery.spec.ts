@@ -11,20 +11,32 @@ async function loginAndOpenDelivery(page: import('@playwright/test').Page) {
 }
 
 test.describe('Delivery Engine', () => {
-  test('renders adapter selection and export controls, all labeled preview', async ({ page }) => {
+  test('renders adapter selection and export controls, labeled as library preview', async ({ page }) => {
     await loginAndOpenDelivery(page);
 
-    // Check for adapter buttons
-    await expect(page.getByRole('button', { name: 'Microsoft Fabric / Power BI' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Open Source Stack' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'CI/CD Pipeline' })).toBeVisible();
+    // Since 0ac7775b1 (08.09.2026) the three targets are Fabric/Power BI, Databricks
+    // Metric Views and Open Semantic Interchange ('Open Source Stack' and 'CI/CD
+    // Pipeline' were removed), and every export runs through the governed Python
+    // seam (lib/delivery/governed-export-handler.ts) instead of a TS shadow adapter.
+    const fabric = page.getByRole('button', { name: /^Microsoft Fabric \/ Power BI/ });
+    const databricks = page.getByRole('button', { name: /^Databricks Metric Views/ });
+    const osi = page.getByRole('button', { name: /^Open Semantic Interchange/ });
+    await expect(fabric).toBeVisible();
+    await expect(databricks).toBeVisible();
+    await expect(osi).toBeVisible();
+    await expect(fabric).toHaveAttribute('aria-pressed', 'true');
 
-    // Check for export button
-    await expect(page.getByText(/Export to/)).toBeVisible();
+    // Export control: present, and disabled until a use case is in scope.
+    await expect(page.getByRole('button', { name: 'Create package', exact: true })).toBeDisabled();
 
-    // I-10.3 (ADR-0007 rule 3): none of these TS-adapter exports is authoritative —
-    // every one must render labeled 'preview', never 'available'.
-    await expect(page.getByText('preview').first()).toBeVisible();
+    // ADR-0007: nothing on this page is presented as a shippable deliverable. The
+    // former per-adapter 'preview' badge moved to the page: library generation is a
+    // preview, not an approved delivery; a target whose vendor gate is pending is
+    // 'beta'; no target is ever labeled 'available'.
+    await expect(page.getByRole('heading', { name: 'Generate library preview', exact: true })).toBeVisible();
+    await expect(page.getByText(/These previews are not approved customer deliveries/)).toBeVisible();
+    await expect(databricks.locator('[data-status]')).toHaveText('beta');
+    for (const target of [fabric, osi]) await expect(target.locator('[data-status]')).toHaveText('governed');
     await expect(page.getByText('available', { exact: true })).toHaveCount(0);
   });
 
