@@ -25,7 +25,7 @@
     { "params": [ { "name": "hover", "select": { "type": "point", "fields": ["month"], "nearest": true, "on": "pointerover", "clear": "pointerout" } } ],
       "mark": { "type": "rule", "color": "#94A0AC", "strokeWidth": 1 },
       "encoding": { "opacity": { "condition": { "param": "hover", "empty": false, "value": 0.5 }, "value": 0 } } },
-    { "mark": { "type": "point", "shape": "circle", "filled": false, "strokeWidth": 2, "size": 56, "color": "#0F2430" },
+    { "mark": { "type": "point", "shape": "circle", "filled": false, "fill": "transparent", "strokeWidth": 2, "size": 56, "color": "#0F2430" },
       "encoding": { "y": { "field": "gm", "type": "quantitative" },
                     "opacity": { "condition": { "param": "hover", "empty": false, "value": 1 }, "value": 0 } } },
     { "transform": [ { "filter": "isValid(datum['gm'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
