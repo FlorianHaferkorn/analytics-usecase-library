@@ -70,21 +70,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         // Populate project_memberships at sign-in time.
-        // The membership-lookup module uses better-sqlite3 (Node.js only).
-        // Dynamic import keeps the sqlite dependency out of the Edge bundle.
+        // The membership-lookup module uses better-sqlite3 (Node.js only); the proxy
+        // runs on Node.js (Next 16), so the bundler may resolve it. The former
+        // `webpackIgnore` hint left the path to be resolved at runtime, which failed
+        // under Turbopack: memberships were always [] (gemessen 17.10.2026).
         const email = user.email ?? (token.email as string | undefined);
         if (email) {
           try {
-            const { lookupProjectMemberships } = await import(
-              /* webpackIgnore: true */ './membership-lookup'
+            const { lookupProjectMemberships, ensureDemoMembership } = await import(
+              './membership-lookup'
             );
+            if (account?.provider === 'credentials') {
+              try { await ensureDemoMembership(email); } catch (err) { console.error('[auth] demo membership seed failed', err); }
+            }
             token.project_memberships = await lookupProjectMemberships(email);
           } catch {
             token.project_memberships = [];
           }
           try {
             const { lookupOrgMemberships } = await import(
-              /* webpackIgnore: true */ './org-membership-lookup'
+              './org-membership-lookup'
             );
             token.org_memberships = await lookupOrgMemberships(email);
           } catch {

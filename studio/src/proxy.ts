@@ -28,7 +28,7 @@ function _projectAccessResponse(): NextResponse {
   );
 }
 
-export default auth((req) => {
+export const proxy = auth((req) => {
   const { pathname } = req.nextUrl;
 
   // 1. Public routes — allow through without any checks.
@@ -42,10 +42,17 @@ export default auth((req) => {
   // for NextAuth's JWT session token.
   const cookieHeader = req.headers.get('cookie') ?? '';
   const hasNextAuthToken =
-    /(?:^|;\s*)(?:__Secure-)?next-auth\.session-token=/.test(cookieHeader) ||
+    /(?:^|;\s*)(?:__Secure-)?(?:next-auth|authjs)\.session-token=/.test(cookieHeader) ||
     /(?:^|;\s*)(?:__Host-)?next-auth\.session-token=/.test(cookieHeader);
 
   if (!hasNextAuthToken) {
+    // API callers get the same 401 the route handlers return, not a login page.
+    if (pathname.startsWith('/api/')) {
+      return new NextResponse(
+        JSON.stringify({ error: { code: 'AUTH_REQUIRED', message: 'Authentication required' } }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
     const loginUrl = new URL('/login', req.nextUrl.origin);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
