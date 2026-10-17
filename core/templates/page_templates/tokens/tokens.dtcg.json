@@ -70,6 +70,17 @@
       },
       "row_alt": {
         "$value": "#F9F9F9"
+      },
+      "zebra": {
+        "$value": "#F3F3F3"
+      }
+    },
+    "marks": {
+      "reference": {
+        "$value": "#605E5C"
+      },
+      "context": {
+        "$value": "#8C8C8C"
       }
     },
     "text": {

@@ -148,3 +148,19 @@ tools:
 #   status_breach:
 #     - when:   "datum['{{field}}'] < 0"
 #       breach: "datum['{{field}}'] * {{polarity}} < 0"
+
+# --- y_basis + werteachse (OPTIONAL per idiom; Gestaltungsregeln, 17.10.2026) ---
+# Wo die Werteachse beginnt und welche Achse quantitativ ist, steht als Feld am Idiom, nicht im Satz.
+# Die Regeln dazu (Schwelle, Abstand, Achsenbruch) stehen in `_gestaltungsregeln.yaml`; die Entscheidung
+# rechnet `tooling/visual_library/gestaltung.py`, die Templates rechnen sie als `_ybasis` nach.
+#
+#   y_basis: "null"                # eine von:
+#     "null"               — Länge oder Fläche trägt den Wert: Achse immer ab 0 (Balken, Säulen, Flächen)
+#     null_oder_angepasst  — Linie: ab 0; bei Spannweite inkl. Ziel/Alarm < 25 % des Maximums angepasst,
+#                            mit Achsenbruch-Markierung
+#     angepasst            — Sparkline: datenangepasst (mit Planband, wo eines gezeichnet wird)
+#     index                — indexierte Reihe: Basis ist der Indexwert, nicht 0
+#     position             — Lage trägt den Wert (Streuung, Box, Hantel): Achse frei
+#     entfaellt            — keine Werteachse (Tabelle, Ring, Sankey, Baum)
+#   werteachse: x | y | xy | keine   # quantitative Achse: x liegend, y stehend (Regel beschriftung_gitter)
+# Enforced by tooling/visual_library/tests/test_gestaltungsregeln.py.

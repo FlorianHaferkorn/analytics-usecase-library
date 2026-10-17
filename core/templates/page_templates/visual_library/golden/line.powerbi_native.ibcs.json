@@ -12,7 +12,7 @@
   "objects": {
     "dataPoint": [
       { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#404040'" } } } } } }, "selector": { "metadata": "_Measures.Gross Margin %" } },
-      { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#94A0AC'" } } } } } }, "selector": { "metadata": "_Measures.Plan Gross Margin %" } },
+      { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#8C8C8C'" } } } } } }, "selector": { "metadata": "_Measures.Plan Gross Margin %" } },
       { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#404040'" } } } } } }, "selector": { "metadata": "_Measures.Gross Margin % FC" } },
       { "properties": { "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#404040'" } } } } } }, "selector": { "metadata": "_Measures.Gross Margin % PY" } }
     ],

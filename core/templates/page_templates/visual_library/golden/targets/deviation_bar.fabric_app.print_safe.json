@@ -46,7 +46,8 @@
       {
         "mark": {
           "type": "rule",
-          "color": "#586472"
+          "color": "#605E5C",
+          "strokeWidth": 1.5
         },
         "encoding": {
           "x": {
@@ -68,7 +69,10 @@
       "title": null,
       "labelFontSize": 11
     },
-    "axisX": {
+    "axisDiscrete": {
+      "grid": false
+    },
+    "axisTemporal": {
       "grid": false
     },
     "scale": {

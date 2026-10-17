@@ -1,0 +1,10 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "mark": { "type": "line", "point": true },
+  "encoding": {
+    "x": { "field": "period", "type": "ordinal", "axis": { "title": null } },
+    "y": { "field": "gm", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } },
+    "color": { "field": "unit", "type": "nominal", "legend": null }
+  }
+}

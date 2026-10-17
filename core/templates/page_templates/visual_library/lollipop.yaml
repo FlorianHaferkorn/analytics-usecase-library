@@ -1,13 +1,15 @@
 # Visual Library entry — lollipop  (schema: _schema.yaml)
 id: lollipop
 name: Lollipop
-version: "1.1.0"
+version: "1.1.1"   # 1.1.1 (17.10.2026): Golden neu eingefroren: Profilgitter je Achsentyp
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
 best_form_for: null                 # low-ink alternative to bar_ranking (sparse categories)
 alternatives: [bar_ranking, bar_absolute]
+y_basis: "null"         # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: x           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   magnitude: position               # dot on a common scale (rank 1-2)

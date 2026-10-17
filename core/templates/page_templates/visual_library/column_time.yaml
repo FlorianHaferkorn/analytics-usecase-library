@@ -1,13 +1,15 @@
 # Visual Library entry — column_time  (schema: _schema.yaml)
 id: column_time
 name: Column chart over time
-version: "1.1.0"
+version: "1.2.0"   # 1.2.0 (17.10.2026): Beschriftung gegen Gitter (W2); Säulen in ink
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor; px derived from layout_grid.yaml
 best_form_for: null
 alternatives: [line, indexed_line, kpi_card_sparkbar]
+y_basis: "null"         # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: y           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   x: temporal_discrete              # discrete periods (months) -> columns, not a line
@@ -24,7 +26,7 @@ params:
   entity:  {role: table, default: _Measures}
 
 tokens:
-  col_bar: brand.primary            # #0078D4 columns
+  col_bar: ink                      # #0F2430 columns (neutral; colour only with a statement)
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
 data_slots:
@@ -39,7 +41,7 @@ canonical_params:
   category_prop: "Month"
   field: "count"
   field_date: "month"
-  col_bar: "#0078D4"
+  col_bar: "#0F2430"
 
 preview_svg: |
   <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Column chart over time">
@@ -76,15 +78,15 @@ realizations:
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "data": { "name": "dataset" },
-        "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] } ],
+        "params": [ { "name": "_n_daten", "expr": "max(length(data('dataset')), length(data('source_0')))" }, { "name": "_beschriftet", "expr": "_n_daten > 0 && _n_daten < 10" } ],
         "encoding": {
           "x": { "field": "{{field_date}}", "type": "ordinal", "axis": { "title": null, "labelAngle": 0 } },
-          "y": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } }
+          "y": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null, "tickCount": { "expr": "_beschriftet ? 0 : ceil(height/40)" }, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } } }
         },
         "layer": [
           { "mark": { "type": "bar", "color": "{{col_bar}}" } },
           { "mark": { "type": "text", "baseline": "bottom", "dy": -4, "color": "{{col_label}}" },
-            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "datum._n < 10", "value": 1 }, "value": 0 } } }
+            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } }
         ]
       }
 

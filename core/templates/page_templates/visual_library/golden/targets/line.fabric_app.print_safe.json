@@ -8,6 +8,50 @@
     "data": {
       "name": "dataset"
     },
+    "transform": [
+      {
+        "calculate": "min(isValid(datum['gm']) ? datum['gm'] : 1e300, isValid(datum['gm_plan']) ? datum['gm_plan'] : 1e300, isValid(datum['gm_py']) ? datum['gm_py'] : 1e300, isValid(datum['gm_fc']) ? datum['gm_fc'] : 1e300)",
+        "as": "_yu_z"
+      },
+      {
+        "calculate": "max(isValid(datum['gm']) ? datum['gm'] : -1e300, isValid(datum['gm_plan']) ? datum['gm_plan'] : -1e300, isValid(datum['gm_py']) ? datum['gm_py'] : -1e300, isValid(datum['gm_fc']) ? datum['gm_fc'] : -1e300)",
+        "as": "_yo_z"
+      },
+      {
+        "joinaggregate": [
+          {
+            "op": "min",
+            "field": "_yu_z",
+            "as": "_yu"
+          },
+          {
+            "op": "max",
+            "field": "_yo_z",
+            "as": "_yo"
+          }
+        ]
+      },
+      {
+        "calculate": "min(datum._yu, isValid(44.1) ? 44.1 : 1e300, isValid(42.0) ? 42.0 : 1e300)",
+        "as": "_ylo"
+      },
+      {
+        "calculate": "max(datum._yo, isValid(44.1) ? 44.1 : -1e300, isValid(42.0) ? 42.0 : -1e300)",
+        "as": "_yhi"
+      },
+      {
+        "calculate": "max(abs(datum._yhi), abs(datum._ylo))",
+        "as": "_ytop"
+      },
+      {
+        "calculate": "datum._yhi > -1e299 && datum._ytop > 0 && datum._ytop < 1e299 && datum._yhi - datum._ylo < 0.25 * datum._ytop",
+        "as": "_yangepasst"
+      },
+      {
+        "calculate": "datum._yangepasst ? datum._ylo - max((datum._yhi - datum._ylo) * 0.1, datum._ytop * 0.01) : 0",
+        "as": "_ybasis"
+      }
+    ],
     "encoding": {
       "x": {
         "field": "month",
@@ -20,7 +64,21 @@
     "layer": [
       {
         "mark": {
+          "type": "rule",
+          "opacity": 0,
+          "strokeWidth": 0
+        },
+        "encoding": {
+          "y": {
+            "field": "_ybasis",
+            "type": "quantitative"
+          }
+        }
+      },
+      {
+        "mark": {
           "type": "line",
+          "interpolate": "monotone",
           "color": "#8C8C8C",
           "strokeWidth": 1.25,
           "strokeCap": "round",
@@ -107,6 +165,7 @@
       {
         "mark": {
           "type": "line",
+          "interpolate": "monotone",
           "color": "#0F2430",
           "strokeWidth": 2,
           "strokeCap": "round",
@@ -167,7 +226,7 @@
       {
         "mark": {
           "type": "rule",
-          "color": "#94A0AC",
+          "color": "#605E5C",
           "strokeWidth": 1,
           "strokeDash": [
             1,
@@ -183,8 +242,97 @@
       },
       {
         "mark": {
+          "type": "rule",
+          "color": "#A4262C",
+          "strokeWidth": 1,
+          "strokeDash": [
+            4,
+            2
+          ],
+          "strokeCap": "round"
+        },
+        "encoding": {
+          "y": {
+            "datum": 42.0
+          }
+        }
+      },
+      {
+        "transform": [
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_a"
+              }
+            ]
+          },
+          {
+            "filter": "datum._a == 1"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "text": "Alarm",
+          "align": "left",
+          "dx": 4,
+          "dy": 10,
+          "color": "#A4262C",
+          "tooltip": null
+        },
+        "encoding": {
+          "x": {
+            "value": 0
+          },
+          "y": {
+            "datum": 42.0
+          }
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": "datum._yangepasst"
+          },
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_yb"
+              }
+            ]
+          },
+          {
+            "filter": "datum._yb == 1"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "text": "≈",
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "color": "#605E5C",
+          "align": "center",
+          "baseline": "middle",
+          "description": "Achse beginnt nicht bei null",
+          "tooltip": null
+        },
+        "encoding": {
+          "x": {
+            "value": 0
+          },
+          "y": {
+            "value": {
+              "expr": "height"
+            }
+          }
+        }
+      },
+      {
+        "mark": {
           "type": "line",
-          "color": "#94A0AC",
+          "interpolate": "monotone",
+          "color": "#605E5C",
           "strokeDash": [
             4,
             4
@@ -235,6 +383,7 @@
       {
         "mark": {
           "type": "line",
+          "interpolate": "monotone",
           "color": "#0F2430",
           "strokeDash": [
             1,
@@ -308,7 +457,7 @@
           "align": "left",
           "dx": 4,
           "dy": -8,
-          "color": "#94A0AC",
+          "color": "#605E5C",
           "tooltip": null
         },
         "encoding": {
@@ -404,7 +553,7 @@
         ],
         "mark": {
           "type": "rule",
-          "color": "#94A0AC",
+          "color": "#605E5C",
           "strokeWidth": 1
         },
         "encoding": {
@@ -564,7 +713,10 @@
       "title": null,
       "labelFontSize": 11
     },
-    "axisX": {
+    "axisDiscrete": {
+      "grid": false
+    },
+    "axisTemporal": {
       "grid": false
     },
     "scale": {

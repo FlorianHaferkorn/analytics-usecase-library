@@ -1,13 +1,15 @@
 # Visual Library entry — bar_stacked  (schema: _schema.yaml)
 id: bar_stacked
 name: Stacked bar (absolute)
-version: "1.0.0"
+version: "1.0.1"   # 1.0.1 (17.10.2026): Golden neu eingefroren: Profilgitter je Achsentyp
 status: active        # active | deprecated | experimental
 purpose: [part_to_whole]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor; px derived from layout_grid.yaml
 best_form_for: null
 alternatives: [stacked_100, bar_absolute, donut]
+y_basis: "null"         # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: y           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   magnitude: length                 # bar total = the absolute value (rank 1)

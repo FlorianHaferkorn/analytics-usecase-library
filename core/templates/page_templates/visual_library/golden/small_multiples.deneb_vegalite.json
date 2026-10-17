@@ -4,7 +4,7 @@
   "facet": { "field": "unit", "type": "nominal" },
   "columns": 3,
   "spec": {
-    "mark": { "type": "line", "color": "#0F2430" },
+    "mark": { "type": "line", "interpolate": "monotone", "color": "#0F2430" },
     "encoding": {
       "x": { "field": "month", "type": "temporal", "axis": { "title": null } },
       "y": { "field": "gm", "type": "quantitative", "axis": { "title": null } }

@@ -1,0 +1,11 @@
+VAR _dlt = [Sales vs Plan %]
+VAR _col = IF ( _dlt < 0, "#A4262C", "#107C10" )
+VAR _len = MIN ( ABS ( _dlt ) / 0.5 * 140, 140 )
+VAR _x   = IF ( _dlt < 0, 170 - _len, 170 )
+VAR _hx  = IF ( _dlt < 0, 170 - _len - 3, 170 + _len - 3 )
+RETURN
+    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 340 60'>"
+      & "<rect x='" & _x & "' y='28' width='" & _len & "' height='4' fill='" & _col & "'/>"
+      & "<rect x='" & _hx & "' y='27' width='6' height='6' fill='#0F2430'/>"
+      & "<line x1='170' y1='18' x2='170' y2='42' stroke='#586472' stroke-width='1'/>"
+      & "</svg>"

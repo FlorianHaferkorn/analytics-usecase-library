@@ -44,7 +44,8 @@ profiles:
       font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
       view: {stroke: null}
       axis: {gridColor: "#E1DFDD", domainColor: "#E1DFDD", labelColor: "#605E5C", title: null, labelFontSize: 11}
-      axisX: {grid: false}
+      axisDiscrete: {grid: false}
+      axisTemporal: {grid: false}
       # Bar/column = 2/3 of the category, gap 1/3 (IBCS UN 3.1 ibcs2-un-3-1; Urban "bar ~2x the gap"
       # editorial corpus). Vega-Lite's default 0.1 drew 0.9 (measured 30.09.2026). Styles inherit it.
       scale: {bandPaddingInner: 0.3333}
@@ -164,7 +165,8 @@ profiles:
     vegalite_config:
       font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
       axis: {gridColor: "#E1DFDD", domainColor: "#C8C6C4", tickColor: "#C8C6C4", labelFontSize: 12, titleFontSize: 12}
-      axisX: {grid: false}
+      axisDiscrete: {grid: false}
+      axisTemporal: {grid: false}
       legend: {orient: top, direction: horizontal, labelFontSize: 12}
       bar: {cornerRadiusEnd: 2}
       title: {fontSize: 16, anchor: start}
@@ -195,7 +197,9 @@ profiles:
       font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
       view: {stroke: null}
       axis: {title: null, ticks: false, domain: false, gridColor: "#CBCBCB", labelFontSize: 12}
-      axisX: {grid: false, domain: true, domainColor: "#333333"}
+      axisX: {domain: true, domainColor: "#333333"}
+      axisDiscrete: {grid: false}
+      axisTemporal: {grid: false}
       scale: {bandPaddingInner: 0.3333}
       legend: {orient: top, labelFontSize: 12}
       title: {fontSize: 18, subtitleFontSize: 14, anchor: start}
@@ -248,7 +252,8 @@ profiles:
       font: "Inter, Segoe UI, system-ui, -apple-system, sans-serif"
       view: {stroke: null}
       axis: {title: null, ticks: false, domain: false, gridColor: "#E6E6E6", labelFontSize: 11}
-      axisX: {grid: false}
+      axisDiscrete: {grid: false}
+      axisTemporal: {grid: false}
       legend: {orient: top, labelFontSize: 11}
       title: {fontSize: 16, subtitleFontSize: 13, anchor: start}
 
@@ -281,5 +286,6 @@ profiles:
       font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"
       view: {stroke: null}
       axis: {title: null, ticks: false, domain: false, gridColor: "#E6E6E6", labelFontSize: 11}
-      axisX: {grid: false}
+      axisDiscrete: {grid: false}
+      axisTemporal: {grid: false}
       legend: {orient: top, labelFontSize: 11}

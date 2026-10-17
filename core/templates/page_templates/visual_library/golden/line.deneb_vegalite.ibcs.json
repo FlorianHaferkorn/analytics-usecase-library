@@ -19,6 +19,7 @@
     {
       "mark": {
         "type": "line",
+        "interpolate": "monotone",
         "color": "#404040",
         "opacity": 0.5,
         "strokeWidth": 1.5,
@@ -48,6 +49,7 @@
     {
       "mark": {
         "type": "line",
+        "interpolate": "monotone",
         "color": "#404040",
         "strokeWidth": 1.5,
         "point": {
@@ -71,6 +73,7 @@
     {
       "mark": {
         "type": "line",
+        "interpolate": "monotone",
         "color": "#404040",
         "strokeWidth": 1.5,
         "point": {
@@ -93,6 +96,7 @@
     {
       "mark": {
         "type": "line",
+        "interpolate": "monotone",
         "color": "#404040",
         "strokeWidth": 1.5,
         "strokeDash": [3, 2]

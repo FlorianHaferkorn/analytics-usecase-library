@@ -1,0 +1,215 @@
+{
+  "idiom": "waterfall_variance",
+  "profile": "house_default",
+  "notation": "house_default",
+  "data_name": "dataset",
+  "spec": {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+      "name": "dataset"
+    },
+    "transform": [
+      {
+        "joinaggregate": [
+          {
+            "op": "count",
+            "as": "_n"
+          }
+        ]
+      },
+      {
+        "window": [
+          {
+            "op": "sum",
+            "field": "value",
+            "as": "cum"
+          }
+        ],
+        "frame": [
+          null,
+          0
+        ]
+      },
+      {
+        "calculate": "datum.cum - datum['value']",
+        "as": "prev"
+      }
+    ],
+    "encoding": {
+      "x": {
+        "field": "driver",
+        "type": "ordinal",
+        "sort": null,
+        "axis": {
+          "title": null,
+          "labelAngle": 0
+        }
+      }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "bar"
+        },
+        "encoding": {
+          "y": {
+            "field": "prev",
+            "type": "quantitative",
+            "axis": {
+              "title": null
+            },
+            "scale": {
+              "padding": 16
+            }
+          },
+          "y2": {
+            "field": "cum"
+          },
+          "color": {
+            "condition": {
+              "test": "datum['value'] < 0",
+              "value": "#A4262C"
+            },
+            "value": "#107C10"
+          },
+          "tooltip": [
+            {
+              "field": "driver",
+              "type": "nominal",
+              "title": "driver"
+            },
+            {
+              "field": "value",
+              "type": "quantitative",
+              "title": "value",
+              "format": "+,.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "baseline": "bottom",
+          "dy": {
+            "expr": "datum['value'] < 0 ? 12 : -4"
+          },
+          "color": "#201F1E",
+          "tooltip": null
+        },
+        "encoding": {
+          "y": {
+            "field": "cum",
+            "type": "quantitative"
+          },
+          "text": {
+            "field": "value",
+            "type": "quantitative",
+            "format": "+,.1~f"
+          },
+          "opacity": {
+            "condition": {
+              "test": "datum._n < 10",
+              "value": 1
+            },
+            "value": 0
+          }
+        }
+      }
+    ]
+  },
+  "configVegaLite": {
+    "font": "Segoe UI, Inter, system-ui, -apple-system, sans-serif",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridColor": "#E1DFDD",
+      "domainColor": "#E1DFDD",
+      "labelColor": "#605E5C",
+      "title": null,
+      "labelFontSize": 11
+    },
+    "axisX": {
+      "grid": false
+    },
+    "scale": {
+      "bandPaddingInner": 0.3333
+    },
+    "text": {
+      "fontSize": 11
+    },
+    "locale": {
+      "number": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [
+          3
+        ],
+        "currency": [
+          "",
+          " €"
+        ]
+      },
+      "time": {
+        "dateTime": "%A, der %e. %B %Y, %X",
+        "date": "%d.%m.%Y",
+        "time": "%H:%M:%S",
+        "periods": [
+          "AM",
+          "PM"
+        ],
+        "days": [
+          "Sonntag",
+          "Montag",
+          "Dienstag",
+          "Mittwoch",
+          "Donnerstag",
+          "Freitag",
+          "Samstag"
+        ],
+        "shortDays": [
+          "So",
+          "Mo",
+          "Di",
+          "Mi",
+          "Do",
+          "Fr",
+          "Sa"
+        ],
+        "months": [
+          "Januar",
+          "Februar",
+          "März",
+          "April",
+          "Mai",
+          "Juni",
+          "Juli",
+          "August",
+          "September",
+          "Oktober",
+          "November",
+          "Dezember"
+        ],
+        "shortMonths": [
+          "Jan",
+          "Feb",
+          "Mär",
+          "Apr",
+          "Mai",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Okt",
+          "Nov",
+          "Dez"
+        ]
+      }
+    }
+  },
+  "capabilities": {
+    "disableLineChartCrosshairTooltip": true,
+    "disableTextTruncation": true
+  }
+}

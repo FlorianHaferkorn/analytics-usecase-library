@@ -103,11 +103,18 @@ def _field_covering_sample(rows: int = 3) -> list[dict]:
     return _rows(rows, [10.0, 41.0, 52.0, 33.0, 27.0])
 
 
+def _named(spec: dict, sample: list[dict]) -> dict:
+    """Inline sample under the template's data name: hosts (Deneb, VegaVisual) supply the rows under
+    that name, and a template may read it (`data('dataset')`, W2 label rule, 17.10.2026)."""
+    name = (spec.get("data") or {}).get("name")
+    return {"name": name, "values": sample} if name else {"values": sample}
+
+
 def _sized_with_data(spec: dict, sample: list[dict]) -> dict:
     """Bind the sample and force a positive canvas size (library templates are data-less and often
     size to their Deneb container) so the spec can rasterize headlessly."""
     spec = json.loads(json.dumps(spec))  # deep copy
-    spec["data"] = {"values": sample}
+    spec["data"] = _named(spec, sample)
     for dim in ("width", "height"):
         v = spec.get(dim)
         if not isinstance(v, (int, float)) or v <= 0:
@@ -131,7 +138,7 @@ def render_deneb_png_sized(idiom: str, w: int, h: int, profile: str | None = Non
 
     out, _ext = render.render(idiom, "deneb_vegalite", profile)
     spec = json.loads(out)
-    spec["data"] = {"values": _field_covering_sample()}
+    spec["data"] = _named(spec, _field_covering_sample())
     spec["width"], spec["height"] = int(w), int(h)
     return vlc.vegalite_to_png(spec, scale=1)
 

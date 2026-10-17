@@ -101,7 +101,11 @@ def test_bars_columns_and_waterfalls_label_their_values_below_ten_categories():
         spec = json.loads(render.render_target(idiom, "fabric_app", "house_default")[0])["spec"]
         texts = [lay for lay in spec.get("layer", []) if (lay.get("mark") or {}).get("type") == "text"]
         assert texts, f"{idiom}: no data labels"
-        assert any("datum._n < 10" in json.dumps(t) for t in texts), f"{idiom}: labels without the <10 rule"
+        # Seit 17.10.2026 (Regel beschriftung_gitter, W2) ein Signal statt datum._n: dieselbe Schwelle steuert
+        # Beschriftung, Wertegitter und Werteachse.
+        params = {p["name"]: p.get("expr") for p in spec.get("params", [])}
+        assert params.get("_beschriftet") == "_n_daten > 0 && _n_daten < 10", f"{idiom}: no <10 signal"
+        assert any('"test": "_beschriftet"' in json.dumps(t) for t in texts), f"{idiom}: labels without the <10 rule"
         assert all(t["mark"].get("angle", 0) == 0 for t in texts), f"{idiom}: rotated labels (UN 2.3)"
 
 

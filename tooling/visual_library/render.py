@@ -374,7 +374,11 @@ def _drop_missing_values(spec: dict, idiom: str, missing: "list[str]") -> dict:
     def walk(node):
         if isinstance(node, str) and _NO_VALUE in node and "datum[" in node:
             # an expression reading a missing column reads null (guard it with isValid in the template)
-            return re.sub(r"datum\[(['\"])" + re.escape(_NO_VALUE) + r"\1\]", "null", node)
+            node = re.sub(r"datum\[(['\"])" + re.escape(_NO_VALUE) + r"\1\]", "null", node)
+        if isinstance(node, str):
+            # a data value the template guards itself (`isValid({{target_val}}) ? … : …`, rule werteachse_basis
+            # in _gestaltungsregeln.yaml) reads null instead of removing what depends on it
+            return node.replace(_NO_VALUE, "null") if f"isValid({_NO_VALUE})" in node else node
         if isinstance(node, dict):
             out = {k: walk(v) for k, v in node.items()
                    if not (k == "condition" and _NO_VALUE in json.dumps(v))}
@@ -539,8 +543,9 @@ def with_top_n(spec: dict, idiom: str, eff: dict, n: int, rest: str, label: str 
     ]
 
     # A rest is not an item: rating it against a per-item target says nothing, so it takes the
-    # idiom's neutral colour where the colour encodes a rating.
-    neutral = next((eff[k] for k in ("col_ref", "col_neutral") if eff.get(k) and eff[k] != _NO_VALUE), None)
+    # idiom's neutral colour where the colour encodes a rating: the context mark (`col_context`, marks.context,
+    # 3:1 on white, Regel markenkontrast) before the reference colour.
+    neutral = next((eff[k] for k in ("col_context", "col_ref", "col_neutral") if eff.get(k) and eff[k] != _NO_VALUE), None)
 
     def redirect(node):
         if isinstance(node, dict):

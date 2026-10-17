@@ -27,13 +27,15 @@
 # gesetzt.
 id: kpi_card_spark
 name: KPI card · value + spark + delta
-version: "1.0.0"
+version: "1.1.0"   # 1.1.0 (17.10.2026): Parameter polarity, goal_direction, status_direction; Sparkline #605E5C
 status: active        # active | deprecated | experimental
 purpose: [value_verdict]
 zone: [pulse]
 min_size: {cols: 3, rows: 3}   # grid units — canvas-relative legibility floor (≈292×152px @1280, 438×228px @1920; px derived from layout_grid.yaml)
 best_form_for: value_verdict
 alternatives: [kpi_card_bullet, kpi_card_sparkbar, deviation_bar]
+y_basis: "angepasst"    # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: y           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   value: headline_number            # the number, largest element (rank 1)
@@ -63,7 +65,7 @@ tokens:
   col_ink:   text.primary            # #0F2430 value
   col_pos:   color_semantics.positive# #107C10
   col_neg:   color_semantics.negative# #A4262C
-  col_spark: color_semantics.neutral # #94A0AC trailing line
+  col_spark: color_semantics.neutral # #605E5C trailing line
 
 canonical_params:
   entity: "_Measures"
@@ -79,7 +81,10 @@ canonical_params:
   col_ink: "#0F2430"
   col_pos: "#107C10"
   col_neg: "#A4262C"
-  col_spark: "#94A0AC"
+  col_spark: "#605E5C"
+  polarity: "1"
+  goal_direction: "High is good"
+  status_direction: "Positive"
 
 preview_svg: |
   <svg viewBox="0 0 240 90" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KPI card with sparkline">
@@ -116,10 +121,10 @@ realizations:
             "showGoal": { "expr": { "Literal": { "Value": "true" } } },
             "showDistance": { "expr": { "Literal": { "Value": "true" } } },
             "distanceLabel": { "expr": { "Literal": { "Value": "'Percent'" } } },
-            "direction": { "expr": { "Literal": { "Value": "'High is good'" } } }
+            "direction": { "expr": { "Literal": { "Value": "'{{goal_direction}}'" } } }
           } } ],
           "status": [ { "properties": {
-            "direction": { "expr": { "Literal": { "Value": "'Positive'" } } },
+            "direction": { "expr": { "Literal": { "Value": "'{{status_direction}}'" } } },
             "goodColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_pos}}'" } } } } },
             "badColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_neg}}'" } } } } }
           } } ],
@@ -154,7 +159,7 @@ realizations:
     template: |
       VAR _val = FORMAT ( [{{measure}}], "{{value_format}}" )
       VAR _dlt = [{{delta_measure}}]
-      VAR _col = IF ( _dlt < 0, "{{col_neg}}", "{{col_pos}}" )
+      VAR _col = IF ( _dlt * {{polarity}} < 0, "{{col_neg}}", "{{col_pos}}" )
       VAR _dtxt = IF ( _dlt < 0, "▼ ", "▲ " ) & FORMAT ( _dlt, "{{delta_format}}" )
       VAR _S = ADDCOLUMNS ( CALCULATETABLE ( VALUES ( '{{date_entity}}'[{{date_prop}}] ), DATESINPERIOD ( '{{date_entity}}'[{{date_prop}}], MAX ( '{{date_entity}}'[{{date_prop}}] ), -12, MONTH ) ), "@v", [{{measure}}] )
       VAR _min = MINX ( _S, [@v] )

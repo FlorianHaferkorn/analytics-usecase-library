@@ -8,14 +8,14 @@
     "data": {
       "name": "dataset"
     },
-    "transform": [
+    "params": [
       {
-        "joinaggregate": [
-          {
-            "op": "count",
-            "as": "_n"
-          }
-        ]
+        "name": "_n_daten",
+        "expr": "max(length(data('dataset')), length(data('source_0')))"
+      },
+      {
+        "name": "_beschriftet",
+        "expr": "_n_daten > 0 && _n_daten < 10"
       }
     ],
     "encoding": {
@@ -31,7 +31,13 @@
         "field": "count",
         "type": "quantitative",
         "axis": {
-          "title": null
+          "title": null,
+          "tickCount": {
+            "expr": "_beschriftet ? 0 : ceil(height/40)"
+          },
+          "domainOpacity": {
+            "expr": "_beschriftet ? 0 : 1"
+          }
         }
       }
     },
@@ -39,7 +45,7 @@
       {
         "mark": {
           "type": "bar",
-          "color": "#0078D4"
+          "color": "#0F2430"
         },
         "encoding": {
           "tooltip": [
@@ -74,7 +80,7 @@
           },
           "opacity": {
             "condition": {
-              "test": "datum._n < 10",
+              "test": "_beschriftet",
               "value": 1
             },
             "value": 0
@@ -95,7 +101,10 @@
       "title": null,
       "labelFontSize": 11
     },
-    "axisX": {
+    "axisDiscrete": {
+      "grid": false
+    },
+    "axisTemporal": {
       "grid": false
     },
     "scale": {

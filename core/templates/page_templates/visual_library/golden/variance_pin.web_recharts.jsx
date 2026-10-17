@@ -1,7 +1,7 @@
 <ComposedChart data={data} width={480} height={220}>
   <XAxis dataKey="month" />
   <YAxis tickFormatter={(v) => `${v > 0 ? '+' : ''}${Math.round(v * 100)}%`} />
-  <ReferenceLine y={0} stroke="#586472" />
+  <ReferenceLine y={0} stroke="#605E5C" />
   <Bar dataKey="delta_pl_pct" barSize={3} isAnimationActive={false}>
     {data.map((e, i) => (
       <Cell key={i} fill={e.delta_pl_pct < 0 ? "#A4262C" : "#107C10"} />

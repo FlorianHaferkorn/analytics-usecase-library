@@ -133,7 +133,8 @@
           {
             "mark": {
               "type": "rule",
-              "color": "#586472"
+              "color": "#605E5C",
+              "strokeWidth": 1.5
             },
             "encoding": {
               "y": {
@@ -258,7 +259,7 @@
                   "format": "%m/%y",
                   "labelOverlap": true,
                   "labelSeparation": 6,
-                  "domainColor": "#586472"
+                  "domainColor": "#605E5C"
                 }
               },
               "y": {
@@ -358,7 +359,7 @@
           {
             "mark": {
               "type": "rule",
-              "color": "#586472"
+              "color": "#605E5C"
             },
             "encoding": {
               "y": {
@@ -509,7 +510,10 @@
       "title": null,
       "labelFontSize": 11
     },
-    "axisX": {
+    "axisDiscrete": {
+      "grid": false
+    },
+    "axisTemporal": {
       "grid": false
     },
     "scale": {

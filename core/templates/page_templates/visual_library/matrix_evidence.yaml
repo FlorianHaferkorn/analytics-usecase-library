@@ -8,6 +8,8 @@ zone: [detail]
 min_size: {cols: 5, rows: 6}   # grid units — canvas-relative legibility floor (≈497×320px @1280, 746×480px @1920; px derived from layout_grid.yaml)
 best_form_for: evidence_detail
 alternatives: []
+y_basis: "entfaellt"    # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: keine       # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   order: worst_first                # sorted ascending on the deviation column

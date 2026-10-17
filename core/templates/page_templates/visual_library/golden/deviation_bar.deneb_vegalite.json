@@ -6,6 +6,6 @@
       "encoding": {
         "x": { "field": "gm_vs_plan", "type": "quantitative", "axis": { "title": null }, "scale": { "domainMid": 0 } },
         "color": { "condition": { "test": "datum['gm_vs_plan'] < 0", "value": "#A4262C" }, "value": "#107C10" } } },
-    { "mark": { "type": "rule", "color": "#586472" }, "encoding": { "x": { "datum": 0 } } }
+    { "mark": { "type": "rule", "color": "#605E5C", "strokeWidth": 1.5 }, "encoding": { "x": { "datum": 0 } } }
   ]
 }

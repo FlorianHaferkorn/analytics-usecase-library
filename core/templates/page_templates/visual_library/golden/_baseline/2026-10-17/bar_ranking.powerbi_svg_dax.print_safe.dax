@@ -1,0 +1,9 @@
+VAR _v = [Gross Margin %]
+VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( 'dim_org'[OrgName] ), [Gross Margin %] ), REMOVEFILTERS ( 'dim_org'[OrgName] ) )
+VAR _w = DIVIDE ( _v, _max ) * 100
+VAR _col = IF ( _v < 44.1 / 100, "#F7630C", "#0F2430" )
+RETURN
+    IF ( HASONEVALUE ( 'dim_org'[OrgName] ),
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+          & "<rect x='0' y='2' width='" & _w & "' height='10' fill='" & _col & "'/>"
+          & "</svg>" )

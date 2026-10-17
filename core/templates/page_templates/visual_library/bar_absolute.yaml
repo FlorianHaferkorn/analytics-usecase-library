@@ -1,13 +1,15 @@
 # Visual Library entry — bar_absolute  (schema: _schema.yaml)
 id: bar_absolute
 name: Bar (absolute magnitude)
-version: "1.0.0"
+version: "1.1.0"   # 1.1.0 (17.10.2026): Beschriftung an: Wertegitter und Werteachse aus (W2)
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
 best_form_for: null                 # `bar_ranking` is the governed best form; this is the no-reference variant
 alternatives: [bar_ranking, lollipop]
+y_basis: "null"         # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: x           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   magnitude: length                 # rank 3 — direct length comparison, zero baseline
@@ -91,16 +93,16 @@ realizations:
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "data": { "name": "dataset" },
-        "transform": [ { "joinaggregate": [ { "op": "count", "as": "_n" } ] } ],
+        "params": [ { "name": "_n_daten", "expr": "max(length(data('dataset')), length(data('source_0')))" }, { "name": "_beschriftet", "expr": "_n_daten > 0 && _n_daten < 10" } ],
         "padding": { "right": 40 },
         "encoding": {
           "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "-x", "axis": { "title": null } },
-          "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null }, "scale": { "zero": true } }
+          "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null, "tickCount": { "expr": "_beschriftet ? 0 : ceil(width/40)" }, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } }, "scale": { "zero": true } }
         },
         "layer": [
           { "mark": { "type": "bar", "color": "{{col_bar}}" } },
           { "mark": { "type": "text", "align": "left", "dx": 4, "color": "{{col_label}}" },
-            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "datum._n < 10", "value": 1 }, "value": 0 } } }
+            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } }
         ]
       }
 

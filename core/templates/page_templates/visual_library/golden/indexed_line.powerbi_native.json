@@ -7,7 +7,7 @@
   "objects": { "y1AxisReferenceLine": [ { "properties": {
     "show": { "expr": { "Literal": { "Value": "true" } } },
     "value": { "expr": { "Literal": { "Value": "100D" } } },
-    "lineColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#94A0AC'" } } } } },
+    "lineColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#605E5C'" } } } } },
     "style": { "expr": { "Literal": { "Value": "'dotted'" } } }
   }, "selector": { "id": "1" } } ] }
 }

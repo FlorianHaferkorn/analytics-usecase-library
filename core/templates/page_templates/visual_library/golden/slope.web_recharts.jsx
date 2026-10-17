@@ -2,6 +2,6 @@
   <XAxis dataKey="period" />
   <YAxis domain={['auto', 'auto']} />
   {series.map((s, i) => (
-    <Line key={i} type="linear" dataKey={s} stroke="#94A0AC" dot />
+    <Line key={i} type="linear" dataKey={s} stroke="#8C8C8C" dot />
   ))}
 </LineChart>

@@ -13,13 +13,15 @@
 # of truth for the three tiers); ΔPY% is N/A when PY <= 0 (UN 4.1: not interpretable).
 id: multi_tier_column
 name: Multi-tier column chart (values, ΔPY, ΔPY%)
-version: "1.1.0"
+version: "1.1.1"   # 1.1.1 (17.10.2026): Nulllinie 1.5 px #605E5C
 status: active        # active | deprecated | experimental
 purpose: [time_comparison, deviation_from_target]
 zone: [analysis]
 min_size: {cols: 6, rows: 6}   # grid units — canvas-relative legibility floor (≈600×320px @1280; px derived from layout_grid.yaml)
 best_form_for: null            # line / deviation_bar stay the governed best forms; this is the dense IBCS combination of both
 alternatives: [column_time, variance_pin, deviation_bar, waterfall_variance]
+y_basis: "null"         # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: y           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
 encoding:
   x: temporal_discrete              # periods as columns, one reduplicated category axis for every tier
@@ -49,7 +51,7 @@ tokens:
   col_py:   surface.row_alt_ink       # #C8CED5 the prior-period reference (house)
   col_pos:  color_semantics.positive  # #107C10
   col_neg:  color_semantics.negative  # #A4262C
-  col_zero: color_semantics.neutral   # #586472 tier axes
+  col_zero: color_semantics.neutral   # #605E5C tier axes
   col_ink:  ink                       # #0F2430 labels and pin heads
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
@@ -79,7 +81,7 @@ canonical_params:
   col_py: "#C8CED5"
   col_pos: "#107C10"
   col_neg: "#A4262C"
-  col_zero: "#586472"
+  col_zero: "#605E5C"
   col_ink: "#0F2430"
   tier_width: "480"      # both views share the x scale, so they carry the same width
   h_pins: "70"
@@ -151,7 +153,7 @@ realizations:
                   "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth", "axis": null },
                   "y": { "field": "d_rel", "type": "quantitative", "axis": null, "scale": { "zero": true, "padding": 16 } },
                   "color": { "condition": { "test": "datum.d_rel < 0", "value": "{{col_neg}}" }, "value": "{{col_pos}}" } } },
-              { "mark": { "type": "rule", "color": "{{col_zero}}" }, "encoding": { "y": { "datum": 0 } } },
+              { "mark": { "type": "rule", "color": "{{col_zero}}", "strokeWidth": 1.5 }, "encoding": { "y": { "datum": 0 } } },
               { "mark": { "type": "point", "shape": "circle", "filled": true, "color": "{{col_ink}}", "size": {{head_size}}, "opacity": 1 },
                 "encoding": { "x": { "field": "{{field_date}}", "type": "ordinal", "timeUnit": "yearmonth" }, "y": { "field": "d_rel", "type": "quantitative" } } },
               { "mark": { "type": "text", "color": "{{col_ink}}", "baseline": { "expr": "datum.d_rel < 0 ? 'top' : 'bottom'" }, "dy": { "expr": "datum.d_rel < 0 ? 6 : -6" } },
