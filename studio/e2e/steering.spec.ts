@@ -29,10 +29,16 @@ test.describe('Steering Hub', () => {
     // cards labelled 'Use Cases'/'Drivers' of the old standalone page — hence
     // toContainText on <main> instead of exact-text lookups, which also keeps the
     // counts themselves out of the assertion (they track repo content).
+    //
+    // Since 0ac7775b1 (08.09.2026) Blueprint focuses the first use case by default
+    // (blueprint-client.tsx: `brackets[0]?.id`), so the bar reads "1 use case" in the
+    // singular. The pattern accepts both forms but still requires a count in front
+    // of each label, which the old substring checks did not. No \b: textContent
+    // concatenates the spans ("1 use case7 drivers"), so a lookahead closes the word.
     const main = page.getByRole('main');
-    await expect(main).toContainText('use cases');
-    await expect(main).toContainText('drivers');
-    await expect(main).toContainText('action gaps');
+    await expect(main).toContainText(/\d+ use cases?(?![a-z])/);
+    await expect(main).toContainText(/\d+ drivers?(?![a-z])/);
+    await expect(main).toContainText(/\d+ action gaps?(?![a-z])/);
   });
 
   test('canvas renders the React Flow graph', async ({ page }) => {

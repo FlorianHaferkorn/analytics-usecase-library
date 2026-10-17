@@ -22,27 +22,30 @@ test('project selection pins views, clears cross-project content and preserves l
   await page.waitForURL('**/overview');
   await page.getByRole('button', {name:/Switch project/}).click();
   await page.getByRole('button', {name:/alpha project/}).click();
-  await expect(page.getByRole('heading',{name:'Project overview',exact:true})).toBeVisible();
+  // b1a2fee15 (23.09.2026) renamed the project overview to 'Delivery cockpit' and the
+  // sidebar entries to workflow labels: Overview -> Delivery cockpit, the project
+  // architecture surface (/canvas) -> Domain scope, Library -> Reference library.
+  await expect(page.getByRole('heading',{name:'Delivery cockpit',exact:true})).toBeVisible();
   await expect(page.getByText('alpha objective',{exact:true})).toBeVisible();
   await page.screenshot({path:test.info().outputPath('project-overview.png'),fullPage:true});
   await expect.poll(() => requests.some(r => r.includes(`alpha/view?revision=${hashes.alpha}`))).toBe(true);
   await page.reload();
   await expect(page.getByText('alpha objective',{exact:true})).toBeVisible();
-  await page.getByRole('link',{name:'Blueprint',exact:true}).click();
+  await page.getByRole('link',{name:'Domain scope',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Project architecture',exact:true})).toBeVisible();
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   await expect(page.getByRole('group',{name:/^Domain: alpha_domain/})).toBeVisible();
   await page.getByRole('button',{name:'Fit',exact:true}).click();
   await page.screenshot({path:test.info().outputPath('project-architecture.png'),fullPage:true});
-  await page.getByRole('link',{name:'Overview',exact:true}).click();
+  await page.getByRole('link',{name:'Delivery cockpit',exact:true}).click();
   await page.getByRole('button',{name:/Switch project/}).click();
   await page.getByRole('button',{name:/beta project/}).click();
   await expect(page.getByText('beta objective',{exact:true})).toBeVisible();
   await expect(page.getByText('alpha objective',{exact:true})).toHaveCount(0);
-  await page.getByRole('link',{name:'Blueprint',exact:true}).click();
+  await page.getByRole('link',{name:'Domain scope',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Project architecture',exact:true})).toBeVisible();
   await expect(page.getByText('No architecture module recorded in this version.')).toBeVisible();
-  await page.getByRole('link',{name:'Library',exact:true}).click();
+  await page.getByRole('link',{name:'Reference library',exact:true}).click();
   await expect(page.getByRole('navigation',{name:'Library tools'})).toBeVisible();
   await expect(page.getByText('Library · reusable definitions, not project evidence')).toBeVisible();
   await page.getByRole('link',{name:'Manage definitions',exact:true}).click();
