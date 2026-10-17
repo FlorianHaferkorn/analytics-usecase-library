@@ -4,7 +4,7 @@ async function loginDemo(page: import('@playwright/test').Page) {
   await page.goto('/login');
   await page.getByPlaceholder('demo@aurora-group.eu').fill('demo@aurora-group.eu');
   await page.getByText('Sign in with Demo').click();
-  await page.waitForTimeout(2000);
+  await page.waitForURL(/\/overview$/, { timeout: 15_000 });
 }
 
 test.describe('Steering Hub', () => {

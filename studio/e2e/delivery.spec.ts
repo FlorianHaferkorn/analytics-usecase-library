@@ -4,7 +4,8 @@ async function loginAndOpenDelivery(page: import('@playwright/test').Page) {
   await page.goto('/login');
   await page.getByPlaceholder('demo@aurora-group.eu').fill('demo@aurora-group.eu');
   await page.getByText('Sign in with Demo').click();
-  await page.waitForTimeout(2000);
+  // Wait for the sign-in redirect itself; a fixed pause let it interrupt the next goto.
+  await page.waitForURL(/\/overview$/, { timeout: 15_000 });
 
   await page.goto('/delivery');
   await page.waitForTimeout(1000);

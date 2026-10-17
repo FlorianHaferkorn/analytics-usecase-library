@@ -69,6 +69,8 @@ export default defineConfig({
       STUDIO_DB_PATH: join(process.cwd(), '.e2e', 'studio.db'),
       // Project Package and assurance read the repository; without it they answer 503.
       ALUCA_REPO_ROOT: process.env.ALUCA_REPO_ROOT || join(process.cwd(), '..'),
+      // Package writes stay in the gitignored e2e folder, reset before every run.
+      STUDIO_PACKAGE_DATA_ROOT: join(process.cwd(), '.e2e', 'project-packages'),
     },
     // Keep tests deterministic: tenant isolation depends on a clean SQLite DB.
     reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === '1',
