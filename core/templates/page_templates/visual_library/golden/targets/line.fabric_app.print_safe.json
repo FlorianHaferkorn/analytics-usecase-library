@@ -455,6 +455,7 @@
           "type": "point",
           "shape": "circle",
           "filled": false,
+          "fill": "transparent",
           "strokeWidth": 2,
           "size": 56,
           "color": "#0F2430"
