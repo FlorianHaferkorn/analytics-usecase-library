@@ -35,7 +35,7 @@ export function ApprovalsClient({ brackets }: Props) {
       {tab === 'refinements' ? (
         <RefinementProposalsPanel />
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 'var(--pad)', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '280px minmax(0, 1fr)', gap: 'var(--pad)', alignItems: 'start' }}>
           {/* Bracket list */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {brackets.map((b) => (

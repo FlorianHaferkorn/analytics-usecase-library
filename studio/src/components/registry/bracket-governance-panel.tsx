@@ -209,7 +209,9 @@ export function BracketGovernancePanel({ bracketId }: Props) {
         : ['reopen'];
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+    // auto-fit: Review and Versions stack once the column is narrower than two
+    // readable cards, instead of forcing their min-content past the page edge.
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '16px', marginTop: '16px' }}>
       <div style={{ padding: '16px', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--line)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Review</p>
