@@ -456,6 +456,9 @@
   .pageHeader { align-items: stretch; flex-direction: column; }
   .headerCopy {
     display: flex;
+    /* The header stacks as a column here, so the desktop basis of 560px would
+       become a 560px height and squeeze the page content (graph height 0 at 560px). */
+    flex: 0 0 auto;
     max-width: 72ch;
     flex-direction: column;
     gap: var(--space-1);
