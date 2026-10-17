@@ -9,6 +9,13 @@ test.describe('Auth flow', () => {
     expect(response.status()).toBe(401);
   });
 
+  test('proxy sends a logged-out page visit to the login page', async ({ page }) => {
+    // Fails if the proxy is not loaded at all (17.10.2026: middleware.ts sat beside src/app
+    // and never ran; the API stayed protected by its handlers, pages did not).
+    await page.goto('/overview');
+    await expect(page).toHaveURL(/\/login\?callbackUrl=%2Foverview$/);
+  });
+
   test('login page renders correctly', async ({ page }) => {
     await page.goto('/login');
     await expect(page.getByText('ALUCA Studio')).toBeVisible();
