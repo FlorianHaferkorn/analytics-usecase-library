@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "1.2.1"   # 1.2.1 (17.10.2026): Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
+version: "1.2.2"   # 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -139,7 +139,7 @@ realizations:
           { "params": [ { "name": "hover", "select": { "type": "point", "fields": ["{{field_date}}"], "nearest": true, "on": "pointerover", "clear": "pointerout" } } ],
             "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1 },
             "encoding": { "opacity": { "condition": { "param": "hover", "empty": false, "value": 0.5 }, "value": 0 } } },
-          { "mark": { "type": "point", "shape": "circle", "filled": false, "strokeWidth": 2, "size": 56, "color": "{{col_line}}" },
+          { "mark": { "type": "point", "shape": "circle", "filled": false, "fill": "transparent", "strokeWidth": 2, "size": 56, "color": "{{col_line}}" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative" },
                           "opacity": { "condition": { "param": "hover", "empty": false, "value": 1 }, "value": 0 } } },
           { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
