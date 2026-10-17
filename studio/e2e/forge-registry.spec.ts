@@ -3,7 +3,8 @@
  *
  * Covers:
  *  - Forge path: compose → generate
- *  - Registry path: catalog → drift → approvals
+ *  - Registry path: catalog → drift → approvals (the catalog is now the
+ *    management lens of the unified Library, /library?view=manage)
  *
  * Auth: uses the demo credentials that already exist in other e2e specs.
  */
@@ -22,12 +23,16 @@ test.describe('Forge path', () => {
     await loginAsDemo(page);
   });
 
-  test('sidebar shows Forge mode switcher', async ({ page }) => {
+  test('sidebar links the governed library from /discover', async ({ page }) => {
     await page.goto('/discover');
-    // Mode switcher labels ("Forge"/"Registry") are not guaranteed on /discover.
-    // Assert against stable UI: the Discovery hub heading and the Registry nav link.
+    // The Forge/Registry mode switcher no longer exists: since b1a2fee15 (23.09.2026)
+    // one workflow sidebar carries both, and the governed definitions formerly under
+    // "Registry" live in the Reference library (navigation.spec.ts asserts that no
+    // 'Registry'/'Forge' link leaks back). Assert the hub heading and that entry.
     await expect(page.getByRole('heading', { name: 'Discovery', level: 1 })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Registry', exact: true })).toBeVisible();
+    const workflow = page.getByRole('navigation', { name: 'Studio workflow' });
+    await expect(workflow.getByRole('link', { name: 'Reference library', exact: true })).toHaveAttribute('href', '/library');
+    await expect(page.getByRole('link', { name: 'Registry', exact: true })).toHaveCount(0);
   });
 
   test('/compose renders Simulator', async ({ page }) => {
@@ -59,21 +64,30 @@ test.describe('Registry path', () => {
     await loginAsDemo(page);
   });
 
-  test('sidebar shows Registry nav when on /catalog', async ({ page }) => {
+  test('sidebar marks the library management lens active when on /catalog', async ({ page }) => {
     await page.goto('/catalog');
-    // /catalog uses the top-level "Registry" navigation; Drift/Approvals are on
-    // their dedicated pages.
-    // 'Catalog' appears twice on this page — the sidebar link and the breadcrumb in
-    // the banner — so a bare getByText is a strict-mode violation, not a missing
-    // element. Assert the nav link by role, which is what this test is about.
-    await expect(page.getByRole('link', { name: 'Catalog', exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Registry', exact: true })).toBeVisible();
+    // Since 0ac7775b1 (08.09.2026) /catalog redirects to the management lens of the
+    // unified Library (/library?view=manage). The former "Catalog" link is the
+    // 'Manage definitions' tool of that page, the former "Registry" entry is the
+    // sidebar's 'Reference library'. Both must mark themselves as the current page.
+    await expect(page).toHaveURL(/\/library\?view=manage$/);
+    const workflow = page.getByRole('navigation', { name: 'Studio workflow' });
+    await expect(workflow.getByRole('link', { name: 'Reference library', exact: true })).toHaveAttribute('aria-current', 'page');
+    const tools = page.getByRole('navigation', { name: 'Library tools' });
+    await expect(tools.getByRole('link', { name: 'Manage definitions', exact: true })).toHaveAttribute('aria-current', 'page');
+    await expect(tools.getByRole('link', { name: 'Browse assets', exact: true })).not.toHaveAttribute('aria-current', 'page');
   });
 
   test('/catalog renders KPI catalog table', async ({ page }) => {
     await page.goto('/catalog');
-    await expect(page).toHaveURL('/catalog');
-    await expect(page.locator('main')).toBeVisible();
+    // Legacy route: redirects to the Library management lens (0ac7775b1).
+    await expect(page).toHaveURL(/\/library\?view=manage$/);
+    const main = page.locator('main');
+    await expect(main.getByRole('heading', { name: 'Library', level: 1 })).toBeVisible();
+    const table = main.getByRole('table').first();
+    await expect(table.getByRole('columnheader', { name: 'Name', exact: true })).toBeVisible();
+    await expect(table.getByRole('columnheader', { name: 'Ref', exact: true })).toBeVisible();
+    expect(await table.locator('tbody tr').count()).toBeGreaterThan(0);
   });
 
   test('/drift renders drift report page', async ({ page }) => {
@@ -88,14 +102,20 @@ test.describe('Registry path', () => {
     await expect(page.getByText('Governance Approvals')).toBeVisible();
   });
 
-  test('old /registry redirects to /catalog', async ({ page }) => {
+  test('old /registry redirects to the library management lens', async ({ page }) => {
+    // /registry -> /catalog -> /library?view=manage (0ac7775b1).
     await page.goto('/registry');
-    await expect(page).toHaveURL('/catalog');
+    await expect(page).toHaveURL(/\/library\?view=manage$/);
   });
 
-  test('Registry mode switcher navigates to /catalog', async ({ page }) => {
+  test('sidebar navigates from /discover to the library management lens', async ({ page }) => {
+    // Replaces the removed Registry mode switcher: the governed catalog is reached
+    // through the Reference library and its 'Manage definitions' tool.
     await page.goto('/discover');
-    await page.getByText('Registry').first().click();
-    await expect(page).toHaveURL('/catalog');
+    await page.getByRole('navigation', { name: 'Studio workflow' }).getByRole('link', { name: 'Reference library', exact: true }).click();
+    await expect(page).toHaveURL(/\/library$/);
+    await page.getByRole('navigation', { name: 'Library tools' }).getByRole('link', { name: 'Manage definitions', exact: true }).click();
+    await expect(page).toHaveURL(/\/library\?view=manage$/);
+    await expect(page.locator('main').getByRole('heading', { name: 'Library', level: 1 })).toBeVisible();
   });
 });

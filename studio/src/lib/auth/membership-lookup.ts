@@ -7,6 +7,8 @@
  */
 
 import { getDb } from '@/lib/db/sqlite';
+import { findOrCreateUser } from '@/lib/db/user-repo';
+import { addProjectMember, getProjectMember } from '@/lib/db/rbac-repo';
 import type { ProjectMembership } from './config';
 
 /**
@@ -30,4 +32,21 @@ export async function lookupProjectMemberships(email: string): Promise<ProjectMe
   } catch {
     return [];
   }
+}
+
+/** The demo identity of the development-only Credentials provider. */
+export const DEMO_EMAIL = 'demo@aurora-group.eu';
+
+/**
+ * Give the demo user viewer access to the 'default' project (17.10.2026).
+ *
+ * RBAC (ADR-0014) grants project access only through a project_members row or the
+ * org fallback. The demo user is auto-provisioned without either, so every
+ * project route answered 403 for it. Seeds exactly one row, never outside
+ * development, never for another email, and never downgrades an existing role.
+ */
+export async function ensureDemoMembership(email: string): Promise<void> {
+  if (process.env.NODE_ENV === 'production' || email !== DEMO_EMAIL) return;
+  const user = findOrCreateUser(email, email.split('@')[0]);
+  if (!getProjectMember('default', user.id)) addProjectMember('default', user.id, 'viewer');
 }

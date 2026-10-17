@@ -2,7 +2,7 @@
  * Shared project-membership gate for tenant-scoped (`/api/projects/[projectId]/...`)
  * route wrappers.
  *
- * Middleware already enforces this at the edge (see `studio/middleware.ts`,
+ * Middleware already enforces this at the edge (see `studio/src/proxy.ts`,
  * `TENANT_API_RE`), but each wrapper route re-checks explicitly so isolation
  * is deterministic under tests that call the route handler directly. This
  * used to be duplicated verbatim across 4+ wrapper files — kept here once so

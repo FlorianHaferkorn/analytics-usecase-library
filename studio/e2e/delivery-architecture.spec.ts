@@ -27,33 +27,59 @@ test.beforeEach(async ({page}) => {
   });
 });
 
+// b1a2fee15 (23.09.2026) split the former 'Delivery workspace' into the numbered
+// delivery flow: /engagement is now 'Decide & plan' (02), /architecture is 'Design'
+// (03). The in-page 'Delivery map' with its 'Open architecture' link was removed;
+// the sidebar step is the route between them, and the architecture's 'Build
+// outputs' tab links to the input release on /generate.
 test('delivery journey exposes commercial, plan and architecture without claiming staffing or deployment',async ({page}) => {
   await page.goto('/engagement');
-  await expect(page.getByRole('heading',{name:'Delivery workspace',exact:true})).toBeVisible();
-  await expect(page.getByRole('button',{name:'Open scope & offer',exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Scope & offer',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Decide & plan',exact:true})).toBeVisible();
+  const sections = page.getByRole('group',{name:'Decide and plan section'});
+  for (const name of ['Plan & roles','Decisions & workshops','Scope & offer','Assurance']) await expect(sections.getByRole('button',{name,exact:true})).toBeVisible();
+  await sections.getByRole('button',{name:'Scope & offer',exact:true}).click();
   await expect(page.getByText('Reduce reporting lead time',{exact:true})).toBeVisible();
   await expect(page.getByText('1000 EUR',{exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Plan & roles',exact:true}).click();
+  await expect(page.getByText(/An estimate is not an approved offer/)).toBeVisible();
+  await sections.getByRole('button',{name:'Plan & roles',exact:true}).click();
+  await page.locator('summary').filter({hasText:'Work packages, dependencies and effort basis'}).click();
   await expect(page.getByText('Agree source contract',{exact:true})).toBeVisible();
-  await expect(page.getByText(/not named staffing assignments/)).toBeVisible();
-  await page.getByRole('button',{name:'Delivery map',exact:true}).click();
-  await page.getByRole('link',{name:'Open architecture',exact:true}).click();
+  await expect(page.getByText('No named staffing assignments recorded.',{exact:true})).toBeVisible();
+  await expect(page.getByText(/A confirmed responsibility is not a capacity commitment/)).toBeVisible();
+  await page.getByRole('navigation',{name:'Studio workflow'}).getByRole('link',{name:'Design',exact:true}).click();
+  await expect(page).toHaveURL(/\/architecture$/);
+  await page.getByRole('button',{name:'All elements · 3',exact:true}).click();
   await expect(page.locator('.react-flow__node')).toHaveCount(3);
-  await page.getByRole('link',{name:'Generate',exact:true}).click();
+  await page.getByRole('button',{name:'Build outputs',exact:true}).click();
+  await expect(page.getByText(/tenant apply not enabled/)).toBeVisible();
+  await page.getByRole('link',{name:'Review input release',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Release approved project inputs',exact:true})).toBeVisible();
 });
 
 test('architecture graph, full contracts and pinned output confirmation work',async ({page}) => {
   await page.setViewportSize({width:1440,height:900});
   await page.goto('/architecture');
-  await expect(page.locator('.react-flow__node')).toHaveCount(3);
+  // Since b1a2fee15 (23.09.2026) the graph opens as a 'Flow overview' that folds the
+  // three non-reference elements into their stages (Sources: SQL.orders; Silver:
+  // clean_orders + clean_orders_table). 'All elements · N' is the element-level view
+  // the previous count of 3 measured; the reference toggle was renamed to
+  // 'Reference and alternative sources'.
+  await expect(page.locator('.react-flow__node')).toHaveCount(2);
+  await expect(page.getByRole('group',{name:/^Source: Sources\. 1 element$/})).toBeVisible();
+  await expect(page.getByRole('group',{name:/: Silver\. 2 elements$/})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Architecture',exact:true})).toBeVisible();
+  // The overview canvas is deliberately compact (5ee08063d, 25.09.2026:
+  // .overviewCanvas clamp(280px, 38dvh, 400px)); the element graph is the working
+  // surface that has to dominate the desktop, so the size check applies there.
+  await page.getByRole('button',{name:'All elements · 3',exact:true}).click();
+  await expect(page.locator('.react-flow__node')).toHaveCount(3);
+  await page.getByRole('group',{name:'Graph representation'}).getByRole('button',{name:'Graph',exact:true}).click();
   const bounds = await page.locator('.react-flow').boundingBox();
   expect(bounds!.height).toBeGreaterThan(450);
   expect(bounds!.y).toBeLessThan(360);
   await page.screenshot({path:test.info().outputPath('architecture-desktop.png'),fullPage:true});
-  await page.getByLabel('Reference reports and alternative/excluded sources').check();
+  await page.getByLabel('Reference and alternative sources').check();
+  await expect(page.getByRole('button',{name:'All elements · 4',exact:true})).toBeVisible();
   await expect(page.locator('.react-flow__node')).toHaveCount(4);
   await page.getByRole('button',{name:'Contracts & rationale',exact:true}).click();
   await page.locator('summary').filter({hasText:'Sales delivery'}).click();

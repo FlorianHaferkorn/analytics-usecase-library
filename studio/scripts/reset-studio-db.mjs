@@ -1,4 +1,4 @@
-import { existsSync, unlinkSync } from 'node:fs';
+import { existsSync, rmSync, unlinkSync } from 'node:fs';
 import { isAbsolute, relative, resolve } from 'node:path';
 
 // Reset only the dedicated E2E database. Never scan the workspace for databases.
@@ -26,3 +26,10 @@ for (const p of deleted) {
   console.log(`[reset-studio-db] - ${p}`);
 }
 
+// Project Package data of the e2e server (STUDIO_PACKAGE_DATA_ROOT in playwright.config.ts).
+// Removed only when it lies inside .e2e/, like the database above.
+const packages = resolve(e2eRoot, 'project-packages');
+if (existsSync(packages)) {
+  rmSync(packages, { recursive: true, force: true });
+  console.log(`[reset-studio-db] - ${packages}`);
+}

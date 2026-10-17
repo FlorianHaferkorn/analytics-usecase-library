@@ -12,13 +12,20 @@ test.describe('Studio v3 shell', () => {
     await loginDemo(page);
     await page.goto('/overview');
 
+    // Since b1a2fee15 (23.09.2026) the sidebar follows the data scope: without a
+    // pinned project it shows reusable content only ('Library' became 'Reference
+    // library', 'Brand & Templates' became 'Output standards'). The delivery flow
+    // (Delivery cockpit, Discover, …, Domain scope) appears only in project scope —
+    // asserted in navigation.spec.ts. Blueprint and Simulate are deliberately kept
+    // out of the primary sidebar (tests/lib/navigation-hierarchy.test.ts).
     const sidebar = page.locator('aside');
-    await expect(sidebar.getByRole('link', { name: 'Overview' })).toBeVisible();
-    await expect(sidebar.getByRole('link', { name: 'Discover' })).toBeVisible();
-    await expect(sidebar.getByRole('link', { name: 'Blueprint' })).toBeVisible();
-    await expect(sidebar.getByRole('link', { name: 'Library' })).toBeVisible();
-    await expect(sidebar.getByRole('link', { name: 'Data lineage' })).toBeVisible();
-    await expect(sidebar.getByRole('link', { name: 'Brand & Templates' })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Reference library', exact: true })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Output standards', exact: true })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Plugins', exact: true })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Organizations', exact: true })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Delivery cockpit', exact: true })).toHaveCount(0);
+    await expect(sidebar.getByRole('link', { name: 'Blueprint', exact: true })).toHaveCount(0);
+    await expect(sidebar.getByRole('link', { name: 'Simulate', exact: true })).toHaveCount(0);
   });
 
   test('settings modal opens from topbar', async ({ page }) => {
