@@ -27,6 +27,8 @@ function chromiumExecutable(): string | undefined {
   return existsSync(symlink) ? symlink : undefined;
 }
 
+export const DEMO_STATE = join(process.cwd(), '.e2e', 'demo-state.json');
+
 const requestedPort = process.env.STUDIO_E2E_PORT || '3000';
 if (!/^\d{4,5}$/.test(requestedPort) || Number(requestedPort) < 1024 || Number(requestedPort) > 65535) {
   throw new Error('STUDIO_E2E_PORT must be a valid non-privileged TCP port');
@@ -47,8 +49,16 @@ export default defineConfig({
     launchOptions: { executablePath: chromiumExecutable() },
   },
 
+  // The proxy gates every page behind a session (17.10.2026: middleware.ts sat beside
+  // src/app and never ran). One demo sign-in per run; specs that test the logged-out
+  // state opt out with test.use({ storageState: { cookies: [], origins: [] } }).
   projects: [
-    { name: 'chromium', use: { browserName: 'chromium' } },
+    { name: 'setup', testMatch: /auth\.setup\.ts/, use: { browserName: 'chromium' } },
+    {
+      name: 'chromium',
+      dependencies: ['setup'],
+      use: { browserName: 'chromium', storageState: DEMO_STATE },
+    },
   ],
 
   webServer: {
@@ -57,6 +67,8 @@ export default defineConfig({
     env: {
       ...process.env,
       STUDIO_DB_PATH: join(process.cwd(), '.e2e', 'studio.db'),
+      // Project Package and assurance read the repository; without it they answer 503.
+      ALUCA_REPO_ROOT: process.env.ALUCA_REPO_ROOT || join(process.cwd(), '..'),
     },
     // Keep tests deterministic: tenant isolation depends on a clean SQLite DB.
     reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === '1',

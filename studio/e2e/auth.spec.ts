@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Auth flow', () => {
+  // Logged-out behaviour: no stored demo session.
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test('protects project package data without a session', async ({ request }) => {
     const response = await request.get('/api/projects/default/package');
     expect(response.status()).toBe(401);

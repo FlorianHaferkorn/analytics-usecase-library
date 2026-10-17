@@ -49,12 +49,13 @@ async function assertQualityBaseline(page: Page, path: string) {
 
   const expectedPermissionResponses = failedResponses.filter((entry) =>
     (path === '/approvals' && /^403 .*\/api\/governance\/review(?:\?|$)/.test(entry))
-    || (path === '/package' && /^403 .*\/api\/projects\/default\/package(?:\?|$)/.test(entry))
+    // Fresh e2e database: 'default' has no Project Package yet, the API answers 404 (empty state).
+    || (path === '/package' && /^404 .*\/api\/projects\/default\/package(?:\?|$)/.test(entry))
     || (path === '/discover' && /^403 .*\/api\/projects\/default\/discovery(?:\?|$)/.test(entry)),
   );
   const unexpectedResponses = failedResponses.filter((entry) => !expectedPermissionResponses.includes(entry));
   const relevantConsoleErrors = consoleErrors.filter((entry) =>
-    !(expectedPermissionResponses.length > 0 && entry.includes('status of 403 (Forbidden)')),
+    !(expectedPermissionResponses.length > 0 && /status of (403 \(Forbidden\)|404 \(Not Found\))/.test(entry)),
   );
 
   expect(unexpectedResponses, `${path} loaded failed resources`).toEqual([]);
@@ -62,7 +63,11 @@ async function assertQualityBaseline(page: Page, path: string) {
   expect(layout.bodyOverflow, `${path} overflows the viewport`).toBeLessThanOrEqual(1);
   expect(layout.mainOverflow, `${path} overflows its main content area`).toBeLessThanOrEqual(1);
   expect(layout.smallText, `${path} contains unreadable text below 11px:\n${layout.smallText.join('\n')}`).toEqual([]);
-  if (path === '/package' && expectedPermissionResponses.length > 0) {
+  if (path === '/package' && expectedPermissionResponses.some((entry) => entry.startsWith('404 '))) {
+    // Empty state of a project without a Package history: says so and offers the import.
+    await expect(page.getByText('No package history', { exact: true })).toBeVisible();
+    await expect(page.getByText(/Import a repository ZIP exported by Studio/)).toBeVisible();
+  } else if (path === '/package' && expectedPermissionResponses.length > 0) {
     await expect(page.getByText(/^(Project access required|Sign in required|Project Package unavailable)$/)).toBeVisible();
     await expect(page.getByRole('button', { name: 'Try again', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Save changes', exact: true })).toBeDisabled();
