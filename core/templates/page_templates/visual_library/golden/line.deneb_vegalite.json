@@ -9,7 +9,7 @@
       "mark": { "type": "text", "text": "PY", "align": "left", "dx": 4, "dy": 12, "color": "#8C8C8C" },
       "encoding": { "y": { "field": "gm_py", "type": "quantitative" } } },
     { "mark": { "type": "line", "color": "#0F2430", "strokeWidth": 2, "strokeCap": "round", "strokeJoin": "round" },
-      "encoding": { "y": { "field": "gm", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
+      "encoding": { "y": { "field": "gm", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null, "domain": false, "ticks": false, "gridDash": [2, 4], "gridOpacity": 0.8 } } } },
     { "mark": { "type": "rule", "color": "#94A0AC", "strokeWidth": 1, "strokeDash": [1, 4], "strokeCap": "round" },
       "encoding": { "y": { "datum": 44.1 } } },
     { "mark": { "type": "line", "color": "#94A0AC", "strokeDash": [4, 4], "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },

@@ -120,7 +120,14 @@
               "zero": false
             },
             "axis": {
-              "title": null
+              "title": null,
+              "domain": false,
+              "ticks": false,
+              "gridDash": [
+                2,
+                4
+              ],
+              "gridOpacity": 0.8
             }
           },
           "tooltip": [

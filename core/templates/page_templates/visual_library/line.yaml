@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "1.2.1"   # 1.2.1 (17.10.2026): Vega-Linie dezenter, Punkte nur als kleine Kreise (house, print_safe)
+version: "1.2.1"   # 1.2.1 (17.10.2026): Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -123,7 +123,7 @@ realizations:
             "mark": { "type": "text", "text": "{{label_py}}", "align": "left", "dx": 4, "dy": 12, "color": "{{col_py}}" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
           { "mark": { "type": "line", "color": "{{col_line}}", "strokeWidth": 2, "strokeCap": "round", "strokeJoin": "round" },
-            "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null, "domain": false, "ticks": false, "gridDash": [2, 4], "gridOpacity": 0.8 } } } },
           { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "strokeDash": [1, 4], "strokeCap": "round" },
             "encoding": { "y": { "datum": {{target_val}} } } },
           { "mark": { "type": "line", "color": "{{col_ref}}", "strokeDash": [4, 4], "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
