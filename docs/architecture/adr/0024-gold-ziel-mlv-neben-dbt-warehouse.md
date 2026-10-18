@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |---|---|
-| Status | **Accepted** (01.10.2026), **Nachtrag 02.10.2026** (§8: Lakehouse empfohlen, Werte umbenannt) |
+| Status | **Accepted** (01.10.2026), **Nachtrag 02.10.2026** (§8: Lakehouse empfohlen, Werte umbenannt), **Nachtrag 18.10.2026** (§9: IR-Schema trägt `gold_target`) |
 | Entscheider | Florian Haferkorn (Entscheidung 01.10.2026: „ALUCA bekommt alle neuen Meridian-Optionen samt MLV-Pfad“; Entscheidung 02.10.2026: „Lakehouse ist die Empfehlung, Warehouse bleibt eine wählbare Option“) |
 | Dateiname | bleibt `0024-gold-ziel-mlv-neben-dbt-warehouse.md` (Links aus `_INDEX.md`, `adr/README.md`, Orchestrator-README und der Fehlermeldung in `arch_targets/fabric.py`); der Titel ist maßgeblich |
 | Kontext | FabCon-Europe-Nachzug (`internal/project_mgmt/FABRIC_FABCON_EU_2026_PLAN.md`, Nachmessung 01.10.2026): der Spiegel trägt `emit_mlv`, `tooling/superversion/arch_targets/fabric.py` rief ihn nicht auf |
@@ -46,7 +46,7 @@ seit dem Nachtrag 02.10.2026 (§8) unter dem Namen `lakehouse`.
    `warehouse_dbt | mlv`) in den Ableitungs-Eingaben
    (`architecture_blueprint_inputs.schema.json`, ALUCA-eigen). Das IR-Schema
    `architecture_blueprint.schema.json` ist byte-identisch mit Meridian und kennt keine solche
-   Wahl; es wird **nicht** geändert. Die Wahl reist deshalb neben dem Blueprint als Target-Option
+   Wahl; es wird **nicht** geändert. *(Stand 01.10.2026; seit 14.10.2026 überholt, siehe §9.)* Die Wahl reist deshalb neben dem Blueprint als Target-Option
    `gold_targets={Domäne: "mlv"}` (`architecture_blueprint.gold_targets`).
 2. **Verdrahtung.** `arch_targets/fabric.py` ruft für die MLV-Domänen den gespiegelten
    `emit_mlv(schemas=True, governed_catalog, refresh_hints, zeitplan)` wie Meridians `cli.py`,
@@ -213,3 +213,18 @@ weiter ein Warehouse), `config.yaml.example` setzt die Empfehlung `lakehouse`. D
 legt im Trf-Workspace ein Lakehouse an und erzeugt ein `dbt-fabricspark`-Skelett (Livy). Status
 des Adapters und Begründung im Orchestrator-README, Abschnitt „Gold-Ziel“. Keiner der Pfade ist
 gegen einen Mandanten gelaufen.
+
+## 9. Nachtrag 18.10.2026 — Das IR-Schema trägt `gold_target`
+
+§3.1 sagte, das IR-Schema `architecture_blueprint.schema.json` werde nicht geändert und die Wahl
+reise nur als Target-Option neben dem Blueprint. Das gilt seit 14.10.2026 nicht mehr:
+
+- Meridian D-672 (02.10.2026) übernimmt das Feld. Commit `ed9112b6d` (14.10.2026, „gold_target-Parität
+  (D-672)“) spiegelt es nach ALUCA: `mesh.domains[].gold_target` steht in
+  `tooling/generator/schemas/architecture_blueprint.schema.json` (Zeile 1396, gelesen 18.10.2026)
+  und in der IR-Spec (`research/architecture-blueprint-ir-spec.md`, Feldtabelle §7.1, Zeile mit D-672).
+- Die Werte sind dieselben wie in §8: `lakehouse` (Vorgabe, fehlendes Feld bedeutet `lakehouse`),
+  `mlv`, `warehouse`.
+
+Nicht geprüft in diesem Nachtrag: ob die Lücken aus §8.4 für `warehouse` im Fabric-Target inzwischen
+geschlossen sind. Das gehört in einen eigenen Nachtrag mit Messung.
