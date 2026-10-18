@@ -185,7 +185,7 @@ describe('Project batch ingestion API boundary', () => {
     fake.batch.mockResolvedValue({ ok: false, status: 409, error: 'The pinned release is stale.' });
     const response = await POST(post(generate), context);
     expect(response.status).toBe(409);
-    expect((await response.json()).error).toBe('The pinned release is stale.');
+    expect((await response.json()).error).toEqual({ code: 'CONFLICT', message: 'The pinned release is stale.' });
     fake.batch.mockResolvedValue({ ok: false, available: false, error: 'Local engine unavailable.' });
     expect((await GET(new Request(`${url}?revision=${revision}`), context)).status).toBe(503);
   });

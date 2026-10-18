@@ -61,7 +61,7 @@ describe('Protected runner routes', () => {
     const response = await GET(new Request(`https://studio.test?revision=${hash}`), context);
     expect(response.status).toBe(409);
     const diagnostic = await response.json();
-    expect(diagnostic.error).toBe(error);
+    expect(diagnostic.error).toEqual({ code: 'CONFLICT', message: error });
     expect(diagnostic.checks).toHaveLength(5);
     expect(diagnostic.checks[0]).toMatchObject({ id: 'studio_access', state: 'configured' });
     expect(diagnostic.checks.at(-1)).toMatchObject({ id: 'runner_host', state: 'missing', action: expect.stringContaining('configured Python runtime') });

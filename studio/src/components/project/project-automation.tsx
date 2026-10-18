@@ -11,6 +11,7 @@ import {ProjectEstimation} from './project-estimation';
 import {ProjectDeployment} from './project-deployment';
 import {EvidenceLabel} from './evidence-label';
 import styles from './project-automation.module.css';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 const stageLinks: Record<string,string> = {discovery:'/discover',decisions:'/approvals',commercial:'/engagement',plan:'/engagement',architecture:'/architecture',release:'/generate',build:'/architecture',verification:'/health'};
 const statusLabel: Record<string,string> = {ready:'Ready',blocked:'Action required',recorded:'Recorded, not approved',unsupported:'Not automated'};
@@ -37,7 +38,7 @@ function AutomationWorkspace({projectId,revision}: {projectId:string;revision:st
     void fetch(`/api/projects/${encodeURIComponent(projectId)}/automation?revision=${revision}`,{cache:'no-store',signal:controller.signal})
       .then(async response => {
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error?.message ?? 'Automation status unavailable');
+        if (!response.ok) throw new Error(apiErrorMessage(data, 'Automation status unavailable'));
         if (data.project_ref !== projectId || data.revision_hash !== revision) throw new Error('Automation version mismatch');
         if (!controller.signal.aborted) {setValue(data);setError(null);}
       }).catch(e => {if (!controller.signal.aborted) setError(e instanceof Error ? e.message : 'Automation status unavailable');});
@@ -50,7 +51,7 @@ function AutomationWorkspace({projectId,revision}: {projectId:string;revision:st
     try {
       const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/automation`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({revisionHash:revision,targets,confirmGeneration:true})});
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error?.message ?? 'Generation did not complete');
+      if (!response.ok) throw new Error(apiErrorMessage(data, 'Generation did not complete'));
       if (data.report?.project_ref !== projectId || data.report?.revision_hash !== revision) throw new Error('Generated output version mismatch');
       if (!isCurrent()) return;
       setOutput(data);setConfirmed(false);setTab('runs');setAttempt(n => n + 1);
@@ -68,7 +69,7 @@ function AutomationWorkspace({projectId,revision}: {projectId:string;revision:st
       if (!bundle) {
         const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/automation?revision=${revision}&run=${report.run_id}`,{cache:'no-store'});
         const data=await response.json();
-        if (!response.ok) throw new Error(data.error?.message ?? 'Stored output unavailable');
+        if (!response.ok) throw new Error(apiErrorMessage(data, 'Stored output unavailable'));
         if(data.report?.project_ref!==projectId||data.report?.revision_hash!==revision||data.report?.run_id!==report.run_id) throw new Error('Stored output identity mismatch');
         bundle=data as AutomationOutput;
       }

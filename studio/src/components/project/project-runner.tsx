@@ -8,8 +8,9 @@ import { ProjectRunnerReadiness } from './project-runner-readiness';
 import { ProjectRunnerAcceptance } from './project-runner-acceptance';
 import { EvidenceLabel } from './evidence-label';
 import styles from './project-automation.module.css';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
-const errorText = (value: { error?: string | { message?: string } }, fallback: string) => typeof value.error === 'string' ? value.error : value.error?.message ?? fallback;
+const errorText = apiErrorMessage;
 
 export function ProjectRunner({ projectId, revision, plan, children }: { projectId: string; revision: string; plan: DeploymentPlan | null; children?: ReactNode }) {
   const [status, setStatus] = useState<RunnerStatus | null>(null);
@@ -117,7 +118,7 @@ export function ProjectRunner({ projectId, revision, plan, children }: { project
     setBusy(true); setError(''); setExecuteConfirmed(false); setApproval(null); setResult(null);
     try {
       const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/runner?revision=${revision}&approval=${lookup}`, { cache: 'no-store' });
-      const value = await response.json() as RunnerEvidence & { error?: string };
+      const value = await response.json() as RunnerEvidence;
       if (!response.ok) throw new Error(errorText(value, 'Saved evidence unavailable'));
       if (value.receipt?.project_ref !== projectId || value.receipt.revision_hash !== revision || value.receipt.approval_id !== lookup) throw new Error('Saved evidence identity mismatch');
       if (current() && sequence === requestSequence.current) { remember(value.receipt); setApproval(value.receipt); setResult(value.result ?? null); setEvidenceState(value.status); setAttempted(value.status !== 'approved_not_executed'); }

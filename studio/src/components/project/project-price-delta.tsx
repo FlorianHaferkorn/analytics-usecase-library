@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 import type { PriceBandRow, PriceDelta, PriceTotals } from '@/lib/bridge/project-price';
 import styles from './project-alternative-impact.module.css';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 const ROWS: Array<[keyof PriceTotals, string]> = [
   ['cost', 'Cost'], ['price_calculated', 'Price, calculated'], ['price_rounded', 'Price, rounded'], ['list_price', 'List price'],
@@ -25,7 +26,7 @@ export function ProjectPriceDelta({ projectId, revisionHash, decisionRef, option
       .then(async response => {
         const value = await response.json();
         if (response.status === 403) throw new Error('Only project admins can see prices.');
-        if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : 'Price delta unavailable');
+        if (!response.ok) throw new Error(apiErrorMessage(value, 'Price delta unavailable'));
         if (value.project_ref !== projectId || value.baseline_revision_hash !== revisionHash || value.alternative_option_ref !== optionRef || value.persist !== false) {
           throw new Error('Price delta project, revision or option mismatch');
         }

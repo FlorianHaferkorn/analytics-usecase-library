@@ -6,6 +6,7 @@ import type { AlternativeImpact } from '@/lib/bridge/project-alternatives';
 import { ProjectCommercialImpact } from './project-commercial-impact';
 import { ProjectRunCostDelta } from './project-run-cost-delta';
 import styles from './project-alternative-impact.module.css';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 export interface AlternativeOption { decision_ref: string; option_ref: string; rule_id: string }
 
@@ -33,7 +34,7 @@ export function ProjectAlternativeImpact({ projectId, revisionHash, options }: {
     void fetch(`/api/projects/${encodeURIComponent(projectId)}/architecture/alternatives?${query}`, { cache: 'no-store', signal: abort.signal })
       .then(async response => {
         const value = await response.json();
-        if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : 'Alternative comparison unavailable');
+        if (!response.ok) throw new Error(apiErrorMessage(value, 'Alternative comparison unavailable'));
         if (value.project_ref !== projectId || value.baseline_revision_hash !== revisionHash || value.alternative_option_ref !== selected.option_ref || value.baseline_unchanged !== true) {
           throw new Error('Alternative comparison project, revision or option mismatch');
         }

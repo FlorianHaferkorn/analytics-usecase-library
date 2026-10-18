@@ -1,3 +1,4 @@
+import { apiErrorForStatus } from '@/lib/api/response';
 import { generateText } from 'ai';
 import { resolveServerModel } from '@/lib/ai/orchestrator';
 import { extractUsage, safeRecordAiStep } from '@/lib/ai/telemetry';
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
 
   const systemPrompt = SYSTEM_PROMPTS[kind];
   if (!systemPrompt) {
-    return Response.json({ error: `Unknown kind: ${kind}` }, { status: 400 });
+    return apiErrorForStatus(400, `Unknown kind: ${kind}`);
   }
 
   const taskRole = KIND_TASK_ROLE[kind] ?? 'default';
@@ -47,10 +48,7 @@ export async function POST(request: Request) {
 
   const resolved = await resolveServerModel(taskRole);
   if (!resolved) {
-    return Response.json(
-      { error: 'No LLM provider configured. Set GOOGLE_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY.' },
-      { status: 503 },
-    );
+    return apiErrorForStatus(503, 'No LLM provider configured. Set GOOGLE_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY.');
   }
   const { model, choice } = resolved;
   const startedAt = Date.now();
@@ -76,6 +74,6 @@ export async function POST(request: Request) {
       taskRole, capabilityRole: choice.capabilityRole, provider: choice.provider, model: choice.modelId,
       usage: extractUsage(undefined), latencyMs: Date.now() - startedAt, ok: false, error: message,
     });
-    return Response.json({ error: `AI generation failed: ${message}` }, { status: 500 });
+    return apiErrorForStatus(500, `AI generation failed: ${message}`);
   }
 }

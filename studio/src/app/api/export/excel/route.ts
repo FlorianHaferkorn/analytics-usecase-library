@@ -1,3 +1,4 @@
+import { apiErrorForStatus } from '@/lib/api/response';
 /**
  * GET /api/export/excel?view=steering&projectId=...
  *
@@ -51,10 +52,7 @@ export async function GET(request: Request) {
   const projectId = searchParams.get('projectId') ?? 'default';
 
   if (view !== 'steering') {
-    return new Response(JSON.stringify({ error: 'Only view=steering is supported.' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return apiErrorForStatus(400, 'Only view=steering is supported.');
   }
 
   // Load data

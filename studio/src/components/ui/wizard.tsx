@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AiField } from '@/components/ai/ai-field';
 import { StudioFormField, StudioInput } from '@/components/ui/studio-data';
+import { apiErrorCode, apiErrorMessage } from '@/lib/api/client-error';
 
 type ElementKind = 'kpi' | 'bracket' | 'action' | 'source';
 
@@ -101,11 +102,8 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kind, prompt }),
       });
-      // Gate errors come as { error: { code, message } }; the route's own errors are still flat strings.
-      const json = await res.json() as { draft?: DraftResult; error?: string | { code?: string; message?: string } };
-      const errorCode = typeof json.error === 'object' ? json.error.code : undefined;
-      const errorMessage = typeof json.error === 'string' ? json.error : json.error?.message;
-      if (res.status === 403 && errorCode === 'AI_EGRESS_NOT_APPROVED') {
+      const json = await res.json() as { draft?: DraftResult; error?: unknown };
+      if (res.status === 403 && apiErrorCode(json) === 'AI_EGRESS_NOT_APPROVED') {
         const localDraft: DraftResult = {
           name: preName, description: preDescription || prompt,
           ref: '', domain: '', type: '', grain: '', unit: '',
@@ -118,7 +116,7 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
         return;
       }
       if (!res.ok || json.error) {
-        setGenError(errorMessage ?? `HTTP ${res.status}`);
+        setGenError(apiErrorMessage(json, `HTTP ${res.status}`));
         return;
       }
       if (json.draft) {

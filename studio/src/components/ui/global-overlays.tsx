@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { CommandPalette, type SerializablePaletteItem, type PaletteItem } from './command-palette';
 import { Wizard } from './wizard';
 import { useProjectStore, type WizardDraftKind } from '@/lib/store/project-store';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 // ─── EntityContext (mirrors context-builder.ts — client-safe, no fs imports) ──
 
@@ -65,7 +66,7 @@ export function ChatPanel({
 
       if (!response.ok) {
         const err = (await response.json()) as { error?: string | { message?: string } };
-        throw new Error(typeof err.error === 'string' ? err.error : err.error?.message ?? 'AI request failed');
+        throw new Error(apiErrorMessage(err, 'AI request failed'));
       }
 
       const reader = response.body?.getReader();

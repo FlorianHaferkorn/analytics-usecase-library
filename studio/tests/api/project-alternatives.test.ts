@@ -51,6 +51,6 @@ describe('Alternative comparison API', () => {
     mocks.engine.mockResolvedValueOnce({ ok: false, status: 409, error: 'Release blocked: this revision has no explicit release attestation' });
     const response = await GET(url(valid), context);
     expect(response.status).toBe(409);
-    expect((await response.json()).error).toMatch(/release attestation/);
+    expect((await response.json()).error).toMatchObject({ code: 'CONFLICT', message: expect.stringMatching(/release attestation/) });
   });
 });

@@ -1,3 +1,4 @@
+import { apiErrorForStatus } from '@/lib/api/response';
 import { streamText } from 'ai';
 import { resolveServerModel } from '@/lib/ai/orchestrator';
 import { extractUsage, safeRecordAiStep } from '@/lib/ai/telemetry';
@@ -45,10 +46,7 @@ export async function POST(request: Request) {
   if (egressDenied) return egressDenied;
   const resolved = await resolveServerModel('source-discovery');
   if (!resolved) {
-    return new Response(
-      JSON.stringify({ error: 'No LLM provider configured. Set GOOGLE_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY in .env.' }),
-      { status: 503, headers: { 'Content-Type': 'application/json' } },
-    );
+    return apiErrorForStatus(503, 'No LLM provider configured. Set GOOGLE_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY in .env.');
   }
   const { model, choice } = resolved;
   const startedAt = Date.now();
@@ -71,9 +69,6 @@ export async function POST(request: Request) {
     return result.toTextStreamResponse();
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
-    return new Response(
-      JSON.stringify({ error: `LLM error: ${message}` }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } },
-    );
+    return apiErrorForStatus(500, `LLM error: ${message}`);
   }
 }

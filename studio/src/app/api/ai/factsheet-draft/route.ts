@@ -1,3 +1,4 @@
+import { apiErrorForStatus } from '@/lib/api/response';
 import { generateText } from 'ai';
 import { resolveServerModel } from '@/lib/ai/orchestrator';
 import { extractUsage, safeRecordAiStep } from '@/lib/ai/telemetry';
@@ -62,10 +63,7 @@ export async function POST(request: Request) {
     const prose = body.prose ?? '';
     const bracketYaml = body.bracket ?? '';
     if (!editedSource || !prose || !bracketYaml) {
-      return Response.json(
-        { error: 'reconcile requires editedSource, prose, and bracket' },
-        { status: 400 },
-      );
+      return apiErrorForStatus(400, 'reconcile requires editedSource, prose, and bracket');
     }
 
     const deterministic = reconcileDeterministic({

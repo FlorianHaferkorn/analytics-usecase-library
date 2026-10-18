@@ -9,6 +9,7 @@ import type { LocalReferenceReport, ReferenceVariant } from '@/lib/bridge/local-
 import { buildDeliveryZip } from '@/lib/delivery/export-bundle';
 import { EvidenceLabel } from './evidence-label';
 import styles from './local-reference-lab.module.css';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 const kinds: Record<string, NodeKind> = { source: 'source', data_product: 'data_product', transformation: 'transformation', reference_report: 'reference_report', workspace: 'workspace', domain: 'domain', native_item: 'native_item' };
 type Tab = 'journey' | 'architecture' | 'evidence' | 'outputs';
@@ -41,7 +42,7 @@ export function LocalReferenceLab() {
     try {
       const response = await fetch('/api/local-reference', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ variant, confirmSynthetic: true }) });
       const value = await response.json();
-      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : value.error?.message ?? 'Local reference failed.');
+      if (!response.ok) throw new Error(apiErrorMessage(value, 'Local reference failed.'));
       if (value.source_kind !== 'synthetic' || value.project_ref !== 'local_reference' || value.variant !== variant || value.tenant_actions_performed !== false || value.live_apply_allowed !== false
         || !Array.isArray(value.stages) || !Array.isArray(value.checks)
         || [...value.stages, ...value.checks].some((row: { evidence_kind: string }) => !['local_check', 'simulation', 'not_verified'].includes(row.evidence_kind))) throw new Error('Local reference scope mismatch. Results were not accepted.');
