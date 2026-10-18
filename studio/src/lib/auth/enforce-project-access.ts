@@ -9,6 +9,8 @@
  * a change to the graceful-fallback rule can't drift between copies.
  */
 import { auth, type ProjectMembership } from '@/lib/auth/config';
+import { apiError } from '@/lib/api/response';
+import { ErrorCode } from '@/lib/api/error-codes';
 
 function getMemberships(session: unknown): ProjectMembership[] {
   const anySession = session as Record<string, unknown> | null | undefined;
@@ -16,10 +18,7 @@ function getMemberships(session: unknown): ProjectMembership[] {
 }
 
 export function projectAccessDeniedResponse(): Response {
-  return new Response(JSON.stringify({ error: 'Forbidden', code: 'PROJECT_ACCESS_DENIED' }), {
-    status: 403,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return apiError(ErrorCode.PROJECT_ACCESS_DENIED, 'You are not a member of this project.', 403);
 }
 
 /**
