@@ -34,6 +34,10 @@ revisit a decision by adding a new ADR that supersedes the old one.
 | [0017](0017-generator-v2-insight-scoring-verification-composition.md) | Generator v2: Insight-Scoring, Verification, Composition (Two-Stage) | Accepted (2026-07-18) |
 | [0018](0018-visual-vocabulary-single-authority.md) | `visual_registry.yaml` ist die einzige Autorität für das Visualtyp-Vokabular | Accepted (2026-08-02) |
 | [0019](0019-team-beratung-preis-und-staffing-modell.md) | Team-Beratung: Preis- und Staffing-Modell (Rollen × Kostenband × Standort) | Accepted (2026-09-03) |
+| [0020](0020-preis-staffing-und-betriebsprofil-autoritaeten.md) | Preis, Staffing und Betriebsprofil: eine Autorität je Schicht | Accepted (2026-09-04) |
+| [0021](0021-native-spur-vor-eigenbau-in-der-visual-library.md) | Die native Spur hat Vorrang, und jede Lücke trägt einen Grund | Accepted (2026-09-07) |
 | [0022](0022-authn-authz-stack-fuer-die-studios.md) | AuthN/AuthZ-Stack für die Studios: Better Auth, Kunden-Entra-ID, ReBAC bei Bedarf | Accepted (2026-10-01) |
-| [0024](0024-gold-ziel-mlv-neben-dbt-warehouse.md) | Gold-Ziel je Domäne: Lakehouse (empfohlen), MLV, Warehouse (Option) | Accepted (2026-10-01), Nachtrag 2026-10-02 |
+| [0023](0023-exportwege-nach-label-in-der-dpia.md) | Exportwege aus Power BI werden nach Labelvererbung bewertet | Accepted (2026-10-01) |
+| [0024](0024-gold-ziel-mlv-neben-dbt-warehouse.md) | Gold-Ziel je Domäne: Lakehouse (empfohlen), MLV, Warehouse (Option) | Accepted (2026-10-01), Nachträge 2026-10-02 und 2026-10-18 |
+| [0025](0025-ki-clients-ueber-fabric-iq-mcp-in-der-dpia.md) | KI-Clients über Fabric IQ MCP gehören als eigener Abfluss in die DPIA | Accepted (2026-10-01) |
 | [0026](0026-reporting-achsen-notationsprofil-und-nutzungskonzept.md) | Reporting-Achsen: Notationsprofil × Nutzungskonzept (Visual Library) | Accepted (2026-10-09) |
