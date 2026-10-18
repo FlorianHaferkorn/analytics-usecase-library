@@ -1,6 +1,9 @@
 import { auth } from '@/lib/auth/config';
 import { NextResponse } from 'next/server';
 import type { ProjectMembership } from '@/lib/auth/config';
+import { projectAccessDeniedResponse } from '@/lib/auth/enforce-project-access';
+import { apiError } from '@/lib/api/response';
+import { ErrorCode } from '@/lib/api/error-codes';
 
 // Routes that are intentionally public (no auth required).
 const PUBLIC_PATHS = new Set(['/', '/login']);
@@ -21,12 +24,6 @@ function _getMemberships(req: { auth: unknown }): ProjectMembership[] {
   );
 }
 
-function _projectAccessResponse(): NextResponse {
-  return new NextResponse(
-    JSON.stringify({ error: 'Forbidden', code: 'PROJECT_ACCESS_DENIED' }),
-    { status: 403, headers: { 'Content-Type': 'application/json' } },
-  );
-}
 
 export const proxy = auth((req) => {
   const { pathname } = req.nextUrl;
@@ -48,10 +45,7 @@ export const proxy = auth((req) => {
   if (!hasNextAuthToken) {
     // API callers get the same 401 the route handlers return, not a login page.
     if (pathname.startsWith('/api/')) {
-      return new NextResponse(
-        JSON.stringify({ error: { code: 'AUTH_REQUIRED', message: 'Authentication required' } }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } },
-      );
+      return apiError(ErrorCode.AUTH_REQUIRED, 'Authentication required', 401);
     }
     const loginUrl = new URL('/login', req.nextUrl.origin);
     loginUrl.searchParams.set('callbackUrl', pathname);
@@ -69,7 +63,7 @@ export const proxy = auth((req) => {
     const gracefulFallback = memberships.length === 0 && requestedProjectId === 'default';
 
     if (!isMember && !gracefulFallback) {
-      return _projectAccessResponse();
+      return projectAccessDeniedResponse();
     }
   }
 
@@ -89,7 +83,7 @@ export const proxy = auth((req) => {
         memberships.length === 0 && headerProjectId === 'default';
 
       if (!isMember && !gracefulFallback) {
-        return _projectAccessResponse();
+        return projectAccessDeniedResponse();
       }
     }
   }

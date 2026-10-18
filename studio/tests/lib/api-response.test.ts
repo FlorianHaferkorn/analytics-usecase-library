@@ -53,6 +53,7 @@ describe('api-response', () => {
   it('ErrorCode contains all expected codes', () => {
     expect(ErrorCode.AUTH_REQUIRED).toBe('AUTH_REQUIRED');
     expect(ErrorCode.FORBIDDEN).toBe('FORBIDDEN');
+    expect(ErrorCode.PROJECT_ACCESS_DENIED).toBe('PROJECT_ACCESS_DENIED');
     expect(ErrorCode.NOT_FOUND).toBe('NOT_FOUND');
     expect(ErrorCode.VALIDATION_ERROR).toBe('VALIDATION_ERROR');
     expect(ErrorCode.CONFLICT).toBe('CONFLICT');

@@ -147,6 +147,13 @@ export function StudioEmptyState({ title, description }: { title: string; descri
   );
 }
 
+// ── List and detail ──────────────────────────────────────────────────────────
+
+/** Fixed-width list next to its detail; stacks into one column on narrow screens. */
+export function StudioListDetail({ children }: { children: ReactNode }) {
+  return <div className={styles.listDetail}>{children}</div>;
+}
+
 // ── Toolbar ───────────────────────────────────────────────────────────────────
 
 export function StudioToolbar({ children, style }: { children: ReactNode; style?: CSSProperties }) {

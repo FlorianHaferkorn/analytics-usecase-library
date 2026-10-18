@@ -66,8 +66,8 @@ test.describe('Tenant isolation', () => {
 
     const body = await response.json().catch(() => null);
     if (body) {
-      // Forbidden JSON error body with code PROJECT_ACCESS_DENIED.
-      expect(body).toMatchObject({ code: 'PROJECT_ACCESS_DENIED' });
+      // Standard error body { error: { code, message } } with PROJECT_ACCESS_DENIED.
+      expect(body).toMatchObject({ error: { code: 'PROJECT_ACCESS_DENIED' } });
     }
   });
 
@@ -96,7 +96,7 @@ test.describe('Tenant isolation', () => {
 
     const body = await response.json().catch(() => null);
     if (body) {
-      expect(body).toMatchObject({ code: 'PROJECT_ACCESS_DENIED' });
+      expect(body).toMatchObject({ error: { code: 'PROJECT_ACCESS_DENIED' } });
     }
   });
 

@@ -9,15 +9,9 @@ import { ErrorCode } from '@/lib/api/error-codes';
 import { logAuditEvent } from '@/lib/db/audit-repo';
 import { requireAuth } from '@/lib/auth/session';
 import { auth, type ProjectMembership } from '@/lib/auth/config';
+import { projectAccessDeniedResponse } from '@/lib/auth/enforce-project-access';
 
 const CORE_USECASES_DIR = join(process.cwd(), '..', 'core', 'usecases', 'core');
-
-function projectAccessDeniedResponse(): Response {
-  return new Response(JSON.stringify({ error: 'Forbidden', code: 'PROJECT_ACCESS_DENIED' }), {
-    status: 403,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
 
 function getMembershipsFromSession(session: unknown): ProjectMembership[] {
   const anySession = session as Record<string, unknown> | null | undefined;
