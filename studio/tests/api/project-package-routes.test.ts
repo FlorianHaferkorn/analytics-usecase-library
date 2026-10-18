@@ -77,6 +77,7 @@ describe('Project Package API routes', () => {
     }), CONTEXT);
 
     expect(response.status).toBe(409);
+    expect((await response.json()).error.code).toBe('STALE_REVISION');
     expect(h.requireRole).toHaveBeenCalledWith('editor', PROJECT_ID);
     expect(h.audit).not.toHaveBeenCalled();
   });

@@ -17,6 +17,8 @@ export const ErrorCode = {
   NOT_FOUND: 'NOT_FOUND',
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   CONFLICT: 'CONFLICT',
+  /** The request was based on a revision that is no longer the head (saved elsewhere meanwhile). */
+  STALE_REVISION: 'STALE_REVISION',
   UNSUPPORTED: 'UNSUPPORTED',
   /** A dependency (bridge, CLI, store) is unavailable; retrying later may succeed. */
   SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',

@@ -15,7 +15,10 @@ export function packageRepositoryError(
   if (!result.available) {
     return apiError(ErrorCode.UNSUPPORTED, message, 503);
   }
-  if (result.status === 409 || result.code === 'stale_head' || normalized.includes('already exists')) {
+  if (result.code === 'stale_head') {
+    return apiError(ErrorCode.STALE_REVISION, message, 409);
+  }
+  if (result.status === 409 || normalized.includes('already exists')) {
     return apiError(ErrorCode.CONFLICT, message, 409);
   }
   if (
