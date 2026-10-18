@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-10-01
+last-reviewed: 2026-10-02
 shelf-life-days: 90
 ---
 # compliance — Zentraler Anlaufpunkt (_INDEX)
@@ -25,7 +25,7 @@ shelf-life-days: 90
 | Doc | Zweck | Lies-wenn |
 |---|---|---|
 | `README.md` | Paket-Übersicht, DSGVO-Artikel-Mapping, Quickstart für Legal | Erstkontakt; verschafft den Gesamtüberblick |
-| `DPIA.md` | Datenschutz-Folgenabschätzung (Art. 35): PII-Scope, Risiko, Rechtsgrundlage; Abschnitt 12: Fabric/Power-BI-Optionen (Schlüssel, Customer Lockbox, KI-Zugriff je Modell) | Du klassifizierst Tabellen oder bewertest Verarbeitungs-Risiken |
+| `DPIA.md` | Datenschutz-Folgenabschätzung (Art. 35): PII-Scope, Risiko, Rechtsgrundlage; Abschnitt 12: Fabric/Power-BI-Optionen (Schlüssel, Customer Lockbox, KI-Zugriff je Modell, KI-Clients über Fabric IQ MCP) | Du klassifizierst Tabellen oder bewertest Verarbeitungs-Risiken |
 | `AVV_Template.md` | Auftragsverarbeitungsvertrag-Vorlage (Art. 28) inkl. Checkliste | Du setzt einen DPA mit einem Prozessor/Vendor auf |
 | `retention_policy.md` | Aufbewahrungs-/Löschrichtlinie (Art. 5(1)(e)): Tiers 30d/3y/7y/indef | Du legst Lebenszyklus/Löschung von Analytics-Outputs fest |
 | `eu_hosting_guarantee.md` | EU-Hosting-Zusicherung + Subprozessor-Liste (Art. 44–49, 28(4)) | Du prüfst Datensouveränität oder onboardest einen Cloud-Dienst |
