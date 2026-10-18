@@ -143,10 +143,12 @@
   --z-toast: 100;
 
   /* ========== Font Families ========== */
-  /* Offline-first font aliases. They intentionally use locally installed
-     system faces so production builds never depend on a font CDN. */
-  --font-inter: 'Segoe UI Variable', 'Segoe UI', 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-jetbrains-mono: 'Cascadia Mono', 'SFMono-Regular', 'JetBrains Mono', ui-monospace, monospace;
+  /* Offline-first: Inter and JetBrains Mono ship with the app (next/font/local in
+     app/layout.tsx sets --font-inter-face / --font-jetbrains-mono-face), so no
+     build or page load depends on a font CDN and every machine renders the same
+     metrics. The system faces after them only cover a missing bundle. */
+  --font-inter: var(--font-inter-face, 'Inter'), 'Segoe UI Variable', 'Segoe UI', ui-sans-serif, system-ui, sans-serif;
+  --font-jetbrains-mono: var(--font-jetbrains-mono-face, 'JetBrains Mono'), 'Cascadia Mono', 'SFMono-Regular', ui-monospace, monospace;
   --font-display: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-body:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
