@@ -141,24 +141,124 @@ def test_band_and_abs_comparators():
 
 def test_monthly_persistence_requires_the_prior_month_too(ergebnisse):
     dax = _neu(ergebnisse, "S-I1.1")             # sku_location_month, min_consecutive_periods 2
-    assert "VAR _idx = MAX ( 'dim_date'[Year] ) * 12 + MAX ( 'dim_date'[MonthNumber] )" in dax
-    assert "= _idx - 1 ) )" in dax and "= _idx - 2" not in dax
-    assert "DATEADD" not in dax                   # neben einem Monats-Slicer leer, siehe Modul
+    # Datumsgrenzen als VAR aus dem letzten ausgewaehlten Tag. Der fruehere Index
+    # MAX(Year)*12 + MAX(MonthNumber) nahm Jahr und Monat getrennt: Nov 2025 bis Feb 2026
+    # ergab 2026-11.
+    assert "VAR _s1 = DATE ( YEAR ( _ende ), MONTH ( _ende ) - 1, 1 ) VAR _e1 = EOMONTH ( _s1, 0 )" in dax
+    assert "_s2" not in dax and "_idx" not in dax
+    assert "DATEADD" not in dax and "FILTER ( ALL (" not in dax
+    assert "VAR _v0 = [Days in Inventory]" in dax  # Periode 0 bleibt beim Monat die Auswahl
 
 
-def test_volume_guardrail_blocks_below_the_minimum(ergebnisse):
-    assert "[Sales Units] >= 5000" in _neu(ergebnisse, "S-I1.1")
+def test_volume_guardrail_blocks_below_the_minimum_in_every_period(ergebnisse):
+    dax = _neu(ergebnisse, "S-I1.1")
+    assert "VAR _g = [Sales Units]" in dax
+    assert "_g >= 5000 )" in dax and "_g_1 >= 5000 )" in dax
 
 
-def test_weekly_persistence_is_reported_not_faked(ergebnisse):
-    e = next(e for (m, c), e in ergebnisse.items() if c == "S-I1.3" and e.neu)   # sku_location_week
-    assert "_idx" not in e.neu and "persistence" in e.nicht_ausgewertet
+# --- Wochen-/Tages-Granularitaet (07.10.2026) -----------------------------------------
+
+S_R2_2_VARS = (
+    "VAR _ende = MAX ( 'dim_date'[Date] ) "
+    "VAR _s0 = _ende - WEEKDAY ( _ende, 2 ) + 1 VAR _e0 = _s0 + 6 "
+    "VAR _s1 = _s0 - 7 VAR _e1 = _e0 - 7 "
+    "VAR _v0 = CALCULATE ( [On-Time %], REMOVEFILTERS ( 'dim_date' ), "
+    "'dim_date'[Date] >= _s0, 'dim_date'[Date] <= _e0 ) "
+    "VAR _v0_1 = CALCULATE ( [On-Time %], REMOVEFILTERS ( 'dim_date' ), "
+    "'dim_date'[Date] >= _s1, 'dim_date'[Date] <= _e1 ) "
+    "VAR _g = CALCULATE ( [Shipments Count], REMOVEFILTERS ( 'dim_date' ), "
+    "'dim_date'[Date] >= _s0, 'dim_date'[Date] <= _e0 ) "
+    "VAR _g_1 = CALCULATE ( [Shipments Count], REMOVEFILTERS ( 'dim_date' ), "
+    "'dim_date'[Date] >= _s1, 'dim_date'[Date] <= _e1 ) RETURN "
+)
+S_R2_2_L3 = (
+    "IF ( ( NOT ISBLANK ( _v0 ) && ( _v0 < 0.9 ) && _g >= 100 ) && "
+    "( NOT ISBLANK ( _v0_1 ) && ( _v0_1 < 0.9 ) && _g_1 >= 100 ), "
+    "\"🔴 L3 — S-R2.2 — Fulfillment & Transport Stabilisation\" & UNICHAR ( 10 ) & "
+    "\"Owner: logistics_manager | \" & FORMAT ( _v0, \"0.0%\" ) & "
+    "\" (week of \" & FORMAT ( _s0, \"yyyy-mm-dd\" ) & \")\""
+)
+
+
+def test_s_r2_2_two_consecutive_weeks_golden(ergebnisse):
+    """S-R2.2: lane_dc_week, persistence 2 -- die laufende und die Vorwoche, je mit Guardrail."""
+    e = ergebnisse[("SupplyChain.SemanticModel", "S-R2.2")]
+    assert e.neu.startswith(S_R2_2_VARS)
+    assert e.neu[len(S_R2_2_VARS):].startswith(S_R2_2_L3)
+    assert "persistence" not in e.nicht_ausgewertet
+    assert "lane x dc" in e.nicht_ausgewertet["grain_slot"]
+
+
+def test_daily_persistence_shifts_by_days(ergebnisse):
+    dax = _neu(ergebnisse, "X-R2.2")             # queue_day, min_consecutive_periods 3
+    assert "VAR _s0 = _ende VAR _e0 = _ende VAR _s1 = _s0 - 1" in dax and "VAR _s2 = _s0 - 2" in dax
+    assert "_v0_2 < 0.63 || _v0_2 > 0.95 )" in dax and "_g_2 >= 150 )" in dax
+
+
+def test_persistence_is_evaluated_wherever_the_grain_has_a_time_part(ergebnisse):
+    offen = sorted(c for (m, c), e in ergebnisse.items() if "persistence" in e.nicht_ausgewertet)
+    assert offen == ["C-P4.1"]                    # grain promotion, window in executions
+    assert "promotion" in ergebnisse[("Commercial.SemanticModel", "C-P4.1")].nicht_ausgewertet["persistence"]
+
+
+def test_every_unevaluated_rule_carries_a_reason(ergebnisse):
+    for (m, c), e in ergebnisse.items():
+        for regel, grund in e.nicht_ausgewertet.items():
+            assert isinstance(grund, str) and len(grund) > 10, (m, c, regel)
+
+
+def _ev(grain, n=2, laenge=3, einheit="periods", **extra):
+    return {"grain": grain, "window": {"kind": "rolling", "length": laenge, "unit": einheit},
+            "persistence": {"required": True, "min_consecutive_periods": n}, **extra}
+
+
+def test_grain_not_mappable_in_the_model_is_a_field_not_a_silent_degrade():
+    ac = _code(basis="absolute", unit="days")
+    ac["trigger"]["evaluation"] = _ev("lane_dc_week")
+    dax, offen = atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"}, spalten={"dim_date.Year"})
+    assert "dim_date.Date fehlt" in offen["grain_zeit"] and offen["persistence"] == offen["grain_zeit"]
+    assert "_s0" not in dax and "_v0_1" not in dax
+    dax, offen = atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"}, spalten={"dim_date.Date"})
+    assert "grain_zeit" not in offen and "persistence" not in offen and "_v0_1" in dax
+
+
+def test_window_unit_and_length_must_fit_the_persistence():
+    ac = _code(basis="absolute", unit="days")
+    ac["trigger"]["evaluation"] = _ev("queue_week", einheit="days")
+    assert "window.unit" in atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})[1]["persistence"]
+    ac["trigger"]["evaluation"] = _ev("queue_week", n=3, laenge=2)
+    assert "window.length" in atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})[1]["persistence"]
+    ac["trigger"]["evaluation"] = _ev("queue_week", einheit="weeks")
+    assert "persistence" not in atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})[1]
+
+
+def test_weekly_grain_with_monthly_baseline_is_an_error():
+    ac = _code(basis="relative", unit="%")
+    ac["trigger"]["evaluation"] = _ev("sku_week")
+    with pytest.raises(atd.Fehler, match="Monatsdurchschnitt"):
+        atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})
+
+
+def test_code_without_persistence_and_time_grain_stays_on_the_selection():
+    ac = _code(basis="absolute", unit="days")
+    ac["trigger"]["evaluation"] = {"grain": "month", "persistence": {"required": False,
+                                                                      "min_consecutive_periods": 1}}
+    dax, offen = atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})
+    assert dax.startswith("VAR _v0 = [K] RETURN IF ( ( NOT ISBLANK ( _v0 ) && ( _v0 > 3 ) ), ")
+    assert "CALCULATE" not in dax and "_ende" not in dax and offen == {}
 
 
 def test_persistence_changes_the_expression_gegenprobe():
     ac = _code(basis="absolute", unit="days")
-    ac["trigger"]["evaluation"] = {"grain": "month", "persistence": {"required": True, "min_consecutive_periods": 3}}
+    ac["trigger"]["evaluation"] = _ev("month", n=3)
     dax, offen = atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})
-    assert "= _idx - 1 )" in dax and "= _idx - 2 )" in dax and "persistence" not in offen
+    assert "MONTH ( _ende ) - 1, 1 )" in dax and "MONTH ( _ende ) - 2, 1 )" in dax
+    assert "persistence" not in offen
     ac["trigger"]["evaluation"]["persistence"]["required"] = False
-    assert "_idx" not in atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})[0]
+    assert "_ende" not in atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})[0]
+
+
+def test_grain_teile():
+    assert atd.grain_teile("lane_dc_week") == ("week", ["lane", "dc"])
+    assert atd.grain_teile("month") == ("month", [])
+    assert atd.grain_teile("promotion") == (None, ["promotion"])
