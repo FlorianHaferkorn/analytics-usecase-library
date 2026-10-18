@@ -149,9 +149,13 @@ export function StudioEmptyState({ title, description }: { title: string; descri
 
 // ── List and detail ──────────────────────────────────────────────────────────
 
-/** Fixed-width list next to its detail; stacks into one column on narrow screens. */
-export function StudioListDetail({ children }: { children: ReactNode }) {
-  return <div className={styles.listDetail}>{children}</div>;
+/**
+ * List next to its detail; stacks into one column on narrow screens.
+ * `list` is the list column track on wide screens (default 280px).
+ */
+export function StudioListDetail({ children, list, style }: { children: ReactNode; list?: string; style?: CSSProperties }) {
+  const listTrack = list ? ({ '--list-detail-list': list } as CSSProperties) : undefined;
+  return <div className={styles.listDetail} style={{ ...listTrack, ...style }}>{children}</div>;
 }
 
 // ── Toolbar ───────────────────────────────────────────────────────────────────

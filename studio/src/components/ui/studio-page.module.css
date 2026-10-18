@@ -278,7 +278,7 @@
 
 .listDetail {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: var(--list-detail-list, 280px) minmax(0, 1fr);
   align-items: start;
   gap: var(--pad);
 }

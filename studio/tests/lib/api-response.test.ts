@@ -41,6 +41,11 @@ describe('api-response', () => {
     expect(json.error.code).toBe('FORBIDDEN');
   });
 
+  it('apiError keeps code and message authoritative over extra fields', async () => {
+    const res = apiError(ErrorCode.AI_EGRESS_NOT_APPROVED, 'Paused', 403, { evidenceId: 'evt-1', code: 'X' });
+    expect(await res.json()).toEqual({ error: { evidenceId: 'evt-1', code: 'AI_EGRESS_NOT_APPROVED', message: 'Paused' } });
+  });
+
   it('apiValidationError returns 422 with details', async () => {
     const res = apiValidationError(['Name is required', 'Email is invalid']);
     expect(res.status).toBe(422);
