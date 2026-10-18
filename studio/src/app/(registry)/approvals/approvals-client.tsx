@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { BracketGovernancePanel } from '@/components/registry/bracket-governance-panel';
 import { RefinementProposalsPanel } from '@/components/registry/refinement-proposals-panel';
-import { StudioSegmentedControl } from '@/components/ui/studio-page';
+import { StudioListDetail, StudioSegmentedControl } from '@/components/ui/studio-page';
 
 interface BracketSummary {
   id: string;
@@ -35,7 +35,7 @@ export function ApprovalsClient({ brackets }: Props) {
       {tab === 'refinements' ? (
         <RefinementProposalsPanel />
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '280px minmax(0, 1fr)', gap: 'var(--pad)', alignItems: 'start' }}>
+        <StudioListDetail>
           {/* Bracket list */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {brackets.map((b) => (
@@ -71,7 +71,7 @@ export function ApprovalsClient({ brackets }: Props) {
               </div>
             )}
           </div>
-        </div>
+        </StudioListDetail>
       )}
     </div>
   );

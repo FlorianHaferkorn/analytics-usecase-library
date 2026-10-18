@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
+import { StudioButton, StudioEmptyState, StudioListDetail, StudioPanel } from '@/components/ui/studio-page';
 import { StudioFormField, StudioFormGrid, StudioInlineStat, StudioInput, StudioSelect, StudioTextarea } from '@/components/ui/studio-data';
 import { OrgMembersPanel, type OrgMemberRow } from '@/components/registry/org-members-panel';
 
@@ -118,7 +118,7 @@ export function OrganizationsClient({ initialOrganizations, projects }: Props) {
   const unassignedProjects = projects.filter((p) => p.org_id !== selectedId);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 'var(--pad)', alignItems: 'start' }}>
+    <StudioListDetail>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <StudioPanel title="Organizations" description="Optional grouping over projects.">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -204,6 +204,6 @@ export function OrganizationsClient({ initialOrganizations, projects }: Props) {
           </>
         )}
       </div>
-    </div>
+    </StudioListDetail>
   );
 }

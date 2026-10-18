@@ -679,6 +679,7 @@ export function CatalogLibrary({
       <div
         style={{
           display: 'flex',
+          flexWrap: 'wrap',
           gap: 0,
           borderBottom: '1px solid var(--line)',
           marginBottom: -1,
@@ -720,10 +721,11 @@ export function CatalogLibrary({
       </div>
 
       {/* Search + filter row */}
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
         <div
           style={{
-            flex: 1,
+            flex: '1 1 220px',
+            minWidth: 0,
             position: 'relative',
             display: 'flex',
             alignItems: 'center',

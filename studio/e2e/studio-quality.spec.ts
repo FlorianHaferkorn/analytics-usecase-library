@@ -104,6 +104,8 @@ test.describe('Studio quality baseline', () => {
     { name: 'desktop', width: 1440, height: 900 },
     { name: 'compact', width: 1024, height: 768 },
     { name: 'narrow', width: 768, height: 900 },
+    // Phone width: list/detail layouts stack, tab and filter rows wrap, the sidebar is a rail from the first paint.
+    { name: 'mobile', width: 360, height: 780 },
   ]) {
     test.describe(viewport.name, () => {
       test.use({ viewport: { width: viewport.width, height: viewport.height } });

@@ -12,6 +12,12 @@
 
 .sidebar[data-collapsed='true'] { width: 68px; }
 
+/* Before the first effect: no animation, and the shell fallback's rail rule. */
+.sidebar:not([data-collapsed]) { transition: none; }
+@media (max-width: 960px) {
+  .sidebar:not([data-collapsed]) { width: 68px; }
+}
+
 .brand {
   display: flex;
   height: var(--studio-header-height, 52px);

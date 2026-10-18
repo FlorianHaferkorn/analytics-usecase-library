@@ -25,7 +25,10 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
   const dataScope = useProjectStore(state => state.dataScope);
   const projectName = useProjectStore(state => state.projectName);
   const { domainFilter, toggleDomainFilter, isPending } = useDomainFilter();
-  const [collapsed, setCollapsed] = useState(false);
+  // null until the first effect has read the viewport and the stored choice; the
+  // stylesheet then decides (rail below 960px, like the shell's fallback), so a
+  // narrow screen does not render the 232px sidebar first and squeeze the page.
+  const [collapsed, setCollapsed] = useState<boolean | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 960px)');
@@ -50,7 +53,7 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
   const isCollapsed = collapsed;
 
   return (
-    <aside className={`studio-sidebar ${styles.sidebar}`} data-collapsed={isCollapsed}>
+    <aside className={`studio-sidebar ${styles.sidebar}`} data-collapsed={isCollapsed ?? undefined}>
       {/* Brand */}
       <div className={styles.brand}>
         <div className={styles.brandMark}>

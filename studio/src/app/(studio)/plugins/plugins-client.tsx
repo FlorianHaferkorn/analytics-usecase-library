@@ -107,7 +107,7 @@ export function PluginsClient() {
         <StudioMetric label="Hook bindings" value={stats.totalHooks} meta={`${ALL_HOOKS.filter((hook) => stats.hookCoverage[hook] > 0).length}/${ALL_HOOKS.length} contracts covered`} />
       </StudioMetricBar>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))', gap: '16px' }}>
         <StudioPanel title="Catalog Controls" description="Filter the registry by plugin shape, runtime status, and hook keywords." action={<span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>{filteredPlugins.length} visible</span>} tone="info" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <StudioInput

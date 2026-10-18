@@ -276,6 +276,13 @@
   line-height: 1.55;
 }
 
+.listDetail {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--pad);
+}
+
 .toolbar {
   display: flex;
   align-items: center;
@@ -454,6 +461,7 @@
 
 @media (max-width: 720px) {
   .pageHeader { align-items: stretch; flex-direction: column; }
+  .listDetail { grid-template-columns: minmax(0, 1fr); }
   .headerCopy {
     display: flex;
     /* The header stacks as a column here, so the desktop basis of 560px would

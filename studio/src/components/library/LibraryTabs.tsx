@@ -24,7 +24,7 @@ export function LibraryTabs({ tabs, activeTab }: LibraryTabsProps) {
   };
 
   return (
-    <div className="flex gap-0.5 border-b border-border mb-4">
+    <div className="flex flex-wrap gap-0.5 border-b border-border mb-4">
       {tabs.map((tab) => {
         const active = activeTab === tab.id;
         return (
