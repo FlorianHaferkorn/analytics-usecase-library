@@ -30,7 +30,7 @@ MERIDIAN_REL = "meridian/core/schemas/business_object.schema.json"
 
 #: sha256 of the LF-normalised schema. Change it only together with the Meridian peer file.
 #: 17.10.2026 (BO-328): kpi_id nur noch Form (^KPI-[A-Z][A-Z0-9]{2}-\d{3}$), vorher 654e48c9….
-SCHEMA_SHA256 = "4a8dfa2ba4a02cdb773fe5803b69f61e91cb6681d9ba41a6c1d0505c22da39c5"
+SCHEMA_SHA256 = "4a8dfa2ba4a02cdb773fe5803b69f61e91cb6681d9ba41a6c1d0505c22da39c5"  # pragma: allowlist secret (sha256-Pin, kein Geheimnis)
 
 
 @pytest.fixture(scope="module")
