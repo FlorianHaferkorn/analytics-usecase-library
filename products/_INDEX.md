@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-10-01
+last-reviewed: 2026-10-09
 shelf-life-days: 90
 ---
 # products — Zentraler Anlaufpunkt (_INDEX)

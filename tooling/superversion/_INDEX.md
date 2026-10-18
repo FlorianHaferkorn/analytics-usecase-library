@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-10-02
+last-reviewed: 2026-10-18
 shelf-life-days: 90
 ---
 # Superversion — Bereichs-Index (_INDEX)
@@ -72,7 +72,7 @@ shelf-life-days: 90
 | Doc | Zweck | Lies-wenn |
 |---|---|---|
 | `_INDEX.md` | dieser Bereichs-Index | Erstkontakt |
-| `vendor/meridian_dataarch/_MIRROR.md` | Der byte-identisch gespiegelte Meridian-Emitter-Teilbaum: welche **36 Module** (Betrieb inkl. `provision_external_sharing.py` seit 24.09.2026 + die Vollzugshälfte vom 26.08.2026 + der Preis-Kern `preis_kanon.py` vom 03.09.2026), warum sie geteilt sind (SHARED_SUBSTANCE.md Klasse A), wie die `core.dataarch_engine`-Import-Brücke ALUCAs eigenes `core` unberührt lässt, welche **zwei Namen lazy untergeschoben** werden (`odcs`, `core.pbi_engine.parsers.tmdl_parser`) und der Re-Mirror-Ablauf | bevor du dort etwas änderst (nämlich: nicht — in Meridian ändern und neu spiegeln) |
+| `vendor/meridian_dataarch/_MIRROR.md` | Der byte-identisch gespiegelte Meridian-Emitter-Teilbaum: welche Module (laut `PIN.json`, Stand 18.10.2026: 43 Module und die Datendatei `naming_bereichskuerzel.json`; Betrieb inkl. `provision_external_sharing.py` seit 24.09.2026 + die Vollzugshälfte vom 26.08.2026 + der Preis-Kern `preis_kanon.py` vom 03.09.2026), warum sie geteilt sind (SHARED_SUBSTANCE.md Klasse A), wie die `core.dataarch_engine`-Import-Brücke ALUCAs eigenes `core` unberührt lässt, welche **zwei Namen lazy untergeschoben** werden (`odcs`, `core.pbi_engine.parsers.tmdl_parser`) und der Re-Mirror-Ablauf | bevor du dort etwas änderst (nämlich: nicht — in Meridian ändern und neu spiegeln) |
 
 *(Code-Dateien `from_aluca.py`, `canonical_contract.py` (Seam), `_canonical_mirror.py`
 (Standalone-Mirror), `_meridian_vendor.py` (Vendor-Loader), `architecture_concepts.py`

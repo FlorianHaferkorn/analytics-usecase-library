@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-10-01
+last-reviewed: 2026-10-18
 shelf-life-days: 90
 ---
 # Agent — Zentraler Anlaufpunkt (_INDEX)
@@ -32,7 +32,7 @@ shelf-life-days: 90
 | `guided-agent-development-workflow.md` | GADW: stage-gated Loop (offizielle Skills + ALUCA-Gates) | Agent-Integration |
 | `capability-manifest.md` | `aluca.capabilities.yaml`-Spec (Allowlist, default-off extern) | Aktivierung |
 | `studio-activation-ux.md` | Studio als Aktivierungs-Control-Panel (Toggles → Manifest) | Aktivierungs-UX |
-| `agent-developer-tools.md` | Agent-Entwicklerwerkzeuge (Meridian D-603): Skills for Fabric gepinnt, Notebook Toolkit nur intern (Guard), VFS-Regel | Plugin-/Pin-Fragen, Dev-Notebook-Schleife |
+| `agent-developer-tools.md` | Agent-Entwicklerwerkzeuge (Meridian D-603): Skills for Fabric gepinnt, Werkzeug je Schicht (Authoring MCP, Fabric IQ MCP; SIG-2609-005), Notebook Toolkit nur intern (Guard), VFS-Regel | Plugin-/Pin-Fragen, Dev-Notebook-Schleife |
 | `ci-usage-limit.md` | GitHub-Actions-CI: Usage-Limit, rote Läufe unterscheiden, Umgebungsgleichheit (aus `CLAUDE.md` ausgelagert) | CI rot / lokale CI-Nachstellung |
 
 Sub-Bereiche mit eigenem Index: `rules/_INDEX.md`, `skills/_INDEX.md`.
