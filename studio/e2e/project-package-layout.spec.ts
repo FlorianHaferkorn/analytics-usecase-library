@@ -55,3 +55,32 @@ test.describe('Project Package with a saved revision', () => {
     });
   });
 });
+
+test.describe('Project Package save conflicts', () => {
+  const failSave = (page: Page, error: { code: string; message: string }) => page.route(/\/api\/projects\/default\/package$/, (route) => (
+    route.request().method() === 'POST' ? route.fulfill({ status: 409, json: { error } }) : route.fallback()
+  ));
+
+  async function editAndSave(page: Page) {
+    await page.goto('/package');
+    const editor = page.getByRole('textbox', { name: /^Edit / });
+    await expect(editor).toBeVisible({ timeout: 20_000 });
+    await editor.fill('project_ref: default\nname: Aurora demo (edited)\n');
+    await page.getByRole('button', { name: 'Save 1 change', exact: true }).click();
+  }
+
+  test('a stale revision asks to reload before applying the edits again', async ({ page }) => {
+    await serveFixturePackage(page);
+    await failSave(page, { code: 'STALE_REVISION', message: 'expected HEAD does not match current HEAD' });
+    await editAndSave(page);
+    await expect(page.getByText(/A newer version has been saved/)).toBeVisible();
+  });
+
+  test('another conflict shows the server message instead of the stale-version hint', async ({ page }) => {
+    await serveFixturePackage(page);
+    await failSave(page, { code: 'CONFLICT', message: 'Package path already exists in this revision.' });
+    await editAndSave(page);
+    await expect(page.getByText('Package path already exists in this revision.')).toBeVisible();
+    await expect(page.getByText(/A newer version has been saved/)).toHaveCount(0);
+  });
+});

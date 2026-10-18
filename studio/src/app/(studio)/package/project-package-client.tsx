@@ -22,6 +22,7 @@ import { useProjectStore } from '@/lib/store/project-store';
 import { ProjectReleasePanel } from '@/components/delivery/project-release-panel';
 import { AiPolicyReviewPanel } from '@/components/delivery/ai-policy-review-panel';
 import { ExternalHandoffPanel } from '@/components/delivery/external-handoff-panel';
+import { apiErrorCode, apiErrorMessage } from '@/lib/api/client-error';
 
 type LoadState = 'loading' | 'ready' | 'missing' | 'error';
 
@@ -178,9 +179,10 @@ export function ProjectPackageClient() {
       });
       if (requestedLoad !== loadRequest.current) return;
       if (!response.ok) {
-        setMessage(response.status === 409
+        const failure: unknown = await response.json().catch(() => null);
+        setMessage(apiErrorCode(failure) === 'STALE_REVISION'
           ? 'A newer version has been saved. Copy your unsaved edits before reloading the saved version, then apply them again.'
-          : await responseMessage(response));
+          : apiErrorMessage(failure, `${response.status} ${response.statusText}`));
         return;
       }
       const body = await response.json() as { revision: PackageRevisionSummary };
