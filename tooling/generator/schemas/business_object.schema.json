@@ -36,8 +36,8 @@
     },
     "kpi_id": {
       "type": "string",
-      "pattern": "^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\\d{3}$",
-      "description": "Catalog KPI id (D-594). Referenced, never defined here."
+      "pattern": "^KPI-[A-Z][A-Z0-9]{2}-\\d{3}$",
+      "description": "Catalog KPI id (D-594). Referenced, never defined here. Form only (Meridian D-735/D-750, BO-328): the prefix is the catalog's domain prefix, not a fixed list; whether the KPI exists is checked against the catalog (Meridian input validator, ALUCA tooling/generator/business_objects.py check)."
     },
     "text_or_gap": {
       "type": [

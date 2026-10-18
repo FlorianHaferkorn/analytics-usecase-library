@@ -26,9 +26,14 @@ VENDOR = vendor.VENDOR_DIR
 # -- Integrität des committeten Spiegels ------------------------------------------
 
 
+#: Metadaten des Spiegels selbst, kein gespiegelter Inhalt.
+_SPIEGEL_META = {"PIN.json", "_MIRROR.md"}
+
+
 def test_pin_covers_every_vendored_module():
+    """Jede gespiegelte Datei, Code und Daten (seit 17.10.2026 ``naming_bereichskuerzel.json``, BO-332)."""
     pin = vendor.read_pin()
-    on_disk = {p.name for p in VENDOR.glob("*.py")}
+    on_disk = {p.name for p in VENDOR.iterdir() if p.is_file() and p.name not in _SPIEGEL_META}
     assert {e["path"] for e in pin["files"]} == on_disk
     assert pin["source_repo"] == "Freelancing"
 

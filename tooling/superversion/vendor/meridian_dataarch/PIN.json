@@ -1,7 +1,7 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "2106265ef8c121e1dc5f52846bf438df798c4c29",
+  "source_commit": "a12ebe20bf30506a309bf710f3f86dbe58a30fdc",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
@@ -22,7 +22,11 @@
     },
     {
       "path": "naming.py",
-      "sha256": "0816c4c5f9ce3c5fe2bafe53890122680219f31c59756c73ae143f4ee6e6515f"
+      "sha256": "8f9558f94e30751fc0a3905b9b84b6b078f060585a5caa5afd08ba3d20d3ff64"
+    },
+    {
+      "path": "naming_bereichskuerzel.json",
+      "sha256": "0a3d1bf7805bd16d2749b383c850c1e69fa454ac3267b0ebe33ffa34e002c3ec"
     },
     {
       "path": "provision_connectivity.py",
@@ -78,7 +82,7 @@
     },
     {
       "path": "provision_cicd.py",
-      "sha256": "8cb31c10c29583c307e69059628d6a950db328f802d8408a5a6a243865f0e66d"
+      "sha256": "01f19fb913108ca9e085a9167c4a9d51c92e0c81f193e8d23e1b7ec4de10efa3"
     },
     {
       "path": "provision_databricks_cicd.py",
