@@ -6,6 +6,7 @@ import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/stu
 import type { DecisionApplication, DecisionPreview } from '@/lib/bridge/project-decisions';
 import { ProjectAlternativeImpact } from './project-alternative-impact';
 import styles from './project-decision-review.module.css';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 function Value({ value }: { value: unknown }) {
   if (value === null || value === '') return <span className={styles.note}>Not set</span>;
@@ -44,7 +45,7 @@ export function ProjectDecisionReview({ projectId, revisionHash, onApplied }: {
     void fetch(`/api/projects/${encodeURIComponent(projectId)}/architecture/decisions?revision=${revisionHash}`, { cache: 'no-store', signal: abort.signal })
       .then(async response => {
         const value = await response.json();
-        if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : 'Decision review unavailable');
+        if (!response.ok) throw new Error(apiErrorMessage(value, 'Decision review unavailable'));
         if (value.project_ref !== projectId || value.revision_hash !== revisionHash) throw new Error('Decision review project or revision mismatch');
         if (!abort.signal.aborted) setPreview(value as DecisionPreview);
       }).catch(reason => { if (!abort.signal.aborted) setError(reason instanceof Error ? reason.message : 'Decision review unavailable'); });
@@ -61,7 +62,7 @@ export function ProjectDecisionReview({ projectId, revisionHash, onApplied }: {
         body: JSON.stringify({ revisionHash, previewHash: view.preview_sha256, rationale: rationale.trim(), confirmed: true }),
       });
       const value = await response.json();
-      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : 'Architecture update failed');
+      if (!response.ok) throw new Error(apiErrorMessage(value, 'Architecture update failed'));
       if (value.project_ref !== projectId || value.parent_revision_hash !== revisionHash || !/^[a-f0-9]{64}$/.test(value.revision_hash) || value.state !== 'working' || value.release_required !== true) throw new Error('Update result could not be verified. Reload the Package before continuing.');
       if (current.current === requested) onApplied(value as DecisionApplication);
     } catch (reason) {

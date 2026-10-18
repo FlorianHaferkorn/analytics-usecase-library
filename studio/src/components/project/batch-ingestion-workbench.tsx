@@ -11,6 +11,7 @@ import type { BatchContract, BatchInspection, BatchPreview, BatchSaved, BatchTes
 import { usePinnedProject } from './use-pinned-project';
 import { EvidenceLabel } from './evidence-label';
 import styles from './batch-ingestion-workbench.module.css';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 export const exampleBatchContract: BatchContract = {
   schema_version: '1.0.0', id: 'orders_batch', domain: 'sales', naming: { namespace: 'demo' },
@@ -44,7 +45,7 @@ export function BatchIngestionEditor({ projectId, revision, onSaved }: { project
   useEffect(() => {
     const request = ++sequence.current; const controller = new AbortController();
     void fetch(`${endpoint}?revision=${revision}`, { cache: 'no-store', signal: controller.signal }).then(async response => {
-      const value = await response.json(); if (!response.ok) throw new Error(value.error?.message ?? value.error ?? 'Batch contract unavailable.');
+      const value = await response.json(); if (!response.ok) throw new Error(apiErrorMessage(value, 'Batch contract unavailable.'));
       if (value.project_ref !== projectId || value.revision_hash !== revision) throw new Error('Project version mismatch.');
       if (sequence.current !== request) return;
       setInspection(value); if (value.contract) { setContract(value.contract); setKeysText(value.contract.keys.join(', ')); } setDirty(!value.contract);
@@ -63,7 +64,7 @@ export function BatchIngestionEditor({ projectId, revision, onSaved }: { project
         ...(mode === 'test' ? { batches: JSON.parse(sample), confirmed: testConfirmed } : {}),
         ...(mode === 'export' ? { confirmed: exportConfirmed } : {}) };
       const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      const value = await response.json(); if (!response.ok) throw new Error(value.error?.message ?? value.error ?? 'Operation failed.');
+      const value = await response.json(); if (!response.ok) throw new Error(apiErrorMessage(value, 'Operation failed.'));
       if (sequence.current !== requestId || !selected()) return;
       if (mode === 'export') {
         const output = value as BatchOutput;

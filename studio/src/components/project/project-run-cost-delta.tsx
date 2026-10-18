@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 import type { RunCostDelta } from '@/lib/bridge/project-run-cost';
 import styles from './project-alternative-impact.module.css';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 /** Run cost of baseline and alternative at Microsoft list price. Fetches only on explicit request. */
 export function ProjectRunCostDelta({ projectId, revisionHash, decisionRef, optionRef }: {
@@ -20,7 +21,7 @@ export function ProjectRunCostDelta({ projectId, revisionHash, decisionRef, opti
     void fetch(`/api/projects/${encodeURIComponent(projectId)}/architecture/run-cost?${query}`, { cache: 'no-store', signal: abort.signal })
       .then(async response => {
         const value = await response.json();
-        if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : 'Run-cost comparison unavailable');
+        if (!response.ok) throw new Error(apiErrorMessage(value, 'Run-cost comparison unavailable'));
         if (value.project_ref !== projectId || value.baseline_revision_hash !== revisionHash || value.alternative_option_ref !== optionRef || value.persist !== false) {
           throw new Error('Run-cost comparison project, revision or option mismatch');
         }

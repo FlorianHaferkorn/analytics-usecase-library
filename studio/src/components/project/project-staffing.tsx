@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 import type { StaffingResult } from '@/lib/bridge/project-staffing';
 import styles from './project-alternative-impact.module.css';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 const label = (value: string) => value.replaceAll('_', ' ');
 const num = (value: number) => `${Number(value.toFixed(2))}`;
@@ -24,7 +25,7 @@ export function ProjectStaffing({ projectId, revisionHash, decisionRef, optionRe
       .then(async response => {
         const value = await response.json();
         if (response.status === 403) throw new Error('Only project admins can see named staffing.');
-        if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : 'Staffing unavailable');
+        if (!response.ok) throw new Error(apiErrorMessage(value, 'Staffing unavailable'));
         if (value.project_ref !== projectId || value.baseline_revision_hash !== revisionHash || value.alternative_option_ref !== optionRef || value.persist !== false) {
           throw new Error('Staffing project, revision or option mismatch');
         }

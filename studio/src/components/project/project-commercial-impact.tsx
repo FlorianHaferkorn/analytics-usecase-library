@@ -6,6 +6,7 @@ import type { CommercialImpact } from '@/lib/bridge/project-commercial';
 import { ProjectPriceDelta } from './project-price-delta';
 import { ProjectStaffing } from './project-staffing';
 import styles from './project-alternative-impact.module.css';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 const label = (value: string) => value.replaceAll('_', ' ');
 const hours = (value: number) => `${Number(value.toFixed(2))} h`;
@@ -25,7 +26,7 @@ export function ProjectCommercialImpact({ projectId, revisionHash, decisionRef, 
     void fetch(`/api/projects/${encodeURIComponent(projectId)}/architecture/commercial?${query}`, { cache: 'no-store', signal: abort.signal })
       .then(async response => {
         const value = await response.json();
-        if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : 'Commercial comparison unavailable');
+        if (!response.ok) throw new Error(apiErrorMessage(value, 'Commercial comparison unavailable'));
         if (value.project_ref !== projectId || value.baseline_revision_hash !== revisionHash || value.alternative_option_ref !== optionRef || value.price_values_embedded !== false) {
           throw new Error('Commercial comparison project, revision or option mismatch');
         }

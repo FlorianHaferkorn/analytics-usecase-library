@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { StudioButton } from '@/components/ui/studio-page';
 import { useProjectStore } from '@/lib/store/project-store';
 import type { DiscoveryCandidate } from '@/lib/discovery/document';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 export function DiscoveryTransferPanel({ projectId, revision, candidates, disabled }: { projectId: string; revision: string | null; candidates: DiscoveryCandidate[]; disabled: boolean }) {
   const [open, setOpen] = useState(false);
@@ -24,7 +25,7 @@ export function DiscoveryTransferPanel({ projectId, revision, candidates, disabl
     try {
       const response = await fetch(endpoint, { cache: 'no-store' });
       const body = await response.json();
-      if (!response.ok || body.projectId !== projectId) throw new Error(body.error ?? 'Could not load the current Package.');
+      if (!response.ok || body.projectId !== projectId) throw new Error(apiErrorMessage(body, 'Could not load the current Package.'));
       setHead(body.head.revision_hash); setObjectives(body.objectives);
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not load the current Package.'); }
     finally { setBusy(false); }
@@ -34,7 +35,7 @@ export function DiscoveryTransferPanel({ projectId, revision, candidates, disabl
     try {
       const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ discoveryRevision: revision, expectedHeadRevisionHash: head, candidateKeys: selected, objectiveKeys, rationale, confirmed }) });
       const body = await response.json();
-      if (!response.ok || body.projectId !== projectId) throw new Error(body.error ?? 'Transfer failed.');
+      if (!response.ok || body.projectId !== projectId) throw new Error(apiErrorMessage(body, 'Transfer failed.'));
       if (useProjectStore.getState().projectId === projectId) useProjectStore.getState().setPackageRevisionHash(body.revision.revision_hash);
       setDone(true); setSelected([]); setObjectiveKeys([]); setHead(null);
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Transfer failed.'); }

@@ -30,6 +30,29 @@ export function apiError(
   return NextResponse.json({ error: { ...extra, code, message } }, { status });
 }
 
+/** The code a route without a more specific one reports for an HTTP status. */
+export function errorCodeForStatus(status: number): ErrorCodeValue {
+  if (status === 401) return ErrorCode.AUTH_REQUIRED;
+  if (status === 403) return ErrorCode.FORBIDDEN;
+  if (status === 404) return ErrorCode.NOT_FOUND;
+  if (status === 409) return ErrorCode.CONFLICT;
+  if (status === 501) return ErrorCode.UNSUPPORTED;
+  if (status === 503) return ErrorCode.SERVICE_UNAVAILABLE;
+  if (status >= 500) return ErrorCode.INTERNAL_ERROR;
+  return ErrorCode.VALIDATION_ERROR;
+}
+
+/**
+ * Error response for routes that only know a status and a message (e.g. a bridge result).
+ * A missing message falls back to a generic one so the body always has the standard shape.
+ */
+export function apiErrorForStatus(status: number, message: string | undefined, headers?: HeadersInit): NextResponse {
+  return NextResponse.json(
+    { error: { code: errorCodeForStatus(status), message: message || 'The request could not be completed.' } },
+    { status, headers },
+  );
+}
+
 /** Validation error (422) with field-level errors. */
 export function apiValidationError(errors: string[]): NextResponse {
   return NextResponse.json(

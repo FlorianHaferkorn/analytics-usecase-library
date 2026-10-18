@@ -18,6 +18,8 @@ export const ErrorCode = {
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   CONFLICT: 'CONFLICT',
   UNSUPPORTED: 'UNSUPPORTED',
+  /** A dependency (bridge, CLI, store) is unavailable; retrying later may succeed. */
+  SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
 } as const;
 

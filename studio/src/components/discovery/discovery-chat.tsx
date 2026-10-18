@@ -5,6 +5,7 @@ import { ToolResultCard } from './tool-result-card';
 import { StudioInput } from '@/components/ui/studio-data';
 import { StudioButton, StudioEmptyState } from '@/components/ui/studio-page';
 import type { DiscoveryMessage, DiscoverySource } from '@/lib/discovery/document';
+import { apiErrorMessage } from '@/lib/api/client-error';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -63,7 +64,7 @@ export function DiscoveryChat({ context, onExtract, projectId, sources = [], ini
 
       if (!response.ok) {
         const err = await response.json() as { error?: string | { message?: string } };
-        throw new Error(typeof err.error === 'string' ? err.error : err.error?.message || 'AI request failed. Try again.');
+        throw new Error(apiErrorMessage(err, 'AI request failed. Try again.'));
       }
 
       const reader = response.body?.getReader();
