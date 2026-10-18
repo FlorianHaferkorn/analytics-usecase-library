@@ -5,6 +5,7 @@ import { StudioTextarea } from '@/components/ui/studio-data';
 import {
   StudioButton,
   StudioEmptyState,
+  StudioListDetail,
   StudioMetric,
   StudioMetricBar,
   StudioPage,
@@ -300,7 +301,7 @@ export function ProjectPackageClient() {
           )}
         />
       ) : loadState === 'ready' && snapshot ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 0.36fr) minmax(0, 1fr)', gap: 'var(--gap)', minHeight: 520 }}>
+        <StudioListDetail list="minmax(280px, 0.36fr)" style={{ gap: 'var(--gap)', alignItems: 'stretch', minHeight: 520 }}>
           <StudioPanel
             title="Complete snapshot"
             description="Select a UTF-8 text file. Binary files remain part of every revision but cannot be edited here."
@@ -363,7 +364,7 @@ export function ProjectPackageClient() {
               </div>
             )}
           </StudioPanel>
-        </div>
+        </StudioListDetail>
       ) : (
         <div role={loadState === 'error' ? 'alert' : 'status'}>
           <StudioEmptyState
