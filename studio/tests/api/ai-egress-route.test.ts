@@ -30,7 +30,7 @@ describe('projectless AI data egress', () => {
   ] as const)('denies %s before model construction', async (_, handler, path, body) => {
     const response = await handler(request(path, body));
     expect(response.status).toBe(403);
-    expect((await response.json()).code).toBe('AI_EGRESS_NOT_APPROVED');
+    expect((await response.json()).error.code).toBe('AI_EGRESS_NOT_APPROVED');
     expect(h.model).not.toHaveBeenCalled();
     expect(h.stream).not.toHaveBeenCalled();
     expect(h.generate).not.toHaveBeenCalled();

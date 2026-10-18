@@ -20,9 +20,14 @@ export function apiCreated<T>(data: T): NextResponse {
   return NextResponse.json(data, { status: 201 });
 }
 
-/** Error response with code and message. */
-export function apiError(code: ErrorCodeValue, message: string, status: number): NextResponse {
-  return NextResponse.json({ error: { code, message } }, { status });
+/** Error response with code and message; `extra` adds fields inside `error` (e.g. an evidence id). */
+export function apiError(
+  code: ErrorCodeValue,
+  message: string,
+  status: number,
+  extra?: Record<string, unknown>,
+): NextResponse {
+  return NextResponse.json({ error: { ...extra, code, message } }, { status });
 }
 
 /** Validation error (422) with field-level errors. */

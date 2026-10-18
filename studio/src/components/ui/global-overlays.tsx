@@ -64,8 +64,8 @@ export function ChatPanel({
       });
 
       if (!response.ok) {
-        const err = (await response.json()) as { error?: string };
-        throw new Error(err.error ?? 'AI request failed');
+        const err = (await response.json()) as { error?: string | { message?: string } };
+        throw new Error(typeof err.error === 'string' ? err.error : err.error?.message ?? 'AI request failed');
       }
 
       const reader = response.body?.getReader();

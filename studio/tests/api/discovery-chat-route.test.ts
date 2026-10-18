@@ -20,7 +20,7 @@ describe('project Discovery AI boundary', () => {
   it('keeps unclassified project evidence inside Studio even when a provider key exists', async () => {
     const response = await POST(request({ ...body, entityContext: { entityId: 'foreign' }, projectId: 'foreign' }), context);
     expect(response.status).toBe(403);
-    expect((await response.json()).code).toBe('AI_EGRESS_NOT_APPROVED');
+    expect((await response.json()).error.code).toBe('AI_EGRESS_NOT_APPROVED');
     expect(h.role).toHaveBeenCalledWith('editor', 'customer-a');
     expect(h.model).not.toHaveBeenCalled();
     expect(h.stream).not.toHaveBeenCalled();

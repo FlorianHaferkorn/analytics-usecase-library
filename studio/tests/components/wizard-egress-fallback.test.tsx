@@ -16,7 +16,7 @@ describe('Wizard while AI egress is not approved', () => {
   it('keeps a clearly labeled manual review and save path', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({ ok: true, json: async () => ({ name: 'Sales margin', description: 'Review sales margin by customer.' }) })
-      .mockResolvedValueOnce({ ok: false, status: 403, json: async () => ({ code: 'AI_EGRESS_NOT_APPROVED', error: 'AI processing paused.' }) });
+      .mockResolvedValueOnce({ ok: false, status: 403, json: async () => ({ error: { code: 'AI_EGRESS_NOT_APPROVED', message: 'AI processing paused.' } }) });
     vi.stubGlobal('fetch', fetchMock);
     const onSave = vi.fn();
     render(<Wizard open onClose={vi.fn()} onSave={onSave} />);

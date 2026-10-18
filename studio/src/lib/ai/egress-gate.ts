@@ -1,3 +1,5 @@
+import { apiError } from '@/lib/api/response';
+import { ErrorCode } from '@/lib/api/error-codes';
 import { buildAiEgressEvidence, persistAiEgressEvidence } from './egress-preflight';
 
 export interface AiEgressGateInput {
@@ -37,13 +39,11 @@ export function requireApprovedAiEgress(input: AiEgressGateInput = {}): Response
   try {
     persistAiEgressEvidence(evidence, projectId, input.actor ?? 'system');
   } catch {
-    return Response.json(
-      { error: 'AI processing is paused because the security evidence could not be persisted.', code: 'AI_EGRESS_AUDIT_FAILED' },
-      { status: 503 },
+    return apiError(
+      ErrorCode.AI_EGRESS_AUDIT_FAILED,
+      'AI processing is paused because the security evidence could not be persisted.',
+      503,
     );
   }
-  return Response.json(
-    { error: message, code: 'AI_EGRESS_NOT_APPROVED', evidenceId: evidence.event_id },
-    { status: 403 },
-  );
+  return apiError(ErrorCode.AI_EGRESS_NOT_APPROVED, message, 403, { evidenceId: evidence.event_id });
 }

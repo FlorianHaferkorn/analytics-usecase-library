@@ -10,6 +10,10 @@ export const ErrorCode = {
   FORBIDDEN: 'FORBIDDEN',
   /** Signed in, but not a member of the requested project (tenant gate). */
   PROJECT_ACCESS_DENIED: 'PROJECT_ACCESS_DENIED',
+  /** AI egress for this project/endpoint is not approved (default-deny gate). */
+  AI_EGRESS_NOT_APPROVED: 'AI_EGRESS_NOT_APPROVED',
+  /** The egress gate could not persist its audit evidence, so it refuses. */
+  AI_EGRESS_AUDIT_FAILED: 'AI_EGRESS_AUDIT_FAILED',
   NOT_FOUND: 'NOT_FOUND',
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   CONFLICT: 'CONFLICT',
