@@ -175,9 +175,10 @@ for report_dir in sorted(DIST.glob("*.Report")):
 
             # 4. Smart_Narrative content
             if visual_dir.name == "Smart_Narrative":
-                if vtype != "textbox" and vtype != "smartNarrativeVisual":
+                # smartNarrativeVisual ist deny-gelistet (powerbi_smart_narrative)
+                if vtype not in ("textbox", "cardVisual"):
                     add("WARN", report_name, page_id, visual_dir.name,
-                        f"Smart_Narrative has visualType='{vtype}' — expected textbox or smartNarrativeVisual")
+                        f"Smart_Narrative has visualType='{vtype}' — expected textbox or cardVisual (smartNarrativeVisual is deny-listed)")
                 content = get_textbox_content(v)
                 if not content or content.strip() in ("''", '""', ""):
                     add("WARN", report_name, page_id, visual_dir.name,
