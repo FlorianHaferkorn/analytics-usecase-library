@@ -46,7 +46,7 @@ import os as _os
 GOLD_ZIEL = Path(_os.environ.get("ALUCA_GOLD_FACTS", REPO / "showcases" / "aurora_group" / "data" / "gold" / "facts")) / TABELLE
 ORDNER = "8_Comparison"
 MARKE = "ALUCA_Generated"                    # Annotation, an der der Generator seine Measures erkennt
-SUMME = {"amount", "count", "sum", "quantity"}
+SUMME = {"amount", "count", "quantity"}  # Teilmenge des calc_type-Enums im Schema
 INTRINSISCH = {"waterfall", "waterfall_chart", "variance_bar"}
 _NS = uuid.UUID("5b1f0c1e-6a52-4c1e-9d3b-7a0e2c6f8a10")
 # Die abgeleiteten Namen, die Drift-Checks als Framework-Measures ausnehmen.

@@ -25,7 +25,8 @@ function Resolve-RepoPath {
 }
 
 $allowedTypes = @('strategic','diagnostic','supporting')
-$allowedCalc  = @('amount','rate','ratio','count','percentage','quantity','index')
+# Folgt dem calc_type-Enum in kpi_definition.schema.json (Test: test_calc_type_vocabulary.py)
+$allowedCalc  = @('amount','rate','ratio','count','quantity','index')
 $allowedImpact = @('growth','profitability','liquidity','efficiency','customer','esg','governance','innovation & people','service','workforce','experience','risk','innovation','people')
 $idRegex = '^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\d{3}$'
 

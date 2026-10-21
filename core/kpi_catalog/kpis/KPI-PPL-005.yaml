@@ -8,7 +8,7 @@ domain_tag:
 use_case_ref:
 - HR-001
 action_code_ref: []
-calc_type: sum
+calc_type: amount
 business:
   purpose: Measures total workforce cost per full-time-equivalent.
   definition: Total Workforce Cost / Headcount FTE.

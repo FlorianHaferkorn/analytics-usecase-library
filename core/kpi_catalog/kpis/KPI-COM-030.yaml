@@ -9,7 +9,7 @@ domain_tag:
 use_case_ref:
 - COM-005
 action_code_ref: []
-calc_type: sum
+calc_type: amount
 good_is: higher
 business:
   purpose: Measures revenue generation rate through the pipeline.
