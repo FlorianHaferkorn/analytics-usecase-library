@@ -7,7 +7,8 @@ BC-CHART-08, Craft-Core §5.4 / IBCS). Pie / donut / gauge / treemap distort or 
 instead of comparing — a boutique report never ships them. Since 02.10.2026 the invariant
 also carries IBCS 2.0 EX 2.1-2.5 (funnel, radar, spaghetti lines, traffic lights) with the
 catalogue page as source; an exception declared per PBIR annotation `ibcs.ausnahme` is an
-`info` finding and does not count here. Since 07.10.2026 it also bars the visual types Microsoft
+`info` finding and does not count here -- except for gauge, which the ALUCA deny-list bars
+without condition (no exception since 21.10.2026). Since 07.10.2026 it also bars the visual types Microsoft
 has deprecated (map / filledMap -> azureMap, qnaVisual -> Copilot, card / multiRowCard ->
 cardVisual; see structural_validator.DEPRECATED_VISUAL_TYPES).
 
