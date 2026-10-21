@@ -57,8 +57,8 @@ table _Measures
 		lineageTag: 572855aa-5876-4357-93b3-d499c62f415f
 	/// Average EUR impact per achieved action execution.
 	/// Formula: AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
-	/// Grain: month · Unit: EUR · Good: higher_is_better
-	/// Owner: Commercial BI · Status: active
+	/// Grain: Action instance; aggregated by period and domain · Unit: EUR · Good: higher_is_better
+	/// Owner: Executive Office · Status: active
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
@@ -120,8 +120,8 @@ table _Measures
 
 	/// Working capital efficiency via inventory days.
 	/// Formula: SUM(fact_inventory[Average Inventory Amount]) / (SUM(fact_cogs[COGS Amount]) / 365)
-	/// Grain: location_sku_month · Unit: days · Good: lower_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.1, S-I1.2, S-I1.4, S-I1.5
+	/// Grain: SKU/location; aggregated monthly · Unit: days · Good: lower_is_better
+	/// Owner: Head of Supply Chain / Logistics · Status: active · Actions: S-I1.1, S-I1.2, S-I1.4, S-I1.5
 	/// Synonyms: Days Inventory Outstanding, Days of Supply, Lagerreichweite, Bestandsreichweite
 	/// Example question: Where is days-of-supply highest across the network?
 	measure 'Days in Inventory' =
@@ -138,8 +138,8 @@ table _Measures
 
 	/// Velocity of inventory: COGS / Avg Inventory.
 	/// Formula: COGS / Average Inventory
-	/// Grain: location_sku_month · Unit: x · Good: higher_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.2
+	/// Grain: SKU/location; aggregated monthly · Unit: x · Good: higher_is_better
+	/// Owner: Head of Supply Chain / Logistics · Status: active · Actions: S-I1.2
 	/// Synonyms: Inventory Turns, Stock Turnover, Lagerumschlag, Umschlagshäufigkeit
 	/// Example question: Which categories have the slowest inventory turnover?
 	measure 'Inventory Turnover' = DIVIDE ( SUM ( fact_cogs[COGS Amount] ), SUM ( fact_inventory[Average Inventory Amount] ) )
@@ -148,8 +148,8 @@ table _Measures
 
 	/// Service risk from stockout occurrences.
 	/// Formula: Stockout Events / Total Demand Events.
-	/// Grain: location_sku_day · Unit: % · Good: lower_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.1, S-I1.3, S-I1.5
+	/// Grain: SKU/location; aggregated weekly or monthly · Unit: % · Good: lower_is_better
+	/// Owner: Head of Supply Chain / Logistics · Status: active · Actions: S-I1.1, S-I1.3, S-I1.5
 	/// Synonyms: Out-of-Stock Rate, OOS, Fehlmengenquote, Fehlbestandsquote
 	/// Example question: Which SKUs stock out most often?
 	measure 'Stockout Rate %' =
@@ -164,8 +164,8 @@ table _Measures
 
 	/// On-Time In-Full orders share.
 	/// Formula: DIVIDE ( CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE ), COUNTROWS ( fact_fulfillment ) )
-	/// Grain: order · Unit: % · Good: higher_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.3, S-I1.1, S-I1.3, S-R2.1, S-R2.2, S-R2.5, F-K2.4
+	/// Grain: Order/day; aggregated weekly or monthly · Unit: % · Good: higher_is_better
+	/// Owner: Head of Supply Chain / Logistics · Status: active · Actions: S-F3.3, S-I1.1, S-I1.3, S-R2.1, S-R2.2, S-R2.5, F-K2.4
 	/// Synonyms: On Time In Full, Delivery Reliability, DIFOT, Liefertreue
 	/// Example question: Which lanes are missing the OTIF target this month?
 	measure 'OTIF %' =
@@ -180,8 +180,8 @@ table _Measures
 
 	/// Share of obsolete stock vs total stock.
 	/// Formula: Obsolete Inventory Value / Total Inventory Value.
-	/// Grain: location_sku_month · Unit: % · Good: lower_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.4
+	/// Grain: SKU/location; aggregated monthly · Unit: % · Good: lower_is_better
+	/// Owner: Head of Supply Chain / Logistics · Status: active · Actions: S-I1.4
 	/// Synonyms: Dead Stock %, Obsolescence Rate, Obsoleszenzquote, Ladenhüter-Anteil
 	/// Example question: How much inventory value is obsolete by category?
 	measure 'Obsolete Inventory %' = DIVIDE ( SUM ( fact_inventory[Obsolete Inventory Amount] ), SUM ( fact_inventory[Average Inventory Amount] ) )
@@ -190,8 +190,8 @@ table _Measures
 
 	/// Planning quality: 1 - |Forecast - Actual| / Actual.
 	/// Formula: 1 - SUM(ABS(fact_forecast[Forecast Units] - fact_sales[Actual Units])) / SUM(fact_sales[Actual Units])
-	/// Grain: sku_month · Unit: % · Good: higher_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.1, S-F3.2, S-F3.4, S-I1.5
+	/// Grain: SKU/week; aggregated monthly · Unit: % · Good: higher_is_better
+	/// Owner: Supply Planning Lead · Status: active · Actions: S-F3.1, S-F3.2, S-F3.4, S-I1.5
 	/// Synonyms: Demand Forecast Accuracy, Forecast Attainment, Prognosegenauigkeit, Vorhersagegenauigkeit
 	/// Example question: Where is forecast accuracy weakest this cycle?
 	measure 'Forecast Accuracy %' =
@@ -208,16 +208,16 @@ table _Measures
 
 	/// Total units sold in the period.
 	/// Formula: Sum of sold units across transactions.
-	/// Grain: invoice_line · Unit: units
-	/// Owner: Growth Analytics · Status: active · Actions: O-Q3.5, S-F3.1, S-F3.2, S-I1.1, S-I1.2, S-I1.3, S-I1.5
+	/// Grain: Transaction line; aggregated by period and segment · Unit: units
+	/// Owner: Head of Sales · Status: active · Actions: O-Q3.5, S-F3.1, S-F3.2, S-I1.1, S-I1.2, S-I1.3, S-I1.5
 	measure 'Sales Units' = SUM ( fact_sales[Sales Units] )
 		formatString: "#,0"
 		displayFolder: "SCM-001"
 
 	/// On-time deliveries share.
 	/// Formula: On-Time Deliveries / Total Deliveries.
-	/// Grain: shipment · Unit: % · Good: higher_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.1, S-R2.2
+	/// Grain: Delivery/day; aggregated weekly or monthly · Unit: % · Good: higher_is_better
+	/// Owner: Head of Supply Chain / Logistics · Status: active · Actions: S-R2.1, S-R2.2
 	/// Synonyms: On-Time Delivery, OTD, Termintreue, Liefertermintreue
 	/// Example question: What is driving late deliveries on the DACH lanes?
 	measure 'On-Time %' =
@@ -232,8 +232,8 @@ table _Measures
 
 	/// In-full deliveries share.
 	/// Formula: In-Full Deliveries / Total Deliveries.
-	/// Grain: shipment · Unit: % · Good: higher_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.1, S-R2.3
+	/// Grain: Delivery/day; aggregated weekly or monthly · Unit: % · Good: higher_is_better
+	/// Owner: Head of Supply Chain / Logistics · Status: active · Actions: S-R2.1, S-R2.3
 	/// Synonyms: Fill Rate, Order Fill Rate, Mengentreue, Lieferbereitschaftsgrad
 	/// Example question: Which products fall short on in-full delivery?
 	measure 'In-Full %' =
@@ -248,48 +248,48 @@ table _Measures
 
 	/// Lost demand share due to stockout.
 	/// Formula: Lost Demand Qty / Total Demand Qty.
-	/// Grain: location_sku_day · Unit: % · Good: lower_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.3
+	/// Grain: SKU/location/day; aggregated weekly or monthly · Unit: % · Good: lower_is_better
+	/// Owner: Head of Supply Chain / Logistics · Status: active · Actions: S-R2.3
 	measure 'Stockout Impact %' = DIVIDE ( SUM ( fact_stockout[Lost Demand Units] ), SUM ( fact_stockout[Demand Units] ) )
 		formatString: "0.0%"
 		displayFolder: "SCM-002"
 
 	/// Penalties incurred for service misses.
 	/// Formula: Sum of penalty charges incurred in the period.
-	/// Grain: order · Unit: EUR · Good: lower_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.4
+	/// Grain: Order/month · Unit: EUR · Good: lower_is_better
+	/// Owner: Head of Supply Chain / Logistics · Status: active · Actions: S-R2.4
 	measure 'Penalty Amount' = SUM ( fact_fulfillment[Penalty Amount] )
 		formatString: "#,0.00"
 		displayFolder: "SCM-002"
 
 	/// Additional cost for expedited shipping.
 	/// Formula: Sum of expedite fees and premium freight charges.
-	/// Grain: shipment · Unit: EUR · Good: lower_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.4, S-R2.5
+	/// Grain: Shipment/month · Unit: EUR · Good: lower_is_better
+	/// Owner: Head of Supply Chain / Logistics · Status: active · Actions: S-R2.4, S-R2.5
 	measure 'Expedite Cost Amount' = SUM ( fact_fulfillment[Expedite Cost] )
 		formatString: "#,0.00"
 		displayFolder: "SCM-002"
 
 	/// Count of order line items.
 	/// Formula: Count of order line items.
-	/// Grain: order_line · Unit: count
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.3, S-R2.3
+	/// Grain: Order line; aggregated by period and channel · Unit: count
+	/// Owner: Head of Supply Chain · Status: active · Actions: S-F3.3, S-R2.3
 	measure 'Order Lines Count' = COUNTROWS ( fact_fulfillment )
 		formatString: "#,0"
 		displayFolder: "SCM-002"
 
 	/// Count of shipments executed.
 	/// Formula: Count of shipment records.
-	/// Grain: shipment · Unit: count
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.1, S-R2.2, S-R2.4, S-R2.5
+	/// Grain: Shipment; aggregated by period and carrier · Unit: count
+	/// Owner: Head of Logistics · Status: active · Actions: S-R2.1, S-R2.2, S-R2.4, S-R2.5
 	measure 'Shipments Count' = COUNTROWS ( fact_fulfillment )
 		formatString: "#,0"
 		displayFolder: "SCM-002"
 
 	/// Alias for MAPE % (TMDL display name).
 	/// Formula: Mean(|Forecast - Actual| / Actual).
-	/// Good: lower_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.2
+	/// Grain: SKU/week; aggregated monthly · Good: lower_is_better
+	/// Owner: Supply Planning Lead · Status: active · Actions: S-F3.2
 	/// Synonyms: Mean Absolute Percentage Error, MAPE, WMAPE, mittlerer absoluter prozentualer Fehler
 	/// Example question: Which product families have the highest MAPE?
 	measure 'Forecast MAPE %' =
@@ -307,8 +307,8 @@ table _Measures
 
 	/// Alias for Bias % (TMDL display name). Forecast error direction (Forecast - Actual) / Actual.
 	/// Formula: (Forecast - Actual) / Actual.
-	/// Good: closer_to_zero_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.1, S-F3.2
+	/// Grain: SKU/week; aggregated monthly · Good: closer_to_zero_is_better
+	/// Owner: Supply Planning Lead · Status: active · Actions: S-F3.1, S-F3.2
 	measure 'Forecast Bias %' =
 			VAR ForecastUnits =
 				SUM ( fact_forecast[Forecast Units] )
@@ -323,8 +323,8 @@ table _Measures
 
 	/// Portion of service misses attributable to forecast error.
 	/// Formula: Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not revenue.
-	/// Grain: sku_month · Unit: % · Good: lower_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.3
+	/// Grain: Calculated at location_sku_day or sku_week; reported at sku_month aggregated by Date, Org, Product · Unit: % · Good: lower_is_better
+	/// Owner: Head of Supply Chain Planning · Status: active · Actions: S-F3.3
 	measure 'Service Impact %' =
 			VAR StockoutImpactRate =
 				[Stockout Impact %]
@@ -349,8 +349,8 @@ table _Measures
 
 	/// Count of plan records or plan versions.
 	/// Formula: Count of plan records or plan versions.
-	/// Grain: plan_version · Unit: count · Good: lower_is_better
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.4, S-F3.1, S-F3.2
+	/// Grain: Plan; aggregated by period · Unit: count · Good: lower_is_better
+	/// Owner: Supply Planning Lead · Status: active · Actions: S-F3.4, S-F3.1, S-F3.2
 	measure 'Plans Count' = DISTINCTCOUNT ( fact_forecast[Forecast Version] )
 		formatString: "#,0"
 		displayFolder: "SCM-003"

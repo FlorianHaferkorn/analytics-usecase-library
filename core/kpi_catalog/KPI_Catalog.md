@@ -1692,10 +1692,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: OTIF %
     description: Measures share of orders delivered on time and in full.
-    depends_on_measures:
-    - KPI-SCM-008
-    - KPI-SCM-018
-    - KPI-SCM-009
+    depends_on_measures: []
     lineage:
     - fact_fulfillment.OTIF Flag
     calculation:
