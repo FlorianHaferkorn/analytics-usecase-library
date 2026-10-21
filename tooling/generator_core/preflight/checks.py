@@ -28,6 +28,8 @@ from typing import Any, Dict, List, Optional, Set
 
 import yaml
 
+from ..id_patterns import use_case_pattern, use_case_re
+
 
 # ---------------------------------------------------------------------------
 # Context object passed to every check
@@ -66,10 +68,11 @@ def check_bracket_required_fields(ctx: PreflightContext) -> None:
         if field_name not in b:
             ctx.error("BRACKET_MISSING_FIELD", f"Required field '{field_name}' missing from bracket")
     if "id" in b:
-        if not re.match(r"^[A-Z]{2,5}-\d{3}$", b["id"]):
+        if not use_case_re().match(str(b["id"])):
             ctx.warn(
                 "BRACKET_ID_FORMAT",
-                f"Bracket id '{b['id']}' does not match expected pattern COM-001",
+                f"Bracket id '{b['id']}' does not match {use_case_pattern()} "
+                f"(usecase_bracket.schema.json), e.g. COM-001, COM-EXT-001, COM-IND-R001",
             )
 
 
