@@ -68,7 +68,15 @@
     },
     "calc_type": {
       "type": "string",
-      "minLength": 1
+      "enum": [
+        "amount",
+        "count",
+        "quantity",
+        "rate",
+        "ratio",
+        "index"
+      ],
+      "description": "Skalenfamilie der Kennzahl. Dieses Enum ist die Quelle; validate_kpi_catalog.ps1 ($allowedCalc), usecase_bracket.schema.json (visual unit) und comparison_measures.SUMME folgen ihm (tooling/tests/test_calc_type_vocabulary.py)."
     },
     "good_is": {
       "type": "string",

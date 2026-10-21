@@ -52,14 +52,25 @@ def test_forbidden_set_is_the_governed_one():
 
 
 def test_declared_exception_is_not_a_violation(tmp_path):
+    """Eine erklaerte Katalog-Ausnahme (hier Radar, EX 2.3) zaehlt nicht als Verstoss."""
+    rep = _report_with_visual(tmp_path, "radarChart")
+    vj = next(rep.rglob("visual.json"))
+    body = json.loads(vj.read_text(encoding="utf-8"))
+    body["annotations"] = [{"name": "ibcs.ausnahme", "value": "EX 2.3: Himmelsrichtung"}]
+    vj.write_text(json.dumps(body), encoding="utf-8")
+    assert forbidden_in(rep) == []
+    # Gegenprobe: ohne Annotation zaehlt das Radar
+    body.pop("annotations")
+    vj.write_text(json.dumps(body), encoding="utf-8")
+    assert forbidden_in(rep) == ["radarChart"]
+
+
+def test_gauge_has_no_exception(tmp_path):
+    """gauge ist in index.yaml ohne Bedingung deny: auch mit Annotation ein Verstoss."""
     rep = _report_with_visual(tmp_path, "gauge")
     vj = next(rep.rglob("visual.json"))
     body = json.loads(vj.read_text(encoding="utf-8"))
     body["annotations"] = [{"name": "ibcs.ausnahme", "value": "EX 2.2: Leitstand"}]
-    vj.write_text(json.dumps(body), encoding="utf-8")
-    assert forbidden_in(rep) == []
-    # Gegenprobe: ohne Annotation zaehlt der Tacho
-    body.pop("annotations")
     vj.write_text(json.dumps(body), encoding="utf-8")
     assert forbidden_in(rep) == ["gauge"]
 

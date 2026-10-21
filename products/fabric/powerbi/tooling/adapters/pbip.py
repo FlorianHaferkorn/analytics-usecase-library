@@ -84,7 +84,9 @@ _VISUAL_TYPE_MAP: Dict[VisualType, List[str]] = {
     VisualType.TABLE:           ["tableEx"],
     VisualType.EXCEPTION_TABLE: ["tableEx"],
     VisualType.SLICER:          ["slicer"],
-    VisualType.SMART_NARRATIVE: ["smartNarrativeVisual"],
+    # Slot "Smart_Narrative" = Kontexttext als textbox. Das native smartNarrativeVisual
+    # steht auf der Deny-Liste (visual_library/index.yaml: powerbi_smart_narrative).
+    VisualType.SMART_NARRATIVE: ["textbox"],
     VisualType.ACTION_PANEL:    ["textbox"],
     VisualType.TEXT_BOX:        ["textbox"],
 }
@@ -182,7 +184,8 @@ def _build_visual_json(vspec: VisualSpec, tab_order: int = 3000) -> Dict[str, An
             "query": {"queryState": _build_query_state(vspec)},
         },
     }
-    if vspec.visual_type in (VisualType.ACTION_PANEL, VisualType.TEXT_BOX):
+    if vspec.visual_type in (VisualType.ACTION_PANEL, VisualType.TEXT_BOX,
+                             VisualType.SMART_NARRATIVE):
         visual["visual"]["visualType"] = "textbox"
         paragraph: Dict[str, Any] = {"textRuns": [{"value": vspec.config.get("text", "")}]}
         if vspec.config.get("align"):
@@ -220,8 +223,6 @@ def _build_visual_json(vspec: VisualSpec, tab_order: int = 3000) -> Dict[str, An
             ],
         }
         visual["visual"]["drillFilterOtherVisuals"] = True
-    if vspec.visual_type == VisualType.SMART_NARRATIVE:
-        visual["visual"]["visualType"] = "smartNarrativeVisual"
     return visual
 
 

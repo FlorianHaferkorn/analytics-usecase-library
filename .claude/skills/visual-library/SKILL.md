@@ -27,7 +27,7 @@ resolver — it never restates the catalog.
 ## The SoT (read on demand — never restate here)
 
 - `core/templates/page_templates/visual_library/index.yaml` — purpose→idiom chooser, `deny` list,
-  notation profiles, `implemented` (30 idioms).
+  notation profiles, `implemented` (the idiom list; count it there, not here).
 - `<idiom>.yaml` — encoding rationale, `realizations` per tool, `min_size` (grid units), `data_fit`
   (per-param cardinality/type contract), `version` + `status` (lifecycle), preview.
 - `_anti_patterns.yaml` — the catalog defining every `anti_patterns` id (message + fix + source).
@@ -61,7 +61,7 @@ resolver — it never restates the catalog.
 
 ## Deny (never emit)
 
-`pie_gt_4 · three_d · gauge · radar · dual_axis_no_reason · color_as_decoration · powerbi_smart_narrative · deprecated_map · qna_visual · legacy_card`
+`pie_gt_3 · three_d · gauge · radar · dual_axis_no_reason · color_as_decoration · powerbi_smart_narrative · deprecated_map · qna_visual · legacy_card`
 — the live list is `index.yaml: deny`; `resolve.py audit` enforces it.
 
 ## Do NOT

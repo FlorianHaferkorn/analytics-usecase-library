@@ -46,9 +46,10 @@ canonical_domain_model:
     - id: KPI-SCM-007
       name: OTIF % (On-Time In-Full)
       definition: >
-        % of order lines (or orders) delivered both On-Time and In-Full. Operationally
-        OTIF = On-Time rate x In-Full rate at order level; the order-line variant counts
-        a line as OTIF only when both flags are true. SCOR treats this as the core of
+        % of order lines (or orders) delivered both On-Time and In-Full: an order (or
+        line) counts as OTIF only when both flags are true (joint share, KPI-SCM-007
+        OTIF Flag). On-Time rate x In-Full rate equals it only when the two failures are
+        independent, so the product is a cross-check, not the formula. SCOR treats this as the core of
         Perfect Order Fulfillment (RL.1.1).
       unit: "%"
       direction: maximize
@@ -63,7 +64,7 @@ canonical_domain_model:
       direction: maximize
       drives: KPI-SCM-007
       causal_mechanism: >
-        On-Time is the primary multiplicative component of OTIF: OTIF cannot exceed the
+        On-Time is the first component of OTIF (joint share): OTIF cannot exceed the
         On-Time rate. Carrier delays, dock/appointment slips, and order-release latency
         depress On-Time and flow directly into OTIF. It is the primary lever in the value
         driver model (SCOR RL.2.x; Walmart MABD logic).
@@ -76,7 +77,7 @@ canonical_domain_model:
       direction: maximize
       drives: KPI-SCM-007
       causal_mechanism: >
-        In-Full is the second multiplicative component of OTIF and the link to inventory
+        In-Full is the second component of OTIF (joint share) and the link to inventory
         availability. Short-picks, allocation shortfalls, and stockouts reduce In-Full;
         a single short line breaks the whole order under line-level OTIF accounting.
       benchmark_target: ">= 98% In-Full (SCOR RL.2.1 superior range)"
@@ -175,8 +176,9 @@ canonical_domain_model:
       source_id: SRC-005
     - description: OTIF as a single number hiding the On-Time vs In-Full split
       why_wrong: >
-        OTIF is multiplicative (On-Time x In-Full). A 90% OTIF can be 97% On-Time x 93%
-        In-Full or 93% On-Time x 97% In-Full — each demands a different fix (transport vs
+        OTIF is the joint share of orders that are both On-Time and In-Full, so it sits
+        at or below the weaker component. A 90% OTIF can come from 97% On-Time with 93%
+        In-Full or the reverse — each demands a different fix (transport vs
         availability). Reading aggregate OTIF without the component split sends teams to
         the wrong lever (SCOR RL.2.x decomposition).
       source_id: SRC-001
@@ -217,7 +219,7 @@ required_data_model:
   minimum_history_months: 18
   required_measures:
     - name: OTIF %
-      formula_seed: "Order lines delivered On-Time AND In-Full / Total order lines (equivalently On-Time % x In-Full % at order level)"
+      formula_seed: "Order lines delivered On-Time AND In-Full / Total order lines (joint share; On-Time % x In-Full % only under independence)"
       source_id: SRC-001
     - name: On-Time %
       formula_seed: "Order lines with On-Time Flag = true / Total order lines"
@@ -436,19 +438,19 @@ mapping_readiness:
         affected_artifact: core/usecases/core/SCM-002_Supply_Reliability_OTIF/Business_Factsheet.md
         field: "Section 9 Risks & Wrong Interpretations"
         description: >
-          Multiplicative OTIF = On-Time x In-Full decomposition and the expedite-masking
+          On-Time / In-Full component decomposition of OTIF (joint share) and the expedite-masking
           risk are not explicit. Line-level vs order-level OTIF grain ambiguity not called out.
         evidence_reference: SRC-001 SRC-005 SRC-007
         remediation: "Add the On-Time/In-Full decomposition and expedite-masking interpretations."
         status: resolved
-        resolution: "Section 9 now states OTIF = On-Time x In-Full decomposition, the expedite-masking risk, and the line-level vs order-level grain ambiguity."
+        resolution: "Section 9 now states OTIF as the joint On-Time and In-Full share with its component decomposition, the expedite-masking risk, and the line-level vs order-level grain ambiguity."
       - gap_type: content_gap
         severity: medium
         affected_artifact: core/usecases/core/SCM-002_Supply_Reliability_OTIF/UseCase_Bracket.yaml
         field: ux_layout_rules.page_1_summary.component_30s
         description: >
           On-Time and In-Full should be shown as the two decomposed components of OTIF on
-          the 30s layer so the user sees which multiplicative component drives the gap.
+          the 30s layer so the user sees which component drives the gap.
         evidence_reference: SRC-001
         remediation: "Ensure On-Time and In-Full appear as the component split alongside OTIF."
         status: resolved

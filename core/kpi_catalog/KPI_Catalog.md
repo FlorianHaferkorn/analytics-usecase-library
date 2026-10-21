@@ -1692,10 +1692,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: OTIF %
     description: Measures share of orders delivered on time and in full.
-    depends_on_measures:
-    - KPI-SCM-008
-    - KPI-SCM-018
-    - KPI-SCM-009
+    depends_on_measures: []
     lineage:
     - fact_fulfillment.OTIF Flag
     calculation:
@@ -2680,7 +2677,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - OPS-001
   action_code_ref:
   - O-O1.3
-  calc_type: duration
+  calc_type: quantity
   good_is: lower
   business:
     purpose: Measures time lost to product or format changeovers.
@@ -6628,7 +6625,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   use_case_ref:
   - XD-004
   action_code_ref: []
-  calc_type: percentage
+  calc_type: rate
   good_is: higher
   business:
     purpose: Measures the financial return on ActionReady recommendation investments.
@@ -6988,7 +6985,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   use_case_ref:
   - HR-001
   action_code_ref: []
-  calc_type: avg
+  calc_type: index
   good_is: higher
   business:
     purpose: Measures employee engagement / eNPS from periodic surveys.
@@ -7127,7 +7124,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   use_case_ref:
   - HR-001
   action_code_ref: []
-  calc_type: sum
+  calc_type: amount
   business:
     purpose: Measures total workforce cost per full-time-equivalent.
     definition: Total Workforce Cost / Headcount FTE.
@@ -7416,7 +7413,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   use_case_ref:
   - COM-005
   action_code_ref: []
-  calc_type: sum
+  calc_type: amount
   good_is: higher
   business:
     purpose: Measures revenue generation rate through the pipeline.
@@ -7466,7 +7463,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   use_case_ref:
   - COM-005
   action_code_ref: []
-  calc_type: sum
+  calc_type: amount
   business:
     purpose: Measures total value of open qualified opportunities.
     definition: Sum of Opportunity Value for open qualified opportunities.
@@ -7511,7 +7508,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - FIN-003
   - XD-003
   action_code_ref: []
-  calc_type: sum
+  calc_type: amount
   business:
     purpose: Measures earnings before interest, tax, depreciation and amortisation.
     definition: Revenue - COGS - Operating Expenses (excl. D&A).
@@ -7817,7 +7814,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   use_case_ref:
   - SCM-004
   action_code_ref: []
-  calc_type: sum
+  calc_type: amount
   business:
     purpose: Measures total addressable spend under procurement management.
     definition: Sum of addressable spend across categories in the period.

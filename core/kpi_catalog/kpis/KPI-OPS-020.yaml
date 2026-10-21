@@ -10,7 +10,7 @@ use_case_ref:
 - OPS-001
 action_code_ref:
 - O-O1.3
-calc_type: duration
+calc_type: quantity
 good_is: lower
 business:
   purpose: Measures time lost to product or format changeovers.

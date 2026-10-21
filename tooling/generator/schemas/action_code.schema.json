@@ -23,7 +23,7 @@
   "properties": {
     "schema_version": { "type": "string", "const": "2.0" },
     "inherits_decision_spine": { "type": ["string", "null"] },
-    "id": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[A-Z]-[A-Z]\\d+\\.\\d+$", "description": "Action-Code-ID <Prefix>-<Typ><Nr>.<Unter>, z. B. C-M1.1. Dieses Muster ist die Quelle; tooling/generator_core/id_patterns.py liest es." },
     "name": { "type": "string" },
     "owner_domain": { "type": "string" },
     "impact_dimension": { "type": "string" },

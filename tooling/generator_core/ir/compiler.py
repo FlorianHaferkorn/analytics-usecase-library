@@ -28,6 +28,7 @@ Design notes
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -183,14 +184,29 @@ _PAGE_TYPE_MAP: Dict[str, PageType] = {
 }
 
 
+class UnknownPageTypeError(ValueError):
+    """page_type/template_variant names no known page family (T1..T4)."""
+
+
+_PAGE_TYPE_RE = re.compile(r"^(T[1-4])(?:_[A-Za-z0-9_]+)?$")
+
+
 def _resolve_page_type(raw: str) -> PageType:
     """Resolve a page_type or template_variant string to a PageType enum.
 
     Handles short ("T2") and long ("T2_Tactical_Variance", "T2_DriverBridge") forms.
-    Falls back to T1 when the string is unrecognised.
+    An unrecognised string raises UnknownPageTypeError — like the template loader
+    (tooling/superversion/layer_tools/page_templates.load). A silent fallback to T1
+    used to hide typos in the bracket. Only an absent value defaults to T1 (caller).
     """
-    family = (raw or "").strip()[:2].upper()
-    return _PAGE_TYPE_MAP.get(family, PageType.T1_STRATEGIC_OVERVIEW)
+    m = _PAGE_TYPE_RE.match((raw or "").strip())
+    if not m:
+        raise UnknownPageTypeError(
+            f"page_type/template_variant '{raw}' nennt keine bekannte Seitenfamilie. "
+            f"Erlaubt: T1..T4, kurz ('T2') oder lang ('T2_DriverBridge'). "
+            f"Bekannt: {sorted(_PAGE_TYPE_MAP)}"
+        )
+    return _PAGE_TYPE_MAP[m.group(1)]
 
 
 # ---------------------------------------------------------------------------

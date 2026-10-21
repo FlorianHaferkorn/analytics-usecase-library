@@ -346,7 +346,7 @@ def test_visual_type_for_purpose_resolves_best_native_idiom():
     None (→ card) when the best idiom is non-native (svg-dax/table/card)."""
     cases = {
         "time_comparison": "line_chart", "compare_categories": "bar_chart",
-        "part_to_whole": "donut", "correlation": "scatter",
+        "part_to_whole": "stacked_100", "correlation": "scatter",
         "contribution_to_change": "waterfall", "driver_breakdown": "decomposition_tree",
     }
     for purpose, vt in cases.items():

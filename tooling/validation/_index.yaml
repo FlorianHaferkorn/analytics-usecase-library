@@ -83,7 +83,7 @@ id_patterns:
   use_case:
     # Core + extension tiers ratified in ADR-0004 (industry-variant use-case tier).
     format: "<DOMAIN>-<NNN> | <DOMAIN>-EXT-<NNN> | <DOMAIN>-IND-<S><NNN>"
-    regex: "^[A-Z]{2,4}-(EXT-|IND-[A-Z])?\\d{3}$"
+    regex: "^[A-Z]{2,3}-(EXT-|IND-[A-Z])?\\d{3}$"   # = usecase_bracket.schema.json id.pattern (Test test_id_patterns_single_source.py)
     folder_format: "<ID>_<Descriptive_Name>"
     tiers:
       core: "core/usecases/core/ — <DOMAIN>-<NNN> (governed core-16)"

@@ -15,6 +15,16 @@
 - **Syntax:** DAX does **not** support the `:=` operator. Use `=` for measure definitions.
 - Prefer clean, readable measures; avoid unnecessary complexity. Format and folder conventions should align with measure dictionaries in `semantic_models/domains/`.
 
+### Filter propagation (doctrine, SQLBI line)
+
+This section is the single source for how filters reach a table. Skills and other rules link here instead of restating it.
+
+1. **Physical relationship first.** When the model can carry the filter through a relationship, model the relationship; no DAX workaround.
+2. **`TREATAS` for virtual relationships.** Where no physical relationship exists (different granularity, disconnected table), propagate the filter with `TREATAS`, not with `INTERSECT` or `FILTER(ALL(...), ... IN VALUES(...))` (BPA rule `USE_THE_TREATAS_FUNCTION_INSTEAD_OF_INTERSECT`; sqlbi.com/articles/propagate-filters-using-treatas-in-dax).
+3. **`FILTER(ALL(<date table>), ...)` is allowed for date windows** (YTD, rolling periods, prior year), as in the generated comparison measures (`tooling/codegen/comparison_measures.py`). On any other table, use column filters (`KEEPFILTERS`, `REMOVEFILTERS`, `ALL(Table[Column])`) instead of iterating a whole table.
+
+Guard: `tooling/tests/test_dax_filter_doctrine.py` fails when `FILTER(ALL(...))` iterates a non-date table in the KPI catalog, the DAX generators or `products/fabric/powerbi/dist`.
+
 ## Model View Layout (diagramLayout.json)
 
 - **Spaghetti Principle:** Arrange tables in the model view using the "spaghetti" layout for readability:
