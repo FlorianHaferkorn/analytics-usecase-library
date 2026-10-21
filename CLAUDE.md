@@ -69,10 +69,15 @@ beim Ändern von Action-Code-Referenzen `orchestration.action_code_ids` in
 alle maschinenlesbare Config gehört in `UseCase_Bracket.yaml`.
 
 ### PostToolUse-Hooks (automatisch, nicht umgehbar)
-Zwei Hooks (in `.claude/settings.json`) feuern nach jedem Write/Edit:
+Die Hooks in `.claude/settings.json` (`PostToolUse`, Matcher `Write|Edit`) feuern nach
+jedem Write/Edit; die Liste hier hält `tooling/tests/test_claude_md_hooks.py` deckungsgleich:
 - **`validate_tmdl_style.sh`** — blockt in `.tmdl` bei Leerzeichen-Einrückung und `:=`.
 - **`validate_pbir_structure.sh`** — blockt bei JSON-Syntaxfehlern in `.json`/`.pbir`
   innerhalb von PBIP-Verzeichnissen.
+- **`validate_measure_metadata.sh`** — blockt in `_Measures.tmdl` bei Measures ohne
+  `formatString`, `displayFolder` oder `///`-Beschreibung.
+- **`check_pbi_desktop.sh`** — Live-Prüfung gegen ein geöffnetes Power BI Desktop; ohne
+  Desktop stiller Skip, Befunde nur als Warnung.
 
 Blockt ein Hook → Verstoß **fixen und neu versuchen**, nie umgehen. Die TMDL-Hardrules
 (Tabs, `=` statt `:=`, Beschreibung als `///`-Block über dem Objekt, `summarizeBy`/
