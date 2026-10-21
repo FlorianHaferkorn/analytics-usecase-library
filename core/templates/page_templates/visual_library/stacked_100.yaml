@@ -1,12 +1,12 @@
 # Visual Library entry — stacked_100  (schema: _schema.yaml)
 id: stacked_100
 name: 100% stacked bar
-version: "1.0.1"   # 1.0.1 (17.10.2026): Golden neu eingefroren: Profilgitter je Achsentyp
+version: "1.1.0"   # 1.1.0 (21.10.2026): best_form_for part_to_whole (vorher donut); 1.0.1 (17.10.2026): Golden neu eingefroren
 status: active        # active | deprecated | experimental
 purpose: [part_to_whole]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
-best_form_for: null                 # part-to-whole across categories (donut is best for a single whole)
+best_form_for: part_to_whole       # Laenge vor Winkel; donut bleibt Alternative fuer <= 3 Teile
 alternatives: [donut, area_stacked]
 y_basis: "null"         # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
 werteachse: y           # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)

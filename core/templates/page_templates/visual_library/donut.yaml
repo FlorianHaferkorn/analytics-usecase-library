@@ -1,13 +1,13 @@
 # Visual Library entry — donut  (schema: _schema.yaml)
 id: donut
 name: Donut
-version: "1.1.1"   # 1.1.1 (17.10.2026): Golden neu eingefroren: Profilgitter je Achsentyp
+version: "1.2.0"   # 1.2.0 (21.10.2026): nicht mehr best_form_for part_to_whole (stacked_100 fuehrt), Anti-Pattern-ID pie_or_donut_gt_3; 1.1.1 (17.10.2026): Golden neu eingefroren
 status: active        # active | deprecated | experimental
 purpose: [part_to_whole]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
-best_form_for: part_to_whole
-alternatives: [stacked_100]
+best_form_for: null                 # erlaubte Alternative fuer <= 3 Teile, nie "best" (stacked_100 fuehrt)
+alternatives: [stacked_100, bar_stacked]
 y_basis: "entfaellt"    # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
 werteachse: keine       # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
 
@@ -17,7 +17,7 @@ encoding:
   guard: max_3_segments             # <= 3 parts (IBCS 2.0 EX 2.1, S. 136); else use a sorted bar
 
 anti_patterns:
-  - pie_or_donut_gt_4               # governed deny above 3 segments (id kept stable, see _anti_patterns.yaml)
+  - pie_or_donut_gt_3               # governed deny above 3 segments (IBCS 2.0 EX 2.1)
   - many_thin_slivers
   - 3d_or_exploded
 
@@ -27,7 +27,7 @@ params:
   entity:   {role: table, default: _Measures}
 
 data_fit:
-  category: {type: category, min: 2, max: 3, on_violation: pie_or_donut_gt_4}
+  category: {type: category, min: 2, max: 3, on_violation: pie_or_donut_gt_3}
   value: {min: 1, max: 1}
 
 tokens:

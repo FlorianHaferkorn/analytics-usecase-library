@@ -97,7 +97,7 @@ def smoke(out_dir: Path) -> str:
         raise RuntimeError(f"bundle smoke (purpose) failed (rc={r.returncode}): {r.stderr[:300] or r.stdout[:300]}")
 
     f = _run("resolve.py", "fit", "donut", "category=7")
-    if f.returncode != 1 or "pie_or_donut_gt_4" not in f.stdout:
+    if f.returncode != 1 or "pie_or_donut_gt_3" not in f.stdout:
         raise RuntimeError(f"bundle smoke (fit) failed (rc={f.returncode}): {f.stderr[:300] or f.stdout[:300]}")
 
     c = _run("contrast.py", "palette", "6")
@@ -126,7 +126,7 @@ python tooling/visual_library/resolve.py purpose <purpose_id> [--profile ibcs|pr
 python tooling/visual_library/resolve.py audit path/to/visual.json
 
 # does the bound data fit the idiom? (cardinality/type vs the data_fit contract)
-python tooling/visual_library/resolve.py fit donut category=7   # -> UNFIT: pie_or_donut_gt_4
+python tooling/visual_library/resolve.py fit donut category=7   # -> UNFIT: pie_or_donut_gt_3
 
 # why can this idiom be the wrong choice? (governed anti-patterns + fixes)
 python tooling/visual_library/resolve.py why-not <idiom_id>
