@@ -159,6 +159,14 @@ def _artifact_candidates(gp: str, dom_slug: str, stack: str) -> list[str]:
     ]
 
 
+def _erzeugte_gold(emitted: set[str] | None, gold_products: list[str]) -> list[str]:
+    """Die Produkte der emittierten Gold-Notebooks, die kein Gold-Produkt des Blueprints sind (D-810).
+    Erkannt am Namen des Notebooks, nicht am Erzeuger: dieses Modul wird nach ALUCA gespiegelt."""
+    eigene = {_ident(gp) for gp in gold_products}
+    return sorted({e.split("/", 2)[1][len("nb_gold_"):].split(".Notebook", 1)[0] for e in (emitted or set())
+                   if e.startswith("notebooks/nb_gold_") and ".Notebook/" in e} - eigene)
+
+
 def _first_present(candidates: list[str], emitted: set[str] | None) -> str | None:
     """Der erste Kandidat, den der Lauf wirklich geschrieben hat — sonst ``None``.
 
@@ -399,7 +407,9 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
                 "Vorgabe-Rolle `DefaultReader` der gespiegelten Datenbank einschraenken oder "
                 "entfernen. Sie gibt jedem Nutzer mit ReadAll die gespiegelten Rohdaten frei. "
                 "Berechtigungsaenderung, deshalb freigabepflichtig.", art)
-    for gp in gold_products:
+    # D-810: dahinter die erzeugten Gold-Schritte ohne Gold-Produkt (der Kalender); sonst riefe die Pipeline
+    # ein Notebook, das nie importiert wurde.
+    for gp in gold_products + _erzeugte_gold(emitted, gold_products):
         ws = ws_of.get(gp, target_ws)
         add("import_item", f"{ws}.Workspace/{gp}", "core-mcp:create-item | fab import", "human",
             "import generated item definition (transform notebook / pipeline / semantic model / report)",

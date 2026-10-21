@@ -37,6 +37,7 @@ from core.dataarch_engine.blueprint.provision_apply import (
     gold_workspace_of,
 )
 from core.dataarch_engine.blueprint.provision_notebooks import (
+    ERZEUGT_ORDNER,
     FRAMING_NOTEBOOK,
     fenster_notebook_name,
     gold_notebook_name,
@@ -115,6 +116,17 @@ def _copy_source_type(e: dict) -> str:
         if treffer in text:
             return typ
     return "<SourceType>"
+
+
+def _erzeugte_aktivitaeten(transform_notebooks: dict[str, str] | None, acts: list[dict]) -> list[dict]:
+    """D-810: Gold-Schritte ohne Silber-Quelle (`transforms/_erzeugt/`, der Kalender) lesen die fertigen
+    Gold-Tabellen. Sie laufen als eigene Stufe hinter allen anderen. Erkannt am Ablageort — dieses
+    Modul wird nach ALUCA gespiegelt und kennt den Erzeuger nicht (D-541)."""
+    alle_gold = sorted(a["name"] for a in acts if a["name"].startswith("nb__silver_to_gold__"))
+    return [{"name": f"nb__silver_to_gold__{_ident(rel.rsplit('/', 1)[1][:-4].split('__', 1)[1])}",
+             "kind": "notebook", "notebook": nb, "domain": "", "kind_gold": "erzeugt", "fills": True,
+             "depends_on": alle_gold}
+            for nb, rel in sorted((transform_notebooks or {}).items()) if rel.startswith(ERZEUGT_ORDNER + "/")]
 
 
 def build_activity_graph(bp: dict, transform_notebooks: dict[str, str] | None = None,
@@ -196,6 +208,8 @@ def build_activity_graph(bp: dict, transform_notebooks: dict[str, str] | None = 
                          "kind_gold": kinds.get(product, "fact"),
                          "fills": nb in emittiert,
                          "depends_on": sorted(upstream_je_produkt[product] | set(frueher))})
+
+    acts += _erzeugte_aktivitaeten(transform_notebooks, acts)
 
     # Abschluss: das Semantikmodell rahmen (framing), nachdem alle Gold-Tabellen geschrieben sind.
     modell = model_name_of(bp, fallback="")
