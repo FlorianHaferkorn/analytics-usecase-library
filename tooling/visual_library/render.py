@@ -291,7 +291,9 @@ def target_profiles(idiom: str) -> "list[str]":
 
 
 SLOT_ROLES = ("value", "variance", "time", "category", "series", "step", "period",
-              "plan", "prior", "forecast", "x", "y", "start", "end")
+              "plan", "prior", "forecast", "x", "y", "start", "end", "event", "fc_band")
+#: Roles bound to more than one column: a slot names its `part`, the caller binds {part: column} (fc_band: lo, hi).
+SLOT_PARTS = {"fc_band": ("lo", "hi")}
 
 
 def data_slots(idiom: str) -> dict:
@@ -301,12 +303,19 @@ def data_slots(idiom: str) -> dict:
 
 def bind(idiom: str, columns: dict) -> dict:
     """Map {role: column name} onto the idiom's column params. KeyError if a required role is
-    missing; optional roles that are absent keep their canonical sample name."""
+    missing; optional roles that are absent keep their canonical sample name. A role with parts
+    (`SLOT_PARTS`, e.g. fc_band) is bound as {part: column}; a missing part counts as unbound."""
     out = {}
     for param, slot in data_slots(idiom).items():
         role = slot["role"]
-        if role in columns:
-            name = str(columns[role])
+        raw = columns.get(role)
+        part = slot.get("part")
+        if role in columns and part is not None:
+            if not isinstance(raw, dict):
+                raise ValueError(f"{idiom}: role '{role}' needs {{part: column}} for {SLOT_PARTS.get(role)}, got {raw!r}")
+            raw = raw.get(part)
+        if raw is not None:
+            name = str(raw)
             # Vega-Lite reads "." and "[" in a field name as a nested-field access — the chart would
             # stay empty without an error. Fail loudly instead of drawing nothing.
             if any(c in name for c in ".[]\\'\""):
@@ -400,12 +409,12 @@ _TOOLTIP_ROLE = {
     "time": ("temporal", "%m/%Y"), "period": ("nominal", None), "category": ("nominal", None),
     "series": ("nominal", None), "step": ("nominal", None),
     "value": ("quantitative", ",.1~f"), "plan": ("quantitative", ",.1~f"), "prior": ("quantitative", ",.1~f"),
-    "forecast": ("quantitative", ",.1~f"),
+    "forecast": ("quantitative", ",.1~f"), "fc_band": ("quantitative", ",.1~f"), "event": ("nominal", None),
     "start": ("quantitative", ",.1~f"), "end": ("quantitative", ",.1~f"),
     "x": ("quantitative", ",.1~f"), "y": ("quantitative", ",.1~f"), "variance": ("quantitative", "+,.1~f"),
 }
 _ORDER = ("category", "step", "series", "period", "time",
-          "value", "plan", "forecast", "prior", "variance", "start", "end", "x", "y")
+          "value", "plan", "forecast", "fc_band", "prior", "variance", "start", "end", "x", "y", "event")
 #: Marks that carry data a reader can point at; text labels and reference rules do not.
 _TOOLTIP_MARKS = {"bar", "line", "point", "area", "rect", "circle", "square", "tick", "arc"}
 

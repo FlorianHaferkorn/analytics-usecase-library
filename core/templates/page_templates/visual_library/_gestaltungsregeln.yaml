@@ -237,7 +237,25 @@ regeln:
   ereignismarker:
     muster: [L8]
     regel: "Ereignisse als senkrechte Regel 1 px #605E5C mit Text 11 px, Daten aus einer governten Ereignistabelle."
-    umsetzung: {status: offen, offen: "neue Datenrolle event und Ereignistabelle (Meridian BO-401)"}
+    strich_px: 1
+    farbe: "#605E5C"
+    text_px: 11
+    umsetzung:
+      status: teilweise
+      idiome: [line]
+      test: [tooling/visual_library/tests/test_event_and_band.py]
+      offen: "nur die Vega-Spur des Idioms line (Datenrolle event, 22.10.2026); powerbi_native lineChart kennt keine datengetriebenen Ereignislinien, die Ereignistabelle liegt beim Aufrufer (Meridian BO-401)"
+
+  prognoseband:
+    muster: []                     # kein Muster des Katalogs; Quelle: Recherche 17.10.2026 (Datadog Anomaly Monitor, Hullman 2015), Meridian BO-402
+    regel: "Unsicherheit der Prognose als statisches Band zwischen zwei Perzentilen, ohne Kontur, Deckkraft 0,12, beide Perzentile am Bandende beschriftet; keine Animation (HOPs, Nadel)."
+    deckkraft: 0.12
+    beschriftung: [P10, P90]
+    umsetzung:
+      status: teilweise
+      idiome: [line]
+      test: [tooling/visual_library/tests/test_event_and_band.py]
+      offen: "nur die Vega-Spur des Idioms line (Datenrolle fc_band, 22.10.2026); die Perzentile liefert der Aufrufer (Meridian BO-402), powerbi_native ohne Band"
 
   pfeil:
     muster: [N2]

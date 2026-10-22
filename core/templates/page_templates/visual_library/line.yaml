@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "2.0.0"   # 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
+version: "2.1.0"   # 2.1.0 (22.10.2026): Rollen event (Ereignismarker, Regel ereignismarker) und fc_band (Prognoseband P10-P90, Regel prognoseband), Meridian BO-401/BO-402. 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -44,6 +44,9 @@ data_slots:
   plan_field: {role: plan, required: false}
   fc_field: {role: forecast, required: false}   # FC (IBCS UN 3.2): dashed, never drawn as plan (BO-021)
   py_field: {role: prior, required: false}      # PY (IBCS UN 3.2): grey solid, behind AC; never plan or FC (BO-052)
+  event_field: {role: event, required: false}   # text of a governed event at its date: rule + label (Regel ereignismarker); unbound or empty: no marker
+  fc_lo_field: {role: fc_band, part: lo, required: false}   # lower percentile of the forecast (P10): static band, labelled (Regel prognoseband)
+  fc_hi_field: {role: fc_band, part: hi, required: false}   # upper percentile of the forecast (P90)
 
 canonical_params:
   col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
@@ -68,6 +71,11 @@ canonical_params:
   py_field: "gm_py"
   col_py: "#8C8C8C"               # PY grey: a thin line needs 3:1 on white (3.4:1; WCAG 1.4.11), unlike a PY bar
   label_py: "PY"                  # direct label of the PY line (IBCS abbreviation; caller may pass "VJ")
+  event_field: "gm_event"
+  fc_lo_field: "gm_fc_p10"
+  fc_hi_field: "gm_fc_p90"
+  label_fc_lo: "P10"              # percentile labels of the band (Regel prognoseband: always labelled)
+  label_fc_hi: "P90"
 
 preview_svg: |
   <svg viewBox="0 0 340 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Trend line">
@@ -122,8 +130,8 @@ realizations:
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "data": { "name": "dataset" },
         "transform": [
-          { "calculate": "min(isValid(datum['{{field}}']) ? datum['{{field}}'] : 1e300, isValid(datum['{{plan_field}}']) ? datum['{{plan_field}}'] : 1e300, isValid(datum['{{py_field}}']) ? datum['{{py_field}}'] : 1e300, isValid(datum['{{fc_field}}']) ? datum['{{fc_field}}'] : 1e300)", "as": "_yu_z" },
-          { "calculate": "max(isValid(datum['{{field}}']) ? datum['{{field}}'] : -1e300, isValid(datum['{{plan_field}}']) ? datum['{{plan_field}}'] : -1e300, isValid(datum['{{py_field}}']) ? datum['{{py_field}}'] : -1e300, isValid(datum['{{fc_field}}']) ? datum['{{fc_field}}'] : -1e300)", "as": "_yo_z" },
+          { "calculate": "min(isValid(datum['{{field}}']) ? datum['{{field}}'] : 1e300, isValid(datum['{{plan_field}}']) ? datum['{{plan_field}}'] : 1e300, isValid(datum['{{py_field}}']) ? datum['{{py_field}}'] : 1e300, isValid(datum['{{fc_field}}']) ? datum['{{fc_field}}'] : 1e300, isValid(datum['{{fc_lo_field}}']) ? datum['{{fc_lo_field}}'] : 1e300)", "as": "_yu_z" },
+          { "calculate": "max(isValid(datum['{{field}}']) ? datum['{{field}}'] : -1e300, isValid(datum['{{plan_field}}']) ? datum['{{plan_field}}'] : -1e300, isValid(datum['{{py_field}}']) ? datum['{{py_field}}'] : -1e300, isValid(datum['{{fc_field}}']) ? datum['{{fc_field}}'] : -1e300, isValid(datum['{{fc_hi_field}}']) ? datum['{{fc_hi_field}}'] : -1e300)", "as": "_yo_z" },
           { "joinaggregate": [ { "op": "min", "field": "_yu_z", "as": "_yu" }, { "op": "max", "field": "_yo_z", "as": "_yo" } ] },
           { "calculate": "min(datum._yu, isValid({{target_val}}) ? {{target_val}} : 1e300, isValid({{alert_val}}) ? {{alert_val}} : 1e300)", "as": "_ylo" },
           { "calculate": "max(datum._yo, isValid({{target_val}}) ? {{target_val}} : -1e300, isValid({{alert_val}}) ? {{alert_val}} : -1e300)", "as": "_yhi" },
@@ -134,6 +142,20 @@ realizations:
         "encoding": { "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } } },
         "layer": [
           { "mark": { "type": "rule", "opacity": 0, "strokeWidth": 0 }, "encoding": { "y": { "field": "_ybasis", "type": "quantitative" } } },
+          { "transform": [ { "filter": "isValid(datum['{{fc_lo_field}}']) && isValid(datum['{{fc_hi_field}}'])" } ],
+            "mark": { "type": "area", "interpolate": "monotone", "color": "{{col_line}}", "opacity": 0.12, "description": "Prognoseband {{label_fc_lo}}-{{label_fc_hi}}" },
+            "encoding": { "y": { "field": "{{fc_lo_field}}", "type": "quantitative" }, "y2": { "field": "{{fc_hi_field}}" } } },
+          { "transform": [ { "filter": "isValid(datum['{{fc_hi_field}}'])" }, { "window": [ { "op": "row_number", "as": "_bh" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._bh == 1" } ],
+            "mark": { "type": "text", "text": "{{label_fc_hi}}", "align": "right", "dx": -2, "dy": -7, "fontSize": 10, "color": "{{col_ref}}" },
+            "encoding": { "y": { "field": "{{fc_hi_field}}", "type": "quantitative" } } },
+          { "transform": [ { "filter": "isValid(datum['{{fc_lo_field}}'])" }, { "window": [ { "op": "row_number", "as": "_bl" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._bl == 1" } ],
+            "mark": { "type": "text", "text": "{{label_fc_lo}}", "align": "right", "dx": -2, "dy": 11, "fontSize": 10, "color": "{{col_ref}}" },
+            "encoding": { "y": { "field": "{{fc_lo_field}}", "type": "quantitative" } } },
+          { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != ''" } ],
+            "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "description": "Ereignis" } },
+          { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != ''" } ],
+            "mark": { "type": "text", "align": "left", "baseline": "top", "dx": 3, "dy": 2, "fontSize": 11, "limit": 140, "color": "{{col_ref}}" },
+            "encoding": { "y": { "value": 0 }, "text": { "field": "{{event_field}}", "type": "nominal" } } },
           { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_py}}", "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
           { "transform": [ { "filter": "isValid(datum['{{py_field}}'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._q == 1" } ],
@@ -260,6 +282,20 @@ profiles:
               }
             },
             "layer": [
+              { "transform": [ { "filter": "isValid(datum['{{fc_lo_field}}']) && isValid(datum['{{fc_hi_field}}'])" } ],
+                "mark": { "type": "area", "interpolate": "monotone", "color": "{{col_ac}}", "opacity": 0.12, "description": "Prognoseband {{label_fc_lo}}-{{label_fc_hi}}" },
+                "encoding": { "y": { "field": "{{fc_lo_field}}", "type": "quantitative", "axis": null, "scale": { "zero": true } }, "y2": { "field": "{{fc_hi_field}}" } } },
+              { "transform": [ { "filter": "isValid(datum['{{fc_hi_field}}'])" }, { "window": [ { "op": "row_number", "as": "_bh" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._bh == 1" } ],
+                "mark": { "type": "text", "text": "{{label_fc_hi}}", "align": "right", "dx": -2, "dy": -7, "fontSize": 10, "color": "{{col_ink}}" },
+                "encoding": { "y": { "field": "{{fc_hi_field}}", "type": "quantitative", "axis": null } } },
+              { "transform": [ { "filter": "isValid(datum['{{fc_lo_field}}'])" }, { "window": [ { "op": "row_number", "as": "_bl" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._bl == 1" } ],
+                "mark": { "type": "text", "text": "{{label_fc_lo}}", "align": "right", "dx": -2, "dy": 11, "fontSize": 10, "color": "{{col_ink}}" },
+                "encoding": { "y": { "field": "{{fc_lo_field}}", "type": "quantitative", "axis": null } } },
+              { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != ''" } ],
+                "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "description": "Ereignis" } },
+              { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != ''" } ],
+                "mark": { "type": "text", "align": "left", "baseline": "top", "dx": 3, "dy": 2, "fontSize": 11, "limit": 140, "color": "{{col_ref}}" },
+                "encoding": { "y": { "value": 0 }, "text": { "field": "{{event_field}}", "type": "nominal" } } },
               {
                 "mark": {
                   "type": "line",
@@ -409,4 +445,4 @@ profiles:
 
 determinism:
   golden_dir: golden
-  notes: "Pure {{param}} fill; golden-frozen. Native uses the verified y1AxisReferenceLine; Vega layers line+rule+last-point. IBCS profile plots plan as a scenario line (native = 2nd Y measure), FC dashed and PY grey as 3rd/4th Y measure, styled per series by metadata selector (BO-116, BO-052)."
+  notes: "Pure {{param}} fill; golden-frozen. Event rule + label and the P10-P90 band (2.1.0) exist only on the Vega track: the native lineChart has no data-driven event lines and no percentile band (Meridian BO, 22.10.2026). Native uses the verified y1AxisReferenceLine; Vega layers line+rule+last-point. IBCS profile plots plan as a scenario line (native = 2nd Y measure), FC dashed and PY grey as 3rd/4th Y measure, styled per series by metadata selector (BO-116, BO-052)."
