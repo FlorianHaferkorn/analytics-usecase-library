@@ -333,7 +333,7 @@ regeln:
     umsetzung: {status: offen, offen: "erst nach grünem Cockpit-Tor G14/G15 mit der größeren Schrift"}
 
   abweichungsflaeche:
-    muster: [L6]
+    muster: [L6, N4]              # N4 ist im Katalog dasselbe Muster wie L6
     regel: "Fläche zwischen Ist und Plan in Richtungsfarbe (20 % Deckkraft), Linien darüber; Variante, nicht Standard."
     parameter: {abweichungsflaeche: an}
     deckkraft: 0.2
