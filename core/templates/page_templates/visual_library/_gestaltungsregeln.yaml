@@ -8,7 +8,12 @@
 # Quelle der Regeln: Entscheidungen Florian Haferkorn vom 17.10.2026 zur Vergleichsseite der Visual-Recherche
 # (W1 Eckenradius, W2 Beschriftung gegen Gitter, W3 Zebra, Achsen/Nullbasis, Linienverlauf) und der
 # Musterkatalog derselben Recherche (Kürzel B3, B4, T3 … in `muster`). Bericht der Runde:
-# Meridian docs/runden/2026-10-17_Bericht_visuals.md.
+# Meridian docs/runden/2026-10-17_Bericht_visuals.md. Fortgeschrieben in der Runde rubrikpaket (22.10.2026, Meridian
+# BO-412 bis BO-441): Muster des Katalogs als Template-Eigenschaften mit Relationstest
+# (`tests/test_gestaltungsmuster.py`), Entscheidung Florian 22.10.2026 zu W11/W12 (Regeln serienlabel, abweichungspille).
+#
+# umsetzung.nativ (optional): Stand in Power BI nativ, wenn die Vega-Spuren umgesetzt sind und nur die Messung im
+# Desktop oder Dienst fehlt — `tenant_gebunden` (Meridian D-763): Code und Tor stehen, die Messung nicht.
 #
 # umsetzung.status:
 #   umgesetzt   die Regel wirkt in den genannten Spuren, ein Test hält sie
@@ -35,7 +40,8 @@ regeln:
     umsetzung:
       status: umgesetzt
       wo: ["_notation_profiles.yaml ibcs vegalite_config bar.cornerRadius 0",
-           "Meridian Cockpit (visuals.pack_chart_config) und HTML-Vorschau lesen chart.bar_corner_radius"]
+           "Meridian Cockpit (visuals.pack_chart_config) und HTML-Vorschau lesen chart.bar_corner_radius",
+           "Deneb (Power BI Variante C): render.deneb_config(profil, chart.bar_corner_radius) setzt bar.cornerRadiusEnd"]
       test: [tooling/visual_library/tests/test_gestaltungsregeln.py]
 
   beschriftung_gitter:
@@ -58,8 +64,9 @@ regeln:
       status: umgesetzt
       wo: ["_notation_profiles.yaml: axisDiscrete/axisTemporal statt axisX (Gitter je Achsentyp)",
            "bar_ranking, bar_absolute, column_time, variance_pin, waterfall_buildup, waterfall_pvm, waterfall_variance (deneb_vegalite)",
-           "Meridian chart_grenzen.json je Ausrichtung"]
-      test: [tooling/visual_library/tests/test_gestaltungsregeln.py]
+           "Meridian chart_grenzen.json je Ausrichtung",
+           "powerbi_native: beschriftete Visuals (bar_ranking, column_time@ibcs) schalten valueAxis.show und gridlineShow ab; Meridian PBI-Theme lässt das Wertegitter liegender Balken an (BO-441)"]
+      test: [tooling/visual_library/tests/test_gestaltungsregeln.py, tooling/visual_library/tests/test_gestaltungsmuster.py]
 
   zebra:
     muster: [T3]
@@ -102,9 +109,10 @@ regeln:
     umsetzung:
       status: teilweise
       wo: ["line (house_default, print_safe) und slope: deneb_vegalite, fabric_app, html_vegalite",
-           "Längen-Idiome: test_zero_baseline_all_profiles.py"]
+           "small_multiples: eine Werteachse für alle Facetten, ab 0 oder angepasst mit Achsenbruch je Facette",
+           "Längen-Idiome und Abweichungen (deviation_bar, variance_pin, waterfall_*): ab 0, test_zero_baseline_all_profiles.py"]
       test: [tooling/visual_library/tests/test_gestaltungsregeln.py, tooling/visual_library/tests/test_zero_baseline_all_profiles.py]
-      offen: "powerbi_native (valueAxis.start per Measure), small_multiples (Facette), Planband der Sparklines, Abweichung zum Plan als Δ-Chart ab 0; IBCS-Linie bleibt nach CH 1.1 ab 0"
+      offen: "powerbi_native: valueAxis.start als Measure (Achsenbasis im semantischen Modell, im Desktop zu messen); Planband der Sparklines folgt der Regel zielband (D-795); IBCS-Linie bleibt nach CH 1.1 ab 0"
 
   linienverlauf:
     muster: [L1, L2]
@@ -114,13 +122,15 @@ regeln:
       durch jeden Wert und schießt nie über. Keine Punkte je Wert; erhalten bleiben der Endpunkt (Urteil am
       letzten Ist), der Hover-Ring und die Szenariomarker der IBCS-Notation (UN 3.2). Ist-Linie 2 px.
     interpolation: monotone
+    powerbi_native: linear         # bis zur Messung (BO-423): kein Golden setzt lineChartType smooth (Tor test_gestaltungsmuster)
     punkte_je_wert: false
     ist_strich_px: 2
     umsetzung:
       status: teilweise
       wo: ["line (alle Profile), indexed_line, small_multiples: deneb_vegalite; web_recharts war schon monotone"]
       test: [tooling/visual_library/tests/test_gestaltungsregeln.py]
-      offen: "Power BI nativ kennt nur linear, smooth und step (lineStyles.lineChartType); ob smooth monoton verläuft, ist nicht gemessen"
+      offen: "Power BI nativ kennt nur linear, smooth und step (lineStyles.lineChartType); ob smooth monoton verläuft, ist nicht gemessen und nur im Desktop messbar (Meridian BO-423)"
+      nativ: tenant_gebunden
 
   markenkontrast:
     muster: [A1, N1, N5, K4, S5]
@@ -189,14 +199,112 @@ regeln:
 
   laufende_periode:
     muster: [S2, L4]
-    regel: "Die laufende, unvollständige Periode ist abgesetzt (Säule als Umriss, Linie mit hohlem Endpunkt), die letzte vollständige betont."
-    umsetzung: {status: offen, offen: "braucht die Datenrolle der laufenden Periode (Snapshot trend.laufend) im Idiom; eigene Datenrolle, nicht nur eine Eigenschaft"}
+    regel: >
+      Die laufende, unvollständige Periode ist abgesetzt: als Säule ein Umriss ohne Füllung mit dem Label „laufend“,
+      als Linie ein hohler Endpunkt. Die letzte vollständige Periode trägt die Tinte, frühere Säulen das Kontextgrau.
+    rolle: current                 # data_slots-Rolle (boolesche Spalte, wahr in der laufenden Periode; Snapshot trend.laufend)
+    umriss_px: 1.5
+    farben: {letzte: "#0F2430", frueher: "#8C8C8C"}
+    label: laufend
+    umsetzung:
+      status: teilweise
+      wo: ["column_time, line: deneb_vegalite, fabric_app, html_vegalite (Rolle current)",
+           "Meridian Cockpit-Vorschau liefert die Spalte aus trend.laufend"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster.py]
+      offen: "powerbi_native: Umriss je Datenpunkt (dataPoint.borderShow per Regel) und hohler Endpunkt sind nur im Desktop messbar; Live-Abfrage liefert die Spalte noch nicht"
+      nativ: tenant_gebunden
 
   serienlabel:
     muster: [L3]
-    regel: "Linien mit 2 bis 4 Reihen tragen ihr Label am Linienende statt einer Legende."
+    entscheidung: "W11 (Florian 22.10.2026, Meridian BO-432): höchstens vier direkt beschriftete Reihen; BC-CHART-03 und BC-DV-05 gleich"
+    regel: "Linien mit 2 bis 4 Reihen tragen ihr Label am Linienende statt einer Legende; ab 5 Reihen Legende."
     max_reihen: 4
-    umsetzung: {status: offen, offen: "nativ seriesLabels erst nach powerbi-report-author validate an einem Bericht; Vega: Text am letzten Punkt je Reihe, Kollision G14 messen"}
+    rubrik: [BC-CHART-03, BC-DV-05]   # beide tragen thresholds.direct_labels_max == max_reihen (Test)
+    abstand_px: 6
+    umsetzung:
+      status: teilweise
+      wo: ["line (house_default, print_safe, ibcs): Plan, PY, FC am letzten Punkt; deneb_vegalite, fabric_app, html_vegalite",
+           "line@ibcs powerbi_native: seriesLabels show, seriesPosition Right, seriesMatchColor; legend aus"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster.py]
+      offen: "powerbi_native: seriesLabels ist nur gegen den Formatkatalog geprüft, gerendert erst im Desktop"
+      nativ: tenant_gebunden
+
+  abweichungspille:
+    entscheidung: "W12 (Florian 22.10.2026, Meridian BO-432): die getönte Abweichungspille nur in Ausnahmetabellen; sonst gilt das Verbot aus house_default"
+    regel: >
+      Abweichungen stehen als Länge und Vorzeichen mit Richtungsfarbe, nie als getönte Pille. Einzige Ausnahme ist die
+      Ausnahmetabelle `matrix_delta_pill`: Tönung nur aus color_semantics.severity_tints, die Zahl steht immer darin.
+    verboten_in_profil: house_default
+    erlaubt_nur_in: [matrix_delta_pill]
+    merkmal: "Template-Parameter tint_* oder encoding.severity governed_tint"
+    umsetzung:
+      status: umgesetzt
+      wo: ["_notation_profiles.yaml house_default rules.variance", "matrix_delta_pill (Ausnahmetabelle)"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster.py]
+
+  hoechstbreite:
+    muster: [B2]
+    regel: "Säulen und Balken sind höchstens 24 px dick; bei wenigen Kategorien wächst der Abstand, nicht die Marke. Nicht unter IBCS (UN 3.1 koppelt die Breite an die Kategorie)."
+    max_px: 24
+    nicht_in_profil: [ibcs]
+    umsetzung:
+      status: umgesetzt
+      wo: ["bar_ranking, bar_absolute, column_time (house_default): deneb_vegalite, fabric_app, html_vegalite"]
+      nativ: entfaellt            # kein Feld für eine Höchstbreite im Formatkatalog (preferredCategoryWidth ist ein Mindestmaß)
+      test: [tooling/visual_library/tests/test_gestaltungsmuster.py]
+
+  akzent:
+    muster: [B5]
+    regel: "Ohne Ziel: genau eine genannte Kategorie in Tinte, die übrigen in Kontextgrau (#8C8C8C); ohne Angabe alle in Tinte."
+    parameter: highlight_category
+    farben: {akzent: "#0F2430", rest: "#8C8C8C"}
+    umsetzung:
+      status: umgesetzt
+      wo: ["bar_absolute: deneb_vegalite, fabric_app, html_vegalite (data_values: nur bei gegebenem Wert)"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster.py]
+
+  label_oben:
+    muster: [B6]
+    regel: "Lange Kategorienamen stehen in einer eigenen Zeile über einem schmalen Balken (8 px) statt links an der Achse."
+    parameter: label_position     # axis | above
+    balken_px: 8
+    schwelle_zeichen: null        # Ab welcher Labellänge „above“ gewählt wird, ist nicht gemessen: Leerstelle, der Aufrufer wählt
+    umsetzung:
+      status: umgesetzt
+      wo: ["bar_ranking: deneb_vegalite, fabric_app, html_vegalite"]
+      nativ: entfaellt            # kein Formatfeld für ein Kategorielabel über dem Balken
+      test: [tooling/visual_library/tests/test_gestaltungsmuster.py]
+
+  vorjahr_ueberlappend:
+    muster: [B7]
+    regel: "Vorjahr als breiterer, hellerer Balken hinter einem schmaleren Ist (60 % der Dicke); beschriftet ist das Ist."
+    anteil_ist: 0.6
+    umsetzung:
+      status: teilweise
+      wo: ["bar_ranking house_default, print_safe: deneb_vegalite, fabric_app, html_vegalite"]
+      nicht_in_profil: [ibcs]     # IBCS UN 3.2: Vorjahr gleich breit, versetzt dahinter (eigene Form, bar_ranking ibcs)
+      test: [tooling/visual_library/tests/test_gestaltungsmuster.py]
+      offen: "powerbi_native: layout.clusteredGapOverlaps steht im Formatkatalog; ob die vordere Serie schmaler wird, zeigt nur der Desktop"
+      nativ: tenant_gebunden
+
+  null_fehlend:
+    muster: [B9]
+    regel: "Null und fehlender Wert sind unterscheidbar: 0 als 2-px-Strich mit „0“, fehlend ohne Balken mit „–“ in Kontextgrau."
+    strich_px: 2
+    zeichen_fehlend: "–"
+    umsetzung:
+      status: umgesetzt
+      wo: ["bar_ranking, bar_absolute: deneb_vegalite, fabric_app, html_vegalite"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster.py]
+
+  einheit:
+    muster: [S3]
+    regel: "Keine Achsentitel; die Einheit aus dem KPI-Katalog steht über der Werteachse (oben links im Plot)."
+    parameter: unit_label         # data_values: ohne Katalogeinheit entfällt die Marke, nie eine Beispieleinheit
+    umsetzung:
+      status: umgesetzt
+      wo: ["column_time: deneb_vegalite, fabric_app, html_vegalite"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster.py]
 
   tabellen_linien:
     muster: [T1, T2]
@@ -226,8 +334,14 @@ regeln:
 
   abweichungsflaeche:
     muster: [L6]
-    regel: "Fläche zwischen Ist und Plan in Richtungsfarbe (20 % Deckkraft), Linien darüber."
-    umsetzung: {status: offen, offen: "neue Variante von line mit eigener Datenlogik (Aufwand L)"}
+    regel: "Fläche zwischen Ist und Plan in Richtungsfarbe (20 % Deckkraft), Linien darüber; Variante, nicht Standard."
+    parameter: {abweichungsflaeche: an}
+    deckkraft: 0.2
+    umsetzung:
+      status: umgesetzt
+      wo: ["line house_default, print_safe: deneb_vegalite, fabric_app, html_vegalite (Farbe nach polarity)"]
+      nativ: entfaellt            # Power BI nativ kennt keine Fläche zwischen zwei Reihen (nur zwei gestapelte Flächen)
+      test: [tooling/visual_library/tests/test_gestaltungsmuster.py]
 
   matrix_hierarchie:
     muster: [M1]
@@ -242,4 +356,9 @@ regeln:
   pfeil:
     muster: [N2]
     regel: "Genau zwei Zeitpunkte mit Richtung: dumbbell mit marker arrow, Spitze am Ist, Farbe nach Richtung."
-    umsetzung: {status: offen, offen: "Parameter marker im Idiom dumbbell mit Richtungsfarbe (Aufwand M)"}
+    parameter: {marker: arrow}
+    umsetzung:
+      status: umgesetzt
+      wo: ["dumbbell: deneb_vegalite, fabric_app, html_vegalite, powerbi_svg_dax"]
+      nativ: entfaellt            # kein natives Hantel-Visual (dumbbell powerbi_native applicable false)
+      test: [tooling/visual_library/tests/test_gestaltungsmuster.py]

@@ -19,25 +19,89 @@
       {
         "name": "_beschriftet",
         "expr": "_n_daten > 0 && _n_daten < 10"
+      },
+      {
+        "name": "_oben",
+        "expr": "'axis' == 'above'"
+      },
+      {
+        "name": "_dicke",
+        "expr": "_oben ? 8 : min(bandwidth('y'), 24)"
       }
     ],
+    "transform": [
+      {
+        "calculate": "datum['gm'] === 0 ? 0 : null",
+        "as": "_nullstrich"
+      },
+      {
+        "calculate": "isValid(datum['gm']) || datum._rest === true ? null : 0",
+        "as": "_fehlt"
+      },
+      {
+        "calculate": "_oben ? 0 : null",
+        "as": "_oben_x"
+      }
+    ],
+    "encoding": {
+      "y": {
+        "field": "unit",
+        "type": "nominal",
+        "sort": {
+          "field": "gm",
+          "order": "ascending"
+        },
+        "axis": {
+          "title": null,
+          "labelOpacity": {
+            "expr": "_oben ? 0 : 1"
+          }
+        }
+      }
+    },
     "layer": [
+      {
+        "mark": {
+          "type": "bar",
+          "color": "#C8CED5",
+          "description": "Vorjahr"
+        },
+        "encoding": {
+          "x": {
+            "field": "gm_py",
+            "type": "quantitative"
+          },
+          "size": {
+            "value": {
+              "expr": "_dicke"
+            }
+          },
+          "tooltip": [
+            {
+              "field": "unit",
+              "type": "nominal",
+              "title": "unit"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
       {
         "mark": {
           "type": "bar"
         },
         "encoding": {
-          "y": {
-            "field": "unit",
-            "type": "nominal",
-            "sort": {
-              "field": "gm",
-              "order": "ascending"
-            },
-            "axis": {
-              "title": null
-            }
-          },
           "x": {
             "field": "gm",
             "type": "quantitative",
@@ -49,6 +113,17 @@
               "domainOpacity": {
                 "expr": "_beschriftet ? 0 : 1"
               }
+            }
+          },
+          "size": {
+            "condition": {
+              "test": "isValid(datum['gm_py'])",
+              "value": {
+                "expr": "_dicke * 0.6"
+              }
+            },
+            "value": {
+              "expr": "_dicke"
             }
           },
           "color": {
@@ -68,6 +143,51 @@
               "field": "gm",
               "type": "quantitative",
               "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "tick",
+          "orient": "vertical",
+          "thickness": 2,
+          "color": "#0F2430",
+          "description": "Null"
+        },
+        "encoding": {
+          "x": {
+            "field": "_nullstrich",
+            "type": "quantitative"
+          },
+          "size": {
+            "value": {
+              "expr": "_dicke"
+            }
+          },
+          "tooltip": [
+            {
+              "field": "unit",
+              "type": "nominal",
+              "title": "unit"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
               "format": ",.1~f"
             }
           ]
@@ -97,14 +217,6 @@
           "tooltip": null
         },
         "encoding": {
-          "y": {
-            "field": "unit",
-            "type": "nominal",
-            "sort": {
-              "field": "gm",
-              "order": "ascending"
-            }
-          },
           "x": {
             "field": "gm",
             "type": "quantitative"
@@ -120,6 +232,46 @@
               "value": 1
             },
             "value": 0
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "text": "–",
+          "align": "left",
+          "dx": 4,
+          "color": "#8C8C8C",
+          "description": "fehlender Wert",
+          "tooltip": null
+        },
+        "encoding": {
+          "x": {
+            "field": "_fehlt",
+            "type": "quantitative"
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "align": "left",
+          "baseline": "bottom",
+          "dy": {
+            "expr": "-_dicke / 2 - 2"
+          },
+          "color": "#201F1E",
+          "description": "Kategorielabel oben",
+          "tooltip": null
+        },
+        "encoding": {
+          "x": {
+            "field": "_oben_x",
+            "type": "quantitative"
+          },
+          "text": {
+            "field": "unit",
+            "type": "nominal"
           }
         }
       }

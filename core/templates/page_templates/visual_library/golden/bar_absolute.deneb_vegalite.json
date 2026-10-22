@@ -3,13 +3,22 @@
   "data": { "name": "dataset" },
   "params": [ { "name": "_n_daten", "expr": "max(length(data('dataset')), length(data('source_0')))" }, { "name": "_beschriftet", "expr": "_n_daten > 0 && _n_daten < 10" } ],
   "padding": { "right": 40 },
+  "transform": [
+    { "calculate": "datum['net_sales'] === 0 ? 0 : null", "as": "_nullstrich" },
+    { "calculate": "isValid(datum['net_sales']) || datum._rest === true ? null : 0", "as": "_fehlt" }
+  ],
   "encoding": {
-    "y": { "field": "unit", "type": "nominal", "sort": "-x", "axis": { "title": null } },
+    "y": { "field": "unit", "type": "nominal", "sort": { "field": "net_sales", "order": "descending" }, "axis": { "title": null } },
     "x": { "field": "net_sales", "type": "quantitative", "axis": { "title": null, "tickCount": { "expr": "_beschriftet ? 0 : ceil(width/40)" }, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } }, "scale": { "zero": true } }
   },
   "layer": [
-    { "mark": { "type": "bar", "color": "#0F2430" } },
+    { "mark": { "type": "bar", "height": { "expr": "min(bandwidth('y'), 24)" } },
+      "encoding": { "color": { "condition": { "test": "datum['unit'] != 'Nord'", "value": "#8C8C8C" }, "value": "#0F2430" } } },
+    { "mark": { "type": "tick", "orient": "vertical", "thickness": 2, "color": "#0F2430", "description": "Null" },
+      "encoding": { "x": { "field": "_nullstrich", "type": "quantitative" }, "size": { "value": { "expr": "min(bandwidth('y'), 24)" } } } },
     { "mark": { "type": "text", "align": "left", "dx": 4, "color": "#201F1E" },
-      "encoding": { "text": { "field": "net_sales", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } }
+      "encoding": { "text": { "field": "net_sales", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } },
+    { "mark": { "type": "text", "text": "–", "align": "left", "dx": 4, "color": "#8C8C8C", "description": "fehlender Wert" },
+      "encoding": { "x": { "field": "_fehlt", "type": "quantitative" } } }
   ]
 }

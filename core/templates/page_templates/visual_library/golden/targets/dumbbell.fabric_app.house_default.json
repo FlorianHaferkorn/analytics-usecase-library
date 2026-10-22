@@ -71,14 +71,41 @@
       },
       {
         "mark": {
-          "type": "circle",
+          "type": "point",
+          "filled": true,
           "size": 90,
-          "color": "#0F2430"
+          "description": "Ende"
         },
         "encoding": {
           "x": {
             "field": "gm",
             "type": "quantitative"
+          },
+          "shape": {
+            "condition": [
+              {
+                "test": "'circle' == 'arrow' && datum['gm'] >= datum['gm_py']",
+                "value": "triangle-right"
+              },
+              {
+                "test": "'circle' == 'arrow'",
+                "value": "triangle-left"
+              }
+            ],
+            "value": "circle"
+          },
+          "color": {
+            "condition": [
+              {
+                "test": "'circle' == 'arrow' && (datum['gm'] - datum['gm_py']) * 1 < 0",
+                "value": "#A4262C"
+              },
+              {
+                "test": "'circle' == 'arrow'",
+                "value": "#107C10"
+              }
+            ],
+            "value": "#0F2430"
           },
           "tooltip": [
             {

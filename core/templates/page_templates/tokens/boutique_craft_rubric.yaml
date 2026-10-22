@@ -23,10 +23,15 @@
 #           `dataviz_base` (Frontend-Mindeststandard). Until 1.1 the two files differed in 7
 #           statements and in the BC-LAYOUT-04 threshold (ALUCA ≤7 elements per zone, Meridian ≤5
 #           KPI tiles per page); since 1.1 one wording, BC-LAYOUT-04 carries both limits.
+# Rubric version 1.2 (22.10.2026, decision Florian on Meridian BO-432): at most FOUR directly
+#           labelled series. BC-CHART-03 said ≤5, BC-DV-05 "at most four"; both now carry the same
+#           threshold `direct_labels_max: 4` (tests: ALUCA tooling/tests/test_rubric_integrity.py,
+#           tooling/visual_library/tests/test_gestaltungsregeln.py against the Gestaltungsregel
+#           `serienlabel.max_reihen`).
 
 schema_version: "1.1"
 rubric_id: boutique_craft
-rubric_version: "1.1"
+rubric_version: "1.2"
 
 # ── Design concepts (1.1) ────────────────────────────────────────────────────
 # A design concept is a choice (client or owner), never a general rule. In Meridian the carrier
@@ -258,12 +263,13 @@ dimensions:
           script: check_deviation_display.py
           args: ["--strict"]
       - id: BC-CHART-03
-        statement: "Direct labelling at line ends/points instead of a legend where feasible (≤5 series)."
+        statement: "Direct labelling at line ends/points instead of a legend where feasible (≤4 series)."
         severity: major
         weight: 3
+        thresholds: { direct_labels_max: 4 }   # 1.2: was ≤5, aligned with BC-DV-05 (BO-432, Florian 22.10.2026)
         concept: ibcs   # 1.1: IBCS end-of-line labels replace the legend; elsewhere BC-DV-05 applies
         check: judge
-        machine_hint: "legend present with ≤5 series and no direct labels"
+        machine_hint: "legend present with ≤4 series and no direct labels"
         source: "Craft-Core §5.4; Storytelling_Principles.md §8"
       - id: BC-CHART-04
         statement: "Decluttered: no chart background fill, heavy gridlines, 3D, gradient or shadow."
@@ -566,6 +572,7 @@ dimensions:
         statement: "Legend from two series on; a single series has no legend (the title names it); direct labels selectively, at most four."
         severity: minor
         weight: 1
+        thresholds: { direct_labels_max: 4 }   # same limit as BC-CHART-03 (1.2, BO-432)
         not_concept: ibcs   # IBCS replaces the legend by end-of-line labels (BC-CHART-03)
         check: judge
         machine_hint: "legend on a single-series chart / ≥2 series without legend or direct labels / >4 direct labels"
