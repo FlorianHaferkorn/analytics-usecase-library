@@ -8,8 +8,8 @@
     "preview": "evidence preview"
   },
   "dependencies": {
-    "@evidence-dev/evidence": "latest",
-    "@evidence-dev/core-components": "latest"
+    "@evidence-dev/evidence": "40.1.8",
+    "@evidence-dev/core-components": "5.4.2"
   },
   "devDependencies": {}
 }
