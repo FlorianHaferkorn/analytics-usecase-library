@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "2.1.0"   # 2.1.0 (22.10.2026): laufende Periode mit hohlem Endpunkt (L4), Serienlabel am Linienende statt am Anfang (L3), Abweichungsfläche Ist/Plan nach Richtung als Variante (L6), IBCS nativ mit Serienlabels. 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
+version: "2.1.1"   # 2.1.1 (22.10.2026): Abweichungsfläche aria false (leerer Container ohne Namen, Cockpit G8). 2.1.0 (22.10.2026): laufende Periode mit hohlem Endpunkt (L4), Serienlabel am Linienende statt am Anfang (L3), Abweichungsfläche Ist/Plan nach Richtung als Variante (L6), IBCS nativ mit Serienlabels. 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -77,6 +77,9 @@ canonical_params:
   label_fc: "FC"                  # direct label of the forecast line at its end (L3)
   current_field: "laufend"
   label_current: "laufend"        # label under the hollow endpoint of the running period (L4)
+  # The variance area carries "aria": false: switched off, its filter leaves an empty area/line container that Vega
+  # exposes as an unnamed graphics-symbol (axe svg-img-alt, Meridian Cockpit G8, 22.10.2026); switched on, Ist and
+  # Plan lines name the same deviation.
   abweichungsflaeche: "aus"       # variant L6: "an" draws the area between AC and plan (Gestaltungsregel abweichungsflaeche)
   polarity: "1"                   # -1 = lower is better: the variance area turns good below plan
   col_good: "#107C10"
@@ -152,11 +155,11 @@ realizations:
           { "mark": { "type": "rule", "opacity": 0, "strokeWidth": 0 }, "encoding": { "y": { "field": "_ybasis", "type": "quantitative" } } },
           { "transform": [ { "filter": "'{{abweichungsflaeche}}' == 'an' && isValid(datum['{{field}}']) && isValid(datum['{{plan_field}}'])" },
                            { "calculate": "(datum['{{field}}'] - datum['{{plan_field}}']) * {{polarity}} >= 0 ? datum['{{field}}'] : datum['{{plan_field}}']", "as": "_gut" } ],
-            "mark": { "type": "area", "interpolate": "monotone", "color": "{{col_good}}", "opacity": {{flaeche_deckkraft}}, "description": "Abweichungsfläche gut" },
+            "mark": { "type": "area", "interpolate": "monotone", "color": "{{col_good}}", "opacity": {{flaeche_deckkraft}}, "description": "Abweichungsfläche gut", "aria": false },
             "encoding": { "y": { "field": "_gut", "type": "quantitative" }, "y2": { "field": "{{plan_field}}" } } },
           { "transform": [ { "filter": "'{{abweichungsflaeche}}' == 'an' && isValid(datum['{{field}}']) && isValid(datum['{{plan_field}}'])" },
                            { "calculate": "(datum['{{field}}'] - datum['{{plan_field}}']) * {{polarity}} < 0 ? datum['{{field}}'] : datum['{{plan_field}}']", "as": "_schlecht" } ],
-            "mark": { "type": "area", "interpolate": "monotone", "color": "{{col_bad}}", "opacity": {{flaeche_deckkraft}}, "description": "Abweichungsfläche schlecht" },
+            "mark": { "type": "area", "interpolate": "monotone", "color": "{{col_bad}}", "opacity": {{flaeche_deckkraft}}, "description": "Abweichungsfläche schlecht", "aria": false },
             "encoding": { "y": { "field": "_schlecht", "type": "quantitative" }, "y2": { "field": "{{plan_field}}" } } },
           { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_py}}", "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },

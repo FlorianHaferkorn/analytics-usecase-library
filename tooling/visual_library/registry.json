@@ -442,7 +442,7 @@
     {
       "id": "line",
       "name": "Trend line",
-      "version": "2.1.0",
+      "version": "2.1.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -467,7 +467,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:05cc4398e3e539f0945a7f590a131cad59421b3c1c7d9fc1a138c49bfcdfe5e1"
+      "checksum": "sha256:a5914af5c0bb44fd306e7a961d95723aa515db3e33262ed27fb48a3a78db90fa"
     },
     {
       "id": "lollipop",

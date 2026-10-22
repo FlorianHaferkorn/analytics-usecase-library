@@ -97,7 +97,8 @@
           "interpolate": "monotone",
           "color": "#107C10",
           "opacity": 0.2,
-          "description": "Abweichungsfläche gut"
+          "description": "Abweichungsfläche gut",
+          "aria": false
         },
         "encoding": {
           "y": {
@@ -156,7 +157,8 @@
           "interpolate": "monotone",
           "color": "#A4262C",
           "opacity": 0.2,
-          "description": "Abweichungsfläche schlecht"
+          "description": "Abweichungsfläche schlecht",
+          "aria": false
         },
         "encoding": {
           "y": {
