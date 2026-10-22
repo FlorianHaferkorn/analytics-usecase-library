@@ -270,6 +270,10 @@ def test_no_line_or_area_layer_leaves_an_unnamed_container_when_empty():
 
     walk(vg)
     assert offen == []
+    # A config with `area.line: true` (the packs) would add an overlay line per area, outside the mark's aria flag.
+    flaechen = [lay["mark"] for lay in spec["layer"] if isinstance(lay.get("mark"), dict)
+                and "Abweichungsfl" in str(lay["mark"].get("description"))]
+    assert len(flaechen) == 2 and all(m.get("line") is False and m.get("aria") is False for m in flaechen)
     # Gegenprobe: without the flag the same layers would be exposed.
     roh = json.dumps(spec).replace('"aria": false', '"aria": true')
     assert '"aria": true' in roh
