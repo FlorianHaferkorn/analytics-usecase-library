@@ -10,6 +10,8 @@ Transformation `_ybasis`); `tests/test_gestaltungsregeln.py` stellt Funktion und
     zebra_an(zeilen, spalten, art)           Zebra-Streifen einer Tabelle (W3)
     eckenradius(profil, pack_wert)           Radius der Balkenenden im Profil (W1)
     marke_lesbar(farbe)                      erreicht eine Marke 3:1 auf Weiß?
+    zielband(kpi)                            Parameter band_low/band_high nur aus freigegebenem Korridor (D-795)
+    sparkline_groesse_ok(breite, hoehe, art) Mindestgröße einer Sparkline (SP4)
 
 Reines Modul: liest nur das Register, schreibt nichts.
 """
@@ -129,3 +131,23 @@ def kontrast(farbe: str, grund: str = "#FFFFFF") -> float:
 def marke_lesbar(farbe: str, grund: str = "#FFFFFF") -> bool:
     """Erreicht eine Marke den Mindestkontrast der Regel `markenkontrast` (3:1)?"""
     return kontrast(farbe, grund) >= float(regel("markenkontrast")["min_kontrast"])
+
+
+def zielband(kpi: Optional[dict[str, Any]]) -> Optional[dict[str, str]]:
+    """Regel `zielband` (L7, SP5; Meridian D-795): die Bandgrenzen als Template-Parameter `band_low`/`band_high`,
+    nur wenn die KPI-Definition einen `target_corridor` mit vollständiger Freigabe (von, am, quelle) und zwei
+    Grenzen (untere < obere) trägt. Sonst None: kein Band, keine Herleitung aus Ziel oder Alarm, kein Schätzwert."""
+    korridor = (kpi or {}).get("target_corridor") or {}
+    freigabe = korridor.get("freigabe") or {}
+    if not all(str(freigabe.get(k) or "").strip() for k in regel("zielband")["freigabe_pflicht"]):
+        return None
+    grenzen = _zahlen([korridor.get("lower"), korridor.get("upper")])
+    if len(grenzen) != 2 or not grenzen[0] < grenzen[1]:
+        return None
+    return {"band_low": repr(grenzen[0]), "band_high": repr(grenzen[1])}
+
+
+def sparkline_groesse_ok(breite: float, hoehe: float, art: str) -> bool:
+    """Regel `sparkline_groesse` (SP4): Mindesthöhe je Art (zelle, karte) und Breite mindestens Faktor × Höhe."""
+    r = regel("sparkline_groesse")
+    return hoehe >= r["min_hoehe_px"][art] and breite >= r["min_breite_faktor"] * hoehe

@@ -152,6 +152,11 @@ regeln:
       matrix_delta_pill: {tint_pos: toenung_hinter_text, tint_neg: toenung_hinter_text}
       bar_ranking: {col_py: szenario_flaeche_ibcs}
       multi_tier_column: {col_py: szenario_flaeche}
+      line: {col_band: dekor_zielband}
+      kpi_card_spark: {col_band: dekor_zielband}
+      matrix_sparkline: {col_band: dekor_zielband, col_rule: dekor_haarlinie}
+      matrix_evidence: {col_rule: dekor_haarlinie}
+      matrix_pivot: {col_rule: dekor_haarlinie}
     gruende:
       dekor_spur: "Spur hinter dem Wertbalken; der Wert liegt im Balken"
       dekor_band: "Qualitativer Bereich hinter dem Balken (Bullet-Grafik)"
@@ -159,6 +164,8 @@ regeln:
       toenung_hinter_text: "Hintergrund einer Zahl, die selbst ≥ 4,5:1 hat"
       szenario_flaeche_ibcs: "Vorjahr als hellere Fläche (IBCS UN 3.2); der Wert steht als Beschriftung daneben"
       szenario_flaeche: "Vorjahr als hellere Säule hinter dem Ist; der Wert steht als Beschriftung daneben"
+      dekor_zielband: "Zielkorridor als Band hinter der Linie (Regel zielband); die Linie trägt die Aussage"
+      dekor_haarlinie: "Zeilentrenner einer Tabelle (Regel tabellen_linien); WCAG 1.4.11 nimmt Gitterlinien aus"
     umsetzung:
       status: umgesetzt
       wo: ["line, bar_ranking, indexed_line, slope, dumbbell, kpi_card_spark, kpi_card_sparkbar (canonical_params)"]
@@ -309,12 +316,60 @@ regeln:
   tabellen_linien:
     muster: [T1, T2]
     regel: "Tabellen mit Tabellenziffern, nur waagrechten Haarlinien, ohne Außenrahmen und ohne senkrechte Linien."
-    umsetzung: {status: offen, offen: "PBIR tableEx grid-Eigenschaften und Cockpit-Tabelle (DataGrid) je am Bestand messen"}
+    linie: {farbe: "#E1DFDD", token: color_semantics.border.default, staerke_px: 1}
+    umsetzung:
+      status: teilweise
+      wo: ["powerbi_native matrix_evidence, matrix_sparkline, matrix_pivot: grid.gridVertical false, gridHorizontal 1 px, outlineWeight 0 (Formatkatalog und powerbi-report-author validate, 22.10.2026)"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster_tabellen.py]
+      offen: "T1: PBIR kennt keine Eigenschaft für Tabellenziffern; ob Segoe UI im Visual tabellarisch setzt, zeigt nur der Desktop. Cockpit-Tabelle (DataGrid) liest die Linien und tabular-nums in Meridian"
+      nativ: tenant_gebunden
 
   sparkline_skala:
     muster: [T6, SP1]
     regel: "Sparklines einer Tabellenspalte teilen eine Skala (scale shared); je Zeile nur mit Referenzlinie und Hinweis."
-    umsetzung: {status: offen, offen: "ändert die Lesart von matrix_sparkline (MAJOR); eigene Runde"}
+    parameter: {scale: [shared, per_row]}
+    standard: shared
+    hinweis_param: label_per_row
+    umsetzung:
+      status: umgesetzt
+      wo: ["matrix_sparkline 2.0.0 powerbi_svg_dax: Min/Max über ALLSELECTED der Zeilenkategorie; per_row mit Mittelwertlinie und <title>-Hinweis",
+           "matrix_sparkline powerbi_native: Spaltenkopf trägt den Hinweis (displayName)"]
+      nativ: entfaellt            # Power-BI-Sparklines skalieren je Zeile: kein Formatfeld (Katalog 0.1.1), MS Learn nennt keine Option; die Referenzlinie entfällt dort
+      test: [tooling/visual_library/tests/test_gestaltungsmuster_tabellen.py]
+
+  sparkline_marken:
+    muster: [SP2]
+    regel: "Erster Punkt hohl, letzter Punkt gefüllt in der Linienfarbe (r 2,5); in Tabellenzellen nur Marken, keine Zahl."
+    radius_letzter: 2.5
+    umsetzung:
+      status: teilweise
+      wo: ["matrix_sparkline, kpi_card_spark: powerbi_svg_dax"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster_tabellen.py]
+      offen: "powerbi_native: sparklines.markers ist eine Flag-Aufzählung ohne Namen im Katalog (1, 2, 4, 8, 16, 32, 128); welche Flagge ‚erster‘ und ‚letzter‘ heißt, zeigt nur der Desktop"
+      nativ: tenant_gebunden
+
+  sparkline_luecken:
+    muster: [SP6]
+    regel: "Verhalten bei fehlenden Werten als Feld: break (neuer Pfad nach der Lücke), connect, zero; Standard break."
+    parameter: {gaps: [break, connect, zero]}
+    standard: break
+    umsetzung:
+      status: teilweise
+      wo: ["matrix_sparkline, kpi_card_spark: powerbi_svg_dax (SVG-Pfad mit M nach einer Lücke)"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster_tabellen.py]
+      offen: "powerbi_native: wie Sparklines eine Lücke zeichnen, steht nicht im Katalog; nur im Desktop messbar"
+      nativ: tenant_gebunden
+
+  sparkline_groesse:
+    muster: [SP4]
+    regel: "Sparkline in der Zelle mindestens 24 px hoch, in der Karte mindestens 40 px; Breite mindestens dreimal die Höhe."
+    min_hoehe_px: {zelle: 24, karte: 40}
+    min_breite_faktor: 3
+    quelle: "Musterkatalog SP4 (Stripe 24 × 80, Tremor 48 × 112, Polaris 40), einzeln belegt"
+    umsetzung:
+      status: umgesetzt
+      wo: ["matrix_sparkline viewBox 100 × 26 (Zeichenhöhe 22 + Marken), kpi_card_spark Zeichenfläche 214 × 40"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster_tabellen.py]
 
   kpi_abweichungen:
     muster: [K2]
@@ -324,8 +379,18 @@ regeln:
 
   zielband:
     muster: [L7, SP5]
-    regel: "Zielkorridor als Band ohne Kontur (#ECECEC), Grenzen aus dem KPI-Katalog."
-    umsetzung: {status: offen, offen: "Bandgrenzen kommen aus dem Katalog (Golden Thread), neue Datenwerte je Idiom"}
+    entscheidung: "D-795 (Florian 18.10.2026): Band nur bei freigegebenem Zielkorridor im Katalog; keine Herleitung aus Ziel und Alarm"
+    regel: "Zielkorridor als Band ohne Kontur (#ECECEC) hinter der Linie, Grenzen aus dem KPI-Katalog (target_corridor mit Freigabe)."
+    farbe: "#ECECEC"
+    katalogfeld: target_corridor          # tooling/generator/schemas/kpi_definition.schema.json
+    freigabe_pflicht: [von, am, quelle]
+    umsetzung:
+      status: teilweise
+      wo: ["gestaltung.zielband(kpi): band_low/band_high nur mit vollständiger Freigabe",
+           "line house_default: deneb_vegalite, fabric_app, html_vegalite (data_values band_low, band_high: ohne Wert kein Band)",
+           "matrix_sparkline (scale shared), kpi_card_spark: powerbi_svg_dax über band_low_expr/band_high_expr (Standard BLANK ())"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster_tabellen.py]
+      offen: "Kein KPI des Katalogs trägt einen freigegebenen Korridor (Leerstelle, entscheidet der Owner); powerbi_native (lineChart-Band) nicht gebaut; Meridian-Leser im Cockpit fehlt"
 
   achsentext:
     muster: [A3]
@@ -346,7 +411,13 @@ regeln:
   matrix_hierarchie:
     muster: [M1]
     regel: "Matrix mit Hierarchie auf beiden Achsen, eingefrorenen Zeilenköpfen und Zwischensummen (pivotTable)."
-    umsetzung: {status: offen, offen: "neues Idiom mit vier Spuren (Aufwand L)"}
+    zwischensumme: oben
+    umsetzung:
+      status: teilweise
+      wo: ["matrix_pivot powerbi_native: rowHeaders stepped, Aufklappen, unfrozen false; subTotals oben; Haarlinien (Formatkatalog und powerbi-report-author validate, 22.10.2026)"]
+      test: [tooling/visual_library/tests/test_gestaltungsmuster_tabellen.py]
+      offen: "Ob Zeilenköpfe beim Bildlauf stehen bleiben und die Zwischensumme oben steht, zeigt nur der Desktop"
+      nativ: tenant_gebunden
 
   ereignismarker:
     muster: [L8]

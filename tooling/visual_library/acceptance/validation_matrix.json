@@ -771,6 +771,24 @@
         "status": "n/a",
         "reason": "three tiers on one category axis need three synchronised charts (syncId) inside a wrapper element; the Recharts track holds single-root charts, and the \u0394PY tier would lose the shared value scale"
       }
+    },
+    "matrix_pivot": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a hierarchy with expand/collapse is the host's matrix, not an image measure"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "Vega-Lite is not a table tool"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts has no table primitive"
+      }
     }
   }
 }

@@ -2,7 +2,7 @@
   "registry": "aluca-visual-library",
   "schema_version": 1,
   "generated_by": "tooling/visual_library/registry.py",
-  "count": 32,
+  "count": 33,
   "idioms": [
     {
       "id": "area_stacked",
@@ -391,7 +391,7 @@
     {
       "id": "kpi_card_spark",
       "name": "KPI card · value + spark + delta",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -412,7 +412,7 @@
         "cols": 3,
         "rows": 3
       },
-      "checksum": "sha256:4432a16c092549c1962182f6e1d79b040efa438fb7c731a2024cbd20815ad4fc"
+      "checksum": "sha256:84254c2bf7e8d34e7f97e0fdf732bc52ab76bdc87525b3694de56e6890f24f0c"
     },
     {
       "id": "kpi_card_sparkbar",
@@ -467,7 +467,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:05cc4398e3e539f0945a7f590a131cad59421b3c1c7d9fc1a138c49bfcdfe5e1"
+      "checksum": "sha256:127f932a2e18b1fb07f73978ea650df7b1f2af5d18bc5907b6fe7ab5b784806a"
     },
     {
       "id": "lollipop",
@@ -549,7 +549,7 @@
     {
       "id": "matrix_evidence",
       "name": "Evidence matrix",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -570,12 +570,37 @@
         "cols": 5,
         "rows": 6
       },
-      "checksum": "sha256:5b9e9f8572586a1dc8d92c3f4d7482f1e1ed9fc29f419742ad53bff1912e9fbc"
+      "checksum": "sha256:fa6ae5216e29fcf24655098aabefb6f4b3b8b82bf1b9bc0c0bb911400ad61a34"
+    },
+    {
+      "id": "matrix_pivot",
+      "name": "Hierarchical matrix",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "evidence_detail"
+      ],
+      "zone": [
+        "detail"
+      ],
+      "native_visual_type": "pivotTable",
+      "tools": [
+        "powerbi_native"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 6,
+        "rows": 6
+      },
+      "checksum": "sha256:f3586db3d2b0145dc0497365a37b0cc3d5150ec025b4e1ad6311a19c65adb1a4"
     },
     {
       "id": "matrix_sparkline",
       "name": "Matrix column · sparkline",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -596,7 +621,7 @@
         "cols": 5,
         "rows": 4
       },
-      "checksum": "sha256:fe0b3d4831c4c8035b03e3c85c40a37362c8a4ef051e5a4169d08a3ef00897ce"
+      "checksum": "sha256:cb3abd77da8ceba88fe78779fe39aaf2746ceb13f0aca562320feed6774f3f1e"
     },
     {
       "id": "multi_tier_column",

@@ -35,11 +35,11 @@
         ]
       },
       {
-        "calculate": "min(datum._yu, isValid(44.1) ? 44.1 : 1e300, isValid(42.0) ? 42.0 : 1e300)",
+        "calculate": "min(datum._yu, isValid(44.1) ? 44.1 : 1e300, isValid(42.0) ? 42.0 : 1e300, isValid(43.0) ? 43.0 : 1e300)",
         "as": "_ylo"
       },
       {
-        "calculate": "max(datum._yo, isValid(44.1) ? 44.1 : -1e300, isValid(42.0) ? 42.0 : -1e300)",
+        "calculate": "max(datum._yo, isValid(44.1) ? 44.1 : -1e300, isValid(42.0) ? 42.0 : -1e300, isValid(46.0) ? 46.0 : -1e300)",
         "as": "_yhi"
       },
       {
@@ -80,6 +80,68 @@
             "field": "_ybasis",
             "type": "quantitative"
           }
+        }
+      },
+      {
+        "data": {
+          "values": [
+            {}
+          ]
+        },
+        "mark": {
+          "type": "rect",
+          "color": "#ECECEC",
+          "strokeWidth": 0,
+          "description": "Zielkorridor",
+          "tooltip": null
+        },
+        "encoding": {
+          "x": {
+            "value": 0
+          },
+          "x2": {
+            "value": {
+              "expr": "width"
+            }
+          },
+          "y": {
+            "datum": 43.0
+          },
+          "y2": {
+            "datum": 46.0
+          },
+          "tooltip": [
+            {
+              "field": "month",
+              "type": "temporal",
+              "title": "month",
+              "format": "%m/%Y"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_plan",
+              "type": "quantitative",
+              "title": "gm_plan",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_fc",
+              "type": "quantitative",
+              "title": "gm_fc",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
+            }
+          ]
         }
       },
       {
