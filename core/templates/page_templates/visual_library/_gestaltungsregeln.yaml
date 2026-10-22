@@ -236,10 +236,11 @@ regeln:
 
   ereignismarker:
     muster: [L8]
-    regel: "Ereignisse als senkrechte Regel 1 px #605E5C mit Text 11 px, Daten aus einer governten Ereignistabelle."
+    regel: "Ereignisse als senkrechte Regel 1 px #605E5C mit Text 11 px senkrecht entlang der Regel (ungekürzt, auch bei dicht liegenden Ereignissen kollisionsfrei), Daten aus einer governten Ereignistabelle."
     strich_px: 1
     farbe: "#605E5C"
     text_px: 11
+    text_winkel: 270             # Grad; der Text liest von unten nach oben und hängt von der Oberkante der Zeichenfläche
     umsetzung:
       status: teilweise
       idiome: [line]

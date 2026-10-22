@@ -25,10 +25,10 @@
     { "transform": [ { "filter": "isValid(datum['gm_fc_p10'])" }, { "window": [ { "op": "row_number", "as": "_bl" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._bl == 1" } ],
       "mark": { "type": "text", "text": "P10", "align": "right", "dx": -2, "dy": 11, "fontSize": 10, "color": "#201F1E" },
       "encoding": { "y": { "field": "gm_fc_p10", "type": "quantitative", "axis": null } } },
-    { "transform": [ { "filter": "isValid(datum['gm_event']) && datum['gm_event'] != ''" } ],
+    { "transform": [ { "filter": "isValid(datum['gm_event']) && datum['gm_event'] != '' && datum['gm_event'] != '(Blank)'" } ],
       "mark": { "type": "rule", "color": "#605E5C", "strokeWidth": 1, "description": "Ereignis" } },
-    { "transform": [ { "filter": "isValid(datum['gm_event']) && datum['gm_event'] != ''" } ],
-      "mark": { "type": "text", "align": "left", "baseline": "top", "dx": 3, "dy": 2, "fontSize": 11, "limit": 140, "color": "#605E5C" },
+    { "transform": [ { "filter": "isValid(datum['gm_event']) && datum['gm_event'] != '' && datum['gm_event'] != '(Blank)'" } ],
+      "mark": { "type": "text", "angle": 270, "align": "right", "baseline": "top", "dx": -3, "dy": 3, "fontSize": 11, "color": "#605E5C", "description": "Ereignistext" },
       "encoding": { "y": { "value": 0 }, "text": { "field": "gm_event", "type": "nominal" } } },
     {
       "mark": {

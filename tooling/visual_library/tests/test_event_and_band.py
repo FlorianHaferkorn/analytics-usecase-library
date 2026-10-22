@@ -93,6 +93,18 @@ def test_event_is_a_rule_with_its_text(profile):
     assert "Preisaktion Nord" not in _texts(ohne)
     marke = next(it for it in _items(mit, "text") if it.get("text") == "Preisaktion Nord")
     assert marke["fontSize"] == regel["text_px"]
+    # senkrecht entlang der Regel und ungekürzt: dicht liegende Ereignisse kollidieren nicht, kein „…“ (2.1.1)
+    assert marke["angle"] == regel["text_winkel"] and not marke.get("limit"), marke
+
+
+@pytest.mark.parametrize("profile", PROFILES)
+def test_host_null_sentinel_draws_no_marker(profile):
+    """Der Fabric-Host (fabric-visuals, NULL_SENTINEL) reicht leere Textzellen als "(Blank)" an Vega weiter; das ist
+    kein Ereignis. Gegenprobe: ohne den Filter stünde an jeder Woche eine Regel mit dem Text "(Blank)"."""
+    host = [{**r, "E": r["E"] if r["E"] else "(Blank)"} for r in ROWS]
+    spec = _spec(profile, {**BASIS, "event": "E"}, host)
+    assert "(Blank)" not in _texts(spec)
+    assert _texts(spec).count("Preisaktion Nord") == 1
 
 
 @pytest.mark.parametrize("profile", PROFILES)

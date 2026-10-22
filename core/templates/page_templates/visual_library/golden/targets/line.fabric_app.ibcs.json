@@ -182,7 +182,7 @@
       {
         "transform": [
           {
-            "filter": "isValid(datum['gm_event']) && datum['gm_event'] != ''"
+            "filter": "isValid(datum['gm_event']) && datum['gm_event'] != '' && datum['gm_event'] != '(Blank)'"
           }
         ],
         "mark": {
@@ -195,18 +195,19 @@
       {
         "transform": [
           {
-            "filter": "isValid(datum['gm_event']) && datum['gm_event'] != ''"
+            "filter": "isValid(datum['gm_event']) && datum['gm_event'] != '' && datum['gm_event'] != '(Blank)'"
           }
         ],
         "mark": {
           "type": "text",
-          "align": "left",
+          "angle": 270,
+          "align": "right",
           "baseline": "top",
-          "dx": 3,
-          "dy": 2,
+          "dx": -3,
+          "dy": 3,
           "fontSize": 11,
-          "limit": 140,
           "color": "#605E5C",
+          "description": "Ereignistext",
           "tooltip": null
         },
         "encoding": {
