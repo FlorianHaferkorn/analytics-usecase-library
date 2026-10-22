@@ -253,6 +253,28 @@ def test_variance_area_only_when_switched_on_and_coloured_by_direction():
     assert gefuellt({"abweichungsflaeche": "an", "polarity": "-1"}) == {"#A4262C"}
 
 
+def test_no_line_or_area_layer_leaves_an_unnamed_container_when_empty():
+    """A line or area mark is one path: Vega names its container from the items, so an empty one (variance area
+    switched off) is an unnamed graphics-symbol (axe svg-img-alt, Meridian Cockpit G8, 22.10.2026). Every line or area
+    layer behind a filter is therefore either hidden from assistive technology or always drawn."""
+    b = {"time": "d", "value": "v", "plan": "p", "prior": "py"}
+    spec = json.loads(render.render_target("line", "fabric_app", None, bindings=b)[0])["spec"]
+    vg = vlc.vegalite_to_vega(spec)
+    offen = []
+
+    def walk(node: dict) -> None:
+        for m in node.get("marks", []):
+            if m.get("type") in ("line", "area") and m.get("aria") is not False and "Abweichungsfl" in json.dumps(m):
+                offen.append(m.get("name"))
+            walk(m)
+
+    walk(vg)
+    assert offen == []
+    # Gegenprobe: without the flag the same layers would be exposed.
+    roh = json.dumps(spec).replace('"aria": false', '"aria": true')
+    assert '"aria": true' in roh
+
+
 # --- N2 Pfeil ---------------------------------------------------------------------------------------------------------
 
 def test_dumbbell_arrow_points_in_the_direction_and_is_coloured_by_it():
