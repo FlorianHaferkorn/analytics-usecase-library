@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "2.1.1"   # 2.1.1 (22.10.2026): an der Regel die laufende Nummer des Ereignisses über der Zeichenfläche, der Text steht in der Legende des Aufrufers (Regel ereignismarker; ein Text in der Zeichenfläche überdeckte Direktbeschriftungen, Fabric-App-Tor G14), und ohne Marke für den Null-Platzhalter "(Blank)" des Fabric-Hosts (fabric-visuals NULL_SENTINEL). 2.1.0 (22.10.2026): Rollen event (Ereignismarker, Regel ereignismarker) und fc_band (Prognoseband P10-P90, Regel prognoseband), Meridian BO-401/BO-402. 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
+version: "2.1.2"   # 2.1.2 (22.10.2026): die Ereignisnummer steht in einem eigenen Streifen 19 px über der Zeichenfläche, über allen Direktbeschriftungen (Endwert dy -10, Plan -8, P90 -7); bei -3 überdeckte sie den Endwert eines hohen letzten Punkts (Meridian Fabric-App-Tor G14, 390 px: '3' überdeckt '91,8'). 2.1.1 (22.10.2026): an der Regel die laufende Nummer des Ereignisses über der Zeichenfläche, der Text steht in der Legende des Aufrufers (Regel ereignismarker; ein Text in der Zeichenfläche überdeckte Direktbeschriftungen, Fabric-App-Tor G14), und ohne Marke für den Null-Platzhalter "(Blank)" des Fabric-Hosts (fabric-visuals NULL_SENTINEL). 2.1.0 (22.10.2026): Rollen event (Ereignismarker, Regel ereignismarker) und fc_band (Prognoseband P10-P90, Regel prognoseband), Meridian BO-401/BO-402. 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -155,7 +155,7 @@ realizations:
             "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "description": "Ereignis" },
               "encoding": { "tooltip": { "field": "{{event_field}}", "type": "nominal" } } },
           { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'" }, { "window": [ { "op": "row_number", "as": "_ev" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] } ],
-            "mark": { "type": "text", "align": "center", "baseline": "bottom", "dy": -3, "fontSize": 11, "color": "{{col_ref}}", "description": "Ereignisnummer" },
+            "mark": { "type": "text", "align": "center", "baseline": "bottom", "dy": -19, "fontSize": 11, "color": "{{col_ref}}", "description": "Ereignisnummer" },
             "encoding": { "y": { "value": 0 }, "text": { "field": "_ev", "type": "nominal" }, "tooltip": { "field": "{{event_field}}", "type": "nominal" } } },
           { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_py}}", "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
@@ -296,7 +296,7 @@ profiles:
                 "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "description": "Ereignis" },
                   "encoding": { "tooltip": { "field": "{{event_field}}", "type": "nominal" } } },
               { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'" }, { "window": [ { "op": "row_number", "as": "_ev" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] } ],
-                "mark": { "type": "text", "align": "center", "baseline": "bottom", "dy": -3, "fontSize": 11, "color": "{{col_ref}}", "description": "Ereignisnummer" },
+                "mark": { "type": "text", "align": "center", "baseline": "bottom", "dy": -19, "fontSize": 11, "color": "{{col_ref}}", "description": "Ereignisnummer" },
                 "encoding": { "y": { "value": 0 }, "text": { "field": "_ev", "type": "nominal" }, "tooltip": { "field": "{{event_field}}", "type": "nominal" } } },
               {
                 "mark": {

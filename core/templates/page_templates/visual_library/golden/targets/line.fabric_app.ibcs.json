@@ -222,7 +222,7 @@
           "type": "text",
           "align": "center",
           "baseline": "bottom",
-          "dy": -3,
+          "dy": -19,
           "fontSize": 11,
           "color": "#605E5C",
           "description": "Ereignisnummer",

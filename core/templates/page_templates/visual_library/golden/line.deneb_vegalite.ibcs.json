@@ -29,7 +29,7 @@
       "mark": { "type": "rule", "color": "#605E5C", "strokeWidth": 1, "description": "Ereignis" },
         "encoding": { "tooltip": { "field": "gm_event", "type": "nominal" } } },
     { "transform": [ { "filter": "isValid(datum['gm_event']) && datum['gm_event'] != '' && datum['gm_event'] != '(Blank)'" }, { "window": [ { "op": "row_number", "as": "_ev" } ], "sort": [ { "field": "month", "order": "ascending" } ] } ],
-      "mark": { "type": "text", "align": "center", "baseline": "bottom", "dy": -3, "fontSize": 11, "color": "#605E5C", "description": "Ereignisnummer" },
+      "mark": { "type": "text", "align": "center", "baseline": "bottom", "dy": -19, "fontSize": 11, "color": "#605E5C", "description": "Ereignisnummer" },
       "encoding": { "y": { "value": 0 }, "text": { "field": "_ev", "type": "nominal" }, "tooltip": { "field": "gm_event", "type": "nominal" } } },
     {
       "mark": {
