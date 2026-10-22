@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "2.1.1"   # 2.1.1 (22.10.2026): Ereignistext senkrecht entlang der Regel, ungekürzt (Regel ereignismarker text_winkel), und ohne Marke für den Null-Platzhalter "(Blank)" des Fabric-Hosts (fabric-visuals NULL_SENTINEL). 2.1.0 (22.10.2026): Rollen event (Ereignismarker, Regel ereignismarker) und fc_band (Prognoseband P10-P90, Regel prognoseband), Meridian BO-401/BO-402. 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
+version: "2.1.1"   # 2.1.1 (22.10.2026): an der Regel die laufende Nummer des Ereignisses über der Zeichenfläche, der Text steht in der Legende des Aufrufers (Regel ereignismarker; ein Text in der Zeichenfläche überdeckte Direktbeschriftungen, Fabric-App-Tor G14), und ohne Marke für den Null-Platzhalter "(Blank)" des Fabric-Hosts (fabric-visuals NULL_SENTINEL). 2.1.0 (22.10.2026): Rollen event (Ereignismarker, Regel ereignismarker) und fc_band (Prognoseband P10-P90, Regel prognoseband), Meridian BO-401/BO-402. 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -44,7 +44,7 @@ data_slots:
   plan_field: {role: plan, required: false}
   fc_field: {role: forecast, required: false}   # FC (IBCS UN 3.2): dashed, never drawn as plan (BO-021)
   py_field: {role: prior, required: false}      # PY (IBCS UN 3.2): grey solid, behind AC; never plan or FC (BO-052)
-  event_field: {role: event, required: false}   # text of a governed event at its date: rule + label (Regel ereignismarker); unbound or empty: no marker
+  event_field: {role: event, required: false}   # text of a governed event at its date: rule + running number above the plot, the caller lists number and text (Regel ereignismarker); unbound or empty: no marker
   fc_lo_field: {role: fc_band, part: lo, required: false}   # lower percentile of the forecast (P10): static band, labelled (Regel prognoseband)
   fc_hi_field: {role: fc_band, part: hi, required: false}   # upper percentile of the forecast (P90)
 
@@ -152,10 +152,11 @@ realizations:
             "mark": { "type": "text", "text": "{{label_fc_lo}}", "align": "right", "dx": -2, "dy": 11, "fontSize": 10, "color": "{{col_ref}}" },
             "encoding": { "y": { "field": "{{fc_lo_field}}", "type": "quantitative" } } },
           { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'" } ],
-            "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "description": "Ereignis" } },
-          { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'" } ],
-            "mark": { "type": "text", "angle": 270, "align": "right", "baseline": "top", "dx": -3, "dy": 3, "fontSize": 11, "color": "{{col_ref}}", "description": "Ereignistext" },
-            "encoding": { "y": { "value": 0 }, "text": { "field": "{{event_field}}", "type": "nominal" } } },
+            "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "description": "Ereignis" },
+              "encoding": { "tooltip": { "field": "{{event_field}}", "type": "nominal" } } },
+          { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'" }, { "window": [ { "op": "row_number", "as": "_ev" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] } ],
+            "mark": { "type": "text", "align": "center", "baseline": "bottom", "dy": -3, "fontSize": 11, "color": "{{col_ref}}", "description": "Ereignisnummer" },
+            "encoding": { "y": { "value": 0 }, "text": { "field": "_ev", "type": "nominal" }, "tooltip": { "field": "{{event_field}}", "type": "nominal" } } },
           { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_py}}", "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
           { "transform": [ { "filter": "isValid(datum['{{py_field}}'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._q == 1" } ],
@@ -292,10 +293,11 @@ profiles:
                 "mark": { "type": "text", "text": "{{label_fc_lo}}", "align": "right", "dx": -2, "dy": 11, "fontSize": 10, "color": "{{col_ink}}" },
                 "encoding": { "y": { "field": "{{fc_lo_field}}", "type": "quantitative", "axis": null } } },
               { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'" } ],
-                "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "description": "Ereignis" } },
-              { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'" } ],
-                "mark": { "type": "text", "angle": 270, "align": "right", "baseline": "top", "dx": -3, "dy": 3, "fontSize": 11, "color": "{{col_ref}}", "description": "Ereignistext" },
-                "encoding": { "y": { "value": 0 }, "text": { "field": "{{event_field}}", "type": "nominal" } } },
+                "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "description": "Ereignis" },
+                  "encoding": { "tooltip": { "field": "{{event_field}}", "type": "nominal" } } },
+              { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'" }, { "window": [ { "op": "row_number", "as": "_ev" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] } ],
+                "mark": { "type": "text", "align": "center", "baseline": "bottom", "dy": -3, "fontSize": 11, "color": "{{col_ref}}", "description": "Ereignisnummer" },
+                "encoding": { "y": { "value": 0 }, "text": { "field": "_ev", "type": "nominal" }, "tooltip": { "field": "{{event_field}}", "type": "nominal" } } },
               {
                 "mark": {
                   "type": "line",

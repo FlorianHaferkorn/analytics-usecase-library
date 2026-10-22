@@ -190,24 +190,42 @@
           "color": "#605E5C",
           "strokeWidth": 1,
           "description": "Ereignis"
+        },
+        "encoding": {
+          "tooltip": {
+            "field": "gm_event",
+            "type": "nominal"
+          }
         }
       },
       {
         "transform": [
           {
             "filter": "isValid(datum['gm_event']) && datum['gm_event'] != '' && datum['gm_event'] != '(Blank)'"
+          },
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_ev"
+              }
+            ],
+            "sort": [
+              {
+                "field": "month",
+                "order": "ascending"
+              }
+            ]
           }
         ],
         "mark": {
           "type": "text",
-          "angle": 270,
-          "align": "right",
-          "baseline": "top",
-          "dx": -3,
-          "dy": 3,
+          "align": "center",
+          "baseline": "bottom",
+          "dy": -3,
           "fontSize": 11,
           "color": "#605E5C",
-          "description": "Ereignistext",
+          "description": "Ereignisnummer",
           "tooltip": null
         },
         "encoding": {
@@ -215,6 +233,10 @@
             "value": 0
           },
           "text": {
+            "field": "_ev",
+            "type": "nominal"
+          },
+          "tooltip": {
             "field": "gm_event",
             "type": "nominal"
           }

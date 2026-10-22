@@ -89,12 +89,13 @@ def test_event_is_a_rule_with_its_text(profile):
                 and it.get("opacity") != 0]
     assert len(senkrecht(mit)) == 1 and not senkrecht(ohne), (senkrecht(mit), senkrecht(ohne))
     assert senkrecht(mit)[0]["x"] > 0      # an der zweiten Woche, nicht am Rand
-    assert "Preisaktion Nord" in _texts(mit)
-    assert "Preisaktion Nord" not in _texts(ohne)
-    marke = next(it for it in _items(mit, "text") if it.get("text") == "Preisaktion Nord")
-    assert marke["fontSize"] == regel["text_px"]
-    # senkrecht entlang der Regel und ungekürzt: dicht liegende Ereignisse kollidieren nicht, kein „…“ (2.1.1)
-    assert marke["angle"] == regel["text_winkel"] and not marke.get("limit"), marke
+    # an der Regel die laufende Nummer über der Zeichenfläche, nicht der Text (2.1.1): ein Text in der Fläche
+    # überdeckte im Fabric-App-Tor die Direktbeschriftungen (G14); der Text steht in der Legende des Aufrufers
+    assert "Preisaktion Nord" not in _texts(mit)
+    marke = next(it for it in _items(mit, "text") if it.get("description") == "Ereignisnummer")
+    assert str(marke["text"]) == "1" and marke["fontSize"] == regel["text_px"] and marke["y"] == 0
+    assert marke["baseline"] == "bottom" and marke["x"] == senkrecht(mit)[0]["x"], marke
+    assert not [it for it in _items(ohne, "text") if it.get("description") == "Ereignisnummer"]
 
 
 @pytest.mark.parametrize("profile", PROFILES)
@@ -103,8 +104,17 @@ def test_host_null_sentinel_draws_no_marker(profile):
     kein Ereignis. Gegenprobe: ohne den Filter stünde an jeder Woche eine Regel mit dem Text "(Blank)"."""
     host = [{**r, "E": r["E"] if r["E"] else "(Blank)"} for r in ROWS]
     spec = _spec(profile, {**BASIS, "event": "E"}, host)
-    assert "(Blank)" not in _texts(spec)
-    assert _texts(spec).count("Preisaktion Nord") == 1
+    nummern = [it for it in _items(spec, "text") if it.get("description") == "Ereignisnummer"]
+    assert [str(it["text"]) for it in nummern] == ["1"], nummern
+
+
+@pytest.mark.parametrize("profile", PROFILES)
+def test_events_are_numbered_by_date(profile):
+    rows = [{**r, "E": None} for r in ROWS]
+    rows[3]["E"], rows[1]["E"] = "Später", "Früher"
+    spec = _spec(profile, {**BASIS, "event": "E"}, list(reversed(rows)))
+    nummern = sorted((it["x"], str(it["text"])) for it in _items(spec, "text") if it.get("description") == "Ereignisnummer")
+    assert [t for _, t in nummern] == ["1", "2"], nummern
 
 
 @pytest.mark.parametrize("profile", PROFILES)
@@ -153,6 +163,7 @@ def test_band_is_inside_the_value_axis():
 def test_tooltip_lists_band_and_event():
     spec = json.loads(render.render_target("line", "html_vegalite", "house_default",
                                            bindings={**BASIS, "fc_band": {"lo": "L", "hi": "H"}, "event": "E"})[0])
-    felder = [f["field"] for f in spec["layer"][-1]["encoding"].get("tooltip") or []] or \
-        [f["field"] for lay in spec["layer"] for f in (lay.get("encoding") or {}).get("tooltip") or []]
+    def liste(t):   # Tooltip als Liste (Datenmarken) oder als ein Feld (Ereignisregel und -nummer, 2.1.1)
+        return [t] if isinstance(t, dict) else (t or [])
+    felder = [f["field"] for lay in spec["layer"] for f in liste((lay.get("encoding") or {}).get("tooltip"))]
     assert {"L", "H", "E"} <= set(felder), felder

@@ -236,11 +236,11 @@ regeln:
 
   ereignismarker:
     muster: [L8]
-    regel: "Ereignisse als senkrechte Regel 1 px #605E5C mit Text 11 px senkrecht entlang der Regel (ungekürzt, auch bei dicht liegenden Ereignissen kollisionsfrei), Daten aus einer governten Ereignistabelle."
+    regel: "Ereignisse als senkrechte Regel 1 px #605E5C mit ihrer laufenden Nummer 11 px über der Zeichenfläche; Nummer, Datum und Text stehen in einer Legende unter dem Chart (ein Text in der Zeichenfläche überdeckt Direktbeschriftungen). Daten aus einer governten Ereignistabelle."
     strich_px: 1
     farbe: "#605E5C"
     text_px: 11
-    text_winkel: 270             # Grad; der Text liest von unten nach oben und hängt von der Oberkante der Zeichenfläche
+    beschriftung: nummer_mit_legende   # an der Regel die Nummer (1, 2, … nach Datum), Text in der Legende des Aufrufers
     umsetzung:
       status: teilweise
       idiome: [line]
