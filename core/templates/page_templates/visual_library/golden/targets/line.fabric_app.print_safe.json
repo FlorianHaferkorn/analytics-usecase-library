@@ -160,7 +160,8 @@
           "color": "#107C10",
           "opacity": 0.2,
           "description": "Abweichungsfläche gut",
-          "aria": false
+          "aria": false,
+          "line": false
         },
         "encoding": {
           "y": {
@@ -220,7 +221,8 @@
           "color": "#A4262C",
           "opacity": 0.2,
           "description": "Abweichungsfläche schlecht",
-          "aria": false
+          "aria": false,
+          "line": false
         },
         "encoding": {
           "y": {
