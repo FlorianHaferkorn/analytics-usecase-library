@@ -1,6 +1,6 @@
 # R1b Redaktionelle Datenvisualisierung: Zusammenfassung
 
-56 Einträge in `editorial.yaml` (idiom 15, style 16, token 9, layout 9, selection_logic 6, interaction 1).
+56 Einträge in `editorial.yaml` am 30.09.2026, seit der Nachlese 22.10.2026 65 (idiom 15, style 16, token 9, layout 9, selection_logic 6, interaction 1).
 Jede Quelle hat eine URL. Zitate wurden per Skript normalisiert gegen die geladenen Texte geprüft (FT-PDF,
 Urban-HTML, bbplot-R, Plot-Docs, Reuters-npm-Docs, ai2html.js). Einträge mit Suchindex-Vermerk haben `evidence: null`.
 
@@ -53,3 +53,8 @@ Urban-HTML, bbplot-R, Plot-Docs, Reuters-npm-Docs, ai2html.js). Einträge mit Su
 - Soll `ranking` ein eigener Purpose werden (FT trennt Ranking von Magnitude)?
 - Soll Spatial ganz ausgeschlossen bleiben? Power BI, HTML und Vega-Lite könnten Choropleth und Tile-Map.
 - Vor Übernahme der ONS- und Datawrapper-Werte: Zugriff über einen freigeschalteten Egress oder manuelles Gegenlesen.
+
+## Nachlese 22.10.2026 (SWD, Tufte)
+- storytellingwithdata und edwardtufte.com im Original gelesen: 056 mit Zitat belegt, 058 bis 065 neu (Chartjunk, Daten-Tinte, Entrümpeln, sparsame Farbe, Direktbeschriftung, "so what", Pie/zweite Achse, Big Idea). Buchseiten stammen aus dem Register der Wiley-Leseprobe.
+- Weiter nur im Buch: Definition Daten-Tinte (VDQI Kap. 4) und die Regel "alles grau, ein Akzent" (SWD S. 117-124). Bis dahin bleibt `minimal` `offered: false`.
+- Kandidat für eine spätere Runde: Dataviz Inspiration (Galerie) als Korpus für `editorial`/`story`, nur Muster mit Primärquelle.

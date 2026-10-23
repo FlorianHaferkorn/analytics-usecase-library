@@ -209,15 +209,21 @@ profiles:
     kind: style
     base_notation: house_default
     is_default: false
-    status: experimental   # sources only as search excerpts in R1 (L-3)
+    status: experimental   # R1 had search excerpts only (L-3); primary sources read 22.10.2026, two rules still open
     # Not offered to customers (ADR-0026, Meridian D-720 OE-7) until the Tufte/SWD sources are read in
-    # the original; kept in the registry so the renderer and its tests still cover it.
+    # the original. Read 22.10.2026 (editorial-056, -058 to -062): chartjunk, data-ink applied, declutter,
+    # sparing colour, direct labels. Still book-only: the data-ink definition (Tufte VDQI ch. 4) and the
+    # grey-plus-one-accent rule (Knaflic SWD pp. 117-124). Kept in the registry so the renderer and its
+    # tests still cover it.
     offered: false
     description: >
       Maximum data-ink: no frame, no ticks, no grid, one focus colour against grey,
       sparklines embedded in text and tables.
     source:
-      - "editorial summary R1: swd/tufte principles (search excerpts, not read in the original)"
+      - "editorial-058 (Tufte VDQI p. 107: chartjunk is non-data-ink)"
+      - "editorial-059 (Tufte: sparklines, data-ink ratio 1.0; definition VDQI ch. 4 not read)"
+      - "editorial-060 (Knaflic: remove background, gridlines, borders, markers; SWD pp. 93-94)"
+      - "editorial-061 (Knaflic: colour used sparingly; SWD pp. 118-120; grey-plus-accent rule not read)"
     rules:
       data_ink: "no frame, ticks, grid or axis lines unless they carry data"
       focus:    "one focus colour, everything else grey"
@@ -243,7 +249,8 @@ profiles:
       - "editorial-027 (via editorial: light horizontal grid)"
       - "editorial-026 (via editorial: no axis titles or ticks)"
       - "editorial-057 (PitchSide Pro: grey marks, one accent for the current item, statement next to the chart)"
-      - "editorial summary R1: one focus colour against grey (via minimal, search excerpts)"
+      - "editorial-061 (Knaflic: colour used sparingly; one accent against grey shown by example, rule in SWD pp. 117-124 not read)"
+      - "editorial-062 (Knaflic: label series directly instead of a legend; SWD p. 96)"
     rules:
       focus:   "every data mark grey; only the key message's hits in the accent"
       grid:    "light horizontal grid, no vertical grid, no frame"

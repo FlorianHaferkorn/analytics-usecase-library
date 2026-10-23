@@ -1231,16 +1231,16 @@
 - id: editorial-056
   pattern: 'Tufte: Sparklines'
   description: 'Wortgroße, datenintensive Grafiken ohne Rahmen, Ticks und Nicht-Daten-Elemente, eingebettet in Satz,
-    Tabelle oder Headline. Vorbild für kpi_card_spark und matrix_sparkline. [Zugriff: Seite egress-blockiert, Inhalt
-    nur über Suchindex-Auszug gelesen; vor Übernahme gegenlesen]'
+    Tabelle oder Headline. Vorbild für kpi_card_spark und matrix_sparkline. [Zugriff 22.10.2026: Seite im Original
+    gelesen; Tuftes Beitrag dort ist als Auszug aus Beautiful Evidence, S. 46-63, ausgewiesen]'
   source:
     title: Sparkline theory and practice
     publisher: Edward Tufte
     url: https://www.edwardtufte.com/notebook/sparkline-theory-and-practice-edward-tufte/
-    date_published: unbekannt
-    date_accessed: '2026-09-30'
+    date_published: '2004-05-27'
+    date_accessed: '2026-10-22'
     kind: primary
-  evidence: null
+  evidence: 'Sparklines are datawords: data-intense, design-simple, word-sized graphics.'
   parameters: {}
   applies_to:
     purposes:
@@ -1272,4 +1272,163 @@
     idioms: []
     style_pack: story
     layer: style
+  confidence: from_source
+- id: editorial-058
+  pattern: 'Tufte: Chartjunk ist Nicht-Daten-Tinte'
+  description: 'Dekoration im Inneren einer Grafik (Muster, Schraffur, schwere Gitter) ist Nicht-Daten- oder redundante Daten-Tinte. Seitenscan aus VDQI Kap. 5 "Chartjunk: Vibrations, Grids, and Ducks", S. 107, vom Autor selbst gepostet.'
+  source:
+    title: 'Chartjunk (Seitenscans VDQI S. 106-121)'
+    publisher: Edward Tufte
+    url: https://www.edwardtufte.com/notebook/chartjunk/
+    date_published: '2015-01-29'
+    date_accessed: '2026-10-22'
+    kind: primary
+  evidence: 'The interior decoration of graphics generates a lot of ink that does not tell the viewer anything new.'
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: tufte
+    layer: style
+  confidence: from_source
+- id: editorial-059
+  pattern: 'Tufte: Daten-Tinte-Verhältnis 1,0 bei Sparklines'
+  description: 'Anwendung des Daten-Tinte-Prinzips: Sparklines bestehen nur aus Daten. Die Definition des Verhältnisses (VDQI Kap. 4, S. 91-105) ist frei nicht im Original verfügbar; hier nur die Anwendung in Tuftes Worten.'
+  source:
+    title: 'Sparklines: history by Tufte, 1324 to now'
+    publisher: Edward Tufte
+    url: https://www.edwardtufte.com/notebook/sparklines-history-by-tufte-1324-to-now/
+    date_published: '2016-09-22'
+    date_accessed: '2026-10-22'
+    kind: primary
+  evidence: 'Sparklines have a data-ink or data-pixel ratio = 1.0, consisting entirely of data, with no non-data at all.'
+  parameters: {}
+  applies_to:
+    purposes:
+    - time_comparison
+    idioms:
+    - kpi_card_spark
+    - matrix_sparkline
+    style_pack: tufte
+    layer: style
+  confidence: from_source
+- id: editorial-060
+  pattern: 'SWD: Rahmen, Hintergrund, Gitter und Marker entfernen'
+  description: 'Entrümpeln eines Diagramms: Hintergrundfläche, Gitterlinien, Rahmen und Datenpunkt-Marker entfernen. Buch: Kap. 3 "clutter is your enemy!" S. 71-98; Gitterlinien S. 93, Marker S. 94, Daten-Tinte S. 72 (Register, Wiley-Leseprobe).'
+  source:
+    title: 'new year resolution: declutter your graphs'
+    publisher: storytelling with data (Cole Nussbaumer Knaflic)
+    url: https://www.storytellingwithdata.com/blog/2011/01/new-years-resolution-declutter-your
+    date_published: '2011-01-04'
+    date_accessed: '2026-10-22'
+    kind: primary
+  evidence: 'I eliminated the background shading, gridlines, and borders.'
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms:
+    - line
+    - column_time
+    - bar_ranking
+    style_pack: swd
+    layer: style
+  confidence: from_source
+- id: editorial-061
+  pattern: 'SWD: Farbe sparsam als präattentives Merkmal'
+  description: 'Größe, Farbe und Position lenken die Aufmerksamkeit nur, wenn sie sparsam eingesetzt werden. Buch: Farbe sparsam S. 118-120 (Register). Die Regel "alles grau, ein Akzent" ist im Blog nur als Beispiel belegt, als Regel nur im Buch.'
+  source:
+    title: 'where are your eyes drawn?'
+    publisher: storytelling with data (Cole Nussbaumer Knaflic)
+    url: https://www.storytellingwithdata.com/blog/whereareyoureyesdrawn
+    date_published: 'unbekannt'
+    date_accessed: '2026-10-22'
+    kind: primary
+  evidence: 'These are elements like size, color, and position on page that, when used sparingly, can direct your audience''s attention'
+  parameters: {}
+  applies_to:
+    purposes: []
+    idioms: []
+    style_pack: swd
+    layer: style
+  confidence: from_source
+- id: editorial-062
+  pattern: 'SWD: Reihen direkt beschriften statt Legende'
+  description: 'Die Reihenbeschriftung steht am Datenende; die Legende entfällt, weil sie Blickwechsel erzwingt. Buch: S. 96 "labeling data directly" (Register).'
+  source:
+    title: 'drawing attention with data labels'
+    publisher: storytelling with data (Cole Nussbaumer Knaflic)
+    url: https://www.storytellingwithdata.com/blog/2012/06/drawing-attention-with-data-labels
+    date_published: '2012-06-29'
+    date_accessed: '2026-10-22'
+    kind: primary
+  evidence: 'The series are labeled directly, eliminating the work of going back and forth between a legend and the data'
+  parameters: {}
+  applies_to:
+    purposes:
+    - time_comparison
+    - compare_categories
+    idioms:
+    - line
+    - indexed_line
+    - slope
+    style_pack: swd
+    layer: style
+  confidence: from_source
+- id: editorial-063
+  pattern: 'SWD: das "so what" steht in Worten an jeder Grafik'
+  description: 'Die Aussage wird ausgeschrieben, nicht dem Leser überlassen. Buch: "action titles on slides" S. 141 (Register). Abweichung im Haus: der Titel bleibt beschreibend, die Aussage steht als eigene Kernaussage (ADR-0026, Meridian D-641).'
+  source:
+    title: 'so what?'
+    publisher: storytelling with data (Cole Nussbaumer Knaflic)
+    url: https://www.storytellingwithdata.com/blog/2017/3/22/so-what
+    date_published: '2017-03-22'
+    date_accessed: '2026-10-22'
+    kind: primary
+  evidence: 'Your audience should never have to guess what message you want them to know.'
+  parameters: {}
+  applies_to:
+    purposes:
+    - value_verdict
+    idioms: []
+    style_pack: swd
+    layer: style
+  confidence: from_source
+- id: editorial-064
+  pattern: 'SWD: keine Kreisdiagramme, keine zweite y-Achse'
+  description: 'Kreis- und 3-D-Diagramme sowie die zweite y-Achse gehören zu den zu meidenden Formen. Buch: Kap. 2, Pie S. 61-65, sekundäre y-Achse S. 66-67 (Register). Zweite Quelle: https://www.storytellingwithdata.com/blog/2016/2/1/be-gone-dual-y-axis ("I am generally not a fan of the dual y-axis.").'
+  source:
+    title: 'death to pie charts'
+    publisher: storytelling with data (Cole Nussbaumer Knaflic)
+    url: https://www.storytellingwithdata.com/blog/2011/07/death-to-pie-charts
+    date_published: '2011-07'
+    date_accessed: '2026-10-22'
+    kind: primary
+  evidence: 'Don''t use pie charts.'
+  parameters: {}
+  applies_to:
+    purposes:
+    - part_to_whole
+    idioms:
+    - donut
+    style_pack: swd
+    layer: selection_logic
+  confidence: from_source
+- id: editorial-065
+  pattern: 'SWD: Big Idea und 3-Minuten-Geschichte'
+  description: 'Vor dem Diagramm steht die Aussage in einem Satz (Big Idea) bzw. in drei Minuten. Buch: Kap. 1, S. 30-31 (Wiley-Leseprobe, Volltext des Kapitels).'
+  source:
+    title: 'storytelling with data, chapter 1 the importance of context (Leseprobe)'
+    publisher: Wiley (Cole Nussbaumer Knaflic)
+    url: https://media.wiley.com/product_data/excerpt/57/11190022/1119002257-4.pdf
+    date_published: '2015'
+    date_accessed: '2026-10-22'
+    kind: primary
+  evidence: 'The Big Idea boils the so-what down even further: to a single sentence.'
+  parameters: {}
+  applies_to:
+    purposes:
+    - value_verdict
+    idioms: []
+    style_pack: swd
+    layer: selection_logic
   confidence: from_source
