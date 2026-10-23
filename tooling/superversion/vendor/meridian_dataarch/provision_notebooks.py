@@ -37,7 +37,7 @@ from core.dataarch_engine.blueprint.provision_apply import (
 )
 from core.dataarch_engine.blueprint.provision_translations import model_name_of
 
-#: Ablage der Gold-Schritte ohne Silber-Quelle in der Lieferung, etwa des Kalenders (D-810). Sie bekommen ein
+#: Ablage der Gold-Schritte ohne Silber-Quelle in der Lieferung, etwa des Kalenders (D-819). Sie bekommen ein
 #: Gold-Notebook, ohne Gold-Produkt des Blueprints zu sein, und laufen hinter allen anderen Gold-Stufen.
 #: Erkannt am Ort: dieses Modul wird nach ALUCA gespiegelt und kennt den Erzeuger nicht (D-541).
 ERZEUGT_ORDNER = "transforms/_erzeugt"
@@ -508,7 +508,7 @@ def _databricks_notebook(cell_lines: list[str]) -> str:
 
 
 def erzeugte_produkte(rels, ausser=()) -> list[str]:
-    """Die Produkte der Gold-Schritte ohne Silber-Quelle (`transforms/_erzeugt/silver_to_gold__<p>.sql`, D-810)."""
+    """Die Produkte der Gold-Schritte ohne Silber-Quelle (`transforms/_erzeugt/silver_to_gold__<p>.sql`, D-819)."""
     return sorted({rel.rsplit("/", 1)[1][:-4].split("__", 1)[1] for rel in rels
                    if rel.startswith(ERZEUGT_ORDNER + "/")} - set(ausser))
 

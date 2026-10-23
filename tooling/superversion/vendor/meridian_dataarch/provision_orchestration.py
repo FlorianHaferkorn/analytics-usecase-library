@@ -119,7 +119,7 @@ def _copy_source_type(e: dict) -> str:
 
 
 def _erzeugte_aktivitaeten(transform_notebooks: dict[str, str] | None, acts: list[dict]) -> list[dict]:
-    """D-810: Gold-Schritte ohne Silber-Quelle (`transforms/_erzeugt/`, der Kalender) lesen die fertigen
+    """D-819: Gold-Schritte ohne Silber-Quelle (`transforms/_erzeugt/`, der Kalender) lesen die fertigen
     Gold-Tabellen. Sie laufen als eigene Stufe hinter allen anderen. Erkannt am Ablageort — dieses
     Modul wird nach ALUCA gespiegelt und kennt den Erzeuger nicht (D-541)."""
     alle_gold = sorted(a["name"] for a in acts if a["name"].startswith("nb__silver_to_gold__"))

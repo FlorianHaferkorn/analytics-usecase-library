@@ -1,7 +1,7 @@
 {
   "source_repo": "Freelancing",
   "source_path": "core/dataarch_engine/blueprint",
-  "source_commit": "e93d57b9c74ac7e6f5ac6e4120f331fe59657b4f",
+  "source_commit": "55931b44c8488dd98ce2762a4c3766d9ced22911",
   "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
   "files": [
     {
@@ -22,7 +22,7 @@
     },
     {
       "path": "naming.py",
-      "sha256": "8f9558f94e30751fc0a3905b9b84b6b078f060585a5caa5afd08ba3d20d3ff64"
+      "sha256": "8a50de1621d9add5738e8d9749dba6947a4e2d19ee74dbd3d6def6fb87296a04"
     },
     {
       "path": "naming_bereichskuerzel.json",
@@ -74,7 +74,7 @@
     },
     {
       "path": "provision_apply.py",
-      "sha256": "7bfe55988879bce12277a22d0bdada3e422df9b1c7326b09649cd58a9c8c8488"
+      "sha256": "fb85ef7f0d27a1c7387bafc90ac3c14a1fb387e8dd6da53b359e2a3b169eb43e"
     },
     {
       "path": "provision_chargeback.py",
@@ -118,11 +118,11 @@
     },
     {
       "path": "provision_notebooks.py",
-      "sha256": "2c9d2cd1a58f923c2e75a55057cf4ced5211adaf0207197eb3c47143adc9c31c"
+      "sha256": "a34dba7d1a26853579bb326158f08c9c394863bcc57eed3f8d120dcf6f8f2892"
     },
     {
       "path": "provision_orchestration.py",
-      "sha256": "c685ca3480d42204ba057521c80d15761e269e55397f80e535e3872d5c6652f5"
+      "sha256": "acf418fdaa0ae0d04e19dfd234f1b52ba32840a1712f9961a7c25ac58005934a"
     },
     {
       "path": "provision_prereq.py",
@@ -146,7 +146,15 @@
     },
     {
       "path": "provision_transforms.py",
-      "sha256": "81244f78590486424860bf0133dbf5a28eff9160712ac055eb67da9b4f20fcd0"
+      "sha256": "c7fb4736620d8cbf51fe6766e5aca94873df47e8e61e9a76a76416ce046b829d"
+    },
+    {
+      "path": "sap_calendar.py",
+      "sha256": "6a59ada485ea39e5366ef05348736f067a265d0efdf5e5a4843def4385360188"
+    },
+    {
+      "path": "fristregel.py",
+      "sha256": "d6edb94f02a11fd3c8c5fdd7bcd345d3287a0978224a19ed27b04c57113cc1b0"
     },
     {
       "path": "provision_translations.py",
@@ -170,7 +178,7 @@
     },
     {
       "path": "preis_kanon.py",
-      "sha256": "01c6eae5e537fa77adc9616b831b39a2e7df3521590bca1bab44baa9aa6566c1",
+      "sha256": "3d8bac50db4796e3d16dc4d853b2d65613ae5bac7025ef322eb5ae42b75eb0a7",
       "source": "core/preis_kanon.py"
     },
     {

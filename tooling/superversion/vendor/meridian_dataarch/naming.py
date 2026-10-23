@@ -153,23 +153,74 @@ def _segments(name: str) -> list[str]:
     return [s for s in name.split("_") if s]
 
 
-def bereichskuerzel(slug: str, data_domains: list[dict] | None = None) -> tuple[str, str]:
-    """(Kürzel, Herkunft) für den Fachbereich ``slug`` — Herkunft ``mandant`` | ``standard`` | ``slug``.
+#: Form eines Bereichskürzels: genau ein Segment der Formel §2.2 (``project``), also ohne Unterstrich.
+KUERZEL_FORM = re.compile(r"^[a-z][a-z0-9]{1,9}$")
 
-    Vorrang hat der Mandant (BO-332): ``kpi_prefix`` des Eintrags in
-    ``governance.data_domains`` mit diesem ``slug``, klein geschrieben (``COM`` → ``com``).
-    Ohne ihn die Tabelle des Standards (§5.4, :data:`DOMAIN_ABBREVIATIONS`), sonst der
-    normalisierte Slug selbst — nie ein erfundenes Kürzel.
+
+def _eigenes_kuerzel(key: str) -> str:
+    """Kürzel aus dem Slug allein: die Tabelle §5.4, sonst die Anfangsbuchstaben der Slug-Teile
+    (``accounts_payable`` → ``ap``), bei einem Teil dessen erste drei Buchstaben (``controlling`` → ``con``)."""
+    if key in DOMAIN_ABBREVIATIONS:
+        return DOMAIN_ABBREVIATIONS[key]
+    teile = _segments(key)
+    if len(teile) > 1:
+        return "".join(t[0] for t in teile)
+    return key[:3]
+
+
+def bereichskuerzel(slug: str, data_domains: list[dict] | None = None) -> tuple[str, str]:
+    """(Kürzel, Herkunft) für den Fachbereich ``slug`` — das Segment ``project`` der Formel (§2.2).
+
+    Regel aus BO-437 (Entscheidung Florian 22.10.2026), je Eintrag in ``governance.data_domains`` und nur aus dessen eigenen Feldern,
+    damit ein neuer Nachbarbereich kein bestehendes Kürzel verschiebt (stabil):
+
+    1. ``name_prefix`` gesetzt → genau dieser Wert (Herkunft ``override``).
+    2. ``kpi_prefix`` klein (``p``) und das eigene Kürzel des Slugs (``s``, :func:`_eigenes_kuerzel`): ist eines der
+       beiden der Anfang des anderen, benennt der Präfix den Bereich selbst → ``p`` (``mandant``; ``FIN``/finance →
+       ``fin``, ``CUS``/customer → ``cus``). Sonst fasst der Präfix mehrere Bereiche zusammen → ``p + s``
+       (``mandant_bereich``; ``FIN``/accounts_payable → ``finap``).
+    3. Ohne ``kpi_prefix`` die Tabelle §5.4 (``standard``), sonst der normalisierte Slug (``slug``), nie erfunden.
+
+    Eindeutig ist das Kürzel nicht durch Konstruktion, sondern durch das Tor: :func:`bereichskuerzel_befunde` meldet
+    jede Kollision und jede ungültige Form; aufgelöst wird eine Kollision nur über ``name_prefix``, nie still.
     """
     key = normalize(slug)
     for d in data_domains or ():
         if isinstance(d, dict) and normalize(str(d.get("slug") or "")) == key:
-            prefix = d.get("kpi_prefix")
-            if isinstance(prefix, str) and normalize(prefix):
-                return normalize(prefix), "mandant"
+            override = d.get("name_prefix")
+            if isinstance(override, str) and override:
+                return override, "override"
+            prefix = normalize(d.get("kpi_prefix") or "") if isinstance(d.get("kpi_prefix"), str) else ""
+            if prefix:
+                eigen = _eigenes_kuerzel(key)
+                if eigen.startswith(prefix) or prefix.startswith(eigen):
+                    return prefix, "mandant"
+                return prefix + eigen, "mandant_bereich"
     if key in DOMAIN_ABBREVIATIONS:
         return DOMAIN_ABBREVIATIONS[key], "standard"
     return key, "slug"
+
+
+def bereichskuerzel_je_bereich(data_domains: list[dict] | None) -> dict[str, tuple[str, str]]:
+    """Slug → (Kürzel, Herkunft) für jeden Bereich mit Slug."""
+    dd = [d for d in data_domains or () if isinstance(d, dict) and d.get("slug")]
+    return {d["slug"]: bereichskuerzel(d["slug"], dd) for d in dd}
+
+
+def bereichskuerzel_befunde(data_domains: list[dict] | None) -> list[str]:
+    """Befunde zur Regel aus :func:`bereichskuerzel`: Kürzel außerhalb :data:`KUERZEL_FORM` und Kürzel, die mehr als
+    ein Bereich desselben Mandanten bekommt. Leer heißt: jeder Bereich hat ein eigenes, gültiges Segment."""
+    befunde: list[str] = []
+    wer: dict[str, list[str]] = {}
+    for slug, (kz, herkunft) in bereichskuerzel_je_bereich(data_domains).items():
+        if not KUERZEL_FORM.match(kz):
+            befunde.append(f"{slug}: Kürzel {kz!r} ({herkunft}) ist kein Segment {KUERZEL_FORM.pattern}")
+        wer.setdefault(kz, []).append(slug)
+    for kz, slugs in sorted(wer.items()):
+        if len(slugs) > 1:
+            befunde.append(f"Kürzel {kz!r} für {len(slugs)} Bereiche ({', '.join(sorted(slugs))}); "
+                           "name_prefix setzen")
+    return befunde
 
 
 def validate(name: str, kind: str | None = None, *, is_table: bool = False,

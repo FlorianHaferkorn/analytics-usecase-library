@@ -85,6 +85,12 @@ def risiko(m: dict, tm: bool = False) -> float:
     return float(r["tm"] if tm else r["festpreis"])
 
 
+def nacharbeit_tm(m: dict) -> dict | None:
+    """Anteil und Bezeichnung der Nacharbeits-Position für Angebote nach Aufwand (D-808); None ohne Eintrag."""
+    n = m.get("nacharbeit_tm")
+    return {"anteil": float(n["anteil"]), "bezeichnung": n["bezeichnung"]} if n else None
+
+
 def kostensatz(m: dict, klasse: str) -> float:
     return float(m["satzklassen"][klasse]["kostensatz_eur_h"])
 
