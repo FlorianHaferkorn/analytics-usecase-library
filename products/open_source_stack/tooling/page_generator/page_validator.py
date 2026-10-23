@@ -86,7 +86,52 @@ def validate_page(content: str, page_path: str = "<unknown>") -> ValidationResul
     if not has_30s:
         result.warnings.append("Missing 30-second layer section")
 
+    # Rules 9-12: boutique craft rubric 1.1 minimum (Meridian BO-288), binding for generated pages.
+    if re.search(r"^generated:\s*true\s*$", content, re.MULTILINE):
+        result.errors.extend(rubric_findings(content))
+
     return result
+
+
+# A number on the page: a stat, a chart or a table outside a provenance <Details> block.
+_NUMBER_COMPONENTS = ("BigValue", "LineChart", "BarChart", "AreaChart", "DataTable")
+_CHART_COMPONENTS = ("LineChart", "BarChart", "AreaChart")
+_DETAILS = re.compile(r"<Details\b.*?</Details>", re.DOTALL)
+_COMPONENT = re.compile(r"<(" + "|".join(_NUMBER_COMPONENTS) + r")\s+data=\{(\w+)\}")
+
+
+def rubric_findings(content: str) -> List[str]:
+    """Rubric 1.1 minimum per page: BC-DV-08 (one filter row first, every query reads it), BC-TRANS-04 (a
+    visible as-of stamp per number), BC-TRANS-01/02 (query and catalog reference one click away) and
+    BC-DV-09 (table view per chart, exportable). Returns one finding per breach, empty when the page passes."""
+    findings: List[str] = []
+    masked = _DETAILS.sub(lambda m: " " * len(m.group(0)), content)  # same offsets, provenance blocks blanked
+    numbers = list(_COMPONENT.finditer(masked))
+    if not numbers:
+        return findings
+
+    date_range = re.search(r"<DateRange\s+name=(\w+)", content)
+    if not date_range or date_range.start() > numbers[0].start():
+        findings.append("BC-DV-08: no date-range filter above the first chart/stat/table")
+    else:
+        token = "${inputs." + date_range.group(1) + "."
+        for m in re.finditer(r"```sql\s+(\w+)\n(.*?)```", masked, re.DOTALL):
+            if m.start() > date_range.start() and token not in m.group(2):
+                findings.append(f"BC-DV-08: query '{m.group(1)}' ignores the filter '{date_range.group(1)}'")
+
+    for i, m in enumerate(numbers):
+        component, query = m.group(1), m.group(2)
+        end = numbers[i + 1].start() if i + 1 < len(numbers) else len(content)
+        tail = content[m.end():end]
+        if "_Data as of <Value" not in tail:
+            findings.append(f"BC-TRANS-04: {component} '{query}' has no visible as-of stamp")
+        details = _DETAILS.search(tail)
+        if not details or "Catalog id:" not in details.group(0) or "```text" not in details.group(0):
+            findings.append(f"BC-TRANS-01/02: {component} '{query}' has no query and catalog reference")
+        elif component in _CHART_COMPONENTS and (
+                f"<DataTable data={{{query}}} downloadable=true" not in details.group(0)):
+            findings.append(f"BC-DV-09: {component} '{query}' has no exportable table view")
+    return findings
 
 
 def validate_pages_directory(pages_dir: Path) -> List[ValidationResult]:

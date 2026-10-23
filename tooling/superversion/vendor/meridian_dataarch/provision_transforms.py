@@ -942,7 +942,8 @@ def _bronze_to_silver(d: dict, src: str, silver_tbl: str, contract_ref: str, dl:
     return kopf + anlegen + laden
 
 
-def _erzeugt(name: str, gold_tbl: str, dl: dict, gen: dict) -> str:
+def _erzeugt(name: str, gold_tbl: str, dl: dict, gen: dict, stack: str = "fabric",
+             schemas: bool = False) -> str:
     """Ein Gold-Produkt ohne Quelle, weil es keine haben KANN.
 
     Eine Datumsdimension entsteht aus einem Bereich, nicht aus einer Tabelle. Bisher behandelte
@@ -950,32 +951,22 @@ def _erzeugt(name: str, gold_tbl: str, dl: dict, gen: dict) -> str:
     und scheiterte mit TABLE_OR_VIEW_NOT_FOUND -- gemessen 12.08.2026 an `dim_datum`, wo der
     Bauplan ausdruecklich "erzeugt" sagt.
 
-    Der Bereich ist eine Eingabe, keine Annahme. Die Vorgaben decken den ueblichen Fall ab und
-    stehen im Kommentar, damit niemand raten muss, was gilt.
+    Seit D-821 gibt es dafuer einen Generator: `sap_calendar.calendar_sql`, derselbe Spaltensatz
+    wie der SAP-Kalender. Ohne Achsen gilt die Spanne aus der Eingabe, auf volle Jahre gerundet.
     """
+    from core.dataarch_engine.blueprint import sap_calendar as SC
     c = dl["comment"]
-    von = (gen.get("from") or "2020-01-01").strip()
-    bis = (gen.get("to") or "2035-12-31").strip()
+    von = (gen.get("from") or f"{SC.DEFAULT_FROM_YEAR}-01-01").strip()
+    bis = (gen.get("to") or f"{SC.DEFAULT_TO_YEAR}-12-31").strip()
+    von_j, bis_j = int(von[:4]), int(bis[:4])
+    gerundet = (von[5:] != "01-01" or bis[5:] != "12-31")
     return (
         f"{c} ERZEUGT — '{name}' hat keine Quelle, weil es keine haben kann.\n"
-        f"{c} Bereich {von} bis {bis} (aus den Eingaben, nicht geraten).\n"
+        f"{c} Bereich {von_j}-01-01 bis {bis_j}-12-31 (aus den Eingaben {von} bis {bis}"
+        + (", auf volle Jahre gerundet" if gerundet else "") + ").\n"
         f"{c} Eine zentrale Datumsdimension ersetzt die automatischen Datumstabellen der\n"
         f"{c} Bestandsmodelle. Wird eine zweite erzeugt, ist genau das wieder da.\n"
-        f"{dl['ctas']} {gold_tbl}{dl['using']}{dl.get('tblprops', '')} AS\n"
-        f"SELECT\n"
-        f"    CAST(datum AS DATE)                        AS datum,\n"
-        f"    YEAR(datum)                                AS jahr,\n"
-        f"    MONTH(datum)                               AS monat,\n"
-        f"    DAY(datum)                                 AS tag,\n"
-        f"    QUARTER(datum)                             AS quartal,\n"
-        f"    WEEKOFYEAR(datum)                          AS kalenderwoche,\n"
-        f"    DAYOFWEEK(datum)                           AS wochentag,\n"
-        f"    DATE_FORMAT(datum, 'yyyy-MM')              AS jahr_monat,\n"
-        f"    CASE WHEN DAYOFWEEK(datum) IN (1, 7) THEN true ELSE false END AS ist_wochenende\n"
-        f"FROM (\n"
-        f"    SELECT EXPLODE(SEQUENCE(DATE '{von}', DATE '{bis}', INTERVAL 1 DAY)) AS datum\n"
-        f")\n"
-        f";\n"
+        + SC.calendar_sql(stack, von_j, bis_j, gold_table=gold_tbl, axes=[], schemas=schemas)
     )
 
 
@@ -1738,7 +1729,7 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
             # Tabellennamen, der nichts erklaert".
             gen = _generator_fuer(blueprint, product)
             if gen:
-                out[rel] = _erzeugt(product, gold_tbl, dl, gen)
+                out[rel] = _erzeugt(product, gold_tbl, dl, gen, stack=stack, schemas=schemas)
                 flow.append(f"- *(erzeugt)* → {gold_tbl} ({kind})  ·  `{rel}`")
                 continue
             # `herkunft` ist nur dann eine Aussage, wenn der Katalog UEBERHAUPT von Herkunft

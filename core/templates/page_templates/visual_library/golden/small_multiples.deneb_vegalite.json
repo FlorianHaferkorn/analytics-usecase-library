@@ -1,13 +1,23 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "data": { "name": "dataset" },
+  "transform": [
+    { "joinaggregate": [ { "op": "min", "field": "gm", "as": "_ylo" }, { "op": "max", "field": "gm", "as": "_yhi" } ] },
+    { "calculate": "max(abs(datum._yhi), abs(datum._ylo))", "as": "_ytop" },
+    { "calculate": "isValid(datum._yhi) && datum._ytop > 0 && datum._yhi - datum._ylo < 0.25 * datum._ytop", "as": "_yangepasst" },
+    { "calculate": "datum._yangepasst ? datum._ylo - max((datum._yhi - datum._ylo) * 0.1, datum._ytop * 0.01) : 0", "as": "_ybasis" }
+  ],
   "facet": { "field": "unit", "type": "nominal" },
   "columns": 3,
   "spec": {
-    "mark": { "type": "line", "interpolate": "monotone", "color": "#0F2430" },
-    "encoding": {
-      "x": { "field": "month", "type": "temporal", "axis": { "title": null } },
-      "y": { "field": "gm", "type": "quantitative", "axis": { "title": null } }
-    }
+    "encoding": { "x": { "field": "month", "type": "temporal", "axis": { "title": null } } },
+    "layer": [
+      { "mark": { "type": "rule", "opacity": 0, "strokeWidth": 0 }, "encoding": { "y": { "field": "_ybasis", "type": "quantitative" } } },
+      { "mark": { "type": "line", "interpolate": "monotone", "color": "#0F2430", "strokeWidth": 2 },
+        "encoding": { "y": { "field": "gm", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
+      { "transform": [ { "filter": "datum._yangepasst" } ],
+        "mark": { "type": "text", "text": "≈", "fontSize": 14, "fontWeight": "bold", "color": "#605E5C", "align": "center", "baseline": "middle", "description": "Achse beginnt nicht bei null" },
+        "encoding": { "x": { "field": "month", "type": "temporal", "aggregate": "min" }, "y": { "field": "_ybasis", "type": "quantitative", "aggregate": "min" } } }
+    ]
   }
 }

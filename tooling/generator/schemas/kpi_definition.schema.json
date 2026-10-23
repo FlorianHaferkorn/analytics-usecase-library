@@ -80,6 +80,70 @@
       ],
       "description": "Richtung, in der die KPI besser wird: higher/lower; band = innerhalb eines Zielbands; zero = je naeher an null, desto besser (z. B. Forecast Bias). Fehlt das Feld, behauptet der Katalog keine Richtung (Basis- und Eingangsgroessen). Steuert Sortierung (schlechteste zuerst), Delta-Farbe und den Knock-out ALUCA_MIXED_POLARITY. Muss zu den Vergleichsoperatoren der Action-Codes passen (tooling/tests/test_kpi_good_is.py)."
     },
+    "target_corridor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lower",
+        "upper",
+        "freigabe"
+      ],
+      "description": "Zielkorridor (Normalband) der Kennzahl in ihrer Einheit, Untergrenze und Obergrenze. Nur mit Freigabe gezeichnet (Gestaltungsregel zielband, Meridian D-795): keine Herleitung aus Ziel und Alarm, kein Schaetzwert. Ohne Freigabe fehlt das Feld; eine Leerstelle (null) heisst: vorgelegt, noch nicht entschieden. Leser: tooling/visual_library/gestaltung.py zielband().",
+      "properties": {
+        "lower": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "upper": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "freigabe": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "von",
+            "am",
+            "quelle"
+          ],
+          "properties": {
+            "von": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Rolle aus governance (z. B. business_owner), die den Korridor freigibt"
+            },
+            "am": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "quelle": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Beleg der Freigabe (Protokoll, Ticket)"
+            },
+            "freigabe_quelle": {
+              "type": "string",
+              "enum": [
+                "kunde",
+                "owner",
+                "simuliert_showcase"
+              ]
+            }
+          }
+        }
+      }
+    },
     "business": {
       "type": "object",
       "additionalProperties": true

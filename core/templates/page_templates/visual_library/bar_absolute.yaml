@@ -1,7 +1,7 @@
 # Visual Library entry — bar_absolute  (schema: _schema.yaml)
 id: bar_absolute
 name: Bar (absolute magnitude)
-version: "1.1.0"   # 1.1.0 (17.10.2026): Beschriftung an: Wertegitter und Werteachse aus (W2)
+version: "1.2.0"   # 1.2.0 (22.10.2026): Höchstbreite 24 px (B2), ein Akzent per highlight_category, Rest grau (B5), Null als Strich und „0“, fehlend als „–“ (B9). 1.1.0 (17.10.2026): Beschriftung an: Wertegitter und Werteachse aus (W2)
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
@@ -16,6 +16,9 @@ encoding:
   order: descending                 # largest first (no target -> no worst-first)
   reference: none                   # pure magnitude; no plan/target to deviate from
   color: single_series              # one neutral colour — NOT semantic, NOT per-category
+  accent: optional_single           # highlight_category: that bar ink, the rest #8C8C8C (B5, Gestaltungsregel akzent)
+  thickness: capped                 # at most bar_max_px thick (B2, Gestaltungsregel hoechstbreite)
+  zero_vs_missing: distinct         # 0 = 2 px tick + "0", missing = no bar + "–" (B9, Gestaltungsregel null_fehlend)
 
 anti_patterns:
   - broken_baseline_on_absolute_bar # a length bar MUST start at zero
@@ -31,8 +34,10 @@ params:
 
 tokens:
   col_bar: ink                      # #0F2430 — single neutral series colour (magnitude, not signal)
+  col_context: marks.context        # #8C8C8C the other bars when one is highlighted (B5); "–" of a missing value
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
+data_values: [highlight_category]   # which category carries the accent is a statement about the data: from params or none
 data_slots:
   field: {role: value, required: true}
   field_cat: {role: category, required: true}
@@ -46,6 +51,10 @@ canonical_params:
   field: "net_sales"
   field_cat: "unit"
   col_bar: "#0F2430"
+  col_context: "#8C8C8C"
+  highlight_category: "Nord"      # sample accent (data_values: never reaches real data unless given)
+  bar_max_px: "24"                # Gestaltungsregel hoechstbreite (B2)
+  label_missing: "–"              # Gestaltungsregel null_fehlend (B9)
 
 preview_svg: |
   <svg viewBox="0 0 340 168" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Absolute bar ranking">
@@ -95,14 +104,23 @@ realizations:
         "data": { "name": "dataset" },
         "params": [ { "name": "_n_daten", "expr": "max(length(data('dataset')), length(data('source_0')))" }, { "name": "_beschriftet", "expr": "_n_daten > 0 && _n_daten < 10" } ],
         "padding": { "right": 40 },
+        "transform": [
+          { "calculate": "datum['{{field}}'] === 0 ? 0 : null", "as": "_nullstrich" },
+          { "calculate": "isValid(datum['{{field}}']) || datum._rest === true ? null : 0", "as": "_fehlt" }
+        ],
         "encoding": {
-          "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "-x", "axis": { "title": null } },
+          "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "descending" }, "axis": { "title": null } },
           "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null, "tickCount": { "expr": "_beschriftet ? 0 : ceil(width/40)" }, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } }, "scale": { "zero": true } }
         },
         "layer": [
-          { "mark": { "type": "bar", "color": "{{col_bar}}" } },
+          { "mark": { "type": "bar", "height": { "expr": "min(bandwidth('y'), {{bar_max_px}})" } },
+            "encoding": { "color": { "condition": { "test": "datum['{{field_cat}}'] != '{{highlight_category}}'", "value": "{{col_context}}" }, "value": "{{col_bar}}" } } },
+          { "mark": { "type": "tick", "orient": "vertical", "thickness": 2, "color": "{{col_bar}}", "description": "Null" },
+            "encoding": { "x": { "field": "_nullstrich", "type": "quantitative" }, "size": { "value": { "expr": "min(bandwidth('y'), {{bar_max_px}})" } } } },
           { "mark": { "type": "text", "align": "left", "dx": 4, "color": "{{col_label}}" },
-            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } }
+            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } },
+          { "mark": { "type": "text", "text": "{{label_missing}}", "align": "left", "dx": 4, "color": "{{col_context}}", "description": "fehlender Wert" },
+            "encoding": { "x": { "field": "_fehlt", "type": "quantitative" } } }
         ]
       }
 

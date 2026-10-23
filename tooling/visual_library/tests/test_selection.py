@@ -18,6 +18,21 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library"))
 import render  # noqa: E402
+
+
+def _sample_columns(idiom: str) -> dict:
+    """{role: column} for every slot; a role with parts (fc_band) as {part: column} (render.SLOT_PARTS)."""
+    out: dict = {}
+    for s in render.data_slots(idiom).values():
+        if s.get("part"):
+            out.setdefault(s["role"], {})[s["part"]] = f"col_{s['role']}_{s['part']}"
+        else:
+            out[s["role"]] = f"col_{s['role']}"
+    return out
+
+
+def _names(columns: dict) -> set:
+    return {n for v in columns.values() for n in (v.values() if isinstance(v, dict) else [v])}
 import resolve  # noqa: E402
 
 _COLUMN_PARAM = re.compile(r'"field"\s*:\s*"\{\{(\w+)\}\}"|datum\[\'\{\{(\w+)\}\}\'\]')
@@ -76,10 +91,10 @@ def test_binding_reaches_every_column_under_every_profile():
     """After binding, every column the spec reads is either a bound column or one the spec
     derives itself — a hard-coded sample column would break on real data."""
     for idiom in _vega_idioms():
-        columns = {s["role"]: f"col_{s['role']}" for s in render.data_slots(idiom).values()}
+        columns = _sample_columns(idiom)
         for pid in render.target_profiles(idiom):
             spec = json.loads(render.render_target(idiom, "html_vegalite", pid, bindings=columns)[0])
-            stray = _referenced(spec) - set(columns.values()) - _derived(spec)
+            stray = _referenced(spec) - _names(columns) - _derived(spec)
             assert not stray, f"{idiom}@{pid}: reads columns that binding cannot reach {sorted(stray)}"
 
 

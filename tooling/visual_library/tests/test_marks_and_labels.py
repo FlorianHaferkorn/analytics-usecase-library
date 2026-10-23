@@ -17,6 +17,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library"))
+import gestaltung  # noqa: E402
 import render  # noqa: E402
 
 CATS = ["Nord", "West", "Süd", "Mitte", "Ost"]
@@ -78,7 +79,9 @@ def test_columns_and_bars_take_two_thirds_of_the_category(pid):
         else:
             pos, size = sorted(b[0] for b in bars), bars[0][2]
         step = min(b - a for a, b in zip(pos, pos[1:]))
-        assert abs(size / step - 2 / 3) < 0.03, f"{idiom}@{pid}: bar {size / step:.2f} of the category"
+        # 22.10.2026 (Gestaltungsregel hoechstbreite, B2): zwei Drittel der Kategorie, höchstens max_px dick
+        soll = min(step * 2 / 3, gestaltung.regel("hoechstbreite")["max_px"])
+        assert abs(size - soll) < 0.03 * step, f"{idiom}@{pid}: bar {size:.1f} px, soll {soll:.1f} px"
 
 
 def test_every_profile_resolves_the_two_thirds_band():

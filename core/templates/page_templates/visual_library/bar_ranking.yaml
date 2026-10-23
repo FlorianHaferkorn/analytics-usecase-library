@@ -1,7 +1,7 @@
 # Visual Library entry — bar_ranking  (schema: _schema.yaml)
 id: bar_ranking
 name: Bar ranking
-version: "1.3.0"   # 1.3.0 (17.10.2026): Beschriftung an: Wertegitter und Werteachse aus (W2); Referenz #605E5C
+version: "1.4.0"   # 1.4.0 (22.10.2026): Höchstbreite 24 px (B2), Kategorielabel über dem Balken als Variante (B6), Vorjahr überlappend hinter dem Ist (B7), Null als Strich und „0“, fehlend als „–“ (B9). 1.3.0 (17.10.2026): Beschriftung an: Wertegitter und Werteachse aus (W2); Referenz #605E5C
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
@@ -16,6 +16,10 @@ encoding:
   order: worst_first                # sorted; BC-CHART-10 Top-N
   reference: target_line
   color: semantic_below_target
+  thickness: capped                 # at most bar_max_px thick, the gap grows instead (B2, Gestaltungsregel hoechstbreite)
+  prior: overlapped_behind          # PY wider and lighter behind a narrower AC bar (B7, Gestaltungsregel vorjahr_ueberlappend)
+  zero_vs_missing: distinct         # 0 = 2 px tick + "0", missing = no bar + "–" (B9, Gestaltungsregel null_fehlend)
+  category_label: [axis, above]     # "above": label in its own line over a thin bar (B6, Gestaltungsregel label_oben)
 
 anti_patterns:
   - unsorted_bars
@@ -35,7 +39,8 @@ tokens:
   col_above: ink                     # #0F2430 at/above target
   col_below: color_semantics.negative# #A4262C below target
   col_ref:   color_semantics.neutral # #605E5C target reference
-  col_context: marks.context         # #8C8C8C rest row (not rated), 3:1 on white
+  col_context: marks.context         # #8C8C8C rest row (not rated), 3:1 on white; "–" of a missing value
+  col_py:      surface.row_alt_ink    # #C8CED5 PY bar behind AC (scenario area, Regel markenkontrast Ausnahme)
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
 data_values: [target_val]   # a target, not a style: from params or removed (A-31 R6)
@@ -59,6 +64,12 @@ canonical_params:
   col_below: "#A4262C"
   col_ref: "#605E5C"
   col_context: "#8C8C8C"
+  col_py: "#C8CED5"               # house PY behind AC (B7); the value of PY is not labelled, AC is
+  py_field: "gm_py"
+  bar_max_px: "24"                # Gestaltungsregel hoechstbreite (B2)
+  label_position: "axis"          # "above": category label over a thin bar (B6, Gestaltungsregel label_oben)
+  label_above_px: "8"             # bar thickness under an "above" label (B6)
+  label_missing: "–"              # missing value (B9, Gestaltungsregel null_fehlend)
 
 preview_svg: |
   <svg viewBox="0 0 340 168" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar ranking">
@@ -84,7 +95,11 @@ realizations:
         },
         "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "direction": "Ascending" } ], "isDefaultSort": true } },
         "objects": {
-          "valueAxis": [ { "properties": { "start": { "expr": { "Literal": { "Value": "0D" } } } } } ],
+          "valueAxis": [ { "properties": {
+            "start": { "expr": { "Literal": { "Value": "0D" } } },
+            "show": { "expr": { "Literal": { "Value": "false" } } },
+            "gridlineShow": { "expr": { "Literal": { "Value": "false" } } }
+          } } ],
           "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ]
         }
       }
@@ -109,19 +124,37 @@ realizations:
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "padding": { "right": 40 },
         "data": { "name": "dataset" },
-        "params": [ { "name": "_n_daten", "expr": "max(length(data('dataset')), length(data('source_0')))" }, { "name": "_beschriftet", "expr": "_n_daten > 0 && _n_daten < 10" } ],
+        "params": [ { "name": "_n_daten", "expr": "max(length(data('dataset')), length(data('source_0')))" }, { "name": "_beschriftet", "expr": "_n_daten > 0 && _n_daten < 10" },
+                    { "name": "_oben", "expr": "'{{label_position}}' == 'above'" },
+                    { "name": "_dicke", "expr": "_oben ? {{label_above_px}} : min(bandwidth('y'), {{bar_max_px}})" } ],
+        "transform": [
+          { "calculate": "datum['{{field}}'] === 0 ? 0 : null", "as": "_nullstrich" },
+          { "calculate": "isValid(datum['{{field}}']) || datum._rest === true ? null : 0", "as": "_fehlt" },
+          { "calculate": "_oben ? 0 : null", "as": "_oben_x" }
+        ],
+        "encoding": {
+          "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "{{worst_first}}" }, "axis": { "title": null, "labelOpacity": { "expr": "_oben ? 0 : 1" } } }
+        },
         "layer": [
+          { "mark": { "type": "bar", "color": "{{col_py}}", "description": "Vorjahr" },
+            "encoding": { "x": { "field": "{{py_field}}", "type": "quantitative" }, "size": { "value": { "expr": "_dicke" } } } },
           { "mark": { "type": "bar" },
             "encoding": {
-              "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "{{worst_first}}" }, "axis": { "title": null } },
               "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null, "tickCount": { "expr": "_beschriftet ? 0 : ceil(width/40)" }, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } } },
+              "size": { "condition": { "test": "isValid(datum['{{py_field}}'])", "value": { "expr": "_dicke * 0.6" } }, "value": { "expr": "_dicke" } },
               "color": { "condition": { "test": "(datum['{{field}}'] - {{target_val}}) * {{polarity}} < 0", "value": "{{col_below}}" }, "value": "{{col_above}}" } } },
+          { "mark": { "type": "tick", "orient": "vertical", "thickness": 2, "color": "{{col_above}}", "description": "Null" },
+            "encoding": { "x": { "field": "_nullstrich", "type": "quantitative" }, "size": { "value": { "expr": "_dicke" } } } },
           { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [4, 3] }, "encoding": { "x": { "datum": {{target_val}} } } },
           { "mark": { "type": "text", "align": "left", "dx": 4, "color": "{{col_label}}" },
             "encoding": {
-              "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "{{worst_first}}" } },
               "x": { "field": "{{field}}", "type": "quantitative" },
-              "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } }
+              "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" },
+              "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } },
+          { "mark": { "type": "text", "text": "{{label_missing}}", "align": "left", "dx": 4, "color": "{{col_context}}", "description": "fehlender Wert" },
+            "encoding": { "x": { "field": "_fehlt", "type": "quantitative" } } },
+          { "mark": { "type": "text", "align": "left", "baseline": "bottom", "dy": { "expr": "-_dicke / 2 - 2" }, "color": "{{col_label}}", "description": "Kategorielabel oben" },
+            "encoding": { "x": { "field": "_oben_x", "type": "quantitative" }, "text": { "field": "{{field_cat}}", "type": "nominal" } } }
         ]
       }
 

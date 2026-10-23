@@ -37,6 +37,11 @@ from core.dataarch_engine.blueprint.provision_apply import (
 )
 from core.dataarch_engine.blueprint.provision_translations import model_name_of
 
+#: Ablage der Gold-Schritte ohne Silber-Quelle in der Lieferung, etwa des Kalenders (D-819). Sie bekommen ein
+#: Gold-Notebook, ohne Gold-Produkt des Blueprints zu sein, und laufen hinter allen anderen Gold-Stufen.
+#: Erkannt am Ort: dieses Modul wird nach ALUCA gespiegelt und kennt den Erzeuger nicht (D-541).
+ERZEUGT_ORDNER = "transforms/_erzeugt"
+
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 _SAFE_IDENT_RE = re.compile(r"^[A-Za-z0-9_]+$")
 
@@ -502,6 +507,18 @@ def _databricks_notebook(cell_lines: list[str]) -> str:
     return "# Databricks notebook source\n" + "\n".join(cell_lines) + "\n"
 
 
+def erzeugte_produkte(rels, ausser=()) -> list[str]:
+    """Die Produkte der Gold-Schritte ohne Silber-Quelle (`transforms/_erzeugt/silver_to_gold__<p>.sql`, D-819)."""
+    return sorted({rel.rsplit("/", 1)[1][:-4].split("__", 1)[1] for rel in rels
+                   if rel.startswith(ERZEUGT_ORDNER + "/")} - set(ausser))
+
+
+def _gold_und_erzeugte(bp: dict, je_notebook: dict[str, str], stack: str) -> list[str]:
+    """Die Gold-Produkte des Blueprints, dahinter die erzeugten (ein Notebook je Schritt; Snowflake hat keins)."""
+    gold = sorted(p["name"] for p in bp.get("medallion", {}).get("gold", {}).get("data_products", []))
+    return gold + (erzeugte_produkte(je_notebook.values(), gold) if stack != "snowflake" else [])
+
+
 def emit_notebooks(bp: dict, architecture: dict | None = None, stack: str = "fabric",
                    governed_catalog: dict | None = None,
                    lakehouse: str = "analytics_gold", workspace: str = PLACEHOLDER_WORKSPACE,
@@ -526,10 +543,10 @@ def emit_notebooks(bp: dict, architecture: dict | None = None, stack: str = "fab
     if dialect is None:
         return {}
     architecture = architecture or {}
-    gold = sorted(p["name"] for p in bp.get("medallion", {}).get("gold", {}).get("data_products", []))
+    je_notebook = transform_notebooks(transforms or {})
+    gold = _gold_und_erzeugte(bp, je_notebook, stack)
     out: dict[str, str] = {}
     rows: list[str] = []
-    je_notebook = transform_notebooks(transforms or {})
     for name in gold:
         cols = _columns_for_gold(architecture, name, governed_catalog)
         table = layer_ref("gold", _ident(name), schemas)

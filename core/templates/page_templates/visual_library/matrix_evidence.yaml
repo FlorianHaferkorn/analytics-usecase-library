@@ -1,7 +1,7 @@
 # Visual Library entry — matrix_evidence  (schema: _schema.yaml)
 id: matrix_evidence
 name: Evidence matrix
-version: "1.0.0"
+version: "1.1.0"   # 1.1.0 (22.10.2026): nur waagrechte Haarlinien, kein Außenrahmen (T2, Gestaltungsregel tabellen_linien)
 status: active        # active | deprecated | experimental
 purpose: [evidence_detail]
 zone: [detail]
@@ -32,10 +32,12 @@ data_fit:
   value: {max: 6, on_violation: too_many_columns}
 
 tokens:
+  col_rule:  border.default           # #E1DFDD horizontal hairline (T2, Gestaltungsregel tabellen_linien)
   col_above: ink                     # #0F2430
   col_below: color_semantics.negative# #A4262C
 
 canonical_params:
+  col_rule: "#E1DFDD"             # waagrechte Haarlinie (Gestaltungsregel tabellen_linien, T2)
   entity: "_Measures"
   category_entity: "dim_product"
   category_prop: "Category"
@@ -72,7 +74,13 @@ realizations:
           ] }
         },
         "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{dev_measure}}" } }, "direction": "Ascending" } ], "isDefaultSort": true } },
-        "objects": { "columnFormatting": [ { "properties": { "dataBars": {
+        "objects": { "grid": [ { "properties": {
+          "gridVertical": { "expr": { "Literal": { "Value": "false" } } },
+          "gridHorizontal": { "expr": { "Literal": { "Value": "true" } } },
+          "gridHorizontalWeight": { "expr": { "Literal": { "Value": "1D" } } },
+          "gridHorizontalColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_rule}}'" } } } } },
+          "outlineWeight": { "expr": { "Literal": { "Value": "0D" } } }
+        } } ], "columnFormatting": [ { "properties": { "dataBars": {
           "positiveColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_above}}'" } } } } },
           "negativeColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_below}}'" } } } } }
         } }, "selector": { "metadata": "{{entity}}.{{dev_measure}}" } } ] }

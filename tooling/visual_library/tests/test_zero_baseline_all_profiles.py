@@ -89,8 +89,13 @@ def _violations(spec: dict) -> list[str]:
         independent = ((group.get("resolve") or {}).get("scale") or {})
         for chan in VALUE_CHANNELS:
             truncating = [m for m, enc in units if chan in enc and _truncates(enc[chan])]
+            # An AREA band between two encoded fields (`y` and `y2`) draws a difference of two positions on the same
+            # scale, not a length from the baseline: a capped axis moves both ends alike. Covers the variance area
+            # between AC and plan (rule abweichungsflaeche, 22.10.2026) and the forecast band P10-P90 (rule
+            # prognoseband, Meridian BO-402, 22.10.2026). Bars stay lengths even with y2 (waterfall totals stand on 0).
             lengths = [m for m, enc in units
-                       if m in LENGTH_MARKS and chan in enc and _quantitative(enc[chan])]
+                       if m in LENGTH_MARKS and chan in enc and _quantitative(enc[chan])
+                       and not (m == "area" and "field" in (enc.get(f"{chan}2") or {}))]
             bad_exempt = [m for m in truncating if m not in EXEMPT_MARKS]
             if bad_exempt:
                 out.append(f"{chan}: truncated axis on non-line/point mark(s) {bad_exempt}")
@@ -133,6 +138,13 @@ def test_gate_catches_a_truncated_bar():
     waterfall = {"mark": "rect", "encoding": {"y": {"field": "a", "type": "quantitative",
                                                     "scale": {"domain": [50, 120]}}}}
     assert _violations(waterfall)
+    band = {"layer": [
+        {"mark": "area", "encoding": {"y": {"field": "lo", "type": "quantitative"}, "y2": {"field": "hi"}}},
+        {"mark": "line", "encoding": {"y": {"field": "v", "type": "quantitative", "scale": {"zero": False}}}}]}
+    assert _violations(band) == [], "a range (y + y2) is position, not length"
+    flaeche = {"layer": [band["layer"][0] | {"encoding": {"y": {"field": "lo", "type": "quantitative"}}},
+                         band["layer"][1]]}
+    assert _violations(flaeche), "the same area without y2 is a length from the baseline"
     line = {"mark": {"type": "line", "point": True},
             "encoding": {"y": {"field": "v", "type": "quantitative", "scale": {"zero": False}}}}
     assert _violations(line) == []

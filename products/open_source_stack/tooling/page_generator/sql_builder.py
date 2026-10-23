@@ -110,9 +110,12 @@ class SqlBuilder:
         table: str = "gold.metric_observations",
         period_column: str = "period",
         value_column: str = "metric_value",
+        period_filter: Optional[str] = None,
     ) -> str:
+        """Headline value at the latest period; with `period_filter` the latest period inside the slice (BC-DV-08)."""
         safe_kpi_id = kpi_id.replace("'", "''")
         safe_label = label.replace("'", "''")
+        inner = f"\n      AND {period_filter}" if period_filter else ""
         return (
             f"```sql {query_name}\n"
             f"SELECT\n"
@@ -124,7 +127,7 @@ class SqlBuilder:
             f"  AND {period_column} = (\n"
             f"    SELECT MAX({period_column})\n"
             f"    FROM {table}\n"
-            f"    WHERE kpi_id = '{safe_kpi_id}'\n"
+            f"    WHERE kpi_id = '{safe_kpi_id}'{inner}\n"
             f"  )\n"
             f"```"
         )
@@ -164,8 +167,10 @@ class SqlBuilder:
         period_column: str = "period",
         value_column: str = "metric_value",
         segment_column: Optional[str] = None,
+        period_filter: Optional[str] = None,
     ) -> str:
         safe_kpi_id = kpi_id.replace("'", "''")
+        where = f"WHERE kpi_id = '{safe_kpi_id}'" + (f"\n  AND {period_filter}" if period_filter else "")
         select_cols = [period_column, f"{value_column} AS metric_value"]
         group_cols = [period_column, value_column]
         if segment_column:
@@ -178,7 +183,7 @@ class SqlBuilder:
             f"SELECT\n"
             f"  {select_str}\n"
             f"FROM {table}\n"
-            f"WHERE kpi_id = '{safe_kpi_id}'\n"
+            f"{where}\n"
             f"GROUP BY {group_str}\n"
             f"ORDER BY {period_column}\n"
             f"```"
@@ -212,17 +217,55 @@ class SqlBuilder:
         table: str = "gold.metric_evidence",
         order_by: str = "period DESC",
         limit: int = 500,
+        period_filter: Optional[str] = None,
     ) -> str:
         safe_kpi_id = kpi_id.replace("'", "''")
         cols = ", ".join(columns)
+        where = f"WHERE kpi_id = '{safe_kpi_id}'" + (f"\n  AND {period_filter}" if period_filter else "")
         return (
             f"```sql {query_name}\n"
             f"SELECT\n"
             f"  {cols}\n"
             f"FROM {table}\n"
-            f"WHERE kpi_id = '{safe_kpi_id}'\n"
+            f"{where}\n"
             f"ORDER BY {order_by}\n"
             f"LIMIT {limit}\n"
+            f"```"
+        )
+
+    def build_as_of_query(
+        self,
+        query_name: str,
+        kpi_id: str,
+        table: str = "gold.metric_observations",
+        period_column: str = "period",
+        period_filter: Optional[str] = None,
+    ) -> str:
+        """Freshness stamp per chart (BC-TRANS-04): the latest period the chart shows."""
+        safe_kpi_id = kpi_id.replace("'", "''")
+        where = f"WHERE kpi_id = '{safe_kpi_id}'" + (f"\n  AND {period_filter}" if period_filter else "")
+        return (
+            f"```sql {query_name}\n"
+            f"SELECT\n"
+            f"  MAX({period_column}) AS as_of\n"
+            f"FROM {table}\n"
+            f"{where}\n"
+            f"```"
+        )
+
+    def build_period_options_query(
+        self,
+        query_name: str,
+        table: str = "gold.metric_observations",
+        period_column: str = "period",
+    ) -> str:
+        """The periods the date-range filter offers (BC-DV-08)."""
+        return (
+            f"```sql {query_name}\n"
+            f"SELECT DISTINCT\n"
+            f"  {period_column}\n"
+            f"FROM {table}\n"
+            f"ORDER BY {period_column}\n"
             f"```"
         )
 

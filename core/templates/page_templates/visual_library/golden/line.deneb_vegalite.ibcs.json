@@ -1,5 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "padding": { "right": 36 },
   "data": {
     "name": "dataset"
   },
@@ -16,6 +17,21 @@
     }
   },
   "layer": [
+    { "transform": [ { "filter": "isValid(datum['gm_fc_p10']) && isValid(datum['gm_fc_p90'])" } ],
+      "mark": { "type": "area", "interpolate": "monotone", "color": "#404040", "opacity": 0.12, "description": "Prognoseband P10-P90" },
+      "encoding": { "y": { "field": "gm_fc_p10", "type": "quantitative", "axis": null, "scale": { "zero": true } }, "y2": { "field": "gm_fc_p90" } } },
+    { "transform": [ { "filter": "isValid(datum['gm_fc_p90'])" }, { "window": [ { "op": "row_number", "as": "_bh" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._bh == 1" } ],
+      "mark": { "type": "text", "text": "P90", "align": "right", "dx": -2, "dy": -7, "fontSize": 10, "color": "#201F1E" },
+      "encoding": { "y": { "field": "gm_fc_p90", "type": "quantitative", "axis": null } } },
+    { "transform": [ { "filter": "isValid(datum['gm_fc_p10'])" }, { "window": [ { "op": "row_number", "as": "_bl" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._bl == 1" } ],
+      "mark": { "type": "text", "text": "P10", "align": "right", "dx": -2, "dy": 11, "fontSize": 10, "color": "#201F1E" },
+      "encoding": { "y": { "field": "gm_fc_p10", "type": "quantitative", "axis": null } } },
+    { "transform": [ { "filter": "isValid(datum['gm_event']) && datum['gm_event'] != '' && datum['gm_event'] != '(Blank)'" } ],
+      "mark": { "type": "rule", "color": "#605E5C", "strokeWidth": 1, "description": "Ereignis" },
+        "encoding": { "tooltip": { "field": "gm_event", "type": "nominal" } } },
+    { "transform": [ { "filter": "isValid(datum['gm_event']) && datum['gm_event'] != '' && datum['gm_event'] != '(Blank)'" }, { "window": [ { "op": "row_number", "as": "_ev" } ], "sort": [ { "field": "month", "order": "ascending" } ] } ],
+      "mark": { "type": "text", "align": "center", "baseline": "bottom", "dy": -19, "fontSize": 11, "color": "#605E5C", "description": "Ereignisnummer" },
+      "encoding": { "y": { "value": 0 }, "text": { "field": "_ev", "type": "nominal" }, "tooltip": { "field": "gm_event", "type": "nominal" } } },
     {
       "mark": {
         "type": "line",
@@ -42,9 +58,14 @@
       }
     },
     {
-      "transform": [ { "filter": "isValid(datum['gm_py'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "month", "order": "ascending" } ] }, { "filter": "datum._q == 1" } ],
-      "mark": { "type": "text", "text": "PY", "align": "left", "dx": 4, "dy": 12, "color": "#201F1E" },
+      "transform": [ { "filter": "isValid(datum['gm_py'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._q == 1" } ],
+      "mark": { "type": "text", "text": "PY", "align": "left", "baseline": "middle", "dx": 8, "color": "#201F1E", "description": "Serienlabel" },
       "encoding": { "y": { "field": "gm_py", "type": "quantitative", "axis": null } }
+    },
+    {
+      "transform": [ { "filter": "isValid(datum['gm_plan'])" }, { "window": [ { "op": "row_number", "as": "_pl" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._pl == 1" } ],
+      "mark": { "type": "text", "text": "PL", "align": "left", "baseline": "middle", "dx": 8, "color": "#201F1E", "description": "Serienlabel" },
+      "encoding": { "y": { "field": "gm_plan", "type": "quantitative", "axis": null } }
     },
     {
       "mark": {

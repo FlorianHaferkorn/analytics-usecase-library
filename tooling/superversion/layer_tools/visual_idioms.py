@@ -89,7 +89,11 @@ EXEMPT: frozenset[str] = frozenset({
 # Deshalb: die Spur ist gebaut und erreichbar, das Umschalten ist eine Bracket-Entscheidung je
 # Karte, und sie setzt eine existierende Ziel-Measure voraus. Der Emitter prueft das und faellt
 # sonst mit vermerkter Luecke auf `cardVisual` zurueck (`_goal_gap` in targets/pbir.py).
-PLANS_UNREACHABLE: frozenset[str] = frozenset()
+#
+# `matrix_pivot` (pivotTable, seit #637 vom 23.10.2026) steht hier, bis seine PBIR-Rollen aus
+# `powerbi-report-author catalog describe pivotTable` in `_PLANS` eingetragen sind; geraten werden
+# sie nicht (siehe Modul-Docstring).
+PLANS_UNREACHABLE: frozenset[str] = frozenset({"matrix_pivot"})
 
 # Emittierbar, aber nur auf ausdrueckliche Nennung — nicht ueber den Zweck-Resolver.
 #

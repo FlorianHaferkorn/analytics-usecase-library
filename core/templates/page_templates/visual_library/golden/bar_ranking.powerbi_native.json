@@ -6,7 +6,11 @@
   },
   "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } }, "direction": "Ascending" } ], "isDefaultSort": true } },
   "objects": {
-    "valueAxis": [ { "properties": { "start": { "expr": { "Literal": { "Value": "0D" } } } } } ],
+    "valueAxis": [ { "properties": {
+      "start": { "expr": { "Literal": { "Value": "0D" } } },
+      "show": { "expr": { "Literal": { "Value": "false" } } },
+      "gridlineShow": { "expr": { "Literal": { "Value": "false" } } }
+    } } ],
     "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ]
   }
 }
