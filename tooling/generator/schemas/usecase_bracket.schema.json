@@ -417,6 +417,24 @@
                     "type": "string",
                     "description": "Dimension field for the category axis (e.g. dim_org.Region). Used when bar/column visuals need explicit axis binding."
                   },
+                  "row_fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[^.]+\\.[^.]+$"
+                    },
+                    "minItems": 1,
+                    "description": "Row levels of a matrix (pivotTable), outermost first, each as table.Column (e.g. dim_product.Category, dim_product.Subcategory). Only read for visual_type matrix; without it the matrix has category_field as its single row level."
+                  },
+                  "column_fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[^.]+\\.[^.]+$"
+                    },
+                    "minItems": 1,
+                    "description": "Column levels of a matrix (pivotTable), outermost first, each as table.Column (e.g. dim_date.Year). Only read for visual_type matrix; without it the column role stays empty and is reported as a gap."
+                  },
                   "comparison": {
                     "type": "string",
                     "enum": [

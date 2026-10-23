@@ -499,3 +499,34 @@ def test_denylisted_ux_visual_warns_in_the_air_gapped_path(caplog):
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+class TestMatrixFromBracket:
+    """Matrix im Scaffold (23.10.2026): pivotTable mit Rows/Columns aus dem Bracket."""
+
+    @staticmethod
+    def _rollen(visual):
+        qs = visual["visual"]["query"]["queryState"]
+        return {r: [p["field"]["Column"]["Property"] for p in qs[r]["projections"]]
+                for r in ("Rows", "Columns") if r in qs}
+
+    def test_matrix_takes_every_row_and_column_level(self):
+        from page_scaffold_generator.layout_calculator import Position
+        v = VisualBuilder().build_by_ux_visual_type(
+            "matrix", Position(x=0, y=0, width=600, height=400), name="m",
+            measures=["Gross Margin Amount"],
+            row_fields=["dim_product.Category", "dim_product.Subcategory"],
+            column_fields=["dim_date.Year"])
+        assert v["visual"]["visualType"] == "pivotTable"
+        assert self._rollen(v) == {"Rows": ["Category", "Subcategory"], "Columns": ["Year"]}
+        objs = v["visual"]["objects"]
+        assert objs["rowHeaders"][0]["properties"]["stepped"]["expr"]["Literal"]["Value"] == "true"
+        assert objs["subTotals"][0]["properties"]["rowSubtotalsPosition"]["expr"]["Literal"]["Value"] == "'Top'"
+
+    def test_matrix_without_row_fields_uses_category_and_no_columns(self):
+        from page_scaffold_generator.layout_calculator import Position
+        v = VisualBuilder().build_by_ux_visual_type(
+            "matrix", Position(x=0, y=0, width=600, height=400), name="m",
+            measures=["Revenue"], category_entity="dim_region", category_property="Region")
+        assert self._rollen(v) == {"Rows": ["Region"]}
+        assert "rowHeaders" not in v["visual"].get("objects", {})

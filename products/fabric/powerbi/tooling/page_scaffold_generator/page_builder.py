@@ -185,6 +185,9 @@ class PageBuilder:
                 "kpi_ids": [k for k in _kids if isinstance(k, str) and k.strip()],
                 "category_entity": _cat_entity,
                 "category_property": _cat_prop,
+                # Matrix-Achsen (pivotTable), je Ebene "table.Column"; nur fuer visual_type matrix.
+                "row_fields": _c_item.get("row_fields"),
+                "column_fields": _c_item.get("column_fields"),
                 # Als Vergleichsreihe gezeichnete Measures: der Alt-Text sagt "compared with".
                 "comparison_measures": _vergleich,
                 # BC-NARR-01: the governed exhibit statement + the question it answers. The question
@@ -318,6 +321,7 @@ class PageBuilder:
                     _ux_vt, position, name=slot_id, measures=_measures, title=_label,
                     statement_title=_hdr, subtitle=_sub,
                     category_entity=_cat_entity, category_property=_cat_prop,
+                    row_fields=_binding.get("row_fields"), column_fields=_binding.get("column_fields"),
                 )
                 # Rangfolge: schlechtester Wert zuerst (visual_library/bar_ranking.yaml,
                 # `order: worst_first`); ohne governte Richtung nach Groesse (bar_absolute.yaml,

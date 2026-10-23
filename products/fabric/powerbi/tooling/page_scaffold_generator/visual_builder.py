@@ -796,15 +796,17 @@ class VisualBuilder:
         columns: Optional[list] = None,
         measures: Optional[List[str]] = None,
         name: Optional[str] = None,
+        column_fields: Optional[list] = None,
     ) -> Dict[str, Any]:
         """
         Build Matrix (Pivot Table) visual placeholder.
 
         Args:
             position: Position and size
-            columns: Optional list of (entity, property) for row grouping
+            columns: Optional list of (entity, property) for row grouping, outermost first
             measures: Optional list of DAX measure names for value columns
             name: Optional visual name
+            column_fields: Optional list of (entity, property) for the Columns role
 
         Returns:
             Visual JSON structure
@@ -816,9 +818,10 @@ class VisualBuilder:
             for ent, prop in columns:
                 row_proj.append(self._column_projection(ent, prop))
         val_proj = [self._measure_projection(m) for m in measures] if measures else []
-        visual["visual"]["query"] = {
-            "queryState": {"Rows": {"projections": row_proj}, "Values": {"projections": val_proj}}
-        }
+        query_state: Dict[str, Any] = {"Rows": {"projections": row_proj}, "Values": {"projections": val_proj}}
+        if column_fields:
+            query_state["Columns"] = {"projections": [self._column_projection(e, p) for e, p in column_fields]}
+        visual["visual"]["query"] = {"queryState": query_state}
 
         # Add matrix-specific objects
         visual["visual"]["objects"] = {
@@ -850,7 +853,15 @@ class VisualBuilder:
                 }
             ]
         }
-        
+        if len(row_proj) > 1:
+            # Hierarchie wie im Golden matrix_pivot (Visual Library): gestufte Zeilenkoepfe mit
+            # Auf-/Zuklappen, stehende Koepfe, Zwischensumme ueber den Kindern.
+            _lit = lambda v: {"expr": {"Literal": {"Value": v}}}  # noqa: E731
+            visual["visual"]["objects"]["rowHeaders"] = [{"properties": {
+                "stepped": _lit("true"), "showExpandCollapseButtons": _lit("true"), "unfrozen": _lit("false")}}]
+            visual["visual"]["objects"]["subTotals"] = [{"properties": {
+                "rowSubtotals": _lit("true"), "rowSubtotalsPosition": _lit("'Top'")}}]
+
         return visual
     
     def build_scatter_plot(
@@ -1055,6 +1066,8 @@ class VisualBuilder:
         statement_title: Optional[str] = None,
         subtitle: Optional[str] = None,
         format_spec: Optional[Any] = None,
+        row_fields: Optional[List[str]] = None,
+        column_fields: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """Build a visual and render its header. Per ``title_policy`` the header is the governed
         **question** for a static report (always true), or the governed **message** when a value/
@@ -1065,6 +1078,7 @@ class VisualBuilder:
         visual = self._dispatch_ux_visual(
             ux_visual_type, position, name=name, measures=measures, title=title,
             category_entity=category_entity, category_property=category_property,
+            row_fields=row_fields, column_fields=column_fields,
         )
         if statement_title:
             self._apply_title(visual, statement_title)
@@ -1104,6 +1118,8 @@ class VisualBuilder:
         title: Optional[str] = None,
         category_entity: Optional[str] = None,
         category_property: Optional[str] = None,
+        row_fields: Optional[List[str]] = None,
+        column_fields: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Build visual from ux_layout_rules visual_type (round-trip from layout editor).
@@ -1208,6 +1224,15 @@ class VisualBuilder:
             return self.build_stacked_bar(position, measures=measures, name=name)
         if normalized_type == "funnel":
             return self.build_funnel(position, name=name)
+        if normalized_type == "matrix":
+            # Kreuztabelle (pivotTable): Zeilen- und Spaltenebenen aus dem Bracket (`row_fields`,
+            # `column_fields`, 23.10.2026); ohne `row_fields` ist `category_field` die eine Zeile.
+            def _paare(felder):
+                return [tuple(f.split(".", 1)) for f in (felder or []) if isinstance(f, str) and "." in f]
+            zeilen = _paare(row_fields) or ([(category_entity, category_property)]
+                                            if category_entity and category_property else [])
+            return self.build_matrix(position, columns=zeilen, measures=measures, name=name,
+                                     column_fields=_paare(column_fields))
         # Alles Uebrige ueber die governte Rollentabelle (tooling/superversion/targets/pbir.py).
         # Bis 23.09.2026 stand hier ein Rueckfall auf lineChart mit einer Log-Warnung. Gemessen
         # beim Ausrollen: FIN-002 Main_2 (`variance_bar`, eine Abweichungsbruecke) und OPS-001
