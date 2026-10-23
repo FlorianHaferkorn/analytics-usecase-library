@@ -72,7 +72,8 @@ def test_native_tables_draw_horizontal_hairlines_only():
 
 
 def test_hairline_colour_is_the_border_token():
-    tok = yaml.safe_load((REPO_ROOT / "core/templates/page_templates/tokens/color_semantics.yaml").read_text(encoding="utf-8"))
+    tok_pfad = REPO_ROOT / "core/templates/page_templates/tokens/color_semantics.yaml"
+    tok = yaml.safe_load(tok_pfad.read_text(encoding="utf-8"))
     assert tok["border"]["default"] == gestaltung.regel("tabellen_linien")["linie"]["farbe"]
 
 
@@ -103,7 +104,7 @@ def test_native_sparkline_column_names_its_per_row_scale():
     assert gestaltung.regel("sparkline_skala")["umsetzung"]["nativ"] == "entfaellt"
 
 
-# --- SP2 Marken, SP6 Lücken, SP4 Größe ---------------------------------------------------------------------------------
+# --- SP2 Marken, SP6 Lücken, SP4 Größe ------------------------------------------------------------------------
 
 @pytest.mark.parametrize("idiom,farbe", [("matrix_sparkline", "#0F2430"), ("kpi_card_spark", "#605E5C")])
 def test_first_point_hollow_last_point_filled(idiom, farbe):
@@ -174,7 +175,8 @@ def test_corridor_field_is_in_the_schema_and_requires_approval():
 
 
 def test_no_catalog_kpi_draws_a_band_without_approval():
-    """Golden Thread: der Korridor entscheidet der Owner. Heute trägt kein KPI einen — und keiner ein Band ohne Freigabe."""
+    """Golden Thread: der Korridor entscheidet der Owner. Heute trägt kein KPI einen — und keiner ein Band ohne
+    Freigabe."""
     for path in sorted(KPIS.glob("*.yaml")):
         kpi = yaml.safe_load(path.read_text(encoding="utf-8"))
         if "target_corridor" in kpi:

@@ -1,7 +1,9 @@
 """Tests for the Evidence page validator."""
 
+from pathlib import Path
+
 import pytest
-from page_generator.page_validator import validate_page, ValidationResult
+from page_generator.page_validator import ValidationResult, rubric_findings, validate_page
 
 
 VALID_PAGE = """\
@@ -124,10 +126,6 @@ class TestValidationResult:
 
 
 # -- Rubric 1.1 minimum for generated pages (Meridian BO-288, 22.10.2026) ----------------------------
-
-from pathlib import Path
-
-from page_generator.page_validator import rubric_findings
 
 PAGES = Path(__file__).resolve().parents[3] / "evidence_app" / "pages"
 GENERATED = "---\ngenerated: true\n---\n"

@@ -227,7 +227,8 @@ def test_series_labels_stand_at_the_line_end_and_the_limit_is_one_number():
               for x in d.get("rules", [])}
     for rid in r["rubrik"]:
         assert rubrik[rid]["thresholds"]["direct_labels_max"] == r["max_reihen"] == 4, rid
-    beschriftet = [s for s, slot in render.data_slots("line").items() if slot["role"] in ("value", "plan", "prior", "forecast")]
+    beschriftet = [s for s, slot in render.data_slots("line").items()
+                   if slot["role"] in ("value", "plan", "prior", "forecast")]
     assert len(beschriftet) <= r["max_reihen"]
 
 
@@ -285,7 +286,8 @@ def test_dumbbell_arrow_points_in_the_direction_and_is_coloured_by_it():
     rows = [{"c": "Nord", "s": 10.0, "e": 14.0}, {"c": "Süd", "s": 12.0, "e": 9.0}]
     b = {"category": "c", "start": "s", "end": "e"}
     sg = _scene("dumbbell", rows, b, params={"marker": "arrow"})
-    shapes = {(s.get("shape"), s.get("fill")) for s in _marks(sg, "symbol") if str(s.get("shape", "")).startswith("triangle")}
+    shapes = {(s.get("shape"), s.get("fill")) for s in _marks(sg, "symbol")
+              if str(s.get("shape", "")).startswith("triangle")}
     assert shapes == {("triangle-right", "#107C10"), ("triangle-left", "#A4262C")}
     sg0 = _scene("dumbbell", rows, b)
     assert not [s for s in _marks(sg0, "symbol") if str(s.get("shape", "")).startswith("triangle")]
@@ -295,7 +297,8 @@ def test_dumbbell_arrow_points_in_the_direction_and_is_coloured_by_it():
 
 def test_small_multiples_share_one_axis_and_mark_an_adjusted_base():
     def rows(base: float) -> list[dict]:
-        return [{"d": f"2026-{m:02d}-01", "s": s, "v": base + m * 0.4 + i} for m in range(1, 7) for i, s in enumerate("AB")]
+        return [{"d": f"2026-{m:02d}-01", "s": s, "v": base + m * 0.4 + i}
+                for m in range(1, 7) for i, s in enumerate("AB")]
     b = {"time": "d", "value": "v", "series": "s"}
     assert "≈" in _texts(_scene("small_multiples", rows(93.0), b))
     assert "≈" not in _texts(_scene("small_multiples", rows(1.0), b))
