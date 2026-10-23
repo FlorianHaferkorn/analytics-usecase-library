@@ -19,6 +19,21 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library"))
 import render  # noqa: E402
 
+
+def _sample_columns(idiom: str) -> dict:
+    """{role: column} for every slot; a role with parts (fc_band) as {part: column} (render.SLOT_PARTS)."""
+    out: dict = {}
+    for s in render.data_slots(idiom).values():
+        if s.get("part"):
+            out.setdefault(s["role"], {})[s["part"]] = f"col_{s['role']}_{s['part']}"
+        else:
+            out[s["role"]] = f"col_{s['role']}"
+    return out
+
+
+def _names(columns: dict) -> set:
+    return {n for v in columns.values() for n in (v.values() if isinstance(v, dict) else [v])}
+
 DATA_MARKS = render._TOOLTIP_MARKS
 
 
@@ -45,7 +60,7 @@ def _mark(node: dict):
 
 def test_every_data_mark_has_a_tooltip_of_bound_columns():
     for idiom in _vega_idioms():
-        cols = {s["role"]: f"col_{s['role']}" for s in render.data_slots(idiom).values()}
+        cols = _sample_columns(idiom)
         for pid in render.target_profiles(idiom):
             spec = json.loads(render.render_target(idiom, "fabric_app", pid, bindings=cols)[0])["spec"]
             marks = [n for n in _layers(spec) if _mark(n) in DATA_MARKS | {"boxplot"}]
@@ -56,7 +71,7 @@ def test_every_data_mark_has_a_tooltip_of_bound_columns():
                 assert tip or mark_tip, f"{idiom}@{pid}: {_mark(node)} without tooltip"
                 if mark_tip:
                     continue      # summarised rows (bin/aggregate): the encoded values are shown
-                assert {t["field"] for t in tip} <= set(cols.values()), f"{idiom}@{pid}: tooltip reads a sample column"
+                assert {t["field"] for t in tip} <= _names(cols), f"{idiom}@{pid}: tooltip reads a sample column"
                 for t in tip:
                     if t["type"] == "quantitative":
                         assert t.get("format"), f"{idiom}@{pid}: unformatted {t['field']}"
