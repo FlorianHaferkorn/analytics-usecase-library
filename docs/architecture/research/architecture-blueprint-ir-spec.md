@@ -1323,7 +1323,7 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                   },
                   "generated": {
                     "type": "object",
-                    "description": "Ein Produkt, das KEINE Quelle hat, weil es keine haben kann -- eine Datumsdimension entsteht aus einem Bereich, nicht aus einer Tabelle. Ausdrueckliche Angabe statt Namensraterei: an `dim_datum` vs. `dim_date` vs. `d_kalender` laesst sich das nicht festmachen.",
+                    "description": "Ein Produkt, das KEINE Quelle hat, weil es keine haben kann -- eine Datumsdimension entsteht aus einem Bereich, nicht aus einer Tabelle. Ausdrueckliche Angabe statt Namensraterei: an `dim_datum` vs. `dim_date` vs. `d_kalender` laesst sich das nicht festmachen. Erzeugt von `sap_calendar.calendar_sql` (D-821): derselbe Spaltensatz wie der SAP-Kalender (Date, Year, Quarter, ..., DayOfWeek nach ISO, IsWeekend), volle Jahre.",
                     "additionalProperties": false,
                     "required": [
                       "kind"
@@ -1337,11 +1337,11 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                       },
                       "from": {
                         "type": "string",
-                        "description": "ISO-Datum, erster Tag (Vorgabe 2020-01-01)."
+                        "description": "ISO-Datum; verwendet wird sein Jahr ab 1. Januar (volle Jahre, D-821). Vorgabe 2015-01-01."
                       },
                       "to": {
                         "type": "string",
-                        "description": "ISO-Datum, letzter Tag (Vorgabe 2035-12-31)."
+                        "description": "ISO-Datum; verwendet wird sein Jahr bis 31. Dezember (volle Jahre, D-821). Vorgabe 2035-12-31."
                       }
                     }
                   },
