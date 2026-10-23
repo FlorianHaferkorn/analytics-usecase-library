@@ -2,18 +2,36 @@
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "padding": { "right": 40 },
   "data": { "name": "dataset" },
-  "params": [ { "name": "_n_daten", "expr": "max(length(data('dataset')), length(data('source_0')))" }, { "name": "_beschriftet", "expr": "_n_daten > 0 && _n_daten < 10" } ],
+  "params": [ { "name": "_n_daten", "expr": "max(length(data('dataset')), length(data('source_0')))" }, { "name": "_beschriftet", "expr": "_n_daten > 0 && _n_daten < 10" },
+              { "name": "_oben", "expr": "'axis' == 'above'" },
+              { "name": "_dicke", "expr": "_oben ? 8 : min(bandwidth('y'), 24)" } ],
+  "transform": [
+    { "calculate": "datum['gm'] === 0 ? 0 : null", "as": "_nullstrich" },
+    { "calculate": "isValid(datum['gm']) || datum._rest === true ? null : 0", "as": "_fehlt" },
+    { "calculate": "_oben ? 0 : null", "as": "_oben_x" }
+  ],
+  "encoding": {
+    "y": { "field": "unit", "type": "nominal", "sort": { "field": "gm", "order": "ascending" }, "axis": { "title": null, "labelOpacity": { "expr": "_oben ? 0 : 1" } } }
+  },
   "layer": [
+    { "mark": { "type": "bar", "color": "#C8CED5", "description": "Vorjahr" },
+      "encoding": { "x": { "field": "gm_py", "type": "quantitative" }, "size": { "value": { "expr": "_dicke" } } } },
     { "mark": { "type": "bar" },
       "encoding": {
-        "y": { "field": "unit", "type": "nominal", "sort": { "field": "gm", "order": "ascending" }, "axis": { "title": null } },
         "x": { "field": "gm", "type": "quantitative", "axis": { "title": null, "tickCount": { "expr": "_beschriftet ? 0 : ceil(width/40)" }, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } } },
+        "size": { "condition": { "test": "isValid(datum['gm_py'])", "value": { "expr": "_dicke * 0.6" } }, "value": { "expr": "_dicke" } },
         "color": { "condition": { "test": "(datum['gm'] - 44.1) * 1 < 0", "value": "#F7630C" }, "value": "#0F2430" } } },
+    { "mark": { "type": "tick", "orient": "vertical", "thickness": 2, "color": "#0F2430", "description": "Null" },
+      "encoding": { "x": { "field": "_nullstrich", "type": "quantitative" }, "size": { "value": { "expr": "_dicke" } } } },
     { "mark": { "type": "rule", "color": "#605E5C", "strokeDash": [4, 3] }, "encoding": { "x": { "datum": 44.1 } } },
     { "mark": { "type": "text", "align": "left", "dx": 4, "color": "#201F1E" },
       "encoding": {
-        "y": { "field": "unit", "type": "nominal", "sort": { "field": "gm", "order": "ascending" } },
         "x": { "field": "gm", "type": "quantitative" },
-        "text": { "field": "gm", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } }
+        "text": { "field": "gm", "type": "quantitative", "format": ",.1~f" },
+        "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } },
+    { "mark": { "type": "text", "text": "–", "align": "left", "dx": 4, "color": "#8C8C8C", "description": "fehlender Wert" },
+      "encoding": { "x": { "field": "_fehlt", "type": "quantitative" } } },
+    { "mark": { "type": "text", "align": "left", "baseline": "bottom", "dy": { "expr": "-_dicke / 2 - 2" }, "color": "#201F1E", "description": "Kategorielabel oben" },
+      "encoding": { "x": { "field": "_oben_x", "type": "quantitative" }, "text": { "field": "unit", "type": "nominal" } } }
   ]
 }

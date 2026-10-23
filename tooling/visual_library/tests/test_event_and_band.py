@@ -113,9 +113,10 @@ def _unten(it: dict) -> float:
 @pytest.mark.parametrize("profile", PROFILES)
 def test_event_number_stays_above_every_direct_label(profile):
     """2.1.2: die Nummer steht in einem eigenen Streifen über allen Direktbeschriftungen. Gemessen im Meridian-
-    Fabric-App-Tor (G14, 390 px, 22.10.2026): bei dy -3 überdeckte die Nummer eines Ereignisses kurz vor dem Ende den
-    Endwert eines hohen letzten Punkts ('3' über '91,8'). Hier: letzter Ist-Punkt ist das Maximum (y = 0), das Ereignis
-    liegt eine Woche davor, Plan und Band reichen ebenfalls an die Oberkante. Gegenprobe: mit dy -3 wird dieser Test rot."""
+    Fabric-App-Tor (G14, 390 px, 22.10.2026): bei dy -3 überdeckte die Nummer eines Ereignisses kurz vor dem Ende
+    den Endwert eines hohen letzten Punkts ('3' über '91,8'). Hier: letzter Ist-Punkt ist das Maximum (y = 0), das
+    Ereignis liegt eine Woche davor, Plan und Band reichen ebenfalls an die Oberkante. Gegenprobe: mit dy -3 wird
+    dieser Test rot."""
     regel = gestaltung.regel("ereignismarker")
     rows = [
         {"P": "2026-01-05", "I": 30.0, "F": None, "L": None, "H": None, "E": None, "Z": 40.0},
@@ -150,7 +151,8 @@ def test_events_are_numbered_by_date(profile):
     rows = [{**r, "E": None} for r in ROWS]
     rows[3]["E"], rows[1]["E"] = "Später", "Früher"
     spec = _spec(profile, {**BASIS, "event": "E"}, list(reversed(rows)))
-    nummern = sorted((it["x"], str(it["text"])) for it in _items(spec, "text") if it.get("description") == "Ereignisnummer")
+    nummern = sorted((it["x"], str(it["text"])) for it in _items(spec, "text")
+                     if it.get("description") == "Ereignisnummer")
     assert [t for _, t in nummern] == ["1", "2"], nummern
 
 

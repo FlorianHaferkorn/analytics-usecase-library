@@ -25,6 +25,12 @@ from .page_validator import validate_page
 from .sql_builder import SqlBuilder
 
 
+# Filter row (BC-DV-08): every query on the page reads the same date-range input.
+PERIOD_INPUT = "period_range"
+PERIOD_OPTIONS_QUERY = "period_options"
+PERIOD_FILTER = f"period BETWEEN '${{inputs.{PERIOD_INPUT}.start}}' AND '${{inputs.{PERIOD_INPUT}.end}}'"
+
+
 class EvidencePageGenerator:
     """Generate Evidence.dev dashboard pages from IR and governance."""
 
@@ -118,6 +124,14 @@ class EvidencePageGenerator:
         visible_kpi_ids = self._get_visible_kpi_ids(orchestration)
 
         sections: List[PageSection] = []
+        action_code_ids = [a for a in (orchestration.get("action_code_ids") or []) if isinstance(a, str)]
+        pf = PERIOD_FILTER
+
+        # Filter row (BC-DV-08): one row above every chart, stat and table it scopes; date range first.
+        filter_section = PageSection("Filters")
+        filter_section.add_block(self.sql_builder.build_period_options_query(PERIOD_OPTIONS_QUERY))
+        filter_section.add_block(self.component_builder.build_date_range(PERIOD_OPTIONS_QUERY, PERIOD_INPUT))
+        sections.append(filter_section)
 
         # 3-Second Layer — KPI Headlines
         kpi_section = PageSection("3-Second Layer — KPI Headlines")
@@ -128,12 +142,13 @@ class EvidencePageGenerator:
             label = self._get_kpi_label(kpi)
             qname = self.sql_builder.kpi_to_query_name(kpi_id)
 
-            kpi_section.add_block(
-                self.sql_builder.build_metric_headline_query(qname, kpi_id, label)
-            )
+            sql = self.sql_builder.build_metric_headline_query(qname, kpi_id, label, period_filter=pf)
+            kpi_section.add_block(sql)
             kpi_section.add_block(
                 self.component_builder.build_kpi_card(qname, title=label)
             )
+            kpi_section.add_block(self.component_builder.build_as_of_stamp(qname, column="period"))
+            kpi_section.add_block(self._provenance(kpi_id, kpi, sql, action_code_ids))
         sections.append(kpi_section)
 
         # 30-Second Layer — Trends
@@ -145,14 +160,16 @@ class EvidencePageGenerator:
             label = self._get_kpi_label(kpi)
             qname = f"{self.sql_builder.kpi_to_query_name(kpi_id)}_trend"
 
-            trend_section.add_block(
-                self.sql_builder.build_metric_trend_query(qname, kpi_id)
-            )
+            sql = self.sql_builder.build_metric_trend_query(qname, kpi_id, period_filter=pf)
+            trend_section.add_block(sql)
             trend_section.add_block(
                 self.component_builder.build_chart(
                     "trend_line", qname, x="period", y="metric_value", title=label
                 )
             )
+            trend_section.add_block(self.sql_builder.build_as_of_query(f"{qname}_as_of", kpi_id, period_filter=pf))
+            trend_section.add_block(self.component_builder.build_as_of_stamp(f"{qname}_as_of"))
+            trend_section.add_block(self._provenance(kpi_id, kpi, sql, action_code_ids, table_query=qname))
         formula_block = self._build_formula_block(use_case)
         if formula_block:
             trend_section.add_block(formula_block)
@@ -165,12 +182,17 @@ class EvidencePageGenerator:
                 detail_config = self._get_detail_config()
                 qname = "detail_data"
                 columns = detail_config.get("evidence_columns") or ["entity", "period", "metric_value"]
+                sql = self.sql_builder.build_metric_detail_query(
+                    qname, visible_kpi_ids[0], columns, period_filter=pf)
+                detail_section.add_block(sql)
                 detail_section.add_block(
-                    self.sql_builder.build_metric_detail_query(qname, visible_kpi_ids[0], columns)
+                    self.component_builder.build_data_table(qname, downloadable=True)
                 )
-                detail_section.add_block(
-                    self.component_builder.build_data_table(qname)
-                )
+                detail_section.add_block(self.sql_builder.build_as_of_query(
+                    f"{qname}_as_of", visible_kpi_ids[0], table="gold.metric_evidence", period_filter=pf))
+                detail_section.add_block(self.component_builder.build_as_of_stamp(f"{qname}_as_of"))
+                detail_section.add_block(self._provenance(
+                    visible_kpi_ids[0], kpis_by_id.get(visible_kpi_ids[0]) or {}, sql, action_code_ids))
                 if detail_config.get("action_panel"):
                     detail_section.add_block(
                         "> Action panel enabled for this use case. Use the linked action codes and governance flow for execution."
@@ -198,6 +220,25 @@ class EvidencePageGenerator:
             sections=sections,
             frontmatter=frontmatter,
         )
+
+    def _provenance(
+        self,
+        kpi_id: str,
+        kpi: Dict[str, Any],
+        sql_block: str,
+        action_code_ids: List[str],
+        table_query: Optional[str] = None,
+    ) -> str:
+        """Provenance per number (BC-TRANS-01/02): the query and the catalog reference, read from the IR."""
+        src = kpi.get("source") if isinstance(kpi.get("source"), dict) else {}
+        catalog_ref = f"{src['file']}, line {src['line']}" if src.get("file") and src.get("line") else src.get("file")
+        gov = kpi.get("governance") if isinstance(kpi.get("governance"), dict) else {}
+        lineage = [c for c in (kpi.get("linked_domain_contracts") or []) if isinstance(c, str)]
+        sql_text = "\n".join(sql_block.splitlines()[1:-1])  # the fenced block without its fence lines
+        return self.component_builder.build_provenance(
+            kpi_id, sql_text, catalog_ref=catalog_ref, owner=gov.get("owner_role"),
+            steward=gov.get("steward_role"), action_code_ids=action_code_ids, lineage=lineage,
+            table_query=table_query)
 
     def _resolve_report_pages(self, ux_layout: Dict[str, Any]) -> List[Dict[str, Any]]:
         report_pages = ux_layout.get("report_pages", []) if isinstance(ux_layout, dict) else []

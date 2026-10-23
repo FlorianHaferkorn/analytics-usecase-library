@@ -120,7 +120,7 @@ tools:
 #     plan_field: {role: plan,  required: false}    # used only by a profile (e.g. ibcs)
 #
 # Roles: value, variance, time, category, series, step, period, plan, prior, forecast, x, y, start, end,
-#        event, fc_band.
+#        event, fc_band, current.
 #   forecast (FC, IBCS UN 3.2): a projected series, drawn dashed — never as plan (BO-021, 01.10.2026).
 #   event: text of a governed event (date, text, source, owner) at the row of its date; drawn as a rule with a
 #          label (Gestaltungsregel ereignismarker). Unbound or empty: no marker (Meridian BO-401, 22.10.2026).
@@ -128,6 +128,8 @@ tools:
 #            fc_lo_field: {role: fc_band, part: lo, required: false}; the caller binds
 #            {"fc_band": {"lo": "P10", "hi": "P90"}} (render.SLOT_PARTS). Static, labelled (Regel prognoseband,
 #            Meridian BO-402).
+#   current (22.10.2026, Gestaltungsregel laufende_periode): a boolean column, true on the running, incomplete
+#           period; a flag, never listed in a tooltip (render.FLAG_ROLES). Unbound, the template reads it as false.
 # render.bind(idiom, {role: column}) fills them; resolve.choose() picks the best idiom for a
 # purpose among those whose REQUIRED roles are available. Enforced by test_selection.py.
 

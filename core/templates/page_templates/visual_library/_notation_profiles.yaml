@@ -37,7 +37,7 @@ profiles:
       - "core/templates/page_templates/tokens/color_semantics.yaml (semantic.*)"
     rules:
       titles:          "descriptor title · question subtitle · verdict by capability"
-      variance:        "length + sign + semantic colour (positive #107C10 / negative #A4262C); never colour alone"
+      variance:        "length + sign + semantic colour (positive #107C10 / negative #A4262C); never colour alone; never a tinted pill outside the exception table matrix_delta_pill (Gestaltungsregel abweichungspille, W12)"
       reference_axis:  "muted neutral zero/plan line (recedes behind the data)"
       emphasis:        "size and position only; grey to recede; a single accent per page"
     vegalite_config:

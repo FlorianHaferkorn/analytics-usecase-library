@@ -1,7 +1,7 @@
 # Visual Library entry — small_multiples  (schema: _schema.yaml)
 id: small_multiples
 name: Small multiples
-version: "1.1.0"   # 1.1.0 (17.10.2026): monotone Linien
+version: "1.2.0"   # 1.2.0 (22.10.2026): gemeinsame Werteachse aller Facetten nach werteachse_basis (ab 0, unter 25 % Spannweite angepasst mit Achsenbruch; BO-422). 1.1.0 (17.10.2026): monotone Linien
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -34,6 +34,7 @@ data_fit:
 
 tokens:
   col_line: ink                     # #0F2430
+  col_ref:  color_semantics.neutral # #605E5C axis-break mark (Regel werteachse_basis)
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
 data_slots:
@@ -52,6 +53,7 @@ canonical_params:
   field_date: "month"
   field_series: "unit"
   col_line: "#0F2430"
+  col_ref: "#605E5C"
   panel_cols: 3
   panel_rows: 3
 
@@ -142,14 +144,24 @@ realizations:
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "data": { "name": "dataset" },
+        "transform": [
+          { "joinaggregate": [ { "op": "min", "field": "{{field}}", "as": "_ylo" }, { "op": "max", "field": "{{field}}", "as": "_yhi" } ] },
+          { "calculate": "max(abs(datum._yhi), abs(datum._ylo))", "as": "_ytop" },
+          { "calculate": "isValid(datum._yhi) && datum._ytop > 0 && datum._yhi - datum._ylo < 0.25 * datum._ytop", "as": "_yangepasst" },
+          { "calculate": "datum._yangepasst ? datum._ylo - max((datum._yhi - datum._ylo) * 0.1, datum._ytop * 0.01) : 0", "as": "_ybasis" }
+        ],
         "facet": { "field": "{{field_series}}", "type": "nominal" },
         "columns": 3,
         "spec": {
-          "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_line}}" },
-          "encoding": {
-            "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } },
-            "y": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } }
-          }
+          "encoding": { "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } } },
+          "layer": [
+            { "mark": { "type": "rule", "opacity": 0, "strokeWidth": 0 }, "encoding": { "y": { "field": "_ybasis", "type": "quantitative" } } },
+            { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_line}}", "strokeWidth": 2 },
+              "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
+            { "transform": [ { "filter": "datum._yangepasst" } ],
+              "mark": { "type": "text", "text": "≈", "fontSize": 14, "fontWeight": "bold", "color": "{{col_ref}}", "align": "center", "baseline": "middle", "description": "Achse beginnt nicht bei null" },
+              "encoding": { "x": { "field": "{{field_date}}", "type": "temporal", "aggregate": "min" }, "y": { "field": "_ybasis", "type": "quantitative", "aggregate": "min" } } }
+          ]
         }
       }
 

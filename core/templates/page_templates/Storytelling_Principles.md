@@ -225,7 +225,7 @@ Charts must not require the reader to interpret signal from raw data. The most i
 
 - Use direct labels at line endpoints instead of a legend wherever possible
 - The eye-travel between a legend and the line it describes is a comprehension cost
-- Maximum 4–5 series before direct labeling becomes unreadable; at that point, consider small multiples instead
+- Maximum 4 directly labelled series (rubric 1.2, BC-CHART-03 and BC-DV-05 `direct_labels_max: 4`; Gestaltungsregel `serienlabel.max_reihen`); beyond that, a legend or small multiples
 
 ---
 

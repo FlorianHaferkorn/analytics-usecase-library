@@ -5,6 +5,9 @@
   "data_name": "dataset",
   "spec": {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "padding": {
+      "right": 36
+    },
     "data": {
       "name": "dataset"
     },
@@ -331,7 +334,7 @@
             "sort": [
               {
                 "field": "month",
-                "order": "ascending"
+                "order": "descending"
               }
             ]
           },
@@ -343,14 +346,56 @@
           "type": "text",
           "text": "PY",
           "align": "left",
-          "dx": 4,
-          "dy": 12,
+          "baseline": "middle",
+          "dx": 8,
           "color": "#201F1E",
+          "description": "Serienlabel",
           "tooltip": null
         },
         "encoding": {
           "y": {
             "field": "gm_py",
+            "type": "quantitative",
+            "axis": null
+          }
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": "isValid(datum['gm_plan'])"
+          },
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_pl"
+              }
+            ],
+            "sort": [
+              {
+                "field": "month",
+                "order": "descending"
+              }
+            ]
+          },
+          {
+            "filter": "datum._pl == 1"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "text": "PL",
+          "align": "left",
+          "baseline": "middle",
+          "dx": 8,
+          "color": "#201F1E",
+          "description": "Serienlabel",
+          "tooltip": null
+        },
+        "encoding": {
+          "y": {
+            "field": "gm_plan",
             "type": "quantitative",
             "axis": null
           }

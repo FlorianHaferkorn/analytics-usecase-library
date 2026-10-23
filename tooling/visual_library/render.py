@@ -277,6 +277,32 @@ def vegalite_config(profile: str) -> dict:
     return _deep_merge(base, profile_def(profile).get("vegalite_config") or {})
 
 
+@functools.lru_cache(maxsize=1)
+def _gestaltung():
+    """gestaltung.py next to this file (Gestaltungsregeln as functions), loaded by path like _contrast."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("visual_library_gestaltung_render",
+                                                  Path(__file__).with_name("gestaltung.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def deneb_config(profile: str, bar_corner_radius: "int | None" = None) -> dict:
+    """The Vega-Lite `config` a Deneb visual carries (Power BI variant C, Meridian D-655): the profile's config plus
+    the Design Pack's bar radius (`chart.bar_corner_radius`, Gestaltungsregel eckenradius W1), capped by the notation
+    (`gestaltung.eckenradius`: ibcs 0). Deneb keeps the config next to the spec, so the radius is a config entry
+    (`bar.cornerRadiusEnd`), not a template edit. The Cockpit applies the same function (Meridian visuals.py)."""
+    cfg = vegalite_config(profile)
+    if bar_corner_radius is not None:
+        radius = _gestaltung().eckenradius(notation_of(profile), bar_corner_radius)
+        cfg["bar"] = {**(cfg.get("bar") or {}), "cornerRadiusEnd": radius}
+        if notation_of(profile) == "ibcs":
+            cfg["bar"]["cornerRadius"] = 0
+    return cfg
+
+
 def target_profiles(idiom: str) -> "list[str]":
     """Profiles under which an idiom has a derived target: every style profile, plus the
     notation profiles the idiom opts into — each only where its Vega-Lite track runs."""
@@ -291,9 +317,12 @@ def target_profiles(idiom: str) -> "list[str]":
 
 
 SLOT_ROLES = ("value", "variance", "time", "category", "series", "step", "period",
-              "plan", "prior", "forecast", "x", "y", "start", "end", "event", "fc_band")
+              "plan", "prior", "forecast", "x", "y", "start", "end", "event", "fc_band", "current")
 #: Roles bound to more than one column: a slot names its `part`, the caller binds {part: column} (fc_band: lo, hi).
 SLOT_PARTS = {"fc_band": ("lo", "hi")}
+#: Roles that flag a row instead of carrying a value a reader looks up: never listed in a tooltip.
+#: `current` (22.10.2026, Gestaltungsregel laufende_periode): true on the running, incomplete period.
+FLAG_ROLES = ("current",)
 
 
 def data_slots(idiom: str) -> dict:
@@ -312,7 +341,8 @@ def bind(idiom: str, columns: dict) -> dict:
         part = slot.get("part")
         if role in columns and part is not None:
             if not isinstance(raw, dict):
-                raise ValueError(f"{idiom}: role '{role}' needs {{part: column}} for {SLOT_PARTS.get(role)}, got {raw!r}")
+                raise ValueError(
+                    f"{idiom}: role '{role}' needs {{part: column}} for {SLOT_PARTS.get(role)}, got {raw!r}")
             raw = raw.get(part)
         if raw is not None:
             name = str(raw)
@@ -427,7 +457,7 @@ def tooltip_fields(idiom: str, eff: dict, spec: dict) -> "list[dict]":
     rows = []
     for param, slot in data_slots(idiom).items():
         col = eff.get(param)
-        if not col or col == _NO_VALUE or f'"{col}"' not in text:
+        if not col or col == _NO_VALUE or f'"{col}"' not in text or slot["role"] in FLAG_ROLES:
             continue
         typ, fmt = _TOOLTIP_ROLE[slot["role"]]
         if slot["role"] == "variance" and "%" in str(eff.get("fmt", "")):

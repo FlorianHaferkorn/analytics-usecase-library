@@ -18,6 +18,34 @@
         "expr": "_n_daten > 0 && _n_daten < 10"
       }
     ],
+    "transform": [
+      {
+        "calculate": "datum['laufend'] === true",
+        "as": "_laufend"
+      },
+      {
+        "window": [
+          {
+            "op": "row_number",
+            "as": "_rang"
+          }
+        ],
+        "sort": [
+          {
+            "field": "_laufend",
+            "order": "ascending"
+          },
+          {
+            "field": "month",
+            "order": "descending"
+          }
+        ]
+      },
+      {
+        "calculate": "!datum._laufend && datum._rang == 1",
+        "as": "_letzte"
+      }
+    ],
     "encoding": {
       "x": {
         "field": "month",
@@ -43,9 +71,83 @@
     },
     "layer": [
       {
+        "transform": [
+          {
+            "filter": "!datum._laufend && !datum._letzte"
+          }
+        ],
         "mark": {
           "type": "bar",
-          "color": "#0F2430"
+          "width": {
+            "expr": "min(bandwidth('x'), 24)"
+          },
+          "fill": "#8C8C8C"
+        },
+        "encoding": {
+          "tooltip": [
+            {
+              "field": "month",
+              "type": "temporal",
+              "title": "month",
+              "format": "%m/%Y"
+            },
+            {
+              "field": "count",
+              "type": "quantitative",
+              "title": "count",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": "datum._letzte"
+          }
+        ],
+        "mark": {
+          "type": "bar",
+          "width": {
+            "expr": "min(bandwidth('x'), 24)"
+          },
+          "fill": "#0F2430"
+        },
+        "encoding": {
+          "tooltip": [
+            {
+              "field": "month",
+              "type": "temporal",
+              "title": "month",
+              "format": "%m/%Y"
+            },
+            {
+              "field": "count",
+              "type": "quantitative",
+              "title": "count",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": {
+              "field": "laufend",
+              "equal": true
+            }
+          }
+        ],
+        "mark": {
+          "type": "bar",
+          "width": {
+            "expr": "min(bandwidth('x'), 24)"
+          },
+          "fill": "#FFFFFF",
+          "stroke": "#0F2430",
+          "strokeWidth": 1.5,
+          "description": "laufende Periode"
         },
         "encoding": {
           "tooltip": [
@@ -83,6 +185,64 @@
               "test": "_beschriftet",
               "value": 1
             },
+            "value": 0
+          }
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": {
+              "field": "laufend",
+              "equal": true
+            }
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "text": "laufend",
+          "baseline": "top",
+          "dy": 4,
+          "color": "#605E5C",
+          "tooltip": null
+        },
+        "encoding": {
+          "y": {
+            "value": {
+              "expr": "height"
+            }
+          }
+        }
+      },
+      {
+        "transform": [
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_e"
+              }
+            ]
+          },
+          {
+            "filter": "datum._e == 1"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "text": "Stk.",
+          "align": "left",
+          "baseline": "bottom",
+          "dy": -6,
+          "color": "#605E5C",
+          "description": "Einheit",
+          "tooltip": null
+        },
+        "encoding": {
+          "x": {
+            "value": 0
+          },
+          "y": {
             "value": 0
           }
         }

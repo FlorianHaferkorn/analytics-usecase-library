@@ -89,10 +89,13 @@ def _violations(spec: dict) -> list[str]:
         independent = ((group.get("resolve") or {}).get("scale") or {})
         for chan in VALUE_CHANNELS:
             truncating = [m for m, enc in units if chan in enc and _truncates(enc[chan])]
-            # A ranged mark (y with y2: the forecast band P10-P90, line 2.1.0) encodes two positions, not a length
-            # from the baseline — it may share a capped axis like a line (22.10.2026, Meridian BO-402).
+            # An AREA band between two encoded fields (`y` and `y2`) draws a difference of two positions on the same
+            # scale, not a length from the baseline: a capped axis moves both ends alike. Covers the variance area
+            # between AC and plan (rule abweichungsflaeche, 22.10.2026) and the forecast band P10-P90 (rule
+            # prognoseband, Meridian BO-402, 22.10.2026). Bars stay lengths even with y2 (waterfall totals stand on 0).
             lengths = [m for m, enc in units
-                       if m in LENGTH_MARKS and chan in enc and _quantitative(enc[chan]) and f"{chan}2" not in enc]
+                       if m in LENGTH_MARKS and chan in enc and _quantitative(enc[chan])
+                       and not (m == "area" and "field" in (enc.get(f"{chan}2") or {}))]
             bad_exempt = [m for m in truncating if m not in EXEMPT_MARKS]
             if bad_exempt:
                 out.append(f"{chan}: truncated axis on non-line/point mark(s) {bad_exempt}")
