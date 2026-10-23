@@ -1,7 +1,7 @@
 # Visual Library entry — dumbbell  (schema: _schema.yaml)
 id: dumbbell
 name: Dumbbell (before / after)
-version: "1.0.1"   # 1.0.1 (17.10.2026): Startpunkt #8C8C8C (3:1)
+version: "1.1.0"   # 1.1.0 (22.10.2026): Parameter marker arrow (N2, Gestaltungsregel pfeil): Spitze am Ist, Farbe nach Richtung. 1.0.1 (17.10.2026): Startpunkt #8C8C8C (3:1)
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
@@ -15,6 +15,7 @@ encoding:
   two_points: position_start_end    # two positions per row (e.g. PY vs AC)
   gap: connecting_rule              # the line length = the change (the story)
   color: start_vs_end               # start recedes (grey), end is the ink dot
+  marker: [circle, arrow]           # arrow (N2): exactly two points in time, the tip at AC, colour by direction (polarity)
 
 anti_patterns:
   - dumbbell_for_one_value          # one value -> lollipop/bar; dumbbell needs two
@@ -24,6 +25,7 @@ params:
   category: {role: axis, type: category, required: true}
   start:    {role: value, required: true, note: "prior / baseline (e.g. PY)"}
   end:      {role: value, required: true, note: "current (e.g. AC)"}
+  marker:   {role: style, default: circle, values: [circle, arrow], note: "arrow only for exactly two points in time (start, end)"}
   entity:   {role: table, default: _Measures}
 
 data_fit:
@@ -35,6 +37,8 @@ tokens:
   col_stem:  surface.row_alt_ink     # #C8CED5 connector
   col_start: color_semantics.neutral # #8C8C8C baseline dot
   col_end:   ink                     # #0F2430 current dot
+  col_good:  color_semantics.positive # #107C10 arrow: the change goes the good way (polarity)
+  col_bad:   color_semantics.negative # #A4262C arrow: the change goes the bad way
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
 data_slots:
@@ -54,6 +58,10 @@ canonical_params:
   col_stem: "#C8CED5"
   col_start: "#8C8C8C"
   col_end: "#0F2430"
+  marker: "circle"                 # "arrow": Gestaltungsregel pfeil (N2)
+  polarity: "1"                    # -1 = lower is better: a falling arrow turns good
+  col_good: "#107C10"
+  col_bad: "#A4262C"
 
 preview_svg: |
   <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dumbbell before after">
@@ -76,12 +84,18 @@ realizations:
       VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( '{{category_entity}}'[{{category_prop}}] ), [{{end_measure}}] ), REMOVEFILTERS ( '{{category_entity}}'[{{category_prop}}] ) )
       VAR _x = DIVIDE ( [{{start_measure}}], _max ) * 92 + 4
       VAR _a = DIVIDE ( [{{end_measure}}], _max ) * 92 + 4
+      VAR _pfeil = "{{marker}}" = "arrow"
+      VAR _dir = IF ( _a >= _x, 1, -1 )
+      VAR _col = IF ( _pfeil, IF ( ( [{{end_measure}}] - [{{start_measure}}] ) * {{polarity}} < 0, "{{col_bad}}", "{{col_good}}" ), "{{col_end}}" )
+      VAR _ende = IF ( _pfeil,
+          "<polygon points='" & _a & ",7 " & ( _a - 6 * _dir ) & ",2 " & ( _a - 6 * _dir ) & ",12' fill='" & _col & "'/>",
+          "<circle cx='" & _a & "' cy='7' r='4' fill='" & _col & "'/>" )
       RETURN
           IF ( HASONEVALUE ( '{{category_entity}}'[{{category_prop}}] ),
               "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
                 & "<line x1='" & _x & "' y1='7' x2='" & _a & "' y2='7' stroke='{{col_stem}}' stroke-width='3'/>"
                 & "<circle cx='" & _x & "' cy='7' r='4' fill='{{col_start}}'/>"
-                & "<circle cx='" & _a & "' cy='7' r='4' fill='{{col_end}}'/>"
+                & _ende
                 & "</svg>" )
 
   deneb_vegalite:
@@ -94,7 +108,12 @@ realizations:
         "layer": [
           { "mark": { "type": "rule", "color": "{{col_stem}}", "size": 3 }, "encoding": { "x": { "field": "{{field_start}}", "type": "quantitative", "axis": { "title": null } }, "x2": { "field": "{{field_end}}" } } },
           { "mark": { "type": "circle", "size": 90, "color": "{{col_start}}" }, "encoding": { "x": { "field": "{{field_start}}", "type": "quantitative" } } },
-          { "mark": { "type": "circle", "size": 90, "color": "{{col_end}}" }, "encoding": { "x": { "field": "{{field_end}}", "type": "quantitative" } } }
+          { "mark": { "type": "point", "filled": true, "size": 90, "description": "Ende" },
+            "encoding": { "x": { "field": "{{field_end}}", "type": "quantitative" },
+                          "shape": { "condition": [ { "test": "'{{marker}}' == 'arrow' && datum['{{field_end}}'] >= datum['{{field_start}}']", "value": "triangle-right" },
+                                                    { "test": "'{{marker}}' == 'arrow'", "value": "triangle-left" } ], "value": "circle" },
+                          "color": { "condition": [ { "test": "'{{marker}}' == 'arrow' && (datum['{{field_end}}'] - datum['{{field_start}}']) * {{polarity}} < 0", "value": "{{col_bad}}" },
+                                                    { "test": "'{{marker}}' == 'arrow'", "value": "{{col_good}}" } ], "value": "{{col_end}}" } } }
         ]
       }
 
@@ -105,4 +124,4 @@ realizations:
 
 determinism:
   golden_dir: golden
-  notes: "Two points per row (start recedes grey, end is ink) joined by a rule whose length IS the change. No native dumbbell; the change-as-length reading beats two separate bars."
+  notes: "Two points per row (start recedes grey, end is ink) joined by a rule whose length IS the change. No native dumbbell; the change-as-length reading beats two separate bars. marker arrow (N2): the end becomes a triangle pointing in the direction of change, coloured good/bad by polarity."

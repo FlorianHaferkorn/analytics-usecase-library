@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "2.0.0"   # 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
+version: "2.1.1"   # 2.1.1 (22.10.2026): Abweichungsfläche aria false (leerer Container ohne Namen, Cockpit G8). 2.1.0 (22.10.2026): laufende Periode mit hohlem Endpunkt (L4), Serienlabel am Linienende statt am Anfang (L3), Abweichungsfläche Ist/Plan nach Richtung als Variante (L6), IBCS nativ mit Serienlabels. 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -16,7 +16,9 @@ encoding:
   y: quantitative
   magnitude: position               # rank 1-2 on a common scale
   reference: target_line            # dashed plan/target reference
-  endpoint: emphasized              # the verdict at the mark
+  endpoint: emphasized              # the verdict at the mark; hollow when the last period is still running (L4)
+  series_labels: line_end           # PY, Plan, FC named at their last point, no legend (L3, Gestaltungsregel serienlabel)
+  variance_area: optional           # area between AC and plan in direction colour, 20 % (L6, variant `abweichungsflaeche: an`)
 
 anti_patterns:
   - bars_for_time
@@ -35,6 +37,8 @@ tokens:
   col_ref:  color_semantics.neutral # #605E5C target reference
   col_alert: color_semantics.negative # #A4262C alarm line
   col_end:  color_semantics.negative# endpoint (semantic by sign at gen time)
+  col_good: color_semantics.positive # #107C10 variance area where AC beats plan in its direction
+  col_bad:  color_semantics.negative # #A4262C variance area where AC misses plan
 
 # data column slots of the Vega-Lite track: which column role fills which {{param}} (A-31 R4)
 data_values: {target_val: null, alert_val: null, col_end: col_line}   # data, not style: from params; else removed (null) or the named fallback (A-31 R6)
@@ -44,6 +48,7 @@ data_slots:
   plan_field: {role: plan, required: false}
   fc_field: {role: forecast, required: false}   # FC (IBCS UN 3.2): dashed, never drawn as plan (BO-021)
   py_field: {role: prior, required: false}      # PY (IBCS UN 3.2): grey solid, behind AC; never plan or FC (BO-052)
+  current_field: {role: current, required: false}  # true on the running period (Snapshot trend.laufend): hollow endpoint (L4)
 
 canonical_params:
   col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
@@ -68,6 +73,18 @@ canonical_params:
   py_field: "gm_py"
   col_py: "#8C8C8C"               # PY grey: a thin line needs 3:1 on white (3.4:1; WCAG 1.4.11), unlike a PY bar
   label_py: "PY"                  # direct label of the PY line (IBCS abbreviation; caller may pass "VJ")
+  label_plan: "Plan"              # direct label of the plan line at its end (L3)
+  label_fc: "FC"                  # direct label of the forecast line at its end (L3)
+  current_field: "laufend"
+  label_current: "laufend"        # label under the hollow endpoint of the running period (L4)
+  # The variance area carries "aria": false: switched off, its filter leaves an empty area/line container that Vega
+  # exposes as an unnamed graphics-symbol (axe svg-img-alt, Meridian Cockpit G8, 22.10.2026); switched on, Ist and
+  # Plan lines name the same deviation.
+  abweichungsflaeche: "aus"       # variant L6: "an" draws the area between AC and plan (Gestaltungsregel abweichungsflaeche)
+  polarity: "1"                   # -1 = lower is better: the variance area turns good below plan
+  col_good: "#107C10"
+  col_bad: "#A4262C"
+  flaeche_deckkraft: "0.2"        # 20 % (Gestaltungsregel abweichungsflaeche.deckkraft)
 
 preview_svg: |
   <svg viewBox="0 0 340 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Trend line">
@@ -121,6 +138,7 @@ realizations:
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "data": { "name": "dataset" },
+        "padding": { "right": 36 },
         "transform": [
           { "calculate": "min(isValid(datum['{{field}}']) ? datum['{{field}}'] : 1e300, isValid(datum['{{plan_field}}']) ? datum['{{plan_field}}'] : 1e300, isValid(datum['{{py_field}}']) ? datum['{{py_field}}'] : 1e300, isValid(datum['{{fc_field}}']) ? datum['{{fc_field}}'] : 1e300)", "as": "_yu_z" },
           { "calculate": "max(isValid(datum['{{field}}']) ? datum['{{field}}'] : -1e300, isValid(datum['{{plan_field}}']) ? datum['{{plan_field}}'] : -1e300, isValid(datum['{{py_field}}']) ? datum['{{py_field}}'] : -1e300, isValid(datum['{{fc_field}}']) ? datum['{{fc_field}}'] : -1e300)", "as": "_yo_z" },
@@ -129,15 +147,24 @@ realizations:
           { "calculate": "max(datum._yo, isValid({{target_val}}) ? {{target_val}} : -1e300, isValid({{alert_val}}) ? {{alert_val}} : -1e300)", "as": "_yhi" },
           { "calculate": "max(abs(datum._yhi), abs(datum._ylo))", "as": "_ytop" },
           { "calculate": "datum._yhi > -1e299 && datum._ytop > 0 && datum._ytop < 1e299 && datum._yhi - datum._ylo < 0.25 * datum._ytop", "as": "_yangepasst" },
-          { "calculate": "datum._yangepasst ? datum._ylo - max((datum._yhi - datum._ylo) * 0.1, datum._ytop * 0.01) : 0", "as": "_ybasis" }
+          { "calculate": "datum._yangepasst ? datum._ylo - max((datum._yhi - datum._ylo) * 0.1, datum._ytop * 0.01) : 0", "as": "_ybasis" },
+          { "calculate": "datum['{{current_field}}'] === true", "as": "_laufend" }
         ],
         "encoding": { "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } } },
         "layer": [
           { "mark": { "type": "rule", "opacity": 0, "strokeWidth": 0 }, "encoding": { "y": { "field": "_ybasis", "type": "quantitative" } } },
+          { "transform": [ { "filter": "'{{abweichungsflaeche}}' == 'an' && isValid(datum['{{field}}']) && isValid(datum['{{plan_field}}'])" },
+                           { "calculate": "(datum['{{field}}'] - datum['{{plan_field}}']) * {{polarity}} >= 0 ? datum['{{field}}'] : datum['{{plan_field}}']", "as": "_gut" } ],
+            "mark": { "type": "area", "interpolate": "monotone", "color": "{{col_good}}", "opacity": {{flaeche_deckkraft}}, "description": "Abweichungsfläche gut", "aria": false, "line": false },
+            "encoding": { "y": { "field": "_gut", "type": "quantitative" }, "y2": { "field": "{{plan_field}}" } } },
+          { "transform": [ { "filter": "'{{abweichungsflaeche}}' == 'an' && isValid(datum['{{field}}']) && isValid(datum['{{plan_field}}'])" },
+                           { "calculate": "(datum['{{field}}'] - datum['{{plan_field}}']) * {{polarity}} < 0 ? datum['{{field}}'] : datum['{{plan_field}}']", "as": "_schlecht" } ],
+            "mark": { "type": "area", "interpolate": "monotone", "color": "{{col_bad}}", "opacity": {{flaeche_deckkraft}}, "description": "Abweichungsfläche schlecht", "aria": false, "line": false },
+            "encoding": { "y": { "field": "_schlecht", "type": "quantitative" }, "y2": { "field": "{{plan_field}}" } } },
           { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_py}}", "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
-          { "transform": [ { "filter": "isValid(datum['{{py_field}}'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._q == 1" } ],
-            "mark": { "type": "text", "text": "{{label_py}}", "align": "left", "dx": 4, "dy": 12, "color": "{{col_py}}" },
+          { "transform": [ { "filter": "isValid(datum['{{py_field}}'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._q == 1" } ],
+            "mark": { "type": "text", "text": "{{label_py}}", "align": "left", "baseline": "middle", "dx": 6, "color": "{{col_py}}", "description": "Serienlabel" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
           { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_line}}", "strokeWidth": 2, "strokeCap": "round", "strokeJoin": "round" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null, "domain": false, "ticks": false, "gridDash": [2, 4], "gridOpacity": 0.8 } } } },
@@ -155,11 +182,20 @@ realizations:
             "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
           { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_line}}", "strokeDash": [1, 4], "strokeWidth": 1.75, "strokeCap": "round" },
             "encoding": { "y": { "field": "{{fc_field}}", "type": "quantitative" } } },
-          { "transform": [ { "window": [ { "op": "row_number", "as": "_p" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._p == 1" } ],
-            "mark": { "type": "text", "text": "Plan", "align": "left", "dx": 4, "dy": -8, "color": "{{col_ref}}" },
+          { "transform": [ { "filter": "isValid(datum['{{plan_field}}'])" }, { "window": [ { "op": "row_number", "as": "_p" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._p == 1" } ],
+            "mark": { "type": "text", "text": "{{label_plan}}", "align": "left", "baseline": "middle", "dx": 6, "color": "{{col_ref}}", "description": "Serienlabel" },
             "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative" } } },
-          { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
-            "mark": { "type": "point", "shape": "circle", "filled": true, "size": 36, "color": "{{col_end}}" },
+          { "transform": [ { "filter": "isValid(datum['{{fc_field}}'])" }, { "window": [ { "op": "row_number", "as": "_f" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._f == 1" } ],
+            "mark": { "type": "text", "text": "{{label_fc}}", "align": "left", "baseline": "middle", "dx": 6, "color": "{{col_line}}", "description": "Serienlabel" },
+            "encoding": { "y": { "field": "{{fc_field}}", "type": "quantitative" } } },
+          { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1 && !datum._laufend" } ],
+            "mark": { "type": "point", "shape": "circle", "size": 36, "strokeWidth": 1.5, "filled": true, "fill": "{{col_end}}", "stroke": "{{col_end}}" },
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative" }, "opacity": { "value": 1 } } },
+          { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" }, { "filter": { "field": "{{current_field}}", "equal": true } } ],
+            "mark": { "type": "point", "shape": "circle", "size": 36, "strokeWidth": 1.5, "filled": true, "fill": "#FFFFFF", "stroke": "{{col_end}}", "description": "laufende Periode" },
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative" }, "opacity": { "value": 1 } } },
+          { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "filter": { "field": "{{current_field}}", "equal": true } }, { "window": [ { "op": "row_number", "as": "_l" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._l == 1" } ],
+            "mark": { "type": "text", "text": "{{label_current}}", "align": "right", "baseline": "top", "dx": -8, "dy": 8, "color": "{{col_ref}}", "description": "laufende Periode" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } },
           { "params": [ { "name": "hover", "select": { "type": "point", "fields": ["{{field_date}}"], "nearest": true, "on": "pointerover", "clear": "pointerout" } } ],
             "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1 },
@@ -190,7 +226,7 @@ realizations:
 # STRUCTURAL — native gets a second Y measure; Vega/Recharts get a second line series.
 profiles:
   ibcs:
-    note: 'Follows the IBCS notation: AC and PL in the same colour, scenario on the markers — AC solid, PL outlined; PY = AC at 50 % (py_tint_alpha) behind AC; FC dashed (UN 3.2); value axis from zero (CH 1.1), replaced by labels (SI 3.1). Native lineChart has no hollow marker: PL in col_pl there.'
+    note: 'Follows the IBCS notation: AC and PL in the same colour, scenario on the markers — AC solid, PL outlined; PY = AC at 50 % (py_tint_alpha) behind AC; FC dashed (UN 3.2); value axis from zero (CH 1.1), replaced by labels (SI 3.1). Series named at the line end, no legend (Gestaltungsregel serienlabel; native seriesLabels Right, legend off). Native lineChart has no hollow marker: PL in col_pl there.'
     rule_refs:
     - CH 1.1
     - SI 3.1
@@ -204,6 +240,7 @@ profiles:
       col_neutral: '#1F6FB5'
       col_ink: '#201F1E'
       polarity: '1'
+      label_pl: 'PL'
     realizations:
       powerbi_native:
         ext: json
@@ -232,7 +269,13 @@ profiles:
                 { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'dashed'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "showMarker": { "expr": { "Literal": { "Value": "false" } } } }, "selector": { "metadata": "{{entity}}.{{fc_measure}}" } },
                 { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'solid'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "strokeTransparency": { "expr": { "Literal": { "Value": "50D" } } }, "showMarker": { "expr": { "Literal": { "Value": "false" } } } }, "selector": { "metadata": "{{entity}}.{{prior_measure}}" } }
               ],
-              "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ]
+              "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ],
+              "seriesLabels": [ { "properties": {
+                "show": { "expr": { "Literal": { "Value": "true" } } },
+                "seriesPosition": { "expr": { "Literal": { "Value": "'Right'" } } },
+                "seriesMatchColor": { "expr": { "Literal": { "Value": "true" } } }
+              } } ],
+              "legend": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ]
             }
           }
       powerbi_svg_dax:
@@ -244,6 +287,7 @@ profiles:
         template: |
           {
             "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "padding": { "right": 36 },
             "data": {
               "name": "dataset"
             },
@@ -286,9 +330,14 @@ profiles:
                 }
               },
               {
-                "transform": [ { "filter": "isValid(datum['{{py_field}}'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] }, { "filter": "datum._q == 1" } ],
-                "mark": { "type": "text", "text": "{{label_py}}", "align": "left", "dx": 4, "dy": 12, "color": "{{col_ink}}" },
+                "transform": [ { "filter": "isValid(datum['{{py_field}}'])" }, { "window": [ { "op": "row_number", "as": "_q" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._q == 1" } ],
+                "mark": { "type": "text", "text": "{{label_py}}", "align": "left", "baseline": "middle", "dx": 8, "color": "{{col_ink}}", "description": "Serienlabel" },
                 "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative", "axis": null } }
+              },
+              {
+                "transform": [ { "filter": "isValid(datum['{{plan_field}}'])" }, { "window": [ { "op": "row_number", "as": "_pl" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._pl == 1" } ],
+                "mark": { "type": "text", "text": "{{label_pl}}", "align": "left", "baseline": "middle", "dx": 8, "color": "{{col_ink}}", "description": "Serienlabel" },
+                "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative", "axis": null } }
               },
               {
                 "mark": {

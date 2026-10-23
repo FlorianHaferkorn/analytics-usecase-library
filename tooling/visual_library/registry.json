@@ -34,7 +34,7 @@
     {
       "id": "bar_absolute",
       "name": "Bar (absolute magnitude)",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -57,12 +57,12 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:df81bf2a5dac06d231d088d1aa3cdfca7f3d480c81777f1591c5e919008864f1"
+      "checksum": "sha256:54637167f0ec1fee8a2c49101f01285357f75b17c095673f239df0170f4efe05"
     },
     {
       "id": "bar_ranking",
       "name": "Bar ranking",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -87,7 +87,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:cca14971beeee191c466188d8bc4d9c590fe4eb634cf42b9dd169b21f32eae0e"
+      "checksum": "sha256:3e2084474c3f8624112ab6af080b0e7b790dcaff83dfde16e32c1a0a12520a56"
     },
     {
       "id": "bar_stacked",
@@ -174,7 +174,7 @@
     {
       "id": "column_time",
       "name": "Column chart over time",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -197,7 +197,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:8c8a5632ec763d7a9c03cba01dd2ab31b374bcdc2daa8849bdc722a26dfe1250"
+      "checksum": "sha256:157da7c1f1d5a2db34f6acb240bda65d9bf985799545b75bb43d3db78e16f7e5"
     },
     {
       "id": "decomposition_tree",
@@ -286,7 +286,7 @@
     {
       "id": "dumbbell",
       "name": "Dumbbell (before / after)",
-      "version": "1.0.1",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -307,7 +307,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:a666d590093c3d51fcc8ac516f481322ddee20fc6e13fdc5e82b5c18c5f45599"
+      "checksum": "sha256:153cdd4f6d6d0ca08dcf640863154ca515d0f40880632325a00abcb4115d46e5"
     },
     {
       "id": "histogram",
@@ -442,7 +442,7 @@
     {
       "id": "line",
       "name": "Trend line",
-      "version": "2.0.0",
+      "version": "2.1.1",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -467,7 +467,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:29b34934b660bb600b62eabf926edfff65d941c1cc8e52b4c2769526d3e859a5"
+      "checksum": "sha256:a97c51b2c9277d497be81eddf2e4eab7cb931659b154970336b7411c441eb4de"
     },
     {
       "id": "lollipop",
@@ -708,7 +708,7 @@
     {
       "id": "small_multiples",
       "name": "Small multiples",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -729,7 +729,7 @@
         "cols": 5,
         "rows": 6
       },
-      "checksum": "sha256:e65f68d23212b92ed9087ca80b1e31a2a155e812fe2ff2b9da1bd183ee6fd6df"
+      "checksum": "sha256:e5431b72b9d0d787a5408421bc1b8f5fc48ac2d4ab943de163d5c88c5c09e9d2"
     },
     {
       "id": "stacked_100",
