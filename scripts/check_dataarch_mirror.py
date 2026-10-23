@@ -162,6 +162,14 @@ MIRRORED_FILES = (
     # das Modul; ohne diesen Eintrag braeche der gespiegelte Import.
     "ki_zugang.py",
     "provision_transforms.py",
+    # Ein Kalendergenerator fuer erzeugte Datumsdimensionen (Meridian D-821, 23.10.2026):
+    # `provision_transforms._erzeugt` ruft fuer `generated.kind = calendar` jetzt
+    # `sap_calendar.calendar_sql` auf (lazy Import). `sap_calendar` zieht `fristregel`
+    # (PROGNOSEHORIZONT_MONATE), `naming` und `provision_notebooks`; die letzten beiden sind
+    # schon gespiegelt. Ohne diese zwei Eintraege braeche der gespiegelte Import beim ersten
+    # erzeugten Kalender.
+    "sap_calendar.py",
+    "fristregel.py",
     "provision_translations.py",
     "provision_varlib.py",
     # Prüft die emittierte DDL im Zieldialekt. `sqlglot` ist hier **nicht** installiert;
