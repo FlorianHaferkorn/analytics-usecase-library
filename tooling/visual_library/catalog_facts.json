@@ -1045,6 +1045,70 @@
         "width": "Width"
       }
     },
+    "pivotTable": {
+      "grid": {
+        "_": "Grid",
+        "gridHorizontal": "Horizontal grid",
+        "gridHorizontalColor": "Horizontal grid color",
+        "gridHorizontalWeight": "Horizontal grid thickness",
+        "gridVertical": "Vertical grid",
+        "gridVerticalColor": "Vertical grid color",
+        "gridVerticalWeight": "Vertical grid thickness",
+        "imageHeight": "Height",
+        "imageWidth": "Width",
+        "outlineColor": "Outline color",
+        "outlineStyle": "Outline",
+        "outlineWeight": "Outline weight",
+        "rowPadding": "Row padding",
+        "textSize": "Text size"
+      },
+      "rowHeaders": {
+        "_": "Row headers",
+        "alignment": "Alignment",
+        "autoExpand": "Auto expand",
+        "backColor": "Background color",
+        "bold": "Bold",
+        "expandCollapseButtonsColor": "Icon color",
+        "expandCollapseButtonsSize": "Icon size",
+        "expandCompositeHierarchy": null,
+        "fontColor": "Font color",
+        "fontFamily": "Font family",
+        "fontSize": "Text size",
+        "italic": "Italic",
+        "legacyStyleDisabled": null,
+        "outlineColor": "Outline color",
+        "outlineStyle": "Outline",
+        "outlineWeight": "Outline weight",
+        "repeatRowHeaders": "Repeat row headers",
+        "showExpandCollapseButtons": "+/- icons",
+        "stepped": "Stepped layout",
+        "steppedLayoutIndentation": "Indentation",
+        "underline": "Underline",
+        "unfrozen": null,
+        "urlIcon": "URL icon",
+        "wordWrap": "Word wrap"
+      },
+      "subTotals": {
+        "_": "Subtotals",
+        "applyToHeaders": "Apply to labels",
+        "backColor": "Background color",
+        "bold": "Bold",
+        "columnSubtotals": "Column subtotals",
+        "columnSubtotalsLabel": "Column subtotals label",
+        "fontColor": "Font color",
+        "fontFamily": "Font family",
+        "fontSize": "Text size",
+        "italic": "Italic",
+        "levelSubtotalEnabled": null,
+        "levelSubtotalLabel": null,
+        "perColumnLevel": "Per column level",
+        "perRowLevel": "Per row level",
+        "rowSubtotals": "Row subtotals",
+        "rowSubtotalsLabel": "Row subtotals label",
+        "rowSubtotalsPosition": "Row subtotal position",
+        "underline": "Underline"
+      }
+    },
     "scatterChart": {
       "categoryAxis": {
         "_": "X axis",
@@ -1346,6 +1410,22 @@
         "styleHeader": "Apply to header",
         "styleTotal": "Apply to total",
         "styleValues": "Apply to values"
+      },
+      "grid": {
+        "_": "Grid",
+        "gridHorizontal": "Horizontal grid",
+        "gridHorizontalColor": "Horizontal grid color",
+        "gridHorizontalWeight": "Horizontal grid thickness",
+        "gridVertical": "Vertical grid",
+        "gridVerticalColor": "Vertical grid color",
+        "gridVerticalWeight": "Vertical grid thickness",
+        "imageHeight": "Height",
+        "imageWidth": "Width",
+        "outlineColor": "Outline color",
+        "outlineStyle": "Outline",
+        "outlineWeight": "Outline weight",
+        "rowPadding": "Row padding",
+        "textSize": "Text size"
       },
       "sparklines": {
         "_": "Sparklines",
@@ -2169,6 +2249,74 @@
         "Y2"
       ]
     },
+    "pivotTable": {
+      "objects": {
+        "grid": [
+          "gridHorizontal",
+          "gridHorizontalColor",
+          "gridHorizontalWeight",
+          "gridVertical",
+          "gridVerticalColor",
+          "gridVerticalWeight",
+          "imageHeight",
+          "imageWidth",
+          "outlineColor",
+          "outlineStyle",
+          "outlineWeight",
+          "rowPadding",
+          "textSize"
+        ],
+        "rowHeaders": [
+          "alignment",
+          "autoExpand",
+          "backColor",
+          "bold",
+          "expandCollapseButtonsColor",
+          "expandCollapseButtonsSize",
+          "expandCompositeHierarchy",
+          "fontColor",
+          "fontFamily",
+          "fontSize",
+          "italic",
+          "legacyStyleDisabled",
+          "outlineColor",
+          "outlineStyle",
+          "outlineWeight",
+          "repeatRowHeaders",
+          "showExpandCollapseButtons",
+          "stepped",
+          "steppedLayoutIndentation",
+          "underline",
+          "unfrozen",
+          "urlIcon",
+          "wordWrap"
+        ],
+        "subTotals": [
+          "applyToHeaders",
+          "backColor",
+          "bold",
+          "columnSubtotals",
+          "columnSubtotalsLabel",
+          "fontColor",
+          "fontFamily",
+          "fontSize",
+          "italic",
+          "levelSubtotalEnabled",
+          "levelSubtotalLabel",
+          "perColumnLevel",
+          "perRowLevel",
+          "rowSubtotals",
+          "rowSubtotalsLabel",
+          "rowSubtotalsPosition",
+          "underline"
+        ]
+      },
+      "roles": [
+        "Columns",
+        "Rows",
+        "Values"
+      ]
+    },
     "scatterChart": {
       "objects": {},
       "roles": [
@@ -2203,6 +2351,21 @@
           "styleHeader",
           "styleTotal",
           "styleValues"
+        ],
+        "grid": [
+          "gridHorizontal",
+          "gridHorizontalColor",
+          "gridHorizontalWeight",
+          "gridVertical",
+          "gridVerticalColor",
+          "gridVerticalWeight",
+          "imageHeight",
+          "imageWidth",
+          "outlineColor",
+          "outlineStyle",
+          "outlineWeight",
+          "rowPadding",
+          "textSize"
         ],
         "sparklines": [
           "chartType",

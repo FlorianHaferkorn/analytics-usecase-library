@@ -17,7 +17,7 @@
 | **flow_between_stages** | How does quantity flow between stages — where does it leak? | `sankey` | detail | `sankey` |
 | **driver_breakdown** | Which dimension drives the number? (interactive) | `decomposition_tree` | detail | `decomposition_tree` |
 | **distribution** | What is the spread / median / outliers of a variable? | `histogram` | analysis | `histogram` · `boxplot` |
-| **evidence_detail** | Which rows are worst — and what is the next action? | `matrix_evidence` | detail | `matrix_evidence` · `matrix_sparkline` · `matrix_bullet` · `matrix_delta_pill` · `column_time` · `dumbbell` · `bar_stacked` |
+| **evidence_detail** | Which rows are worst — and what is the next action? | `matrix_evidence` | detail | `matrix_evidence` · `matrix_sparkline` · `matrix_bullet` · `matrix_delta_pill` · `column_time` · `dumbbell` · `bar_stacked` · `matrix_pivot` |
 | **value_verdict** | What is the headline value and its verdict? | `kpi_card_spark` | pulse | `kpi_card_spark` · `kpi_card_bullet` · `kpi_card_sparkbar` |
 
 **Deny (never emit):** `pie_gt_4` · `three_d` · `gauge` · `radar` · `dual_axis_no_reason` · `color_as_decoration` · `powerbi_smart_narrative` · `deprecated_map` · `qna_visual` · `legacy_card`.
@@ -64,6 +64,7 @@
 | `bar_stacked` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
 | `variance_pin` | — | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
 | `multi_tier_column` | — | — | rendered ✓ 5/5 | — |
+| `matrix_pivot` | structural · gated | — | — | — |
 
 **Legend.** `rendered ✓` = actually rendered headlessly (Deneb shows the scenario count) · `structural · gated` = deterministic + structurally valid, live render needs its host (Desktop) · `—` = tool n/a.
 
@@ -270,3 +271,9 @@
 - **Tools:** Power BI · native n/a (keine native Stufenform. Gemessen 30.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `clusteredColumnChart` (Rollen Category, Series, Y, Rows, Tooltips) und `lineClusteredColumnComboChart` (zusaetzlich Y2) zeichnen alle Kennzahlen in EINEN Plotbereich — die Combo mit hoechstens einer zweiten Wertachse (`valueAxis.sec*`), nicht mit einer zweiten Stufe. `smallMultiplesLayout` (Rolle Rows) teilt nach einer Dimension, jede Kachel zeigt dieselben Kennzahlen; eine Stufe je Kennzahl ueber derselben Kategorieachse ist damit nicht einstellbar. Drei gestapelte native Visuals waeren drei Dateien mit je eigener Achse und eigener Skala — genau der Fall, den `variance_tier_on_its_own_scale` ausschliesst → deneb_vegalite (eine Spec, geteilte x-Skala, eine y-Skala fuer Werte und ΔPY)) · Power BI · SVG-DAX n/a (a three-tier chart over all periods is a full chart, not a single-cell micro-chart → deneb_vegalite; per table row use variance_pin (svg_dax) next to the value) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (three tiers on one category axis need three synchronised charts (syncId) inside a wrapper element; the Recharts track holds single-root charts, and the ΔPY tier would lose the shared value scale → deneb_vegalite; in React render the Vega-Lite spec (react-vega) instead of three Recharts charts)
 - **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/multi_tier_column.yaml` (+ `golden/multi_tier_column.*`)
+
+#### `matrix_pivot` — Hierarchical matrix
+- **Purpose:** evidence_detail · **zone:** detail · **min size:** 6×6 grid (600×320px @1280, 900×480px @1920)
+- **Avoid:** too_many_columns, unsorted_rows
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a hierarchy with expand/collapse is the host's matrix, not an image measure → powerbi_native (pivotTable); an in-cell micro chart comes from matrix_sparkline or matrix_evidence) · Deneb / Vega-Lite n/a (Vega-Lite is not a table tool → powerbi_native (pivotTable)) · Web · Recharts n/a (Recharts has no table primitive → an HTML <table> with grouped <tbody> per level and a sticky first column)
+- **Code:** `visual_library/matrix_pivot.yaml` (+ `golden/matrix_pivot.*`)

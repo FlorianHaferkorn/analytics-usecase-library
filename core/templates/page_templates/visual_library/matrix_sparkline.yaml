@@ -1,7 +1,7 @@
 # Visual Library entry — matrix_sparkline  (schema: _schema.yaml)
 id: matrix_sparkline
 name: Matrix column · sparkline
-version: "1.0.0"
+version: "2.0.0"   # 2.0.0 (22.10.2026, MAJOR): gemeinsame Skala der Spalte als Standard (T6, SP1), erster/letzter Punkt markiert (SP2), Lücken als Feld (SP6), Zielband (SP5)
 status: active        # active | deprecated | experimental
 purpose: [evidence_detail]
 zone: [detail]
@@ -13,7 +13,9 @@ werteachse: y           # quantitative Achse: x liegend, y stehend, xy, keine (R
 
 encoding:
   trend: sparkline_line             # a per-row micro trend over time, in the cell
-  scope: per_row_category           # one tiny line per matrix row (its own min/max)
+  scope: shared                     # one scale for the whole column (min/max over ALLSELECTED rows); per_row only with reference line + hint (T6, SP1)
+  markers: first_hollow_last_ink    # SP2: shape, no number in a cell
+  gaps: break                       # SP6: break | connect | zero
 
 anti_patterns:
   - axis_labels_in_a_sparkline      # a cell sparkline is context, not a labelled chart
@@ -26,9 +28,11 @@ params:
   entity:    {role: table, default: _Measures}
 
 tokens:
+  col_rule:  border.default           # #E1DFDD horizontal hairline (T2, Gestaltungsregel tabellen_linien)
   col_line: ink                      # #0F2430 trend
 
 canonical_params:
+  col_rule: "#E1DFDD"             # waagrechte Haarlinie (Gestaltungsregel tabellen_linien, T2)
   entity: "_Measures"
   measure: "Gross Margin %"
   category_entity: "dim_product"
@@ -37,6 +41,13 @@ canonical_params:
   date_prop: "Date"
   field: "gm"
   col_line: "#0F2430"
+  col_ref: "#605E5C"
+  col_band: "#ECECEC"
+  scale: "shared"                 # shared | per_row (Gestaltungsregel sparkline_skala)
+  gaps: "break"                   # break | connect | zero (Gestaltungsregel sparkline_luecken)
+  label_per_row: "je Zeile skaliert"   # Hinweis bei per_row und in der nativen Spur (Spaltenkopf)
+  band_low_expr: "BLANK ()"       # Zielband: Measure aus target_corridor mit Freigabe, sonst BLANK (D-795)
+  band_high_expr: "BLANK ()"
 
 preview_svg: |
   <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Matrix sparkline column">
@@ -69,10 +80,16 @@ realizations:
             { "field": { "SparklineData": {
                 "Measure": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } },
                 "Groupings": [ { "Column": { "Expression": { "SourceRef": { "Entity": "{{date_entity}}" } }, "Property": "{{date_prop}}" } } ]
-              } }, "queryRef": "SparklineData({{entity}}.{{measure}}_[{{date_entity}}.{{date_prop}}])" }
+              } }, "queryRef": "SparklineData({{entity}}.{{measure}}_[{{date_entity}}.{{date_prop}}])", "displayName": "{{measure}} ({{label_per_row}})" }
           ] }
         } },
-        "objects": { "sparklines": [ { "properties": {
+        "objects": { "grid": [ { "properties": {
+          "gridVertical": { "expr": { "Literal": { "Value": "false" } } },
+          "gridHorizontal": { "expr": { "Literal": { "Value": "true" } } },
+          "gridHorizontalWeight": { "expr": { "Literal": { "Value": "1D" } } },
+          "gridHorizontalColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_rule}}'" } } } } },
+          "outlineWeight": { "expr": { "Literal": { "Value": "0D" } } }
+        } } ], "sparklines": [ { "properties": {
           "chartType": { "expr": { "Literal": { "Value": "'line'" } } },
           "dataColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_line}}'" } } } } },
           "strokeWidth": { "expr": { "Literal": { "Value": "1.5D" } } }
@@ -98,17 +115,45 @@ realizations:
   powerbi_svg_dax:
     ext: dax
     template: |
-      VAR _S = ADDCOLUMNS ( CALCULATETABLE ( VALUES ( '{{date_entity}}'[{{date_prop}}] ), DATESINPERIOD ( '{{date_entity}}'[{{date_prop}}], MAX ( '{{date_entity}}'[{{date_prop}}] ), -12, MONTH ) ), "@v", [{{measure}}] )
-      VAR _min = MINX ( _S, [@v] )
-      VAR _max = MAXX ( _S, [@v] )
+      VAR _P = CALCULATETABLE ( VALUES ( '{{date_entity}}'[{{date_prop}}] ), DATESINPERIOD ( '{{date_entity}}'[{{date_prop}}], MAX ( '{{date_entity}}'[{{date_prop}}] ), -12, MONTH ) )
+      VAR _S = ADDCOLUMNS ( _P, "@v", IF ( "{{gaps}}" = "zero", [{{measure}}] + 0, [{{measure}}] ) )
+      VAR _alle = CALCULATETABLE ( ADDCOLUMNS ( CROSSJOIN ( VALUES ( '{{category_entity}}'[{{category_prop}}] ), _P ), "@v", [{{measure}}] ), ALLSELECTED ( '{{category_entity}}'[{{category_prop}}] ) )
+      VAR _geteilt = "{{scale}}" = "shared"
+      VAR _bl = {{band_low_expr}}
+      VAR _bh = {{band_high_expr}}
+      VAR _band = _geteilt && NOT ISBLANK ( _bl ) && NOT ISBLANK ( _bh )
+      VAR _lo0 = IF ( _geteilt, MINX ( _alle, [@v] ), MINX ( _S, [@v] ) )
+      VAR _hi0 = IF ( _geteilt, MAXX ( _alle, [@v] ), MAXX ( _S, [@v] ) )
+      VAR _min = IF ( _band, MIN ( _lo0, _bl ), _lo0 )
+      VAR _max = IF ( _band, MAX ( _hi0, _bh ), _hi0 )
       VAR _xmin = MINX ( _S, '{{date_entity}}'[{{date_prop}}] )
       VAR _xmax = MAXX ( _S, '{{date_entity}}'[{{date_prop}}] )
-      VAR _pts = CONCATENATEX ( _S, INT ( 100 * DIVIDE ( '{{date_entity}}'[{{date_prop}}] - _xmin, _xmax - _xmin ) ) & "," & INT ( 24 - 22 * DIVIDE ( [@v] - _min, _max - _min ) ), " ", '{{date_entity}}'[{{date_prop}}] )
+      VAR _N = ADDCOLUMNS ( FILTER ( _S, NOT ISBLANK ( [@v] ) ),
+          "@x", INT ( 4 + 92 * DIVIDE ( '{{date_entity}}'[{{date_prop}}] - _xmin, _xmax - _xmin ) ),
+          "@y", INT ( 24 - 22 * DIVIDE ( [@v] - _min, _max - _min ) ),
+          "@luecke", '{{date_entity}}'[{{date_prop}}] > MINX ( _S, '{{date_entity}}'[{{date_prop}}] ) && ISBLANK ( MAXX ( TOPN ( 1, FILTER ( _S, '{{date_entity}}'[{{date_prop}}] < EARLIER ( '{{date_entity}}'[{{date_prop}}] ) ), '{{date_entity}}'[{{date_prop}}], DESC ), [@v] ) ) )
+      VAR _erst = MINX ( _N, '{{date_entity}}'[{{date_prop}}] )
+      VAR _letzt = MAXX ( _N, '{{date_entity}}'[{{date_prop}}] )
+      VAR _d = CONCATENATEX ( _N, IF ( '{{date_entity}}'[{{date_prop}}] = _erst || ( [@luecke] && "{{gaps}}" = "break" ), " M", " L" ) & [@x] & "," & [@y], "", '{{date_entity}}'[{{date_prop}}] )
+      VAR _marken = "<circle cx='" & MAXX ( FILTER ( _N, '{{date_entity}}'[{{date_prop}}] = _erst ), [@x] ) & "' cy='" & MAXX ( FILTER ( _N, '{{date_entity}}'[{{date_prop}}] = _erst ), [@y] ) & "' r='2' fill='#FFFFFF' stroke='{{col_line}}' stroke-width='1'/>"
+          & "<circle cx='" & MAXX ( FILTER ( _N, '{{date_entity}}'[{{date_prop}}] = _letzt ), [@x] ) & "' cy='" & MAXX ( FILTER ( _N, '{{date_entity}}'[{{date_prop}}] = _letzt ), [@y] ) & "' r='2.5' fill='{{col_line}}'/>"
+      VAR _bandsvg = IF ( _band, "<rect x='4' y='" & INT ( 24 - 22 * DIVIDE ( _bh - _min, _max - _min ) ) & "' width='92' height='" & INT ( 22 * DIVIDE ( _bh - _bl, _max - _min ) ) & "' fill='{{col_band}}'/>", "" )
+      VAR _ref = IF ( _geteilt, "", "<title>{{label_per_row}}</title><line x1='4' x2='96' y1='" & INT ( 24 - 22 * DIVIDE ( AVERAGEX ( _N, [@v] ) - _min, _max - _min ) ) & "' y2='" & INT ( 24 - 22 * DIVIDE ( AVERAGEX ( _N, [@v] ) - _min, _max - _min ) ) & "' stroke='{{col_ref}}' stroke-width='0.75' stroke-dasharray='2 2'/>" )
       RETURN
           IF ( HASONEVALUE ( '{{category_entity}}'[{{category_prop}}] ),
               "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 26'>"
-                & "<polyline fill='none' stroke='{{col_line}}' stroke-width='1.5' points='" & _pts & "'/>"
+                & _bandsvg
+                & _ref
+                & "<path fill='none' stroke='{{col_line}}' stroke-width='1.5' d='" & _d & "'/>"
+                & _marken
                 & "</svg>" )
+    notes: |
+      Gestaltungsregeln sparkline_skala (T6, SP1), sparkline_marken (SP2), sparkline_luecken (SP6), zielband (SP5),
+      sparkline_groesse (SP4). `scale: shared` rechnet Min/Max über ALLSELECTED der Zeilenkategorie, also eine Skala für
+      die ganze Spalte; `per_row` zeichnet zusätzlich den Zeilenmittelwert als Referenzlinie und trägt den Hinweis
+      `label_per_row` als <title>. Lücken: `break` beginnt nach einem leeren Monat einen neuen Pfad (M), `connect`
+      verbindet, `zero` setzt leer = 0. Band nur bei `scale: shared` und nur, wenn beide Grenz-Ausdrücke einen Wert
+      liefern (Measures aus target_corridor mit Freigabe; Standard BLANK ()). Die DAX-Auswertung bleibt Desktop-gebunden.
 
   deneb_vegalite:
     applicable: false
@@ -122,4 +167,4 @@ realizations:
 
 determinism:
   golden_dir: golden
-  notes: "Per-row micro-trend for a tableEx column (ImageUrl). Each cell autoscales to its own row; no axis labels (context, not a chart)."
+  notes: "Micro-trend per row for a tableEx column (ImageUrl). SVG-DAX: one scale for the column (scale shared), per_row only with reference line and hint. Native sparklines scale per row (no catalog property, MS Learn names no option): the column header carries the hint. No axis labels (context, not a chart)."
