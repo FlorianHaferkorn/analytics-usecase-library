@@ -25,6 +25,227 @@
     },
     "layer": [
       {
+        "transform": [
+          {
+            "filter": "isValid(datum['gm_fc_p10']) && isValid(datum['gm_fc_p90'])"
+          }
+        ],
+        "mark": {
+          "type": "area",
+          "interpolate": "monotone",
+          "color": "#404040",
+          "opacity": 0.12,
+          "description": "Prognoseband P10-P90"
+        },
+        "encoding": {
+          "y": {
+            "field": "gm_fc_p10",
+            "type": "quantitative",
+            "axis": null,
+            "scale": {
+              "zero": true
+            }
+          },
+          "y2": {
+            "field": "gm_fc_p90"
+          },
+          "tooltip": [
+            {
+              "field": "month",
+              "type": "temporal",
+              "title": "month",
+              "format": "%m/%Y"
+            },
+            {
+              "field": "gm",
+              "type": "quantitative",
+              "title": "gm",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_plan",
+              "type": "quantitative",
+              "title": "gm_plan",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_fc",
+              "type": "quantitative",
+              "title": "gm_fc",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_fc_p10",
+              "type": "quantitative",
+              "title": "gm_fc_p10",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_fc_p90",
+              "type": "quantitative",
+              "title": "gm_fc_p90",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_py",
+              "type": "quantitative",
+              "title": "gm_py",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_event",
+              "type": "nominal",
+              "title": "gm_event"
+            }
+          ]
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": "isValid(datum['gm_fc_p90'])"
+          },
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_bh"
+              }
+            ],
+            "sort": [
+              {
+                "field": "month",
+                "order": "descending"
+              }
+            ]
+          },
+          {
+            "filter": "datum._bh == 1"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "text": "P90",
+          "align": "right",
+          "dx": -2,
+          "dy": -7,
+          "fontSize": 10,
+          "color": "#201F1E",
+          "tooltip": null
+        },
+        "encoding": {
+          "y": {
+            "field": "gm_fc_p90",
+            "type": "quantitative",
+            "axis": null
+          }
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": "isValid(datum['gm_fc_p10'])"
+          },
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_bl"
+              }
+            ],
+            "sort": [
+              {
+                "field": "month",
+                "order": "descending"
+              }
+            ]
+          },
+          {
+            "filter": "datum._bl == 1"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "text": "P10",
+          "align": "right",
+          "dx": -2,
+          "dy": 11,
+          "fontSize": 10,
+          "color": "#201F1E",
+          "tooltip": null
+        },
+        "encoding": {
+          "y": {
+            "field": "gm_fc_p10",
+            "type": "quantitative",
+            "axis": null
+          }
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": "isValid(datum['gm_event']) && datum['gm_event'] != '' && datum['gm_event'] != '(Blank)'"
+          }
+        ],
+        "mark": {
+          "type": "rule",
+          "color": "#605E5C",
+          "strokeWidth": 1,
+          "description": "Ereignis"
+        },
+        "encoding": {
+          "tooltip": {
+            "field": "gm_event",
+            "type": "nominal"
+          }
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": "isValid(datum['gm_event']) && datum['gm_event'] != '' && datum['gm_event'] != '(Blank)'"
+          },
+          {
+            "window": [
+              {
+                "op": "row_number",
+                "as": "_ev"
+              }
+            ],
+            "sort": [
+              {
+                "field": "month",
+                "order": "ascending"
+              }
+            ]
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "align": "center",
+          "baseline": "bottom",
+          "dy": -19,
+          "fontSize": 11,
+          "color": "#605E5C",
+          "description": "Ereignisnummer",
+          "tooltip": null
+        },
+        "encoding": {
+          "y": {
+            "value": 0
+          },
+          "text": {
+            "field": "_ev",
+            "type": "nominal"
+          },
+          "tooltip": {
+            "field": "gm_event",
+            "type": "nominal"
+          }
+        }
+      },
+      {
         "mark": {
           "type": "line",
           "interpolate": "monotone",
@@ -73,10 +294,27 @@
               "format": ",.1~f"
             },
             {
+              "field": "gm_fc_p10",
+              "type": "quantitative",
+              "title": "gm_fc_p10",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_fc_p90",
+              "type": "quantitative",
+              "title": "gm_fc_p90",
+              "format": ",.1~f"
+            },
+            {
               "field": "gm_py",
               "type": "quantitative",
               "title": "gm_py",
               "format": ",.1~f"
+            },
+            {
+              "field": "gm_event",
+              "type": "nominal",
+              "title": "gm_event"
             }
           ]
         }
@@ -211,10 +449,27 @@
               "format": ",.1~f"
             },
             {
+              "field": "gm_fc_p10",
+              "type": "quantitative",
+              "title": "gm_fc_p10",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_fc_p90",
+              "type": "quantitative",
+              "title": "gm_fc_p90",
+              "format": ",.1~f"
+            },
+            {
               "field": "gm_py",
               "type": "quantitative",
               "title": "gm_py",
               "format": ",.1~f"
+            },
+            {
+              "field": "gm_event",
+              "type": "nominal",
+              "title": "gm_event"
             }
           ]
         }
@@ -266,10 +521,27 @@
               "format": ",.1~f"
             },
             {
+              "field": "gm_fc_p10",
+              "type": "quantitative",
+              "title": "gm_fc_p10",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_fc_p90",
+              "type": "quantitative",
+              "title": "gm_fc_p90",
+              "format": ",.1~f"
+            },
+            {
               "field": "gm_py",
               "type": "quantitative",
               "title": "gm_py",
               "format": ",.1~f"
+            },
+            {
+              "field": "gm_event",
+              "type": "nominal",
+              "title": "gm_event"
             }
           ]
         }
@@ -320,10 +592,27 @@
               "format": ",.1~f"
             },
             {
+              "field": "gm_fc_p10",
+              "type": "quantitative",
+              "title": "gm_fc_p10",
+              "format": ",.1~f"
+            },
+            {
+              "field": "gm_fc_p90",
+              "type": "quantitative",
+              "title": "gm_fc_p90",
+              "format": ",.1~f"
+            },
+            {
               "field": "gm_py",
               "type": "quantitative",
               "title": "gm_py",
               "format": ",.1~f"
+            },
+            {
+              "field": "gm_event",
+              "type": "nominal",
+              "title": "gm_event"
             }
           ]
         }
