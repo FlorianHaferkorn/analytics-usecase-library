@@ -21,11 +21,24 @@
     "padding": {
       "right": 40
     },
+    "transform": [
+      {
+        "calculate": "datum['net_sales'] === 0 ? 0 : null",
+        "as": "_nullstrich"
+      },
+      {
+        "calculate": "isValid(datum['net_sales']) || datum._rest === true ? null : 0",
+        "as": "_fehlt"
+      }
+    ],
     "encoding": {
       "y": {
         "field": "unit",
         "type": "nominal",
-        "sort": "-x",
+        "sort": {
+          "field": "net_sales",
+          "order": "descending"
+        },
         "axis": {
           "title": null
         }
@@ -51,9 +64,51 @@
       {
         "mark": {
           "type": "bar",
-          "color": "#0F2430"
+          "height": {
+            "expr": "min(bandwidth('y'), 24)"
+          }
         },
         "encoding": {
+          "color": {
+            "condition": {
+              "test": "datum['unit'] != 'Nord'",
+              "value": "#8C8C8C"
+            },
+            "value": "#0F2430"
+          },
+          "tooltip": [
+            {
+              "field": "unit",
+              "type": "nominal",
+              "title": "unit"
+            },
+            {
+              "field": "net_sales",
+              "type": "quantitative",
+              "title": "net_sales",
+              "format": ",.1~f"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "tick",
+          "orient": "vertical",
+          "thickness": 2,
+          "color": "#0F2430",
+          "description": "Null"
+        },
+        "encoding": {
+          "x": {
+            "field": "_nullstrich",
+            "type": "quantitative"
+          },
+          "size": {
+            "value": {
+              "expr": "min(bandwidth('y'), 24)"
+            }
+          },
           "tooltip": [
             {
               "field": "unit",
@@ -89,6 +144,23 @@
               "value": 1
             },
             "value": 0
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "text": "–",
+          "align": "left",
+          "dx": 4,
+          "color": "#8C8C8C",
+          "description": "fehlender Wert",
+          "tooltip": null
+        },
+        "encoding": {
+          "x": {
+            "field": "_fehlt",
+            "type": "quantitative"
           }
         }
       }

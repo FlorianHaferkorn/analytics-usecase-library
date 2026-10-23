@@ -173,6 +173,11 @@ MATRIX_PATH = Path(__file__).resolve().parent / "validation_matrix.json"
 _SVG_DAX_VALS = {
     "_w": "62", "_col": "#0F2430", "_x": "60", "_a": "88", "_t": "95", "_len": "80",
     "_pts": "0,20 25,10 50,15 75,5 100,8", "_y1": "20", "_y2": "8",
+    # sparklines (22.10.2026, Gestaltungsregeln sparkline_*): path with a gap (M after a blank month), first/last marker
+    "_d": " M4,20 L27,10 L50,15 M73,5 L96,8",
+    "_marken": "<circle cx='4' cy='20' r='2' fill='#FFFFFF' stroke='#0F2430' stroke-width='1'/>"
+               "<circle cx='96' cy='8' r='2.5' fill='#0F2430'/>",
+    "_bandsvg": "", "_ref": "",
     # composite KPI cards + matrix cells
     "_val": "12.4M", "_dtxt": "▲ +3.2%", "_tint": "#E6F5E6",
     "_bars": ("<rect x='12' y='60' width='14' height='20' fill='#C8CED5'/>"

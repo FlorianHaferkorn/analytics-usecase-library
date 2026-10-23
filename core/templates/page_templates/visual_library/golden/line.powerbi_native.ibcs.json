@@ -22,6 +22,12 @@
       { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'dashed'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "showMarker": { "expr": { "Literal": { "Value": "false" } } } }, "selector": { "metadata": "_Measures.Gross Margin % FC" } },
       { "properties": { "lineStyle": { "expr": { "Literal": { "Value": "'solid'" } } }, "strokeWidth": { "expr": { "Literal": { "Value": "2D" } } }, "strokeTransparency": { "expr": { "Literal": { "Value": "50D" } } }, "showMarker": { "expr": { "Literal": { "Value": "false" } } } }, "selector": { "metadata": "_Measures.Gross Margin % PY" } }
     ],
-    "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ]
+    "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ],
+    "seriesLabels": [ { "properties": {
+      "show": { "expr": { "Literal": { "Value": "true" } } },
+      "seriesPosition": { "expr": { "Literal": { "Value": "'Right'" } } },
+      "seriesMatchColor": { "expr": { "Literal": { "Value": "true" } } }
+    } } ],
+    "legend": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ]
   }
 }

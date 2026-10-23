@@ -8,7 +8,13 @@
     ] }
   },
   "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin % vs Plan" } }, "direction": "Ascending" } ], "isDefaultSort": true } },
-  "objects": { "columnFormatting": [ { "properties": { "dataBars": {
+  "objects": { "grid": [ { "properties": {
+    "gridVertical": { "expr": { "Literal": { "Value": "false" } } },
+    "gridHorizontal": { "expr": { "Literal": { "Value": "true" } } },
+    "gridHorizontalWeight": { "expr": { "Literal": { "Value": "1D" } } },
+    "gridHorizontalColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E1DFDD'" } } } } },
+    "outlineWeight": { "expr": { "Literal": { "Value": "0D" } } }
+  } } ], "columnFormatting": [ { "properties": { "dataBars": {
     "positiveColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#0F2430'" } } } } },
     "negativeColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#A4262C'" } } } } }
   } }, "selector": { "metadata": "_Measures.Gross Margin % vs Plan" } } ] }

@@ -2,15 +2,33 @@ VAR _val = FORMAT ( [Net Sales Amount], "#,0,,.0"M"" )
 VAR _dlt = [Net Sales % vs Plan]
 VAR _col = IF ( _dlt * 1 < 0, "#A4262C", "#107C10" )
 VAR _dtxt = IF ( _dlt < 0, "▼ ", "▲ " ) & FORMAT ( _dlt, "+0.0%;-0.0%" )
-VAR _S = ADDCOLUMNS ( CALCULATETABLE ( VALUES ( 'dim_date'[Date] ), DATESINPERIOD ( 'dim_date'[Date], MAX ( 'dim_date'[Date] ), -12, MONTH ) ), "@v", [Net Sales Amount] )
-VAR _min = MINX ( _S, [@v] )
-VAR _max = MAXX ( _S, [@v] )
+VAR _P = CALCULATETABLE ( VALUES ( 'dim_date'[Date] ), DATESINPERIOD ( 'dim_date'[Date], MAX ( 'dim_date'[Date] ), -12, MONTH ) )
+VAR _S = ADDCOLUMNS ( _P, "@v", IF ( "break" = "zero", [Net Sales Amount] + 0, [Net Sales Amount] ) )
+VAR _geteilt = TRUE ()
+VAR _bl = BLANK ()
+VAR _bh = BLANK ()
+VAR _band = _geteilt && NOT ISBLANK ( _bl ) && NOT ISBLANK ( _bh )
+VAR _lo0 = MINX ( _S, [@v] )
+VAR _hi0 = MAXX ( _S, [@v] )
+VAR _min = IF ( _band, MIN ( _lo0, _bl ), _lo0 )
+VAR _max = IF ( _band, MAX ( _hi0, _bh ), _hi0 )
 VAR _xmin = MINX ( _S, 'dim_date'[Date] )
 VAR _xmax = MAXX ( _S, 'dim_date'[Date] )
-VAR _pts = CONCATENATEX ( _S, INT ( 12 + 214 * DIVIDE ( 'dim_date'[Date] - _xmin, _xmax - _xmin ) ) & "," & INT ( 84 - 26 * DIVIDE ( [@v] - _min, _max - _min ) ), " ", 'dim_date'[Date] )
+VAR _N = ADDCOLUMNS ( FILTER ( _S, NOT ISBLANK ( [@v] ) ),
+    "@x", INT ( 12 + 214 * DIVIDE ( 'dim_date'[Date] - _xmin, _xmax - _xmin ) ),
+    "@y", INT ( 96 - 40 * DIVIDE ( [@v] - _min, _max - _min ) ),
+    "@luecke", 'dim_date'[Date] > MINX ( _S, 'dim_date'[Date] ) && ISBLANK ( MAXX ( TOPN ( 1, FILTER ( _S, 'dim_date'[Date] < EARLIER ( 'dim_date'[Date] ) ), 'dim_date'[Date], DESC ), [@v] ) ) )
+VAR _erst = MINX ( _N, 'dim_date'[Date] )
+VAR _letzt = MAXX ( _N, 'dim_date'[Date] )
+VAR _d = CONCATENATEX ( _N, IF ( 'dim_date'[Date] = _erst || ( [@luecke] && "break" = "break" ), " M", " L" ) & [@x] & "," & [@y], "", 'dim_date'[Date] )
+VAR _marken = "<circle cx='" & MAXX ( FILTER ( _N, 'dim_date'[Date] = _erst ), [@x] ) & "' cy='" & MAXX ( FILTER ( _N, 'dim_date'[Date] = _erst ), [@y] ) & "' r='2' fill='#FFFFFF' stroke='#605E5C' stroke-width='1'/>"
+    & "<circle cx='" & MAXX ( FILTER ( _N, 'dim_date'[Date] = _letzt ), [@x] ) & "' cy='" & MAXX ( FILTER ( _N, 'dim_date'[Date] = _letzt ), [@y] ) & "' r='2.5' fill='#605E5C'/>"
+VAR _bandsvg = IF ( _band, "<rect x='12' y='" & INT ( 96 - 40 * DIVIDE ( _bh - _min, _max - _min ) ) & "' width='214' height='" & INT ( 40 * DIVIDE ( _bh - _bl, _max - _min ) ) & "' fill='#ECECEC'/>", "" )
 RETURN
-    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 90'>"
+    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 100'>"
       & "<text x='12' y='34' font-family='Segoe UI,sans-serif' font-size='26' font-weight='700' fill='#0F2430'>" & _val & "</text>"
       & "<text x='12' y='52' font-family='Segoe UI,sans-serif' font-size='12' font-weight='600' fill='" & _col & "'>" & _dtxt & "</text>"
-      & "<polyline fill='none' stroke='#605E5C' stroke-width='2' points='" & _pts & "'/>"
+      & _bandsvg
+      & "<path fill='none' stroke='#605E5C' stroke-width='2' d='" & _d & "'/>"
+      & _marken
       & "</svg>"

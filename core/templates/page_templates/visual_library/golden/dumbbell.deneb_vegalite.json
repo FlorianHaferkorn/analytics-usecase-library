@@ -5,6 +5,11 @@
   "layer": [
     { "mark": { "type": "rule", "color": "#C8CED5", "size": 3 }, "encoding": { "x": { "field": "gm_py", "type": "quantitative", "axis": { "title": null } }, "x2": { "field": "gm" } } },
     { "mark": { "type": "circle", "size": 90, "color": "#8C8C8C" }, "encoding": { "x": { "field": "gm_py", "type": "quantitative" } } },
-    { "mark": { "type": "circle", "size": 90, "color": "#0F2430" }, "encoding": { "x": { "field": "gm", "type": "quantitative" } } }
+    { "mark": { "type": "point", "filled": true, "size": 90, "description": "Ende" },
+      "encoding": { "x": { "field": "gm", "type": "quantitative" },
+                    "shape": { "condition": [ { "test": "'circle' == 'arrow' && datum['gm'] >= datum['gm_py']", "value": "triangle-right" },
+                                              { "test": "'circle' == 'arrow'", "value": "triangle-left" } ], "value": "circle" },
+                    "color": { "condition": [ { "test": "'circle' == 'arrow' && (datum['gm'] - datum['gm_py']) * 1 < 0", "value": "#A4262C" },
+                                              { "test": "'circle' == 'arrow'", "value": "#107C10" } ], "value": "#0F2430" } } }
   ]
 }

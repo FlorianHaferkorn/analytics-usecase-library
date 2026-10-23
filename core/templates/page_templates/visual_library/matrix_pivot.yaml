@@ -1,0 +1,132 @@
+# Visual Library entry — matrix_pivot  (schema: _schema.yaml)
+#
+# Runde rubrikpaket, 22.10.2026 (Meridian BO-419, Musterkatalog M1; Gestaltungsregel matrix_hierarchie):
+# die einzige Matrix der Bibliothek mit Hierarchie. Alle übrigen matrix_* sind tableEx (eine Zeilenebene).
+# Gemessen 22.10.2026 gegen den Formatkatalog (tooling/schemas/pbir/formatting_metadata_snapshot.json,
+# powerbi-report-author 0.5.0 `formatting describe-property pivotTable …`):
+#   rowHeaders.stepped (bool), rowHeaders.showExpandCollapseButtons (bool), rowHeaders.unfrozen (bool),
+#   subTotals.rowSubtotals (bool), subTotals.rowSubtotalsPosition (enum Top | Bottom), grid.* wie tableEx.
+# Ob die Zeilenköpfe beim waagrechten Bildlauf stehen bleiben, zeigt nur der Desktop (Regel matrix_hierarchie,
+# umsetzung.nativ tenant_gebunden).
+id: matrix_pivot
+name: Hierarchical matrix
+version: "1.0.0"
+status: active        # active | deprecated | experimental
+purpose: [evidence_detail]
+zone: [detail]
+min_size: {cols: 6, rows: 6}   # grid units — the pivot needs room for two header levels; px derived from layout_grid.yaml
+best_form_for: null
+alternatives: [matrix_evidence]
+y_basis: "entfaellt"    # Gestaltungsregel werteachse_basis (_gestaltungsregeln.yaml)
+werteachse: keine       # quantitative Achse: x liegend, y stehend, xy, keine (Regel beschriftung_gitter)
+
+encoding:
+  rows: hierarchy_stepped           # two row levels, stepped, expand/collapse (M1)
+  columns: period                   # one column level (period); values per cell
+  subtotals: top                    # subtotal row above its children (M1, T9: reference row on top)
+  row_headers: frozen               # rowHeaders.unfrozen false: headers stay while scrolling sideways
+  lines: horizontal_hairlines       # Gestaltungsregel tabellen_linien (T2)
+
+anti_patterns:
+  - too_many_columns
+  - unsorted_rows
+
+params:
+  row_level_1: {role: row, type: category, required: true}
+  row_level_2: {role: row, type: category, required: true}
+  column:      {role: axis, type: category, required: true}
+  value:       {role: value, required: true}
+  entity:      {role: table, default: _Measures}
+
+data_fit:
+  value: {max: 4, on_violation: too_many_columns}
+
+tokens:
+  col_rule: border.default           # #E1DFDD horizontal hairline (T2)
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Gross Margin Amount"
+  row1_entity: "dim_product"
+  row1_prop: "Category"
+  row2_entity: "dim_product"
+  row2_prop: "Subcategory"
+  col_entity: "dim_date"
+  col_prop: "Year"
+  col_rule: "#E1DFDD"
+  subtotal_position: "Top"         # Top | Bottom (enum, Formatkatalog); Top = reference row above (T9)
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hierarchical matrix">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">CATEGORY</text><text x="200" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">2025</text><text x="270" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">2026</text>
+    <line x1="16" y1="32" x2="324" y2="32" stroke="#E1DFDD"/>
+    <text x="20" y="52" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#18202A">− Fashion</text><text x="200" y="52" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#18202A">2.4M</text><text x="270" y="52" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#18202A">2.6M</text>
+    <line x1="16" y1="60" x2="324" y2="60" stroke="#E1DFDD"/>
+    <text x="36" y="80" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Women</text><text x="200" y="80" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">1.4M</text><text x="270" y="80" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">1.5M</text>
+    <line x1="16" y1="88" x2="324" y2="88" stroke="#E1DFDD"/>
+    <text x="36" y="108" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Men</text><text x="200" y="108" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">1.0M</text><text x="270" y="108" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">1.1M</text>
+  </svg>
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "pivotTable",
+        "query": { "queryState": {
+          "Rows": { "projections": [
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{row1_entity}}" } }, "Property": "{{row1_prop}}" } }, "queryRef": "{{row1_entity}}.{{row1_prop}}", "active": true },
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{row2_entity}}" } }, "Property": "{{row2_prop}}" } }, "queryRef": "{{row2_entity}}.{{row2_prop}}", "active": true }
+          ] },
+          "Columns": { "projections": [
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{col_entity}}" } }, "Property": "{{col_prop}}" } }, "queryRef": "{{col_entity}}.{{col_prop}}", "active": true }
+          ] },
+          "Values": { "projections": [
+            { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" }
+          ] }
+        } },
+        "objects": {
+          "rowHeaders": [ { "properties": {
+            "stepped": { "expr": { "Literal": { "Value": "true" } } },
+            "showExpandCollapseButtons": { "expr": { "Literal": { "Value": "true" } } },
+            "unfrozen": { "expr": { "Literal": { "Value": "false" } } }
+          } } ],
+          "subTotals": [ { "properties": {
+            "rowSubtotals": { "expr": { "Literal": { "Value": "true" } } },
+            "rowSubtotalsPosition": { "expr": { "Literal": { "Value": "'{{subtotal_position}}'" } } }
+          } } ],
+          "grid": [ { "properties": {
+            "gridVertical": { "expr": { "Literal": { "Value": "false" } } },
+            "gridHorizontal": { "expr": { "Literal": { "Value": "true" } } },
+            "gridHorizontalWeight": { "expr": { "Literal": { "Value": "1D" } } },
+            "gridHorizontalColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_rule}}'" } } } } },
+            "outlineWeight": { "expr": { "Literal": { "Value": "0D" } } }
+          } } ]
+        }
+      }
+    notes: |
+      Zwischensumme oben (`rowSubtotalsPosition: 'Top'`): die Bezugszeile steht über ihren Kindern (T9), wie in
+      einer Kontenhierarchie gelesen. `unfrozen: false` hält die Zeilenköpfe beim waagrechten Bildlauf; ob der Dienst
+      das in jeder Breite tut, ist nicht gemessen (tenant_gebunden). Eigene Summenart je Spalte (M3) und eine
+      Heatmap-Domäne aus dem Katalog (M2) trägt diese Fassung nicht: beides braucht ein Katalogfeld, das es noch
+      nicht gibt (Meridian BO-427).
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "a hierarchy with expand/collapse is the host's matrix, not an image measure"
+    use: "powerbi_native (pivotTable); an in-cell micro chart comes from matrix_sparkline or matrix_evidence"
+
+  deneb_vegalite:
+    applicable: false
+    reason: "Vega-Lite is not a table tool"
+    use: "powerbi_native (pivotTable)"
+
+  web_recharts:
+    applicable: false
+    reason: "Recharts has no table primitive"
+    use: "an HTML <table> with grouped <tbody> per level and a sticky first column"
+
+determinism:
+  golden_dir: golden
+  notes: "Two-level stepped pivotTable, subtotal on top, frozen row headers, horizontal hairlines only. A matrix is a table -> Vega/Recharts/SVG n/a."

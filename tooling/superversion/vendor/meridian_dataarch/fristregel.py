@@ -15,6 +15,10 @@ from typing import Any
 
 #: ODCS ``property`` des Takts (Spezifikation „Valid Values for SLA Properties“: ``frequency``, Synonym ``fy``).
 FREQUENZ = ("frequency", "fy")
+#: ODCS ``property`` der Uhrzeit, ab der die Daten einer Periode vorliegen (BO-406). Wert wie im Beispiel der
+#: Spezifikation ``09:00-08:00`` (Fenster) oder ``06:00``; zählt nur der Beginn. ANNAHME: UTC, die Spezifikation nennt
+#: keine Zeitzone.
+UHRZEIT = ("timeofavailability",)
 #: ``unit`` des Takts → kanonische Einheit.
 TAKT_EINHEIT = {"h": "h", "hr": "h", "hour": "h", "hours": "h", "d": "d", "day": "d", "days": "d",
                 "w": "w", "wk": "w", "week": "w", "weeks": "w", "mo": "mo", "month": "mo", "months": "mo"}
@@ -80,15 +84,43 @@ def arbeitstag_nach(start, arbeitstage: float, feiertage: frozenset = frozenset(
 
 
 # ── Kalender ───────────────────────────────────────────────────────────────────────────────────────────────────
-def kalender(roh: dict | None = None) -> dict[str, list]:
-    """Arbeitskalender in kanonischer Form; ohne Angabe die Vorgabe Montag bis Freitag ohne Feiertage."""
+def kalender(roh: dict | None = None) -> dict[str, Any]:
+    """Arbeitskalender in kanonischer Form; ohne Angabe die Vorgabe Montag bis Freitag ohne Feiertage.
+
+    ``geschaeftsjahr_beginn`` (Monat 1..12, BO-408) steht nur im Ergebnis, wenn der Mandant es setzt; fehlt es, beginnen
+    Monatsblöcke (Quartal, Jahr) im Januar wie bisher."""
     if not isinstance(roh, dict):
         return {"werktage": list(KALENDER_VORGABE["werktage"]), "feiertage": []}
     werk = sorted({int(t) for t in roh.get("werktage") or KALENDER_VORGABE["werktage"] if int(t) in range(1, 8)})
     feier = sorted({str(f)[:10] for f in roh.get("feiertage") or []})
     if not werk:
         raise ValueError("Arbeitskalender ohne Arbeitstag")
-    return {"werktage": werk, "feiertage": feier}
+    out: dict[str, Any] = {"werktage": werk, "feiertage": feier}
+    gj = roh.get("geschaeftsjahr_beginn")
+    if gj is not None:
+        if isinstance(gj, bool) or not isinstance(gj, int) or gj not in range(1, 13):
+            raise ValueError(f"geschaeftsjahr_beginn muss ein Monat 1..12 sein, nicht {gj!r}")
+        out["geschaeftsjahr_beginn"] = gj
+    return out
+
+
+def uhrzeit(vertrag: dict) -> int | None:
+    """Minuten nach Mitternacht (UTC), ab denen eine Periode geliefert ist: Beginn von ODCS ``timeOfAvailability``.
+
+    Ohne Eintrag None (die Lieferung gilt zum Periodenende, wie vor BO-406). Ein unlesbarer Wert ist ein Fehler, kein
+    stiller Rückfall."""
+    for e in vertrag.get("slaProperties") or []:
+        if isinstance(e, dict) and _wort(e.get("property")) in UHRZEIT:
+            roh = str(e.get("value") or "").strip()
+            beginn = roh.split("-")[0].strip()
+            try:
+                h, m = (int(x) for x in beginn.split(":"))
+            except ValueError:
+                raise ValueError(f"timeOfAvailability unlesbar: {roh!r} (erwartet HH:MM oder HH:MM-HH:MM)") from None
+            if not (0 <= h < 24 and 0 <= m < 60):
+                raise ValueError(f"timeOfAvailability außerhalb des Tages: {roh!r}")
+            return h * 60 + m
+    return None
 
 
 def _kalender_args(kal: dict) -> tuple[frozenset, frozenset]:
@@ -128,8 +160,12 @@ def regel(vertrag: dict, kal: dict | None = None) -> tuple[dict | None, str | No
         elif ow is None or oe is None:
             hinweis = "Takt ohne Toleranz (Leerstelle)"
         else:
-            return {"art": "takt", "takt": {"wert": tw, "einheit": te}, "toleranz": {"wert": ow, "einheit": oe},
-                    "kalender": kalender(kal)}, None
+            r = {"art": "takt", "takt": {"wert": tw, "einheit": te}, "toleranz": {"wert": ow, "einheit": oe},
+                 "kalender": kalender(kal)}
+            minuten = uhrzeit(vertrag)
+            if minuten is not None:
+                r["uhrzeit_minuten"] = minuten
+            return r, None
     h = _zahl(vertrag.get("sla_freshness_hours"))
     if h is not None:
         return {"art": "stunden", "stunden": h}, hinweis
@@ -146,11 +182,23 @@ def _monate_spaeter(t: _dt.datetime, n: int) -> _dt.datetime:
     return t.replace(year=jahr, month=monat, day=min(t.day, calendar.monthrange(jahr, monat)[1]))
 
 
-def _periodenende(stand: _dt.date, wert: float, einheit: str) -> tuple[_dt.datetime, _dt.datetime]:
-    """(erwartete Lieferung der Periode des Stands, erwartete Lieferung der nächsten Periode), UTC."""
-    tag_ende = _dt.datetime(stand.year, stand.month, stand.day, tzinfo=_dt.timezone.utc) + _dt.timedelta(days=1)
+def _periodenende(stand: _dt.date, wert: float, einheit: str, *, gj_beginn: int = 1,
+                  uhrzeit_minuten: int = 0) -> tuple[_dt.datetime, _dt.datetime]:
+    """(erwartete Lieferung der Periode des Stands, erwartete Lieferung der nächsten Periode), UTC.
+
+    ``gj_beginn`` (BO-408): Monat, in dem das Geschäftsjahr beginnt; Monatsblöcke (Quartal, Jahr) zählen ab ihm.
+    ``uhrzeit_minuten`` (BO-406): die Lieferung kommt so viele Minuten nach dem Ende des letzten Tages der Periode
+    (ODCS ``timeOfAvailability``); bei Stundentakten ohne Wirkung."""
     if einheit == "h":
+        tag_ende = _dt.datetime(stand.year, stand.month, stand.day, tzinfo=_dt.timezone.utc) + _dt.timedelta(days=1)
         return tag_ende, tag_ende + _dt.timedelta(hours=wert)
+    ende, naechste = _periodenende_tag(stand, wert, einheit, gj_beginn)
+    versatz = _dt.timedelta(minutes=uhrzeit_minuten)
+    return ende + versatz, naechste + versatz
+
+
+def _periodenende_tag(stand: _dt.date, wert: float, einheit: str, gj_beginn: int) -> tuple[_dt.datetime, _dt.datetime]:
+    tag_ende = _dt.datetime(stand.year, stand.month, stand.day, tzinfo=_dt.timezone.utc) + _dt.timedelta(days=1)
     if einheit == "d":
         return tag_ende, tag_ende + _dt.timedelta(days=wert)
     if einheit == "w":
@@ -159,8 +207,9 @@ def _periodenende(stand: _dt.date, wert: float, einheit: str) -> tuple[_dt.datet
     n = int(wert)
     if n != wert or n < 1:
         raise ValueError(f"Monatstakt muss eine ganze Zahl sein, nicht {wert}")
-    block = (stand.month - 1) // n
-    ende = _monate_spaeter(_dt.datetime(stand.year, 1, 1, tzinfo=_dt.timezone.utc), (block + 1) * n)
+    gj_jahr = stand.year if stand.month >= gj_beginn else stand.year - 1
+    block = (stand.month - gj_beginn) % 12 // n
+    ende = _monate_spaeter(_dt.datetime(gj_jahr, gj_beginn, 1, tzinfo=_dt.timezone.utc), (block + 1) * n)
     return ende, _monate_spaeter(ende, n)
 
 
@@ -184,7 +233,9 @@ def _frist_ende(stand: str | _dt.date, r: dict) -> _dt.datetime:
     if r["art"] == "stunden":
         return (_dt.datetime(s.year, s.month, s.day, tzinfo=_dt.timezone.utc)
                 + _dt.timedelta(days=1, hours=float(r["stunden"])))
-    _, naechste = _periodenende(s, float(r["takt"]["wert"]), r["takt"]["einheit"])
+    _, naechste = _periodenende(s, float(r["takt"]["wert"]), r["takt"]["einheit"],
+                                gj_beginn=int((r.get("kalender") or {}).get("geschaeftsjahr_beginn") or 1),
+                                uhrzeit_minuten=int(r.get("uhrzeit_minuten") or 0))
     tw, te = float(r["toleranz"]["wert"]), r["toleranz"]["einheit"]
     if te == "h":
         return naechste + _dt.timedelta(hours=tw)
@@ -333,15 +384,18 @@ def _koningsdag(jahr: int) -> _dt.date:
 
 
 #: Feiertagsregeln je Region: (Name, fester Tag ``(Monat, Tag)`` | Abstand zu Ostersonntag in Tagen | Funktion).
-#: Eine Region erbt die Regeln ihres Landes (``DE-BW`` = ``DE`` plus Landesfeiertage). Quellen (ANNAHME, gegen den
-#: Gesetzestext ungeprueft): DE bundesweit und Baden-Württemberg Feiertagsgesetz BW § 1; NL Algemene termijnenwet
-#: Art. 3 (die Feiertage, die gesetzliche Fristen verschieben).
+#: Eine Region erbt die Regeln ihres Landes (``DE-BW`` = ``DE`` plus Landesfeiertage). Gegen die Quellen geprüft am
+#: 22.10.2026 (BO-458, Belege in ``test_ladetakt_tor.py::test_feiertagsregeln_gegen_den_gesetzestext``):
+#: DE = die neun Feiertage, die in allen Ländern gelten (3. Oktober kraft Bundesrecht, Einigungsvertrag Art. 2 Abs. 2;
+#: die übrigen acht nach den Feiertagsgesetzen der Länder; Zählung BT-Drucksache 20/3615); DE-BW Feiertagsgesetz BW
+#: § 1 (Erscheinungsfest 6. Januar, Fronleichnam, Allerheiligen zusätzlich); NL Algemene termijnenwet Art. 3 Abs. 1
+#: und Abs. 2 (Goede Vrijdag ist für Fristen gleichgestellt).
 FEIERTAGSREGELN: dict[str, tuple[tuple[str, Any], ...]] = {
     "DE": (("Neujahr", (1, 1)), ("Karfreitag", -2), ("Ostermontag", 1), ("Tag der Arbeit", (5, 1)),
            ("Christi Himmelfahrt", 39), ("Pfingstmontag", 50), ("Tag der Deutschen Einheit", (10, 3)),
            ("1. Weihnachtstag", (12, 25)), ("2. Weihnachtstag", (12, 26))),
-    "DE-BW": (("Heilige Drei Könige", (1, 6)), ("Fronleichnam", 60), ("Allerheiligen", (11, 1))),
-    "NL": (("Nieuwjaarsdag", (1, 1)), ("Tweede Paasdag", 1), ("Koningsdag", _koningsdag),
+    "DE-BW": (("Erscheinungsfest", (1, 6)), ("Fronleichnam", 60), ("Allerheiligen", (11, 1))),
+    "NL": (("Nieuwjaarsdag", (1, 1)), ("Goede Vrijdag", -2), ("Tweede Paasdag", 1), ("Koningsdag", _koningsdag),
            ("Bevrijdingsdag", (5, 5)), ("Hemelvaartsdag", 39), ("Tweede Pinksterdag", 50),
            ("Eerste Kerstdag", (12, 25)), ("Tweede Kerstdag", (12, 26))),
 }

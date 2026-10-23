@@ -189,8 +189,9 @@ ux_layout: {}
         assert len(pages) == 1
         assert "overview" in pages[0].name
 
-        def test_ux_layout_rules_generates_two_pages(self, sample_ir, tmp_path):
-                bracket_content = """\
+    def test_ux_layout_rules_generates_two_pages(self, sample_ir, tmp_path):
+        # Stood nested inside the test above until 22.10.2026 and so never ran.
+        bracket_content = """\
 schema_version: "2.0"
 use_case_id: COM-001
 ux_layout_rules:
@@ -204,18 +205,29 @@ ux_layout_rules:
                 - period
                 - KPI-COM-013
 """
-                uc_dir = tmp_path / "core" / "usecases" / "core" / "COM-001_Sales_Performance"
-                uc_dir.mkdir(parents=True)
-                (uc_dir / "UseCase_Bracket.yaml").write_text(bracket_content, encoding="utf-8")
+        uc_dir = tmp_path / "core" / "usecases" / "core" / "COM-001_Sales_Performance"
+        uc_dir.mkdir(parents=True)
+        (uc_dir / "UseCase_Bracket.yaml").write_text(bracket_content, encoding="utf-8")
 
-                gen = EvidencePageGenerator(
-                        use_case_id="COM-001",
-                        ir_path=sample_ir,
-                        repo_root=tmp_path,
-                        output_dir=tmp_path / "out",
-                )
-                gen.load()
-                pages = gen.generate()
-                names = [p.name for p in pages]
-                assert "com_001_overview.md" in names
-                assert "com_001_detail.md" in names
+        gen = EvidencePageGenerator(
+            use_case_id="COM-001",
+            ir_path=sample_ir,
+            repo_root=tmp_path,
+            output_dir=tmp_path / "out",
+        )
+        gen.load()
+        pages = gen.generate()
+        names = [p.name for p in pages]
+        assert "com_001_overview.md" in names
+        assert "com_001_detail.md" in names
+
+
+class TestRubricMinimumFromTheGenerator:
+    def test_generated_pages_pass_the_rubric_gate(self, generator):
+        from page_generator.page_validator import rubric_findings
+        generator.load()
+        for page in generator.generate():
+            content = page.read_text(encoding="utf-8")
+            assert rubric_findings(content) == [], page.name
+            assert '""' not in content, f"{page.name}: doubly quoted prop"
+            assert content.index("<DateRange") < content.index("<BigValue")
