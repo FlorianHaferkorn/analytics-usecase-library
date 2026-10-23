@@ -61,12 +61,14 @@ ALUCA_VISUAL_IDIOM: dict[str, str] = {
     # 09.09.2026: die native KPI-Karte ist erreichbar, aber nur unter EIGENEM Typ. `kpi_card`
     # bleibt `cardVisual` — Begruendung und Zahlen stehen bei `_PLANS` in targets/pbir.py.
     "kpi_card_native": "kpi_card_spark",
+    # 23.10.2026: `matrix` ist die Kreuztabelle; Plan pivotTable mit Rows/Columns/Values aus dem
+    # Katalog (Begruendung bei `_PLANS` in targets/pbir.py).
+    "matrix": "matrix_pivot",
 }
 
 # visual_types the emitter handles that are structural/chrome, not a charted idiom.
 EXEMPT: frozenset[str] = frozenset({
-    "card", "kpi_card", "kpi_card_with_delta", "slicer", "table", "matrix",
-    "exception_table",
+    "card", "kpi_card", "kpi_card_with_delta", "slicer", "table", "exception_table",
 })
 
 # Native-capable idioms whose visualType is NOT yet in pbir._PLANS. Every other native idiom's
@@ -90,10 +92,9 @@ EXEMPT: frozenset[str] = frozenset({
 # Karte, und sie setzt eine existierende Ziel-Measure voraus. Der Emitter prueft das und faellt
 # sonst mit vermerkter Luecke auf `cardVisual` zurueck (`_goal_gap` in targets/pbir.py).
 #
-# `matrix_pivot` (pivotTable, seit #637 vom 23.10.2026) steht hier, bis seine PBIR-Rollen aus
-# `powerbi-report-author catalog describe pivotTable` in `_PLANS` eingetragen sind; geraten werden
-# sie nicht (siehe Modul-Docstring).
-PLANS_UNREACHABLE: frozenset[str] = frozenset({"matrix_pivot"})
+# `matrix_pivot` stand hier vom 22. bis 23.10.2026 und ist jetzt ueber `matrix` erreichbar; die
+# Rollen kommen aus `powerbi-report-author catalog describe pivotTable` (Pin 0.5.0).
+PLANS_UNREACHABLE: frozenset[str] = frozenset()
 
 # Emittierbar, aber nur auf ausdrueckliche Nennung — nicht ueber den Zweck-Resolver.
 #

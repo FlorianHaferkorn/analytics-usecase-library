@@ -297,6 +297,44 @@ def test_qualified_category_binds_declared_entity_and_property():
     assert column["Property"] == "CalendarYearMonth"
 
 
+def test_matrix_emits_pivot_with_every_row_and_column_level():
+    """`matrix` ist die Kreuztabelle (23.10.2026): pivotTable mit Rows/Columns/Values wie im
+    Golden matrix_pivot, jede Ebene einer Achse in ihrer Rolle, nicht ein Feld je Rolle."""
+    m = Visual(visual_id="v_mx", visual_type="matrix", bound_measures=["Gross Margin Amount"],
+               rows=["dim_product.Category", "dim_product.Subcategory"],
+               columns=["dim_date.Year"])
+    sm = CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[ReportPage(name="P1", visuals=[m])]),
+    )
+    visual = json.loads(pbir.emit(sm)["R.Report/definition/pages/P1/visuals/v_mx/visual.json"])
+    v = visual["visual"]
+    assert v["visualType"] == "pivotTable"
+    qs = v["query"]["queryState"]
+    props = {r: [p["field"].get("Column", p["field"].get("Measure"))["Property"]
+                 for p in qs[r]["projections"]] for r in qs}
+    assert props == {"Values": ["Gross Margin Amount"], "Rows": ["Category", "Subcategory"],
+                     "Columns": ["Year"]}
+    assert v["objects"]["rowHeaders"][0]["properties"]["stepped"]["expr"]["Literal"]["Value"] == "true"
+    assert v["objects"]["subTotals"][0]["properties"]["rowSubtotalsPosition"]["expr"]["Literal"][
+        "Value"] == "'Top'"
+    assert pbir.hitl_gaps(sm) == []
+
+
+def test_matrix_without_columns_marks_the_gap_instead_of_borrowing_a_row_field():
+    m = Visual(visual_id="v_mx", visual_type="matrix", bound_measures=["Revenue"],
+               rows=["dim_product.Category", "dim_product.Subcategory"])
+    sm = CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[ReportPage(name="P1", visuals=[m])]),
+    )
+    qs = json.loads(pbir.emit(sm)["R.Report/definition/pages/P1/visuals/v_mx/visual.json"])[
+        "visual"]["query"]["queryState"]
+    assert len(qs["Rows"]["projections"]) == 2
+    assert qs["Columns"]["projections"][0]["field"]["Column"]["Property"] == "[HITL] assign Columns"
+    assert any("'Columns'" in g for g in pbir.hitl_gaps(sm))
+
+
 def test_qualified_slicer_binds_declared_entity_and_property():
     slicer = Visual(visual_id="slicer", visual_type="slicer",
                     slicer_field="dim_org.Region")
