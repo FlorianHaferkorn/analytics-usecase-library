@@ -671,3 +671,21 @@ def test_mirror_and_originals_serialise_identically():
     for n in _CONTRACT_NAMES:
         setattr(ven_ns, n, vendored[n])
     assert build(mirror) == build(ven_ns), "mirror and Meridian originals serialise differently"
+
+
+def test_matrix_axes_come_from_bracket_row_and_column_fields():
+    """Matrix (23.10.2026): `row_fields`/`column_fields` des Brackets werden zu den
+    Achsen des kanonischen Visuals; andere Typen ignorieren die Felder."""
+    catalog = KpiCatalog(KPIS)
+    page = {"component_30s": [
+        {"visual_type": "matrix", "row_fields": ["dim_product.Category", "dim_product.Subcategory"],
+         "column_fields": ["dim_date.Year"]},
+        {"visual_type": "bar_chart", "row_fields": ["dim_product.Category"],
+         "column_fields": ["dim_date.Year"]},
+    ]}
+    rp = _page_from_layout("page_1_overview", page, catalog)
+    matrix, bar = rp.visuals[0], rp.visuals[1]
+    assert matrix.visual_type == "matrix"
+    assert matrix.rows == ["dim_product.Category", "dim_product.Subcategory"]
+    assert matrix.columns == ["dim_date.Year"]
+    assert bar.columns == [] and "dim_date.Year" not in bar.rows

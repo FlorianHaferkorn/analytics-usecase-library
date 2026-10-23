@@ -146,7 +146,14 @@ _PLANS: dict[str, _TypePlan] = {
     "scatter": _TypePlan("scatterChart", "X", "Measure", 1, ("Category",), secondary_role="Y", secondary_max=1),
     "slicer": _TypePlan("slicer", "Values", "Column", 1, ()),
     "table": _TypePlan("tableEx", "Values", "Measure", None, ()),
-    "matrix": _TypePlan("tableEx", "Values", "Measure", None, ()),
+    # `matrix` ist die Kreuztabelle (pivotTable), nicht die flache Tabelle (23.10.2026). So fuehren
+    # es visual_registry.yaml (`pbip_type: pivotTable`), visual_validator.py und
+    # check_page_template_compliance.py; nur dieser Plan sagte `tableEx`. Rollen aus
+    # `powerbi-report-author catalog describe pivotTable` (Pin 0.5.0): Values (Measure, Pflicht),
+    # Rows und Columns (Grouping, optional, ohne Maximum) — dieselben drei wie im Golden
+    # `matrix_pivot.powerbi_native.json`. Rows/Columns tragen ALLE Ebenen aus `rows`/`columns`
+    # (Sonderweg in _visual_json), nicht ein Feld je Rolle wie bei den Diagrammen.
+    "matrix": _TypePlan("pivotTable", "Values", "Measure", None, ("Rows", "Columns")),
     "exception_table": _TypePlan("tableEx", "Values", "Measure", None, ()),
 }
 # Unknown ALUCA types fall back to a card (required role: Data only) so the
@@ -240,6 +247,26 @@ def _native_objects(visual_type: str, projection_count: int) -> dict:
         }
     if visual_type == "tableEx":
         return {
+            "grid": [{"properties": {
+                "gridVertical": _literal(False),
+                "gridHorizontal": _literal(True),
+                "gridHorizontalWeight": _literal(1),
+                "rowPadding": _literal(8),
+            }}],
+        }
+    if visual_type == "pivotTable":
+        # Golden matrix_pivot: gestufte Zeilenkoepfe mit Auf-/Zuklappen, stehende Koepfe beim
+        # waagrechten Bildlauf, Zwischensumme ueber den Kindern; Linien wie tableEx.
+        return {
+            "rowHeaders": [{"properties": {
+                "stepped": _literal(True),
+                "showExpandCollapseButtons": _literal(True),
+                "unfrozen": _literal(False),
+            }}],
+            "subTotals": [{"properties": {
+                "rowSubtotals": _literal(True),
+                "rowSubtotalsPosition": _literal("Top"),
+            }}],
             "grid": [{"properties": {
                 "gridVertical": _literal(False),
                 "gridHorizontal": _literal(True),
@@ -368,8 +395,19 @@ def _visual_json(visual, idx: int, owner: dict[str, str], gaps: list[str]) -> di
         query_state[plan.secondary_role] = {"projections": sec_projs}
 
     # Required grouping roles ← canonical dim fields, else a HITL placeholder.
+    # pivotTable: Rows/Columns tragen jede Ebene ihrer eigenen Achse (Hierarchie), nicht ein Feld.
+    pivot_axes = ({"Rows": list(visual.rows), "Columns": list(visual.columns)}
+                  if plan.visual_type == "pivotTable" else None)
     for i, role in enumerate(plan.dim_roles):
-        if i < len(available_dims):
+        if pivot_axes is not None:
+            if pivot_axes[role]:
+                projs = [_column_from_ref(f, gaps, f"visual '{visual.visual_id}'")
+                         for f in pivot_axes[role]]
+            else:
+                projs = [_column_field(_HITL_ENTITY, f"[HITL] assign {role}")]
+                gaps.append(f"visual '{visual.visual_id}': {plan.visual_type} requires "
+                            f"'{role}' — HITL placeholder (canonical carries no {role.lower()})")
+        elif i < len(available_dims):
             projs = [_column_from_ref(
                 available_dims[i], gaps, f"visual '{visual.visual_id}'",
             )]
