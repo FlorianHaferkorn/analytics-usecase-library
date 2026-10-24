@@ -100,7 +100,13 @@ ux_layout_rules:
       sort_by:
         measure: KPI-SCM-007
         direction: ascending
-      top_n: 20
+      # ADR-0027: 15 Zeilen, ein Top-20 filterte nichts.
+      top_n_ausnahme:
+        klasse: kleine_koernung
+        gemessene_zeilen: 15
+        gemessen_am: '2026-10-24'
+        quelle: fact_fulfillment x dim_org x dim_lane (Gold, pandas, Customer x Mode)
+        fakt: fact_fulfillment
       highlight_rule:
         column: KPI-SCM-007
         type: data_bar

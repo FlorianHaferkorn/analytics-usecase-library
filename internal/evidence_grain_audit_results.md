@@ -9,7 +9,7 @@
 
 | UseCase_ID | Haupt-Action | Empfohlene_Grain | Feasibility | Supporting Table(s) |
 |------------|--------------|------------------|-------------|---------------------|
-| COM-001 | C-M2.1 (Price Realization Guardrails) | **invoice_line** | ✅ Covered | `fact_sales` (grain: invoice_line) |
+| COM-001 | C-M2.1 (Price Realization Guardrails) | **invoice_line** | ✅ Covered | Wo-Frage, echte Org-Hierarchie. Category als Slicer. Top-20 auf Stores würde die Zwischensummen verzerren. 24.10.2026: Tabelle Region × Category bleibt, `top_n` ersetzt durch `kleine_koernung` 15 (Gold nachgezählt); Urteil `matrix` weiter nicht umgesetzt |
 | COM-002 | C-M2.2 (Margin Variance Recovery) | **invoice_line** | ✅ Covered | `fact_sales` (grain: invoice_line) |
 | COM-003 | C-M2.2 (Margin Variance Recovery) | **customer_month** | ⚠️ Partial | `fact_sales` can aggregate to customer_month |
 | COM-004 | C-M2.1 (Price Realization Guardrails) | **promotion** | ✅ Covered | `fact_promo` (grain: promotion) |
@@ -19,9 +19,9 @@
 | OPS-002 | O-A2.1 (Asset Downtime Prevention) | **failure_event** | ✅ Covered | `fact_ops_failures` (grain: failure_event) |
 | OPS-003 | O-Q3.1 (Scrap & Yield Guardrails) | **line_day** | ✅ Covered | `fact_ops` (grain: line_day); `fact_quality` (grain: line_day) |
 | SCM-001 | S-I1.1 (Inventory Orchestration) | **location_sku_month** | ✅ Covered | `fact_inventory` (grain: location_sku_month) |
-| SCM-002 | S-R2.1 (OTIF Orchestration) | **shipment_line** | ✅ Covered | `fact_shipments` (grain: shipment_line) |
+| SCM-002 | S-R2.1 (OTIF Orchestration) | **shipment_line** | ✅ Covered | Kreuzklassifikation. 24.10.2026: `kleine_koernung` 15 (Gold nachgezählt) |
 | SCM-003 | S-F3.1 (Forecast Accuracy Orchestration) | **sku_location_month** | ✅ Covered | `fact_forecast` (grain: sku_location_month) |
-| XD-001 | X-S1.1 (Service Level Orchestration) | **case** | ✅ Covered | `fact_support_cases` (grain: case) |
+| XD-001 | X-S1.1 (Service Level Orchestration) | **case** | ✅ Covered | Zwei unabhängige Achsen, keine Fall-ID. 24.10.2026: Körnung auf Channel × Queue × IssueType geschnitten (vorher 200 Zeilen mit Org und Severity), `kleine_koernung` 20 (Gold nachgezählt) |
 | XD-002 | X-R2.1 (Utilization Orchestration) | **agent_day** | ✅ Covered | `fact_workforce_management` (grain: agent_day) |
 | XD-003 | X-E3.2 (Value-at-Risk Escalation) | **entity_month** | ✅ Covered | `fact_exec` (grain: entity_month) |
 
@@ -270,10 +270,10 @@ Bestätigung offen, siehe `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` M2).
 | XD-004 | matrix (umgesetzt 24.10.2026) | fact_action_outcome.domain > action_code_id | 4/15/0 | Erst Domäne, dann Action Code. `outcome_status` aus den Zeilen genommen |
 | COM-003 | Tabelle | – | Segment × Channel 5/5/5 | Kreuzklassifikation. Channel filtert den CLV nicht (fact_customer_value nur CustomerKey) |
 | COM-004 | Tabelle | – | Mechanic > PromoName 4/29/11 | Frage nach einzelnen Promotions. PromoName ist nicht eindeutig |
-| COM-006 | Tabelle | – | Region × Category 5/3/3, 15 Zeilen | Kreuzklassifikation. Store-Ebene sinnlos (ein Channel je Org) |
+| COM-006 | Tabelle | – | Region × Category 5/3/3, 15 Zeilen | Kreuzklassifikation. Store-Ebene sinnlos (ein Channel je Org). 24.10.2026: `kleine_koernung` 15 (Gold nachgezählt), kein Report |
 | FIN-001 | Tabelle | – | fact_AR: 10 Orgs gemischter Ebenen | Gemischte Ebenen zählen in Zwischensummen doppelt |
 | FIN-002 | Tabelle | – | 513 Entities. Category konstant (Fashion) | Elementfrage. Category-Spalte ohne Aussage |
-| FIN-003 | Tabelle | – | Entity × Cost Center 534/6/6 | Kreuzklassifikation. `cost_center` löst sich nicht auf; dim_cost_center seit 24.10.2026 im Finance-Modell, seit 24.10.2026 rechnet KPI-FIN-014 auf fact_opex_costcenter und `cost_center` löst auf; die übrigen vier Evidenz-KPIs filtert es nicht, Report deshalb nicht erzeugt (technical_backlog) |
+| FIN-003 | Tabelle | – | Entity × Cost Center 534/6/6 | 24.10.2026 entschieden (Weg b): Entity-Körnung mit allen fünf KPIs, Kostenstelle als späterer Drillthrough; Report nicht ausgeliefert: Finance-Modell fehlen Measures für FIN-018/020/021 und fact_sales (technical_backlog). Entity 534 Werte, `top_n: 20` wirkt |
 | OPS-001 | Tabelle | – | 8 Assets. Kein Fakt mit Asset und Product | Elementfrage. Category filtert OEE nicht |
 | OPS-002 | Tabelle | – | Criticality > Asset 3/10/0 | Hierarchie echt, aber nur 10 Assets |
 | OPS-003 | Tabelle | – | fact_quality: 1 Category, 20 SKUs | Keine Dimension für Fehlerarten. Asset nicht an fact_quality |

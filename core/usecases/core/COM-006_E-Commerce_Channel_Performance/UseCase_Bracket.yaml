@@ -95,7 +95,13 @@ ux_layout_rules:
       sort_by:
         measure: KPI-COM-032
         direction: ascending
-      top_n: 20
+      # ADR-0027: 15 Zeilen, ein Top-20 filterte nichts.
+      top_n_ausnahme:
+        klasse: kleine_koernung
+        gemessene_zeilen: 15
+        gemessen_am: '2026-10-24'
+        quelle: fact_sales x dim_org x dim_product (Gold, pandas, Region x Category)
+        fakt: fact_sales
       highlight_rule:
         column: KPI-COM-032
         type: data_bar

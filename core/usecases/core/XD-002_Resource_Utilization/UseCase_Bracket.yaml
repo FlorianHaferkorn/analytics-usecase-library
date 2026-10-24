@@ -108,6 +108,7 @@ ux_layout_rules:
         gemessene_zeilen: 32
         gemessen_am: '2026-10-24'
         quelle: fact_workforce_management x dim_case_queue (Gold, pandas, Org x Channel x Queue)
+        fakt: fact_workforce_management
       highlight_rule:
         column: KPI-SVC-009
         type: data_bar

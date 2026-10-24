@@ -33,7 +33,7 @@ factsheet_type: business
 
 - Is EBITDA margin on plan this period?
 - Is the gap revenue, gross margin or opex?
-- Which entities and cost centres drive the shortfall?
+- Which entities drive the shortfall (cost-centre drill-through planned)?
 
 ---
 

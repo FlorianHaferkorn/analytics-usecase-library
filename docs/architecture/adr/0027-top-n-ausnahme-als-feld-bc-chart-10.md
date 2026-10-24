@@ -111,13 +111,19 @@ neuen Zweig.
 
 | Use Case | heute | danach |
 |---|---|---|
-| XD-001 | `top_n: 20` (wirkungslos) | bleibt `top_n: 20`: nachgemessen 200 Zeilen (Org x Channel x Queue x IssueType x Severity, fact_support_cases, Gold, pandas), über der Grenze 50. Das Top-N liegt auf Severity (3 Werte) und filtert nichts; ein wirksames Top-N braucht eine andere Spaltenfolge (offen) |
+| XD-001 | `top_n: 20` (wirkungslos) | `kleine_koernung`, 20: Körnung auf die Entscheidungsfrage geschnitten (Channel x Queue x IssueType; Org gestrichen, Severity hängt 1:1 an IssueType, dim_issue_type 5 Zeilen). Vorher 200 Zeilen; ein Top-N-Feld hätte die Kreuzklassifikation nicht begrenzt (je Spalte höchstens 10 Werte) |
 | XD-002 | `top_n: 20` (wirkungslos, 32 Zeilen) | `kleine_koernung`, 32 (8 Orgs x 4 Queues, fact_workforce_management, Gold, pandas); Top-N-Filter aus der Detail_Matrix entfernt |
 | SCM-003 | `top_n: 20`, Urteil `matrix` noch nicht umgesetzt | Kreuztabelle, `matrix_zwischensummen` |
-| COM-001, COM-006, SCM-002 | `top_n: 20` bei 15 Zeilen | optional; bleiben, bis jemand nachmisst |
+| COM-001, COM-006, SCM-002 | `top_n: 20` bei 15 Zeilen | `kleine_koernung`, je 15 (Region x Category bzw. Customer x Mode); Top-N-Filter aus den erzeugten Detail_Matrix entfernt (COM-006 hat keinen Report) |
 
 ## 6. Was diese Entscheidung bewusst nicht tut
 
 - Keine Ausnahme für große Tabellen: wer mehr als 50 Zeilen hat, braucht ein Top-N.
-- Die Messung wird nicht automatisiert (kein Gold-Zugriff im Checker); sie ist ein Feld mit Datum.
-  Ein Sensor, der `gemessene_zeilen` gegen Gold nachzählt, wäre ein eigener Schritt.
+- Der Strukturcheck greift nicht auf Gold zu; die Messung ist ein Feld mit Datum. **Nachgezogen
+  24.10.2026:** `python tooling/validation/check_evidence_sort.py --gold` zählt `gemessene_zeilen`
+  nach. Pflichtfeld `fakt` nennt die Faktentabelle; die Spalten kommen aus der Auflösung des
+  Generators (dieselben wie in der erzeugten Detail_Matrix), die Schlüssel aus `core/data_contracts`,
+  die Dateien laut `_delta_log`. Exit 0 alle gleich, 1 Abweichung, 2 nicht geprüft (Gold fehlt,
+  Schlüssel unklar). Gemessen 24.10.2026: 6/6 gleich (COM-001 15, COM-006 15, SCM-002 15,
+  SCM-003 40, XD-001 20, XD-002 32). Test `test_every_top_n_ausnahme_matches_gold`, ohne Gold
+  übersprungen mit Grund, nie grün.

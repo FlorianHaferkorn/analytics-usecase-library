@@ -71,15 +71,17 @@ ux_layout_rules:
     template_id: action_matrix
     component_300s:
       evidence_grain: case
+      # 24.10.2026 (ADR-0027): Koernung auf die Entscheidungsfrage geschnitten (Case Types x
+      # Queues). entity faellt (nicht gefragt, Slicer_Entity filtert; gemischte Org-Ebenen),
+      # severity faellt (1:1 an IssueType, dim_issue_type 5 Zeilen). Vorher 200 Zeilen, ein
+      # Top-20 auf einer Spalte mit hoechstens 10 Werten filterte nie.
       evidence_columns:
-      - entity
       # 24.10.2026: `channel` loeste zu dim_org.Channel auf (Vertriebskanal der Org).
       # Gemeint ist der Servicekanal der Queue; nur der verschachtelt die Queues
       # (gemessen, Gold: dim_case_queue.Channel > QueueName 3/4/0).
       - dim_case_queue.Channel
       - queue
       - issue_type
-      - severity
       - KPI-SVC-004
       - KPI-SVC-007
       - KPI-SVC-008
@@ -88,11 +90,12 @@ ux_layout_rules:
       sort_by:
         measure: KPI-SVC-004
         direction: ascending
-      # Gemessen 24.10.2026 (Gold, fact_support_cases, pandas): keine Spalte hat mehr als 10 Werte,
-      # die Tabelle aber 200 Zeilen (Org x Channel x Queue x IssueType x Severity). Keine
-      # ADR-0027-Ausnahme (Grenze 50). Das Top-20 liegt auf Severity (3 Werte) und filtert deshalb
-      # nichts; ein wirksames Top-N braucht eine andere Spaltenfolge (offen).
-      top_n: 20
+      top_n_ausnahme:
+        klasse: kleine_koernung
+        gemessene_zeilen: 20
+        gemessen_am: '2026-10-24'
+        quelle: fact_support_cases x dim_case_queue x dim_issue_type (Gold, pandas, Channel x Queue x IssueType)
+        fakt: fact_support_cases
       highlight_rule:
         column: KPI-SVC-004
         type: data_bar

@@ -56,28 +56,30 @@ ux_layout_rules:
       so_what: Because opex is the driver, cost-base actions recover more earnings than chasing incremental
         revenue.
       unit: rate
+    # 24.10.2026: vorher KPI-COM-013 (ratio, hoeher besser) und KPI-FIN-014 (rate, niedriger
+    # besser) auf einer Balkenachse -- ONE_MESSAGE_PER_CHART und gemischte Polaritaet. Gross
+    # Margin % bleibt in der Evidenztabelle; die Karte rankt nur, was das so_what sagt.
     - slot_id: Main_2
-      kpi_ids:
-      - KPI-COM-013
-      - KPI-FIN-014
+      kpi_id: KPI-FIN-014
       visual_type: horizontal_bar_chart
-      question: Is the pressure structural in gross margin or in operating expense?
-      message: Gross margin holds on plan; operating expense above plan is where the earnings leak concentrates
-      so_what: Ranking opex overruns by cost centre focuses the recovery where the money actually leaks.
+      question: Where does operating expense run above plan?
+      message: Operating expense above plan is where the earnings leak concentrates
+      so_what: Ranking opex overruns by entity focuses the recovery where the money actually leaks.
       unit: rate
   page_2_execution:
     title: Finance Execution
-    decision_question: Which entities and cost centres should the earnings-recovery effort target first?
+    decision_question: Which entities should the earnings-recovery effort target first?
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
-      # Governed fact grain (fact_opex_costcenter, finance.yaml) — cost-centre level;
-      # 'cost_center' was an ungoverned token for the same concept.
-      evidence_grain: entity_costcentre_month
+      # 24.10.2026 (Entscheid Florian Haferkorn, Option b): Entity-Koernung. dim_cost_center
+      # haengt nur an fact_opex_costcenter; KPI-FIN-018/021/020 und KPI-COM-013 ignorieren
+      # den Kostenstellenfilter, eine Kostenstellen-Zeile wiederholte vier von fuenf Werten.
+      # Kostenstellen-Sicht folgt als Drillthrough (technical_backlog).
+      evidence_grain: entity_month
       evidence_columns:
       - entity
-      - cost_center
       - KPI-FIN-018
       - KPI-FIN-021
       - KPI-COM-013
@@ -101,7 +103,7 @@ prioritization:
 data_protection:
   personal_data: false
   legal_basis: not_applicable
-  data_minimisation: Detail grain limited to cost center level; row-level security applied at SemanticModel
+  data_minimisation: Detail grain limited to entity level; row-level security applied at SemanticModel
     level.
   access_restriction: 'supply_chain_controlling_lead and scm_bi_lead roles; row-level security enforced
     by SupplyChain.SemanticModel (site filter per org role).

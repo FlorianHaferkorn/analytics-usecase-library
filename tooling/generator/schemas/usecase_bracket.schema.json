@@ -627,7 +627,8 @@
                     "klasse",
                     "gemessene_zeilen",
                     "gemessen_am",
-                    "quelle"
+                    "quelle",
+                    "fakt"
                   ],
                   "description": "ADR-0027: a measured exception to the Top-N cap (BC-CHART-10). kleine_koernung only with gemessene_zeilen <= 50 (the table is small enough to scan whole); matrix_zwischensummen only with visual_type matrix (a Top-N in filter context would distort the subtotals). Checked by tooling/validation/check_evidence_sort.py; a measurement older than 180 days warns.",
                   "properties": {
@@ -651,6 +652,11 @@
                       "type": "string",
                       "minLength": 1,
                       "description": "Fact table and method of the row count, e.g. 'fact_support_cases (Gold, pandas)'."
+                    },
+                    "fakt": {
+                      "type": "string",
+                      "pattern": "^fact_[A-Za-z0-9_]+$",
+                      "description": "The fact table the evidence rows come from. tooling/validation/check_evidence_sort.py --gold joins it to the evidence dimensions (keys from core/data_contracts) and recounts gemessene_zeilen against Aurora Gold."
                     }
                   }
                 },

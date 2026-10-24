@@ -103,6 +103,7 @@ ux_layout_rules:
         gemessene_zeilen: 40
         gemessen_am: '2026-10-24'
         quelle: fact_forecast x dim_product (Gold, pandas, SKU-Ebene; mit Zwischensummen 48)
+        fakt: fact_forecast
       highlight_rule:
         column: KPI-SCM-017
         type: data_bar

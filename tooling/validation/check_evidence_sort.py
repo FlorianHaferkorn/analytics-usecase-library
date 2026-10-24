@@ -58,7 +58,7 @@ def _pruefe_ausnahme(ausnahme: Any, visual_type: str) -> tuple[bool, str]:
     """``top_n_ausnahme`` gegen ihre Klasse pruefen (ADR-0027 §3, Regeln 1-2)."""
     if not isinstance(ausnahme, dict):
         return False, "top_n_ausnahme is not a mapping"
-    fehlend = [k for k in ("klasse", "gemessene_zeilen", "gemessen_am", "quelle") if ausnahme.get(k) in (None, "")]
+    fehlend = [k for k in ("klasse", "gemessene_zeilen", "gemessen_am", "quelle", "fakt") if ausnahme.get(k) in (None, "")]
     if fehlend:
         return False, f"top_n_ausnahme missing {fehlend}"
     zeilen = ausnahme["gemessene_zeilen"]
@@ -92,6 +92,93 @@ def ausnahme_veraltet(c300: Optional[dict[str, Any]], heute: dt.date | None = No
         return None
     alter = ((heute or dt.date.today()) - gemessen).days
     return f"top_n_ausnahme measured {alter} days ago — re-measure" if alter > _AUSNAHME_MAX_ALTER_TAGE else None
+
+
+# --- ADR-0027 §6: gemessene_zeilen gegen Gold nachzaehlen (--gold) -------------------------
+# Drei Ausgaenge je Ausnahme, nie zwei: "gleich", "abweichung" oder "nicht_geprueft" mit Grund.
+# Wiederverwendet statt nachgebaut: die Spaltenaufloesung des Generators (ConfigLoader, also
+# genau die Spalten der erzeugten Detail_Matrix), die Fakt->Dimension-Schluessel aus den
+# Data Contracts und die laut _delta_log aktiven Dateien (beides check_data_model).
+GOLD = REPO / "showcases" / "aurora_group" / "data" / "gold"
+
+
+def _pfade() -> None:
+    for pfad in (str(REPO), str(REPO / "products" / "fabric" / "powerbi" / "tooling")):
+        if pfad not in sys.path:
+            sys.path.insert(0, pfad)
+
+
+def _evidence_columns(use_case_id: str) -> list[tuple[str, str]]:
+    _pfade()
+    from page_scaffold_generator.config_loader import ConfigLoader
+    return list(ConfigLoader(REPO).get_page_config(use_case_id, "detail")["detail_matrix_columns"])
+
+
+def zaehle_zeilen(fakt: str, spalten: list[tuple[str, str]], gold: Path = GOLD,
+                  contracts: Path | None = None) -> tuple[Optional[int], str]:
+    """Verschiedene Kombinationen der Evidenzspalten ueber den Zeilen von ``fakt``.
+
+    Das ist die Zeilenzahl der Detail_Matrix ohne Filter (leere Kombinationen zeigt Power BI
+    nicht, also zaehlt nur, was im Fakt vorkommt). Rueckgabe (zahl, "") oder (None, grund).
+    """
+    import pandas as pd
+
+    _pfade()
+    from tooling.validation import check_data_model as dm
+
+    modell = dm.parse_model(contracts or dm.CONTRACTS)
+    fakten = [f for f in modell["facts"] if f["name"] == fakt]
+    if len(fakten) != 1:
+        return None, f"{fakt}: {len(fakten)} Vertraege statt einem"
+    schluessel = {d["name"]: d["key"] for d in modell["dims"]}
+    fakt_pfad = gold / "facts" / fakt
+    if not fakt_pfad.is_dir() or not dm._files(fakt_pfad):
+        return None, f"Gold fehlt: {fakt_pfad.relative_to(gold.parent) if gold in fakt_pfad.parents else fakt_pfad}"
+    fk_je_dim: dict[str, str] = {}
+    for tabelle in dict.fromkeys(t for t, _ in spalten):
+        if tabelle == fakt:
+            continue
+        fks = [c for c, ref in fakten[0]["refs"] if ref == tabelle]
+        if len(fks) != 1 or tabelle not in schluessel:
+            return None, f"{fakt} -> {tabelle}: {len(fks)} Fremdschluessel im Vertrag"
+        fk_je_dim[tabelle] = fks[0]
+    eigene = [c for t, c in spalten if t == fakt]
+    rahmen = dm._read_small(fakt_pfad, sorted(set(fk_je_dim.values()) | set(eigene)))
+    if rahmen is None:
+        return None, f"{fakt}: Spalten {sorted(fk_je_dim.values())} fehlen im Gold"
+    namen: list[str] = [c for c in eigene]
+    for tabelle, fk in fk_je_dim.items():
+        dim_pfad = gold / "dimensions" / tabelle
+        cols = [c for t, c in spalten if t == tabelle]
+        dim = dm._read_small(dim_pfad, [schluessel[tabelle], *cols]) if dim_pfad.is_dir() and dm._files(dim_pfad) else None
+        if dim is None:
+            return None, f"{tabelle}: Gold fehlt oder Spalten {cols} fehlen"
+        dim = dim.drop_duplicates(subset=[schluessel[tabelle]])
+        umbenannt = {c: f"{tabelle}.{c}" for c in cols}
+        rahmen = rahmen.merge(dim.rename(columns={schluessel[tabelle]: fk, **umbenannt}), on=fk, how="inner")
+        namen += umbenannt.values()
+    return int(pd.DataFrame(rahmen[namen]).drop_duplicates().shape[0]), ""
+
+
+def pruefe_gold(bracket_pfad: Path, gold: Path = GOLD) -> Optional[tuple[str, str]]:
+    """None ohne Ausnahme; sonst (gleich|abweichung|nicht_geprueft, Text)."""
+    data = yaml.safe_load(bracket_pfad.read_text(encoding="utf-8")) or {}
+    ausnahme = (_c300(data) or {}).get("top_n_ausnahme")
+    if not isinstance(ausnahme, dict):
+        return None
+    if not ausnahme.get("fakt"):
+        return "nicht_geprueft", "top_n_ausnahme.fakt fehlt"
+    uc = data.get("use_case_id") or bracket_pfad.parent.name.split("_")[0]
+    try:
+        spalten = _evidence_columns(uc)
+    except Exception as exc:  # noqa: BLE001 -- jeder Aufloesungsfehler ist "nicht geprueft"
+        return "nicht_geprueft", f"Evidenzspalten nicht aufloesbar: {exc}"
+    zahl, grund = zaehle_zeilen(ausnahme["fakt"], spalten, gold)
+    if zahl is None:
+        return "nicht_geprueft", grund
+    erklaert = ausnahme["gemessene_zeilen"]
+    text = f"{zahl} Zeilen in Gold ({' x '.join(f'{t}.{c}' for t, c in spalten)}), erklaert {erklaert}"
+    return ("gleich" if zahl == erklaert else "abweichung"), text
 
 
 def classify_evidence(c300: Optional[dict[str, Any]]) -> tuple[Optional[bool], str]:
@@ -147,6 +234,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="BC-CHART-10 evidence-sort validator")
     parser.add_argument("use_case_id", nargs="?", help="Validate a single use case by ID substring")
     parser.add_argument("--strict", action="store_true", help="Missing/invalid ordering = exit 1")
+    parser.add_argument("--gold", action="store_true",
+                        help="ADR-0027 §6: gemessene_zeilen gegen Aurora-Gold nachzaehlen "
+                             "(Exit 0 alle gleich, 1 Abweichung, 2 nicht geprueft)")
     args = parser.parse_args()
 
     brackets = sorted(REPO.glob("core/usecases/**/UseCase_Bracket.yaml"))
@@ -155,6 +245,9 @@ def main() -> int:
         if not brackets:
             print(f"No UseCase_Bracket.yaml found matching '{args.use_case_id}'", file=sys.stderr)
             return 1
+
+    if args.gold:
+        return _main_gold(brackets)
 
     valid = invalid = 0
     for b in brackets:
@@ -175,6 +268,44 @@ def main() -> int:
           f"{invalid} advisory.")
     if args.strict and invalid:
         return 1
+    return 0
+
+
+def _main_gold(brackets: list[Path]) -> int:
+    zaehler = {"gleich": 0, "abweichung": 0, "nicht_geprueft": 0}
+    for b in brackets:
+        res = pruefe_gold(b)
+        if res is None:
+            continue
+        status, text = res
+        zaehler[status] += 1
+        print(f"    {status:<14} {b.parent.name.split('_')[0]}: {text}")
+    geprueft = zaehler["gleich"] + zaehler["abweichung"]
+    print(f"\nADR-0027 Gold: {zaehler['gleich']}/{geprueft} gleich, {zaehler['abweichung']} Abweichung, "
+          f"{zaehler['nicht_geprueft']} nicht geprueft.")
+    if zaehler["abweichung"]:
+        return 1
+    if zaehler["nicht_geprueft"] or not geprueft:
+        return 2
+    return 0
+
+
+def _main_gold(brackets: list[Path]) -> int:
+    zaehler = {"gleich": 0, "abweichung": 0, "nicht_geprueft": 0}
+    for b in brackets:
+        res = pruefe_gold(b)
+        if res is None:
+            continue
+        status, text = res
+        zaehler[status] += 1
+        print(f"    {status:<14} {b.parent.name.split('_')[0]}: {text}")
+    geprueft = zaehler["gleich"] + zaehler["abweichung"]
+    print(f"\nADR-0027 Gold: {zaehler['gleich']}/{geprueft} gleich, {zaehler['abweichung']} Abweichung, "
+          f"{zaehler['nicht_geprueft']} nicht geprueft.")
+    if zaehler["abweichung"]:
+        return 1
+    if zaehler["nicht_geprueft"] or not geprueft:
+        return 2
     return 0
 
 

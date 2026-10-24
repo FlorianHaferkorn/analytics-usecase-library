@@ -26,7 +26,7 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which entities explain the revenue and margin gap vs Plan?
-- **[300s evidence]** grain `invoice_line`, worst-first by `KPI-COM-009` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `invoice_line`, worst-first by `KPI-COM-009` (ascending), Top-None · action panel
 **Decision payoff (actions):** C-M2.1, C-S1.1, C-S1.2
 **Connects to use cases:** COM-002, COM-004
 
@@ -157,7 +157,7 @@
 
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which regions and categories hold the e-commerce share back the most?
-- **[300s evidence]** grain `invoice_line`, worst-first by `KPI-COM-032` (ascending), Top-20
+- **[300s evidence]** grain `invoice_line`, worst-first by `KPI-COM-032` (ascending), Top-None
 **Decision payoff (actions):** C-E1.1
 
 ## ESG-001 — Scope 1+2 Emissions
@@ -252,16 +252,16 @@
     - visual: `line_chart` · `KPI-FIN-021`
     - answer: The EBITDA-margin gap versus plan is opex-led, while revenue and gross margin hold
     - so what → Because opex is the driver, cost-base actions recover more earnings than chasing incremental revenue.
-- **[30s Q2]** Is the pressure structural in gross margin or in operating expense?
-    - visual: `horizontal_bar_chart` · `None`
-    - answer: Gross margin holds on plan; operating expense above plan is where the earnings leak concentrates
-    - so what → Ranking opex overruns by cost centre focuses the recovery where the money actually leaks.
+- **[30s Q2]** Where does operating expense run above plan?
+    - visual: `horizontal_bar_chart` · `KPI-FIN-014`
+    - answer: Operating expense above plan is where the earnings leak concentrates
+    - so what → Ranking opex overruns by entity focuses the recovery where the money actually leaks.
 
 ↓ handoff →
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
-**Spine question:** Which entities and cost centres should the earnings-recovery effort target first?
-- **[300s evidence]** grain `entity_costcentre_month`, worst-first by `KPI-FIN-021` (ascending), Top-20 · action panel
+**Spine question:** Which entities should the earnings-recovery effort target first?
+- **[300s evidence]** grain `entity_month`, worst-first by `KPI-FIN-021` (ascending), Top-20 · action panel
 **Decision payoff (actions):** F-E1.1
 **Cross-domain pull:** Commercial (3: `KPI-COM-009`, `KPI-FIN-011`, `KPI-COM-005`)
 
@@ -416,7 +416,7 @@
 
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which lanes and suppliers should the reliability push target first?
-- **[300s evidence]** grain `shipment_line`, worst-first by `KPI-SCM-007` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `shipment_line`, worst-first by `KPI-SCM-007` (ascending), Top-None · action panel
 **Decision payoff (actions):** S-R2.1, S-R2.2, S-R2.3, S-R2.4, S-R2.5
 **Connects to use cases:** FIN-002, OPS-001, SCM-001, SCM-003
 
@@ -489,7 +489,7 @@
 
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which case types and queues should recovery effort prioritise first?
-- **[300s evidence]** grain `case`, worst-first by `KPI-SVC-004` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `case`, worst-first by `KPI-SVC-004` (ascending), Top-None · action panel
 **Decision payoff (actions):** X-S1.1, X-S1.2, X-S1.3, X-S1.4
 **Cross-domain pull:** Service & Experience (7: `KPI-SVC-004`, `KPI-SVC-007`, `KPI-SVC-005` +4); Customer & Market (1: `KPI-CUS-003`)
 **Connects to use cases:** XD-002
