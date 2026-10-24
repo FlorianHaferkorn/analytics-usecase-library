@@ -88,7 +88,11 @@ ux_layout_rules:
       sort_by:
         measure: KPI-SVC-004
         direction: ascending
-      top_n: 20
+      # 24.10.2026: kein top_n. Power BI rangiert Top-N auf EINER Spalte (hier der letzten,
+      # Severity mit 3 Werten). Gemessen (Gold, fact_support_cases): 10 Orgs, 4 Queues,
+      # 5 Issue Types, 3 Severities, 250 Zeilen-Kombinationen -- keine Spalte hat mehr als
+      # 20 Werte, ein Top-20 filtert auf keiner etwas. Die Sortierung worst-first leistet
+      # die Priorisierung.
       highlight_rule:
         column: KPI-SVC-004
         type: data_bar

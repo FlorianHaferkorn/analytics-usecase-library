@@ -102,7 +102,9 @@ ux_layout_rules:
       sort_by:
         measure: KPI-SVC-009
         direction: descending
-      top_n: 20
+      # 24.10.2026: kein top_n. Top-N rangiert eine Spalte (die Queue, 4 Werte); gemessen
+      # (Gold, fact_workforce_management): 8 Orgs, 4 Queues, 32 Zeilen -- ein Top-20 filtert
+      # nichts. Die Sortierung nach Auslastung absteigend priorisiert.
       highlight_rule:
         column: KPI-SVC-009
         type: data_bar

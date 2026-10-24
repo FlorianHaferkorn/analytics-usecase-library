@@ -279,7 +279,7 @@ Bestätigung offen, siehe `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` M2).
 | OPS-003 | Tabelle | – | fact_quality: 1 Category, 20 SKUs | Keine Dimension für Fehlerarten. Asset nicht an fact_quality |
 | SCM-001 | Tabelle | – | Category > ABC 3/3/3 | Kreuzklassifikation. ProductCode fehlt in evidence_columns |
 | SCM-002 | Tabelle | – | Customer × Mode 4/3/3 | Kreuzklassifikation, 15 Zeilen |
-| XD-001 | Tabelle | – | Queue × IssueType 4/5/5 | Zwei unabhängige Achsen, keine Fall-ID |
+| XD-001 | Tabelle | – | Queue × IssueType 4/5/5 | Zwei unabhängige Achsen, keine Fall-ID. `top_n` gestrichen 24.10.2026 (keine Spalte über 10 Werte, Top-20 lag auf Severity mit 3) |
 | COM-IND-R001 | Tabelle | – | hergeleitet aus COM-001/003 (Aliase nicht einzeln aufgelöst): Region × Category 5/3/3, Segment × Channel 5/5/5 (fact_sales) | Drei unabhängige Attribute, keine Hierarchie |
 | COM-IND-R002 | Tabelle | – | hergeleitet aus COM-006: Region × Category 5/3/3, 15 Zeilen | Kreuzklassifikation, Top-20 wirkungslos |
 | XD-003 | Tabelle | – | nicht gemessen | `period` löst zu dim_date.Date auf (Tageskörnung) |
@@ -287,7 +287,7 @@ Bestätigung offen, siehe `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` M2).
 | ESG-001 | unklar | – | nicht messbar | Kein Modell, kein Emissions-Fakt |
 | HR-001 | unklar | (ANNAHME) dim_employee_segment.Function > Segment | Function > Segment 5/20/0 (Gold) | Kein HR-Modell. `segment` trifft das Kundensegment |
 | SCM-004 | unklar | – | Category > Vendor 8/40/28 | Lieferanten nicht verschachtelt. Kein Modell gebunden |
-| XD-002 | unklar | dim_case_queue.Channel > QueueName | Channel > Queue 3/4/0. Org darunter gemischt | Org-Ebene zählt doppelt. Seit 24.10.2026 Spalten Servicekanal vor Queue (Tabelle), Top-N auf der Queue |
+| XD-002 | unklar | dim_case_queue.Channel > QueueName | Channel > Queue 3/4/0. Org darunter gemischt | Org-Ebene zählt doppelt. Seit 24.10.2026 Spalten Servicekanal vor Queue (Tabelle), `top_n` gestrichen (4 Queues, 32 Zeilen: Top-20 filterte nichts) |
 
 **Ergebnis:** 3 Kandidaten (COM-001, SCM-003, XD-004), 15 Tabellen, 5 unklar wegen fehlender
 Modelltabellen. Die Ursachen dafür (falsche Aliase, fehlende Dimensionen, gemischte Org-Ebenen)

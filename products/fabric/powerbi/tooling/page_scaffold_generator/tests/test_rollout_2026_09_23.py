@@ -220,8 +220,15 @@ def test_service_channel_is_the_queue_channel_not_the_org_channel(loader, uc):
     assert ("dim_org", "Channel") not in spalten
 
 
-def test_xd002_topn_ranks_queues_not_channels(loader):
+def test_xd002_queue_is_the_innermost_column(loader):
     assert loader.get_page_config("XD-002", "detail")["detail_matrix_topn_field"] == ("dim_case_queue", "QueueName")
+
+
+@pytest.mark.parametrize("uc", ["XD-001", "XD-002"])
+def test_service_details_carry_no_top_n_that_filters_nothing(loader, uc):
+    """Top-N rangiert eine Spalte. In XD-001 hat keine Spalte mehr als 10 Werte, in XD-002 hat
+    die Queue 4 (gemessen 24.10.2026, Gold): ein Top-20 waere ein Filter ohne Wirkung."""
+    assert loader.get_page_config(uc, "detail")["detail_matrix_top_n"] is None
 
 
 def test_xd003_ranks_business_units_not_days(loader):
