@@ -7427,16 +7427,37 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: Sales Velocity
     description: Measures revenue generation rate through the pipeline.
-    depends_on_measures: []
+    depends_on_measures:
+    - KPI-COM-027
+    - KPI-COM-029
     lineage:
+    - fact_pipeline.OpportunityID
+    - fact_pipeline.Won Flag
+    - fact_pipeline.Lost Flag
     - fact_pipeline.Opportunity Value Amount
     - fact_pipeline.Won Count
     - fact_pipeline.Decided Count
     - fact_pipeline.Cycle Days
     calculation:
-      op: hitl
-      blocked_by: authoring
-      reason: 'Composite: open-opportunity count x avg deal value x win rate / sales-cycle length; all inputs now in fact_pipeline — assembled as a DAX measure in TMDL by CLI (beyond the neutral single-op DSL).'
+      op: ratio
+      numerator:
+        calc:
+          op: mul
+          terms:
+          - calc:
+              op: count_filtered
+              column: OpportunityID
+              filters:
+              - column: Won Flag
+                equals: false
+              - column: Lost Flag
+                equals: false
+          - calc:
+              op: avg
+              column: Opportunity Value Amount
+          - kpi: KPI-COM-027
+      denominator:
+        kpi: KPI-COM-029
   governance:
     business_owner: TBD
     data_owner: TBD

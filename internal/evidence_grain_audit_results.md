@@ -273,7 +273,7 @@ Bestätigung offen, siehe `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` M2).
 | COM-006 | Tabelle | – | Region × Category 5/3/3, 15 Zeilen | Kreuzklassifikation. Store-Ebene sinnlos (ein Channel je Org) |
 | FIN-001 | Tabelle | – | fact_AR: 10 Orgs gemischter Ebenen | Gemischte Ebenen zählen in Zwischensummen doppelt |
 | FIN-002 | Tabelle | – | 513 Entities. Category konstant (Fashion) | Elementfrage. Category-Spalte ohne Aussage |
-| FIN-003 | Tabelle | – | Entity × Cost Center 534/6/6 | Kreuzklassifikation. `cost_center` löst sich nicht auf |
+| FIN-003 | Tabelle | – | Entity × Cost Center 534/6/6 | Kreuzklassifikation. `cost_center` löst sich nicht auf; dim_cost_center seit 24.10.2026 im Finance-Modell, die Evidenz-KPIs filtert es aber erst, wenn KPI-FIN-014 auf fact_opex_costcenter rechnet (technical_backlog) |
 | OPS-001 | Tabelle | – | 8 Assets. Kein Fakt mit Asset und Product | Elementfrage. Category filtert OEE nicht |
 | OPS-002 | Tabelle | – | Criticality > Asset 3/10/0 | Hierarchie echt, aber nur 10 Assets |
 | OPS-003 | Tabelle | – | fact_quality: 1 Category, 20 SKUs | Keine Dimension für Fehlerarten. Asset nicht an fact_quality |

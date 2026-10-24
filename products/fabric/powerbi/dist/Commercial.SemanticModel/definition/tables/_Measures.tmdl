@@ -552,7 +552,7 @@ table _Measures
 		lineageTag: 38e628b1-21a4-5666-9119-9acc9507e082
 
 	/// Good: higher_is_better
-	measure 'Sales Velocity' = VAR _pending = "Composite: open-opportunity count x avg deal value x win rate / sales-cycle length; all inputs now in fact_pipeline — assembled as a DAX measure in TMDL by CLI (beyond the neutral single-op DSL)." RETURN BLANK()
+	measure 'Sales Velocity' = DIVIDE ( ( ( CALCULATE ( COUNTROWS ( fact_pipeline ), fact_pipeline[Won Flag] = FALSE (), fact_pipeline[Lost Flag] = FALSE () ) ) * ( AVERAGE ( fact_pipeline[Opportunity Value Amount] ) ) * [Win Rate %] ), [Sales Cycle Length] )
 		formatString: #,0
 		displayFolder: COM-005
 		lineageTag: d2b581e3-4bf7-5125-b6c9-affee863d1a0

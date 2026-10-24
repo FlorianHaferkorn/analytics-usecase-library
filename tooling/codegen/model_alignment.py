@@ -78,6 +78,9 @@ NEW_TABLES = (
     ("Commercial", "dim_salesrep", "commercial_sales.yaml", "dimension", "dim_sales_stage"),
     ("Commercial", "fact_pipeline", "commercial_sales.yaml", "fact", "fact_nps"),
     ("Commercial", "fact_sales_target", "commercial_sales.yaml", "fact", "fact_sales"),
+    # FIN-003: Kostenstellen-Zuordnung der OpEx (24.10.2026; Gold-FK-Treffer je 100 %)
+    ("Finance", "dim_cost_center", "finance.yaml", "dimension", "dim_product"),
+    ("Finance", "fact_opex_costcenter", "finance.yaml", "fact", "fact_cost"),
 )
 
 # (Modell, Anzeigeordner, KPI-IDs): Measures aus dem Katalog, ans Ende von _Measures.tmdl.
@@ -196,9 +199,16 @@ def kpi_measure_block(modell: str, kpi_id: str, ordner: str) -> str:
 
 
 def add_measure(measures_tmdl: str, name: str, block: str) -> str:
-    if re.search(rf"^\tmeasure {re.escape(_col_ref(name))} =", measures_tmdl, re.M):
-        return measures_tmdl
-    return measures_tmdl.rstrip("\n") + "\n\n" + block
+    """Measure anhängen oder, falls vorhanden, samt Doku-Block durch den Katalogstand ersetzen.
+
+    Die Measures aus ``NEW_KPI_MEASURES`` gehören dem Codemod: wird eine hitl-KPI im Katalog
+    berechenbar, wandert der Platzhalter so ohne Handarbeit zum DAX (24.10.2026, KPI-COM-030).
+    """
+    m = re.search(rf"(?:^\t///.*\n)*^\tmeasure {re.escape(_col_ref(name))} =.*\n(?:^\t\t.*\n)*",
+                  measures_tmdl, re.M)
+    if m is None:
+        return measures_tmdl.rstrip("\n") + "\n\n" + block
+    return measures_tmdl[:m.start()] + block + measures_tmdl[m.end():]
 
 
 def _nutzungen(modell: str, tabelle: str, spalte: str) -> list[str]:

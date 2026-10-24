@@ -38,6 +38,8 @@ def test_ops002_product_slicer_is_gone(loader):
 def test_cards_skip_placeholder_measures_but_keep_real_ones(loader):
     com = loader._card_kpi_ids(loader.load_use_case_bracket("COM-005"))
     assert com[0] == "KPI-COM-026"
-    assert "KPI-COM-028" not in com and "KPI-COM-030" not in com
+    assert "KPI-COM-028" not in com
+    # KPI-COM-030 ist seit 24.10.2026 eine DAX-Komposition aus dem Katalog: die Karte kommt zurueck
+    assert "KPI-COM-030" in com
     # Katalog-hitl, aber im Modell eine echte Measure: die Karte bleibt
     assert "KPI-SCM-012" in loader._card_kpi_ids(loader.load_use_case_bracket("SCM-003"))

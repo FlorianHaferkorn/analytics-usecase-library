@@ -116,6 +116,8 @@ ux_layout_rules:
       # surfaced entity-side via the AP-exposure-weighted measure
       # 'Supplier Risk Score (Entity)' (a global constant would be misleading on
       # an entity grain). KPI-FIN-009 stays cut (Main_2's own headline KPI).
+      # 24.10.2026: R2.5 wieder zurueck auf die R2.4-Auswahl. Mit 11 Spalten brach der Generator
+      # ab (MAX_EVIDENCE_COLUMNS, max 8); die drei bereichsfremden KPIs bleiben supporting_kpi_ids.
       evidence_columns:
       - entity
       - region
@@ -125,9 +127,6 @@ ux_layout_rules:
       - KPI-FIN-004
       - KPI-FIN-005
       - KPI-FIN-006
-      - KPI-FIN-002
-      - KPI-SCM-007
-      - KPI-SCM-022   # entity grain → 'Supplier Risk Score (Entity)'
       action_panel: true
       payload_mode: full
       sort_by:

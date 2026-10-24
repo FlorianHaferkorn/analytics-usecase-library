@@ -19,7 +19,7 @@
             "columnCount": {
               "expr": {
                 "Literal": {
-                  "Value": "3L"
+                  "Value": "4L"
                 }
               }
             }
@@ -88,6 +88,20 @@
               },
               "queryRef": "_Measures.Sales Cycle Length",
               "nativeQueryRef": "Sales Cycle Length"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Sales Velocity"
+                }
+              },
+              "queryRef": "_Measures.Sales Velocity",
+              "nativeQueryRef": "Sales Velocity"
             }
           ]
         }
@@ -100,7 +114,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Current values of Pipeline Coverage, Win Rate % and Sales Cycle Length'"
+                  "Value": "'Current values of Pipeline Coverage, Win Rate %, Sales Cycle Length and Sales Velocity'"
                 }
               }
             }

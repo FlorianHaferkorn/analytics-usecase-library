@@ -207,7 +207,7 @@ def test_an_unknown_dim_or_fact_table_stops_the_run_instead_of_becoming_a_measur
     """Vorher: `dim_x.Spalte` ohne Tabelle im Modell fiel in den Measure-Zweig."""
     b = loader.load_use_case_bracket("COM-001")
     with pytest.raises(ValueError, match="fehlt im Zielmodell"):
-        loader._table_column("dim_cost_center.Bucket", b)   # Gold, in keinem Modell
+        loader._table_column("dim_cost_center.Bucket", b)   # nur im Finance-Modell, nicht in Commercial
     with pytest.raises(ValueError, match="fehlt im Zielmodell"):
         loader._table_column("fact_recruiting.Stage", b)
     assert loader._table_column("Plan Sales.Amount", b) is None    # kein dim_/fact_: Measure-Zweig

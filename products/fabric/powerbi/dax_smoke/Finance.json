@@ -1,6 +1,6 @@
 {
   "modell": "Finance.SemanticModel",
-  "quelle_sha256": "69614c208ba64c1dc2c5e4dfacd062c2d1eee5ab558028389318b973506a20ab",
+  "quelle_sha256": "6349ca5a0388e22b8ce45e051e1448bdc433e25ac2b5914e5ff2a59ab8d20228",
   "messungen": [
     {
       "measure": "Action Effectiveness Delta",
@@ -732,6 +732,14 @@
   ],
   "beziehungen": [
     {
+      "name": "dim_cost_center_fact_opex_costcenter",
+      "von": "fact_opex_costcenter[CostCenterKey]",
+      "nach": "dim_cost_center[CostCenterKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_opex_costcenter'[CostCenterKey]), DISTINCT('dim_cost_center'[CostCenterKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
       "name": "dim_customer_fact_accounts_receivable",
       "von": "fact_accounts_receivable[CustomerKey]",
       "nach": "dim_customer[CustomerKey]",
@@ -809,6 +817,14 @@
       "nach": "dim_date[DateKey]",
       "aktiv": true,
       "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_labor'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_opex_costcenter",
+      "von": "fact_opex_costcenter[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_opex_costcenter'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
       "erwartet": 0
     },
     {
@@ -905,6 +921,14 @@
       "nach": "dim_org[OrgKey]",
       "aktiv": true,
       "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_labor'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_opex_costcenter",
+      "von": "fact_opex_costcenter[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_opex_costcenter'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
       "erwartet": 0
     },
     {

@@ -125,12 +125,7 @@
   owner: revenue_operations_lead
   eta_date: '2026-10-31'
   reason: COM-005 is in the Commercial model (2026-10-24), but this measure is a VAR _pending placeholder;
-    the composite (stage transition / four-input velocity) is beyond the single-op DSL.
-- kpi_id: KPI-COM-030
-  owner: revenue_operations_lead
-  eta_date: '2026-10-31'
-  reason: COM-005 is in the Commercial model (2026-10-24), but this measure is a VAR _pending placeholder;
-    the composite (stage transition / four-input velocity) is beyond the single-op DSL.
+    true stage conversion needs a stage-transition fact (stage history), not in fact_pipeline.
 - kpi_id: KPI-SCM-028
   owner: scm_analytics_lead
   eta_date: '2026-12-31'
