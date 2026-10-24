@@ -117,35 +117,47 @@ ux_layout_rules:
     big_idea: "DACH and CEE account for 80% of the Plan gap — mix degradation and price concessions are the root causes."
     component_300s:
       evidence_grain: invoice_line
-      slicer_field: dim_org.Region
+      # 24.10.2026 (Kreuztabelle, Audit-Urteil matrix): Region steht jetzt in den Zeilen, der
+      # Slicer filtert die Kategorie.
+      slicer_field: dim_product.Category
       # R2.4: curated 11→8 (Muster: COM-002 R1.3). Cut channel/customer_segment
       # (region is the finer, decision-relevant cross-cut; both are covered by
       # non-evidence-table context already) and delta_pct.ly (redundant next to
       # delta_pct.plan, the decision_question's own "on track for targets" signal).
       evidence_columns:
       - dim_org.Region
-      - dim_product.Category
+      - dim_org.Country
+      - dim_org.OrgName
       - KPI-COM-005
       - KPI-COM-009
       - KPI-COM-010
       - KPI-COM-011
-      - KPI-COM-004
+      # KPI-COM-004 (Mix-Residuum) seit 24.10.2026 nicht mehr in der Matrix: drei Zeilenebenen
+      # zaehlen gegen MAX_EVIDENCE_COLUMNS 8, und der PVM-Wasserfall zeigt den Mix schon.
       - KPI-COM-013
       action_panel: true
       payload_mode: summary
       sort_by:
         measure: KPI-COM-009
         direction: ascending
-      # ADR-0027: 15 Zeilen, ein Top-20 filterte nichts.
+      # ADR-0027: ein Top-20 von 99 Stores im Filterkontext verfaelscht die Regions- und
+      # Landessummen.
       top_n_ausnahme:
-        klasse: kleine_koernung
-        gemessene_zeilen: 15
+        klasse: matrix_zwischensummen
+        gemessene_zeilen: 99
         gemessen_am: '2026-10-24'
-        quelle: fact_sales x dim_org x dim_product (Gold, pandas, Region x Category)
+        quelle: fact_sales x dim_org (Gold, pandas, Store-Ebene; 5 Regionen, 15 Laender)
         fakt: fact_sales
       highlight_rule:
         column: KPI-COM-009
         type: data_bar
+      # Stepped cross-tab (visual_registry detail_matrix: matrix): Regions- und Landessummen
+      # zeigen, wo der Plan verfehlt wird, bevor die Store-Zeilen es benennen.
+      visual_type: matrix
+      row_fields:
+      - dim_org.Region
+      - dim_org.Country
+      - dim_org.OrgName
 prioritization:
   business_value: high
   implementation_effort: medium

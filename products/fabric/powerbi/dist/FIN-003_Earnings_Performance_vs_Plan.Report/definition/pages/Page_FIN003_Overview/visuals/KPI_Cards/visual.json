@@ -1,0 +1,126 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "KPI_Cards",
+  "position": {
+    "x": 32,
+    "y": 104,
+    "z": 10000,
+    "height": 144,
+    "width": 1856,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "layout": [
+        {
+          "properties": {
+            "columnCount": {
+              "expr": {
+                "Literal": {
+                  "Value": "4L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "value": [
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
+        }
+      ]
+    },
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "EBITDA Margin"
+                }
+              },
+              "queryRef": "_Measures.EBITDA Margin",
+              "nativeQueryRef": "EBITDA Margin"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "EBITDA Margin vs Plan"
+                }
+              },
+              "queryRef": "_Measures.EBITDA Margin vs Plan",
+              "nativeQueryRef": "EBITDA Margin vs Plan"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "COGS % of Sales"
+                }
+              },
+              "queryRef": "_Measures.COGS % of Sales",
+              "nativeQueryRef": "COGS % of Sales"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "OpEx vs Plan %"
+                }
+              },
+              "queryRef": "_Measures.OpEx vs Plan %",
+              "nativeQueryRef": "OpEx vs Plan %"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Current values of EBITDA Margin, EBITDA Margin vs Plan, COGS % of Sales and OpEx vs Plan %'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

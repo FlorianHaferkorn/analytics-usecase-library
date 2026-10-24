@@ -1,6 +1,6 @@
 {
   "modell": "Finance.SemanticModel",
-  "quelle_sha256": "837b57370803678186e4927395d3e142ba2d1f6ee7d39d5b7d06bc2bc2667de2",
+  "quelle_sha256": "f27fef7f6b68b8f4441798cf561ab3c30b8435af0f80796bc8552c9365726a20",
   "messungen": [
     {
       "measure": "Action Effectiveness Delta",
@@ -433,6 +433,56 @@
       }
     },
     {
+      "measure": "EBITDA",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [EBITDA])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [EBITDA])"
+      }
+    },
+    {
+      "measure": "EBITDA Margin",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [EBITDA Margin])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [EBITDA Margin])"
+      }
+    },
+    {
+      "measure": "EBITDA Margin Plan (Target Table)",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [EBITDA Margin Plan (Target Table)])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [EBITDA Margin Plan (Target Table)])"
+      }
+    },
+    {
+      "measure": "EBITDA Margin vs Plan",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [EBITDA Margin vs Plan])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [EBITDA Margin vs Plan])"
+      }
+    },
+    {
+      "measure": "EBITDA Margin vs Plan (Target Table)",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [EBITDA Margin vs Plan (Target Table)])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [EBITDA Margin vs Plan (Target Table)])"
+      }
+    },
+    {
       "measure": "Inventory Amount",
       "tabelle": "_Measures",
       "klasse": "zahl",
@@ -698,6 +748,11 @@
       "measure": "Cost Base Volume Amount",
       "ordner": "facts/fact_cost",
       "spalte": "COGS Amount"
+    },
+    {
+      "measure": "EBITDA",
+      "ordner": "facts/fact_finance",
+      "spalte": "EBITDA Amount"
     },
     {
       "measure": "Inventory Amount",

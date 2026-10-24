@@ -10,11 +10,11 @@
     "tabOrder": 3003
   },
   "visual": {
-    "visualType": "tableEx",
+    "visualType": "pivotTable",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
-        "Values": {
+        "Rows": {
           "projections": [
             {
               "field": {
@@ -35,15 +35,33 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_product"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "Category"
+                  "Property": "Country"
                 }
               },
-              "queryRef": "dim_product.Category",
-              "nativeQueryRef": "Category"
+              "queryRef": "dim_org.Country",
+              "nativeQueryRef": "Country"
             },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "OrgName"
+                }
+              },
+              "queryRef": "dim_org.OrgName",
+              "nativeQueryRef": "OrgName"
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
             {
               "field": {
                 "Measure": {
@@ -108,20 +126,6 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Mix Effect Amount"
-                }
-              },
-              "queryRef": "_Measures.Mix Effect Amount",
-              "nativeQueryRef": "Mix Effect Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
                   "Property": "Gross Margin %"
                 }
               },
@@ -168,17 +172,57 @@
                 }
               }
             },
-            "gridHorizontalWeight": {
-              "expr": {
-                "Literal": {
-                  "Value": "1L"
-                }
-              }
-            },
             "rowPadding": {
               "expr": {
                 "Literal": {
                   "Value": "8L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "rowHeaders": [
+        {
+          "properties": {
+            "stepped": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "showExpandCollapseButtons": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "unfrozen": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTotals": [
+        {
+          "properties": {
+            "rowSubtotals": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "rowSubtotalsPosition": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Top'"
                 }
               }
             }
@@ -261,7 +305,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Net Sales Amount, Net Sales % vs Plan, Price Effect Amount, Volume Effect Amount, Mix Effect Amount and Gross Margin % by Region and Category'"
+                  "Value": "'Net Sales Amount, Net Sales % vs Plan, Price Effect Amount, Volume Effect Amount and Gross Margin % by Region, Country and Org Name'"
                 }
               }
             }

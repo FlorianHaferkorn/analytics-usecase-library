@@ -114,7 +114,8 @@ neuen Zweig.
 | XD-001 | `top_n: 20` (wirkungslos) | `kleine_koernung`, 20: Körnung auf die Entscheidungsfrage geschnitten (Channel x Queue x IssueType; Org gestrichen, Severity hängt 1:1 an IssueType, dim_issue_type 5 Zeilen). Vorher 200 Zeilen; ein Top-N-Feld hätte die Kreuzklassifikation nicht begrenzt (je Spalte höchstens 10 Werte) |
 | XD-002 | `top_n: 20` (wirkungslos, 32 Zeilen) | `kleine_koernung`, 32 (8 Orgs x 4 Queues, fact_workforce_management, Gold, pandas); Top-N-Filter aus der Detail_Matrix entfernt |
 | SCM-003 | `top_n: 20`, Urteil `matrix` noch nicht umgesetzt | Kreuztabelle, `matrix_zwischensummen` |
-| COM-001, COM-006, SCM-002 | `top_n: 20` bei 15 Zeilen | `kleine_koernung`, je 15 (Region x Category bzw. Customer x Mode); Top-N-Filter aus den erzeugten Detail_Matrix entfernt (COM-006 hat keinen Report) |
+| COM-001 | `top_n: 20` bei 15 Zeilen | zuerst `kleine_koernung` 15 (Region x Category); seit 24.10.2026 Kreuztabelle Region > Country > Store, `matrix_zwischensummen`, 99 Store-Zeilen (5 Regionen, 15 Länder, fact_sales, Gold, pandas) |
+| COM-006, SCM-002 | `top_n: 20` bei 15 Zeilen | `kleine_koernung`, je 15 (Customer x Mode); Top-N-Filter aus den erzeugten Detail_Matrix entfernt (COM-006 hat keinen Report) |
 
 ## 6. Was diese Entscheidung bewusst nicht tut
 
@@ -124,6 +125,6 @@ neuen Zweig.
   nach. Pflichtfeld `fakt` nennt die Faktentabelle; die Spalten kommen aus der Auflösung des
   Generators (dieselben wie in der erzeugten Detail_Matrix), die Schlüssel aus `core/data_contracts`,
   die Dateien laut `_delta_log`. Exit 0 alle gleich, 1 Abweichung, 2 nicht geprüft (Gold fehlt,
-  Schlüssel unklar). Gemessen 24.10.2026: 6/6 gleich (COM-001 15, COM-006 15, SCM-002 15,
+  Schlüssel unklar). Gemessen 24.10.2026: 6/6 gleich (COM-001 15, seit der Kreuztabelle 99, COM-006 15, SCM-002 15,
   SCM-003 40, XD-001 20, XD-002 32). Test `test_every_top_n_ausnahme_matches_gold`, ohne Gold
   übersprungen mit Grund, nie grün.

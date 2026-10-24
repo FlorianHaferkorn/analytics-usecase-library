@@ -115,7 +115,7 @@ def test_vergleichsreihe_heisst_compared_with() -> None:
         assert ref in ys and ref != ys[0], (uc, name, text, ys)
 
 
-# --- dist: alle 18 Reports (COM-005 seit 24.10.2026) ------------------------------------------
+# --- dist: alle 19 Reports (COM-005, FIN-003 seit 24.10.2026) -----------------------------------------
 
 
 @pytest.mark.parametrize("report", sorted(p.name for p in DIST.glob("*.Report")))
@@ -126,8 +126,8 @@ def test_dist_report_traegt_alt_text(report: str) -> None:
     assert befunde(visuals) == []
 
 
-def test_achtzehn_dist_reports() -> None:
-    assert len(list(DIST.glob("*.Report"))) == 18
+def test_neunzehn_dist_reports() -> None:
+    assert len(list(DIST.glob("*.Report"))) == 19
 
 
 # --- Regeln aus Learn / BPA ----------------------------------------------------------------------
@@ -523,7 +523,7 @@ def _dist_kacheln():
 def test_dist_text_kacheln_ohne_aktuellen_wert() -> None:
     nur_text = [(p, _alt(v)) for _r, p, v, texte in _dist_kacheln()
                 if all(m in texte for m in at._measure_properties(v["visual"]))]
-    assert len(nur_text) == 53  # gemessen 03.10.2026 (50 in 17 Reports), +3 COM-005 am 24.10.2026
+    assert len(nur_text) == 56  # gemessen 03.10.2026 (50 in 17 Reports), +3 COM-005, +3 FIN-003 am 24.10.2026
     falsch = [(str(p), t) for p, t in nur_text if not t or "current value" in t or "aktueller Wert" in t]
     assert falsch == []
     # Gegenprobe: Kacheln mit Kennzahlen behalten die Kachelform

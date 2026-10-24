@@ -83,10 +83,19 @@ NEW_TABLES = (
     ("Finance", "fact_opex_costcenter", "finance.yaml", "fact", "fact_cost"),
 )
 
+# (Modell, Tabelle, Vertrag, Spalte, Ankerspalte): Wertspalten, die der Vertrag führt und Gold
+# liefert, dem Modell aber fehlen. FIN-003 (24.10.2026): KPI-FIN-021 braucht die Plan-Werte;
+# Gold fact_finance trägt beide Spalten (5 aktive Dateien, pyarrow).
+NEW_COLUMNS = (
+    ("Finance", "fact_finance", "finance.yaml", "Plan Net Sales Amount", "Plan OpEx Amount"),
+    ("Finance", "fact_finance", "finance.yaml", "Plan EBITDA Amount", "Plan Net Sales Amount"),
+)
+
 # (Modell, Anzeigeordner, KPI-IDs): Measures aus dem Katalog, ans Ende von _Measures.tmdl.
 NEW_KPI_MEASURES = (
     ("Commercial", "COM-005", ("KPI-COM-026", "KPI-COM-027", "KPI-COM-028", "KPI-COM-029",
                                "KPI-COM-030", "KPI-COM-031")),
+    ("Finance", "FIN-003", ("KPI-FIN-018", "KPI-FIN-020", "KPI-FIN-021")),
 )
 
 _TYPES = {"int": "Int64", "text": "String", "decimal": "Decimal", "currency": "Decimal", "bool": "Boolean"}
@@ -133,6 +142,19 @@ def add_key_column(text: str, spalte: str, nach: str) -> str:
         raise ValueError(f"Ankerspalte '{nach}' fehlt")
     block = (f"\tcolumn {spalte}\n\t\tdataType: Int64\n\t\tisHidden\n"
              f"\t\tsourceColumn: {spalte}\n\t\tsummarizeBy: none\n")
+    return text[:anker.end()] + block + text[anker.end():]
+
+
+def add_value_column(text: str, spalte: dict, nach: str) -> str:
+    """Wertspalte aus dem Vertrag hinter ``nach`` einfügen (idempotent)."""
+    if _column_block(text, spalte["name"]):
+        return text
+    anker = _column_block(text, nach)
+    if anker is None:
+        raise ValueError(f"Ankerspalte '{nach}' fehlt")
+    typ = _TYPES[spalte["type"]]
+    block = (f"\tcolumn {_col_ref(spalte['name'])}\n\t\tdataType: {typ}\n"
+             f"\t\tsourceColumn: {spalte['name']}\n\t\tsummarizeBy: none\n")
     return text[:anker.end()] + block + text[anker.end():]
 
 
@@ -283,6 +305,13 @@ def soll(modus: str | None = None) -> dict[Path, str | None]:
                 continue
             name = f"{c['ref']}_{tabelle}"
             dateien[d / "relationships" / f"{name}.tmdl"] = relationship_tmdl(name, tabelle, c["ref"], c["name"])
+
+    for modell, tabelle, vertrag, name, nach in NEW_COLUMNS:
+        v = vertraege.setdefault(vertrag, yaml.safe_load((CONTRACTS / vertrag).read_text(encoding="utf-8")))
+        t = next(x for x in v["fact"] if x["name"] == tabelle)
+        spalte = next(c for c in t["columns"] if c["name"] == name)
+        p = _defn(modell) / "tables" / f"{tabelle}.tmdl"
+        dateien[p] = add_value_column(lesen(p), spalte, nach)
 
     for modell, ordner, kpi_ids in NEW_KPI_MEASURES:
         p = _defn(modell) / "tables" / "_Measures.tmdl"

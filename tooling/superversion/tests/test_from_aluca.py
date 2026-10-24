@@ -430,7 +430,8 @@ def test_com001_declared_categories_and_evidence_dimensions_reach_canonical_visu
     ]
     page2 = next(p for p in model.report.pages if p.name == "page_2_execution")
     grid = page2.visuals[0]
-    assert grid.rows[:2] == ["dim_org.Region", "dim_product.Category"]
+    # Kreuztabelle seit 24.10.2026: Region > Country > Store (ADR-0027 matrix_zwischensummen).
+    assert grid.rows[:3] == ["dim_org.Region", "dim_org.Country", "dim_org.OrgName"]
 
 
 def test_evidence_grid_bound_measures_deduped(model):

@@ -9,7 +9,7 @@
 
 | UseCase_ID | Haupt-Action | Empfohlene_Grain | Feasibility | Supporting Table(s) |
 |------------|--------------|------------------|-------------|---------------------|
-| COM-001 | C-M2.1 (Price Realization Guardrails) | **invoice_line** | ✅ Covered | Wo-Frage, echte Org-Hierarchie. Category als Slicer. Top-20 auf Stores würde die Zwischensummen verzerren. 24.10.2026: Tabelle Region × Category bleibt, `top_n` ersetzt durch `kleine_koernung` 15 (Gold nachgezählt); Urteil `matrix` weiter nicht umgesetzt |
+| COM-001 | C-M2.1 (Price Realization Guardrails) | **invoice_line** | ✅ Covered | Wo-Frage, echte Org-Hierarchie. Category als Slicer. Top-20 auf Stores würde die Zwischensummen verzerren. **Umgesetzt 24.10.2026:** Kreuztabelle Region > Country > Store, `matrix_zwischensummen` 99 (Gold nachgezählt); Category als `slicer_field` deklariert (rendert noch nicht, BO) |
 | COM-002 | C-M2.2 (Margin Variance Recovery) | **invoice_line** | ✅ Covered | `fact_sales` (grain: invoice_line) |
 | COM-003 | C-M2.2 (Margin Variance Recovery) | **customer_month** | ⚠️ Partial | `fact_sales` can aggregate to customer_month |
 | COM-004 | C-M2.1 (Price Realization Guardrails) | **promotion** | ✅ Covered | `fact_promo` (grain: promotion) |
@@ -265,7 +265,7 @@ Bestätigung offen, siehe `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` M2).
 
 | UC | Urteil | row_fields (Vorschlag) | Messung (E/K/M, Quelle) | Grund |
 |---|---|---|---|---|
-| COM-001 | matrix | dim_org.Region > dim_org.Country > dim_org.OrgName | 5/15/0 und 15/99/0 (fact_sales) | Wo-Frage, echte Org-Hierarchie. Heute 15 Zeilen, Top-20 wirkungslos. Category als Slicer. Top-20 auf Stores würde die Zwischensummen verzerren |
+| COM-001 | matrix | dim_org.Region > dim_org.Country > dim_org.OrgName | 5/15/0 und 15/99/0 (fact_sales) | Wo-Frage, echte Org-Hierarchie. Heute 15 Zeilen, Top-20 wirkungslos. Category als Slicer. Top-20 auf Stores würde die Zwischensummen verzerren. **Umgesetzt 24.10.2026:** Kreuztabelle Region > Country > OrgName, `matrix_zwischensummen` 99 (fact_sales, Gold, pandas); KPI-COM-004 aus der Matrix (Grenze 8 Evidence-Spalten, PVM-Wasserfall zeigt den Mix) |
 | SCM-003 | matrix, `top_n` streichen | dim_product.ABC_Class > XYZ_Class > ProductCode | ABC/XYZ > ProductCode 7/5000/0 (dim). 40 SKUs in 5 Zellen (fact_forecast) | Erst Cluster, dann SKU. Hierarchie 'ABC/XYZ Classification' im Modell schon vorhanden. Top-20 von 40 SKUs verfälscht die Cluster-Summen. **Umgesetzt 24.10.2026:** Kreuztabelle ABC > XYZ > SKU, `top_n_ausnahme: matrix_zwischensummen` (ADR-0027), 40 SKU-Zeilen (fact_forecast, Gold, pandas) |
 | XD-004 | matrix (umgesetzt 24.10.2026) | fact_action_outcome.domain > action_code_id | 4/15/0 | Erst Domäne, dann Action Code. `outcome_status` aus den Zeilen genommen |
 | COM-003 | Tabelle | – | Segment × Channel 5/5/5 | Kreuzklassifikation. Channel filtert den CLV nicht (fact_customer_value nur CustomerKey) |
@@ -289,6 +289,6 @@ Bestätigung offen, siehe `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` M2).
 | SCM-004 | unklar | – | Category > Vendor 8/40/28 | Lieferanten nicht verschachtelt. Kein Modell gebunden |
 | XD-002 | unklar | dim_case_queue.Channel > QueueName | Channel > Queue 3/4/0. Org darunter gemischt | Org-Ebene zählt doppelt. Seit 24.10.2026 Spalten Servicekanal vor Queue (Tabelle), seit ADR-0027 (24.10.2026) `top_n_ausnahme: kleine_koernung`, 32 Zeilen (8 Orgs x 4 Queues, fact_workforce_management, Gold, pandas), Top-N-Filter entfernt |
 
-**Ergebnis:** 3 Kandidaten (COM-001, SCM-003, XD-004), 16 Tabellen, 4 unklar wegen fehlender
+**Ergebnis:** 3 Kandidaten (COM-001, SCM-003, XD-004; alle drei seit 24.10.2026 als Kreuztabelle umgesetzt), 16 Tabellen, 4 unklar wegen fehlender
 Modelltabellen. Die Ursachen dafür (falsche Aliase, fehlende Dimensionen, gemischte Org-Ebenen)
 stehen in `technical_backlog.md` unter „Page Scaffold Generator“.
