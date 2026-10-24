@@ -209,6 +209,7 @@ def test_narrow_fields_stay_narrow():
     lib = VisualLibrary.load()
     eng = {
         ("usecase_bracket.schema.json", "component_3s"): "status_signal",
+        ("usecase_bracket.schema.json", "component_300s"): "detail_matrix",
         ("layout_330300.schema.json", "diagnostics_300s"): "detail_matrix",
     }
     for (datei, feld), block_id in eng.items():
@@ -233,3 +234,42 @@ def test_narrow_fields_stay_narrow():
             assert liste == erwartet, (
                 f"{datei}/{feld} erlaubt {len(liste)} Typen, {block_id} sanktioniert "
                 f"{len(erwartet)}: {sorted(set(liste) - set(erwartet))}")
+
+
+def test_main_layer_excludes_what_only_300s_blocks_allow():
+    """Tabelle und Kreuztabelle gehoeren auf die Detailebene, nicht auf die Hauptebene.
+
+    `detail_matrix` traegt `layer_restriction: 300s_only`. Was nur Bloecke mit dieser
+    Einschraenkung erlauben, darf `component_30s` bzw. `visuals_30s` nicht anbieten. Die
+    Erwartung wird hier aus dem rohen YAML gezogen, nicht ueber die Funktion, die das
+    Schema erzeugt -- sonst bestaetigt der Test nur sich selbst.
+    """
+    reg = yaml.safe_load(
+        (_ROOT / "core/templates/page_templates/visual_registry.yaml").read_text(encoding="utf-8"))
+    frei, nur_300 = set(), set()
+    for b in reg["information_blocks"]:
+        ziel = nur_300 if b.get("layer_restriction") == "300s_only" else frei
+        ziel |= {v["visual_id"] for v in b.get("allowed_visuals") or []}
+    gesperrt = nur_300 - frei
+    assert gesperrt >= {"matrix", "table"}, gesperrt
+
+    for datei, feld in (("usecase_bracket.schema.json", "component_30s"),
+                        ("layout_330300.schema.json", "visuals_30s")):
+        doc = json.loads((_SCHEMAS / datei).read_text(encoding="utf-8"))
+        enums = []
+
+        def suche(o, pfad=""):
+            if isinstance(o, dict):
+                vt = o.get("visual_type")
+                if isinstance(vt, dict) and "enum" in vt and f"/{feld}/" in f"{pfad}/":
+                    enums.append(set(vt["enum"]))
+                for k, v in o.items():
+                    suche(v, f"{pfad}/{k}")
+            elif isinstance(o, list):
+                for v in o:
+                    suche(v, pfad)
+
+        suche(doc)
+        assert len(enums) == 1, f"{datei}/{feld}: {len(enums)} Enums statt 1"
+        assert enums[0] == frei, (
+            f"{datei}/{feld}: zu viel {sorted(enums[0] - frei)}, fehlt {sorted(frei - enums[0])}")

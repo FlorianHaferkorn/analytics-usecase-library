@@ -4379,7 +4379,6 @@ business_objects:
     schema: null
     layer: null
   kpi_ids:
-  - KPI-FIN-014
   - KPI-FIN-016
   - KPI-FIN-018
   - KPI-FIN-020
@@ -5483,7 +5482,8 @@ business_objects:
     table: fact_opex_costcenter
     schema: null
     layer: null
-  kpi_ids: []
+  kpi_ids:
+  - KPI-FIN-014
 - id: BO-076
   name:
     de: null

@@ -11,12 +11,16 @@ ref table dim_org
 ref table dim_product
 ref table dim_promo
 ref table dim_pvm_driver
+ref table dim_sales_stage
+ref table dim_salesrep
 ref table fact_customer_events
 ref table fact_customer_value
 ref table fact_experience
 ref table fact_nps
+ref table fact_pipeline
 ref table fact_plan_sales
 ref table fact_promo
 ref table fact_sales
+ref table fact_sales_target
 ref table security_user_org
 ref culture en-US

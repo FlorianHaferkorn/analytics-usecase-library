@@ -67,7 +67,9 @@ ux_layout_rules:
       so_what: "A persistent or widening gap requires entity-level diagnosis before a cost action is selected."
       category_field: dim_date.CalendarYearMonth
       action_code_id: F-K2.1
-      unit: amount
+      # 24.10.2026: war amount; KPI-FIN-015 ist calc_type ratio (EUR je Einheit), der Generator
+      # brach mit ONE_MESSAGE_PER_CHART ab.
+      unit: ratio
     - slot_id: Main_2
       kpi_id: KPI-FIN-014
       visual_type: variance_bar

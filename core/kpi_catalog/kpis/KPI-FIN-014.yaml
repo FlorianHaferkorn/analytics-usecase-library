@@ -21,16 +21,18 @@ is_variance: true
 business:
   purpose: Measures OpEx variance versus plan.
   definition: (OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.
-  grain_scope: Company/segment; monthly close.
+  grain_scope: Company/segment/cost centre; monthly close.
   unit_format: percent_1
   interpretation: Positive values indicate overspend; negative values indicate savings.
 technical:
   measure_name: OpEx vs Plan %
   description: Measures OpEx variance versus plan.
   depends_on_measures: []
+  # 24.10.2026: von fact_finance auf fact_opex_costcenter, damit die Kennzahl je Kostenstelle
+  # liest (FIN-003). Abgleich Gold je Org x Monat: 32.040 Zellen, max. Abweichung 0,01 EUR.
   lineage:
-  - fact_finance.OpEx Amount
-  - fact_finance.Plan OpEx Amount
+  - fact_opex_costcenter.OpEx Amount
+  - fact_opex_costcenter.Plan OpEx Amount
   calculation:
     op: delta_pct
     minuend:

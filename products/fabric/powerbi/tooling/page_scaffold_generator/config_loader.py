@@ -55,6 +55,25 @@ def _resolve_template_family(page_block: Dict[str, Any]) -> str:
     return "T2"
 
 
+
+def _kpi_ids_of(bracket: Dict[str, Any]) -> List[str]:
+    """Alle KPI-IDs, die ein Bracket auf seine Seiten bringt (Orchestrierung und Komponenten)."""
+    orch = bracket.get("orchestration") or {}
+    ids = [orch.get("strategic_kpi_id"), *(orch.get("influencing_kpi_ids") or []),
+           *(orch.get("supporting_kpi_ids") or []), *(bracket.get("primary_kpi_ids") or [])]
+    ux = bracket.get("ux_layout_rules") or {}
+    for seite in ux.values():
+        if not isinstance(seite, dict):
+            continue
+        komps = [seite.get("component_3s"), *(seite.get("component_30s") or [])]
+        for k in komps:
+            if isinstance(k, dict):
+                ids += [k.get("kpi_id"), *(k.get("kpi_ids") or [])]
+        c300 = seite.get("component_300s")
+        if isinstance(c300, dict):
+            ids += [c for c in (c300.get("evidence_columns") or []) if isinstance(c, str)]
+    return [str(k) for k in dict.fromkeys(ids) if isinstance(k, str) and k.startswith("KPI-")]
+
 class ConfigLoader:
     """Loads configuration files for scaffold generation."""
     
@@ -295,6 +314,60 @@ class ConfigLoader:
             return None
         return {f"{t}.{c}" for t, tab in sym.tables.items() for c in tab.columns}
 
+    def _measure_expressions(self, d: Path) -> Dict[str, str]:
+        """Measure-Name -> ganzer DAX-Ausdruck des Modells unter ``d``.
+
+        parse_tmdl_table haelt nur die erste Zeile; ein mehrzeiliges Measure
+        (`measure 'Availability %' =` + VAR-Block) waere dort leer."""
+        cache = self.__dict__.setdefault("_expr_cache", {})
+        if d not in cache:
+            out: Dict[str, str] = {}
+            for f in (d / "definition" / "tables").glob("*.tmdl"):
+                for m in re.finditer(r"^\tmeasure (?:'((?:[^']|'')+)'|(\S+)) =(.*?)(?=^\t\t[A-Za-z]+:|^\t\S|\Z)",
+                                     f.read_text(encoding="utf-8"), re.M | re.S):
+                    out[(m.group(1) or m.group(2)).replace("''", "'")] = m.group(3)
+            cache[d] = out
+        return cache[d]
+
+    def _slicer_columns(self, bracket: Dict[str, Any]) -> Optional[set]:
+        """Spalten, die als Slicer die Kennzahlen dieses Brackets filtern koennen.
+
+        Eine Spalte zaehlt, wenn ihre Tabelle eine Faktentabelle ist, die eine KPI-Measure des
+        Brackets (transitiv ueber Measure-Verweise) liest, oder per Beziehung an einer solchen
+        haengt. Gemessen 24.10.2026 an COM-005: der Produkt-Slicer stand auf dim_product, die
+        weder fact_pipeline noch fact_sales_target erreicht -- ein Slicer ins Leere, obwohl die
+        Spalte im Modell existiert. Ohne erkennbare Fakten bleibt es bei allen Modellspalten.
+        """
+        spalten = self._model_columns(bracket)
+        d = self._target_model_dir(bracket)
+        if spalten is None or d is None:
+            return spalten
+        sym = self._model_symbols_for(bracket)
+        ausdruck = self._measure_expressions(d)
+        namen = self.measure_map_for(bracket)
+        offen = [namen[k] for k in _kpi_ids_of(bracket) if k in namen]
+        fakten: set = set()
+        gesehen: set = set()
+        while offen:
+            m = offen.pop()
+            if m in gesehen:
+                continue
+            gesehen.add(m)
+            e = ausdruck.get(m, "")
+            fakten |= {t for t in re.findall(r"'?([A-Za-z_][\w]*)'?\[", e) if t in sym.tables}
+            offen += re.findall(r"(?<![\w'])\[([^\]]+)\]", e)
+        fakten = {t for t in fakten if not t.startswith("dim_")}
+        if not fakten:
+            return spalten
+        erreichbar = set(fakten)
+        for f in (d / "definition" / "relationships").glob("*.tmdl"):
+            text = f.read_text(encoding="utf-8")
+            von = re.search(r"fromColumn: '?([^.']+)'?\.", text)
+            nach = re.search(r"toColumn: '?([^.']+)'?\.", text)
+            if von and nach and von.group(1) in fakten:
+                erreichbar.add(nach.group(1))
+        return {s for s in spalten if s.split(".", 1)[0] in erreichbar}
+
     def _pick_column(self, token: str, eintrag: tuple, bracket: Dict[str, Any]) -> tuple:
         """Den ersten Kandidaten, den das Zielmodell fuehrt.
 
@@ -316,7 +389,7 @@ class ConfigLoader:
             f"{[f'{t}.{c}' for t, c in kandidaten]} existiert im Zielmodell "
             f"{self._target_model_dir(bracket)}.")
 
-    def _table_column(self, ref: str, bracket: Dict[str, Any]) -> Optional[tuple]:
+    def _table_column(self, ref: str, bracket: Dict[str, Any], feld: str = "evidence_columns") -> Optional[tuple]:
         """`tabelle.Spalte` -> (tabelle, Spalte), wenn das Zielmodell die Spalte fuehrt.
 
         None, wenn der Teil vor dem Punkt keine Tabelle dieses Modells ist (dann ist es
@@ -329,10 +402,17 @@ class ConfigLoader:
         tabelle, spalte = ref.split(".", 1)
         sym = self._model_symbols_for(bracket)
         if tabelle not in sym.table_names:
+            # `dim_…`/`fact_…` ist nach Namenskonvention eine Tabelle, nie ein Measure-Name:
+            # fehlt sie im Zielmodell, wuerde der Measure-Zweig daraus still
+            # `_Measures.'dim_x.Spalte'` machen.
+            if re.match(r"^(dim|fact)_\w+$", tabelle):
+                raise ValueError(
+                    f"{feld}: {ref!r} -- Tabelle {tabelle!r} fehlt im Zielmodell "
+                    f"{getattr(self._target_model_dir(bracket), 'name', '(keins gebunden)')}.")
             return None
         if not sym.has_column(tabelle, spalte):
             raise ValueError(
-                f"evidence_columns: {ref!r} -- Tabelle {tabelle!r} existiert, die Spalte "
+                f"{feld}: {ref!r} -- Tabelle {tabelle!r} existiert, die Spalte "
                 f"{spalte!r} nicht. Vorhanden: {sorted(sym.tables[tabelle].columns)}")
         return (tabelle, spalte)
 
@@ -438,7 +518,13 @@ class ConfigLoader:
         return text
 
     def _card_kpi_ids(self, bracket: Dict[str, Any]) -> List[str]:
-        """KPI card band: component_3s lead + influencing KPIs, deduped, max 4."""
+        """KPI card band: component_3s lead + influencing KPIs, deduped, max 4.
+
+        Ein beeinflussender KPI, dessen Measure im Zielmodell der dokumentierte Platzhalter ist
+        (``VAR _pending = ... RETURN BLANK()``), bekommt keine Karte: sie zeigte nur BLANK
+        (gemessen 24.10.2026, COM-005 Stage Conversion %). Gemessen wird am Modell, nicht am
+        Katalog: SCM-003 fuehrt fuer den Katalog-hitl-KPI KPI-SCM-012 eine echte Measure.
+        Die Leitkarte bleibt immer."""
         ux = bracket.get("ux_layout_rules") or {}
         p1 = ux.get("page_1_summary") or {}
         c3s = p1.get("component_3s") if isinstance(p1, dict) else {}
@@ -447,8 +533,12 @@ class ConfigLoader:
         influencing = orch.get("influencing_kpi_ids") or []
         out: List[str] = []
         seen: set = set()
+        d = self._target_model_dir(bracket)
+        namen = self.measure_map_for(bracket) if d is not None else {}
+        ausdruck = self._measure_expressions(d) if d is not None else {}
+        platzhalter = {k for k, m in namen.items() if ausdruck.get(m, "").lstrip().startswith("VAR _pending")}
         for kid in ([lead] if lead else []) + list(influencing):
-            if not kid or kid in seen:
+            if not kid or kid in seen or (kid != lead and kid in platzhalter):
                 continue
             seen.add(str(kid))
             out.append(str(kid))
@@ -1079,7 +1169,7 @@ class ConfigLoader:
             semantic_delta_cards = bool(ux.get("semantic_delta_cards", False))
             return {
                 "name": "overview",
-                "model_columns": self._model_columns(bracket),
+                "slicer_columns": self._slicer_columns(bracket),
                 "layer": [3, 30],
                 "template": template,
                 "template_id": template_id,
@@ -1176,6 +1266,7 @@ class ConfigLoader:
                 "mechanic":          ("dim_promo", "Promo Mechanic"),
                 "lane":              ("dim_lane", "Mode"),              # SupplyChain.SemanticModel
                 "abc_class":         ("dim_product", "ABC_Class"),
+                "cost_center":       ("dim_cost_center", "Cost Center"),  # Finance.SemanticModel (24.10.2026)
                 "xyz_class":         ("dim_product", "XYZ_Class"),
             }
             resolved_dim_cols: list = []
@@ -1234,6 +1325,25 @@ class ConfigLoader:
                         resolved_measures.append(kpi_to_measure.get(m, m))
             detail_matrix_columns = resolved_dim_cols   # list of (table, col) tuples
             detail_matrix_measures = resolved_measures  # list of DAX measure name strings
+            # Kreuztabelle (visual_registry detail_matrix, visual_id matrix): `row_fields`/
+            # `column_fields` je "table.Column", gegen das Modell aufgeloest wie oben.
+            # Ohne `row_fields` tragen die Dimensionsspalten aus evidence_columns die Zeilen.
+            detail_matrix_axes = None
+            if c300.get("visual_type") == "matrix":
+                def _achse(feld: str) -> list:
+                    paare, offen = [], []
+                    for ref in c300.get(feld) or []:
+                        paar = self._table_column(ref, bracket, feld) if isinstance(ref, str) else None
+                        (paare if paar else offen).append(paar or ref)
+                    if offen:
+                        raise ValueError(
+                            f"{use_case_id}: component_300s.{feld} references {offen} -- "
+                            "no such table.Column in the bound semantic model."
+                        )
+                    return paare
+                zeilen = _achse("row_fields") or list(resolved_dim_cols)
+                detail_matrix_axes = {"rows": zeilen, "columns": _achse("column_fields")}
+                detail_matrix_columns = zeilen
             smart_narrative_text = self._format_smart_narrative(bracket, use_case_id)
             # R2.3-Fund follow-up: real dist/ binds Smart_Narrative/ActionPanel to
             # governed domain-level DAX measures (cardVisual + Data role), not a
@@ -1275,7 +1385,17 @@ class ConfigLoader:
 
             return {
                 "name": "detail",
-                "model_columns": self._model_columns(bracket),
+                "slicer_columns": self._slicer_columns(bracket),
+                # component_300s.slicer_field ersetzt den OrgName-Slicer der Detailseite.
+                # Gemessen 24.10.2026 an COM-001: Region > Country > Store steht in den
+                # Matrixzeilen, der feste OrgName-Slicer wiederholte sie, die deklarierte
+                # Kategorie fehlte im Report. Steht das Feld schon in den Matrixzeilen
+                # (XD-004: domain), filtert der Slicer nichts Neues; dann bleibt OrgName.
+                "entity_slicer_field": (
+                    c300.get("slicer_field")
+                    if c300.get("slicer_field") not in (c300.get("row_fields") or [])
+                    else None
+                ),
                 "layer": [300],
                 "template": template,
                 "template_id": template_id,
@@ -1305,6 +1425,7 @@ class ConfigLoader:
                 "detail_matrix_top_n": detail_matrix_top_n,
                 "detail_matrix_highlight_rule": detail_matrix_highlight_rule,
                 "detail_matrix_topn_field": detail_matrix_topn_field,
+                "detail_matrix_axes": detail_matrix_axes,
                 "assert_statement_titles": bool(ux.get("title_statements_verified", False)),
             }
 

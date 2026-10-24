@@ -392,14 +392,11 @@
                       "kpi_card_native",
                       "kpi_card_with_delta",
                       "line_chart",
-                      "matrix",
                       "recommendation_table",
                       "scatter_plot",
                       "small_multiples",
                       "stacked_bar_100",
                       "stacked_column_100",
-                      "table",
-                      "table_with_trend",
                       "variance_bar",
                       "waterfall_chart"
                     ]
@@ -416,24 +413,6 @@
                   "category_field": {
                     "type": "string",
                     "description": "Dimension field for the category axis (e.g. dim_org.Region). Used when bar/column visuals need explicit axis binding."
-                  },
-                  "row_fields": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "pattern": "^[^.]+\\.[^.]+$"
-                    },
-                    "minItems": 1,
-                    "description": "Row levels of a matrix (pivotTable), outermost first, each as table.Column (e.g. dim_product.Category, dim_product.Subcategory). Only read for visual_type matrix; without it the matrix has category_field as its single row level."
-                  },
-                  "column_fields": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "pattern": "^[^.]+\\.[^.]+$"
-                    },
-                    "minItems": 1,
-                    "description": "Column levels of a matrix (pivotTable), outermost first, each as table.Column (e.g. dim_date.Year). Only read for visual_type matrix; without it the column role stays empty and is reported as a gap."
                   },
                   "comparison": {
                     "type": "string",
@@ -571,6 +550,16 @@
                   },
                   "description": "Grain of the evidence table — must match a governed fact-table grain from core/data_contracts/domains/*.yaml. Placeholder 'transaction_line' is forbidden; refer to internal/evidence_grain_audit_results.md for correct values."
                 },
+                "visual_type": {
+                  "type": "string",
+                  "enum": [
+                    "matrix",
+                    "table",
+                    "table_with_trend"
+                  ],
+                  "default": "table",
+                  "description": "Detail_Matrix visual (visual_registry.yaml block detail_matrix): table (default, tableEx; table_with_trend is scaffolded as a table for now) or matrix (pivotTable, only when the cross-tab adds decision value). sort_by/top_n/highlight_rule apply to both."
+                },
                 "slicer_field": {
                   "type": "string",
                   "description": "Qualified table.column field for the primary detail-page context filter."
@@ -629,7 +618,47 @@
                   "type": "integer",
                   "minimum": 1,
                   "maximum": 500,
-                  "description": "Row limit for the evidence table (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Precedent: COM-002 uses 20 (R1.3); Design_Spec_3_30_300.md's Detail Matrix anatomy suggests 50-100 as a general ceiling -- pick per-report based on evidence_grain cardinality, do not default blindly."
+                  "description": "Row limit for the evidence table (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Precedent: COM-002 uses 20 (R1.3); Design_Spec_3_30_300.md's Detail Matrix anatomy suggests 50-100 as a general ceiling -- pick per-report based on evidence_grain cardinality, do not default blindly. Alternative since ADR-0027 (24.10.2026): top_n_ausnahme instead of top_n, never both."
+                },
+                "top_n_ausnahme": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "klasse",
+                    "gemessene_zeilen",
+                    "gemessen_am",
+                    "quelle",
+                    "fakt"
+                  ],
+                  "description": "ADR-0027: a measured exception to the Top-N cap (BC-CHART-10). kleine_koernung only with gemessene_zeilen <= 50 (the table is small enough to scan whole); matrix_zwischensummen only with visual_type matrix (a Top-N in filter context would distort the subtotals). Checked by tooling/validation/check_evidence_sort.py; a measurement older than 180 days warns.",
+                  "properties": {
+                    "klasse": {
+                      "type": "string",
+                      "enum": [
+                        "kleine_koernung",
+                        "matrix_zwischensummen"
+                      ]
+                    },
+                    "gemessene_zeilen": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Rows of the evidence table in the unfiltered context."
+                    },
+                    "gemessen_am": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "quelle": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Fact table and method of the row count, e.g. 'fact_support_cases (Gold, pandas)'."
+                    },
+                    "fakt": {
+                      "type": "string",
+                      "pattern": "^fact_[A-Za-z0-9_]+$",
+                      "description": "The fact table the evidence rows come from. tooling/validation/check_evidence_sort.py --gold joins it to the evidence dimensions (keys from core/data_contracts) and recounts gemessene_zeilen against Aurora Gold."
+                    }
+                  }
                 },
                 "highlight_rule": {
                   "type": "object",
@@ -652,6 +681,79 @@
                       "description": "Formatting treatment. Only 'data_bar' is currently schema-verified (native objects.columnFormatting[].properties.dataBars); defaults to data_bar when omitted."
                     }
                   }
+                },
+                "row_fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[^.]+\\.[^.]+$"
+                  },
+                  "minItems": 1,
+                  "description": "Row levels of the matrix (pivotTable), outermost first, each as table.Column resolved against the bound semantic model. Only read for visual_type matrix; when absent, the dimension columns of evidence_columns are the rows."
+                },
+                "column_fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[^.]+\\.[^.]+$"
+                  },
+                  "minItems": 1,
+                  "description": "Column levels of the matrix (pivotTable), outermost first, each as table.Column resolved against the bound semantic model. Only read for visual_type matrix; when absent, the matrix has no column axis."
+                }
+              }
+            }
+          }
+        },
+        "page_3_drillthrough": {
+          "type": "object",
+          "required": [
+            "title",
+            "drillthrough_fields",
+            "component_300s"
+          ],
+          "additionalProperties": false,
+          "description": "Optional drillthrough target page (since 24.10.2026). The official PBIR emitter (tooling/superversion/targets/pbir.py) writes it with type and pageBinding Drillthrough, one drillthrough page filter per field and a back button; it is hidden in view mode and reached only by drillthrough from a visual that carries the field.",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "decision_question": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "The decision question this drillthrough page answers for the selected item."
+            },
+            "drillthrough_fields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[^.]+\\.[^.]+$"
+              },
+              "minItems": 1,
+              "description": "Fields the page is bound to as a drillthrough target, each as table.Column resolved against the bound semantic model. The source visual must carry the same field."
+            },
+            "component_300s": {
+              "type": "object",
+              "required": [
+                "evidence_grain",
+                "evidence_columns"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "evidence_grain": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "const": "transaction_line"
+                  },
+                  "description": "Grain of the drillthrough evidence table (same rule as page_2_execution.component_300s.evidence_grain)."
+                },
+                "evidence_columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1,
+                  "description": "Columns of the drillthrough evidence table: KPI IDs from the catalog and table.Column dimensions."
                 }
               }
             }
@@ -698,12 +800,24 @@
                 "properties": {
                   "sort_by": true,
                   "top_n": true,
-                  "highlight_rule": true
+                  "highlight_rule": true,
+                  "top_n_ausnahme": true
                 },
                 "required": [
                   "sort_by",
-                  "top_n",
                   "highlight_rule"
+                ],
+                "oneOf": [
+                  {
+                    "required": [
+                      "top_n"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "top_n_ausnahme"
+                    ]
+                  }
                 ]
               }
             }

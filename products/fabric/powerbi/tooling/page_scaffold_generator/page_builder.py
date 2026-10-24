@@ -110,10 +110,12 @@ class PageBuilder:
         detail_matrix_top_n: Optional[int] = None,
         detail_matrix_highlight_rule: Optional[Dict[str, str]] = None,
         detail_matrix_topn_field: Optional[tuple] = None,
+        detail_matrix_axes: Optional[Dict[str, list]] = None,
         narrative_measure_name: Optional[str] = None,
         active_actions_measure_name: Optional[str] = None,
         semantic_delta_cards: bool = False,
-        model_columns: Optional[set] = None,
+        slicer_columns: Optional[set] = None,
+        entity_slicer_field: Optional[str] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
         variance_kpi_ids: Optional[set] = None,
         comparison_refs: Optional[Dict[str, str]] = None,
@@ -185,9 +187,6 @@ class PageBuilder:
                 "kpi_ids": [k for k in _kids if isinstance(k, str) and k.strip()],
                 "category_entity": _cat_entity,
                 "category_property": _cat_prop,
-                # Matrix-Achsen (pivotTable), je Ebene "table.Column"; nur fuer visual_type matrix.
-                "row_fields": _c_item.get("row_fields"),
-                "column_fields": _c_item.get("column_fields"),
                 # Als Vergleichsreihe gezeichnete Measures: der Alt-Text sagt "compared with".
                 "comparison_measures": _vergleich,
                 # BC-NARR-01: the governed exhibit statement + the question it answers. The question
@@ -277,17 +276,18 @@ class PageBuilder:
             # dim_product.Category, und das Experience-Modell hat kein dim_product -- vier
             # XD-Reports haetten einen Slicer bekommen, der ins Leere filtert.
             if visual_type == "slicer_entity":
-                # Entity slicer (OrgName) for filtering Detail pages by business unit
-                if model_columns is not None and "dim_org.OrgName" not in model_columns:
+                # Entity slicer for filtering Detail pages: component_300s.slicer_field, else OrgName
+                feld = entity_slicer_field or "dim_org.OrgName"
+                if slicer_columns is not None and feld not in slicer_columns:
                     continue   # Zielmodell fuehrt die Spalte nicht: kein Slicer ins Leere
-                sl = self.slicer_builder.build_categorical_slicer(position, field="dim_org.OrgName", name=slot_id)
+                sl = self.slicer_builder.build_categorical_slicer(position, field=feld, name=slot_id)
                 sl["position"]["tabOrder"] = tab + i
                 slicers.append(sl)
                 continue
 
             if visual_type == "slicer_region":
                 # Region slicer for Overview cross-filter (dim_org.Region)
-                if model_columns is not None and "dim_org.Region" not in model_columns:
+                if slicer_columns is not None and "dim_org.Region" not in slicer_columns:
                     continue   # Zielmodell fuehrt die Spalte nicht: kein Slicer ins Leere
                 sl = self.slicer_builder.build_categorical_slicer(position, field="dim_org.Region", name=slot_id)
                 sl["position"]["tabOrder"] = tab + i
@@ -296,7 +296,7 @@ class PageBuilder:
 
             if visual_type == "slicer_product":
                 # Product Category slicer for Overview cross-filter (dim_product.Category)
-                if model_columns is not None and "dim_product.Category" not in model_columns:
+                if slicer_columns is not None and "dim_product.Category" not in slicer_columns:
                     continue   # Zielmodell fuehrt die Spalte nicht: kein Slicer ins Leere
                 sl = self.slicer_builder.build_categorical_slicer(position, field="dim_product.Category", name=slot_id)
                 sl["position"]["tabOrder"] = tab + i
@@ -321,7 +321,6 @@ class PageBuilder:
                     _ux_vt, position, name=slot_id, measures=_measures, title=_label,
                     statement_title=_hdr, subtitle=_sub,
                     category_entity=_cat_entity, category_property=_cat_prop,
-                    row_fields=_binding.get("row_fields"), column_fields=_binding.get("column_fields"),
                 )
                 # Rangfolge: schlechtester Wert zuerst (visual_library/bar_ranking.yaml,
                 # `order: worst_first`); ohne governte Richtung nach Groesse (bar_absolute.yaml,
@@ -419,6 +418,14 @@ class PageBuilder:
                 vis = self.visual_builder._build_base_visual("textbox", position, tab_order=tab + i, name=slot_id)
                 _sn_raw = smart_narrative_text or "Filtering active – review current selection."
                 vis["visual"]["objects"] = textbox_objects(_sn_raw)
+            elif visual_type == "tableEx" and slot_id == "Detail_Matrix" and detail_matrix_axes:
+                # Kreuztabelle statt Liste; Sortierung, Top-N und Datenbalken wie bei der Tabelle.
+                vis = self.visual_builder.build_matrix(
+                    position, columns=detail_matrix_axes["rows"], measures=detail_measures, name=slot_id,
+                    column_fields=detail_matrix_axes["columns"],
+                    sort_by=detail_matrix_sort_by, top_n=detail_matrix_top_n,
+                    top_n_field=detail_matrix_topn_field, highlight_rule=detail_matrix_highlight_rule,
+                )
             elif visual_type == "tableEx" and slot_id == "Detail_Matrix":
                 vis = self.visual_builder.build_table(
                     position, columns=detail_dim_cols, measures=detail_measures, name=slot_id,
@@ -565,10 +572,12 @@ class PageBuilder:
         detail_matrix_top_n: Optional[int] = None,
         detail_matrix_highlight_rule: Optional[Dict[str, str]] = None,
         detail_matrix_topn_field: Optional[tuple] = None,
+        detail_matrix_axes: Optional[Dict[str, list]] = None,
         narrative_measure_name: Optional[str] = None,
         active_actions_measure_name: Optional[str] = None,
         semantic_delta_cards: bool = False,
-        model_columns: Optional[set] = None,
+        slicer_columns: Optional[set] = None,
+        entity_slicer_field: Optional[str] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
         variance_kpi_ids: Optional[set] = None,
         comparison_refs: Optional[Dict[str, str]] = None,
@@ -631,10 +640,12 @@ class PageBuilder:
                 detail_matrix_top_n=detail_matrix_top_n,
                 detail_matrix_highlight_rule=detail_matrix_highlight_rule,
                 detail_matrix_topn_field=detail_matrix_topn_field,
+                detail_matrix_axes=detail_matrix_axes,
                 narrative_measure_name=narrative_measure_name,
                 active_actions_measure_name=active_actions_measure_name,
                 semantic_delta_cards=semantic_delta_cards,
-                model_columns=model_columns,
+                slicer_columns=slicer_columns,
+                entity_slicer_field=entity_slicer_field,
                 kpi_good_is=kpi_good_is,
                 variance_kpi_ids=variance_kpi_ids,
                 comparison_refs=comparison_refs,

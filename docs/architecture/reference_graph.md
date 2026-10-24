@@ -6,7 +6,7 @@
 ## Coverage
 
 - Use cases: **22**  (evidence packs: 16/22, factsheets: 22/22)
-- KPIs in catalog: **145**  — reachable: **143**, roadmap (planned.yaml): 36, orphan: **0**
+- KPIs in catalog: **145**  — reachable: **143**, roadmap (planned.yaml): 31, orphan: **0**
 - Action codes: **60**  — reachable: **59**, orphan: **1**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
 - Semantic measures: **282**  — backing a catalog KPI: **114** (registry/drift gated by `test_measure_dictionary_files`)
@@ -25,7 +25,7 @@
 | COM-002 | 15 | 3 | ✓ | commercial_sales.yaml |
 | COM-003 | 20 | 2 | ✓ | commercial_sales.yaml |
 | COM-004 | 15 | 3 | ✓ | commercial_sales.yaml |
-| COM-005 | 6 | 1 | — | growth.yaml |
+| COM-005 | 6 | 1 | — | commercial_sales.yaml |
 | COM-006 | 3 | 1 | — | commercial_sales.yaml |
 | ESG-001 | 1 | 1 | — | esg.yaml |
 | FIN-001 | 23 | 4 | ✓ | finance.yaml |

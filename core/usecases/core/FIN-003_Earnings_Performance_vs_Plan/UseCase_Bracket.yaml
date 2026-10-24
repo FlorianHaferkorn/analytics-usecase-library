@@ -7,13 +7,17 @@ governance:
   steward_role: finance_bi_lead
 orchestration:
   strategic_kpi_id: KPI-FIN-018
+  # 24.10.2026 (Entscheid Florian Haferkorn, Weg b): KPI-COM-013 und KPI-COM-009 rechnen auf
+  # fact_sales, das das Finance-Modell nicht fuehrt. Gross Margin % weicht KPI-FIN-016 (COGS %
+  # of Sales, fact_finance, Kehrwert-Aussage); Net Sales % vs Plan bleibt Treiber in der Formel,
+  # steht aber unter supporting, damit keine Karte ins Leere bindet.
   influencing_kpi_ids:
   - KPI-FIN-021
-  - KPI-COM-009
-  - KPI-COM-013
+  - KPI-FIN-016
   - KPI-FIN-014
   supporting_kpi_ids:
   - KPI-FIN-020
+  - KPI-COM-009
   - KPI-FIN-009
   # Required for report creation (referenced by the value-driver / evidence) but
   # previously unlisted — added so the orchestration completeness gate resolves.
@@ -25,7 +29,7 @@ primary_kpi_ids:
 - KPI-FIN-018
 - KPI-FIN-014
 value_driver_model:
-  formula: KPI-FIN-018 = f(KPI-COM-009, KPI-COM-013, KPI-FIN-014)
+  formula: KPI-FIN-018 = f(KPI-COM-009, KPI-FIN-016, KPI-FIN-014)
   impact_direction: maximize
   primary_driver: KPI-FIN-014
   impact_logic: Bringing KPI-FIN-014 back to plan is the primary lever for restoring KPI-FIN-018.
@@ -56,31 +60,36 @@ ux_layout_rules:
       so_what: Because opex is the driver, cost-base actions recover more earnings than chasing incremental
         revenue.
       unit: rate
+    # 24.10.2026: vorher KPI-COM-013 (ratio, hoeher besser) und KPI-FIN-014 (rate, niedriger
+    # besser) auf einer Balkenachse -- ONE_MESSAGE_PER_CHART und gemischte Polaritaet. Die
+    # Kostenquote (KPI-FIN-016) steht in der Evidenztabelle; die Karte rankt nur, was das so_what sagt.
     - slot_id: Main_2
-      kpi_ids:
-      - KPI-COM-013
-      - KPI-FIN-014
+      kpi_id: KPI-FIN-014
       visual_type: horizontal_bar_chart
-      question: Is the pressure structural in gross margin or in operating expense?
-      message: Gross margin holds on plan; operating expense above plan is where the earnings leak concentrates
-      so_what: Ranking opex overruns by cost centre focuses the recovery where the money actually leaks.
+      question: Where does operating expense run above plan?
+      message: Operating expense above plan is where the earnings leak concentrates
+      so_what: Ranking opex overruns by entity focuses the recovery where the money actually leaks.
       unit: rate
   page_2_execution:
     title: Finance Execution
-    decision_question: Which entities and cost centres should the earnings-recovery effort target first?
+    decision_question: Which entities should the earnings-recovery effort target first?
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
-      # Governed fact grain (fact_opex_costcenter, finance.yaml) — cost-centre level;
-      # 'cost_center' was an ungoverned token for the same concept.
-      evidence_grain: entity_costcentre_month
+      # 24.10.2026 (Entscheid Florian Haferkorn, Option b): Entity-Koernung. dim_cost_center
+      # haengt nur an fact_opex_costcenter; KPI-FIN-018/021/020/016 ignorieren
+      # den Kostenstellenfilter, eine Kostenstellen-Zeile wiederholte vier von fuenf Werten.
+      # Kostenstellen-Sicht als Drillthrough: page_3_drillthrough (24.10.2026). Der offizielle
+      # Emitter (tooling/superversion/targets/pbir.py) schreibt sie als Drillthrough-Seite;
+      # der Prototyp-Renderer kennt sie nicht, die dist-Reports bleiben bis zum Umstieg ohne sie
+      # (technical_backlog, FIN-003).
+      evidence_grain: entity_month
       evidence_columns:
       - entity
-      - cost_center
       - KPI-FIN-018
       - KPI-FIN-021
-      - KPI-COM-013
+      - KPI-FIN-016
       - KPI-FIN-014
       - KPI-FIN-020
       action_panel: true
@@ -92,6 +101,20 @@ ux_layout_rules:
       highlight_rule:
         column: KPI-FIN-021
         type: data_bar
+  # Kostenstellen-Drillthrough (24.10.2026): aus jedem Visual, das dim_org.OrgName fuehrt (im
+  # dist-Report Main_2 und Detail_Matrix), auf die Kostenstellen dieser Entity. Nur KPI-FIN-014, weil allein
+  # fact_opex_costcenter an dim_cost_center haengt; die vier fact_finance-KPIs wiederholten je
+  # Kostenstelle den Entity-Wert (Weg b, technical_backlog FIN-003).
+  page_3_drillthrough:
+    title: Cost Center Drillthrough
+    decision_question: Which cost centres carry this entity's opex overrun?
+    drillthrough_fields:
+    - dim_org.OrgName
+    component_300s:
+      evidence_grain: entity_costcentre_month
+      evidence_columns:
+      - dim_cost_center.Cost Center
+      - KPI-FIN-014
 prioritization:
   business_value: high
   implementation_effort: medium
@@ -101,7 +124,7 @@ prioritization:
 data_protection:
   personal_data: false
   legal_basis: not_applicable
-  data_minimisation: Detail grain limited to cost center level; row-level security applied at SemanticModel
+  data_minimisation: Detail grain limited to entity level; row-level security applied at SemanticModel
     level.
   access_restriction: 'supply_chain_controlling_lead and scm_bi_lead roles; row-level security enforced
     by SupplyChain.SemanticModel (site filter per org role).

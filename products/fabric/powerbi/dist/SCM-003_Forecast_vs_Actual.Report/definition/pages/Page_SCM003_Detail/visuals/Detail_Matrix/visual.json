@@ -10,26 +10,12 @@
     "tabOrder": 3003
   },
   "visual": {
-    "visualType": "tableEx",
+    "visualType": "pivotTable",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
-        "Values": {
+        "Rows": {
           "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_product"
-                    }
-                  },
-                  "Property": "Category"
-                }
-              },
-              "queryRef": "dim_product.Category",
-              "nativeQueryRef": "Category"
-            },
             {
               "field": {
                 "Column": {
@@ -58,6 +44,24 @@
               "queryRef": "dim_product.XYZ_Class",
               "nativeQueryRef": "XYZ_Class"
             },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_product"
+                    }
+                  },
+                  "Property": "ProductCode"
+                }
+              },
+              "queryRef": "dim_product.ProductCode",
+              "nativeQueryRef": "ProductCode"
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
             {
               "field": {
                 "Measure": {
@@ -154,17 +158,57 @@
                 }
               }
             },
-            "gridHorizontalWeight": {
-              "expr": {
-                "Literal": {
-                  "Value": "1L"
-                }
-              }
-            },
             "rowPadding": {
               "expr": {
                 "Literal": {
                   "Value": "8L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "rowHeaders": [
+        {
+          "properties": {
+            "stepped": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "showExpandCollapseButtons": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "unfrozen": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTotals": [
+        {
+          "properties": {
+            "rowSubtotals": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "rowSubtotalsPosition": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Top'"
                 }
               }
             }
@@ -247,7 +291,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Forecast Accuracy %, Forecast MAPE %, Forecast Bias % and Service Impact % by Category, ABC Class and XYZ Class'"
+                  "Value": "'Forecast Accuracy %, Forecast MAPE %, Forecast Bias % and Service Impact % by ABC Class, XYZ Class and Product Code'"
                 }
               }
             }
@@ -255,112 +299,5 @@
         }
       ]
     }
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "TopN_ForecastMAPE_Detail_Matrix",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_product"
-              }
-            },
-            "Property": "XYZ_Class"
-          }
-        },
-        "type": "TopN",
-        "filter": {
-          "Version": 2,
-          "From": [
-            {
-              "Name": "subquery",
-              "Expression": {
-                "Subquery": {
-                  "Query": {
-                    "Version": 2,
-                    "From": [
-                      {
-                        "Name": "p",
-                        "Entity": "dim_product",
-                        "Type": 0
-                      },
-                      {
-                        "Name": "m",
-                        "Entity": "_Measures",
-                        "Type": 0
-                      }
-                    ],
-                    "Select": [
-                      {
-                        "Column": {
-                          "Expression": {
-                            "SourceRef": {
-                              "Source": "p"
-                            }
-                          },
-                          "Property": "XYZ_Class"
-                        },
-                        "Name": "field"
-                      }
-                    ],
-                    "OrderBy": [
-                      {
-                        "Direction": 2,
-                        "Expression": {
-                          "Measure": {
-                            "Expression": {
-                              "SourceRef": {
-                                "Source": "m"
-                              }
-                            },
-                            "Property": "Forecast MAPE %"
-                          }
-                        }
-                      }
-                    ],
-                    "Top": 20
-                  }
-                }
-              },
-              "Type": 2
-            },
-            {
-              "Name": "p",
-              "Entity": "dim_product",
-              "Type": 0
-            }
-          ],
-          "Where": [
-            {
-              "Condition": {
-                "In": {
-                  "Expressions": [
-                    {
-                      "Column": {
-                        "Expression": {
-                          "SourceRef": {
-                            "Source": "p"
-                          }
-                        },
-                        "Property": "XYZ_Class"
-                      }
-                    }
-                  ],
-                  "Table": {
-                    "SourceRef": {
-                      "Source": "subquery"
-                    }
-                  }
-                }
-              }
-            }
-          ]
-        },
-        "howCreated": "User",
-        "isHiddenInViewMode": true
-      }
-    ]
   }
 }

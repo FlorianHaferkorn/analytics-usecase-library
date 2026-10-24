@@ -74,7 +74,10 @@ ux_layout_rules:
       # 'employee_segment' was an ungoverned token for the same concept.
       evidence_grain: month_org_segment
       evidence_columns:
-      - segment
+      # 24.10.2026: `segment` loeste zum Kundensegment (dim_customer) auf. Gemeint ist
+      # das Mitarbeitersegment (Function x Tenure Band); die Tabelle fehlt noch in jedem
+      # Modell, der Lauf bricht deshalb mit Namen ab statt still falsch zu binden.
+      - dim_employee_segment.Segment
       - role
       - KPI-PPL-001
       - KPI-PPL-002

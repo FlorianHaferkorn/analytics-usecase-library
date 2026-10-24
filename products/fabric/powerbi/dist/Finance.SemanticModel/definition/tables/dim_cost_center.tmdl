@@ -1,0 +1,29 @@
+/// Conformed functional cost centre (Store Operations, Merchandising, Marketing, Supply Chain & Logistics, IT & Digital, General & Admin) for OpEx variance attribution.
+table dim_cost_center
+	lineageTag: 3f8fa545-57cc-5cd1-9b0f-7413ff4ac700
+	column CostCenterKey
+		dataType: Int64
+		sourceColumn: CostCenterKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column 'Cost Center'
+		dataType: String
+		sourceColumn: Cost Center
+		summarizeBy: none
+	column 'Business Unit'
+		dataType: String
+		sourceColumn: Business Unit
+		summarizeBy: none
+	column 'Account Group'
+		dataType: String
+		sourceColumn: Account Group
+		summarizeBy: none
+	partition dim_cost_center = m
+		mode: import
+		source =
+			let
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/dimensions/dim_cost_center"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
+			in
+				ParquetData

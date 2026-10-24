@@ -13,6 +13,7 @@ ref table dim_org
 ref table dim_customer
 ref table dim_supplier
 ref table dim_product
+ref table dim_cost_center
 ref table fact_finance
 ref table fact_cash_position
 ref table fact_cash_flow
@@ -20,6 +21,7 @@ ref table fact_accounts_receivable
 ref table fact_accounts_payable
 ref table fact_inventory
 ref table fact_cost
+ref table fact_opex_costcenter
 ref table fact_output
 ref table fact_labor
 ref table fact_fulfillment

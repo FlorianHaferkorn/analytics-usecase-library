@@ -1,6 +1,6 @@
 {
   "modell": "Finance.SemanticModel",
-  "quelle_sha256": "69614c208ba64c1dc2c5e4dfacd062c2d1eee5ab558028389318b973506a20ab",
+  "quelle_sha256": "f27fef7f6b68b8f4441798cf561ab3c30b8435af0f80796bc8552c9365726a20",
   "messungen": [
     {
       "measure": "Action Effectiveness Delta",
@@ -433,6 +433,56 @@
       }
     },
     {
+      "measure": "EBITDA",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [EBITDA])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [EBITDA])"
+      }
+    },
+    {
+      "measure": "EBITDA Margin",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [EBITDA Margin])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [EBITDA Margin])"
+      }
+    },
+    {
+      "measure": "EBITDA Margin Plan (Target Table)",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [EBITDA Margin Plan (Target Table)])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [EBITDA Margin Plan (Target Table)])"
+      }
+    },
+    {
+      "measure": "EBITDA Margin vs Plan",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [EBITDA Margin vs Plan])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [EBITDA Margin vs Plan])"
+      }
+    },
+    {
+      "measure": "EBITDA Margin vs Plan (Target Table)",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [EBITDA Margin vs Plan (Target Table)])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [EBITDA Margin vs Plan (Target Table)])"
+      }
+    },
+    {
       "measure": "Inventory Amount",
       "tabelle": "_Measures",
       "klasse": "zahl",
@@ -700,6 +750,11 @@
       "spalte": "COGS Amount"
     },
     {
+      "measure": "EBITDA",
+      "ordner": "facts/fact_finance",
+      "spalte": "EBITDA Amount"
+    },
+    {
       "measure": "Inventory Amount",
       "ordner": "facts/fact_inventory",
       "spalte": "Average Inventory Amount"
@@ -731,6 +786,14 @@
     }
   ],
   "beziehungen": [
+    {
+      "name": "dim_cost_center_fact_opex_costcenter",
+      "von": "fact_opex_costcenter[CostCenterKey]",
+      "nach": "dim_cost_center[CostCenterKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_opex_costcenter'[CostCenterKey]), DISTINCT('dim_cost_center'[CostCenterKey]))) + 0)",
+      "erwartet": 0
+    },
     {
       "name": "dim_customer_fact_accounts_receivable",
       "von": "fact_accounts_receivable[CustomerKey]",
@@ -809,6 +872,14 @@
       "nach": "dim_date[DateKey]",
       "aktiv": true,
       "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_labor'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_opex_costcenter",
+      "von": "fact_opex_costcenter[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_opex_costcenter'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
       "erwartet": 0
     },
     {
@@ -905,6 +976,14 @@
       "nach": "dim_org[OrgKey]",
       "aktiv": true,
       "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_labor'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_opex_costcenter",
+      "von": "fact_opex_costcenter[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_opex_costcenter'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
       "erwartet": 0
     },
     {

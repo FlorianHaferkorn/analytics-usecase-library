@@ -321,7 +321,10 @@ def test_matrix_emits_pivot_with_every_row_and_column_level():
     assert pbir.hitl_gaps(sm) == []
 
 
-def test_matrix_without_columns_marks_the_gap_instead_of_borrowing_a_row_field():
+def test_matrix_without_columns_omits_the_axis_instead_of_borrowing_a_row_field():
+    """Columns ist eine optionale Rolle von pivotTable (`catalog describe pivotTable`, Pin 0.5.0:
+    requiredRoles nur Values). Eine Zeilenhierarchie ohne Spaltenachse ist gewollt (COM-002,
+    XD-004): keine Achse leihen, keinen Platzhalter setzen, keine Luecke melden."""
     m = Visual(visual_id="v_mx", visual_type="matrix", bound_measures=["Revenue"],
                rows=["dim_product.Category", "dim_product.Subcategory"])
     sm = CanonicalModel(
@@ -330,9 +333,23 @@ def test_matrix_without_columns_marks_the_gap_instead_of_borrowing_a_row_field()
     )
     qs = json.loads(pbir.emit(sm)["R.Report/definition/pages/P1/visuals/v_mx/visual.json"])[
         "visual"]["query"]["queryState"]
-    assert len(qs["Rows"]["projections"]) == 2
-    assert qs["Columns"]["projections"][0]["field"]["Column"]["Property"] == "[HITL] assign Columns"
-    assert any("'Columns'" in g for g in pbir.hitl_gaps(sm))
+    assert [p["field"]["Column"]["Property"] for p in qs["Rows"]["projections"]] == [
+        "Category", "Subcategory"]
+    assert "Columns" not in qs
+    assert pbir.hitl_gaps(sm) == []
+
+
+def test_matrix_without_any_axis_marks_the_gap_on_rows():
+    m = Visual(visual_id="v_mx", visual_type="matrix", bound_measures=["Revenue"])
+    sm = CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[ReportPage(name="P1", visuals=[m])]),
+    )
+    qs = json.loads(pbir.emit(sm)["R.Report/definition/pages/P1/visuals/v_mx/visual.json"])[
+        "visual"]["query"]["queryState"]
+    assert qs["Rows"]["projections"][0]["field"]["Column"]["Property"] == "[HITL] assign Rows"
+    assert "Columns" not in qs
+    assert any("no row or column axis" in g for g in pbir.hitl_gaps(sm))
 
 
 def test_qualified_slicer_binds_declared_entity_and_property():
@@ -462,3 +479,112 @@ def test_unknown_visual_type_falls_back_and_is_recorded():
     vj = json.loads(out["R.Report/definition/pages/P1/visuals/v_x/visual.json"])
     assert vj["visual"]["visualType"] == "cardVisual"
     assert any("unknown visual_type" in g for g in pbir.hitl_gaps(sm))
+
+
+# --------------------------------------------------------------------------- #
+# Drillthrough-Zielseite (24.10.2026): `ReportPage.drillthrough_fields`          #
+# --------------------------------------------------------------------------- #
+# Massstab ist der offizielle Validator (Pin 0.5.0, src/validators/drillthrough.ts): pageBinding
+# Drillthrough mit Parametern, je Feld ein Seitenfilter howCreated Drillthrough, fieldExpr gleich
+# Filterfeld, sichtbarer Zurueck-Button. Fehlt etwas, warnt er — die drei Warnungen der dist-Reports.
+FIN003 = REPO / "core/usecases/core/FIN-003_Earnings_Performance_vs_Plan/UseCase_Bracket.yaml"
+
+
+def _drillthrough_model(fields, page_type="Drillthrough") -> CanonicalModel:
+    detail = Visual(visual_id="cc", visual_type="table", rows=["dim_cost_center.Cost Center"],
+                    bound_measures=["OpEx vs Plan %"], x=344, y=204, width=1232, height=844)
+    return CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[
+            ReportPage(name="P1", visuals=[Visual(visual_id="c", visual_type="card",
+                                                  bound_measures=["OpEx vs Plan %"])]),
+            ReportPage(name="DT", visuals=[detail], page_type=page_type,
+                       drillthrough_fields=list(fields), is_hidden=True),
+        ]),
+    )
+
+
+def test_drillthrough_page_carries_type_filter_binding_and_back_button():
+    out = pbir.emit(_drillthrough_model(["dim_org.OrgName", "dim_date.Year"]))
+    page = json.loads(out["R.Report/definition/pages/DT/page.json"])
+    assert page["type"] == "Drillthrough"
+    assert page["visibility"] == "HiddenInViewMode"
+    filters = page["filterConfig"]["filters"]
+    assert [f["howCreated"] for f in filters] == ["Drillthrough", "Drillthrough"]
+    assert filters[0]["field"]["Column"]["Expression"]["SourceRef"]["Entity"] == "dim_org"
+    assert filters[0]["field"]["Column"]["Property"] == "OrgName"
+    binding = page["pageBinding"]
+    assert binding["type"] == "Drillthrough"
+    assert len(binding["parameters"]) == 2
+    by_name = {f["name"]: f for f in filters}
+    for param in binding["parameters"]:
+        assert param["fieldExpr"] == by_name[param["boundFilter"]]["field"]
+    names = [f["name"] for f in filters] + [p["name"] for p in binding["parameters"]] + [binding["name"]]
+    assert len(names) == len(set(names))
+
+    back = json.loads(out["R.Report/definition/pages/DT/visuals/Drillthrough_Back/visual.json"])
+    assert back["visual"]["visualType"] == "actionButton"
+    link = back["visual"]["visualContainerObjects"]["visualLink"][0]["properties"]
+    assert link["show"]["expr"]["Literal"]["Value"] == "true"
+    assert link["type"]["expr"]["Literal"]["Value"] == "'Back'"
+    assert pbir.hitl_gaps(_drillthrough_model(["dim_org.OrgName"])) == []
+
+
+def test_page_without_drillthrough_fields_stays_a_plain_page():
+    out = pbir.emit(_drillthrough_model([], page_type="Default"))
+    page = json.loads(out["R.Report/definition/pages/DT/page.json"])
+    assert not {"type", "pageBinding", "filterConfig"} & set(page)
+    assert not any("Drillthrough_Back" in path for path in out)
+
+
+def test_drillthrough_page_type_without_fields_is_a_recorded_gap():
+    sm = _drillthrough_model([])
+    page = json.loads(pbir.emit(sm)["R.Report/definition/pages/DT/page.json"])
+    assert "pageBinding" not in page
+    assert any("page 'DT'" in g and "without drillthrough_fields" in g for g in pbir.hitl_gaps(sm))
+
+
+def test_unqualified_drillthrough_field_is_a_visible_hitl_gap():
+    sm = _drillthrough_model(["entity"])
+    page = json.loads(pbir.emit(sm)["R.Report/definition/pages/DT/page.json"])
+    entity = page["filterConfig"]["filters"][0]["field"]["Column"]["Expression"]["SourceRef"]["Entity"]
+    assert entity == "_HITL"
+    assert any("drillthrough" in g and "unqualified field 'entity'" in g for g in pbir.hitl_gaps(sm))
+
+
+def test_fin003_declares_the_cost_center_drillthrough_page():
+    fin003 = from_bracket_file(FIN003, KPIS)
+    page = next(p for p in fin003.report.pages if p.name == "page_3_drillthrough")
+    assert page.page_type == "Drillthrough"
+    assert page.drillthrough_fields == ["dim_org.OrgName"]
+    assert page.is_hidden is True
+    (detail,) = page.visuals
+    assert detail.visual_type == "table"
+    assert detail.rows == ["dim_cost_center.Cost Center"]
+    assert detail.bound_measures == ["OpEx vs Plan %"]
+    assert detail.width > 0 and detail.height > 0
+    out = pbir.emit(fin003)
+    base_dir = f"{fin003.report.name}.Report/definition/pages/page_3_drillthrough"
+    assert json.loads(out[f"{base_dir}/page.json"])["pageBinding"]["parameters"]
+    assert f"{base_dir}/visuals/Drillthrough_Back/visual.json" in out
+
+
+@pytest.mark.braucht_pbir_cli  # skip without CLI; red under ALUCA_PBIR_CLI_PFLICHT=1 (conftest.py)
+@pytest.mark.parametrize("canonical", [
+    pytest.param(lambda: _drillthrough_model(["dim_org.OrgName"]), id="synthetic"),
+    pytest.param(lambda: from_bracket_file(FIN003, KPIS), id="FIN-003"),
+])
+def test_drillthrough_page_passes_the_official_validator_without_drillthrough_findings(canonical, tmp_path):
+    sm = canonical()
+    base.render("pbir", sm, tmp_path)
+    proc = subprocess.run(
+        _executable_command(shutil.which(CLI), "validate", str(tmp_path / f"{sm.report.name}.Report"),
+                            "--no-schema", "--format", "json"),
+        capture_output=True, timeout=120,
+    )
+    data = json.loads(_decode_process_output(proc.stdout))["data"]
+    assert data["errorCount"] == 0, json.dumps(data.get("diagnostics"), indent=2)
+    drill = [code for code in (data.get("diagnostics") or {}) if code.startswith("PBIR_DRILLTHROUGH_")]
+    assert drill == [], json.dumps(data.get("diagnostics"), indent=2)
+    pages = list((tmp_path / f"{sm.report.name}.Report/definition/pages").glob("*/page.json"))
+    assert sum(json.loads(p.read_text(encoding="utf-8")).get("type") == "Drillthrough" for p in pages) == 1
