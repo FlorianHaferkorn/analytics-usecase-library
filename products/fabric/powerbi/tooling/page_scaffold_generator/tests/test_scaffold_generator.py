@@ -501,8 +501,10 @@ if __name__ == "__main__":
     pytest.main([__file__, "-v"])
 
 
+
 class TestMatrixFromBracket:
-    """Matrix im Scaffold (23.10.2026): pivotTable mit Rows/Columns aus dem Bracket."""
+    """Matrix als Detail_Matrix (component_300s visual_type matrix, visual_registry
+    detail_matrix): pivotTable mit Achsen aus dem Bracket und den Regeln der Detailebene."""
 
     @staticmethod
     def _rollen(visual):
@@ -510,23 +512,56 @@ class TestMatrixFromBracket:
         return {r: [p["field"]["Column"]["Property"] for p in qs[r]["projections"]]
                 for r in ("Rows", "Columns") if r in qs}
 
-    def test_matrix_takes_every_row_and_column_level(self):
-        from page_scaffold_generator.layout_calculator import Position
-        v = VisualBuilder().build_by_ux_visual_type(
-            "matrix", Position(x=0, y=0, width=600, height=400), name="m",
-            measures=["Gross Margin Amount"],
-            row_fields=["dim_product.Category", "dim_product.Subcategory"],
-            column_fields=["dim_date.Year"])
-        assert v["visual"]["visualType"] == "pivotTable"
-        assert self._rollen(v) == {"Rows": ["Category", "Subcategory"], "Columns": ["Year"]}
-        objs = v["visual"]["objects"]
-        assert objs["rowHeaders"][0]["properties"]["stepped"]["expr"]["Literal"]["Value"] == "true"
-        assert objs["subTotals"][0]["properties"]["rowSubtotalsPosition"]["expr"]["Literal"]["Value"] == "'Top'"
+    @staticmethod
+    def _detail(monkeypatch, **c300):
+        import copy
+        echt = ConfigLoader.load_use_case_bracket
 
-    def test_matrix_without_row_fields_uses_category_and_no_columns(self):
+        def gestellt(self, use_case_id):
+            b = copy.deepcopy(echt(self, use_case_id))
+            b["ux_layout_rules"]["page_2_execution"]["component_300s"].update(c300)
+            return b
+
+        monkeypatch.setattr(ConfigLoader, "load_use_case_bracket", gestellt)
+        generator = PageScaffoldGenerator("COM-002", "detail", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        return next(v for v in generator.page_structure["visuals"] if v.get("name") == "Detail_Matrix")
+
+    def test_detail_matrix_as_cross_tab_keeps_sort_topn_and_data_bars(self, monkeypatch):
+        tabelle = self._detail(monkeypatch)
+        matrix = self._detail(monkeypatch, visual_type="matrix",
+                              row_fields=["dim_product.Category", "dim_product.Subcategory"],
+                              column_fields=["dim_date.Year"])
+        assert matrix["visual"]["visualType"] == "pivotTable"
+        assert self._rollen(matrix) == {"Rows": ["Category", "Subcategory"], "Columns": ["Year"]}
+        # Dieselben Regeln wie die Tabelle: Sortierung, Datenbalken, TopN (auf der innersten Zeile).
+        assert matrix["visual"]["query"]["sortDefinition"] == tabelle["visual"]["query"]["sortDefinition"]
+        assert matrix["visual"]["objects"]["columnFormatting"] == tabelle["visual"]["objects"]["columnFormatting"]
+        assert matrix["filterConfig"]["filters"][0]["field"]["Column"]["Property"] == "Subcategory"
+        stepped = matrix["visual"]["objects"]["rowHeaders"][0]["properties"]["stepped"]
+        assert stepped["expr"]["Literal"]["Value"] == "true"
+        werte = [p["nativeQueryRef"] for p in matrix["visual"]["query"]["queryState"]["Values"]["projections"]]
+        tab_werte = [p["nativeQueryRef"] for p in tabelle["visual"]["query"]["queryState"]["Values"]["projections"]
+                     if "Measure" in p["field"]]
+        assert werte == tab_werte and werte
+
+    def test_detail_matrix_without_row_fields_uses_evidence_dimensions(self, monkeypatch):
+        tabelle = self._detail(monkeypatch)
+        matrix = self._detail(monkeypatch, visual_type="matrix")
+        projektionen = tabelle["visual"]["query"]["queryState"]["Values"]["projections"]
+        tab_dims = [p["field"]["Column"]["Property"] for p in projektionen if "Column" in p["field"]]
+        assert self._rollen(matrix) == {"Rows": tab_dims}
+
+    def test_detail_matrix_rejects_a_column_the_model_does_not_have(self, monkeypatch):
+        with pytest.raises(ValueError, match="row_fields"):
+            self._detail(monkeypatch, visual_type="matrix", row_fields=["dim_product.Gibtsnicht"])
+
+    def test_main_slot_matrix_uses_category_field_as_single_row(self):
         from page_scaffold_generator.layout_calculator import Position
         v = VisualBuilder().build_by_ux_visual_type(
             "matrix", Position(x=0, y=0, width=600, height=400), name="m",
             measures=["Revenue"], category_entity="dim_region", category_property="Region")
+        assert v["visual"]["visualType"] == "pivotTable"
         assert self._rollen(v) == {"Rows": ["Region"]}
         assert "rowHeaders" not in v["visual"].get("objects", {})

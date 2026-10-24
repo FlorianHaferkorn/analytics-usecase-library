@@ -417,24 +417,6 @@
                     "type": "string",
                     "description": "Dimension field for the category axis (e.g. dim_org.Region). Used when bar/column visuals need explicit axis binding."
                   },
-                  "row_fields": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "pattern": "^[^.]+\\.[^.]+$"
-                    },
-                    "minItems": 1,
-                    "description": "Row levels of a matrix (pivotTable), outermost first, each as table.Column (e.g. dim_product.Category, dim_product.Subcategory). Only read for visual_type matrix; without it the matrix has category_field as its single row level."
-                  },
-                  "column_fields": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "pattern": "^[^.]+\\.[^.]+$"
-                    },
-                    "minItems": 1,
-                    "description": "Column levels of a matrix (pivotTable), outermost first, each as table.Column (e.g. dim_date.Year). Only read for visual_type matrix; without it the column role stays empty and is reported as a gap."
-                  },
                   "comparison": {
                     "type": "string",
                     "enum": [
@@ -571,6 +553,16 @@
                   },
                   "description": "Grain of the evidence table — must match a governed fact-table grain from core/data_contracts/domains/*.yaml. Placeholder 'transaction_line' is forbidden; refer to internal/evidence_grain_audit_results.md for correct values."
                 },
+                "visual_type": {
+                  "type": "string",
+                  "enum": [
+                    "matrix",
+                    "table",
+                    "table_with_trend"
+                  ],
+                  "default": "table",
+                  "description": "Detail_Matrix visual (visual_registry.yaml block detail_matrix): table (default, tableEx; table_with_trend is scaffolded as a table for now) or matrix (pivotTable, only when the cross-tab adds decision value). sort_by/top_n/highlight_rule apply to both."
+                },
                 "slicer_field": {
                   "type": "string",
                   "description": "Qualified table.column field for the primary detail-page context filter."
@@ -652,6 +644,24 @@
                       "description": "Formatting treatment. Only 'data_bar' is currently schema-verified (native objects.columnFormatting[].properties.dataBars); defaults to data_bar when omitted."
                     }
                   }
+                },
+                "row_fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[^.]+\\.[^.]+$"
+                  },
+                  "minItems": 1,
+                  "description": "Row levels of the matrix (pivotTable), outermost first, each as table.Column resolved against the bound semantic model. Only read for visual_type matrix; when absent, the dimension columns of evidence_columns are the rows."
+                },
+                "column_fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[^.]+\\.[^.]+$"
+                  },
+                  "minItems": 1,
+                  "description": "Column levels of the matrix (pivotTable), outermost first, each as table.Column resolved against the bound semantic model. Only read for visual_type matrix; when absent, the matrix has no column axis."
                 }
               }
             }

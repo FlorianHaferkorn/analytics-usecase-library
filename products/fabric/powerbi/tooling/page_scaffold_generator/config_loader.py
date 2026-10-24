@@ -316,7 +316,7 @@ class ConfigLoader:
             f"{[f'{t}.{c}' for t, c in kandidaten]} existiert im Zielmodell "
             f"{self._target_model_dir(bracket)}.")
 
-    def _table_column(self, ref: str, bracket: Dict[str, Any]) -> Optional[tuple]:
+    def _table_column(self, ref: str, bracket: Dict[str, Any], feld: str = "evidence_columns") -> Optional[tuple]:
         """`tabelle.Spalte` -> (tabelle, Spalte), wenn das Zielmodell die Spalte fuehrt.
 
         None, wenn der Teil vor dem Punkt keine Tabelle dieses Modells ist (dann ist es
@@ -332,7 +332,7 @@ class ConfigLoader:
             return None
         if not sym.has_column(tabelle, spalte):
             raise ValueError(
-                f"evidence_columns: {ref!r} -- Tabelle {tabelle!r} existiert, die Spalte "
+                f"{feld}: {ref!r} -- Tabelle {tabelle!r} existiert, die Spalte "
                 f"{spalte!r} nicht. Vorhanden: {sorted(sym.tables[tabelle].columns)}")
         return (tabelle, spalte)
 
@@ -1234,6 +1234,25 @@ class ConfigLoader:
                         resolved_measures.append(kpi_to_measure.get(m, m))
             detail_matrix_columns = resolved_dim_cols   # list of (table, col) tuples
             detail_matrix_measures = resolved_measures  # list of DAX measure name strings
+            # Kreuztabelle (visual_registry detail_matrix, visual_id matrix): `row_fields`/
+            # `column_fields` je "table.Column", gegen das Modell aufgeloest wie oben.
+            # Ohne `row_fields` tragen die Dimensionsspalten aus evidence_columns die Zeilen.
+            detail_matrix_axes = None
+            if c300.get("visual_type") == "matrix":
+                def _achse(feld: str) -> list:
+                    paare, offen = [], []
+                    for ref in c300.get(feld) or []:
+                        paar = self._table_column(ref, bracket, feld) if isinstance(ref, str) else None
+                        (paare if paar else offen).append(paar or ref)
+                    if offen:
+                        raise ValueError(
+                            f"{use_case_id}: component_300s.{feld} references {offen} -- "
+                            "no such table.Column in the bound semantic model."
+                        )
+                    return paare
+                zeilen = _achse("row_fields") or list(resolved_dim_cols)
+                detail_matrix_axes = {"rows": zeilen, "columns": _achse("column_fields")}
+                detail_matrix_columns = zeilen
             smart_narrative_text = self._format_smart_narrative(bracket, use_case_id)
             # R2.3-Fund follow-up: real dist/ binds Smart_Narrative/ActionPanel to
             # governed domain-level DAX measures (cardVisual + Data role), not a
@@ -1305,6 +1324,7 @@ class ConfigLoader:
                 "detail_matrix_top_n": detail_matrix_top_n,
                 "detail_matrix_highlight_rule": detail_matrix_highlight_rule,
                 "detail_matrix_topn_field": detail_matrix_topn_field,
+                "detail_matrix_axes": detail_matrix_axes,
                 "assert_statement_titles": bool(ux.get("title_statements_verified", False)),
             }
 

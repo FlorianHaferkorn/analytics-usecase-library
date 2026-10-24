@@ -709,8 +709,8 @@ def _page_from_layout(
                 title=component.get("message") or component.get("slot_id", "") or component.get("decision_question", ""),
                 bound_measures=bound,
                 binds_measures=bool(bound),
-                # Matrix (pivotTable): `row_fields`/`column_fields` sind die Ebenen der Achsen
-                # (23.10.2026); ohne sie bleibt die bisherige Zeilenliste, Spalten bleiben leer.
+                # Matrix (pivotTable, component_300s): `row_fields`/`column_fields` sind die
+                # Ebenen der Achsen; ohne sie bleibt die bisherige Zeilenliste, Spalten leer.
                 rows=list((vtyp == "matrix" and component.get("row_fields")) or dimensions),
                 columns=list((vtyp == "matrix" and component.get("column_fields")) or []),
             )

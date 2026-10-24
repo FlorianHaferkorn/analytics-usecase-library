@@ -348,7 +348,10 @@ _SCHEMA_DIR = _REPO_ROOT / "tooling" / "generator" / "schemas"
 #   * `visual_spec` beschreibt AUCH Seitenmoebel (Slicer, Textfeld) — deshalb kommen die
 #     Chrome-Token dort dazu.
 _SCHEMA_SCOPE: dict[str, dict[str, str]] = {
-    "usecase_bracket.schema.json": {"*": "alle", "component_3s": "status_signal"},
+    # `component_300s` ist die Detailebene des Brackets — derselbe Block wie
+    # `diagnostics_300s` (Tabelle oder Kreuztabelle, keine Diagramme).
+    "usecase_bracket.schema.json": {"*": "alle", "component_3s": "status_signal",
+                                    "component_300s": "detail_matrix"},
     # `diagnostics_300s` ist die Detailschicht — dort gehoert, was `detail_matrix`
     # erlaubt, nicht das gesamte Vokabular. Ein Generator, der ein enges Feld
     # aufweitet, ist kein Gate mehr, sondern eine Genehmigung.

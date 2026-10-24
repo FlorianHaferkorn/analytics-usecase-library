@@ -673,19 +673,20 @@ def test_mirror_and_originals_serialise_identically():
     assert build(mirror) == build(ven_ns), "mirror and Meridian originals serialise differently"
 
 
-def test_matrix_axes_come_from_bracket_row_and_column_fields():
-    """Matrix (23.10.2026): `row_fields`/`column_fields` des Brackets werden zu den
-    Achsen des kanonischen Visuals; andere Typen ignorieren die Felder."""
+
+def test_detail_matrix_axes_come_from_bracket_row_and_column_fields():
+    """Matrix auf der Detailebene (component_300s, visual_registry detail_matrix):
+    `row_fields`/`column_fields` werden die Achsen des kanonischen Visuals, ohne
+    Block-Konflikt; eine Tabelle ignoriert die Felder."""
     catalog = KpiCatalog(KPIS)
-    page = {"component_30s": [
-        {"visual_type": "matrix", "row_fields": ["dim_product.Category", "dim_product.Subcategory"],
-         "column_fields": ["dim_date.Year"]},
-        {"visual_type": "bar_chart", "row_fields": ["dim_product.Category"],
-         "column_fields": ["dim_date.Year"]},
-    ]}
-    rp = _page_from_layout("page_1_overview", page, catalog)
-    matrix, bar = rp.visuals[0], rp.visuals[1]
+    def seite(vtyp):
+        return {"template_variant": "T4_ActionDecision", "component_300s": {
+            "visual_type": vtyp, "evidence_grain": "invoice_line", "evidence_columns": ["KPI-COM-019"],
+            "row_fields": ["dim_product.Category", "dim_product.Subcategory"],
+            "column_fields": ["dim_date.Year"]}}
+    matrix = _page_from_layout("page_2_execution", seite("matrix"), catalog).visuals[0]
     assert matrix.visual_type == "matrix"
     assert matrix.rows == ["dim_product.Category", "dim_product.Subcategory"]
     assert matrix.columns == ["dim_date.Year"]
-    assert bar.columns == [] and "dim_date.Year" not in bar.rows
+    tabelle = _page_from_layout("page_2_execution", seite("table"), catalog).visuals[0]
+    assert tabelle.columns == [] and "dim_date.Year" not in tabelle.rows

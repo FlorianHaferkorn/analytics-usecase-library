@@ -209,6 +209,7 @@ def test_narrow_fields_stay_narrow():
     lib = VisualLibrary.load()
     eng = {
         ("usecase_bracket.schema.json", "component_3s"): "status_signal",
+        ("usecase_bracket.schema.json", "component_300s"): "detail_matrix",
         ("layout_330300.schema.json", "diagnostics_300s"): "detail_matrix",
     }
     for (datei, feld), block_id in eng.items():

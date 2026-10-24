@@ -633,22 +633,7 @@ class VisualBuilder:
         # Table visual always uses "Values" role (column well); "Data" would land in filter
         query: Dict[str, Any] = {"queryState": {"Values": {"projections": projections}}}
 
-        if sort_by and sort_by.get("measure"):
-            direction = "Descending" if str(sort_by.get("direction", "")).lower() == "descending" else "Ascending"
-            query["sortDefinition"] = {
-                "sort": [
-                    {
-                        "field": {
-                            "Measure": {
-                                "Expression": {"SourceRef": {"Entity": "_Measures"}},
-                                "Property": sort_by["measure"],
-                            }
-                        },
-                        "direction": direction,
-                    }
-                ],
-                "isDefaultSort": True,
-            }
+        self._evidence_sort(query, sort_by)
         visual["visual"]["query"] = query
 
         # Add table-specific objects
@@ -689,6 +674,34 @@ class VisualBuilder:
             ]
         }
 
+        self._evidence_data_bars(objects, highlight_rule)
+        visual["visual"]["objects"] = objects
+
+        self._evidence_topn(visual, name, sort_by, top_n, top_n_field)
+
+        return visual
+    
+    # Regeln der Detailebene (component_300s sort_by/top_n/highlight_rule, R2.1), geteilt von
+    # Tabelle und Kreuztabelle: dieselbe Sortierung, derselbe TopN-Filter, dieselben Datenbalken.
+    def _evidence_sort(self, query: Dict[str, Any], sort_by: Optional[Dict[str, str]]) -> None:
+        if sort_by and sort_by.get("measure"):
+            direction = "Descending" if str(sort_by.get("direction", "")).lower() == "descending" else "Ascending"
+            query["sortDefinition"] = {
+                "sort": [
+                    {
+                        "field": {
+                            "Measure": {
+                                "Expression": {"SourceRef": {"Entity": "_Measures"}},
+                                "Property": sort_by["measure"],
+                            }
+                        },
+                        "direction": direction,
+                    }
+                ],
+                "isDefaultSort": True,
+            }
+
+    def _evidence_data_bars(self, objects: Dict[str, Any], highlight_rule: Optional[Dict[str, str]]) -> None:
         if highlight_rule and highlight_rule.get("measure") and highlight_rule.get("type", "data_bar") == "data_bar":
             objects["columnFormatting"] = [
                 {
@@ -706,8 +719,8 @@ class VisualBuilder:
                 }
             ]
 
-        visual["visual"]["objects"] = objects
-
+    def _evidence_topn(self, visual: Dict[str, Any], name: Optional[str], sort_by: Optional[Dict[str, str]],
+                       top_n: Optional[int], top_n_field: Optional[tuple]) -> None:
         if top_n and top_n_field and sort_by and sort_by.get("measure"):
             top_ent, top_prop = top_n_field
             order_direction = 2 if str(sort_by.get("direction", "")).lower() == "descending" else 1
@@ -788,8 +801,6 @@ class VisualBuilder:
                 ]
             }
 
-        return visual
-    
     def build_matrix(
         self,
         position: Position,
@@ -797,6 +808,10 @@ class VisualBuilder:
         measures: Optional[List[str]] = None,
         name: Optional[str] = None,
         column_fields: Optional[list] = None,
+        sort_by: Optional[Dict[str, str]] = None,
+        top_n: Optional[int] = None,
+        top_n_field: Optional[tuple] = None,
+        highlight_rule: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """
         Build Matrix (Pivot Table) visual placeholder.
@@ -807,6 +822,8 @@ class VisualBuilder:
             measures: Optional list of DAX measure names for value columns
             name: Optional visual name
             column_fields: Optional list of (entity, property) for the Columns role
+            sort_by, top_n, top_n_field, highlight_rule: detail-layer rules as in build_table
+                (Detail_Matrix as cross-tab, visual_registry detail_matrix/matrix)
 
         Returns:
             Visual JSON structure
@@ -821,7 +838,9 @@ class VisualBuilder:
         query_state: Dict[str, Any] = {"Rows": {"projections": row_proj}, "Values": {"projections": val_proj}}
         if column_fields:
             query_state["Columns"] = {"projections": [self._column_projection(e, p) for e, p in column_fields]}
-        visual["visual"]["query"] = {"queryState": query_state}
+        query: Dict[str, Any] = {"queryState": query_state}
+        self._evidence_sort(query, sort_by)
+        visual["visual"]["query"] = query
 
         # Add matrix-specific objects
         visual["visual"]["objects"] = {
@@ -861,6 +880,8 @@ class VisualBuilder:
                 "stepped": _lit("true"), "showExpandCollapseButtons": _lit("true"), "unfrozen": _lit("false")}}]
             visual["visual"]["objects"]["subTotals"] = [{"properties": {
                 "rowSubtotals": _lit("true"), "rowSubtotalsPosition": _lit("'Top'")}}]
+        self._evidence_data_bars(visual["visual"]["objects"], highlight_rule)
+        self._evidence_topn(visual, name, sort_by, top_n, top_n_field)
 
         return visual
     
@@ -1066,8 +1087,6 @@ class VisualBuilder:
         statement_title: Optional[str] = None,
         subtitle: Optional[str] = None,
         format_spec: Optional[Any] = None,
-        row_fields: Optional[List[str]] = None,
-        column_fields: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """Build a visual and render its header. Per ``title_policy`` the header is the governed
         **question** for a static report (always true), or the governed **message** when a value/
@@ -1078,7 +1097,6 @@ class VisualBuilder:
         visual = self._dispatch_ux_visual(
             ux_visual_type, position, name=name, measures=measures, title=title,
             category_entity=category_entity, category_property=category_property,
-            row_fields=row_fields, column_fields=column_fields,
         )
         if statement_title:
             self._apply_title(visual, statement_title)
@@ -1118,8 +1136,6 @@ class VisualBuilder:
         title: Optional[str] = None,
         category_entity: Optional[str] = None,
         category_property: Optional[str] = None,
-        row_fields: Optional[List[str]] = None,
-        column_fields: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Build visual from ux_layout_rules visual_type (round-trip from layout editor).
@@ -1225,14 +1241,11 @@ class VisualBuilder:
         if normalized_type == "funnel":
             return self.build_funnel(position, name=name)
         if normalized_type == "matrix":
-            # Kreuztabelle (pivotTable): Zeilen- und Spaltenebenen aus dem Bracket (`row_fields`,
-            # `column_fields`, 23.10.2026); ohne `row_fields` ist `category_field` die eine Zeile.
-            def _paare(felder):
-                return [tuple(f.split(".", 1)) for f in (felder or []) if isinstance(f, str) and "." in f]
-            zeilen = _paare(row_fields) or ([(category_entity, category_property)]
-                                            if category_entity and category_property else [])
-            return self.build_matrix(position, columns=zeilen, measures=measures, name=name,
-                                     column_fields=_paare(column_fields))
+            # Kreuztabelle (pivotTable) mit `category_field` als Zeile. Mehrere Ebenen und eine
+            # Spaltenachse gibt es nur auf der Detailebene (component_300s, visual_registry
+            # detail_matrix); auf der Hauptebene meldet from_aluca die Matrix als Block-Konflikt.
+            zeilen = [(category_entity, category_property)] if category_entity and category_property else []
+            return self.build_matrix(position, columns=zeilen, measures=measures, name=name)
         # Alles Uebrige ueber die governte Rollentabelle (tooling/superversion/targets/pbir.py).
         # Bis 23.09.2026 stand hier ein Rueckfall auf lineChart mit einer Log-Warnung. Gemessen
         # beim Ausrollen: FIN-002 Main_2 (`variance_bar`, eine Abweichungsbruecke) und OPS-001
