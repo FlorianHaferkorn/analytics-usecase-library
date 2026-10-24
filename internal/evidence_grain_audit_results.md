@@ -244,3 +244,51 @@
 
 **Report generated:** 2026-02-13  
 **Tool:** Evidence-Grain Audit (Stage 1 governance quality check)
+
+---
+
+## Nachtrag 24.10.2026: Kreuztabelle (`visual_type: matrix`) je Use Case
+
+Seit PR #642 kann `component_300s` eine gestufte Kreuztabelle bestellen
+(`visual_type: matrix`, `row_fields`). Pilot: COM-002. Die Sichtung der übrigen 23 Use Cases hat
+gemessen, ob die Detailspalten in den Showdaten eine echte Verschachtelung bilden.
+
+**Methode:** duckdb auf `showcases/aurora_group/data/gold` (aktive Dateien aus `_delta_log`).
+Aliase aufgelöst mit `ConfigLoader.get_page_config(uc, 'detail')` gegen das gebundene Modell.
+`E/K/M` = Eltern / Kinder / Kinder mit mehr als einem Elternteil. M = 0 heißt echte Hierarchie.
+Nachgemessen 24.10.2026: COM-002 Category>Subcategory 3/14/1; SCM-003 Zellen AX 14, AY 1,
+BX 6, CX 16, CY 3.
+
+**Regel aus Power BI:** Ein TopN-Filter auf Visual-Ebene gehört zum Filterkontext. Damit rechnen
+auch die Zwischensummen der äußeren Ebenen nur über die Top-N-Blätter (hergeleitet; Desktop-
+Bestätigung offen, siehe `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` M2).
+
+| UC | Urteil | row_fields (Vorschlag) | Messung (E/K/M, Quelle) | Grund |
+|---|---|---|---|---|
+| COM-001 | matrix | dim_org.Region > dim_org.Country > dim_org.OrgName | 5/15/0 und 15/99/0 (fact_sales) | Wo-Frage, echte Org-Hierarchie. Heute 15 Zeilen, Top-20 wirkungslos. Category als Slicer. Top-20 auf Stores würde die Zwischensummen verzerren |
+| SCM-003 | matrix, `top_n` streichen | dim_product.ABC_Class > XYZ_Class > ProductCode | ABC/XYZ > ProductCode 7/5000/0 (dim). 40 SKUs in 5 Zellen (fact_forecast) | Erst Cluster, dann SKU. Hierarchie 'ABC/XYZ Classification' im Modell schon vorhanden. Top-20 von 40 SKUs verfälscht die Cluster-Summen |
+| XD-004 | matrix | fact_action_outcome.domain > action_code_id | 4/15/0 | Erst Domäne, dann Action Code. `outcome_status` aus den Zeilen nehmen |
+| COM-003 | Tabelle | – | Segment × Channel 5/5/5 | Kreuzklassifikation. Channel filtert den CLV nicht (fact_customer_value nur CustomerKey) |
+| COM-004 | Tabelle | – | Mechanic > PromoName 4/29/11 | Frage nach einzelnen Promotions. PromoName ist nicht eindeutig |
+| COM-006 | Tabelle | – | Region × Category 5/3/3, 15 Zeilen | Kreuzklassifikation. Store-Ebene sinnlos (ein Channel je Org) |
+| FIN-001 | Tabelle | – | fact_AR: 10 Orgs gemischter Ebenen | Gemischte Ebenen zählen in Zwischensummen doppelt |
+| FIN-002 | Tabelle | – | 513 Entities. Category konstant (Fashion) | Elementfrage. Category-Spalte ohne Aussage |
+| FIN-003 | Tabelle | – | Entity × Cost Center 534/6/6 | Kreuzklassifikation. `cost_center` löst sich nicht auf |
+| OPS-001 | Tabelle | – | 8 Assets. Kein Fakt mit Asset und Product | Elementfrage. Category filtert OEE nicht |
+| OPS-002 | Tabelle | – | Criticality > Asset 3/10/0 | Hierarchie echt, aber nur 10 Assets |
+| OPS-003 | Tabelle | – | fact_quality: 1 Category, 20 SKUs | Keine Dimension für Fehlerarten. Asset nicht an fact_quality |
+| SCM-001 | Tabelle | – | Category > ABC 3/3/3 | Kreuzklassifikation. ProductCode fehlt in evidence_columns |
+| SCM-002 | Tabelle | – | Customer × Mode 4/3/3 | Kreuzklassifikation, 15 Zeilen |
+| XD-001 | Tabelle | – | Queue × IssueType 4/5/5 | Zwei unabhängige Achsen, keine Fall-ID |
+| COM-IND-R001 | Tabelle | – | hergeleitet aus COM-001/003 (Aliase nicht einzeln aufgelöst): Region × Category 5/3/3, Segment × Channel 5/5/5 (fact_sales) | Drei unabhängige Attribute, keine Hierarchie |
+| COM-IND-R002 | Tabelle | – | hergeleitet aus COM-006: Region × Category 5/3/3, 15 Zeilen | Kreuzklassifikation, Top-20 wirkungslos |
+| XD-003 | Tabelle | – | nicht gemessen | `period` löst zu dim_date.Date auf (Tageskörnung) |
+| COM-005 | unklar | (nach Modellierung) dim_salesrep.Team > 'Rep Name' | Team > Rep 5/40/0 (Gold) | dim_salesrep fehlt im Modell |
+| ESG-001 | unklar | – | nicht messbar | Kein Modell, kein Emissions-Fakt |
+| HR-001 | unklar | (ANNAHME) dim_employee_segment.Function > Segment | Function > Segment 5/20/0 (Gold) | Kein HR-Modell. `segment` trifft das Kundensegment |
+| SCM-004 | unklar | – | Category > Vendor 8/40/28 | Lieferanten nicht verschachtelt. Kein Modell gebunden |
+| XD-002 | unklar | dim_case_queue.Channel > QueueName | Channel > Queue 3/4/0. Org darunter gemischt | Org-Ebene zählt doppelt |
+
+**Ergebnis:** 3 Kandidaten (COM-001, SCM-003, XD-004), 15 Tabellen, 5 unklar wegen fehlender
+Modelltabellen. Die Ursachen dafür (falsche Aliase, fehlende Dimensionen, gemischte Org-Ebenen)
+stehen in `technical_backlog.md` unter „Page Scaffold Generator“.

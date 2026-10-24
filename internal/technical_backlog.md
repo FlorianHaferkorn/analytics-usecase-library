@@ -63,6 +63,9 @@ Open work for Operations and Finance domain models is tracked in **[products/fab
 | products/fabric/powerbi/tooling/page_scaffold_generator/yaml/scanner.py | line 187 | Support for BOM (byte-order mark) within a stream. |
 | products/fabric/powerbi/tooling/page_scaffold_generator/yaml/scanner.py | line 761 | Tab handling rules (clarify/sanitize). |
 | products/fabric/powerbi/tooling/page_scaffold_generator/yaml/`__init__.py` | line 21 | XXX: "Warnings control" API is deprecated; left in place to avoid breaking callers. No implementation work. |
+| products/fabric/powerbi/tooling/page_scaffold_generator/config_loader.py | `EVIDENCE_DIM_TOKENS`, `_pick_column` | 24.10.2026 (Matrix-Sichtung, `internal/evidence_grain_audit_results.md`): Evidence-Aliase treffen die falsche Tabelle: `segment` (HR-001) → dim_customer, `category` (SCM-004) → dim_product statt dim_category, `channel` (XD-001/002) → dim_org statt dim_case_queue, `period` (XD-003) → dim_date.Date (Tageskörnung). |
+| products/fabric/powerbi/dist/*.SemanticModel | fehlende Dimensionen | 24.10.2026: `rep` (COM-005), `site`/`scope` (ESG-001), `cost_center` (FIN-003), `role` (HR-001) und `supplier` (SCM-004) lassen sich nicht auflösen. dim_salesrep, dim_cost_center, dim_role und dim_employee_segment liegen im Gold, aber in keinem Modell. Für ESG-001, HR-001 und SCM-004 bindet kein Modell (`domain: Supply Chain` ergibt kein SupplyChain.SemanticModel). |
+| showcases/aurora_group/data/gold/facts | gemischte Org-Ebenen | 24.10.2026: fact_support_cases, fact_workforce_management, fact_accounts_receivable und fact_fulfillment buchen auf Group-, Region-, Country- und Store-Zeilen zugleich (OrgType). Zwischensummen über dim_org zählen doppelt; das sperrt eine Org-Matrix in diesen Domänen. |
 
 ---
 
