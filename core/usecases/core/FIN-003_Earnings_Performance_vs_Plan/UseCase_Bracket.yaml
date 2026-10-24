@@ -80,8 +80,10 @@ ux_layout_rules:
       # 24.10.2026 (Entscheid Florian Haferkorn, Option b): Entity-Koernung. dim_cost_center
       # haengt nur an fact_opex_costcenter; KPI-FIN-018/021/020/016 ignorieren
       # den Kostenstellenfilter, eine Kostenstellen-Zeile wiederholte vier von fuenf Werten.
-      # Kostenstellen-Sicht als Drillthrough offen: der Prototyp-Renderer kann keine eigene
-      # Drillthrough-Seite, der offizielle Emitter noch nicht (technical_backlog, FIN-003).
+      # Kostenstellen-Sicht als Drillthrough: page_3_drillthrough (24.10.2026). Der offizielle
+      # Emitter (tooling/superversion/targets/pbir.py) schreibt sie als Drillthrough-Seite;
+      # der Prototyp-Renderer kennt sie nicht, die dist-Reports bleiben bis zum Umstieg ohne sie
+      # (technical_backlog, FIN-003).
       evidence_grain: entity_month
       evidence_columns:
       - entity
@@ -99,6 +101,20 @@ ux_layout_rules:
       highlight_rule:
         column: KPI-FIN-021
         type: data_bar
+  # Kostenstellen-Drillthrough (24.10.2026): aus jedem Visual, das dim_org.OrgName fuehrt (im
+  # dist-Report Main_2 und Detail_Matrix), auf die Kostenstellen dieser Entity. Nur KPI-FIN-014, weil allein
+  # fact_opex_costcenter an dim_cost_center haengt; die vier fact_finance-KPIs wiederholten je
+  # Kostenstelle den Entity-Wert (Weg b, technical_backlog FIN-003).
+  page_3_drillthrough:
+    title: Cost Center Drillthrough
+    decision_question: Which cost centres carry this entity's opex overrun?
+    drillthrough_fields:
+    - dim_org.OrgName
+    component_300s:
+      evidence_grain: entity_costcentre_month
+      evidence_columns:
+      - dim_cost_center.Cost Center
+      - KPI-FIN-014
 prioritization:
   business_value: high
   implementation_effort: medium

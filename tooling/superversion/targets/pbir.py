@@ -330,6 +330,86 @@ def _textbox_visual_json(visual, idx: int, gaps: list[str]) -> dict:
     }
 
 
+# --------------------------------------------------------------------------- #
+# Drillthrough-Zielseite (24.10.2026)                                         #
+# --------------------------------------------------------------------------- #
+# Der Vertrag fuehrt `ReportPage.drillthrough_fields` seit D-RPT5 (16.07.2026); dieser
+# Emitter hat das Feld bis heute verworfen. Was eine Drillthrough-Seite ausmacht, misst
+# `powerbi-report-author validate` (Pin 0.5.0, src/validators/drillthrough.ts) und nicht
+# dieser Kommentar: `type` und `pageBinding.type` "Drillthrough", je Feld ein Seitenfilter
+# mit `howCreated: "Drillthrough"`, ein Binding-Parameter, dessen `boundFilter` den Filter
+# beim Namen nennt und dessen `fieldExpr` dem Filterfeld gleicht (sonst Fehler
+# PBIR_DRILLTHROUGH_FIELD_MISMATCH), und ein sichtbarer actionButton mit
+# `visualLink.type 'Back'`. Fehlt eines davon, warnt der Validator — genau die drei Warnungen,
+# die der Prototyp-Renderer in jeden dist-Report schreibt.
+#
+# Der Zurueck-Button ist Power-BI-Mechanik, keine Bedeutung: Desktop legt ihn beim Anlegen einer
+# Drillthrough-Seite selbst oben links an. Deshalb entsteht er hier und nicht im Bracket, an
+# derselben Stelle wie bei Desktop.
+_DRILLTHROUGH_BACK_ID = "Drillthrough_Back"
+_DRILLTHROUGH_BACK_POS = {"x": 32, "y": 32, "width": 48, "height": 48}
+
+
+def _drillthrough_config(page, gaps: list[str]) -> tuple[list[dict], dict | None]:
+    """Seitenfilter + pageBinding fuer eine Drillthrough-Zielseite, oder ``([], None)``.
+
+    Namen sind rein aus Seiten-Name und Position abgeleitet (Invariant I2) und damit
+    reportweit eindeutig, solange die Seitennamen es sind. Ein unqualifiziertes Feld
+    landet sichtbar unter ``_HITL`` mit vermerkter Luecke — nie wird eine Tabelle geraten.
+    """
+    fields = [f for f in (getattr(page, "drillthrough_fields", None) or []) if f]
+    if not fields:
+        if getattr(page, "page_type", "") == "Drillthrough":
+            gaps.append(f"page '{page.name}': page_type Drillthrough without drillthrough_fields "
+                        "— emitted as a normal page")
+        return [], None
+    filters: list[dict] = []
+    params: list[dict] = []
+    for i, ref in enumerate(fields, start=1):
+        field_expr = _column_from_ref(ref, gaps, f"page '{page.name}' drillthrough")["field"]
+        filter_name = f"dt_{page.name}_{i}"
+        filters.append({
+            "name": filter_name,
+            "field": field_expr,
+            "type": "Categorical",
+            "howCreated": "Drillthrough",
+        })
+        params.append({
+            "name": f"dtp_{page.name}_{i}",
+            "boundFilter": filter_name,
+            # Gleiches Objekt wie das Filterfeld, als Kopie: der Validator vergleicht tief.
+            "fieldExpr": json.loads(json.dumps(field_expr)),
+        })
+    binding = {"name": f"dtb_{page.name}", "type": "Drillthrough", "parameters": params}
+    return filters, binding
+
+
+def _back_button_json(name: str, z: int) -> dict:
+    """Offizieller actionButton mit Zurueck-Aktion (Symbol ``back``, ``visualLink.type 'Back'``)."""
+    pos = _DRILLTHROUGH_BACK_POS
+    return {
+        "$schema": _SCHEMA["visual"],
+        "name": name,
+        "position": {**pos, "z": z, "tabOrder": z},
+        "visual": {
+            "visualType": "actionButton",
+            "objects": {
+                "icon": [{
+                    "properties": {"shapeType": _literal("back")},
+                    "selector": {"id": "default"},
+                }],
+            },
+            "visualContainerObjects": {
+                "visualLink": [{"properties": {
+                    "show": _literal(True),
+                    "type": _literal("Back"),
+                }}],
+            },
+            "drillFilterOtherVisuals": True,
+        },
+    }
+
+
 def _visual_json(visual, idx: int, owner: dict[str, str], gaps: list[str]) -> dict:
     if visual.visual_type in {"action_panel", "text_box"}:
         return _textbox_visual_json(visual, idx, gaps)
@@ -527,10 +607,22 @@ def _build(canonical: CanonicalModel) -> tuple[dict[str, str], list[str]]:
         }
         if page.is_hidden:
             page_obj["visibility"] = "HiddenInViewMode"
+        dt_filters, dt_binding = _drillthrough_config(page, gaps)
+        if dt_binding:
+            page_obj["type"] = "Drillthrough"
+            page_obj["filterConfig"] = {"filters": dt_filters}
+            page_obj["pageBinding"] = dt_binding
         out[f"{base}/definition/pages/{page.name}/page.json"] = _dumps(page_obj)
         for idx, visual in enumerate(page.visuals):
             vj = _visual_json(visual, idx, owner, gaps)
             out[f"{base}/definition/pages/{page.name}/visuals/{visual.visual_id}/visual.json"] = _dumps(vj)
+        if dt_binding:
+            taken = {v.visual_id for v in page.visuals}
+            back_id = _DRILLTHROUGH_BACK_ID
+            while back_id in taken:
+                back_id += "_"
+            back = _back_button_json(back_id, (len(page.visuals) + 1) * 1000)
+            out[f"{base}/definition/pages/{page.name}/visuals/{back_id}/visual.json"] = _dumps(back)
 
     return out, gaps
 

@@ -647,13 +647,15 @@ def _page_from_layout(
     page: dict,
     catalog: KpiCatalog,
     action_panel_text: str = "",
+    ebene: Optional[str] = None,
 ) -> ReportPage:
     visuals: list[Visual] = []
     idx = 0
     vergeben: set[str] = set()
     block_konflikte: list[dict] = []
     variant = page.get("template_variant") or ""
-    ebene = _EBENE_JE_SEITE.get(page_key, "")
+    if ebene is None:
+        ebene = _EBENE_JE_SEITE.get(page_key, "")
 
     def add(component: dict, slot: str, slot_name: str = ""):
         nonlocal idx
@@ -868,6 +870,8 @@ def from_bracket(bracket: dict, catalog: KpiCatalog) -> CanonicalModel:
     for pk in ("page_1_summary", "page_2_execution"):
         if isinstance(layout.get(pk), dict):
             pages.append(_page_from_layout(pk, layout[pk], catalog, action_panel_text))
+    if isinstance(layout.get(_DRILLTHROUGH_SEITE), dict):
+        pages.append(_drillthrough_page(layout[_DRILLTHROUGH_SEITE], catalog))
 
     # Supporting semantic measures are definitions in core/semantic_models, not
     # KPIs.  Pull in only those actually bound by a governed visual idiom.  This
@@ -934,6 +938,34 @@ def from_bracket(bracket: dict, catalog: KpiCatalog) -> CanonicalModel:
     report = ReportModel(name=semantic.name, pages=pages)
 
     return CanonicalModel(semantic=semantic, report=report)
+
+
+#: Optionale Drillthrough-Zielseite des Brackets (Schema seit 24.10.2026).
+_DRILLTHROUGH_SEITE = "page_3_drillthrough"
+
+
+def _drillthrough_page(page: dict, catalog: KpiCatalog) -> ReportPage:
+    """`ux_layout_rules.page_3_drillthrough` → Drillthrough-Zielseite im Vertrag.
+
+    Inhalt ist die Evidenztabelle der Detailebene (Slot `Detail_Matrix`, Geometrie aus dem
+    Default-Raster der Detailebene); Moebel gibt es keine, weil die Seite keine Variante
+    deklariert. Die Seite traegt `drillthrough_fields` und `page_type` "Drillthrough" und ist
+    im Ansichtsmodus ausgeblendet: erreicht wird sie per Drillthrough, nicht ueber die
+    Seitenleiste. Wie daraus PBIR wird (Filter, pageBinding, Zurueck-Button), entscheidet der
+    Emitter, nicht dieser Adapter.
+    """
+    c300 = dict(page.get("component_300s") or {})
+    c300.setdefault("visual_type", "table")
+    seite = _page_from_layout(
+        _DRILLTHROUGH_SEITE,
+        {"title": page.get("title", _DRILLTHROUGH_SEITE), "component_300s": c300},
+        catalog,
+        ebene="detail_slots",
+    )
+    seite.page_type = "Drillthrough"
+    seite.drillthrough_fields = list(page.get("drillthrough_fields") or [])
+    seite.is_hidden = True
+    return seite
 
 
 #: Welche Manifest-Ebene eine Bracket-Seite bedient. `from_aluca` kennt genau zwei

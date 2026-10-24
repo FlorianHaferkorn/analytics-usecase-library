@@ -703,6 +703,61 @@
               }
             }
           }
+        },
+        "page_3_drillthrough": {
+          "type": "object",
+          "required": [
+            "title",
+            "drillthrough_fields",
+            "component_300s"
+          ],
+          "additionalProperties": false,
+          "description": "Optional drillthrough target page (since 24.10.2026). The official PBIR emitter (tooling/superversion/targets/pbir.py) writes it with type and pageBinding Drillthrough, one drillthrough page filter per field and a back button; it is hidden in view mode and reached only by drillthrough from a visual that carries the field.",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "decision_question": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "The decision question this drillthrough page answers for the selected item."
+            },
+            "drillthrough_fields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[^.]+\\.[^.]+$"
+              },
+              "minItems": 1,
+              "description": "Fields the page is bound to as a drillthrough target, each as table.Column resolved against the bound semantic model. The source visual must carry the same field."
+            },
+            "component_300s": {
+              "type": "object",
+              "required": [
+                "evidence_grain",
+                "evidence_columns"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "evidence_grain": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "const": "transaction_line"
+                  },
+                  "description": "Grain of the drillthrough evidence table (same rule as page_2_execution.component_300s.evidence_grain)."
+                },
+                "evidence_columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1,
+                  "description": "Columns of the drillthrough evidence table: KPI IDs from the catalog and table.Column dimensions."
+                }
+              }
+            }
+          }
         }
       },
       "if": {
