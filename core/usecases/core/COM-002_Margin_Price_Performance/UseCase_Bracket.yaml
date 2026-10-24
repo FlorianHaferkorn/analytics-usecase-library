@@ -170,6 +170,16 @@ ux_layout_rules:
       highlight_rule:
         column: KPI-FIN-017
         type: data_bar
+      # Stepped cross-tab (visual_registry detail_matrix: matrix): category and
+      # subcategory subtotals locate where the margin pressure sits before the SKU
+      # rows name it. No column axis: Year x 5 measures would be 25 value columns
+      # on a 1232 px grid, and the period is already set by the page slicer.
+      # Top-20 applies to the innermost level (ProductCode).
+      visual_type: matrix
+      row_fields:
+      - dim_product.Category
+      - dim_product.Subcategory
+      - dim_product.ProductCode
 prioritization:
   business_value: high
   implementation_effort: medium
