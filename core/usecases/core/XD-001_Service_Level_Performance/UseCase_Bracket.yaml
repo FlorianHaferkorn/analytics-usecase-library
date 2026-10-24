@@ -88,9 +88,10 @@ ux_layout_rules:
       sort_by:
         measure: KPI-SVC-004
         direction: ascending
-      # Gemessen 24.10.2026 (Gold, fact_support_cases): keine Spalte hat mehr als 20 Werte
-      # (10 Orgs, 4 Queues, 5 Issue Types, 3 Severities) -- das Top-20 filtert nichts. Es bleibt,
-      # weil BC-CHART-10 (Knock-out) und das Schema top_n verlangen; eine Ausnahme braucht ein Feld.
+      # Gemessen 24.10.2026 (Gold, fact_support_cases, pandas): keine Spalte hat mehr als 10 Werte,
+      # die Tabelle aber 200 Zeilen (Org x Channel x Queue x IssueType x Severity). Keine
+      # ADR-0027-Ausnahme (Grenze 50). Das Top-20 liegt auf Severity (3 Werte) und filtert deshalb
+      # nichts; ein wirksames Top-N braucht eine andere Spaltenfolge (offen).
       top_n: 20
       highlight_rule:
         column: KPI-SVC-004

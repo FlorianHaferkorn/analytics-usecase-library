@@ -31,6 +31,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import sys
 from pathlib import Path
 from typing import Any, Optional
@@ -46,6 +47,51 @@ except ImportError:  # pragma: no cover
 REPO = Path(__file__).resolve().parents[2]
 
 _VALID_DIRECTIONS = {"ascending", "descending"}
+
+# ADR-0027 (Accepted 24.10.2026): eine begruendete Ausnahme statt eines wirkungslosen Top-N.
+# Obergrenze kleine Koernung = untere Kante der Detail-Matrix-Empfehlung (Design_Spec_3_30_300, 50-100).
+_MAX_ZEILEN_KLEINE_KOERNUNG = 50
+_AUSNAHME_MAX_ALTER_TAGE = 180
+
+
+def _pruefe_ausnahme(ausnahme: Any, visual_type: str) -> tuple[bool, str]:
+    """``top_n_ausnahme`` gegen ihre Klasse pruefen (ADR-0027 §3, Regeln 1-2)."""
+    if not isinstance(ausnahme, dict):
+        return False, "top_n_ausnahme is not a mapping"
+    fehlend = [k for k in ("klasse", "gemessene_zeilen", "gemessen_am", "quelle") if ausnahme.get(k) in (None, "")]
+    if fehlend:
+        return False, f"top_n_ausnahme missing {fehlend}"
+    zeilen = ausnahme["gemessene_zeilen"]
+    if not isinstance(zeilen, int) or isinstance(zeilen, bool) or zeilen < 0:
+        return False, "top_n_ausnahme.gemessene_zeilen not a non-negative integer"
+    try:
+        dt.date.fromisoformat(str(ausnahme["gemessen_am"]))
+    except ValueError:
+        return False, f"top_n_ausnahme.gemessen_am '{ausnahme['gemessen_am']}' not an ISO date"
+    klasse = ausnahme["klasse"]
+    if klasse == "kleine_koernung":
+        if zeilen > _MAX_ZEILEN_KLEINE_KOERNUNG:
+            return False, (f"kleine_koernung needs <= {_MAX_ZEILEN_KLEINE_KOERNUNG} rows, "
+                           f"measured {zeilen} — use top_n")
+        return True, ""
+    if klasse == "matrix_zwischensummen":
+        if visual_type != "matrix":
+            return False, f"matrix_zwischensummen needs visual_type matrix, got '{visual_type}'"
+        return True, ""
+    return False, f"top_n_ausnahme.klasse '{klasse}' unknown"
+
+
+def ausnahme_veraltet(c300: Optional[dict[str, Any]], heute: dt.date | None = None) -> Optional[str]:
+    """Warnung (nicht rot), wenn die Messung einer Ausnahme aelter als 180 Tage ist (Regel 3)."""
+    ausnahme = (c300 or {}).get("top_n_ausnahme")
+    if not isinstance(ausnahme, dict):
+        return None
+    try:
+        gemessen = dt.date.fromisoformat(str(ausnahme.get("gemessen_am")))
+    except ValueError:
+        return None
+    alter = ((heute or dt.date.today()) - gemessen).days
+    return f"top_n_ausnahme measured {alter} days ago — re-measure" if alter > _AUSNAHME_MAX_ALTER_TAGE else None
 
 
 def classify_evidence(c300: Optional[dict[str, Any]]) -> tuple[Optional[bool], str]:
@@ -75,8 +121,13 @@ def classify_evidence(c300: Optional[dict[str, Any]]) -> tuple[Optional[bool], s
         return False, "sort_by.measure missing"
     if direction not in _VALID_DIRECTIONS:
         return False, f"sort_by.direction '{direction}' not in {sorted(_VALID_DIRECTIONS)}"
+    ausnahme = c300.get("top_n_ausnahme")
+    if ausnahme is not None:
+        if top_n is not None:
+            return False, "top_n and top_n_ausnahme both set"
+        return _pruefe_ausnahme(ausnahme, c300.get("visual_type", "table"))
     if not isinstance(top_n, int) or isinstance(top_n, bool) or top_n < 1:
-        return False, "top_n missing or not a positive integer"
+        return False, "top_n missing or not a positive integer (or a top_n_ausnahme, ADR-0027)"
     return True, ""
 
 
@@ -112,6 +163,9 @@ def main() -> int:
             continue
         if res:
             valid += 1
+            warnung = ausnahme_veraltet(_c300(yaml.safe_load(b.read_text(encoding="utf-8")) or {}))
+            if warnung:
+                print(f"    ⚠ {b.parent.name.split('_')[0]}: {warnung} — BC-CHART-10 (warning)")
         else:
             invalid += 1
             print(f"    ⚠ {b.parent.name.split('_')[0]}: {reason} — BC-CHART-10")

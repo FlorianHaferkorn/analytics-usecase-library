@@ -440,7 +440,7 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which SKU clusters need forecast-model recalibration versus manual override?
-- **[300s evidence]** grain `sku_location_month`, worst-first by `KPI-SCM-017` (descending), Top-20 · action panel
+- **[300s evidence]** grain `sku_location_month`, worst-first by `KPI-SCM-017` (descending), Top-None · action panel
 **Decision payoff (actions):** S-F3.1, S-F3.2, S-F3.3, S-F3.4
 **Cross-domain pull:** Supply Chain (5: `KPI-SCM-005`, `KPI-SCM-017`, `KPI-SCM-006` +2); Commercial (2: `KPI-SCM-013`, `KPI-COM-012`)
 **Connects to use cases:** SCM-001, SCM-002
@@ -514,7 +514,7 @@
 
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Where should we rebalance capacity to relieve overload without breaching SLA?
-- **[300s evidence]** grain `agent_day`, worst-first by `KPI-SVC-009` (descending), Top-20 · action panel
+- **[300s evidence]** grain `agent_day`, worst-first by `KPI-SVC-009` (descending), Top-None · action panel
 **Decision payoff (actions):** X-R2.1, X-R2.2, X-R2.3, X-R2.4
 **Cross-domain pull:** Service & Experience (7: `KPI-SVC-004`, `KPI-SVC-007`, `KPI-SVC-013` +4); Operations (4: `KPI-SVC-009`, `KPI-SVC-010`, `KPI-SVC-011` +1)
 **Connects to use cases:** XD-001

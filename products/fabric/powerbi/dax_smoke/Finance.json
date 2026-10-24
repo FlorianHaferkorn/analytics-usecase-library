@@ -1,6 +1,6 @@
 {
   "modell": "Finance.SemanticModel",
-  "quelle_sha256": "6349ca5a0388e22b8ce45e051e1448bdc433e25ac2b5914e5ff2a59ab8d20228",
+  "quelle_sha256": "837b57370803678186e4927395d3e142ba2d1f6ee7d39d5b7d06bc2bc2667de2",
   "messungen": [
     {
       "measure": "Action Effectiveness Delta",

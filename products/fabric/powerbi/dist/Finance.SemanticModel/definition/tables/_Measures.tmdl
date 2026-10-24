@@ -503,9 +503,9 @@ table _Measures
 	/// Example question: Where is OpEx running over plan this quarter?
 	measure 'OpEx vs Plan %' =
 			VAR ActualOperatingExpense =
-				SUM ( fact_finance[OpEx Amount] )
+				SUM ( fact_opex_costcenter[OpEx Amount] )
 			VAR PlannedOperatingExpense =
-				SUM ( fact_finance[Plan OpEx Amount] )
+				SUM ( fact_opex_costcenter[Plan OpEx Amount] )
 			VAR OperatingExpenseVariance =
 				ActualOperatingExpense - PlannedOperatingExpense
 			RETURN

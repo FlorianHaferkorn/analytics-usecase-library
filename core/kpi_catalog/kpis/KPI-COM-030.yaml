@@ -13,7 +13,7 @@ calc_type: sum
 good_is: higher
 business:
   purpose: Measures revenue generation rate through the pipeline.
-  definition: (Open Opportunities x Avg Deal Value x Win Rate) / Sales Cycle Length.
+  definition: (Open Opportunities x Avg Won Deal Value x Win Rate) / Sales Cycle Length.
   grain_scope: Rep/segment; monthly.
   unit_format: eur_0
   interpretation: Higher is better; a composite health signal for the funnel engine.
@@ -33,9 +33,9 @@ technical:
   - fact_pipeline.Cycle Days
   calculation:
     # 24.10.2026: Komposition statt hitl-Platzhalter. Die DSL schachtelt (calc_ref.calc), die Begruendung
-    # "beyond the single-op DSL" traf nicht zu. Offen = weder gewonnen noch verloren; Avg Deal Value ist
-    # der Mittelwert ueber alle Opportunities im Filterkontext (ANNAHME, ungeprueft: Konvention nimmt oft
-    # nur gewonnene Deals; Fachentscheid beim business_owner).
+    # "beyond the single-op DSL" traf nicht zu. Offen = weder gewonnen noch verloren. Avg Deal Value =
+    # Mittelwert der gewonnenen Deals (Entscheid Florian Haferkorn, 24.10.2026; uebliche Lesart
+    # "average deal size = closed-won").
     op: ratio
     numerator:
       calc:
@@ -50,8 +50,11 @@ technical:
             - column: Lost Flag
               equals: false
         - calc:
-            op: avg
+            op: avg_filtered
             column: Opportunity Value Amount
+            filters:
+            - column: Won Flag
+              equals: true
         - kpi: KPI-COM-027
     denominator:
       kpi: KPI-COM-029

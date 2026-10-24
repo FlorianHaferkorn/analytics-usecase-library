@@ -1266,6 +1266,7 @@ class ConfigLoader:
                 "mechanic":          ("dim_promo", "Promo Mechanic"),
                 "lane":              ("dim_lane", "Mode"),              # SupplyChain.SemanticModel
                 "abc_class":         ("dim_product", "ABC_Class"),
+                "cost_center":       ("dim_cost_center", "Cost Center"),  # Finance.SemanticModel (24.10.2026)
                 "xyz_class":         ("dim_product", "XYZ_Class"),
             }
             resolved_dim_cols: list = []

@@ -81,10 +81,13 @@ ux_layout_rules:
       # KPI-COM-012 dropped ('location' has no backing dimension table in
       # SupplyChain.SemanticModel; product_category+ABC/XYZ is the
       # decision-relevant lens, matching SCM-001's own pattern).
+      # 24.10.2026 (Kreuztabelle): product_category weicht der SKU-Ebene; die
+      # Entscheidungsfrage fragt nach SKU-Clustern, und ABC > XYZ > SKU ist die
+      # Hierarchie 'ABC/XYZ Classification' des Modells.
       evidence_columns:
-      - product_category
       - abc_class
       - xyz_class
+      - sku
       - KPI-SCM-005
       - KPI-SCM-017
       - KPI-SCM-006
@@ -94,10 +97,22 @@ ux_layout_rules:
       sort_by:
         measure: KPI-SCM-017
         direction: descending
-      top_n: 20
+      # ADR-0027: ein Top-20 von 40 SKUs im Filterkontext verfaelscht die Cluster-Summen.
+      top_n_ausnahme:
+        klasse: matrix_zwischensummen
+        gemessene_zeilen: 40
+        gemessen_am: '2026-10-24'
+        quelle: fact_forecast x dim_product (Gold, pandas, SKU-Ebene; mit Zwischensummen 48)
       highlight_rule:
         column: KPI-SCM-017
         type: data_bar
+      # Stepped cross-tab (visual_registry detail_matrix: matrix): ABC- und XYZ-Summen
+      # zeigen das Cluster, bevor die SKU-Zeilen es benennen (5 Zellen, 40 SKUs).
+      visual_type: matrix
+      row_fields:
+      - dim_product.ABC_Class
+      - dim_product.XYZ_Class
+      - dim_product.ProductCode
 prioritization:
   business_value: high
   implementation_effort: medium

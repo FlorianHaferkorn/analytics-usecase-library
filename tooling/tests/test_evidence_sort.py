@@ -7,7 +7,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tooling.validation.check_evidence_sort import check_bracket, classify_evidence
+import datetime as dt
+
+from tooling.validation.check_evidence_sort import (
+    ausnahme_veraltet,
+    check_bracket,
+    classify_evidence,
+)
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -58,6 +64,54 @@ def test_missing_or_bad_top_n_is_invalid():
     assert classify_evidence(base)[0] is False                      # missing
     assert classify_evidence({**base, "top_n": 0})[0] is False   # < 1
     assert classify_evidence({**base, "top_n": True})[0] is False  # bool, not int
+
+
+_SORT = {"measure": "KPI-SVC-009", "direction": "descending"}
+
+
+def _ausnahme(klasse: str = "kleine_koernung", zeilen: int = 32) -> dict:
+    return {"klasse": klasse, "gemessene_zeilen": zeilen, "gemessen_am": "2026-10-24",
+            "quelle": "fact_workforce_management (Gold, pandas)"}
+
+
+def test_ausnahme_kleine_koernung_is_valid():
+    # ADR-0027: a measured small grain replaces top_n.
+    assert classify_evidence({"sort_by": _SORT, "top_n_ausnahme": _ausnahme()})[0] is True
+
+
+def test_ausnahme_kleine_koernung_over_limit_is_invalid():
+    ok, reason = classify_evidence({"sort_by": _SORT, "top_n_ausnahme": _ausnahme(zeilen=51)})
+    assert ok is False and "50" in reason
+
+
+def test_ausnahme_matrix_only_for_matrix():
+    c300 = {"sort_by": _SORT, "top_n_ausnahme": _ausnahme("matrix_zwischensummen", 40)}
+    assert classify_evidence(c300)[0] is False                               # default table
+    assert classify_evidence({**c300, "visual_type": "matrix"})[0] is True
+
+
+def test_ausnahme_and_top_n_together_is_invalid():
+    ok, reason = classify_evidence({"sort_by": _SORT, "top_n": 20, "top_n_ausnahme": _ausnahme()})
+    assert ok is False and "both" in reason
+
+
+def test_ausnahme_incomplete_or_unknown_class_is_invalid():
+    unvollstaendig = {k: v for k, v in _ausnahme().items() if k != "quelle"}
+    assert classify_evidence({"sort_by": _SORT, "top_n_ausnahme": unvollstaendig})[0] is False
+    assert classify_evidence({"sort_by": _SORT, "top_n_ausnahme": _ausnahme("gross")})[0] is False
+    falsches_datum = {**_ausnahme(), "gemessen_am": "24.10.2026"}
+    assert classify_evidence({"sort_by": _SORT, "top_n_ausnahme": falsches_datum})[0] is False
+
+
+def test_ausnahme_still_needs_sort():
+    assert classify_evidence({"top_n_ausnahme": _ausnahme()})[0] is False
+
+
+def test_ausnahme_veraltet_warns_after_180_days():
+    c300 = {"sort_by": _SORT, "top_n_ausnahme": _ausnahme()}
+    assert ausnahme_veraltet(c300, heute=dt.date(2027, 4, 22)) is None      # 180 Tage
+    assert "181" in (ausnahme_veraltet(c300, heute=dt.date(2027, 4, 23)) or "")
+    assert ausnahme_veraltet({"sort_by": _SORT, "top_n": 20}) is None
 
 
 def test_no_evidence_table_is_not_applicable():

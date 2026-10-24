@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |---|---|
-| Status | **Proposed** (24.10.2026), wartet auf Freigabe; nichts davon ist scharf |
+| Status | **Accepted** (24.10.2026, Freigabe Florian Haferkorn); umgesetzt in Schema, Checker, Tests und XD-002 |
 | Entscheider | Florian Haferkorn |
 | Kontext | `internal/evidence_grain_audit_results.md` (Urteile je Use Case, 24.10.2026); Kommentar in `core/usecases/core/XD-001_Service_Level_Performance/UseCase_Bracket.yaml` („eine Ausnahme braucht ein Feld“) |
 | Betrifft | `tooling/generator/schemas/usecase_bracket.schema.json` (`component_300s`) · `tooling/validation/check_evidence_sort.py` · `tooling/tests/test_evidence_sort.py` · `products/fabric/powerbi/tooling/page_scaffold_generator/config_loader.py` (`detail_matrix_top_n`) |
@@ -35,7 +35,7 @@ ohne dass ein Test es merkt.
 | (b) `top_n_ausnahme` mit Klasse und Zähler | Feld statt `top_n`, Klasse aus Enum, gemessene Zeilenzahl, Datum | Test prüft die Klasse gegen die Messung; Knock-out bleibt hart | ein Feld mehr im Schema; Messung muss nachgezogen werden |
 | (c) `top_n: null` plus Freitextgrund | null erlaubt, `top_n_grund: str` | klein | Grund wieder Prosa, nicht falsifizierbar |
 
-## 3. Vorschlag: Option (b)
+## 3. Entscheidung: Option (b)
 
 `component_300s` trägt **entweder** `top_n` **oder** `top_n_ausnahme`, nie beides:
 
@@ -62,7 +62,7 @@ Regeln, die der Checker auswertet (keine davon liest Prosa):
 Der Knock-out zählt eine gültige Ausnahme als erfüllt; eine ungültige ist rot wie ein fehlendes
 `top_n`. Damit bleibt der Scorecard-Wert bei 100 %, ohne dass ein Feld etwas vorgibt, was es nicht tut.
 
-## 4. Diff-Skizze (nicht angewendet)
+## 4. Umsetzung (24.10.2026)
 
 **Schema** (`usecase_bracket.schema.json`, `component_300s.properties`):
 
@@ -107,18 +107,17 @@ if ausnahme is not None:
 `detail_matrix_top_n = None`; das ist heute schon der Pfad ohne Top-N-Filter, es braucht keinen
 neuen Zweig.
 
-## 5. Betroffene Brackets bei Freigabe
+## 5. Betroffene Brackets (Stand nach Umsetzung)
 
 | Use Case | heute | danach |
 |---|---|---|
-| XD-001 | `top_n: 20` (wirkungslos) | `kleine_koernung`, Zeilen nachmessen |
-| XD-002 | `top_n: 20` (wirkungslos, 32 Zeilen) | `kleine_koernung`, 32 |
-| SCM-003 | `top_n: 20`, Urteil `matrix` noch nicht umgesetzt | erst Umstellung auf Matrix, dann `matrix_zwischensummen` |
+| XD-001 | `top_n: 20` (wirkungslos) | bleibt `top_n: 20`: nachgemessen 200 Zeilen (Org x Channel x Queue x IssueType x Severity, fact_support_cases, Gold, pandas), über der Grenze 50. Das Top-N liegt auf Severity (3 Werte) und filtert nichts; ein wirksames Top-N braucht eine andere Spaltenfolge (offen) |
+| XD-002 | `top_n: 20` (wirkungslos, 32 Zeilen) | `kleine_koernung`, 32 (8 Orgs x 4 Queues, fact_workforce_management, Gold, pandas); Top-N-Filter aus der Detail_Matrix entfernt |
+| SCM-003 | `top_n: 20`, Urteil `matrix` noch nicht umgesetzt | Kreuztabelle, `matrix_zwischensummen` |
 | COM-001, COM-006, SCM-002 | `top_n: 20` bei 15 Zeilen | optional; bleiben, bis jemand nachmisst |
 
-## 6. Was diese Vorlage bewusst nicht tut
+## 6. Was diese Entscheidung bewusst nicht tut
 
-- Schema, Checker und Brackets bleiben unverändert, bis die Freigabe vorliegt.
 - Keine Ausnahme für große Tabellen: wer mehr als 50 Zeilen hat, braucht ein Top-N.
 - Die Messung wird nicht automatisiert (kein Gold-Zugriff im Checker); sie ist ein Feld mit Datum.
   Ein Sensor, der `gemessene_zeilen` gegen Gold nachzählt, wäre ein eigener Schritt.

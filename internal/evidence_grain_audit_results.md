@@ -266,20 +266,20 @@ Bestätigung offen, siehe `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` M2).
 | UC | Urteil | row_fields (Vorschlag) | Messung (E/K/M, Quelle) | Grund |
 |---|---|---|---|---|
 | COM-001 | matrix | dim_org.Region > dim_org.Country > dim_org.OrgName | 5/15/0 und 15/99/0 (fact_sales) | Wo-Frage, echte Org-Hierarchie. Heute 15 Zeilen, Top-20 wirkungslos. Category als Slicer. Top-20 auf Stores würde die Zwischensummen verzerren |
-| SCM-003 | matrix, `top_n` streichen | dim_product.ABC_Class > XYZ_Class > ProductCode | ABC/XYZ > ProductCode 7/5000/0 (dim). 40 SKUs in 5 Zellen (fact_forecast) | Erst Cluster, dann SKU. Hierarchie 'ABC/XYZ Classification' im Modell schon vorhanden. Top-20 von 40 SKUs verfälscht die Cluster-Summen |
+| SCM-003 | matrix, `top_n` streichen | dim_product.ABC_Class > XYZ_Class > ProductCode | ABC/XYZ > ProductCode 7/5000/0 (dim). 40 SKUs in 5 Zellen (fact_forecast) | Erst Cluster, dann SKU. Hierarchie 'ABC/XYZ Classification' im Modell schon vorhanden. Top-20 von 40 SKUs verfälscht die Cluster-Summen. **Umgesetzt 24.10.2026:** Kreuztabelle ABC > XYZ > SKU, `top_n_ausnahme: matrix_zwischensummen` (ADR-0027), 40 SKU-Zeilen (fact_forecast, Gold, pandas) |
 | XD-004 | matrix (umgesetzt 24.10.2026) | fact_action_outcome.domain > action_code_id | 4/15/0 | Erst Domäne, dann Action Code. `outcome_status` aus den Zeilen genommen |
 | COM-003 | Tabelle | – | Segment × Channel 5/5/5 | Kreuzklassifikation. Channel filtert den CLV nicht (fact_customer_value nur CustomerKey) |
 | COM-004 | Tabelle | – | Mechanic > PromoName 4/29/11 | Frage nach einzelnen Promotions. PromoName ist nicht eindeutig |
 | COM-006 | Tabelle | – | Region × Category 5/3/3, 15 Zeilen | Kreuzklassifikation. Store-Ebene sinnlos (ein Channel je Org) |
 | FIN-001 | Tabelle | – | fact_AR: 10 Orgs gemischter Ebenen | Gemischte Ebenen zählen in Zwischensummen doppelt |
 | FIN-002 | Tabelle | – | 513 Entities. Category konstant (Fashion) | Elementfrage. Category-Spalte ohne Aussage |
-| FIN-003 | Tabelle | – | Entity × Cost Center 534/6/6 | Kreuzklassifikation. `cost_center` löst sich nicht auf; dim_cost_center seit 24.10.2026 im Finance-Modell, die Evidenz-KPIs filtert es aber erst, wenn KPI-FIN-014 auf fact_opex_costcenter rechnet (technical_backlog) |
+| FIN-003 | Tabelle | – | Entity × Cost Center 534/6/6 | Kreuzklassifikation. `cost_center` löst sich nicht auf; dim_cost_center seit 24.10.2026 im Finance-Modell, seit 24.10.2026 rechnet KPI-FIN-014 auf fact_opex_costcenter und `cost_center` löst auf; die übrigen vier Evidenz-KPIs filtert es nicht, Report deshalb nicht erzeugt (technical_backlog) |
 | OPS-001 | Tabelle | – | 8 Assets. Kein Fakt mit Asset und Product | Elementfrage. Category filtert OEE nicht |
 | OPS-002 | Tabelle | – | Criticality > Asset 3/10/0 | Hierarchie echt, aber nur 10 Assets |
 | OPS-003 | Tabelle | – | fact_quality: 1 Category, 20 SKUs | Keine Dimension für Fehlerarten. Asset nicht an fact_quality |
 | SCM-001 | Tabelle | – | Category > ABC 3/3/3 | Kreuzklassifikation. ProductCode fehlt in evidence_columns |
 | SCM-002 | Tabelle | – | Customer × Mode 4/3/3 | Kreuzklassifikation, 15 Zeilen |
-| XD-001 | Tabelle | – | Queue × IssueType 4/5/5 | Zwei unabhängige Achsen, keine Fall-ID. Top-20 wirkungslos (gemessen 24.10.2026: keine Spalte über 10 Werte, Top-N lag auf Severity mit 3); bleibt wegen BC-CHART-10 |
+| XD-001 | Tabelle | – | Queue × IssueType 4/5/5 | Zwei unabhängige Achsen, keine Fall-ID. Top-20 wirkungslos (Top-N liegt auf Severity mit 3 Werten); nachgemessen 24.10.2026: 200 Zeilen (fact_support_cases, Gold, pandas), daher keine ADR-0027-Ausnahme, `top_n` bleibt. Wirksames Top-N braucht andere Spaltenfolge (offen) |
 | COM-IND-R001 | Tabelle | – | hergeleitet aus COM-001/003 (Aliase nicht einzeln aufgelöst): Region × Category 5/3/3, Segment × Channel 5/5/5 (fact_sales) | Drei unabhängige Attribute, keine Hierarchie |
 | COM-IND-R002 | Tabelle | – | hergeleitet aus COM-006: Region × Category 5/3/3, 15 Zeilen | Kreuzklassifikation, Top-20 wirkungslos |
 | XD-003 | Tabelle | – | nicht gemessen | `period` löst zu dim_date.Date auf (Tageskörnung) |
@@ -287,7 +287,7 @@ Bestätigung offen, siehe `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` M2).
 | ESG-001 | unklar | – | nicht messbar | Kein Modell, kein Emissions-Fakt |
 | HR-001 | unklar | (ANNAHME) dim_employee_segment.Function > Segment | Function > Segment 5/20/0 (Gold) | Kein HR-Modell. `segment` trifft das Kundensegment |
 | SCM-004 | unklar | – | Category > Vendor 8/40/28 | Lieferanten nicht verschachtelt. Kein Modell gebunden |
-| XD-002 | unklar | dim_case_queue.Channel > QueueName | Channel > Queue 3/4/0. Org darunter gemischt | Org-Ebene zählt doppelt. Seit 24.10.2026 Spalten Servicekanal vor Queue (Tabelle), Top-20 wirkungslos (4 Queues, 32 Zeilen), bleibt wegen BC-CHART-10 |
+| XD-002 | unklar | dim_case_queue.Channel > QueueName | Channel > Queue 3/4/0. Org darunter gemischt | Org-Ebene zählt doppelt. Seit 24.10.2026 Spalten Servicekanal vor Queue (Tabelle), seit ADR-0027 (24.10.2026) `top_n_ausnahme: kleine_koernung`, 32 Zeilen (8 Orgs x 4 Queues, fact_workforce_management, Gold, pandas), Top-N-Filter entfernt |
 
 **Ergebnis:** 3 Kandidaten (COM-001, SCM-003, XD-004), 16 Tabellen, 4 unklar wegen fehlender
 Modelltabellen. Die Ursachen dafür (falsche Aliase, fehlende Dimensionen, gemischte Org-Ebenen)

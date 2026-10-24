@@ -618,7 +618,41 @@
                   "type": "integer",
                   "minimum": 1,
                   "maximum": 500,
-                  "description": "Row limit for the evidence table (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Precedent: COM-002 uses 20 (R1.3); Design_Spec_3_30_300.md's Detail Matrix anatomy suggests 50-100 as a general ceiling -- pick per-report based on evidence_grain cardinality, do not default blindly."
+                  "description": "Row limit for the evidence table (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Precedent: COM-002 uses 20 (R1.3); Design_Spec_3_30_300.md's Detail Matrix anatomy suggests 50-100 as a general ceiling -- pick per-report based on evidence_grain cardinality, do not default blindly. Alternative since ADR-0027 (24.10.2026): top_n_ausnahme instead of top_n, never both."
+                },
+                "top_n_ausnahme": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "klasse",
+                    "gemessene_zeilen",
+                    "gemessen_am",
+                    "quelle"
+                  ],
+                  "description": "ADR-0027: a measured exception to the Top-N cap (BC-CHART-10). kleine_koernung only with gemessene_zeilen <= 50 (the table is small enough to scan whole); matrix_zwischensummen only with visual_type matrix (a Top-N in filter context would distort the subtotals). Checked by tooling/validation/check_evidence_sort.py; a measurement older than 180 days warns.",
+                  "properties": {
+                    "klasse": {
+                      "type": "string",
+                      "enum": [
+                        "kleine_koernung",
+                        "matrix_zwischensummen"
+                      ]
+                    },
+                    "gemessene_zeilen": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Rows of the evidence table in the unfiltered context."
+                    },
+                    "gemessen_am": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "quelle": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Fact table and method of the row count, e.g. 'fact_support_cases (Gold, pandas)'."
+                    }
+                  }
                 },
                 "highlight_rule": {
                   "type": "object",
@@ -705,12 +739,24 @@
                 "properties": {
                   "sort_by": true,
                   "top_n": true,
-                  "highlight_rule": true
+                  "highlight_rule": true,
+                  "top_n_ausnahme": true
                 },
                 "required": [
                   "sort_by",
-                  "top_n",
                   "highlight_rule"
+                ],
+                "oneOf": [
+                  {
+                    "required": [
+                      "top_n"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "top_n_ausnahme"
+                    ]
+                  }
                 ]
               }
             }
