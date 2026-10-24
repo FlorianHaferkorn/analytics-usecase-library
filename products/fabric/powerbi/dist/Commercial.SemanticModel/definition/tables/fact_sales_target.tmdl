@@ -1,0 +1,27 @@
+/// Remaining sales target per org and month (coverage denominator).
+table fact_sales_target
+	lineageTag: 537d507f-b143-5177-9c74-771131c3a1b9
+	column DateKey
+		dataType: Int64
+		sourceColumn: DateKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column OrgKey
+		dataType: Int64
+		sourceColumn: OrgKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column 'Remaining Target Amount'
+		dataType: Decimal
+		sourceColumn: Remaining Target Amount
+		summarizeBy: none
+	partition fact_sales_target = m
+		mode: import
+		source =
+			let
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/facts/fact_sales_target"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
+			in
+				ParquetData

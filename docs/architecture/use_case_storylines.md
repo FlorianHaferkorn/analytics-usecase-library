@@ -121,16 +121,16 @@
     - visual: `line_chart` · `KPI-COM-027`
     - answer: Win rate is dragging coverage below plan, not a shortage of open opportunities
     - so what → Because conversion is the lever, deal-qualification and win-rate coaching beat pure lead-volume pushes.
-- **[30s Q2]** Where in the funnel does conversion leak?
-    - visual: `horizontal_bar_chart` · `None`
-    - answer: The funnel leaks at the mid-stage — deals stall in qualification rather than failing late
-    - so what → Targeting the stalling mid-stage gate lifts conversion faster than widening the top of funnel.
+- **[30s Q2]** Is the conversion gap a team problem or a rep problem?
+    - visual: `horizontal_bar_chart` · `KPI-COM-027`
+    - answer: Win rate differs by under three points between teams; the spread sits at rep level
+    - so what → Coaching targets individual reps on page 2, not whole teams.
 
 ↓ handoff →
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
-**Spine question:** Which reps, segments and stages should the conversion push target first?
-- **[300s evidence]** grain `opportunity`, worst-first by `KPI-COM-026` (ascending), Top-20 · action panel
+**Spine question:** Which reps should the conversion push target first?
+- **[300s evidence]** grain `opportunity`, worst-first by `KPI-COM-027` (ascending), Top-20 · action panel
 **Decision payoff (actions):** C-P1.1
 
 ## COM-006 — E-Commerce Channel Performance

@@ -1,0 +1,85 @@
+/// Sales opportunity (one row per opportunity) with funnel stage reached, value, and close outcome.
+table fact_pipeline
+	lineageTag: fe960b4f-7219-51bf-9b74-6221ecfd729b
+	column OpportunityID
+		dataType: Int64
+		sourceColumn: OpportunityID
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column DateKey
+		dataType: Int64
+		sourceColumn: DateKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column OrgKey
+		dataType: Int64
+		sourceColumn: OrgKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column SalesRepKey
+		dataType: Int64
+		sourceColumn: SalesRepKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column StageKey
+		dataType: Int64
+		sourceColumn: StageKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column 'Create Date'
+		dataType: Int64
+		sourceColumn: Create Date
+		summarizeBy: none
+	/// 0 when still open. Type: int · Role: attribute
+	column 'Close Date'
+		dataType: Int64
+		sourceColumn: Close Date
+		summarizeBy: none
+	column 'Opportunity Value Amount'
+		dataType: Decimal
+		sourceColumn: Opportunity Value Amount
+		summarizeBy: none
+	/// Value if open & qualified, else 0. Type: currency · Unit: EUR · Role: measure
+	column 'Open Qualified Value Amount'
+		dataType: Decimal
+		sourceColumn: Open Qualified Value Amount
+		summarizeBy: none
+	column 'Won Flag'
+		dataType: Boolean
+		sourceColumn: Won Flag
+		summarizeBy: none
+	column 'Lost Flag'
+		dataType: Boolean
+		sourceColumn: Lost Flag
+		summarizeBy: none
+	column 'Qualified Flag'
+		dataType: Boolean
+		sourceColumn: Qualified Flag
+		summarizeBy: none
+	column 'Won Count'
+		dataType: Int64
+		sourceColumn: Won Count
+		summarizeBy: none
+	/// 1 if won or lost (closed), else 0. Type: int · Role: measure
+	column 'Decided Count'
+		dataType: Int64
+		sourceColumn: Decided Count
+		summarizeBy: none
+	/// Close-Create for closed opps; blank while open. Type: decimal · Role: measure
+	column 'Cycle Days'
+		dataType: Decimal
+		sourceColumn: Cycle Days
+		summarizeBy: none
+	partition fact_pipeline = m
+		mode: import
+		source =
+			let
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/facts/fact_pipeline"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
+			in
+				ParquetData

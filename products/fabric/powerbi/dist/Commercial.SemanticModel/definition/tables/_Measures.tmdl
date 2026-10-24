@@ -50,6 +50,22 @@ table _Measures
 
 		annotation ALUCA_Generated = "comparison_measures"
 
+	/// Purpose: Zielwert von Pipeline Coverage aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Pipeline Coverage Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-COM-026", fact_target[scenario] = "target" )
+		formatString: 0.0
+		displayFolder: 8_Comparison
+		lineageTag: 789096f7-fbfc-54c7-8440-0838e28e0d8d
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Pipeline Coverage gegen Pipeline Coverage Target; leer ohne Referenzwert.
+	measure 'Pipeline Coverage vs Target' = VAR _r = [Pipeline Coverage Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [Pipeline Coverage] - _r )
+		formatString: 0.0
+		displayFolder: 8_Comparison
+		lineageTag: d1f3e672-bc8e-5b76-b8c3-aa597ba4fc46
+
+		annotation ALUCA_Generated = "comparison_measures"
+
 	/// Purpose: Planwert von Promo ROI % aus fact_target (comparison: vs_plan); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
 	measure 'Promo ROI % Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "KPI-COM-016", fact_target[scenario] = "plan" )
 		formatString: "0.0%"
@@ -507,3 +523,42 @@ table _Measures
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 		lineageTag: 753c3ac0-719e-471c-8890-280ecebf38a1
+
+	/// Open qualified pipeline value divided by the remaining sales target.
+	/// Formula: DIVIDE ( SUM ( fact_pipeline[Open Qualified Value Amount] ), SUM ( fact_sales_target[Remaining Target Amount] ) )
+	/// Grain: rep/region/segment, weekly snapshot · Unit: ratio (x) · Good: higher_is_better
+	/// Owner: Commercial BI · Status: experimental
+	measure 'Pipeline Coverage' = DIVIDE ( SUM ( fact_pipeline[Open Qualified Value Amount] ), SUM ( fact_sales_target[Remaining Target Amount] ) )
+		formatString: 0.0
+		displayFolder: COM-005
+		lineageTag: f4f5d1fd-ed93-5588-b003-bbc3d20b20ef
+
+	/// Good: higher_is_better
+	measure 'Win Rate %' = DIVIDE ( SUM ( fact_pipeline[Won Count] ), SUM ( fact_pipeline[Decided Count] ) )
+		formatString: 0.0%
+		displayFolder: COM-005
+		lineageTag: 52b98316-5abb-5738-9e5b-ff6a8bd98c61
+
+	/// Good: higher_is_better
+	measure 'Stage Conversion %' = VAR _pending = "fact_pipeline (opportunity grain) now in Aurora; true per-stage conversion (records advancing to next stage / entering the stage) needs a stage-transition fact or a DAX stage-cohort measure — synthesised in TMDL by CLI." RETURN BLANK()
+		formatString: 0.0%
+		displayFolder: COM-005
+		lineageTag: f07eeb00-63c1-50fa-bc59-2d19b504aee6
+
+	/// Good: lower_is_better
+	measure 'Sales Cycle Length' = AVERAGE ( fact_pipeline[Cycle Days] )
+		formatString: 0
+		displayFolder: COM-005
+		lineageTag: 38e628b1-21a4-5666-9119-9acc9507e082
+
+	/// Good: higher_is_better
+	measure 'Sales Velocity' = VAR _pending = "Composite: open-opportunity count x avg deal value x win rate / sales-cycle length; all inputs now in fact_pipeline — assembled as a DAX measure in TMDL by CLI (beyond the neutral single-op DSL)." RETURN BLANK()
+		formatString: #,0
+		displayFolder: COM-005
+		lineageTag: d2b581e3-4bf7-5125-b6c9-affee863d1a0
+
+	/// Measures total value of open qualified opportunities.
+	measure 'Open Pipeline Value' = SUM ( fact_pipeline[Open Qualified Value Amount] )
+		formatString: #,0
+		displayFolder: COM-005
+		lineageTag: 244e250d-98b4-5cfd-80cb-c90aedcc48e2

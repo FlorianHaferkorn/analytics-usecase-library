@@ -269,5 +269,112 @@
         }
       ]
     }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "TopN_SLAAttainment_Detail_Matrix",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_issue_type"
+              }
+            },
+            "Property": "Severity"
+          }
+        },
+        "type": "TopN",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "subquery",
+              "Expression": {
+                "Subquery": {
+                  "Query": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "p",
+                        "Entity": "dim_issue_type",
+                        "Type": 0
+                      },
+                      {
+                        "Name": "m",
+                        "Entity": "_Measures",
+                        "Type": 0
+                      }
+                    ],
+                    "Select": [
+                      {
+                        "Column": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Source": "p"
+                            }
+                          },
+                          "Property": "Severity"
+                        },
+                        "Name": "field"
+                      }
+                    ],
+                    "OrderBy": [
+                      {
+                        "Direction": 1,
+                        "Expression": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Source": "m"
+                              }
+                            },
+                            "Property": "SLA Attainment %"
+                          }
+                        }
+                      }
+                    ],
+                    "Top": 20
+                  }
+                }
+              },
+              "Type": 2
+            },
+            {
+              "Name": "p",
+              "Entity": "dim_issue_type",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "p"
+                          }
+                        },
+                        "Property": "Severity"
+                      }
+                    }
+                  ],
+                  "Table": {
+                    "SourceRef": {
+                      "Source": "subquery"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User",
+        "isHiddenInViewMode": true
+      }
+    ]
   }
 }

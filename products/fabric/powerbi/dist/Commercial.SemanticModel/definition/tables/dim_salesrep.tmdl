@@ -1,0 +1,29 @@
+/// Sales representative (rep, team, region) for pipeline ownership.
+table dim_salesrep
+	lineageTag: d80c32af-f5ec-54b0-adf8-6d9644a32b40
+	column SalesRepKey
+		dataType: Int64
+		sourceColumn: SalesRepKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column 'Rep Name'
+		dataType: String
+		sourceColumn: Rep Name
+		summarizeBy: none
+	column Team
+		dataType: String
+		sourceColumn: Team
+		summarizeBy: none
+	column Region
+		dataType: String
+		sourceColumn: Region
+		summarizeBy: none
+	partition dim_salesrep = m
+		mode: import
+		source =
+			let
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/dimensions/dim_salesrep"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
+			in
+				ParquetData

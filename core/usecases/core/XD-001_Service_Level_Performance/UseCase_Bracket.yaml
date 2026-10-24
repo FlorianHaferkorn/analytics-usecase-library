@@ -88,11 +88,10 @@ ux_layout_rules:
       sort_by:
         measure: KPI-SVC-004
         direction: ascending
-      # 24.10.2026: kein top_n. Power BI rangiert Top-N auf EINER Spalte (hier der letzten,
-      # Severity mit 3 Werten). Gemessen (Gold, fact_support_cases): 10 Orgs, 4 Queues,
-      # 5 Issue Types, 3 Severities, 250 Zeilen-Kombinationen -- keine Spalte hat mehr als
-      # 20 Werte, ein Top-20 filtert auf keiner etwas. Die Sortierung worst-first leistet
-      # die Priorisierung.
+      # Gemessen 24.10.2026 (Gold, fact_support_cases): keine Spalte hat mehr als 20 Werte
+      # (10 Orgs, 4 Queues, 5 Issue Types, 3 Severities) -- das Top-20 filtert nichts. Es bleibt,
+      # weil BC-CHART-10 (Knock-out) und das Schema top_n verlangen; eine Ausnahme braucht ein Feld.
+      top_n: 20
       highlight_rule:
         column: KPI-SVC-004
         type: data_bar

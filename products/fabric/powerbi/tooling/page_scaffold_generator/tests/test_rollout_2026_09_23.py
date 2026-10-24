@@ -207,9 +207,9 @@ def test_an_unknown_dim_or_fact_table_stops_the_run_instead_of_becoming_a_measur
     """Vorher: `dim_x.Spalte` ohne Tabelle im Modell fiel in den Measure-Zweig."""
     b = loader.load_use_case_bracket("COM-001")
     with pytest.raises(ValueError, match="fehlt im Zielmodell"):
-        loader._table_column("dim_salesrep.Team", b)
+        loader._table_column("dim_cost_center.Bucket", b)   # Gold, in keinem Modell
     with pytest.raises(ValueError, match="fehlt im Zielmodell"):
-        loader._table_column("fact_pipeline.Stage", b)
+        loader._table_column("fact_recruiting.Stage", b)
     assert loader._table_column("Plan Sales.Amount", b) is None    # kein dim_/fact_: Measure-Zweig
 
 
@@ -220,15 +220,8 @@ def test_service_channel_is_the_queue_channel_not_the_org_channel(loader, uc):
     assert ("dim_org", "Channel") not in spalten
 
 
-def test_xd002_queue_is_the_innermost_column(loader):
+def test_xd002_topn_ranks_queues_not_channels(loader):
     assert loader.get_page_config("XD-002", "detail")["detail_matrix_topn_field"] == ("dim_case_queue", "QueueName")
-
-
-@pytest.mark.parametrize("uc", ["XD-001", "XD-002"])
-def test_service_details_carry_no_top_n_that_filters_nothing(loader, uc):
-    """Top-N rangiert eine Spalte. In XD-001 hat keine Spalte mehr als 10 Werte, in XD-002 hat
-    die Queue 4 (gemessen 24.10.2026, Gold): ein Top-20 waere ein Filter ohne Wirkung."""
-    assert loader.get_page_config(uc, "detail")["detail_matrix_top_n"] is None
 
 
 def test_xd003_ranks_business_units_not_days(loader):

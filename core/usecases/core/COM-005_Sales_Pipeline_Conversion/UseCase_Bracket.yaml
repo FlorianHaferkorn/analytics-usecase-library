@@ -53,39 +53,42 @@ ux_layout_rules:
         pushes.
       unit: rate
     - slot_id: Main_2
-      kpi_ids:
-      - KPI-COM-028
+      kpi_id: KPI-COM-027
       visual_type: horizontal_bar_chart
-      question: Where in the funnel does conversion leak?
-      message: The funnel leaks at the mid-stage — deals stall in qualification rather than failing late
-      so_what: Targeting the stalling mid-stage gate lifts conversion faster than widening the top of
-        funnel.
+      category_field: dim_salesrep.Team
+      # Bis 24.10.2026 stand hier KPI-COM-028 (Stage Conversion). Der KPI ist im Katalog op: hitl:
+      # fact_pipeline fuehrt je Opportunity nur die erreichte Endstufe, keine Stufenwechsel, und
+      # Negotiation ist in Gold leer (0 von 5894 Zeilen). Ein Balken je Stufe waere leer.
+      question: Is the conversion gap a team problem or a rep problem?
+      message: Win rate differs by under three points between teams; the spread sits at rep level
+      so_what: Coaching targets individual reps on page 2, not whole teams.
       unit: rate
   page_2_execution:
     title: Commercial Execution
-    decision_question: Which reps, segments and stages should the conversion push target first?
+    decision_question: Which reps should the conversion push target first?
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
       evidence_grain: opportunity
+      # Zeile = Rep (Team > Rep, 5/40). KPI-COM-026 fehlt bewusst: fact_sales_target fuehrt kein
+      # SalesRepKey, je Rep teilte die Coverage dessen Pipeline durch das ganze Org-Ziel. 028/030 sind
+      # im Katalog op: hitl und blieben leere Spalten. "segment" loeste ueber dim_customer auf, die
+      # fact_pipeline nicht kennt (kein CustomerKey).
       evidence_columns:
-      - rep
-      - segment
-      - KPI-COM-026
+      - dim_salesrep.Team
+      - dim_salesrep.Rep Name
       - KPI-COM-027
-      - KPI-COM-028
       - KPI-COM-029
-      - KPI-COM-030
       - KPI-COM-031
       action_panel: true
       payload_mode: full
       sort_by:
-        measure: KPI-COM-026
+        measure: KPI-COM-027
         direction: ascending
       top_n: 20
       highlight_rule:
-        column: KPI-COM-026
+        column: KPI-COM-027
         type: data_bar
 prioritization:
   business_value: high
@@ -98,22 +101,22 @@ data_protection:
   legal_basis: not_applicable
   data_minimisation: Detail grain limited to opportunity level; row-level security applied at SemanticModel
     level.
-  access_restriction: 'supply_chain_controlling_lead and scm_bi_lead roles; row-level security enforced
-    by SupplyChain.SemanticModel (site filter per org role).
+  access_restriction: 'commercial_controlling_revenue_operations and revenue_operations_bi_lead roles;
+    row-level security enforced by Commercial.SemanticModel (org filter per role).
 
     '
   dpia_required: false
   ai_generated_output: true
-  ai_grounding_measure: 'Active Actions Text (SCM) — DAX measure that reads current filter context and
+  ai_grounding_measure: 'Active Actions Text (COM) — DAX measure that reads current filter context and
     concatenates only triggered action texts. See Storytelling_Principles.md §13.
 
     '
 readiness:
-  data_availability: missing
+  data_availability: available
   org_capability: developing
   stakeholder_alignment: aligned
   overall_readiness: amber
 overrides:
-  data_contract_ref: core/data_contracts/domains/growth.yaml
+  data_contract_ref: core/data_contracts/domains/commercial_sales.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md

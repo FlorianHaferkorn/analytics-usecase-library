@@ -19,6 +19,15 @@ Vor dem Entfernen wird geprüft, dass kein DAX-Ausdruck und kein Bericht die Spa
 Abbruch statt stillem Bruch. ``diagramLayout.json`` bleibt unberührt (Desktop platziert neue
 Tabellen selbst; ``check_diagram_layout.ps1`` verlangt nicht jede Tabelle).
 
+* **COM-005, Pipeline (entschieden 24.10.2026).** Commercial bekommt ``fact_pipeline``,
+  ``fact_sales_target``, ``dim_sales_stage`` und ``dim_salesrep`` ganz aus dem Vertrag
+  ``commercial_sales.yaml``; die Beziehungen folgen den ``ref``-Spalten der Fakten. Ein Modell je
+  Domäne, kein eigenes Pipeline-Modell. Die KPI-Measures (``NEW_KPI_MEASURES``) kommen aus dem
+  Katalog: DAX über ``dax_synth`` (dieselbe Synthese wie ``build_ir``), Formatstring über
+  ``format_policy`` (Profil ``model``), Doku-Block über ``enrich_measure_docs``; ein KPI mit
+  ``op: hitl`` wird der dokumentierte Platzhalter (``build_ir.hitl_placeholder``) mit dem
+  Katalog-Grund, nie eine erfundene Formel.
+
 Gruppen 3 und 4 (Gold-Generator ergänzt Spalten) sind hier bewusst nicht enthalten.
 
     python -m tooling.codegen.model_alignment            # --check (Standard), rc 1 bei Abweichung
@@ -60,6 +69,21 @@ DROPS = (
 NEW_DIMENSIONS = (
     ("SupplyChain", "dim_category", "supply_chain.yaml", "fact_procurement", "CategoryKey"),
     ("SupplyChain", "dim_vendor", "supply_chain.yaml", "fact_procurement", "VendorKey"),
+)
+
+# (Modell, Tabelle, Vertrag, Vertragsabschnitt, ref-table-Anker in model.tmdl). Neue Tabellen
+# ganz aus dem Vertrag; an Fakten hängen die Beziehungen aus deren ``ref``-Spalten.
+NEW_TABLES = (
+    ("Commercial", "dim_sales_stage", "commercial_sales.yaml", "dimension", "dim_pvm_driver"),
+    ("Commercial", "dim_salesrep", "commercial_sales.yaml", "dimension", "dim_sales_stage"),
+    ("Commercial", "fact_pipeline", "commercial_sales.yaml", "fact", "fact_nps"),
+    ("Commercial", "fact_sales_target", "commercial_sales.yaml", "fact", "fact_sales"),
+)
+
+# (Modell, Anzeigeordner, KPI-IDs): Measures aus dem Katalog, ans Ende von _Measures.tmdl.
+NEW_KPI_MEASURES = (
+    ("Commercial", "COM-005", ("KPI-COM-026", "KPI-COM-027", "KPI-COM-028", "KPI-COM-029",
+                               "KPI-COM-030", "KPI-COM-031")),
 )
 
 _TYPES = {"int": "Int64", "text": "String", "decimal": "Decimal", "currency": "Decimal", "bool": "Boolean"}
@@ -109,21 +133,29 @@ def add_key_column(text: str, spalte: str, nach: str) -> str:
     return text[:anker.end()] + block + text[anker.end():]
 
 
-def dimension_tmdl(modell: str, name: str, vertrag: dict, modus: str | None = None) -> str:
-    """Neue Dimension als TMDL; die Partition folgt dem Speichermodus des Mandanten (D-590).
+def table_tmdl(modell: str, name: str, vertrag: dict, modus: str | None = None,
+               abschnitt: str = "dimension") -> str:
+    """Neue Tabelle als TMDL; die Partition folgt dem Speichermodus des Mandanten (D-590).
 
-    ``modus=None`` heisst Import — der Modus von ``dist/`` (kein Bauplan, keine Kapazitaet)."""
+    ``modus=None`` heisst Import — der Modus von ``dist/`` (kein Bauplan, keine Kapazitaet).
+    Schlüssel und Fremdschlüssel (``role: key``, ``ref``) sind verborgen; Kennzahlen aggregieren
+    nur über Measures (``summarizeBy: none`` wie im übrigen dist)."""
     from tooling.codegen.speichermodus import gold_partition, konstanten
     modus = modus or konstanten()[1]
-    dim = next(d for d in vertrag["dimension"] if d["name"] == name)
-    zeilen = [f"/// {' '.join(dim['description'].split())}", f"table {name}", f"\tlineageTag: {_tag(modell, name)}"]
-    for c in dim["columns"]:
+    t = next(d for d in vertrag[abschnitt] if d["name"] == name)
+    zeilen = [f"/// {' '.join(t['description'].split())}", f"table {name}", f"\tlineageTag: {_tag(modell, name)}"]
+    for c in t["columns"]:
         zeilen += [f"\tcolumn {_col_ref(c['name'])}", f"\t\tdataType: {_TYPES[c['type']]}",
                    f"\t\tsourceColumn: {c['name']}", "\t\tsummarizeBy: none"]
-        if c.get("role") == "key":
+        if c.get("role") == "key" or c.get("ref"):
             zeilen += ["\t\tisHidden", "\t\tisAvailableInMDX: false"]
-    zeilen += gold_partition(name, "dimensions", modus, einzug="\t\t\t")
+    ordner = "dimensions" if abschnitt == "dimension" else "facts"
+    zeilen += gold_partition(name, ordner, modus, einzug="\t\t\t")
     return "\n".join(zeilen) + "\n"
+
+
+def dimension_tmdl(modell: str, name: str, vertrag: dict, modus: str | None = None) -> str:
+    return table_tmdl(modell, name, vertrag, modus, "dimension")
 
 
 def relationship_tmdl(name: str, fakt: str, dim: str, schluessel: str) -> str:
@@ -139,6 +171,34 @@ def add_table_ref(model_tmdl: str, tabelle: str, nach: str) -> str:
     if anker not in model_tmdl:
         raise ValueError(f"model.tmdl: Anker '{anker.strip()}' fehlt")
     return model_tmdl.replace(anker, anker + zeile, 1)
+
+
+def kpi_measure_block(modell: str, kpi_id: str, ordner: str) -> str:
+    """Measure einer Katalog-KPI als TMDL-Block (Doku, Ausdruck, Format, Ordner, Tag)."""
+    from tooling.generator.enrich_measure_docs import _render_block
+    from tooling.ir.build_ir import hitl_placeholder
+    from tooling.reporting.format_policy import unit_format_string
+    from tooling.superversion.from_aluca import KpiCatalog, _resolve_calculation
+    from tooling.superversion.targets.dax_synth import synthesize_dax
+
+    kpis = REPO / "core" / "kpi_catalog" / "kpis"
+    kpi = yaml.safe_load((kpis / f"{kpi_id}.yaml").read_text(encoding="utf-8"))
+    aufgeloest, grund = _resolve_calculation(kpi, KpiCatalog(kpis))
+    dax = synthesize_dax(aufgeloest) if aufgeloest else hitl_placeholder(grund)
+    name = kpi["technical"]["measure_name"]
+    fmt = unit_format_string(kpi["business"].get("unit_format"), "model")
+    doku = _render_block(kpi_id, REPO) or [f"\t/// {kpi['technical']['description']}"]
+    zeilen = [*doku, f"\tmeasure {_col_ref(name)} = {dax}"]
+    if fmt:
+        zeilen.append(f"\t\tformatString: {fmt}")
+    zeilen += [f"\t\tdisplayFolder: {ordner}", f"\t\tlineageTag: {_tag(modell, 'measure', name)}"]
+    return "\n".join(zeilen) + "\n"
+
+
+def add_measure(measures_tmdl: str, name: str, block: str) -> str:
+    if re.search(rf"^\tmeasure {re.escape(_col_ref(name))} =", measures_tmdl, re.M):
+        return measures_tmdl
+    return measures_tmdl.rstrip("\n") + "\n\n" + block
 
 
 def _nutzungen(modell: str, tabelle: str, spalte: str) -> list[str]:
@@ -193,6 +253,32 @@ def soll(modus: str | None = None) -> dict[Path, str | None]:
         dateien[d / "relationships" / f"{name}.tmdl"] = relationship_tmdl(name, fakt, dim, schluessel)
         m = d / "model.tmdl"
         dateien[m] = add_table_ref(lesen(m), dim, "dim_lane")
+
+    from tooling.generator.enrich_measure_docs import _domain_tables, enrich_columns_text
+    for modell, tabelle, vertrag, abschnitt, anker in NEW_TABLES:
+        v = vertraege.setdefault(vertrag, yaml.safe_load((CONTRACTS / vertrag).read_text(encoding="utf-8")))
+        d = _defn(modell)
+        pruefe_modell(d, modus)
+        # Spaltenbeschreibungen wie enrich_measure_docs --columns, sonst meldet dessen --check Drift.
+        spalten = _domain_tables(modell, CONTRACTS).get(tabelle)
+        dateien[d / "tables" / f"{tabelle}.tmdl"] = enrich_columns_text(
+            table_tmdl(modell, tabelle, v, modus, abschnitt), spalten)
+        m = d / "model.tmdl"
+        dateien[m] = add_table_ref(lesen(m), tabelle, anker)
+        if abschnitt != "fact":
+            continue
+        t = next(x for x in v["fact"] if x["name"] == tabelle)
+        for c in t["columns"]:
+            if not c.get("ref"):
+                continue
+            name = f"{c['ref']}_{tabelle}"
+            dateien[d / "relationships" / f"{name}.tmdl"] = relationship_tmdl(name, tabelle, c["ref"], c["name"])
+
+    for modell, ordner, kpi_ids in NEW_KPI_MEASURES:
+        p = _defn(modell) / "tables" / "_Measures.tmdl"
+        for kid in kpi_ids:
+            kpi = yaml.safe_load((REPO / "core" / "kpi_catalog" / "kpis" / f"{kid}.yaml").read_text(encoding="utf-8"))
+            dateien[p] = add_measure(lesen(p), kpi["technical"]["measure_name"], kpi_measure_block(modell, kid, ordner))
     return dateien
 
 

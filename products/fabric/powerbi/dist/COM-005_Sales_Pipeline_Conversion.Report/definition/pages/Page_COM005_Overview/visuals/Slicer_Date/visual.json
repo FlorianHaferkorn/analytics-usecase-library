@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
-  "name": "Slicer_Product",
+  "name": "Slicer_Date",
   "position": {
-    "x": 1280,
+    "x": 32,
     "y": 264,
     "z": 5000,
     "height": 76,
     "width": 608,
-    "tabOrder": 3003
+    "tabOrder": 3001
   },
   "visual": {
     "visualType": "slicer",
@@ -20,14 +20,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_product"
+                      "Entity": "dim_date"
                     }
                   },
-                  "Property": "Category"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_product.Category",
-              "nativeQueryRef": "Category"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth"
             }
           ]
         }
@@ -69,7 +69,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Filter by Category'"
+                  "Value": "'Filter by Calendar Year Month'"
                 }
               }
             }

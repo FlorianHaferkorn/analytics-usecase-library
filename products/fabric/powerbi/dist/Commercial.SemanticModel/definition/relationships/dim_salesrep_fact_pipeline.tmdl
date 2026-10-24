@@ -1,0 +1,3 @@
+relationship dim_salesrep_fact_pipeline
+	fromColumn: fact_pipeline.SalesRepKey
+	toColumn: dim_salesrep.SalesRepKey

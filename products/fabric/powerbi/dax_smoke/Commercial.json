@@ -1,6 +1,6 @@
 {
   "modell": "Commercial.SemanticModel",
-  "quelle_sha256": "cfc2e02510cddcb34238b058a5a5f460df44d318ebcef4eb8687fb983e363d27",
+  "quelle_sha256": "ffabbdd9c4f7eb11149718a3ea7822c3ee65de34e95d8b2a4de371cd3a2b7c64",
   "messungen": [
     {
       "measure": "Action Effectiveness Delta",
@@ -443,6 +443,16 @@
       }
     },
     {
+      "measure": "Open Pipeline Value",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Open Pipeline Value])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Open Pipeline Value])"
+      }
+    },
+    {
       "measure": "PVM Bridge Value",
       "tabelle": "_Measures",
       "klasse": "zahl",
@@ -450,6 +460,36 @@
       "abfragen": {
         "gesamt": "EVALUATE ROW(\"v\", [PVM Bridge Value])",
         "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [PVM Bridge Value])"
+      }
+    },
+    {
+      "measure": "Pipeline Coverage",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Pipeline Coverage])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Pipeline Coverage])"
+      }
+    },
+    {
+      "measure": "Pipeline Coverage Target",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Pipeline Coverage Target])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Pipeline Coverage Target])"
+      }
+    },
+    {
+      "measure": "Pipeline Coverage vs Target",
+      "tabelle": "_Measures",
+      "klasse": "leer_begruendet",
+      "grund": "fact_target: Zielwerte liefert der Kunde (R6.1b); im Demo leer, Schema vorhanden",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Pipeline Coverage vs Target])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Pipeline Coverage vs Target])"
       }
     },
     {
@@ -533,6 +573,36 @@
       }
     },
     {
+      "measure": "Sales Cycle Length",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Sales Cycle Length])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Sales Cycle Length])"
+      }
+    },
+    {
+      "measure": "Sales Velocity",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Sales Velocity])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Sales Velocity])"
+      }
+    },
+    {
+      "measure": "Stage Conversion %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Stage Conversion %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Stage Conversion %])"
+      }
+    },
+    {
       "measure": "Volume Effect Amount",
       "tabelle": "_Measures",
       "klasse": "zahl",
@@ -540,6 +610,16 @@
       "abfragen": {
         "gesamt": "EVALUATE ROW(\"v\", [Volume Effect Amount])",
         "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Volume Effect Amount])"
+      }
+    },
+    {
+      "measure": "Win Rate %",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Win Rate %])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Win Rate %])"
       }
     }
   ],
@@ -578,6 +658,11 @@
       "measure": "Net Sales Amount",
       "ordner": "facts/fact_sales",
       "spalte": "Net Sales Amount"
+    },
+    {
+      "measure": "Open Pipeline Value",
+      "ordner": "facts/fact_pipeline",
+      "spalte": "Open Qualified Value Amount"
     },
     {
       "measure": "Plan Sales Amount",
@@ -664,6 +749,14 @@
       "erwartet": 0
     },
     {
+      "name": "dim_date_fact_pipeline",
+      "von": "fact_pipeline[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_pipeline'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
       "name": "dim_date_fact_plan_sales",
       "von": "fact_plan_sales[DateKey]",
       "nach": "dim_date[DateKey]",
@@ -677,6 +770,14 @@
       "nach": "dim_date[DateKey]",
       "aktiv": true,
       "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_date_fact_sales_target",
+      "von": "fact_sales_target[DateKey]",
+      "nach": "dim_date[DateKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales_target'[DateKey]), DISTINCT('dim_date'[DateKey]))) + 0)",
       "erwartet": 0
     },
     {
@@ -712,6 +813,14 @@
       "erwartet": 0
     },
     {
+      "name": "dim_org_fact_pipeline",
+      "von": "fact_pipeline[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_pipeline'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
       "name": "dim_org_fact_plan_sales",
       "von": "fact_plan_sales[OrgKey]",
       "nach": "dim_org[OrgKey]",
@@ -725,6 +834,14 @@
       "nach": "dim_org[OrgKey]",
       "aktiv": true,
       "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_org_fact_sales_target",
+      "von": "fact_sales_target[OrgKey]",
+      "nach": "dim_org[OrgKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales_target'[OrgKey]), DISTINCT('dim_org'[OrgKey]))) + 0)",
       "erwartet": 0
     },
     {
@@ -765,6 +882,22 @@
       "nach": "dim_promo[PromoKey]",
       "aktiv": true,
       "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_sales'[PromoKey]), DISTINCT('dim_promo'[PromoKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_sales_stage_fact_pipeline",
+      "von": "fact_pipeline[StageKey]",
+      "nach": "dim_sales_stage[StageKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_pipeline'[StageKey]), DISTINCT('dim_sales_stage'[StageKey]))) + 0)",
+      "erwartet": 0
+    },
+    {
+      "name": "dim_salesrep_fact_pipeline",
+      "von": "fact_pipeline[SalesRepKey]",
+      "nach": "dim_salesrep[SalesRepKey]",
+      "aktiv": true,
+      "abfrage": "EVALUATE ROW(\"v\", COUNTROWS(EXCEPT(DISTINCT('fact_pipeline'[SalesRepKey]), DISTINCT('dim_salesrep'[SalesRepKey]))) + 0)",
       "erwartet": 0
     }
   ]

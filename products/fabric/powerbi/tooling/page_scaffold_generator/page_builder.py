@@ -114,7 +114,7 @@ class PageBuilder:
         narrative_measure_name: Optional[str] = None,
         active_actions_measure_name: Optional[str] = None,
         semantic_delta_cards: bool = False,
-        model_columns: Optional[set] = None,
+        slicer_columns: Optional[set] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
         variance_kpi_ids: Optional[set] = None,
         comparison_refs: Optional[Dict[str, str]] = None,
@@ -276,7 +276,7 @@ class PageBuilder:
             # XD-Reports haetten einen Slicer bekommen, der ins Leere filtert.
             if visual_type == "slicer_entity":
                 # Entity slicer (OrgName) for filtering Detail pages by business unit
-                if model_columns is not None and "dim_org.OrgName" not in model_columns:
+                if slicer_columns is not None and "dim_org.OrgName" not in slicer_columns:
                     continue   # Zielmodell fuehrt die Spalte nicht: kein Slicer ins Leere
                 sl = self.slicer_builder.build_categorical_slicer(position, field="dim_org.OrgName", name=slot_id)
                 sl["position"]["tabOrder"] = tab + i
@@ -285,7 +285,7 @@ class PageBuilder:
 
             if visual_type == "slicer_region":
                 # Region slicer for Overview cross-filter (dim_org.Region)
-                if model_columns is not None and "dim_org.Region" not in model_columns:
+                if slicer_columns is not None and "dim_org.Region" not in slicer_columns:
                     continue   # Zielmodell fuehrt die Spalte nicht: kein Slicer ins Leere
                 sl = self.slicer_builder.build_categorical_slicer(position, field="dim_org.Region", name=slot_id)
                 sl["position"]["tabOrder"] = tab + i
@@ -294,7 +294,7 @@ class PageBuilder:
 
             if visual_type == "slicer_product":
                 # Product Category slicer for Overview cross-filter (dim_product.Category)
-                if model_columns is not None and "dim_product.Category" not in model_columns:
+                if slicer_columns is not None and "dim_product.Category" not in slicer_columns:
                     continue   # Zielmodell fuehrt die Spalte nicht: kein Slicer ins Leere
                 sl = self.slicer_builder.build_categorical_slicer(position, field="dim_product.Category", name=slot_id)
                 sl["position"]["tabOrder"] = tab + i
@@ -574,7 +574,7 @@ class PageBuilder:
         narrative_measure_name: Optional[str] = None,
         active_actions_measure_name: Optional[str] = None,
         semantic_delta_cards: bool = False,
-        model_columns: Optional[set] = None,
+        slicer_columns: Optional[set] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
         variance_kpi_ids: Optional[set] = None,
         comparison_refs: Optional[Dict[str, str]] = None,
@@ -641,7 +641,7 @@ class PageBuilder:
                 narrative_measure_name=narrative_measure_name,
                 active_actions_measure_name=active_actions_measure_name,
                 semantic_delta_cards=semantic_delta_cards,
-                model_columns=model_columns,
+                slicer_columns=slicer_columns,
                 kpi_good_is=kpi_good_is,
                 variance_kpi_ids=variance_kpi_ids,
                 comparison_refs=comparison_refs,

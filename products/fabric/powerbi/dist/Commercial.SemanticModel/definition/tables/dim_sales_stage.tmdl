@@ -1,0 +1,33 @@
+/// Opportunity funnel stage (Lead → Qualified → Proposal → Negotiation → Closed Won/Lost).
+table dim_sales_stage
+	lineageTag: e9134550-44ab-5d43-a01e-11bfc119bc70
+	column StageKey
+		dataType: Int64
+		sourceColumn: StageKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column Stage
+		dataType: String
+		sourceColumn: Stage
+		summarizeBy: none
+	column 'Stage Order'
+		dataType: Int64
+		sourceColumn: Stage Order
+		summarizeBy: none
+	column 'Is Won'
+		dataType: Boolean
+		sourceColumn: Is Won
+		summarizeBy: none
+	column 'Is Lost'
+		dataType: Boolean
+		sourceColumn: Is Lost
+		summarizeBy: none
+	partition dim_sales_stage = m
+		mode: import
+		source =
+			let
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/dimensions/dim_sales_stage"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
+			in
+				ParquetData

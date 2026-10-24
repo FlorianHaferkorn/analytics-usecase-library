@@ -124,33 +124,13 @@
 - kpi_id: KPI-COM-028
   owner: revenue_operations_lead
   eta_date: '2026-10-31'
-  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
-    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
-- kpi_id: KPI-COM-026
-  owner: revenue_operations_lead
-  eta_date: '2026-10-31'
-  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
-    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
-- kpi_id: KPI-COM-031
-  owner: revenue_operations_lead
-  eta_date: '2026-10-31'
-  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
-    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
-- kpi_id: KPI-COM-029
-  owner: revenue_operations_lead
-  eta_date: '2026-10-31'
-  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
-    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+  reason: COM-005 is in the Commercial model (2026-10-24), but this measure is a VAR _pending placeholder;
+    the composite (stage transition / four-input velocity) is beyond the single-op DSL.
 - kpi_id: KPI-COM-030
   owner: revenue_operations_lead
   eta_date: '2026-10-31'
-  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
-    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
-- kpi_id: KPI-COM-027
-  owner: revenue_operations_lead
-  eta_date: '2026-10-31'
-  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
-    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+  reason: COM-005 is in the Commercial model (2026-10-24), but this measure is a VAR _pending placeholder;
+    the composite (stage transition / four-input velocity) is beyond the single-op DSL.
 - kpi_id: KPI-SCM-028
   owner: scm_analytics_lead
   eta_date: '2026-12-31'
