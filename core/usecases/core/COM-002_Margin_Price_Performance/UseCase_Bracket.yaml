@@ -192,10 +192,11 @@ data_protection:
   personal_data: false
   legal_basis: not_applicable
   data_minimisation: >
-    Detail Matrix limited to product-category and region grain
-    (product_category, region, channel). No individual-level customer or
-    employee data is exposed. Row-level security applied at SemanticModel level
-    — see commercial_sales data contract.
+    Detail Matrix limited to the product hierarchy (Category, Subcategory,
+    ProductCode) with margin, price and mix measures; business unit
+    (dim_org.OrgName) and month enter only as page slicers. No customer,
+    invoice or employee identifiers are exposed. Row-level security applied at
+    SemanticModel level — see commercial_sales data contract.
   access_restriction: >
     commercial_controlling_lead and sales_bi_lead roles; row-level security
     enforced by Commercial.SemanticModel (entity filter per org role).

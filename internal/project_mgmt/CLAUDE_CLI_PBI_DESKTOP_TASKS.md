@@ -618,3 +618,59 @@ ist dagegen ein echter Defekt.
 Beginne damit, den Branch zu ziehen, die genannten Abschnitte zu lesen und die 25 Zeilen
 aus known_errors.yaml als Pruefliste auszugeben, bevor du die erste in Desktop oeffnest.
 ```
+
+---
+
+# Übergabe 24.10.2026: COM-002, Detailebene als gestufte Kreuztabelle
+
+Stand: PR #642, Branch `claude/3d-data-architecture-model-mx9lfi`. Visual:
+`products/fabric/powerbi/dist/COM-002_Margin_Price_Performance.Report/definition/pages/Page_COM002_Detail/visuals/Detail_Matrix/visual.json`
+(`pivotTable`; Zeilen `dim_product.Category` › `Subcategory` › `ProductCode`; 5 Measures;
+Standardsortierung `Gross Margin % vs Plan` aufsteigend; TopN 20 auf `ProductCode`;
+Datenbalken auf `Gross Margin % vs Plan`).
+
+## Was in der Linux-Sitzung schon gemessen ist (nicht wiederholen)
+
+- `powerbi-report-author validate` 0.5.0 mit Schema-Prüfung: 0 Fehler, 3 Warnungen. Das sind
+  die Drillthrough-Hinweise der Detailseite, gleich der Baseline vor der Umstellung.
+- Alle gesetzten Objekt-Eigenschaften gibt es für `pivotTable` im offiziellen Katalog
+  (`@microsoft/powerbi-core-visual-schema`, `data/capabilities.json`, gelesen 24.10.2026):
+  `columnFormatting.dataBars`, `rowHeaders.stepped/showExpandCollapseButtons/unfrozen`,
+  `subTotals.rowSubtotals/rowSubtotalsPosition`, `grid.*`. Damit ist ausgeschlossen, dass Desktop
+  eine Eigenschaft wegen eines falschen Namens verwirft. Ob sie so wirken wie gedacht, ist
+  damit nicht geprüft.
+
+## Was nur Desktop beantworten kann
+
+| # | Frage | Erwartung | Wenn nicht |
+|---|---|---|---|
+| M1 | Lädt die Seite ohne Fehler, ist die Kreuztabelle gestuft mit Plus und Minus zum Aufklappen? | ja | Fehlerbild in `KNOWN_ERRORS_AND_FIXES.md`, dann `build_matrix` |
+| M2 | Zeigen die Zwischensummen auf Category und Subcategory den Wert der ganzen Gruppe oder nur den der 20 Top-SKUs? | **nur Top 20** (hergeleitet: der TopN-Filter auf Visual-Ebene gehört zum Filterkontext, und Summen werden laut Learn-Artikel zur Kreuztabelle im ganzen Filterkontext gerechnet) | Erwartung widerlegt: im Ledger vermerken |
+| M3 | Wirkt die Sortierung (aufsteigend) auf jeder Ebene? | ja, je Ebene innerhalb der Elterngruppe | Sortierung je Ebene prüfen |
+| M4 | Erscheinen die Datenbalken an `Gross Margin % vs Plan`, auch in den Zwischensummen-Zeilen (`totalMatchingOption` 1)? | ja | Struktur von `tableEx` übernommen, ANNAHME, ungeprüft. Den Wert an Desktop angleichen (speichern, Diff) |
+
+**M2 entscheidet über das Design.** Bestätigt Desktop „nur Top 20“, dann lesen sich die
+Zwischensummen wie Gruppenwerte, sind es aber nicht. Das ist die Frage, die die Kreuztabelle
+eigentlich beantworten soll. Optionen, je mit Trade-off:
+
+1. `top_n` für die Kreuztabelle streichen. Zwischensummen = echte Gruppenwerte; dafür sind
+   beim Aufklappen einer Unterkategorie alle ihre SKUs sichtbar, im Mittel rund 357
+   (5000 SKUs / 14 Unterkategorien, Showdaten).
+2. TopN behalten und die Zwischensummen-Zeilen beschriften („Top-20-SKUs“). Ehrlich, aber die
+   Gruppenfrage bleibt unbeantwortet.
+3. Zurück zur flachen Tabelle.
+
+Empfehlung ohne Desktop-Befund: 1. Entscheiden erst nach M2.
+
+## Prompt für die Claude CLI (VS Code, Windows)
+
+```
+Lies CLAUDE.md, AGENTS.md und in internal/project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md den
+Abschnitt "Übergabe 24.10.2026: COM-002". Branch: claude/3d-data-architecture-model-mx9lfi
+(oder main, falls PR #642 gemergt ist). Öffne
+products/fabric/powerbi/dist/COM-002_Margin_Price_Performance.Report/COM-002_Margin_Price_Performance.pbip
+mit Start-Process, Seite "COM-002 - Detail". Beantworte M1 bis M4 jeweils mit Beobachtung und Screenshot-
+Beschreibung. Für M2: eine Category aufklappen, ihre Zwischensumme von "Gross Margin Amount"
+mit einer Karte vergleichen, die nur auf diese Category gefiltert ist. Ändere nichts am
+Generator, bevor M2 entschieden ist; trage die Befunde in diesen Abschnitt ein.
+```
