@@ -178,6 +178,7 @@ class InformationBlock:
     page_types: list[str]
     allowed_visuals: list[AllowedVisual]
     forbidden_visuals: list[ForbiddenVisual]
+    layer_restriction: str = ""
 
     def allowed_pbip_types(self) -> set[str]:
         """Rueckwaertskompatibler Alias — identisch zu `allowed_types("powerbi")`."""
@@ -255,6 +256,7 @@ class VisualLibrary:
                 page_types=list(b.get("page_types") or []),
                 allowed_visuals=allowed,
                 forbidden_visuals=forbidden,
+                layer_restriction=b.get("layer_restriction", ""),
             )
         return cls(registry_version=raw.get("registry_version", ""), blocks=blocks)
 
@@ -295,6 +297,15 @@ class VisualLibrary:
         abgelehnt zu werden, nicht um deklarierbar zu sein.
         """
         return {v.visual_id for b in self.blocks.values() for v in b.allowed_visuals}
+
+    def visual_ids_outside(self, restriction: str) -> set[str]:
+        """Jede `visual_id`, die mindestens ein Block OHNE diese `layer_restriction` erlaubt.
+
+        `detail_matrix` ist `300s_only`; was nur dort erlaubt ist (Tabelle, Kreuztabelle),
+        gehoert nicht auf die Hauptebene. Die Grenze steht in der Registry, nicht hier.
+        """
+        return {v.visual_id for b in self.blocks.values()
+                if b.layer_restriction != restriction for v in b.allowed_visuals}
 
     def block(self, block_id: str) -> InformationBlock:
         if block_id not in self.blocks:
@@ -350,12 +361,16 @@ _SCHEMA_DIR = _REPO_ROOT / "tooling" / "generator" / "schemas"
 _SCHEMA_SCOPE: dict[str, dict[str, str]] = {
     # `component_300s` ist die Detailebene des Brackets — derselbe Block wie
     # `diagnostics_300s` (Tabelle oder Kreuztabelle, keine Diagramme).
+    # Die Hauptebene (`component_30s`, `visuals_30s`) bekommt alles ausser dem, was nur
+    # Bloecke mit `layer_restriction: 300s_only` erlauben.
     "usecase_bracket.schema.json": {"*": "alle", "component_3s": "status_signal",
+                                    "component_30s": "ausserhalb_300s",
                                     "component_300s": "detail_matrix"},
     # `diagnostics_300s` ist die Detailschicht — dort gehoert, was `detail_matrix`
     # erlaubt, nicht das gesamte Vokabular. Ein Generator, der ein enges Feld
     # aufweitet, ist kein Gate mehr, sondern eine Genehmigung.
-    "layout_330300.schema.json": {"*": "alle", "diagnostics_300s": "detail_matrix"},
+    "layout_330300.schema.json": {"*": "alle", "visuals_30s": "ausserhalb_300s",
+                                  "diagnostics_300s": "detail_matrix"},
     "visual_spec.schema.json": {"*": "alle+chrome"},
 }
 
@@ -365,6 +380,8 @@ def _erlaubte_fuer(scope: str, lib: "VisualLibrary") -> list[str]:
         return sorted(lib.all_visual_ids())
     if scope == "alle+chrome":
         return sorted(lib.all_visual_ids() | set(CHROME_TOKENS))
+    if scope == "ausserhalb_300s":
+        return sorted(lib.visual_ids_outside("300s_only"))
     return sorted(v.visual_id for v in lib.block(scope).allowed_visuals)
 
 
