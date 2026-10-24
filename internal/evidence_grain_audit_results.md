@@ -9,7 +9,7 @@
 
 | UseCase_ID | Haupt-Action | Empfohlene_Grain | Feasibility | Supporting Table(s) |
 |------------|--------------|------------------|-------------|---------------------|
-| COM-001 | C-M2.1 (Price Realization Guardrails) | **invoice_line** | ✅ Covered | Wo-Frage, echte Org-Hierarchie. Category als Slicer. Top-20 auf Stores würde die Zwischensummen verzerren. **Umgesetzt 24.10.2026:** Kreuztabelle Region > Country > Store, `matrix_zwischensummen` 99 (Gold nachgezählt); Category als `slicer_field` deklariert (rendert noch nicht, BO) |
+| COM-001 | C-M2.1 (Price Realization Guardrails) | **invoice_line** | ✅ Covered | Wo-Frage, echte Org-Hierarchie. Category als Slicer. Top-20 auf Stores würde die Zwischensummen verzerren. **Umgesetzt 24.10.2026:** Kreuztabelle Region > Country > Store, `matrix_zwischensummen` 99 (Gold nachgezählt); Category als `slicer_field`, seit 24.10.2026 als Slicer der Detailseite im Report |
 | COM-002 | C-M2.2 (Margin Variance Recovery) | **invoice_line** | ✅ Covered | `fact_sales` (grain: invoice_line) |
 | COM-003 | C-M2.2 (Margin Variance Recovery) | **customer_month** | ⚠️ Partial | `fact_sales` can aggregate to customer_month |
 | COM-004 | C-M2.1 (Price Realization Guardrails) | **promotion** | ✅ Covered | `fact_promo` (grain: promotion) |

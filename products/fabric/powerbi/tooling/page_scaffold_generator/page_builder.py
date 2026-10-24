@@ -115,6 +115,7 @@ class PageBuilder:
         active_actions_measure_name: Optional[str] = None,
         semantic_delta_cards: bool = False,
         slicer_columns: Optional[set] = None,
+        entity_slicer_field: Optional[str] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
         variance_kpi_ids: Optional[set] = None,
         comparison_refs: Optional[Dict[str, str]] = None,
@@ -275,10 +276,11 @@ class PageBuilder:
             # dim_product.Category, und das Experience-Modell hat kein dim_product -- vier
             # XD-Reports haetten einen Slicer bekommen, der ins Leere filtert.
             if visual_type == "slicer_entity":
-                # Entity slicer (OrgName) for filtering Detail pages by business unit
-                if slicer_columns is not None and "dim_org.OrgName" not in slicer_columns:
+                # Entity slicer for filtering Detail pages: component_300s.slicer_field, else OrgName
+                feld = entity_slicer_field or "dim_org.OrgName"
+                if slicer_columns is not None and feld not in slicer_columns:
                     continue   # Zielmodell fuehrt die Spalte nicht: kein Slicer ins Leere
-                sl = self.slicer_builder.build_categorical_slicer(position, field="dim_org.OrgName", name=slot_id)
+                sl = self.slicer_builder.build_categorical_slicer(position, field=feld, name=slot_id)
                 sl["position"]["tabOrder"] = tab + i
                 slicers.append(sl)
                 continue
@@ -575,6 +577,7 @@ class PageBuilder:
         active_actions_measure_name: Optional[str] = None,
         semantic_delta_cards: bool = False,
         slicer_columns: Optional[set] = None,
+        entity_slicer_field: Optional[str] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
         variance_kpi_ids: Optional[set] = None,
         comparison_refs: Optional[Dict[str, str]] = None,
@@ -642,6 +645,7 @@ class PageBuilder:
                 active_actions_measure_name=active_actions_measure_name,
                 semantic_delta_cards=semantic_delta_cards,
                 slicer_columns=slicer_columns,
+                entity_slicer_field=entity_slicer_field,
                 kpi_good_is=kpi_good_is,
                 variance_kpi_ids=variance_kpi_ids,
                 comparison_refs=comparison_refs,

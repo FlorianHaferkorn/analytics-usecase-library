@@ -178,6 +178,7 @@ class PageScaffoldGenerator:
             active_actions_measure_name=active_actions_measure_name,
             semantic_delta_cards=semantic_delta_cards,
             slicer_columns=self.page_config.get("slicer_columns"),
+            entity_slicer_field=self.page_config.get("entity_slicer_field"),
             kpi_good_is=self.page_config.get("kpi_good_is") or {},
             variance_kpi_ids=self.page_config.get("variance_kpi_ids") or set(),
             comparison_refs=self.page_config.get("comparison_refs") or {},

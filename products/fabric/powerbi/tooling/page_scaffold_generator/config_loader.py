@@ -1386,6 +1386,16 @@ class ConfigLoader:
             return {
                 "name": "detail",
                 "slicer_columns": self._slicer_columns(bracket),
+                # component_300s.slicer_field ersetzt den OrgName-Slicer der Detailseite.
+                # Gemessen 24.10.2026 an COM-001: Region > Country > Store steht in den
+                # Matrixzeilen, der feste OrgName-Slicer wiederholte sie, die deklarierte
+                # Kategorie fehlte im Report. Steht das Feld schon in den Matrixzeilen
+                # (XD-004: domain), filtert der Slicer nichts Neues; dann bleibt OrgName.
+                "entity_slicer_field": (
+                    c300.get("slicer_field")
+                    if c300.get("slicer_field") not in (c300.get("row_fields") or [])
+                    else None
+                ),
                 "layer": [300],
                 "template": template,
                 "template_id": template_id,

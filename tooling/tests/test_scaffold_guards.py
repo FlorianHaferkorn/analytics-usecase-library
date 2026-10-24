@@ -43,3 +43,25 @@ def test_cards_skip_placeholder_measures_but_keep_real_ones(loader):
     assert "KPI-COM-030" in com
     # Katalog-hitl, aber im Modell eine echte Measure: die Karte bleibt
     assert "KPI-SCM-012" in loader._card_kpi_ids(loader.load_use_case_bracket("SCM-003"))
+
+
+def _entity_slicer(loader, uc: str):
+    return loader.get_page_config(uc, "detail")["entity_slicer_field"]
+
+
+def test_detail_entity_slicer_follows_declared_slicer_field(loader):
+    # COM-001 (24.10.2026): Region > Country > Store stehen in den Matrixzeilen, die Kategorie
+    # war nur noch als slicer_field deklariert und fehlte im Report
+    assert _entity_slicer(loader, "COM-001") == "dim_product.Category"
+    assert _entity_slicer(loader, "FIN-002") == "dim_org.Entity"
+    # ohne Deklaration bleibt der OrgName-Slicer (Fallback im PageBuilder)
+    assert _entity_slicer(loader, "SCM-003") is None
+
+
+def test_detail_entity_slicer_never_repeats_a_matrix_row(loader):
+    # XD-004: slicer_field domain ist die oberste Matrixzeile; ein Slicer darauf filtert nichts
+    # Neues, der OrgName-Slicer bleibt
+    bracket = loader.load_use_case_bracket("XD-004")
+    c300 = bracket["ux_layout_rules"]["page_2_execution"]["component_300s"]
+    assert c300["slicer_field"] in c300["row_fields"]
+    assert _entity_slicer(loader, "XD-004") is None
