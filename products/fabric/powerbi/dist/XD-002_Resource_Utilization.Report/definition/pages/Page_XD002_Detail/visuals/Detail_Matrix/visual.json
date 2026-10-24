@@ -38,25 +38,25 @@
                       "Entity": "dim_case_queue"
                     }
                   },
-                  "Property": "QueueName"
+                  "Property": "Channel"
                 }
               },
-              "queryRef": "dim_case_queue.QueueName",
-              "nativeQueryRef": "QueueName"
+              "queryRef": "dim_case_queue.Channel",
+              "nativeQueryRef": "Channel"
             },
             {
               "field": {
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_org"
+                      "Entity": "dim_case_queue"
                     }
                   },
-                  "Property": "Channel"
+                  "Property": "QueueName"
                 }
               },
-              "queryRef": "dim_org.Channel",
-              "nativeQueryRef": "Channel"
+              "queryRef": "dim_case_queue.QueueName",
+              "nativeQueryRef": "QueueName"
             },
             {
               "field": {
@@ -247,7 +247,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Utilization %, Occupancy %, Overtime % and Shrinkage % by Org Name, Queue Name and Channel'"
+                  "Value": "'Utilization %, Occupancy %, Overtime % and Shrinkage % by Org Name, Channel and Queue Name'"
                 }
               }
             }
@@ -264,10 +264,10 @@
           "Column": {
             "Expression": {
               "SourceRef": {
-                "Entity": "dim_org"
+                "Entity": "dim_case_queue"
               }
             },
-            "Property": "Channel"
+            "Property": "QueueName"
           }
         },
         "type": "TopN",
@@ -283,7 +283,7 @@
                     "From": [
                       {
                         "Name": "p",
-                        "Entity": "dim_org",
+                        "Entity": "dim_case_queue",
                         "Type": 0
                       },
                       {
@@ -300,7 +300,7 @@
                               "Source": "p"
                             }
                           },
-                          "Property": "Channel"
+                          "Property": "QueueName"
                         },
                         "Name": "field"
                       }
@@ -328,7 +328,7 @@
             },
             {
               "Name": "p",
-              "Entity": "dim_org",
+              "Entity": "dim_case_queue",
               "Type": 0
             }
           ],
@@ -344,7 +344,7 @@
                             "Source": "p"
                           }
                         },
-                        "Property": "Channel"
+                        "Property": "QueueName"
                       }
                     }
                   ],

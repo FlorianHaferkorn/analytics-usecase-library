@@ -73,8 +73,11 @@ ux_layout_rules:
       evidence_grain: case
       evidence_columns:
       - entity
+      # 24.10.2026: `channel` loeste zu dim_org.Channel auf (Vertriebskanal der Org).
+      # Gemeint ist der Servicekanal der Queue; nur der verschachtelt die Queues
+      # (gemessen, Gold: dim_case_queue.Channel > QueueName 3/4/0).
+      - dim_case_queue.Channel
       - queue
-      - channel
       - issue_type
       - severity
       - KPI-SVC-004

@@ -321,7 +321,10 @@ def test_matrix_emits_pivot_with_every_row_and_column_level():
     assert pbir.hitl_gaps(sm) == []
 
 
-def test_matrix_without_columns_marks_the_gap_instead_of_borrowing_a_row_field():
+def test_matrix_without_columns_omits_the_axis_instead_of_borrowing_a_row_field():
+    """Columns ist eine optionale Rolle von pivotTable (`catalog describe pivotTable`, Pin 0.5.0:
+    requiredRoles nur Values). Eine Zeilenhierarchie ohne Spaltenachse ist gewollt (COM-002,
+    XD-004): keine Achse leihen, keinen Platzhalter setzen, keine Luecke melden."""
     m = Visual(visual_id="v_mx", visual_type="matrix", bound_measures=["Revenue"],
                rows=["dim_product.Category", "dim_product.Subcategory"])
     sm = CanonicalModel(
@@ -330,9 +333,23 @@ def test_matrix_without_columns_marks_the_gap_instead_of_borrowing_a_row_field()
     )
     qs = json.loads(pbir.emit(sm)["R.Report/definition/pages/P1/visuals/v_mx/visual.json"])[
         "visual"]["query"]["queryState"]
-    assert len(qs["Rows"]["projections"]) == 2
-    assert qs["Columns"]["projections"][0]["field"]["Column"]["Property"] == "[HITL] assign Columns"
-    assert any("'Columns'" in g for g in pbir.hitl_gaps(sm))
+    assert [p["field"]["Column"]["Property"] for p in qs["Rows"]["projections"]] == [
+        "Category", "Subcategory"]
+    assert "Columns" not in qs
+    assert pbir.hitl_gaps(sm) == []
+
+
+def test_matrix_without_any_axis_marks_the_gap_on_rows():
+    m = Visual(visual_id="v_mx", visual_type="matrix", bound_measures=["Revenue"])
+    sm = CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[ReportPage(name="P1", visuals=[m])]),
+    )
+    qs = json.loads(pbir.emit(sm)["R.Report/definition/pages/P1/visuals/v_mx/visual.json"])[
+        "visual"]["query"]["queryState"]
+    assert qs["Rows"]["projections"][0]["field"]["Column"]["Property"] == "[HITL] assign Rows"
+    assert "Columns" not in qs
+    assert any("no row or column axis" in g for g in pbir.hitl_gaps(sm))
 
 
 def test_qualified_slicer_binds_declared_entity_and_property():

@@ -89,8 +89,10 @@ ux_layout_rules:
       # tracked separately, not fixed here.
       evidence_columns:
       - entity
+      # 24.10.2026: Servicekanal der Queue statt dim_org.Channel (siehe XD-001); vor
+      # der Queue, die er verschachtelt, damit Top-N auf der Queue liegt.
+      - dim_case_queue.Channel
       - queue
-      - channel
       - KPI-SVC-009
       - KPI-SVC-010
       - KPI-SVC-011

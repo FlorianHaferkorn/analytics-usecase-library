@@ -267,7 +267,7 @@ Bestätigung offen, siehe `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` M2).
 |---|---|---|---|---|
 | COM-001 | matrix | dim_org.Region > dim_org.Country > dim_org.OrgName | 5/15/0 und 15/99/0 (fact_sales) | Wo-Frage, echte Org-Hierarchie. Heute 15 Zeilen, Top-20 wirkungslos. Category als Slicer. Top-20 auf Stores würde die Zwischensummen verzerren |
 | SCM-003 | matrix, `top_n` streichen | dim_product.ABC_Class > XYZ_Class > ProductCode | ABC/XYZ > ProductCode 7/5000/0 (dim). 40 SKUs in 5 Zellen (fact_forecast) | Erst Cluster, dann SKU. Hierarchie 'ABC/XYZ Classification' im Modell schon vorhanden. Top-20 von 40 SKUs verfälscht die Cluster-Summen |
-| XD-004 | matrix | fact_action_outcome.domain > action_code_id | 4/15/0 | Erst Domäne, dann Action Code. `outcome_status` aus den Zeilen nehmen |
+| XD-004 | matrix (umgesetzt 24.10.2026) | fact_action_outcome.domain > action_code_id | 4/15/0 | Erst Domäne, dann Action Code. `outcome_status` aus den Zeilen genommen |
 | COM-003 | Tabelle | – | Segment × Channel 5/5/5 | Kreuzklassifikation. Channel filtert den CLV nicht (fact_customer_value nur CustomerKey) |
 | COM-004 | Tabelle | – | Mechanic > PromoName 4/29/11 | Frage nach einzelnen Promotions. PromoName ist nicht eindeutig |
 | COM-006 | Tabelle | – | Region × Category 5/3/3, 15 Zeilen | Kreuzklassifikation. Store-Ebene sinnlos (ein Channel je Org) |
@@ -287,7 +287,7 @@ Bestätigung offen, siehe `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` M2).
 | ESG-001 | unklar | – | nicht messbar | Kein Modell, kein Emissions-Fakt |
 | HR-001 | unklar | (ANNAHME) dim_employee_segment.Function > Segment | Function > Segment 5/20/0 (Gold) | Kein HR-Modell. `segment` trifft das Kundensegment |
 | SCM-004 | unklar | – | Category > Vendor 8/40/28 | Lieferanten nicht verschachtelt. Kein Modell gebunden |
-| XD-002 | unklar | dim_case_queue.Channel > QueueName | Channel > Queue 3/4/0. Org darunter gemischt | Org-Ebene zählt doppelt |
+| XD-002 | unklar | dim_case_queue.Channel > QueueName | Channel > Queue 3/4/0. Org darunter gemischt | Org-Ebene zählt doppelt. Seit 24.10.2026 Spalten Servicekanal vor Queue (Tabelle), Top-N auf der Queue |
 
 **Ergebnis:** 3 Kandidaten (COM-001, SCM-003, XD-004), 15 Tabellen, 5 unklar wegen fehlender
 Modelltabellen. Die Ursachen dafür (falsche Aliase, fehlende Dimensionen, gemischte Org-Ebenen)

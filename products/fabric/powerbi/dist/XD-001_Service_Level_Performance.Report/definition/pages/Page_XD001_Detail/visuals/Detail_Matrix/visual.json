@@ -38,25 +38,25 @@
                       "Entity": "dim_case_queue"
                     }
                   },
-                  "Property": "QueueName"
+                  "Property": "Channel"
                 }
               },
-              "queryRef": "dim_case_queue.QueueName",
-              "nativeQueryRef": "QueueName"
+              "queryRef": "dim_case_queue.Channel",
+              "nativeQueryRef": "Channel"
             },
             {
               "field": {
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_org"
+                      "Entity": "dim_case_queue"
                     }
                   },
-                  "Property": "Channel"
+                  "Property": "QueueName"
                 }
               },
-              "queryRef": "dim_org.Channel",
-              "nativeQueryRef": "Channel"
+              "queryRef": "dim_case_queue.QueueName",
+              "nativeQueryRef": "QueueName"
             },
             {
               "field": {
@@ -261,7 +261,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'SLA Attainment %, Backlog Count and Escalation % by Org Name, Queue Name, Channel, Issue Type and Severity'"
+                  "Value": "'SLA Attainment %, Backlog Count and Escalation % by Org Name, Channel, Queue Name, Issue Type and Severity'"
                 }
               }
             }

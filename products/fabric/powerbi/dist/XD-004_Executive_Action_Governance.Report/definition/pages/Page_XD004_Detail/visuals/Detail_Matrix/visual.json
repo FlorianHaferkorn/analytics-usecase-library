@@ -10,11 +10,11 @@
     "tabOrder": 3003
   },
   "visual": {
-    "visualType": "tableEx",
+    "visualType": "pivotTable",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
-        "Values": {
+        "Rows": {
           "projections": [
             {
               "field": {
@@ -38,26 +38,16 @@
                       "Entity": "fact_action_outcome"
                     }
                   },
-                  "Property": "outcome_status"
-                }
-              },
-              "queryRef": "fact_action_outcome.outcome_status",
-              "nativeQueryRef": "outcome_status"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "fact_action_outcome"
-                    }
-                  },
                   "Property": "action_code_id"
                 }
               },
               "queryRef": "fact_action_outcome.action_code_id",
               "nativeQueryRef": "action_code_id"
-            },
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
             {
               "field": {
                 "Measure": {
@@ -140,17 +130,57 @@
                 }
               }
             },
-            "gridHorizontalWeight": {
-              "expr": {
-                "Literal": {
-                  "Value": "1L"
-                }
-              }
-            },
             "rowPadding": {
               "expr": {
                 "Literal": {
                   "Value": "8L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "rowHeaders": [
+        {
+          "properties": {
+            "stepped": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "showExpandCollapseButtons": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "unfrozen": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTotals": [
+        {
+          "properties": {
+            "rowSubtotals": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "rowSubtotalsPosition": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Top'"
                 }
               }
             }
@@ -233,7 +263,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Avg Time-to-Outcome Days (XD), Action Effectiveness Delta and Action ROI % (XD) by domain, outcome status and action code id'"
+                  "Value": "'Avg Time-to-Outcome Days (XD), Action Effectiveness Delta and Action ROI % (XD) by domain and action code id'"
                 }
               }
             }

@@ -329,6 +329,13 @@ class ConfigLoader:
         tabelle, spalte = ref.split(".", 1)
         sym = self._model_symbols_for(bracket)
         if tabelle not in sym.table_names:
+            # `dim_…`/`fact_…` ist nach Namenskonvention eine Tabelle, nie ein Measure-Name:
+            # fehlt sie im Zielmodell, wuerde der Measure-Zweig daraus still
+            # `_Measures.'dim_x.Spalte'` machen.
+            if re.match(r"^(dim|fact)_\w+$", tabelle):
+                raise ValueError(
+                    f"{feld}: {ref!r} -- Tabelle {tabelle!r} fehlt im Zielmodell "
+                    f"{getattr(self._target_model_dir(bracket), 'name', '(keins gebunden)')}.")
             return None
         if not sym.has_column(tabelle, spalte):
             raise ValueError(

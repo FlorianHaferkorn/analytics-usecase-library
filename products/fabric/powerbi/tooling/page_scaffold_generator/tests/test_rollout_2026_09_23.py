@@ -199,3 +199,44 @@ def test_statement_titles_are_opt_in_not_default(loader):
     b = loader.load_use_case_bracket("COM-003")
     assert "title_statements_verified" not in b["ux_layout_rules"]
     assert loader.get_page_config("COM-003", "overview")["assert_statement_titles"] is False
+
+
+# --- Evidence-Aliase, die die falsche Tabelle trafen (Matrix-Sichtung, 24.10.2026) -------
+
+def test_an_unknown_dim_or_fact_table_stops_the_run_instead_of_becoming_a_measure(loader):
+    """Vorher: `dim_x.Spalte` ohne Tabelle im Modell fiel in den Measure-Zweig."""
+    b = loader.load_use_case_bracket("COM-001")
+    with pytest.raises(ValueError, match="fehlt im Zielmodell"):
+        loader._table_column("dim_salesrep.Team", b)
+    with pytest.raises(ValueError, match="fehlt im Zielmodell"):
+        loader._table_column("fact_pipeline.Stage", b)
+    assert loader._table_column("Plan Sales.Amount", b) is None    # kein dim_/fact_: Measure-Zweig
+
+
+@pytest.mark.parametrize("uc", ["XD-001", "XD-002"])
+def test_service_channel_is_the_queue_channel_not_the_org_channel(loader, uc):
+    spalten = loader.get_page_config(uc, "detail")["detail_matrix_columns"]
+    assert ("dim_case_queue", "Channel") in spalten
+    assert ("dim_org", "Channel") not in spalten
+
+
+def test_xd002_topn_ranks_queues_not_channels(loader):
+    assert loader.get_page_config("XD-002", "detail")["detail_matrix_topn_field"] == ("dim_case_queue", "QueueName")
+
+
+def test_xd003_ranks_business_units_not_days(loader):
+    cfg = loader.get_page_config("XD-003", "detail")
+    assert not any(t == "dim_date" for t, _ in cfg["detail_matrix_columns"])
+    assert cfg["detail_matrix_topn_field"] == ("dim_org", "OrgName")
+
+
+@pytest.mark.parametrize("uc, tabelle", [("HR-001", "dim_employee_segment"), ("SCM-004", "dim_category")])
+def test_unmodelled_dimensions_fail_by_name(loader, uc, tabelle):
+    with pytest.raises(ValueError, match=tabelle):
+        loader.get_page_config(uc, "detail")
+
+
+def test_xd004_detail_is_domain_then_action_code(loader):
+    achsen = loader.get_page_config("XD-004", "detail")["detail_matrix_axes"]
+    assert achsen == {"rows": [("fact_action_outcome", "domain"), ("fact_action_outcome", "action_code_id")],
+                      "columns": []}

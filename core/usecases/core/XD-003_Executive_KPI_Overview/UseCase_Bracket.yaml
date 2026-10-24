@@ -100,8 +100,10 @@ ux_layout_rules:
       # R2.4: added KPI-CUS-001 and KPI-SVC-004 (moved off
       # Main_2, see above) so both are still surfaced in the evidence table.
       evidence_columns:
+      # 24.10.2026: `period` gestrichen. Es loeste zu dim_date.Date auf (Tageszeilen je
+      # Business Unit), und als letzte Dimension trug es den Top-N-Filter: Top-20 Tage
+      # statt Top-20 Business Units. Den Zeitraum setzt der Seitenslicer.
       - entity
-      - period
       - KPI-GOV-004
       - KPI-COM-013
       - KPI-COM-008

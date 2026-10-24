@@ -398,15 +398,23 @@ def _visual_json(visual, idx: int, owner: dict[str, str], gaps: list[str]) -> di
     # pivotTable: Rows/Columns tragen jede Ebene ihrer eigenen Achse (Hierarchie), nicht ein Feld.
     pivot_axes = ({"Rows": list(visual.rows), "Columns": list(visual.columns)}
                   if plan.visual_type == "pivotTable" else None)
+    # Rows und Columns sind laut Katalog optional (requiredRoles nur Values): eine leere Achse
+    # bleibt weg, statt einen Platzhalter zu tragen, der in Desktop als totes Feld erscheint.
+    # Eine gestufte Zeilenhierarchie ohne Spaltenachse ist ein gewolltes Muster (COM-002, XD-004).
+    # Nur eine Matrix ohne jede Achse ist eine Luecke; die Zeilenachse bekommt dann den Platzhalter.
+    if pivot_axes is not None and not (pivot_axes["Rows"] or pivot_axes["Columns"]):
+        pivot_axes["Rows"] = [None]
     for i, role in enumerate(plan.dim_roles):
         if pivot_axes is not None:
-            if pivot_axes[role]:
+            if pivot_axes[role] == [None]:
+                projs = [_column_field(_HITL_ENTITY, f"[HITL] assign {role}")]
+                gaps.append(f"visual '{visual.visual_id}': {plan.visual_type} has no "
+                            f"row or column axis — HITL placeholder in '{role}'")
+            elif pivot_axes[role]:
                 projs = [_column_from_ref(f, gaps, f"visual '{visual.visual_id}'")
                          for f in pivot_axes[role]]
             else:
-                projs = [_column_field(_HITL_ENTITY, f"[HITL] assign {role}")]
-                gaps.append(f"visual '{visual.visual_id}': {plan.visual_type} requires "
-                            f"'{role}' — HITL placeholder (canonical carries no {role.lower()})")
+                continue
         elif i < len(available_dims):
             projs = [_column_from_ref(
                 available_dims[i], gaps, f"visual '{visual.visual_id}'",
