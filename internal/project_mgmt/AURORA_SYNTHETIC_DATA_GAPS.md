@@ -94,6 +94,16 @@ inversely correlated with attrition (the governed driver); absence ~2–5 %; tim
 
 No opportunity/pipeline table exists in Aurora — the whole forward-looking funnel is absent.
 
+> **STATUS 2026-10-24 — modelled.** The four tables are in `Commercial.SemanticModel` (codemod
+> `tooling/codegen/model_alignment.py`, `NEW_TABLES`), with measures for KPI-COM-026/027/029/031 and
+> the report `dist/COM-005_Sales_Pipeline_Conversion.Report`. KPI-COM-028 stays a `VAR _pending`
+> placeholder (needs a stage-history fact, see `core/kpi_catalog/planned.yaml`). Measured on gold (duckdb):
+> coverage 2.69×, win rate 376/1306 = 28.8 %, cycle 80.2 d; stage Negotiation has 0 rows.
+> KPI-COM-030 (Sales Velocity) is a catalog composition since 2026-10-24; measured on gold (pandas, no
+> filter): 4,588 open × 81,333 EUR avg won deal (376 won; second route sum / `Won Count` gives the same)
+> × 28.79 % / 80.16 d = 1,340,288 EUR per day; the open count matches a second route (`Decided Count` = 0,
+> also 4,588). Avg deal value over won deals only: decision Florian Haferkorn, 2026-10-24.
+
 - 🟥 **`fact_pipeline`** — grain: one row per opportunity (`OpportunityID`), plus a stage-history
   variant if stage conversion is modelled over time. Columns: `OrgKey`, `SalesRepKey`, `StageKey`,
   `Create Date`, `Stage Entered Date`, `Close Date`, `Opportunity Value Amount`, `Won Flag`,

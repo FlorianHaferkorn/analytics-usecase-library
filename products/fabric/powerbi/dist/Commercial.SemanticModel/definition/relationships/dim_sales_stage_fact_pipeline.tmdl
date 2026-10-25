@@ -1,0 +1,3 @@
+relationship dim_sales_stage_fact_pipeline
+	fromColumn: fact_pipeline.StageKey
+	toColumn: dim_sales_stage.StageKey

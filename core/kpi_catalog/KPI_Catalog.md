@@ -5225,7 +5225,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   business:
     purpose: Measures OpEx variance versus plan.
     definition: (OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.
-    grain_scope: Company/segment; monthly close.
+    grain_scope: Company/segment/cost centre; monthly close.
     unit_format: percent_1
     interpretation: Positive values indicate overspend; negative values indicate savings.
   technical:
@@ -5233,8 +5233,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Measures OpEx variance versus plan.
     depends_on_measures: []
     lineage:
-    - fact_finance.OpEx Amount
-    - fact_finance.Plan OpEx Amount
+    - fact_opex_costcenter.OpEx Amount
+    - fact_opex_costcenter.Plan OpEx Amount
     calculation:
       op: delta_pct
       minuend:
@@ -7420,23 +7420,47 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   good_is: higher
   business:
     purpose: Measures revenue generation rate through the pipeline.
-    definition: (Open Opportunities x Avg Deal Value x Win Rate) / Sales Cycle Length.
+    definition: (Open Opportunities x Avg Won Deal Value x Win Rate) / Sales Cycle Length.
     grain_scope: Rep/segment; monthly.
     unit_format: eur_0
     interpretation: Higher is better; a composite health signal for the funnel engine.
   technical:
     measure_name: Sales Velocity
     description: Measures revenue generation rate through the pipeline.
-    depends_on_measures: []
+    depends_on_measures:
+    - KPI-COM-027
+    - KPI-COM-029
     lineage:
+    - fact_pipeline.OpportunityID
+    - fact_pipeline.Won Flag
+    - fact_pipeline.Lost Flag
     - fact_pipeline.Opportunity Value Amount
     - fact_pipeline.Won Count
     - fact_pipeline.Decided Count
     - fact_pipeline.Cycle Days
     calculation:
-      op: hitl
-      blocked_by: authoring
-      reason: 'Composite: open-opportunity count x avg deal value x win rate / sales-cycle length; all inputs now in fact_pipeline — assembled as a DAX measure in TMDL by CLI (beyond the neutral single-op DSL).'
+      op: ratio
+      numerator:
+        calc:
+          op: mul
+          terms:
+          - calc:
+              op: count_filtered
+              column: OpportunityID
+              filters:
+              - column: Won Flag
+                equals: false
+              - column: Lost Flag
+                equals: false
+          - calc:
+              op: avg_filtered
+              column: Opportunity Value Amount
+              filters:
+              - column: Won Flag
+                equals: true
+          - kpi: KPI-COM-027
+      denominator:
+        kpi: KPI-COM-029
   governance:
     business_owner: TBD
     data_owner: TBD

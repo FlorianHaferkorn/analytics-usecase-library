@@ -1,0 +1,37 @@
+/// OpEx and Plan OpEx at org × cost-centre × month; reconciles to fact_finance entity OpEx.
+table fact_opex_costcenter
+	lineageTag: 261bf3c3-f190-5af2-b9d4-8cff34e8ffe6
+	column DateKey
+		dataType: Int64
+		sourceColumn: DateKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column OrgKey
+		dataType: Int64
+		sourceColumn: OrgKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column CostCenterKey
+		dataType: Int64
+		sourceColumn: CostCenterKey
+		summarizeBy: none
+		isHidden
+		isAvailableInMDX: false
+	column 'OpEx Amount'
+		dataType: Decimal
+		sourceColumn: OpEx Amount
+		summarizeBy: none
+	column 'Plan OpEx Amount'
+		dataType: Decimal
+		sourceColumn: Plan OpEx Amount
+		summarizeBy: none
+	partition fact_opex_costcenter = m
+		mode: import
+		source =
+			let
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/facts/fact_opex_costcenter"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
+			in
+				ParquetData

@@ -127,48 +127,6 @@
               },
               "queryRef": "_Measures.CCC Days",
               "nativeQueryRef": "CCC Days"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Inventory Amount"
-                }
-              },
-              "queryRef": "_Measures.Inventory Amount",
-              "nativeQueryRef": "Inventory Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "OTIF % (FIN)"
-                }
-              },
-              "queryRef": "_Measures.OTIF % (FIN)",
-              "nativeQueryRef": "OTIF % (FIN)"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Supplier Risk Score (Entity)"
-                }
-              },
-              "queryRef": "_Measures.Supplier Risk Score (Entity)",
-              "nativeQueryRef": "Supplier Risk Score (Entity)"
             }
           ]
         }
@@ -293,7 +251,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Cash Balance, Cash vs Plan %, DSO Days, DIO Days, DPO Days, CCC Days, Inventory Amount, OTIF % (FIN) und Supplier Risk Score (Entity) nach Org Name und Region'"
+                  "Value": "'Cash Balance, Cash vs Plan %, DSO Days, DIO Days, DPO Days und CCC Days nach Org Name und Region'"
                 }
               }
             }

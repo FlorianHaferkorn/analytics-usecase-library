@@ -1,0 +1,126 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "KPI_Cards",
+  "position": {
+    "x": 32,
+    "y": 104,
+    "z": 10000,
+    "height": 144,
+    "width": 1856,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "layout": [
+        {
+          "properties": {
+            "columnCount": {
+              "expr": {
+                "Literal": {
+                  "Value": "4L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "value": [
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
+        }
+      ]
+    },
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Pipeline Coverage"
+                }
+              },
+              "queryRef": "_Measures.Pipeline Coverage",
+              "nativeQueryRef": "Pipeline Coverage"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Win Rate %"
+                }
+              },
+              "queryRef": "_Measures.Win Rate %",
+              "nativeQueryRef": "Win Rate %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Sales Cycle Length"
+                }
+              },
+              "queryRef": "_Measures.Sales Cycle Length",
+              "nativeQueryRef": "Sales Cycle Length"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Sales Velocity"
+                }
+              },
+              "queryRef": "_Measures.Sales Velocity",
+              "nativeQueryRef": "Sales Velocity"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Current values of Pipeline Coverage, Win Rate %, Sales Cycle Length and Sales Velocity'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

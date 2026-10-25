@@ -159,9 +159,11 @@ ux_layout_rules:
       # nach der Spalte `days_to_outcome` -- der Generator band sie als Measure, die es in
       # keinem Modell gibt, und die Top-N-Auswahl griff auf `cost_to_execute` als Entitaet.
       # Die Entitaet steht jetzt zuletzt (Top-N-Feld, wie ProductCode bei COM-002).
+      # 24.10.2026: outcome_status gestrichen. Gemessen (Gold, fact_action_outcome):
+      # action_code_id x outcome_status 15/4/4 -- eine Kreuzklassifikation, keine Ebene
+      # der Hierarchie; als Spaltenachse waeren es 4 x 3 = 12 Wertspalten.
       evidence_columns:
         - fact_action_outcome.domain
-        - fact_action_outcome.outcome_status
         - fact_action_outcome.action_code_id
         - KPI-GOV-006
         - KPI-GOV-002
@@ -176,6 +178,14 @@ ux_layout_rules:
         type: data_bar
       action_panel: true
       payload_mode: minimal
+      # Gestufte Kreuztabelle (visual_registry detail_matrix: matrix): erst die Domaene,
+      # dann der Action Code. Gemessen: domain > action_code_id 4/15/0 (jeder Code in
+      # genau einer Domaene). Top-20 bei 15 Codes filtert nichts, die Zwischensummen
+      # je Domaene bleiben damit Gruppenwerte.
+      visual_type: matrix
+      row_fields:
+        - fact_action_outcome.domain
+        - fact_action_outcome.action_code_id
 
 prioritization:
   business_value: high

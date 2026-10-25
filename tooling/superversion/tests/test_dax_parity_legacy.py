@@ -213,6 +213,7 @@ KPI_TO_LEGACY = {
     "KPI-COM-031": (None, None),
     "KPI-COM-029": (None, None),
     "KPI-COM-027": (None, None),
+    "KPI-COM-030": (None, None),  # 24.10.2026: Komposition aus dem Katalog, kein Legacy-Measure davor (Platzhalter)
 }
 
 # Documented, deliberate divergences (Review Befund A2 methodology: ledger, not

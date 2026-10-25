@@ -1,0 +1,27 @@
+measure_name: Win Rate %
+is_kpi_measure: true
+kpi_id_ref: KPI-COM-027
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: COM-005
+category: KPI
+expression:
+  logical: Win Rate % = DIVIDE ( SUM ( fact_pipeline[Won Count] ), SUM ( fact_pipeline[Decided Count]
+    ) )
+  aggregation_method: ratio
+documentation:
+  description: Measures share of decided opportunities won.
+  notes: 'Definition: Opportunities Won / (Opportunities Won + Opportunities Lost).
+
+
+    Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+
+    '
+dependencies:
+  columns:
+  - fact_pipeline[Decided Count]
+  - fact_pipeline[Won Count]
+governance:
+  owner: Commercial BI
+  status: experimental
+  version: v0.1
+  last_review: '2026-10-25'

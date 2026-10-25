@@ -54,4 +54,5 @@ Empfohlene Erstlese-Reihenfolge (aus dem Bereichs-README übernommen): `company/
 
 | ID | Punkt | Status | Datum |
 |---|---|---|---|
-| — | — | — | — |
+| SOM-001 | Action Codes zur Laufzeit: typisierte Parameter, prüfbare Vorbedingungen, Rolle an Identität/RLS, Freigabe-Status, ausgeführte Writeback-Bridge (5 Felder mit `gap` in `golden_thread_strategy_to_action.md` §7.1) | offen | 25.10.2026 |
+| SOM-002 | Golden Thread als Ontologie: Interfaces und Objekt-Instanzen fehlen (§7.2) | offen | 25.10.2026 |

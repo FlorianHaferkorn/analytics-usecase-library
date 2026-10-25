@@ -1325,5 +1325,60 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     status: active
     version: v1.0
     last_review: '2026-10-01'
+
+- measure_name: EBITDA
+  is_kpi_measure: true
+  kpi_id_ref: KPI-FIN-020
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-003
+  category: KPI
+  expression:
+    logical: EBITDA = SUM ( fact_finance[EBITDA Amount] )
+    aggregation_method: sum
+  documentation:
+    description: Measures earnings before interest, tax, depreciation and amortisation.
+    notes: 'Definition: Revenue - COGS - Operating Expenses (excl. D&A).
+
+
+      Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+
+      '
+  dependencies:
+    columns:
+    - fact_finance[EBITDA Amount]
+  governance:
+    owner: Finance Analytics
+    status: experimental
+    version: v0.1
+    last_review: '2026-10-25'
+
+- measure_name: EBITDA Margin vs Plan
+  is_kpi_measure: true
+  kpi_id_ref: KPI-FIN-021
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-003
+  category: KPI
+  expression:
+    logical: EBITDA Margin vs Plan = ( DIVIDE ( SUM ( fact_finance[EBITDA Amount] ), SUM ( fact_finance[Net Sales Amount] ) ) ) - ( DIVIDE ( SUM ( fact_finance[Plan EBITDA Amount] ), SUM ( fact_finance[Plan Net Sales Amount] ) ) )
+    aggregation_method: ratio
+  documentation:
+    description: Measures the EBITDA-margin gap versus plan.
+    notes: 'Definition: EBITDA Margin % (Actual) - EBITDA Margin % (Plan), in percentage points.
+
+
+      Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+
+      '
+  dependencies:
+    columns:
+    - fact_finance[EBITDA Amount]
+    - fact_finance[Net Sales Amount]
+    - fact_finance[Plan EBITDA Amount]
+    - fact_finance[Plan Net Sales Amount]
+  governance:
+    owner: Finance Analytics
+    status: experimental
+    version: v0.1
+    last_review: '2026-10-25'
 ```
 

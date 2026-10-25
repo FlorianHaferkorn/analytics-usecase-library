@@ -1,0 +1,47 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "Header",
+  "position": {
+    "x": 32,
+    "y": 32,
+    "z": 10000,
+    "height": 56,
+    "width": 1856,
+    "tabOrder": 2999
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Is there enough qualified pipeline converting to hit the target?  ·  Expected finding — Pipeline coverage is below the safe threshold and the gap is a win-rate problem, not a shortage of opportunities."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Is there enough qualified pipeline converting to hit the target? · Expected finding — Pipeline coverage is below the safe threshold and the gap is a win-rate problem, not a shortage of opportunities.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

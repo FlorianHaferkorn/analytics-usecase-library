@@ -35,6 +35,14 @@ table fact_finance
 		dataType: Decimal
 		sourceColumn: Plan OpEx Amount
 		summarizeBy: none
+	column 'Plan Net Sales Amount'
+		dataType: Decimal
+		sourceColumn: Plan Net Sales Amount
+		summarizeBy: none
+	column 'Plan EBITDA Amount'
+		dataType: Decimal
+		sourceColumn: Plan EBITDA Amount
+		summarizeBy: none
 	partition fact_finance = m
 		mode: import
 		source =

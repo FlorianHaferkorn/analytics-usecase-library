@@ -1,0 +1,26 @@
+measure_name: Stage Conversion %
+is_kpi_measure: true
+kpi_id_ref: KPI-COM-028
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: COM-005
+category: KPI
+expression:
+  logical: Stage Conversion % = VAR _pending = "fact_pipeline (opportunity grain) now in Aurora; true
+    per-stage conversion (records advancing to next stage / entering the stage) needs a stage-transition
+    fact or a DAX stage-cohort measure — synthesised in TMDL by CLI." RETURN BLANK()
+  aggregation_method: ratio
+documentation:
+  description: Measures conversion between funnel stages (lead → opportunity → won).
+  notes: 'Definition: Records advancing to the next stage / Records entering the stage.
+
+
+    Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+
+    '
+dependencies:
+  columns: []
+governance:
+  owner: Commercial BI
+  status: experimental
+  version: v0.1
+  last_review: '2026-10-25'

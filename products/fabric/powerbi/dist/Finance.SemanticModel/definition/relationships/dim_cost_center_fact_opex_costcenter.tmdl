@@ -1,0 +1,3 @@
+relationship dim_cost_center_fact_opex_costcenter
+	fromColumn: fact_opex_costcenter.CostCenterKey
+	toColumn: dim_cost_center.CostCenterKey

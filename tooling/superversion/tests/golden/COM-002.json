@@ -622,7 +622,7 @@
         "visuals": [
           {
             "visual_id": "Detail_Matrix",
-            "visual_type": "table",
+            "visual_type": "matrix",
             "x": 344.0,
             "y": 204.0,
             "width": 1232.0,
@@ -641,8 +641,9 @@
               "Gross Margin %"
             ],
             "rows": [
-              "product_category",
-              "sku"
+              "dim_product.Category",
+              "dim_product.Subcategory",
+              "dim_product.ProductCode"
             ],
             "columns": [],
             "slicer_field": "",

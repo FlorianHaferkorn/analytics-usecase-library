@@ -1,0 +1,25 @@
+measure_name: Open Pipeline Value
+is_kpi_measure: true
+kpi_id_ref: KPI-COM-031
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: COM-005
+category: KPI
+expression:
+  logical: Open Pipeline Value = SUM ( fact_pipeline[Open Qualified Value Amount] )
+  aggregation_method: sum
+documentation:
+  description: Measures total value of open qualified opportunities.
+  notes: 'Definition: Sum of Opportunity Value for open qualified opportunities.
+
+
+    Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+
+    '
+dependencies:
+  columns:
+  - fact_pipeline[Open Qualified Value Amount]
+governance:
+  owner: Commercial BI
+  status: experimental
+  version: v0.1
+  last_review: '2026-10-25'

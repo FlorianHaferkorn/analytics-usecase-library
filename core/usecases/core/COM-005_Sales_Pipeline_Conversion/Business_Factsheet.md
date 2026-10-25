@@ -17,7 +17,7 @@ factsheet_type: business
 - **KPI Owner:** Commercial Controlling / Revenue Operations
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Prescriptive
-- **Related Data Contract:** core/data_contracts/domains/growth.yaml
+- **Related Data Contract:** core/data_contracts/domains/commercial_sales.yaml
 
 ---
 
@@ -33,7 +33,7 @@ factsheet_type: business
 
 - Is pipeline coverage sufficient for the remaining target?
 - Is the gap volume or conversion, and where does the funnel leak?
-- Which reps and segments should the conversion push target first?
+- Which reps should the conversion push target first?
 
 ---
 

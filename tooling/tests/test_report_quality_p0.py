@@ -251,3 +251,21 @@ def test_a_column_missing_in_the_bound_model_is_flagged(tmp_path: Path):
     # Gegenprobe: dieselbe Anordnung mit vorhandener Spalte besteht.
     _setze_spalte(report, "dim_date", "Month")
     assert validate_report_measure_references(tmp_path) == []
+
+
+def test_parse_tmdl_table_reads_unquoted_measure_names(tmp_path: Path):
+    from report_quality.dax_reference_validator import parse_tmdl_table
+
+    tmdl = tmp_path / "_Measures.tmdl"
+    tmdl.write_text(
+        "table _Measures\n"
+        "\tmeasure 'EBITDA Margin' = DIVIDE ( 1, 2 )\n"
+        "\tmeasure EBITDA = SUM ( fact_finance[EBITDA Amount] )\n",
+        encoding="utf-8",
+    )
+    table = parse_tmdl_table(tmdl)
+    assert table is not None
+    assert table.measures == {
+        "EBITDA Margin": "DIVIDE ( 1, 2 )",
+        "EBITDA": "SUM ( fact_finance[EBITDA Amount] )",
+    }

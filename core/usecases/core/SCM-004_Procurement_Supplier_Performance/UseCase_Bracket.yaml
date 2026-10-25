@@ -78,7 +78,9 @@ ux_layout_rules:
       # 'category_supplier' was an ungoverned summary token with no backing fact.
       evidence_grain: purchase_order_line
       evidence_columns:
-      - category
+      # 24.10.2026: `category` loeste zu dim_product.Category auf. Gemeint ist die
+      # Beschaffungskategorie (dim_category); ein Modell bindet SCM-004 noch nicht.
+      - dim_category.Category
       - supplier
       - KPI-SCM-023
       - KPI-SCM-024
