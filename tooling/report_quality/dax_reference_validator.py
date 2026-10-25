@@ -35,7 +35,8 @@ class ModelSymbols:
 
 _RE_TABLE = re.compile(r"^\s*table\s+(['\"]?)([^\s'\"]+)\1", re.MULTILINE)
 _RE_COLUMN = re.compile(r"^\s+column\s+(['\"]?)([^'\"=\r\n]+)\1", re.MULTILINE)
-_RE_MEASURE = re.compile(r"^\s+measure\s+(['\"])([^'\"]+)\1\s*=\s*(.*)$", re.MULTILINE)
+# TMDL quotes names only when needed: `measure EBITDA = ...` is as valid as `measure 'EBITDA Margin' = ...`.
+_RE_MEASURE = re.compile(r"^\s+measure\s+(?:(['\"])([^'\"]+)\1|([^\s'\"=]+))\s*=\s*(.*)$", re.MULTILINE)
 
 
 def parse_tmdl_table(path: Path) -> TableSymbols | None:
@@ -47,7 +48,8 @@ def parse_tmdl_table(path: Path) -> TableSymbols | None:
     for col_match in _RE_COLUMN.finditer(text):
         table.columns.add(col_match.group(2).strip())
     for measure_match in _RE_MEASURE.finditer(text):
-        table.measures[measure_match.group(2).strip()] = measure_match.group(3).strip()
+        name = measure_match.group(2) or measure_match.group(3)
+        table.measures[name.strip()] = measure_match.group(4).strip()
     return table
 
 
