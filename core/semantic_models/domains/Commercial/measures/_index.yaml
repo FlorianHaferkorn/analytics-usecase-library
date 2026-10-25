@@ -45,3 +45,8 @@ order:
 - action_effectiveness_delta
 - action_outcome_rate
 - pipeline_coverage
+- win_rate
+- stage_conversion
+- sales_cycle_length
+- sales_velocity
+- open_pipeline_value

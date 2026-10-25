@@ -1,0 +1,26 @@
+measure_name: Sales Velocity
+is_kpi_measure: true
+kpi_id_ref: KPI-COM-030
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: COM-005
+category: KPI
+expression:
+  logical: Sales Velocity = DIVIDE ( ( ( CALCULATE ( COUNTROWS ( fact_pipeline ), fact_pipeline[Won Flag]
+    = FALSE (), fact_pipeline[Lost Flag] = FALSE () ) ) * ( CALCULATE ( AVERAGEX ( fact_pipeline, fact_pipeline[Opportunity
+    Value Amount] ), fact_pipeline[Won Flag] = TRUE () ) ) * [Win Rate %] ), [Sales Cycle Length] )
+  aggregation_method: custom
+documentation:
+  description: Sales Velocity
+  notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+
+    '
+dependencies:
+  columns:
+  - fact_pipeline[Lost Flag]
+  - fact_pipeline[Opportunity Value Amount]
+  - fact_pipeline[Won Flag]
+governance:
+  owner: Commercial BI
+  status: experimental
+  version: v0.1
+  last_review: '2026-10-25'

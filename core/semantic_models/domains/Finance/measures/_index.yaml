@@ -59,3 +59,5 @@ order:
 - operating_cash_flow_delta
 - operating_cash_flow_delta_now
 - operating_cash_flow_pm
+- ebitda
+- ebitda_margin_vs_plan

@@ -1,0 +1,22 @@
+measure_name: Sales Cycle Length
+is_kpi_measure: true
+kpi_id_ref: KPI-COM-029
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: COM-005
+category: KPI
+expression:
+  logical: Sales Cycle Length = AVERAGE ( fact_pipeline[Cycle Days] )
+  aggregation_method: average
+documentation:
+  description: Sales Cycle Length
+  notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+
+    '
+dependencies:
+  columns:
+  - fact_pipeline[Cycle Days]
+governance:
+  owner: Commercial BI
+  status: experimental
+  version: v0.1
+  last_review: '2026-10-25'
