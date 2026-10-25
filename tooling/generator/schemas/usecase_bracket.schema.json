@@ -646,7 +646,7 @@
                     },
                     "gemessen_am": {
                       "type": "string",
-                      "format": "date"
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
                     },
                     "quelle": {
                       "type": "string",
@@ -811,12 +811,18 @@
                   {
                     "required": [
                       "top_n"
-                    ]
+                    ],
+                    "properties": {
+                      "top_n": true
+                    }
                   },
                   {
                     "required": [
                       "top_n_ausnahme"
-                    ]
+                    ],
+                    "properties": {
+                      "top_n_ausnahme": true
+                    }
                   }
                 ]
               }
