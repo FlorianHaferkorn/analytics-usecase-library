@@ -9,7 +9,7 @@
 - KPIs in catalog: **145**  — reachable: **143**, roadmap (planned.yaml): 31, orphan: **0**
 - Action codes: **60**  — reachable: **59**, orphan: **1**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
-- Semantic measures: **282**  — backing a catalog KPI: **114** (registry/drift gated by `test_measure_dictionary_files`)
+- Semantic measures: **289**  — backing a catalog KPI: **121** (registry/drift gated by `test_measure_dictionary_files`)
 
 ## Integrity (must be empty)
 
@@ -66,18 +66,11 @@ _none_
 - `KPI-COM-023`
 - `KPI-COM-024`
 - `KPI-COM-025`
-- `KPI-COM-027`
-- `KPI-COM-028`
-- `KPI-COM-029`
-- `KPI-COM-030`
-- `KPI-COM-031`
 - `KPI-COM-032`
 - `KPI-COM-034`
 - `KPI-ESG-001`
 - `KPI-ESG-002`
 - `KPI-FIN-008`
-- `KPI-FIN-020`
-- `KPI-FIN-021`
 - `KPI-OPS-019`
 - `KPI-OPS-020`
 - `KPI-PPL-002`

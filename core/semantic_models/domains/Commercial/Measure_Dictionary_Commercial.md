@@ -1268,8 +1268,11 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     logical: Win Rate % = DIVIDE ( SUM ( fact_pipeline[Won Count] ), SUM ( fact_pipeline[Decided Count] ) )
     aggregation_method: ratio
   documentation:
-    description: Win Rate %
-    notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+    description: Measures share of decided opportunities won.
+    notes: 'Definition: Opportunities Won / (Opportunities Won + Opportunities Lost).
+
+
+      Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
       '
   dependencies:
@@ -1292,8 +1295,11 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     logical: Stage Conversion % = VAR _pending = "fact_pipeline (opportunity grain) now in Aurora; true per-stage conversion (records advancing to next stage / entering the stage) needs a stage-transition fact or a DAX stage-cohort measure — synthesised in TMDL by CLI." RETURN BLANK()
     aggregation_method: ratio
   documentation:
-    description: Stage Conversion %
-    notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+    description: Measures conversion between funnel stages (lead → opportunity → won).
+    notes: 'Definition: Records advancing to the next stage / Records entering the stage.
+
+
+      Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
       '
   dependencies:
@@ -1314,8 +1320,11 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     logical: Sales Cycle Length = AVERAGE ( fact_pipeline[Cycle Days] )
     aggregation_method: average
   documentation:
-    description: Sales Cycle Length
-    notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+    description: Measures average calendar days from opportunity creation to close.
+    notes: 'Definition: Mean(Close Date - Create Date) over opportunities closed in the period.
+
+
+      Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
       '
   dependencies:
@@ -1337,8 +1346,11 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     logical: Sales Velocity = DIVIDE ( ( ( CALCULATE ( COUNTROWS ( fact_pipeline ), fact_pipeline[Won Flag] = FALSE (), fact_pipeline[Lost Flag] = FALSE () ) ) * ( CALCULATE ( AVERAGEX ( fact_pipeline, fact_pipeline[Opportunity Value Amount] ), fact_pipeline[Won Flag] = TRUE () ) ) * [Win Rate %] ), [Sales Cycle Length] )
     aggregation_method: custom
   documentation:
-    description: Sales Velocity
-    notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+    description: Measures revenue generation rate through the pipeline.
+    notes: 'Definition: (Open Opportunities x Avg Won Deal Value x Win Rate) / Sales Cycle Length.
+
+
+      Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
       '
   dependencies:
@@ -1362,8 +1374,11 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     logical: Open Pipeline Value = SUM ( fact_pipeline[Open Qualified Value Amount] )
     aggregation_method: sum
   documentation:
-    description: Open Pipeline Value
-    notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+    description: Measures total value of open qualified opportunities.
+    notes: 'Definition: Sum of Opportunity Value for open qualified opportunities.
+
+
+      Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
       '
   dependencies:

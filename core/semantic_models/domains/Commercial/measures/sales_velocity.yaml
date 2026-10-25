@@ -10,8 +10,11 @@ expression:
     Value Amount] ), fact_pipeline[Won Flag] = TRUE () ) ) * [Win Rate %] ), [Sales Cycle Length] )
   aggregation_method: custom
 documentation:
-  description: Sales Velocity
-  notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+  description: Measures revenue generation rate through the pipeline.
+  notes: 'Definition: (Open Opportunities x Avg Won Deal Value x Win Rate) / Sales Cycle Length.
+
+
+    Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
     '
 dependencies:

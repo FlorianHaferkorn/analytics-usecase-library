@@ -9,8 +9,11 @@ expression:
     ) )
   aggregation_method: ratio
 documentation:
-  description: Win Rate %
-  notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+  description: Measures share of decided opportunities won.
+  notes: 'Definition: Opportunities Won / (Opportunities Won + Opportunities Lost).
+
+
+    Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
     '
 dependencies:

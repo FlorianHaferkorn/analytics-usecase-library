@@ -8,8 +8,11 @@ expression:
   logical: EBITDA = SUM ( fact_finance[EBITDA Amount] )
   aggregation_method: sum
 documentation:
-  description: EBITDA
-  notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+  description: Measures earnings before interest, tax, depreciation and amortisation.
+  notes: 'Definition: Revenue - COGS - Operating Expenses (excl. D&A).
+
+
+    Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
     '
 dependencies:

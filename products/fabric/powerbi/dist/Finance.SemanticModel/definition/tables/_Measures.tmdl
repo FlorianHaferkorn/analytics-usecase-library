@@ -691,12 +691,17 @@ table _Measures
 		lineageTag: 161cdf36-2dfa-5f6b-b097-1cc6a699f40e
 
 	/// Measures earnings before interest, tax, depreciation and amortisation.
+	/// Formula: SUM ( fact_finance[EBITDA Amount] )
+	/// Owner: Finance Analytics · Status: experimental
 	measure EBITDA = SUM ( fact_finance[EBITDA Amount] )
 		formatString: #,0
 		displayFolder: FIN-003
 		lineageTag: f9eb43aa-c947-54ec-8cee-df9f54b980a2
 
+	/// Measures the EBITDA-margin gap versus plan.
+	/// Formula: ( DIVIDE ( SUM ( fact_finance[EBITDA Amount] ), SUM ( fact_finance[Net Sales Amount] ) ) ) - ( DIVIDE ( SUM ( fact_finance[Plan EBITDA Amount] ), SUM ( fact_finance[Plan Net Sales Amount] ) ) )
 	/// Good: higher_is_better
+	/// Owner: Finance Analytics · Status: experimental
 	measure 'EBITDA Margin vs Plan' = ( DIVIDE ( SUM ( fact_finance[EBITDA Amount] ), SUM ( fact_finance[Net Sales Amount] ) ) ) - ( DIVIDE ( SUM ( fact_finance[Plan EBITDA Amount] ), SUM ( fact_finance[Plan Net Sales Amount] ) ) )
 		formatString: 0.0%
 		displayFolder: FIN-003

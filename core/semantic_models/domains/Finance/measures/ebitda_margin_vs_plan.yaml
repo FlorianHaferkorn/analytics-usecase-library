@@ -10,8 +10,11 @@ expression:
     Net Sales Amount] ) ) )
   aggregation_method: ratio
 documentation:
-  description: EBITDA Margin vs Plan
-  notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+  description: Measures the EBITDA-margin gap versus plan.
+  notes: 'Definition: EBITDA Margin % (Actual) - EBITDA Margin % (Plan), in percentage points.
+
+
+    Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
     '
 dependencies:

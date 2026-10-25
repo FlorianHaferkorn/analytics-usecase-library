@@ -8,8 +8,11 @@ expression:
   logical: Open Pipeline Value = SUM ( fact_pipeline[Open Qualified Value Amount] )
   aggregation_method: sum
 documentation:
-  description: Open Pipeline Value
-  notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+  description: Measures total value of open qualified opportunities.
+  notes: 'Definition: Sum of Opportunity Value for open qualified opportunities.
+
+
+    Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
     '
 dependencies:

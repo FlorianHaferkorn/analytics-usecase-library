@@ -8,8 +8,11 @@ expression:
   logical: Sales Cycle Length = AVERAGE ( fact_pipeline[Cycle Days] )
   aggregation_method: average
 documentation:
-  description: Sales Cycle Length
-  notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+  description: Measures average calendar days from opportunity creation to close.
+  notes: 'Definition: Mean(Close Date - Create Date) over opportunities closed in the period.
+
+
+    Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
     '
 dependencies:

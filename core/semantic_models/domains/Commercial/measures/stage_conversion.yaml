@@ -10,8 +10,11 @@ expression:
     fact or a DAX stage-cohort measure — synthesised in TMDL by CLI." RETURN BLANK()
   aggregation_method: ratio
 documentation:
-  description: Stage Conversion %
-  notes: 'Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
+  description: Measures conversion between funnel stages (lead → opportunity → won).
+  notes: 'Definition: Records advancing to the next stage / Records entering the stage.
+
+
+    Expression taken from the generated _Measures.tmdl; not yet measured against Aurora gold data.
 
     '
 dependencies:
