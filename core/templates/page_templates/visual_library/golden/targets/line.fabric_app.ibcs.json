@@ -35,6 +35,7 @@
           "interpolate": "monotone",
           "color": "#404040",
           "opacity": 0.12,
+          "fillOpacity": 1,
           "description": "Prognoseband P10-P90"
         },
         "encoding": {

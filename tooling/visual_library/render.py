@@ -781,7 +781,12 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
         elif isinstance(old, dict):
             enc["opacity"] = {"condition": dim, **old}
         else:
-            enc["opacity"] = {"condition": dim, "value": 1}
+            # An encoding wins over mark.opacity. Preserve the idiom's resting alpha
+            # (e.g. the 12 % forecast band), including when highlighting is OFF.
+            mark = node.get("mark")
+            rest = mark.get("opacity", 1) if isinstance(mark, dict) else 1
+            relative_dim = {**dim, "value": rest * KEY_DIM} if isinstance(rest, (int, float)) else dim
+            enc["opacity"] = {"condition": relative_dim, "value": rest}
         return {**node, "encoding": enc}
 
     def walk(node):
