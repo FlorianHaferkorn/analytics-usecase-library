@@ -56,3 +56,4 @@ Empfohlene Erstlese-Reihenfolge (aus dem Bereichs-README übernommen): `company/
 |---|---|---|---|
 | SOM-001 | Action Codes zur Laufzeit: typisierte Parameter, prüfbare Vorbedingungen, Rolle an Identität/RLS, Freigabe-Status, ausgeführte Writeback-Bridge (5 Felder mit `gap` in `golden_thread_strategy_to_action.md` §7.1) | offen | 25.10.2026 |
 | SOM-002 | Golden Thread als Ontologie: Interfaces und Objekt-Instanzen fehlen (§7.2) | offen | 25.10.2026 |
+| SOM-003 | Anzeigenamen der 109 Business Objects (`core/business_objects/anzeigenamen_vorlage.csv`): 218 offen, 23 `name.en` vorbelegt aus der Vertragsbeschreibung, `name.de` ohne Quelle; Entscheidung Florian 28.10.2026 (Anzeigenamen statt Tabellenname) | offen, wartet auf fachliche Befüllung | 28.10.2026 |

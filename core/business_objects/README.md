@@ -24,6 +24,10 @@ the catalog KPIs that read it (Golden Thread). Base for the ontology delivery to
 - **Curate in the file, rerun the derivation.** A value the derivation leaves `null` (names,
   roles, personal-data class, schema/layer) may be filled by hand; `--write` keeps it. Structure
   (tables, columns, relationships, KPIs) changes only through the contracts and the KPI catalog.
+- **Display names (`name.de`/`name.en`) are curated.** No source carries a business name;
+  `anzeigenamen_vorlage.csv` lists all 218 open names (23 `name.en` prefilled from the contract
+  description, all `name.de` empty). The business owner fills `wert`, then
+  `business_objects.py --apply core/business_objects/anzeigenamen_vorlage.csv`.
 - **KPIs are referenced, never defined** (Golden Thread): every `kpi_ids` entry must exist in
   the catalog — `--check` and the test fail otherwise.
 - Personal data per attribute uses the bracket vocabulary

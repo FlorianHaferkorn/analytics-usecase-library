@@ -183,3 +183,21 @@ def test_curated_value_survives(doc) -> None:
     got = next(o for o in new["business_objects"] if o["binding"]["table"] == "dim_customer")
     assert got["name"] == {"de": "Kunde", "en": "Customer"}
     assert got["attributes"][2]["personal_data_category"] == "identification_data"
+
+
+# ─── display-name template (Florian 28.10.2026) ───────────────────────────────
+
+VORLAGE = REPO / "core" / "business_objects" / "anzeigenamen_vorlage.csv"
+
+
+def test_name_template_covers_every_open_name(doc) -> None:
+    import csv
+
+    rows = list(csv.DictReader(VORLAGE.read_text(encoding="utf-8").splitlines()))
+    open_names = {(o["id"], f"name.{lang}") for o in doc["business_objects"]
+                  for lang in ("de", "en") if o["name"][lang] is None}
+    assert {(r["objekt_id"], r["feld"]) for r in rows} == open_names
+    assert len(rows) == 218
+    # prefilled only where the contract description names the object (name.en), never name.de
+    assert sum(1 for r in rows if r["wert"] and r["feld"] == "name.en") == 23
+    assert not any(r["wert"] for r in rows if r["feld"] == "name.de")
