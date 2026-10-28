@@ -221,7 +221,8 @@ def test_fabric_app_switches_off_runtime_rewrites():
     """VegaVisual rewrites specs at runtime (nice bounds, min bar size, 10K formatting);
     under IBCS those would change what the notation shows."""
     caps = _app("column_time")["capabilities"]
-    for flag in ("disableNiceAxisBounds", "disableMinBarSize", "disableCompactNumberFormatting"):
+    for flag in ("disableNiceAxisBounds", "disableMinBarSize", "disableCompactNumberFormatting",
+                 "disableNonZeroQuantitativeBaseline"):
         assert caps.get(flag) is True, f"ibcs must set {flag}"
 
 
@@ -333,3 +334,15 @@ def test_si_2_1_no_rounded_data_ends_against_the_package_default():
     gerundet.clear()
     suche(vlc.vegalite_to_vega({**spec, "config": render._deep_merge(_PAKET_BAR, {"bar": {"cornerRadius": 0}})}))
     assert gerundet, "Gegenprobe: das Kompilat zeigt die Paket-Ecken nicht, der Test waere blind"
+
+
+def test_every_profile_switches_off_the_data_rewrites():
+    """Meridian BO-560 (headless 28.10.2026): nice bounds, min bar size and compact format changed
+    axis end, bar length and number language in house_default; house_default carries the flags and
+    every profile inherits them."""
+    profiles = render.target_profiles("column_time")
+    assert len(profiles) >= 3, profiles
+    for prof in profiles:
+        caps = json.loads(render.render_target("column_time", "fabric_app", prof)[0])["capabilities"]
+        for flag in ("disableNiceAxisBounds", "disableMinBarSize", "disableCompactNumberFormatting"):
+            assert caps.get(flag) is True, f"{prof} must set {flag}"

@@ -155,7 +155,10 @@
     }
   },
   "capabilities": {
+    "disableCompactNumberFormatting": true,
     "disableLineChartCrosshairTooltip": true,
+    "disableMinBarSize": true,
+    "disableNiceAxisBounds": true,
     "disableTextTruncation": true
   }
 }

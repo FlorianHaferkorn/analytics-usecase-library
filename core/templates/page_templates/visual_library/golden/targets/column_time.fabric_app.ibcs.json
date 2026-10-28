@@ -180,6 +180,7 @@
     "disableLineChartCrosshairTooltip": true,
     "disableMinBarSize": true,
     "disableNiceAxisBounds": true,
+    "disableNonZeroQuantitativeBaseline": true,
     "disableStackedDataLabels": true,
     "disableTextTruncation": true
   }

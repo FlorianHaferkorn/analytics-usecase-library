@@ -101,7 +101,7 @@ regeln:
 
   werteachse_basis:
     paket: teilweise
-    paket_beleg: "applyScaleZero und applyAxisBounds (nice 5) nach dem Config-Merge; abschaltbar nur per disableNonZeroQuantitativeBaseline/disableNiceAxisBounds. fabric-visuals 5.0.0 dist, gelesen 27.10.2026 (Meridian Bericht 2026-10-27_Bericht_fabric-visuals-5)"
+    paket_beleg: "applyScaleZero und applyAxisBounds (nice 5) nach dem Config-Merge; abschaltbar nur per disableNonZeroQuantitativeBaseline/disableNiceAxisBounds. fabric-visuals 5.0.0 dist, gelesen 27.10.2026 (Meridian Bericht 2026-10-27_Bericht_fabric-visuals-5); gemessen headless 28.10.2026 (Meridian BO-560): Achse 120 bei Höchstwert 103, ibcs-Linie ab 950. Abgeschaltet: disableNiceAxisBounds in house_default (alle Profile), disableNonZeroQuantitativeBaseline in ibcs"
     muster: [K8, L5]
     entscheidung: "Achsen (Florian 17.10.2026, Empfehlung nach Best Practice, gilt bis Widerspruch)"
     regel: >
@@ -335,7 +335,7 @@ regeln:
 
   null_fehlend:
     paket: teilweise
-    paket_beleg: "applyMinBarSize zieht Balken auf mindestens 5 px (disableMinBarSize); trifft den 2-px-Strich für 0. fabric-visuals 5.0.0 dist, gelesen 27.10.2026 (Meridian Bericht 2026-10-27_Bericht_fabric-visuals-5)"
+    paket_beleg: "applyMinBarSize zieht Balken auf mindestens 5 px (disableMinBarSize); trifft den 2-px-Strich für 0. fabric-visuals 5.0.0 dist, gelesen 27.10.2026 (Meridian Bericht 2026-10-27_Bericht_fabric-visuals-5); gemessen headless 28.10.2026 (Meridian BO-560): 0,1 bei Höchstwert 103 als 5 px statt 0,2 px. Abgeschaltet per disableMinBarSize in house_default (alle Profile)"
     muster: [B9]
     regel: "Null und fehlender Wert sind unterscheidbar: 0 als 2-px-Strich mit „0“, fehlend ohne Balken mit „–“ in Kontextgrau."
     strich_px: 2
