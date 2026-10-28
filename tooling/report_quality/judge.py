@@ -24,9 +24,9 @@ Usage (library): run_judges(load_rubric(), ctx, SpecHeuristicJudge())
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Optional, Protocol
+from typing import Any, Callable, Optional, Protocol, Union
 
 try:
     import yaml
@@ -165,6 +165,55 @@ def run_judges(rubric: dict[str, Any], ctx: JudgeContext, judge: Judge) -> dict[
     return {r["id"]: judge.evaluate(r["id"], ctx) for r in judge_rules(rubric)}
 
 
+# ── Rendered evidence: text and images ───────────────────────────────────────
+# D-826 (Freelancing-Register, 27.10.2026): kein positives Urteil ohne passende Bild-Evidenz.
+# Die render-only-Regeln (alles ausser den Spec-Heuristiken) urteilen ueber das, was ein Leser
+# sieht: abgeschnittene Beschriftungen, Farbgewicht, Hierarchie. HTML-Quelltext zeigt das nicht —
+# ein Text-Urteil darf deshalb einen Mangel melden (0.0), aber nie bestehen lassen.
+
+@dataclass(frozen=True)
+class ImageEvidence:
+    """Ein gerenderter Bildausschnitt. `label` benennt Prüfling und Variante, z. B.
+    `UC-FIN-002/desktop/hell/1` — Seite, Breite, Modus, Kachel."""
+    path: Path
+    label: str
+
+    @property
+    def variant(self) -> frozenset[str]:
+        return frozenset(self.label.split("/"))
+
+
+@dataclass(frozen=True)
+class Evidence:
+    """Was ein Judge sieht: Text (HTML, Beschreibung) und Bilder. Bewusst ohne Feld fuer eine
+    Bau-Begruendung — der Judge bekommt den Prüfling, nicht die Argumente seines Autors."""
+    text: str = ""
+    images: tuple[ImageEvidence, ...] = field(default_factory=tuple)
+
+    def __bool__(self) -> bool:
+        return bool(self.text.strip() or self.images)
+
+
+def as_evidence(raw: Union[str, Evidence, None]) -> Evidence:
+    """Altes Text-Protokoll (`render_provider -> str`) und neues Bild-Protokoll gleich behandeln."""
+    if raw is None:
+        return Evidence()
+    return raw if isinstance(raw, Evidence) else Evidence(text=str(raw))
+
+
+def render_only_rule(rule_id: str) -> bool:
+    """Render-only = keine Spec-Heuristik entscheidet die Regel; nur ein Blick aufs Bild kann es."""
+    return rule_id not in _HEURISTICS
+
+
+def missing_variants(evidence: Evidence, required: frozenset[str]) -> frozenset[str]:
+    """Pflichtvarianten (`desktop`, `mobil`, `hell`, `dunkel` …), die kein Bild der Evidenz traegt."""
+    seen: set[str] = set()
+    for img in evidence.images:
+        seen |= img.variant
+    return frozenset(required - seen)
+
+
 # ── Pluggable LLM backend (the render-only half) ─────────────────────────────
 # The genuinely render-dependent judge rules (muted context, visual hierarchy, direct
 # labelling …) need a model looking at a rendered report. This is the integration seam:
@@ -185,14 +234,25 @@ def _rule_meta(rule_id: str, rubric: Optional[dict] = None) -> dict[str, Any]:
     return _RUBRIC_BY_ID.get(rule_id, {"id": rule_id, "statement": "", "machine_hint": ""})
 
 
-def build_judge_prompt(rule: dict[str, Any], evidence: str) -> str:
-    """Deterministic judge prompt for one rule + rendered evidence. Pure — unit-tested."""
+def build_judge_prompt(rule: dict[str, Any], evidence: Union[str, Evidence]) -> str:
+    """Deterministic judge prompt for one rule + rendered evidence. Pure — unit-tested.
+
+    Bilder gehen als eigene Bloecke an das Modell (`complete(prompt, images)`); der Prompt nennt
+    sie in derselben Reihenfolge mit Label, damit die Begruendung eine Variante benennen kann."""
+    ev = as_evidence(evidence)
+    shots = ""
+    if ev.images:
+        listed = "\n".join(f"  [{i}] {img.label}" for i, img in enumerate(ev.images, start=1))
+        shots = (f"SCREENSHOTS (attached in this order):\n{listed}\n"
+                 "Judge what a reader sees in the screenshots. Clipped or overlapping text, "
+                 "unreadable labels and horizontal overflow count against the rule they affect.\n\n")
+    text = f"RENDERED EVIDENCE:\n{ev.text}\n\n" if ev.text.strip() else ""
     return (
         "You are a boutique data-visualization critic scoring ONE craft rule against a "
         "rendered report.\n\n"
         f"RULE {rule.get('id')}: {rule.get('statement')}\n"
         f"WHAT TO LOOK FOR: {rule.get('machine_hint')}\n\n"
-        f"RENDERED EVIDENCE:\n{evidence}\n\n"
+        f"{shots}{text}"
         "Respond in exactly this format, nothing else:\n"
         "SCORE: <0.0 | 0.5 | 1.0>\n"
         "RATIONALE: <one sentence>"
@@ -221,24 +281,86 @@ def parse_verdict(rule_id: str, text: str) -> Verdict:
 
 
 class LLMJudge:
-    """Render-based judge. `complete(prompt)->str` is any model; `render_provider(rule_id)
-    ->str` supplies the rendered evidence. With either missing, abstains (no fabrication)."""
+    """Render-based judge. `complete(prompt)->str` is any model; `render_provider(rule_id)`
+    supplies the rendered evidence (`str` or `Evidence`). With either missing, abstains.
 
-    def __init__(self, complete: Optional[Callable[[str], str]] = None,
-                 render_provider: Optional[Callable[[str], Optional[str]]] = None,
-                 rubric: Optional[dict] = None):
+    Mit Bildern ruft er `complete(prompt, images)`. Fuer render-only-Regeln gilt D-826: ein
+    positives Urteil (0.5/1.0) ohne Bild, oder ohne jede Pflichtvariante aus `required_variants`,
+    wird zur Enthaltung; ein Mangel (0.0) bleibt stehen."""
+
+    def __init__(self, complete: Optional[Callable[..., str]] = None,
+                 render_provider: Optional[Callable[[str], Union[str, Evidence, None]]] = None,
+                 rubric: Optional[dict] = None,
+                 required_variants: frozenset[str] = frozenset()):
         self._complete = complete
         self._render = render_provider
         self._rubric = rubric
+        self._required = frozenset(required_variants)
 
     def evaluate(self, rule_id: str, ctx: JudgeContext) -> Verdict:
         if self._complete is None or self._render is None:
             return Verdict(rule_id, ABSTAIN, "abstain", "no model + render wired (runtime concern)")
-        evidence = self._render(rule_id)
+        evidence = as_evidence(self._render(rule_id))
         if not evidence:
             return Verdict(rule_id, ABSTAIN, "abstain", "no rendered evidence available")
         prompt = build_judge_prompt(_rule_meta(rule_id, self._rubric), evidence)
-        return parse_verdict(rule_id, self._complete(prompt))
+        raw = self._complete(prompt, list(evidence.images)) if evidence.images else self._complete(prompt)
+        verdict = parse_verdict(rule_id, raw)
+        if verdict.score and render_only_rule(rule_id):
+            if not evidence.images:
+                return Verdict(rule_id, ABSTAIN, "abstain",
+                               f"positive verdict without image evidence (D-826): {verdict.rationale}")
+            fehlt = missing_variants(evidence, self._required)
+            if fehlt:
+                return Verdict(rule_id, ABSTAIN, "abstain",
+                               f"positive verdict without variants {sorted(fehlt)} (D-826): {verdict.rationale}")
+        return verdict
+
+
+# ── Gesäter Fehler: findet der Judge, was er finden muss? ─────────────────────
+
+@dataclass(frozen=True)
+class SeedResult:
+    rule_id: str
+    clean: Verdict
+    seeded: Verdict
+
+    @property
+    def outcome(self) -> str:
+        """`gefunden`: der gesäte Stand wurde entschieden und schlechter bewertet als der saubere.
+        `nicht_messbar`: der saubere Stand besteht die Regel selbst nicht (0.0 oder Enthaltung) —
+        unter dem Boden kann ein Fehler nicht schlechter werden; der Seed braucht einen Prüfling,
+        der die Regel besteht. `nicht_gefunden`: sonst, auch bei Enthaltung auf dem Fehler.
+        Gemessen 28.10.2026 an UC-FIN-002 (Aurora): BC-COLOR-01 sauber 0.0 → nicht messbar,
+        obwohl die Begruendung den Seed beschrieb; ein bloßes `seeded == 0.0` haette ihn gezaehlt."""
+        s, c = self.seeded.score, self.clean.score
+        if c is None or c == 0.0:
+            return "nicht_messbar"
+        if s is not None and s < c:
+            return "gefunden"
+        return "nicht_gefunden"
+
+    @property
+    def found(self) -> bool:
+        return self.outcome == "gefunden"
+
+
+def seed_check(judge: Judge, rule_id: str, clean: Evidence, seeded: Evidence,
+               ctx: Optional[JudgeContext] = None) -> SeedResult:
+    """Denselben Judge auf sauberen und gesäten Stand derselben Seite ansetzen (D-826)."""
+    ctx = ctx or JudgeContext()
+
+    def run(ev: Evidence) -> Verdict:
+        return _with_evidence(judge, ev).evaluate(rule_id, ctx)
+
+    return SeedResult(rule_id, run(clean), run(seeded))
+
+
+def _with_evidence(judge: Judge, evidence: Evidence) -> Judge:
+    """Ein LLMJudge mit fest verdrahteter Evidenz; andere Judges bleiben unveraendert."""
+    if isinstance(judge, LLMJudge):
+        return LLMJudge(judge._complete, lambda _rid: evidence, judge._rubric, judge._required)
+    return judge
 
 
 class CompositeJudge:
