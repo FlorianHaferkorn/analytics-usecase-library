@@ -153,7 +153,8 @@ def test_gaps_are_counted(doc) -> None:
     g = bo.gaps(doc)
     attrs = sum(len(o["attributes"]) for o in doc["business_objects"])
     assert g["attribute.personal_data"] == attrs          # no source classifies personal data
-    assert g["name.de"] == g["name.en"] == g["binding.layer"] == 109
+    assert g["name.de"] == g["name.en"] == 6     # released names applied (28.10.2026)
+    assert g["binding.layer"] == 109
 
 
 # ─── stable ids, curated values ───────────────────────────────────────────────
@@ -197,7 +198,7 @@ def test_name_template_covers_every_open_name(doc) -> None:
     open_names = {(o["id"], f"name.{lang}") for o in doc["business_objects"]
                   for lang in ("de", "en") if o["name"][lang] is None}
     assert {(r["objekt_id"], r["feld"]) for r in rows} == open_names
-    assert len(rows) == 218
+    assert len(rows) == 12                                # released rows leave the template
     # every row carries a review state; proposals have a value, open rows a reason and no value
     assert all(r["status"] in bo.STATUS for r in rows)
     for r in rows:
@@ -221,7 +222,7 @@ def test_apply_takes_only_released_rows() -> None:
             "BO-001,name.de,A,vorschlag\nBO-001,name.en,B,freigegeben\nBO-002,name.de,,offen\n")
     kept = bo.released_only(text).splitlines()
     assert kept == ["objekt_id,feld,wert,status", "BO-001,name.en,B,freigegeben"]
-    # counter-probe: the shipped template holds no released row, so --apply writes nothing yet
+    # counter-probe: released rows leave the template once applied, so none remain
     import csv
     assert len(list(csv.DictReader(bo.released_only(
         VORLAGE.read_text(encoding="utf-8")).splitlines()))) == 0

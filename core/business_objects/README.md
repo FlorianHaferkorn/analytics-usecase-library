@@ -25,13 +25,13 @@ the catalog KPIs that read it (Golden Thread). Base for the ontology delivery to
   roles, personal-data class, schema/layer) may be filled by hand; `--write` keeps it. Structure
   (tables, columns, relationships, KPIs) changes only through the contracts and the KPI catalog.
 - **Display names (`name.de`/`name.en`) are curated.** No source carries a business name;
-  `anzeigenamen_vorlage.csv` lists all 218 open names with two review columns: `status`
+  `anzeigenamen_vorlage.csv` lists the open names (12 since 28.10.2026: 206 released and applied) with two review columns: `status`
   (`vorschlag` = proposal derived from table name, contract description and KPI texts;
   `offen` = no unambiguous source, `wert` empty; `freigegeben` = released by the business owner)
   and `notiz` (reason for `offen`). Both languages of an object share one status. The business
   owner sets `status=freigegeben` (or corrects `wert`), then
   `business_objects.py --apply core/business_objects/anzeigenamen_vorlage.csv` — `--apply` takes
-  **only `freigegeben` rows**; proposals and open rows are skipped.
+  **only `freigegeben` rows**; proposals and open rows are skipped. Applied rows leave the template.
 - **KPIs are referenced, never defined** (Golden Thread): every `kpi_ids` entry must exist in
   the catalog — `--check` and the test fail otherwise.
 - Personal data per attribute uses the bracket vocabulary
