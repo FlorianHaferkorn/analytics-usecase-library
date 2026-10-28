@@ -346,3 +346,16 @@ def test_every_profile_switches_off_the_data_rewrites():
         caps = json.loads(render.render_target("column_time", "fabric_app", prof)[0])["capabilities"]
         for flag in ("disableNiceAxisBounds", "disableMinBarSize", "disableCompactNumberFormatting"):
             assert caps.get(flag) is True, f"{prof} must set {flag}"
+
+
+def test_legend_keeps_every_series_in_two_columns():
+    """Meridian D-834 (headless 28.10.2026): without disableLegendTruncation the package folds entries
+    into "…N entries"; with it alone the legend is one row wider than the tile. Two columns at
+    labelLimit 170 fit 8 series into 400 px. Every profile that shows a legend inherits this."""
+    for prof in render.target_profiles("column_time"):
+        doc = json.loads(render.render_target("column_time", "fabric_app", prof)[0])
+        assert doc["capabilities"].get("disableLegendTruncation") is True, prof
+        legend = doc["configVegaLite"].get("legend") or {}
+        if legend.get("disable"):
+            continue
+        assert legend.get("columns") == 2 and legend.get("labelLimit") == 170, (prof, legend)

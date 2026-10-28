@@ -150,6 +150,10 @@
     "text": {
       "fontSize": 11
     },
+    "legend": {
+      "columns": 2,
+      "labelLimit": 170
+    },
     "locale": {
       "number": {
         "decimal": ",",
@@ -221,6 +225,7 @@
   },
   "capabilities": {
     "disableCompactNumberFormatting": true,
+    "disableLegendTruncation": true,
     "disableLineChartCrosshairTooltip": true,
     "disableMinBarSize": true,
     "disableNiceAxisBounds": true,
