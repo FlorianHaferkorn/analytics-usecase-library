@@ -76,5 +76,11 @@ fi
 if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^core/'; then
   echo "pre-commit: core/ gestagt - Ontologie-Registry (strict) ..."
   $PY tooling/ontology/registry_builder.py --out-dir tooling/ontology/out --strict || exit 1
+  # Der Builder schreibt UseCase_Inventory.md neu; weicht sie vom gestagten Stand ab, ist der
+  # Commit veraltet (Anlass: FIN-003-KPI-Tausch ohne neues Inventar, 28.10.2026).
+  if ! git diff --quiet -- core/usecases/UseCase_Inventory.md; then
+    echo "pre-commit: core/usecases/UseCase_Inventory.md weicht von der Ableitung ab - pruefen und stagen." >&2
+    exit 1
+  fi
 fi
 exit 0
