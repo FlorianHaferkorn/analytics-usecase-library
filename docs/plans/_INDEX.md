@@ -21,6 +21,8 @@ shelf-life-days: 90
 
 | Deine Aufgabe ist … | Lies | NICHT nötig |
 |---|---|---|
+| Neue Skill-/AI-Setup-Hinweise aus den Referenznachrichten auf Nutzen und Überlappung prüfen | `2026-10-27_AI_Setup_Bewertung.md` | Bildgalerie als Skill-Installationsliste verwenden |
+| Claude-Übergabe zur Reportqualität fortsetzen, neue Design-/Fabric-Inputs bewerten oder Schrift-Spike aufnehmen | `2026-10-27_Reportqualitaet_Quellen_und_Fortsetzung.md` → aktueller Freelancing-Baukastenplan (25.10.) | Alte Juli-Pläne als aktuelle Freigabe interpretieren |
 | Produktziel, Qualitätsböden (F0–F6) und Build-Phasen der Superversion verstehen | `PRODUCT_PLAN.md` → `SUPERVERSION_ZIELBILD_REVIEW.md` | Report-/Layout-Pläne |
 | Nächsten Superversion-Task (I-Block) finden oder im Ledger abhaken | `UMSETZUNGSPLAN_SUPERVERSION.md` | KONZEPT_* |
 | Warum und wohin bei Report-Qualität (Boutique-Niveau, Craft-Core, Content-Grounding) | `KONZEPT_REPORT_QUALITAET.md` | Superversion-Pläne |
@@ -34,6 +36,8 @@ shelf-life-days: 90
 
 | Doc | Zweck | Lies-wenn |
 |---|---|---|
+| `2026-10-27_AI_Setup_Bewertung.md` | Separate Bewertung der Skills und AI-Setup-Inputs: vorhandene Fähigkeiten, Lücken, Pilotbedarf und Empfehlungen | AI-Setup verbessern, ohne visuelle Referenzen und Werkzeugentscheidungen zu vermischen |
+| `2026-10-27_Reportqualitaet_Quellen_und_Fortsetzung.md` | Claude-/Freelancing-Übergabe, Artefaktinventar, Bewertung neuer Inputs, gemessene Qualitätsbasis und Schrift-Spike-Vorprüfung | Reportqualität inhaltlich, strukturell und visuell fortsetzen |
 | `PRODUCT_PLAN.md` | ALUCA → Premium-Produkt: Zielbild, Invarianten, Qualitätsböden, Phasen (Stand 2026-06-22; §4 Tests und PBIR-Lieferung nachgemessen 2026-09-29) | Produktrichtung oder eine Invariante (z. B. „dock, don't rebuild") belegen |
 | `SUPERVERSION_ZIELBILD_REVIEW.md` | Unabhängiges Review des Superversion-Zielbilds (Befunde A1 ff., F0) | Einen Review-Befund nachschlagen, auf den Code oder ADRs verweisen |
 | `UMSETZUNGSPLAN_SUPERVERSION.md` | Umsetzungsplan ALUCA × Meridian: I-Blöcke, Tasks, Ledger | Superversion-Arbeit planen oder abhaken |
