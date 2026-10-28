@@ -349,7 +349,7 @@ def test_every_profile_switches_off_the_data_rewrites():
 
 
 def test_legend_keeps_every_series_in_two_columns():
-    """Meridian D-834 (headless 28.10.2026): without disableLegendTruncation the package folds entries
+    """Meridian D-837 (headless 28.10.2026): without disableLegendTruncation the package folds entries
     into "…N entries"; with it alone the legend is one row wider than the tile. Two columns at
     labelLimit 170 fit 8 series into 400 px. Every profile that shows a legend inherits this."""
     for prof in render.target_profiles("column_time"):

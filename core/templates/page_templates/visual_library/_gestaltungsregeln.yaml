@@ -250,7 +250,7 @@ regeln:
 
   serienlabel:
     paket: teilweise
-    paket_beleg: "Legende ab 5 Reihen gekürzt (disableLegendTruncation). fabric-visuals 5.0.0 dist, gelesen 27.10.2026 (Meridian Bericht 2026-10-27_Bericht_fabric-visuals-5); gemessen headless 28.10.2026 (Meridian D-834): Namen auf 100 px gekürzt, Rest als „…N entries“. Abgeschaltet per disableLegendTruncation in house_default, Legende zweispaltig mit labelLimit 170"
+    paket_beleg: "Legende ab 5 Reihen gekürzt (disableLegendTruncation). fabric-visuals 5.0.0 dist, gelesen 27.10.2026 (Meridian Bericht 2026-10-27_Bericht_fabric-visuals-5); gemessen headless 28.10.2026 (Meridian D-837): Namen auf 100 px gekürzt, Rest als „…N entries“. Abgeschaltet per disableLegendTruncation in house_default, Legende zweispaltig mit labelLimit 170"
     muster: [L3]
     entscheidung: "W11 (Florian 22.10.2026, Meridian BO-432): höchstens vier direkt beschriftete Reihen; BC-CHART-03 und BC-DV-05 gleich"
     regel: "Linien mit 2 bis 4 Reihen tragen ihr Label am Linienende statt einer Legende; ab 5 Reihen Legende."
