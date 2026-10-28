@@ -69,19 +69,93 @@ def validate_find_replace_entry(entry: Dict[str, Any], index: int) -> List[str]:
     return errors
 
 
+def _is_connection_placeholder(value: str) -> bool:
+    lowered = value.lower()
+    return "placeholder" in lowered or "guid" in lowered
+
+
+def _validate_connection_ids(cid: Any, where: str) -> List[str]:
+    """Check one connection_id value of the current format: {env: guid | [guid, ...]}."""
+    if not isinstance(cid, dict) or not cid:
+        return [f"{where}: connection_id must map environment keys (or _ALL_) to a GUID or a list of GUIDs"]
+    errors: List[str] = []
+    for env, value in cid.items():
+        values = value if isinstance(value, list) else [value]
+        if not values:
+            errors.append(f"{where}.connection_id.{env}: empty list")
+        for item in values:
+            if not isinstance(item, str) or not (is_guid(item) or _is_connection_placeholder(item)):
+                errors.append(f"{where}.connection_id.{env}: connection_id should be a GUID or placeholder")
+    return errors
+
+
 def validate_semantic_model_binding_entry(entry: Dict[str, Any], index: int) -> List[str]:
-    """Validate semantic_model_binding entry. connection_id should be GUID or placeholder."""
+    """Validate one entry of the deprecated list format (connection_id + semantic_model_name)."""
     errors = []
     if "connection_id" not in entry:
         errors.append(f"semantic_model_binding[{index}]: missing connection_id")
     else:
         cid = entry["connection_id"]
-        if isinstance(cid, str) and cid != "connection-id-placeholder" and not is_guid(cid):
-            if "placeholder" not in cid.lower() and "guid" not in cid.lower():
-                errors.append(f"semantic_model_binding[{index}]: connection_id should be a GUID or placeholder")
+        if isinstance(cid, str) and not is_guid(cid) and not _is_connection_placeholder(cid):
+            errors.append(f"semantic_model_binding[{index}]: connection_id should be a GUID or placeholder")
     if "semantic_model_name" not in entry:
         errors.append(f"semantic_model_binding[{index}]: missing semantic_model_name")
     return errors
+
+
+def validate_semantic_model_binding(binding: Any) -> Tuple[List[str], List[str]]:
+    """Validate semantic_model_binding in either format. Returns (errors, warnings).
+
+    Current fabric-cicd format (>= 1.2.0): an object with ``default`` and/or ``models``.
+    The former list format still works in fabric-cicd but logs a deprecation warning,
+    so it is accepted here with a warning.
+    """
+    errors: List[str] = []
+    warnings: List[str] = []
+    if isinstance(binding, list):
+        warnings.append(
+            "semantic_model_binding uses the deprecated list format; "
+            "use 'default' / 'models' (fabric-cicd >= 1.2.0)"
+        )
+        for i, entry in enumerate(binding):
+            if isinstance(entry, dict):
+                errors.extend(validate_semantic_model_binding_entry(entry, i))
+            else:
+                errors.append(f"semantic_model_binding[{i}]: entry must be an object")
+        return errors, warnings
+
+    if not isinstance(binding, dict):
+        return ["'semantic_model_binding' must be an object with 'default' and/or 'models'"], warnings
+
+    unknown = sorted(set(binding) - {"default", "models"})
+    if unknown:
+        errors.append(f"semantic_model_binding: unknown keys {unknown}")
+    if not set(binding) & {"default", "models"}:
+        errors.append("semantic_model_binding: needs 'default' and/or 'models'")
+    if "default" in binding:
+        default = binding["default"]
+        if not isinstance(default, dict) or "connection_id" not in default:
+            errors.append("semantic_model_binding.default: missing connection_id")
+        else:
+            errors.extend(_validate_connection_ids(default["connection_id"], "semantic_model_binding.default"))
+    if "models" in binding:
+        models = binding["models"]
+        if not isinstance(models, list):
+            errors.append("semantic_model_binding.models must be an array")
+        else:
+            for i, entry in enumerate(models):
+                where = f"semantic_model_binding.models[{i}]"
+                if not isinstance(entry, dict):
+                    errors.append(f"{where}: entry must be an object")
+                    continue
+                name = entry.get("semantic_model_name")
+                if not name or (isinstance(name, list) and not all(isinstance(n, str) and n for n in name)):
+                    errors.append(f"{where}: missing semantic_model_name")
+                if "connection_id" not in entry:
+                    errors.append(f"{where}: missing connection_id")
+                else:
+                    errors.extend(_validate_connection_ids(entry["connection_id"], where))
+    return errors, warnings
 
 
 def validate_parameter_structure(data: Dict[str, Any]) -> List[str]:
@@ -90,9 +164,11 @@ def validate_parameter_structure(data: Dict[str, Any]) -> List[str]:
     if not isinstance(data, dict):
         return ["Parameter file must be a YAML/JSON object"]
 
-    for key in ("find_replace", "key_value_replace", "spark_pool", "semantic_model_binding"):
+    for key in ("find_replace", "key_value_replace", "spark_pool"):
         if key in data and not isinstance(data[key], list):
             errors.append(f"'{key}' must be an array")
+    if "semantic_model_binding" in data and not isinstance(data["semantic_model_binding"], (list, dict)):
+        errors.append("'semantic_model_binding' must be an object ('default' / 'models') or, deprecated, an array")
     return errors
 
 
@@ -167,9 +243,11 @@ def validate_parameter_file(
             errors.extend(validate_find_replace_entry(entry, i))
 
     # semantic_model_binding
-    for i, entry in enumerate(data.get("semantic_model_binding", [])):
-        if isinstance(entry, dict):
-            errors.extend(validate_semantic_model_binding_entry(entry, i))
+    if "semantic_model_binding" in data:
+        binding_errors, binding_warnings = validate_semantic_model_binding(data["semantic_model_binding"])
+        errors.extend(binding_errors)
+        if binding_warnings:
+            details["warnings"] = binding_warnings
 
     # GUIDs
     errors.extend(validate_guids_in_data(data, "root"))
