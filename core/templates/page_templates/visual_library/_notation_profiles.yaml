@@ -107,7 +107,9 @@ profiles:
     vegalite_config:
       view: {stroke: null}
       axis: {grid: false, ticks: false, domainColor: "#404040", labelColor: "#201F1E", title: null}
-      bar: {cornerRadius: 0}
+      # cornerRadiusEnd too: fabric-visuals sets bar.cornerRadiusEnd 4 in its base theme and merges configVegaLite
+      # over it; cornerRadius 0 alone loses to that (Vega-Lite 6.5.0 compile, measured 27.10.2026, Meridian BO-559).
+      bar: {cornerRadius: 0, cornerRadiusEnd: 0}
       scale: {bandPaddingInner: 0.3333, zero: true}
       legend: {disable: true}
       font: "Segoe UI, Inter, system-ui, -apple-system, sans-serif"

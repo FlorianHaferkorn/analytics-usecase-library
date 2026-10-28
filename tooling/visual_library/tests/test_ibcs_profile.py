@@ -295,3 +295,41 @@ def test_ex_1_1_waterfall_connectors_end_at_the_last_step():
         vega = vlc.vegalite_to_vega(spec)
         svg = vlc.vega_to_svg(vega)
         assert ">null<" not in svg, f"{idiom}: a 'null' category on the axis (EX 1.1 connector)"
+
+
+# fabric-visuals base theme (5.0.0, dist chunk-4534POHG.js: bar.cornerRadiusEnd = borderRadius.medium = 4); VegaVisual
+# merges configVegaLite over it (deepMerge(vegaLiteBaseTheme, configVegaLite)). Meridian BO-559, 27.10.2026.
+_PAKET_BAR = {"bar": {"cornerRadiusEnd": 4}}
+
+
+def test_si_2_1_no_rounded_data_ends_against_the_package_default():
+    """SI 2.1 measured in the compiled Vega spec, not on the config field: the profile must win over the
+    package's rounded bar ends. cornerRadius 0 alone does not (the ends land on a nested group mark)."""
+    vlc = pytest.importorskip("vl_convert")
+    gerundet = []
+
+    def suche(node):
+        if isinstance(node, dict):
+            enc = (node.get("encode") or {}).get("update") or {}
+            for k, v in enc.items():
+                if k.startswith("cornerRadius") and isinstance(v, dict) and (v.get("value") or 0) > 0:
+                    gerundet.append(k)
+            for k, v in node.items():
+                if k.startswith("cornerRadius") and isinstance(v, (int, float)) and v > 0:
+                    gerundet.append(k)
+                suche(v)
+        elif isinstance(node, list):
+            for v in node:
+                suche(v)
+
+    spec = {"data": {"values": [{"k": "A", "v": 3}, {"k": "B", "v": 5}]}, "mark": "bar",
+            "encoding": {"x": {"field": "k", "type": "nominal"}, "y": {"field": "v", "type": "quantitative"}}}
+    for idiom in _ibcs_idioms():
+        cfg = render._deep_merge(_PAKET_BAR, _app(idiom)["configVegaLite"])
+        gerundet.clear()
+        suche(vlc.vegalite_to_vega({**spec, "config": cfg}))
+        assert not gerundet, f"{idiom}: {sorted(set(gerundet))} > 0 against the package default (SI 2.1)"
+    # Gegenprobe: ohne cornerRadiusEnd 0 im Profil rundet das Paket (sonst misst der Test nichts)
+    gerundet.clear()
+    suche(vlc.vegalite_to_vega({**spec, "config": render._deep_merge(_PAKET_BAR, {"bar": {"cornerRadius": 0}})}))
+    assert gerundet, "Gegenprobe: das Kompilat zeigt die Paket-Ecken nicht, der Test waere blind"

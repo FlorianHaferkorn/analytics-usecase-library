@@ -190,7 +190,8 @@
       }
     },
     "bar": {
-      "cornerRadius": 0
+      "cornerRadius": 0,
+      "cornerRadiusEnd": 0
     },
     "legend": {
       "disable": true

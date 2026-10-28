@@ -210,7 +210,7 @@ def write_goldens(idiom: str) -> "list[Path]":
 DERIVED_TARGETS = ("fabric_app", "html_vegalite")
 
 # The capability flags `VegaVisual` accepts (@microsoft/fabric-visuals 4.0.0, dist/index.d.ts,
-# interface VegaVisualCapabilities). A profile may only set these.
+# interface VegaVisualCapabilities; unchanged in 5.0.0, compared 28.10.2026). A profile may only set these.
 VEGAVISUAL_CAPABILITIES = (
     "disableStackedDataLabels", "disableArcDataLabels", "disableNiceAxisBounds",
     "disableLineChartCrosshairTooltip", "disableTextTruncation", "disableLegendTruncation",

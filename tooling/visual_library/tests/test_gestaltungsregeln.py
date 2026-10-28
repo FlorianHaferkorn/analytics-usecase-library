@@ -42,6 +42,20 @@ def _walk(node, fn):
             _walk(v, fn)
 
 
+_PAKET = {"erzwingt", "teilweise", "nein", "unklar"}
+
+
+def test_every_rule_states_what_the_package_does():
+    """D-832 (Meridian, Florian 28.10.2026): je Regel das Feld `paket` mit Beleg. `erzwingt` heisst: die Visual
+    Library setzt die Eigenschaft ausdruecklich, sonst gewinnt der Paket-Default (Beispiel eckenradius, BO-559)."""
+    reg = gestaltung.register()
+    for rid, r in reg["regeln"].items():
+        assert r.get("paket") in _PAKET, f"{rid}: paket {r.get('paket')!r}"
+        assert str(r.get("paket_beleg") or "").strip(), f"{rid}: paket ohne Beleg"
+    assert reg["regeln"]["eckenradius"]["paket"] == "erzwingt"
+    assert render.vegalite_config("ibcs")["bar"]["cornerRadiusEnd"] == 0
+
+
 # --- Register: Form -----------------------------------------------------------------------------------------------
 
 def test_every_rule_has_status_and_existing_tests_or_a_reason():
