@@ -68,9 +68,15 @@ profiles:
     # crosshair tooltip would add a second, differently formatted one. Styles inherit this.
     # Text marks are data labels: VegaVisual shortened "74,4" at the plot edge to "…" (measured
     # 01.10.2026), which drops the number. The specs reserve the room themselves (padding.right).
+    # VegaVisual also rewrites the data picture at runtime; measured headless (renderVisualToSvg, 5.0.0,
+    # 28.10.2026, Meridian BO-560): max 103 -> axis to 120 (nice bounds), 0.1 -> 5 px bar instead of 0.2 px
+    # (min bar size), 1.25 Mio -> "1.25M" in English (compact format). All three are switched off here.
     vegavisual_capabilities:
       disableLineChartCrosshairTooltip: true
       disableTextTruncation: true
+      disableNiceAxisBounds: true
+      disableMinBarSize: true
+      disableCompactNumberFormatting: true
 
   ibcs:
     name: "IBCS — International Business Communication Standards 2.0"
@@ -118,6 +124,9 @@ profiles:
       disableMinBarSize: true
       disableCompactNumberFormatting: true
       disableStackedDataLabels: true
+      # CH 1.1: value axes start at zero; without this the line axis started at 950 for 950-1003
+      # (headless, 5.0.0, 28.10.2026, Meridian BO-560).
+      disableNonZeroQuantitativeBaseline: true
 
   print_safe:
     name: "Print-safe (CVAA)"
