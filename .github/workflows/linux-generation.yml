@@ -54,6 +54,10 @@ jobs:
       - name: Build ontology registry (SSOT — master_registry.json, value_map.json)
         run: python tooling/ontology/registry_builder.py
 
+      - name: Assert committed UseCase_Inventory.md matches its derivation
+        # registry_builder schreibt die Datei neu; ein Diff heisst: committeter Stand veraltet.
+        run: git diff --exit-code -- core/usecases/UseCase_Inventory.md || (echo "UseCase_Inventory.md veraltet - registry_builder.py laufen lassen und committen" && exit 1)
+
       - name: Build IR from the KPI catalog (DAX synthesised, display names derived)
         run: |
           python tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog \
