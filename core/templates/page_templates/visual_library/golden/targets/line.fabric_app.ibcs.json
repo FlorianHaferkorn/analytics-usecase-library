@@ -761,6 +761,11 @@
     "text": {
       "fontSize": 11
     },
+    "legend": {
+      "columns": 2,
+      "labelLimit": 170,
+      "disable": true
+    },
     "locale": {
       "number": {
         "decimal": ",",
@@ -832,13 +837,11 @@
     "bar": {
       "cornerRadius": 0,
       "cornerRadiusEnd": 0
-    },
-    "legend": {
-      "disable": true
     }
   },
   "capabilities": {
     "disableCompactNumberFormatting": true,
+    "disableLegendTruncation": true,
     "disableLineChartCrosshairTooltip": true,
     "disableMinBarSize": true,
     "disableNiceAxisBounds": true,

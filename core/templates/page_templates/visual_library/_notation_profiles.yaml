@@ -51,6 +51,11 @@ profiles:
       scale: {bandPaddingInner: 0.3333}
       # Data labels 11 px, axis labels 11 px: never smaller than the numbers they sit next to (Urban 11/12).
       text: {fontSize: 11}
+      # Legend from 5 series (W11): two columns, names up to 170 px. fabric-visuals otherwise cuts names at
+      # 100 px and folds the rest into "…N entries"; with disableLegendTruncation alone the legend is one row
+      # (1463 px for 8 series). Measured headless 28.10.2026 (Meridian D-834): 8 series, 400 px tile ->
+      # legend 394 x 99 px, names up to 17 characters in full, line area 134 -> 97 px.
+      legend: {columns: 2, labelLimit: 170}
       # German number and date formats for labels, axes and tooltips (d3 locale de-DE). Without it
       # a host renders "1,240.5" and "Dec 30, 2024" (measured in Fabric's VegaVisual 30.09.2026).
       locale:
@@ -77,6 +82,7 @@ profiles:
       disableNiceAxisBounds: true
       disableMinBarSize: true
       disableCompactNumberFormatting: true
+      disableLegendTruncation: true
 
   ibcs:
     name: "IBCS — International Business Communication Standards 2.0"
