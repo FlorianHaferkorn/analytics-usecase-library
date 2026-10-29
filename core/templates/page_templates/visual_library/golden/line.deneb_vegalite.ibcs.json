@@ -18,7 +18,7 @@
   },
   "layer": [
     { "transform": [ { "filter": "isValid(datum['gm_fc_p10']) && isValid(datum['gm_fc_p90'])" } ],
-      "mark": { "type": "area", "interpolate": "monotone", "color": "#404040", "opacity": 0.12, "description": "Prognoseband P10-P90" },
+      "mark": { "type": "area", "interpolate": "monotone", "color": "#404040", "opacity": 0.12, "fillOpacity": 1, "description": "Prognoseband P10-P90" },
       "encoding": { "y": { "field": "gm_fc_p10", "type": "quantitative", "axis": null, "scale": { "zero": true } }, "y2": { "field": "gm_fc_p90" } } },
     { "transform": [ { "filter": "isValid(datum['gm_fc_p90'])" }, { "window": [ { "op": "row_number", "as": "_bh" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._bh == 1" } ],
       "mark": { "type": "text", "text": "P90", "align": "right", "dx": -2, "dy": -7, "fontSize": 10, "color": "#201F1E" },

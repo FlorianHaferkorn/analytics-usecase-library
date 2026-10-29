@@ -199,6 +199,42 @@ def test_band_is_inside_the_value_axis():
     assert ys and ys[0] >= 0, ys
 
 
+@pytest.mark.parametrize("profile", PROFILES)
+def test_highlight_preserves_forecast_band_alpha_over_host_area_theme(profile):
+    """Fabric's area theme has fillOpacity .6; the idiom owns its effective band alpha.
+
+    An encoding.opacity overrides mark.opacity even with the key-message switch OFF.
+    Keep that resting alpha and dim relative to it instead of promoting the area to 1.
+    """
+    doc = json.loads(render.render_target("line", "fabric_app", profile,
+        bindings={**BASIS, "fc_band": {"lo": "L", "hi": "H"}},
+        params={"highlight": {"field": "P", "values": ["2026-02-02"], "temporal": True}})[0])
+    spec = doc["spec"]
+    band = next(layer for layer in spec["layer"]
+                if isinstance(layer.get("mark"), dict)
+                and layer["mark"].get("description", "").startswith("Prognoseband"))
+    expected = gestaltung.regel("prognoseband")["deckkraft"]
+    assert band["mark"]["fillOpacity"] == 1  # wins over Fabric config.area.fillOpacity = .6
+    opacity = band["encoding"]["opacity"]
+    assert opacity["value"] == expected  # key-message OFF, or matching row
+    assert opacity["condition"]["value"] == pytest.approx(expected * render.KEY_DIM)
+    line = next(layer for layer in spec["layer"]
+                if isinstance(layer.get("mark"), dict) and layer["mark"].get("type") == "line")
+    assert line["encoding"]["opacity"]["value"] == 1
+    # Real compilation against the host's area default: mark.fillOpacity must
+    # override it, while encoding.opacity keeps the resting or relative alpha.
+    spec["data"] = {"values": ROWS}
+    spec["config"] = {**doc["configVegaLite"], "area": {"fillOpacity": 0.6}}
+    off = _items(spec, "area")
+    assert off and all(item["opacity"] == expected and item["fillOpacity"] == 1 for item in off)
+    for param in spec["params"]:
+        if param["name"] == render.KEY_PARAM:
+            param["value"] = True
+    on = _items(spec, "area")
+    assert on and all(item["fillOpacity"] == 1 for item in on)
+    assert {item["opacity"] for item in on} == {expected, expected * render.KEY_DIM}
+
+
 def test_tooltip_lists_band_and_event():
     spec = json.loads(render.render_target("line", "html_vegalite", "house_default",
                                            bindings={**BASIS, "fc_band": {"lo": "L", "hi": "H"}, "event": "E"})[0])
