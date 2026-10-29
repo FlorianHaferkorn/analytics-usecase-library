@@ -8,8 +8,8 @@ catalog: aluca-library
 business_objects:
 - id: BO-001
   name:
-    de: null
-    en: null
+    de: Maßnahmencode
+    en: Action code
   description: null
   kind: master_data
   grain: null
@@ -57,8 +57,8 @@ business_objects:
   kpi_ids: []
 - id: BO-002
   name:
-    de: null
-    en: null
+    de: Agentenqualifikation
+    en: Agent skill
   description: Agent skill dimension (skill group, level, channel) for skill-based utilization and occupancy.
   kind: master_data
   grain: null
@@ -106,8 +106,8 @@ business_objects:
   kpi_ids: []
 - id: BO-003
   name:
-    de: null
-    en: null
+    de: Anlage
+    en: Asset
   description: Asset or production line dimension (code, name, class, criticality) for OEE and maintenance.
   kind: master_data
   grain: null
@@ -174,8 +174,8 @@ business_objects:
   kpi_ids: []
 - id: BO-004
   name:
-    de: null
-    en: null
+    de: Transportrelation
+    en: Carrier lane
   description: Carrier-lane dimension (carrier, origin, destination, lane, mode) for on-time root cause.
   kind: master_data
   grain: null
@@ -237,8 +237,8 @@ business_objects:
   kpi_ids: []
 - id: BO-005
   name:
-    de: null
-    en: null
+    de: Ticket-Warteschlange
+    en: Case queue
   description: Support case queue dimension (queue name, channel, region).
   kind: master_data
   grain: null
@@ -286,8 +286,8 @@ business_objects:
   kpi_ids: []
 - id: BO-006
   name:
-    de: null
-    en: null
+    de: Beschaffungskategorie
+    en: Spend category
   description: Procurement spend category (direct merchandise vs indirect) for spend/contract analysis.
   kind: master_data
   grain: null
@@ -328,8 +328,8 @@ business_objects:
   kpi_ids: []
 - id: BO-007
   name:
-    de: null
-    en: null
+    de: Ursachencode
+    en: Cause code
   description: Conformed cause-code dimension promoting the former free-text cause code to a governed
     taxonomy.
   kind: master_data
@@ -378,8 +378,8 @@ business_objects:
   kpi_ids: []
 - id: BO-008
   name:
-    de: null
-    en: null
+    de: Kostenart
+    en: Cost category
   description: Cost-category dimension for activity-based costing and variance decomposition.
   kind: master_data
   grain: null
@@ -427,8 +427,8 @@ business_objects:
   kpi_ids: []
 - id: BO-009
   name:
-    de: null
-    en: null
+    de: Kostenstelle
+    en: Cost center
   description: Conformed functional cost centre (Store Operations, Merchandising, Marketing, Supply Chain
     & Logistics, IT & Digital, General & Admin) for OpEx variance attribution.
   kind: master_data
@@ -477,8 +477,8 @@ business_objects:
   kpi_ids: []
 - id: BO-010
   name:
-    de: null
-    en: null
+    de: Kunde
+    en: Customer
   description: Customer dimension (segment, region, country) for CRM and value reporting.
   kind: master_data
   grain: null
@@ -555,8 +555,8 @@ business_objects:
   kpi_ids: []
 - id: BO-011
   name:
-    de: null
-    en: null
+    de: Kundensegment
+    en: Customer segment
   description: Customer segment dimension for acquisition and retention analysis.
   kind: master_data
   grain: null
@@ -604,8 +604,8 @@ business_objects:
   kpi_ids: []
 - id: BO-012
   name:
-    de: null
-    en: null
+    de: Datensatz
+    en: Dataset
   description: null
   kind: master_data
   grain: null
@@ -639,8 +639,8 @@ business_objects:
   kpi_ids: []
 - id: BO-013
   name:
-    de: null
-    en: null
+    de: Kalender
+    en: Calendar
   description: Calendar dimension with fiscal hierarchy (Fiscal Year > Quarter > Month > Date).
   kind: master_data
   grain: null
@@ -760,8 +760,8 @@ business_objects:
   - KPI-FIN-007
 - id: BO-014
   name:
-    de: null
-    en: null
+    de: Fehlerart
+    en: Defect mode
   description: ISO 9001 / IATF 16949 defect taxonomy (defect type and category) for quality analysis.
   kind: master_data
   grain: null
@@ -809,8 +809,8 @@ business_objects:
   kpi_ids: []
 - id: BO-015
   name:
-    de: null
-    en: null
+    de: Emissionsbereich
+    en: Emission scope
   description: GHG emission scope classification (Scope 1, 2, 3).
   kind: master_data
   grain: null
@@ -859,8 +859,8 @@ business_objects:
   - KPI-ESG-001
 - id: BO-016
   name:
-    de: null
-    en: null
+    de: Mitarbeitersegment
+    en: Employee segment
   description: null
   kind: master_data
   grain: null
@@ -908,8 +908,8 @@ business_objects:
   kpi_ids: []
 - id: BO-017
   name:
-    de: null
-    en: null
+    de: Geschäftseinheit
+    en: Business unit
   description: Conformed business-unit dimension (group/division/BU/site hierarchy) for entity-grain risk
     prioritisation.
   kind: master_data
@@ -965,8 +965,8 @@ business_objects:
   kpi_ids: []
 - id: BO-018
   name:
-    de: null
-    en: null
+    de: Ausfallart
+    en: Failure mode
   description: ISO 14224 failure-mode taxonomy (mode and underlying mechanism) for reliability analysis.
   kind: master_data
   grain: null
@@ -1014,8 +1014,8 @@ business_objects:
   kpi_ids: []
 - id: BO-019
   name:
-    de: null
-    en: null
+    de: Prognosegüteklasse
+    en: Forecastability class
   description: Forecastability segmentation (ABC/XYZ class, demand CoV band) for segment-specific targets.
   kind: master_data
   grain: null
@@ -1063,8 +1063,8 @@ business_objects:
   kpi_ids: []
 - id: BO-020
   name:
-    de: null
-    en: null
+    de: Anliegenart
+    en: Issue type
   description: Issue type dimension (type, category, severity) for case classification, FCR, and escalation
     Pareto.
   kind: master_data
@@ -1113,8 +1113,8 @@ business_objects:
   kpi_ids: []
 - id: BO-021
   name:
-    de: null
-    en: null
+    de: Transportweg
+    en: Transport lane
   description: Transport lane dimension (origin, destination, mode) for fulfillment.
   kind: master_data
   grain: null
@@ -1162,8 +1162,8 @@ business_objects:
   kpi_ids: []
 - id: BO-022
   name:
-    de: null
-    en: null
+    de: Verlustart
+    en: Loss type
   description: ISO 22400-2 Six Big Losses taxonomy mapping each loss to its OEE pillar.
   kind: master_data
   grain: null
@@ -1218,8 +1218,8 @@ business_objects:
   kpi_ids: []
 - id: BO-023
   name:
-    de: null
-    en: null
+    de: Organisation
+    en: Organization
   description: Organization dimension (region, country, channel, org name) for reporting and RLS.
   kind: master_data
   grain: null
@@ -1433,8 +1433,8 @@ business_objects:
   - KPI-COM-032
 - id: BO-024
   name:
-    de: null
-    en: null
+    de: Verantwortlichenrolle
+    en: Owner role
   description: null
   kind: master_data
   grain: null
@@ -1482,8 +1482,8 @@ business_objects:
   kpi_ids: []
 - id: BO-025
   name:
-    de: null
-    en: null
+    de: Geschäftsprozess
+    en: Business process
   description: Business process dimension for cycle time and automation analysis.
   kind: master_data
   grain: null
@@ -1531,8 +1531,8 @@ business_objects:
   kpi_ids: []
 - id: BO-026
   name:
-    de: null
-    en: null
+    de: Produkt
+    en: Product
   description: Product dimension with category hierarchy (Category > Sub Category > Brand > Product Name).
   kind: master_data
   grain: null
@@ -1640,8 +1640,8 @@ business_objects:
   kpi_ids: []
 - id: BO-027
   name:
-    de: null
-    en: null
+    de: Projekt
+    en: Project
   description: null
   kind: master_data
   grain: null
@@ -1689,8 +1689,8 @@ business_objects:
   kpi_ids: []
 - id: BO-028
   name:
-    de: null
-    en: null
+    de: Aktion
+    en: Promotion
   description: Promotion dimension (name, type, mechanic, discount depth, date range) for promo effectiveness.
   kind: master_data
   grain: null
@@ -1766,8 +1766,8 @@ business_objects:
   kpi_ids: []
 - id: BO-029
   name:
-    de: null
-    en: null
+    de: Preis-Mengen-Mix-Treiber
+    en: Price-volume-mix driver
   description: Price/Volume/Mix driver bridge (3 rows) for the PVM waterfall.
   kind: master_data
   grain: null
@@ -1815,8 +1815,8 @@ business_objects:
   kpi_ids: []
 - id: BO-030
   name:
-    de: null
-    en: null
+    de: Risikokategorie
+    en: Risk category
   description: Risk category taxonomy (strategic, operational, financial, compliance, reputational).
   kind: master_data
   grain: null
@@ -1864,8 +1864,8 @@ business_objects:
   kpi_ids: []
 - id: BO-031
   name:
-    de: null
-    en: null
+    de: Stelle
+    en: Job role
   description: null
   kind: master_data
   grain: null
@@ -1913,8 +1913,8 @@ business_objects:
   kpi_ids: []
 - id: BO-032
   name:
-    de: null
-    en: null
+    de: Vertriebsphase
+    en: Sales stage
   description: Opportunity funnel stage (Lead → Qualified → Proposal → Negotiation → Closed Won/Lost).
   kind: master_data
   grain: null
@@ -1969,8 +1969,8 @@ business_objects:
   kpi_ids: []
 - id: BO-033
   name:
-    de: null
-    en: null
+    de: Vertriebsmitarbeiter
+    en: Sales representative
   description: Sales representative (rep, team, region) for pipeline ownership.
   kind: master_data
   grain: null
@@ -2018,8 +2018,8 @@ business_objects:
   kpi_ids: []
 - id: BO-034
   name:
-    de: null
-    en: null
+    de: Ausfallzeitkategorie
+    en: Shrinkage category
   description: Shrinkage category dimension (category, paid flag) for shrinkage decomposition.
   kind: master_data
   grain: null
@@ -2060,8 +2060,8 @@ business_objects:
   kpi_ids: []
 - id: BO-035
   name:
-    de: null
-    en: null
+    de: SLA-Vereinbarung
+    en: SLA policy
   description: SLA policy dimension (priority, response/resolution targets, force-majeure exclusion) for
     SLA attainment.
   kind: master_data
@@ -2124,8 +2124,8 @@ business_objects:
   kpi_ids: []
 - id: BO-036
   name:
-    de: null
-    en: null
+    de: Lieferant
+    en: Supplier
   description: Supplier dimension for AP and procurement attribution.
   kind: master_data
   grain: null
@@ -2222,8 +2222,8 @@ business_objects:
   kpi_ids: []
 - id: BO-038
   name:
-    de: null
-    en: null
+    de: Verbindlichkeit
+    en: Accounts payable
   description: Accounts payable and COGS by entity and supplier per month.
   kind: transaction
   grain: month
@@ -2296,8 +2296,8 @@ business_objects:
   - KPI-FIN-006
 - id: BO-039
   name:
-    de: null
-    en: null
+    de: Forderung
+    en: Accounts receivable
   description: Accounts receivable and revenue by entity and customer per month.
   kind: transaction
   grain: month
@@ -2403,8 +2403,8 @@ business_objects:
   - KPI-FIN-006
 - id: BO-040
   name:
-    de: null
-    en: null
+    de: Maßnahmenverfolgung
+    en: Action tracking
   description: null
   kind: transaction
   grain: action_instance
@@ -2535,8 +2535,8 @@ business_objects:
   kpi_ids: []
 - id: BO-041
   name:
-    de: null
-    en: null
+    de: Maßnahme
+    en: Action
   description: Routed actions (one row per action) with use case, type, and outcome.
   kind: transaction
   grain: action
@@ -2623,8 +2623,8 @@ business_objects:
   - KPI-GOV-003
 - id: BO-042
   name:
-    de: null
-    en: null
+    de: Maßnahmenergebnis
+    en: Action outcome
   description: null
   kind: transaction
   grain: action_outcome
@@ -2804,8 +2804,8 @@ business_objects:
   - KPI-GOV-007
 - id: BO-043
   name:
-    de: null
-    en: null
+    de: Prüfungsfeststellung
+    en: Audit finding
   description: null
   kind: transaction
   grain: finding
@@ -2870,8 +2870,8 @@ business_objects:
   kpi_ids: []
 - id: BO-044
   name:
-    de: null
-    en: null
+    de: Cashflow
+    en: Cash flow
   description: Monthly operating cash flow, CapEx, and plan OCF per entity.
   kind: transaction
   grain: month
@@ -2936,8 +2936,8 @@ business_objects:
   - KPI-FIN-009
 - id: BO-045
   name:
-    de: null
-    en: null
+    de: Liquiditätsstand
+    en: Cash position
   description: Daily cash balance and plan cash per entity.
   kind: transaction
   grain: day
@@ -2996,8 +2996,8 @@ business_objects:
   - KPI-FIN-010
 - id: BO-046
   name:
-    de: null
-    en: null
+    de: Wareneinsatz
+    en: Cost of goods sold
   description: Cost of goods sold at location-SKU-month grain.
   kind: transaction
   grain: location_sku_month
@@ -3061,8 +3061,8 @@ business_objects:
   - KPI-SCM-016
 - id: BO-047
   name:
-    de: null
-    en: null
+    de: Reklamation
+    en: Complaint
   description: null
   kind: transaction
   grain: complaint
@@ -3159,8 +3159,8 @@ business_objects:
   - KPI-SVC-001
 - id: BO-048
   name:
-    de: null
-    en: null
+    de: Compliance-Verstoß
+    en: Compliance breach
   description: null
   kind: transaction
   grain: month_org
@@ -3217,8 +3217,8 @@ business_objects:
   kpi_ids: []
 - id: BO-049
   name:
-    de: null
-    en: null
+    de: Kontrolltest
+    en: Control test
   description: Control testing results per control item and period.
   kind: transaction
   grain: control_period
@@ -3290,8 +3290,8 @@ business_objects:
   kpi_ids: []
 - id: BO-050
   name:
-    de: null
-    en: null
+    de: Herstellkosten
+    en: Production cost
   description: Cost breakdown (COGS, material, overhead) per plant-line-product-month.
   kind: transaction
   grain: plant_line_product_month
@@ -3402,8 +3402,8 @@ business_objects:
   - KPI-FIN-019
 - id: BO-051
   name:
-    de: null
-    en: null
+    de: Stückkosten
+    en: Cost per unit
   description: Cost-per-unit (COGS, labor, overhead) at plant-product-month grain.
   kind: transaction
   grain: plant_product_month
@@ -3481,8 +3481,8 @@ business_objects:
   kpi_ids: []
 - id: BO-052
   name:
-    de: null
-    en: null
+    de: Neukundengewinnung
+    en: Customer acquisition
   description: New customer acquisition events at segment-channel-month grain.
   kind: transaction
   grain: segment_channel_month
@@ -3565,8 +3565,8 @@ business_objects:
   kpi_ids: []
 - id: BO-053
   name:
-    de: null
-    en: null
+    de: Kundenaktivität
+    en: Customer activity
   description: Customer activity and churn flags plus attrition risk at customer-month grain.
   kind: transaction
   grain: customer_month
@@ -3646,8 +3646,8 @@ business_objects:
   - KPI-OPS-001
 - id: BO-054
   name:
-    de: null
-    en: null
+    de: Kundenwert
+    en: Customer value
   description: Customer lifetime value (CLV) and remaining value at customer-month grain.
   kind: transaction
   grain: customer_month
@@ -3705,8 +3705,8 @@ business_objects:
   - KPI-CUS-001
 - id: BO-055
   name:
-    de: null
-    en: null
+    de: Diversität
+    en: Diversity and inclusion
   description: Diversity and inclusion metrics per org per reporting period.
   kind: transaction
   grain: org_period
@@ -3777,8 +3777,8 @@ business_objects:
   kpi_ids: []
 - id: BO-056
   name:
-    de: null
-    en: null
+    de: Datenqualität
+    en: Data quality
   description: null
   kind: transaction
   grain: dataset_month
@@ -3847,8 +3847,8 @@ business_objects:
   kpi_ids: []
 - id: BO-057
   name:
-    de: null
-    en: null
+    de: Treibhausgasemission
+    en: GHG emissions
   description: GHG emissions (tCO2e) by site, scope, and period.
   kind: transaction
   grain: site_scope_month
@@ -3918,8 +3918,8 @@ business_objects:
   - KPI-ESG-001
 - id: BO-058
   name:
-    de: null
-    en: null
+    de: Energieverbrauch
+    en: Energy consumption
   description: Energy consumption (MWh) by source and site per month.
   kind: transaction
   grain: site_source_month
@@ -3983,8 +3983,8 @@ business_objects:
   kpi_ids: []
 - id: BO-059
   name:
-    de: null
-    en: null
+    de: Mitarbeiterbefragung
+    en: Engagement survey
   description: null
   kind: transaction
   grain: quarter_org_segment
@@ -4175,8 +4175,8 @@ business_objects:
   kpi_ids: []
 - id: BO-061
   name:
-    de: null
-    en: null
+    de: Kundenerlebnis
+    en: Customer experience
   description: Customer complaint and experience events (customer, org, date, severity).
   kind: transaction
   grain: customer_event
@@ -4253,8 +4253,8 @@ business_objects:
   kpi_ids: []
 - id: BO-062
   name:
-    de: null
-    en: null
+    de: Gewinn- und Verlustrechnung
+    en: Profit and loss
   description: P&L facts (net sales, COGS, EBITDA, OpEx, plan) per entity-month.
   kind: transaction
   grain: entity_month
@@ -4387,8 +4387,8 @@ business_objects:
   - KPI-SCM-021
 - id: BO-063
   name:
-    de: null
-    en: null
+    de: Absatzprognose
+    en: Demand forecast
   description: Demand forecast by SKU, location, and month with naive/statistical/consensus forecast and
     actuals for FVA.
   kind: transaction
@@ -4496,8 +4496,8 @@ business_objects:
   - KPI-SCM-017
 - id: BO-064
   name:
-    de: null
-    en: null
+    de: Auftragserfüllung
+    en: Order fulfillment
   description: Order-level fulfillment (OTIF, on-time, in-full, penalties, expedite).
   kind: transaction
   grain: order
@@ -4718,8 +4718,8 @@ business_objects:
   kpi_ids: []
 - id: BO-066
   name:
-    de: null
-    en: null
+    de: Lagerbestand
+    en: Inventory
   description: Month-end inventory snapshot (average/obsolete amount and units, COGS) at location-SKU-month
     grain.
   kind: transaction
@@ -4953,8 +4953,8 @@ business_objects:
   kpi_ids: []
 - id: BO-069
   name:
-    de: null
-    en: null
+    de: KPI-Stand
+    en: KPI snapshot
   description: Per-KPI actual/plan/last-year/target values per entity and month for the composite value-at-risk
     index.
   kind: transaction
@@ -5040,8 +5040,8 @@ business_objects:
   kpi_ids: []
 - id: BO-070
   name:
-    de: null
-    en: null
+    de: Personaleinsatz
+    en: Labor
   description: Labor hours and cost per plant-line-month.
   kind: transaction
   grain: plant_line_month
@@ -5092,8 +5092,8 @@ business_objects:
   - KPI-OPS-004
 - id: BO-071
   name:
-    de: null
-    en: null
+    de: Arbeitsproduktivität
+    en: Labor productivity
   description: Labor productivity at plant-line-month grain (output units per labor hour, OEE-adjusted).
   kind: transaction
   grain: plant_line_month
@@ -5171,8 +5171,8 @@ business_objects:
   kpi_ids: []
 - id: BO-072
   name:
-    de: null
-    en: null
+    de: Transportleistung
+    en: Logistics
   description: null
   kind: transaction
   grain: shipment_line
@@ -5253,8 +5253,8 @@ business_objects:
   kpi_ids: []
 - id: BO-073
   name:
-    de: null
-    en: null
+    de: Instandhaltungsauftrag
+    en: Maintenance order
   description: Maintenance orders (PM/CM) per asset and date with status and on-time flags.
   kind: transaction
   grain: maintenance_order
@@ -5328,8 +5328,8 @@ business_objects:
   - KPI-OPS-014
 - id: BO-074
   name:
-    de: null
-    en: null
+    de: NPS-Antwort
+    en: NPS response
   description: NPS survey responses (score, promoter/detractor flags), one row per response.
   kind: transaction
   grain: survey_response
@@ -5415,8 +5415,8 @@ business_objects:
   - KPI-CUS-003
 - id: BO-075
   name:
-    de: null
-    en: null
+    de: Betriebskosten je Kostenstelle
+    en: Operating expenses by cost center
   description: OpEx and Plan OpEx at org × cost-centre × month; reconciles to fact_finance entity OpEx.
   kind: transaction
   grain: entity_costcentre_month
@@ -5486,8 +5486,8 @@ business_objects:
   - KPI-FIN-014
 - id: BO-076
   name:
-    de: null
-    en: null
+    de: Produktionsbetrieb
+    en: Production operations
   description: Production line-day facts (planned/run/downtime, output, scrap) for OEE.
   kind: transaction
   grain: line_day
@@ -5615,8 +5615,8 @@ business_objects:
   - KPI-SCM-019
 - id: BO-077
   name:
-    de: null
-    en: null
+    de: Anlagenausfall
+    en: Equipment failure
   description: Failure events per asset (start/end, repair duration, cause) for MTBF and root cause.
   kind: transaction
   grain: failure_event
@@ -5721,8 +5721,8 @@ business_objects:
   - KPI-OPS-018
 - id: BO-078
   name:
-    de: null
-    en: null
+    de: Produktionsmenge
+    en: Production output
   description: Output units per plant-line-product-month.
   kind: transaction
   grain: plant_line_product_month
@@ -5800,8 +5800,8 @@ business_objects:
   - KPI-OPS-004
 - id: BO-079
   name:
-    de: null
-    en: null
+    de: Verkaufschance
+    en: Opportunity
   description: Sales opportunity (one row per opportunity) with funnel stage reached, value, and close
     outcome.
   kind: transaction
@@ -5953,8 +5953,8 @@ business_objects:
   - KPI-COM-031
 - id: BO-080
   name:
-    de: null
-    en: null
+    de: Absatzplan
+    en: Sales plan
   description: Planned sales and COGS at product-month grain for variance vs plan.
   kind: transaction
   grain: product_month
@@ -6030,8 +6030,8 @@ business_objects:
   kpi_ids: []
 - id: BO-081
   name:
-    de: null
-    en: null
+    de: Prozesseffizienz
+    en: Process efficiency
   description: Process cycle time and automation rates at process-org-month grain.
   kind: transaction
   grain: process_org_month
@@ -6114,8 +6114,8 @@ business_objects:
   kpi_ids: []
 - id: BO-082
   name:
-    de: null
-    en: null
+    de: Bestellposition
+    en: Purchase order line
   description: 'Procurement spend at purchase-order-line grain (one row per PO line) so purchase price
     variance is auditable per line: PPV Amount = (Actual − Standard) unit price × Quantity.'
   kind: transaction
@@ -6278,8 +6278,8 @@ business_objects:
   - KPI-SCM-027
 - id: BO-083
   name:
-    de: null
-    en: null
+    de: Wareneingang
+    en: Goods receipt
   description: Inbound receipt facts (one row per receipt) with promise vs receipt date and on-time flag.
   kind: transaction
   grain: receipt
@@ -6368,8 +6368,8 @@ business_objects:
   - KPI-SCM-026
 - id: BO-084
   name:
-    de: null
-    en: null
+    de: Produkteinführung
+    en: Product launch
   description: Product launch performance at product-org-month grain (launch-relative periods).
   kind: transaction
   grain: product_org_month
@@ -6452,8 +6452,8 @@ business_objects:
   kpi_ids: []
 - id: BO-085
   name:
-    de: null
-    en: null
+    de: Projektkennzahlen
+    en: Project performance
   description: null
   kind: transaction
   grain: project_month
@@ -6564,8 +6564,8 @@ business_objects:
   kpi_ids: []
 - id: BO-086
   name:
-    de: null
-    en: null
+    de: Aktionsergebnis
+    en: Promotion performance
   description: Promotion baseline, incremental, cannibalization, cost, and margin per promo, SKU, and
     period.
   kind: transaction
@@ -6696,8 +6696,8 @@ business_objects:
   - KPI-COM-021
 - id: BO-087
   name:
-    de: null
-    en: null
+    de: Fertigungsqualität
+    en: Production quality
   description: Line-day quality facts (total/good/scrap/rework units, defect count) for FPY and COPQ.
   kind: transaction
   grain: line_day
@@ -6816,8 +6816,8 @@ business_objects:
   - KPI-QUA-006
 - id: BO-088
   name:
-    de: null
-    en: null
+    de: Qualitätskosten
+    en: Cost of quality
   description: null
   kind: transaction
   grain: month_product
@@ -6929,8 +6929,8 @@ business_objects:
   - KPI-QUA-003
 - id: BO-089
   name:
-    de: null
-    en: null
+    de: Stellenbesetzung
+    en: Recruiting
   description: null
   kind: transaction
   grain: filled_requisition
@@ -7014,8 +7014,8 @@ business_objects:
   - KPI-PPL-003
 - id: BO-090
   name:
-    de: null
-    en: null
+    de: Nachschub
+    en: Replenishment
   description: Replenishment events at location-SKU-day.
   kind: transaction
   grain: location_sku_day
@@ -7084,8 +7084,8 @@ business_objects:
   kpi_ids: []
 - id: BO-091
   name:
-    de: null
-    en: null
+    de: Umsatzentwicklung
+    en: Revenue growth
   description: Revenue, volume, and mix growth at product-org-month grain with plan and prior year.
   kind: transaction
   grain: product_org_month
@@ -7175,8 +7175,8 @@ business_objects:
   kpi_ids: []
 - id: BO-092
   name:
-    de: null
-    en: null
+    de: Schadensereignis
+    en: Risk incident
   description: Risk incidents and near-misses with impact quantification per event.
   kind: transaction
   grain: incident
@@ -7260,8 +7260,8 @@ business_objects:
   kpi_ids: []
 - id: BO-093
   name:
-    de: null
-    en: null
+    de: Risikoregister
+    en: Risk register
   description: Risk register snapshot per risk item and reporting period.
   kind: transaction
   grain: risk_item_period
@@ -7359,8 +7359,8 @@ business_objects:
   kpi_ids: []
 - id: BO-094
   name:
-    de: null
-    en: null
+    de: Risikogewichtung
+    en: Risk weighting
   description: Materiality weights and balanced-scorecard perspective per KPI (optionally scoped to an
     entity).
   kind: transaction
@@ -7413,8 +7413,8 @@ business_objects:
   kpi_ids: []
 - id: BO-095
   name:
-    de: null
-    en: null
+    de: Arbeitssicherheit
+    en: Workplace safety
   description: Workplace safety incidents and lost time per site per month.
   kind: transaction
   grain: site_month
@@ -7487,8 +7487,8 @@ business_objects:
   - KPI-OPS-015
 - id: BO-096
   name:
-    de: null
-    en: null
+    de: Arbeitsunfall
+    en: Safety incident
   description: One row per recorded workplace safety incident (severity, lost-time flag).
   kind: transaction
   grain: incident
@@ -7553,8 +7553,8 @@ business_objects:
   kpi_ids: []
 - id: BO-097
   name:
-    de: null
-    en: null
+    de: Umsatz
+    en: Sales
   description: Invoice-line sales (net sales, quantity, price, COGS) with plan and prior year.
   kind: transaction
   grain: invoice_line
@@ -7758,8 +7758,8 @@ business_objects:
   - KPI-SCM-017
 - id: BO-098
   name:
-    de: null
-    en: null
+    de: Umsatzziel
+    en: Sales target
   description: Remaining sales target per org and month (coverage denominator).
   kind: transaction
   grain: month_org
@@ -7810,8 +7810,8 @@ business_objects:
   - KPI-COM-026
 - id: BO-099
   name:
-    de: null
-    en: null
+    de: Sicherheitsvorfall
+    en: Security incident
   description: null
   kind: transaction
   grain: month
@@ -7875,8 +7875,8 @@ business_objects:
   kpi_ids: []
 - id: BO-100
   name:
-    de: null
-    en: null
+    de: Auslieferung
+    en: Shipment
   description: null
   kind: transaction
   grain: shipment_line
@@ -7939,8 +7939,8 @@ business_objects:
   - KPI-QUA-004
 - id: BO-101
   name:
-    de: null
-    en: null
+    de: Fehlbestand
+    en: Stockout
   description: Stockout events and lost demand at location-SKU-day.
   kind: transaction
   grain: location_sku_day
@@ -8019,8 +8019,8 @@ business_objects:
   - KPI-SCM-012
 - id: BO-102
   name:
-    de: null
-    en: null
+    de: Lieferantenrisiko
+    en: Supplier risk
   description: Daily supplier risk scores (overall, delivery, quality, financial) per supplier.
   kind: transaction
   grain: supplier_day
@@ -8092,8 +8092,8 @@ business_objects:
   - KPI-SCM-022
 - id: BO-103
   name:
-    de: null
-    en: null
+    de: Supportfall
+    en: Support case
   description: Support case facts (SLA, FCR, handle time, escalation, backlog).
   kind: transaction
   grain: case
@@ -8286,8 +8286,8 @@ business_objects:
   kpi_ids: []
 - id: BO-105
   name:
-    de: null
-    en: null
+    de: Zielwert
+    en: Target
   description: Ziel- und Planwerte je KPI und Monat, vom Kunden beim Onboarding geliefert (R6.1).
   kind: transaction
   grain: kpi_month
@@ -8339,8 +8339,8 @@ business_objects:
   kpi_ids: []
 - id: BO-106
   name:
-    de: null
-    en: null
+    de: Lagerleistung
+    en: Warehouse performance
   description: null
   kind: transaction
   grain: warehouse_day
@@ -8419,8 +8419,8 @@ business_objects:
   - KPI-SCM-028
 - id: BO-107
   name:
-    de: null
-    en: null
+    de: Wasser und Abfall
+    en: Water and waste
   description: Water withdrawal, recycled water, and waste generated per site per month.
   kind: transaction
   grain: site_month
@@ -8491,8 +8491,8 @@ business_objects:
   kpi_ids: []
 - id: BO-108
   name:
-    de: null
-    en: null
+    de: Belegschaft
+    en: Workforce
   description: null
   kind: transaction
   grain: month_org_segment
@@ -8600,8 +8600,8 @@ business_objects:
   - KPI-PPL-006
 - id: BO-109
   name:
-    de: null
-    en: null
+    de: Personaleinsatzplanung
+    en: Workforce management
   description: Workforce management facts (work, paid, talk, wrap, idle, overtime, shrinkage) per agent-day.
   kind: transaction
   grain: agent_day

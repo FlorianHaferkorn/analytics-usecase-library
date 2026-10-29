@@ -281,6 +281,29 @@ def load(repo: Path = REPO) -> dict[str, Any] | None:
     return yaml.safe_load(p.read_text(encoding="utf-8")) if p.is_file() else None
 
 
+#: Review state of a template row (column ``status``, optional): only ``freigegeben`` is applied.
+STATUS = ("vorschlag", "offen", "freigegeben")
+
+
+def released_only(csv_text: str) -> str:
+    """Drop rows whose ``status`` is not ``freigegeben`` (a template without the column passes).
+
+    Proposals (``vorschlag``) and open rows (``offen``) carry a value only for review; applying
+    them would write unreleased names into the layer.
+    """
+    import csv
+    import io
+
+    reader = csv.DictReader(io.StringIO(csv_text))
+    if "status" not in (reader.fieldnames or []):
+        return csv_text
+    buf = io.StringIO()
+    w = csv.DictWriter(buf, fieldnames=reader.fieldnames, lineterminator="\n")
+    w.writeheader()
+    w.writerows(r for r in reader if (r.get("status") or "").strip() == "freigegeben")
+    return buf.getvalue()
+
+
 def _template_main(a: argparse.Namespace, existing: dict[str, Any] | None) -> int:
     """Write / apply the gap template (Meridian D-610, mirrored ``leerstellen_vorlage``).
 
@@ -307,7 +330,7 @@ def _template_main(a: argparse.Namespace, existing: dict[str, Any] | None) -> in
         print(f"[OK] template {a.template}: {len(rows)} gaps ("
               + ", ".join(f"{k} {v}" for k, v in sorted(per.items())) + ")")
         return 0
-    new, problems, n = lv.uebernehme(existing, a.apply.read_text(encoding="utf-8-sig"))
+    new, problems, n = lv.uebernehme(existing, released_only(a.apply.read_text(encoding="utf-8-sig")))
     problems = problems or check(new, catalog_kpi_ids(a.repo_root), physical_columns(a.repo_root))
     if problems:
         print("ERROR (nothing applied):\n  " + "\n  ".join(problems), file=sys.stderr)

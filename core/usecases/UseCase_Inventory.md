@@ -16,7 +16,7 @@
 | ESG-001 | Scope 1+2 Emissions | ESG | KPI-ESG-001 |  | E-S1.1 | sustainability_controlling_lead | esg_reporting_bi_lead |
 | FIN-001 | Cash & Liquidity Performance | Finance | KPI-FIN-006 | KPI-FIN-007, KPI-FIN-009, KPI-FIN-010, KPI-FIN-001, KPI-FIN-004, KPI-FIN-005 | F-C1.1, F-C1.2, S-I1.2, F-C1.4 | treasury_finance_controlling | treasury_finance_bi_lead |
 | FIN-002 | Cost Performance | Finance / Operations | KPI-FIN-015 | KPI-FIN-016, KPI-FIN-014, KPI-SCM-020, KPI-OPS-004, KPI-OPS-009, KPI-QUA-006, KPI-OPS-003 | F-K2.1, F-K2.2, F-K2.3, F-K2.4 | plant_ops_controllers | finance_bi_lead |
-| FIN-003 | Earnings Performance vs Plan | Finance | KPI-FIN-018 | KPI-FIN-021, KPI-COM-009, KPI-COM-013, KPI-FIN-014 | F-E1.1 | finance_controlling_fpa | finance_bi_lead |
+| FIN-003 | Earnings Performance vs Plan | Finance | KPI-FIN-018 | KPI-FIN-021, KPI-FIN-016, KPI-FIN-014 | F-E1.1 | finance_controlling_fpa | finance_bi_lead |
 | HR-001 | Workforce Performance & Retention | People & Culture | KPI-PPL-001 | KPI-PPL-002, KPI-PPL-003, KPI-PPL-004, KPI-PPL-005 | X-R1.1 | hr_controlling_people_analytics | people_analytics_bi_lead |
 | OPS-001 | Operations Performance | Operations | KPI-OPS-011 | KPI-OPS-016, KPI-OPS-002, KPI-OPS-003, KPI-OPS-009 | O-O1.1, O-O1.2, O-O1.3, O-O1.4 | operations_controlling_oee_lead | ops_bi_lead_plant_analytics |
 | OPS-002 | Asset Performance | Operations | KPI-OPS-005 | KPI-OPS-016, KPI-OPS-006, KPI-OPS-018, KPI-OPS-008, KPI-OPS-007, KPI-OPS-012 | O-A2.1, O-A2.2, O-A2.3, O-A2.4, O-A2.5 | maintenance_controlling_reliability | maintenance_reliability_bi_lead |

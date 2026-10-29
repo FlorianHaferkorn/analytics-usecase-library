@@ -1,0 +1,13 @@
+objekt_id,tabelle,feld,zustaendig,erlaubte_werte,kontext,wert,status,notiz
+BO-037,dim_vendor,name.de,fachlich,Text,"Art: master_data; Beschreibung: Procurement vendor (region, tier) keyed by VendorKey for the Aurora procurement gold.; Beschreibung: Procurement vendor (region, tier) keyed by VendorKey for the Aurora procurement gold.",,offen,Dublette zu dim_supplier (Lieferant); Abgrenzung Vendor/Supplier fachlich klären
+BO-037,dim_vendor,name.en,fachlich,Text,"Art: master_data; Beschreibung: Procurement vendor (region, tier) keyed by VendorKey for the Aurora procurement gold.; Beschreibung: Procurement vendor (region, tier) keyed by VendorKey for the Aurora procurement gold.",,offen,Dublette zu dim_supplier (Lieferant); Abgrenzung Vendor/Supplier fachlich klären
+BO-060,fact_exec_summary,name.de,fachlich,Text,Art: transaction,,offen,"vorverdichtete Kennzahlensammlung, kein eigenes Fachobjekt; Name hängt vom Zweck ab"
+BO-060,fact_exec_summary,name.en,fachlich,Text,Art: transaction,,offen,"vorverdichtete Kennzahlensammlung, kein eigenes Fachobjekt; Name hängt vom Zweck ab"
+BO-065,fact_hr,name.de,fachlich,Text,Art: transaction,,offen,"überschneidet fact_workforce (Headcount, Abwesenheit, Personalkosten); keine Beschreibung"
+BO-065,fact_hr,name.en,fachlich,Text,Art: transaction,,offen,"überschneidet fact_workforce (Headcount, Abwesenheit, Personalkosten); keine Beschreibung"
+BO-067,fact_inventory_snapshot,name.de,fachlich,Text,"Art: transaction; Beschreibung: Month-end stock snapshot per org and product (quantity, value, safety stock).; Beschreibung: Month-end stock snapshot per org and product (quantity, value, safety stock).",,offen,Dublette zu fact_inventory (Monatsend-Bestand); Abgrenzung fachlich klären
+BO-067,fact_inventory_snapshot,name.en,fachlich,Text,"Art: transaction; Beschreibung: Month-end stock snapshot per org and product (quantity, value, safety stock).; Beschreibung: Month-end stock snapshot per org and product (quantity, value, safety stock).",,offen,Dublette zu fact_inventory (Monatsend-Bestand); Abgrenzung fachlich klären
+BO-068,fact_it,name.de,fachlich,Text,Art: transaction,,offen,"nur Spalte 'Digital Users', keine Beschreibung, kein KPI; Fachbedeutung unbekannt"
+BO-068,fact_it,name.en,fachlich,Text,Art: transaction,,offen,"nur Spalte 'Digital Users', keine Beschreibung, kein KPI; Fachbedeutung unbekannt"
+BO-104,fact_survey,name.de,fachlich,Text,Art: transaction,,offen,"mischt Engagement-Antworten und Schulungsstunden, überschneidet fact_engagement_survey; keine Beschreibung"
+BO-104,fact_survey,name.en,fachlich,Text,Art: transaction,,offen,"mischt Engagement-Antworten und Schulungsstunden, überschneidet fact_engagement_survey; keine Beschreibung"

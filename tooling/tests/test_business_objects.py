@@ -153,7 +153,8 @@ def test_gaps_are_counted(doc) -> None:
     g = bo.gaps(doc)
     attrs = sum(len(o["attributes"]) for o in doc["business_objects"])
     assert g["attribute.personal_data"] == attrs          # no source classifies personal data
-    assert g["name.de"] == g["name.en"] == g["binding.layer"] == 109
+    assert g["name.de"] == g["name.en"] == 6     # released names applied (28.10.2026)
+    assert g["binding.layer"] == 109
 
 
 # ─── stable ids, curated values ───────────────────────────────────────────────
@@ -183,3 +184,47 @@ def test_curated_value_survives(doc) -> None:
     got = next(o for o in new["business_objects"] if o["binding"]["table"] == "dim_customer")
     assert got["name"] == {"de": "Kunde", "en": "Customer"}
     assert got["attributes"][2]["personal_data_category"] == "identification_data"
+
+
+# ─── display-name template (Florian 28.10.2026) ───────────────────────────────
+
+VORLAGE = REPO / "core" / "business_objects" / "anzeigenamen_vorlage.csv"
+
+
+def test_name_template_covers_every_open_name(doc) -> None:
+    import csv
+
+    rows = list(csv.DictReader(VORLAGE.read_text(encoding="utf-8").splitlines()))
+    open_names = {(o["id"], f"name.{lang}") for o in doc["business_objects"]
+                  for lang in ("de", "en") if o["name"][lang] is None}
+    assert {(r["objekt_id"], r["feld"]) for r in rows} == open_names
+    assert len(rows) == 12                                # released rows leave the template
+    # every row carries a review state; proposals have a value, open rows a reason and no value
+    assert all(r["status"] in bo.STATUS for r in rows)
+    for r in rows:
+        if r["status"] == "offen":
+            assert not r["wert"] and r["notiz"], r
+        else:
+            assert r["wert"], r
+    # both languages are decided together per object
+    by_obj: dict[str, set[str]] = {}
+    for r in rows:
+        by_obj.setdefault(r["objekt_id"], set()).add(r["status"])
+    assert all(len(s) == 1 for s in by_obj.values())
+    # display names are unique per language
+    for lang in ("de", "en"):
+        vals = [r["wert"] for r in rows if r["feld"] == f"name.{lang}" and r["wert"]]
+        assert len(vals) == len(set(vals)), lang
+
+
+def test_apply_takes_only_released_rows() -> None:
+    text = ("objekt_id,feld,wert,status\n"
+            "BO-001,name.de,A,vorschlag\nBO-001,name.en,B,freigegeben\nBO-002,name.de,,offen\n")
+    kept = bo.released_only(text).splitlines()
+    assert kept == ["objekt_id,feld,wert,status", "BO-001,name.en,B,freigegeben"]
+    # counter-probe: released rows leave the template once applied, so none remain
+    import csv
+    assert len(list(csv.DictReader(bo.released_only(
+        VORLAGE.read_text(encoding="utf-8")).splitlines()))) == 0
+    # a template without the column passes unchanged
+    assert bo.released_only("objekt_id,feld,wert\nBO-001,name.de,A\n").count("\n") == 2
