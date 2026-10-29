@@ -79,6 +79,26 @@ def _unique_workspaces(bp: dict) -> list[tuple[str, str]]:
     return sorted(seen.items())
 
 
+def _lakehouse_je_ws(bp: dict) -> dict[str, str]:
+    """Workspace → Lakehouse-Name, wo das IR ihn nennt (``workspaces[].lakehouse``)."""
+    aus: dict[str, str] = {}
+    for d in bp.get("mesh", {}).get("domains", []) or []:
+        for ws in d.get("workspaces", []) or []:
+            if ws.get("name") and ws.get("lakehouse"):
+                aus.setdefault(ws["name"], str(ws["lakehouse"]))
+    return aus
+
+
+def _rollenrang(rolle: str) -> int:
+    """Vorrang unter den Lakehouse-Rollen: ``gold`` vor ``data`` vor ``mixed``.
+
+    Fuehrt eine Domaene neben ihrem Gold-Workspace einen weiteren mit Lakehouse (Hub and
+    Spoke: ein Engineering-Workspace `mixed` fuer Bronze und Silber), gehoert Gold in den
+    Gold-Workspace — nicht in den, der zufaellig zuerst steht.
+    """
+    return LAKEHOUSE_ROLES.index(rolle) if rolle in LAKEHOUSE_ROLES else len(LAKEHOUSE_ROLES)
+
+
 def _stufenrang(ws: dict) -> int:
     """Position der Stufe in der Foerderkette ``dev < test < prod``.
 
@@ -122,7 +142,7 @@ def gold_workspace_of(bp: dict, domain_name: str | None = None,
         kandidaten = gewaehlt or kandidaten
     # Stufe schlaegt Listenreihenfolge; innerhalb einer Stufe bleibt die Reihenfolge stabil.
     kandidaten.sort(key=_stufenrang)
-    for ws in kandidaten:
+    for ws in sorted(kandidaten, key=lambda w: _rollenrang(w.get("role") or "")):
         if ws.get("role") in LAKEHOUSE_ROLES:
             return ws["name"]
     # keine Gold-Rolle deklariert: der unterstufigste Workspace der Domäne, sonst der Fallback
@@ -239,8 +259,12 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
                          f"{list(ONELAKE_ROLLEN_MODI)}")
 
     workspaces = _unique_workspaces(bp)
-    gold_ws = [n for n, r in workspaces if r in LAKEHOUSE_ROLES]
+    gold_ws = [n for n, r in sorted(workspaces, key=lambda w: _rollenrang(w[1])) if r in LAKEHOUSE_ROLES]
     target_ws = gold_ws[0] if gold_ws else (workspaces[0][0] if workspaces else workspace)
+    # Nennt das IR den Lakehouse-Namen eines Workspace, gilt er dort; sonst der Vorgabename.
+    lh_je_ws = _lakehouse_je_ws(bp)
+    lakehouse = lh_je_ws.get(target_ws, lakehouse)
+    warehouse = warehouse_name_for(lakehouse)
     domains = sorted(bp.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
     ingestion = sorted(bp.get("ingestion", []), key=lambda e: e.get("source", ""))
     gold = sorted(bp.get("medallion", {}).get("gold", {}).get("data_products", []),
@@ -320,7 +344,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
             "Neuaufbau der Quellanbindung zu drehen — deshalb vor dem ersten Lakehouse.")
     for name, role in workspaces:
         if role in LAKEHOUSE_ROLES:
-            add("create_lakehouse", f"{name}.Workspace/{lakehouse}.Lakehouse", "core-mcp:create-item | fab mkdir",
+            add("create_lakehouse", f"{name}.Workspace/{lh_je_ws.get(name, lakehouse)}.Lakehouse", "core-mcp:create-item | fab mkdir",
                 "human", "gold lakehouse",
                 present("terraform/main.tf") or present("provision.sh"))
     # C-4: PLAT-LHTOPO = gold_warehouse (MS-Muster 2) heisst Bronze und Silber als Lakehouse,
