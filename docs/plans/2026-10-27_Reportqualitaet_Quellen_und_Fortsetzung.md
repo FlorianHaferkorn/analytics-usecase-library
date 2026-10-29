@@ -21,13 +21,13 @@ und Arbeitsliste, kein neuer konkurrierender Designstandard.
 - Freelancing lokal: `main = origin/main = 06a68e8227767509423d4a1f308aa1403637fc7e`;
   `9c88d2618` (#755) enthalten. **Ohne Fetch** geprüft, keine Aussage über spätere Remote-Änderungen.
 - ALUCA-Ausgangsstand: `bc0bd33d2ad5ce571e92088ad90931d1dbcad22d`.
-- [Freigegebener Plan](../../../Freelancing/docs/plans/2026-10-25_Plan_Visueller_Baukasten.md):
+- Freigegebener Plan (Freelancing-Repo `docs/plans/2026-10-25_Plan_Visueller_Baukasten.md`):
   D-825–828, werkzeugneutraler Kern, stärkste Ausprägung je Ziel, Schrift je Zielklasse.
-- [Optionskatalog](../../../Freelancing/meridian/design/katalog/optionskatalog.json):
+- Optionskatalog (Freelancing-Repo `meridian/design/katalog/optionskatalog.json`):
   Version 0.2.0, 38 Achsen, 130 Optionen, weiterhin **Entwurf**.
-- [Klickbarer Katalog](../../../Freelancing/meridian/organisations/aurora/design/design-katalog.html)
+- Klickbarer Katalog (Freelancing-Repo `meridian/organisations/aurora/design/design-katalog.html`)
   ist der vorhandene Review-Arbeitsplatz; keinen zweiten Konfigurator bauen.
-- [Rundenbericht](../../../Freelancing/docs/runden/2026-10-25_Bericht_baukasten-ebene0.md)
+- Rundenbericht (Freelancing-Repo `docs/runden/2026-10-25_Bericht_baukasten-ebene0.md`)
   enthält zehn offene Fragen (Zeilen 372–409). Auch die letzte Claude-Antwort führt
   zehn Empfehlungen auf; Wortlaut und Gruppierung unterscheiden sich. Beides ist
   **keine Freigabe**. Insbesondere Schema-Verengung, Defaults und Token-Konsolidierung
@@ -37,10 +37,10 @@ und Arbeitsliste, kein neuer konkurrierender Designstandard.
 
 | Quelle | Gelesen / gesichtet | Nutzen und Grenze |
 |---|---|---|
-| [Aurora Design Drop](../../../Freelancing/Brand/claude_design_drops/fSHo1is15qF9BHwuI7mNLg/_MANIFEST.md) | Manifest, `aurora_reports/report.jsx`, `aurora_page_templates/tpl-001.jsx` | Referenz für KPI → Trend → Aufschlüsselung → Handlung sowie sechs Seitentemplates. `report.jsx` konstruiert Zeitreihen und Regionen mit `seedFor`; Werte und Story sind **keine fachlichen Belege**. |
-| [Meridian Report Layout](../../../Freelancing/Brand/claude_design_drops/-8Oo4ccY8u7eMDjiXeq8Vg/_MANIFEST.md) | Manifest, Einstieg `project/Meridian Report Layout.html`, Beginn `chats/chat1.md` / `chat2.md` | Bewahrt Layoutbegründungen und Entstehungskontext. Entfernte Fonts/Standalone-Bundles laut Cleanup 22.10.; lokale Darstellung kann auf Systemschrift zurückfallen. Kein unverändert produktionsfähiges Bundle behaupten. |
-| [Baukasten-Mock](../../../Freelancing/docs/plans/2026-10-24_Mock_Report_Baukasten/mock.html) | Im aktuellen Plan und Rundenbericht referenziert | Umfassender Vorläufer; nicht als heutige Implementierung oder aktuelle Freigabe behandeln. |
-| [Aktuelle Beispielseite](../../../Freelancing/docs/runden/2026-10-25_Bilder_baukasten-ebene0/v3_beispielseite_1440_hell.png) | PNG visuell gesichtet und aktueller Katalog im Browser geöffnet | Konkreter Ist-Vergleich. Alle drei KPI-Karten zeigen dieselbe Ziel-/Schwellenzeile und Sparkline trotz unterschiedlicher Kennzahlen. Als ausdrücklich markierte Layout-Beispieldaten zulässig, für eine inhaltliche Endproduktabnahme ungeeignet. |
+| Aurora Design Drop (Freelancing-Repo `Brand/claude_design_drops/fSHo1is15qF9BHwuI7mNLg/_MANIFEST.md`) | Manifest, `aurora_reports/report.jsx`, `aurora_page_templates/tpl-001.jsx` | Referenz für KPI → Trend → Aufschlüsselung → Handlung sowie sechs Seitentemplates. `report.jsx` konstruiert Zeitreihen und Regionen mit `seedFor`; Werte und Story sind **keine fachlichen Belege**. |
+| Meridian Report Layout (Freelancing-Repo `Brand/claude_design_drops/-8Oo4ccY8u7eMDjiXeq8Vg/_MANIFEST.md`) | Manifest, Einstieg `project/Meridian Report Layout.html`, Beginn `chats/chat1.md` / `chat2.md` | Bewahrt Layoutbegründungen und Entstehungskontext. Entfernte Fonts/Standalone-Bundles laut Cleanup 22.10.; lokale Darstellung kann auf Systemschrift zurückfallen. Kein unverändert produktionsfähiges Bundle behaupten. |
+| Baukasten-Mock (Freelancing-Repo `docs/plans/2026-10-24_Mock_Report_Baukasten/mock.html`) | Im aktuellen Plan und Rundenbericht referenziert | Umfassender Vorläufer; nicht als heutige Implementierung oder aktuelle Freigabe behandeln. |
+| Aktuelle Beispielseite (Freelancing-Repo `docs/runden/2026-10-25_Bilder_baukasten-ebene0/v3_beispielseite_1440_hell.png`) | PNG visuell gesichtet und aktueller Katalog im Browser geöffnet | Konkreter Ist-Vergleich. Alle drei KPI-Karten zeigen dieselbe Ziel-/Schwellenzeile und Sparkline trotz unterschiedlicher Kennzahlen. Als ausdrücklich markierte Layout-Beispieldaten zulässig, für eine inhaltliche Endproduktabnahme ungeeignet. |
 
 Die Original-Drops bleiben unverändert. Gestaltung wird über bestehende Generatoren
 und Tokens übertragen; synthetische Geschichten werden nicht in KPI- oder Action-SoTs übernommen.
