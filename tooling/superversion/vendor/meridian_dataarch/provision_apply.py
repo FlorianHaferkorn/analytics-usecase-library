@@ -99,6 +99,19 @@ def _rollenrang(rolle: str) -> int:
     return LAKEHOUSE_ROLES.index(rolle) if rolle in LAKEHOUSE_ROLES else len(LAKEHOUSE_ROLES)
 
 
+def _ziel_und_lakehouse(bp: dict, workspaces: list[tuple[str, str]], workspace: str,
+                        lakehouse: str) -> tuple[str, str, str, dict[str, str]]:
+    """Ziel-Workspace (Gold vor data vor mixed), sein Lakehouse und Warehouse.
+
+    Nennt das IR den Lakehouse-Namen eines Workspace, gilt er dort; sonst der Vorgabename.
+    """
+    gold_ws = [n for n, r in sorted(workspaces, key=lambda w: _rollenrang(w[1])) if r in LAKEHOUSE_ROLES]
+    target_ws = gold_ws[0] if gold_ws else (workspaces[0][0] if workspaces else workspace)
+    lh_je_ws = _lakehouse_je_ws(bp)
+    lh = lh_je_ws.get(target_ws, lakehouse)
+    return target_ws, lh, warehouse_name_for(lh), lh_je_ws
+
+
 def _stufenrang(ws: dict) -> int:
     """Position der Stufe in der Foerderkette ``dev < test < prod``.
 
@@ -259,12 +272,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
                          f"{list(ONELAKE_ROLLEN_MODI)}")
 
     workspaces = _unique_workspaces(bp)
-    gold_ws = [n for n, r in sorted(workspaces, key=lambda w: _rollenrang(w[1])) if r in LAKEHOUSE_ROLES]
-    target_ws = gold_ws[0] if gold_ws else (workspaces[0][0] if workspaces else workspace)
-    # Nennt das IR den Lakehouse-Namen eines Workspace, gilt er dort; sonst der Vorgabename.
-    lh_je_ws = _lakehouse_je_ws(bp)
-    lakehouse = lh_je_ws.get(target_ws, lakehouse)
-    warehouse = warehouse_name_for(lakehouse)
+    target_ws, lakehouse, warehouse, lh_je_ws = _ziel_und_lakehouse(bp, workspaces, workspace, lakehouse)
     domains = sorted(bp.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
     ingestion = sorted(bp.get("ingestion", []), key=lambda e: e.get("source", ""))
     gold = sorted(bp.get("medallion", {}).get("gold", {}).get("data_products", []),
