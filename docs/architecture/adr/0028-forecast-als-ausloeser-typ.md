@@ -101,3 +101,30 @@ immer `open`, ohne Prüfung gegen `value`.
 
 - KPI-ESG-001 ist mit derselben Operation rechenbar (Summe Scope 1 + Scope 2). Die Plan-KPI aus
   §6 fehlt weiter; die Ableitung für E-S1.1 bricht deshalb weiter ab, ohne ESG-Modell folgenlos.
+
+### 7.1 Nachtrag 30.10.2026: Prognoseverfahren und Erzeugungsweg (Florian)
+
+- **Verfahren (Entscheidung Florian):** Horizont ein Monat. Punkt = Mittel der Monatswerte der
+  letzten drei Monate (alle drei mit Wert, sonst leer). 80-%-Band = Punkt + 10. bzw. 90.
+  Perzentil (`PERCENTILEX.INC`) der historischen Ein-Monats-Fehler e(k) = Wert(k) − Mittel der
+  drei Monate davor, über die letzten 24 Monate, mindestens 12 Fehler (sonst leer). Die Quantile
+  folgen aus `band.level` ((1 ∓ level) / 2).
+- **Erzeugungsweg:** `tooling/codegen/forecast_measures.py`, nach dem Muster von
+  `comparison_measures.py` (Modell-Measures außerhalb des KPI-Katalogs, Annotation
+  `ALUCA_Generated = "forecast_measures"`, Prüfmodus und `--write`, Stufe S1 der agentischen
+  Schleife vor `action_trigger_dax`). Quelle sind die Forecast-Ausloeser der Action Codes, nicht
+  der Katalog. Begründung: die KPI-DSL kennt weder Monatsverschiebung noch Perzentil, und eine
+  Prognose ist keine eigene KPI (Option c aus §2 verworfen); ein Katalog-Eintrag hätte drei
+  KPIs ohne eigene Bedeutung erzeugt.
+- **Folge:** `action_trigger_dax` kann C-M2.4 erzeugen (Test `test_forecast_measures.py`).
+  Persistenz eines Forecast-Ausloesers wertet es nicht aus (`nicht_ausgewertet: persistence`).
+  C-M2.4 hat noch kein `Action_C-M2.4_Text`-Measure im Modell: das entsteht erst mit einem Bericht,
+  der den Code zeigt. Beide Codes bleiben `draft`, die Schwellen `value_status: assumed`.
+- **Nachgerechnet** (Showdaten nach dem Eigenmarken-Trend, Python gegen DuckDB, max. Abweichung
+  1e-12 pp; DAX nicht gegen eine Engine gelaufen): CE, Auswahl Nov 2024: Unterrand 21,81 % gegen
+  Basis 22,48 % (Quote 0,9705) → C-M2.4 L1, einen Monat vor C-M2.3 L1 (Dez 2024). CE Dez 2024:
+  Quote 0,9541 → L2. Fashion, Home & Living, gesamt: keine Stufe.
+- **Backtest** (dieselbe Python-Referenz, 45 Ein-Monats-Prognosen je Reihe, Ziele 2021-04 bis
+  2024-12): Anteil der Istwerte im 80-%-Band CE 0,667, Fashion 0,800, Home & Living 0,800,
+  gesamt 0,711. CE liegt unter 0,8, weil das Band aus Fehlern vor dem Trend kommt. Showdaten,
+  keine Kundenkalibrierung.

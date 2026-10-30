@@ -1,6 +1,6 @@
 {
   "modell": "Commercial.SemanticModel",
-  "quelle_sha256": "81dbeec6d543a8ce4901457ba26773a8b6b978b157ac6aaa17c0298daa5de318",
+  "quelle_sha256": "6f2c40d99b0bb237632466ad0d3cfc3c19ab85b2d7b8c9c9f8d4cd589b84d4c1",
   "messungen": [
     {
       "measure": "Action Effectiveness Delta",
@@ -530,6 +530,36 @@
       "abfragen": {
         "gesamt": "EVALUATE ROW(\"v\", [Private Label Penetration %])",
         "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Private Label Penetration %])"
+      }
+    },
+    {
+      "measure": "Private Label Penetration % Forecast",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Private Label Penetration % Forecast])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Private Label Penetration % Forecast])"
+      }
+    },
+    {
+      "measure": "Private Label Penetration % Forecast Lower",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Private Label Penetration % Forecast Lower])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Private Label Penetration % Forecast Lower])"
+      }
+    },
+    {
+      "measure": "Private Label Penetration % Forecast Upper",
+      "tabelle": "_Measures",
+      "klasse": "zahl",
+      "grund": "mindestens ein Monat gefüllt",
+      "abfragen": {
+        "gesamt": "EVALUATE ROW(\"v\", [Private Label Penetration % Forecast Upper])",
+        "je_monat": "EVALUATE SUMMARIZECOLUMNS('dim_date'[Year], 'dim_date'[MonthNumber], \"v\", [Private Label Penetration % Forecast Upper])"
       }
     },
     {

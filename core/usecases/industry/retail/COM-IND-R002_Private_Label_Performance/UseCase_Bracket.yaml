@@ -21,7 +21,8 @@ orchestration:
   # the category owner confirms them. Since 30.10.2026 KPI-COM-033 is computable (Private Label
   # Flag in dim_product, measure in the Commercial model).
   # C-M2.4 (30.10.2026, ADR-0028) is the Forecast companion: lower edge of the 80 % interval one
-  # month ahead against the same levels; draft until the forecast measures exist.
+  # month ahead against the same levels. Its forecast measures exist since 30.10.2026
+  # (tooling/codegen/forecast_measures.py); draft while the thresholds are assumptions.
   # Page 2 stays an exception queue (T3) until the action codes are active.
   action_code_ids:
   - C-M2.3
@@ -57,6 +58,9 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: KPI-COM-033
       visual_type: line_chart
+      # 30.10.2026: month axis declared (official validate reported a line chart without
+      # Category dimension).
+      category_field: dim_date.CalendarYearMonth
       question: Does the private-label share rise from month to month?
       message: The private-label share rises only while own-brand sales grow faster than total net sales
       so_what: A flat share while total sales grow means the own-brand programme only follows the market.
@@ -79,9 +83,12 @@ ux_layout_rules:
     component_300s:
       # Governed fact grain (fact_sales, commercial_sales.yaml).
       evidence_grain: invoice_line
+      # 30.10.2026: slicer on Channel, the supported slice of C-M2.3/C-M2.4 (scope); rows stay
+      # category and region, qualified to the Commercial model columns.
+      slicer_field: dim_org.Channel
       evidence_columns:
-      - category
-      - region
+      - dim_product.Category
+      - dim_org.Region
       - KPI-COM-033
       - KPI-COM-005
       action_panel: false
@@ -113,7 +120,8 @@ data_protection:
   ai_generated_output: false
 readiness:
   # partial (30.10.2026): Private Label Flag in the contract and in the Aurora generator, KPI-COM-033
-  # computable; the forecast measures for C-M2.4 are missing (method open).
+  # computable, forecast measures for C-M2.4 in the model. Still partial: the showdata release with
+  # the flag is not published yet (lock pins showdaten-aurora-2026-09-29c).
   data_availability: partial
   org_capability: developing
   stakeholder_alignment: partial

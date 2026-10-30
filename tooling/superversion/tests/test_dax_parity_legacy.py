@@ -214,6 +214,10 @@ KPI_TO_LEGACY = {
     "KPI-COM-029": (None, None),
     "KPI-COM-027": (None, None),
     "KPI-COM-030": (None, None),  # 24.10.2026: Komposition aus dem Katalog, kein Legacy-Measure davor (Platzhalter)
+    # 30.10.2026 (sum_filtered): erstmals rechenbar, das Measure entsteht aus der Synthese; ein
+    # Legacy-Measure gab es nie.
+    "KPI-COM-033": (None, None),
+    "KPI-ESG-001": (None, None),
 }
 
 # Documented, deliberate divergences (Review Befund A2 methodology: ledger, not

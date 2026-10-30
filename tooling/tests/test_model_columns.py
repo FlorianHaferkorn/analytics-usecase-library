@@ -88,7 +88,7 @@ def test_action_codes_come_from_the_brackets():
 def test_private_label_flag_hits_the_category_share_and_is_stable():
     """Eigenmarke (30.10.2026, KPI-COM-033): je Kategorie Anteil am Bezugsjahresumsatz auf ein
     Produkt genau, Reihenfolge der Eingabe egal, unbekannte Kategorie bricht ab."""
-    jahr = mc.EIGENMARKE_BEZUGSJAHR
+    jahr = mc.EIGENMARKE_BEZUG[0] // 100
     dim = pd.DataFrame({"ProductKey": range(1, 201),
                         "Category": ["Fashion"] * 100 + ["Consumer Electronics"] * 100})
     pm = pd.DataFrame({"ProductKey": list(range(1, 201)) * 2,
@@ -98,8 +98,8 @@ def test_private_label_flag_hits_the_category_share_and_is_stable():
     assert out.columns.tolist() == ["ProductKey", "Category", "Private Label Flag"]
     assert out["Private Label Flag"].dtype == bool
     je_kat = out.groupby("Category")["Private Label Flag"].sum().to_dict()
-    # gleicher Umsatz je Produkt: Anteil 36,4 % -> 37 Produkte, 21,4 % -> 22 (Grenzprodukt zaehlt)
-    assert je_kat == {"Fashion": 37, "Consumer Electronics": 22}
+    # gleicher Umsatz je Produkt: Anteil 36,4 % -> 37 Produkte, 22,4 % -> 23 (Grenzprodukt zaehlt)
+    assert je_kat == {"Fashion": 37, "Consumer Electronics": 23}
     gemischt = mc.dim_product_eigenmarke(dim.sample(frac=1, random_state=3), pm.sample(frac=1, random_state=4))
     assert gemischt.set_index("ProductKey").sort_index().equals(out.set_index("ProductKey").sort_index())
     with pytest.raises(ValueError, match="ohne Eigenmarkenanteil"):

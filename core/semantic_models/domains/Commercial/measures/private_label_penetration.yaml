@@ -17,8 +17,10 @@ documentation:
     Expression synthesized from the governed catalog calculation (KPI-COM-033, op ratio over
     sum_filtered) via tooling/superversion/targets/dax_synth.py. Measured on Aurora gold
     (30.10.2026, DuckDB over the active fact_sales files joined to dim_product after
-    generate_model_columns.py): 2024 29.12 %, Consumer Electronics 21.42 %, Fashion 36.42 %,
-    Home & Living 32.41 %. The category shares are assumptions of the showcase generator.
+    generate_model_columns.py and generate_eigenmarke_trend.py, checked against pandas, max
+    deviation 2e-13 pp): 2024 29.47 %, Consumer Electronics 22.26 %, Fashion 36.42 %, Home &
+    Living 32.41 %; Consumer Electronics December 2024 21.52 %. The category shares and the
+    12-week decline in Consumer Electronics are assumptions of the showcase generator.
 
     QA: Denominator > 0 for reported slices; every SKU flagged private label yes/no.
 
