@@ -14,6 +14,7 @@ use_case_ref:
 - COM-IND-R002
 action_code_ref:
 - C-M2.3
+- C-M2.4
 calc_type: ratio
 good_is: higher
 business:

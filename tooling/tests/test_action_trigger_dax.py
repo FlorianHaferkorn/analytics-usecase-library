@@ -129,15 +129,47 @@ def test_relative_without_baseline_window_is_an_error():
         atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})
 
 
-def test_forecast_trigger_is_an_error_not_a_deviation_on_the_actual():
-    ac = _code(basis="absolute", unit="days")
+def _prognose(compare="point", basis="relative"):
+    ac = _code(basis=basis, unit="%", reference="baseline") if basis == "relative" else _code(basis=basis, unit="%")
+    for L in ("L1", "L2", "L3"):
+        ac["trigger"]["levels"][L]["condition"]["comparator"] = "lt"
     ac["trigger"]["type"] = "Forecast"
-    ac["trigger"]["forecast"] = {"horizon": {"length": 3, "unit": "months"},
-                                 "forecast_measure": "K Forecast", "compare": "point"}
-    with pytest.raises(atd.Fehler, match="Forecast"):
-        atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})
-    ac["trigger"]["type"] = "Deviation"           # Gegenprobe: ohne den Typ entsteht ein Ausdruck
-    assert atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})[0]
+    ac["trigger"]["forecast"] = {"horizon": {"length": 3, "unit": "months"}, "forecast_measure": "K FC",
+                                 "compare": compare,
+                                 "band": {"kind": "prediction_interval", "level": 0.8,
+                                          "lower_measure": "K FC lo", "upper_measure": "K FC hi"}}
+    ac["trigger"]["evaluation"] = {"grain": "month", "persistence": {"required": True, "min_consecutive_periods": 2}}
+    return ac
+
+
+DEF = {"K", "K FC", "K FC lo", "K FC hi"}
+
+
+def test_forecast_compares_the_forecast_and_keeps_the_actual_as_baseline():
+    dax, offen = atd.dax_fuer(_prognose(), {"k": "K"}, {"k": "percent_1"}, definiert=DEF)
+    assert "VAR _v0 = [K FC]" in dax
+    assert "CALCULATE ( [K]," in dax                  # Basis aus dem Ist-Verlauf
+    assert "_v0 < _b0 * 0.99 )" in dax                # L1 -1 % gegen die Basis
+    assert "Prognose " in dax
+    assert offen == ["persistence"]                   # fruehere Prognosestaende fehlen im Modell
+
+
+def test_forecast_band_edge_uses_its_own_measure():
+    lo, _ = atd.dax_fuer(_prognose("band_lower"), {"k": "K"}, {"k": "percent_1"}, definiert=DEF)
+    hi, _ = atd.dax_fuer(_prognose("band_upper"), {"k": "K"}, {"k": "percent_1"}, definiert=DEF)
+    assert "VAR _v0 = [K FC lo]" in lo and "VAR _v0 = [K FC hi]" in hi
+
+
+def test_forecast_measure_missing_in_the_model_is_an_error():
+    with pytest.raises(atd.Fehler, match="Prognose-Measure 'K FC lo'"):
+        atd.dax_fuer(_prognose("band_lower"), {"k": "K"}, {"k": "percent_1"}, definiert={"K", "K FC"})
+
+
+def test_deviation_gegenprobe_reads_the_actual():
+    ac = _prognose()
+    ac["trigger"]["type"] = "Deviation"
+    dax, offen = atd.dax_fuer(ac, {"k": "K"}, {"k": "percent_1"}, definiert=DEF)
+    assert "VAR _v0 = [K]" in dax and "[K FC]" not in dax and "persistence" not in offen
 
 
 def test_band_and_abs_comparators():
@@ -173,3 +205,17 @@ def test_persistence_changes_the_expression_gegenprobe():
     assert "= _idx - 1 )" in dax and "= _idx - 2 )" in dax and "persistence" not in offen
     ac["trigger"]["evaluation"]["persistence"]["required"] = False
     assert "_idx" not in atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})[0]
+
+
+def test_c_m2_4_reads_the_lower_forecast_edge():
+    """Erster Forecast-Code (ADR-0028): unterer Rand des 80-%-Intervalls gegen C-M2.3-Stufen."""
+    ac = atd.action_codes()["C-M2.4"]
+    namen = {"KPI-COM-033": "Private Label Penetration %", "KPI-COM-005": "Net Sales Amount"}
+    fc = {"Private Label Penetration %", "Private Label Penetration % Forecast",
+          "Private Label Penetration % Forecast Lower", "Private Label Penetration % Forecast Upper"}
+    dax, offen = atd.dax_fuer(ac, namen, {"KPI-COM-033": "percent_1"}, definiert=fc)
+    assert "VAR _v0 = [Private Label Penetration % Forecast Lower]" in dax
+    assert "_v0 < _b0 * 0.98 )" in dax and "_v0 < _b0 * 0.94 )" in dax
+    assert "persistence" in offen and "gating_rules" in offen
+    with pytest.raises(atd.Fehler, match="Prognose-Measure"):
+        atd.dax_fuer(ac, namen, {"KPI-COM-033": "percent_1"}, definiert={"Private Label Penetration %"})

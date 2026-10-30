@@ -157,6 +157,20 @@ def _bedingung(cond: dict, ref: str, basis_var: str, fmt: str) -> str:
     raise Fehler(f"basis {art!r} unbekannt")
 
 
+def _prognose_measure(code: str, trig: dict, definiert: set[str] | None) -> str:
+    """Das Measure, dessen Wert die Stufen eines Forecast-Ausloesers pruefen (ADR-0028)."""
+    fc = trig.get("forecast") or {}
+    vergleich = fc.get("compare")
+    band = fc.get("band") or {}
+    name = {"point": fc.get("forecast_measure"), "band_lower": band.get("lower_measure"),
+            "band_upper": band.get("upper_measure")}.get(vergleich)
+    if not name:
+        raise Fehler(f"{code}: Forecast ohne Measure fuer compare {vergleich!r}")
+    if definiert is not None and name not in definiert:
+        raise Fehler(f"{code}: Prognose-Measure {name!r} hat im Modell kein Measure")
+    return name
+
+
 def _braucht_basis(cond: dict) -> bool:
     th = cond.get("threshold") or {}
     return th.get("basis") == "relative" or th.get("reference") == "baseline"
@@ -182,11 +196,9 @@ def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
     zeigte der Ausdruck ins Leere.
     """
     code = ac["id"]
-    if (ac.get("trigger") or {}).get("type") == "Forecast":
-        # ADR-0028: die Stufen pruefen die Prognose zum Horizont. Den Ist-Wert gegen die
-        # Schwelle zu stellen, saehe aus wie ein Ausdruck und pruefte etwas anderes.
-        raise Fehler(f"{code}: Forecast-Ausloeser, das Prognose-Measure wird noch nicht abgeleitet")
-    levels = ((ac.get("trigger") or {}).get("levels")) or {}
+    trig = ac.get("trigger") or {}
+    prognose = _prognose_measure(code, trig, definiert) if trig.get("type") == "Forecast" else None
+    levels = trig.get("levels") or {}
     if not all(isinstance(levels.get(L), dict) for L in ("L1", "L2", "L3")):
         raise Fehler(f"{code}: trigger.levels fuehrt nicht L1 bis L3")
     vars_, refs, basis = [], {}, {}
@@ -198,8 +210,12 @@ def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
             refs[kid] = f"[{measure_name[kid]}]"
     fenster = ((((ac.get("impact_valuation") or {}).get("success_window") or {})
                 .get("success_criteria") or {}).get("baseline_window"))
+    if prognose and len(refs) > 1:
+        raise Fehler(f"{code}: Forecast-Ausloeser mit mehr als einer KPI in den Stufen")
     for i, kid in enumerate(refs):
-        vars_.append(f"VAR _v{i} = {refs[kid]}")
+        # Forecast (ADR-0028): verglichen wird der Prognosewert zum Horizont; die Basis bleibt
+        # der Ist-Verlauf der KPI.
+        vars_.append(f"VAR _v{i} = {f'[{prognose}]' if prognose else refs[kid]}")
         if any(_braucht_basis(levels[L].get("condition") or {})
                and levels[L]["condition"].get("metric_kpi_id") == kid for L in levels):
             if not fenster:
@@ -215,7 +231,8 @@ def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
         if fmt is None:
             raise Fehler(f"{code}: unit_format {formate.get(kid)!r} von {kid} ohne Formatregel")
         teile = [_dax_str(f"{SEVERITY[L]} — {code} — {ac.get('name', code)}"),
-                 _dax_str(f"Owner: {ac.get('owner_role', '')} | ") + f" & FORMAT ( _v{idx[kid]}, {_dax_str(fmt)} )"]
+                 _dax_str(f"Owner: {ac.get('owner_role', '')} | " + ("Prognose " if prognose else ""))
+                 + f" & FORMAT ( _v{idx[kid]}, {_dax_str(fmt)} )"]
         if schritte:
             teile.append(schritte)
         return (" & " + NL + " & ").join(teile)
@@ -230,7 +247,9 @@ def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
     n = int(pers.get("min_consecutive_periods") or 1) if pers.get("required") else 1
     g = str(ev.get("grain") or "")
     monatlich = g == "month" or g.endswith("_month")
-    if n > 1 and not monatlich:
+    if n > 1 and (not monatlich or prognose):
+        # Fruehere Prognosestaende liegen nicht im Modell; die Vormonate des Ist-Werts zu pruefen,
+        # pruefte etwas anderes als die Prognose.
         offen.append("persistence")
         n = 1
 

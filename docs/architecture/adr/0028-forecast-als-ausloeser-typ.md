@@ -52,3 +52,22 @@ immer `open`, ohne Prüfung gegen `value`.
   vorher `null`. Der Code bleibt `draft`; KPI-COM-033 hat weiter kein Measure, kein Modell
   wertet die Schwellen aus.
 - Offen: DAX-Ableitung für `Forecast`; ein erster Action Code mit dem Typ.
+
+## 5. Nachtrag 30.10.2026: Bandränder als eigene Measures, Ableitung, C-M2.4 (Florian)
+
+- **Entscheidung:** Die Ränder des Prognoseintervalls kommen aus eigenen Measures
+  (`band.lower_measure`, `band.upper_measure`, beide Pflicht in `band`). Verworfen: nur
+  Punktprognose (der Feed-Eintrag „Spanne berührt Schwelle“ hätte keine Quelle) und
+  Aufschub bis zum ersten Kunden.
+- **Ableitung:** `action_trigger_dax.py` vergleicht bei `Forecast` das Measure aus `compare`
+  (`forecast_measure`, `lower_measure` oder `upper_measure`) mit den Stufen; die Basis bleibt
+  der Ist-Verlauf der KPI. Fehlt das Measure im Modell, ist das ein Fehler. Persistenz wird
+  bei `Forecast` nicht ausgewertet und gemeldet: frühere Prognosestände liegen nicht im Modell.
+- **C-M2.4** Private Label Share Forecast Warning: KPI-COM-033, Horizont 1 Monat, unterer Rand
+  des 80-%-Intervalls gegen −2 / −4 / −6 % zur Basis (wie C-M2.3, `assumed`), `draft`, solange
+  die drei Prognose-Measures fehlen; verdrahtet in COM-IND-R002.
+- **Schwellen als Annahme** auch für C-E1.1 (−3 / −6 / −10 % zur Basis) und E-S1.1 (+5 / +10 /
+  +20 % über dem Ziel). Damit trägt keine Schwelle im Bestand mehr `value_status: open`.
+- **Befund, nicht behoben:** E-S1.1 hat `basis: target` mit `unit: '%'` und meint eine Toleranz
+  über dem Ziel. Die Ableitung liest `basis: target` ohne `reference` als Pegel der KPI
+  (`[M] > 5`, tCO2e). Heute folgenlos (kein ESG-Modell); vor dem ersten ESG-Modell klären.

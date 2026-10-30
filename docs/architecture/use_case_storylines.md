@@ -619,5 +619,5 @@
 ### Page 2 Execution · T3_Operational_Monitoring
 **Spine question:** Which categories and regions lag on private-label share the most?
 - **[300s evidence]** grain `invoice_line`, worst-first by `KPI-COM-033` (ascending), Top-20
-**Decision payoff (actions):** C-M2.3
+**Decision payoff (actions):** C-M2.3, C-M2.4
 **Cross-domain pull:** Commercial (2: `KPI-COM-033`, `KPI-COM-005`)

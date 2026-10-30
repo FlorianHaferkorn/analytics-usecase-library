@@ -4,7 +4,10 @@ name: Scope 1+2 Reduction Programme Steering
 # Added 02.10.2026 (BO-120): first action code for ESG-001. status draft on purpose: the trigger KPI
 # KPI-ESG-001 is op:hitl (blocked_by grammar - no filtered sum over a related dimension) and there is
 # no ESG semantic model yet. The trigger compares against the reduction target the company sets
-# (fact_emissions[Target Emissions tCO2e]); the tolerance is an open decision (value: null).
+# (fact_emissions[Target Emissions tCO2e]).
+# Tolerance set 30.10.2026 as an assumption (value_status: assumed): emissions +5 / +10 / +20 % above
+# the target, Florian Haferkorn ("Ja, als Annahme"). ANNAHME, ungeprueft - no measured or benchmarked
+# number; the sustainability owner confirms or replaces them, then value_status: set.
 inherits_decision_spine: null
 owner_domain: ESG
 impact_dimension: ESG
@@ -52,8 +55,8 @@ trigger:
         comparator: gt
         threshold:
           basis: target
-          value: null
-          value_status: open
+          value: 5.0
+          value_status: assumed
           unit: '%'
         filters: []
     L2:
@@ -63,8 +66,8 @@ trigger:
         comparator: gt
         threshold:
           basis: target
-          value: null
-          value_status: open
+          value: 10.0
+          value_status: assumed
           unit: '%'
         filters: []
     L3:
@@ -74,8 +77,8 @@ trigger:
         comparator: gt
         threshold:
           basis: target
-          value: null
-          value_status: open
+          value: 20.0
+          value_status: assumed
           unit: '%'
         filters: []
   gating_rules:
@@ -146,6 +149,6 @@ governance:
 quality_rules:
 - All kpi_id values must exist in KPI catalog.
 - Trigger severity must be strictly increasing from L1 to L3.
-- Thresholds stay value null with value_status open until the owner sets them; status stays draft until then.
+- Thresholds are assumptions (value_status assumed) until the owner confirms them; status stays draft until then.
 - If status=deprecated then lifecycle.replaced_by is required.
 - 'No free-text trigger notes: use gating_rules and structured filters.'

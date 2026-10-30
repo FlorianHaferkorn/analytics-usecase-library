@@ -35,6 +35,7 @@ def _codes() -> dict[str, dict]:
 
 CODES = _codes()
 FORECAST = {"horizon": {"length": 3, "unit": "months"}, "forecast_measure": "X Forecast", "compare": "point"}
+BAND = {"kind": "prediction_interval", "level": 0.8, "lower_measure": "X FC lo", "upper_measure": "X FC hi"}
 
 
 def _fehler(d: dict) -> int:
@@ -52,8 +53,9 @@ def test_every_action_code_passes_the_schema():
     ("Forecast ohne Block", "Forecast", None, 1),
     ("Block ohne Forecast", "Deviation", FORECAST, 1),
     ("Bandrand ohne Band", "Forecast", {**FORECAST, "compare": "band_lower"}, 1),
-    ("Bandrand mit Band", "Forecast", {**FORECAST, "compare": "band_lower",
-                                       "band": {"kind": "prediction_interval", "level": 0.8}}, 0),
+    ("Bandrand mit Band", "Forecast", {**FORECAST, "compare": "band_lower", "band": BAND}, 0),
+    ("Band ohne Rand-Measure", "Forecast", {**FORECAST, "compare": "band_lower",
+                                            "band": {"kind": "prediction_interval", "level": 0.8}}, 2),
     ("Tippfehler im Typ", "Forcast", FORECAST, 2),
 ])
 def test_forecast_needs_its_block_and_only_forecast_may_carry_it(name, typ, block, erwartet):

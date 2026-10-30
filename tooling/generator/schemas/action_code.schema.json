@@ -88,10 +88,13 @@
             "band": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["kind", "level"],
+              "required": ["kind", "level", "lower_measure", "upper_measure"],
+              "description": "Prediction interval at the horizon; its edges come from their own measures (Florian 30.10.2026).",
               "properties": {
                 "kind": { "type": "string", "enum": ["prediction_interval"] },
-                "level": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 }
+                "level": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+                "lower_measure": { "type": "string", "minLength": 1 },
+                "upper_measure": { "type": "string", "minLength": 1 }
               }
             }
           }
