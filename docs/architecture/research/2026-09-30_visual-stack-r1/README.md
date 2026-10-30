@@ -10,7 +10,7 @@ Jede Aussage trägt eine Quelle; was nur als Suchauszug vorlag, ist so markiert.
 |---|---|---|---|
 | `ibcs_v2.yaml` + `ibcs_abgleich.md` | IBCS Standards 2.0 aus dem Original (Mitglieder-PDF, 169 S.): alle Regeln der Ebene 2 mit `rule_id`, Seite, `test`, `testbar` | 105 + 4 Meta | Original; jedes Zitat wörtlich auf der angegebenen Seite (Skriptprüfung) |
 | `ibcs.yaml` + `ibcs_summary.md` | erster Stand aus Suchauszügen, **abgelöst** durch `ibcs_v2.yaml` | 34 | Suchauszüge von ibcs.com |
-| `editorial.yaml` + `editorial_summary.md` | FT Visual Vocabulary, BBC, Urban, ONS, UK Analysis Function, Observable Plot, Reuters, NYT | 56 | FT, Urban, BBC, afcharts, Plot gelesen; ONS, Datawrapper, Economist nur Suchauszug |
+| `editorial.yaml` + `editorial_summary.md` | FT Visual Vocabulary, BBC, Urban, ONS, UK Analysis Function, Observable Plot, Reuters, NYT; seit 22.10.2026 storytellingwithdata und edwardtufte.com | 65 (56 am 30.09.2026, 9 aus der Nachlese 22.10.2026) | FT, Urban, BBC, afcharts, Plot, SWD, Tufte gelesen; ONS, Datawrapper, Economist nur Suchauszug |
 | `product.yaml` + `product_summary.md` | shadcn/ui, Tremor, Carbon, Fluent UI, Radix, Vercel, Apple HIG, Power BI | 51 | 49 aus Quellcode/Doku gelesen (`retrieval: fetched`), 2 Suchauszüge |
 | `fabric.yaml` + `fabric_summary.md` + `fabric_matrix.md` | Machbarkeit je Idiom auf Fabric App, PBIR, HTML | 36 | Typdefinitionen fabric-visuals 4.0.0/4.1.0, flint-chart 0.5.1, vega-lite 6.4.3 (lokal gelesen) |
 | `interaction_pbi.yaml` + `interaction_pbi_summary.md` | Power-BI-Funktionsumfang für Berichtsleser als Untergrenze, dazu was `VegaVisual` (fabric-visuals 4.0/4.1) davon mitbringt | 76 (43 Pflicht für Gleichstand) | Microsoft Learn über den Learn-MCP, npm-Registry |

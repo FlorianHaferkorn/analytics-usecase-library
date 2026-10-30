@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-10-18
+last-reviewed: 2026-10-30
 shelf-life-days: 90
 ---
 # Architektur — Zentraler Anlaufpunkt (_INDEX)
