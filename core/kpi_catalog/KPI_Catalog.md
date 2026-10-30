@@ -3282,6 +3282,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   action_code_ref:
   - C-E1.1
   - C-M2.3
+  - C-M2.4
   - C-S1.1
   - C-S1.2
   calc_type: amount
@@ -8001,6 +8002,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - COM-IND-R002
   action_code_ref:
   - C-M2.3
+  - C-M2.4
   calc_type: ratio
   good_is: higher
   business:

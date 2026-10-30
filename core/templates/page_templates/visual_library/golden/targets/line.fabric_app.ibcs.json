@@ -703,11 +703,11 @@
             "as": "_step"
           },
           {
-            "calculate": "abs(datum._imax - 1) * datum._step < 34 && abs(datum._max - datum._v1) / datum._top * height < 14 || abs(datum._n - datum._imax) * datum._step < 34 && abs(datum._max - datum._vn) / datum._top * height < 14",
+            "calculate": "abs(datum._imax - 1) * datum._step < 34 && abs(datum._max - datum._v1) / datum._top * height < 14 || abs(datum._n - datum._imax) * datum._step < 59 && abs(datum._max - datum._vn) / datum._top * height < 14",
             "as": "_max_hidden"
           },
           {
-            "calculate": "abs(datum._imin - 1) * datum._step < 34 && abs(datum._min - datum._v1) / datum._top * height < 14 || abs(datum._n - datum._imin) * datum._step < 34 && abs(datum._min - datum._vn) / datum._top * height < 14 || !datum._max_hidden && abs(datum._imin - datum._imax) * datum._step < 34 && abs(datum._min - datum._max) / datum._top * height < 14",
+            "calculate": "abs(datum._imin - 1) * datum._step < 34 && abs(datum._min - datum._v1) / datum._top * height < 14 || abs(datum._n - datum._imin) * datum._step < 59 && abs(datum._min - datum._vn) / datum._top * height < 14 || !datum._max_hidden && abs(datum._imin - datum._imax) * datum._step < 34 && abs(datum._min - datum._max) / datum._top * height < 14",
             "as": "_min_hidden"
           },
           {
@@ -717,6 +717,12 @@
         "mark": {
           "type": "text",
           "color": "#201F1E",
+          "align": {
+            "expr": "datum._i == datum._n ? 'right' : 'center'"
+          },
+          "dx": {
+            "expr": "datum._i == datum._n ? -8 : 0"
+          },
           "dy": -10,
           "tooltip": null
         },

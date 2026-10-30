@@ -3,8 +3,10 @@ id: C-M2.3
 name: Private Label Assortment Review
 # Added 02.10.2026 (BO-120): first action code for COM-IND-R002. status draft on purpose: the trigger
 # KPI KPI-COM-033 is op:hitl (blocked_by data_contract - dim_product carries no own-brand flag), so no
-# level can fire until the contract and the measure exist. Thresholds are open customer decisions
-# (value: null, value_status: open); nothing here is a measured or benchmarked number.
+# level can fire until the contract and the measure exist.
+# Thresholds set 30.10.2026 as an assumption (value_status: assumed): -2 / -4 / -6 % against the
+# baseline, Florian Haferkorn ("nimm was realistisches"). ANNAHME, ungeprueft - no measured or
+# benchmarked number; the category owner confirms or replaces them, then value_status: set.
 inherits_decision_spine: null
 owner_domain: Commercial
 impact_dimension: Profitability
@@ -54,8 +56,8 @@ trigger:
         threshold:
           basis: relative
           reference: baseline
-          value: null
-          value_status: open
+          value: 2.0
+          value_status: assumed
           unit: '%'
         filters: []
     L2:
@@ -66,8 +68,8 @@ trigger:
         threshold:
           basis: relative
           reference: baseline
-          value: null
-          value_status: open
+          value: 4.0
+          value_status: assumed
           unit: '%'
         filters: []
     L3:
@@ -78,8 +80,8 @@ trigger:
         threshold:
           basis: relative
           reference: baseline
-          value: null
-          value_status: open
+          value: 6.0
+          value_status: assumed
           unit: '%'
         filters: []
   gating_rules:
@@ -151,6 +153,6 @@ governance:
 quality_rules:
 - All kpi_id values must exist in KPI catalog.
 - Trigger severity must be strictly increasing from L1 to L3.
-- Thresholds stay value null with value_status open until the owner sets them; status stays draft until then.
+- Thresholds are assumptions (value_status assumed) until the owner confirms them; status stays draft until then.
 - If status=deprecated then lifecycle.replaced_by is required.
 - 'No free-text trigger notes: use gating_rules and structured filters.'
