@@ -350,7 +350,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
             "E-Mail-Abonnements, Copilot, Capacity-Metrics-App und tenantuebergreifende Shortcuts "
             "(MS Learn: fabric/security/security-private-links-overview); nachtraeglich nur mit "
             "Neuaufbau der Quellanbindung zu drehen — deshalb vor dem ersten Lakehouse.")
-    # D-NEU-trennung-1 (30.10.2026): ein Workspace, dem das IR ein eigenes Lakehouse nennt
+    # D-852 (30.10.2026): ein Workspace, dem das IR ein eigenes Lakehouse nennt
     # (Hub and Spoke, `workspaces[].lakehouse`), bekommt es auch mit einer Schichtrolle — eine
     # Schicht je Workspace heisst ein Lakehouse je Schicht. Ohne Namen im IR (per_layer) bleibt
     # es beim Gold-Lakehouse allein.
