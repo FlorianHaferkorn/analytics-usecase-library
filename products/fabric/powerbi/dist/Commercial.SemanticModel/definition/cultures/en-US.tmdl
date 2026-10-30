@@ -240,6 +240,52 @@ culture en-US
 							}
 						]
 					},
+					"dim_product.private_label_flag": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_product",
+								"ConceptualProperty": "Private Label Flag"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Private Label Flag": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Private Label": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Own Brand": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Store Brand": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Eigenmarke": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							},
+							{
+								"Handelsmarke": {
+									"Type": "Noun",
+									"State": "Authored"
+								}
+							}
+						]
+					},
 					"dim_promo.promoname": {
 						"Definition": {
 							"Binding": {

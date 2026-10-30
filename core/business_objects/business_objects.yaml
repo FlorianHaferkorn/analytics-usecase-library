@@ -1590,6 +1590,14 @@ business_objects:
     target_state: false
     personal_data: null
     personal_data_category: null
+  - name: Private Label Flag
+    type: boolean
+    description: True if the SKU is sold under the retailer's own brand (private label), false for manufacturer
+      brands.
+    column: Private Label Flag
+    target_state: false
+    personal_data: null
+    personal_data_category: null
   - name: ProductFamily
     type: string
     description: null
@@ -1637,7 +1645,8 @@ business_objects:
     table: dim_product
     schema: null
     layer: null
-  kpi_ids: []
+  kpi_ids:
+  - KPI-COM-033
 - id: BO-027
   name:
     de: Projekt

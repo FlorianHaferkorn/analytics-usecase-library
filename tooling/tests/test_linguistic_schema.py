@@ -190,8 +190,8 @@ def test_emit_for_domain_idempotent(tmp_path):
     assert first == second
     # 12 synonym-bearing commercial entities: 8 after the dim_promo additions (was 3), plus
     # dim_org.Country, dim_product.Category/Subcategory, dim_customer.Region from the conformed
-    # definitions (29.09.2026)
-    assert (n1, n2) == (12, 12)
+    # definitions (29.09.2026); 13 with dim_product.Private Label Flag (30.10.2026)
+    assert (n1, n2) == (13, 13)
     assert added1 is True and added2 is False           # ref added once, not duplicated
     assert model_after_first == model_after_second
     assert model_after_first.count("ref culture en-US") == 1

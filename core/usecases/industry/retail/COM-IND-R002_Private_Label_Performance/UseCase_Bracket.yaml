@@ -17,8 +17,9 @@ orchestration:
   influencing_kpi_ids: []
   supporting_kpi_ids:
   - KPI-COM-005
-  # C-M2.3 (02.10.2026, BO-120) is status draft: KPI-COM-033 is op:hitl (no own-brand flag in
-  # the data contract), so no level can fire yet; thresholds are assumptions since 30.10.2026.
+  # C-M2.3 (02.10.2026, BO-120) is status draft: its thresholds are assumptions (30.10.2026) until
+  # the category owner confirms them. Since 30.10.2026 KPI-COM-033 is computable (Private Label
+  # Flag in dim_product, measure in the Commercial model).
   # C-M2.4 (30.10.2026, ADR-0028) is the Forecast companion: lower edge of the 80 % interval one
   # month ahead against the same levels; draft until the forecast measures exist.
   # Page 2 stays an exception queue (T3) until the action codes are active.
@@ -111,7 +112,9 @@ data_protection:
   dpia_required: false
   ai_generated_output: false
 readiness:
-  data_availability: missing
+  # partial (30.10.2026): Private Label Flag in the contract and in the Aurora generator, KPI-COM-033
+  # computable; the forecast measures for C-M2.4 are missing (method open).
+  data_availability: partial
   org_capability: developing
   stakeholder_alignment: partial
   overall_readiness: red

@@ -403,3 +403,22 @@ def test_never_emits_colon_equals():
     ]
     for resolved in cases:
         assert ":=" not in d.synthesize_dax(resolved)
+
+
+def test_sum_filtered_with_dimension_filter():
+    resolved = {"op": "sum_filtered", "table": "fact_sales", "column": "Net Sales Amount",
+                "filters": [{"table": "dim_product", "column": "Private Label Flag", "equals": True}]}
+    assert d.synthesize_dax(resolved) == (
+        "CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), dim_product[Private Label Flag] = TRUE () )")
+
+
+@pytest.mark.parametrize(
+    "resolved",
+    [
+        {"op": "sum_filtered", "table": "t", "filters": [{"table": "t", "column": "c", "equals": True}]},
+        {"op": "sum_filtered", "table": "t", "column": "c", "filters": []},
+    ],
+)
+def test_sum_filtered_malformed_raises(resolved):
+    with pytest.raises(d.SynthesisError):
+        d.synthesize_dax(resolved)

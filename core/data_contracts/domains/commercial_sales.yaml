@@ -67,7 +67,9 @@ dimension:
     # Konforme Dimension (Bus-Matrix, 29.09.2026): die einzige Definition, Vereinigung aus
     # commercial_sales, finance, growth, operations, supply_chain. Subcategory bleibt nie NULL
     # (Aurora-Gold: 0 NULL in 5.000 Zeilen), obwohl drei Fassungen `nullable: true` trugen.
-    uses_columns: [ProductKey, ProductCode, ProductName, Category, Subcategory, Brand, ProductFamily, Lifecycle Status, List Price Amount]
+    # Private Label Flag (30.10.2026, KPI-COM-033): Eigenmarke ja/nein je SKU; Aurora-Gold leitet
+    # es in showcases/aurora_group/data/gold/_model_columns.py ab (Anteil je Kategorie: Annahme).
+    uses_columns: [ProductKey, ProductCode, ProductName, Category, Subcategory, Brand, Private Label Flag, ProductFamily, Lifecycle Status, List Price Amount]
     columns:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
@@ -75,6 +77,7 @@ dimension:
       - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics], synonyms: [Product Group, Warengruppe, Produktgruppe]}
       - {name: Subcategory, type: text, allowed_values: [Apparel, Footwear, Accessories, Jewelry, Furniture, Decor, Kitchenware, Bedding, Lighting, TVs, Audio, Computers, Smartphones, Gaming], synonyms: [Sub Category, Untergruppe, Unterkategorie]}
       - {name: Brand, type: text}
+      - {name: Private Label Flag, type: boolean, description: "True if the SKU is sold under the retailer's own brand (private label), false for manufacturer brands.", synonyms: [Private Label, Own Brand, Store Brand, Eigenmarke, Handelsmarke]}
       - {name: ProductFamily, type: text, nullable: true, target_state: true}   # for comparable item grouping (cannibalization)
       - {name: Lifecycle Status, type: text, allowed_values: [Active, EOL]}
       - {name: List Price Amount, type: currency}

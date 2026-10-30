@@ -88,3 +88,16 @@ immer `open`, ohne Prüfung gegen `value`.
   Katalog führt keine, und `fact_emissions[Target Emissions tCO2e]` steht nur im Datenvertrag.
   Solange sie fehlt, bricht die Ableitung für E-S1.1 ab. Heute bleibt das folgenlos, weil es
   kein ESG-Modell gibt.
+
+## 7. Nachtrag 30.10.2026: KPI-COM-033 rechenbar, Prognose offen
+
+- `dim_product` trägt `Private Label Flag` (Vertrag `commercial_sales`), KPI-COM-033 hat das
+  Measure „Private Label Penetration %“ im Commercial-Modell (Op `sum_filtered`). C-M2.3 bleibt
+  `draft`, weil die Schwellen Annahmen sind (eigene Qualitätsregel des Codes).
+- C-M2.4 bleibt `draft`: die drei Prognose-Measures fehlen weiter. Das Verfahren (Punkt und
+  80-%-Intervall) ist eine fachliche Entscheidung und liegt Florian als Frage vor; das Repo hat
+  kein Prognosemuster mit Intervall (`fact_forecast` in SupplyChain/Growth trägt nur
+  Punktprognosen aus einem Planungssystem).
+
+- KPI-ESG-001 ist mit derselben Operation rechenbar (Summe Scope 1 + Scope 2). Die Plan-KPI aus
+  §6 fehlt weiter; die Ableitung für E-S1.1 bricht deshalb weiter ab, ohne ESG-Modell folgenlos.

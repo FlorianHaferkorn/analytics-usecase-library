@@ -4,8 +4,9 @@ name: Private Label Share Forecast Warning
 # Added 30.10.2026 (ADR-0028): first action code of trigger type Forecast, the early companion of C-M2.3.
 # C-M2.3 fires once the own-brand share has fallen; C-M2.4 fires when the lower edge of the 80 %
 # prediction interval one month ahead crosses the same levels against the baseline, so the category
-# can act before the fall. status draft on purpose: KPI-COM-033 is op:hitl (no own-brand flag in
-# dim_product) and the three forecast measures do not exist in any model yet.
+# can act before the fall. status draft on purpose: the three forecast measures do not exist in
+# any model yet (open question: forecast method, 30.10.2026). Since 30.10.2026 dim_product carries
+# Private Label Flag and KPI-COM-033 has a measure in the Commercial model.
 # Thresholds set 30.10.2026 as an assumption (value_status: assumed): -2 / -4 / -6 % against the
 # baseline, the same as C-M2.3. ANNAHME, ungeprueft - no measured or benchmarked number; the category
 # owner confirms or replaces them, then value_status: set.
@@ -98,7 +99,6 @@ trigger:
           unit: '%'
         filters: []
   gating_rules:
-  - Do not evaluate until dim_product carries an own-brand flag in the commercial_sales contract and KPI-COM-033 has a measure
   - Read per category; a falling total share from category mix alone is no trigger
   - Do not evaluate until the three forecast measures exist and the interval is calibrated on at least 12 months
   - Suppress while C-M2.3 fires for the same category; the review is already running
@@ -131,7 +131,7 @@ impact:
     level: Low
     rationale:
     - ANNAHME, ungeprueft - the margin gap between own brand and brand is not measured in the library; the EUR value follows only from the formula above once both margins are measured
-    - KPI-COM-033 is op:hitl (no own-brand attribute in the data contract)
+    - KPI-COM-033 is measured only on synthetic showcase data (Aurora); its category shares are generator assumptions, not observations
 operational_execution:
   stakeholders:
   - Category Management
