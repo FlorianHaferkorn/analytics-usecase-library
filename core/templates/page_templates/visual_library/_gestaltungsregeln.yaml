@@ -257,6 +257,7 @@ regeln:
     max_reihen: 4
     rubrik: [BC-CHART-03, BC-DV-05]   # beide tragen thresholds.direct_labels_max == max_reihen (Test)
     abstand_px: 6
+    endwert_abstand_px: 8   # der Endwert der Ist-Linie steht rechtsbündig links über dem letzten Punkt (dx -8); rechts vom Linienende nur Serienlabels (line 2.2.1, Meridian G14 29.10.2026: 'PL' überdeckte den zentrierten Endwert '41,4')
     umsetzung:
       status: teilweise
       wo: ["line (house_default, print_safe, ibcs): Plan, PY, FC am letzten Punkt; deneb_vegalite, fabric_app, html_vegalite",

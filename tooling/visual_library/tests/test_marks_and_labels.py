@@ -8,6 +8,7 @@ Measured before the fix: Vega-Lite's default drew bars at 0.90 of the category i
 axis labels were 10 px next to 11 px data labels, and only the IBCS profile labelled values."""
 from __future__ import annotations
 
+import datetime as dt
 import json
 import re
 import sys
@@ -232,6 +233,89 @@ def test_ibcs_line_labels_never_cover_each_other(name, width):
     texts = _ibcs_line_texts(COCKPIT_SERIES[name], width)
     assert len(texts) >= 2, f"first and last always labelled: {texts}"
     assert not _overlaps(texts), f"{name} @ {width}px: {_overlaps(texts)}"
+
+
+# Ist gegen Plan der FIN-001-Seite im Meridian-Cockpit (Profil ibcs, 29.10.2026): der Plan endet wenige Pixel über dem
+# letzten Ist-Punkt. G14 (Fabric-App-Tor) maß in allen Breiten 'PL' über '41,4' — das Serienlabel steht rechts vom
+# Linienende (dx 8), der zentrierte Endwert ragte um seine halbe Breite in dieselbe Zeile.
+COCKPIT_IST_PLAN = [
+    (40.3, 43.07), (40.24, 43.1), (40.27, 43.05), (40.38, 43.29), (40.85, 43.61), (40.81, 43.65), (40.85, 43.68),
+    (40.87, 43.7), (41.3, 44.13), (41.42, 44.18), (41.35, 44.17), (41.4, 44.16), (41.38, 44.01),
+]
+
+
+def _text_boxes(spec: dict) -> list[tuple[str, float, float, float, float]]:
+    """(Text, x0, y0, x1, y1) jeder sichtbaren Beschriftung aus dem Szenengraphen, mit align, dx, dy und baseline.
+    Breite wie `_overlaps` und G14: 11 px Schrift, rund 6,2 px je Zeichen, 12 px hoch."""
+    vlc = pytest.importorskip("vl_convert")
+    out: list[tuple[str, float, float, float, float]] = []
+
+    def walk(node, ox=0.0, oy=0.0):
+        if isinstance(node, dict):
+            if node.get("marktype") == "text" and node.get("role") == "mark":
+                for it in node.get("items", []):
+                    text = str(it.get("text") or "")
+                    if not text.strip() or it.get("opacity", 1) == 0:
+                        continue
+                    size = float(it.get("fontSize", 11))
+                    w, h = 6.2 * len(text) * size / 11, 12.0 * size / 11
+                    x = ox + it.get("x", 0) + it.get("dx", 0)
+                    y = oy + it.get("y", 0) + it.get("dy", 0)
+                    x0 = x - {"left": 0.0, "center": w / 2, "right": w}[it.get("align", "center")]
+                    y0 = y - {"middle": h / 2, "top": 0.0, "bottom": h}.get(it.get("baseline", "alphabetic"), 0.8 * h)
+                    out.append((text, x0, y0, x0 + w, y0 + h))
+                return
+            if node.get("marktype") == "group":
+                for it in node.get("items", []):
+                    walk({"_g": it.get("items", [])}, ox + it.get("x", 0), oy + it.get("y", 0))
+                return
+            for v in node.values():
+                walk(v, ox, oy)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v, ox, oy)
+
+    walk(vlc.vegalite_to_scenegraph(spec).get("scenegraph"))
+    return out
+
+
+def _scene_marks(node, marktype: str) -> list[dict]:
+    """Alle Mark-Knoten eines Typs im Szenengraphen."""
+    if isinstance(node, dict):
+        own = [node] if node.get("role") == "mark" and node.get("marktype") == marktype else []
+        return own + [m for v in node.values() for m in _scene_marks(v, marktype)]
+    if isinstance(node, list):
+        return [m for v in node for m in _scene_marks(v, marktype)]
+    return []
+
+
+def _box_overlaps(boxes: list[tuple[str, float, float, float, float]], tol: float = 2.0) -> list[tuple[str, str]]:
+    """Paare, deren Boxen sich in x und y um mehr als `tol` überlappen (Toleranz wie G14, COLLISION_TOL_PX)."""
+    return [(a[0], b[0]) for i, a in enumerate(boxes) for b in boxes[i + 1:]
+            if min(a[3], b[3]) - max(a[1], b[1]) > tol and min(a[4], b[4]) - max(a[2], b[2]) > tol]
+
+
+@pytest.mark.parametrize("width", [240, 300, 600, 900])
+def test_ibcs_end_value_and_series_label_never_cover_each_other(width):
+    """line 2.2.1: der Endwert steht links über dem letzten Punkt (rechtsbündig, dx -8 wie house_default), rechts vom
+    Linienende stehen nur die Serienlabels (Regel serienlabel). Gegenprobe: mit dem zentrierten Endwert aus 2.2.0
+    überdeckt 'PL' den Wert '41,4' in jeder dieser Breiten."""
+    rows = [{"Periode": (dt.date(2026, 7, 6) + dt.timedelta(weeks=i)).isoformat(), "Ist": a, "Plan": p}
+            for i, (a, p) in enumerate(COCKPIT_IST_PLAN)]
+    spec = _spec("line", "ibcs", {"time": "Periode", "value": "Ist", "plan": "Plan"}, rows)
+    spec["width"], spec["height"] = width, 160
+    boxes = _text_boxes(spec)
+    texts = [b[0] for b in boxes]
+    assert "PL" in texts and "41,4" in texts, texts
+    assert not _box_overlaps(boxes), f"{width}px: {_box_overlaps(boxes)}"
+    # Abstand aus dem Register (Regel serienlabel), gemessen am Szenengraphen: der Endwert endet links vom Punkt
+    abstand = gestaltung.regel("serienlabel")["endwert_abstand_px"]
+    vlc = pytest.importorskip("vl_convert")
+    werte = [it for m in _scene_marks(vlc.vegalite_to_scenegraph(spec), "text") for it in m.get("items", [])
+             if str(it.get("text")) == "41,4"]          # Maximum (41,42, zentriert) und Endwert (41,38)
+    ende = max(werte, key=lambda it: it["x"])
+    assert (ende.get("align"), ende.get("dx")) == ("right", -abstand), werte
+    assert all(it.get("align") == "center" for it in werte if it is not ende), werte
 
 
 def test_ibcs_line_labels_a_tied_extremum_once():
