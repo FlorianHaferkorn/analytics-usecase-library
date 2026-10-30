@@ -7,6 +7,9 @@ name: Private Label Assortment Review
 # Thresholds set 30.10.2026 as an assumption (value_status: assumed): -2 / -4 / -6 % against the
 # baseline, Florian Haferkorn ("nimm was realistisches"). ANNAHME, ungeprueft - no measured or
 # benchmarked number; the category owner confirms or replaces them, then value_status: set.
+# 30.10.2026: the data prerequisites are met - dim_product carries Private Label Flag in the
+# commercial_sales contract and KPI-COM-033 has a measure in the Commercial model. status stays
+# draft by the quality rule below (thresholds are assumptions until the owner confirms them).
 inherits_decision_spine: null
 owner_domain: Commercial
 impact_dimension: Profitability
@@ -85,7 +88,6 @@ trigger:
           unit: '%'
         filters: []
   gating_rules:
-  - Do not evaluate until dim_product carries an own-brand flag in the commercial_sales contract and KPI-COM-033 has a measure
   - Read per category; a falling total share from category mix alone is no trigger
 impact_valuation:
   method: DirectMarginImprovement
@@ -113,7 +115,7 @@ impact:
     level: Low
     rationale:
     - ANNAHME, ungeprueft - the margin gap between own brand and brand is not measured in the library; the EUR value follows only from the formula above once both margins are measured
-    - KPI-COM-033 is op:hitl (no own-brand attribute in the data contract)
+    - KPI-COM-033 is measured only on synthetic showcase data (Aurora); its category shares are generator assumptions, not observations
 operational_execution:
   stakeholders:
   - Category Management

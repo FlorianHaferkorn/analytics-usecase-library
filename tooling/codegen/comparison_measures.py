@@ -296,8 +296,10 @@ def tabelle_tmdl(model: str, modus: str | None = None) -> str:
 BEZIEHUNG = f"relationship dim_date_{TABELLE}\n\tfromColumn: {TABELLE}.DateKey\n\ttoColumn: dim_date.DateKey\n"
 
 
-def _ohne_generierte(text: str) -> str:
-    """Entfernt alle Measure-Bloecke mit der Generator-Annotation (samt /// davor)."""
+def _ohne_generierte(text: str, wert: str = "comparison_measures") -> str:
+    """Entfernt alle Measure-Bloecke mit der Annotation `MARKE = wert` (samt /// davor).
+
+    `wert` erlaubt anderen Modell-Generatoren (`forecast_measures`) dieselbe Blocklogik."""
     zeilen = text.split("\n")
     bloecke, akt = [], []
     for z in zeilen:
@@ -308,7 +310,7 @@ def _ohne_generierte(text: str) -> str:
             akt = []
         akt.append(z)
     bloecke.append(akt)
-    behalten = [b for b in bloecke if f"annotation {MARKE} = \"comparison_measures\"" not in "\n".join(b)]
+    behalten = [b for b in bloecke if f"annotation {MARKE} = \"{wert}\"" not in "\n".join(b)]
     return "\n".join("\n".join(b) for b in behalten)
 
 

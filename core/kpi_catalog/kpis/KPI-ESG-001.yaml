@@ -30,13 +30,23 @@ technical:
   - fact_emissions.Emissions tCO2e
   - dim_emission_scope.ScopeCode
   calculation:
-    op: hitl
-    blocked_by: grammar
-    reason: CALCULATE ( SUM ( fact_emissions[Emissions tCO2e] ), dim_emission_scope[ScopeCode] IN { "SCOPE_1",
-      "SCOPE_2" } ) — a sum under a column-value filter; the grammar has no filtered
-      sum over a related dimension's column (count_filtered/avg_filtered filter only the KPI's own lineage table).
-    pattern: calculate_sum_with_dimension_filter
-    occurrences_in_corpus: 0
+    # 30.10.2026: vorher op:hitl blocked_by grammar (Muster calculate_sum_with_dimension_filter).
+    # Mit dem zweiten Vorkommen (KPI-COM-033) kam sum_filtered; IN { SCOPE_1, SCOPE_2 } ist die
+    # Summe zweier gefilterter Summen. Kein ESG-Modell in dist, nicht gegen Daten gemessen.
+    op: add
+    terms:
+    - calc:
+        op: sum_filtered
+        column: Emissions tCO2e
+        filters:
+        - column: ScopeCode
+          equals: SCOPE_1
+    - calc:
+        op: sum_filtered
+        column: Emissions tCO2e
+        filters:
+        - column: ScopeCode
+          equals: SCOPE_2
 governance:
   business_owner: TBD
   data_owner: TBD

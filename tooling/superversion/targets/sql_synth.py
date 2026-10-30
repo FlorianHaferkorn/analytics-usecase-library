@@ -10,7 +10,7 @@ Like `dax_synth.py`, this is the ONLY place SQL syntax is constructed for the
 calculation grammar; `from_aluca.py` never imports this module either (I1:
 the source adapter stays dialect-neutral for every stack, not just Power BI).
 
-Grammar coverage — 16 of the 23 ops translate to a flat SQL aggregate
+Grammar coverage — 17 of the 24 ops translate (`sum_filtered` only without a dimension filter) to a flat SQL aggregate
 expression (a Databricks Metric View measure `expr` is exactly that: one
 SQL expression over the view's single `source` table, no subquery):
 
@@ -30,6 +30,8 @@ SQL expression over the view's single `source` table, no subquery):
     avg              -- AVG ( column )
     count_filtered   -- COUNT ( CASE WHEN <filters> THEN 1 END )   (filters: bool/string equality, or IS NOT NULL)
     avg_filtered     -- AVG ( CASE WHEN <filters> THEN column END )   (same filter shapes as count_filtered)
+    sum_filtered     -- SUM ( CASE WHEN <filters> THEN column END )   (only when every filter sits on the
+                        summed column's own table; a dimension filter needs a Metric View join -> SynthesisError)
 
 Seven ops are explicit `SynthesisError` (HITL) here, never guessed: DAX's
 SUMX/AVERAGEX-over-VALUES(key) pattern (`sumx_over_key`, `avgx_over_key`), the
@@ -325,5 +327,18 @@ def synthesize_sql(resolved: dict) -> str:
             raise SynthesisError(f"avg_filtered missing table/column/filters: {resolved!r}")
         conditions = " AND ".join(_sql_filter_condition(f) for f in filters)
         return f"AVG ( CASE WHEN {conditions} THEN {_ident(column)} END )"
+
+    if op == "sum_filtered":
+        table, column = resolved.get("table"), resolved.get("column")
+        filters = resolved.get("filters") or []
+        if not table or not column or not filters:
+            raise SynthesisError(f"sum_filtered missing table/column/filters: {resolved!r}")
+        fremd = sorted({f["table"] for f in filters if f.get("table") and f["table"] != table})
+        if fremd:
+            raise SynthesisError(
+                f"sum_filtered filters on {fremd}, not on {table!r}: a Metric View is single-source; "
+                "the dimension filter needs a join, which is not a flat SQL expression")
+        conditions = " AND ".join(_sql_filter_condition(f) for f in filters)
+        return f"SUM ( CASE WHEN {conditions} THEN {_ident(column)} END )"
 
     raise SynthesisError(f"unknown op: {op!r}")

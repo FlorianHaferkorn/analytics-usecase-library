@@ -8017,10 +8017,18 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_sales.Net Sales Amount
+    - dim_product.Private Label Flag
     calculation:
-      op: hitl
-      blocked_by: data_contract
-      reason: The commercial_sales contract has no private-label attribute (dim_product carries Brand only, no own-brand flag); the numerator cannot be sourced until dim_product gains one.
+      op: ratio
+      numerator:
+        calc:
+          op: sum_filtered
+          column: Net Sales Amount
+          filters:
+          - column: Private Label Flag
+            equals: true
+      denominator:
+        column: Net Sales Amount
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -8122,11 +8130,20 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_emissions.Emissions tCO2e
     - dim_emission_scope.ScopeCode
     calculation:
-      op: hitl
-      blocked_by: grammar
-      reason: CALCULATE ( SUM ( fact_emissions[Emissions tCO2e] ), dim_emission_scope[ScopeCode] IN { "SCOPE_1", "SCOPE_2" } ) — a sum under a column-value filter; the grammar has no filtered sum over a related dimension's column (count_filtered/avg_filtered filter only the KPI's own lineage table).
-      pattern: calculate_sum_with_dimension_filter
-      occurrences_in_corpus: 0
+      op: add
+      terms:
+      - calc:
+          op: sum_filtered
+          column: Emissions tCO2e
+          filters:
+          - column: ScopeCode
+            equals: SCOPE_1
+      - calc:
+          op: sum_filtered
+          column: Emissions tCO2e
+          filters:
+          - column: ScopeCode
+            equals: SCOPE_2
   governance:
     business_owner: TBD
     data_owner: TBD

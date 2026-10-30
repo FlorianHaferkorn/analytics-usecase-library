@@ -194,7 +194,7 @@ def _resolve_calc_ref(ref: dict, own_cols: dict[str, str], lineage: list[str], c
 
 
 def _resolve_calc_filters(filters: list[dict], own_cols: dict[str, str]) -> list[dict]:
-    """Shared `count_filtered`/`avg_filtered` filter-list resolution: each filter's
+    """Shared `count_filtered`/`avg_filtered`/`sum_filtered` filter-list resolution: each filter's
     `column` must be in this KPI's own lineage; raises KeyError (never a silent
     placeholder) if not."""
     resolved = []
@@ -383,6 +383,14 @@ def _resolve_calc_node(
                 raise KeyError(column)
             filters = _resolve_calc_filters(calc["filters"], own_cols)
             return {"op": "avg_filtered", "table": table, "column": column, "filters": filters}, None
+
+        if op == "sum_filtered":
+            column = calc["column"]
+            table = own_cols.get(column)
+            if not table:
+                raise KeyError(column)
+            filters = _resolve_calc_filters(calc["filters"], own_cols)
+            return {"op": "sum_filtered", "table": table, "column": column, "filters": filters}, None
     except KeyError as exc:
         return None, f"(op={op!r}) failed to resolve ({exc})"
 

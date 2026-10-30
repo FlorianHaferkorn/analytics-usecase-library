@@ -307,3 +307,24 @@ def test_order_measure_names_cycle_never_hangs_and_appends_leftovers():
 
 def test_order_measure_names_empty_input():
     assert s.order_measure_names([]) == []
+
+
+def test_sum_filtered_on_own_table():
+    resolved = {"op": "sum_filtered", "table": "fact_sales", "column": "Net Sales Amount",
+                "filters": [{"table": "fact_sales", "column": "Promo Flag", "equals": True}]}
+    assert s.synthesize_sql(resolved) == "SUM ( CASE WHEN `Promo Flag` = TRUE THEN `Net Sales Amount` END )"
+
+
+@pytest.mark.parametrize(
+    "resolved",
+    [
+        # Dimensionsfilter: eine Metric View ist single-source, der Join ist kein flacher Ausdruck.
+        {"op": "sum_filtered", "table": "fact_sales", "column": "Net Sales Amount",
+         "filters": [{"table": "dim_product", "column": "Private Label Flag", "equals": True}]},
+        {"op": "sum_filtered", "table": "t", "filters": [{"table": "t", "column": "c", "equals": True}]},
+        {"op": "sum_filtered", "table": "t", "column": "c", "filters": []},
+    ],
+)
+def test_sum_filtered_without_flat_shape_or_malformed_raises(resolved):
+    with pytest.raises(s.SynthesisError):
+        s.synthesize_sql(resolved)
