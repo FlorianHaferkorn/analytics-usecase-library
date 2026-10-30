@@ -129,6 +129,49 @@ def test_relative_without_baseline_window_is_an_error():
         atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})
 
 
+def _prognose(compare="point", basis="relative"):
+    ac = _code(basis=basis, unit="%", reference="baseline") if basis == "relative" else _code(basis=basis, unit="%")
+    for L in ("L1", "L2", "L3"):
+        ac["trigger"]["levels"][L]["condition"]["comparator"] = "lt"
+    ac["trigger"]["type"] = "Forecast"
+    ac["trigger"]["forecast"] = {"horizon": {"length": 3, "unit": "months"}, "forecast_measure": "K FC",
+                                 "compare": compare,
+                                 "band": {"kind": "prediction_interval", "level": 0.8,
+                                          "lower_measure": "K FC lo", "upper_measure": "K FC hi"}}
+    ac["trigger"]["evaluation"] = {"grain": "month", "persistence": {"required": True, "min_consecutive_periods": 2}}
+    return ac
+
+
+DEF = {"K", "K FC", "K FC lo", "K FC hi"}
+
+
+def test_forecast_compares_the_forecast_and_keeps_the_actual_as_baseline():
+    dax, offen = atd.dax_fuer(_prognose(), {"k": "K"}, {"k": "percent_1"}, definiert=DEF)
+    assert "VAR _v0 = [K FC]" in dax
+    assert "CALCULATE ( [K]," in dax                  # Basis aus dem Ist-Verlauf
+    assert "_v0 < _b0 * 0.99 )" in dax                # L1 -1 % gegen die Basis
+    assert "Prognose " in dax
+    assert offen == ["persistence"]                   # fruehere Prognosestaende fehlen im Modell
+
+
+def test_forecast_band_edge_uses_its_own_measure():
+    lo, _ = atd.dax_fuer(_prognose("band_lower"), {"k": "K"}, {"k": "percent_1"}, definiert=DEF)
+    hi, _ = atd.dax_fuer(_prognose("band_upper"), {"k": "K"}, {"k": "percent_1"}, definiert=DEF)
+    assert "VAR _v0 = [K FC lo]" in lo and "VAR _v0 = [K FC hi]" in hi
+
+
+def test_forecast_measure_missing_in_the_model_is_an_error():
+    with pytest.raises(atd.Fehler, match="Prognose-Measure 'K FC lo'"):
+        atd.dax_fuer(_prognose("band_lower"), {"k": "K"}, {"k": "percent_1"}, definiert={"K", "K FC"})
+
+
+def test_deviation_gegenprobe_reads_the_actual():
+    ac = _prognose()
+    ac["trigger"]["type"] = "Deviation"
+    dax, offen = atd.dax_fuer(ac, {"k": "K"}, {"k": "percent_1"}, definiert=DEF)
+    assert "VAR _v0 = [K]" in dax and "[K FC]" not in dax and "persistence" not in offen
+
+
 def test_band_and_abs_comparators():
     ac = copy.deepcopy(_code(basis="absolute", unit="%"))
     for L in ("L1", "L2", "L3"):
@@ -162,3 +205,58 @@ def test_persistence_changes_the_expression_gegenprobe():
     assert "= _idx - 1 )" in dax and "= _idx - 2 )" in dax and "persistence" not in offen
     ac["trigger"]["evaluation"]["persistence"]["required"] = False
     assert "_idx" not in atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})[0]
+
+
+def test_c_m2_4_reads_the_lower_forecast_edge():
+    """Erster Forecast-Code (ADR-0028): unterer Rand des 80-%-Intervalls gegen C-M2.3-Stufen."""
+    ac = atd.action_codes()["C-M2.4"]
+    namen = {"KPI-COM-033": "Private Label Penetration %", "KPI-COM-005": "Net Sales Amount"}
+    fc = {"Private Label Penetration %", "Private Label Penetration % Forecast",
+          "Private Label Penetration % Forecast Lower", "Private Label Penetration % Forecast Upper"}
+    dax, offen = atd.dax_fuer(ac, namen, {"KPI-COM-033": "percent_1"}, definiert=fc)
+    assert "VAR _v0 = [Private Label Penetration % Forecast Lower]" in dax
+    assert "_v0 < _b0 * 0.98 )" in dax and "_v0 < _b0 * 0.94 )" in dax
+    assert "persistence" in offen and "gating_rules" in offen
+    with pytest.raises(atd.Fehler, match="Prognose-Measure"):
+        atd.dax_fuer(ac, namen, {"KPI-COM-033": "percent_1"}, definiert={"Private Label Penetration %"})
+
+
+# reference: target (Entscheidung Flo 30.10.2026, ADR-0028 Nachtrag): Abweichung vom Ziel-Measure,
+# das der Katalog als plan_kpi_ref der Trigger-KPI fuehrt.
+ZIEL = {"k": "K", "p": "K Ziel"}
+
+
+def test_target_reference_in_percent_is_relative_to_the_target():
+    dax, _ = atd.dax_fuer(_code(basis="target", unit="%", reference="target"), ZIEL,
+                          {"k": "count_0"}, definiert={"K", "K Ziel"}, plan_ref={"k": "p"})
+    assert "VAR _z0 = [K Ziel]" in dax
+    assert "NOT ISBLANK ( _z0 ) && _v0 > _z0 * 1.01 )" in dax     # L1 +1 % ueber dem Ziel
+    assert "_v0 > _z0 * 1.03 )" in dax
+
+
+def test_target_reference_in_units_is_additive():
+    dax, _ = atd.dax_fuer(_code(basis="absolute", unit="days", reference="target"), ZIEL,
+                          {"k": "days_0"}, definiert={"K", "K Ziel"}, plan_ref={"k": "p"})
+    assert "_v0 > _z0 + 2 )" in dax
+
+
+def test_target_without_reference_stays_a_level():
+    dax, _ = atd.dax_fuer(_code(basis="target", unit="days"), ZIEL, {"k": "days_0"},
+                          plan_ref={"k": "p"})
+    assert "_z0" not in dax and "_v0 > 3 )" in dax
+
+
+def test_target_reference_without_plan_kpi_is_an_error():
+    with pytest.raises(atd.Fehler, match="plan_kpi_ref"):
+        atd.dax_fuer(_code(basis="target", unit="%", reference="target"), ZIEL, {"k": "count_0"})
+
+
+def test_target_reference_with_plan_kpi_missing_in_the_model_is_an_error():
+    with pytest.raises(atd.Fehler, match="Ziel-KPI 'p'"):
+        atd.dax_fuer(_code(basis="target", unit="%", reference="target"), ZIEL, {"k": "count_0"},
+                     definiert={"K"}, plan_ref={"k": "p"})
+
+
+def test_e_s1_1_compares_against_the_target():
+    th = atd.action_codes()["E-S1.1"]["trigger"]["levels"]["L1"]["condition"]["threshold"]
+    assert th["reference"] == "target" and th["value"] == 5.0

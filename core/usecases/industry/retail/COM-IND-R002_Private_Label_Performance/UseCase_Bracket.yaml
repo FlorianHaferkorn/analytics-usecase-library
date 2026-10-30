@@ -18,10 +18,13 @@ orchestration:
   supporting_kpi_ids:
   - KPI-COM-005
   # C-M2.3 (02.10.2026, BO-120) is status draft: KPI-COM-033 is op:hitl (no own-brand flag in
-  # the data contract) and the thresholds are open owner decisions, so no level can fire yet.
-  # Page 2 stays an exception queue (T3) until the action code is active.
+  # the data contract), so no level can fire yet; thresholds are assumptions since 30.10.2026.
+  # C-M2.4 (30.10.2026, ADR-0028) is the Forecast companion: lower edge of the 80 % interval one
+  # month ahead against the same levels; draft until the forecast measures exist.
+  # Page 2 stays an exception queue (T3) until the action codes are active.
   action_code_ids:
   - C-M2.3
+  - C-M2.4
 primary_kpi_ids:
 - KPI-COM-033
 value_driver_model:

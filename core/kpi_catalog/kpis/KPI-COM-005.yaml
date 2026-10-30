@@ -13,6 +13,7 @@ use_case_ref:
 action_code_ref:
 - C-E1.1
 - C-M2.3
+- C-M2.4
 - C-S1.1
 - C-S1.2
 calc_type: amount

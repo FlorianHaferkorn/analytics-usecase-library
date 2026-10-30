@@ -3,8 +3,11 @@ id: C-E1.1
 name: E-Commerce Share Recovery
 # Added 02.10.2026 (BO-120): first action code for COM-006. status draft on purpose: the trigger KPI
 # KPI-COM-032 is op:hitl (open decision which dim_org[Channel] values count as e-commerce), so no
-# level can fire until that measure exists. Thresholds are open customer decisions (value: null,
-# value_status: open); nothing here is a measured or benchmarked number.
+# level can fire until that measure exists.
+# Thresholds set 30.10.2026 as an assumption (value_status: assumed): -3 / -6 / -10 % against the
+# baseline, Florian Haferkorn (wie C-M2.3, "Ja, als Annahme"); the channel share moves more than the
+# own-brand share, hence the wider steps. ANNAHME, ungeprueft - no measured or benchmarked number;
+# the channel owner confirms or replaces them, then value_status: set.
 inherits_decision_spine: null
 owner_domain: Commercial
 impact_dimension: Growth
@@ -55,8 +58,8 @@ trigger:
         threshold:
           basis: relative
           reference: baseline
-          value: null
-          value_status: open
+          value: 3.0
+          value_status: assumed
           unit: '%'
         filters: []
     L2:
@@ -67,8 +70,8 @@ trigger:
         threshold:
           basis: relative
           reference: baseline
-          value: null
-          value_status: open
+          value: 6.0
+          value_status: assumed
           unit: '%'
         filters: []
     L3:
@@ -79,8 +82,8 @@ trigger:
         threshold:
           basis: relative
           reference: baseline
-          value: null
-          value_status: open
+          value: 10.0
+          value_status: assumed
           unit: '%'
         filters: []
   gating_rules:
@@ -152,6 +155,6 @@ governance:
 quality_rules:
 - All kpi_id values must exist in KPI catalog.
 - Trigger severity must be strictly increasing from L1 to L3.
-- Thresholds stay value null with value_status open until the owner sets them; status stays draft until then.
+- Thresholds are assumptions (value_status assumed) until the owner confirms them; status stays draft until then.
 - If status=deprecated then lifecycle.replaced_by is required.
 - 'No free-text trigger notes: use gating_rules and structured filters.'
