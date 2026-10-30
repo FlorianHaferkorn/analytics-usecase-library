@@ -224,8 +224,10 @@ EX_2_1 = Diagrammregel(
 )
 EX_2_2 = Diagrammregel(
     "EX 2.2", 136, "warning", "Balken/Saeulen oder Bullet (kpi_card_bullet)",
-    "Echtzeit-Monitoring UND semantische Faerbung der aktuellen Abweichung (keine Wertbaender) "
-    "UND Ziel und Deutung sofort klar -- alle drei Kriterien",
+    # Der IBCS-Katalog kennt eine Ausnahme (Echtzeit-Monitoring UND semantische Faerbung UND
+    # Ziel sofort klar). ALUCA nicht: `gauge` steht ohne Bedingung auf der Deny-Liste
+    # (visual_library/index.yaml `deny`), seit 21.10.2026 auch hier ohne Ausnahme.
+    None,
 )
 EX_2_3_RADAR = Diagrammregel(
     "EX 2.3", 137, "warning", "Balken",

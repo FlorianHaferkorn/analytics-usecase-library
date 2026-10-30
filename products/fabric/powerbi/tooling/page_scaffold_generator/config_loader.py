@@ -419,7 +419,7 @@ class ConfigLoader:
     def load_kpi_id_to_calc_type_map(self) -> Dict[str, str]:
         """
         Load KPI catalog and return mapping kpi_id -> calc_type (amount/rate/ratio/
-        count/percentage/quantity/index -- see validate_kpi_catalog.ps1's
+        count/quantity/index -- enum in kpi_definition.schema.json, followed by validate_kpi_catalog.ps1's
         $allowedCalc). Used by R2.2's ONE_MESSAGE_PER_CHART design rule to check that
         a component_30s entry's declared `unit` (R2.1) matches every referenced KPI's
         own governed calc_type. Same chunk-based parsing technique as

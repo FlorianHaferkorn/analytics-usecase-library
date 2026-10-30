@@ -9,7 +9,7 @@ domain_tag:
 use_case_ref:
 - COM-005
 action_code_ref: []
-calc_type: sum
+calc_type: amount
 business:
   purpose: Measures total value of open qualified opportunities.
   definition: Sum of Opportunity Value for open qualified opportunities.

@@ -200,6 +200,15 @@ def _strip_assignment(logical: str) -> str:
     return logical.split("=", 1)[1].strip() if "=" in logical else logical.strip()
 
 
+_PLATZHALTER = {"", "tbd", "n/a", "na", "tbc", "-", "todo"}
+
+
+def _catalog_value(value: object) -> str:
+    """Katalogwert oder ``""``, wenn er fehlt oder ein Platzhalter wie TBD ist."""
+    text = str(value or "").strip()
+    return "" if text.lower() in _PLATZHALTER else text
+
+
 def build_description(kpi_id: str, repo_root: Path) -> Optional[AIDescription]:
     """Assemble the standard AI description for ``kpi_id`` from the governed sources."""
     repo_root = Path(repo_root)
@@ -239,17 +248,25 @@ def build_description(kpi_id: str, repo_root: Path) -> Optional[AIDescription]:
         if inf_name:
             drivers.append((inf_name, direction))
 
+    # Owner und Grain: der KPI-Katalog ist die Quelle (governance.business_owner,
+    # business.grain_scope). Das Measure Dictionary springt nur ein, wo der Katalog leer
+    # oder ein Platzhalter (TBD) ist. Test: tooling/tests/test_ai_description_catalog_source.py
+    kgov = kpi.get("governance") or {}
+    kbiz = kpi.get("business") or {}
+    owner = _catalog_value(kgov.get("business_owner")) or gov.get("owner", "")
+    grain = _catalog_value(kbiz.get("grain_scope")).rstrip(".") or _extract(notes, _GRAIN_RE)
+
     return AIDescription(
         kpi_id=kpi_id,
         name=name,
         definition=doc.get("description", ""),
         formula=_strip_assignment(logical),
-        grain=_extract(notes, _GRAIN_RE),
+        grain=grain,
         unit=_extract(notes, _UNIT_RE),
         good_is=str(kpi.get("good_is", "")).strip(),
         impact_dimension=kpi.get("impact_dimension", ""),
         drivers=drivers,
-        owner=gov.get("owner", ""),
+        owner=owner,
         status=gov.get("status", ""),
         action_codes=list(kpi.get("action_code_ref") or []),
         synonyms=list(kpi.get("synonyms") or []),

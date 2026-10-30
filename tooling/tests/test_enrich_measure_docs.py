@@ -26,14 +26,6 @@ MEASURE_DOC_EXCEPTIONS: dict[tuple[str, str], dict[str, str]] = {
                  "Measure_Dictionary_Commercial expression.logical ohne diese Anmerkung",
         "folgeschritt": "katalogpflege_measure_dictionary_commercial",
     },
-    ("Commercial", "Gross Margin %"): {
-        "facet": "Grain",
-        "kind": "shortened",
-        "grund": "dist_aus_anderem_dictionary_eintrag",
-        "beleg": "dist-Block = Eintrag Profitability ('month (aggregated from invoice_line)', "
-                 "Owner Profitability Analytics); Projektion = Eintrag Commercial ('month')",
-        "folgeschritt": "backlog_a4_gross_margin_pct_deduplizieren",
-    },
 }
 
 
@@ -77,7 +69,8 @@ def test_warning_lines_are_not_compared():
 def test_guarded_enrich_keeps_a_richer_block():
     text = ("table _Measures\n"
             "\t/// Gross margin divided by net sales.\n"
-            "\t/// Grain: month (aggregated from invoice_line) · Unit: %\n"
+            "\t/// Grain: Invoice line aggregated to reporting period, org, customer or product "
+            "segments, restated monthly · Unit: %\n"
             "\tmeasure 'Gross Margin %' = DIVIDE ( [a], [b] )\n")
     out, losses = enrich_text_guarded(text, _REPO)
     assert out == text

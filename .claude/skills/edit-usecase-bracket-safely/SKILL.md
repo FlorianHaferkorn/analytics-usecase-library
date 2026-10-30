@@ -34,7 +34,7 @@ Maintain bracket as the SSOT for use case orchestration; validate all references
    - `page_2_execution`: component_300s (evidence grain, action panel)
    - **Intent layer (R2.1, Cut C2):** each `component_30s` entry can declare `message`
      (1-sentence statement of what the visual shows, ≤160 chars) and `unit` (scale
-     family — `amount|rate|ratio|count|percentage|quantity|index`, matching the
+     family — the `calc_type` enum in `kpi_definition.schema.json`, matching the
      referenced KPI's own `calc_type`). `component_300s` can declare `sort_by`
      (`{measure, direction}`), `top_n` (row limit), and `highlight_rule`
      (`{column, type: data_bar}`). These become **mandatory** once

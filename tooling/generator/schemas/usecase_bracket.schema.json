@@ -446,11 +446,10 @@
                       "rate",
                       "ratio",
                       "count",
-                      "percentage",
                       "quantity",
                       "index"
                     ],
-                    "description": "Scale family this visual's measure(s) render in (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Reuses the governed calc_type vocabulary from core/kpi_catalog (see validate_kpi_catalog.ps1's $allowedCalc) rather than inventing a parallel one -- should match the referenced kpi_id's/kpi_ids' own calc_type. Exists to make one-message-per-chart / no-mixed-scale-axis a declared intent the generator (R2.3) and design_rules.yaml (R2.2) can check, not just an emergent property of measures picked."
+                    "description": "Scale family this visual's measure(s) render in (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Reuses the governed calc_type vocabulary (enum in kpi_definition.schema.json, the source) rather than inventing a parallel one -- should match the referenced kpi_id's/kpi_ids' own calc_type. Exists to make one-message-per-chart / no-mixed-scale-axis a declared intent the generator (R2.3) and design_rules.yaml (R2.2) can check, not just an emergent property of measures picked."
                   },
                   "so_what": {
                     "type": "string",

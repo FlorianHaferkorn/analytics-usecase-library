@@ -8,7 +8,7 @@ domain_tag:
 use_case_ref:
 - HR-001
 action_code_ref: []
-calc_type: avg
+calc_type: index
 good_is: higher
 business:
   purpose: Measures employee engagement / eNPS from periodic surveys.

@@ -74,7 +74,8 @@ def test_ausnahmen_wie_im_katalog():
     katalog = {r["rule_id"]: r["parameters"] for r in yaml.safe_load(KATALOG.read_text(encoding="utf-8"))}
     # EX 2.1: Ausnahme nur auf Kartenpunkt, max. 3 Werte -> fuer pieChart/donutChart nicht erklaerbar
     assert katalog["EX 2.1"]["max_values_per_pie"] == 3 and EX_2_1.ausnahme is None
-    assert len(katalog["EX 2.2"]["exception_all_of"]) == 3 and "alle drei" in EX_2_2.ausnahme
+    # EX 2.2: der Katalog fuehrt drei Kriterien, ALUCA erklaert keine davon (gauge = deny)
+    assert len(katalog["EX 2.2"]["exception_all_of"]) == 3 and EX_2_2.ausnahme is None
     assert "radar_exception" in katalog["EX 2.3"] and EX_2_3_TRICHTER.ausnahme is None
 
 
@@ -113,9 +114,10 @@ def test_ex22_tacho_custom_visual_per_teilwort(tmp_path):
     assert "EX 2.2" in b.message
 
 
-def test_ex22_echtzeit_ausnahme_wird_info(tmp_path):
+def test_ex22_echtzeit_ausnahme_bleibt_warnung(tmp_path):
+    """gauge steht ohne Bedingung auf der ALUCA-Deny-Liste: keine Annotation entschuldigt ihn."""
     (b,) = _befunde(tmp_path, {**_typ("gauge"), **_ausnahme("EX 2.2: Leitstand, live")})
-    assert b.severity == "info" and b.actual == "EX 2.2: Leitstand, live"
+    assert b.severity == "warning"
 
 
 def test_ex22_ausnahme_einer_anderen_regel_zaehlt_nicht(tmp_path):

@@ -189,5 +189,5 @@ def test_domain_tag_matches_dictionary_folder_despite_spacing():
     for kpi_id in ("KPI-SCM-016", "KPI-SCM-012"):
         d = build_description(kpi_id, _repo_root())
         assert d is not None
-        assert d.owner == "Supply Chain Analytics", kpi_id
-        assert d.grain and d.unit, kpi_id
+        assert d.unit and d.formula, kpi_id
+        assert d.grain and d.owner, kpi_id

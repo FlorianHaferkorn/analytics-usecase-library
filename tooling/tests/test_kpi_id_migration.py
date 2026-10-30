@@ -15,11 +15,12 @@ from pathlib import Path
 import pytest
 import yaml
 
+from tooling.generator_core.id_patterns import kpi_pattern
 from tooling.migration import kpi_id_migration as mig
 
 REPO = Path(__file__).resolve().parents[2]
 KPIS = REPO / "core" / "kpi_catalog" / "kpis"
-MUSTER = r"^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\d{3}$"
+MUSTER = kpi_pattern()   # Quelle: kpi_definition.schema.json kpi_id.pattern
 
 # Stand nach der Migration (freigegebene Tabelle, D-594 Nachtrag 3): 139 Bibliotheks-KPIs
 # (140 minus CCC-Proxy). Seit 02.10.2026 (BO-103 Freelancing) stehen die fuenf Aurora-

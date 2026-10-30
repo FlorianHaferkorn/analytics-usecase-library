@@ -169,7 +169,7 @@ Template Sections:
 | Waterfall | Waterfall | Category=breakdown dim, Y=delta measure |
 | Heatmap | Matrix + Conditional Formatting | Rows=dim1, Cols=dim2, Values=measure |
 | Sparkline | Sparkline Custom Visual | Inline trend |
-| Gauge | Gauge | Min/Max from threshold, Value=measure |
+| Gauge | **deny** (no `gauge`, no exception) → Bullet (`kpi_card_bullet` / `bullet`) | Value=measure, target as marker, bands from threshold |
 | Table | Table | Columns from factsheet |
 
 ---

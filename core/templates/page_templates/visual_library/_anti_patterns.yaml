@@ -21,7 +21,7 @@ schema_version: 1
 patterns:
 
   # --- part-to-whole & pie/donut geometry ---------------------------------
-  pie_or_donut_gt_4:   # id kept stable (cross-repo); limit is 3 since 02.10.2026 (IBCS 2.0 EX 2.1)
+  pie_or_donut_gt_3:   # 21.10.2026 umbenannt von pie_or_donut_gt_4 (Grenze 3 seit 02.10.2026, IBCS 2.0 EX 2.1)
     message: "Pie/donut with more than 3 slices — angle and area are the least accurate encodings, so small differences become unreadable."
     fix: "Use a sorted bar (bar_ranking) or a 100% stacked bar (stacked_100)."
     source: "Cleveland & McGill 1984; data-to-viz caveats; IBCS Standards Version 2.0 (2026) EX 2.1, S. 136"

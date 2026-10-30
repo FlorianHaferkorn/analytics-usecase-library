@@ -34,6 +34,7 @@ Run Fabric-specific checks for TMDL syntax, DAX best practices, measure dictiona
 - **Numeric columns**: Must have `summarizeBy: none` (prevents unintentional aggregation).
 - **Measures**: Use `formatString`, `displayFolder`, `lineageTag`, `isHidden`; describe with a `///` block above the measure (TMDL's description syntax, read by Copilot, essentials in the first 200 chars) — never a `description:` key.
 - **DAX**: No `:=` operator (DAX uses `=` only).
+- **DAX filter propagation**: physical relationship first, `TREATAS` for virtual relationships, `FILTER(ALL(<date table>))` only for date windows — doctrine and guard in `docs/agent/rules/tmdl-dax.md` (section "Filter propagation").
 
 ## Diagram layout (spaghetti principle)
 

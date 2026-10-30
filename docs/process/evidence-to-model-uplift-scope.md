@@ -119,7 +119,7 @@ A workstream is **done** only when all three hold:
 - **Technical-perfect**: Stage 1 + Fabric + pytest green locally; TMDL style + PBIR hooks pass;
   registry closure satisfied; no orphan KPIs/measures; golden COM-001 fixture unaffected.
 - **Real-life valid**: the synthetic generator produces realistic, **internally-consistent**
-  rows (driver relationships hold — e.g. MTBF rises as failures fall; OTIF = On-Time × In-Full;
+  rows (driver relationships hold — e.g. MTBF rises as failures fall; OTIF = share of orders both On-Time and In-Full, never above the weaker component;
   abandonment survives the SLA-on-handled blind spot) and the generated report renders the new
   diagnostics with non-empty, plausible values.
 

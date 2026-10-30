@@ -9,7 +9,7 @@ domain_tag:
 use_case_ref:
 - SCM-004
 action_code_ref: []
-calc_type: sum
+calc_type: amount
 business:
   purpose: Measures total addressable spend under procurement management.
   definition: Sum of addressable spend across categories in the period.

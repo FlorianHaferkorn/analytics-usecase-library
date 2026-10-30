@@ -9,7 +9,7 @@ use_case_ref:
 - FIN-003
 - XD-003
 action_code_ref: []
-calc_type: sum
+calc_type: amount
 business:
   purpose: Measures earnings before interest, tax, depreciation and amortisation.
   definition: Revenue - COGS - Operating Expenses (excl. D&A).

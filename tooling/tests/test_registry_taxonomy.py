@@ -8,6 +8,11 @@ from unittest.mock import patch
 
 import pytest
 import yaml
+from tooling.generator_core.id_patterns import (
+    action_code_pattern,
+    kpi_pattern,
+    use_case_pattern,
+)
 from registry_builder import (
     Issue,
     KpiRecord,
@@ -26,15 +31,15 @@ SAMPLE_TAXONOMY = {
     "id_patterns": {
         "kpi": {
             "format": "KPI-<KUERZEL>-<NNN>",
-            "regex": r"^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\d{3}$",
+            "regex": kpi_pattern(),
         },
         "use_case": {
             "format": "<DOMAIN>-<NNN>",
-            "regex": r"^[A-Z]{2,4}-\d{3}$",
+            "regex": use_case_pattern(),
         },
         "action_code": {
             "format": "<Prefix>-<Type><Seq>.<Sub>",
-            "regex": r"^[A-Z]-[A-Z]\d+\.\d+$",
+            "regex": action_code_pattern(),
         },
     },
     "kpi_roles": ["strategic", "influencing", "operational"],
@@ -193,11 +198,18 @@ class TestUseCaseIdValidation:
         uc_issues = [i for i in issues if i.code == "taxonomy.usecase_id_format"]
         assert len(uc_issues) == 1
 
-    def test_four_letter_prefix_valid(self):
+    def test_four_letter_prefix_follows_schema(self):
+        """Das Schema (usecase_bracket.schema.json) erlaubt 2-3 Buchstaben; bis 21.10.2026
+        liess die Taxonomie 4 zu und wich damit vom Schema ab."""
         brackets = {"XDOM-001": _make_bracket("XDOM-001")}
         issues = validate_taxonomy({}, {}, brackets, SAMPLE_TAXONOMY)
         uc_issues = [i for i in issues if i.code == "taxonomy.usecase_id_format"]
-        assert len(uc_issues) == 0
+        assert len(uc_issues) == 1
+
+    @pytest.mark.parametrize("uc_id", ["COM-EXT-001", "COM-IND-R001", "XD-004"])
+    def test_tier_ids_valid(self, uc_id):
+        issues = validate_taxonomy({}, {}, {uc_id: _make_bracket(uc_id)}, SAMPLE_TAXONOMY)
+        assert not [i for i in issues if i.code == "taxonomy.usecase_id_format"]
 
 
 # ---------------------------------------------------------------------------

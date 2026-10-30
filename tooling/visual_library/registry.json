@@ -259,7 +259,7 @@
     {
       "id": "donut",
       "name": "Donut",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -281,7 +281,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:3255d426ecbfa1f3f53e15cc134795b5c7f4ba56102ee35338ca5f4e9781ccc6"
+      "checksum": "sha256:89295d5651d94685d018de02f683ae0b460fd000e42f58e502e8a3185a20eb73"
     },
     {
       "id": "dumbbell",
@@ -759,7 +759,7 @@
     {
       "id": "stacked_100",
       "name": "100% stacked bar",
-      "version": "1.0.1",
+      "version": "1.1.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -781,7 +781,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:2f3fffe84acf05dee8dae306e11f196304e4b7bc977706255fd6d7e8c0814fc4"
+      "checksum": "sha256:d346d0f03aae54f191d3250eea347598f5718191ce22a4a6a67ee047bff0a61d"
     },
     {
       "id": "variance_pin",
