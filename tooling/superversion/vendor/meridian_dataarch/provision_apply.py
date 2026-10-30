@@ -350,10 +350,14 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
             "E-Mail-Abonnements, Copilot, Capacity-Metrics-App und tenantuebergreifende Shortcuts "
             "(MS Learn: fabric/security/security-private-links-overview); nachtraeglich nur mit "
             "Neuaufbau der Quellanbindung zu drehen — deshalb vor dem ersten Lakehouse.")
+    # D-NEU-trennung-1 (30.10.2026): ein Workspace, dem das IR ein eigenes Lakehouse nennt
+    # (Hub and Spoke, `workspaces[].lakehouse`), bekommt es auch mit einer Schichtrolle — eine
+    # Schicht je Workspace heisst ein Lakehouse je Schicht. Ohne Namen im IR (per_layer) bleibt
+    # es beim Gold-Lakehouse allein.
     for name, role in workspaces:
-        if role in LAKEHOUSE_ROLES:
+        if role in LAKEHOUSE_ROLES or name in lh_je_ws:
             add("create_lakehouse", f"{name}.Workspace/{lh_je_ws.get(name, lakehouse)}.Lakehouse", "core-mcp:create-item | fab mkdir",
-                "human", "gold lakehouse",
+                "human", "gold lakehouse" if role in LAKEHOUSE_ROLES else f"{role} lakehouse",
                 present("terraform/main.tf") or present("provision.sh"))
     # C-4: PLAT-LHTOPO = gold_warehouse (MS-Muster 2) heisst Bronze und Silber als Lakehouse,
     # Gold als Warehouse — zwei Item-Typen, zwei Werkzeugketten. Das Lakehouse bleibt (die
