@@ -157,13 +157,13 @@
       },
       "allOf": [
         {
-          "if": { "properties": { "type": { "const": "Forecast" } }, "required": ["type"] },
-          "then": { "required": ["forecast"] },
-          "else": { "not": { "required": ["forecast"] } }
+          "if": { "type": "object", "properties": { "type": { "const": "Forecast" } }, "required": ["type"] },
+          "then": { "type": "object", "properties": { "forecast": true }, "required": ["forecast"] },
+          "else": { "not": { "type": "object", "properties": { "forecast": true }, "required": ["forecast"] } }
         },
         {
-          "if": { "properties": { "forecast": { "properties": { "compare": { "enum": ["band_lower", "band_upper"] } }, "required": ["compare"] } }, "required": ["forecast"] },
-          "then": { "properties": { "forecast": { "required": ["band"] } } }
+          "if": { "type": "object", "properties": { "forecast": { "type": "object", "properties": { "compare": { "enum": ["band_lower", "band_upper"] } }, "required": ["compare"] } }, "required": ["forecast"] },
+          "then": { "type": "object", "properties": { "forecast": { "type": "object", "properties": { "band": true }, "required": ["band"] } } }
         }
       ]
     },
