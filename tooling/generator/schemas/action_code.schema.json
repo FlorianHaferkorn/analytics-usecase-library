@@ -63,7 +63,39 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "type": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["Deviation", "Pattern", "CompositeDeviation", "LifecycleDeviation", "Webhook", "Forecast"],
+          "description": "Forecast (ADR-0028): the levels compare the KPI forecast at the end of forecast.horizon, not the actual value."
+        },
+        "forecast": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["horizon", "forecast_measure", "compare"],
+          "description": "Only with type Forecast (ADR-0028). Which forecast value the level thresholds test, and over which horizon.",
+          "properties": {
+            "horizon": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["length", "unit"],
+              "properties": {
+                "length": { "type": "integer", "minimum": 1 },
+                "unit": { "type": "string", "enum": ["periods", "days", "weeks", "months"] }
+              }
+            },
+            "forecast_measure": { "type": "string", "minLength": 1, "description": "Name of the measure that returns the KPI forecast at the horizon." },
+            "compare": { "type": "string", "enum": ["point", "band_lower", "band_upper"], "description": "point = central forecast; band_lower/band_upper = edge of the prediction interval (the cautious reading)." },
+            "band": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "level"],
+              "properties": {
+                "kind": { "type": "string", "enum": ["prediction_interval"] },
+                "level": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 }
+              }
+            }
+          }
+        },
         "evaluation": {
           "type": "object",
           "additionalProperties": false,
@@ -122,7 +154,18 @@
           }
         },
         "gating_rules": { "type": "array", "items": { "type": "string" } }
-      }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "Forecast" } }, "required": ["type"] },
+          "then": { "required": ["forecast"] },
+          "else": { "not": { "required": ["forecast"] } }
+        },
+        {
+          "if": { "properties": { "forecast": { "properties": { "compare": { "enum": ["band_lower", "band_upper"] } }, "required": ["compare"] } }, "required": ["forecast"] },
+          "then": { "properties": { "forecast": { "required": ["band"] } } }
+        }
+      ]
     },
     "impact_valuation": {
       "type": "object",

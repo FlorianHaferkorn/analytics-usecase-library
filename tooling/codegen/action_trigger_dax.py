@@ -182,6 +182,10 @@ def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
     zeigte der Ausdruck ins Leere.
     """
     code = ac["id"]
+    if (ac.get("trigger") or {}).get("type") == "Forecast":
+        # ADR-0028: die Stufen pruefen die Prognose zum Horizont. Den Ist-Wert gegen die
+        # Schwelle zu stellen, saehe aus wie ein Ausdruck und pruefte etwas anderes.
+        raise Fehler(f"{code}: Forecast-Ausloeser, das Prognose-Measure wird noch nicht abgeleitet")
     levels = ((ac.get("trigger") or {}).get("levels")) or {}
     if not all(isinstance(levels.get(L), dict) for L in ("L1", "L2", "L3")):
         raise Fehler(f"{code}: trigger.levels fuehrt nicht L1 bis L3")

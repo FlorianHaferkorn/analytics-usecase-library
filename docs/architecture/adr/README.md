@@ -42,3 +42,4 @@ revisit a decision by adding a new ADR that supersedes the old one.
 | [0025](0025-ki-clients-ueber-fabric-iq-mcp-in-der-dpia.md) | KI-Clients über Fabric IQ MCP gehören als eigener Abfluss in die DPIA | Accepted (2026-10-01) |
 | [0026](0026-reporting-achsen-notationsprofil-und-nutzungskonzept.md) | Reporting-Achsen: Notationsprofil × Nutzungskonzept (Visual Library) | Accepted (2026-10-09) |
 | [0027](0027-top-n-ausnahme-als-feld-bc-chart-10.md) | Top-N-Ausnahme als Feld (BC-CHART-10) | Accepted (2026-10-24) |
+| [0028](0028-forecast-als-ausloeser-typ.md) | Forecast als Auslöser-Typ der Action Codes | Accepted (2026-10-30) |

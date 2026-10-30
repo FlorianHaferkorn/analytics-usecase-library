@@ -129,6 +129,17 @@ def test_relative_without_baseline_window_is_an_error():
         atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})
 
 
+def test_forecast_trigger_is_an_error_not_a_deviation_on_the_actual():
+    ac = _code(basis="absolute", unit="days")
+    ac["trigger"]["type"] = "Forecast"
+    ac["trigger"]["forecast"] = {"horizon": {"length": 3, "unit": "months"},
+                                 "forecast_measure": "K Forecast", "compare": "point"}
+    with pytest.raises(atd.Fehler, match="Forecast"):
+        atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})
+    ac["trigger"]["type"] = "Deviation"           # Gegenprobe: ohne den Typ entsteht ein Ausdruck
+    assert atd.dax_fuer(ac, {"k": "K"}, {"k": "days_0"})[0]
+
+
 def test_band_and_abs_comparators():
     ac = copy.deepcopy(_code(basis="absolute", unit="%"))
     for L in ("L1", "L2", "L3"):
