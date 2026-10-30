@@ -71,3 +71,20 @@ immer `open`, ohne Prüfung gegen `value`.
 - **Befund, nicht behoben:** E-S1.1 hat `basis: target` mit `unit: '%'` und meint eine Toleranz
   über dem Ziel. Die Ableitung liest `basis: target` ohne `reference` als Pegel der KPI
   (`[M] > 5`, tCO2e). Heute folgenlos (kein ESG-Modell); vor dem ersten ESG-Modell klären.
+
+## 6. Nachtrag 30.10.2026: `reference: target` (Florian)
+
+- **Entscheidung:** Der Befund aus §5 wird mit einem neuen `reference: target` gelöst, analog zu
+  `reference: baseline`. Die Schwelle ist dann eine Abweichung vom Ziel. `basis: target` ohne
+  `reference` bleibt ein Pegel. Verworfen wurden: `basis: target` immer als Abweichung lesen (das
+  bricht die Pegel-Lesart vom 23.09.2026) und den Befund offen lassen.
+- **Ziel-Measure:** Das Ziel ist die Plan-KPI des Katalogs, also das Feld `plan_kpi_ref` der
+  Trigger-KPI, das schon `comparison_measures.py` nutzt. So entsteht kein zweiter Ort für Ziele.
+  Fehlt die Plan-KPI oder hat sie im Modell kein Measure, ist das ein Fehler, keine Annahme.
+- **Ableitung:** `unit: '%' | pct` wird relativ gerechnet (`[M] > Ziel * 1,05`, bei `lt` mit
+  `Ziel * 0,95`), jede andere Einheit additiv (`[M] > Ziel + v`). Ohne Ziel-Daten feuert die
+  Stufe nicht (`NOT ISBLANK`). Die Persistenz-Vormonate werten das Ziel im verschobenen Monat aus.
+- **E-S1.1** trägt `reference: target` in L1–L3. Offen ist die Plan-KPI zu KPI-ESG-001: der
+  Katalog führt keine, und `fact_emissions[Target Emissions tCO2e]` steht nur im Datenvertrag.
+  Solange sie fehlt, bricht die Ableitung für E-S1.1 ab. Heute bleibt das folgenlos, weil es
+  kein ESG-Modell gibt.

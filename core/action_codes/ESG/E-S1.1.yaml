@@ -8,6 +8,9 @@ name: Scope 1+2 Reduction Programme Steering
 # Tolerance set 30.10.2026 as an assumption (value_status: assumed): emissions +5 / +10 / +20 % above
 # the target, Florian Haferkorn ("Ja, als Annahme"). ANNAHME, ungeprueft - no measured or benchmarked
 # number; the sustainability owner confirms or replaces them, then value_status: set.
+# reference: target since 30.10.2026 (ADR-0028 Nachtrag, Florian Haferkorn): the percentage is
+# relative to the target, [M] > Ziel * 1.05. The target measure is the catalog's plan_kpi_ref of
+# KPI-ESG-001, which the catalog does not carry yet - without it the derivation stops with an error.
 inherits_decision_spine: null
 owner_domain: ESG
 impact_dimension: ESG
@@ -55,6 +58,7 @@ trigger:
         comparator: gt
         threshold:
           basis: target
+          reference: target
           value: 5.0
           value_status: assumed
           unit: '%'
@@ -66,6 +70,7 @@ trigger:
         comparator: gt
         threshold:
           basis: target
+          reference: target
           value: 10.0
           value_status: assumed
           unit: '%'
@@ -77,6 +82,7 @@ trigger:
         comparator: gt
         threshold:
           basis: target
+          reference: target
           value: 20.0
           value_status: assumed
           unit: '%'

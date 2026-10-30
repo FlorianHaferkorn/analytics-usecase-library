@@ -12,6 +12,10 @@ Lesart der Schwelle (Entscheidung Flo, 23.09.2026):
 - `basis: absolute | target` ohne `reference` -- ein Pegel der KPI: `[M] < 0,97`.
 - `basis: absolute` mit `reference: baseline` -- eine Abweichung von der Basis:
   `[M] > Basis + 3` (DSO um drei Tage schlechter).
+- `basis: absolute | target` mit `reference: target` (Entscheidung Flo, 30.10.2026, ADR-0028
+  Nachtrag) -- eine Abweichung vom Ziel: das Ziel-Measure ist die Plan-KPI des Katalogs
+  (`plan_kpi_ref` der Trigger-KPI). `unit: '%' | pct` rechnet relativ (`[M] > Ziel * 1,05`),
+  jede andere Einheit additiv (`[M] > Ziel + 2`). Ohne Ziel-Daten feuert die Stufe nicht.
 - `basis: relative` -- eine relative Abweichung: `[M] > Basis * (1 + 10 %)`.
 - `basis: band` -- ausserhalb `lower`..`upper`.
 - Die Basis ist der Monatsdurchschnitt der KPI im `baseline_window` des Action-Codes
@@ -93,6 +97,16 @@ def _kpi_formate() -> dict[str, str]:
     return out
 
 
+def _kpi_plan() -> dict[str, str]:
+    """Trigger-KPI -> governte Plan-KPI (Katalogfeld `plan_kpi_ref`), fuer `reference: target`."""
+    out = {}
+    for f in sorted(KPIS.glob("*.yaml")):
+        d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        if d.get("kpi_id") and d.get("plan_kpi_ref"):
+            out[d["kpi_id"]] = d["plan_kpi_ref"]
+    return out
+
+
 def action_codes() -> dict[str, dict]:
     out = {}
     for f in sorted(ACTION_CODES.glob("*/*.yaml")):
@@ -126,7 +140,7 @@ def _skaliert(th: dict, key: str, fmt: str) -> float:
     return v
 
 
-def _bedingung(cond: dict, ref: str, basis_var: str, fmt: str) -> str:
+def _bedingung(cond: dict, ref: str, basis_var: str, fmt: str, ziel: str | None = None) -> str:
     th = cond.get("threshold") or {}
     comp = cond.get("comparator")
     art = th.get("basis")
@@ -142,6 +156,18 @@ def _bedingung(cond: dict, ref: str, basis_var: str, fmt: str) -> str:
         grenze = f"{basis_var} * {_zahl(faktor)}"
         op = {"gt": ">", "gte": ">=", "lt": "<", "lte": "<="}[comp]
         return f"NOT ISBLANK ( {basis_var} ) && {ref} {op} {grenze}"
+    if art in ("absolute", "target") and th.get("reference") == "target":
+        if ziel is None:
+            raise Fehler(f"reference: target ohne Ziel-Measure: {th}")
+        op = {"gt": ">", "gte": ">=", "lt": "<", "lte": "<="}.get(comp)
+        if op is None:
+            raise Fehler(f"Vergleich {comp!r} gegen das Ziel unbekannt")
+        if str(th.get("unit") or "").strip() in ("%", "pct"):
+            v = float(th["value"]) / 100.0      # Prozent des Ziels, wie basis: relative
+            grenze = f"{ziel} * {_zahl(1 + v if op.startswith('>') else 1 - v)}"
+        else:
+            grenze = f"{ziel} + {_zahl(_skaliert(th, 'value', fmt))}"
+        return f"NOT ISBLANK ( {ziel} ) && {ref} {op} {grenze}"
     if art in ("absolute", "target"):
         v = _skaliert(th, "value", fmt)
         if th.get("reference") == "baseline":
@@ -187,8 +213,20 @@ def _basis_ausdruck(ref: str, tage: int) -> str:
     )
 
 
+def _ziel_measure(code: str, kid: str, plan_ref: dict[str, str], measure_name: dict[str, str],
+                  definiert: set[str] | None) -> str:
+    """Das Ziel-Measure fuer `reference: target`: die Plan-KPI des Katalogs zur Trigger-KPI."""
+    pk = plan_ref.get(kid)
+    if not pk:
+        raise Fehler(f"{code}: reference: target, aber {kid} fuehrt keine plan_kpi_ref im Katalog")
+    if pk not in measure_name or (definiert is not None and measure_name[pk] not in definiert):
+        raise Fehler(f"{code}: Ziel-KPI {pk!r} hat im Modell kein Measure")
+    return f"[{measure_name[pk]}]"
+
+
 def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
-             definiert: set[str] | None = None) -> tuple[str, list[str]]:
+             definiert: set[str] | None = None,
+             plan_ref: dict[str, str] | None = None) -> tuple[str, list[str]]:
     """Den Ausdruck fuer einen Action-Code und die Regeln, die er nicht auswertet.
 
     `definiert` sind die Measures, die das Zielmodell wirklich fuehrt. Die Namenskarte
@@ -201,7 +239,7 @@ def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
     levels = trig.get("levels") or {}
     if not all(isinstance(levels.get(L), dict) for L in ("L1", "L2", "L3")):
         raise Fehler(f"{code}: trigger.levels fuehrt nicht L1 bis L3")
-    vars_, refs, basis = [], {}, {}
+    vars_, refs, basis, ziel, ziel_ref = [], {}, {}, {}, {}
     for L in ("L3", "L2", "L1"):
         kid = (levels[L].get("condition") or {}).get("metric_kpi_id")
         if kid not in measure_name or (definiert is not None and measure_name[kid] not in definiert):
@@ -222,6 +260,11 @@ def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
                 raise Fehler(f"{code}: relative Schwelle, aber kein baseline_window")
             vars_.append(f"VAR _b{i} = {_basis_ausdruck(refs[kid], _tage(fenster))}")
             basis[kid] = f"_b{i}"
+        if any(((levels[L].get("condition") or {}).get("threshold") or {}).get("reference") == "target"
+               and levels[L]["condition"].get("metric_kpi_id") == kid for L in levels):
+            ziel_ref[kid] = _ziel_measure(code, kid, plan_ref or {}, measure_name, definiert)
+            vars_.append(f"VAR _z{i} = {ziel_ref[kid]}")
+            ziel[kid] = f"_z{i}"
     idx = {kid: i for i, kid in enumerate(refs)}
     steps = ((ac.get("operational_execution") or {}).get("steps")) or []
     schritte = (" & " + NL + " & ").join(_dax_str("→ " + " ".join(str(s).split())) for s in steps)
@@ -258,7 +301,7 @@ def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
             return ""
         ref = refs[kid]
         b = f"( {_basis_ausdruck(ref, _tage(fenster))} )" if kid in basis else "BLANK ()"
-        innen = _bedingung(cond, ref, b, fmt)
+        innen = _bedingung(cond, ref, b, fmt, ziel_ref.get(kid))
         # Monatsindex-Shift statt DATEADD, dasselbe Muster wie 'CCC Days PM' im Finance-Modell:
         # dim_date ist nicht als Datumstabelle markiert, ein Slicer auf CalendarYearMonth
         # bliebe neben DATEADD stehen und die Schnittmenge waere leer.
@@ -285,7 +328,7 @@ def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
         cond = levels[L].get("condition") or {}
         kid = cond["metric_kpi_id"]
         fmt = formate.get(kid, "")
-        bed = _bedingung(cond, f"_v{idx[kid]}", basis.get(kid, "BLANK ()"), fmt)
+        bed = _bedingung(cond, f"_v{idx[kid]}", basis.get(kid, "BLANK ()"), fmt, ziel.get(kid))
         bed = f"( {bed} ){vormonate(cond, kid, fmt)}{schutz}"
         ausdruck = f"IF ( {bed}, {text(L, kid)}, {ausdruck} )"
     if (ac.get("trigger") or {}).get("gating_rules"):
@@ -303,7 +346,7 @@ def _loader():
 
 
 def pruefe(schreiben: bool = False) -> list[Ergebnis]:
-    loader, codes, formate = _loader(), action_codes(), _kpi_formate()
+    loader, codes, formate, plan = _loader(), action_codes(), _kpi_formate(), _kpi_plan()
     out: list[Ergebnis] = []
     for model_dir in sorted(DIST.glob("*.SemanticModel")):
         tmdl = model_dir / "definition" / "tables" / "_Measures.tmdl"
@@ -323,7 +366,7 @@ def pruefe(schreiben: bool = False) -> list[Ergebnis]:
             try:
                 if ac is None:
                     raise Fehler(f"kein Action-Code {e.code!r} in core/action_codes")
-                e.neu, e.nicht_ausgewertet = dax_fuer(ac, namen, formate, definiert)
+                e.neu, e.nicht_ausgewertet = dax_fuer(ac, namen, formate, definiert, plan)
             except Fehler as exc:
                 e.fehler = str(exc)
             out.append(e)

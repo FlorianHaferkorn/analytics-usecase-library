@@ -219,3 +219,44 @@ def test_c_m2_4_reads_the_lower_forecast_edge():
     assert "persistence" in offen and "gating_rules" in offen
     with pytest.raises(atd.Fehler, match="Prognose-Measure"):
         atd.dax_fuer(ac, namen, {"KPI-COM-033": "percent_1"}, definiert={"Private Label Penetration %"})
+
+
+# reference: target (Entscheidung Flo 30.10.2026, ADR-0028 Nachtrag): Abweichung vom Ziel-Measure,
+# das der Katalog als plan_kpi_ref der Trigger-KPI fuehrt.
+ZIEL = {"k": "K", "p": "K Ziel"}
+
+
+def test_target_reference_in_percent_is_relative_to_the_target():
+    dax, _ = atd.dax_fuer(_code(basis="target", unit="%", reference="target"), ZIEL,
+                          {"k": "count_0"}, definiert={"K", "K Ziel"}, plan_ref={"k": "p"})
+    assert "VAR _z0 = [K Ziel]" in dax
+    assert "NOT ISBLANK ( _z0 ) && _v0 > _z0 * 1.01 )" in dax     # L1 +1 % ueber dem Ziel
+    assert "_v0 > _z0 * 1.03 )" in dax
+
+
+def test_target_reference_in_units_is_additive():
+    dax, _ = atd.dax_fuer(_code(basis="absolute", unit="days", reference="target"), ZIEL,
+                          {"k": "days_0"}, definiert={"K", "K Ziel"}, plan_ref={"k": "p"})
+    assert "_v0 > _z0 + 2 )" in dax
+
+
+def test_target_without_reference_stays_a_level():
+    dax, _ = atd.dax_fuer(_code(basis="target", unit="days"), ZIEL, {"k": "days_0"},
+                          plan_ref={"k": "p"})
+    assert "_z0" not in dax and "_v0 > 3 )" in dax
+
+
+def test_target_reference_without_plan_kpi_is_an_error():
+    with pytest.raises(atd.Fehler, match="plan_kpi_ref"):
+        atd.dax_fuer(_code(basis="target", unit="%", reference="target"), ZIEL, {"k": "count_0"})
+
+
+def test_target_reference_with_plan_kpi_missing_in_the_model_is_an_error():
+    with pytest.raises(atd.Fehler, match="Ziel-KPI 'p'"):
+        atd.dax_fuer(_code(basis="target", unit="%", reference="target"), ZIEL, {"k": "count_0"},
+                     definiert={"K"}, plan_ref={"k": "p"})
+
+
+def test_e_s1_1_compares_against_the_target():
+    th = atd.action_codes()["E-S1.1"]["trigger"]["levels"]["L1"]["condition"]["threshold"]
+    assert th["reference"] == "target" and th["value"] == 5.0
