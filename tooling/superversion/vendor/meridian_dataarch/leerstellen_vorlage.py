@@ -8,6 +8,9 @@ Vorlage — **eine Zeile je Leerstelle**, vorbelegt mit dem, was bekannt ist (Ko
 
 Regeln der Uebernahme (``uebernehme``):
 
+* nur Zeilen mit ``status`` ``freigegeben`` (Spalten ``status`` vorschlag|offen|freigegeben und
+  ``notiz``, wie ALUCA ``released_only``); ein Vorschlag oder eine offene Zeile traegt den Wert nur
+  zur Durchsicht. Eine Vorlage ohne ``status``-Spalte laeuft unveraendert durch;
 * nur Zeilen mit ``wert``; eine leere Zeile bleibt Leerstelle;
 * nur in ``null``-Felder: ein belegter Wert (abgeleitet oder schon kuratiert) wird nie
   ueberschrieben — der Befund nennt ihn;
@@ -31,7 +34,11 @@ import re
 from typing import Any
 
 #: Spalten der Vorlage, in dieser Reihenfolge.
-SPALTEN = ("objekt_id", "tabelle", "feld", "zustaendig", "erlaubte_werte", "kontext", "wert")
+SPALTEN = ("objekt_id", "tabelle", "feld", "zustaendig", "erlaubte_werte", "kontext", "wert",
+           "status", "notiz")
+
+#: Reifegrad einer Zeile; uebernommen wird nur ``freigegeben``.
+STATUS = ("vorschlag", "offen", "freigegeben")
 
 #: Wer den Wert kennt: ``fachlich`` = Fachbereich, ``technisch`` = Datenplattform-Team.
 ZUSTAENDIG = {
@@ -87,7 +94,7 @@ def zeilen(doc: dict[str, Any]) -> list[dict[str, str]]:
     def zeile(o: dict[str, Any], feld: str, art: str, kontext: str) -> None:
         out.append({"objekt_id": o["id"], "tabelle": (o.get("binding") or {}).get("table") or "",
                     "feld": feld, "zustaendig": ZUSTAENDIG[art], "erlaubte_werte": _erlaubt(art, o),
-                    "kontext": kontext, "wert": ""})
+                    "kontext": kontext, "wert": "", "status": "offen", "notiz": ""})
 
     for o in doc.get("business_objects") or []:
         ok = _objekt_kontext(o)
@@ -132,6 +139,21 @@ def als_csv(rows: list[dict[str, str]]) -> str:
     return buf.getvalue()
 
 
+def nur_freigegebene(csv_text: str) -> str:
+    """Nur Zeilen mit ``status`` ``freigegeben``; eine Vorlage ohne ``status``-Spalte bleibt gleich.
+
+    Gleiche Semantik wie ALUCA ``tooling/generator/business_objects.py::released_only``.
+    """
+    leser = csv.DictReader(io.StringIO(csv_text))
+    if "status" not in (leser.fieldnames or []):
+        return csv_text
+    buf = io.StringIO()
+    w = csv.DictWriter(buf, fieldnames=leser.fieldnames, lineterminator="\n")
+    w.writeheader()
+    w.writerows(r for r in leser if (r.get("status") or "").strip() == "freigegeben")
+    return buf.getvalue()
+
+
 def _spalten(o: dict[str, Any]) -> set[str]:
     return {a.get("column") or a.get("name") for a in o.get("attributes") or []}
 
@@ -155,7 +177,7 @@ def uebernehme(doc: dict[str, Any], csv_text: str) -> tuple[dict[str, Any], list
     je_id = {o.get("id"): o for o in neu.get("business_objects") or []}
     befunde: list[str] = []
     n = 0
-    leser = csv.DictReader(io.StringIO(csv_text))
+    leser = csv.DictReader(io.StringIO(nur_freigegebene(csv_text)))
     fehlend = [s for s in ("objekt_id", "feld", "wert") if s not in (leser.fieldnames or [])]
     if fehlend:
         return doc, [f"Vorlage ohne Spalte(n) {fehlend}"], 0

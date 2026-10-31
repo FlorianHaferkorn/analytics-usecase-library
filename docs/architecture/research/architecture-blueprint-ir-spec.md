@@ -1097,6 +1097,10 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                 }
               }
             ]
+          },
+          "schedule_cron": {
+            "type": "string",
+            "description": "Geplanter Ladezyklus der Quellanbindung (Cron, fuenf Felder), aus der Architektur durchgereicht; nicht gegen die Quelle geprueft."
           }
         },
         "allOf": [
@@ -1352,6 +1356,26 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                   }
                 }
               }
+            },
+            "conformed": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "schema",
+                "tables"
+              ],
+              "description": "Konforme Dimensionen: einmal physisch im conformed-Schema des Gold-Lakehouse, von mehreren Domaenen gelesen (conformed der Architektur).",
+              "properties": {
+                "schema": {
+                  "type": "string"
+                },
+                "tables": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           }
         },
@@ -1438,6 +1462,10 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                         "mission_critical"
                       ],
                       "description": "I-21 W1.11 (29.09.2026): Klasse fuer die Surge Protection auf Workspace-Ebene (Preview), benannt wie im Portal (Available / Mission critical). Fehlt sie, schlaegt das Kapazitaets-Runbook sie aus der Stufe vor (prod → mission_critical, sonst available) und kennzeichnet das als Vorschlag."
+                    },
+                    "lakehouse": {
+                      "type": "string",
+                      "description": "Name des Lakehouse in diesem Workspace, wenn die Architektur ihn nennt (physical_layout.lakehouses). Ohne Angabe gilt der Vorgabename des Apply-Plans."
                     }
                   }
                 }
@@ -1642,6 +1670,75 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
               "data_contract_ref": {
                 "type": "string",
                 "description": "The silver data contract of THIS domain. Without it the emitters fall back to the single global `medallion.silver.data_contract_ref` — with several source packs in one run that made every generated SQL file cite the FIRST pack's contract, so the finance tables pointed at the order-to-cash contract. A wrong reference in a delivered artifact is worse than none: it sends someone confidently to the wrong place."
+              },
+              "owner_role": {
+                "type": "string",
+                "description": "Fachliche Eigentuemerrolle der Domaene, aus der Architektur durchgereicht."
+              },
+              "quality_threshold": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Qualitaetsschwelle der Domaene (Anteil 0..1), aus der Architektur durchgereicht."
+              },
+              "schema": {
+                "type": "string",
+                "description": "Gold-Schema der Domaene im geteilten Gold-Lakehouse (domains[].schema der Architektur); Fakten und Domaenen-Dimensionen liegen dort."
+              },
+              "layer_tables": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Tabellenname je Schicht vor Gold (domains[].tables.bronze/.silver der Architektur): Rohdaten und bereinigte Daten.",
+                "properties": {
+                  "bronze": {
+                    "type": "string"
+                  },
+                  "silver": {
+                    "type": "string"
+                  }
+                }
+              },
+              "dimensions": {
+                "type": "array",
+                "description": "Dimensionen, mit denen die Fakten der Domaene verbunden sind (star_schemas[].relationships, sonst dimension_tables): scope conformed = geteilt im conformed-Schema, domain = im Schema der Domaene.",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "scope"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "enum": [
+                        "conformed",
+                        "domain"
+                      ]
+                    }
+                  }
+                }
+              },
+              "reports": {
+                "type": "array",
+                "description": "Berichte der Domaene im Reporting-Workspace. derived = true: nicht in der Eingabe genannt, sondern abgeleitet (ein Bericht je Semantikmodell).",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "derived": {
+                      "type": "boolean"
+                    }
+                  }
+                }
               }
             }
           }

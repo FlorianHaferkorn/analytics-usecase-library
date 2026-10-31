@@ -169,10 +169,7 @@ def emit_fab_commands(blueprint: dict, capacity: str = "<CAPACITY_NAME>",
         lines.append("#    schema-enabled lakehouse → medallion layer = real SQL schema (gold/silver),")
         lines.append("#    not the default 'dbo' namespace. VERIFY the -P flag against your fab version.")
     sp = " -P enableSchemas=true" if schemas else ""
-    for name, role in sorted(seen_ws.items()):
-        if role in LAKEHOUSE_ROLES:
-            lh = f'{name}.Workspace/{lakehouse}.Lakehouse'
-            lines.append(f'fab ls "{lh}" >/dev/null 2>&1 || fab mkdir "{lh}"{sp}')
+    lines.extend(_lakehouse_zeilen(domains, seen_ws, lakehouse, sp))
     lines.append("")
 
     gold_ws = [n for n, r in sorted(seen_ws.items()) if r in LAKEHOUSE_ROLES]
@@ -263,3 +260,19 @@ def emit_fab_commands(blueprint: dict, capacity: str = "<CAPACITY_NAME>",
     lines.append("")
     lines.append('echo "Provisioning script complete."')
     return "\n".join(lines) + "\n"
+
+
+def _lakehouse_zeilen(domains: list[dict], seen_ws: dict[str, str], lakehouse: str, sp: str) -> list[str]:
+    """D-852: Lakehouse-Name je Workspace aus dem IR (wie der Apply-Plan); ein Workspace
+    mit eigenem Lakehouse im IR bekommt es auch mit Schichtrolle (Bronze, Silber)."""
+    lh_je_ws: dict[str, str] = {}
+    for d in domains:
+        for ws in d.get("workspaces", []):
+            if ws.get("lakehouse"):
+                lh_je_ws.setdefault(ws["name"], str(ws["lakehouse"]))
+    zeilen = []
+    for name, role in sorted(seen_ws.items()):
+        if role in LAKEHOUSE_ROLES or name in lh_je_ws:
+            lh = f'{name}.Workspace/{lh_je_ws.get(name, lakehouse)}.Lakehouse'
+            zeilen.append(f'fab ls "{lh}" >/dev/null 2>&1 || fab mkdir "{lh}"{sp}')
+    return zeilen
