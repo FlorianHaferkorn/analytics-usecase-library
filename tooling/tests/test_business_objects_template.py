@@ -48,6 +48,7 @@ def test_filled_values_pass_the_gates_and_survive_merge(lv, doc) -> None:
             r["wert"] = "Test"
         elif r["feld"].endswith(".personal_data"):
             r["wert"] = "nein"
+        r["status"] = "freigegeben"
     new, problems, n = lv.uebernehme(doc, lv.als_csv(rows))
     assert problems == [] and n == sum(1 for r in rows if r["wert"])
     assert bo.check(new, bo.catalog_kpi_ids(), bo.physical_columns()) == []
@@ -57,7 +58,8 @@ def test_filled_values_pass_the_gates_and_survive_merge(lv, doc) -> None:
 
 def test_set_field_is_not_overwritten(lv, doc) -> None:
     o = next(o for o in doc["business_objects"] if o.get("description"))
-    row = {**dict.fromkeys(lv.SPALTEN, ""), "objekt_id": o["id"], "feld": "description", "wert": "x"}
+    row = {**dict.fromkeys(lv.SPALTEN, ""), "objekt_id": o["id"], "feld": "description", "wert": "x",
+           "status": "freigegeben"}
     new, problems, n = lv.uebernehme(doc, lv.als_csv([row]))
     assert problems and n == 0 and new == doc
 
@@ -65,7 +67,14 @@ def test_set_field_is_not_overwritten(lv, doc) -> None:
 def test_invalid_personal_data_is_refused(lv, doc) -> None:
     row = next(r for r in lv.zeilen(doc) if r["feld"].endswith(".personal_data"))
     for w in ("ja", "ja:invented", "maybe"):
-        assert lv.uebernehme(doc, lv.als_csv([{**row, "wert": w}]))[1], w
+        assert lv.uebernehme(doc, lv.als_csv([{**row, "wert": w, "status": "freigegeben"}]))[1], w
+
+
+@pytest.mark.parametrize("status", ["", "offen", "abgelehnt"])
+def test_unapproved_filled_rows_are_not_imported(lv, doc, status) -> None:
+    row = next(r for r in lv.zeilen(doc) if r["feld"] == "name.de")
+    new, problems, n = lv.uebernehme(doc, lv.als_csv([{**row, "wert": "Test", "status": status}]))
+    assert (new, problems, n) == (doc, [], 0)
 
 
 def test_cli_writes_the_template(tmp_path: Path) -> None:

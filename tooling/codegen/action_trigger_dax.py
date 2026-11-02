@@ -33,10 +33,30 @@ Modell, `gating_rules` (Prosa, keine Bedingung).
 CLI:
     python -m tooling.codegen.action_trigger_dax            # Abweichungen melden (rc 1)
     python -m tooling.codegen.action_trigger_dax --write    # dist/ nachziehen
+
+    # Opt-in Consumer-Export; schreibt niemals in das Modell:
+    python -m tooling.codegen.action_trigger_dax --evidence-use-case COM-IND-R002 \\
+        --evidence-model Commercial.SemanticModel --evidence-out <ordner>
+
+Evidence exportiert ein Manifest und einen TMDL-Block für die vorhandene _Measures-Tabelle.
+Das Manifest enthält repo-relative Quellpfade/-Hashes, Scope und exakte Maßnamen/-Hashes,
+aber keine DAX-Ausdrücke. DAX-Hash: SHA-256 über UTF-8, CRLF/CR nach LF, außen strip().
+``source.model_name`` ist der logische Name ohne ``.SemanticModel``; ``model_item_name``
+behält den Verzeichnisnamen. Das beweist weder eine Veröffentlichung noch Tenant-Laufzeit.
+
+``--evidence-bindings <json>`` nimmt explizite Proof-Measure-Bindungen je Action-Code an.
+Jede Bindung enthält ``measure``, ``semantics`` (= Rollenschlüssel), ``action_code_id`` und
+``use_case_id``. Rollen: observation_count, gating_met, period_start, period_end,
+forecast_crossing, persistence_count_L1/L2/L3. Fehlende/ungültige Nachweise bleiben offen;
+ein Prognosehorizont wird nie als Schwellenübertritt ausgegeben. Die Bindungen beschreiben
+Modell-Semantik, keine stellvertretende Freigabe der Action oder ihrer Schwellen.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
+import math
 import re
 import sys
 from dataclasses import dataclass, field
@@ -57,6 +77,14 @@ FORMAT = {
     "hours_1": "0.0", "eur_0": "€#,0", "eur_2": "€#,0.00", "eur_per_unit_0": "€#,0",
     "ratio_1": "0.0", "ratio_2": "0.00", "count_0": "#,0", "units_0": "#,0",
     "index_signed_0": "+0;-0", "defects_per_1k_0": "0.0",
+}
+EVIDENCE_UNITS = {
+    "percent_1": ("%", .01), "percent_2": ("%", .01),
+    "days_0": ("days", 1), "days_1": ("days", 1),
+    "hours_0": ("hours", 1), "hours_1": ("hours", 1),
+    "eur_0": ("EUR", 1), "eur_2": ("EUR", 1), "eur_per_unit_0": ("EUR/unit", 1),
+    "ratio_1": ("ratio", 1), "ratio_2": ("ratio", 1), "count_0": ("count", 1),
+    "units_0": ("units", 1), "index_signed_0": ("index", 1), "defects_per_1k_0": ("defects/1000", 1),
 }
 # Codes, deren Stufen im YAML nur als Prosa stehen (`composite_rule.description`). Aus
 # ihnen laesst sich keine Schwelle ableiten; der ausgelieferte Ausdruck bleibt unberuehrt
@@ -140,47 +168,47 @@ def _skaliert(th: dict, key: str, fmt: str) -> float:
     return v
 
 
-def _bedingung(cond: dict, ref: str, basis_var: str, fmt: str, ziel: str | None = None) -> str:
-    th = cond.get("threshold") or {}
-    comp = cond.get("comparator")
+def _schwellenwert(cond: dict, basis_var: str, fmt: str, ziel: str | None = None) -> str:
+    """Numerische Grenze; Text-Auswerter und opt-in Evidence verwenden dieselbe Rechnung."""
+    th, comp = cond.get("threshold") or {}, cond.get("comparator")
     art = th.get("basis")
-    if art == "band":
-        return f"{ref} < {_zahl(_skaliert(th, 'lower', fmt))} || {ref} > {_zahl(_skaliert(th, 'upper', fmt))}"
     if th.get("value") is None:
         raise Fehler(f"Schwelle ohne Wert: {th}")
     if art == "relative":
-        v = float(th["value"]) / 100.0          # relativ ist immer Prozent der Basis
+        v = float(th["value"]) / 100.0
         faktor = {"gt": 1 + v, "gte": 1 + v, "lt": 1 - v, "lte": 1 - v}.get(comp)
         if faktor is None:
             raise Fehler(f"relativer Vergleich {comp!r} unbekannt")
-        grenze = f"{basis_var} * {_zahl(faktor)}"
-        op = {"gt": ">", "gte": ">=", "lt": "<", "lte": "<="}[comp]
-        return f"NOT ISBLANK ( {basis_var} ) && {ref} {op} {grenze}"
+        return f"{basis_var} * {_zahl(faktor)}"
     if art in ("absolute", "target") and th.get("reference") == "target":
         if ziel is None:
             raise Fehler(f"reference: target ohne Ziel-Measure: {th}")
-        op = {"gt": ">", "gte": ">=", "lt": "<", "lte": "<="}.get(comp)
-        if op is None:
+        if comp not in ("gt", "gte", "lt", "lte"):
             raise Fehler(f"Vergleich {comp!r} gegen das Ziel unbekannt")
         if str(th.get("unit") or "").strip() in ("%", "pct"):
-            v = float(th["value"]) / 100.0      # Prozent des Ziels, wie basis: relative
-            grenze = f"{ziel} * {_zahl(1 + v if op.startswith('>') else 1 - v)}"
-        else:
-            grenze = f"{ziel} + {_zahl(_skaliert(th, 'value', fmt))}"
-        return f"NOT ISBLANK ( {ziel} ) && {ref} {op} {grenze}"
+            v = float(th["value"]) / 100.0
+            return f"{ziel} * {_zahl(1 + v if comp in ('gt', 'gte') else 1 - v)}"
+        return f"{ziel} + {_zahl(_skaliert(th, 'value', fmt))}"
     if art in ("absolute", "target"):
-        v = _skaliert(th, "value", fmt)
-        if th.get("reference") == "baseline":
-            grenze, schutz = f"{basis_var} + {_zahl(v)}", f"NOT ISBLANK ( {basis_var} ) && "
-        else:
-            grenze, schutz = _zahl(v), ""
-        if comp == "abs_gt":
-            return f"{schutz}ABS ( {ref} ) > {grenze}"
-        op = {"gt": ">", "gte": ">=", "lt": "<", "lte": "<="}.get(comp)
-        if op is None:
-            raise Fehler(f"Vergleich {comp!r} unbekannt")
-        return f"{schutz}{ref} {op} {grenze}"
+        value = _zahl(_skaliert(th, "value", fmt))
+        return f"{basis_var} + {value}" if th.get("reference") == "baseline" else value
     raise Fehler(f"basis {art!r} unbekannt")
+
+
+def _bedingung(cond: dict, ref: str, basis_var: str, fmt: str, ziel: str | None = None) -> str:
+    th = cond.get("threshold") or {}
+    comp = cond.get("comparator")
+    if th.get("basis") == "band":
+        return f"{ref} < {_zahl(_skaliert(th, 'lower', fmt))} || {ref} > {_zahl(_skaliert(th, 'upper', fmt))}"
+    grenze = _schwellenwert(cond, basis_var, fmt, ziel)
+    schutz = (f"NOT ISBLANK ( {basis_var} ) && " if _braucht_basis(cond) else
+              f"NOT ISBLANK ( {ziel} ) && " if th.get("reference") == "target" else "")
+    if comp == "abs_gt":
+        return f"{schutz}ABS ( {ref} ) > {grenze}"
+    op = {"gt": ">", "gte": ">=", "lt": "<", "lte": "<="}.get(comp)
+    if op is None:
+        raise Fehler(f"Vergleich {comp!r} unbekannt")
+    return f"{schutz}{ref} {op} {grenze}"
 
 
 def _prognose_measure(code: str, trig: dict, definiert: set[str] | None) -> str:
@@ -224,9 +252,9 @@ def _ziel_measure(code: str, kid: str, plan_ref: dict[str, str], measure_name: d
     return f"[{measure_name[pk]}]"
 
 
-def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
+def _auswertung_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
              definiert: set[str] | None = None,
-             plan_ref: dict[str, str] | None = None) -> tuple[str, list[str]]:
+             plan_ref: dict[str, str] | None = None) -> tuple[str, list[str], dict]:
     """Den Ausdruck fuer einen Action-Code und die Regeln, die er nicht auswertet.
 
     `definiert` sind die Measures, die das Zielmodell wirklich fuehrt. Die Namenskarte
@@ -324,16 +352,265 @@ def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
     if n > 1:
         vars_.append("VAR _idx = MAX ( 'dim_date'[Year] ) * 12 + MAX ( 'dim_date'[MonthNumber] )")
     ausdruck = "BLANK ()"
+    bedingungen = {}
     for L in ("L1", "L2", "L3"):              # von innen nach aussen: L3 wird zuerst geprueft
         cond = levels[L].get("condition") or {}
         kid = cond["metric_kpi_id"]
         fmt = formate.get(kid, "")
         bed = _bedingung(cond, f"_v{idx[kid]}", basis.get(kid, "BLANK ()"), fmt, ziel.get(kid))
         bed = f"( {bed} ){vormonate(cond, kid, fmt)}{schutz}"
+        bedingungen[L] = bed
         ausdruck = f"IF ( {bed}, {text(L, kid)}, {ausdruck} )"
     if (ac.get("trigger") or {}).get("gating_rules"):
         offen.append("gating_rules")
-    return " ".join(vars_) + " RETURN " + ausdruck, offen
+    return " ".join(vars_) + " RETURN " + ausdruck, offen, {
+        "vars": vars_, "refs": refs, "basis": basis, "ziel": ziel, "idx": idx,
+        "bedingungen": bedingungen, "levels": levels,
+    }
+
+
+def dax_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str],
+             definiert: set[str] | None = None,
+             plan_ref: dict[str, str] | None = None) -> tuple[str, list[str]]:
+    """Bestehender Textvertrag, bytegleich; Evidence ist ausschließlich opt-in."""
+    dax, offen, _ = _auswertung_fuer(ac, measure_name, formate, definiert, plan_ref)
+    return dax, offen
+
+
+
+EVIDENCE_SCHEMA_VERSION = "1.0.0"
+EVIDENCE_EVALUATOR_VERSION = "1"
+
+
+def _quelle(path: Path) -> tuple[dict, dict]:
+    resolved = path.resolve()
+    try:
+        relative = resolved.relative_to(REPO.resolve()).as_posix()
+    except ValueError:
+        raise Fehler("Evidence-Quelle muss im ALUCA-Repository liegen") from None
+    raw = resolved.read_bytes()
+    return yaml.safe_load(raw.decode("utf-8")), {"path": relative, "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+def evidence_fuer(ac: dict, measure_name: dict[str, str], formate: dict[str, str], *,
+                 action_code_path: Path, bracket_path: Path,
+                 definiert: set[str] | None = None, plan_ref: dict[str, str] | None = None,
+                 period_start_measure: str | None = None, period_end_measure: str | None = None,
+                 forecast_period_measure: str | None = None,
+                 proof_bindings: dict | None = None) -> dict:
+    """Opt-in Evidence-Maßsatz und portables Manifest; kein zweiter Trigger-Auswerter.
+
+    Quellen müssen dem Payload entsprechen, und der Bracket muss den Code explizit binden.
+    Unbewiesene Bedingungen sperren Evaluated/Fired/Level; Rohwerte bleiben zur Herleitung.
+    """
+    original, source_code = _quelle(action_code_path)
+    bracket, source_bracket = _quelle(bracket_path)
+    if original != ac:
+        raise Fehler("Action-Code-Payload entspricht nicht der governten Quelle")
+    code = ac["id"]
+    if not bracket.get("id") or code not in (bracket.get("orchestration") or {}).get("action_code_ids", []):
+        raise Fehler(f"{code}: keine explizite Action-Code-Bindung im Bracket")
+    _, offen, ctx = _auswertung_fuer(ac, measure_name, formate, definiert, plan_ref)
+    if len(ctx["refs"]) != 1:
+        raise Fehler(f"{code}: Evidence braucht genau eine Trigger-KPI")
+    kid = next(iter(ctx["refs"]))
+    fmt = formate[kid]
+    trig = ac["trigger"]
+    level_conditions = {level: data["condition"] for level, data in ctx["levels"].items()}
+    thresholds = {level: cond["threshold"] for level, cond in level_conditions.items()}
+    common = {tuple(th.get(k) for k in ("basis", "reference", "unit")) for th in thresholds.values()}
+    if len(common) != 1 or next(iter(common))[0] == "band":
+        raise Fehler(f"{code}: Evidence v1 verlangt skalare Stufen mit gleicher Basis/Referenz/Einheit")
+    if any(isinstance(th.get("value"), bool) or not isinstance(th.get("value"), (int, float))
+           or not math.isfinite(th["value"]) for th in thresholds.values()):
+        raise Fehler(f"{code}: Evidence-Schwellen müssen endliche Zahlen sein")
+    index = ctx["idx"][kid]
+    value = f"_v{index}"
+    actual = ctx["refs"][kid]
+    baseline = ctx["basis"].get(kid, "BLANK ()")
+    target = ctx["ziel"].get(kid, "BLANK ()")
+    unresolved = list(dict.fromkeys(offen))
+    proof_bindings = {} if proof_bindings is None else proof_bindings
+    if not isinstance(proof_bindings, dict):
+        raise Fehler(f"{code}: Evidence-Proof-Bindungen müssen ein Objekt sein")
+    allowed = {"observation_count", "gating_met", "period_start", "period_end", "forecast_crossing",
+               "persistence_count_L1", "persistence_count_L2", "persistence_count_L3"}
+    if set(proof_bindings) - allowed:
+        raise Fehler(f"{code}: unbekannte Evidence-Proof-Bindung")
+    proofs = {}
+    for role, binding in proof_bindings.items():
+        if (not isinstance(binding, dict) or binding.get("action_code_id") != code
+                or binding.get("use_case_id") != bracket["id"] or binding.get("semantics") != role):
+            raise Fehler(f"{code}: Proof-Bindung {role} braucht passenden Code, Scope und Semantik")
+        name = binding.get("measure")
+        if not isinstance(name, str) or definiert is None or name not in definiert:
+            raise Fehler(f"{code}: Proof-Measure {name!r} nicht im Modell belegt")
+        proofs[role] = "[" + name.replace("]", "]]") + "]"
+    dynamic_reasons = []
+    gates = []
+    ev = trig.get("evaluation") or {}
+    minimum = (ev.get("minimum_data") or {}).get("min_observations") or 0
+    if minimum > 0:
+        if "observation_count" not in proofs:
+            unresolved.append("minimum_observations")
+        else:
+            count = proofs["observation_count"]
+            dynamic_reasons.append(
+                f'IF ( ISBLANK ( {count} ) || {count} < {minimum} || INT ( {count} ) <> {count}, '
+                '"minimum_observations", BLANK () )')
+    if "gating_rules" in unresolved and "gating_met" in proofs:
+        unresolved.remove("gating_rules")
+        gate = proofs["gating_met"]
+        dynamic_reasons.append(f'IF ( ISBLANK ( {gate} ) || NOT ( {gate} IN {{ 0, 1 }} ), "gating_rules", BLANK () )')
+        gates.append(f"{gate} = 1")
+    # Persistenz ist stufenspezifisch. Ein gemeinsamer Zähler könnte L3 aus L1 ableiten.
+    level_proofs = {}
+    if "persistence" in unresolved and all(f"persistence_count_{level}" in proofs for level in ("L1", "L2", "L3")):
+        unresolved.remove("persistence")
+        required = int((ev.get("persistence") or {}).get("min_consecutive_periods") or 1)
+        for level in ("L1", "L2", "L3"):
+            count = proofs[f"persistence_count_{level}"]
+            dynamic_reasons.append(
+                f'IF ( ISBLANK ( {count} ) || {count} < 0 || INT ( {count} ) <> {count}, '
+                f'"persistence_{level}", BLANK () )')
+            level_proofs[level] = f" && {count} >= {required}"
+    if any(cond.get("filters") for cond in level_conditions.values()):
+        unresolved.append("condition_filters")
+    selected_level = "BLANK ()"
+    for level in ("L1", "L2", "L3"):
+        condition = ctx["bedingungen"][level] + level_proofs.get(level, "")
+        selected_level = f'IF ( {condition}, "{level}", {selected_level} )'
+    if gates:
+        selected_level = f'IF ( {" && ".join(gates)}, {selected_level}, BLANK () )'
+    fired = f"NOT ISBLANK ( {selected_level} )"
+
+    def explicit_date(name: str | None) -> str:
+        if not name:
+            return "BLANK ()"
+        if definiert is None or name not in definiert:
+            raise Fehler(f"{code}: explizites Datums-Measure {name!r} nicht im Modell belegt")
+        return "[" + name.replace("]", "]]") + "]"
+
+    period_start = proofs.get("period_start") or explicit_date(period_start_measure)
+    period_end = proofs.get("period_end") or explicit_date(period_end_measure)
+    forecast_period = proofs.get("forecast_crossing") or explicit_date(forecast_period_measure)
+    if period_start == "BLANK ()" or period_end == "BLANK ()":
+        unresolved.append("evaluation_period_unavailable")
+    if trig.get("forecast") and forecast_period == "BLANK ()":
+        unresolved.append("forecast_period_unavailable")
+    reasons = [_dax_str(reason) for reason in dict.fromkeys(unresolved)]
+    reasons.extend(dynamic_reasons)
+    guardrail = (ev.get("minimum_data") or {}).get("volume_guardrail") or {}
+    guardrail_name = measure_name.get(guardrail.get("metric_kpi_id"))
+    if guardrail.get("enabled") and guardrail_name and "volume_guardrail" not in unresolved:
+        guardrail_ref = "[" + guardrail_name.replace("]", "]]") + "]"
+        reasons.append(f'IF ( ISBLANK ( {guardrail_ref} ), "volume_guardrail_missing", BLANK () )')
+    reasons.append(f"IF ( ISBLANK ( {value} ), \"value_missing\", BLANK () )")
+    if kid in ctx["basis"]:
+        reasons.append(f"IF ( ISBLANK ( {baseline} ), \"baseline_missing\", BLANK () )")
+    if kid in ctx["ziel"]:
+        reasons.append(f"IF ( ISBLANK ( {target} ), \"target_missing\", BLANK () )")
+    for name, expression in (("period_start_missing", period_start), ("period_end_missing", period_end)):
+        if expression != "BLANK ()":
+            reasons.append(f'IF ( ISBLANK ( {expression} ), "{name}", BLANK () )')
+    if forecast_period != "BLANK ()":
+        reasons.append(f'IF ( {fired} && ISBLANK ( {forecast_period} ), "forecast_period_missing", BLANK () )')
+    if period_start != "BLANK ()" and period_end != "BLANK ()":
+        reasons.append(f'IF ( {period_start} > {period_end}, "evaluation_period_invalid", BLANK () )')
+    rows = ", ".join(f'ROW ( "reason", {reason} )' for reason in reasons)
+    prelude = (" ".join(ctx["vars"]) +
+               f' VAR _unresolved = FILTER ( UNION ( {rows}, ROW ( "reason", BLANK () ) ), NOT ISBLANK ( [reason] ) )')
+    evaluated = "COUNTROWS ( _unresolved ) = 0"
+    prefix = f"Action_{code}_Evidence_"
+    measures = {}
+
+    def add(suffix: str, expression: str, kind: str, format_string: str) -> None:
+        dax = prelude + " RETURN " + expression
+        canonical_dax = dax.replace("\r\n", "\n").replace("\r", "\n").strip().encode("utf-8")
+        measures[suffix] = {"name": prefix + suffix, "data_type": kind,
+                            "format_string": format_string, "dax": dax,
+                            "dax_sha256": hashlib.sha256(canonical_dax).hexdigest()}
+
+    for suffix, expression in (("Actual", actual), ("Value", value), ("Baseline", baseline), ("Target", target)):
+        add(suffix, expression, "number", FORMAT[fmt])
+    for level, cond in level_conditions.items():
+        expression = _schwellenwert(cond, baseline, fmt, target if kid in ctx["ziel"] else None)
+        reference = (baseline if _braucht_basis(cond) else
+                     target if cond["threshold"].get("reference") == "target" else None)
+        if reference:
+            expression = f"IF ( NOT ISBLANK ( {reference} ), {expression}, BLANK () )"
+        add(f"Threshold_{level}", expression, "number", FORMAT[fmt])
+    add("Evaluated", f"IF ( {evaluated}, 1, 0 )", "integer", "0")
+    add("Status", f'IF ( {evaluated}, "evaluated", "not_evaluable" )', "string", "")
+    add("Fired", f"IF ( {evaluated}, IF ( {fired}, 1, 0 ), BLANK () )", "integer", "0")
+    add("Level", f"IF ( {evaluated}, {selected_level}, BLANK () )", "string", "")
+    add("UnresolvedConditions", '"[" & CONCATENATEX ( _unresolved, """" & [reason] & """", " , " ) & "]"',
+        "json_string", "")
+    add("PeriodStart", period_start, "date", "yyyy-MM-dd")
+    add("PeriodEnd", period_end, "date", "yyyy-MM-dd")
+    forecast = trig.get("forecast")
+    if forecast:
+        band = forecast.get("band") or {}
+        for suffix, name in (("ForecastPoint", forecast.get("forecast_measure")),
+                             ("ForecastLower", band.get("lower_measure")),
+                             ("ForecastUpper", band.get("upper_measure"))):
+            expression = f"[{name}]" if name and (definiert is None or name in definiert) else "BLANK ()"
+            add(suffix, expression, "number", FORMAT[fmt])
+        # Ein Horizont ist kein erster Schwellenübertritt. Ohne expliziten Beleg bleibt der Termin leer.
+        add("ForecastPeriodStart", forecast_period, "date", "yyyy-MM-dd")
+    if fmt not in EVIDENCE_UNITS:
+        raise Fehler(f"{code}: unit_format {fmt!r} ohne Evidence-Einheit")
+    value_unit, native_per_display = EVIDENCE_UNITS[fmt]
+    first = thresholds["L1"]
+    return {"schema_version": EVIDENCE_SCHEMA_VERSION, "action_code_id": code, "kpi_id": kid,
+            "trigger_type": trig["type"], "action_status": ac.get("status"),
+            "value_unit": value_unit, "value_unit_format": fmt,
+            "value_native_per_display_unit": native_per_display,
+            "threshold_basis": first["basis"], "threshold_reference": first.get("reference"),
+            "threshold_unit": first.get("unit"), "thresholds": thresholds,
+            "forecast": forecast, "scope": {"use_case_id": bracket["id"]},
+            "source": {"action_code": source_code, "bracket": source_bracket,
+                       "evaluator": "tooling.codegen.action_trigger_dax",
+                       "evaluator_version": EVIDENCE_EVALUATOR_VERSION},
+            "unresolved_conditions": list(dict.fromkeys(unresolved)),
+            "period_sources": {"start_measure": period_start_measure, "end_measure": period_end_measure,
+                               "forecast_crossing_measure": forecast_period_measure},
+            "proof_bindings": proof_bindings, "measures": measures}
+
+
+def evidence_manifest(evidence: list[dict]) -> dict:
+    """Ein expliziter Maßsatz, kein automatischer Katalog-Rollout und kein Freigabenachweis."""
+    if not evidence:
+        raise Fehler("Evidence-Manifest braucht mindestens eine explizite Code-Bindung")
+    keys = [(e["scope"]["use_case_id"], e["action_code_id"]) for e in evidence]
+    if len(keys) != len(set(keys)):
+        raise Fehler("Doppelte Scope/Action-Code-Bindung im Evidence-Manifest")
+    ordered = sorted(evidence, key=lambda e: (e["scope"]["use_case_id"], e["action_code_id"]))
+    return {"schema_version": EVIDENCE_SCHEMA_VERSION, "evaluator_version": EVIDENCE_EVALUATOR_VERSION,
+            "action_evidence": [{**packet, "measures": {key: {k: v for k, v in measure.items() if k != "dax"}
+                                  for key, measure in packet["measures"].items()}}
+                                for packet in ordered]}
+
+
+def evidence_tmdl(evidence: list[dict]) -> str:
+    """Opt-in TMDL-Block für die vorhandene _Measures-Tabelle; Quelle im Manifest."""
+    evidence_manifest(evidence)
+    out = []
+    seen = set()
+    for packet in sorted(evidence, key=lambda e: (e["scope"]["use_case_id"], e["action_code_id"])):
+        for entry in packet["measures"].values():
+            if entry["name"] in seen:
+                raise Fehler(f"Evidence-Maß doppelt: {entry['name']}")
+            seen.add(entry["name"])
+            name = entry["name"].replace("'", "''")
+            purpose = (f"Governed action evidence {packet['action_code_id']}; "
+                       f"{entry['data_type']}. Not an action approval.")
+            out += [f"\t/// Purpose: {purpose}",
+                    f"\tmeasure '{name}' = {entry['dax']}",
+                    f"\t\tformatString: {entry['format_string'] or chr(34) + chr(34)}",
+                    "\t\tdisplayFolder: 8_Actions\\Evidence",
+                    "\t\tannotation ALUCA_Generated = action_trigger_evidence", ""]
+    return "\n".join(out)
 
 
 def _loader():
@@ -343,6 +620,57 @@ def _loader():
             sys.path.insert(0, p)
     from page_scaffold_generator.config_loader import ConfigLoader
     return ConfigLoader(REPO)
+
+
+def schreibe_evidence(use_case_id: str, model_name: str, out_dir: Path,
+                     proof_bindings: dict | None = None) -> dict:
+    """Expliziter CLI-Schnitt: genau die gebundenen Codes, keine Standard-Modelländerung."""
+    if Path(model_name).name != model_name:
+        raise Fehler("Evidence-Modell muss ein Modellname unter dist sein")
+    model = DIST / model_name
+    if not model.is_dir():
+        raise Fehler(f"Evidence-Modell fehlt: {model_name}")
+    brackets = []
+    for path in (REPO / "core/usecases").rglob("UseCase_Bracket.yaml"):
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        if data.get("id") == use_case_id:
+            brackets.append((path, data))
+    if len(brackets) != 1:
+        raise Fehler(f"Evidence braucht genau einen governten Bracket {use_case_id!r}")
+    bracket_path, bracket = brackets[0]
+    ids = (bracket.get("orchestration") or {}).get("action_code_ids") or []
+    if not ids:
+        raise Fehler("Evidence-Bracket hat keine expliziten Action-Code-Referenzen")
+    proof_bindings = {} if proof_bindings is None else proof_bindings
+    if not isinstance(proof_bindings, dict) or set(proof_bindings) - set(ids):
+        raise Fehler("Evidence-Proof-Bindungen müssen explizit gebundene Action-Codes referenzieren")
+    loader = _loader()
+    names = loader.measure_map_for_model(model)
+    defined = set(loader._model_symbols_for_dir(model).measure_names)
+    paths = {}
+    for path in ACTION_CODES.glob("*/*.yaml"):
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        if data.get("id") in ids:
+            if data["id"] in paths:
+                raise Fehler("Action-Code-Quelle ist nicht eindeutig")
+            paths[data["id"]] = (path, data)
+    packets = []
+    for code in ids:
+        if code not in paths:
+            raise Fehler(f"Evidence-Action-Code fehlt: {code}")
+        path, ac = paths[code]
+        packet = evidence_fuer(ac, names, _kpi_formate(), definiert=defined, plan_ref=_kpi_plan(),
+                              action_code_path=path, bracket_path=bracket_path,
+                              proof_bindings=proof_bindings.get(code))
+        packet["source"]["model_name"] = model_name.removesuffix(".SemanticModel")
+        packet["source"]["model_item_name"] = model_name
+        packets.append(packet)
+    manifest = evidence_manifest(packets)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "action_evidence.manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+    (out_dir / "action_evidence.tmdl").write_text(evidence_tmdl(packets), encoding="utf-8", newline="\n")
+    return manifest
 
 
 def pruefe(schreiben: bool = False) -> list[Ergebnis]:
@@ -381,7 +709,25 @@ def pruefe(schreiben: bool = False) -> list[Ergebnis]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--write", action="store_true", help="dist/ nachziehen")
+    ap.add_argument("--evidence-use-case", help="Opt-in: kanonische Bracket-ID, kein KPI-Mapping")
+    ap.add_argument("--evidence-model", help="Opt-in: Modellname unter dist")
+    ap.add_argument("--evidence-out", type=Path, help="Opt-in: Ausgabeordner für Manifest und TMDL-Block")
+    ap.add_argument("--evidence-bindings", type=Path,
+                    help="Optional: JSON mit expliziten Proof-Measure-Bindungen je Action-Code")
     args = ap.parse_args(argv)
+    evidence_args = (args.evidence_use_case, args.evidence_model, args.evidence_out)
+    if any(arg is not None for arg in evidence_args) or args.evidence_bindings is not None:
+        if not all(evidence_args) or args.write:
+            ap.error("Evidence verlangt --evidence-use-case, --evidence-model, --evidence-out ohne --write")
+        try:
+            bindings = (json.loads(args.evidence_bindings.read_text(encoding="utf-8"))
+                        if args.evidence_bindings else None)
+            manifest = schreibe_evidence(args.evidence_use_case, args.evidence_model, args.evidence_out, bindings)
+        except (Fehler, OSError, ValueError) as exc:
+            print(f"Evidence nicht erzeugt: {exc}", file=sys.stderr)
+            return 2
+        print(f"Evidence: {len(manifest['action_evidence'])} explizite Code-Bindungen; keine Modelländerung")
+        return 0
     ergebnisse = pruefe(schreiben=args.write)
     abweichend = [e for e in ergebnisse if e.neu is not None and e.neu != e.alt]
     fehler = [e for e in ergebnisse if e.fehler]
