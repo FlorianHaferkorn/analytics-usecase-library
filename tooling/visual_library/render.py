@@ -821,6 +821,50 @@ LOCALES: dict = {
 }
 
 
+_HOUSE_STYLE_PARAMS = frozenset({"axis_grid_opacity", "axis_grid_dash", "value_tick_count", "end_marker_size",
+                                  "show_phase_annotations", "show_axis_break"})
+
+
+def _house_style_params(entry: dict, notation: str, given: dict) -> dict:
+    """Resolve optional house presentation inputs before filling original templates.
+
+    No input changes the canonical output; IBCS and other notation templates ignore
+    these house controls. Tick counts remain suppressed on directly labelled bars.
+    """
+    if notation != default_profile():
+        return {}
+    canonical = entry["canonical_params"]
+    out = {}
+    for key, internal in (("show_phase_annotations", "_phase_visibility"),
+                          ("show_axis_break", "_axis_break_visibility")):
+        if key not in given or internal not in canonical:
+            continue
+        if not isinstance(given[key], bool):
+            raise ValueError(f"{key} must be a boolean")
+        out[internal] = "" if given[key] else " && false"
+    for key, maximum in (("axis_grid_opacity", 1), ("end_marker_size", 64)):
+        if key not in given or key not in canonical:
+            continue
+        value = given[key]
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= maximum:
+            raise ValueError(f"{key} must be a number from 0 to {maximum}")
+        out[key] = str(value)
+    if "axis_grid_dash" in given and "axis_grid_dash" in canonical:
+        dash = given["axis_grid_dash"]
+        if not isinstance(dash, (list, tuple)) or any(
+                isinstance(v, bool) or not isinstance(v, (int, float)) or not 0 <= v <= 64 for v in dash):
+            raise ValueError("axis_grid_dash must be a sequence of non-negative lengths up to 64")
+        out["axis_grid_dash"] = json.dumps(list(dash))
+    if "value_tick_count" in given and "_value_axis_ticks" in canonical:
+        count = given["value_tick_count"]
+        if isinstance(count, bool) or not isinstance(count, int) or not 2 <= count <= 12:
+            raise ValueError("value_tick_count must be an integer from 2 to 12")
+        out["_value_axis_ticks"] = (', "tickCount": { "expr": "_beschriftet ? 0 : '+str(count)+'" }'
+                                    if entry["id"] in ("bar_absolute", "bar_ranking")
+                                    else ', "tickCount": '+str(count))
+    return out
+
+
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
                   background: "str | None" = None) -> "tuple[str, str]":
@@ -829,7 +873,14 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     `bindings` ({role: column}) binds real data columns through `data_slots`; `params` overrides
     any other template parameter (e.g. polarity -1 for a lower-is-better measure). Without both,
     the frozen canonical sample is used — that is what the goldens freeze. `background` (hex)
-    redraws the colours for that dark ground (`on_background`, salience kept)."""
+    redraws the colours for that dark ground (`on_background`, salience kept).
+
+    House presentation inputs (opt-in, old defaults retained): axis_grid_opacity
+    0..1, axis_grid_dash list, value_tick_count 2..12, end_marker_size 0..64 px²,
+    show_phase_annotations and show_axis_break booleans. These only affect the
+    corresponding base templates, not IBCS. label_current already controls the
+    running-period caption. Event fields remain in data and hover tooltips.
+    """
     if target not in DERIVED_TARGETS:
         raise KeyError(f"unknown derived target '{target}'")
     profile = profile or default_profile()
@@ -854,7 +905,8 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         eff.update({v: eff[fb] for v, fb in dv.items() if v not in given and fb is not None})
         eff.update({k: str(v) for k, v in given.items()
                     if k not in ("top_n", "rest", "rest_label", "time_format", "time_ticks", "highlight", "accent",
-                                  "focus_grey", "lang")})
+                                  "focus_grey", "lang") and k not in _HOUSE_STYLE_PARAMS})
+        eff.update(_house_style_params(entry, notation, given))
         if (entry.get("encoding") or {}).get("order") == "worst_first" and "worst_first" not in given:
             # worst first: for a lower-is-better measure the worst value is the highest (A-31 R7)
             eff["worst_first"] = "descending" if float(eff.get("polarity", 1)) < 0 else "ascending"

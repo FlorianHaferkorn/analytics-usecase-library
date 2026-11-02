@@ -1,7 +1,7 @@
 # Visual Library entry — bar_absolute  (schema: _schema.yaml)
 id: bar_absolute
 name: Bar (absolute magnitude)
-version: "1.2.0"   # 1.2.0 (22.10.2026): Höchstbreite 24 px (B2), ein Akzent per highlight_category, Rest grau (B5), Null als Strich und „0“, fehlend als „–“ (B9). 1.1.0 (17.10.2026): Beschriftung an: Wertegitter und Werteachse aus (W2)
+version: "1.3.0"   # 1.2.0 (22.10.2026): Höchstbreite 24 px (B2), ein Akzent per highlight_category, Rest grau (B5), Null als Strich und „0“, fehlend als „–“ (B9). 1.1.0 (17.10.2026): Beschriftung an: Wertegitter und Werteachse aus (W2)
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
@@ -43,6 +43,7 @@ data_slots:
   field_cat: {role: category, required: true}
 
 canonical_params:
+  _value_axis_ticks: ', "tickCount": { "expr": "_beschriftet ? 0 : ceil(width/40)" }'  # optional value_tick_count retains label-aware axis suppression
   col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
   entity: "_Measures"
   measure: "Net Sales Amount"
@@ -110,7 +111,7 @@ realizations:
         ],
         "encoding": {
           "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "descending" }, "axis": { "title": null } },
-          "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null, "tickCount": { "expr": "_beschriftet ? 0 : ceil(width/40)" }, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } }, "scale": { "zero": true } }
+          "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null{{_value_axis_ticks}}, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } }, "scale": { "zero": true } }
         },
         "layer": [
           { "mark": { "type": "bar", "height": { "expr": "min(bandwidth('y'), {{bar_max_px}})" } },

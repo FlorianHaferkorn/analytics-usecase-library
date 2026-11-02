@@ -1,7 +1,7 @@
 # Visual Library entry — line  (schema: _schema.yaml)
 id: line
 name: Trend line
-version: "2.2.1"   # 2.2.1 (29.10.2026): IBCS-Endwert rechtsbündig links über dem letzten Punkt (align und dx je Datum, dx -8, dy -10 wie house_default), rechts vom Linienende stehen nur die Serienlabels; zentriert ragte der Endwert um seine halbe Breite in die Zeile des Serienlabels (Meridian Fabric-App-Tor G14, alle Breiten: 'PL' überdeckt '41,4', FIN-001 Ist gegen Plan). Ausblendschwelle der Extremwerte gegen den letzten Punkt 34 -> 59 px (8 + 1,5 x 34: der Endwert reicht jetzt ganz nach links). 2.2.0 (23.10.2026): Zusammenführung der parallelen Zweige 2.1.x — Rubrikpaket (laufende Periode, Serienlabel am Linienende, Abweichungsfläche, Zielkorridor) und Cockpitzeit (Ereignismarker, Prognoseband, Ereignisnummer 19 px über der Fläche); beide Zweige hatten unabhängig 2.1.0/2.1.1 vergeben. Zweig Cockpitzeit: 2.1.2 (22.10.2026): die Ereignisnummer steht in einem eigenen Streifen 19 px über der Zeichenfläche, über allen Direktbeschriftungen (Endwert dy -10, Plan -8, P90 -7); bei -3 überdeckte sie den Endwert eines hohen letzten Punkts (Meridian Fabric-App-Tor G14, 390 px: '3' überdeckt '91,8'). 2.1.1 (22.10.2026): an der Regel die laufende Nummer des Ereignisses über der Zeichenfläche, der Text steht in der Legende des Aufrufers (Regel ereignismarker; ein Text in der Zeichenfläche überdeckte Direktbeschriftungen, Fabric-App-Tor G14), und ohne Marke für den Null-Platzhalter "(Blank)" des Fabric-Hosts (fabric-visuals NULL_SENTINEL). 2.1.0 (22.10.2026): Rollen event (Ereignismarker, Regel ereignismarker) und fc_band (Prognoseband P10-P90, Regel prognoseband), Meridian BO-401/BO-402. Zweig Rubrikpaket: 2.1.1 (22.10.2026): Abweichungsfläche aria false (leerer Container ohne Namen, Cockpit G8). 2.1.0 (22.10.2026): laufende Periode mit hohlem Endpunkt (L4), Serienlabel am Linienende statt am Anfang (L3), Abweichungsfläche Ist/Plan nach Richtung als Variante (L6), IBCS nativ mit Serienlabels. 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
+version: "2.3.0"   # 2.2.1 (29.10.2026): IBCS-Endwert rechtsbündig links über dem letzten Punkt (align und dx je Datum, dx -8, dy -10 wie house_default), rechts vom Linienende stehen nur die Serienlabels; zentriert ragte der Endwert um seine halbe Breite in die Zeile des Serienlabels (Meridian Fabric-App-Tor G14, alle Breiten: 'PL' überdeckt '41,4', FIN-001 Ist gegen Plan). Ausblendschwelle der Extremwerte gegen den letzten Punkt 34 -> 59 px (8 + 1,5 x 34: der Endwert reicht jetzt ganz nach links). 2.2.0 (23.10.2026): Zusammenführung der parallelen Zweige 2.1.x — Rubrikpaket (laufende Periode, Serienlabel am Linienende, Abweichungsfläche, Zielkorridor) und Cockpitzeit (Ereignismarker, Prognoseband, Ereignisnummer 19 px über der Fläche); beide Zweige hatten unabhängig 2.1.0/2.1.1 vergeben. Zweig Cockpitzeit: 2.1.2 (22.10.2026): die Ereignisnummer steht in einem eigenen Streifen 19 px über der Zeichenfläche, über allen Direktbeschriftungen (Endwert dy -10, Plan -8, P90 -7); bei -3 überdeckte sie den Endwert eines hohen letzten Punkts (Meridian Fabric-App-Tor G14, 390 px: '3' überdeckt '91,8'). 2.1.1 (22.10.2026): an der Regel die laufende Nummer des Ereignisses über der Zeichenfläche, der Text steht in der Legende des Aufrufers (Regel ereignismarker; ein Text in der Zeichenfläche überdeckte Direktbeschriftungen, Fabric-App-Tor G14), und ohne Marke für den Null-Platzhalter "(Blank)" des Fabric-Hosts (fabric-visuals NULL_SENTINEL). 2.1.0 (22.10.2026): Rollen event (Ereignismarker, Regel ereignismarker) und fc_band (Prognoseband P10-P90, Regel prognoseband), Meridian BO-401/BO-402. Zweig Rubrikpaket: 2.1.1 (22.10.2026): Abweichungsfläche aria false (leerer Container ohne Namen, Cockpit G8). 2.1.0 (22.10.2026): laufende Periode mit hohlem Endpunkt (L4), Serienlabel am Linienende statt am Anfang (L3), Abweichungsfläche Ist/Plan nach Richtung als Variante (L6), IBCS nativ mit Serienlabels. 2.0.0 (17.10.2026): Werteachse ab 0, angepasst mit Achsenbruch bei Spannweite < 25 %, monotone Linien, Alarmlinie (Gestaltungsregeln). 1.2.2 (17.10.2026): Hover-Ring ohne Füllung aus dem Host-Theme. 1.2.1: Vega-Linie dezenter, Punkte nur als kleine Kreise, Raster gepunktet ohne Y-Achsenlinie (house, print_safe)
 status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
@@ -55,6 +55,12 @@ data_slots:
   current_field: {role: current, required: false}  # true on the running period (Snapshot trend.laufend): hollow endpoint (L4)
 
 canonical_params:
+  axis_grid_opacity: "0.8"       # optional house grid style; default preserves the governed baseline
+  axis_grid_dash: "[2, 4]"
+  end_marker_size: "36"          # endpoint area in px²; 0 hides only the decorative endpoint
+  _phase_visibility: ""          # show_phase_annotations=false hides marks, preserves event tooltip/data
+  _axis_break_visibility: ""     # show_axis_break=false hides glyph, preserves labelled nonzero scale
+  _value_axis_ticks: ""          # render_target resolves optional value_tick_count here
   col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
   entity: "_Measures"
   measure: "Gross Margin %"
@@ -185,10 +191,10 @@ realizations:
           { "transform": [ { "filter": "isValid(datum['{{fc_lo_field}}'])" }, { "window": [ { "op": "row_number", "as": "_bl" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._bl == 1" } ],
             "mark": { "type": "text", "text": "{{label_fc_lo}}", "align": "right", "dx": -2, "dy": 11, "fontSize": 10, "color": "{{col_ref}}" },
             "encoding": { "y": { "field": "{{fc_lo_field}}", "type": "quantitative" } } },
-          { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'" } ],
+          { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'{{_phase_visibility}}" } ],
             "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "description": "Ereignis" },
               "encoding": { "tooltip": { "field": "{{event_field}}", "type": "nominal" } } },
-          { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'" }, { "window": [ { "op": "row_number", "as": "_ev" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] } ],
+          { "transform": [ { "filter": "isValid(datum['{{event_field}}']) && datum['{{event_field}}'] != '' && datum['{{event_field}}'] != '(Blank)'{{_phase_visibility}}" }, { "window": [ { "op": "row_number", "as": "_ev" } ], "sort": [ { "field": "{{field_date}}", "order": "ascending" } ] } ],
             "mark": { "type": "text", "align": "center", "baseline": "bottom", "dy": -19, "fontSize": 11, "color": "{{col_ref}}", "description": "Ereignisnummer" },
             "encoding": { "y": { "value": 0 }, "text": { "field": "_ev", "type": "nominal" }, "tooltip": { "field": "{{event_field}}", "type": "nominal" } } },
           { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_py}}", "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
@@ -197,7 +203,7 @@ realizations:
             "mark": { "type": "text", "text": "{{label_py}}", "align": "left", "baseline": "middle", "dx": 6, "color": "{{col_py}}", "description": "Serienlabel" },
             "encoding": { "y": { "field": "{{py_field}}", "type": "quantitative" } } },
           { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_line}}", "strokeWidth": 2, "strokeCap": "round", "strokeJoin": "round" },
-            "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null, "domain": false, "ticks": false, "gridDash": [2, 4], "gridOpacity": 0.8 } } } },
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null, "domain": false, "ticks": false, "gridDash": {{axis_grid_dash}}, "gridOpacity": {{axis_grid_opacity}}{{_value_axis_ticks}} } } } },
           { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeWidth": 1, "strokeDash": [1, 4], "strokeCap": "round" },
             "encoding": { "y": { "datum": {{target_val}} } } },
           { "mark": { "type": "rule", "color": "{{col_alert}}", "strokeWidth": 1, "strokeDash": [4, 2], "strokeCap": "round" },
@@ -205,7 +211,7 @@ realizations:
           { "transform": [ { "window": [ { "op": "row_number", "as": "_a" } ] }, { "filter": "datum._a == 1" } ],
             "mark": { "type": "text", "text": "{{label_alert}}", "align": "left", "dx": 4, "dy": 10, "color": "{{col_alert}}" },
             "encoding": { "x": { "value": 0 }, "y": { "datum": {{alert_val}} } } },
-          { "transform": [ { "filter": "datum._yangepasst" }, { "window": [ { "op": "row_number", "as": "_yb" } ] }, { "filter": "datum._yb == 1" } ],
+          { "transform": [ { "filter": "datum._yangepasst{{_axis_break_visibility}}" }, { "window": [ { "op": "row_number", "as": "_yb" } ] }, { "filter": "datum._yb == 1" } ],
             "mark": { "type": "text", "text": "≈", "fontSize": 14, "fontWeight": "bold", "color": "{{col_ref}}", "align": "center", "baseline": "middle", "description": "Achse beginnt nicht bei null" },
             "encoding": { "x": { "value": 0 }, "y": { "value": { "expr": "height" } } } },
           { "mark": { "type": "line", "interpolate": "monotone", "color": "{{col_ref}}", "strokeDash": [4, 4], "strokeWidth": 1.25, "strokeCap": "round", "strokeJoin": "round" },
@@ -219,10 +225,10 @@ realizations:
             "mark": { "type": "text", "text": "{{label_fc}}", "align": "left", "baseline": "middle", "dx": 6, "color": "{{col_line}}", "description": "Serienlabel" },
             "encoding": { "y": { "field": "{{fc_field}}", "type": "quantitative" } } },
           { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1 && !datum._laufend" } ],
-            "mark": { "type": "point", "shape": "circle", "size": 36, "strokeWidth": 1.5, "filled": true, "fill": "{{col_end}}", "stroke": "{{col_end}}" },
+            "mark": { "type": "point", "shape": "circle", "size": {{end_marker_size}}, "strokeWidth": 1.5, "filled": true, "fill": "{{col_end}}", "stroke": "{{col_end}}" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative" }, "opacity": { "value": 1 } } },
           { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" }, { "filter": { "field": "{{current_field}}", "equal": true } } ],
-            "mark": { "type": "point", "shape": "circle", "size": 36, "strokeWidth": 1.5, "filled": true, "fill": "#FFFFFF", "stroke": "{{col_end}}", "description": "laufende Periode" },
+            "mark": { "type": "point", "shape": "circle", "size": {{end_marker_size}}, "strokeWidth": 1.5, "filled": true, "fill": "#FFFFFF", "stroke": "{{col_end}}", "description": "laufende Periode" },
             "encoding": { "y": { "field": "{{field}}", "type": "quantitative" }, "opacity": { "value": 1 } } },
           { "transform": [ { "filter": "isValid(datum['{{field}}'])" }, { "filter": { "field": "{{current_field}}", "equal": true } }, { "window": [ { "op": "row_number", "as": "_l" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._l == 1" } ],
             "mark": { "type": "text", "text": "{{label_current}}", "align": "right", "baseline": "top", "dx": -8, "dy": 8, "color": "{{col_ref}}", "description": "laufende Periode" },

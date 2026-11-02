@@ -210,3 +210,98 @@ def _hex_literals(node, key=None):
     elif isinstance(node, str) and len(node) == 7 and node.startswith("#"):
         out.append((node, key))
     return out
+
+
+@pytest.mark.parametrize("idiom", ["line", "bar_absolute", "bar_ranking"])
+def test_house_presentation_controls_preserve_ibcs_and_default_goldens(idiom):
+    """Opt-in presentation never changes the frozen default or the IBCS reading."""
+    for profile in ["house_default", *render.profiles(idiom)]:
+        doc, _ = render.render_target(idiom, "fabric_app", profile)
+        assert doc == render.target_golden_path(idiom, "fabric_app", profile).read_text(encoding="utf-8")
+    if "ibcs" not in render.profiles(idiom):
+        return
+    opts = {"axis_grid_opacity": 0.3, "axis_grid_dash": [], "value_tick_count": 4, "end_marker_size": 16,
+            "show_phase_annotations": False, "show_axis_break": False}
+    bindings = {"value": "v", "time": "t", "category": "c"}
+    baseline, _ = render.render_target(idiom, "fabric_app", "ibcs", bindings=bindings)
+    changed, _ = render.render_target(idiom, "fabric_app", "ibcs", bindings=bindings, params=opts)
+    assert changed == baseline
+
+
+def test_house_line_presentation_is_resolved_in_original_template():
+    opts = {"axis_grid_opacity": 0.3, "axis_grid_dash": [], "value_tick_count": 4, "end_marker_size": 16}
+    doc = json.loads(render.render_target("line", "fabric_app", "house_default",
+                                         bindings={"value": "v", "time": "t"}, params=opts)[0])
+    layers = doc["spec"]["layer"]
+    hero = next(layer for layer in layers if layer.get("mark", {}).get("type") == "line"
+                and "axis" in layer.get("encoding", {}).get("y", {}))
+    assert hero["encoding"]["y"]["axis"]["gridOpacity"] == 0.3
+    assert hero["encoding"]["y"]["axis"]["gridDash"] == []
+    assert hero["encoding"]["y"]["axis"]["tickCount"] == 4
+    endpoint = next(layer for layer in layers if layer.get("mark", {}).get("filled") is True)
+    assert endpoint["mark"]["size"] == 16
+    assert hero["encoding"]["y"]["field"] == "v"
+
+
+@pytest.mark.parametrize("idiom", ["bar_absolute", "bar_ranking"])
+def test_house_bar_tick_density_keeps_direct_label_suppression(idiom):
+    doc = json.loads(render.render_target(idiom, "fabric_app", "house_default",
+                                         bindings={"value": "v", "category": "c"}, params={"value_tick_count": 4})[0])
+    # The base value axis remains at zero and direct labels still remove its ticks.
+    text = json.dumps(doc["spec"])
+    assert "_beschriftet ? 0 : 4" in text
+    assert "ceil(width/40)" not in text
+    # No false zero-baseline scale is introduced for any bar channel.
+    def scales(node):
+        if isinstance(node, dict):
+            if "scale" in node:
+                yield node["scale"]
+            for value in node.values():
+                yield from scales(value)
+        elif isinstance(node, list):
+            for value in node:
+                yield from scales(value)
+    assert not any(scale.get("zero") is False for scale in scales(doc["spec"]))
+
+
+@pytest.mark.parametrize("key,value", [("axis_grid_opacity", 1.1), ("axis_grid_opacity", True),
+                                     ("axis_grid_dash", [-1]), ("end_marker_size", -2),
+                                     ("value_tick_count", 1), ("value_tick_count", 4.5)])
+def test_house_presentation_rejects_invalid_inputs(key, value):
+    with pytest.raises(ValueError):
+        render.render_target("line", "fabric_app", "house_default", params={key: value})
+
+
+def test_house_annotation_switches_preserve_event_tooltip_and_scale():
+    doc = json.loads(render.render_target("line", "fabric_app", "house_default",
+        bindings={"value": "v", "time": "t", "event": "phase", "current": "running"},
+        params={"show_phase_annotations": False, "show_axis_break": False, "label_current": ""})[0])
+    layers = doc["spec"]["layer"]
+    event_layers = [layer for layer in layers
+                    if layer.get("mark", {}).get("description") in ("Ereignis", "Ereignisnummer")]
+    assert len(event_layers) == 2
+    assert all("&& false" in layer["transform"][0]["filter"] for layer in event_layers)
+    axis_break = next(layer for layer in layers if layer.get("mark", {}).get("text") == "≈")
+    assert axis_break["transform"][0]["filter"] == "datum._yangepasst && false"
+    hero = next(layer for layer in layers if layer.get("mark", {}).get("type") == "line"
+                and "axis" in layer.get("encoding", {}).get("y", {}))
+    assert hero["encoding"]["y"]["scale"] == {"zero": False}
+    assert {"field": "phase", "type": "nominal", "title": "phase"} in hero["encoding"]["tooltip"]
+    caption = next(layer for layer in layers if layer.get("mark", {}).get("description") == "laufende Periode"
+                   and layer["mark"]["type"] == "text")
+    assert caption["mark"]["text"] == ""
+
+
+def test_emitted_dark_forecast_text_keeps_text_contrast_separate_from_mark():
+    """A line pixel is not a text color: the original dark mapper enforces each role."""
+    bg = "#17181B"
+    doc = json.loads(render.render_target("line", "fabric_app", "house_default",
+        bindings={"value": "v", "time": "t", "forecast": "fc"},
+        params={"col_line": "#008092"}, background=bg)[0])
+    layers = doc["spec"]["layer"]
+    line = next(layer["mark"] for layer in layers if layer.get("mark", {}).get("type") == "line")
+    label = next(layer["mark"] for layer in layers if layer.get("mark", {}).get("text") == "FC")
+    contrast = render._contrast()
+    assert contrast.contrast_ratio_exact(line["color"], bg) >= 3.0
+    assert contrast.contrast_ratio_exact(label["color"], bg) >= 4.5
+    assert line["color"] != label["color"], "The mapper must distinguish mark and text floors"
