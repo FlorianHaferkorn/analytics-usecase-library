@@ -7,17 +7,205 @@ das tragen, was der Generator aus `core/action_codes/` erzeugt.
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 import re
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from tooling.codegen import action_trigger_dax as atd  # noqa: E402
+
+
+@pytest.fixture
+def evidence_source(tmp_path, monkeypatch):
+    """Synthetic governed inputs, never customer/tenant data."""
+    monkeypatch.setattr(atd, "REPO", tmp_path)
+    action_path = tmp_path / "core/action_codes/test/T-1.yaml"
+    bracket_path = tmp_path / "core/usecases/test/UseCase_Bracket.yaml"
+    action_path.parent.mkdir(parents=True)
+    bracket_path.parent.mkdir(parents=True)
+
+    def generate(ac=None, *, proof_bindings=None, extra_measures=(), unit_format="percent_1", **kwargs):
+        ac = copy.deepcopy(ac or _code(basis="relative", reference="baseline", unit="%"))
+        ac["trigger"].setdefault("type", "Deviation")
+        ac.setdefault("status", "draft")
+        action_path.write_text(yaml.safe_dump(ac), encoding="utf-8")
+        bracket_path.write_text(
+            yaml.safe_dump({"id": "TEST-UC", "orchestration": {"action_code_ids": [ac["id"]]}}), encoding="utf-8")
+        packet = atd.evidence_fuer(ac, {"k": "K", "plan": "K Plan"}, {"k": unit_format},
+                                  action_code_path=action_path, bracket_path=bracket_path,
+                                  definiert={"K", "K Plan", *extra_measures}, plan_ref={"k": "plan"},
+                                  proof_bindings=proof_bindings, **kwargs)
+        return packet, ac, action_path, bracket_path
+    return generate
+
+
+def _proof(role, name):
+    return {"measure": name, "semantics": role, "action_code_id": "T-1", "use_case_id": "TEST-UC"}
+
+
+def test_evidence_preserves_relative_percent_and_source_identity(evidence_source):
+    packet, _, action_path, bracket_path = evidence_source()
+    assert packet["value_native_per_display_unit"] == .01
+    assert packet["threshold_unit"] == "%"
+    assert packet["thresholds"]["L1"]["value"] == 1
+    assert "_b0 * 1.01" in packet["measures"]["Threshold_L1"]["dax"]
+    assert packet["action_status"] == "draft"
+    assert packet["scope"] == {"use_case_id": "TEST-UC"}
+    for key, path in (("action_code", action_path), ("bracket", bracket_path)):
+        assert packet["source"][key]["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+        assert not Path(packet["source"][key]["path"]).is_absolute()
+
+
+def test_evidence_target_percent_is_not_percentage_points(evidence_source):
+    relative, *_ = evidence_source(_code(basis="target", reference="target", unit="%"))
+    pp, *_ = evidence_source(_code(basis="target", reference="target", unit="pp"))
+    assert "_z0 * 1.01" in relative["measures"]["Threshold_L1"]["dax"]
+    assert "_z0 + 0.01" in pp["measures"]["Threshold_L1"]["dax"]
+
+
+@pytest.mark.parametrize("fmt,unit", [("eur_per_unit_0", "EUR/unit"), ("eur_0", "EUR"),
+                                      ("count_0", "count"), ("units_0", "units")])
+def test_evidence_preserves_governed_unit_dimensions(evidence_source, fmt, unit):
+    packet, *_ = evidence_source(_code(basis="absolute", unit=unit), unit_format=fmt)
+    assert packet["value_unit"] == unit
+    assert packet["value_native_per_display_unit"] == 1
+
+
+def test_evidence_missing_proofs_cannot_claim_evaluated(evidence_source):
+    ac = _prognose()
+    ac["trigger"]["evaluation"]["minimum_data"] = {"min_observations": 3}
+    ac["trigger"]["gating_rules"] = ["Category scope and source contract verified"]
+    packet, *_ = evidence_source(ac, extra_measures=DEF)
+    assert set(packet["unresolved_conditions"]) == {
+        "persistence", "gating_rules", "minimum_observations", "evaluation_period_unavailable",
+        "forecast_period_unavailable"}
+    for field in ("Fired", "Level"):
+        assert "IF ( COUNTROWS ( _unresolved ) = 0" in packet["measures"][field]["dax"]
+    assert packet["measures"]["ForecastPeriodStart"]["dax"].endswith("RETURN BLANK ()")
+    assert "EDATE" not in packet["measures"]["ForecastPeriodStart"]["dax"]
+    assert packet["measures"]["PeriodStart"]["dax"].endswith("RETURN BLANK ()")
+
+
+def test_explicit_proofs_are_dynamic_scoped_and_level_specific(evidence_source):
+    ac = _prognose()
+    ac["trigger"]["evaluation"]["minimum_data"] = {"min_observations": 3}
+    ac["trigger"]["gating_rules"] = ["Proven scope"]
+    names = {"observation_count": "N", "gating_met": "Scope OK", "period_start": "Window Start",
+             "period_end": "Window End", "forecast_crossing": "Crossing Date",
+             **{f"persistence_count_{level}": f"Runs {level}" for level in ("L1", "L2", "L3")}}
+    bindings = {role: _proof(role, name) for role, name in names.items()}
+    packet, *_ = evidence_source(ac, proof_bindings=bindings, extra_measures={*DEF, *names.values()})
+    assert packet["unresolved_conditions"] == []
+    dax = packet["measures"]["Level"]["dax"]
+    assert '[N] < 3' in dax and '[Scope OK] = 1' in dax
+    assert '[Runs L3] >= 2' in dax and '[Runs L1] >= 2' in dax
+    assert '[Window Start] > [Window End]' in dax
+    # No crossing is a valid result for a cleared or gated-off forecast. A date is
+    # mandatory only for the same fully qualified level that feeds Fired/Level.
+    crossing_guard = re.search(r'IF \( (.*?) && ISBLANK \( \[Crossing Date\] \), "forecast_period_missing"', dax)
+    assert crossing_guard and 'NOT ISBLANK ( IF ( [Scope OK] = 1' in crossing_guard.group(1)
+    assert '[Runs L3] >= 2' in crossing_guard.group(1)
+    assert packet["measures"]["ForecastPeriodStart"]["dax"].endswith("RETURN [Crossing Date]")
+    bindings["gating_met"]["use_case_id"] = "ANOTHER-UC"
+    with pytest.raises(atd.Fehler, match="Scope"):
+        evidence_source(ac, proof_bindings=bindings, extra_measures={*DEF, *names.values()})
+
+
+def test_unknown_or_unproven_binding_is_rejected(evidence_source):
+    with pytest.raises(atd.Fehler, match="nicht im Modell"):
+        evidence_source(proof_bindings={"gating_met": _proof("gating_met", "Invented")})
+    with pytest.raises(atd.Fehler, match="unbekannte"):
+        evidence_source(proof_bindings={"always_true": {}})
+
+
+def test_enabled_guardrail_missing_value_cannot_be_coerced_to_false(evidence_source):
+    ac = _code(basis="absolute", unit="%")
+    ac["trigger"]["evaluation"] = {"minimum_data": {"volume_guardrail": {
+        "enabled": True, "metric_kpi_id": "plan", "comparator": "gte", "value": 10}}}
+    packet, *_ = evidence_source(ac)
+    assert 'ISBLANK ( [K Plan] ), "volume_guardrail_missing"' in packet["measures"]["Fired"]["dax"]
+    assert '[K Plan] >= 10' in packet["measures"]["Fired"]["dax"]
+
+
+def test_manifest_is_portable_and_hashes_exact_generated_expressions(evidence_source):
+    packet, *_ = evidence_source()
+    manifest = atd.evidence_manifest([packet])
+    assert json.loads(json.dumps(manifest)) == manifest
+    for role, measure in manifest["action_evidence"][0]["measures"].items():
+        assert "dax" not in measure
+        expression = packet["measures"][role]["dax"].replace("\r\n", "\n").replace("\r", "\n").strip()
+        assert measure["dax_sha256"] == hashlib.sha256(expression.encode("utf-8")).hexdigest()
+    tmdl = atd.evidence_tmdl([packet])
+    assert "\tmeasure 'Action_T-1_Evidence_Evaluated' =" in tmdl
+    assert "\t/// Purpose:" in tmdl and "formatString:" in tmdl
+    with pytest.raises(atd.Fehler, match="Doppelte"):
+        atd.evidence_manifest([packet, packet])
+    with pytest.raises(atd.Fehler):
+        atd.evidence_manifest([])
+
+
+def test_evidence_source_payload_and_bracket_must_match(evidence_source):
+    packet, ac, action_path, bracket_path = evidence_source()
+    ac["status"] = "approved"
+    with pytest.raises(atd.Fehler, match="Payload"):
+        atd.evidence_fuer(ac, {"k": "K"}, {"k": "percent_1"}, action_code_path=action_path, bracket_path=bracket_path)
+    original = yaml.safe_load(action_path.read_text(encoding="utf-8"))
+    bracket_path.write_text(
+        yaml.safe_dump({"id": "TEST-UC", "orchestration": {"action_code_ids": []}}), encoding="utf-8")
+    with pytest.raises(atd.Fehler, match="explizite"):
+        atd.evidence_fuer(original, {"k": "K"}, {"k": "percent_1"},
+                         action_code_path=action_path, bracket_path=bracket_path)
+
+
+def test_cli_evidence_is_opt_in_and_requires_complete_arguments():
+    with pytest.raises(SystemExit) as exc:
+        atd.main(["--evidence-use-case", "TEST-UC"])
+    assert exc.value.code == 2
+
+
+def test_cli_evidence_roundtrip_leaves_source_model_untouched(evidence_source, monkeypatch, tmp_path):
+    packet, *_ = evidence_source()
+    model = tmp_path / "dist/Test.SemanticModel"
+    model.mkdir(parents=True)
+    sentinel = model / "model.tmdl"
+    sentinel.write_text("model Test\n", encoding="utf-8")
+    monkeypatch.setattr(atd, "DIST", model.parent)
+    monkeypatch.setattr(atd, "ACTION_CODES", tmp_path / "core/action_codes")
+    monkeypatch.setattr(atd, "_kpi_formate", lambda: {"k": "percent_1"})
+    monkeypatch.setattr(atd, "_kpi_plan", lambda: {})
+    monkeypatch.setattr(atd, "_loader", lambda: SimpleNamespace(
+        measure_map_for_model=lambda _: {"k": "K"},
+        _model_symbols_for_dir=lambda _: SimpleNamespace(measure_names={"K", "Start", "End"})))
+    bindings = {"T-1": {"period_start": _proof("period_start", "Start"),
+                         "period_end": _proof("period_end", "End")}}
+    binding_file = tmp_path / "bindings.json"
+    binding_file.write_text(json.dumps(bindings), encoding="utf-8")
+    out = tmp_path / "consumer-export"
+    assert atd.main(["--evidence-use-case", "TEST-UC", "--evidence-model", model.name,
+                     "--evidence-out", str(out), "--evidence-bindings", str(binding_file)]) == 0
+    manifest = json.loads((out / "action_evidence.manifest.json").read_text(encoding="utf-8"))
+    exported = manifest["action_evidence"][0]
+    assert exported["source"]["model_name"] == "Test"
+    assert exported["source"]["model_item_name"] == model.name
+    assert exported["unresolved_conditions"] == []
+    tmdl = (out / "action_evidence.tmdl").read_text(encoding="utf-8")
+    assert b"\r" not in (out / "action_evidence.tmdl").read_bytes()
+    assert b"\r" not in (out / "action_evidence.manifest.json").read_bytes()
+    expressions = dict(re.findall(r"^\tmeasure '([^']+)' = (.*)$", tmdl, re.M))
+    assert len(expressions) == len(packet["measures"])
+    for measure in exported["measures"].values():
+        assert hashlib.sha256(expressions[measure["name"]].strip().encode("utf-8")).hexdigest() == measure["dax_sha256"]
+    assert list(model.iterdir()) == [sentinel]
+    assert sentinel.read_text(encoding="utf-8") == "model Test\n"
 
 
 @pytest.fixture(scope="module")
