@@ -23,6 +23,102 @@ LIB = REPO_ROOT / "core" / "templates" / "page_templates" / "visual_library"
 CORPUS = REPO_ROOT / "docs" / "architecture" / "research" / "2026-09-30_visual-stack-r1"
 
 
+@pytest.mark.parametrize("bounds", [("#CCDDEE", "#F0FAFF"), ("#101820", "#304050")])
+def test_background_bounds_native_palette_covers_interior_and_text_roles(bounds):
+    """Independent dense RGB samples, including conditional PY/FC and default text ink."""
+    import copy
+    import itertools
+    import contrast
+
+    spec = {"layer": [
+        {"mark": {"type": "line", "color": "#008092"}},
+        {"mark": {"type": "text", "text": "FC", "color": "#008092"}},
+        {"mark": {"type": "line"}, "encoding": {"color": {
+            "condition": {"test": "datum.py", "value": "#A0A0A0"}, "value": "#605E5C"}}},
+        {"mark": {"type": "point", "fill": "white", "stroke": "#008092"}},
+    ]}
+    original = copy.deepcopy(spec)
+    out, config = render.on_background_bounds(spec, render.vegalite_config("house_default"), bounds)
+    assert spec == original
+    assert out["layer"][1]["mark"]["text"] == "FC"
+    assert out["layer"][3]["mark"]["fill"] == "transparent"
+    assert config["background"] == "transparent"
+    lo, hi = map(contrast.hex_to_rgb, bounds)
+    for fractions in itertools.product((0, .25, .5, .75, 1), repeat=3):
+        bg = contrast.rgb_to_hex(tuple(a + (b-a)*f for a, b, f in zip(lo, hi, fractions)))
+        assert contrast.contrast_ratio_exact(out["layer"][0]["mark"]["color"], bg) >= 3
+        assert contrast.contrast_ratio_exact(out["layer"][1]["mark"]["color"], bg) >= 4.5
+        for field in ("labelColor", "titleColor"):
+            assert contrast.contrast_ratio_exact(config["axis"][field], bg) >= 4.5
+        cond = out["layer"][2]["encoding"]["color"]
+        assert contrast.contrast_ratio_exact(cond["value"], bg) >= 3
+        assert contrast.contrast_ratio_exact(cond["condition"]["value"], bg) >= 3
+
+
+@pytest.mark.parametrize("opacity", [0.25, {"condition": {"test": "datum.dim", "value": .25}, "value": 1}])
+def test_background_bounds_refuses_unprovable_selection_opacity_without_rewriting(opacity):
+    import copy
+    spec = {"mark": {"type": "line", "color": "#008092"}, "encoding": {"opacity": opacity}}
+    original = copy.deepcopy(spec)
+    with pytest.raises(render.BackgroundContrastError, match="opacity"):
+        render.on_background_bounds(spec, {}, ("#DDEEFF", "#FFFFFF"))
+    assert spec == original
+
+
+@pytest.mark.parametrize("bounds", [[], ["#fff", "#FFFFFF"], ["#FFFFFF", "#000000"], [None, "#FFFFFF"]])
+def test_background_bounds_rejects_invalid_envelopes(bounds):
+    with pytest.raises(ValueError, match="background_bounds"):
+        render.on_background_bounds({}, {}, bounds)
+
+
+def test_background_bounds_dynamic_colour_and_alpha_fail_closed():
+    for spec in ({"mark": "line", "encoding": {"color": {"field": "value"}}},
+                 {"mark": {"type": "line", "opacity": {"expr": "datum.alpha"}}},
+                 {"mark": {"type": "line", "color": "red"}}):
+        with pytest.raises(render.BackgroundContrastError, match="opaque surface"):
+            render.on_background_bounds(spec, {}, ("#DDEEFF", "#FFFFFF"))
+
+
+def test_background_bounds_default_bytes_are_unchanged():
+    for idiom in ("line", "bar_ranking"):
+        assert render.render_target(idiom, "fabric_app") == render.render_target(
+            idiom, "fabric_app", background_bounds=None)
+
+
+@pytest.mark.parametrize("bounds", [("#CCDDEE", "#F0FAFF"), ("#101820", "#304050")])
+def test_background_bounds_native_line_hover_does_not_dim_unrelated_text(bounds):
+    doc = json.loads(render.render_target("line", "fabric_app", bindings={
+        "time": "Date", "value": "AC", "plan": "PL", "prior": "PY", "forecast": "FC"},
+        params={"flaeche_deckkraft": 0}, background_bounds=bounds)[0])
+    assert doc["configVegaLite"]["background"] == "transparent"
+    assert "Serienlabel" in json.dumps(doc["spec"])
+    assert "pointerover" in json.dumps(doc["spec"])
+    # Uncertainty is information, not decorative fill: never delete it to make glass pass.
+    with pytest.raises(render.BackgroundContrastError, match="opacity"):
+        render.render_target("line", "fabric_app", bindings={
+            "time": "Date", "value": "AC", "fc_band": {"lo": "Low", "hi": "High"}},
+            params={"flaeche_deckkraft": 0}, background_bounds=bounds)
+
+
+def test_background_bounds_implicit_text_opacity_and_overlapping_envelope_refuse():
+    with pytest.raises(render.BackgroundContrastError, match="opacity"):
+        render.on_background_bounds({"mark": {"type": "text", "text": "AC", "opacity": .25}}, {},
+                                    ("#DDEEFF", "#FFFFFF"))
+    with pytest.raises(render.BackgroundContrastError):
+        render.on_background_bounds({"mark": {"type": "line", "color": "#008092"}}, {},
+                                    ("#000000", "#FFFFFF"))
+
+
+def test_background_bounds_bar_binary_axis_visibility_is_not_alpha_dimming():
+    doc = json.loads(render.render_target("bar_ranking", "fabric_app", bindings={
+        "value": "AC", "category": "Category"}, background_bounds=("#CCDDEE", "#F0FAFF"))[0])
+    assert doc["configVegaLite"]["background"] == "transparent"
+    for opacity in ({"expr": "show ? .5 : 1"}, {"expr": "datum.alpha"}):
+        with pytest.raises(render.BackgroundContrastError, match="opacity role"):
+            render.on_background_bounds({"mark": "bar", "encoding": {
+                "y": {"axis": {"labelOpacity": opacity}}}}, {}, ("#CCDDEE", "#F0FAFF"))
+
+
 def _implemented() -> list[str]:
     return yaml.safe_load((LIB / "index.yaml").read_text(encoding="utf-8"))["implemented"]
 
@@ -305,3 +401,74 @@ def test_emitted_dark_forecast_text_keeps_text_contrast_separate_from_mark():
     assert contrast.contrast_ratio_exact(line["color"], bg) >= 3.0
     assert contrast.contrast_ratio_exact(label["color"], bg) >= 4.5
     assert line["color"] != label["color"], "The mapper must distinguish mark and text floors"
+
+
+@pytest.mark.parametrize("domain", [None, [], [0], [0, 0], [40, 0], [0, True], [0, float("inf")], [float("nan"), 40]])
+def test_value_domain_rejects_invalid_bounds(domain):
+    with pytest.raises(ValueError, match="value_domain"):
+        render.render_target("line", "fabric_app", params={"value_domain": domain})
+
+
+@pytest.mark.parametrize("idiom", ["line", "bar_absolute", "bar_ranking"])
+def test_requested_domain_native_union_retains_data_and_zero_reference(idiom):
+    """A finite reference range must expand to actual/prior/plan data, never clip it."""
+    vl = pytest.importorskip("vl_convert")
+    doc = json.loads(render.render_target(idiom, "fabric_app", "house_default",
+        bindings={"time": "t", "value": "v", "category": "c", "plan": "pl", "prior": "py"},
+        params={"value_domain": [0, 40], "value_unit": "%", "value_format": ",.1~f"})[0])
+    spec = doc["spec"]
+    spec["data"] = {"values": [{"t": "2024-01-01", "c": "A", "v": 32.2, "pl": 55, "py": 65},
+                                 {"t": "2024-02-01", "c": "B", "v": 51.4, "pl": 56, "py": 66}]}
+    spec["config"] = doc["configVegaLite"]
+    spec["width"], spec["height"] = 400, 200
+    compiled = vl.vegalite_to_vega(spec)
+    scale = next(item for item in compiled["scales"] if item["name"] == ("y" if idiom == "line" else "x"))
+    fields = scale["domain"]["fields"]
+    assert [0, 40] in fields
+    assert any(isinstance(item, dict) and item.get("field", "").startswith("v") for item in fields)
+    if idiom == "line":
+        assert any(isinstance(item, dict) and item.get("field") == "pl" for item in fields)
+    if idiom != "bar_absolute":
+        assert any(isinstance(item, dict) and item.get("field", "").startswith("py") for item in fields)
+    assert scale["nice"] is False
+    if idiom != "line":
+        assert scale["zero"] is True
+    scene = vl.vegalite_to_scenegraph(spec)
+    def text_values(node):
+        if isinstance(node, dict):
+            if "text" in node:
+                yield node["text"]
+            for value in node.values():
+                yield from text_values(value)
+        elif isinstance(node, list):
+            for value in node:
+                yield from text_values(value)
+    assert "0" in list(text_values(scene)), "The zero reference remains visible on directly labelled bars"
+
+
+def test_requested_domain_keeps_static_target_outside_reference_range():
+    vl = pytest.importorskip("vl_convert")
+    doc = json.loads(render.render_target("line", "fabric_app", "house_default",
+        bindings={"time": "t", "value": "v"}, params={"value_domain": [0, 40], "target_val": 75})[0])
+    spec = doc["spec"]
+    spec["data"] = {"values": [{"t": "2024-01-01", "v": 32.2}]}
+    spec["config"] = doc["configVegaLite"]
+    scale = next(item for item in vl.vegalite_to_vega(spec)["scales"] if item["name"] == "y")
+    assert [75] in scale["domain"]["fields"]
+
+
+def test_value_unit_format_is_explicit_and_does_not_rescale_data():
+    doc = json.loads(render.render_target("line", "fabric_app", "house_default",
+        bindings={"time": "t", "value": "v", "plan": "pl"},
+        params={"value_domain": [0, .4], "value_unit": "%", "value_format": ".1~%"})[0])
+    hero = next(layer for layer in doc["spec"]["layer"]
+                if layer.get("mark", {}).get("type") == "line" and "axis" in layer.get("encoding", {}).get("y", {}))
+    assert hero["encoding"]["y"]["field"] == "v"
+    assert hero["encoding"]["y"]["axis"]["title"] == "%"
+    assert hero["encoding"]["tooltip"][1] == {"field": "v", "type": "quantitative", "title": "v (%)", "format": ".1~%"}
+    assert doc["configVegaLite"]["axisQuantitative"]["format"] == ".1~%"
+    for profile in ("ibcs", "print_safe"):
+        baseline = render.render_target("line", "fabric_app", profile, bindings={"time": "t", "value": "v"})
+        styled = render.render_target("line", "fabric_app", profile, bindings={"time": "t", "value": "v"},
+            params={"value_domain": [0, 40], "value_unit": "%", "value_format": ".1~%"})
+        assert baseline == styled

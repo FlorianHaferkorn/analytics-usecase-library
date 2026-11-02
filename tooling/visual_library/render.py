@@ -27,7 +27,9 @@ from __future__ import annotations
 
 import copy
 import functools
+import itertools
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -388,6 +390,185 @@ def on_background(node, bg: str, _key: "str | None" = None, _text: bool = False)
     return node
 
 
+class BackgroundContrastError(ValueError):
+    """The requested transparent surface is not provably readable; retain the opaque output."""
+
+
+def on_background_bounds(spec: dict, config: dict, bounds: "tuple[str, str] | list[str]") -> tuple[dict, dict]:
+    """Native opt-in palette for a rectangular sRGB background envelope, without a blur bonus.
+
+    All possible backgrounds between the componentwise endpoints are included. Literal and
+    conditional colour roles retain their hue; text needs 4.5:1, informative marks 3:1.
+    Alpha is included conservatively. Dynamic colours/alpha and unprovable low-opacity states
+    raise BackgroundContrastError instead of silently changing selection or information.
+    The caller must retain its ordinary opaque spec for unsupported media and print.
+    """
+    if not isinstance(bounds, (tuple, list)) or len(bounds) != 2 or any(
+        not isinstance(c, str) or not _HEX.fullmatch(c) for c in bounds
+    ):
+        raise ValueError("background_bounds requires two #RRGGBB endpoints")
+    contrast = _contrast()
+    lo, hi = map(contrast.hex_to_rgb, bounds)
+    if any(a > b for a, b in zip(lo, hi)):
+        raise ValueError("background_bounds endpoints must be componentwise ordered")
+    lower, upper = map(contrast.rgb_to_hex, (lo, hi))
+    luminances = [contrast.relative_luminance(c) for c in (lower, upper)]
+    cells = []
+    for indices in itertools.product(range(4), repeat=3):
+        cell_lo = tuple(math.floor(a + (b-a)*i/4) for a, b, i in zip(lo, hi, indices))
+        cell_hi = tuple(math.ceil(a + (b-a)*(i+1)/4) for a, b, i in zip(lo, hi, indices))
+        cells.append((cell_lo, cell_hi,
+                      [contrast.relative_luminance(contrast.rgb_to_hex(c)) for c in (cell_lo, cell_hi)]))
+
+    def opacity_values(value):
+        if isinstance(value, (float, int)) and not isinstance(value, bool) and 0 <= value <= 1:
+            return [float(value)]
+        if isinstance(value, dict) and set(value) <= {"value", "condition"} and "value" in value:
+            values = opacity_values(value["value"])
+            conditions = value.get("condition", [])
+            for cond in conditions if isinstance(conditions, list) else [conditions]:
+                if not isinstance(cond, dict) or "value" not in cond or set(cond) - {"value", "test", "param", "empty"}:
+                    raise BackgroundContrastError("dynamic opacity requires an opaque surface")
+                values += opacity_values(cond["value"])
+            return values
+        raise BackgroundContrastError("dynamic opacity requires an opaque surface")
+
+    # Validate all branches first; the palette proof below then composes alpha per mark.
+    # Zero-alpha branches are invisible. Never rewrite alpha or the selection predicate.
+    def inspect(node):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key in ("opacity", "fillOpacity", "strokeOpacity"):
+                    opacity_values(value)
+                elif key.endswith("Opacity") and key != "gridOpacity":
+                    # Original bar templates use binary guide visibility, not alpha dimming.
+                    binary_guide = (key in ("labelOpacity", "domainOpacity") and isinstance(value, dict)
+                                    and set(value) == {"expr"} and re.fullmatch(
+                                        r"[A-Za-z_][A-Za-z_0-9]*\s*\?\s*[01]\s*:\s*[01]", str(value["expr"])))
+                    if not binary_guide:
+                        raise BackgroundContrastError("unsupported opacity role requires an opaque surface")
+                if (key in ("color", "fill", "stroke") or key.endswith("Color")) and isinstance(value, dict):
+                    if "field" in value or "expr" in value or "datum" in value:
+                        raise BackgroundContrastError("data-driven colour requires an opaque surface")
+                if key == "scheme":
+                    raise BackgroundContrastError("colour scheme requires an opaque surface")
+                inspect(value)
+        elif isinstance(node, list):
+            for value in node:
+                inspect(value)
+    inspect(spec)
+    inspect(config)
+    def floor_ratio(color, alpha):
+        rgb = contrast.hex_to_rgb(color)
+        ratios = []
+        # Interval subdivisions retain correlation between a translucent mark and its
+        # background. Every sub-box still uses a conservative continuous luminance bound;
+        # this is a proof over interiors, not a sample-based acceptance criterion.
+        for cell_lo, cell_hi, (bg_lo, bg_hi) in cells if alpha < 1 else [(lo, hi, luminances)]:
+            blends = [contrast.rgb_to_hex(tuple(rounding(alpha * f + (1 - alpha) * b) for f, b in zip(rgb, ground)))
+                      for ground, rounding in ((cell_lo, math.floor), (cell_hi, math.ceil))]
+            fg_lo, fg_hi = sorted(contrast.relative_luminance(c) for c in blends)
+            ratios.append((bg_lo + .05) / (fg_hi + .05) if fg_hi < bg_lo else
+                          (fg_lo + .05) / (bg_hi + .05) if fg_lo > bg_hi else 1.0)
+        return min(ratios)
+
+    @functools.lru_cache(maxsize=None)
+    def derive(color, minimum, alpha=1.0):
+        if alpha == 0 or floor_ratio(color, alpha) >= minimum + .02:
+            return color
+        L, C, hue = contrast.hex_to_oklch(color)
+        # Preserve hue with the original colour utility. Search both directions because an
+        # envelope can straddle the ordinary single-background light/dark cutoff.
+        for step in range(1, 101):
+            for lightness in (L - step * .01, L + step * .01):
+                if 0 <= lightness <= 1:
+                    candidate = contrast.oklch_to_hex(lightness, C, hue)
+                    if floor_ratio(candidate, alpha) >= minimum + .02:
+                        return candidate
+        for candidate in ("#000000", "#FFFFFF"):
+            if floor_ratio(candidate, alpha) >= minimum + .02:
+                return candidate
+        raise BackgroundContrastError(f"opacity {alpha:g} cannot prove {minimum:g}:1 across background_bounds")
+
+    color_keys = {"color", "fill", "stroke", "labelColor", "titleColor", "subtitleColor", "gridColor",
+                  "domainColor", "tickColor", "symbolFillColor", "symbolStrokeColor", "range"}
+    def smallest_opacity(node):
+        return min((a for a in opacity_values(node) if a > 0), default=0.0)
+
+    def mark_alpha(node):
+        alpha = smallest_opacity(node["opacity"]) if "opacity" in node else 1.0
+        channels = [smallest_opacity(node[name]) for name in ("fillOpacity", "strokeOpacity") if name in node]
+        return alpha * min((a for a in channels if a > 0), default=1.0)
+
+    def paint(node, key=None, text=False, color_context=False, alpha=1.0, configuration=False):
+        if isinstance(node, dict):
+            text = text or _is_text_mark(node) or key in ("text", "title", "subtitle")
+            if configuration:
+                alpha *= mark_alpha(node)
+            else:
+                encoding = node.get("encoding") or {}
+                alpha *= mark_alpha(encoding)
+                if "mark" in node:
+                    mark = node["mark"]
+                    kind = mark.get("type") if isinstance(mark, dict) else mark
+                    alpha *= mark_alpha(config.get("mark") or {}) * mark_alpha(config.get(kind) or {})
+                    if isinstance(mark, dict):
+                        alpha *= mark_alpha(mark)
+                    if kind in ("point", "circle", "square") and "opacity" not in encoding and not any(
+                        "opacity" in part for part in (config.get("mark") or {}, config.get(kind) or {},
+                                                       mark if isinstance(mark, dict) else {})
+                    ):
+                        alpha *= .7  # Vega-Lite's unaggregated point default; aggregation can only increase it.
+            out = {k: paint(v, k, text, color_context or k in color_keys, alpha, configuration)
+                   for k, v in node.items()}
+            if not configuration and "mark" in node:
+                mark = node["mark"]
+                mark_object = mark if isinstance(mark, dict) else {"type": mark}
+                kind = mark_object["type"]
+                has_ink = any(mark_object.get(k) not in (None, "transparent", "none")
+                              for k in ("color", "fill", "stroke"))
+                if not has_ink and not any(k in (node.get("encoding") or {}) for k in ("color", "fill", "stroke")):
+                    inherited_ink = (config.get(kind) or {}).get(
+                        "color", (config.get("mark") or {}).get("color", "#404040"))
+                    if not isinstance(inherited_ink, str) or not _HEX.fullmatch(inherited_ink):
+                        raise BackgroundContrastError("implicit colour requires an opaque surface")
+                    out["mark"] = {**(out["mark"] if isinstance(out["mark"], dict) else {"type": mark}),
+                                   "color": derive(inherited_ink, 4.5 if kind == "text" else 3.0, alpha)}
+            if (node.get("type") in ("point", "circle", "square") and node.get("stroke")
+                    and str(node.get("fill", "")).lower() in ("white", "#ffffff")):
+                out["fill"] = "transparent"  # only an explicitly outlined hollow marker
+            return out
+        if isinstance(node, list):
+            return [paint(v, key, text, color_context, alpha, configuration) for v in node]
+        if key == "background":
+            return "transparent"
+        if color_context and isinstance(node, str) and _HEX.fullmatch(node):
+            if key in _DECORATIVE_COLOR_KEYS:
+                return node
+            return derive(node, 4.5 if text or key in _TEXT_COLOR_KEYS else 3.0, alpha)
+        if color_context and isinstance(node, str) and node.lower() in ("black", "white"):
+            return derive("#000000" if node.lower() == "black" else "#FFFFFF", 4.5 if text else 3.0, alpha)
+        if (color_context and isinstance(node, str) and key in color_keys | {"value", "range"}
+                and node not in ("transparent", "none")):
+            raise BackgroundContrastError("unsupported colour literal requires an opaque surface")
+        return node
+    safe_config = {**paint(config, configuration=True), "background": "transparent"}
+    # Vega defaults (not explicit literals in the template) must not escape the proof.
+    for role in ("mark", "line", "point", "bar", "rule", "area"):
+        alpha = mark_alpha(config.get("mark") or {}) * mark_alpha(config.get(role) or {})
+        if role == "point" and not any("opacity" in part
+                                       for part in (config.get("mark") or {}, config.get(role) or {})):
+            alpha *= .7
+        safe_config[role] = {"color": derive("#404040", 3.0, alpha), **safe_config.get(role, {})}
+    safe_config["text"] = {"color": derive("#404040", 4.5,
+                                         mark_alpha(config.get("mark") or {}) * mark_alpha(config.get("text") or {})),
+                           **safe_config.get("text", {})}
+    for role in ("axis", "legend"):
+        safe_config[role] = {"labelColor": derive("#605E5C", 4.5), "titleColor": derive("#404040", 4.5),
+                             **safe_config.get(role, {})}
+    return paint(spec), safe_config
+
+
 @functools.lru_cache(maxsize=1)
 def _contrast():
     """contrast.py next to this file, loaded by path: works however render was imported (a
@@ -460,9 +641,12 @@ def tooltip_fields(idiom: str, eff: dict, spec: dict) -> "list[dict]":
         if not col or col == _NO_VALUE or f'"{col}"' not in text or slot["role"] in FLAG_ROLES:
             continue
         typ, fmt = _TOOLTIP_ROLE[slot["role"]]
+        if typ == "quantitative" and eff.get("value_format"):
+            fmt = str(eff["value_format"])
         if slot["role"] == "variance" and "%" in str(eff.get("fmt", "")):
             fmt = str(eff["fmt"])
-        entry = {"field": col, "type": typ, "title": col}
+        title = f"{col} ({eff['value_unit']})" if typ == "quantitative" and eff.get("value_unit") else col
+        entry = {"field": col, "type": typ, "title": title}
         if fmt:
             entry["format"] = fmt
         rows.append((_ORDER.index(slot["role"]), entry))
@@ -822,7 +1006,44 @@ LOCALES: dict = {
 
 
 _HOUSE_STYLE_PARAMS = frozenset({"axis_grid_opacity", "axis_grid_dash", "value_tick_count", "end_marker_size",
-                                  "show_phase_annotations", "show_axis_break"})
+                                  "show_phase_annotations", "show_axis_break",
+                                  "value_domain", "value_unit", "value_format"})
+
+
+def _value_presentation_params(entry: dict, given: dict) -> dict:
+    """Original-template scale/format inputs; requested bounds always expand to real data.
+
+    Domains use Vega-Lite unionWith, never a clipping domain. The caller declares
+    data-coordinate bounds; units/number formats do not rescale or change data.
+    """
+    canonical = entry["canonical_params"]
+    if "_value_scale_domain" not in canonical:
+        return {}
+    out = {}
+    if "value_domain" in given:
+        domain = given["value_domain"]
+        if (not isinstance(domain, (list, tuple)) or len(domain) != 2 or any(
+                isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in domain)
+                or domain[0] >= domain[1]):
+            raise ValueError("value_domain must contain two finite ascending numbers")
+        scale = {"domain": {"unionWith": list(domain)}, "nice": False}
+        out["_value_scale_domain"] = ', "domain": '+json.dumps(scale["domain"])+', "nice": false'
+        out["_value_scale_options"] = ', "scale": '+json.dumps({**scale, "zero": entry["id"] != "line"})
+        # An explicit reference range must remain legible even on directly labelled bars.
+        ticks = given.get("value_tick_count", 4)
+        out["_value_axis_ticks"] = ', "tickCount": '+str(ticks)
+    if "value_unit" in given:
+        unit = given["value_unit"]
+        if not isinstance(unit, str) or not 0 < len(unit.strip()) <= 48:
+            raise ValueError("value_unit must be a non-empty label of at most 48 characters")
+        out["_value_axis_title"] = json.dumps(unit, ensure_ascii=False)
+        out["value_unit"] = unit
+    if "value_format" in given:
+        fmt = given["value_format"]
+        if not isinstance(fmt, str) or not re.fullmatch(r"[+ ,.(0-9~]*[feEgG%]", fmt):
+            raise ValueError("value_format must be a supported D3 numeric format")
+        out["value_format"] = fmt
+    return out
 
 
 def _house_style_params(entry: dict, notation: str, given: dict) -> dict:
@@ -862,12 +1083,14 @@ def _house_style_params(entry: dict, notation: str, given: dict) -> dict:
         out["_value_axis_ticks"] = (', "tickCount": { "expr": "_beschriftet ? 0 : '+str(count)+'" }'
                                     if entry["id"] in ("bar_absolute", "bar_ranking")
                                     else ', "tickCount": '+str(count))
+    out.update(_value_presentation_params(entry, given))
     return out
 
 
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
-                  background: "str | None" = None) -> "tuple[str, str]":
+                  background: "str | None" = None,
+                  background_bounds: "tuple[str, str] | list[str] | None" = None) -> "tuple[str, str]":
     """Derived target output for one idiom x profile. Deterministic JSON.
 
     `bindings` ({role: column}) binds real data columns through `data_slots`; `params` overrides
@@ -937,13 +1160,17 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         accent = params.get("accent") if focus is True else None
         spec = with_highlight(spec, h["field"], list(h.get("values") or []), bool(h.get("temporal")), accent)
     config = vegalite_config(profile)
+    if notation == default_profile() and (params or {}).get("value_format"):
+        config["axisQuantitative"] = {**config.get("axisQuantitative", {}), "format": params["value_format"]}
     lang = str((params or {}).get("lang") or "de")
     if lang != "de":
         if lang not in LOCALES:
             raise KeyError(f"unknown lang '{lang}' (de, {', '.join(LOCALES)})")
         config = {**config, "locale": LOCALES[lang]}
-    if background:
+    if background and background_bounds is None:
         spec, config = on_background(spec, background), on_background(config, background)
+    if background_bounds is not None:
+        spec, config = on_background_bounds(spec, config, background_bounds)
     if target == "html_vegalite":
         out = dict(spec)
         out["config"] = config
