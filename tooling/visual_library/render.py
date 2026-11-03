@@ -394,7 +394,8 @@ class BackgroundContrastError(ValueError):
     """The requested transparent surface is not provably readable; retain the opaque output."""
 
 
-def on_background_bounds(spec: dict, config: dict, bounds: "tuple[str, str] | list[str]") -> tuple[dict, dict]:
+def on_background_bounds(spec: dict, config: dict, bounds: "tuple[str, str] | list[str]", *,
+                         outline_forecast_band: bool = False) -> tuple[dict, dict]:
     """Native opt-in palette for a rectangular sRGB background envelope, without a blur bonus.
 
     All possible backgrounds between the componentwise endpoints are included. Literal and
@@ -411,6 +412,54 @@ def on_background_bounds(spec: dict, config: dict, bounds: "tuple[str, str] | li
     lo, hi = map(contrast.hex_to_rgb, bounds)
     if any(a > b for a, b in zip(lo, hi)):
         raise ValueError("background_bounds endpoints must be componentwise ordered")
+    protected_band_ids: set[int] = set()
+    if outline_forecast_band:
+        spec = copy.deepcopy(spec)
+        def outline(node):
+            if isinstance(node, list):
+                for child in node:
+                    outline(child)
+            elif isinstance(node, dict):
+                mark = node.get("mark")
+                hover = (node.get("encoding", {}).get("opacity", {}).get("condition") or {})
+                if (isinstance(mark, dict) and mark.get("type") == "rule"
+                        and hover.get("param") == "hover" and hover.get("value") == .5
+                        and node.get("encoding", {}).get("opacity", {}).get("value") == 0):
+                    # Keep the hover rule's visibility behavior while making its
+                    # visible state provably legible on the band and the glass.
+                    hover["value"] = 1
+                for key, child in list(node.items()):
+                    if key == "layer" and isinstance(child, list):
+                        expanded = []
+                        for layer in child:
+                            mark = layer.get("mark") if isinstance(layer, dict) else None
+                            enc = layer.get("encoding", {}) if isinstance(layer, dict) else {}
+                            if (isinstance(mark, dict) and mark.get("type") == "area"
+                                    and str(mark.get("description", "")).startswith("Prognoseband ")
+                                    and mark.get("opacity") == .12 and enc.get("y", {}).get("field")
+                                    and enc.get("y2", {}).get("field")):
+                                protected_band_ids.add(id(layer))
+                                expanded.append(layer)
+                                for channel in ("y", "y2"):
+                                    edge = copy.deepcopy(layer)
+                                    edge["mark"] = {"type": "line", "interpolate": "monotone",
+                                                    "color": mark["color"], "strokeWidth": 1,
+                                                    "description": "Prognoseband Grenze"}
+                                    edge["encoding"] = {"y": {**enc["y"], "field": enc[channel]["field"]}}
+                                    expanded.append(edge)
+                            else:
+                                expanded.append(layer)
+                                outline(layer)
+                        node[key] = expanded
+                    else:
+                        outline(child)
+        outline(spec)
+        if len(protected_band_ids) != 1:
+            raise BackgroundContrastError("outlined forecast requires exactly one canonical 12% band")
+        # Prove foreground contrast both on the background and on every possible
+        # 12%-opacity blend of that background with any RGB band ink.
+        lo = tuple(math.floor(.88 * c) for c in lo)
+        hi = tuple(math.ceil(.88 * c + .12 * 255) for c in hi)
     lower, upper = map(contrast.rgb_to_hex, (lo, hi))
     luminances = [contrast.relative_luminance(c) for c in (lower, upper)]
     cells = []
@@ -502,6 +551,11 @@ def on_background_bounds(spec: dict, config: dict, bounds: "tuple[str, str] | li
 
     def paint(node, key=None, text=False, color_context=False, alpha=1.0, configuration=False):
         if isinstance(node, dict):
+            if id(node) in protected_band_ids:
+                solid = {**node, "mark": {**node["mark"], "opacity": 1}}
+                painted = paint(solid, key, text, color_context, alpha, configuration)
+                painted["mark"]["opacity"] = .12
+                return painted
             text = text or _is_text_mark(node) or key in ("text", "title", "subtitle")
             if configuration:
                 alpha *= mark_alpha(node)
@@ -1090,7 +1144,8 @@ def _house_style_params(entry: dict, notation: str, given: dict) -> dict:
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
                   background: "str | None" = None,
-                  background_bounds: "tuple[str, str] | list[str] | None" = None) -> "tuple[str, str]":
+                  background_bounds: "tuple[str, str] | list[str] | None" = None,
+                  outline_forecast_band: bool = False) -> "tuple[str, str]":
     """Derived target output for one idiom x profile. Deterministic JSON.
 
     `bindings` ({role: column}) binds real data columns through `data_slots`; `params` overrides
@@ -1170,7 +1225,12 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     if background and background_bounds is None:
         spec, config = on_background(spec, background), on_background(config, background)
     if background_bounds is not None:
-        spec, config = on_background_bounds(spec, config, background_bounds)
+        if outline_forecast_band and (idiom != "line" or notation != "house_default"):
+            raise BackgroundContrastError("outlined forecast supports house_default line only")
+        spec, config = on_background_bounds(spec, config, background_bounds,
+                                            outline_forecast_band=outline_forecast_band)
+    elif outline_forecast_band:
+        raise ValueError("outlined forecast requires background_bounds")
     if target == "html_vegalite":
         out = dict(spec)
         out["config"] = config

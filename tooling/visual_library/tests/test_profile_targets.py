@@ -100,6 +100,44 @@ def test_background_bounds_native_line_hover_does_not_dim_unrelated_text(bounds)
             params={"flaeche_deckkraft": 0}, background_bounds=bounds)
 
 
+@pytest.mark.parametrize("bounds", [("#BFEFEC", "#FFFFFF"), ("#0C100E", "#26354D")])
+def test_outlined_glass_forecast_preserves_band_and_proves_edges_on_blends(bounds):
+    import itertools
+    import math
+    import contrast
+
+    bindings = {"time": "Date", "value": "AC", "forecast": "FC", "fc_band": {"lo": "Low", "hi": "High"}}
+    doc = json.loads(render.render_target("line", "fabric_app", bindings=bindings,
+        params={"flaeche_deckkraft": 0}, background_bounds=bounds, outline_forecast_band=True)[0])
+    layers = doc["spec"]["layer"]
+    band = next(x for x in layers if x.get("mark", {}).get("type") == "area"
+                and str(x["mark"].get("description", "")).startswith("Prognoseband "))
+    edges = [x for x in layers if x.get("mark", {}).get("description") == "Prognoseband Grenze"]
+    forecast = next(x for x in layers if x.get("encoding", {}).get("y", {}).get("field") == "FC"
+                    and x.get("mark", {}).get("type") == "line")
+    assert band["mark"]["opacity"] == .12 and len(edges) == 2
+    assert {x["encoding"]["y"]["field"] for x in edges} == {"Low", "High"}
+    assert forecast["mark"].get("strokeDash") and all("strokeDash" not in edge["mark"] for edge in edges)
+    assert doc["configVegaLite"]["background"] == "transparent"
+    assert all(label in json.dumps(doc["spec"]) for label in ("P10", "P90", "FC"))
+    lo, hi = map(contrast.hex_to_rgb, bounds)
+    lo = tuple(math.floor(.88 * c) for c in lo)
+    hi = tuple(math.ceil(.88 * c + .12 * 255) for c in hi)
+    for fractions in itertools.product((0, .5, 1), repeat=3):
+        bg = contrast.rgb_to_hex(tuple(a + (b-a)*f for a, b, f in zip(lo, hi, fractions)))
+        for line in [*edges, forecast]:
+            assert contrast.contrast_ratio_exact(line["mark"]["color"], bg) >= 3
+
+
+def test_outlined_glass_forecast_requires_opt_in_and_a_canonical_band():
+    with pytest.raises(render.BackgroundContrastError, match="exactly one"):
+        render.render_target("line", "fabric_app", bindings={"time": "Date", "value": "AC"},
+            params={"flaeche_deckkraft": 0}, background_bounds=("#CCDDEE", "#F0FAFF"),
+            outline_forecast_band=True)
+    with pytest.raises(ValueError, match="requires background_bounds"):
+        render.render_target("line", "fabric_app", outline_forecast_band=True)
+
+
 def test_background_bounds_implicit_text_opacity_and_overlapping_envelope_refuse():
     with pytest.raises(render.BackgroundContrastError, match="opacity"):
         render.on_background_bounds({"mark": {"type": "text", "text": "AC", "opacity": .25}}, {},
