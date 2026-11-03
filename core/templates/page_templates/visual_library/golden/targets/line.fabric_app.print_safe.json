@@ -457,7 +457,8 @@
           "text": "P10",
           "align": "right",
           "dx": -2,
-          "dy": 11,
+          "dy": 8,
+          "baseline": "top",
           "fontSize": 10,
           "color": "#605E5C",
           "tooltip": null

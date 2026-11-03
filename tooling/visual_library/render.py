@@ -435,7 +435,7 @@ def on_background_bounds(spec: dict, config: dict, bounds: "tuple[str, str] | li
                             mark = layer.get("mark") if isinstance(layer, dict) else None
                             enc = layer.get("encoding", {}) if isinstance(layer, dict) else {}
                             if (isinstance(mark, dict) and mark.get("type") == "area"
-                                    and str(mark.get("description", "")).startswith("Prognoseband ")
+                                    and str(mark.get("description", "")).startswith(("Prognoseband ", "Forecast band "))
                                     and mark.get("opacity") == .12 and enc.get("y", {}).get("field")
                                     and enc.get("y2", {}).get("field")):
                                 protected_band_ids.add(id(layer))
@@ -444,7 +444,8 @@ def on_background_bounds(spec: dict, config: dict, bounds: "tuple[str, str] | li
                                     edge = copy.deepcopy(layer)
                                     edge["mark"] = {"type": "line", "interpolate": "monotone",
                                                     "color": mark["color"], "strokeWidth": 1,
-                                                    "description": "Prognoseband Grenze"}
+                                                    "description": ("Forecast band boundary" if str(mark["description"]).startswith("Forecast band ")
+                                                                    else "Prognoseband Grenze")}
                                     edge["encoding"] = {"y": {**enc["y"], "field": enc[channel]["field"]}}
                                     expanded.append(edge)
                             else:
@@ -1060,7 +1061,7 @@ LOCALES: dict = {
 
 
 _HOUSE_STYLE_PARAMS = frozenset({"axis_grid_opacity", "axis_grid_dash", "value_tick_count", "end_marker_size",
-                                  "show_phase_annotations", "show_axis_break",
+                                  "show_phase_annotations", "show_axis_break", "show_value_axis_title",
                                   "value_domain", "value_unit", "value_format"})
 
 
@@ -1138,6 +1139,11 @@ def _house_style_params(entry: dict, notation: str, given: dict) -> dict:
                                     if entry["id"] in ("bar_absolute", "bar_ranking")
                                     else ', "tickCount": '+str(count))
     out.update(_value_presentation_params(entry, given))
+    if "show_value_axis_title" in given and "_value_axis_title" in canonical:
+        if not isinstance(given["show_value_axis_title"], bool):
+            raise ValueError("show_value_axis_title must be a boolean")
+        if not given["show_value_axis_title"]:
+            out["_value_axis_title"] = "null"
     return out
 
 
@@ -1409,7 +1415,9 @@ def _dict_nodes(node):
 def render_svg(idiom: str, data: list[dict], profile: str = "house_default",
                bindings: "dict | None" = None, params: "dict | None" = None,
                width: int = 1000, height: int = 200, background: "str | None" = None,
-               *, microvisual: "str | None" = None, micro_options: "dict | None" = None) -> str:
+               *, microvisual: "str | None" = None, micro_options: "dict | None" = None,
+               background_bounds: "tuple[str, str] | list[str] | None" = None,
+               outline_forecast_band: bool = False) -> str:
     """Offline SVG from the original Vega-Lite target; no second geometry renderer.
 
     Install requirements.txt (vl-convert-python) for static exports.
@@ -1424,7 +1432,8 @@ def render_svg(idiom: str, data: list[dict], profile: str = "house_default",
             or not isinstance(width, int) or not isinstance(height, int) or width <= 0 or height <= 0):
         raise ValueError("SVG dimensions must be positive integers")
     text, _ = render_target(idiom, "html_vegalite", profile, bindings=bindings, params=params,
-                            background=background, microvisual=microvisual, micro_options=micro_options)
+                            background=background, microvisual=microvisual, micro_options=micro_options,
+                            background_bounds=background_bounds, outline_forecast_band=outline_forecast_band)
     spec = json.loads(text)
     name = (spec.get("data") or {}).get("name")
     if not name:

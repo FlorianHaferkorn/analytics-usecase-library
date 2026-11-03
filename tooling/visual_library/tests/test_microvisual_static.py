@@ -157,6 +157,31 @@ def test_static_dark_export_paints_the_ground_used_for_contrast():
     assert not any(n.get("fill") == "white" for n in rects)
 
 
+@pytest.mark.parametrize("bounds", [("#BFEFEC", "#FFFFFF"), ("#0C100E", "#26354D")])
+@pytest.mark.parametrize("lang", ["de", "en"])
+def test_static_glass_forecast_uses_original_bounds_contract_and_transparent_ground(bounds, lang, monkeypatch):
+    original = render.render_target
+    seen = {}
+    def capture(*args, **kwargs):
+        seen.update(kwargs)
+        return original(*args, **kwargs)
+    monkeypatch.setattr(render, "render_target", capture)
+    svg = render.render_svg("line", [
+        {"Date":"2026-01-01","AC":20,"FC":None,"Low":None,"High":None},
+        {"Date":"2026-02-01","AC":None,"FC":24,"Low":18,"High":30},
+        {"Date":"2026-03-01","AC":None,"FC":28,"Low":20,"High":36}],
+        bindings={"time":"Date","value":"AC","forecast":"FC","fc_band":{"lo":"Low","hi":"High"}},
+        params={"flaeche_deckkraft":0,"lang":lang}, width=600,height=240,
+        background_bounds=bounds, outline_forecast_band=True)
+    assert seen["background_bounds"] is bounds and seen["outline_forecast_band"] is True
+    root = ET.fromstring(svg)
+    assert not any(n.get("fill") in ("white", "#FFFFFF", "#ffffff")
+                   for n in root.iter() if n.tag.endswith("rect"))
+    edge_label = "Forecast band boundary" if lang == "en" else "Prognoseband Grenze"
+    assert svg.count(f'aria-label="{edge_label}"') == 2
+    assert "P10" in svg and "P90" in svg
+
+
 def test_static_export_escapes_labels_and_never_creates_executable_markup():
     label='<script>alert("x")</script> & <value>'
     svg=render.render_svg("bar_ranking",[{"c":label,"v":12}],

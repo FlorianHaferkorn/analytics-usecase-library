@@ -138,6 +138,35 @@ def test_outlined_glass_forecast_requires_opt_in_and_a_canonical_band():
         render.render_target("line", "fabric_app", outline_forecast_band=True)
 
 
+def test_house_forecast_lower_label_keeps_gap_without_moving_upper_event_strip():
+    doc = json.loads(render.render_target("line", "fabric_app", bindings={
+        "time":"Date", "value":"AC", "fc_band":{"lo":"Low","hi":"High"}})[0])
+    labels = {layer["mark"].get("text"): layer["mark"] for layer in doc["spec"]["layer"]
+              if layer.get("mark", {}).get("type") == "text"}
+    assert (labels["P10"]["baseline"], labels["P10"]["dy"]) == ("top", 8)
+    assert labels["P90"]["dy"] == -7 and "baseline" not in labels["P90"]
+
+
+@pytest.mark.parametrize("idiom", ["line", "bar_absolute", "bar_ranking"])
+def test_house_value_axis_title_can_hide_without_removing_tooltip_unit(idiom):
+    params = {"value_unit":"days", "show_value_axis_title":False}
+    doc = json.loads(render.render_target(idiom, "html_vegalite", params=params)[0])
+    axes = [n["axis"] for n in render._dict_nodes(doc) if isinstance(n.get("axis"), dict)]
+    assert axes and all(a.get("title") != "days" for a in axes)
+    tooltips = [n["tooltip"] for n in render._dict_nodes(doc) if "tooltip" in n]
+    assert "(days)" in json.dumps(tooltips)
+    if "ibcs" in render.profiles(idiom):
+        bindings = {"value":"v", "time":"t"} if idiom == "line" else {"value":"v", "category":"c"}
+        baseline = render.render_target(idiom, "fabric_app", "ibcs", bindings=bindings)[0]
+        assert render.render_target(idiom, "fabric_app", "ibcs", bindings=bindings,
+                                    params={"show_value_axis_title":False})[0] == baseline
+
+
+def test_house_value_axis_title_rejects_non_boolean():
+    with pytest.raises(ValueError, match="show_value_axis_title must be a boolean"):
+        render.render_target("line", "html_vegalite", params={"show_value_axis_title":0})
+
+
 def test_background_bounds_implicit_text_opacity_and_overlapping_envelope_refuse():
     with pytest.raises(render.BackgroundContrastError, match="opacity"):
         render.on_background_bounds({"mark": {"type": "text", "text": "AC", "opacity": .25}}, {},

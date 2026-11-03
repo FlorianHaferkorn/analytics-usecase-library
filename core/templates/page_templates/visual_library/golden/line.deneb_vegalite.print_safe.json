@@ -34,7 +34,7 @@
       "mark": { "type": "text", "text": "P90", "align": "right", "dx": -2, "dy": -7, "fontSize": 10, "color": "#605E5C" },
       "encoding": { "y": { "field": "gm_fc_p90", "type": "quantitative" } } },
     { "transform": [ { "filter": "isValid(datum['gm_fc_p10'])" }, { "window": [ { "op": "row_number", "as": "_bl" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._bl == 1" } ],
-      "mark": { "type": "text", "text": "P10", "align": "right", "dx": -2, "dy": 11, "fontSize": 10, "color": "#605E5C" },
+      "mark": { "type": "text", "text": "P10", "align": "right", "dx": -2, "dy": 8, "baseline": "top", "fontSize": 10, "color": "#605E5C" },
       "encoding": { "y": { "field": "gm_fc_p10", "type": "quantitative" } } },
     { "transform": [ { "filter": "isValid(datum['gm_event']) && datum['gm_event'] != '' && datum['gm_event'] != '(Blank)'" } ],
       "mark": { "type": "rule", "color": "#605E5C", "strokeWidth": 1, "description": "Ereignis" },
