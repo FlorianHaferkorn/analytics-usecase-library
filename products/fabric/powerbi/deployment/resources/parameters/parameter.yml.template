@@ -59,8 +59,16 @@ spark_pool:
 
 # Semantic model binding for cloud/on-premises connections
 semantic_model_binding:
-  # Example: Bind semantic model to connection after deployment
-  - connection_id: "connection-id-guid-here"
-    semantic_model_name: "DM_Core"
-    # OR for multiple models:
-    # semantic_model_name: ["DM_Core", "DM_Domains"]
+  # Bind semantic models to existing connections after publishing (fabric-cicd >= 1.2.0 format).
+  # fabric-cicd calls the Fabric "Bind Semantic Model Connection" API per connection ID;
+  # the deploying identity must own the model and have User permission on the connection.
+  # The former list format (- connection_id / semantic_model_name) still works but logs a
+  # deprecation warning.
+  default:
+    connection_id:
+      prd: "prd-connection-id-guid-here"
+  models:
+    - semantic_model_name: ["DM_Core", "DM_Domains"]
+      connection_id:
+        tst: "tst-connection-id-guid-here"
+        prd: "prd-connection-id-guid-here"
