@@ -1145,7 +1145,9 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
                   background: "str | None" = None,
                   background_bounds: "tuple[str, str] | list[str] | None" = None,
-                  outline_forecast_band: bool = False) -> "tuple[str, str]":
+                  outline_forecast_band: bool = False,
+                  microvisual: "str | None" = None,
+                  micro_options: "dict | None" = None) -> "tuple[str, str]":
     """Derived target output for one idiom x profile. Deterministic JSON.
 
     `bindings` ({role: column}) binds real data columns through `data_slots`; `params` overrides
@@ -1158,6 +1160,15 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     show_phase_annotations and show_axis_break booleans. These only affect the
     corresponding base templates, not IBCS. label_current already controls the
     running-period caption. Event fields remain in data and hover tooltips.
+
+    Compact partial forms: microvisual='bullet' on bullet hides axes and accepts
+    micro_options target_field/threshold_field (live data column names), domain
+    (requested bounds unioned with real values), minimal (thin bar), achievement
+    (explicit fixed 0..1.2 scale). The source never computes KPI achievement.
+    microvisual='spark' on line preserves native scenario/gap marks, hides chart
+    chrome and accepts height (16..160, default 40). params time_type='ordinal'
+    preserves supplied chronological label order without inventing dates;
+    'quantitative' accepts real period indexes. Other targets remain unchanged.
     """
     if target not in DERIVED_TARGETS:
         raise KeyError(f"unknown derived target '{target}'")
@@ -1214,7 +1225,38 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         h = params["highlight"]
         accent = params.get("accent") if focus is True else None
         spec = with_highlight(spec, h["field"], list(h.get("values") or []), bool(h.get("temporal")), accent)
+    if idiom == "line" and (params or {}).get("time_type"):
+        if params["time_type"] not in ("temporal", "ordinal", "quantitative"):
+            raise ValueError("time_type must be temporal, ordinal or quantitative")
+        if params["time_type"] == "ordinal":
+            # Label strings carry no lexical chronology. Preserve the supplied
+            # row order for native latest symbols, labels and event numbering.
+            row_order = {"window": [{"op": "row_number", "as": "_vl_period_order"}]}
+            spec["transform"] = [row_order] + spec.get("transform", [])
+        for node in _dict_nodes(spec):
+            if params["time_type"] == "ordinal" and "window" in node:
+                for sort in node.get("sort", []):
+                    if sort.get("field") == eff.get("field_date"):
+                        sort["field"] = "_vl_period_order"
+            if node.get("field") == eff.get("field_date") and node.get("type") == "temporal":
+                node["type"] = params["time_type"]
+                if node["type"] != "temporal":
+                    node.pop("format", None)
+            x = node.get("encoding", {}).get("x", {})
+            if isinstance(x, dict) and x.get("field") == eff.get("field_date"):
+                x["type"] = params["time_type"]
+                if x["type"] == "ordinal":
+                    x["sort"] = None
+    if microvisual is not None:
+        spec = _microvisual(spec, idiom, microvisual, eff, micro_options or {})
+    elif micro_options:
+        raise ValueError("micro_options require microvisual")
     config = vegalite_config(profile)
+    if (params or {}).get("bar_corner_radius") is not None:
+        radius = params["bar_corner_radius"]
+        if not isinstance(radius, int) or isinstance(radius, bool) or not 0 <= radius <= 24:
+            raise ValueError("bar_corner_radius must be an integer 0..24")
+        config = deneb_config(profile, radius)
     if notation == default_profile() and (params or {}).get("value_format"):
         config["axisQuantitative"] = {**config.get("axisQuantitative", {}), "format": params["value_format"]}
     lang = str((params or {}).get("lang") or "de")
@@ -1222,6 +1264,17 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         if lang not in LOCALES:
             raise KeyError(f"unknown lang '{lang}' (de, {', '.join(LOCALES)})")
         config = {**config, "locale": LOCALES[lang]}
+        if lang == "en":
+            descriptions = {"Ereignis": "Event", "Ereignisnummer": "Event number",
+                            "Serienlabel": "Series label", "laufende Periode": "Current period",
+                            "Zielkorridor": "Target corridor", "Achse beginnt nicht bei null": "Nonzero axis",
+                            "Abweichungsfläche gut": "Favourable variance area",
+                            "Abweichungsfläche schlecht": "Unfavourable variance area"}
+            for node in _dict_nodes(spec):
+                description = node.get("description")
+                if isinstance(description, str):
+                    node["description"] = descriptions.get(
+                        description, description.replace("Prognoseband", "Forecast band"))
     if background and background_bounds is None:
         spec, config = on_background(spec, background), on_background(config, background)
     if background_bounds is not None:
@@ -1244,6 +1297,176 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
                "data_name": (spec.get("data") or {}).get("name"),
                "spec": spec, "configVegaLite": config, "capabilities": dict(sorted(caps.items()))}
     return json.dumps(out, indent=2, ensure_ascii=False) + "\n", "json"
+
+
+def _microvisual(spec: dict, idiom: str, variant: str, params: dict, options: dict) -> dict:
+    """Compact partial forms of governed bullet/line, without card chrome.
+
+    The same derived specification runs in Fabric, HTML and static SVG. Consumers
+    supply values and card labels; they never calculate SVG coordinates. Achievement
+    is an explicitly bounded 0–120% scale, not a new KPI/trigger calculation.
+    """
+    if (idiom, variant) not in (("bullet", "bullet"), ("line", "spark")):
+        raise ValueError("microvisual must be bullet/bullet or line/spark")
+    out = copy.deepcopy(spec)
+    if variant == "bullet":
+        allowed = {"domain", "threshold", "polarity", "minimal", "achievement", "target_field", "threshold_field"}
+        if set(options) - allowed:
+            raise ValueError("unknown bullet micro_options")
+        threshold = options.get("threshold")
+        if threshold is not None and (isinstance(threshold, bool)
+                or not isinstance(threshold, (int, float)) or not math.isfinite(threshold)):
+            raise ValueError("threshold must be finite")
+        polarity = options.get("polarity", 1)
+        if isinstance(polarity, bool) or polarity not in (-1, 1):
+            raise ValueError("polarity must be 1 or -1")
+        domain = options.get("domain", [0, 1.2] if options.get("achievement") else [0, 0])
+        if (not isinstance(domain, (list, tuple)) or len(domain) != 2
+                or any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in domain)
+                or domain[0] > domain[1]):
+            raise ValueError("domain must be two ordered finite values")
+        target = float(params["target_val"]) if "target_val" in params and not options.get("target_field") else None
+        if options.get("achievement"):
+            scale = {"domain": [0, 1.2], "zero": True, "clamp": True}
+        else:
+            refs = list(domain) + [v for v in (target, threshold) if v is not None]
+            scale = {"domain": {"unionWith": refs}, "zero": True}
+        minimal = bool(options.get("minimal"))
+        for field_key in ("target_field", "threshold_field"):
+            field = options.get(field_key)
+            if field is not None and (not isinstance(field, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z_0-9]*", field)):
+                raise ValueError(f"{field_key} must be a simple column name")
+        if options.get("target_field"):
+            if len(out.get("layer", [])) < 2:
+                raise ValueError("data-bound micro bullet requires its target layer")
+            out["layer"][1]["encoding"]["x"] = {"field": options["target_field"], "type": "quantitative"}
+            out["layer"][1]["transform"] = [{"filter": {"field": options["target_field"], "valid": True}}]
+        for layer in out.get("layer", []):
+            for channel in ("x", "y"):
+                enc = layer.get("encoding", {}).get(channel)
+                if isinstance(enc, dict):
+                    enc["axis"] = None
+                    if channel == "x":
+                        enc["scale"] = scale
+            mark = layer.get("mark", {})
+            if mark.get("type") == "bar":
+                mark.update(height=3 if minimal else 7, cornerRadiusEnd=1.5 if minimal else 0)
+            if mark.get("type") == "tick":
+                mark.update(size=14 if minimal else 20, thickness=1.5 if minimal else 2)
+        if threshold is not None or options.get("threshold_field"):
+            threshold_encoding = ({"field": options["threshold_field"], "type": "quantitative"}
+                                  if options.get("threshold_field") else {"datum": threshold})
+            threshold_layer = {"mark": {"type": "tick", "color": params["col_target"],
+                "size": 10, "thickness": 1, "strokeDash": [2, 2],
+                "description": "Governed threshold"},
+                "encoding": {"x": {**threshold_encoding, "axis": None, "scale": scale}}}
+            if options.get("threshold_field"):
+                threshold_layer["transform"] = [{"filter": {"field": options["threshold_field"], "valid": True}}]
+                if options.get("achievement"):
+                    threshold_layer["transform"].append(
+                        {"filter": {"field": options["threshold_field"], "range": [0, 1.2]}})
+            out.setdefault("layer", []).append(threshold_layer)
+        out["height"] = 22
+    else:
+        if set(options) - {"height"}:
+            raise ValueError("unknown spark micro_options")
+        height = options.get("height", 40)
+        if not isinstance(height, int) or isinstance(height, bool) or not 16 <= height <= 160:
+            raise ValueError("spark height must be an integer 16..160")
+        # Retain native scenario lines and endpoint symbols. All transforms, gap
+        # handling and notation-specific scenarios remain from the original line.
+        kept = []
+        for layer in out.get("layer", []):
+            mark = layer.get("mark", {})
+            if mark.get("type") not in ("line", "point") or "params" in layer:
+                continue
+            opacity = layer.get("encoding", {}).get("opacity", {})
+            if isinstance(opacity, dict) and "condition" in opacity:
+                continue
+            kept.append(layer)
+        out["layer"] = kept
+        out["height"] = height
+        for node in _dict_nodes(out):
+            for channel in ("x", "y"):
+                enc = node.get("encoding", {}).get(channel)
+                if isinstance(enc, dict):
+                    enc["axis"] = None
+            node.pop("tooltip", None)
+    out.update(padding=2, background="transparent", autosize={"type": "fit", "contains": "padding"})
+    return out
+
+
+def _dict_nodes(node):
+    if isinstance(node, dict):
+        yield node
+        for value in node.values():
+            yield from _dict_nodes(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from _dict_nodes(value)
+
+
+def render_svg(idiom: str, data: list[dict], profile: str = "house_default",
+               bindings: "dict | None" = None, params: "dict | None" = None,
+               width: int = 1000, height: int = 200, background: "str | None" = None,
+               *, microvisual: "str | None" = None, micro_options: "dict | None" = None) -> str:
+    """Offline SVG from the original Vega-Lite target; no second geometry renderer.
+
+    Install requirements.txt (vl-convert-python) for static exports.
+    vl-convert is deliberately imported only for static export. Named datasets are
+    resolved locally, with no remote data fetching. The input table remains owned
+    by the consumer and must accompany the graphic for accessible exact values.
+    """
+    import xml.etree.ElementTree as ET
+    import vl_convert as vlc
+
+    if (isinstance(width, bool) or isinstance(height, bool)
+            or not isinstance(width, int) or not isinstance(height, int) or width <= 0 or height <= 0):
+        raise ValueError("SVG dimensions must be positive integers")
+    text, _ = render_target(idiom, "html_vegalite", profile, bindings=bindings, params=params,
+                            background=background, microvisual=microvisual, micro_options=micro_options)
+    spec = json.loads(text)
+    name = (spec.get("data") or {}).get("name")
+    if not name:
+        raise ValueError("static SVG requires a named Library dataset")
+    spec["datasets"] = {name: copy.deepcopy(data)}
+    # Dimensions describe the delivered canvas including axes/padding, not an
+    # oversized plot subsequently shrunk by the HTML/Evidence card. Native text
+    # therefore keeps its governed font size in compact report slots.
+    spec.update(width=width, height=height, autosize={"type": "fit", "contains": "padding"})
+    if background is not None:
+        # on_background remaps ink; an offline export also owns its real painted
+        # surface (there is no host VegaVisual canvas to supply the dark ground).
+        spec["background"] = background
+    svg = vlc.vegalite_to_svg(spec)
+    root = ET.fromstring(svg)
+    namespace = "http://www.w3.org/2000/svg"
+    ET.register_namespace("", namespace)
+    # Each standalone Vega export starts its ID counter at the same value. A
+    # content-derived namespace keeps distinct inline SVGs' clipping/paint local.
+    import hashlib
+    digest = hashlib.sha256(json.dumps(spec, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]
+    prefix = "vl_" + digest + "_"
+    originals = [node.get("id") for node in root.iter() if node.get("id")]
+    ids = {name: prefix + str(index) for index, name in enumerate(originals)}
+    for node in root.iter():
+        for key, value in list(node.attrib.items()):
+            if key == "id":
+                node.set(key, ids[value])
+            else:
+                for original, replacement in ids.items():
+                    value = value.replace(f"url(#{original})", f"url(#{replacement})")
+                    if value == "#" + original:
+                        value = "#" + replacement
+                node.set(key, value)
+    for node in list(root.iter()):
+        if node.get("aria-label"):
+            title = ET.Element(f"{{{namespace}}}title")
+            title.text = node.get("aria-label")
+            node.insert(0, title)
+    root.set("data-visual-library", idiom)
+    root.set("data-visual-profile", profile)
+    return ET.tostring(root, encoding="unicode")
 
 
 def target_golden_path(idiom: str, target: str, profile: "str | None" = None) -> Path:

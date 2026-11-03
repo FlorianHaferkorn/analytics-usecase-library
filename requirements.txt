@@ -26,3 +26,6 @@ pandas>=2.0.0
 # openai>=1.0.0
 # google-generativeai>=0.8.0
 # plotly>=5.18.0
+
+# Offline HTML/Evidence exports from the governed Vega-Lite Visual Library.
+vl-convert-python>=1.9.0,<2
