@@ -1235,6 +1235,54 @@ def _above_bar_layout(spec: dict, idiom: str, notation: str, params: dict) -> di
     return spec
 
 
+def above_bar_layout(rows: list[dict], category_field: str, plot_width: int, nominal_pitch: int,
+                     top_n: int | None = None, value_field: str | None = None,
+                     order: str = "ascending", rest_label: str = "Übrige", bar_height: int = 10) -> dict:
+    """Compute safe row geometry using the exact above-label wrapping expression.
+
+    plot_width is the Vega plot width after horizontal padding. Count distinct source
+    categories after the original top-N sorting and remainder folding.
+    """
+    if isinstance(plot_width, bool) or not isinstance(plot_width, (int, float)) or plot_width <= 0:
+        raise ValueError("plot_width must be positive")
+    if isinstance(nominal_pitch, bool) or not isinstance(nominal_pitch, int) or not 12 <= nominal_pitch <= 256:
+        raise ValueError("row_pitch_px must be an integer from 12 to 256")
+    if isinstance(bar_height, bool) or not isinstance(bar_height, int) or not 1 <= bar_height <= 24:
+        raise ValueError("bar height must be an integer from 1 to 24")
+    limit = 24 if plot_width < 360 else 40
+    # JavaScript's regexp counts UTF-16 code units, rather than Python codepoints.
+    def units(value):
+        raw = ('' if value is None else str(value)).encode('utf-16-le', errors='surrogatepass')
+        return ''.join(chr(raw[i] | raw[i+1] << 8) for i in range(0, len(raw), 2))
+    def lines(value):
+        text = re.sub(r'(.{1,%d})(?:\s+|$)|(.{%d})' % (limit, limit),
+                      lambda m: (m.group(1) or '') + (m.group(2) or '') + '\n', units(value))
+        return max(1, len(text.strip().split('\n')))
+    ordered = list(rows)
+    if top_n is not None:
+        if (isinstance(top_n, bool) or not isinstance(top_n, int) or top_n < 1
+                or not value_field or order not in ("ascending", "descending")):
+            raise ValueError("invalid top-N layout options")
+        def key(row):
+            value = row.get(value_field)
+            return (value is not None, value if value is not None else 0)
+        ordered.sort(key=key, reverse=order == "descending")
+    shown = ordered[:top_n] if top_n is not None else ordered
+    values = {(type(row.get(category_field)).__name__, str(row.get(category_field))) for row in shown}
+    if top_n is not None and len(rows) > top_n:
+        values.add(("str", f"{rest_label} ({len(rows) - top_n})"))
+    count = len(values)
+    labels = [row.get(category_field) for row in shown]
+    if top_n is not None and len(rows) > top_n:
+        labels.append(f"{rest_label} ({len(rows) - top_n})")
+    maximum = max((lines(value) for value in labels), default=1)
+    pitch = max(nominal_pitch, bar_height + 2 + 18 * maximum)
+    top = max(12, math.ceil(18 * maximum + bar_height / 2 + 2 - pitch / 2))
+    plot = max(1, count) * pitch
+    return {"rowCount": count, "maxLines": maximum, "rowPitch": pitch,
+            "plotHeight": plot, "topPadding": top, "minimumHeight": plot + top}
+
+
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
                   background: "str | None" = None,
@@ -1288,7 +1336,7 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         eff.update({v: eff[fb] for v, fb in dv.items() if v not in given and fb is not None})
         eff.update({k: str(v) for k, v in given.items()
                     if k not in ("top_n", "rest", "rest_label", "time_format", "time_ticks", "highlight", "accent",
-                                  "focus_grey", "lang") and k not in _HOUSE_STYLE_PARAMS})
+                                  "focus_grey", "lang", "row_pitch_px") and k not in _HOUSE_STYLE_PARAMS})
         eff.update(_house_style_params(entry, notation, given))
         if (entry.get("encoding") or {}).get("order") == "worst_first" and "worst_first" not in given:
             # worst first: for a lower-is-better measure the worst value is the highest (A-31 R7)
@@ -1305,6 +1353,26 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
         eff = dict(_effective_params(load_entry(idiom), notation))
     spec = _above_bar_layout(spec, idiom, notation, eff)
+    if (params or {}).get("row_pitch_px") is not None:
+        pitch = params["row_pitch_px"]
+        if (idiom != "bar_ranking" or notation != default_profile()
+                or params.get("label_position") != "above" or microvisual is not None):
+            raise ValueError("row_pitch_px requires house bar_ranking with above labels")
+        if isinstance(pitch, bool) or not isinstance(pitch, int) or not 12 <= pitch <= 256:
+            raise ValueError("row_pitch_px must be an integer from 12 to 256")
+        try:
+            bar_height = int(eff["label_above_px"])
+        except (TypeError, ValueError) as exc:
+            raise ValueError("row pitch requires a numeric bar height") from exc
+        if not 1 <= bar_height <= 24:
+            raise ValueError("bar height must be an integer from 1 to 24")
+        spec.setdefault("usermeta", {})["layout"] = {
+            "kind": "above-bar-rows", "categoryField": eff["field_cat"], "nominalPitch": pitch, "barHeight": bar_height,
+            "wrapBreakpoint": 360, "wrapNarrow": 24, "wrapWide": 40, "lineHeight": 18,
+            "topN": int(params.get("top_n", 20)) if bindings else None,
+            "valueField": eff["field"], "order": eff.get("worst_first", "ascending"),
+            "restLabel": str(params.get("rest_label", REST_LABEL)),
+        }
     spec = with_tooltips(spec, idiom, eff)
     if params and params.get("time_format"):
         spec = with_time_axis(spec, str(params["time_format"]), params.get("time_ticks"))
@@ -1532,7 +1600,22 @@ def render_svg(idiom: str, data: list[dict], profile: str = "house_default",
     # Dimensions describe the delivered canvas including axes/padding, not an
     # oversized plot subsequently shrunk by the HTML/Evidence card. Native text
     # therefore keeps its governed font size in compact report slots.
-    spec.update(width=width, height=height, autosize={"type": "fit", "contains": "padding"})
+    layout_meta = (spec.get("usermeta") or {}).get("layout")
+    if layout_meta and layout_meta.get("kind") == "above-bar-rows":
+        layout = above_bar_layout(data, layout_meta["categoryField"], max(1, width - 4),
+                                  layout_meta["nominalPitch"], layout_meta.get("topN"),
+                                  layout_meta.get("valueField"), layout_meta.get("order", "ascending"),
+                                  layout_meta.get("restLabel", "Übrige"), layout_meta["barHeight"])
+        if height < layout["minimumHeight"]:
+            raise ValueError(
+                f"SVG canvas too small: needs height >= {layout['minimumHeight']} for above-bar rows"
+            )
+        spec.update(width=max(1, width - 4), height=layout["plotHeight"],
+                    padding={"left": 0, "right": 4, "top": layout["topPadding"],
+                             "bottom": height - layout["minimumHeight"]},
+                    autosize={"type": "pad", "contains": "content"})
+    else:
+        spec.update(width=width, height=height, autosize={"type": "fit", "contains": "padding"})
     if background is not None:
         # on_background remaps ink; an offline export also owns its real painted
         # surface (there is no host VegaVisual canvas to supply the dark ground).
