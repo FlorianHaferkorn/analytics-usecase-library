@@ -975,7 +975,7 @@ def with_status_breach(spec: dict, entry: dict, eff: dict) -> dict:
 
 
 def with_highlight(spec: dict, field: str, values: "list | None" = None, temporal: bool = False,
-                   accent: "str | None" = None) -> dict:
+                   accent: "str | None" = None, *, style: str = "dim", ink: str = "#404040") -> dict:
     """Kernaussage hervorheben (D-638 Nachtrag, feat-109): zwei Vega-Parameter, `kernaussage` (an/aus,
     Standard aus) und `kernaussage_werte` (die Treffer). Gedämpft wird jede Marke, deren Zeile `field`
     trägt und nicht zu den Treffern gehört; Marken ohne das Feld (Referenzlinie, Zielwert) bleiben
@@ -985,7 +985,15 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
     parst (`key_message.highlight_keys`).
 
     `accent` (Profil mit focus, story): statt die übrigen Marken zu dämpfen, bekommen die Treffer die
-    Akzentfarbe; Textmarken bleiben in Textfarbe."""
+    Akzentfarbe; Textmarken bleiben in Textfarbe.
+    `style="outline"`: Balken/Rechtecke behalten bei Treffern ihre Füllung, übrige zeigen nur
+    eine deckende Kontur derselben semantischen Farbe. Text und andere Marken bleiben unverändert.
+    `ink` ist die feste Ersatzfarbe für Balken ohne eigene Farbe; die normale Hintergrundprüfung
+    prüft Füllung und Kontur einschließlich aller bedingten Farbzweige."""
+    if style not in ("dim", "outline"):
+        raise ValueError("highlight style must be dim or outline")
+    if style == "outline" and (not isinstance(ink, str) or not _HEX.fullmatch(ink)):
+        raise ValueError("outline highlight ink must be a hex colour")
     probe = f"time(datum[{json.dumps(field)}])" if temporal else f"datum[{json.dumps(field)}]"
     hit = f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && indexof({KEY_VALUES}, {probe}) >= 0"
     test = (f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && indexof({KEY_VALUES}, {probe}) < 0")
@@ -1011,7 +1019,41 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
             return node
         return {**node, "encoding": enc}
 
+    def outline_unit(node: dict) -> dict:
+        # Preserve reference/line/text semantics. The category outline applies
+        # only to length-encoded discrete bars, not to every mark in a chart.
+        if _mark_kind(node) not in ("bar", "rect"):
+            return node
+        enc = dict(node.get("encoding") or {})
+        mark = node["mark"] if isinstance(node.get("mark"), dict) else {}
+        active = f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}])"
+        old_fill = enc.get("fillOpacity", {"value": mark.get("fillOpacity", 1)})
+        old_conditions = old_fill.get("condition", [])
+        old_conditions = old_conditions if isinstance(old_conditions, list) else [old_conditions]
+        enc["fillOpacity"] = {**old_fill, "condition": [{"test": test, "value": 0}, *old_conditions]}
+        paint = enc.get("fill", enc.get("color", {"value": mark.get("fill", mark.get("color", ink))}))
+        if "value" not in paint:
+            raise ValueError("outline highlight needs a literal bar colour")
+        existing = enc.get("stroke", {"value": mark.get("stroke", "transparent")})
+        paint_conditions = paint.get("condition", [])
+        paint_conditions = paint_conditions if isinstance(paint_conditions, list) else [paint_conditions]
+        if any("test" not in c or "value" not in c for c in paint_conditions):
+            raise ValueError("outline highlight needs test-based literal bar colours")
+        stroke_conditions = [{"test": f"({active}) && ({c['test']})", "value": c["value"]} for c in paint_conditions]
+        stroke_conditions.append({"test": active, "value": paint["value"]})
+        old_stroke_conditions = existing.get("condition", [])
+        if not isinstance(old_stroke_conditions, list):
+            old_stroke_conditions = [old_stroke_conditions]
+        enc["stroke"] = {**existing, "condition": [*stroke_conditions, *old_stroke_conditions]}
+        width = enc.get("strokeWidth", {"value": mark.get("strokeWidth", 0)})
+        width_conditions = width.get("condition", [])
+        width_conditions = width_conditions if isinstance(width_conditions, list) else [width_conditions]
+        enc["strokeWidth"] = {**width, "condition": [{"test": active, "value": 0.75}, *width_conditions]}
+        return {**node, "encoding": enc}
+
     def mark_unit(node: dict) -> dict:
+        if style == "outline":
+            return outline_unit(node)
         if accent:
             return accent_unit(node)
         enc = dict(node.get("encoding") or {})
@@ -1041,6 +1083,8 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
     out = walk(spec)
     out["params"] = [p for p in out.get("params") or [] if p.get("name") not in (KEY_PARAM, KEY_VALUES)] + [
         {"name": KEY_PARAM, "value": False}, {"name": KEY_VALUES, "value": keys}]
+    if style == "outline":
+        out["usermeta"] = {**out.get("usermeta", {}), "selectionHighlight": "outline"}
     return out
 
 
@@ -1277,7 +1321,8 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     if params and params.get("highlight"):
         h = params["highlight"]
         accent = params.get("accent") if focus is True else None
-        spec = with_highlight(spec, h["field"], list(h.get("values") or []), bool(h.get("temporal")), accent)
+        spec = with_highlight(spec, h["field"], list(h.get("values") or []), bool(h.get("temporal")), accent,
+                              style=str(h.get("style", "dim")), ink=str(h.get("ink", eff.get("col_label", "#404040"))))
     if idiom == "line" and (params or {}).get("time_type"):
         if params["time_type"] not in ("temporal", "ordinal", "quantitative"):
             raise ValueError("time_type must be temporal, ordinal or quantitative")

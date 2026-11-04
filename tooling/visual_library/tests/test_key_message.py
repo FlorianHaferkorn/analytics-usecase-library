@@ -314,3 +314,60 @@ def test_live_spec_mit_nachgereichten_treffern_zeichnet_wie_die_zeilenbasierte(i
     leer = json.loads(json.dumps(live))
     leer["params"] = [{**p, "value": []} if p["name"] == render.KEY_VALUES else p for p in leer["params"]]
     assert _scene(leer, rows) != _scene(live, rows)
+
+@pytest.mark.parametrize("target", ["fabric_app", "html_vegalite"])
+@pytest.mark.parametrize("bounds", [("#d8e4e5", "#f4fbf7"), ("#111923", "#253944")])
+def test_outline_selection_keeps_glass_and_text_and_proves_every_stroke(target, bounds):
+    vlc = pytest.importorskip("vl_convert")
+    import contrast
+    roles = {"category": "Region", "value": "Wert"}
+    h = {"field": "Region", "values": ["DACH"], "style": "outline"}
+    output = json.loads(render.render_target("bar_ranking", target, bindings=roles,
+        params={"label_position": "above", "target_val": 30, "highlight": h}, background_bounds=bounds)[0])
+    spec = output["spec"] if target == "fabric_app" else output
+    if target == "fabric_app":
+        spec["config"] = output["configVegaLite"]
+    assert spec["usermeta"]["selectionHighlight"] == "outline"
+    assert spec["config"]["background"] == "transparent"
+    spec.update(width=400, height=240, data={"name": "dataset", "values": BARS})
+
+    def scene(enabled):
+        spec["params"] = [{**p, "value": enabled} if p["name"] == render.KEY_PARAM else p for p in spec["params"]]
+        result = {"rect": [], "text": []}
+        def walk(node):
+            if isinstance(node, dict):
+                if node.get("role") == "mark" and node.get("marktype") in result:
+                    result[node["marktype"]].extend(i for i in node.get("items", []) if i.get("opacity", 1) != 0)
+                for value in node.values():
+                    walk(value)
+            elif isinstance(node, list):
+                for value in node:
+                    walk(value)
+        walk(vlc.vegalite_to_scenegraph(spec))
+        return result
+
+    normal, selected = scene(False), scene(True)
+    assert len(normal["rect"]) == len(selected["rect"]) == 4
+    assert {r.get("fillOpacity", 1) for r in normal["rect"]} == {1}
+    assert sorted(r.get("fillOpacity", 1) for r in selected["rect"]) == [0, 0, 0, 1]
+    assert {r.get("opacity", 1) for r in selected["rect"]} == {1}
+    assert {r["strokeWidth"] for r in selected["rect"]} == {0.75}
+    for before, after in zip(normal["rect"], selected["rect"]):
+        geometry = ("x", "x2", "y", "width", "height")
+        assert tuple(before.get(k) for k in geometry) == tuple(after.get(k) for k in geometry)
+        assert before["fill"] == after["fill"] == after["stroke"], "Semantic bar colour survives in the outline"
+        assert min(contrast.contrast_ratio_exact(after["stroke"], b) for b in bounds) >= 3
+    assert normal["text"] == selected["text"], "No dimmed or rewritten labels"
+    assert all(min(contrast.contrast_ratio_exact(t["fill"], b) for b in bounds) >= 4.5 for t in selected["text"])
+    # The old alpha-dim recipe still fails the same Glass proof. It is not bypassed.
+    with pytest.raises(render.BackgroundContrastError):
+        render.render_target("bar_ranking", target, bindings=roles,
+            params={"highlight": {**h, "style": "dim"}}, background_bounds=bounds)
+
+
+def test_outline_selection_rejects_unsupported_style_and_dynamic_fallback_ink():
+    base = json.loads(render.render_target("bar_ranking", "html_vegalite")[0])
+    with pytest.raises(ValueError, match="style"):
+        render.with_highlight(base, "Region", style="glow")
+    with pytest.raises(ValueError, match="hex"):
+        render.with_highlight(base, "Region", style="outline", ink="datum.colour")

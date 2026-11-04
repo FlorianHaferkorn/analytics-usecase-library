@@ -473,3 +473,40 @@ def test_ordinal_snapshot_line_preserves_values_and_canvas_after_fit():
     assert [before.get(k) for k in ('width', 'height', 'viewBox')] == [
         after.get(k) for k in ('width', 'height', 'viewBox')]
     assert spec['datasets']['dataset'] == rows
+
+
+@pytest.mark.parametrize('bounds', [('#d8e4e5', '#f4fbf7'), ('#111923', '#253944')])
+def test_parent_outline_highlight_and_native_text_fit_preserve_glass_bar_semantics(bounds):
+    import vl_convert as vlc
+    rows = [{'region': 'DACH', 'value': 40}, {'region': 'North', 'value': 30},
+            {'region': 'West', 'value': 20}, {'region': 'South', 'value': 10}]
+    roles = {'category': 'region', 'value': 'value'}
+    params = {'label_position': 'above', 'target_val': 30,
+              'highlight': {'field': 'region', 'values': ['DACH'], 'style': 'outline'}}
+    # Public static path covers the default disabled selection with the new
+    # Parent outline transform and the actual native font metadata provider.
+    public = ET.fromstring(render.render_svg('bar_ranking', rows, bindings=roles, params=params,
+        width=400, height=240, background_bounds=bounds, fit_text_lines=True))
+    assert public.get('width') == '400' and public.get('height') == '240'
+    spec = json.loads(render.render_target('bar_ranking', 'html_vegalite',
+        bindings=roles, params=params, background_bounds=bounds)[0])
+    assert spec['usermeta']['selectionHighlight'] == 'outline'
+    spec.update(width=400, height=240, datasets={'dataset': rows},
+                autosize={'type': 'fit', 'contains': 'padding'})
+    # Freeze the supported live selection parameter to exercise filled winner
+    # plus three opaque outlines in the original native SVG producer.
+    spec['params'] = [{**p, 'value': True} if p['name'] == render.KEY_PARAM else p for p in spec['params']]
+    before = ET.fromstring(vlc.vegalite_to_svg(spec))
+    fitted = render._vertical_fit_svg(vlc, spec, 400, 240, render.native_font_line_metrics)
+    overflow = render._vertical_plaintext_overflow(vlc, spec, 400, 240, render.native_font_line_metrics, fitted)
+    assert overflow['measured'] > 0 and overflow['top'] == overflow['bottom'] == 0
+    after = ET.fromstring(fitted)
+    bars = [n for n in after.iter() if n.get('aria-roledescription') == 'bar']
+    assert len(bars) == 4
+    assert sorted(float(n.get('fill-opacity', '1')) for n in bars) == [0, 0, 0, 1]
+    assert all(float(n.get('stroke-width', '0')) == 0.75 for n in bars)
+    assert all(n.get('fill') == n.get('stroke') for n in bars)
+    assert [(n.text, n.get('fill'), n.get('font-size')) for n in before.iter() if n.tag.endswith('text')] == [
+        (n.text, n.get('fill'), n.get('font-size')) for n in after.iter() if n.tag.endswith('text')]
+    assert [before.get(k) for k in ('width', 'height', 'viewBox')] == [
+        after.get(k) for k in ('width', 'height', 'viewBox')]
