@@ -206,3 +206,185 @@ def test_static_compact_canvas_includes_axes_without_shrinking_native_font():
     sizes=[float(n.get("font-size").removesuffix("px")) for n in root.iter()
            if n.tag.endswith("text") and n.get("font-size")]
     assert sizes and min(sizes) >= 10
+
+
+def _line_fit_spec():
+    spec = json.loads(render.render_target('line', 'html_vegalite',
+        bindings={'time': 'd', 'value': 'v'})[0])
+    spec.update(datasets={'dataset': [{'d': '2026-08-02', 'v': 3}, {'d': '2026-09-06', 'v': 5}]},
+                width=440, height=180, autosize={'type': 'fit', 'contains': 'padding'})
+    return spec
+
+
+def _line_metric_fixture(item):
+    # Explicit provider-contract fixture, not a claim about the host font.
+    return {'ascent': 1984, 'descent': 494, 'units_per_em': 2048}
+
+
+def test_native_line_fit_off_is_negative_control_and_on_converges_without_resizing():
+    import copy
+    import vl_convert as vlc
+    spec = _line_fit_spec()
+    saved = copy.deepcopy(spec)
+    before = vlc.vegalite_to_svg(spec)
+    off = render._vertical_plaintext_overflow(vlc, spec, 440, 180, _line_metric_fixture, before)
+    assert off['measured'] > 0 and off['top'] + off['bottom'] > 0
+    fitted = render._vertical_fit_svg(vlc, spec, 440, 180, _line_metric_fixture)
+    on = render._vertical_plaintext_overflow(vlc, spec, 440, 180, _line_metric_fixture, fitted)
+    assert on['measured'] == off['measured'] and on['top'] == on['bottom'] == 0
+    assert fitted == render._vertical_fit_svg(vlc, copy.deepcopy(saved), 440, 180, _line_metric_fixture)
+    assert set(k for k in spec if spec[k] != saved[k]) == {'padding'}
+    a, b = ET.fromstring(before), ET.fromstring(fitted)
+    assert [a.get(k) for k in ('width', 'height', 'viewBox')] == [b.get(k) for k in ('width', 'height', 'viewBox')]
+    def texts(root):
+        return [n.text for n in root.iter() if n.tag.endswith('text')]
+    assert texts(a) == texts(b)
+    def marks(root):
+        return [n.get('aria-label') for n in root.iter() if n.get('role') == 'graphics-symbol']
+    assert marks(a) == marks(b)
+
+
+def test_native_metric_provider_resolves_embedded_face_without_family_alias():
+    metric = render.native_font_line_metrics({'font': 'sans-serif', 'fontSize': 11, 'text': 'August'})
+    assert metric['font_name'] and metric['ascent'] > 0
+    assert metric['descent'] >= 0 and metric['units_per_em'] > 0
+
+
+@pytest.mark.parametrize('metrics', [None, {}, {'ascent': 10, 'descent': 2, 'units_per_em': 0},
+    {'ascent': -1, 'descent': 2, 'units_per_em': 1000},
+    {'ascent': 10, 'descent': -2, 'units_per_em': 1000},
+    {'ascent': float('nan'), 'descent': 2, 'units_per_em': 1000},
+    {'ascent': 10, 'descent': 2, 'units_per_em': float('inf')}])
+def test_native_line_fit_unknown_invalid_metrics_fail_closed(metrics):
+    import vl_convert as vlc
+    with pytest.raises(ValueError, match='font metrics|font line metrics'):
+        render._vertical_fit_svg(vlc, _line_fit_spec(), 440, 180, lambda item: metrics)
+
+
+def test_exported_svg_operand_precision_matches_native_browser_transform_composition():
+    svg = ('<svg><g transform="translate(112,1.0172413793065136)">'
+        '<g transform="translate(0.5,0.5)"><text transform="translate(-2,9.48275862068978)" '
+        'font-size="11px">DC Hamburg</text></g></g></svg>')
+    # This exact original export is below 11; rounding the sum would conceal it.
+    assert render._svg_text_positions(svg)[0]['baseline_y'] == 10.99999988079071
+
+
+@pytest.mark.parametrize('attribute', ['stroke="red"', 'filter="url(#f)"', 'clip-path="url(#c)"',
+    'transform="scale(2)"', 'style="font-size:11px"'])
+def test_line_fit_rejects_unsupported_checked_node_paint_and_transforms(attribute):
+    from types import SimpleNamespace
+    graph = {'width': 100, 'height': 100, 'scenegraph': {'marktype': 'text', 'items': [{'text': 'x'}]}}
+    vlc = SimpleNamespace(vegalite_to_scenegraph=lambda spec: graph)
+    svg = '<svg><g ' + attribute + '><text transform="translate(5,12)">x</text></g></svg>'
+    # Inline style on an ancestor must also fail closed, rather than overriding font metadata.
+    with pytest.raises(ValueError, match='unsupported'):
+        render._vertical_plaintext_overflow(vlc, {}, 100, 100, _line_metric_fixture, svg)
+
+
+def test_line_fit_skips_rotated_nodes_and_no_text_needs_no_font_metadata():
+    from types import SimpleNamespace
+    graph = {'width': 100, 'height': 100, 'scenegraph': {'marktype': 'text', 'items': [{'text': 'x', 'angle': 90}]}}
+    svg = '<svg><text transform="rotate(90)">x</text></svg>'
+    vlc = SimpleNamespace(vegalite_to_scenegraph=lambda spec: graph, vegalite_to_svg=lambda spec: svg)
+    result = render._vertical_plaintext_overflow(vlc, {}, 100, 100, lambda item: pytest.fail('rotated measured'), svg)
+    assert result == {'top': 0, 'bottom': 0, 'measured': 0, 'skipped_rotated': 1}
+    graph['scenegraph']['items'] = []
+    vlc.vegalite_to_svg = lambda spec: '<svg/>'
+    assert render._vertical_fit_svg(vlc, {}, 100, 100, lambda item: pytest.fail('no text')) == '<svg/>'
+
+
+def test_line_fit_nonconvergence_is_red_with_measured_trace(monkeypatch):
+    from types import SimpleNamespace
+    monkeypatch.setattr(render, '_vertical_plaintext_overflow',
+                        lambda *args: {'top': 0.1, 'bottom': 0, 'measured': 1, 'skipped_rotated': 0})
+    calls = []
+    vlc = SimpleNamespace(vegalite_to_svg=lambda spec: calls.append(dict(spec)) or '<svg/>')
+    with pytest.raises(ValueError, match='did not converge.*measured'):
+        render._vertical_fit_svg(vlc, {}, 100, 100, _line_metric_fixture)
+    assert len(calls) == 8
+
+
+def test_static_native_line_fit_is_explicit_optin_and_legacy_bytes_equal():
+    data = [{'c': 'North', 'v': 12}]
+    kwargs = dict(bindings={'category': 'c', 'value': 'v'}, width=440, height=180)
+    legacy = render.render_svg('bar_ranking', data, **kwargs)
+    assert legacy == render.render_svg('bar_ranking', data, fit_text_lines=False, **kwargs)
+    fitted = render.render_svg('bar_ranking', data, fit_text_lines=True, **kwargs)
+    assert ET.fromstring(fitted).get('width') == '440'
+    with pytest.raises(ValueError, match='requires fit_text_lines'):
+        render.render_svg('bar_ranking', data, font_metrics_provider=_line_metric_fixture, **kwargs)
+
+
+
+def test_line_fit_exhausted_canvas_is_red():
+    # The metadata provider must not turn an impossible layout into success.
+    import vl_convert
+    with pytest.raises(ValueError, match='consume the canvas'):
+        render._vertical_fit_svg(vl_convert, _line_fit_spec(), 440, 180,
+            lambda item: {'ascent': 100000, 'descent': 100000, 'units_per_em': 1})
+
+
+@pytest.mark.parametrize('flag', ['yes', 1, None])
+def test_native_fit_flag_is_strict_boolean(flag):
+    with pytest.raises(ValueError, match='must be boolean'):
+        render.render_svg('bullet', [], fit_text_lines=flag)
+
+
+@pytest.mark.parametrize('width', [280, 440])
+def test_parent_above_label_native_tspans_keep_all_lines_and_original_layout(width):
+    import copy
+    import vl_convert as vlc
+    name = 'Household supplies and international cleaning equipment'
+    data = [{'k': name, 'v': -20}, {'k': 'Zero', 'v': 0},
+            {'k': 'Missing', 'v': None}, {'k': 'Positive', 'v': 40}]
+    kwargs = dict(bindings={'category': 'k', 'value': 'v'}, params={'label_position': 'above'},
+                  width=width, height=240)
+    legacy = render.render_svg('bar_ranking', data, **kwargs)
+    assert legacy == render.render_svg('bar_ranking', data, fit_text_lines=False, **kwargs)
+    fitted = render.render_svg('bar_ranking', data, fit_text_lines=True, **kwargs)
+    lines = [n.text for n in ET.fromstring(fitted).iter() if n.tag.endswith('tspan')]
+    assert len(lines) >= 2 and ' '.join(lines) == name
+    spec = json.loads(render.render_target('bar_ranking', 'html_vegalite',
+        bindings=kwargs['bindings'], params=kwargs['params'])[0])
+    spec.update(width=width, height=240, datasets={'dataset': data},
+                autosize={'type': 'fit', 'contains': 'padding'})
+    saved = copy.deepcopy(spec)
+    raw = render._vertical_fit_svg(vlc, spec, width, 240, render.native_font_line_metrics)
+    overflow = render._vertical_plaintext_overflow(vlc, spec, width, 240, render.native_font_line_metrics, raw)
+    assert overflow['measured'] == 8 and overflow['top'] == overflow['bottom'] == 0
+    # Parent's wrapper, line height, anchors and all governed encodings survive.
+    assert {key: value for key, value in spec.items() if key != 'padding'} == {
+        key: value for key, value in saved.items() if key != 'padding'}
+
+
+def test_tspan_baselines_use_exported_y_and_dy_not_scenegraph_lineheight():
+    svg = ('<svg><g transform="translate(0,10.25)"><text transform="translate(0,2.5)" font-size="11px">'
+           '<tspan>A</tspan><tspan x="0" dy="18">B</tspan>'
+           '<tspan x="0" y="4" dy="2">C</tspan></text></g></svg>')
+    record = render._svg_text_positions(svg)[0]
+    assert not record['unsupported']
+    assert [line['baseline_y'] for line in record['lines']] == [12.75, 30.75, 18.75]
+
+
+@pytest.mark.parametrize('span', ['<tspan font-size="20px">x</tspan>',
+    '<tspan font-weight="700">x</tspan>', '<tspan style="fill:red">x</tspan>',
+    '<tspan><tspan>x</tspan></tspan>', '<tspan transform="translate(0,2)">x</tspan>'])
+def test_mixed_or_arbitrary_tspan_blocks_fail_closed(span):
+    from types import SimpleNamespace
+    graph = {'width': 100, 'height': 100, 'scenegraph': {
+        'marktype': 'text', 'items': [{'text': ['x']}]}}
+    vlc = SimpleNamespace(vegalite_to_scenegraph=lambda spec: graph)
+    with pytest.raises(ValueError, match='unsupported'):
+        render._vertical_plaintext_overflow(vlc, {}, 100, 100, _line_metric_fixture,
+            '<svg><text transform="translate(0,12)" font-size="11px">' + span + '</text></svg>')
+
+
+def test_actual_native_default_provider_fit_off_is_a_line_edge_negative_control():
+    import vl_convert as vlc
+    spec = _line_fit_spec()
+    off = render._vertical_plaintext_overflow(vlc, spec, 440, 180,
+        render.native_font_line_metrics, vlc.vegalite_to_svg(spec))
+    assert off['measured'] > 0 and off['top'] + off['bottom'] > 0
+    fitted = render._vertical_fit_svg(vlc, spec, 440, 180, render.native_font_line_metrics)
+    on = render._vertical_plaintext_overflow(vlc, spec, 440, 180, render.native_font_line_metrics, fitted)
+    assert on['measured'] == off['measured'] and on['top'] == on['bottom'] == 0
