@@ -301,7 +301,7 @@ def test_line_fit_nonconvergence_is_red_with_measured_trace(monkeypatch):
     vlc = SimpleNamespace(vegalite_to_svg=lambda spec: calls.append(dict(spec)) or '<svg/>')
     with pytest.raises(ValueError, match='did not converge.*measured'):
         render._vertical_fit_svg(vlc, {}, 100, 100, _line_metric_fixture)
-    assert len(calls) == 8
+    assert len(calls) == 16
 
 
 def test_static_native_line_fit_is_explicit_optin_and_legacy_bytes_equal():
@@ -388,3 +388,88 @@ def test_actual_native_default_provider_fit_off_is_a_line_edge_negative_control(
     fitted = render._vertical_fit_svg(vlc, spec, 440, 180, render.native_font_line_metrics)
     on = render._vertical_plaintext_overflow(vlc, spec, 440, 180, render.native_font_line_metrics, fitted)
     assert on['measured'] == off['measured'] and on['top'] == on['bottom'] == 0
+
+
+@pytest.mark.parametrize('value', [0.0, -0.0, 1.0, -1.0, 0.1, -0.1,
+    3.249622419476509, 1e-46, -1e-46, 1e20, -1e20])
+def test_padding_rounds_to_smallest_outward_float32_without_reserve(value):
+    import struct
+    rounded = render._svg_float_ceil(value)
+    assert rounded >= value and render._svg_float(rounded) == rounded
+    # The immediate representable predecessor is already below the demand.
+    bits = struct.unpack('I', struct.pack('f', rounded))[0]
+    if rounded == 0:
+        predecessor = -struct.unpack('f', struct.pack('I', 1))[0]
+    else:
+        predecessor = struct.unpack('f', struct.pack('I', bits + (-1 if rounded > 0 else 1)))[0]
+    assert predecessor < value
+    assert render._svg_float_ceil(rounded) == rounded
+
+
+@pytest.mark.parametrize('value', [float('nan'), float('inf'), -float('inf'), 1e40,
+    3.4028235e38, True, '1'])
+def test_padding_unknown_or_unrepresentable_float32_fails_closed(value):
+    with pytest.raises(ValueError):
+        render._svg_float_ceil(value)
+
+
+def test_native_vega_fit_can_require_more_than_eight_renders_without_accepting_residual(monkeypatch):
+    import copy
+    import vl_convert as vlc
+    # A real Vega-Lite layout contracts its plot height as top padding grows.
+    # Both arms use original Vega geometry and the same explicit line-metrics fixture.
+    spec = {'width': 600, 'height': 280, 'padding': 0,
+        'autosize': {'type': 'fit', 'contains': 'padding'},
+        'data': {'values': [{'label': 'Endpoint'}]},
+        'mark': {'type': 'text', 'baseline': 'alphabetic', 'fontSize': 11},
+        'encoding': {'text': {'field': 'label'}, 'x': {'value': 100},
+                     'y': {'value': {'expr': 'height * 0.2 - 46'}}}}
+    before = vlc.vegalite_to_svg(spec)
+    old = copy.deepcopy(spec)
+    padding = dict.fromkeys(('left', 'top', 'right', 'bottom'), 0)
+    for _ in range(8):
+        residual = render._vertical_plaintext_overflow(vlc, old, 600, 280,
+            _line_metric_fixture, vlc.vegalite_to_svg(old))
+        if residual['top'] == residual['bottom'] == 0:
+            pytest.fail('the old eight-render negative control unexpectedly converged')
+        for edge in ('top', 'bottom'):
+            padding[edge] += residual[edge]
+        old['padding'] = dict(padding)
+    assert residual['top'] > 0
+    measured = []
+    original = render._vertical_plaintext_overflow
+    def observe(*args):
+        result = original(*args)
+        measured.append(result)
+        return result
+    monkeypatch.setattr(render, '_vertical_plaintext_overflow', observe)
+    fitted = render._vertical_fit_svg(vlc, spec, 600, 280, _line_metric_fixture)
+    assert 8 < len(measured) <= 16
+    assert measured[-1]['top'] == measured[-1]['bottom'] == 0
+    a, b = ET.fromstring(before), ET.fromstring(fitted)
+    assert [a.get(k) for k in ('width', 'height', 'viewBox')] == [b.get(k) for k in ('width', 'height', 'viewBox')]
+    assert [n.text for n in a.iter() if n.tag.endswith('text')] == [
+        n.text for n in b.iter() if n.tag.endswith('text')]
+
+
+def test_ordinal_snapshot_line_preserves_values_and_canvas_after_fit():
+    import vl_convert as vlc
+    values = [43.705999999999996, 43.312999999999995, 43.519999999999996,
+        43.127, 43.333999999999996, 42.940999999999995, 43.147999999999996,
+        42.755, 42.961999999999996, 42.568999999999996, 42.775999999999996, 42.383, 42.589999999999996]
+    rows = [{'period': f'KW{i+5:02}', 'actual': value, 'plan': 43.5} for i, value in enumerate(values)]
+    params = {'time_type': 'ordinal', 'lang': 'de', 'value_format': ',.1~f', 'value_unit': '%',
+              'target_val': 43.5, 'alert_val': 42.94, 'label_plan': 'Plan', 'bar_corner_radius': 2}
+    spec = json.loads(render.render_target('line', 'html_vegalite', 'ibcs',
+        bindings={'time': 'period', 'value': 'actual', 'plan': 'plan'}, params=params)[0])
+    spec.update(width=600, height=280, datasets={'dataset': rows}, autosize={'type': 'fit', 'contains': 'padding'})
+    before = ET.fromstring(vlc.vegalite_to_svg(spec))
+    fitted = render._vertical_fit_svg(vlc, spec, 600, 280, _line_metric_fixture)
+    overflow = render._vertical_plaintext_overflow(vlc, spec, 600, 280, _line_metric_fixture, fitted)
+    assert overflow == {'top': 0, 'bottom': 0, 'measured': 3, 'skipped_rotated': 13}
+    after = ET.fromstring(fitted)
+    assert [(n.text, n.get('font-size'), n.get('font-family')) for n in before.iter() if n.tag.endswith('text')] == [
+        (n.text, n.get('font-size'), n.get('font-family')) for n in after.iter() if n.tag.endswith('text')]
+    assert [before.get(k) for k in ('width', 'height', 'viewBox')] == [
+        after.get(k) for k in ('width', 'height', 'viewBox')]
+    assert spec['datasets']['dataset'] == rows

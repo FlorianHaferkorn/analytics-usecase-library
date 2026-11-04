@@ -1475,6 +1475,26 @@ def _svg_float(value: str | float) -> float:
     return result
 
 
+def _svg_float_ceil(value: float) -> float:
+    """Smallest finite SVG float32 value >= the measured padding demand.
+
+    This is directed representation rounding, not an extra geometric reserve.
+    A nearest-rounded transform can remain below the exact demand. Advancing
+    that representation by one IEEE-754 value enforces the outward direction;
+    convergence is still measured on the following original render.
+    """
+    import struct
+    if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value):
+        raise ValueError('finite numeric SVG padding required')
+    rounded = _svg_float(value)
+    if rounded < value:
+        bits = struct.unpack('I', struct.pack('f', rounded))[0]
+        rounded = struct.unpack('f', struct.pack('I', bits + (1 if rounded >= 0 else -1)))[0]
+    if not math.isfinite(rounded):
+        raise ValueError('SVG padding has no finite float32 representation')
+    return rounded
+
+
 def _svg_plain_lines(node: Any, base_y: float) -> tuple[list[dict], bool]:
     """Native same-style tspan blocks only; offsets come from the exported SVG.
 
@@ -1652,16 +1672,18 @@ def _vertical_fit_svg(vlc: Any, spec: dict, width: int, height: int,
     padding = (dict.fromkeys(edges, padding) if isinstance(padding, (int, float))
                else {edge: padding.get(edge, 0) for edge in edges})
     trace = []
-    # A bounded rerender loop is a guard, not a geometric tolerance. Every
-    # successful return has exactly zero measured overflow; exhausted is red.
-    for _ in range(8):
+    # Sixteen original renders bound resource use, not accepted overflow. The
+    # measured ordinal-line regression requires ten; eight exhausted before
+    # the serialized transforms advanced past their float32 cancellation.
+    # Every successful return still has exactly zero overflow; exhausted is red.
+    for _ in range(16):
         svg = vlc.vegalite_to_svg(spec)
         overflow = _vertical_plaintext_overflow(vlc, spec, width, height, provider, svg)
         trace.append({'padding': dict(padding), 'overflow': overflow})
         if not overflow['top'] and not overflow['bottom']:
             return svg
-        padding = {**padding, 'top': padding['top'] + overflow['top'],
-                   'bottom': padding['bottom'] + overflow['bottom']}
+        padding = {**padding, **{edge: _svg_float_ceil(padding[edge] + overflow[edge])
+                                for edge in ('top', 'bottom') if overflow[edge]}}
         if padding['top'] + padding['bottom'] >= height:
             raise ValueError('vertical font line boxes consume the canvas: ' + json.dumps(trace))
         spec['padding'] = padding
