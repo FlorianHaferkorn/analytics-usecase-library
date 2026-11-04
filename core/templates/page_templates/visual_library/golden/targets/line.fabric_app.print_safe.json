@@ -717,6 +717,11 @@
         }
       },
       {
+        "data": {
+          "values": [
+            {}
+          ]
+        },
         "mark": {
           "type": "rule",
           "color": "#605E5C",
@@ -728,12 +733,25 @@
           "strokeCap": "round"
         },
         "encoding": {
+          "x": {
+            "value": 0
+          },
+          "x2": {
+            "value": {
+              "expr": "width"
+            }
+          },
           "y": {
             "datum": 44.1
           }
         }
       },
       {
+        "data": {
+          "values": [
+            {}
+          ]
+        },
         "mark": {
           "type": "rule",
           "color": "#A4262C",
@@ -745,6 +763,14 @@
           "strokeCap": "round"
         },
         "encoding": {
+          "x": {
+            "value": 0
+          },
+          "x2": {
+            "value": {
+              "expr": "width"
+            }
+          },
           "y": {
             "datum": 42.0
           }
