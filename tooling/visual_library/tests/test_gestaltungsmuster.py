@@ -367,3 +367,36 @@ def test_new_native_properties_exist_in_the_formatting_catalog(name):
     # Gegenprobe: eine erfundene Eigenschaft wird gemeldet.
     v["objects"]["valueAxis"] = [{"properties": {"erfunden": {}}}]
     assert fm.unknown_visual_objects({"visual": v}) == ["valueAxis.erfunden"]
+
+@pytest.mark.parametrize("target", ["fabric_app", "html_vegalite"])
+@pytest.mark.parametrize("width", [280, 440])
+def test_above_ranking_spends_width_on_bars_and_preserves_signed_zero_missing(target, width):
+    name = "Household supplies and international cleaning equipment"
+    rows = [{"k": name, "v": -20}, {"k": "Zero", "v": 0},
+            {"k": "Missing", "v": None}, {"k": "Positive", "v": 40}]
+    out = json.loads(render.render_target("bar_ranking", target,
+        bindings={"category": "k", "value": "v"}, params={"label_position": "above"})[0])
+    spec = out["spec"] if target == "fabric_app" else out
+    if target == "fabric_app":
+        spec["config"] = out["configVegaLite"]
+    spec.update(width=width, height=240, data={"name": "dataset", "values": rows})
+    sg = vlc.vegalite_to_scenegraph(spec)
+    assert sg["origin"][0] == 0, "No ghost category-axis gutter"
+    assert spec["encoding"]["y"]["axis"] is None
+    texts = _visible(_marks(sg, "text"))
+    categories = [t for t in texts if t.get("description") == "Kategorielabel oben"]
+    assert len(categories) == 4 and {t["x"] for t in categories} == {0}
+    wrapped = next(t["text"] for t in categories if isinstance(t["text"], list))
+    assert " ".join(wrapped) == name, "All category words survive wrapping"
+    numbers = [t for t in texts if t not in categories]
+    assert {t["x"] for t in numbers} == {width}
+    assert sorted(t["text"] for t in numbers) == sorted(["−20", "0", "–", "40"])
+    bars = _bars(sg)
+    assert len(bars) == 2
+    negative = next(b for b in bars if b["x"] == 0)
+    positive = next(b for b in bars if b["x"] > 0)
+    assert negative["x2"] == pytest.approx(positive["x"])
+    assert positive["x2"] == width
+    # Existing axis layout still reserves its necessary category space.
+    normal = _scene("bar_ranking", rows, {"category": "k", "value": "v"}, w=width)
+    assert normal["origin"][0] > 0

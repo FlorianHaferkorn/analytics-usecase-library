@@ -1147,6 +1147,50 @@ def _house_style_params(entry: dict, notation: str, given: dict) -> dict:
     return out
 
 
+def _above_bar_layout(spec: dict, idiom: str, notation: str, params: dict) -> dict:
+    """Above labels use the plot, not an invisible category-axis gutter.
+
+    Pixel anchors keep the header independent from signed value scales. Wrapping
+    retains every character and the original category remains in the tooltip.
+    Canonical axis-labelled and IBCS output are unchanged.
+    """
+    if idiom != "bar_ranking" or notation == "ibcs" or params.get("label_position") != "above":
+        return spec
+    spec = copy.deepcopy(spec)
+    spec["encoding"]["y"]["axis"] = None
+    spec["padding"] = {"left": 0, "right": 4, "top": 12, "bottom": 0}
+    raw_field = "datum[" + json.dumps(params["field_cat"]) + "]"
+    field = "(isValid(" + raw_field + ") ? toString(" + raw_field + ") : '')"
+    # The compact branch reserves a numeric column; the wide branch spends the
+    # extra width on names. A long unbroken word also wraps, never disappears.
+    wrap24 = "replace(" + field + ", /(.{1,24})(?:\\s+|$)|(.{24})/g, '$1$2\\n')"
+    wrap40 = "replace(" + field + ", /(.{1,40})(?:\\s+|$)|(.{40})/g, '$1$2\\n')"
+    spec.setdefault("transform", []).append({
+        "calculate": "split(trim(width < 360 ? " + wrap24 + " : " + wrap40 + "), '\\n')",
+        "as": "_vl_category_lines",
+    })
+    spec["transform"].append({"calculate": "length(datum._vl_category_lines) == 1 ? datum._vl_category_lines[0] : datum._vl_category_lines", "as": "_vl_category_text"})
+    for layer in spec.get("layer", []):
+        mark = layer.get("mark", {})
+        encoding = layer.get("encoding", {})
+        if mark.get("type") != "text":
+            continue
+        if mark.get("description") == "Kategorielabel oben":
+            encoding["x"] = {"value": 0}
+            encoding["text"] = {"field": "_vl_category_text", "type": "nominal"}
+            mark["lineHeight"] = 18
+            mark["dy"] = {"expr": "-_dicke / 2 - 2 - (length(datum._vl_category_lines)-1)*18"}
+        elif encoding.get("text", {}).get("field") == params["field"] or mark.get("description") == "fehlender Wert":
+            valid_field = "_fehlt" if mark.get("description") == "fehlender Wert" else params["field"]
+            visible = "isValid(datum[" + json.dumps(valid_field) + "])"
+            if mark.get("description") != "fehlender Wert":
+                visible += " && _beschriftet"
+            encoding["opacity"] = {"condition": {"test": visible, "value": 1}, "value": 0}
+            encoding["x"] = {"value": {"expr": "width"}}
+            mark.update(align="right", dx=0, baseline="bottom", dy={"expr": "-_dicke / 2 - 2"})
+    return spec
+
+
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
                   background: "str | None" = None,
@@ -1216,6 +1260,7 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     else:
         spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
         eff = dict(_effective_params(load_entry(idiom), notation))
+    spec = _above_bar_layout(spec, idiom, notation, eff)
     spec = with_tooltips(spec, idiom, eff)
     if params and params.get("time_format"):
         spec = with_time_axis(spec, str(params["time_format"]), params.get("time_ticks"))
