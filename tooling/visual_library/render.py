@@ -974,12 +974,48 @@ def with_status_breach(spec: dict, entry: dict, eff: dict) -> dict:
     return walk(spec)
 
 
+def _dim_opacity(opacity: dict, test: str) -> dict:
+    """Multiply value-defined opacity branches using native Vega-Lite predicates.
+
+    Conditional precedence, selection/empty semantics and expression evaluation
+    stay with the official compiler. Field/datum opacity mappings need their
+    own scale semantics and are deliberately not guessed as a constant one.
+    """
+    def scaled(value: Any) -> float | dict:
+        if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value):
+            return value * KEY_DIM
+        if isinstance(value, dict) and set(value) == {'expr'} and isinstance(value['expr'], str):
+            return {'expr': f"({value['expr']}) * {KEY_DIM}"}
+        raise ValueError('highlight opacity requires a numeric value or native ExprRef')
+
+    if not isinstance(opacity, dict) or 'value' not in opacity:
+        raise ValueError('highlight opacity requires value-defined branches, not a field/datum mapping')
+    conditions = opacity.get('condition', [])
+    conditions = conditions if isinstance(conditions, list) else [conditions]
+    composed = []
+    for condition in conditions:
+        if not isinstance(condition, dict) or 'value' not in condition:
+            raise ValueError('highlight opacity requires value-defined conditional branches')
+        if 'test' in condition:
+            predicate = condition['test']
+        elif 'param' in condition:
+            predicate = {key: condition[key] for key in ('param', 'empty') if key in condition}
+        else:
+            raise ValueError('highlight opacity requires a native test or selection predicate')
+        composed.extend([{'test': {'and': [predicate, test]}, 'value': scaled(condition['value'])},
+                         copy.deepcopy(condition)])
+    composed.append({'test': test, 'value': scaled(opacity['value'])})
+    return {**copy.deepcopy(opacity), 'condition': composed}
+
+
 def with_highlight(spec: dict, field: str, values: "list | None" = None, temporal: bool = False,
                    accent: "str | None" = None, *, style: str = "dim", ink: str = "#404040") -> dict:
     """Kernaussage hervorheben (D-638 Nachtrag, feat-109): zwei Vega-Parameter, `kernaussage` (an/aus,
     Standard aus) und `kernaussage_werte` (die Treffer). Gedämpft wird jede Marke, deren Zeile `field`
     trägt und nicht zu den Treffern gehört; Marken ohne das Feld (Referenzlinie, Zielwert) bleiben
-    unberührt, die Restzeile ist kein Treffer. Die Treffer sind ein Parameter, keine Konstante im Test:
+    unberührt, die Restzeile ist kein Treffer. Bestehende Sichtbarkeit wird multipliziert;
+    versteckte Marken bleiben auch während einer Auswahl unsichtbar. Die Treffer sind ein Parameter,
+    keine Konstante im Test:
     die Oberfläche rechnet die Aussage auf der gefilterten Tabelle neu (key_message.ts) und setzt nur die
     Werte — die Spec bleibt eine. Zeitwerte als Zeitpunkt (ms, UTC), weil Vega-Lite Zeitfelder zu Datum
     parst (`key_message.highlight_keys`).
@@ -997,7 +1033,6 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
     probe = f"time(datum[{json.dumps(field)}])" if temporal else f"datum[{json.dumps(field)}]"
     hit = f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && indexof({KEY_VALUES}, {probe}) >= 0"
     test = (f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && indexof({KEY_VALUES}, {probe}) < 0")
-    dim = {"test": test, "value": KEY_DIM}
 
     def accent_unit(node: dict) -> dict:
         # Nur diskrete Marken: eine Linie, Fläche oder Hilfslinie ist eine Marke über alle Zeilen und würde
@@ -1057,14 +1092,9 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
         if accent:
             return accent_unit(node)
         enc = dict(node.get("encoding") or {})
-        old = enc.get("opacity")
-        if isinstance(old, dict) and "condition" in old:
-            conds = old["condition"] if isinstance(old["condition"], list) else [old["condition"]]
-            enc["opacity"] = {**old, "condition": [dim, *conds]}
-        elif isinstance(old, dict):
-            enc["opacity"] = {"condition": dim, **old}
-        else:
-            enc["opacity"] = {"condition": dim, "value": 1}
+        mark = node["mark"] if isinstance(node.get("mark"), dict) else {}
+        old = enc.get("opacity", {"value": mark.get("opacity", 1)})
+        enc["opacity"] = _dim_opacity(old, test)
         return {**node, "encoding": enc}
 
     def walk(node):
