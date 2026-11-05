@@ -1,7 +1,7 @@
 # Visual Library entry — bullet  (schema: _schema.yaml)
 id: bullet
 name: Bullet graph
-version: "1.1.1"   # 1.1.1 (17.10.2026): Golden neu eingefroren: Profilgitter je Achsentyp
+version: "1.2.0"   # 1.1.1 (17.10.2026): Golden neu eingefroren: Profilgitter je Achsentyp
 status: active        # active | deprecated | experimental
 purpose: [deviation_from_target]
 zone: [pulse, analysis]
@@ -142,3 +142,7 @@ profiles:
 determinism:
   golden_dir: golden
   notes: "Few bullet: actual bar (length), target tick (position), qualitative grey bands. No native base visual -> SVG-DAX/Deneb/Recharts."
+
+# Compact web partial form: render_target(microvisual="bullet").
+# Same native specification for fabric_app, html_vegalite and render_svg offline export.
+# Card title/value/delta remain UI composition; all chart geometry remains in this Library.

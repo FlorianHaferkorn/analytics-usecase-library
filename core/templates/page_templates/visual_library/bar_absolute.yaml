@@ -1,7 +1,7 @@
 # Visual Library entry — bar_absolute  (schema: _schema.yaml)
 id: bar_absolute
 name: Bar (absolute magnitude)
-version: "1.2.0"   # 1.2.0 (22.10.2026): Höchstbreite 24 px (B2), ein Akzent per highlight_category, Rest grau (B5), Null als Strich und „0“, fehlend als „–“ (B9). 1.1.0 (17.10.2026): Beschriftung an: Wertegitter und Werteachse aus (W2)
+version: "1.4.0"   # 1.2.0 (22.10.2026): Höchstbreite 24 px (B2), ein Akzent per highlight_category, Rest grau (B5), Null als Strich und „0“, fehlend als „–“ (B9). 1.1.0 (17.10.2026): Beschriftung an: Wertegitter und Werteachse aus (W2)
 status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
@@ -43,6 +43,11 @@ data_slots:
   field_cat: {role: category, required: true}
 
 canonical_params:
+  _value_scale_domain: ""        # optional value_domain unions requested bounds with actual data
+  _value_scale_options: ""       # scale object for entries without an explicit base scale
+  _value_axis_title: "null"      # optional value_unit, JSON-encoded by the original renderer
+  value_format: ",.1~f"          # defaults preserve the canonical numeric output
+  _value_axis_ticks: ', "tickCount": { "expr": "_beschriftet ? 0 : ceil(width/40)" }'  # optional value_tick_count retains label-aware axis suppression
   col_label: "#201F1E"            # data label ink (text, 4.5:1); A-31 R6
   entity: "_Measures"
   measure: "Net Sales Amount"
@@ -110,17 +115,17 @@ realizations:
         ],
         "encoding": {
           "y": { "field": "{{field_cat}}", "type": "nominal", "sort": { "field": "{{field}}", "order": "descending" }, "axis": { "title": null } },
-          "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null, "tickCount": { "expr": "_beschriftet ? 0 : ceil(width/40)" }, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } }, "scale": { "zero": true } }
+          "x": { "field": "{{field}}", "type": "quantitative"{{_value_scale_options}}, "axis": { "title": {{_value_axis_title}}{{_value_axis_ticks}}, "domainOpacity": { "expr": "_beschriftet ? 0 : 1" } }, "scale": { "zero": true{{_value_scale_domain}} } }
         },
         "layer": [
           { "mark": { "type": "bar", "height": { "expr": "min(bandwidth('y'), {{bar_max_px}})" } },
             "encoding": { "color": { "condition": { "test": "datum['{{field_cat}}'] != '{{highlight_category}}'", "value": "{{col_context}}" }, "value": "{{col_bar}}" } } },
           { "mark": { "type": "tick", "orient": "vertical", "thickness": 2, "color": "{{col_bar}}", "description": "Null" },
-            "encoding": { "x": { "field": "_nullstrich", "type": "quantitative" }, "size": { "value": { "expr": "min(bandwidth('y'), {{bar_max_px}})" } } } },
+            "encoding": { "x": { "field": "_nullstrich", "type": "quantitative"{{_value_scale_options}} }, "size": { "value": { "expr": "min(bandwidth('y'), {{bar_max_px}})" } } } },
           { "mark": { "type": "text", "align": "left", "dx": 4, "color": "{{col_label}}" },
-            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": ",.1~f" }, "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } },
+            "encoding": { "text": { "field": "{{field}}", "type": "quantitative", "format": "{{value_format}}" }, "opacity": { "condition": { "test": "_beschriftet", "value": 1 }, "value": 0 } } },
           { "mark": { "type": "text", "text": "{{label_missing}}", "align": "left", "dx": 4, "color": "{{col_context}}", "description": "fehlender Wert" },
-            "encoding": { "x": { "field": "_fehlt", "type": "quantitative" } } }
+            "encoding": { "x": { "field": "_fehlt", "type": "quantitative"{{_value_scale_options}} } } }
         ]
       }
 

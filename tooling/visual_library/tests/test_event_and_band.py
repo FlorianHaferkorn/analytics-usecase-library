@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
@@ -27,6 +28,28 @@ ROWS = [
     {"P": "2026-01-26", "I": None, "F": 33.0, "L": 30.5, "H": 35.5, "E": None},
     {"P": "2026-02-02", "I": None, "F": 34.0, "L": 30.0, "H": 38.0, "E": None},
 ]
+
+
+@pytest.mark.parametrize("profile", ["house_default", "print_safe"])
+@pytest.mark.parametrize("lang", ["de", "en"])
+def test_constant_thresholds_are_single_horizontal_rules_in_native_svg(profile, lang):
+    """Constant references span the plot once; event rules still belong to individual periods."""
+    pytest.importorskip("vl_convert")
+    roles = {**BASIS, "event": "E"}
+
+    def references(params):
+        svg = render.render_svg("line", ROWS, profile, bindings=roles, params={"lang": lang, **params})
+        root = ET.fromstring(svg)
+        return {dash: [node for node in root.iter()
+                       if node.tag.rsplit("}", 1)[-1] == "line" and node.get("stroke-dasharray") == dash]
+                for dash in ("1,4", "4,2")}
+
+    lines = references({"target_val": 34.0, "alert_val": 29.0})
+    for dash, items in lines.items():
+        assert len(items) == 1, (dash, [item.attrib for item in items])
+        assert float(items[0].get("x2", "0")) > 0, items[0].attrib
+        assert float(items[0].get("y2", "0")) == 0, items[0].attrib
+    assert not any(references({}).values()), "Unbound references must not create placeholder lines"
 
 
 def _spec(profile: str, roles: dict, rows: list | None = None) -> dict:

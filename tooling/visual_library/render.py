@@ -27,7 +27,9 @@ from __future__ import annotations
 
 import copy
 import functools
+import itertools
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -388,6 +390,240 @@ def on_background(node, bg: str, _key: "str | None" = None, _text: bool = False)
     return node
 
 
+class BackgroundContrastError(ValueError):
+    """The requested transparent surface is not provably readable; retain the opaque output."""
+
+
+def on_background_bounds(spec: dict, config: dict, bounds: "tuple[str, str] | list[str]", *,
+                         outline_forecast_band: bool = False) -> tuple[dict, dict]:
+    """Native opt-in palette for a rectangular sRGB background envelope, without a blur bonus.
+
+    All possible backgrounds between the componentwise endpoints are included. Literal and
+    conditional colour roles retain their hue; text needs 4.5:1, informative marks 3:1.
+    Alpha is included conservatively. Dynamic colours/alpha and unprovable low-opacity states
+    raise BackgroundContrastError instead of silently changing selection or information.
+    The caller must retain its ordinary opaque spec for unsupported media and print.
+    """
+    if not isinstance(bounds, (tuple, list)) or len(bounds) != 2 or any(
+        not isinstance(c, str) or not _HEX.fullmatch(c) for c in bounds
+    ):
+        raise ValueError("background_bounds requires two #RRGGBB endpoints")
+    contrast = _contrast()
+    lo, hi = map(contrast.hex_to_rgb, bounds)
+    if any(a > b for a, b in zip(lo, hi)):
+        raise ValueError("background_bounds endpoints must be componentwise ordered")
+    protected_band_ids: set[int] = set()
+    if outline_forecast_band:
+        spec = copy.deepcopy(spec)
+        def outline(node):
+            if isinstance(node, list):
+                for child in node:
+                    outline(child)
+            elif isinstance(node, dict):
+                mark = node.get("mark")
+                hover = (node.get("encoding", {}).get("opacity", {}).get("condition") or {})
+                if (isinstance(mark, dict) and mark.get("type") == "rule"
+                        and hover.get("param") == "hover" and hover.get("value") == .5
+                        and node.get("encoding", {}).get("opacity", {}).get("value") == 0):
+                    # Keep the hover rule's visibility behavior while making its
+                    # visible state provably legible on the band and the glass.
+                    hover["value"] = 1
+                for key, child in list(node.items()):
+                    if key == "layer" and isinstance(child, list):
+                        expanded = []
+                        for layer in child:
+                            mark = layer.get("mark") if isinstance(layer, dict) else None
+                            enc = layer.get("encoding", {}) if isinstance(layer, dict) else {}
+                            if (isinstance(mark, dict) and mark.get("type") == "area"
+                                    and str(mark.get("description", "")).startswith(("Prognoseband ", "Forecast band "))
+                                    and mark.get("opacity") == .12 and enc.get("y", {}).get("field")
+                                    and enc.get("y2", {}).get("field")):
+                                protected_band_ids.add(id(layer))
+                                expanded.append(layer)
+                                for channel in ("y", "y2"):
+                                    edge = copy.deepcopy(layer)
+                                    edge["mark"] = {"type": "line", "interpolate": "monotone",
+                                                    "color": mark["color"], "strokeWidth": 1,
+                                                    "description": ("Forecast band boundary" if str(mark["description"]).startswith("Forecast band ")
+                                                                    else "Prognoseband Grenze")}
+                                    edge["encoding"] = {"y": {**enc["y"], "field": enc[channel]["field"]}}
+                                    expanded.append(edge)
+                            else:
+                                expanded.append(layer)
+                                outline(layer)
+                        node[key] = expanded
+                    else:
+                        outline(child)
+        outline(spec)
+        if len(protected_band_ids) != 1:
+            raise BackgroundContrastError("outlined forecast requires exactly one canonical 12% band")
+        # Prove foreground contrast both on the background and on every possible
+        # 12%-opacity blend of that background with any RGB band ink.
+        lo = tuple(math.floor(.88 * c) for c in lo)
+        hi = tuple(math.ceil(.88 * c + .12 * 255) for c in hi)
+    lower, upper = map(contrast.rgb_to_hex, (lo, hi))
+    luminances = [contrast.relative_luminance(c) for c in (lower, upper)]
+    cells = []
+    for indices in itertools.product(range(4), repeat=3):
+        cell_lo = tuple(math.floor(a + (b-a)*i/4) for a, b, i in zip(lo, hi, indices))
+        cell_hi = tuple(math.ceil(a + (b-a)*(i+1)/4) for a, b, i in zip(lo, hi, indices))
+        cells.append((cell_lo, cell_hi,
+                      [contrast.relative_luminance(contrast.rgb_to_hex(c)) for c in (cell_lo, cell_hi)]))
+
+    def opacity_values(value):
+        if isinstance(value, (float, int)) and not isinstance(value, bool) and 0 <= value <= 1:
+            return [float(value)]
+        if isinstance(value, dict) and set(value) <= {"value", "condition"} and "value" in value:
+            values = opacity_values(value["value"])
+            conditions = value.get("condition", [])
+            for cond in conditions if isinstance(conditions, list) else [conditions]:
+                if not isinstance(cond, dict) or "value" not in cond or set(cond) - {"value", "test", "param", "empty"}:
+                    raise BackgroundContrastError("dynamic opacity requires an opaque surface")
+                values += opacity_values(cond["value"])
+            return values
+        raise BackgroundContrastError("dynamic opacity requires an opaque surface")
+
+    # Validate all branches first; the palette proof below then composes alpha per mark.
+    # Zero-alpha branches are invisible. Never rewrite alpha or the selection predicate.
+    def inspect(node):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key in ("opacity", "fillOpacity", "strokeOpacity"):
+                    opacity_values(value)
+                elif key.endswith("Opacity") and key != "gridOpacity":
+                    # Original bar templates use binary guide visibility, not alpha dimming.
+                    binary_guide = (key in ("labelOpacity", "domainOpacity") and isinstance(value, dict)
+                                    and set(value) == {"expr"} and re.fullmatch(
+                                        r"[A-Za-z_][A-Za-z_0-9]*\s*\?\s*[01]\s*:\s*[01]", str(value["expr"])))
+                    if not binary_guide:
+                        raise BackgroundContrastError("unsupported opacity role requires an opaque surface")
+                if (key in ("color", "fill", "stroke") or key.endswith("Color")) and isinstance(value, dict):
+                    if "field" in value or "expr" in value or "datum" in value:
+                        raise BackgroundContrastError("data-driven colour requires an opaque surface")
+                if key == "scheme":
+                    raise BackgroundContrastError("colour scheme requires an opaque surface")
+                inspect(value)
+        elif isinstance(node, list):
+            for value in node:
+                inspect(value)
+    inspect(spec)
+    inspect(config)
+    def floor_ratio(color, alpha):
+        rgb = contrast.hex_to_rgb(color)
+        ratios = []
+        # Interval subdivisions retain correlation between a translucent mark and its
+        # background. Every sub-box still uses a conservative continuous luminance bound;
+        # this is a proof over interiors, not a sample-based acceptance criterion.
+        for cell_lo, cell_hi, (bg_lo, bg_hi) in cells if alpha < 1 else [(lo, hi, luminances)]:
+            blends = [contrast.rgb_to_hex(tuple(rounding(alpha * f + (1 - alpha) * b) for f, b in zip(rgb, ground)))
+                      for ground, rounding in ((cell_lo, math.floor), (cell_hi, math.ceil))]
+            fg_lo, fg_hi = sorted(contrast.relative_luminance(c) for c in blends)
+            ratios.append((bg_lo + .05) / (fg_hi + .05) if fg_hi < bg_lo else
+                          (fg_lo + .05) / (bg_hi + .05) if fg_lo > bg_hi else 1.0)
+        return min(ratios)
+
+    @functools.lru_cache(maxsize=None)
+    def derive(color, minimum, alpha=1.0):
+        if alpha == 0 or floor_ratio(color, alpha) >= minimum + .02:
+            return color
+        L, C, hue = contrast.hex_to_oklch(color)
+        # Preserve hue with the original colour utility. Search both directions because an
+        # envelope can straddle the ordinary single-background light/dark cutoff.
+        for step in range(1, 101):
+            for lightness in (L - step * .01, L + step * .01):
+                if 0 <= lightness <= 1:
+                    candidate = contrast.oklch_to_hex(lightness, C, hue)
+                    if floor_ratio(candidate, alpha) >= minimum + .02:
+                        return candidate
+        for candidate in ("#000000", "#FFFFFF"):
+            if floor_ratio(candidate, alpha) >= minimum + .02:
+                return candidate
+        raise BackgroundContrastError(f"opacity {alpha:g} cannot prove {minimum:g}:1 across background_bounds")
+
+    color_keys = {"color", "fill", "stroke", "labelColor", "titleColor", "subtitleColor", "gridColor",
+                  "domainColor", "tickColor", "symbolFillColor", "symbolStrokeColor", "range"}
+    def smallest_opacity(node):
+        return min((a for a in opacity_values(node) if a > 0), default=0.0)
+
+    def mark_alpha(node):
+        alpha = smallest_opacity(node["opacity"]) if "opacity" in node else 1.0
+        channels = [smallest_opacity(node[name]) for name in ("fillOpacity", "strokeOpacity") if name in node]
+        return alpha * min((a for a in channels if a > 0), default=1.0)
+
+    def paint(node, key=None, text=False, color_context=False, alpha=1.0, configuration=False):
+        if isinstance(node, dict):
+            if id(node) in protected_band_ids:
+                solid = {**node, "mark": {**node["mark"], "opacity": 1}}
+                painted = paint(solid, key, text, color_context, alpha, configuration)
+                painted["mark"]["opacity"] = .12
+                return painted
+            text = text or _is_text_mark(node) or key in ("text", "title", "subtitle")
+            if configuration:
+                alpha *= mark_alpha(node)
+            else:
+                encoding = node.get("encoding") or {}
+                alpha *= mark_alpha(encoding)
+                if "mark" in node:
+                    mark = node["mark"]
+                    kind = mark.get("type") if isinstance(mark, dict) else mark
+                    alpha *= mark_alpha(config.get("mark") or {}) * mark_alpha(config.get(kind) or {})
+                    if isinstance(mark, dict):
+                        alpha *= mark_alpha(mark)
+                    if kind in ("point", "circle", "square") and "opacity" not in encoding and not any(
+                        "opacity" in part for part in (config.get("mark") or {}, config.get(kind) or {},
+                                                       mark if isinstance(mark, dict) else {})
+                    ):
+                        alpha *= .7  # Vega-Lite's unaggregated point default; aggregation can only increase it.
+            out = {k: paint(v, k, text, color_context or k in color_keys, alpha, configuration)
+                   for k, v in node.items()}
+            if not configuration and "mark" in node:
+                mark = node["mark"]
+                mark_object = mark if isinstance(mark, dict) else {"type": mark}
+                kind = mark_object["type"]
+                has_ink = any(mark_object.get(k) not in (None, "transparent", "none")
+                              for k in ("color", "fill", "stroke"))
+                if not has_ink and not any(k in (node.get("encoding") or {}) for k in ("color", "fill", "stroke")):
+                    inherited_ink = (config.get(kind) or {}).get(
+                        "color", (config.get("mark") or {}).get("color", "#404040"))
+                    if not isinstance(inherited_ink, str) or not _HEX.fullmatch(inherited_ink):
+                        raise BackgroundContrastError("implicit colour requires an opaque surface")
+                    out["mark"] = {**(out["mark"] if isinstance(out["mark"], dict) else {"type": mark}),
+                                   "color": derive(inherited_ink, 4.5 if kind == "text" else 3.0, alpha)}
+            if (node.get("type") in ("point", "circle", "square") and node.get("stroke")
+                    and str(node.get("fill", "")).lower() in ("white", "#ffffff")):
+                out["fill"] = "transparent"  # only an explicitly outlined hollow marker
+            return out
+        if isinstance(node, list):
+            return [paint(v, key, text, color_context, alpha, configuration) for v in node]
+        if key == "background":
+            return "transparent"
+        if color_context and isinstance(node, str) and _HEX.fullmatch(node):
+            if key in _DECORATIVE_COLOR_KEYS:
+                return node
+            return derive(node, 4.5 if text or key in _TEXT_COLOR_KEYS else 3.0, alpha)
+        if color_context and isinstance(node, str) and node.lower() in ("black", "white"):
+            return derive("#000000" if node.lower() == "black" else "#FFFFFF", 4.5 if text else 3.0, alpha)
+        if (color_context and isinstance(node, str) and key in color_keys | {"value", "range"}
+                and node not in ("transparent", "none")):
+            raise BackgroundContrastError("unsupported colour literal requires an opaque surface")
+        return node
+    safe_config = {**paint(config, configuration=True), "background": "transparent"}
+    # Vega defaults (not explicit literals in the template) must not escape the proof.
+    for role in ("mark", "line", "point", "bar", "rule", "area"):
+        alpha = mark_alpha(config.get("mark") or {}) * mark_alpha(config.get(role) or {})
+        if role == "point" and not any("opacity" in part
+                                       for part in (config.get("mark") or {}, config.get(role) or {})):
+            alpha *= .7
+        safe_config[role] = {"color": derive("#404040", 3.0, alpha), **safe_config.get(role, {})}
+    safe_config["text"] = {"color": derive("#404040", 4.5,
+                                         mark_alpha(config.get("mark") or {}) * mark_alpha(config.get("text") or {})),
+                           **safe_config.get("text", {})}
+    for role in ("axis", "legend"):
+        safe_config[role] = {"labelColor": derive("#605E5C", 4.5), "titleColor": derive("#404040", 4.5),
+                             **safe_config.get(role, {})}
+    return paint(spec), safe_config
+
+
 @functools.lru_cache(maxsize=1)
 def _contrast():
     """contrast.py next to this file, loaded by path: works however render was imported (a
@@ -460,9 +696,12 @@ def tooltip_fields(idiom: str, eff: dict, spec: dict) -> "list[dict]":
         if not col or col == _NO_VALUE or f'"{col}"' not in text or slot["role"] in FLAG_ROLES:
             continue
         typ, fmt = _TOOLTIP_ROLE[slot["role"]]
+        if typ == "quantitative" and eff.get("value_format"):
+            fmt = str(eff["value_format"])
         if slot["role"] == "variance" and "%" in str(eff.get("fmt", "")):
             fmt = str(eff["fmt"])
-        entry = {"field": col, "type": typ, "title": col}
+        title = f"{col} ({eff['value_unit']})" if typ == "quantitative" and eff.get("value_unit") else col
+        entry = {"field": col, "type": typ, "title": title}
         if fmt:
             entry["format"] = fmt
         rows.append((_ORDER.index(slot["role"]), entry))
@@ -734,7 +973,7 @@ def with_status_breach(spec: dict, entry: dict, eff: dict) -> dict:
 
 
 def with_highlight(spec: dict, field: str, values: "list | None" = None, temporal: bool = False,
-                   accent: "str | None" = None) -> dict:
+                   accent: "str | None" = None, *, style: str = "dim", ink: str = "#404040") -> dict:
     """Kernaussage hervorheben (D-638 Nachtrag, feat-109): zwei Vega-Parameter, `kernaussage` (an/aus,
     Standard aus) und `kernaussage_werte` (die Treffer). Gedämpft wird jede Marke, deren Zeile `field`
     trägt und nicht zu den Treffern gehört; Marken ohne das Feld (Referenzlinie, Zielwert) bleiben
@@ -744,7 +983,15 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
     parst (`key_message.highlight_keys`).
 
     `accent` (Profil mit focus, story): statt die übrigen Marken zu dämpfen, bekommen die Treffer die
-    Akzentfarbe; Textmarken bleiben in Textfarbe."""
+    Akzentfarbe; Textmarken bleiben in Textfarbe.
+    `style="outline"`: Balken/Rechtecke behalten bei Treffern ihre Füllung, übrige zeigen nur
+    eine deckende Kontur derselben semantischen Farbe. Text und andere Marken bleiben unverändert.
+    `ink` ist die feste Ersatzfarbe für Balken ohne eigene Farbe; die normale Hintergrundprüfung
+    prüft Füllung und Kontur einschließlich aller bedingten Farbzweige."""
+    if style not in ("dim", "outline"):
+        raise ValueError("highlight style must be dim or outline")
+    if style == "outline" and (not isinstance(ink, str) or not _HEX.fullmatch(ink)):
+        raise ValueError("outline highlight ink must be a hex colour")
     probe = f"time(datum[{json.dumps(field)}])" if temporal else f"datum[{json.dumps(field)}]"
     hit = f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && indexof({KEY_VALUES}, {probe}) >= 0"
     test = (f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && indexof({KEY_VALUES}, {probe}) < 0")
@@ -770,7 +1017,41 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
             return node
         return {**node, "encoding": enc}
 
+    def outline_unit(node: dict) -> dict:
+        # Preserve reference/line/text semantics. The category outline applies
+        # only to length-encoded discrete bars, not to every mark in a chart.
+        if _mark_kind(node) not in ("bar", "rect"):
+            return node
+        enc = dict(node.get("encoding") or {})
+        mark = node["mark"] if isinstance(node.get("mark"), dict) else {}
+        active = f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}])"
+        old_fill = enc.get("fillOpacity", {"value": mark.get("fillOpacity", 1)})
+        old_conditions = old_fill.get("condition", [])
+        old_conditions = old_conditions if isinstance(old_conditions, list) else [old_conditions]
+        enc["fillOpacity"] = {**old_fill, "condition": [{"test": test, "value": 0}, *old_conditions]}
+        paint = enc.get("fill", enc.get("color", {"value": mark.get("fill", mark.get("color", ink))}))
+        if "value" not in paint:
+            raise ValueError("outline highlight needs a literal bar colour")
+        existing = enc.get("stroke", {"value": mark.get("stroke", "transparent")})
+        paint_conditions = paint.get("condition", [])
+        paint_conditions = paint_conditions if isinstance(paint_conditions, list) else [paint_conditions]
+        if any("test" not in c or "value" not in c for c in paint_conditions):
+            raise ValueError("outline highlight needs test-based literal bar colours")
+        stroke_conditions = [{"test": f"({active}) && ({c['test']})", "value": c["value"]} for c in paint_conditions]
+        stroke_conditions.append({"test": active, "value": paint["value"]})
+        old_stroke_conditions = existing.get("condition", [])
+        if not isinstance(old_stroke_conditions, list):
+            old_stroke_conditions = [old_stroke_conditions]
+        enc["stroke"] = {**existing, "condition": [*stroke_conditions, *old_stroke_conditions]}
+        width = enc.get("strokeWidth", {"value": mark.get("strokeWidth", 0)})
+        width_conditions = width.get("condition", [])
+        width_conditions = width_conditions if isinstance(width_conditions, list) else [width_conditions]
+        enc["strokeWidth"] = {**width, "condition": [{"test": active, "value": 0.75}, *width_conditions]}
+        return {**node, "encoding": enc}
+
     def mark_unit(node: dict) -> dict:
+        if style == "outline":
+            return outline_unit(node)
         if accent:
             return accent_unit(node)
         enc = dict(node.get("encoding") or {})
@@ -800,6 +1081,8 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
     out = walk(spec)
     out["params"] = [p for p in out.get("params") or [] if p.get("name") not in (KEY_PARAM, KEY_VALUES)] + [
         {"name": KEY_PARAM, "value": False}, {"name": KEY_VALUES, "value": keys}]
+    if style == "outline":
+        out["usermeta"] = {**out.get("usermeta", {}), "selectionHighlight": "outline"}
     return out
 
 
@@ -821,15 +1104,214 @@ LOCALES: dict = {
 }
 
 
+_HOUSE_STYLE_PARAMS = frozenset({"axis_grid_opacity", "axis_grid_dash", "value_tick_count", "end_marker_size",
+                                  "show_phase_annotations", "show_axis_break", "show_value_axis_title",
+                                  "value_domain", "value_unit", "value_format"})
+
+
+def _value_presentation_params(entry: dict, given: dict) -> dict:
+    """Original-template scale/format inputs; requested bounds always expand to real data.
+
+    Domains use Vega-Lite unionWith, never a clipping domain. The caller declares
+    data-coordinate bounds; units/number formats do not rescale or change data.
+    """
+    canonical = entry["canonical_params"]
+    if "_value_scale_domain" not in canonical:
+        return {}
+    out = {}
+    if "value_domain" in given:
+        domain = given["value_domain"]
+        if (not isinstance(domain, (list, tuple)) or len(domain) != 2 or any(
+                isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in domain)
+                or domain[0] >= domain[1]):
+            raise ValueError("value_domain must contain two finite ascending numbers")
+        scale = {"domain": {"unionWith": list(domain)}, "nice": False}
+        out["_value_scale_domain"] = ', "domain": '+json.dumps(scale["domain"])+', "nice": false'
+        out["_value_scale_options"] = ', "scale": '+json.dumps({**scale, "zero": entry["id"] != "line"})
+        # An explicit reference range must remain legible even on directly labelled bars.
+        ticks = given.get("value_tick_count", 4)
+        out["_value_axis_ticks"] = ', "tickCount": '+str(ticks)
+    if "value_unit" in given:
+        unit = given["value_unit"]
+        if not isinstance(unit, str) or not 0 < len(unit.strip()) <= 48:
+            raise ValueError("value_unit must be a non-empty label of at most 48 characters")
+        out["_value_axis_title"] = json.dumps(unit, ensure_ascii=False)
+        out["value_unit"] = unit
+    if "value_format" in given:
+        fmt = given["value_format"]
+        if not isinstance(fmt, str) or not re.fullmatch(r"[+ ,.(0-9~]*[feEgG%]", fmt):
+            raise ValueError("value_format must be a supported D3 numeric format")
+        out["value_format"] = fmt
+    return out
+
+
+def _house_style_params(entry: dict, notation: str, given: dict) -> dict:
+    """Resolve optional house presentation inputs before filling original templates.
+
+    No input changes the canonical output; IBCS and other notation templates ignore
+    these house controls. Tick counts remain suppressed on directly labelled bars.
+    """
+    if notation != default_profile():
+        return {}
+    canonical = entry["canonical_params"]
+    out = {}
+    for key, internal in (("show_phase_annotations", "_phase_visibility"),
+                          ("show_axis_break", "_axis_break_visibility")):
+        if key not in given or internal not in canonical:
+            continue
+        if not isinstance(given[key], bool):
+            raise ValueError(f"{key} must be a boolean")
+        out[internal] = "" if given[key] else " && false"
+    for key, maximum in (("axis_grid_opacity", 1), ("end_marker_size", 64)):
+        if key not in given or key not in canonical:
+            continue
+        value = given[key]
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= maximum:
+            raise ValueError(f"{key} must be a number from 0 to {maximum}")
+        out[key] = str(value)
+    if "axis_grid_dash" in given and "axis_grid_dash" in canonical:
+        dash = given["axis_grid_dash"]
+        if not isinstance(dash, (list, tuple)) or any(
+                isinstance(v, bool) or not isinstance(v, (int, float)) or not 0 <= v <= 64 for v in dash):
+            raise ValueError("axis_grid_dash must be a sequence of non-negative lengths up to 64")
+        out["axis_grid_dash"] = json.dumps(list(dash))
+    if "value_tick_count" in given and "_value_axis_ticks" in canonical:
+        count = given["value_tick_count"]
+        if isinstance(count, bool) or not isinstance(count, int) or not 2 <= count <= 12:
+            raise ValueError("value_tick_count must be an integer from 2 to 12")
+        out["_value_axis_ticks"] = (', "tickCount": { "expr": "_beschriftet ? 0 : '+str(count)+'" }'
+                                    if entry["id"] in ("bar_absolute", "bar_ranking")
+                                    else ', "tickCount": '+str(count))
+    out.update(_value_presentation_params(entry, given))
+    if "show_value_axis_title" in given and "_value_axis_title" in canonical:
+        if not isinstance(given["show_value_axis_title"], bool):
+            raise ValueError("show_value_axis_title must be a boolean")
+        if not given["show_value_axis_title"]:
+            out["_value_axis_title"] = "null"
+    return out
+
+
+def _above_bar_layout(spec: dict, idiom: str, notation: str, params: dict) -> dict:
+    """Above labels use the plot, not an invisible category-axis gutter.
+
+    Pixel anchors keep the header independent from signed value scales. Wrapping
+    retains every character and the original category remains in the tooltip.
+    Canonical axis-labelled and IBCS output are unchanged.
+    """
+    if idiom != "bar_ranking" or notation == "ibcs" or params.get("label_position") != "above":
+        return spec
+    spec = copy.deepcopy(spec)
+    spec["encoding"]["y"]["axis"] = None
+    spec["padding"] = {"left": 0, "right": 4, "top": 12, "bottom": 0}
+    raw_field = "datum[" + json.dumps(params["field_cat"]) + "]"
+    field = "(isValid(" + raw_field + ") ? toString(" + raw_field + ") : '')"
+    # The compact branch reserves a numeric column; the wide branch spends the
+    # extra width on names. A long unbroken word also wraps, never disappears.
+    wrap24 = "replace(" + field + ", /(.{1,24})(?:\\s+|$)|(.{24})/g, '$1$2\\n')"
+    wrap40 = "replace(" + field + ", /(.{1,40})(?:\\s+|$)|(.{40})/g, '$1$2\\n')"
+    spec.setdefault("transform", []).append({
+        "calculate": "split(trim(width < 360 ? " + wrap24 + " : " + wrap40 + "), '\\n')",
+        "as": "_vl_category_lines",
+    })
+    spec["transform"].append({"calculate": "length(datum._vl_category_lines) == 1 ? datum._vl_category_lines[0] : datum._vl_category_lines", "as": "_vl_category_text"})
+    for layer in spec.get("layer", []):
+        mark = layer.get("mark", {})
+        encoding = layer.get("encoding", {})
+        if mark.get("type") != "text":
+            continue
+        if mark.get("description") == "Kategorielabel oben":
+            encoding["x"] = {"value": 0}
+            encoding["text"] = {"field": "_vl_category_text", "type": "nominal"}
+            mark["lineHeight"] = 18
+            mark["dy"] = {"expr": "-_dicke / 2 - 2 - (length(datum._vl_category_lines)-1)*18"}
+        elif encoding.get("text", {}).get("field") == params["field"] or mark.get("description") == "fehlender Wert":
+            valid_field = "_fehlt" if mark.get("description") == "fehlender Wert" else params["field"]
+            visible = "isValid(datum[" + json.dumps(valid_field) + "])"
+            if mark.get("description") != "fehlender Wert":
+                visible += " && _beschriftet"
+            encoding["opacity"] = {"condition": {"test": visible, "value": 1}, "value": 0}
+            encoding["x"] = {"value": {"expr": "width"}}
+            mark.update(align="right", dx=0, baseline="bottom", dy={"expr": "-_dicke / 2 - 2"})
+    return spec
+
+
+def above_bar_layout(rows: list[dict], category_field: str, plot_width: int, nominal_pitch: int,
+                     top_n: int | None = None, value_field: str | None = None,
+                     order: str = "ascending", rest_label: str = "Übrige", bar_height: int = 10) -> dict:
+    """Compute safe row geometry using the exact above-label wrapping expression.
+
+    plot_width is the Vega plot width after horizontal padding. Count distinct source
+    categories after the original top-N sorting and remainder folding.
+    """
+    if isinstance(plot_width, bool) or not isinstance(plot_width, (int, float)) or plot_width <= 0:
+        raise ValueError("plot_width must be positive")
+    if isinstance(nominal_pitch, bool) or not isinstance(nominal_pitch, int) or not 12 <= nominal_pitch <= 256:
+        raise ValueError("row_pitch_px must be an integer from 12 to 256")
+    if isinstance(bar_height, bool) or not isinstance(bar_height, int) or not 1 <= bar_height <= 24:
+        raise ValueError("bar height must be an integer from 1 to 24")
+    limit = 24 if plot_width < 360 else 40
+    # JavaScript's regexp counts UTF-16 code units, rather than Python codepoints.
+    def units(value):
+        raw = ('' if value is None else str(value)).encode('utf-16-le', errors='surrogatepass')
+        return ''.join(chr(raw[i] | raw[i+1] << 8) for i in range(0, len(raw), 2))
+    def lines(value):
+        text = re.sub(r'(.{1,%d})(?:\s+|$)|(.{%d})' % (limit, limit),
+                      lambda m: (m.group(1) or '') + (m.group(2) or '') + '\n', units(value))
+        return max(1, len(text.strip().split('\n')))
+    ordered = list(rows)
+    if top_n is not None:
+        if (isinstance(top_n, bool) or not isinstance(top_n, int) or top_n < 1
+                or not value_field or order not in ("ascending", "descending")):
+            raise ValueError("invalid top-N layout options")
+        def key(row):
+            value = row.get(value_field)
+            return (value is not None, value if value is not None else 0)
+        ordered.sort(key=key, reverse=order == "descending")
+    shown = ordered[:top_n] if top_n is not None else ordered
+    values = {(type(row.get(category_field)).__name__, str(row.get(category_field))) for row in shown}
+    if top_n is not None and len(rows) > top_n:
+        values.add(("str", f"{rest_label} ({len(rows) - top_n})"))
+    count = len(values)
+    labels = [row.get(category_field) for row in shown]
+    if top_n is not None and len(rows) > top_n:
+        labels.append(f"{rest_label} ({len(rows) - top_n})")
+    maximum = max((lines(value) for value in labels), default=1)
+    pitch = max(nominal_pitch, bar_height + 2 + 18 * maximum)
+    top = max(12, math.ceil(18 * maximum + bar_height / 2 + 2 - pitch / 2))
+    plot = max(1, count) * pitch
+    return {"rowCount": count, "maxLines": maximum, "rowPitch": pitch,
+            "plotHeight": plot, "topPadding": top, "minimumHeight": plot + top}
+
+
 def render_target(idiom: str, target: str, profile: "str | None" = None,
                   bindings: "dict | None" = None, params: "dict | None" = None,
-                  background: "str | None" = None) -> "tuple[str, str]":
+                  background: "str | None" = None,
+                  background_bounds: "tuple[str, str] | list[str] | None" = None,
+                  outline_forecast_band: bool = False,
+                  microvisual: "str | None" = None,
+                  micro_options: "dict | None" = None) -> "tuple[str, str]":
     """Derived target output for one idiom x profile. Deterministic JSON.
 
     `bindings` ({role: column}) binds real data columns through `data_slots`; `params` overrides
     any other template parameter (e.g. polarity -1 for a lower-is-better measure). Without both,
     the frozen canonical sample is used — that is what the goldens freeze. `background` (hex)
-    redraws the colours for that dark ground (`on_background`, salience kept)."""
+    redraws the colours for that dark ground (`on_background`, salience kept).
+
+    House presentation inputs (opt-in, old defaults retained): axis_grid_opacity
+    0..1, axis_grid_dash list, value_tick_count 2..12, end_marker_size 0..64 px²,
+    show_phase_annotations and show_axis_break booleans. These only affect the
+    corresponding base templates, not IBCS. label_current already controls the
+    running-period caption. Event fields remain in data and hover tooltips.
+
+    Compact partial forms: microvisual='bullet' on bullet hides axes and accepts
+    micro_options target_field/threshold_field (live data column names), domain
+    (requested bounds unioned with real values), minimal (thin bar), achievement
+    (explicit fixed 0..1.2 scale). The source never computes KPI achievement.
+    microvisual='spark' on line preserves native scenario/gap marks, hides chart
+    chrome and accepts height (16..160, default 40). params time_type='ordinal'
+    preserves supplied chronological label order without inventing dates;
+    'quantitative' accepts real period indexes. Other targets remain unchanged.
+    """
     if target not in DERIVED_TARGETS:
         raise KeyError(f"unknown derived target '{target}'")
     profile = profile or default_profile()
@@ -854,7 +1336,8 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
         eff.update({v: eff[fb] for v, fb in dv.items() if v not in given and fb is not None})
         eff.update({k: str(v) for k, v in given.items()
                     if k not in ("top_n", "rest", "rest_label", "time_format", "time_ticks", "highlight", "accent",
-                                  "focus_grey", "lang")})
+                                  "focus_grey", "lang", "row_pitch_px") and k not in _HOUSE_STYLE_PARAMS})
+        eff.update(_house_style_params(entry, notation, given))
         if (entry.get("encoding") or {}).get("order") == "worst_first" and "worst_first" not in given:
             # worst first: for a lower-is-better measure the worst value is the highest (A-31 R7)
             eff["worst_first"] = "descending" if float(eff.get("polarity", 1)) < 0 else "ascending"
@@ -869,6 +1352,27 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     else:
         spec = json.loads(render(idiom, "deneb_vegalite", notation)[0])
         eff = dict(_effective_params(load_entry(idiom), notation))
+    spec = _above_bar_layout(spec, idiom, notation, eff)
+    if (params or {}).get("row_pitch_px") is not None:
+        pitch = params["row_pitch_px"]
+        if (idiom != "bar_ranking" or notation != default_profile()
+                or params.get("label_position") != "above" or microvisual is not None):
+            raise ValueError("row_pitch_px requires house bar_ranking with above labels")
+        if isinstance(pitch, bool) or not isinstance(pitch, int) or not 12 <= pitch <= 256:
+            raise ValueError("row_pitch_px must be an integer from 12 to 256")
+        try:
+            bar_height = int(eff["label_above_px"])
+        except (TypeError, ValueError) as exc:
+            raise ValueError("row pitch requires a numeric bar height") from exc
+        if not 1 <= bar_height <= 24:
+            raise ValueError("bar height must be an integer from 1 to 24")
+        spec.setdefault("usermeta", {})["layout"] = {
+            "kind": "above-bar-rows", "categoryField": eff["field_cat"], "nominalPitch": pitch, "barHeight": bar_height,
+            "wrapBreakpoint": 360, "wrapNarrow": 24, "wrapWide": 40, "lineHeight": 18,
+            "topN": int(params.get("top_n", 20)) if bindings else None,
+            "valueField": eff["field"], "order": eff.get("worst_first", "ascending"),
+            "restLabel": str(params.get("rest_label", REST_LABEL)),
+        }
     spec = with_tooltips(spec, idiom, eff)
     if params and params.get("time_format"):
         spec = with_time_axis(spec, str(params["time_format"]), params.get("time_ticks"))
@@ -883,15 +1387,67 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
     if params and params.get("highlight"):
         h = params["highlight"]
         accent = params.get("accent") if focus is True else None
-        spec = with_highlight(spec, h["field"], list(h.get("values") or []), bool(h.get("temporal")), accent)
+        spec = with_highlight(spec, h["field"], list(h.get("values") or []), bool(h.get("temporal")), accent,
+                              style=str(h.get("style", "dim")), ink=str(h.get("ink", eff.get("col_label", "#404040"))))
+    if idiom == "line" and (params or {}).get("time_type"):
+        if params["time_type"] not in ("temporal", "ordinal", "quantitative"):
+            raise ValueError("time_type must be temporal, ordinal or quantitative")
+        if params["time_type"] == "ordinal":
+            # Label strings carry no lexical chronology. Preserve the supplied
+            # row order for native latest symbols, labels and event numbering.
+            row_order = {"window": [{"op": "row_number", "as": "_vl_period_order"}]}
+            spec["transform"] = [row_order] + spec.get("transform", [])
+        for node in _dict_nodes(spec):
+            if params["time_type"] == "ordinal" and "window" in node:
+                for sort in node.get("sort", []):
+                    if sort.get("field") == eff.get("field_date"):
+                        sort["field"] = "_vl_period_order"
+            if node.get("field") == eff.get("field_date") and node.get("type") == "temporal":
+                node["type"] = params["time_type"]
+                if node["type"] != "temporal":
+                    node.pop("format", None)
+            x = node.get("encoding", {}).get("x", {})
+            if isinstance(x, dict) and x.get("field") == eff.get("field_date"):
+                x["type"] = params["time_type"]
+                if x["type"] == "ordinal":
+                    x["sort"] = None
+    if microvisual is not None:
+        spec = _microvisual(spec, idiom, microvisual, eff, micro_options or {})
+    elif micro_options:
+        raise ValueError("micro_options require microvisual")
     config = vegalite_config(profile)
+    if (params or {}).get("bar_corner_radius") is not None:
+        radius = params["bar_corner_radius"]
+        if not isinstance(radius, int) or isinstance(radius, bool) or not 0 <= radius <= 24:
+            raise ValueError("bar_corner_radius must be an integer 0..24")
+        config = deneb_config(profile, radius)
+    if notation == default_profile() and (params or {}).get("value_format"):
+        config["axisQuantitative"] = {**config.get("axisQuantitative", {}), "format": params["value_format"]}
     lang = str((params or {}).get("lang") or "de")
     if lang != "de":
         if lang not in LOCALES:
             raise KeyError(f"unknown lang '{lang}' (de, {', '.join(LOCALES)})")
         config = {**config, "locale": LOCALES[lang]}
-    if background:
+        if lang == "en":
+            descriptions = {"Ereignis": "Event", "Ereignisnummer": "Event number",
+                            "Serienlabel": "Series label", "laufende Periode": "Current period",
+                            "Zielkorridor": "Target corridor", "Achse beginnt nicht bei null": "Nonzero axis",
+                            "Abweichungsfläche gut": "Favourable variance area",
+                            "Abweichungsfläche schlecht": "Unfavourable variance area"}
+            for node in _dict_nodes(spec):
+                description = node.get("description")
+                if isinstance(description, str):
+                    node["description"] = descriptions.get(
+                        description, description.replace("Prognoseband", "Forecast band"))
+    if background and background_bounds is None:
         spec, config = on_background(spec, background), on_background(config, background)
+    if background_bounds is not None:
+        if outline_forecast_band and (idiom != "line" or notation != "house_default"):
+            raise BackgroundContrastError("outlined forecast supports house_default line only")
+        spec, config = on_background_bounds(spec, config, background_bounds,
+                                            outline_forecast_band=outline_forecast_band)
+    elif outline_forecast_band:
+        raise ValueError("outlined forecast requires background_bounds")
     if target == "html_vegalite":
         out = dict(spec)
         out["config"] = config
@@ -905,6 +1461,194 @@ def render_target(idiom: str, target: str, profile: "str | None" = None,
                "data_name": (spec.get("data") or {}).get("name"),
                "spec": spec, "configVegaLite": config, "capabilities": dict(sorted(caps.items()))}
     return json.dumps(out, indent=2, ensure_ascii=False) + "\n", "json"
+
+
+def _microvisual(spec: dict, idiom: str, variant: str, params: dict, options: dict) -> dict:
+    """Compact partial forms of governed bullet/line, without card chrome.
+
+    The same derived specification runs in Fabric, HTML and static SVG. Consumers
+    supply values and card labels; they never calculate SVG coordinates. Achievement
+    is an explicitly bounded 0–120% scale, not a new KPI/trigger calculation.
+    """
+    if (idiom, variant) not in (("bullet", "bullet"), ("line", "spark")):
+        raise ValueError("microvisual must be bullet/bullet or line/spark")
+    out = copy.deepcopy(spec)
+    if variant == "bullet":
+        allowed = {"domain", "threshold", "polarity", "minimal", "achievement", "target_field", "threshold_field"}
+        if set(options) - allowed:
+            raise ValueError("unknown bullet micro_options")
+        threshold = options.get("threshold")
+        if threshold is not None and (isinstance(threshold, bool)
+                or not isinstance(threshold, (int, float)) or not math.isfinite(threshold)):
+            raise ValueError("threshold must be finite")
+        polarity = options.get("polarity", 1)
+        if isinstance(polarity, bool) or polarity not in (-1, 1):
+            raise ValueError("polarity must be 1 or -1")
+        domain = options.get("domain", [0, 1.2] if options.get("achievement") else [0, 0])
+        if (not isinstance(domain, (list, tuple)) or len(domain) != 2
+                or any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in domain)
+                or domain[0] > domain[1]):
+            raise ValueError("domain must be two ordered finite values")
+        target = float(params["target_val"]) if "target_val" in params and not options.get("target_field") else None
+        if options.get("achievement"):
+            scale = {"domain": [0, 1.2], "zero": True, "clamp": True}
+        else:
+            refs = list(domain) + [v for v in (target, threshold) if v is not None]
+            scale = {"domain": {"unionWith": refs}, "zero": True}
+        minimal = bool(options.get("minimal"))
+        for field_key in ("target_field", "threshold_field"):
+            field = options.get(field_key)
+            if field is not None and (not isinstance(field, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z_0-9]*", field)):
+                raise ValueError(f"{field_key} must be a simple column name")
+        if options.get("target_field"):
+            if len(out.get("layer", [])) < 2:
+                raise ValueError("data-bound micro bullet requires its target layer")
+            out["layer"][1]["encoding"]["x"] = {"field": options["target_field"], "type": "quantitative"}
+            out["layer"][1]["transform"] = [{"filter": {"field": options["target_field"], "valid": True}}]
+        for layer in out.get("layer", []):
+            for channel in ("x", "y"):
+                enc = layer.get("encoding", {}).get(channel)
+                if isinstance(enc, dict):
+                    enc["axis"] = None
+                    if channel == "x":
+                        enc["scale"] = scale
+            mark = layer.get("mark", {})
+            if mark.get("type") == "bar":
+                mark.update(height=3 if minimal else 7, cornerRadiusEnd=1.5 if minimal else 0)
+            if mark.get("type") == "tick":
+                mark.update(size=14 if minimal else 20, thickness=1.5 if minimal else 2)
+        if threshold is not None or options.get("threshold_field"):
+            threshold_encoding = ({"field": options["threshold_field"], "type": "quantitative"}
+                                  if options.get("threshold_field") else {"datum": threshold})
+            threshold_layer = {"mark": {"type": "tick", "color": params["col_target"],
+                "size": 10, "thickness": 1, "strokeDash": [2, 2],
+                "description": "Governed threshold"},
+                "encoding": {"x": {**threshold_encoding, "axis": None, "scale": scale}}}
+            if options.get("threshold_field"):
+                threshold_layer["transform"] = [{"filter": {"field": options["threshold_field"], "valid": True}}]
+                if options.get("achievement"):
+                    threshold_layer["transform"].append(
+                        {"filter": {"field": options["threshold_field"], "range": [0, 1.2]}})
+            out.setdefault("layer", []).append(threshold_layer)
+        out["height"] = 22
+    else:
+        if set(options) - {"height"}:
+            raise ValueError("unknown spark micro_options")
+        height = options.get("height", 40)
+        if not isinstance(height, int) or isinstance(height, bool) or not 16 <= height <= 160:
+            raise ValueError("spark height must be an integer 16..160")
+        # Retain native scenario lines and endpoint symbols. All transforms, gap
+        # handling and notation-specific scenarios remain from the original line.
+        kept = []
+        for layer in out.get("layer", []):
+            mark = layer.get("mark", {})
+            if mark.get("type") not in ("line", "point") or "params" in layer:
+                continue
+            opacity = layer.get("encoding", {}).get("opacity", {})
+            if isinstance(opacity, dict) and "condition" in opacity:
+                continue
+            kept.append(layer)
+        out["layer"] = kept
+        out["height"] = height
+        for node in _dict_nodes(out):
+            for channel in ("x", "y"):
+                enc = node.get("encoding", {}).get(channel)
+                if isinstance(enc, dict):
+                    enc["axis"] = None
+            node.pop("tooltip", None)
+    out.update(padding=2, background="transparent", autosize={"type": "fit", "contains": "padding"})
+    return out
+
+
+def _dict_nodes(node):
+    if isinstance(node, dict):
+        yield node
+        for value in node.values():
+            yield from _dict_nodes(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from _dict_nodes(value)
+
+
+def render_svg(idiom: str, data: list[dict], profile: str = "house_default",
+               bindings: "dict | None" = None, params: "dict | None" = None,
+               width: int = 1000, height: int = 200, background: "str | None" = None,
+               *, microvisual: "str | None" = None, micro_options: "dict | None" = None,
+               background_bounds: "tuple[str, str] | list[str] | None" = None,
+               outline_forecast_band: bool = False) -> str:
+    """Offline SVG from the original Vega-Lite target; no second geometry renderer.
+
+    Install requirements.txt (vl-convert-python) for static exports.
+    vl-convert is deliberately imported only for static export. Named datasets are
+    resolved locally, with no remote data fetching. The input table remains owned
+    by the consumer and must accompany the graphic for accessible exact values.
+    """
+    import xml.etree.ElementTree as ET
+    import vl_convert as vlc
+
+    if (isinstance(width, bool) or isinstance(height, bool)
+            or not isinstance(width, int) or not isinstance(height, int) or width <= 0 or height <= 0):
+        raise ValueError("SVG dimensions must be positive integers")
+    text, _ = render_target(idiom, "html_vegalite", profile, bindings=bindings, params=params,
+                            background=background, microvisual=microvisual, micro_options=micro_options,
+                            background_bounds=background_bounds, outline_forecast_band=outline_forecast_band)
+    spec = json.loads(text)
+    name = (spec.get("data") or {}).get("name")
+    if not name:
+        raise ValueError("static SVG requires a named Library dataset")
+    spec["datasets"] = {name: copy.deepcopy(data)}
+    # Dimensions describe the delivered canvas including axes/padding, not an
+    # oversized plot subsequently shrunk by the HTML/Evidence card. Native text
+    # therefore keeps its governed font size in compact report slots.
+    layout_meta = (spec.get("usermeta") or {}).get("layout")
+    if layout_meta and layout_meta.get("kind") == "above-bar-rows":
+        layout = above_bar_layout(data, layout_meta["categoryField"], max(1, width - 4),
+                                  layout_meta["nominalPitch"], layout_meta.get("topN"),
+                                  layout_meta.get("valueField"), layout_meta.get("order", "ascending"),
+                                  layout_meta.get("restLabel", "Übrige"), layout_meta["barHeight"])
+        if height < layout["minimumHeight"]:
+            raise ValueError(
+                f"SVG canvas too small: needs height >= {layout['minimumHeight']} for above-bar rows"
+            )
+        spec.update(width=max(1, width - 4), height=layout["plotHeight"],
+                    padding={"left": 0, "right": 4, "top": layout["topPadding"],
+                             "bottom": height - layout["minimumHeight"]},
+                    autosize={"type": "pad", "contains": "content"})
+    else:
+        spec.update(width=width, height=height, autosize={"type": "fit", "contains": "padding"})
+    if background is not None:
+        # on_background remaps ink; an offline export also owns its real painted
+        # surface (there is no host VegaVisual canvas to supply the dark ground).
+        spec["background"] = background
+    svg = vlc.vegalite_to_svg(spec)
+    root = ET.fromstring(svg)
+    namespace = "http://www.w3.org/2000/svg"
+    ET.register_namespace("", namespace)
+    # Each standalone Vega export starts its ID counter at the same value. A
+    # content-derived namespace keeps distinct inline SVGs' clipping/paint local.
+    import hashlib
+    digest = hashlib.sha256(json.dumps(spec, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]
+    prefix = "vl_" + digest + "_"
+    originals = [node.get("id") for node in root.iter() if node.get("id")]
+    ids = {name: prefix + str(index) for index, name in enumerate(originals)}
+    for node in root.iter():
+        for key, value in list(node.attrib.items()):
+            if key == "id":
+                node.set(key, ids[value])
+            else:
+                for original, replacement in ids.items():
+                    value = value.replace(f"url(#{original})", f"url(#{replacement})")
+                    if value == "#" + original:
+                        value = "#" + replacement
+                node.set(key, value)
+    for node in list(root.iter()):
+        if node.get("aria-label"):
+            title = ET.Element(f"{{{namespace}}}title")
+            title.text = node.get("aria-label")
+            node.insert(0, title)
+    root.set("data-visual-library", idiom)
+    root.set("data-visual-profile", profile)
+    return ET.tostring(root, encoding="unicode")
 
 
 def target_golden_path(idiom: str, target: str, profile: "str | None" = None) -> Path:

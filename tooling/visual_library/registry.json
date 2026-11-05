@@ -34,7 +34,7 @@
     {
       "id": "bar_absolute",
       "name": "Bar (absolute magnitude)",
-      "version": "1.2.0",
+      "version": "1.4.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -57,12 +57,12 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:54637167f0ec1fee8a2c49101f01285357f75b17c095673f239df0170f4efe05"
+      "checksum": "sha256:6d8e75427301a0b5243a267f0c1c2de6707901839c1f450e64fa490a3ec651b7"
     },
     {
       "id": "bar_ranking",
       "name": "Bar ranking",
-      "version": "1.4.0",
+      "version": "1.6.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -87,7 +87,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:3e2084474c3f8624112ab6af080b0e7b790dcaff83dfde16e32c1a0a12520a56"
+      "checksum": "sha256:e792ad634fce256c827f3d0e5cc3e00f3511a4f9895ed1e2c406e1ae24bfed24"
     },
     {
       "id": "bar_stacked",
@@ -144,7 +144,7 @@
     {
       "id": "bullet",
       "name": "Bullet graph",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -169,7 +169,7 @@
         "cols": 3,
         "rows": 2
       },
-      "checksum": "sha256:2f7bab6ee3e6eb81f0569cf66b993786531c8413e72b2b31129b5be74fc38b22"
+      "checksum": "sha256:ed28fdf16827f77cf8fe6c7622ecb9e86ac007291fdc3db9ff4d1bcd3580a779"
     },
     {
       "id": "column_time",
@@ -442,7 +442,7 @@
     {
       "id": "line",
       "name": "Trend line",
-      "version": "2.2.1",
+      "version": "2.5.2",
       "status": "active",
       "superseded_by": null,
       "purpose": [
@@ -467,7 +467,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:37c9f8656e134546a9eea573a23d46564b6a46f77700e9b30389db56389290e0"
+      "checksum": "sha256:6d67f012fb2aad2987b63fff3c70bebcf686909e470fcc30ed4493b8284574c8"
     },
     {
       "id": "lollipop",

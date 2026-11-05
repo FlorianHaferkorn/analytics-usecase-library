@@ -367,3 +367,159 @@ def test_new_native_properties_exist_in_the_formatting_catalog(name):
     # Gegenprobe: eine erfundene Eigenschaft wird gemeldet.
     v["objects"]["valueAxis"] = [{"properties": {"erfunden": {}}}]
     assert fm.unknown_visual_objects({"visual": v}) == ["valueAxis.erfunden"]
+
+@pytest.mark.parametrize("target", ["fabric_app", "html_vegalite"])
+@pytest.mark.parametrize("width", [280, 440])
+def test_above_ranking_spends_width_on_bars_and_preserves_signed_zero_missing(target, width):
+    name = "Household supplies and international cleaning equipment"
+    rows = [{"k": name, "v": -20}, {"k": "Zero", "v": 0},
+            {"k": "Missing", "v": None}, {"k": "Positive", "v": 40}]
+    out = json.loads(render.render_target("bar_ranking", target,
+        bindings={"category": "k", "value": "v"}, params={"label_position": "above"})[0])
+    spec = out["spec"] if target == "fabric_app" else out
+    if target == "fabric_app":
+        spec["config"] = out["configVegaLite"]
+    spec.update(width=width, height=240, data={"name": "dataset", "values": rows})
+    sg = vlc.vegalite_to_scenegraph(spec)
+    assert sg["origin"][0] == 0, "No ghost category-axis gutter"
+    assert spec["encoding"]["y"]["axis"] is None
+    texts = _visible(_marks(sg, "text"))
+    categories = [t for t in texts if t.get("description") == "Kategorielabel oben"]
+    assert len(categories) == 4 and {t["x"] for t in categories} == {0}
+    wrapped = next(t["text"] for t in categories if isinstance(t["text"], list))
+    assert " ".join(wrapped) == name, "All category words survive wrapping"
+    numbers = [t for t in texts if t not in categories]
+    assert {t["x"] for t in numbers} == {width}
+    assert sorted(t["text"] for t in numbers) == sorted(["−20", "0", "–", "40"])
+    bars = _bars(sg)
+    assert len(bars) == 2
+    negative = next(b for b in bars if b["x"] == 0)
+    positive = next(b for b in bars if b["x"] > 0)
+    assert negative["x2"] == pytest.approx(positive["x"])
+    assert positive["x2"] == width
+    # Existing axis layout still reserves its necessary category space.
+    normal = _scene("bar_ranking", rows, {"category": "k", "value": "v"}, w=width)
+    assert normal["origin"][0] > 0
+
+@pytest.mark.parametrize('count', [3, 4])
+def test_opt_in_above_bar_pitch_is_stable_in_native_scenegraph(count):
+    rows = [{'c': f'Category {i}', 'v': i + 1} for i in range(count)]
+    spec = json.loads(render.render_target('bar_ranking', 'html_vegalite', bindings={'category':'c','value':'v'},
+                      params={'label_position':'above', 'label_above_px': 10, 'row_pitch_px': 40})[0])
+    assert spec['usermeta']['layout']['categoryField'] == 'c'
+    layout = render.above_bar_layout(rows, 'c', 400, 40)
+    assert layout['rowPitch'] == 40
+    spec.update(width=400, height=layout['plotHeight'], data={'name':'dataset','values':rows},
+                padding={'left':0, 'right':4, 'top':layout['topPadding'], 'bottom':0})
+    bars = sorted(_bars(vlc.vegalite_to_scenegraph(spec)), key=lambda b:b['y'])
+    assert len(bars) == count
+    assert [bars[i+1]['y'] - bars[i]['y'] for i in range(count-1)] == pytest.approx([40] * (count-1))
+
+
+def test_above_bar_long_labels_have_room_and_svg_rejects_small_canvas():
+    rows = [{'c': 'This is a very long category label that must wrap over several separate lines for a narrow chart',
+             'v': 0},
+            {'c': 'Missing value', 'v': None}]
+    layout = render.above_bar_layout(rows, 'c', 216, 40)
+    assert layout['maxLines'] >= 3
+    assert layout['rowPitch'] >= 12 + 18 * layout['maxLines']
+    kwargs = dict(idiom='bar_ranking', data=rows, bindings={'category':'c','value':'v'}, width=220,
+                  params={'label_position':'above', 'label_above_px':10, 'row_pitch_px':40})
+    with pytest.raises(ValueError, match='canvas too small'):
+        render.render_svg(height=layout['minimumHeight'] - 1, **kwargs)
+    svg = render.render_svg(height=layout['minimumHeight'], **kwargs)
+    assert 'Missing value' in svg and '–' in svg
+    import xml.etree.ElementTree as ET
+    larger = render.render_svg(height=layout['minimumHeight'] + 40, **kwargs)
+    assert int(ET.fromstring(larger).get('height')) == layout['minimumHeight'] + 40
+    assert int(ET.fromstring(larger).get('width')) == 220
+    long_label = next(e for e in ET.fromstring(svg).iter() if e.get('aria-label') == 'Kategorielabel oben' and len(e))
+    first_baseline = float(re.search(r'translate\([^,]+,([^)]+)\)', long_label.get('transform')).group(1))
+    assert first_baseline + layout['topPadding'] >= 11  # first line is inside the canvas
+    last_baseline = first_baseline + (layout['maxLines'] - 1) * 18
+    row_center = (int(last_baseline // layout['rowPitch']) + 0.5) * layout['rowPitch']
+    assert last_baseline < row_center - 5
+
+
+def test_row_pitch_optin_rejects_other_charts_and_preserves_default():
+    with pytest.raises(ValueError, match='requires house'):
+        render.render_target('bar_ranking', 'html_vegalite', bindings={'category':'c','value':'v'},
+                             params={'row_pitch_px':40})
+    normal = json.loads(render.render_target('bar_ranking', 'html_vegalite', bindings={'category':'c','value':'v'},
+                                             params={'label_position':'above'})[0])
+    assert 'layout' not in normal.get('usermeta', {})
+
+@pytest.mark.parametrize('width', [240, 360, 600])
+def test_above_bar_python_typescript_layout_parity(width):
+    import shutil
+    import subprocess
+    if not shutil.which('node'):
+        pytest.skip('Node is unavailable')
+    version = subprocess.check_output(['node', '--version'], text=True, encoding='utf-8').strip().lstrip('v')
+    if int(version.split('.')[0]) < 23:
+        pytest.skip('Node 23+ is required for native TypeScript stripping')
+    rows = [{'c':'Short'}, {'c':'A long category label with several words and additional detail for wrapping'},
+            {'c':'Unbroken' * 20}, {'c':'Unicode 😀😀😀 example'}, {'c':None}, {'c':'Short'}]
+    helper = (REPO_ROOT / 'tooling' / 'visual_library' / 'row_layout.ts').as_uri()
+    source = (f"import {{aboveBarLayout}} from {json.dumps(helper)}; "
+              f"console.log(JSON.stringify(aboveBarLayout({json.dumps(rows, ensure_ascii=True)}, 'c', {width}, 40)));")
+    try:
+        output = subprocess.check_output(
+            ['node', '--experimental-strip-types', '--input-type=module', '-e', source],
+            text=True, encoding='utf-8', stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError as exc:
+        pytest.fail(f'TypeScript helper failed: {exc.stderr}')
+    assert json.loads(output) == render.above_bar_layout(rows, 'c', width, 40)
+
+@pytest.mark.parametrize('descending', [False, True])
+def test_row_pitch_layout_matches_top_n_folded_scenegraph(descending):
+    rows = [{'c': 'A', 'v': None}, {'c': 'B', 'v': 0}, {'c': 'C', 'v': -20},
+            {'c': 'A', 'v': 8}, {'c': 'L' * 100, 'v': 50}, {'c': 'D', 'v': 9}]
+    order = 'descending' if descending else 'ascending'
+    params = {'label_position':'above', 'label_above_px':10, 'row_pitch_px':40,
+              'top_n':3, 'worst_first':order, 'rest_label':'Remaining'}
+    spec = json.loads(render.render_target('bar_ranking', 'html_vegalite',
+                                            bindings={'category':'c','value':'v'}, params=params)[0])
+    meta = spec['usermeta']['layout']
+    layout = render.above_bar_layout(rows,'c',400,40,meta['topN'],meta['valueField'],meta['order'],meta['restLabel'])
+    spec.update(width=400,height=layout['plotHeight'],data={'name':'dataset','values':rows},
+                padding={'left':0,'right':4,'top':layout['topPadding'],'bottom':0})
+    sg = vlc.vegalite_to_scenegraph(spec)
+    labels = [x for x in _visible(_marks(sg,'text')) if x.get('description') == 'Kategorielabel oben']
+    positions = sorted(set(x['y'] for x in labels))
+    assert len(positions) == layout['rowCount']
+    assert [positions[i+1]-positions[i] for i in range(len(positions)-1)] == pytest.approx(
+        [layout['rowPitch']] * (len(positions)-1))
+    if not descending:
+        assert layout['maxLines'] == 1, 'hidden long label must not inflate visible rows'
+
+@pytest.mark.parametrize('order', ['ascending','descending'])
+def test_above_bar_typescript_python_topn_parity(order):
+    import shutil
+    import subprocess
+    if not shutil.which('node'):
+        pytest.skip('Node is unavailable')
+    version = subprocess.check_output(['node', '--version'], text=True, encoding='utf-8').strip().lstrip('v')
+    if int(version.split('.')[0]) < 23:
+        pytest.skip('Node 23+ is required for native TypeScript stripping')
+    rows = [{'c':'A','v':None}, {'c':'B','v':0}, {'c':'C','v':-5}, {'c':'A','v':8},
+            {'c':'This long label should only influence visible rows ' * 3,'v':40}, {'c':'D','v':7}]
+    opts = {'topN':3, 'valueField':'v', 'order':order, 'restLabel':'Autres'}
+    helper = (REPO_ROOT / 'tooling' / 'visual_library' / 'row_layout.ts').as_uri()
+    source = (f"import {{aboveBarLayout}} from {json.dumps(helper)}; "
+              f"console.log(JSON.stringify(aboveBarLayout({json.dumps(rows)}, 'c', 240, 40, {json.dumps(opts)})));")
+    output = subprocess.check_output(
+        ['node','--experimental-strip-types','--input-type=module','-e',source],
+        text=True, encoding='utf-8', stderr=subprocess.PIPE)
+    assert json.loads(output) == render.above_bar_layout(rows,'c',240,40,3,'v',order,'Autres')
+
+
+def test_row_layout_uses_original_above_bar_thickness():
+    params = {"label_position":"above", "label_above_px":24, "row_pitch_px":40}
+    spec = json.loads(render.render_target("bar_ranking", "html_vegalite",
+                                            bindings={"category":"c", "value":"v"}, params=params)[0])
+    meta = spec["usermeta"]["layout"]
+    assert meta["barHeight"] == 24
+    rows = [{"c":"A long category label that wraps onto more than one line", "v":1}]
+    layout = render.above_bar_layout(rows, "c", 240, 40, 20, "v", "ascending", "Übrige", meta["barHeight"])
+    assert layout["rowPitch"] >= 24 + 2 + 18 * layout["maxLines"]
