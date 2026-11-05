@@ -4,7 +4,7 @@ Die Schleife baut nichts selbst. Jede Stufe ruft vorhandene Werkzeuge auf, in di
 
     S0 Spezifikation   check_index --strict, check_usecase_quality <UC> --strict
     S1 Modell          die Codegen-Prüfungen (gold_source, model_alignment, comparison_measures,
-                       action_trigger_dax, dax_smoke plan)
+                       forecast_measures, action_trigger_dax, dax_smoke plan)
     S2 Bericht         report_quality --summary
     S3 Veröffentlichen Bereitstellung (Bericht + Modell), sandbox up, sandbox deploy;
                        Laden der Datenscheibe ist noch nicht gebaut
@@ -99,7 +99,7 @@ def plan(use_case: str, run_id: str, arbeit: Path) -> list[Schritt]:
     bericht, modell = bericht_und_modell(use_case)
     manifest = str(arbeit / "sandbox.json")
     bereit = arbeit / "pbip"
-    codegen = ("gold_source", "model_alignment", "comparison_measures", "action_trigger_dax")
+    codegen = ("gold_source", "model_alignment", "comparison_measures", "forecast_measures", "action_trigger_dax")
     schritte = [
         Schritt("S0", "check_index", [PY, "scripts/check_index.py", "--strict"]),
         Schritt("S0", "usecase_quality", [PY, "tooling/validation/check_usecase_quality.py", use_case, "--strict"]),

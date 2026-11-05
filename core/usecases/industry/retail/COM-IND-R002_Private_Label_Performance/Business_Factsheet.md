@@ -78,11 +78,13 @@ The headline KPIs reference these external standards — *reference, don't redef
 
 ## 6. Data Requirements Summary
 
-This use case is **new**: its strategic KPI is governed and standards-grounded, but it
-cannot be computed yet. The commercial_sales contract has no private-label attribute
-(`dim_product` carries Brand only, no own-brand flag), so the numerator cannot be sourced
-(`technical.calculation.reason`). Until `dim_product` gains that flag the KPI reports
-`UNCOMPUTED` (ADR-0009), never a fabricated value.
+The strategic KPI is computable since 30.10.2026: `dim_product` carries a private-label
+flag (`Private Label Flag`) in the commercial_sales contract, and the share is net sales of
+flagged products divided by total net sales, read from `fact_sales`. Every SKU needs the
+flag; a source system that does not mark own brands cannot feed this use case.
+
+The early warning one month ahead (action code C-M2.4) needs a forecast of the share with
+a prediction interval. Its method is not decided yet, so that part does not compute.
 
 ---
 

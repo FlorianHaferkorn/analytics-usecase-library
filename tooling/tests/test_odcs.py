@@ -360,8 +360,9 @@ def test_real_contracts_carry_semantic_type_and_synonyms():
                         assert [s["synonym"] for s in prop["synonyms"]] == spec["synonyms"]
                     else:
                         assert not spec.get("synonyms")
-    assert dict(types) == {"measure": 231, "dimension": 406, None: 113}, dict(types)
-    assert (with_syn, terms) == (63, 216)
+    assert dict(types) == {"measure": 231, "dimension": 407, None: 113}, dict(types)
+    # +1 Spalte, +5 Synonyme (dim_product.Private Label Flag, 30.10.2026)
+    assert (with_syn, terms) == (64, 221)
 
 
 def test_catalog_table_names_are_unique():

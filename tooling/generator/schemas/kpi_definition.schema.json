@@ -298,7 +298,7 @@
       ]
     },
     "calc_filters": {
-      "description": "Shared filter-list shape for `count_filtered`/`avg_filtered`: 1+ conditions against columns from this KPI's own lineage table, each either an equality check (boolean or string) or a not-blank check.",
+      "description": "Shared filter-list shape for `count_filtered`/`avg_filtered`/`sum_filtered`: 1+ conditions against columns from this KPI's own lineage (for `sum_filtered` also a dimension column listed there), each either an equality check (boolean or string) or a not-blank check.",
       "type": "array",
       "minItems": 1,
       "items": {
@@ -534,6 +534,27 @@
           "properties": {
             "op": {
               "const": "avg_filtered"
+            },
+            "column": {
+              "type": "string",
+              "minLength": 1
+            },
+            "filters": {
+              "$ref": "#/$defs/calc_filters"
+            }
+          }
+        },
+        {
+          "description": "CALCULATE ( SUM ( table[column] ), filter_1, ... ) — sum of this KPI's own lineage column, restricted by 1+ filters. A filter column may belong to a dimension listed in the KPI's lineage (e.g. dim_product.Private Label Flag), so the filter reaches the fact through the model relationship. Added 30.10.2026 for KPI-COM-033: the pattern calculate_sum_with_dimension_filter occurred twice (KPI-ESG-001, KPI-COM-033), which makes the operation due (test_recurring_grammar_gap_forces_an_operation).",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "column",
+            "filters"
+          ],
+          "properties": {
+            "op": {
+              "const": "sum_filtered"
             },
             "column": {
               "type": "string",

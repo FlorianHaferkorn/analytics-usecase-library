@@ -39,6 +39,11 @@ table dim_product
 		lineageTag: 4430d698-7032-4d50-a890-ed4231e9e03f
 		summarizeBy: none
 		sourceColumn: Brand
+	/// True if the SKU is sold under the retailer's own brand (private label), false for manufacturer brands. Type: boolean · Role: attribute · Synonyms: Private Label, Own Brand, Store Brand, Eigenmarke, Handelsmarke
+	column 'Private Label Flag'
+		dataType: Boolean
+		sourceColumn: Private Label Flag
+		summarizeBy: none
 
 	column 'Lifecycle Status'
 		dataType: string

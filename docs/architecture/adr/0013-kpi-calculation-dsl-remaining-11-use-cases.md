@@ -193,3 +193,20 @@ normalizer widening.
   `avg_filtered`/`not_blank` shapes beyond what was already wired in
   alongside each op (SQL support was added in lockstep with each DAX op in
   this batch, not deferred).
+
+## Addendum 30.10.2026: `sum_filtered`
+
+The pattern `calculate_sum_with_dimension_filter` (a sum under a filter on a dimension
+column) occurred a second time when KPI-COM-033 Private Label Penetration % became
+computable (`dim_product.Private Label Flag`, contract `commercial_sales`). By the rule in
+`test_recurring_grammar_gap_forces_an_operation` the operation is then due, so it was built
+rather than worked around with `count_filtered` × `avg_filtered`.
+
+| op | shape | DAX | first users |
+|---|---|---|---|
+| `sum_filtered` | sum of a lineage column under 1+ filters (`$defs/calc_filters`); a filter column may belong to a dimension listed in the KPI's lineage | `CALCULATE ( SUM ( t[col] ), d[col1] = v1, ... )` | KPI-COM-033 (numerator), KPI-ESG-001 (`add` of two scope sums, formerly `hitl`) |
+
+SQL (`sql_synth.py`): `SUM ( CASE WHEN <filters> THEN col END )` only when every filter sits
+on the summed column's own table. A dimension filter raises `SynthesisError`: a Databricks
+Metric View is single-source, the join is not a flat expression. Both KPIs therefore stay
+HITL in the SQL targets; recorded here, not hidden.

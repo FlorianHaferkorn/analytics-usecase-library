@@ -83,12 +83,15 @@ NEW_TABLES = (
     ("Finance", "fact_opex_costcenter", "finance.yaml", "fact", "fact_cost"),
 )
 
-# (Modell, Tabelle, Vertrag, Spalte, Ankerspalte): Wertspalten, die der Vertrag führt und Gold
-# liefert, dem Modell aber fehlen. FIN-003 (24.10.2026): KPI-FIN-021 braucht die Plan-Werte;
+# (Modell, Tabelle, Vertrag, Spalte, Ankerspalte): Wert- oder Attributspalten (Fakt oder
+# Dimension), die der Vertrag führt und Gold liefert, dem Modell aber fehlen. FIN-003 (24.10.2026): KPI-FIN-021 braucht die Plan-Werte;
 # Gold fact_finance trägt beide Spalten (5 aktive Dateien, pyarrow).
 NEW_COLUMNS = (
     ("Finance", "fact_finance", "finance.yaml", "Plan Net Sales Amount", "Plan OpEx Amount"),
     ("Finance", "fact_finance", "finance.yaml", "Plan EBITDA Amount", "Plan Net Sales Amount"),
+    # COM-IND-R002 (30.10.2026): Eigenmarke je SKU fuer KPI-COM-033; Gold-Spalte aus
+    # showcases/aurora_group/data/gold/_model_columns.py (dim_product_eigenmarke).
+    ("Commercial", "dim_product", "commercial_sales.yaml", "Private Label Flag", "Brand"),
 )
 
 # (Modell, Anzeigeordner, KPI-IDs): Measures aus dem Katalog, ans Ende von _Measures.tmdl.
@@ -96,9 +99,11 @@ NEW_KPI_MEASURES = (
     ("Commercial", "COM-005", ("KPI-COM-026", "KPI-COM-027", "KPI-COM-028", "KPI-COM-029",
                                "KPI-COM-030", "KPI-COM-031")),
     ("Finance", "FIN-003", ("KPI-FIN-018", "KPI-FIN-020", "KPI-FIN-021")),
+    ("Commercial", "COM-IND-R002", ("KPI-COM-033",)),
 )
 
-_TYPES = {"int": "Int64", "text": "String", "decimal": "Decimal", "currency": "Decimal", "bool": "Boolean"}
+_TYPES = {"int": "Int64", "text": "String", "decimal": "Decimal", "currency": "Decimal", "bool": "Boolean",
+          "boolean": "Boolean"}
 
 
 def _defn(modell: str) -> Path:
@@ -308,7 +313,7 @@ def soll(modus: str | None = None) -> dict[Path, str | None]:
 
     for modell, tabelle, vertrag, name, nach in NEW_COLUMNS:
         v = vertraege.setdefault(vertrag, yaml.safe_load((CONTRACTS / vertrag).read_text(encoding="utf-8")))
-        t = next(x for x in v["fact"] if x["name"] == tabelle)
+        t = next(x for x in v["fact"] + v.get("dimension", []) if x["name"] == tabelle)
         spalte = next(c for c in t["columns"] if c["name"] == name)
         p = _defn(modell) / "tables" / f"{tabelle}.tmdl"
         dateien[p] = add_value_column(lesen(p), spalte, nach)

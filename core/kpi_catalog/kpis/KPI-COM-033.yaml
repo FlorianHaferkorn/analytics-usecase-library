@@ -30,11 +30,22 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_sales.Net Sales Amount
+  - dim_product.Private Label Flag
   calculation:
-    op: hitl
-    blocked_by: data_contract
-    reason: The commercial_sales contract has no private-label attribute (dim_product carries Brand only, no own-brand
-      flag); the numerator cannot be sourced until dim_product gains one.
+    # 30.10.2026: rechenbar. dim_product traegt Private Label Flag im Vertrag commercial_sales;
+    # der Zaehler ist eine Summe unter einem Dimensionsfilter (Op sum_filtered, ab dem zweiten
+    # Vorkommen des Musters calculate_sum_with_dimension_filter faellig, vorher op:hitl
+    # blocked_by data_contract).
+    op: ratio
+    numerator:
+      calc:
+        op: sum_filtered
+        column: Net Sales Amount
+        filters:
+        - column: Private Label Flag
+          equals: true
+    denominator:
+      column: Net Sales Amount
 governance:
   business_owner: TBD
   data_owner: TBD
