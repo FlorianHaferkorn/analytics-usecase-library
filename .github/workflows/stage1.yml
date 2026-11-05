@@ -115,7 +115,7 @@ jobs:
           # requests UND msal: die Orchestrator-Tests (`products/fabric/orchestrator/tests/`,
           # u. a. die 429-errorCode-Behandlung aus I-21 W2.8) ueberspringen sich ohne sie —
           # bis 30.09.2026 liefen hier test_governance und der Verdrahtungstest nie.
-          pip install pyyaml jsonschema pytest pytest-xdist typer rich referencing python-docx pyarrow pandas vl-convert-python altair pillow requests msal ruff==0.16.9 detect-secrets==1.5.0
+          pip install pyyaml jsonschema pytest pytest-xdist typer rich referencing python-docx pyarrow pandas vl-convert-python fonttools pypdf altair pillow requests msal ruff==0.16.9 detect-secrets==1.5.0
 
       # Secret-Baseline-Tor (07.10.2026): jede git-getrackte Datei gegen .secrets.baseline
       # (detect-secrets-hook). Rot = ein Fund, der nicht in der Baseline steht (Exit 1), oder
