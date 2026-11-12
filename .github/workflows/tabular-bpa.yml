@@ -14,14 +14,10 @@ name: Tabular Editor BPA (official + ALUCA rules, Windows)
 # zaehlt TRX-Dateien und Analyzer-Protokolle je Modell.
 
 on:
-  pull_request:
-    # Entwurfs-PRs laufen nicht (#472); `ready_for_review` startet den Lauf.
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - "products/fabric/powerbi/dist/*.SemanticModel/**"
-      - "tooling/linters/powerbi/aluca-bpa-rules.json"
-      - "tooling/linters/powerbi/bpa-official.pin.json"
-      - ".github/workflows/tabular-bpa.yml"
+  # Wöchentlich auf main plus Handstart (Entscheidung Florian 12.11.2026): Windows-Minuten zählen doppelt, ein Lauf
+  # dauert in Freelancing gemessen rund 38 min. Je PR prüft check_bpa.py (Stage 1) die eigenen Regeln unter Linux.
+  schedule:
+    - cron: "17 3 * * 1"
   workflow_dispatch:
     inputs:
       strict_mode:

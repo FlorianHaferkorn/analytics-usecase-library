@@ -154,3 +154,11 @@ In VS-Code-Tasks, `.claude/settings.json`, Skills und Workflows gab es keinen Au
 - `lint.rules.yaml` hat keinen Leser, auch vorher nicht. `fix_mojibake.ps1` ist ein Reparaturwerkzeug ohne Aufrufer. Beide bleiben, beides lag außerhalb des Auftrags.
 - Die schon vorhandenen Ruff-Befunde in `check_upstream_sources.py` (F401 `sys`, E501) sind nicht angefasst. Die Sperrklinke ist unverändert.
 - Die CI ist nicht gestartet. Der PR ist ein Entwurf, also sind `tabular-bpa.yml` und Stage 1 auf GitHub-Runnern nicht gelaufen.
+
+## Nachtrag 12.11.2026 (Entscheidungen Florian)
+
+- `tabular-bpa.yml` läuft wöchentlich auf main (montags) und per Hand, nicht je PR. Je PR prüft `check_bpa.py` in
+  Stage 1 die eigenen Regeln unter Linux.
+- Vorjahresregeln (`SAMEPERIODLASTYEAR`/`DATEADD`): Florian will `dim_date` als Datumstabelle markieren und die
+  Vorjahreslogik darauf umstellen. Die zwei Regeln bleiben; die Umstellung von Generator und Modellen ist eine eigene
+  Runde (offen).
