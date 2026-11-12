@@ -11,7 +11,8 @@
 #   PBI: core/templates/page_templates/connectors/PowerBI_Connector.md
 #   OSS: core/templates/page_templates/connectors/OSS_Connector_Guide.md
 #
-# Archived pre-abstract version: _archive/Visual_to_Slot_Mapping_pre_abstract.yaml
+# The pre-abstract version (_archive/Visual_to_Slot_Mapping_pre_abstract.yaml) was removed on
+# 12.11.2026; it is in the git history (ref archiv/vor-entschlacken-2026-11-12).
 
 ---
 # Autoritaet umgestellt am 02.08.2026 (ADR-0018): das Visualtyp-Vokabular lebt in der
