@@ -56,7 +56,7 @@ NEUES_MUSTER = re.compile(r"^KPI-(COM|FIN|OPS|SCM|SVC|CUS|GOV|PPL|QUA|ESG)-\d{3}
 AUSNAHMEN: tuple[tuple[str, str], ...] = (
     ("CHANGELOG.md", "Release-Historie"),
     ("docs/architecture/adr/*", "ADRs halten die Entscheidung zum Stand ihres Datums"),
-    ("internal/archive/*", "Archiv"),
+    ("_archiv/*", "Archiv (seit 12.11.2026, vorher internal/archive/)"),
     ("docs/plans/*", "Umsetzungsplaene/Reviews mit Stand-Datum und zitierten Messungen"),
     ("docs/architecture/premium-acceptance-F0-F6.md", "Abnahme vom 08.07.2026"),
     ("internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md", "Fehlerlog, zitierte Meldungen sind Belege"),

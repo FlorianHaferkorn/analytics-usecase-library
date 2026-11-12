@@ -8,8 +8,8 @@ The framework evolution narrative describes how the repository moves from govern
 
 ## Current references
 
-- Operating model overview: [core/strategy_operating_model/operating_model/README.md](../../core/strategy_operating_model/operating_model/README.md)
-- Architecture overview: [docs/architecture/README.md](../../docs/architecture/README.md)
+- Operating model overview: [core/strategy_operating_model/operating_model/README.md](../../../core/strategy_operating_model/operating_model/README.md)
+- Architecture overview: [docs/architecture/README.md](../../../docs/architecture/README.md)
 - Automated reasoning scope: [internal/vision/automated_reasoning_scope_and_limits.md](../vision/automated_reasoning_scope_and_limits.md)
 
 ## Notes

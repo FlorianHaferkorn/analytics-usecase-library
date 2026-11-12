@@ -11,7 +11,7 @@
     "**/*.md",
     "!**/node_modules/**",
     "!products/fabric/powerbi/dist/**",
-    "!internal/archive/**",
+    "!_archiv/**",
     "!CHANGELOG.md",
     "!.local/**",
     "!.claude/**",

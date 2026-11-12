@@ -41,7 +41,7 @@ Within this framework, **automated reasoning** refers to machine-assisted use of
   Any artifact change (human- or AI-proposed) must satisfy the Stage 1 CI gate (schema, refs, SSOT, etc.). There is no bypass for "AI-generated" content.
 
 - **Agentic / autonomous agents.**  
-  Future agentic BI (e.g. agents that read/write metadata and suggest report or model changes) remains a later-stage consideration. If introduced, it stays under "humans approve, AI does not invent definitions" and must pass Stage 1. See [internal/archive/framework_evolution.md](../archive/framework_evolution.md) (Automation and AI, Future consideration).
+  Future agentic BI (e.g. agents that read/write metadata and suggest report or model changes) remains a later-stage consideration. If introduced, it stays under "humans approve, AI does not invent definitions" and must pass Stage 1. See [_archiv/internal/archive/framework_evolution.md](../archive/framework_evolution.md) (Automation and AI, Future consideration).
 
 ---
 
@@ -51,6 +51,6 @@ Within this framework, **automated reasoning** refers to machine-assisted use of
 |----------|-----------|
 | [ACTIONREADY_HOLISTIC_MANIFESTO.md](ACTIONREADY_HOLISTIC_MANIFESTO.md) | Strategy pattern as basis for "Automated Reasoning"; payload integrity for AI/dashboard. |
 | [phase2_backlog.md](phase2_backlog.md) | Strategy Pattern / KI-Dringlichkeit as Phase 2 backlog. |
-| [internal/archive/framework_evolution.md](../archive/framework_evolution.md) | Automation and AI (assisted creation, consumption, limits, agentic future). |
+| [_archiv/internal/archive/framework_evolution.md](../archive/framework_evolution.md) | Automation and AI (assisted creation, consumption, limits, agentic future). |
 | [core/strategy_operating_model/company/strategy_patterns.md](../../core/strategy_operating_model/company/strategy_patterns.md) | Authority for strategy patterns; §8 defines urgency rules for tooling. |
 | [internal/technical_backlog.md](../technical_backlog.md) | Granular technical tasks: urgency tooling hook and implementation follow-ups. |
