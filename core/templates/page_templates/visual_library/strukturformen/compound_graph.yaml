@@ -29,6 +29,13 @@ interaktion:
 - hover_nachbarn
 - auswahl_detail
 - zoom
+kanaele:
+  gruppe:
+  - umschliessung
+  beziehung:
+  - linie
+  quantitativ:
+  - ziffer
 technik:
 - svg
 textalternative: Gruppenliste mit Zählern der Querbeziehungen je Gruppenpaar
@@ -38,6 +45,7 @@ regeln:
 - node_link_default_laien
 - viele_kantentypen_filtern
 - kategorien_farbe_max
+- kanal_nach_bedeutungsart
 anti_patterns:
 - whole_graph_as_entry
 - bundling_on_path_question

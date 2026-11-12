@@ -24,11 +24,17 @@ reduktion:
 interaktion:
 - zoom
 - auswahl_detail
+kanaele:
+  quantitativ:
+  - laenge
+  ordinal:
+  - position_reihenfolge
 technik:
 - svg
 textalternative: Tabelle Pfad | Wert | Anteil
 regeln:
 - icicle_vor_treemap
+- kanal_nach_bedeutungsart
 anti_patterns:
 - treemap_for_structure
 idiom_ref: decomposition_tree

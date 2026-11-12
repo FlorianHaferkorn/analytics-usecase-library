@@ -122,3 +122,9 @@ regeln:
     zahl: "Messung am Bestand 12.11.2026: 15 KPIs, 13 Wurzeln, 2 Kanten ergeben einen 2480 x 176 px breiten Streifen"
     quelle: "Meridian Studio KpiCascadeTree, gemessen mit analyzeKpis + layoutTree"
     geltung: "Bäume mit mehr als 3 Wurzeln"
+  kanal_nach_bedeutungsart:
+    regel: "Die fachliche Bedeutungsart einer Information wählt den visuellen Kanal; ein Kanal trägt je Ansicht nur eine Bedeutung."
+    beleg: gemessen
+    zahl: "Genauigkeitsrang quantitativ: Position vor Länge vor Winkel vor Fläche"
+    quelle: "Cleveland & McGill 1984 (quantitativ); Munzner 2014 (ordinal, kategorial: Faustregel); Lohmann et al. 2016 (feste Notation je Objekttyp)"
+    geltung: "alle Formen; Rangfolge je Art in _vokabular.yaml bedeutungsarten"

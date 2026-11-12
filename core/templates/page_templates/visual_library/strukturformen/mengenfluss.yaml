@@ -23,11 +23,17 @@ reduktion:
 - zusammenklappen
 interaktion:
 - hover_nachbarn
+kanaele:
+  quantitativ:
+  - laenge
+  richtung:
+  - position_reihenfolge
 technik:
 - svg
 textalternative: Tabelle Von | Nach | Menge
 regeln:
 - schichtlayout_fuer_dag
+- kanal_nach_bedeutungsart
 anti_patterns:
 - sankey_for_precise_comparison
 idiom_ref: sankey

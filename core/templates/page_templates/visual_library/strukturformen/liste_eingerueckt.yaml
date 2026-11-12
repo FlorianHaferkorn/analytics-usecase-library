@@ -26,12 +26,18 @@ interaktion:
 - suche
 - auswahl_detail
 - editor_sprung
+kanaele:
+  ordinal:
+  - position_reihenfolge
+  gruppe:
+  - naehe
 technik:
 - html
 textalternative: ist selbst Text (role=tree oder verschachtelte Liste)
 regeln:
 - flacher_wald_als_liste
 - eine_abstraktionsstufe_je_ansicht
+- kanal_nach_bedeutungsart
 anti_patterns:
 - flat_forest_as_strip
 idiom_ref: null

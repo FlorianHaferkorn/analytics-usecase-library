@@ -33,6 +33,11 @@ interaktion:
 - auswahl_detail
 - verknuepfte_ansicht
 - editor_sprung
+kanaele:
+  ordinal:
+  - position_reihenfolge
+  gruppe:
+  - naehe
 technik:
 - html
 - svg
@@ -41,6 +46,7 @@ regeln:
 - suche_kontext_expand
 - keine_gesamtkarte_als_einstieg
 - sichtgrenze_produkte
+- kanal_nach_bedeutungsart
 anti_patterns:
 - whole_graph_as_entry
 idiom_ref: null

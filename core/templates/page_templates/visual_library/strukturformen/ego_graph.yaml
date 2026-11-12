@@ -28,6 +28,13 @@ interaktion:
 - auswahl_detail
 - hover_nachbarn
 - editor_sprung
+kanaele:
+  beziehung:
+  - linie
+  identitaet:
+  - form
+  gruppe:
+  - naehe
 technik:
 - svg
 - html
@@ -37,6 +44,7 @@ regeln:
 - doi_ausduennen
 - suche_kontext_expand
 - feste_notation_je_objekttyp
+- kanal_nach_bedeutungsart
 anti_patterns:
 - whole_graph_as_entry
 idiom_ref: null

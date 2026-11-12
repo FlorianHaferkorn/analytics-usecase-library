@@ -29,6 +29,7 @@ required_keys:
   - kantenklassen_max  # wie viele Kantenklassen die Form gleichzeitig unterscheidbar zeigt
   - reduktion        # Muster aus _vokabular.yaml reduktion (wie die Form Dichte beherrscht)
   - interaktion      # Muster aus _vokabular.yaml interaktion
+  - kanaele          # {bedeutungsart: [kanal]}: welcher visuelle Kanal welche Bedeutung trägt (_vokabular.yaml bedeutungsarten); ein Kanal je Form nur für eine Bedeutungsart
   - technik          # svg | html | canvas | webgl (bevorzugt zuerst)
   - textalternative  # wie die Struktur ohne Bild zugänglich ist (Pflicht, nicht leer)
   - regeln           # Regel-IDs aus _regeln.yaml, die die Form tragen

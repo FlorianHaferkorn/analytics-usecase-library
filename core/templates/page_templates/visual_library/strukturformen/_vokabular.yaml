@@ -66,6 +66,42 @@ interaktion:
   verknuepfte_ansicht: "Auswahl wirkt auf eine Tabelle/Liste daneben"
   editor_sprung: "Sprung in die definierende Stelle"
 
+# Bedeutungsarten: WAS eine Information fachlich ist, bestimmt, welcher visuelle Kanal sie tragen darf.
+# `kanaele` je Art in der Rangfolge der Eignung (bester zuerst). Belegart wie in _regeln.yaml.
+bedeutungsarten:
+  quantitativ:
+    frage: "Wie viel? (Maß, Zähler)"
+    kanaele: [position_skala, laenge, winkel, flaeche, helligkeit, ziffer]
+    beleg: gemessen   # Cleveland & McGill 1984: Position auf gemeinsamer Skala vor Länge vor Winkel vor Fläche; die Ziffer ist exakt, aber nicht präattentiv
+  ordinal:
+    frage: "Was kommt vor was? (Rang, Ebene, Reihenfolge)"
+    kanaele: [position_reihenfolge, helligkeit, groesse]
+    beleg: faustregel   # Munzner 2014: Ordnung über Position und Helligkeit, nicht über Farbton
+  identitaet:
+    frage: "Was für ein Ding ist das? (Art, Typ)"
+    kanaele: [form, farbton, fuellmuster]
+    beleg: faustregel   # Munzner 2014; VOWL (Lohmann 2016): feste Notation je Objekttyp
+  gruppe:
+    frage: "Was gehört zusammen?"
+    kanaele: [umschliessung, naehe, farbton]
+    beleg: dokumentiert   # Compound-Layouts in KeyLines, Alation, Cytoscape (Recherche 12.11.2026)
+  zustand:
+    frage: "In welchem Zustand? (Ist, Plan, vorläufig)"
+    kanaele: [fuellung, strich]
+    beleg: dokumentiert   # IBCS UN 3.2: Plan umrandet, Ist gefüllt (ALUCA _notation_profiles.yaml)
+  beziehung:
+    frage: "Was hängt womit zusammen?"
+    kanaele: [linie, adjazenz]
+    beleg: dokumentiert   # Ghoniem 2004: Linie für Wege, Adjazenz für dichte Nachbarschaft
+  richtung:
+    frage: "Wohin wirkt es?"
+    kanaele: [verjuengung, position_reihenfolge, pfeil]
+    beleg: gemessen   # Holten & van Wijk 2009: verjüngte Kante vor Pfeilspitze
+  bewertung:
+    frage: "Ist es gut, schlecht, auffällig?"
+    kanaele: [marker, statusfarbe]
+    beleg: hergeleitet   # Farbe nur mit Aussage (Bewertung); Statusfarbe mit Zeichen, nie allein
+
 # Paare Struktur × Frage, für die bewusst KEINE Form im Katalog steht. Der Test hält die
 # Liste genau: ein Paar ohne Form muss hier stehen, ein Paar hier darf keine Form haben.
 ungedeckt:

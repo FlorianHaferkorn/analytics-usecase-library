@@ -27,7 +27,7 @@ REGELN = sf.regeln()
 ANTI = yaml.safe_load((LIB / "_anti_patterns.yaml").read_text(encoding="utf-8"))["patterns"]
 
 ANZAHL_FORMEN = 13
-ANZAHL_REGELN = 21
+ANZAHL_REGELN = 22
 ANZAHL_FAELLE = 20
 
 
@@ -53,6 +53,12 @@ def test_form_schema(fid: str) -> None:
     assert 1 <= f["kantenklassen_max"] <= len(VOK["kantenklassen"])
     assert set(f["reduktion"]) <= set(VOK["reduktion"])
     assert set(f["interaktion"]) <= set(VOK["interaktion"])
+    assert f["kanaele"], f"{fid}: keine Kanäle"
+    for art, kanaele in f["kanaele"].items():
+        assert art in VOK["bedeutungsarten"], f"{fid}: unbekannte Bedeutungsart {art}"
+        assert set(kanaele) <= set(VOK["bedeutungsarten"][art]["kanaele"]), f"{fid}: Kanal passt nicht zur Art {art}"
+    belegt = [k for ks in f["kanaele"].values() for k in ks]
+    assert len(belegt) == len(set(belegt)), f"{fid}: ein Kanal trägt zwei Bedeutungsarten"
     assert f["technik"] and set(f["technik"]) <= {"svg", "html", "canvas", "webgl"}
     assert f["textalternative"].strip()
     assert f["regeln"] and set(f["regeln"]) <= set(REGELN)
@@ -128,3 +134,23 @@ def test_unbekannte_werte_brechen_ab() -> None:
         sf.waehle("hypergraph", "weg", 10)
     with pytest.raises(ValueError):
         sf.waehle("netz", "warum", 10)
+
+
+def test_bedeutungsarten_vokabular() -> None:
+    arten = VOK["bedeutungsarten"]
+    assert len(arten) == 8
+    for art, v in arten.items():
+        assert v["frage"].strip() and v["beleg"] in SCHEMA["belegarten"], art
+        assert v["kanaele"] and len(v["kanaele"]) == len(set(v["kanaele"])), art
+    # quantitativ: Position vor Länge vor Winkel vor Fläche (Cleveland & McGill 1984)
+    assert arten["quantitativ"]["kanaele"][:4] == ["position_skala", "laenge", "winkel", "flaeche"]
+    # Farbe trägt nie Ordnung und nie Menge (Farbton ist für Identität und Gruppe)
+    assert "farbton" not in arten["ordinal"]["kanaele"] and "farbton" not in arten["quantitativ"]["kanaele"]
+    # Richtung: verjüngte Kante vor Pfeilspitze (Holten & van Wijk 2009)
+    assert arten["richtung"]["kanaele"].index("verjuengung") < arten["richtung"]["kanaele"].index("pfeil")
+
+
+def test_gegenprobe_falscher_kanal_wird_erkannt() -> None:
+    """Der Prüfsatz aus test_form_schema muss einen Farbton für Ordnung ablehnen."""
+    falsch = {"ordinal": ["farbton"]}
+    assert not all(set(k) <= set(VOK["bedeutungsarten"][a]["kanaele"]) for a, k in falsch.items())

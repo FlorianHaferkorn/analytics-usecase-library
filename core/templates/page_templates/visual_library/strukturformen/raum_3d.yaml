@@ -23,11 +23,19 @@ interaktion:
 - zoom
 - auswahl_detail
 - verknuepfte_ansicht
+kanaele:
+  ordinal:
+  - position_reihenfolge
+  gruppe:
+  - naehe
+  identitaet:
+  - form
 technik:
 - webgl
 textalternative: 2D-Pflichtrenderer derselben Szene plus Liste
 regeln:
 - raum_3d_nur_mit_tiefenhinweis
+- kanal_nach_bedeutungsart
 anti_patterns:
 - 3d_without_depth_cues
 idiom_ref: null

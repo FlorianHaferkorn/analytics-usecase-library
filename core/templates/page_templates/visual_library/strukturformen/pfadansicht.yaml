@@ -24,6 +24,13 @@ interaktion:
 - suche
 - auswahl_detail
 - editor_sprung
+kanaele:
+  beziehung:
+  - linie
+  ordinal:
+  - position_reihenfolge
+  richtung:
+  - verjuengung
 technik:
 - svg
 - html
@@ -31,6 +38,7 @@ textalternative: Schrittliste A, Kante, B mit Herkunft je Schritt
 regeln:
 - wegfrage_node_link
 - richtung_verjuengt
+- kanal_nach_bedeutungsart
 anti_patterns:
 - matrix_for_path_question
 - bundling_on_path_question

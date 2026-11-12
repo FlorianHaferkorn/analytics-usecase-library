@@ -24,11 +24,11 @@ einen Typ gezeichnet unterscheidet. Keine Ansicht beantwortet „Pfad von A nach
 „was hängt transitiv an X“.
 
 Recherche 12.11.2026 in vier Feldern (Forschung, Produkte, OSS und GitHub, Business-Logik-Werkzeuge),
-Ergebnis als 21 Regeln in `strukturformen/_regeln.yaml`, je mit Belegart:
+Ergebnis als 22 Regeln in `strukturformen/_regeln.yaml`, je mit Belegart:
 
 | Belegart | Regeln |
 |---|---|
-| gemessen (Studie mit Zahl) | 7 |
+| gemessen (Studie mit Zahl) | 8 |
 | dokumentiert (Produkt-/Standarddoku, Methode, Fallstudie) | 11 |
 | faustregel (Lehrbuch ohne Studie) | 1 |
 | hergeleitet (eigene Einschätzung, Messung am Bestand) | 2 |
@@ -57,6 +57,12 @@ Wurzeln, Start und Ziel), Vorrang mit begründender Regel, gleichzeitig untersch
 Kantenklassen, Reduktions- und Interaktionsmuster, Technik, Textalternative, Regeln,
 Anti-Patterns, optionaler Verweis auf ein Idiom (`icicle` → `decomposition_tree`,
 `mengenfluss` → `sankey`).
+
+Bedeutungsarten als zweite Pflichtachse (Regel `kanal_nach_bedeutungsart`): Jede Form nennt im Feld
+`kanaele`, welcher visuelle Kanal welche Bedeutungsart trägt (quantitativ, ordinal, Identität,
+Gruppe, Zustand, Beziehung, Richtung, Bewertung). `_vokabular.yaml` hält je Art die zulässigen Kanäle
+in Rangfolge; der Test lehnt einen Kanal ab, der zur Art nicht passt (z. B. Farbton für Ordnung), und
+einen Kanal, der in einer Form zwei Bedeutungen trägt.
 
 Kantenklassen als Pflichtvokabular: `rechnet`, `beeinflusst`, `erfordert`, `zugeordnet`,
 `verantwortet`, `beziehung`, je mit Darstellung (Strich, Richtung, Glyphe); der Test verlangt,

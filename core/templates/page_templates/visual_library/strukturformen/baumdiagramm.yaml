@@ -25,12 +25,20 @@ interaktion:
 - einklappen
 - hover_nachbarn
 - auswahl_detail
+kanaele:
+  beziehung:
+  - linie
+  richtung:
+  - position_reihenfolge
+  identitaet:
+  - form
 technik:
 - svg
 textalternative: verborgene verschachtelte Liste in Baumreihenfolge
 regeln:
 - kreuzungen_zuerst
 - flacher_wald_als_liste
+- kanal_nach_bedeutungsart
 anti_patterns:
 - flat_forest_as_strip
 idiom_ref: null

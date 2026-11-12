@@ -27,6 +27,13 @@ interaktion:
 - hover_nachbarn
 - auswahl_detail
 - verknuepfte_ansicht
+kanaele:
+  beziehung:
+  - adjazenz
+  gruppe:
+  - umschliessung
+  ordinal:
+  - position_reihenfolge
 technik:
 - svg
 - canvas
@@ -35,6 +42,7 @@ regeln:
 - matrix_dicht_nachbarschaft
 - node_link_default_laien
 - wegfrage_node_link
+- kanal_nach_bedeutungsart
 anti_patterns:
 - matrix_for_path_question
 idiom_ref: null

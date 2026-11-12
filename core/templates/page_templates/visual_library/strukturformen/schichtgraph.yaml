@@ -30,6 +30,15 @@ interaktion:
 - hover_nachbarn
 - zoom
 - auswahl_detail
+kanaele:
+  ordinal:
+  - position_reihenfolge
+  beziehung:
+  - linie
+  richtung:
+  - verjuengung
+  identitaet:
+  - form
 technik:
 - svg
 textalternative: Tabelle je Ebene mit Vorgängern und Nachfolgern
@@ -40,6 +49,7 @@ regeln:
 - richtung_verjuengt
 - eine_abstraktionsstufe_je_ansicht
 - kategorien_farbe_max
+- kanal_nach_bedeutungsart
 anti_patterns:
 - edge_types_by_colour_only
 - bundling_on_path_question

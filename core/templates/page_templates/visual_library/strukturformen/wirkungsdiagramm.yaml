@@ -24,12 +24,18 @@ reduktion:
 interaktion:
 - hover_nachbarn
 - auswahl_detail
+kanaele:
+  beziehung:
+  - linie
+  bewertung:
+  - marker
 technik:
 - svg
 textalternative: Liste der Schleifen mit Polarität je Kante
 regeln:
 - rueckkopplung_eigene_form
 - kantenklasse_trennen
+- kanal_nach_bedeutungsart
 anti_patterns:
 - cycles_in_driver_tree
 idiom_ref: null

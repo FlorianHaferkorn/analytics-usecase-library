@@ -28,12 +28,18 @@ interaktion:
 - suche
 - verknuepfte_ansicht
 - editor_sprung
+kanaele:
+  ordinal:
+  - position_reihenfolge
+  quantitativ:
+  - ziffer
 technik:
 - html
 textalternative: ist selbst Tabelle (Objekt | Tiefe | Kantenklasse | Owner)
 regeln:
 - graph_plus_tabelle_wirkung
 - kantenklasse_trennen
+- kanal_nach_bedeutungsart
 anti_patterns:
 - whole_graph_as_entry
 idiom_ref: null
