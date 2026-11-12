@@ -21,7 +21,7 @@
 | Organization / Sonstige | 5 | 0 | 0 |
 | **Gesamt** | **101** | **21** | **2** |
 
-**Sprache/Stil:** Framework-Docs unter core/ einheitlich Englisch. Ausnahme: ACTIONREADY Manifesto (internal/vision) bleibt Deutsch. Abweichungen (z. B. „EUR“-Encoding-Fehler) sind unter Stil/Verständlichkeit erfasst.
+**Sprache/Stil:** Framework-Docs unter core/ einheitlich Englisch. Ausnahme: ACTIONREADY Manifesto (_archiv/internal/vision) bleibt Deutsch. Abweichungen (z. B. „EUR“-Encoding-Fehler) sind unter Stil/Verständlichkeit erfasst.
 
 **Vollständigkeit:** Alle unter `core/**/*.md` gefundenen 101 Dokumente wurden einem Cluster zugeordnet und geprüft; Dokumente ohne Befunde sind pro Cluster unter „Keine Anpassungen“ gelistet.
 

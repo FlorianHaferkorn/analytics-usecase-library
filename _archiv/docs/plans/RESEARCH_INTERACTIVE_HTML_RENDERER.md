@@ -1,6 +1,6 @@
 # Research — Interaktiver HTML-Renderer als zusätzliches ALUCA-Target
 
-> Companion zu [`KONZEPT_REPORT_QUALITAET.md`](KONZEPT_REPORT_QUALITAET.md) (§7 „Maximize Power BI"
+> Companion zu [`KONZEPT_REPORT_QUALITAET.md`](../../../docs/plans/KONZEPT_REPORT_QUALITAET.md) (§7 „Maximize Power BI"
 > ist heute PBIR-zentriert; ALUCA ist aber **viz-tool-agnostisch** — PBIR ist *ein* Renderer). Diese
 > Notiz leitet aus einer Deep-Research ab, wie ein **interaktiver, self-contained HTML-Report** als
 > alternatives/zusätzliches Compile-Target neben PBIR aussehen könnte — passend zum

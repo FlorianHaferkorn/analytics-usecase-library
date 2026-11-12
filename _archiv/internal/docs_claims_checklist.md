@@ -2,13 +2,13 @@
 
 **Zweck:** Behauptungen in Konzept-Docs (Manifest, Golden Thread, SSOT, data_governance) mit Code/Tooling abgleichen oder als Zielbild kennzeichnen.  
 **Status:** `umgesetzt` | `Zielbild` | `unklar` | `veraltet`  
-**Aktualisierung:** Bei Release Candidate oder halbjährlich (siehe internal/docs_review_cadence.md).
+**Aktualisierung:** Bei Release Candidate oder halbjährlich (siehe _archiv/internal/docs_review_cadence.md).
 
 **Manifest vs. Core:** Die Status-Spalte bildet den Abgleich ab: „umgesetzt“ = Aussage ist in tooling/core implementiert (Nachweis in Spalte Nachweis); „Zielbild“ = konzeptionelle Vision, (noch) nicht vollständig im Repo umgesetzt; „unklar“ = Prüfung in Pipeline/Produkt ausstehend.
 
 ---
 
-## Quelle: ACTIONREADY HOLISTIC MANIFESTO (internal/vision)
+## Quelle: ACTIONREADY HOLISTIC MANIFESTO (_archiv/internal/vision)
 
 | Claim (Kurzfassung) | Quelle (Abschnitt) | Status | Nachweis / Vermerk |
 |---------------------|--------------------|--------|--------------------|

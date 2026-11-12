@@ -6,7 +6,7 @@
 
 ## Inhaltlicher Konzept-Check
 
-- **Umfang:** Claim-Checkliste ([internal/docs_claims_checklist.md](docs_claims_checklist.md)), Abgleich Manifest vs. core (umgesetzt vs. Zielbild), Link-backs für abgeleitete Views ([internal/docs_linkback_audit.md](docs_linkback_audit.md)), optional Golden-Thread-Walk.
+- **Umfang:** Claim-Checkliste ([_archiv/internal/docs_claims_checklist.md](docs_claims_checklist.md)), Abgleich Manifest vs. core (umgesetzt vs. Zielbild), Link-backs für abgeleitete Views ([_archiv/internal/docs_linkback_audit.md](docs_linkback_audit.md)), optional Golden-Thread-Walk.
 - **Frequenz:** Halbjährlich oder vor jedem **Release Candidate** / customer-ready Milestone.
 - **Verantwortung:** Owner für Konzept-Docs (Strategy / Operating Model) – z. B. Rolle „Strategy/Operating Model Owner“ oder vom Team festzulegen.
 

@@ -4,7 +4,7 @@
 
 **Audience:** Product, architecture, and anyone implementing or evaluating AI/automation around the framework.
 
-**Status:** Scope and limits documented here; tooling and implementation are in backlog (see [phase2_backlog.md](phase2_backlog.md), [technical_backlog.md](../technical_backlog.md)).
+**Status:** Scope and limits documented here; tooling and implementation are in backlog (see [phase2_backlog.md](phase2_backlog.md), [technical_backlog.md](../../../internal/technical_backlog.md)).
 
 ---
 
@@ -13,7 +13,7 @@
 Within this framework, **automated reasoning** refers to machine-assisted use of governed artifacts to derive conclusions or recommendations **without inventing new business logic**. In scope:
 
 1. **Urgency derivation**  
-   Using strategy patterns and bracket logic to infer *relative urgency* of actions or use cases (e.g. which deviation to address first). The strategy pattern is precise enough for tooling: urgency rules are in [strategy_patterns.md](../../core/strategy_operating_model/company/strategy_patterns.md) §8; tooling hook spec: [tooling/ir/urgency_derivation_spec.md](../../tooling/ir/urgency_derivation_spec.md).
+   Using strategy patterns and bracket logic to infer *relative urgency* of actions or use cases (e.g. which deviation to address first). The strategy pattern is precise enough for tooling: urgency rules are in [strategy_patterns.md](../../../core/strategy_operating_model/company/strategy_patterns.md) §8; tooling hook spec: [tooling/ir/urgency_derivation_spec.md](../../../tooling/ir/urgency_derivation_spec.md).
 
 2. **Action suggestion from governed logic**  
    Suggesting or surfacing actions that are already defined in action codes and wired in brackets. The "reasoning" is limited to: *given this KPI state and trigger level, which action codes apply?* No new trigger rules or action text are invented.
@@ -52,5 +52,5 @@ Within this framework, **automated reasoning** refers to machine-assisted use of
 | [ACTIONREADY_HOLISTIC_MANIFESTO.md](ACTIONREADY_HOLISTIC_MANIFESTO.md) | Strategy pattern as basis for "Automated Reasoning"; payload integrity for AI/dashboard. |
 | [phase2_backlog.md](phase2_backlog.md) | Strategy Pattern / KI-Dringlichkeit as Phase 2 backlog. |
 | [_archiv/internal/archive/framework_evolution.md](../archive/framework_evolution.md) | Automation and AI (assisted creation, consumption, limits, agentic future). |
-| [core/strategy_operating_model/company/strategy_patterns.md](../../core/strategy_operating_model/company/strategy_patterns.md) | Authority for strategy patterns; §8 defines urgency rules for tooling. |
-| [internal/technical_backlog.md](../technical_backlog.md) | Granular technical tasks: urgency tooling hook and implementation follow-ups. |
+| [core/strategy_operating_model/company/strategy_patterns.md](../../../core/strategy_operating_model/company/strategy_patterns.md) | Authority for strategy patterns; §8 defines urgency rules for tooling. |
+| [internal/technical_backlog.md](../../../internal/technical_backlog.md) | Granular technical tasks: urgency tooling hook and implementation follow-ups. |

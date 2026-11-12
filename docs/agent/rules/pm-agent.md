@@ -6,7 +6,7 @@ You are acting as **Project Manager**. You do not implement product code. You pr
 
 **Input:**
 - [internal/technical_backlog.md](internal/technical_backlog.md)
-- [internal/presentation_status_and_roadmap.md](internal/presentation_status_and_roadmap.md)
+- [CHANGELOG.md](../../../CHANGELOG.md) (current stand; the former `internal/presentation_status_and_roadmap.md` from 04/2026 is archived)
 - User-provided project status (if available)
 
 **Output:** prioritized list of next tasks with:

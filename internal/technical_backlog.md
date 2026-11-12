@@ -1,6 +1,6 @@
 # Technical Backlog
 
-**Purpose:** Single place for technical TODOs and stubs that are not covered by [internal/vision/phase2_backlog.md](vision/phase2_backlog.md) (functional topics: 3-30-300, Strategy Pattern). Use this document to find and track code-level open items.
+**Purpose:** Single place for technical TODOs and stubs that are not covered by [_archiv/internal/vision/phase2_backlog.md](../_archiv/internal/vision/phase2_backlog.md) (functional topics: 3-30-300, Strategy Pattern). Use this document to find and track code-level open items.
 
 **Tracking:** Work items are tracked in the repo-scope GitHub Project and can be converted to issues directly from this list.
 

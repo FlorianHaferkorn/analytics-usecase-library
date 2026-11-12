@@ -46,7 +46,7 @@ A commit on `main` with all of the following green:
 | Fix NPS naming drift | `core/kpi_catalog/KPI_Catalog.md:183` vs `products/fabric/powerbi/dist/Experience.SemanticModel/.../⁠_Measures.tmdl:60` | All layers read `NPS Index` (catalog, TMDL, all brackets). |
 | Delete build artifacts | `core.zip`, `.tmp/`, `strategy_studio.html`, `generate_aurora_pbip.ps1`, `watch_pbi.ps1`, `internal/reviews/run_all_checks_transcript.txt`, `tooling/generation/generate_all_measures.ps1`, `tooling/generation/generate_measures.ps1` | Files gone; `git grep` confirms no live references. |
 | Archive `.tools/` | Move to `.tools/README.md` describing download flow; delete binaries | Repo shrinks by ~758 MB; CI documentation updated in `CONTRIBUTING.md`. |
-| Archive obsolete internal docs | `internal/archive/{docs,products,tooling}/` (keep `framework_evolution.md` as anchor), `internal/strategy/*2026-02*.md`, `internal/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md`, `tooling/pbi_auto_fix_daemon.ps1`, `pbi_desktop_smoke_test.ps1`, `pbi_validate_after_impl.ps1`, `tooling/maintenance/*` | Moved to `internal/archive/phase2_experiments/` or deleted with `git rm`. |
+| Archive obsolete internal docs | `internal/archive/{docs,products,tooling}/` (keep `framework_evolution.md` as anchor), `internal/strategy/*2026-02*.md`, `_archiv/internal/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md`, `tooling/pbi_auto_fix_daemon.ps1`, `pbi_desktop_smoke_test.ps1`, `pbi_validate_after_impl.ps1`, `tooling/maintenance/*` | Moved to `internal/archive/phase2_experiments/` or deleted with `git rm`. |
 | Consolidate tooling tree | Merge `tooling/generation/` + `tooling/agent/` + `tooling/ai/` → `tooling/generator/`; update all call sites and CLAUDE.md | `run_stage1_checks.ps1` still passes; no path is referenced from more than one location. |
 | Pin pbi-tools | `.tools/pbi-tools.lock` with sha256 + version; update `run_fabric_checks.ps1` to validate before use | Orchestrator fails fast if binary hash mismatches. |
 
@@ -161,7 +161,7 @@ A commit on `main` with all of the following green:
 |---|---|---|
 | Clean-room rebuild | `rm -rf products/fabric/powerbi/dist/`; run `.\products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1 -All -UseAuroraData` | 15 reports generated, all validators green, no manual steps. |
 | End-to-end CI run | Trigger `.github/workflows/stage1.yml` on clean branch | All jobs green, including `validate_bindings`, `check_catalog_tmdl_drift`, `test_action_outcomes`. |
-| Aurora walkthrough recording | `internal/project_mgmt/DOD_WALKTHROUGH.md` — step-by-step from Strategy → Forge/compose → generate → deploy → measure outcome | Reviewer can reproduce from the doc alone. |
+| Aurora walkthrough recording | `_archiv/internal/project_mgmt/DOD_WALKTHROUGH.md` — step-by-step from Strategy → Forge/compose → generate → deploy → measure outcome | Reviewer can reproduce from the doc alone. |
 | Retire `KNOWN_GAPS.md` items 1, 2, 5 | Mark fact tables complete, theme automated, CI wired | Doc reflects new reality. |
 | Release tag | `git tag -a v1.0.0 -m "Lean Core & EcoPulse DoD"` | Pushed; GitHub release created via MCP. |
 
@@ -202,4 +202,4 @@ Each weekly branch is mergeable independently; if any week's PR fails post-merge
 
 ---
 
-**Ready signal:** when Week 8 exit gate passes, open `internal/project_mgmt/DOD_WALKTHROUGH.md` and tag the CDAO for sign-off. End of v1.0 scope.
+**Ready signal:** when Week 8 exit gate passes, open `_archiv/internal/project_mgmt/DOD_WALKTHROUGH.md` and tag the CDAO for sign-off. End of v1.0 scope.

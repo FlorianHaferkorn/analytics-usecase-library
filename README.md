@@ -80,7 +80,7 @@ Output lands in `products/fabric/powerbi/dist/<Domain>.SemanticModel/`. See `pro
 | **Full local** | Stage 1 + Fabric | `.\tooling\run_all_checks.ps1` |
 | **Health scorecard** | H1–H5 framework metrics | `python tooling/health_scorecard.py` |
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for workflow details and [`internal/ci/stage2_soft_review.md`](internal/ci/stage2_soft_review.md) for the planned non-blocking Stage 2 review.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for workflow details and [`_archiv/internal/ci/stage2_soft_review.md`](_archiv/internal/ci/stage2_soft_review.md) for the non-blocking Stage 2 review that was planned but never built (archived 12.11.2026).
 
 ## Repository Structure (high level)
 

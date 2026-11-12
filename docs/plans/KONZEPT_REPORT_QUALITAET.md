@@ -374,7 +374,7 @@ Geteilt wird ausschließlich Handwerkswissen und Recherche.
 
 > **Viz-tool-agnostischer HTML-Renderer (Research, offen):** ALUCA ist nicht PBIR-gebunden — ein
 > interaktiver, self-contained HTML-Report als *zusätzliches* Compile-Target neben PBIR ist in
-> [`RESEARCH_INTERACTIVE_HTML_RENDERER.md`](RESEARCH_INTERACTIVE_HTML_RENDERER.md) recherchiert
+> [`RESEARCH_INTERACTIVE_HTML_RENDERER.md`](../../_archiv/docs/plans/RESEARCH_INTERACTIVE_HTML_RENDERER.md) recherchiert
 > (Deep-Research, 25/25 Primärquellen-Claims verifiziert): Build-time-`prerender` +
 > `vite-plugin-singlefile` → eine öffenbare Datei; Hydration-Islands nur wo interaktiv; deck.gl (MIT,
 > `@deck.gl/json`) für großskalige/geospatiale Exhibits; Three.js/r3f = dekorativ, draußen. **Kein Bau,
