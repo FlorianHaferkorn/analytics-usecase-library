@@ -37,3 +37,4 @@ shelf-life-days: 90
 | `KONZEPT_LAYOUT_SYSTEM.md` | Tool-übergreifendes Layout-System, Layout-Systeme als Plugin, Validator-Fehlerklassen (§21) | Layout-/Visual-Vokabular ändern oder einen Layout-Validator-Fehler einordnen |
 | `RENDER_GATED_RUNBOOK.md` | Checkliste für die Prüfungen, die Renderer, offizielle CLI oder Bild-Judge brauchen | Auf einem Windows-/Fabric-Rechner die offenen K6/K7-Prüfungen fahren |
 | `UMSETZUNGSPLAN_AGENTIC_LOOP.md` | Agentische Report-Entwicklung als deterministische Schleife: Arbeitspakete AP-1 ff. | Sandbox-, Tenant- oder Bildprüfungs-Arbeit an der Schleife aufnehmen |
+| `2026-11-12_Bericht_entschlacken.md` | Rundenbericht Entschlacken 12.11.2026: was gelöscht, archiviert (`_archiv/`) oder repariert wurde, gemessen vorher/nachher, Rückweg | Nachvollziehen, wohin eine Datei verschwunden ist oder wie man sie zurückholt |
