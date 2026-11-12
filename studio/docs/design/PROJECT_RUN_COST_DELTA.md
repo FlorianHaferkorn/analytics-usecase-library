@@ -23,7 +23,7 @@ Without `monitoring.capacity_id` the first capacity with `purpose: monitoring` h
 `compare_run_cost(repository, project_ref, baseline_revision, decision_ref, option_ref)`:
 
 1. Evaluates the same hypothetical selection as WB-008 (`evaluate_alternative`) and refuses a blocked alternative.
-2. Per side: the capacities used by workspaces in the selected environments, priced with `internal/proposal_costing` `cost_engine` (Microsoft list price, USD, reservation discount from `cost_drivers.yaml`).
+2. Per side: the capacities used by workspaces in the selected environments, priced with `products/proposal_costing` `cost_engine` (Microsoft list price, USD, reservation discount from `cost_drivers.yaml`).
 3. Overage: the derived ceiling (threshold x 3 x PAYG per CU hour, per month) is reported per capacity and summed separately, never into the monthly total. Without a declared overage the Microsoft default (enabled, 25 %) applies and is marked as such.
 4. Unpriced capacities (not declared, duplicate, SKU without list price) are listed, and `comparable` is false. They are never counted as zero.
 5. Repository fingerprint before and after; nothing is written.

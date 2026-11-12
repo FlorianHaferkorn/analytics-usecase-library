@@ -6,7 +6,8 @@ shelf-life-days: 90
 
 > Einstieg in `internal/` — **Maintainer-Material**, kein Kunden-Deliverable: die
 > Fehler-Wissensbasis, Desktop-/Fabric-gated Aufgaben, Ausführungspläne, Backlogs,
-> Doku-Audits, Metriken und die Angebotskalkulation. Laut Ownership-Matrix in
+> Doku-Audits und Metriken (die Angebotskalkulation liegt seit 12.11.2026 unter
+> `../products/proposal_costing/`). Laut Ownership-Matrix in
 > `continuity/escrow_checklist.md` erhält der Kunde aus `internal/` nur das
 > Continuity-Dossier `continuity/` (Live-Repo- bzw. Escrow-Kopie) — alles andere hier ist
 > Arbeitsmaterial des Teams. Ob das Export-Skript für das Kundenpaket (tooling/export_customer_package.ps1)
@@ -24,22 +25,21 @@ shelf-life-days: 90
 
 | Deine Aufgabe ist … | Lies | NICHT nötig |
 |---|---|---|
-| **Fehler beheben** — Pipeline-, TMDL-/PBIR-, DAX-, Studio- oder Power-BI-Desktop-Fehler (immer zuerst hier!) | `project_mgmt/KNOWN_ERRORS_AND_FIXES.md` (Abschnitt nach Fehlerklasse) → Diagnose-Workflow `skills/fix-pbi-report-errors.md`; danach neue Zeile in `project_mgmt/KNOWN_ERRORS_AND_FIXES.md` | `continuity/`, `proposal_costing/`, `vision/` |
+| **Fehler beheben** — Pipeline-, TMDL-/PBIR-, DAX-, Studio- oder Power-BI-Desktop-Fehler (immer zuerst hier!) | `project_mgmt/KNOWN_ERRORS_AND_FIXES.md` (Abschnitt nach Fehlerklasse) → Diagnose-Workflow `skills/fix-pbi-report-errors.md`; danach neue Zeile in `project_mgmt/KNOWN_ERRORS_AND_FIXES.md` | `continuity/`, `metrics/`, `vision/` |
 | Power-BI-Report oder Semantikmodell generieren und vor dem Schreiben validieren | `skills/generate-and-validate-pbi-report.md` → `project_mgmt/KNOWN_ERRORS_AND_FIXES.md` („Report visuals", „TMDL / PBIP") | `continuity/`, `metrics/` |
-| Aufgabe übernehmen oder abgeben, die Power BI Desktop auf der Windows-Dev-Box braucht (Linux-Sitzung kann Laden/Rendern nicht bestätigen) | `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` (Pickup-Brief + Prompt) → bei KPI-Twins `project_mgmt/KPI_DEDUP_MIGRATION_RUNBOOK.md` | `vision/`, `proposal_costing/` |
+| Aufgabe übernehmen oder abgeben, die Power BI Desktop auf der Windows-Dev-Box braucht (Linux-Sitzung kann Laden/Rendern nicht bestätigen) | `project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md` (Pickup-Brief + Prompt) → bei KPI-Twins `project_mgmt/KPI_DEDUP_MIGRATION_RUNBOOK.md` | `vision/`, `continuity/` |
 | Prüfen, ob ein Problem schon als Lücke/deferred bekannt ist; fehlende Aurora-Daten für HR-001, COM-005, FIN-003, SCM-004 | `project_mgmt/KNOWN_GAPS.md` (vorher gegen aktuellen Code verifizieren) → `project_mgmt/AURORA_SYNTHETIC_DATA_GAPS.md` | `continuity/`, `skills/` |
 | Technischen TODO/Stub finden oder eintragen, Phase-2-Thema einordnen, KI-/Automated-Reasoning-Scope abgrenzen | `technical_backlog.md` → `vision/phase2_backlog.md` → `vision/automated_reasoning_scope_and_limits.md` | `project_mgmt/`, `continuity/` |
 | Fabric-Neuerungen der FabCon Europe 2026 umsetzen oder eine offene Aufgabe daraus übernehmen (Pins, Capacity, Speichermodus, Copilot-Readiness, PBIR) | `project_mgmt/FABRIC_FABCON_EU_2026_PLAN.md` (Pickup-Brief mit Status-Tabelle + Prompt) → bei Validierung `project_mgmt/KNOWN_ERRORS_AND_FIXES.md` | `continuity/`, `vision/` |
-| Framework-v1.0-DoD („Lean Core & EcoPulse") nachvollziehen oder durchgehen | `project_mgmt/FRAMEWORK_V1_EXECUTION_PLAN.md` → `project_mgmt/DOD_WALKTHROUGH.md` | `skills/`, `proposal_costing/` |
+| Framework-v1.0-DoD („Lean Core & EcoPulse") nachvollziehen oder durchgehen | `project_mgmt/FRAMEWORK_V1_EXECUTION_PLAN.md` → `project_mgmt/DOD_WALKTHROUGH.md` | `skills/`, `continuity/` |
 | PBI Generator / Fabric Architecture Generator gegen microsoft/skills-for-fabric abgleichen | `project_mgmt/GAP_ANALYSIS_PBI_GENERATOR_VS_SKILLS_FOR_FABRIC.md` | `continuity/`, `metrics/` |
-| Layout-Editor bzw. Page-Scaffold (ux_layout_rules) oder die 300s-Evidence-Tabelle ändern | `ux_layout_builder_contract.md` → `evidence_grain_audit_results.md` (Evidence-Grain je Use Case) | `continuity/`, `proposal_costing/` |
+| Layout-Editor bzw. Page-Scaffold (ux_layout_rules) oder die 300s-Evidence-Tabelle ändern | `ux_layout_builder_contract.md` → `evidence_grain_audit_results.md` (Evidence-Grain je Use Case) | `continuity/`, `metrics/` |
 | Konzept-Docs reviewen (Release Candidate / halbjährlich): Claims vs. Implementierung, SSOT-Link-backs | `docs_review_cadence.md` → `docs_claims_checklist.md` → `docs_linkback_audit.md`; Befund-Historie für `core/`: `core_content_review_results.md` | `project_mgmt/`, `skills/` |
 | Interne Präsentation oder Stakeholder-Update vorbereiten (Status, Metriken, Roadmap) | `presentation_status_and_roadmap.md` (nur Englisch pflegen) | `skills/`, `ci/`, `archive/` |
-| Stage-2-Soft-Review (geplant, nicht blockierend) verstehen oder umsetzen | `ci/stage2_soft_review.md` | `proposal_costing/`, `continuity/` |
+| Stage-2-Soft-Review (geplant, nicht blockierend) verstehen oder umsetzen | `ci/stage2_soft_review.md` | `continuity/`, `metrics/` |
 | Monatliche Guardrail-Retrospektive oder Stage-1-Fehlerquoten auswerten | `metrics/README.md` → `metrics/retrospective_template.md` | `vision/`, `continuity/` |
-| Neue:n Engineer onboarden oder die Systemarchitektur für eine Übergabe verstehen | `continuity/README.md` → `continuity/handover_guide.md` → `continuity/architecture_overview.md` | `project_mgmt/`, `proposal_costing/` |
+| Neue:n Engineer onboarden oder die Systemarchitektur für eine Übergabe verstehen | `continuity/README.md` → `continuity/handover_guide.md` → `continuity/architecture_overview.md` | `project_mgmt/`, `continuity/` |
 | Betrieb/Deployment ohne Originalteam oder Vendor-Escrow durchführen bzw. Kunden-Eigentum verifizieren | `continuity/runbook.md` → `continuity/escrow_checklist.md` | `skills/`, `metrics/` |
-| Angebotskalkulation (Fabric-Kapazität, Power-BI-Lizenzen, Implementierung; USD oder EUR) erstellen oder Angebotstext befüllen | `proposal_costing/docs/README.md` → `proposal_costing/tooling/README.md` → `proposal_costing/templates/proposal_snippet.md` / `proposal_costing/templates/offer_snippet.md`; Beispiel-Output `proposal_costing/dist/aurora_calculation.md` | `project_mgmt/`, `continuity/` |
 | Historischen Stand oder abgelöste Docs nachforschen | `archive/` (nicht navigiert — gezielt suchen, nicht scannen) | alles andere |
 
 ## 2. Dokument-Register (vollständig — Drift-Gate erzwingt das)
@@ -47,9 +47,7 @@ shelf-life-days: 90
 > Gruppiertes Register: eine Zeile je Unterordner/Thema (erste Spalte = Ordner; `internal/`
 > = Wurzel dieses Bereichs), die Docs mit vollem Pfad (relativ zu `internal/`) und
 > Kurzzweck in der zweiten Spalte, die letzte Spalte sagt, wann die Gruppe relevant ist.
-> `README.md` ist exempt; `proposal_costing/` (Code, Modell-YAML, Tests) und `metrics/runs/`
-> navigieren über ihre `README.md`; `proposal_costing/dist/` ist generiert und vom Gate
-> ausgenommen; `archive/` ist per `.claude-no-index` nicht navigiert.
+> `README.md` ist exempt; `metrics/runs/` navigiert über seine `README.md`.
 
 | Gruppe | Docs — Zweck | Lies-wenn (Gruppe) |
 |---|---|---|
@@ -64,4 +62,3 @@ shelf-life-days: 90
 | `ci/` — geplante CI-Stufe | `ci/stage2_soft_review.md` — Stage 2: nicht blockierender Prosa-Review auf Diffs (Scope, Inputs, stabiles Output-Schema) | Die CI um einen weichen Review ergänzen, ohne Stage 1 zu duplizieren |
 | `metrics/` — Guardrail-Metriken | `metrics/retrospective_template.md` — Vorlage für die monatliche Guardrail-Retrospektive (Stage-1-Fehlerquote, Top-Fehlermodi) | Wirkung der Guardrails messen oder die Monatsauswertung schreiben |
 | `continuity/` — Vendor-Continuity-Dossier (geht per Escrow an den Kunden) | `continuity/architecture_overview.md` — Systemarchitektur, kritische Abhängigkeiten, Regenerierungs-Voraussetzungen<br>`continuity/handover_guide.md` — Zwei-Wochen-Curriculum für neue Engineers<br>`continuity/runbook.md` — Betrieb & Deployment: Provisioning, Credential-Rotation, Validierung<br>`continuity/escrow_checklist.md` — Kunden-Eigentum, Verifikation und Aktivierung im Escrow-Fall | ALUCA muss ohne das Originalteam betrieben, übergeben oder im Escrow-Fall aktiviert werden |
-| `proposal_costing/` — Angebotskalkulation | `proposal_costing/templates/proposal_snippet.md` — Kostenübersicht-Vorlage je Szenario (Capacity, Lizenzen, Bausteine, Scope)<br>`proposal_costing/templates/offer_snippet.md` — Angebots-Vorlage (Kunde, Paket, Leistungsübersicht)<br>`proposal_costing/dist/aurora_calculation.md` — generierte Aurora-Beispielkalkulation (nicht von Hand editieren) | Einem Interessenten Plattform- und Implementierungskosten beziffern |

@@ -71,7 +71,7 @@ Learn `enterprise/capacity-overage-overview` and `enable-capacity-overage`, read
 - Quota needed = threshold / 24 CU (48 CU h → 2 CU).
 - Daily CU hours = CU × 24 (F2 48, F8 192, F64 1,536). Learn: keep the threshold **below one third** of that; above it, scaling up costs about the same.
 
-**R8 — Overage is a customer decision, not a default.** Ask “overage off, or threshold X?” in every sizing conversation. Quote the derived ceiling: maximum overage cost per day ≈ threshold × 3 × PAYG per CU hour — derived, not measured, and a lower bound of the worst case because of the 5-minute evaluation. `tooling/superversion/capacity.py` (`overage_profile`) computes it; `recommend()` returns the open question in `customer_questions`; `internal/proposal_costing` prints it in the quote.
+**R8 — Overage is a customer decision, not a default.** Ask “overage off, or threshold X?” in every sizing conversation. Quote the derived ceiling: maximum overage cost per day ≈ threshold × 3 × PAYG per CU hour — derived, not measured, and a lower bound of the worst case because of the 5-minute evaluation. `tooling/superversion/capacity.py` (`overage_profile`) computes it; `recommend()` returns the open question in `customer_questions`; `products/proposal_costing` prints it in the quote.
 
 ## Resizing a running capacity (scale up, split, scale down)
 
