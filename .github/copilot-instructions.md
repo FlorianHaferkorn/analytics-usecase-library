@@ -117,7 +117,7 @@ When changes affect TMDL or reports (measures, tables, .pbip): **validate TMDL f
 
 ## Invariants
 
-- Do not add new artifact types without alignment with `internal/archive/framework_evolution.md`.
+- Do not add new artifact types without alignment with `_archiv/internal/archive/framework_evolution.md`.
 - Automation and generation must produce artifacts that pass Stage 1; prefer existing scripts under `tooling/`.
 
 ---

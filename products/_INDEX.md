@@ -31,12 +31,14 @@ shelf-life-days: 90
 | MCP-gestützten Automationsflow Use Case → Semantikmodell → Report (Self-Healing) verstehen oder umsetzen | `fabric/powerbi/orchestrator/`: `fabric/powerbi/orchestrator/AUTOMATION_FLOW.md` → `fabric/powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md` | open_source_stack/, deployment/ |
 | OSS-Stack (Evidence.dev/dbt) bauen oder generierte Evidence-Seiten prüfen | `open_source_stack/ARCHITECTURE.md` → `open_source_stack/evidence_app/pages/`: `open_source_stack/evidence_app/pages/com_001_overview.md`, `open_source_stack/evidence_app/pages/com_001_detail.md`, `open_source_stack/evidence_app/pages/com_004_overview.md`, `open_source_stack/evidence_app/pages/com_004_detail.md` | fabric/ |
 | Neuen Tool-Adapter oder Quell-Connector anbinden | `adapters/README.md` (Adapter-Vertrag) → `connectors/sap/README.md` (Beispiel SAP) | fabric/powerbi/docs/ |
+| Angebotskalkulation (Fabric-Kapazität, Power-BI-Lizenzen, Implementierung; USD oder EUR) erstellen oder Angebotstext befüllen; Kostendelta eines Project-Package-Laufs (lädt `proposal_costing/tooling/cost_engine.py`) | `proposal_costing/docs/README.md` → `proposal_costing/tooling/README.md` → `proposal_costing/templates/proposal_snippet.md` / `proposal_costing/templates/offer_snippet.md`; Beispiel-Output `proposal_costing/dist/aurora_calculation.md` | fabric/powerbi/docs/, open_source_stack/ |
 
 ## 2. Dokument-Register (vollständig — Drift-Gate erzwingt das)
 
 > Gruppiertes Register: eine Zeile je Unterbereich/Thema (erste Spalte = Ordner), die Docs
 > mit vollem Pfad (relativ zu `products/`) und Kurzzweck in der zweiten Spalte, die letzte
-> Spalte sagt, wann die Gruppe relevant ist. `README.md` ist exempt; `adapters/`,
+> Spalte sagt, wann die Gruppe relevant ist. `README.md` ist exempt; `proposal_costing/dist/` ist
+> generiert und vom Gate ausgenommen; `adapters/`,
 > `connectors/`, `fabric/orchestrator/`, `open_source_stack/deploy/` und `open_source_stack/themes/`
 > haben keine Register-Docs und navigieren über ihre `README.md`.
 
@@ -56,3 +58,4 @@ shelf-life-days: 90
 | `fabric/powerbi/deployment/` — Workspace-Deployment-Automation | `fabric/powerbi/deployment/USAGE.md` — Setup und Nutzung der Skripte/Pipelines, Test ohne Fabric-Kapazität<br>`fabric/powerbi/deployment/ENHANCEMENTS.md` — Pre-flight-Checks, Health-Checks, Structured Logging<br>`fabric/powerbi/deployment/OPTIMIZATION_SUMMARY.md` — Zusammenfassung der Produktionsreife-Verbesserungen | Workspaces provisionieren oder die Deploy-Skripte ändern |
 | `open_source_stack/` — Architektur | `open_source_stack/ARCHITECTURE.md` — OSS-Stack-Plan (IR-first, Komponenten-Parität zu Fabric, Lizenz-Audit, Phasen; §5.3 Bewertung Fabric dbt job, GA 09/2026: kein Adapter-Wechsel, 01.10.2026) | Eine Nicht-Microsoft-Zielplattform planen oder die Adapter-Parität prüfen |
 | `open_source_stack/evidence_app/pages/` — generierte Evidence-Seiten | `open_source_stack/evidence_app/pages/com_001_overview.md` — COM-001 Sales Performance, Overview<br>`open_source_stack/evidence_app/pages/com_001_detail.md` — COM-001 Sales Performance, Detail<br>`open_source_stack/evidence_app/pages/com_004_overview.md` — COM-004 Promotion Effectiveness, Overview<br>`open_source_stack/evidence_app/pages/com_004_detail.md` — COM-004 Promotion Effectiveness, Detail | Generator-Output des OSS-Adapters prüfen (generiert — nicht von Hand editieren) |
+| `proposal_costing/` — Angebotskalkulation (bis 12.11.2026 `internal/proposal_costing/`; Tests laufen seitdem in der Suite mit) | `proposal_costing/templates/proposal_snippet.md` — Kostenübersicht-Vorlage je Szenario (Capacity, Lizenzen, Bausteine, Scope)<br>`proposal_costing/templates/offer_snippet.md` — Angebots-Vorlage (Kunde, Paket, Leistungsübersicht) | Einem Interessenten Plattform- und Implementierungskosten beziffern |

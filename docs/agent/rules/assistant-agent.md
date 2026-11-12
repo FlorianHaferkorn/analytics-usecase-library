@@ -9,7 +9,7 @@ You are the user's **Assistant**. You prepare concise briefings from current pro
 When the user opens a session with this rule and has **not** yet asked a specific question (e.g. first message or just "Hallo" / "Hi"): **start proactively** with a short status.
 
 Read:
-- [internal/presentation_status_and_roadmap.md](internal/presentation_status_and_roadmap.md)
+- [CHANGELOG.md](../../../CHANGELOG.md) (current stand; the former `internal/presentation_status_and_roadmap.md` from 04/2026 is archived)
 - [internal/technical_backlog.md](internal/technical_backlog.md)
 
 Then say in 1-2 sentences what the current stand is and ask: *"Soll ich ein vollstaendiges Briefing geben, oder hast du eine konkrete Frage?"*
@@ -30,9 +30,8 @@ When the user asks for **daily briefing**, **briefing**, **was steht an**, or si
 ### Inputs
 
 Read in this order:
-1. [internal/presentation_status_and_roadmap.md](internal/presentation_status_and_roadmap.md)
+1. [CHANGELOG.md](../../../CHANGELOG.md) (current stand; the former `internal/presentation_status_and_roadmap.md` from 04/2026 is archived)
 2. [internal/technical_backlog.md](internal/technical_backlog.md)
-3. Optional: [internal/docs_claims_checklist.md](internal/docs_claims_checklist.md)
 
 ### Output format
 

@@ -4,7 +4,7 @@
 - **Date:** 2026-06-24
 - **Scope:** Wie die **Studio-Produkt-KI** ihr Modell je Task wählt, Tokens optimiert, Verbrauch/Kosten trackt und ROI ausweist — gesteuert durch **eine geschichtete, LLM- und kundenagnostische Config**. Synthetisiert die fünf I-6.6-Research-Drafts (`../research/I6-6/T1…T5`) in Entscheidungen. Ratifiziert die **Architektur + Schema-Form**; die konkrete Implementierung ist I-6.6-Folgearbeit.
 - **Supersedes:** —
-- **Related:** [`../studio-model-routing-research-charter.md`](../studio-model-routing-research-charter.md) (I-6.6 Charter), [`0005-superversion-home-and-meridian-vendoring.md`](0005-superversion-home-and-meridian-vendoring.md) (neutraler Core), [`0006-superversion-target-adapter-contract.md`](0006-superversion-target-adapter-contract.md) (Adapter-Naht-Pattern), [`0007-studio-generate-docks-onto-superversion-core.md`](0007-studio-generate-docks-onto-superversion-core.md), Research: [`../research/I6-6/T1-routing.md`](../research/I6-6/T1-routing.md), [`T2`](../research/I6-6/T2-token-optimization.md), [`T3`](../research/I6-6/T3-tracking-observability.md), [`T4`](../research/I6-6/T4-roi.md), [`T5`](../research/I6-6/T5-config-architecture.md)
+- **Related:** [`../studio-model-routing-research-charter.md`](../../../_archiv/docs/architecture/studio-model-routing-research-charter.md) (I-6.6 Charter), [`0005-superversion-home-and-meridian-vendoring.md`](0005-superversion-home-and-meridian-vendoring.md) (neutraler Core), [`0006-superversion-target-adapter-contract.md`](0006-superversion-target-adapter-contract.md) (Adapter-Naht-Pattern), [`0007-studio-generate-docks-onto-superversion-core.md`](0007-studio-generate-docks-onto-superversion-core.md), Research: [`../research/I6-6/T1-routing.md`](../../../_archiv/docs/architecture/research/I6-6/T1-routing.md), [`T2`](../../../_archiv/docs/architecture/research/I6-6/T2-token-optimization.md), [`T3`](../../../_archiv/docs/architecture/research/I6-6/T3-tracking-observability.md), [`T4`](../../../_archiv/docs/architecture/research/I6-6/T4-roi.md), [`T5`](../../../_archiv/docs/architecture/research/I6-6/T5-config-architecture.md)
 
 ---
 
@@ -137,10 +137,10 @@ Neun Festlegungen:
 
 ## References
 
-- Intern: die fünf Research-Drafts unter [`../research/I6-6/`](../research/I6-6/) (T1–T5, Quellen + Abrufdatum
-  2026-06-24, mit Ehrlichkeits-Flags); [`../studio-model-routing-research-charter.md`](../studio-model-routing-research-charter.md);
+- Intern: die fünf Research-Drafts unter [`../research/I6-6/`](../../../_archiv/docs/architecture/research/I6-6/) (T1–T5, Quellen + Abrufdatum
+  2026-06-24, mit Ehrlichkeits-Flags); [`../studio-model-routing-research-charter.md`](../../../_archiv/docs/architecture/studio-model-routing-research-charter.md);
   ADR-0005/0006/0007; `studio/src/lib/ai/orchestrator.ts`; `studio/src/lib/governance/approval-workflow.ts`;
-  `tooling/generator/schemas/` (Hausstil); `docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md` (I-6.6).
+  `tooling/generator/schemas/` (Hausstil); `_archiv/docs/plans/UMSETZUNGSPLAN_SUPERVERSION.md` (I-6.6).
 - Extern (in den Research-Drafts zitiert, mit Abrufdatum): Provider-Docs (Anthropic/Google/OpenAI, teils 403 →
   unverifiziert geflaggt), OTel-GenAI-Semconv, RouteLLM/FrugalGPT (Cascade-Routing), FinOps-for-AI, JSON-Schema-
   Versionierung.

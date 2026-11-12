@@ -69,7 +69,7 @@ Run all scripts from the **repository root**.
 | Python test suite | `python3 -m pytest tooling/tests/ products/ -q` |
 | Activate the pre-commit hook (once per clone; single hook `.githooks/pre-commit`) | `git config core.hooksPath .githooks` (Windows: `.\tooling\git-hooks\install_precommit.ps1`) |
 | OSS stack validation | `bash products/open_source_stack/tooling/run_oss_checks.sh` |
-| OSS report generation | `python3 products/oss_adapters/orchestrator/orchestrate_oss.py --bracket <path> --adapter metabase` |
+| OSS report generation | `python3 products/oss_adapters/orchestrator/orchestrate_oss.py --bracket <path> --adapter metabase` (test: `products/oss_adapters/tests/`) |
 | Registry build | `python3 tooling/ontology/registry_builder.py --repo-root .` |
 | Health scorecard | `python3 tooling/health_scorecard.py` |
 | Schema validation (Python) | `python3 -m pytest tooling/tests/ -k schema -q` |
@@ -171,13 +171,13 @@ Layout template: `core/templates/page_templates/Page_Spec_3_30_300.md`
 | `tooling/page_generator/` | Generates Evidence.dev pages from use case brackets |
 | `tooling/metric_generator/` | Generates dbt metric definitions from KPI catalog |
 
-### `products/oss_adapters/` — Grafana / Metabase / Superset (adapter stubs)
+### `products/oss_adapters/` — Grafana / Metabase / Superset (adapters, not tested against a live tool)
 
 | Adapter | File | Status |
 |---|---|---|
-| Grafana | `tooling/adapters/grafana.py` | Stub — `render()` not yet implemented |
-| Metabase | `tooling/adapters/metabase.py` | Stub — `render()` not yet implemented |
-| Superset | `tooling/adapters/superset.py` | Stub — `render()` not yet implemented |
+| Grafana | `tooling/adapters/grafana.py` | `render()` writes `dashboard.json`; import into Grafana not tested |
+| Metabase | `tooling/adapters/metabase.py` | `render()` writes `dashboard.json`; import into Metabase not tested |
+| Superset | `tooling/adapters/superset.py` | `render()` writes `dashboard_export.zip`; import into Superset not tested |
 
 ---
 

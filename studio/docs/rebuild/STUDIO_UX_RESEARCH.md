@@ -2,7 +2,7 @@
 
 **Status:** LOCKED for agent program (2026-05).  
 **Audience:** PM, implementers, `quality-verifier`.  
-**Prerequisite:** Read after `REBUILD_DECISIONS.md`; use with `DETAIL_IA.md` and `design-reference/`.
+**Prerequisite:** Read after `REBUILD_DECISIONS.md`; use with `DETAIL_IA.md` and `MOCKUP_REFERENCE/`.
 
 **Purpose:** Deep research on how comparable products structure authoring UIs, governance UX, and content-editing patterns — so Studio rebuild decisions are evidence-based, not mockup-only.
 

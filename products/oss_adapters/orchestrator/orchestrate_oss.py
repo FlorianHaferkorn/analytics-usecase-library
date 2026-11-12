@@ -10,15 +10,16 @@ Drives the full OSS report generation pipeline for one or all use cases:
     Step 5  Record telemetry (shared generator_core.intelligence)
 
 Usage (from repo root):
-    python products/oss/orchestrator/orchestrate_oss.py \\
+    python products/oss_adapters/orchestrator/orchestrate_oss.py \\
         --bracket core/usecases/core/COM-001/UseCase_Bracket.yaml \\
         --adapter metabase \\
-        --output products/oss/dist/
+        --output products/oss_adapters/dist/
 
-    python products/oss/orchestrator/orchestrate_oss.py \\
+    python products/oss_adapters/orchestrator/orchestrate_oss.py \\
         --all --adapter grafana
 
-Status: STUB — wire up once adapters are implemented.
+Status: runs for one bracket or --all; the adapters render files, import into the target tool
+is not tested. Test: products/oss_adapters/tests/test_oss_adapters_orchestrator.py.
 """
 
 from __future__ import annotations
@@ -26,6 +27,13 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+
+# The documented call runs this file as a script from the repo root; the imports below are
+# repo-root packages (tooling.generator_core, products.oss_adapters), so the root must be
+# importable. Without this: ModuleNotFoundError: No module named 'tooling' (12.11.2026).
+REPO_ROOT = Path(__file__).resolve().parents[3]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 
 def main() -> int:
@@ -41,7 +49,7 @@ def main() -> int:
         default="metabase",
         help="Target OSS tool (default: metabase)",
     )
-    parser.add_argument("--output",   type=Path, default=Path("products/oss/dist"))
+    parser.add_argument("--output",   type=Path, default=Path("products/oss_adapters/dist"))
     parser.add_argument("--skip-preflight", action="store_true")
     parser.add_argument("--dry-run",  action="store_true")
     args = parser.parse_args()
@@ -99,13 +107,13 @@ def _generate_one(bracket: Path, adapter_name: str, output: Path, dry_run: bool)
 
     # Load concrete adapter
     if adapter_name == "metabase":
-        from products.oss.tooling.adapters.metabase import MetabaseAdapter
+        from products.oss_adapters.tooling.adapters.metabase import MetabaseAdapter
         adapter = MetabaseAdapter()
     elif adapter_name == "grafana":
-        from products.oss.tooling.adapters.grafana import GrafanaAdapter
+        from products.oss_adapters.tooling.adapters.grafana import GrafanaAdapter
         adapter = GrafanaAdapter()
     elif adapter_name == "superset":
-        from products.oss.tooling.adapters.superset import SupersetAdapter
+        from products.oss_adapters.tooling.adapters.superset import SupersetAdapter
         adapter = SupersetAdapter()
     else:
         raise ValueError(f"Unknown adapter: {adapter_name}")

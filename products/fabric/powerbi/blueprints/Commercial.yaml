@@ -325,7 +325,7 @@ notes:
   measure_definitions:
     - "DAX expressions sourced from core/kpi_catalog/KPI_Catalog.md"
     - "Display folder mapping in semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md"
-    - "Generator: tooling/generation/generate_tmdl_measures.ps1"
+    - "Generator: tooling/generator/generate_tmdl_measures.ps1"
 
   dependencies:
     - "Requires: core/kpi_catalog/KPI_Catalog.md populated with dax_expression for all KPIs"

@@ -107,7 +107,7 @@ Levels are **cumulative**: each level assumes the previous one is in place.
 - **Ownership:** `ownership_raci_golden_thread.md` — Level 4+ requires explicit RACI.
 - **Strategy patterns:** `company/strategy_patterns.md` — Level 3+ benefits from choosing or defining a strategy pattern.
 - **Framework Health Metrics:** `framework_health_metrics.md` — H1–H5 metrics measure the framework's own completeness and support Level 4–5 governance.
-- **Vision:** `internal/archive/framework_evolution.md` — Technical evolution (V1–V6) supports reaching and sustaining these levels.
+- **Vision:** `_archiv/internal/archive/framework_evolution.md` — Technical evolution (V1–V6) supports reaching and sustaining these levels.
 
 ---
 

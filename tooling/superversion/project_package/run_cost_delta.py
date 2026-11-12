@@ -8,7 +8,7 @@ workspace-monitoring storage.
 
 Rules, deliberately narrow:
 
-* **Public list prices only.** Prices come from `internal/proposal_costing` through its own
+* **Public list prices only.** Prices come from `products/proposal_costing` through its own
   `cost_engine` (Microsoft list price; regional rates from the Azure Retail Prices API). No tenant
   rate, no margin, nothing from the price canon (ADR-0019, ADR-0020): the run cost is the customer's
   Azure bill, not our offer.
@@ -40,7 +40,7 @@ from .alternative_impact import _fingerprint, evaluate_alternative
 from .repository import ProjectPackageRevisionRepository
 
 VERSION = "1.3.0"
-_COST_ENGINE = Path(__file__).resolve().parents[3] / "internal" / "proposal_costing" / "tooling" / "cost_engine.py"
+_COST_ENGINE = Path(__file__).resolve().parents[3] / "products" / "proposal_costing" / "tooling" / "cost_engine.py"
 #: Monthly view of the daily overage ceiling; Azure list prices use 730 h per month.
 _DAYS_PER_MONTH = 730 / 24
 

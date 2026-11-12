@@ -49,7 +49,7 @@ $ignoredPathPattern = '[\\/](?:\.git|\.pytest_cache|\.mypy_cache|\.ruff_cache|no
 
 Get-ChildItem -LiteralPath $rootPath -Recurse -File -ErrorAction SilentlyContinue | Where-Object {
   $_.Extension -in @(".md",".yaml",".yml") -and
-  $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]' -and
+  $_.FullName -notmatch '[\\/]_archiv[\\/]' -and
   $_.FullName -notmatch $ignoredPathPattern
 } | ForEach-Object {
   $path = $_.FullName

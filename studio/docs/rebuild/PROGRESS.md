@@ -101,7 +101,7 @@ Record results below after each epic.
 2. `DATA_WIRING.md` (relevant §)
 3. `STUDIO_UX_RESEARCH.md` (§5 anti-patterns)
 4. `DETAIL_IA.md` (if touching routes/Detail/Library)
-5. `design-reference/README.md` (if touching UI)
+5. `MOCKUP_REFERENCE/README.md` (if touching UI)
 
 **Verifier must check:**
 

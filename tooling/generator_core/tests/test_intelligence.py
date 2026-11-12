@@ -172,6 +172,22 @@ class TestFixSuggester:
         fixes = suggester.suggest_for_buckets(buckets)
         assert len(fixes) == 2
 
+    def test_fallback_commands_point_to_existing_scripts(self):
+        # Until 12.11.2026 two fallbacks suggested tooling/validation/*.py checks that only
+        # exist as .ps1. A suggested command must name a script that is in the repo.
+        from ..intelligence.suggester import _FALLBACK
+
+        repo_root = Path(__file__).resolve().parents[3]
+        checked = 0
+        for fix in _FALLBACK.values():
+            for cmd in fix.commands:
+                tokens = [tok for tok in cmd.split() if tok not in ("python", "pwsh", "-File")]
+                script = tokens[0]
+                rel = script.replace("\\", "/").removeprefix("./")
+                assert (repo_root / rel).is_file(), f"{fix.category}: {cmd}"
+                checked += 1
+        assert checked >= 10, f"only {checked} commands checked"
+
 
 # ---------------------------------------------------------------------------
 # TelemetryCollector

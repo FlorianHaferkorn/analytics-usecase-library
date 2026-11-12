@@ -9,7 +9,7 @@
 1. `studio/docs/rebuild/REBUILD_DECISIONS.md` — locked product decisions.
 2. `studio/docs/rebuild/TOKEN_SPEC.md` — CSS variable contract.
 3. `studio/docs/rebuild/DATA_WIRING.md` — loader ↔ UI map.
-4. `studio/docs/design-reference/README.md` — filename/content map for the mockup files.
+4. `studio/docs/rebuild/MOCKUP_REFERENCE/` — the mockup files (names match content).
 
 **Golden rule:** when a decision doc conflicts with the mockup, the **decision doc wins for behavior**, the **mockup wins for look**.
 

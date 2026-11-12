@@ -8,7 +8,7 @@
 
 ## D1 — Visual target = uploaded design reference
 
-The `studio/docs/design-reference/` folder (JSX + HTML uploads from 2026-04-24) is the **visual and interaction source of truth**. The rebuild must reproduce:
+The `studio/docs/rebuild/MOCKUP_REFERENCE/` folder (JSX + HTML uploads from 2026-04-24; until 12.11.2026 also as `studio/docs/design-reference/`) is the **visual and interaction source of truth**. The rebuild must reproduce:
 
 - Shell: Sidebar + Topbar + content area.
 - Navigation model: Dashboard / Canvas / Library / Detail / Wizard / Settings / Tweaks (scoped).

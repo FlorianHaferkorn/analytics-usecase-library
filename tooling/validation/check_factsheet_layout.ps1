@@ -4,7 +4,7 @@ Param(
   [string]$ActionCodesRoot = "core/action_codes",
   [string]$ActionCodeTemplate = "core/templates/action_codes/ActionCode_TEMPLATE.md",
   [string]$KpiCatalogRoot = "core/kpi_catalog",
-  [string]$KpiCatalogSchema = "core/templates/kpi_catalog_templates/KPI_Catalog_SCHEMA.md",
+  [string]$KpiCatalogSchema = "core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md",
   [string]$DataContractsRoot = "core/data_contracts/domains",
   [string]$FactTemplate = "core/templates/data_contract_templates/fact_template.yaml",
   [string]$DimTemplate = "core/templates/data_contract_templates/dim_template.yaml",
@@ -185,7 +185,7 @@ $businessTemplatePath = Resolve-RepoPath -ProvidedPath $BusinessTemplate -Defaul
 $actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "core/action_codes"
 $actionCodeTemplatePath = Resolve-RepoPath -ProvidedPath $ActionCodeTemplate -DefaultRelative "core/templates/action_codes/ActionCode_TEMPLATE.md"
 $kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "core/kpi_catalog"
-$kpiCatalogSchemaPath = Resolve-RepoPath -ProvidedPath $KpiCatalogSchema -DefaultRelative "core/templates/kpi_catalog_templates/KPI_Catalog_SCHEMA.md"
+$kpiCatalogSchemaPath = Resolve-RepoPath -ProvidedPath $KpiCatalogSchema -DefaultRelative "core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md"
 $dataContractsRoot = Resolve-RepoPath -ProvidedPath $DataContractsRoot -DefaultRelative "core/data_contracts/domains"
 $factTemplatePath = Resolve-RepoPath -ProvidedPath $FactTemplate -DefaultRelative "core/templates/data_contract_templates/fact_template.yaml"
 $dimTemplatePath = Resolve-RepoPath -ProvidedPath $DimTemplate -DefaultRelative "core/templates/data_contract_templates/dim_template.yaml"
@@ -204,7 +204,7 @@ Write-Host "Template layout checks" -ForegroundColor Cyan
 $issues = @()
 
 Get-ChildItem -Path $useCasesRoot -Recurse -Filter "Business_Factsheet.md" | Where-Object {
-  $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
+  $_.FullName -notmatch '[\\/]_archiv[\\/]'
 } | ForEach-Object {
   $actual = @(Get-Headings -Path $_.FullName)
   $cmp = Compare-OrderedList -Expected $expectedBusiness -Actual $actual
@@ -226,7 +226,7 @@ if ($actionCodesRoot -and $actionCodeTemplatePath) {
   $expectedActionKeys = @(Get-TemplateYamlTopLevelKeys -Path $actionCodeTemplatePath)
   $optionalActionKeys = @("inherits_decision_spine")
   $actionFiles = Get-ChildItem -Path $actionCodesRoot -Recurse -Filter "*.yaml" | Where-Object {
-    $_.FullName -notmatch 'decision_spines' -and $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
+    $_.FullName -notmatch 'decision_spines' -and $_.FullName -notmatch '[\\/]_archiv[\\/]'
   }
   if ($actionFiles.Count -eq 0) {
     Write-Host "Note: no Action Code YAML files found under $actionCodesRoot." -ForegroundColor Yellow
@@ -338,7 +338,7 @@ if ($dataContractsRoot -and $factTemplatePath -and $dimTemplatePath) {
   $expectedFactKeys = @(Get-YamlChildKeys -Path $factTemplatePath -RootKey "fact")
   $expectedDimKeys = @(Get-YamlChildKeys -Path $dimTemplatePath -RootKey "dimension")
   $contractFiles = Get-ChildItem -Path $dataContractsRoot -Recurse -Filter "*.yaml" | Where-Object {
-    $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
+    $_.FullName -notmatch '[\\/]_archiv[\\/]'
   }
   if ($contractFiles.Count -eq 0) {
     Write-Host "Note: no data contracts found under $dataContractsRoot." -ForegroundColor Yellow

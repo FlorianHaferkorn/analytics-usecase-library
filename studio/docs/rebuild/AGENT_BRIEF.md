@@ -22,7 +22,7 @@ Read these files in order. Do not skim. They are short and they unblock you:
 2. **`studio/docs/rebuild/TOKEN_SPEC.md`** — the exact CSS variables you must emit.
 3. **`studio/docs/rebuild/DATA_WIRING.md`** — the UI ↔ loader mapping.
 4. **`studio/docs/rebuild/REBUILD_PLAN.md`** — phase-by-phase plan, acceptance gates, DON'Ts.
-5. **`studio/docs/design-reference/README.md`** — critical filename/content map (the JSX uploads have misleading filenames).
+5. **`studio/docs/rebuild/MOCKUP_REFERENCE/`** — the target mockup (file names match content; see its README).
 6. **`CLAUDE.md`** (repo root) — hard rules, scripts, Fabric/PBIR conventions.
 
 If anything in these docs contradicts the mockup, **decision docs win for behavior, mockup wins for look**.

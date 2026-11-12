@@ -1,7 +1,7 @@
 Param(
   [string]$Root = ".",
   [string[]]$Extensions = @("md","yaml","yml","ps1","txt"),
-  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","internal\\reviews","tooling\\linters","products\\fabric\\powerbi\\dist"),
+  [string[]]$ExcludeDirs = @(".git","node_modules","_archiv","internal\\reviews","tooling\\linters","products\\fabric\\powerbi\\dist"),
   [switch]$FailOnError
 )
 

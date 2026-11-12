@@ -94,7 +94,7 @@ PBI_QUALITY_ALLOW_EXTERNAL=1 python -m tooling.report_quality.cli --summary
 **Bewusst offen: Host-Preview mit Screenshot.** Die offizielle Skill schließt erst nach einer
 Vorschau im Host mit Screenshot ab. Das braucht Power BI Desktop unter Windows; solange es keinen
 Windows-Runner gibt, bleibt dieser Schritt offen und ist kein Abschlusskriterium. Lokal unter
-Windows: `tooling/pbi_validate_after_impl.ps1` (unten, optional).
+Windows: Power BI Desktop öffnen und `tooling/quality/run_quality_gate.ps1` fahren (unten).
 
 **Desktop-Guard vor dem Schreiben** (R3/R4, D-687): `generate_full_report.py` bricht ab, wenn der
 Ziel-Report in Power BI Desktop offen ist (`--allow-desktop-open` übergeht das bewusst), und warnt
@@ -112,9 +112,9 @@ py -3 products/fabric/powerbi/tooling/validation/check_schema_versions.py --expl
 # laufen bereits automatisch als Teil von run_fabric_checks.ps1 oben -- kein separater
 # Aufruf nötig. check_with_pbi_cli.ps1 ist seit R3.4 deprecated (s. KNOWN_ERRORS_AND_FIXES.md).
 
-# Optional: Desktop-Validierung
-.\tooling\pbi_validate_after_impl.ps1 -IncludeDesktopLogMinutes 10 \
-  -ResultFile .local/pbi_validate_result.json
+# Gesamt-Gate (Stage 1 + Fabric); der frühere Desktop-Wrapper
+# pbi_validate_after_impl.ps1 ist archiviert
+.\tooling\quality\run_quality_gate.ps1
 ```
 
 Ergebnis auswerten:
@@ -221,7 +221,7 @@ Automatisch geprüft, keine Handcheckliste (Skills-Abgleich R5, D-687):
 | Orchestrator | `products/fabric/powerbi/orchestrator/orchestrate_full_model.ps1` |
 | Knowledge Base | `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` |
 | Fabric Checks | `products/fabric/powerbi/tooling/run_fabric_checks.ps1` |
-| Post-Impl Validation | `tooling/pbi_validate_after_impl.ps1` |
+| Post-Impl Validation | `tooling/quality/run_quality_gate.ps1` |
 | KPI Catalog | `core/kpi_catalog/` |
 | Use Case Brackets | `core/usecases/core/<ID>/UseCase_Bracket.yaml` |
 | BPA Rules | `tooling/linters/powerbi/bpa-rules-*.json` |

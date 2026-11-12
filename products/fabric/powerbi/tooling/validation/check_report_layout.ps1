@@ -3,7 +3,7 @@
   Validates report page visual positions against Layout_Grid_System (padding, row bounds, content width).
 .DESCRIPTION
   Reads report definition/pages/*/visuals/*/visual.json and page.json; checks positions against
-  core/templates/page_templates/governance/Layout_Grid_System.yaml constants.
+  core/templates/page_templates/governance/Layout_Grid_System.md constants.
   Use for Aurora or any PBIR report to ensure layout compliance.
 .PARAMETER ReportPath
   Path to report definition folder (e.g. products/fabric/powerbi/dist/COM-001.Report/definition). Default: first generated report in dist.
@@ -34,7 +34,7 @@ if (-not (Test-Path $reportDef)) {
   exit 1
 }
 
-# Layout Grid constants (Layout_Grid_System.yaml / layout_calculator.py)
+# Layout Grid constants (governance/Layout_Grid_System.md / page_scaffold_generator/layout_calculator.py)
 # Legacy row-based: PADDING 20. Master Grid (12×12): outer_margin 32, gutter 16 (see grid_calculator.py).
 $PADDING = 20
 $CANVAS_WIDTH = 1920

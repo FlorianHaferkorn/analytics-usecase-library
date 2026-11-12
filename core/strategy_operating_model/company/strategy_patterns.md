@@ -234,7 +234,7 @@ When two patterns are active simultaneously and both signal deviation at the sam
 
 Scope and limits of **automated reasoning** (AI urgency, action suggestion from governed logic, triage, assisted authoring) are defined in a single place so that tooling and product stay aligned:
 
-- **[internal/vision/automated_reasoning_scope_and_limits.md](../../../internal/vision/automated_reasoning_scope_and_limits.md)** — what is in scope, what is out of scope or limited, and how it relates to strategy patterns, urgency rules (§8), and conflict resolution (§11).
+- **[_archiv/internal/vision/automated_reasoning_scope_and_limits.md](../../../_archiv/internal/vision/automated_reasoning_scope_and_limits.md)** — what is in scope, what is out of scope or limited, and how it relates to strategy patterns, urgency rules (§8), and conflict resolution (§11).
 
 ---
 

@@ -157,7 +157,7 @@ Generated reports follow the **3–30–300** page structure and the four golden
 | Generated page | Intended template | Reference |
 |----------------|-------------------|-----------|
 | **Overview** (per use case) | T1 Strategic Overview / 3s–30s layer | `core/templates/page_templates/page_types/T1_Strategic_Overview.md`, `components/overview_drivers_details.json` |
-| **Detail** (per use case) | T2/T3/T4 + 300s layer | `components/drivers_details.json`, `layout_330300_300s_layer.md`; Bracket `ux_layout_rules` |
+| **Detail** (per use case) | T2/T3/T4 + 300s layer | `components/drivers_details.json`, `core/templates/page_templates/Design_Spec_3_30_300.md` §5.4 (300-second layer), schema `tooling/generator/schemas/layout_330300.schema.json`; Bracket `ux_layout_rules` |
 
 **Checklist:** When verifying a generated report, confirm that (1) each section/page maps to Overview or Detail as per the use case’s bracket, (2) slots (KPI, Trend, Variance, etc.) match `core/templates/page_templates/governance/Slot_Definitions.md` and `Visual_to_Slot_Mapping.yaml`, and (3) no ad-hoc page types or visuals outside the whitelist are introduced. The scaffold generator does not create custom layouts; it uses the shared components and Bracket UX rules only.
 

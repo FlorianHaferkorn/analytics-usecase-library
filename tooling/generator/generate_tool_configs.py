@@ -3,16 +3,14 @@ Generate tool-specific agent config files from canonical docs/agent/ sources.
 
 Reads docs/agent/rules/*.md + _index.yaml and docs/agent/skills/*.md + _index.yaml,
 then produces tool-specific wrappers:
-  - skills/*/SKILL.md          (official Agent-Skills / skills-for-fabric layout, repo root)
-  - .claude/skills/*/SKILL.md  (byte-identical copy: the only place Claude Code discovers
-                                project skills; a copy, not a symlink, because the maintainer
-                                works on Windows, where git symlinks need core.symlinks)
+  - .claude/skills/*/SKILL.md  (official Agent-Skills / skills-for-fabric layout; the only
+                                place Claude Code discovers project skills)
   - .github/copilot-instructions.md  (concat of alwaysApply rules)
 
 Drift check:
   ``--check`` writes nothing and exits 1 if any generated file differs from what the
-  generator would write, or if skills/ or .claude/skills/ hold a skill the index no longer
-  lists. tooling/tests/test_generate_tool_configs.py runs it in the pytest suite.
+  generator would write, if .claude/skills/ holds a skill the index no longer lists, or if
+  the retired root copy skills/ (removed 12.11.2026: byte-identical, no consumer) reappears. tooling/tests/test_generate_tool_configs.py runs it in the pytest suite.
 
 Version tracking:
   Skills carry a `version` field in _index.yaml (semver string, e.g. "1.2.0").
@@ -49,7 +47,11 @@ def load_index(index_path: Path) -> Dict[str, Any]:
 
 
 # Every skill is emitted to each of these directories with identical bytes.
-SKILL_OUTPUT_DIRS = ("skills", ".claude/skills")
+SKILL_OUTPUT_DIRS = (".claude/skills",)
+# Former output dirs: a SKILL.md there is a finding, so a removed copy cannot come back
+# unnoticed. Root skills/ was a byte-identical twin of .claude/skills/ without any consumer
+# (grep ALUCA + Freelancing, 12.11.2026).
+RETIRED_SKILL_DIRS = ("skills",)
 
 
 def _yaml_str(value: Any) -> str:
@@ -126,6 +128,12 @@ def orphan_skills(root: Path, expected: Dict[str, str]) -> List[str]:
     return orphans
 
 
+def retired_skills(root: Path) -> List[str]:
+    """SKILL.md files in a retired output dir (see RETIRED_SKILL_DIRS)."""
+    return [f.relative_to(root).as_posix()
+            for base in RETIRED_SKILL_DIRS for f in sorted((root / base).glob("*/SKILL.md"))]
+
+
 def check_drift(root: Path, expected: Dict[str, str]) -> List[str]:
     """Return one finding per generated file that is missing, differs, or is orphaned."""
     findings = []
@@ -136,6 +144,7 @@ def check_drift(root: Path, expected: Dict[str, str]) -> List[str]:
         elif f.read_bytes() != content.encode("utf-8"):
             findings.append(f"differs: {rel}")
     findings.extend(f"orphan:  {rel}" for rel in orphan_skills(root, expected))
+    findings.extend(f"retired: {rel}" for rel in retired_skills(root))
     return findings
 
 

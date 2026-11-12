@@ -16,14 +16,14 @@ Ein Lauf gilt nur dann als produktionsreif erfolgreich, wenn folgende Gates grue
 - Workspace Publish
 - Post-Publish Smoke Test
 
-Diese Gates werden jetzt zentral ueber tooling/pbi_validate_after_impl.ps1 aggregiert und koennen durch products/fabric/powerbi/tooling/invoke_production_supervisor.ps1 in einem kontrollierten Loop ausgefuehrt werden.
+Diese Gates werden zentral ueber tooling/quality/run_quality_gate.ps1 (Stage 1 + Fabric) geprueft (bis 12.11.2026: tooling/pbi_validate_after_impl.ps1, archiviert; pbi-tools compile und Desktop-Log sind dort nicht mehr enthalten) und koennen durch products/fabric/powerbi/tooling/invoke_production_supervisor.ps1 in einem kontrollierten Loop ausgefuehrt werden.
 
 ## Erster Implementierungsslice
 
 Der aktuelle Stand fuehrt vier Dinge ein:
 
 - Einen maschinenlesbaren Standard in products/fabric/powerbi/tooling/production_quality.standard.json
-- Strukturierte Gate-Ergebnisse in tooling/pbi_validate_after_impl.ps1
+- Strukturierte Gate-Ergebnisse (JSON mit success/errors/failedGates/gates), seit 12.11.2026 im Supervisor selbst aus tooling/quality/run_quality_gate.ps1 erzeugt
 - Einen Supervisor fuer wiederholbare Produktionslaeufe in products/fabric/powerbi/tooling/invoke_production_supervisor.ps1
 - Einen kanonischen Publish-Adapter in products/fabric/powerbi/tooling/invoke_workspace_publish.ps1
 

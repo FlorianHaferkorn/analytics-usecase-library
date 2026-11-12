@@ -100,13 +100,13 @@ def cmd_compile(args: argparse.Namespace) -> int:
         from products.fabric.powerbi.tooling.adapters.pbip import PBIPAdapter
         adapter = PBIPAdapter()
     elif args.adapter == "metabase":
-        from products.oss.tooling.adapters.metabase import MetabaseAdapter
+        from products.oss_adapters.tooling.adapters.metabase import MetabaseAdapter
         adapter = MetabaseAdapter()
     elif args.adapter == "grafana":
-        from products.oss.tooling.adapters.grafana import GrafanaAdapter
+        from products.oss_adapters.tooling.adapters.grafana import GrafanaAdapter
         adapter = GrafanaAdapter()
     elif args.adapter == "superset":
-        from products.oss.tooling.adapters.superset import SupersetAdapter
+        from products.oss_adapters.tooling.adapters.superset import SupersetAdapter
         adapter = SupersetAdapter()
     else:
         print(f"ERROR Unknown adapter '{args.adapter}'", file=sys.stderr)

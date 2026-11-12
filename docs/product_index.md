@@ -17,7 +17,7 @@
 
 | Product | Neuer Ort | Grund |
 |---|---|---|
-| `proposal_costing` | `internal/proposal_costing/` | Nicht Teil des Showcase-Scopes; funktionierender Code, falscher Ort |
+| `proposal_costing` | `products/proposal_costing/` | Nicht Teil des Showcase-Scopes; funktionierender Code, falscher Ort |
 
 ## Core platform contract
 

@@ -82,4 +82,4 @@ To add a new use case (e.g. COM-005) to an existing domain model without duplica
 - Action Codes in 30s Teaser and 300s Action Panel (from Bracket `action_code_ids`).
 - Streamlit UX Layout Editor: Tabs for **Bindings** and **Actions**; write `ux_bindings` to Bracket.
 - deploy.ps1: real Fabric API (Workspace, Import Model, Import Report + binding).
-- See [internal/vision/phase2_backlog.md](../../../../internal/vision/phase2_backlog.md) and plan "Builder Engine Phase 1".
+- See [_archiv/internal/vision/phase2_backlog.md](../../../../_archiv/internal/vision/phase2_backlog.md) and plan "Builder Engine Phase 1".

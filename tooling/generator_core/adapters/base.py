@@ -9,8 +9,8 @@ and implements three methods:
 
 Concrete implementations live in their product directories, not here:
   products/fabric/powerbi/tooling/adapters/pbip.py
-  products/oss/tooling/adapters/metabase.py
-  products/oss/tooling/adapters/grafana.py
+  products/oss_adapters/tooling/adapters/metabase.py
+  products/oss_adapters/tooling/adapters/grafana.py
   ...
 
 Design contract

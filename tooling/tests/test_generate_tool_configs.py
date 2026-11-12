@@ -1,9 +1,10 @@
 """Tests for tooling/generator/generate_tool_configs.py.
 
-The generated skills exist twice: skills/<name>/SKILL.md (official Agent-Skills layout) and
-.claude/skills/<name>/SKILL.md (the only place Claude Code discovers project skills). Both are
-copies, not symlinks, so these tests keep them honest: no drift against docs/agent/skills/,
-byte-identical twins, and frontmatter that parses with `name` and a trigger `description`.
+The generated skills live in .claude/skills/<name>/SKILL.md (official Agent-Skills layout and
+the only place Claude Code discovers project skills). The former root copy skills/ was removed
+on 12.11.2026 (byte-identical, no consumer); a SKILL.md there is reported as "retired". These
+tests keep the output honest: no drift against docs/agent/skills/ and frontmatter that parses
+with `name` and a trigger `description`.
 """
 
 from __future__ import annotations
@@ -64,12 +65,22 @@ def test_yaml_str_survives_colon():
 
 
 def test_check_detects_drift_and_orphans(tmp_path):
-    expected = {"skills/a/SKILL.md": "x\n", ".claude/skills/a/SKILL.md": "x\n"}
-    (tmp_path / "skills" / "a").mkdir(parents=True)
-    (tmp_path / "skills" / "a" / "SKILL.md").write_text("y\n", encoding="utf-8")
+    expected = {".claude/skills/a/SKILL.md": "x\n", ".claude/skills/b/SKILL.md": "x\n"}
+    (tmp_path / ".claude" / "skills" / "a").mkdir(parents=True)
+    (tmp_path / ".claude" / "skills" / "a" / "SKILL.md").write_text("y\n", encoding="utf-8")
     (tmp_path / ".claude" / "skills" / "old").mkdir(parents=True)
     (tmp_path / ".claude" / "skills" / "old" / "SKILL.md").write_text("z\n", encoding="utf-8")
     findings = check_drift(tmp_path, expected)
-    assert "differs: skills/a/SKILL.md" in findings
-    assert "missing: .claude/skills/a/SKILL.md" in findings
+    assert "differs: .claude/skills/a/SKILL.md" in findings
+    assert "missing: .claude/skills/b/SKILL.md" in findings
     assert "orphan:  .claude/skills/old/SKILL.md" in findings
+
+
+def test_check_reports_retired_root_skills(tmp_path):
+    expected = {".claude/skills/a/SKILL.md": "x\n"}
+    (tmp_path / ".claude" / "skills" / "a").mkdir(parents=True)
+    (tmp_path / ".claude" / "skills" / "a" / "SKILL.md").write_text("x\n", encoding="utf-8")
+    assert check_drift(tmp_path, expected) == []
+    (tmp_path / "skills" / "a").mkdir(parents=True)
+    (tmp_path / "skills" / "a" / "SKILL.md").write_text("x\n", encoding="utf-8")
+    assert check_drift(tmp_path, expected) == ["retired: skills/a/SKILL.md"]
