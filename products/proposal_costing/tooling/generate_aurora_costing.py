@@ -32,7 +32,7 @@ def main() -> None:
     out_path = root / "dist" / "aurora_calculation.md"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     # Keep Aurora title
-    out_path.write_text("# Aurora – Beispielkalkulation\n\n" + filled, encoding="utf-8")
+    out_path.write_text("# Aurora – Beispielkalkulation\n\n" + filled, encoding="utf-8", newline="\n")
     print(f"Written {out_path}", file=sys.stderr)
 
 if __name__ == "__main__":
