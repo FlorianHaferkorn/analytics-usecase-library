@@ -43,26 +43,24 @@ TMDL validation passed!
 
 ## Ebene 2: Best Practice Analyzer (BPA)
 
-**Tool:** `tooling/linters/run_bpa.ps1` + JSON-Regelkataloge
+**Tool:** Tabular Editor 2 mit dem offiziellen Regelsatz (gepinnt) plus ALUCAs eigene Lückenregeln.
 
 **Was wird geprüft:**
-- Semantic Model Performance Rules (650+ Zeilen, 40+ Regeln)
-- DAX Style Guide Rules (74 Zeilen)
-- Report Best Practices
+- Offizieller Satz (71 Regeln, `microsoft/Analysis-Services` `BestPracticeRules/BPARules.json`): nicht kopiert, sondern per Commit und sha256 gepinnt in `tooling/linters/powerbi/bpa-official.pin.json`. Läuft nur unter Windows: `.github/workflows/tabular-bpa.yml` (Tabular Editor stirbt unter Mono).
+- Eigene Regeln (16, `tooling/linters/powerbi/aluca-bpa-rules.json`, Tabular-Editor-Format): nur was der offizielle Satz nicht abdeckt. Laufen zusätzlich auf Linux in Stage 1.
 
 **Ausführung (von Repo-Root):**
-```powershell
-# Für spezifisches Use Case
-./tooling/linters/run_bpa.ps1 -Root "products\fabric/powerbi\dist\COM-001\COM-001.SemanticModel"
+```bash
+# Eigene Regeln auf allen dist-Modellen (Linux/Mac/Windows); Exit 2 = nicht gelaufen
+python tooling/validation/check_bpa.py --details
 
-# Über run_all_checks.ps1 (umfassend)
-./tooling/run_all_checks.ps1
+# Offizieller Satz + eigene Regeln: Workflow "Tabular Editor BPA" (workflow_dispatch oder PR ready)
 ```
 
 **Regelkataloge:**
-- `tooling/linters/bpa-rules-semanticmodel.json`
-- `tooling/linters/bpa-rules-dax.json`
-- `tooling/linters/bpa-rules-report.json`
+- `tooling/linters/powerbi/bpa-official.pin.json` (Pin, keine Regeln)
+- `tooling/linters/powerbi/aluca-bpa-rules.json`
+- `tooling/linters/powerbi/bpa-rules-report.json` (Report-Ebene, `validate_report.ps1`)
 
 ---
 

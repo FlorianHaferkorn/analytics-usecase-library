@@ -8,7 +8,7 @@
 - **Descriptions:** Every table, column and measure gets a `///` block directly above its declaration (no blank line in between). In TMDL, `///` **is** the TOM `Description` property — what report authors and Copilot see. Never write a `description:` key; it is not TMDL syntax and the generator/`check_tmdl_syntax.ps1` reject it. Put the essentials in the first 200 characters: Copilot reads only those.
 - **Numeric columns:** All columns with `dataType: int64`, `int32`, `double`, or `decimal` must have `summarizeBy: none` to prevent unintentional summarization. Create measures for aggregation instead.
 - **Allowed subset:** Follow `core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md` and implementation notes in `products/fabric/powerbi/docs/tmdl_best_practices.md`.
-- **Validation:** BPA rules in `tooling/linters/powerbi/` (e.g. `bpa-rules-tmdl.json`); run via `tooling/linters/run_bpa.ps1` where applicable.
+- **Validation:** Best Practice Analyzer = the official Tabular Editor rule set, pinned in `tooling/linters/powerbi/bpa-official.pin.json` (runs only on Windows: `.github/workflows/tabular-bpa.yml`), plus ALUCA's own gap rules `tooling/linters/powerbi/aluca-bpa-rules.json`, which Stage 1 evaluates on Linux via `tooling/validation/check_bpa.py`. New model rule: first check the official set; only what it lacks goes into `aluca-bpa-rules.json`, with a fixture pair under `tooling/tests/fixtures/bpa_custom/`. TMDL syntax rules stay in `bpa-rules-tmdl.json` (`validate_tmdl.ps1`).
 
 ## DAX
 

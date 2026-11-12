@@ -57,15 +57,12 @@ This directory contains **validation scripts** for automated quality checks agai
 
 ---
 
-### validate_semanticmodel.ps1
-**Purpose**: Validate semantic model structure against `bpa-rules-semanticmodel.json`  
+### check_bpa.py
+**Purpose**: Evaluate ALUCA's own Tabular Editor BPA rules (`tooling/linters/powerbi/aluca-bpa-rules.json`) on every dist `*.SemanticModel` without Windows. The official rule set is pinned (`bpa-official.pin.json`) and runs only in `.github/workflows/tabular-bpa.yml`.  
 **Auto-fix**: No  
-**Integration**: run_all_checks.ps1 (19d) for each dist `*.SemanticModel\definition`  
-**Checks**:
-- Star schema enforcement
-- Calculated column avoidance
-- Bi-directional relationship limits
-- Partition strategies
+**Integration**: Stage 1 (`run_stage1_checks.ps1`, `--strict`: severity 3 fails)  
+**Exit**: 0 ran (findings reported with model/object/rule counts), 1 strict and severity-3 finding, 2 not run (no models, parser lost objects, rule not evaluable)  
+**Replaces**: `validate_semanticmodel.ps1` (removed 12.11.2026: 3 regex rules, reported every table as having no relationship)
 
 ---
 
@@ -160,7 +157,7 @@ All validation scripts read from `tooling/linters/powerbi/bpa-rules-*.json`:
 | bpa-rules-tmdl.json | TMDL syntax | High (4/10 rules) | ✅ validate_tmdl.ps1 (run_all_checks 19d2) |
 | bpa-rules-dax.json | DAX expressions | Partial (2/10 rules) | ✅ validate_dax.ps1 (run_all_checks 19c) |
 | bpa-rules-report.json | Report visuals | Low | ✅ validate_report.ps1 (run_all_checks 19f) |
-| bpa-rules-semanticmodel.json | Model structure | No | ✅ validate_semanticmodel.ps1 (run_all_checks 19d) |
+| aluca-bpa-rules.json | Model + DAX gaps of the official set (Tabular Editor format) | No | ✅ check_bpa.py (Stage 1); Windows: tabular-bpa.yml with the pinned official set |
 
 ---
 

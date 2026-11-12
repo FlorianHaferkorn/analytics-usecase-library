@@ -1,4 +1,5 @@
-"""Upstream pin sensor, kinds ``github`` and ``pypi`` (Meridian D-603, 30.09.2026).
+"""Upstream pin sensor, kinds ``github``, ``pypi`` (Meridian D-603, 30.09.2026) and ``github_file``
+(official BPA rule set, 12.11.2026).
 
 Peer test: the Claude Code marketplace ``fabric-collection`` in ``.claude/settings.json``
 and the ``github`` pin in ``tooling/quality/check_upstream_sources.py`` name the same repo
@@ -12,6 +13,7 @@ from pathlib import Path
 from tooling.quality.check_upstream_sources import (
     ACTIONABLE,
     ALLOWLIST,
+    evaluate_github_file,
     evaluate_github_tags,
     evaluate_pypi,
     latest_semver_tag,
@@ -96,3 +98,17 @@ def test_pypi_exact_pin() -> None:
     assert evaluate_pypi(src, {"info": {"version": "0.0.1a10"}})[0] == "up_to_date"
     assert evaluate_pypi(src, {"info": {"version": "0.0.1a11"}})[:2] == ("update_available", "0.0.1a11")
     assert evaluate_pypi(src, {})[0] == "unknown"
+
+
+def test_github_file_bpa_pin() -> None:
+    src = _entry("github_file")
+    pin = json.loads((REPO / src["pin_file"]).read_text(encoding="utf-8"))
+    commit, sha = pin["commit"], pin["sha256"]
+    assert evaluate_github_file(pin, commit, sha, sha)[0] == "up_to_date"
+    # Branch moved, file unchanged -> still up to date; file changed -> review.
+    assert evaluate_github_file(pin, "a" * 40, sha, sha)[0] == "up_to_date"
+    assert evaluate_github_file(pin, "a" * 40, sha, "b" * 64)[:2] == ("update_available", "a" * 12)
+    # The pinned commit no longer hashes to the pin -> pin_moved (actionable).
+    assert evaluate_github_file(pin, commit, "c" * 64, None)[0] == "pin_moved"
+    assert evaluate_github_file(pin, commit, None, None)[0] == "unreachable"
+    assert "pin_moved" in ACTIONABLE and "update_available" in ACTIONABLE

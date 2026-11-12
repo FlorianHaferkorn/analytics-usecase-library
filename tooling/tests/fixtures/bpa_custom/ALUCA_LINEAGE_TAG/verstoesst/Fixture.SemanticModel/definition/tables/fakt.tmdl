@@ -1,0 +1,21 @@
+/// Fixture-Tabelle.
+table fakt
+
+	/// Fixture-Measure.
+	measure 'Umsatz' = SUM ( fakt[Betrag] )
+		formatString: #,0
+		displayFolder: Kennzahlen
+
+	column Betrag
+		dataType: double
+		sourceColumn: Betrag
+		summarizeBy: none
+		lineageTag: 22222222-2222-2222-2222-222222222222
+
+	partition fakt = m
+		mode: import
+		source =
+			let
+				Source = #table(type table[Betrag = number], {})
+			in
+				Source

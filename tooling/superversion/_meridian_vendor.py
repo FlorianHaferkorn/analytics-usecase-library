@@ -129,6 +129,20 @@ def load_contract() -> dict:
     return contract
 
 
+def load_tmdl_parser():
+    """Return the vendored, manifest-checked Meridian TMDL parser module (``parse_model``).
+
+    For readers of ALUCA's own dist models (``tooling/validation/check_bpa.py``): one TMDL
+    parser for the repo instead of a second hand-written one. Raises `VendorUnavailable`
+    like `load_contract`.
+    """
+    _verify_manifest(_read_pin())
+    return _load_module(
+        "_meridian_vendor_tmdl_parser",
+        VENDOR_DIR / "core" / "pbi_engine" / "parsers" / "tmdl_parser.py",
+    )
+
+
 def is_available() -> bool:
     try:
         load_contract()

@@ -121,8 +121,8 @@ ontology registry strict for staged `core/`). Since 07.10.2026 there is no secon
 **Purpose:** Enforce framework rules for DAX, semantic models, report layout, and text encoding.
 
 **Contains:**
-- `lint.rules.yaml`, `bpa-rules-dax.json`, `bpa-rules-report.json`, `bpa-rules-semanticmodel.json`
-- `lint_dax.ps1`, `lint_encoding.ps1`, `fix_mojibake.ps1`
+- `lint.rules.yaml`, `fix_mojibake.ps1`
+- `powerbi/`: `bpa-official.pin.json` (Pin des offiziellen Tabular-Editor-Satzes, Windows-Lauf `.github/workflows/tabular-bpa.yml`), `aluca-bpa-rules.json` (eigene Lückenregeln, Stage 1 über `validation/check_bpa.py`), `bpa-rules-dax.json`, `bpa-rules-tmdl.json`, `bpa-rules-report.json`
 
 ---
 
