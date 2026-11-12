@@ -60,7 +60,8 @@ def build(out_dir: Path) -> dict:
     shutil.copy2(LIB.parent / "tokens" / "color_semantics.yaml", tok_dst / "color_semantics.yaml")
 
     # 4) the skill entry + a usage README
-    skill_src = REPO_ROOT / "skills" / "visual-library" / "SKILL.md"
+    # seit 2550a314 gibt es nur noch .claude/skills/ (vorher lief der Test still ohne SKILL.md rot)
+    skill_src = REPO_ROOT / ".claude" / "skills" / "visual-library" / "SKILL.md"
     if skill_src.exists():
         shutil.copy2(skill_src, out_dir / "SKILL.md")
     (out_dir / "README.md").write_text(_README, encoding="utf-8", newline="\n")
@@ -70,8 +71,11 @@ def build(out_dir: Path) -> dict:
         "bundle": "visual-library",
         "generated_by": "tooling/visual_library/package_skill.py",
         "idiom_yaml": sum(1 for f in files if f.startswith(_REL_LIB) and f.endswith(".yaml")
-                          and "/golden/" not in f and not Path(f).name.startswith("_")
-                          and Path(f).name != "index.yaml"),
+                          and "/golden/" not in f and "/strukturformen/" not in f
+                          and not Path(f).name.startswith("_") and Path(f).name != "index.yaml"),
+        # zweite Familie (ADR-0029): Strukturformen, eigene Zählung, keine Idiome
+        "strukturform_yaml": sum(1 for f in files if "/strukturformen/" in f and f.endswith(".yaml")
+                                 and not Path(f).name.startswith("_")),
         "golden_files": sum(1 for f in files if "/golden/" in f),
         "file_count": len(files),
         "files": files,

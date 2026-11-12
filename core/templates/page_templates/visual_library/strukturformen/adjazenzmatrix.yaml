@@ -1,0 +1,40 @@
+# Strukturform adjazenzmatrix (ADR-0029). Schema: _schema.yaml
+id: adjazenzmatrix
+name: Adjazenzmatrix (nach Gruppe geordnet)
+version: 1.0.0
+status: active
+strukturtypen:
+- netz
+fragen:
+  primaer:
+  - nachbarschaft
+  - luecken
+  sekundaer:
+  - vergleich
+  - ueberblick
+menge:
+  min: 20
+  max: 1000
+voraussetzung: {}
+vorrang: 20
+vorrang_regel: node_link_default_laien
+kantenklassen_max: 6
+reduktion:
+- sortierung
+- zusammenklappen
+- filter_kantenklasse
+interaktion:
+- hover_nachbarn
+- auswahl_detail
+- verknuepfte_ansicht
+technik:
+- svg
+- canvas
+textalternative: Tabelle Zeile | Spalte | Beziehung
+regeln:
+- matrix_dicht_nachbarschaft
+- node_link_default_laien
+- wegfrage_node_link
+anti_patterns:
+- matrix_for_path_question
+idiom_ref: null

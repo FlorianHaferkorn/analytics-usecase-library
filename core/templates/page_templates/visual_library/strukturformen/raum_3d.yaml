@@ -1,0 +1,33 @@
+# Strukturform raum_3d (ADR-0029). Schema: _schema.yaml
+id: raum_3d
+name: Raum 3D (physische Architektur)
+version: 1.0.0
+status: experimental
+strukturtypen:
+- raeumlich
+fragen:
+  primaer:
+  - ueberblick
+  sekundaer: []
+menge:
+  min: 10
+  max: 150
+voraussetzung: {}
+vorrang: 10
+vorrang_regel: raum_3d_nur_mit_tiefenhinweis
+kantenklassen_max: 3
+reduktion:
+- fokus_hops
+- zusammenklappen
+interaktion:
+- zoom
+- auswahl_detail
+- verknuepfte_ansicht
+technik:
+- webgl
+textalternative: 2D-Pflichtrenderer derselben Szene plus Liste
+regeln:
+- raum_3d_nur_mit_tiefenhinweis
+anti_patterns:
+- 3d_without_depth_cues
+idiom_ref: null

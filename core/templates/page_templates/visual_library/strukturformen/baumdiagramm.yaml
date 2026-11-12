@@ -1,0 +1,36 @@
+# Strukturform baumdiagramm (ADR-0029). Schema: _schema.yaml
+id: baumdiagramm
+name: Baumdiagramm (Organigramm, Kaskade)
+version: 1.0.0
+status: active
+strukturtypen:
+- baum
+fragen:
+  primaer:
+  - ueberblick
+  sekundaer:
+  - weg
+menge:
+  min: 3
+  max: 40
+voraussetzung:
+  wurzeln_max: 3
+vorrang: 10
+vorrang_regel: flacher_wald_als_liste
+kantenklassen_max: 2
+reduktion:
+- fokus_hops
+- sortierung
+interaktion:
+- einklappen
+- hover_nachbarn
+- auswahl_detail
+technik:
+- svg
+textalternative: verborgene verschachtelte Liste in Baumreihenfolge
+regeln:
+- kreuzungen_zuerst
+- flacher_wald_als_liste
+anti_patterns:
+- flat_forest_as_strip
+idiom_ref: null

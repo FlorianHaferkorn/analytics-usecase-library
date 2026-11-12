@@ -1,0 +1,37 @@
+# Strukturform liste_eingerueckt (ADR-0029). Schema: _schema.yaml
+id: liste_eingerueckt
+name: Eingerückte Liste (Baum als Gliederung)
+version: 1.0.0
+status: active
+strukturtypen:
+- baum
+- enthaltensein
+fragen:
+  primaer:
+  - ueberblick
+  - luecken
+  - pflege
+  sekundaer: []
+menge:
+  min: 1
+  max: 500
+voraussetzung: {}
+vorrang: 20
+vorrang_regel: flacher_wald_als_liste
+kantenklassen_max: 1
+reduktion:
+- sortierung
+interaktion:
+- einklappen
+- suche
+- auswahl_detail
+- editor_sprung
+technik:
+- html
+textalternative: ist selbst Text (role=tree oder verschachtelte Liste)
+regeln:
+- flacher_wald_als_liste
+- eine_abstraktionsstufe_je_ansicht
+anti_patterns:
+- flat_forest_as_strip
+idiom_ref: null

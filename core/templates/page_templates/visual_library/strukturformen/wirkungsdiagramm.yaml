@@ -1,0 +1,35 @@
+# Strukturform wirkungsdiagramm (ADR-0029). Schema: _schema.yaml
+id: wirkungsdiagramm
+name: Wirkungsdiagramm (Causal Loop)
+version: 1.0.0
+status: experimental
+strukturtypen:
+- netz
+fragen:
+  primaer:
+  - wirkung
+  sekundaer:
+  - ueberblick
+menge:
+  min: 3
+  max: 40
+voraussetzung:
+  zyklen: true
+vorrang: 5
+vorrang_regel: rueckkopplung_eigene_form
+kantenklassen_max: 2
+reduktion:
+- filter_kantenklasse
+- fokus_hops
+interaktion:
+- hover_nachbarn
+- auswahl_detail
+technik:
+- svg
+textalternative: Liste der Schleifen mit Polarität je Kante
+regeln:
+- rueckkopplung_eigene_form
+- kantenklasse_trennen
+anti_patterns:
+- cycles_in_driver_tree
+idiom_ref: null

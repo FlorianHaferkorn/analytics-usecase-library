@@ -1,0 +1,34 @@
+# Strukturform icicle (ADR-0029). Schema: _schema.yaml
+id: icicle
+name: Icicle (Hierarchie mit Mengenwert)
+version: 1.0.0
+status: active
+strukturtypen:
+- baum
+fragen:
+  primaer:
+  - vergleich
+  sekundaer:
+  - ueberblick
+menge:
+  min: 10
+  max: 1000
+voraussetzung:
+  masse: true
+vorrang: 10
+vorrang_regel: icicle_vor_treemap
+kantenklassen_max: 1
+reduktion:
+- fokus_hops
+- zusammenklappen
+interaktion:
+- zoom
+- auswahl_detail
+technik:
+- svg
+textalternative: Tabelle Pfad | Wert | Anteil
+regeln:
+- icicle_vor_treemap
+anti_patterns:
+- treemap_for_structure
+idiom_ref: decomposition_tree

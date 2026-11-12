@@ -1,0 +1,37 @@
+# Strukturform pfadansicht (ADR-0029). Schema: _schema.yaml
+id: pfadansicht
+name: Pfadansicht (A nach B)
+version: 1.0.0
+status: experimental
+strukturtypen:
+- netz
+- dag_geschichtet
+fragen:
+  primaer:
+  - weg
+  sekundaer: []
+menge:
+  min: 2
+  max: null
+voraussetzung:
+  start_ziel: true
+vorrang: 5
+vorrang_regel: wegfrage_node_link
+kantenklassen_max: 6
+reduktion:
+- fokus_hops
+interaktion:
+- suche
+- auswahl_detail
+- editor_sprung
+technik:
+- svg
+- html
+textalternative: Schrittliste A, Kante, B mit Herkunft je Schritt
+regeln:
+- wegfrage_node_link
+- richtung_verjuengt
+anti_patterns:
+- matrix_for_path_question
+- bundling_on_path_question
+idiom_ref: null

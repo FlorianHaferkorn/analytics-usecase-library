@@ -1,0 +1,124 @@
+# Strukturformen — Regeln mit Beleg (ADR-0029). Recherche 12.11.2026 über Forschung,
+# Produkte, OSS und Business-Logik-Werkzeuge; Quellen als Kurzname wie in
+# ../_anti_patterns.yaml. Belegart: gemessen (Studie mit Zahl) | dokumentiert
+# (Produkt-/Standarddoku, Methode, Fallstudie) | faustregel (Lehrbuch ohne Studie) |
+# hergeleitet (eigene Einschätzung, mit Messung am Bestand wo vorhanden).
+schema_version: 1
+
+regeln:
+  wegfrage_node_link:
+    regel: "Wegefragen als Node-Link zeigen, nie als Matrix."
+    beleg: gemessen
+    zahl: "Pfadfindung war in allen Bedingungen die einzige Aufgabe mit Node-Link vorn"
+    quelle: "Ghoniem, Fekete & Castagliola 2004"
+    geltung: "20–100 Knoten, Dichte 0,2–0,6"
+  matrix_dicht_nachbarschaft:
+    regel: "Nachbarschaftsfragen in dichten Netzen ab etwa 20 Knoten zusätzlich als Matrix anbieten."
+    beleg: gemessen
+    zahl: "Matrix besser bei den meisten Aufgaben über 20 Knoten"
+    quelle: "Ghoniem, Fekete & Castagliola 2004"
+    geltung: "dichte Graphen, geübte Nutzer; widersprochen von Okoe 2018 und Ren 2019 für Laien"
+  node_link_default_laien:
+    regel: "Für Gelegenheitsnutzer Node-Link als Standard, Matrix als verknüpfte Zusatzansicht."
+    beleg: gemessen
+    zahl: "Online-Studien mit N=557 (258 Knoten) und N=600: Node-Link bei Topologieaufgaben vorn"
+    quelle: "Okoe, Jianu & Kobourov 2018; Ren et al. 2019"
+    geltung: "interaktiv, Web, Laien"
+  kreuzungen_zuerst:
+    regel: "Kantenkreuzungen vor Knicken und Symmetrie minimieren."
+    beleg: gemessen
+    zahl: "Kreuzungen 'by far the most important' von fünf Ästhetikkriterien"
+    quelle: "Purchase 1997"
+    geltung: "kleine 2D-Graphen"
+  schichtlayout_fuer_dag:
+    regel: "Gerichtete, ebenenartige Strukturen mit Schichtlayout (Sugiyama) zeichnen."
+    beleg: dokumentiert
+    quelle: "Sugiyama, Tagawa & Toda 1981; dagre, d3-dag, ELK als Umsetzungen"
+    geltung: "DAG mit Ebenen"
+  raum_3d_nur_mit_tiefenhinweis:
+    regel: "3D nur mit echten Tiefenhinweisen (Stereo, Kopf- oder Dauerbewegung); auf dem flachen Bildschirm 2D."
+    beleg: gemessen
+    zahl: "Pfadverfolgung Faktor 3 nur mit Stereo plus Kopfbewegung; ohne beides kein Vorteil; 2D am schnellsten (Greffard 2011)"
+    quelle: "Ware & Franck 1996; Greffard, Picarougne & Kuntz 2011; Kotlarek et al. 2020"
+    geltung: "Pfadverfolgung und Überblick; kein Beleg für monoskopisches Desktop-3D gefunden"
+  richtung_verjuengt:
+    regel: "Richtung als verjüngte Kante zeigen, nicht als Pfeilspitze."
+    beleg: gemessen
+    zahl: "verjüngte Kante beste von 6 Richtungskodierungen"
+    quelle: "Holten & van Wijk 2009"
+    geltung: "gerichtete Graphen"
+  buendelung_nur_ueberblick:
+    regel: "Kantenbündelung nur im Überblick; bei Wegfragen abschalten."
+    beleg: hergeleitet
+    quelle: "Nunes et al. 2017 (Argument); McGee & Dingliana 2012 (aufgabenabhängig)"
+    geltung: "dichte Netze"
+  suche_kontext_expand:
+    regel: "Ab mehreren hundert Knoten mit Suche einsteigen, Kontext zeigen, auf Abruf erweitern."
+    beleg: dokumentiert
+    quelle: "van Ham & Perer 2009 (Fallstudie 3 Mio. Knoten); Palantir Vertex, Neo4j Bloom, Kumu (Einstieg über Suche)"
+    geltung: "Gesamtbestand"
+  keine_gesamtkarte_als_einstieg:
+    regel: "Den Gesamtgraphen nie als Einstieg zeigen."
+    beleg: dokumentiert
+    quelle: "Palantir Vertex (leere Fläche plus Suche), Fabric Ontology (keine Instanzen per Default), Purview-Nutzer ('spider-web')"
+    geltung: "ab etwa 150 Knoten"
+  sichtgrenze_produkte:
+    regel: "Sichtbare Knoten je Ansicht weit unter der technischen Grenze halten."
+    beleg: dokumentiert
+    zahl: "Grafana Node Graph 200 sichtbare Knoten; Lightdash Metric Trees unter 30 Metriken empfohlen"
+    quelle: "Grafana Node Graph Doku; Lightdash Doku"
+    geltung: "Produktgrenzen, keine Nutzerstudie"
+  doi_ausduennen:
+    regel: "Ausdünnen nach Interessegrad (Wichtigkeit minus Abstand zum Fokus)."
+    beleg: dokumentiert
+    quelle: "Furnas 1986; Heer & Card 2004 (DOI-Trees, über 600.000 Knoten)"
+    geltung: "Bäume, übertragbar auf Graphen"
+  icicle_vor_treemap:
+    regel: "Hierarchie mit Mengenwert für Strukturfragen als Icicle, nicht als Treemap."
+    beleg: gemessen
+    zahl: "Icicle in Struktur- und Navigationsaufgaben vor Treemap (N=12)"
+    quelle: "Woodburn et al. 2019; Stasko et al. 2000"
+    geltung: "Hierarchien mit Mengenwert"
+  kategorien_farbe_max:
+    regel: "Höchstens 6–12 Kategorien über Farbe unterscheiden, bei Farbfehlsichtigkeit weniger."
+    beleg: faustregel
+    zahl: "6–12"
+    quelle: "Munzner 2014"
+    geltung: "kategorische Kodierung"
+  viele_kantentypen_filtern:
+    regel: "Viele Kantentypen über Filter oder Ebenen trennen, nicht gleichzeitig kodieren."
+    beleg: dokumentiert
+    quelle: "McGee et al. 2019; Nobre et al. 2019 (Surveys); keine Studie zu 14 gleichzeitigen Kantentypen gefunden"
+    geltung: "mehr als 6 Kantenklassen gleichzeitig"
+  feste_notation_je_objekttyp:
+    regel: "Je Objekttyp eine feste Notation."
+    beleg: dokumentiert
+    quelle: "Lohmann et al. 2016 (VOWL, drei Nutzerstudien)"
+    geltung: "Ontologien"
+  kantenklasse_trennen:
+    regel: "Rechnende, beeinflussende und zuordnende Kanten getrennt zeigen."
+    beleg: dokumentiert
+    quelle: "DMN (Information, Knowledge, Authority Requirement); Nørreklit 2000; Count, Lightdash"
+    geltung: "Business-Logik, Treiberbäume"
+  eine_abstraktionsstufe_je_ansicht:
+    regel: "Je Ansicht genau eine Abstraktionsstufe; Wechsel als Zoom in die nächste Ansicht."
+    beleg: dokumentiert
+    quelle: "C4-Modell; DMN (DRD vs. Entscheidungstabelle)"
+    geltung: "geschichtete Modelle"
+  graph_plus_tabelle_wirkung:
+    regel: "Wirkungsfragen mit Liste (Tiefe, Owner) neben oder statt dem Graphen beantworten."
+    beleg: dokumentiert
+    quelle: "Atlan, Informatica, Microsoft Fabric (Impact-Analyse als Liste)"
+    geltung: "Impact-Analyse"
+  rueckkopplung_eigene_form:
+    regel: "Rückkopplungen nicht in Treiberbäume pressen; eigene Form (Wirkungsdiagramm)."
+    beleg: dokumentiert
+    zahl: "Bestandsfragen nur rund 42 % richtig beantwortet (Sekundärquelle)"
+    quelle: "Booth Sweeney & Sterman 2000; Kumu, LOOPY"
+    geltung: "zyklische Wirkungen"
+  flacher_wald_als_liste:
+    regel: "Einen flachen Wald (viele Wurzeln, wenig Tiefe) als eingerückte Liste zeigen."
+    beleg: hergeleitet
+    zahl: "Messung am Bestand 12.11.2026: 15 KPIs, 13 Wurzeln, 2 Kanten ergeben einen 2480 x 176 px breiten Streifen"
+    quelle: "Meridian Studio KpiCascadeTree, gemessen mit analyzeKpis + layoutTree"
+    geltung: "Bäume mit mehr als 3 Wurzeln"

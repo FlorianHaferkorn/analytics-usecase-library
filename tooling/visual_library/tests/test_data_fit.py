@@ -31,7 +31,8 @@ def _idiom_files() -> "list[str]":
 
 def _used_anti_patterns() -> set:
     used = set()
-    for f in _idiom_files():
+    # die Strukturformen (ADR-0029) teilen sich den Katalog mit den Idiomen
+    for f in _idiom_files() + sorted(glob.glob(str(LIB / "strukturformen" / "[a-z]*.yaml"))):
         d = yaml.safe_load(Path(f).read_text(encoding="utf-8"))
         if isinstance(d, dict):
             used.update(d.get("anti_patterns") or [])

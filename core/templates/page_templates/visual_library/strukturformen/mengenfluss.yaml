@@ -1,0 +1,33 @@
+# Strukturform mengenfluss (ADR-0029). Schema: _schema.yaml
+id: mengenfluss
+name: Mengenfluss (Sankey)
+version: 1.0.0
+status: active
+strukturtypen:
+- fluss
+fragen:
+  primaer:
+  - ueberblick
+  - vergleich
+  sekundaer: []
+menge:
+  min: 3
+  max: 40
+voraussetzung:
+  masse: true
+  zyklen: false
+vorrang: 5
+vorrang_regel: schichtlayout_fuer_dag
+kantenklassen_max: 1
+reduktion:
+- zusammenklappen
+interaktion:
+- hover_nachbarn
+technik:
+- svg
+textalternative: Tabelle Von | Nach | Menge
+regeln:
+- schichtlayout_fuer_dag
+anti_patterns:
+- sankey_for_precise_comparison
+idiom_ref: sankey
