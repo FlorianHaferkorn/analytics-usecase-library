@@ -31,7 +31,7 @@ Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Cod
 
 | Quelle | Pfad |
 |--------|------|
-| Power BI Desktop (live) | `.local/pbi_errors.log` (via `watch_pbi.ps1`) |
+| Power BI Desktop (live) | `.local/pbi_errors.log` (von Hand befüllt; der Watcher `watch_pbi.ps1` existiert nicht mehr) |
 | Pipeline | `products/fabric/powerbi/orchestrator/last_run_state.json` |
 | Build Errors | `products/fabric/powerbi/orchestrator/out/build_errors.json` |
 | Quality Checks | `internal/reviews/run_all_checks_failures.json` |
@@ -124,8 +124,8 @@ Wenn der Fehler nicht in den generierten Dateien liegt, sondern im Generator-Cod
 ### 6. Validierung
 
 ```bash
-# Report-Validierung
-.\tooling\pbi_validate_after_impl.ps1 -ResultFile .local/pbi_validate_result.json
+# Report-Validierung (kanonisches Gate: Stage 1 + Fabric; pbi_validate_after_impl.ps1 ist archiviert)
+.\tooling\quality\run_quality_gate.ps1
 
 # Fabric Checks (TMDL, DAX, Measures)
 .\products\fabric\powerbi\tooling\run_fabric_checks.ps1
@@ -197,4 +197,3 @@ table 'fact_sales'                          ← 0 Tabs
 | Fabric Checks | `products/fabric/powerbi/tooling/run_fabric_checks.ps1` |
 | BPA Rules | `tooling/linters/powerbi/bpa-rules-report.json`, `bpa-rules-tmdl.json`, `bpa-rules-dax.json` |
 | Error Log (Desktop) | `.local/pbi_errors.log` |
-| Error Watcher | `watch_pbi.ps1` |

@@ -4,7 +4,7 @@ Param(
   [string]$ActionCodesRoot = "core/action_codes",
   [string]$ActionCodeTemplate = "core/templates/action_codes/ActionCode_TEMPLATE.md",
   [string]$KpiCatalogRoot = "core/kpi_catalog",
-  [string]$KpiCatalogSchema = "core/templates/kpi_catalog_templates/KPI_Catalog_SCHEMA.md",
+  [string]$KpiCatalogSchema = "core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md",
   [string]$DataContractsRoot = "core/data_contracts/domains",
   [string]$FactTemplate = "core/templates/data_contract_templates/fact_template.yaml",
   [string]$DimTemplate = "core/templates/data_contract_templates/dim_template.yaml",
@@ -185,7 +185,7 @@ $businessTemplatePath = Resolve-RepoPath -ProvidedPath $BusinessTemplate -Defaul
 $actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "core/action_codes"
 $actionCodeTemplatePath = Resolve-RepoPath -ProvidedPath $ActionCodeTemplate -DefaultRelative "core/templates/action_codes/ActionCode_TEMPLATE.md"
 $kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "core/kpi_catalog"
-$kpiCatalogSchemaPath = Resolve-RepoPath -ProvidedPath $KpiCatalogSchema -DefaultRelative "core/templates/kpi_catalog_templates/KPI_Catalog_SCHEMA.md"
+$kpiCatalogSchemaPath = Resolve-RepoPath -ProvidedPath $KpiCatalogSchema -DefaultRelative "core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md"
 $dataContractsRoot = Resolve-RepoPath -ProvidedPath $DataContractsRoot -DefaultRelative "core/data_contracts/domains"
 $factTemplatePath = Resolve-RepoPath -ProvidedPath $FactTemplate -DefaultRelative "core/templates/data_contract_templates/fact_template.yaml"
 $dimTemplatePath = Resolve-RepoPath -ProvidedPath $DimTemplate -DefaultRelative "core/templates/data_contract_templates/dim_template.yaml"

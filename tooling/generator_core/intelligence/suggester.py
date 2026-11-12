@@ -54,14 +54,14 @@ _FALLBACK: Dict[ErrorCategory, FixSuggestion] = {
         description="KPI referenced in bracket not found in catalog. Add it to core/kpi_catalog/ or remove the reference.",
         category=ErrorCategory.MISSING_KPI_REF,
         auto_fixable=False,
-        commands=["python tooling/validation/check_factsheet_vs_kpi.py"],
+        commands=[".\\tooling\\validation\\check_factsheet_vs_kpi.ps1"],
         doc_reference="KNOWN_ERRORS_AND_FIXES.md#dax--measures",
     ),
     ErrorCategory.MISSING_ACTION_CODE: FixSuggestion(
         description="Action code referenced in bracket not found. Create the YAML or remove the reference.",
         category=ErrorCategory.MISSING_ACTION_CODE,
         auto_fixable=False,
-        commands=["python tooling/validation/check_action_codes_vs_kpi.py"],
+        commands=[".\\tooling\\validation\\check_action_codes_vs_kpi.ps1"],
         doc_reference="KNOWN_ERRORS_AND_FIXES.md#dax--measures",
     ),
     ErrorCategory.TMDL_SYNTAX: FixSuggestion(

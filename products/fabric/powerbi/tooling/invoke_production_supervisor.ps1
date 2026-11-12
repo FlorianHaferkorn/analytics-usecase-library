@@ -149,10 +149,36 @@ function Add-KnowledgeBaseRow {
 
 function Get-ValidationResult {
   param([string] $ValidationResultPath)
-  $null = & $validatorScript -RepoRoot $RepoRoot -PolicyPath $resolvedPolicyPath -RequirePbiToolsCompile $true -ResultFile $ValidationResultPath 2>&1
-  if (-not (Test-Path $ValidationResultPath)) {
-    throw "Validation result file not written: $ValidationResultPath"
+  # Until 12.11.2026 this called tooling\pbi_validate_after_impl.ps1, which had been archived
+  # (internal/archive, then removed) - every supervisor run failed with "Validation pipeline
+  # failed". The canonical gate is tooling\quality\run_quality_gate.ps1; it runs here once per
+  # gate so failedGates keeps the names the classification below expects ("stage1", "fabric").
+  # Not carried over from the archived aggregator: the pbi-tools compile gate and the Cursor
+  # Desktop-log bridge (.cursor/ no longer exists).
+  $gates = [System.Collections.ArrayList]::new()
+  $errors = [System.Collections.ArrayList]::new()
+  foreach ($gate in @(
+      @{ name = "stage1"; gateArgs = @{ SkipFabric = $true } },
+      @{ name = "fabric"; gateArgs = @{ SkipStage1 = $true } }
+    )) {
+    $gateArgs = $gate.gateArgs
+    $output = @(& $qualityGateScript @gateArgs *>&1 | ForEach-Object { "$_" })
+    $ok = ($LASTEXITCODE -eq 0)
+    $null = $gates.Add([ordered]@{ name = $gate.name; success = $ok; exitCode = $LASTEXITCODE })
+    if (-not $ok) {
+      $lines = @($output | Where-Object { $_ -match "FAIL|ERROR|Error|error" } | Select-Object -Last 50)
+      if ($lines.Count -eq 0) { $lines = @("$($gate.name) gate failed (exit $LASTEXITCODE)") }
+      foreach ($line in $lines) { $null = $errors.Add("[$($gate.name)] $line") }
+    }
   }
+  $failedGateNames = @($gates | Where-Object { -not $_.success } | ForEach-Object { $_.name })
+  $result = [ordered]@{
+    success     = ($failedGateNames.Count -eq 0)
+    errors      = @($errors)
+    failedGates = $failedGateNames
+    gates       = @($gates)
+  }
+  $result | ConvertTo-Json -Depth 6 | Set-Content -Path $ValidationResultPath -Encoding utf8
   return Get-Content -Path $ValidationResultPath -Raw -Encoding utf8 | ConvertFrom-Json
 }
 
@@ -436,7 +462,7 @@ if ($modeCount -gt 1) {
 }
 
 $orchestratorScript = Join-Path $RepoRoot "products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1"
-$validatorScript = Join-Path $RepoRoot "tooling\pbi_validate_after_impl.ps1"
+$qualityGateScript = Join-Path $RepoRoot "tooling\quality\run_quality_gate.ps1"
 $publishScript = Join-Path $RepoRoot "products\fabric\powerbi\tooling\invoke_workspace_publish.ps1"
 $resolvedResultFile = Resolve-PathFromRepo -Path $ResultFile
 $resultDir = Split-Path -Parent $resolvedResultFile
