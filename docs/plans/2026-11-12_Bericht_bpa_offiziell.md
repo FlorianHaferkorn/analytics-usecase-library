@@ -134,7 +134,7 @@ In VS-Code-Tasks, `.claude/settings.json`, Skills und Workflows gab es keinen Au
 | `python scripts/check_plattform.py` | OK |
 | `python scripts/check_workflows.py` | OK, 6 Workflow-Dateien |
 | Stage 1 (`pwsh tooling/run_stage1_checks.ps1`, Aurora-Showdaten 460 Dateien laut Lock geprüft, `npm ci` in `tooling/validation`) | grün, 0 FAIL, `check_bpa.py` darin OK |
-| `python -m pytest tooling/tests/ products/ -q` | siehe PR-Beschreibung (Lauf am Ende der Runde) |
+| `python -m pytest tooling/tests/ products/ -q` | 3.387 passed, 46 skipped, Exit 0 (632 s, ohne xdist) |
 | `python tooling/quality/check_upstream_sources.py --summary` | `bpa.analysis_services` up_to_date. Exit 1 kommt von zwei anderen, schon vorher offenen Quellen (`skills_for_fabric` v0.3.21, `fntk` 0.0.1a12) |
 
 ## Offene Punkte
