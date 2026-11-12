@@ -74,3 +74,10 @@ git fetch origin archiv/vor-entschlacken-2026-11-12
 git checkout origin/archiv/vor-entschlacken-2026-11-12 -- <pfad>   # einzelne Datei/Ordner zurückholen
 git revert <commit>                                                 # einen Schritt der Runde zurücknehmen
 ```
+
+## Entscheidung Florian 12.11.2026, 06:58: zwei Studios
+
+ALUCA Studio und Meridian Studio laufen künftig parallel als eigenständige Produkte: Meridian Studio für Freelancing,
+ALUCA Studio für Nagarro. Die Trennung folgt erst, wenn das Gesamtprojekt fertig ist. Bis dahin bleibt `studio/` in
+ALUCA unverändert; die Empfehlung aus der Phase-2-Analyse (in Meridian Studio aufgehen lassen, archivieren) ist damit
+verworfen. W5 in `SYNERGY_ALUCA_MERIDIAN.md` wird bei der Trennung neu gefasst (Paar in beiden Repos).
