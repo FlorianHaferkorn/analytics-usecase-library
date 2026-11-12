@@ -13,7 +13,7 @@ validators (Tool-Reuse — no new checker silo) as gate steps at three positions
 
 Honest by construction: every gate command is a real, already-green tool in this repo
 (``core.dataarch_engine.blueprint.cli``, ``core/check_generators.py``,
-``scripts/check_pbir.py``, ``scripts/check_tmdl.py``, ``products.pbi_gatekeeper``, the
+``scripts/check_pbir.py``, ``core.pbi_engine.schema_validate``, ``products.pbi_gatekeeper``, the
 ``drift_check.py`` emitted by ``--emit-lineage``). Gates whose target depends on a
 customer path (a semantic model, a PBIP, the emitted drift check, a DQ runner) are
 **guarded** — skipped with a reason when the input is absent, never faked. A failing
@@ -112,8 +112,8 @@ def _gate_catalog(architecture_path: str, stack: str) -> list[dict]:
          "cmd": "python scripts/check_pbir.py",
          "note": "PBIR-Report-Schema via offizielles MS-CLI (Official-First; soft-skip ohne CLI)."},
         {"id": "tmdl-load", "phases": ("pr", "pre-deploy"), "blocking": True, "guard": "model",
-         "needs": "scripts/check_tmdl.py",
-         "cmd": "python scripts/check_tmdl.py",
+         "needs": "core/pbi_engine/schema_validate.py",
+         "cmd": "python -m core.pbi_engine.schema_validate",
          "note": "SemanticModel/TMDL lädt in Desktop (schema_validate) — Defekte, die Desktop ablehnt."},
         {"id": "pbi-audit", "phases": ("pr",), "blocking": True, "guard": "pbip",
          "needs": "products/pbi_gatekeeper/__init__.py",
