@@ -97,7 +97,7 @@ core/           # Tool-agnostic SSOT: strategy, use cases, KPIs, semantic models
 products/        # Platform-specific implementations
   fabric/powerbi/   # Power BI / Fabric: TMDL, PBIP, deployment
   open_source_stack/ # Evidence.dev + dbt frontend
-  oss_adapters/     # Grafana / Metabase / Superset adapter stubs
+  oss_adapters/     # Grafana / Metabase / Superset adapters (render files, untested live)
 
 studio/          # Next.js Studio UI (Interaction Layer) — visual editor over core/
 

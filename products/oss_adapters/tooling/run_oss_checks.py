@@ -4,9 +4,9 @@ OSS stack validation runner — mirrors products/fabric/powerbi/tooling/run_fabr
 Runs all OSS-specific checks and writes a telemetry entry.
 
 Usage (from repo root):
-    python products/oss/tooling/run_oss_checks.py
-    python products/oss/tooling/run_oss_checks.py --bracket core/usecases/core/COM-001/UseCase_Bracket.yaml
-    python products/oss/tooling/run_oss_checks.py --json
+    python products/oss_adapters/tooling/run_oss_checks.py
+    python products/oss_adapters/tooling/run_oss_checks.py --bracket core/usecases/core/COM-001/UseCase_Bracket.yaml
+    python products/oss_adapters/tooling/run_oss_checks.py --json
 
 Exit codes:
     0 — all checks passed

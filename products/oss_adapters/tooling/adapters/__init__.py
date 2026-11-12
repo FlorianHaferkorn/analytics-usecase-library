@@ -6,12 +6,13 @@ Each adapter translates a tool-agnostic DashboardSpec (IR) into the
 output format required by that tool.
 
 Adapter status:
-    MetabaseAdapter  — stub (not yet implemented)
-    GrafanaAdapter   — stub (not yet implemented)
-    SupersetAdapter  — stub (not yet implemented)
+    MetabaseAdapter  — renders dashboard.json
+    GrafanaAdapter   — renders dashboard.json
+    SupersetAdapter  — renders dashboard_export.zip
+    (Import into the live tools is not tested; 12.11.2026.)
 
-Import pattern (once implemented):
-    from products.oss.tooling.adapters.metabase import MetabaseAdapter
-    from products.oss.tooling.adapters.grafana import GrafanaAdapter
-    from products.oss.tooling.adapters.superset import SupersetAdapter
+Import pattern:
+    from products.oss_adapters.tooling.adapters.metabase import MetabaseAdapter
+    from products.oss_adapters.tooling.adapters.grafana import GrafanaAdapter
+    from products.oss_adapters.tooling.adapters.superset import SupersetAdapter
 """
