@@ -25,8 +25,7 @@ docs/agent/
 
 | Target | Output Location | Format |
 |--------|----------------|--------|
-| Official skills | `skills/*/SKILL.md` | Official Agent-Skills / skills-for-fabric layout — frontmatter first (`name`, `description`, `version`, `license`, `source`) |
-| Claude Code skills | `.claude/skills/*/SKILL.md` | Byte-identical copy of `skills/*/SKILL.md` — the only path Claude Code auto-discovers. A copy, not a symlink (Windows checkouts). The `description` must say *when* to use the skill (“Use when …”): Claude Code selects skills by it. |
+| Official skills (Claude Code) | `.claude/skills/*/SKILL.md` | Official Agent-Skills / skills-for-fabric layout — frontmatter first (`name`, `description`, `version`, `license`, `source`); the only path Claude Code auto-discovers. The `description` must say *when* to use the skill (“Use when …”): Claude Code selects skills by it. The former byte-identical root copy `skills/` was removed on 12.11.2026 (no consumer); `--check` reports a SKILL.md there as `retired`. |
 | Copilot instructions | `.github/copilot-instructions.md` | Concatenation of all `alwaysApply: true` rules |
 
 ## Workflow

@@ -280,7 +280,7 @@ These are real and useful — but do not need them yet:
 
 - `internal/` — maintainer strategy and audit notes.
 - `showcases/aurora_group/` — large generated demo dataset used for reference.
-- `.github/copilot-instructions.md`, `skills/` — generated from `docs/agent/`; do not edit by hand.
+- `.github/copilot-instructions.md`, `.claude/skills/` — generated from `docs/agent/`; do not edit by hand.
 - `products/fabric/powerbi/dist/` — generated TMDL and PBIR output; read but never edit directly.
 - `products/oss_adapters/` — adapter stubs for Grafana, Metabase, Superset; mostly placeholders.
 - `studio/` — useful once you need to work on the UI editor.

@@ -145,7 +145,8 @@ unchanged across environments.
 
 **All resolved (2026-06-16).**
 - `skills-for-fabric`-compatible **target** added to the `docs/agent/` generator —
-  ALUCA overlay skills emit in the official `SKILL.md` shape at `skills/<name>/SKILL.md`
+  ALUCA overlay skills emit in the official `SKILL.md` shape at `.claude/skills/<name>/SKILL.md`
+  (until 12.11.2026 also as a root copy `skills/`, removed: no consumer)
   (`generate_official_skills()` in `tooling/generator/generate_tool_configs.py`).
 - Build-vs-buy generator → `ruler`, **shim-only** (long-tail agents only; `AGENTS.md`
   SSOT untouched).
