@@ -29,17 +29,20 @@ Nicht ganze Ordnerbäume scannen — gezielt routen.
 
 | Bereich | `_INDEX.md` | Wofür |
 |---|---|---|
+| Golden Thread (core) | [`core/_INDEX.md`](core/_INDEX.md) | KPI-Katalog, Action Codes, Use Cases, Semantik, Seitenvorlagen, Datenverträge, Marke — routet zu den `README.md` der Unterbereiche |
+| Werkzeuge (tooling) | [`tooling/_INDEX.md`](tooling/_INDEX.md) | Fünf Familien: Emissionskern `superversion/`, Erzeugung, Prüfung (validation/quality/report_quality/linters), Schemas (Autorität vs. PBIR-Cache), Betrieb |
+| ALUCA Studio | [`studio/_INDEX.md`](studio/_INDEX.md) | Nagarro-Produkt, eigenständig (Next.js): Setup, Konventionen, Feature-Entwürfe, Rebuild-Doku |
 | Strategie + Operating Model | [`core/strategy_operating_model/_INDEX.md`](core/strategy_operating_model/_INDEX.md) | WHY (Zielbild, Strategic KPIs, Patterns) + HOW (Golden Thread, Semantik, Governance, UX) |
 | DSGVO-Compliance | [`compliance/_INDEX.md`](compliance/_INDEX.md) | DPIA, AVV, Retention, EU-Hosting, Art.-30-Record (DE-Markt-Beschaffung) |
 | Architektur + ADRs | [`docs/architecture/_INDEX.md`](docs/architecture/_INDEX.md) | Decision Records (ADR-0001–0003), Agent-Integration, Migration, Tooling-Map, Reference-Graph |
 | Agent (Regeln + Skills) | [`docs/agent/_INDEX.md`](docs/agent/_INDEX.md) | Wie Agenten arbeiten: Rules, Skills, Guided Workflow (GADW), Aktivierung |
 | Repo-Gates + Sensoren | [`scripts/_INDEX.md`](scripts/_INDEX.md) | Drift-Gate, CI-/Spiegel-/Plattform-Sensoren, Tier-0-Sammler `gadw_gate.py` |
-| Produkte (Tool-Adapter) | [`products/_INDEX.md`](products/_INDEX.md) | Fabric/Power BI (Leitfäden, TMDL-/PBIR-Referenzen, Tooling, Deployment, Betrieb) + OSS-Stack (Evidence.dev), Adapter-Vertrag, Connectoren |
+| Produkte (Tool-Adapter) | [`products/_INDEX.md`](products/_INDEX.md) | Fabric/Power BI (Leitfäden, TMDL-/PBIR-Referenzen, Tooling, Deployment, Betrieb) + OSS-Stack (Evidence.dev), Adapter-Vertrag |
 | Pläne + Konzepte | [`docs/plans/_INDEX.md`](docs/plans/_INDEX.md) | Umsetzungspläne (Report-Exzellenz, Agentic Loop, Superversion), Konzepte, Reviews und Begleitnotizen — seit 29.09.2026 aus dem Wurzelordner hierher verschoben |
 | Intern (Maintainer) | [`internal/_INDEX.md`](internal/_INDEX.md) | Fehler-Wissensbasis (`KNOWN_ERRORS_AND_FIXES.md`), Desktop-/Fabric-gated Aufgaben, v1.0-Plan, Backlogs, Doku-Audits, Metriken, Continuity-Dossier, Angebotskalkulation — kein Kunden-Deliverable (außer Continuity-Dossier); `internal/archive/` nicht navigiert |
 
-Übrige Bereiche (`core/kpi_catalog/`, `core/action_codes/`, `core/usecases/`, …) navigieren
-weiter über ihre `README.md`; ein eigenes `_INDEX.md` bekommen sie bei Bedarf. Neuer Index
+Unterbereiche von `core/` (`core/kpi_catalog/`, `core/action_codes/`, `core/usecases/`, …) navigieren
+über ihre `README.md`, erreichbar über `core/_INDEX.md`; ein eigenes `_INDEX.md` bekommen sie bei Bedarf. Neuer Index
 = das Drift-Gate erzwingt ab dann Vollständigkeit für dessen Subtree.
 
 ## Ledger-Prinzip — `_INDEX.md` ist Single Source of Truth (Anti-Nacharbeit)

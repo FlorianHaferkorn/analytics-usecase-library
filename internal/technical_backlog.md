@@ -14,7 +14,7 @@ These scripts are functional but referenced by no workflow, runner, hook, README
 
 | File | Size | Note |
 |------|------|------|
-| `tooling/hooks/pre_push_gate.py` | small | Docstring claims a PreToolUse/pre-push hook, but `.claude/settings.json` defines no such hook (only PostToolUse bash hooks). Wire into pre-commit/settings, or remove. |
+| `tooling/git-hooks/pre_push_gate.py` | small | Docstring claims a PreToolUse/pre-push hook, but `.claude/settings.json` defines no such hook (only PostToolUse bash hooks). Wire into pre-commit/settings, or remove. |
 | `tooling/validation/check_page_dod.py` | 442 lines (CLI w/ `__main__`) | Page Definition-of-Done checker; only self-references, not in any gate/runner/README. Wire into a gate, or document as a manual tool. |
 
 ---

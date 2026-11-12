@@ -6,8 +6,8 @@ shelf-life-days: 90
 
 > Einstieg in `products/` — die **tool-spezifischen Realisierungen** des Frameworks:
 > Microsoft Fabric / Power BI (Referenz-Adapter, `fabric/powerbi/`), der Open-Source-Stack
-> (Evidence.dev + dbt, `open_source_stack/`), der Adapter-Vertrag (`adapters/`) und
-> Quell-Connectoren (`connectors/`). Bedeutung (KPIs, Use Cases, Semantik) bleibt in `core/`;
+> (Evidence.dev + dbt, `open_source_stack/`) und der Adapter-Vertrag (`adapters/`). Quell-Connectoren
+> liegen seit 12.11.2026 unter `../tooling/connectors/` (Code und README an einem Ort). Bedeutung (KPIs, Use Cases, Semantik) bleibt in `core/`;
 > hier steht nur das *Wie auf Tool X*. Zuerst diese Datei, dann gezielt zum Doc — nicht den
 > ganzen Ordner. Generierte Artefakte unter `dist/` sind nicht Teil des Registers.
 
@@ -30,7 +30,7 @@ shelf-life-days: 90
 | Fabric-Betrieb auslegen: Rollout & Alerting, Kosten, DR/Failover, Security (Well-Architected) | `fabric/powerbi/docs/operational/rollout_and_alerting_standard.md`, `fabric/powerbi/docs/cost/cost_optimization_runbook.md`, `fabric/powerbi/docs/reliability/dr_failover_strategy.md`, `fabric/powerbi/docs/security/ms_well_architected_security_mapping.md` | references/, tooling/ |
 | MCP-gestützten Automationsflow Use Case → Semantikmodell → Report (Self-Healing) verstehen oder umsetzen | `fabric/powerbi/orchestrator/`: `fabric/powerbi/orchestrator/AUTOMATION_FLOW.md` → `fabric/powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md` | open_source_stack/, deployment/ |
 | OSS-Stack (Evidence.dev/dbt) bauen oder generierte Evidence-Seiten prüfen | `open_source_stack/ARCHITECTURE.md` → `open_source_stack/evidence_app/pages/`: `open_source_stack/evidence_app/pages/com_001_overview.md`, `open_source_stack/evidence_app/pages/com_001_detail.md`, `open_source_stack/evidence_app/pages/com_004_overview.md`, `open_source_stack/evidence_app/pages/com_004_detail.md` | fabric/ |
-| Neuen Tool-Adapter oder Quell-Connector anbinden | `adapters/README.md` (Adapter-Vertrag) → `connectors/sap/README.md` (Beispiel SAP) | fabric/powerbi/docs/ |
+| Neuen Tool-Adapter oder Quell-Connector anbinden | `adapters/README.md` (Adapter-Vertrag) → `../tooling/connectors/sap/README.md` (Beispiel SAP) | fabric/powerbi/docs/ |
 | Angebotskalkulation (Fabric-Kapazität, Power-BI-Lizenzen, Implementierung; USD oder EUR) erstellen oder Angebotstext befüllen; Kostendelta eines Project-Package-Laufs (lädt `proposal_costing/tooling/cost_engine.py`) | `proposal_costing/docs/README.md` → `proposal_costing/tooling/README.md` → `proposal_costing/templates/proposal_snippet.md` / `proposal_costing/templates/offer_snippet.md`; Beispiel-Output `proposal_costing/dist/aurora_calculation.md` | fabric/powerbi/docs/, open_source_stack/ |
 
 ## 2. Dokument-Register (vollständig — Drift-Gate erzwingt das)
@@ -39,7 +39,7 @@ shelf-life-days: 90
 > mit vollem Pfad (relativ zu `products/`) und Kurzzweck in der zweiten Spalte, die letzte
 > Spalte sagt, wann die Gruppe relevant ist. `README.md` ist exempt; `proposal_costing/dist/` ist
 > generiert und vom Gate ausgenommen; `adapters/`,
-> `connectors/`, `fabric/orchestrator/`, `open_source_stack/deploy/` und `open_source_stack/themes/`
+> `fabric/orchestrator/`, `open_source_stack/deploy/` und `open_source_stack/themes/`
 > haben keine Register-Docs und navigieren über ihre `README.md`.
 
 | Gruppe | Docs — Zweck | Lies-wenn (Gruppe) |

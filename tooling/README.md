@@ -24,7 +24,8 @@ tooling/
   ai/                  # AI/agent schemas (synced from validation/schemas/)
   alignment/           # Strategic alignment map generators
   generation/          # Measure & scaffolding generation
-  git-hooks/           # Pre-commit hook + installer
+  connectors/          # Source connectors (SAP: code + README)
+  git-hooks/           # Pre-commit hook installer, pre-push gate
   linters/             # DAX, semantic model, report, encoding rules
   maintenance/         # Evolution, migration, docs checks
   migration/           # One-off ID migrations (D-594 KPI IDs), --check guards the result
@@ -113,6 +114,9 @@ ontology registry strict for staged `core/`). Since 07.10.2026 there is no secon
 - `install_precommit.ps1` — validates Python 3, sets `core.hooksPath .githooks` (idempotent),
   renames a previously copied `.git/hooks/pre-commit` instead of deleting it. Claude Code
   sessions do the same via the SessionStart hook `.claude/hooks/activate_git_hooks.sh`.
+- `pre_push_gate.py` — runs `tooling/preflight.py` when a command contains `git push`
+  (moved from `tooling/hooks/` on 12.11.2026). Not wired into any hook yet; see
+  `internal/technical_backlog.md` ("Un-wired tooling").
 
 ---
 
