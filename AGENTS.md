@@ -5,6 +5,17 @@
 
 ---
 
+## Navigation (area indexes)
+
+Each navigable area has one `_INDEX.md` with a "read-when" table; open it first instead of scanning
+the folder. Main ones: `core/_INDEX.md` (Golden Thread content), `tooling/_INDEX.md` (generators,
+checks, emission core `tooling/superversion/`, schema authority vs. PBIR schema cache),
+`products/_INDEX.md`, `studio/_INDEX.md` (ALUCA Studio, standalone product), `scripts/_INDEX.md`
+(repo gates), `docs/architecture/_INDEX.md`, `docs/agent/_INDEX.md`. Full map: `CLAUDE.md`,
+"Bereichs-Landkarte".
+
+---
+
 ## Golden Thread Principle
 
 Use cases and reports **reference** governed definitions — they do not define KPI meaning or action logic.
@@ -72,6 +83,7 @@ Run all scripts from the **repository root**.
 | OSS report generation | `python3 products/oss_adapters/orchestrator/orchestrate_oss.py --bracket <path> --adapter metabase` (test: `products/oss_adapters/tests/`) |
 | Registry build | `python3 tooling/ontology/registry_builder.py --repo-root .` |
 | Health scorecard | `python3 tooling/health_scorecard.py` |
+| Semantic model BPA, own rules (official set pinned, Windows only: `.github/workflows/tabular-bpa.yml`) | `python3 tooling/validation/check_bpa.py --details` |
 | Schema validation (Python) | `python3 -m pytest tooling/tests/ -k schema -q` |
 
 ---

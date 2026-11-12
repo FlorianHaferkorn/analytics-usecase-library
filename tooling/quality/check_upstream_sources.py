@@ -1,7 +1,9 @@
 """Check allowlisted upstream sources for new versions of BPA rules and external references.
 
 Allowed source registry (allowlist only -- never pulls unapproved sources):
-  - TabularEditor/BestPracticeRules  (bpa-rules-semanticmodel.json)
+  - microsoft/Analysis-Services BestPracticeRules/BPARules.json  (kind ``github_file``: pinned
+    commit + sha256 in tooling/linters/powerbi/bpa-official.pin.json; since 12.11.2026 the outdated
+    local copy bpa-rules-semanticmodel.json is gone)
   - data-goblin/power-bi-agentic-development (reviewed upstream reference, read-only)
   - microsoft/skills-for-fabric  (kind ``github``: pinned release tag, Meridian D-603)
   - PyPI fabric-notebook-toolkit (kind ``pypi``: internal dev tool only, Meridian D-603)
@@ -13,6 +15,11 @@ Source kinds (``kind``; absent = the GitHub REST probe via ``api_url``):
     pinned tag moved off the pinned commit (the ref would pull unreviewed content), newer
     SemVer tag. Reports, never bumps.
   - ``pypi`` -- a package pinned to an exact version; newer ``info.version`` is reported.
+  - ``github_file`` -- one file consumed at a pinned commit (no tags upstream). The pin lives in a
+    JSON file (``pin_file``: repo, path, branch, commit, sha256). ``git ls-remote`` reads the
+    branch head; if it moved, the file is fetched at the head and its sha256 compared: same
+    content -> up to date, different -> ``update_available``. The file at the pinned commit
+    must still hash to the pin (``pin_moved`` otherwise). Reports, never bumps.
 
 Usage:
     python tooling/quality/check_upstream_sources.py [--summary] [--output PATH]
@@ -26,6 +33,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -37,14 +45,20 @@ from pathlib import Path
 
 ALLOWLIST = [
     {
-        "id": "bpa.tabular_editor",
-        "name": "TabularEditor BPA Rules",
-        "source": "TabularEditor/BestPracticeRules",
-        "api_url": "https://api.github.com/repos/TabularEditor/BestPracticeRules/releases/latest",
-        "local_pin_comment": "tooling/linters/powerbi/bpa-rules-semanticmodel.json",
+        # Official Tabular Editor BPA rule set, pinned by commit + sha256 (not copied). Same pin as
+        # Freelancing .github/workflows/tabular-bpa.yml BPA_RULES_REF. Runs only in ALUCA's Windows
+        # workflow .github/workflows/tabular-bpa.yml (12.11.2026).
+        "id": "bpa.analysis_services",
+        "name": "Tabular Editor BPA rules (microsoft/Analysis-Services)",
+        "kind": "github_file",
+        "source": "microsoft/Analysis-Services",
+        "pin_file": "tooling/linters/powerbi/bpa-official.pin.json",
+        "api_url": "https://github.com/microsoft/Analysis-Services.git (git ls-remote) + raw file",
+        "local_pin_comment": "tooling/linters/powerbi/bpa-official.pin.json "
+                             "+ .github/workflows/tabular-bpa.yml (peer test test_check_bpa.py)",
         "review_required": True,
         "license": "MIT",
-        "last_checked": "2026-05",
+        "last_checked": "2026-11-12",
         "local_owner": "fabric",
     },
     {
@@ -204,9 +218,74 @@ def evaluate_pypi(source: dict, data: dict) -> tuple[str, str | None, str]:
             "switches and `fntk init` behaviour before bumping.")
 
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _branch_head(repo: str, branch: str) -> str | None:
+    """Commit of ``refs/heads/<branch>`` via ``git ls-remote``; None = unreachable."""
+    git = shutil.which("git")
+    if git is None:
+        return None
+    try:
+        proc = subprocess.run(
+            [git, "ls-remote", f"https://github.com/{repo}.git", f"refs/heads/{branch}"],
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            env={**os.environ, "GIT_TERMINAL_PROMPT": "0"},
+            timeout=_LS_REMOTE_TIMEOUT_S, check=False)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if proc.returncode != 0 or not proc.stdout.split():
+        return None
+    return proc.stdout.split()[0]
+
+
+def _raw_sha256(repo: str, ref: str, path: str) -> str | None:
+    url = f"https://raw.githubusercontent.com/{repo}/{ref}/{path}"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "pbi-quality-tools/1.0"})
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            return hashlib.sha256(resp.read()).hexdigest()
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def evaluate_github_file(pin: dict, head: str, pinned_sha: str | None,
+                         head_sha: str | None) -> tuple[str, str | None, str]:
+    """Pure core of the ``github_file`` kind: (status, remote_version, message)."""
+    repo, path, commit = pin["repo"], pin["path"], pin["commit"]
+    if pinned_sha is None:
+        return "unreachable", None, f"{repo}/{path}@{commit[:12]} not downloadable."
+    if pinned_sha != pin["sha256"]:
+        return ("pin_moved", pinned_sha[:12],
+                f"{path}@{commit[:12]} hashes to {pinned_sha[:12]}, pinned {pin['sha256'][:12]}.")
+    if head == commit:
+        return "up_to_date", commit[:12], f"{repo} {pin['branch']} = pin {commit[:12]}."
+    if head_sha is None:
+        return "unreachable", head[:12], f"{repo} {pin['branch']} moved to {head[:12]}; file not downloadable."
+    if head_sha == pin["sha256"]:
+        return ("up_to_date", head[:12],
+                f"{repo} {pin['branch']} moved to {head[:12]}, {path} unchanged (sha256 equal).")
+    return ("update_available", head[:12],
+            f"{path} changed at {repo} {pin['branch']} {head[:12]}. Read the diff, then bump pin file "
+            "(commit, sha256, rule_ids, measured) and the workflow env together.")
+
+
 def check_source(source: dict) -> dict:
     """Check one source entry for new versions. Returns a result dict."""
     kind = source.get("kind")
+    if kind == "github_file":
+        result = {"id": source["id"], "name": source["name"], "api_url": source["api_url"],
+                  "status": "unknown", "remote_version": None, "message": ""}
+        pin = json.loads((REPO_ROOT / source["pin_file"]).read_text(encoding="utf-8"))
+        head = _branch_head(pin["repo"], pin["branch"])
+        if head is None:
+            result.update(status="unreachable", message="git ls-remote unavailable.")
+            return result
+        pinned_sha = _raw_sha256(pin["repo"], pin["commit"], pin["path"])
+        head_sha = pinned_sha if head == pin["commit"] else _raw_sha256(pin["repo"], head, pin["path"])
+        result["status"], result["remote_version"], result["message"] = \
+            evaluate_github_file(pin, head, pinned_sha, head_sha)
+        return result
     if kind == "github":
         result = {"id": source["id"], "name": source["name"], "api_url": source["api_url"],
                   "status": "unknown", "remote_version": None, "message": ""}

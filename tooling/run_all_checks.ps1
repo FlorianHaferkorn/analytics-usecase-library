@@ -309,16 +309,10 @@ if ($distRoot -and (Test-Path $distRoot)) {
 	}
 }
 
-# 19d) Semantic model structure validation – same guard
-if ($distRoot -and (Test-Path $distRoot)) {
-	$tmdlDirs = Get-ChildItem -Path $distRoot -Filter "*.SemanticModel" -Directory -ErrorAction SilentlyContinue
-	foreach ($dir in $tmdlDirs) {
-		$defPath = Join-Path $dir.FullName "definition"
-		if (-not [string]::IsNullOrWhiteSpace($defPath) -and (Test-Path $defPath)) {
-			Invoke-LocalScript -RelativePath "tooling/validation/validate_semanticmodel.ps1" -Arguments @{ TmdlPath = $defPath }
-		}
-	}
-}
+# 19d) Semantic model BPA: seit 12.11.2026 nicht mehr hier. Eigene Regeln (aluca-bpa-rules.json)
+#      laufen in Stage 1 ueber tooling/validation/check_bpa.py, der offizielle gepinnte Satz nur
+#      mit Tabular Editor auf Windows (.github/workflows/tabular-bpa.yml). validate_semanticmodel.ps1
+#      (3 Regex-Regeln, meldete jede Tabelle als beziehungslos) ist entfernt.
 
 # 19d2) TMDL BPA validation – same guard
 if ($distRoot -and (Test-Path $distRoot)) {

@@ -312,7 +312,7 @@ unchecked without a tenant.
 | `validate_dbt_models` | dbt model compilation, metric refs | `validate_tmdl.ps1` |
 | `validate_dbt_metrics` | Metric ↔ KPI catalog alignment | `validate_dax.ps1` |
 | `validate_sql_style` | SQL best practices (no SELECT *, explicit JOINs) | `bpa-rules-dax.json` |
-| `validate_theme_tokens` | Evidence pages use only governed design tokens | `validate_semanticmodel.ps1` |
+| `validate_theme_tokens` | Evidence pages use only governed design tokens | `check_custom_theme.py` |
 | `check_metrics_vs_kpi` | Every KPI in bracket has a dbt metric | `check_measures_vs_kpi.ps1` |
 
 ### 6.2 CI Integration

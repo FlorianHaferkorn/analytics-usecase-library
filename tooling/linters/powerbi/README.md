@@ -27,7 +27,8 @@ Implementation Layer (Tool-Specific):
 └── tooling/linters/powerbi/
     └── bpa-rules-dax.json         # DAX style rules
     └── bpa-rules-report.json      # Report layout rules
-    └── bpa-rules-semanticmodel.json # Semantic model rules
+    └── bpa-official.pin.json      # Pin of the official Tabular Editor rule set (no rules)
+    └── aluca-bpa-rules.json       # ALUCA gap rules, Tabular Editor format
     └── bpa-rules-tmdl.json        # TMDL syntax rules
 ```
 
@@ -48,11 +49,20 @@ Implementation Layer (Tool-Specific):
 **Auto-fixable**: Limited  
 **Readable overview**: [REPORT_BEST_PRACTICES.md](REPORT_BEST_PRACTICES.md) (human-readable rule list and parameters)
 
-### 3. bpa-rules-semanticmodel.json
-**Scope**: Semantic model tables, columns, relationships  
-**Purpose**: Enforce performance best practices (avoid calculated columns, star schema, partitioning, etc.)  
-**Severity**: Error, Warning, Info  
-**Auto-fixable**: Limited
+### 3. Semantic model BPA: bpa-official.pin.json + aluca-bpa-rules.json (since 12.11.2026)
+**Official first**: the official Tabular Editor rule set (`microsoft/Analysis-Services`
+`BestPracticeRules/BPARules.json`, 71 rules) is **pinned, not copied**: commit, raw URL and sha256 in
+`bpa-official.pin.json`. It runs only with Tabular Editor 2 on Windows
+(`.github/workflows/tabular-bpa.yml`, hash-checked). Drift: `tooling/quality/check_upstream_sources.py`
+(entry `bpa.analysis_services`).  
+**Own rules**: `aluca-bpa-rules.json` (blank array, Tabular Editor format, 16 rules) holds only what the
+official set lacks. Stage 1 evaluates them on Linux with `tooling/validation/check_bpa.py`; Tabular
+Editor loads the same file on Windows. Each rule has a fixture pair (violates / passes) under
+`tooling/tests/fixtures/bpa_custom/<ID>/`.  
+**Replaces**: `bpa-rules-semanticmodel.json` (outdated copy, 58 of 71 official rules, evaluated only by
+3 regexes) and `validate_semanticmodel.ps1`.  
+**Note**: until `validate_dax.ps1` and `check_dax_best_practices.ps1` are ported, `bpa-rules-dax.json`
+still carries the same DAX rules in the old format (two rule sources for DAX, recorded as open).
 
 ### 4. bpa-rules-tmdl.json ⭐ NEW
 **Scope**: TMDL file syntax and structure  
@@ -128,7 +138,8 @@ To add new Power BI BPA rules:
 1. Choose appropriate file:
    - DAX expression rules → `bpa-rules-dax.json`
    - Report layout rules → `bpa-rules-report.json`
-   - Semantic model rules → `bpa-rules-semanticmodel.json`
+   - Semantic model / DAX rules → first check the official set (rule IDs in `bpa-official.pin.json`);
+     only a gap goes into `aluca-bpa-rules.json` (Tabular Editor format, plus fixture pair)
    - TMDL syntax rules → `bpa-rules-tmdl.json`
 
 2. Add rule entry:

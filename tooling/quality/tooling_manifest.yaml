@@ -171,6 +171,14 @@ validators:
     owner: fabric
     docs: "TMDL syntax checks: tabs, assignment operators, M-expression/table-name collision."
 
+  - id: model.bpa
+    type: validator
+    scope: model
+    entrypoint: tooling/validation/check_bpa.py
+    runs_in: python
+    owner: fabric
+    docs: "ALUCA's own Tabular Editor BPA rules (aluca-bpa-rules.json) on every dist SemanticModel, on Linux (Stage 1, --strict). Exit 2 = not run. The pinned official set runs only in .github/workflows/tabular-bpa.yml (Windows)."
+
   - id: tmdl.pbip_readiness
     type: validator
     scope: model
@@ -431,15 +439,25 @@ bpa_rules:
     source: custom
     last_checked: "2026-05"
 
-  - id: bpa.semanticmodel
+  - id: bpa.official
     type: bpa_rule
     scope: model
-    entrypoint: tooling/linters/powerbi/bpa-rules-semanticmodel.json
+    entrypoint: tooling/linters/powerbi/bpa-official.pin.json
     runs_in: json
     owner: fabric
-    docs: "Semantic model best practices: isAvailableInMDX, hidden columns, auto date tables."
+    docs: "Pin (commit, raw URL, sha256, rule IDs) of the official Tabular Editor rule set microsoft/Analysis-Services BestPracticeRules/BPARules.json, 71 rules. Not copied; loaded and hash-checked in .github/workflows/tabular-bpa.yml (Windows only)."
+    source: upstream
+    last_checked: "2026-11-12"
+
+  - id: bpa.aluca
+    type: bpa_rule
+    scope: model
+    entrypoint: tooling/linters/powerbi/aluca-bpa-rules.json
+    runs_in: json
+    owner: fabric
+    docs: "ALUCA gap rules in Tabular Editor format (16): DAX rules without official counterpart, ISERROR, LY time intelligence, display folder, #table without let, lineageTag. Linux: check_bpa.py; Windows: tabular-bpa.yml."
     source: custom
-    last_checked: "2026-05"
+    last_checked: "2026-11-12"
 
   - id: bpa.fab_inspector
     type: bpa_rule

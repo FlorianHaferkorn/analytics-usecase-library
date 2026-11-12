@@ -1,0 +1,156 @@
+name: Tabular Editor BPA (official + ALUCA rules, Windows)
+
+# Offizieller Best-Practice-Analyzer-Satz (microsoft/Analysis-Services BestPracticeRules/BPARules.json)
+# plus ALUCAs eigene Regeln (tooling/linters/powerbi/aluca-bpa-rules.json) mit Tabular Editor 2 auf
+# Windows. Muster: Freelancing .github/workflows/tabular-bpa.yml (D-350). Unter Mono stirbt TE2 2.28.0
+# vor der ersten Pruefung (Freelancing D-329); deshalb windows-latest.
+#
+# Der offizielle Satz wird nicht kopiert, sondern gepinnt: Commit + sha256 aus
+# tooling/linters/powerbi/bpa-official.pin.json (Peer-Test tooling/tests/test_check_bpa.py haelt
+# beide gleich). Die eigenen Regeln laufen zusaetzlich auf Linux in Stage 1
+# (tooling/validation/check_bpa.py); dieser Lauf ist der einzige fuer die 71 offiziellen Regeln.
+#
+# Befunde sind informativ (BPA_STRICT_MODE false). "Nicht gelaufen" ist rot: der letzte Schritt
+# zaehlt TRX-Dateien und Analyzer-Protokolle je Modell.
+
+on:
+  # Wöchentlich auf main plus Handstart (Entscheidung Florian 12.11.2026): Windows-Minuten zählen doppelt, ein Lauf
+  # dauert in Freelancing gemessen rund 38 min. Je PR prüft check_bpa.py (Stage 1) die eigenen Regeln unter Linux.
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      strict_mode:
+        description: "BPA-Befunde als Fehler werten (Standard: informativ)"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+
+env:
+  # = bpa-official.pin.json commit / sha256 (Peer-Test). Bump nur zusammen mit dem Pin.
+  BPA_RULES_REF: "d3ccb5032c9029b097276b88412f7b61df6e73b8"  # pragma: allowlist secret (git commit)
+  BPA_RULES_SHA256: "ddb9cff4c2a0611a6467e2559d38319d9867381998066473ffa1e11c2d360392"  # pragma: allowlist secret (file hash)
+  TE2_VERSION: "2.28.0"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bpa:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: windows-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    permissions:
+      contents: read
+    steps:
+      - name: Enable long paths (Windows MAX_PATH)
+        run: git config --system core.longpaths true
+
+      - uses: actions/checkout@v4
+
+      - name: Discover SemanticModel folders
+        id: discover
+        run: |
+          shopt -s nullglob
+          MODELS=()
+          for sm in products/fabric/powerbi/dist/*.SemanticModel; do
+            [ -d "$sm/definition" ] && MODELS+=("$sm")
+          done
+          if [ ${#MODELS[@]} -eq 0 ]; then
+            echo "::error::Keine *.SemanticModel mit definition/ gefunden - nichts geprueft, nicht gruen."
+            exit 1
+          fi
+          printf 'Found %d model(s):\n' "${#MODELS[@]}"
+          printf '  %s\n' "${MODELS[@]}"
+          {
+            echo 'models<<EOF'
+            printf '%s\n' "${MODELS[@]}"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+          echo "found=${#MODELS[@]}" >> $GITHUB_OUTPUT
+
+      - name: Cache TE2 + pinned BPA rules
+        id: te2-cache
+        uses: actions/cache@v4
+        with:
+          path: .te2-cache
+          key: te2-bpa-${{ env.TE2_VERSION }}-${{ env.BPA_RULES_REF }}-win-v1
+
+      - name: Download Tabular Editor 2 + pinned official rules
+        if: steps.te2-cache.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          mkdir -p .te2-cache/te2
+          curl -fL -o .te2-cache/te2.zip \
+            "https://github.com/TabularEditor/TabularEditor/releases/download/${TE2_VERSION}/TabularEditor.Portable.zip"
+          7z x -y -o.te2-cache/te2 .te2-cache/te2.zip > /dev/null
+          curl -fL -o .te2-cache/BPARules.json \
+            "https://raw.githubusercontent.com/microsoft/Analysis-Services/${BPA_RULES_REF}/BestPracticeRules/BPARules.json"
+
+      - name: Verify pinned rule set (sha256)
+        run: |
+          echo "${BPA_RULES_SHA256}  .te2-cache/BPARules.json" | sha256sum -c -
+
+      - name: Run BPA (official + ALUCA) against every SemanticModel
+        env:
+          MODELS: ${{ steps.discover.outputs.models }}
+          STRICT: ${{ inputs.strict_mode || 'false' }}
+        run: |
+          set +e
+          mkdir -p bpa-output
+          FAIL=0
+          while IFS= read -r SM; do
+            [ -z "$SM" ] && continue
+            NAME="$(basename "$SM" .SemanticModel)"
+            # TE2 erkennt den Ordner nur an <Modell>/definition/model.tmdl (Freelancing D-350, Lauf 2).
+            TMDL="$SM/definition"
+            echo "::group::BPA: $NAME"
+            ./.te2-cache/te2/TabularEditor.exe "$TMDL" -A .te2-cache/BPARules.json \
+              -G -T "bpa-output/${NAME}-official.trx" 2>&1 | tee "bpa-output/${NAME}.log"
+            S1=${PIPESTATUS[0]}
+            ./.te2-cache/te2/TabularEditor.exe "$TMDL" -A tooling/linters/powerbi/aluca-bpa-rules.json \
+              -G -T "bpa-output/${NAME}-aluca.trx" 2>&1 | tee -a "bpa-output/${NAME}.log"
+            S2=${PIPESTATUS[0]}
+            echo "::endgroup::"
+            if [ "$S1" -ne 0 ] || [ "$S2" -ne 0 ]; then
+              echo "::warning::BPA meldet Befunde fuer $NAME (exit $S1/$S2)"
+              [ "$STRICT" = "true" ] && FAIL=$((FAIL + 1))
+            fi
+          done <<< "$MODELS"
+          [ "$STRICT" = "true" ] && exit $FAIL
+          exit 0
+
+      - name: Verify the analyzer actually ran
+        if: always() && steps.discover.outputs.found != ''
+        run: |
+          set -uo pipefail
+          N='${{ steps.discover.outputs.found }}'
+          TRXS=$(find bpa-output -type f -name '*.trx' 2>/dev/null | wc -l)
+          RAN=$({ grep -l "Running Best Practice Analyzer" bpa-output/*.log 2>/dev/null || true; } | wc -l)
+          NOTLOADED=$({ grep -lE "File not found|Error loading file" bpa-output/*.log 2>/dev/null || true; } | wc -l)
+          CRASHES=$({ grep -rl "FATAL UNHANDLED EXCEPTION" bpa-output/ 2>/dev/null || true; } | wc -l)
+          echo "Modelle: $N | Protokolle mit Analyzer-Lauf: $RAN | TRX-Dateien: $TRXS (erwartet $((N * 2))) | nicht geladen: $NOTLOADED | Abstuerze: $CRASHES"
+          if [ "$CRASHES" -gt 0 ] || [ "$NOTLOADED" -gt 0 ]; then
+            echo "::error::Tabular Editor hat nicht geprueft (Absturz $CRASHES, nicht geladen $NOTLOADED). Kein BPA-Befund, sondern nicht gelaufen."
+            exit 1
+          fi
+          if [ "$RAN" -lt "$N" ] || [ "$TRXS" -lt $((N * 2)) ]; then
+            echo "::error::Nicht fuer jedes Modell und jeden Regelsatz ein Ergebnis ($TRXS TRX, $RAN Laeufe, $N Modelle). Ein Tor ohne Ergebnis meldet nicht gruen."
+            exit 1
+          fi
+          echo "Analyzer gelaufen: $N Modell(e), $TRXS TRX-Datei(en)."
+
+      - name: Upload BPA logs + TRX
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tabular-bpa-output
+          path: bpa-output/**
+          retention-days: 14
+          if-no-files-found: ignore

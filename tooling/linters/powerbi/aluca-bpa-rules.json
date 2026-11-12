@@ -1,0 +1,162 @@
+[
+  {
+    "ID": "ALUCA_DAX_VAR_RETURN",
+    "Name": "[DAX] Non-trivial measures use VAR/RETURN",
+    "Category": "ALUCA Standards",
+    "Description": "Measures mit Operatoren, CALCULATE, SUMX, AVERAGEX oder FILTER definieren Zwischenwerte mit VAR und geben mit RETURN zurueck (SQLBI DAX-Formatierung; Variablen werden einmal ausgewertet). Kein offizielles Gegenstueck im BPA-Satz. Herkunft: bpa-rules-dax.json dax.var_return.required.",
+    "Severity": 2,
+    "Scope": "Measure",
+    "Expression": "RegEx.IsMatch(Expression, \"(?i)[-+*/]|\\b(CALCULATE|SUMX|AVERAGEX|FILTER)\\s*\\(\") and not (RegEx.IsMatch(Expression, \"(?i)\\bVAR\\b\") and RegEx.IsMatch(Expression, \"(?i)\\bRETURN\\b\"))",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_FORMAT_IN_MEASURE",
+    "Name": "[DAX] No FORMAT() in computational measures",
+    "Category": "ALUCA Standards",
+    "Description": "FORMAT() wandelt die Zahl in Text; Formatierung gehoert in formatString. Erlaubt nur in Text-Measures, die FORMAT per & verketten. Kein offizielles Gegenstueck. Herkunft: bpa-rules-dax.json dax.format.forbidden.",
+    "Severity": 3,
+    "Scope": "Measure",
+    "Expression": "RegEx.IsMatch(Expression, \"(?i)\\bFORMAT\\s*\\(\") and not RegEx.IsMatch(Expression, \"(?i)&\\s*FORMAT\\s*\\(\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_REMOVEFILTERS",
+    "Name": "[DAX] Prefer REMOVEFILTERS over ALL as filter modifier",
+    "Category": "ALUCA Standards",
+    "Description": "Wo nur Filter entfernt werden sollen, REMOVEFILTERS statt ALL verwenden (lesbarer, eindeutig ein CALCULATE-Modifier). Ausgenommen sind Ausdruecke mit VALUES, ALLSELECTED, ALLEXCEPT oder ALLNOBLANKROW. Kein offizielles Gegenstueck. Herkunft: bpa-rules-dax.json dax.removefilters.preferred.",
+    "Severity": 2,
+    "Scope": "Measure",
+    "Expression": "RegEx.IsMatch(Expression, \"(?i)\\bALL\\s*\\(\") and not RegEx.IsMatch(Expression, \"(?i)\\b(VALUES|ALLSELECTED|ALLEXCEPT|ALLNOBLANKROW)\\s*\\(\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_IF_NESTING",
+    "Name": "[DAX] Avoid nested IF, use SWITCH(TRUE())",
+    "Category": "ALUCA Standards",
+    "Description": "Mehr als ein IF() im selben Ausdruck wird als SWITCH(TRUE(), ...) geschrieben. Die Regel zaehlt IF-Aufrufe, nicht die Klammertiefe (Tabular-Editor-Ausdruecke koennen Klammern nicht balancieren). Kein offizielles Gegenstueck. Herkunft: bpa-rules-dax.json dax.ifnesting.avoid.",
+    "Severity": 2,
+    "Scope": "Measure",
+    "Expression": "RegEx.IsMatch(Expression, \"(?is)\\bIF\\s*\\(.*\\bIF\\s*\\(\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_BLANK_DENSIFICATION",
+    "Name": "[DAX] Review explicit BLANK densification",
+    "Category": "ALUCA Standards",
+    "Description": "COALESCE oder DIVIDE mit Ersatzwert machen aus 'keine Daten' einen Wert. Fuer Kennzahlen gilt BLANK als 'keine Daten'; Ersatzwerte nur bewusst fuer die Anzeige. Hinweisregel. Kein offizielles Gegenstueck. Herkunft: bpa-rules-dax.json dax.blank.handling.",
+    "Severity": 1,
+    "Scope": "Measure",
+    "Expression": "RegEx.IsMatch(Expression, \"(?i)\\bCOALESCE\\s*\\(|\\bDIVIDE\\s*\\([^)]*,[^)]*,\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_TIME_INTELLIGENCE_NATIVE",
+    "Name": "[DAX] Prefer native time intelligence over hand-shifted years",
+    "Category": "ALUCA Standards",
+    "Description": "Ein Vorjahr per DATE(YEAR(...)-1, ...) oder EDATE(..., -12) von Hand zu bilden umgeht DATEADD/SAMEPERIODLASTYEAR. Ausgenommen sind Ausdruecke, die bereits eine native Zeitfunktion nutzen. Hinweisregel. Die Vorgaengerregel dax.timeintelligence.native (bpa-rules-dax.json) hatte keine Bedingung und hat nie gemeldet; diese Fassung legt den Verstoss fest. Kein offizielles Gegenstueck.",
+    "Severity": 1,
+    "Scope": "Measure",
+    "Expression": "(RegEx.IsMatch(Expression, \"(?i)\\bDATE\\s*\\(\\s*YEAR\\s*\\((?:[^()]|\\([^()]*\\))*\\)\\s*-\\s*1\\b\") or RegEx.IsMatch(Expression, \"(?i)\\bEDATE\\s*\\([^,]+,\\s*-\\s*12\\s*\\)\")) and not RegEx.IsMatch(Expression, \"(?i)\\b(DATEADD|SAMEPERIODLASTYEAR|PARALLELPERIOD|DATESYTD|TOTALYTD)\\s*\\(\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_ISINSCOPE",
+    "Name": "[DAX] Use ISINSCOPE for hierarchy level and total detection",
+    "Category": "ALUCA Standards",
+    "Description": "HASONEVALUE/HASONEFILTER erkennen Summenzeilen und Hierarchieebenen unzuverlaessig; ISINSCOPE ist dafuer gemacht. Hinweisregel, weil HASONEVALUE ausserhalb von Hierarchien legitim ist. Die Vorgaengerregel dax.isinscope.totals (bpa-rules-dax.json) hatte keine Bedingung und hat nie gemeldet. Kein offizielles Gegenstueck.",
+    "Severity": 1,
+    "Scope": "Measure",
+    "Expression": "RegEx.IsMatch(Expression, \"(?i)\\b(HASONEVALUE|HASONEFILTER)\\s*\\(\") and not RegEx.IsMatch(Expression, \"(?i)\\bISINSCOPE\\s*\\(\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_ITERATOR_SINGLE_COLUMN",
+    "Name": "[DAX] Iterator over a plain column reference",
+    "Category": "ALUCA Standards",
+    "Description": "SUMX/AVERAGEX/MINX/MAXX ueber eine Tabelle mit einer blossen Spaltenreferenz als Ausdruck braucht keinen Zeilenkontext: SUM/AVERAGE/MIN/MAX verwenden. Die Vorgaengerregel dax.iterators.only_when_needed (bpa-rules-dax.json) meldete jeden Iterator ohne VAR; diese Fassung meldet nur den Fall, in dem der Iterator nachweislich unnoetig ist. Kein offizielles Gegenstueck.",
+    "Severity": 2,
+    "Scope": "Measure",
+    "Expression": "RegEx.IsMatch(Expression, \"(?i)\\b(SUMX|AVERAGEX|MINX|MAXX)\\s*\\(\\s*'?[A-Za-z0-9_ ]+'?\\s*,\\s*'?[A-Za-z0-9_ ]*'?\\[[^\\]]+\\]\\s*\\)\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_SHORTENED_CALCULATE",
+    "Name": "[DAX] No shortened CALCULATE syntax [Measure](filter)",
+    "Category": "ALUCA Standards",
+    "Description": "Die Kurzform [Measure](Filter) wird als CALCULATE([Measure], Filter) geschrieben (SQLBI DAX-Formatierung). Kein offizielles Gegenstueck. Herkunft: bpa-rules-dax.json dax.calculate.shortened.forbidden.",
+    "Severity": 2,
+    "Scope": "Measure",
+    "Expression": "RegEx.IsMatch(Expression, \"\\]\\s*\\(\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_EARLIER",
+    "Name": "[DAX] Prefer VAR over EARLIER/EARLIEST",
+    "Category": "ALUCA Standards",
+    "Description": "EARLIER/EARLIEST durch eine Variable ersetzen; sie wird einmal ausgewertet und ist lesbarer (Microsoft Learn: Use variables; DAX Guide: EARLIER not recommended). Kein offizielles Gegenstueck. Herkunft: bpa-rules-dax.json dax.earlier.prefer_var.",
+    "Severity": 2,
+    "Scope": "Measure, CalculatedColumn",
+    "Expression": "RegEx.IsMatch(Expression, \"(?i)\\b(EARLIER|EARLIEST)\\s*\\(\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_DIVIDE_ALTERNATE_ZERO",
+    "Name": "[DAX] DIVIDE without alternate result 0",
+    "Category": "ALUCA Standards",
+    "Description": "DIVIDE(a, b, 0) erzwingt ein dichtes Ergebnis und verlangsamt Visuals; ohne dritten Parameter liefert DIVIDE BLANK, wenn kein Wert sinnvoll ist (Microsoft Learn: Avoid converting BLANKs to values). Die offizielle Regel USE_THE_DIVIDE_FUNCTION_FOR_DIVISION prueft nur '/' gegen DIVIDE, nicht den Ersatzwert. Herkunft: bpa-rules-dax.json dax.divide.avoid_alternate_zero.",
+    "Severity": 2,
+    "Scope": "Measure",
+    "Expression": "RegEx.IsMatch(Expression, \"(?i)\\bDIVIDE\\s*\\([^)]+,[^)]+,\\s*0\\s*\\)\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_ISERROR",
+    "Name": "[DAX] Avoid ISERROR",
+    "Category": "ALUCA Standards",
+    "Description": "ISERROR erhoeht wie IFERROR die Storage-Engine-Scans; Division mit DIVIDE, Datenqualitaet in Power Query, sonst IF mit logischem Test (Microsoft Learn: Appropriate use of error functions in DAX). Die offizielle Regel AVOID_USING_THE_IFERROR_FUNCTION deckt nur IFERROR. Herkunft: ISERROR-Teil von bpa-rules-dax.json dax.errorfunctions.avoid.",
+    "Severity": 2,
+    "Scope": "Measure, CalculatedColumn",
+    "Expression": "RegEx.IsMatch(Expression, \"(?i)\\bISERROR\\s*\\(\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_DAX_LY_TIME_INTELLIGENCE",
+    "Name": "[DAX] LY measures use time intelligence",
+    "Category": "ALUCA Standards",
+    "Description": "Measures mit dem Namenssuffix ' LY' bilden das Vorjahr mit SAMEPERIODLASTYEAR, DATEADD oder PARALLELPERIOD. Hinweisregel. Kein offizielles Gegenstueck. Herkunft: bpa-rules-semanticmodel.json DAX_TIME_INTELLIGENCE_LY (dort mit der Eigenschaft DaxExpression, die Tabular Editor nicht kennt).",
+    "Severity": 1,
+    "Scope": "Measure",
+    "Expression": "Name.EndsWith(\" LY\") and not RegEx.IsMatch(Expression, \"(?i)\\b(SAMEPERIODLASTYEAR|DATEADD|PARALLELPERIOD)\\s*\\(\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_MEASURE_DISPLAY_FOLDER",
+    "Name": "[Metadata] Visible measures have a display folder",
+    "Category": "ALUCA Standards",
+    "Description": "Sichtbare Measures liegen in einem displayFolder, sonst stehen sie ungeordnet an der Tabellenwurzel. Kein offizielles Gegenstueck. Herkunft: bpa-rules-tmdl.json TMDL-005 und bpa-rules-semanticmodel.json DAX_DISPLAYFOLDER_SUGGESTED.",
+    "Severity": 1,
+    "Scope": "Measure",
+    "Expression": "not IsHidden and string.IsNullOrWhitespace(DisplayFolder)",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_M_TABLE_LITERAL_NEEDS_LET",
+    "Name": "[Power Query] #table partition source wrapped in let...in",
+    "Category": "ALUCA Standards",
+    "Description": "Eine M-Partition, deren Quelle direkt mit #table( beginnt, fuehrt in Composite-Modellen zu entity-basierten Abfragefehlern; die Quelle wird in let ... in gefasst. Kein offizielles Gegenstueck (MINIMIZE_POWER_QUERY_TRANSFORMATIONS prueft Transformationen, nicht die Form). Herkunft: bpa-rules-tmdl.json TMDL-003.",
+    "Severity": 3,
+    "Scope": "Partition",
+    "Expression": "SourceType.ToString() = \"M\" and RegEx.IsMatch(Query, \"(?is)^\\s*#table\\s*\\(\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "ALUCA_LINEAGE_TAG",
+    "Name": "[Metadata] Objects carry a lineageTag",
+    "Category": "ALUCA Standards",
+    "Description": "Tabellen, Spalten und Measures tragen einen lineageTag, damit Deployment und Git-Integration Objekte ueber Umbenennungen hinweg wiedererkennen. Hinweisregel. Kein offizielles Gegenstueck. Herkunft: bpa-rules-tmdl.json TMDL-010.",
+    "Severity": 1,
+    "Scope": "Table, Measure, DataColumn, CalculatedColumn, CalculatedTable, CalculatedTableColumn",
+    "Expression": "string.IsNullOrWhitespace(LineageTag)",
+    "CompatibilityLevel": 1200
+  }
+]
