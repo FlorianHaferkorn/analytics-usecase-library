@@ -1,0 +1,23 @@
+/// Fixture-Tabelle.
+table fakt
+	lineageTag: 11111111-1111-1111-1111-111111111111
+
+	/// Fixture-Measure.
+	measure 'Marge' = VAR _u = SUM ( fakt[Betrag] ) VAR _k = SUM ( fakt[Kosten] ) RETURN _u - _k
+		formatString: #,0
+		displayFolder: Kennzahlen
+		lineageTag: 00000000-0000-0000-0000-044976156771
+
+	column Betrag
+		dataType: double
+		sourceColumn: Betrag
+		summarizeBy: none
+		lineageTag: 22222222-2222-2222-2222-222222222222
+
+	partition fakt = m
+		mode: import
+		source =
+			let
+				Source = #table(type table[Betrag = number], {})
+			in
+				Source

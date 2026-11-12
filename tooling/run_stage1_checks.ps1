@@ -61,6 +61,11 @@ $pythonChecks = @(
   # steht in der Gold-Tabelle, die ihre Partition liest, oder in der Allowlist. --strict: fehlen
   # die Gold-Daten, endet das Tor mit 2 ("nicht geprueft"), nicht gruen.
   @{ Script = "tooling/validation/check_model_vs_gold.py"; Args = @("--repo-root", $rootPath, "--strict") },
+  # ALUCA-BPA (12.11.2026): eigene Tabular-Editor-Regeln (tooling/linters/powerbi/aluca-bpa-rules.json)
+  # auf allen dist-Semantikmodellen. --strict: Befunde mit Severity 3 machen rot; Exit 2 = nicht
+  # gelaufen (keine Modelle, Parser hat Objekte verloren). Der offizielle Satz laeuft nur unter
+  # Windows (.github/workflows/tabular-bpa.yml), Pin: tooling/linters/powerbi/bpa-official.pin.json.
+  @{ Script = "tooling/validation/check_bpa.py"; Args = @("--repo-root", $rootPath, "--strict") },
   @{ Script = "tooling/generator/validation/check_action_outcome_reconciliation.py"; Args = @("--strict") },
   @{ Script = "tooling/generator/validation/check_business_cases.py"; Args = @("--strict", "--repo-root", $rootPath) },
   # Layout-System-Boden (L4): jede analytische Absicht muss im Pflichtziel Power BI

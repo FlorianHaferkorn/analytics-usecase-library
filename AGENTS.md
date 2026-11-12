@@ -72,6 +72,7 @@ Run all scripts from the **repository root**.
 | OSS report generation | `python3 products/oss_adapters/orchestrator/orchestrate_oss.py --bracket <path> --adapter metabase` (test: `products/oss_adapters/tests/`) |
 | Registry build | `python3 tooling/ontology/registry_builder.py --repo-root .` |
 | Health scorecard | `python3 tooling/health_scorecard.py` |
+| Semantic model BPA, own rules (official set pinned, Windows only: `.github/workflows/tabular-bpa.yml`) | `python3 tooling/validation/check_bpa.py --details` |
 | Schema validation (Python) | `python3 -m pytest tooling/tests/ -k schema -q` |
 
 ---
