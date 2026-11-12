@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-10-17
+last-reviewed: 2026-11-12
 shelf-life-days: 90
 owns: "*.py"
 ---
@@ -44,3 +44,13 @@ owns: "*.py"
 Datendateien: `plattform_baseline.json` (Stand der Plattform-Ratchet), `lint_baseline.json`
 (Stand der Ruff-Ratchet),
 `kundendaten-sperrliste.beispiel.json` (Beispiel-Sperrliste für CI ohne lokale Liste).
+
+## 3. Aufgelöst: `tooling/scripts/` (12.11.2026)
+
+Der frühere Zweitort für Skripte ist aufgelöst; Repo-Skripte liegen nur noch hier, fachliche
+Werkzeuge unter `tooling/`. Was dort lag:
+
+| Datei | Verbleib |
+|---|---|
+| README (Hilfsskripte für Erzeugung und Sync, nicht Teil von Stage 1) | Inhalt hierher übernommen. Sie beschrieb nur `hub_sync.py` (Core-YAML nach Starlight-MDX in `docs_hub/`); weder das Skript noch `docs_hub/` sind im Repo vorhanden, die Beschreibung wird deshalb nicht weitergeführt |
+| `fix_com001_stub.py` | Einmal-Reparatur der COM-001-Seitenmetadaten (Ordnername gegen `page.json`/`pages.json`), archiviert mit seinem Test: `../_archiv/tooling/scripts/fix_com001_stub.py`, `../_archiv/tooling/tests/test_fix_report_page_metadata.py`. Den Fehler fängt heute `check_pbip_report_pages.ps1` (Check 8), der Generator setzt die Metadaten richtig |

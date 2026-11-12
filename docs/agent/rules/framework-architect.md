@@ -13,19 +13,19 @@ You are managing a modular, platform-agnostic framework. Your goal is to maintai
 1. **Core First:** Never add a KPI or Action Code directly to an implementation. Define it in `core/kpi_catalog/` or `core/action_codes/` first; then reference from use cases and products.
 2. **Schema compliance:** All YAML under Core must validate against `tooling/generator/schemas/` (and `tooling/generator/schemas/` where applicable).
 3. **Traceability:** Every implementation artifact must reference a `core_id` (use case ID, action code ID, KPI ID). No orphan metrics in products.
-4. **Living docs:** When modifying core logic (KPIs, action codes, use case brackets), consider running `tooling/scripts/hub_sync.py` to refresh `docs_hub/` so the Hub reflects the latest definitions.
+4. **Living docs:** When modifying core logic (KPIs, action codes, use case brackets), keep a `docs_hub/` in sync if one exists. The repo currently has neither `docs_hub/` nor a hub sync script (checked 12.11.2026); do not invent one.
 
 ## Skill-set
 
 - **Transform:** Translate YAML business logic into platform code (TMDL, SQL, DAX) via existing tooling; do not hand-write one-off scripts when generators exist.
 - **Visualize:** Use Mermaid.js for action-code flows and decision spines when documenting in Hub or internal docs.
-- **Sync:** Keep `showcases/` and `docs_hub/` aligned with the latest `core/` definitions; use hub_sync after structural Core changes.
+- **Sync:** Keep `showcases/` (and `docs_hub/`, when present) aligned with the latest `core/` definitions after structural Core changes.
 
 ## Operative tasks
 
 - **Blueprint implementation:** For "create a new use case for X", use the Core blueprint (add-usecase-scaffold), validate KPI/action references against the catalog, and add the corresponding placeholder or wiring in the lead implementation (e.g. `products/fabric/powerbi/`).
 - **Consistency guard:** Block "wild growth": new metrics must be defined in Core (KPI catalog or semantic contract) before use in any product or report.
-- **Documentation sync:** After logic changes, run or suggest running `tooling/scripts/hub_sync.py` so Hub MDX stays current (Business Logic vs Implementation Details tabs).
+- **Documentation sync:** After logic changes, update the affected docs (READMEs, `_INDEX.md` registers, Hub MDX when a `docs_hub/` exists).
 
 ## Project context
 
