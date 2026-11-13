@@ -1,7 +1,11 @@
 """Tests for the SQL builder (DAX → SQL translation)."""
 
+from pathlib import Path
+
 import pytest
 from page_generator.sql_builder import SqlBuilder
+
+REPO_ROOT = Path(__file__).resolve().parents[5]
 
 
 @pytest.fixture
@@ -102,3 +106,60 @@ class TestInferTable:
     def test_fallback_unknown(self, builder):
         node = {}
         assert builder.infer_table_from_kpi(node) == "gold.fact_unknown"
+
+
+class TestMetricEvidenceContract:
+    """gold.metric_evidence (long) against its neighbours: Fabric vocabulary, source SQL, brackets."""
+
+    def test_dimensions_equal_the_fabric_token_vocabulary(self):
+        import re
+        import sys
+
+        from page_generator.sql_builder import METRIC_EVIDENCE_DIMENSIONS
+
+        if str(REPO_ROOT) not in sys.path:
+            sys.path.insert(0, str(REPO_ROOT))
+        from products.fabric.powerbi.tooling.page_scaffold_generator.config_loader import EVIDENCE_DIM_TOKENS
+
+        assert len(METRIC_EVIDENCE_DIMENSIONS) == 6
+        for name, pbi_column in METRIC_EVIDENCE_DIMENSIONS.items():
+            assert EVIDENCE_DIM_TOKENS[name] == pbi_column, name
+        assert all(re.match(r"^[a-z][a-z0-9_]*$", name) for name in METRIC_EVIDENCE_DIMENSIONS)
+
+    def test_source_sql_declares_exactly_the_contract_columns(self):
+        import re
+
+        from page_generator.sql_builder import METRIC_EVIDENCE_COLUMNS
+
+        sql = (REPO_ROOT / "products/open_source_stack/evidence_app/sources/gold/metric_evidence.sql").read_text(
+            encoding="utf-8"
+        )
+        assert tuple(re.findall(r"\bAS (\w+),?$", sql, re.MULTILINE)) == METRIC_EVIDENCE_COLUMNS
+
+    @pytest.mark.parametrize(
+        "bracket, dimensions, kpi_count",
+        [
+            ("COM-001_Sales_Performance", ["region", "country", "entity"], 5),
+            ("COM-004_Promotion_Effectiveness", ["promotion", "product_category", "mechanic"], 5),
+        ],
+    )
+    def test_reference_brackets_resolve(self, bracket, dimensions, kpi_count):
+        import yaml
+
+        from page_generator.sql_builder import resolve_evidence_columns
+
+        data = yaml.safe_load((REPO_ROOT / "core/usecases/core" / bracket / "UseCase_Bracket.yaml").read_text(
+            encoding="utf-8"
+        ))
+        tokens = data["ux_layout_rules"]["page_2_execution"]["component_300s"]["evidence_columns"]
+        catalog_ids = [t for t in tokens if t.startswith("KPI-")]
+        dims, kpis = resolve_evidence_columns(tokens, catalog_ids)
+        assert dims == dimensions
+        assert len(kpis) == kpi_count
+
+    def test_detail_query_reads_long_table(self, builder):
+        q = builder.build_metric_detail_query("d", ["KPI-COM-005", "KPI-COM-013"], ["region"])
+        assert "  region, kpi_id, period, metric_value\n" in q
+        assert "WHERE kpi_id IN ('KPI-COM-005', 'KPI-COM-013')" in q
+        with pytest.raises(ValueError):
+            builder.build_metric_detail_query("d", ["KPI-COM-005"], ["dim_org.Region"])

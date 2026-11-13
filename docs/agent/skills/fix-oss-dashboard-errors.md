@@ -35,7 +35,7 @@ validation failures. Mirrors the Fabric `fix-pbi-report-errors` skill.
    | SQL block not referenced | Orphaned query | Either add a component using `data={query_name}` or remove the block |
    | Missing 3-second layer | No KPI headline section | Add `## 3-Second Layer` with BigValue cards |
    | `validate_evidence_app` fails / `npm run build` stops at `ERESOLVE`, `plugins: Required` or `too small to be a Parquet file` | App not in Evidence 40 format (peers unpinned, no lockfile, pre-40 config, no `sources/<schema>/<table>.sql`) | See KNOWN_ERRORS_AND_FIXES.md, section OSS stack; build: `npm ci && npm run sources && npm run build` |
-   | Build green but log shows `Error in Query! Binder Error` | Detail query selects bracket `evidence_columns` verbatim | Open (KNOWN_ERRORS, OSS stack); read the build log, a green exit code does not cover page queries |
+   | `validate_evidence_build_log` fails: `Error in Query! Binder Error` in the build log (exit code still 0) | A page query does not match the gold contract, e.g. bracket `evidence_columns` passed through as SQL | Fix the generator (`resolve_evidence_columns` in `sql_builder.py`), regenerate, rebuild, re-run `validate_oss.py --build-log <log>` |
 
 4. **Apply fixes** in the `.md` file.
 

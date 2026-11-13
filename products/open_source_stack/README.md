@@ -58,7 +58,9 @@ When adding a new dashboard for a KPI or use case, use the page generator or the
   per table the pages read). Without a dbt build the tables carry their column contract and one
   all-NULL row, so the site builds and shows no values.
 - Build: `cd evidence_app && npm ci && npm run sources && npm run build` (Evidence 40; `evidence.config.yaml`
-  lists the plugins, `package.json` pins the peers Evidence declares, `validate_oss.py` checks both)
+  lists the plugins, `package.json` pins the peers Evidence declares, `validate_oss.py` checks both).
+  The exit code does not cover page queries: `npm run build > build.log 2>&1`, then
+  `python products/open_source_stack/tooling/validate_oss.py --root . --build-log build.log` (fails on any `Error in Query`)
 - Production: Postgres or warehouse; credentials outside repo (env or secrets)
 
 ## Security and DSGVO

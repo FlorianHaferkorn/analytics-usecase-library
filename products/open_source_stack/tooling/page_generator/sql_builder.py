@@ -11,7 +11,76 @@ translated to a SQL query that can be embedded in an Evidence page.
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+
+# Long-format contract of gold.metric_evidence (300-second detail layer): one row per
+# KPI, period and dimension combination. The dimension columns carry governed
+# evidence_columns token names; the value is the Power BI (table, column) each token
+# stands for, identical to EVIDENCE_DIM_TOKENS in
+# products/fabric/powerbi/tooling/page_scaffold_generator/config_loader.py
+# (pinned by test_sql_builder.py, as is evidence_app/sources/gold/metric_evidence.sql).
+METRIC_EVIDENCE_DIMENSIONS: Dict[str, Tuple[str, str]] = {
+    "entity": ("dim_org", "OrgName"),
+    "region": ("dim_org", "Region"),
+    "country": ("dim_org", "Country"),
+    "product_category": ("dim_product", "Category"),
+    "promotion": ("dim_promo", "PromoName"),
+    "mechanic": ("dim_promo", "Promo Mechanic"),
+}
+METRIC_EVIDENCE_COLUMNS: Tuple[str, ...] = (
+    "kpi_id", "period", *METRIC_EVIDENCE_DIMENSIONS, "metric_value"
+)
+# Selected on every detail row, so a bracket naming them adds nothing.
+_ALWAYS_SELECTED = frozenset({"kpi_id", "period", "metric_value"})
+_KPI_ID_SHAPE = re.compile(r"^KPI-[A-Z]+-\d+$")
+
+
+def resolve_evidence_columns(
+    tokens: Iterable[str], known_kpi_ids: Iterable[str]
+) -> Tuple[List[str], List[str]]:
+    """Split bracket evidence_columns into gold.metric_evidence dimension columns and KPI ids.
+
+    A governed KPI id becomes part of the ``kpi_id`` filter; a dimension token
+    (``region``) or Power BI column (``dim_org.Region``) becomes the contract column.
+    Anything else raises: a dimension the long table does not carry, or a KPI id
+    outside the catalog, is a generator error, never a column passed through as SQL.
+    """
+    known = set(known_kpi_ids)
+    by_pbi_column = {f"{t}.{c}".lower(): name for name, (t, c) in METRIC_EVIDENCE_DIMENSIONS.items()}
+    dimensions: List[str] = []
+    kpi_ids: List[str] = []
+    unresolved: List[str] = []
+    for token in tokens:
+        if not isinstance(token, str) or not token.strip():
+            continue
+        token = token.strip()
+        if token.lower() in _ALWAYS_SELECTED:
+            continue
+        column = token.lower() if token.lower() in METRIC_EVIDENCE_DIMENSIONS else by_pbi_column.get(token.lower())
+        if token in known:
+            target, value = kpi_ids, token
+        elif column is not None and not _KPI_ID_SHAPE.match(token):
+            target, value = dimensions, column
+        else:
+            unresolved.append(token)
+            continue
+        if value not in target:
+            target.append(value)
+    if unresolved:
+        raise ValueError(
+            f"component_300s.evidence_columns {unresolved} resolve neither to a column of "
+            f"gold.metric_evidence {sorted(METRIC_EVIDENCE_DIMENSIONS)} nor to a governed KPI id. "
+            "Add the dimension to METRIC_EVIDENCE_DIMENSIONS in sql_builder.py and to "
+            "evidence_app/sources/gold/metric_evidence.sql, or fix the bracket."
+        )
+    return dimensions, kpi_ids
+
+
+def _kpi_filter(kpi_ids: Sequence[str]) -> str:
+    safe = [k.replace("'", "''") for k in kpi_ids]
+    if len(safe) == 1:
+        return f"kpi_id = '{safe[0]}'"
+    return "kpi_id IN (" + ", ".join(f"'{k}'" for k in safe) + ")"
 
 
 # DAX aggregation → SQL aggregation mapping
@@ -212,16 +281,19 @@ class SqlBuilder:
     def build_metric_detail_query(
         self,
         query_name: str,
-        kpi_id: str,
-        columns: List[str],
+        kpi_ids: Sequence[str],
+        dimensions: Sequence[str],
         table: str = "gold.metric_evidence",
         order_by: str = "period DESC",
         limit: int = 500,
         period_filter: Optional[str] = None,
     ) -> str:
-        safe_kpi_id = kpi_id.replace("'", "''")
-        cols = ", ".join(columns)
-        where = f"WHERE kpi_id = '{safe_kpi_id}'" + (f"\n  AND {period_filter}" if period_filter else "")
+        """Detail rows of the long gold.metric_evidence table for the given KPIs."""
+        unknown = [d for d in dimensions if d not in METRIC_EVIDENCE_DIMENSIONS]
+        if unknown or not kpi_ids:
+            raise ValueError(f"detail query needs KPI ids and contract dimensions, got {list(kpi_ids)}, {unknown}")
+        cols = ", ".join([*dimensions, "kpi_id", "period", "metric_value"])
+        where = f"WHERE {_kpi_filter(kpi_ids)}" + (f"\n  AND {period_filter}" if period_filter else "")
         return (
             f"```sql {query_name}\n"
             f"SELECT\n"
@@ -236,14 +308,14 @@ class SqlBuilder:
     def build_as_of_query(
         self,
         query_name: str,
-        kpi_id: str,
+        kpi_id: str | Sequence[str],
         table: str = "gold.metric_observations",
         period_column: str = "period",
         period_filter: Optional[str] = None,
     ) -> str:
         """Freshness stamp per chart (BC-TRANS-04): the latest period the chart shows."""
-        safe_kpi_id = kpi_id.replace("'", "''")
-        where = f"WHERE kpi_id = '{safe_kpi_id}'" + (f"\n  AND {period_filter}" if period_filter else "")
+        kpi_ids = [kpi_id] if isinstance(kpi_id, str) else list(kpi_id)
+        where = f"WHERE {_kpi_filter(kpi_ids)}" + (f"\n  AND {period_filter}" if period_filter else "")
         return (
             f"```sql {query_name}\n"
             f"SELECT\n"

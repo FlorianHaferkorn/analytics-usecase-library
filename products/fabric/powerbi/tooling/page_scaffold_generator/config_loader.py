@@ -20,6 +20,50 @@ _SUFFIX_UNITS = frozenset({"amount", "count", "index", "pct", "days", "hours", "
 
 logger = logging.getLogger(__name__)
 
+# --- Phase D: evidence_columns tokens -> Power BI (table, column) ---
+# Standard tokens map generic semantic names to Power BI table.column pairs
+EVIDENCE_DIM_TOKENS: Dict[str, tuple] = {
+    "entity":            ("dim_org", "OrgName"),
+    "period":            ("dim_date", "Date"),
+    # Zwei Modelle, zwei Orte: Commercial fuehrt dim_customer, SupplyChain den
+    # Kunden als dim_org.Customer. Aufgeloest wird unten gegen das Zielmodell.
+    "customer":          (("dim_customer", "CustomerName"), ("dim_org", "Customer")),
+    "product":           ("dim_product", "ProductName"),
+    "channel":           ("dim_org", "Channel"),
+    "region":            ("dim_org", "Region"),
+    "category":          ("dim_product", "Category"),
+    "product_category":  ("dim_product", "Category"),
+    "subcategory":       ("dim_product", "Subcategory"),
+    "sku":               ("dim_product", "ProductCode"),
+    "brand":             ("dim_product", "Brand"),
+    "customer_segment":  ("dim_customer", "Segment"),
+    "segment":           ("dim_customer", "Segment"),
+    "country":           ("dim_org", "Country"),
+    "org":               ("dim_org", "OrgName"),
+    # R2.4 (Cut C2): additions verified against the real, existing dim
+    # tables in each domain's *.SemanticModel/definition/tables/ TMDL --
+    # not invented. Tokens with no real backing table anywhere in the
+    # semantic model (e.g. "plant", "line", "shift", "location",
+    # "agent_group") are intentionally NOT added here; brackets using
+    # them are curated onto a real token instead (see per-bracket
+    # ledger notes), not silently passed through to become a bogus
+    # _Measures.<token> reference (the same failure class as R2.3's
+    # "sku" bug, just for tokens this dict never covered).
+    "asset":             ("dim_asset", "AssetName"),        # Operations.SemanticModel
+    "asset_class":       ("dim_asset", "AssetClass"),
+    "criticality":       ("dim_asset", "Criticality"),
+    "queue":             ("dim_case_queue", "QueueName"),   # Experience.SemanticModel
+    "issue_type":        ("dim_issue_type", "IssueType"),
+    "severity":          ("dim_issue_type", "Severity"),
+    "promotion":         ("dim_promo", "PromoName"),        # Commercial.SemanticModel
+    "promo_type":        ("dim_promo", "Promo Type"),
+    "mechanic":          ("dim_promo", "Promo Mechanic"),
+    "lane":              ("dim_lane", "Mode"),              # SupplyChain.SemanticModel
+    "abc_class":         ("dim_product", "ABC_Class"),
+    "cost_center":       ("dim_cost_center", "Cost Center"),  # Finance.SemanticModel (24.10.2026)
+    "xyz_class":         ("dim_product", "XYZ_Class"),
+}
+
 # Framework fallback data palette (used when no brand spec is configured).
 _FRAMEWORK_DATA_COLORS = [
     "#0078D4",  # slot 0 — framework primary blue
@@ -1227,48 +1271,7 @@ class ConfigLoader:
             evidence_columns = c300.get("evidence_columns")
             evidence_measures_raw = c300.get("evidence_measures")
             # --- Phase D: resolve evidence_columns to (table, col) tuples and measure names ---
-            # Standard tokens map generic semantic names to Power BI table.column pairs
-            EVIDENCE_DIM_TOKENS: Dict[str, tuple] = {
-                "entity":            ("dim_org", "OrgName"),
-                "period":            ("dim_date", "Date"),
-                # Zwei Modelle, zwei Orte: Commercial fuehrt dim_customer, SupplyChain den
-                # Kunden als dim_org.Customer. Aufgeloest wird unten gegen das Zielmodell.
-                "customer":          (("dim_customer", "CustomerName"), ("dim_org", "Customer")),
-                "product":           ("dim_product", "ProductName"),
-                "channel":           ("dim_org", "Channel"),
-                "region":            ("dim_org", "Region"),
-                "category":          ("dim_product", "Category"),
-                "product_category":  ("dim_product", "Category"),
-                "subcategory":       ("dim_product", "Subcategory"),
-                "sku":               ("dim_product", "ProductCode"),
-                "brand":             ("dim_product", "Brand"),
-                "customer_segment":  ("dim_customer", "Segment"),
-                "segment":           ("dim_customer", "Segment"),
-                "country":           ("dim_org", "Country"),
-                "org":               ("dim_org", "OrgName"),
-                # R2.4 (Cut C2): additions verified against the real, existing dim
-                # tables in each domain's *.SemanticModel/definition/tables/ TMDL --
-                # not invented. Tokens with no real backing table anywhere in the
-                # semantic model (e.g. "plant", "line", "shift", "location",
-                # "agent_group") are intentionally NOT added here; brackets using
-                # them are curated onto a real token instead (see per-bracket
-                # ledger notes), not silently passed through to become a bogus
-                # _Measures.<token> reference (the same failure class as R2.3's
-                # "sku" bug, just for tokens this dict never covered).
-                "asset":             ("dim_asset", "AssetName"),        # Operations.SemanticModel
-                "asset_class":       ("dim_asset", "AssetClass"),
-                "criticality":       ("dim_asset", "Criticality"),
-                "queue":             ("dim_case_queue", "QueueName"),   # Experience.SemanticModel
-                "issue_type":        ("dim_issue_type", "IssueType"),
-                "severity":          ("dim_issue_type", "Severity"),
-                "promotion":         ("dim_promo", "PromoName"),        # Commercial.SemanticModel
-                "promo_type":        ("dim_promo", "Promo Type"),
-                "mechanic":          ("dim_promo", "Promo Mechanic"),
-                "lane":              ("dim_lane", "Mode"),              # SupplyChain.SemanticModel
-                "abc_class":         ("dim_product", "ABC_Class"),
-                "cost_center":       ("dim_cost_center", "Cost Center"),  # Finance.SemanticModel (24.10.2026)
-                "xyz_class":         ("dim_product", "XYZ_Class"),
-            }
+            # Standard tokens: module constant EVIDENCE_DIM_TOKENS (the OSS page generator reads it too).
             resolved_dim_cols: list = []
             resolved_measures: list = []
             # R2.4 follow-up: an evidence_columns token shaped like a dimension

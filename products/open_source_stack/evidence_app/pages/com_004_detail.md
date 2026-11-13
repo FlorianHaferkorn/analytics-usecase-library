@@ -43,7 +43,7 @@ _Data as of <Value data={kpi_com_016} column="period" />_
 <Details title="Source and definition: KPI-COM-016">
 
 - Catalog id: KPI-COM-016
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4886
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4887
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -89,7 +89,7 @@ _Data as of <Value data={kpi_com_021} column="period" />_
 <Details title="Source and definition: KPI-COM-021">
 
 - Catalog id: KPI-COM-021
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 5445
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 5446
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -135,7 +135,7 @@ _Data as of <Value data={kpi_fin_012} column="period" />_
 <Details title="Source and definition: KPI-FIN-012">
 
 - Catalog id: KPI-FIN-012
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4938
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4939
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -319,7 +319,7 @@ _Data as of <Value data={kpi_com_018} column="period" />_
 <Details title="Source and definition: KPI-COM-018">
 
 - Catalog id: KPI-COM-018
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 5092
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 5093
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -365,7 +365,7 @@ _Data as of <Value data={kpi_fin_011} column="period" />_
 <Details title="Source and definition: KPI-FIN-011">
 
 - Catalog id: KPI-FIN-011
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4465
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4466
 - Owner: Head of Controlling; steward: Controlling Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -457,7 +457,7 @@ _Data as of <Value data={kpi_com_020} column="period" />_
 <Details title="Source and definition: KPI-COM-020">
 
 - Catalog id: KPI-COM-020
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 5399
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 5400
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: not set in the catalog
@@ -503,7 +503,7 @@ _Data as of <Value data={kpi_com_017} column="period" />_
 <Details title="Source and definition: KPI-COM-017">
 
 - Catalog id: KPI-COM-017
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 5044
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 5045
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: not set in the catalog
@@ -549,7 +549,7 @@ _Data as of <Value data={kpi_com_014} column="period" />_
 <Details title="Source and definition: KPI-COM-014">
 
 - Catalog id: KPI-COM-014
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4774
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4775
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: not set in the catalog
@@ -595,7 +595,7 @@ _Data as of <Value data={kpi_com_015} column="period" />_
 <Details title="Source and definition: KPI-COM-015">
 
 - Catalog id: KPI-COM-015
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4821
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4822
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: not set in the catalog
@@ -641,7 +641,7 @@ _Data as of <Value data={kpi_com_010} column="period" />_
 <Details title="Source and definition: KPI-COM-010">
 
 - Catalog id: KPI-COM-010
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3523
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3524
 - Owner: Head of Sales Controlling; steward: Sales Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -687,7 +687,7 @@ _Data as of <Value data={kpi_com_011} column="period" />_
 <Details title="Source and definition: KPI-COM-011">
 
 - Catalog id: KPI-COM-011
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3577
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3578
 - Owner: Head of Sales Controlling; steward: Sales Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -739,7 +739,7 @@ _Data as of <Value data={kpi_com_016_trend_as_of} column="as_of" />_
 <Details title="Source and definition: KPI-COM-016">
 
 - Catalog id: KPI-COM-016
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4886
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4887
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -787,7 +787,7 @@ _Data as of <Value data={kpi_com_021_trend_as_of} column="as_of" />_
 <Details title="Source and definition: KPI-COM-021">
 
 - Catalog id: KPI-COM-021
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 5445
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 5446
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -835,7 +835,7 @@ _Data as of <Value data={kpi_fin_012_trend_as_of} column="as_of" />_
 <Details title="Source and definition: KPI-FIN-012">
 
 - Catalog id: KPI-FIN-012
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4938
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4939
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -864,9 +864,9 @@ ORDER BY period
 
 ```sql detail_data
 SELECT
-  promotion, product_category, mechanic, KPI-COM-021, KPI-COM-016, KPI-COM-003, KPI-COM-018, KPI-COM-015
+  promotion, product_category, mechanic, kpi_id, period, metric_value
 FROM gold.metric_evidence
-WHERE kpi_id = 'KPI-COM-016'
+WHERE kpi_id IN ('KPI-COM-021', 'KPI-COM-016', 'KPI-COM-003', 'KPI-COM-018', 'KPI-COM-015')
   AND period BETWEEN '${inputs.period_range.start}' AND '${inputs.period_range.end}'
 ORDER BY period DESC
 LIMIT 500
@@ -878,7 +878,7 @@ LIMIT 500
 SELECT
   MAX(period) AS as_of
 FROM gold.metric_evidence
-WHERE kpi_id = 'KPI-COM-016'
+WHERE kpi_id IN ('KPI-COM-021', 'KPI-COM-016', 'KPI-COM-003', 'KPI-COM-018', 'KPI-COM-015')
   AND period BETWEEN '${inputs.period_range.start}' AND '${inputs.period_range.end}'
 ```
 
@@ -887,7 +887,7 @@ _Data as of <Value data={detail_data_as_of} column="as_of" />_
 <Details title="Source and definition: KPI-COM-016">
 
 - Catalog id: KPI-COM-016
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4886
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4887
 - Owner: Head of Marketing Controlling; steward: Trade Marketing Analyst
 - Action codes: C-P4.1, C-M2.1, C-M2.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -896,9 +896,9 @@ Query as executed:
 
 ```text
 SELECT
-  promotion, product_category, mechanic, KPI-COM-021, KPI-COM-016, KPI-COM-003, KPI-COM-018, KPI-COM-015
+  promotion, product_category, mechanic, kpi_id, period, metric_value
 FROM gold.metric_evidence
-WHERE kpi_id = 'KPI-COM-016'
+WHERE kpi_id IN ('KPI-COM-021', 'KPI-COM-016', 'KPI-COM-003', 'KPI-COM-018', 'KPI-COM-015')
   AND period BETWEEN '${inputs.period_range.start}' AND '${inputs.period_range.end}'
 ORDER BY period DESC
 LIMIT 500

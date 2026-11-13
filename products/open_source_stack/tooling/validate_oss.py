@@ -374,7 +374,41 @@ def check_evidence_app(root: Path) -> CheckResult:
     return result
 
 
-def run_all_checks(root: Path, selected_use_cases: List[str] | None = None) -> List[CheckResult]:
+_QUERY_ERROR_RE = re.compile(r"Error in Query!\s*(.*)")
+_BUILD_DONE_MARKER = "Build complete"
+
+
+def check_evidence_build_log(build_log: Path | None) -> CheckResult:
+    """Count page-query errors in an ``npm run build`` log.
+
+    ``evidence build`` exits 0 although page queries fail (``Error in Query! Binder
+    Error …``), and ``build:strict`` cannot serve as gate without data because it also
+    fails on empty datasets. So the log is the measurement: every ``Error in Query``
+    is an error; a log without ``Build complete`` means the build did not run to the end;
+    no log means the check did not run (a warning, never a silent pass).
+    """
+    result = CheckResult(check="validate_evidence_build_log", passed=True)
+    if build_log is None:
+        result.warnings.append("not run: no --build-log given (npm run build output)")
+        return result
+    if not build_log.exists():
+        result.errors.append(f"build log not found: {build_log}")
+        result.passed = False
+        return result
+    text = build_log.read_text(encoding="utf-8", errors="replace")
+    if _BUILD_DONE_MARKER not in text:
+        result.errors.append(f"build did not complete ('{_BUILD_DONE_MARKER}' missing in {build_log.name})")
+    errors = _QUERY_ERROR_RE.findall(text)
+    binder = sum(1 for e in errors if e.startswith("Binder Error"))
+    if errors:
+        result.errors.append(f"{len(errors)} page query error(s), {binder} Binder Error(s); first: {errors[0].strip()}")
+    result.passed = len(result.errors) == 0
+    return result
+
+
+def run_all_checks(
+    root: Path, selected_use_cases: List[str] | None = None, build_log: Path | None = None
+) -> List[CheckResult]:
     """Run all OSS validation checks."""
     return [
         check_adapter_manifest(root),
@@ -383,6 +417,7 @@ def run_all_checks(root: Path, selected_use_cases: List[str] | None = None) -> L
         check_theme_tokens(root),
         check_sql_style(root),
         check_metrics_vs_kpi(root, selected_use_cases),
+        check_evidence_build_log(build_log),
     ]
 
 
@@ -391,13 +426,14 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=Path("."), help="Repository root")
     parser.add_argument("--json", action="store_true", help="Output results as JSON")
     parser.add_argument("--use-cases", default="", help="Comma-separated use case IDs to scope validation")
+    parser.add_argument("--build-log", type=Path, default=None, help="Output of npm run build in evidence_app/")
     args = parser.parse_args()
 
     root = args.root.resolve()
     selected_use_cases = [item.strip() for item in args.use_cases.split(",") if item.strip()]
     if not selected_use_cases:
         selected_use_cases = _load_default_reference_use_cases(root)
-    results = run_all_checks(root, selected_use_cases or None)
+    results = run_all_checks(root, selected_use_cases or None, args.build_log)
 
     if args.json:
         output = {

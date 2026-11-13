@@ -10,7 +10,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from validate_oss import check_evidence_app, check_evidence_pages, check_metrics_vs_kpi
+from validate_oss import check_evidence_app, check_evidence_build_log, check_evidence_pages, check_metrics_vs_kpi
 
 
 def _write_ir(root: Path, use_cases: dict[str, object]) -> None:
@@ -189,3 +189,31 @@ class TestCheckEvidenceApp:
         app = _write_app(tmp_path)
         (app / "package-lock.json").unlink()
         assert check_evidence_app(tmp_path).errors == ["package.json and package-lock.json are both required (npm ci)"]
+
+
+BINDER_LINE = 'text | Error in Query! Binder Error: Referenced table "dim_org" not found!\n'
+
+
+class TestCheckEvidenceBuildLog:
+    def test_not_run_is_a_warning_not_a_pass_claim(self):
+        result = check_evidence_build_log(None)
+        assert result.errors == []
+        assert result.warnings == ["not run: no --build-log given (npm run build output)"]
+
+    def test_clean_build_passes(self, tmp_path: Path):
+        log = tmp_path / "build.log"
+        log.write_text("Error in Big Value: Dataset is empty\nBuild complete --> ./build\n", encoding="utf-8")
+        assert check_evidence_build_log(log).passed is True
+
+    def test_binder_errors_fail_a_green_build(self, tmp_path: Path):
+        log = tmp_path / "build.log"
+        log.write_text(BINDER_LINE * 4 + "Build complete --> ./build\n", encoding="utf-8")
+        result = check_evidence_build_log(log)
+        assert result.passed is False
+        assert result.errors[0].startswith("4 page query error(s), 4 Binder Error(s)")
+
+    def test_incomplete_build_fails(self, tmp_path: Path):
+        log = tmp_path / "build.log"
+        log.write_text("Build failed\n", encoding="utf-8")
+        expected = ["build did not complete ('Build complete' missing in build.log)"]
+        assert check_evidence_build_log(log).errors == expected
