@@ -4,6 +4,7 @@ synonyms:
 - Lines picked per hour
 - Pick rate
 kpi_key: Picks per Labor Hour
+label_short: Picks per Labor Hour
 kpi_type: diagnostic
 kpi_role: influencing
 impact_dimension: Efficiency

@@ -7,6 +7,7 @@ synonyms:
 - Erstkontaktlösung
 example_question: Where is first contact resolution lowest, and why?
 kpi_key: First Contact Resolution %
+label_short: First Contact Resolution (FCR)
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Service

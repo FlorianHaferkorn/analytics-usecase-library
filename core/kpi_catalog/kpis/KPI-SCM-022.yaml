@@ -6,6 +6,7 @@ synonyms:
 - Lieferantenrisikobewertung
 example_question: Which suppliers carry the highest risk score?
 kpi_key: Supplier Risk Score
+label_short: Supplier Risk Score
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Risk

@@ -5,6 +5,7 @@ synonyms:
 - Betriebskostenabweichung
 example_question: Where is OpEx running over plan this quarter?
 kpi_key: OpEx vs Plan %
+label_short: OpEx vs Plan
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Profitability

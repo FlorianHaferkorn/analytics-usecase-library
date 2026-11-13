@@ -1,5 +1,6 @@
 kpi_id: KPI-PPL-006
 kpi_key: Headcount FTE
+label_short: Headcount FTE
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: governance

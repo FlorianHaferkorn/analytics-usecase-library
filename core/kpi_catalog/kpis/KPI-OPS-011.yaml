@@ -7,6 +7,7 @@ synonyms:
 - Anlageneffektivität
 example_question: Which production lines have the lowest OEE this month?
 kpi_key: Overall Equipment Effectiveness (OEE) %
+label_short: Overall Equipment Effectiveness (OEE)
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Efficiency

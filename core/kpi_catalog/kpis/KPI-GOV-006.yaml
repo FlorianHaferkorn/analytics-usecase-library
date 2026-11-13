@@ -1,5 +1,6 @@
 kpi_id: KPI-GOV-006
 kpi_key: Avg Time-to-Outcome Days
+label_short: Average Time to Outcome
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: governance

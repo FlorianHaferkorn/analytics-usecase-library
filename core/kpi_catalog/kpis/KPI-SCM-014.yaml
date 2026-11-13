@@ -1,5 +1,6 @@
 kpi_id: KPI-SCM-014
 kpi_key: Plans Count
+label_short: Plan Count
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Efficiency

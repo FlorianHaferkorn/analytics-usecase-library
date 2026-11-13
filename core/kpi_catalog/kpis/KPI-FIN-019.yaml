@@ -2,6 +2,7 @@ kpi_id: KPI-FIN-019
 deprecated: true
 deprecation_reason: No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)
 kpi_key: Cost Base Volume Amount
+label_short: Cost Base Volume
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Profitability

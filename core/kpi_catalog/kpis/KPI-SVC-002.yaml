@@ -1,5 +1,6 @@
 kpi_id: KPI-SVC-002
 kpi_key: Digital Adoption Rate %
+label_short: Digital Adoption Rate
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Innovation & People

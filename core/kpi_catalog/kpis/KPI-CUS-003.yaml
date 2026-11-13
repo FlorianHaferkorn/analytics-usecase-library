@@ -6,6 +6,7 @@ synonyms:
 - NPS
 example_question: Which segments are driving the change in NPS this quarter?
 kpi_key: Net Promoter Score (NPS)
+label_short: Net Promoter Score (NPS)
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Customer

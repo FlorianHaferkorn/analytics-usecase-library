@@ -10,7 +10,7 @@ Purpose: Keep the KPI Catalog customer-ready, tool-agnostic, and consistent with
 ## 2) Minimal required fields
 
 Each KPI entry must include:
-- `kpi_id`, `kpi_key`, `kpi_type`, `impact_dimension`, `domain_tag`, `use_case_ref`, `action_code_ref`, `calc_type`
+- `kpi_id`, `kpi_key`, `label_short` (English short name, max 40 chars), `kpi_type`, `impact_dimension`, `domain_tag`, `use_case_ref`, `action_code_ref`, `calc_type`
 - `business` section (purpose, definition, grain_scope, unit_format, interpretation)
 - `technical` section (semantic measure name, dependencies, lineage)
 - `governance` section (owners, review_cycle, validation, qa_rules, version)

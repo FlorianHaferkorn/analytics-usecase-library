@@ -1,5 +1,6 @@
 kpi_id: KPI-FIN-017
 kpi_key: Gross Margin % vs Plan
+label_short: Gross Margin Rate vs Plan
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Profitability

@@ -6,6 +6,7 @@ synonyms:
 - Lieferbereitschaftsgrad
 example_question: Which products fall short on in-full delivery?
 kpi_key: In-Full %
+label_short: Order Fill Rate
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Efficiency

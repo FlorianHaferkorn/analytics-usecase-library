@@ -4,6 +4,7 @@ synonyms:
 - Lieferant-ESG-Compliance
 - Supplier ESG compliance
 kpi_key: Supplier ESG Compliance %
+label_short: Supplier ESG Compliance
 kpi_type: diagnostic
 kpi_role: influencing
 impact_dimension: ESG

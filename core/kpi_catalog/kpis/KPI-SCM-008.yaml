@@ -6,6 +6,7 @@ synonyms:
 - Liefertermintreue
 example_question: What is driving late deliveries on the DACH lanes?
 kpi_key: On-Time %
+label_short: On-Time Delivery (OTD)
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Efficiency

@@ -1,5 +1,6 @@
 kpi_id: KPI-CUS-004
 kpi_key: Churned Customers
+label_short: Churned Customers
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Customer

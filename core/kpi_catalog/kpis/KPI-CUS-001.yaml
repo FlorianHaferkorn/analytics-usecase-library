@@ -1,5 +1,6 @@
 kpi_id: KPI-CUS-001
 kpi_key: CLV (Customer Lifetime Value)
+label_short: Customer Lifetime Value (CLV)
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Customer

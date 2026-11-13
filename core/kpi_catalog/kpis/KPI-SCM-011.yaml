@@ -1,5 +1,6 @@
 kpi_id: KPI-SCM-011
 kpi_key: Penalty Amount
+label_short: Penalties
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Efficiency

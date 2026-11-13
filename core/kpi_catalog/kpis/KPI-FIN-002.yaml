@@ -1,5 +1,6 @@
 kpi_id: KPI-FIN-002
 kpi_key: Inventory Amount
+label_short: Inventory
 kpi_type: supporting
 kpi_role: supporting
 impact_dimension: Liquidity

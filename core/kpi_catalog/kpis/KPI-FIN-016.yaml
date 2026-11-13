@@ -6,6 +6,7 @@ synonyms:
 - Materialaufwandsquote
 example_question: Why did COGS % of sales rise in Consumer Electronics?
 kpi_key: COGS % of Sales
+label_short: COGS Ratio
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Profitability

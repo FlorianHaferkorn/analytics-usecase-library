@@ -6,6 +6,7 @@ synonyms:
 - Forderungsüberfälligkeitsquote
 example_question: Which customers are driving the rise in overdue AR?
 kpi_key: Overdue AR %
+label_short: Overdue Accounts Receivable (AR)
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Liquidity

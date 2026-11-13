@@ -1,5 +1,6 @@
 kpi_id: KPI-OPS-010
 kpi_key: Rework Rate %
+label_short: Rework Rate
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Efficiency

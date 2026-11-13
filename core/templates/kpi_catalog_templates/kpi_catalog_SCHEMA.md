@@ -24,6 +24,12 @@ Top-level:
   Must be unique across all KPI catalogs.
 - `kpi_key` (required, string)  
   Human-readable KPI name used in reports.
+- `label_short` (required, string, max 40 chars, English, ASCII)  
+  Short name for running text and story-report key sentences, e.g. `Cash Conversion Cycle (CCC)`,
+  `Net Sales`. Spelled-out name; an abbreviation the catalog already carries (`kpi_key`, `synonyms`,
+  `standard_ref`) goes in a trailing bracket, otherwise no bracket and no unit suffix
+  (`Amount`, `Days`, `%`, `Count`). Unique across the catalog. Not the measure key (`kpi_key`) and
+  not a search term (`synonyms`/`aliases`). Decided 13.11.2026; guard `tooling/tests/test_kpi_label_short.py`.
 - `kpi_type` (required, enum)  
   Type of KPI (metric nature): `amount`, `count`, `quantity`, `percentage`, `rate`, `index`, `variance_amount`, `variance_percentage`, `activity`, `diagnostic`, `status`.
 - `kpi_role` (optional, enum)  
@@ -116,6 +122,7 @@ Optional:
 ```yaml
 - kpi_id: "margin.gross_margin_pct"
   kpi_key: "Gross Margin %"
+  label_short: "Gross Margin Rate"
   kpi_type: "percentage"
   kpi_role: "strategic"
   impact_dimension: "Profitability"

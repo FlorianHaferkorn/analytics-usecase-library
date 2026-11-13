@@ -1,5 +1,6 @@
 kpi_id: KPI-COM-029
 kpi_key: Sales Cycle Length
+label_short: Sales Cycle Length
 kpi_type: diagnostic
 kpi_role: influencing
 impact_dimension: Growth

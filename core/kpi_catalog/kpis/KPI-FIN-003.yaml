@@ -2,6 +2,7 @@ kpi_id: KPI-FIN-003
 deprecated: true
 deprecation_reason: No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)
 kpi_key: Payables Amount
+label_short: Payables
 kpi_type: supporting
 kpi_role: supporting
 impact_dimension: Liquidity

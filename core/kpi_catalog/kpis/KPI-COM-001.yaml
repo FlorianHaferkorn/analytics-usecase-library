@@ -1,5 +1,6 @@
 kpi_id: KPI-COM-001
 kpi_key: List Price Amount
+label_short: List Price
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Growth

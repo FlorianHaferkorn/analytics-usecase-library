@@ -1,5 +1,6 @@
 kpi_id: KPI-COM-015
 kpi_key: Incremental Gross Margin Amount
+label_short: Incremental Gross Margin
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Profitability

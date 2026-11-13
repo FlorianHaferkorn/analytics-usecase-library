@@ -6,6 +6,7 @@ synonyms:
 - Kassenbestand
 example_question: How has our cash balance tracked versus plan this year?
 kpi_key: Cash Balance
+label_short: Cash Balance
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Liquidity

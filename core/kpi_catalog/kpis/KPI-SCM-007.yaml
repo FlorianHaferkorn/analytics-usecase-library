@@ -6,6 +6,7 @@ synonyms:
 - Liefertreue
 example_question: Which lanes are missing the OTIF target this month?
 kpi_key: OTIF %
+label_short: On Time In Full (OTIF)
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Efficiency

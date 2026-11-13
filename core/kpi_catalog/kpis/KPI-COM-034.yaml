@@ -3,6 +3,7 @@ synonyms:
 - E-Commerce Konversionsrate
 - Online conversion rate
 kpi_key: E-Commerce Conversion Rate
+label_short: E-Commerce Conversion Rate
 kpi_type: diagnostic
 kpi_role: influencing
 impact_dimension: Growth

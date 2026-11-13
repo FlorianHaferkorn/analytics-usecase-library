@@ -6,6 +6,7 @@ synonyms:
 - mittlerer absoluter prozentualer Fehler
 example_question: Which product families have the highest MAPE?
 kpi_key: Forecast MAPE %
+label_short: Mean Absolute Percentage Error (MAPE)
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Efficiency

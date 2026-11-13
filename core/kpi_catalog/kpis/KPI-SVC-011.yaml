@@ -1,5 +1,6 @@
 kpi_id: KPI-SVC-011
 kpi_key: Overtime %
+label_short: Overtime Rate
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Workforce

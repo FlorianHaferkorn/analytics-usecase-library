@@ -1,5 +1,6 @@
 kpi_id: KPI-COM-002
 kpi_key: Net Price Amount
+label_short: Net Price
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Growth

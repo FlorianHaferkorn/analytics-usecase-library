@@ -2,6 +2,7 @@ kpi_id: KPI-SCM-019
 deprecated: true
 deprecation_reason: No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)
 kpi_key: Planned Hours
+label_short: Planned Hours
 kpi_type: supporting
 kpi_role: supporting
 impact_dimension: Efficiency
