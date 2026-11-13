@@ -71,7 +71,7 @@ def generate_parameter_file(configs: dict, output_path: str = None):
         "find_replace": [],
         "key_value_replace": [],
         "spark_pool": [],
-        "semantic_model_binding": []
+        "semantic_model_binding": {"models": []}
     }
     
     # Example: Generate find_replace entries for connections
@@ -89,9 +89,10 @@ def generate_parameter_file(configs: dict, output_path: str = None):
         model_name = model.get("item_name")
         if model_name:
             # In practice, get connection_id from config or Fabric
-            parameter_data["semantic_model_binding"].append({
-                "connection_id": "connection-id-placeholder",
-                "semantic_model_name": model_name
+            parameter_data["semantic_model_binding"]["models"].append({
+                "semantic_model_name": model_name,
+                "connection_id": {env: "connection-id-placeholder" for env in configs if env != "dev"}
+                or {"_ALL_": "connection-id-placeholder"},
             })
     
     # Write YAML file

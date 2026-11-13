@@ -10,8 +10,8 @@
 Direct Lake is a partition mode where Power BI reads Delta tables directly from OneLake without importing or caching data. It combines Import-mode query speed with Direct Query-mode freshness.
 
 **Requirements:**
-- Fabric Premium or Trial capacity (not Pro)
-- Delta tables in a Fabric Lakehouse (Gold layer, `dbo` schema)
+- A Fabric capacity (F SKU, Premium P SKU or Trial). There is no Direct Lake on Pro or PPU workspaces.
+- Delta tables in a Fabric Lakehouse (Gold layer). With a schema-enabled Lakehouse the table can sit in any schema; `dbo` is only the default schema.
 - Tables must exist in Lakehouse before the semantic model can refresh
 
 ---
@@ -56,7 +56,7 @@ table fact_sales
 
 **Rules:**
 - `entityName` = Delta table name in Lakehouse (usually same as TMDL table name)
-- `schemaName` = always `dbo` for Fabric Lakehouse
+- `schemaName` = the Lakehouse schema that holds the table. Lakehouses without schemas expose every table as `dbo`; schema-enabled Lakehouses (required for materialized lake views) use the real schema name, for example `sales_mlv`.
 - `expressionSource` = name of the named expression in `expressions.tmdl`
 - No `source =` block — entity partition uses `source` (no `=`)
 - No M transforms — Direct Lake tables cannot have Power Query transformations
@@ -157,18 +157,28 @@ https://app.fabric.microsoft.com/groups/<WorkspaceId>/lakehouses/<LakehouseId>
 | No Power Query transforms | Entity partitions cannot have M query steps. Transformations must happen in the Lakehouse (notebooks/dataflows). |
 | No `dataType: binary` | Binary columns are not supported in Direct Lake. |
 | Delta tables must exist | A DirectLake model will fail to refresh if the Delta table doesn't exist in the Lakehouse. |
-| Schema is always `dbo` | Fabric Lakehouse exposes all tables under the `dbo` schema. |
+| Schema must match the Lakehouse | `schemaName` names the schema that holds the table. Only Lakehouses without schemas expose everything as `dbo`. |
 | Calculated tables are Import | `_Measures` and `_ActionReady_Logic` remain as Import-mode M partitions. |
-| Fabric capacity required | Direct Lake requires Fabric Premium/Trial. Falls back to DirectQuery on Pro capacity (much slower). |
+| Fabric capacity required | Direct Lake needs a Fabric capacity (F, P or Trial). A Pro or PPU workspace cannot host a Direct Lake model at all; there is no fallback to DirectQuery there. |
+| No SQL views | Direct Lake on OneLake reads Delta tables only. Replace a view with a materialized lake view (GA September 2026) or keep that table in Import mode. |
 
 ---
 
 ## Fallback to DirectQuery
 
-If Direct Lake can't read a partition directly (e.g., too many Delta files, unsupported type), Fabric automatically falls back to DirectQuery via the Lakehouse SQL endpoint. This is slower but transparent. To avoid fallback:
-- Run `OPTIMIZE` on large Delta tables to compact files
-- Keep Delta log clean (run `VACUUM` periodically)
-- Monitor fallback via Fabric monitoring hub
+Fallback depends on the Direct Lake flavour, which is set by the source expression:
+
+| Flavour | Source expression | Fallback |
+|---|---|---|
+| Direct Lake on OneLake (the pattern in this document) | `AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/<WorkspaceId>/<LakehouseId>")` | **None.** A query that exceeds a guardrail or hits an unframed table fails instead of falling back. |
+| Direct Lake on SQL endpoint | `Sql.Database("<SQL endpoint connection string>", "<SQL endpoint ID>")` | Falls back to DirectQuery through the SQL endpoint when a guardrail is exceeded, when the source is a SQL view, or when SQL-side RLS/OLS/masking applies. Controlled by the model property `DirectLakeBehavior` (`Automatic`, `DirectLakeOnly`, `DirectQueryOnly`). |
+
+To stay inside the guardrails of the capacity SKU (rows per table, model size in memory):
+- Run `OPTIMIZE` on large Delta tables to keep the number of files and row groups low
+- Run `VACUUM` periodically to keep the Delta log clean
+- For Direct Lake on SQL endpoint, monitor fallback (for example with a DAX query trace or Performance Analyzer); with Direct Lake on OneLake, monitor failed queries instead
+
+Sources (Microsoft Learn, checked 21.10.2026): [Direct Lake overview](https://learn.microsoft.com/fabric/fundamentals/direct-lake-overview), [How Direct Lake works](https://learn.microsoft.com/fabric/fundamentals/direct-lake-how-it-works).
 
 ---
 

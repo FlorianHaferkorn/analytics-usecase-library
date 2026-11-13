@@ -81,20 +81,68 @@
       }
     },
     "semantic_model_binding": {
-      "type": "array",
-      "description": "Semantic model to connection binding",
-      "items": {
-        "type": "object",
-        "required": ["connection_id", "semantic_model_name"],
-        "properties": {
-          "connection_id": { "type": "string" },
-          "semantic_model_name": {
-            "oneOf": [
-              { "type": "string" },
-              { "type": "array", "items": { "type": "string" } }
-            ]
+      "description": "Semantic model to connection binding. Current fabric-cicd format (>= 1.2.0) is an object with 'default' and/or 'models'; the former array format still works but fabric-cicd logs a deprecation warning.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "default": {
+              "type": "object",
+              "required": ["connection_id"],
+              "properties": {
+                "connection_id": { "$ref": "#/definitions/connectionIdByEnvironment" }
+              }
+            },
+            "models": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["semantic_model_name", "connection_id"],
+                "properties": {
+                  "semantic_model_name": {
+                    "oneOf": [
+                      { "type": "string" },
+                      { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+                    ]
+                  },
+                  "connection_id": { "$ref": "#/definitions/connectionIdByEnvironment" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "array",
+          "description": "Deprecated format",
+          "items": {
+            "type": "object",
+            "required": ["connection_id", "semantic_model_name"],
+            "properties": {
+              "connection_id": { "type": "string" },
+              "semantic_model_name": {
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "array", "items": { "type": "string" } }
+                ]
+              }
+            }
           }
         }
+      ]
+    }
+  },
+  "definitions": {
+    "connectionIdByEnvironment": {
+      "type": "object",
+      "description": "Environment key (or _ALL_) to one connection GUID or a list of GUIDs",
+      "minProperties": 1,
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+        ]
       }
     }
   }
