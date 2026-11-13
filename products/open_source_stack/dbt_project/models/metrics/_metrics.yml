@@ -125,6 +125,36 @@ metrics:
       table: metric_observations
       filter_column: kpi_id
       filter_value: KPI-COM-004
+- name: kpi_com_006
+  label: Plan Net Sales Amount
+  description: Governed plan baseline for comparing actual Net Sales performance.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: KPI-COM-006
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: KPI-COM-006
+- name: kpi_com_007
+  label: Prior-Year Net Sales Amount
+  description: Governed prior-year baseline for comparable Net Sales trend analysis.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: KPI-COM-007
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: KPI-COM-007
 - name: kpi_com_001
   label: List Price Amount
   description: Total list price (before discounts) for price realization and discount
@@ -187,21 +217,21 @@ metrics:
       table: metric_observations
       filter_column: kpi_id
       filter_value: KPI-COM-021
-- name: kpi_com_015
-  label: Incremental Gross Margin Amount
-  description: Incremental gross margin from promotions for ROI numerator.
+- name: kpi_com_019
+  label: Gross Margin Amount
+  description: Absolute gross margin in currency.
   type: simple
   type_params:
     measure: metric_value
   meta:
-    kpi_id: KPI-COM-015
+    kpi_id: KPI-COM-019
     source: core_ir
     calculation_logic_source: core
     required_by_use_cases: *id001
     semantic_projection:
       table: metric_observations
       filter_column: kpi_id
-      filter_value: KPI-COM-015
+      filter_value: KPI-COM-019
 - name: kpi_com_014
   label: Promo Cost
   description: Total promotion cost for ROI and spend analysis.
@@ -217,6 +247,21 @@ metrics:
       table: metric_observations
       filter_column: kpi_id
       filter_value: KPI-COM-014
+- name: kpi_com_015
+  label: Incremental Gross Margin Amount
+  description: Incremental gross margin from promotions for ROI numerator.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: KPI-COM-015
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: KPI-COM-015
 - name: kpi_com_016
   label: Promo ROI %
   description: Measures profitability of promotions relative to spend.

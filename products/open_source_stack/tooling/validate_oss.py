@@ -296,10 +296,89 @@ def check_sql_style(root: Path) -> CheckResult:
     return result
 
 
+_PAGE_TABLE_RE = re.compile(r"\bFROM\s+([A-Za-z_]\w*)\.([A-Za-z_]\w*)", re.IGNORECASE)
+
+
+def check_evidence_app(root: Path) -> CheckResult:
+    """Check that evidence_app/ is a buildable Evidence 40 project.
+
+    Statically covers the causes of the failed ``npm run build`` of 13.11.2026:
+    the config must use the ``plugins`` schema (not the pre-40 ``data_sources``),
+    every ``schema.table`` a page reads must exist as ``sources/<schema>/<table>.sql``
+    next to a ``connection.yaml``, and ``package-lock.json`` must exist with every
+    peer dependency of ``@evidence-dev/evidence`` declared in ``package.json``
+    at the version the lockfile records (otherwise npm resolves e.g. TypeScript 7).
+    """
+    result = CheckResult(check="validate_evidence_app", passed=True)
+    app = root / "products" / "open_source_stack" / "evidence_app"
+    if not app.exists():
+        result.errors.append(f"Evidence app not found: {app}")
+        result.passed = False
+        return result
+
+    config_path = app / "evidence.config.yaml"
+    if not config_path.exists():
+        result.errors.append("evidence.config.yaml missing")
+    elif yaml is None:
+        result.errors.append("PyYAML not installed, evidence.config.yaml not checked")
+    else:
+        config = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+        if "data_sources" in config:
+            result.errors.append(
+                "evidence.config.yaml uses the pre-40 key 'data_sources'; "
+                "Evidence 40 reads sources/<name>/connection.yaml"
+            )
+        plugins = config.get("plugins") or {}
+        if not plugins.get("components") or not plugins.get("datasources"):
+            result.errors.append("evidence.config.yaml needs plugins.components and plugins.datasources")
+
+    tables: Set[tuple[str, str]] = set()
+    pages_dir = app / "pages"
+    for md_file in sorted(pages_dir.glob("*.md")) if pages_dir.exists() else []:
+        content = md_file.read_text(encoding="utf-8")
+        for sql in re.findall(r"```sql\s+\w+\n(.*?)```", content, re.DOTALL):
+            tables.update((s.lower(), t.lower()) for s, t in _PAGE_TABLE_RE.findall(sql))
+    for schema, table in sorted(tables):
+        source_dir = app / "sources" / schema
+        if not (source_dir / "connection.yaml").exists():
+            result.errors.append(f"pages read {schema}.{table}, but sources/{schema}/connection.yaml is missing")
+        elif not (source_dir / f"{table}.sql").exists():
+            result.errors.append(f"pages read {schema}.{table}, but sources/{schema}/{table}.sql is missing")
+
+    package_path = app / "package.json"
+    lock_path = app / "package-lock.json"
+    if not package_path.exists() or not lock_path.exists():
+        result.errors.append("package.json and package-lock.json are both required (npm ci)")
+    else:
+        package = json.loads(package_path.read_text(encoding="utf-8"))
+        declared = {**package.get("dependencies", {}), **package.get("devDependencies", {})}
+        packages = json.loads(lock_path.read_text(encoding="utf-8")).get("packages", {})
+        evidence = packages.get("node_modules/@evidence-dev/evidence")
+        if not evidence:
+            result.errors.append("package-lock.json does not contain @evidence-dev/evidence")
+        else:
+            peers = evidence.get("peerDependencies", {})
+            if not peers:
+                result.errors.append("package-lock.json lists no peerDependencies for @evidence-dev/evidence")
+            for name, spec in sorted(peers.items()):
+                if name not in declared:
+                    result.errors.append(
+                        f"peer dependency {name}@{spec} of @evidence-dev/evidence not declared in package.json"
+                    )
+                elif declared[name] != spec:
+                    result.errors.append(
+                        f"{name}: package.json has {declared[name]}, @evidence-dev/evidence expects {spec}"
+                    )
+
+    result.passed = len(result.errors) == 0
+    return result
+
+
 def run_all_checks(root: Path, selected_use_cases: List[str] | None = None) -> List[CheckResult]:
     """Run all OSS validation checks."""
     return [
         check_adapter_manifest(root),
+        check_evidence_app(root),
         check_evidence_pages(root, selected_use_cases),
         check_theme_tokens(root),
         check_sql_style(root),

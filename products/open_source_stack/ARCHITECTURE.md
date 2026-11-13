@@ -127,7 +127,7 @@ budget and scale, from zero-cost local files to enterprise cloud warehouses.
 | **Enterprise** | Large orgs | Iceberg/Delta on object store | Trino / Spark / Snowflake | Platform-dependent | Platform-dependent |
 
 **Key principle:** The page generator and Evidence pages use standard SQL.
-Switching storage tiers only changes `evidence.config.yaml` (the data source
+Switching storage tiers only changes `evidence_app/sources/gold/connection.yaml` (the data source
 connection) — no page modifications needed. The same generated dashboard
 works against DuckDB locally and Trino in production.
 
@@ -415,8 +415,8 @@ products/open_source_stack/
 ├── evidence_app/                     # Evidence.dev application
 │   ├── pages/                        # Generated dashboard pages (.md)
 │   ├── components/                   # Reusable Evidence components
-│   ├── sources/                      # Data source configs
-│   ├── evidence.config.yaml          # Evidence configuration
+│   ├── sources/gold/                 # Data source (connection.yaml + <table>.sql)
+│   ├── evidence.config.yaml          # Evidence 40 plugins (components, datasources)
 │   └── package.json
 │
 ├── dbt_project/                      # dbt-core project (semantic layer)
