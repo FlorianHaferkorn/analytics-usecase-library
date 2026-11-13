@@ -28,6 +28,16 @@ Tabellen selbst; ``check_diagram_layout.ps1`` verlangt nicht jede Tabelle).
   ``op: hitl`` wird der dokumentierte Platzhalter (``build_ir.hitl_placeholder``) mit dem
   Katalog-Grund, nie eine erfundene Formel.
 
+* **Datumstabelle (entschieden 12.11.2026, Florian).** ``dim_date`` jedes Modells wird als
+  Datumstabelle markiert (``dataCategory: Time`` an der Tabelle, ``isKey`` an ``Date``). Die Fakten
+  hängen über ``DateKey`` (Int64) an ``dim_date``; Microsoft verlangt für Beziehungen auf Nicht-Datum-
+  Spalten und für die klassischen Time-Intelligence-Funktionen die Markierung. Erst damit setzt DAX
+  beim Filter auf ``dim_date[Date]`` ein ``REMOVEFILTERS ( dim_date )`` und ``SAMEPERIODLASTYEAR``
+  läuft auch neben einem Jahres-/Monats-Slicer; ``comparison_measures.py`` stützt den Vorjahres-
+  vergleich darauf. Schutz: ``Date`` muss ``DateTime`` sein und es darf kein anderer ``isKey`` in
+  der Tabelle stehen. Ob Gold dazu passt (eindeutig, lückenlos, ohne Null), misst
+  ``tooling/tests/test_date_table.py`` gegen die Datenscheibe.
+
 Gruppen 3 und 4 (Gold-Generator ergänzt Spalten) sind hier bewusst nicht enthalten.
 
     python -m tooling.codegen.model_alignment            # --check (Standard), rc 1 bei Abweichung
@@ -90,6 +100,10 @@ NEW_COLUMNS = (
     ("Finance", "fact_finance", "finance.yaml", "Plan Net Sales Amount", "Plan OpEx Amount"),
     ("Finance", "fact_finance", "finance.yaml", "Plan EBITDA Amount", "Plan Net Sales Amount"),
 )
+
+# Datumstabelle (Mark as date table): Tabelle und Datumsspalte, in jedem Modell mit dieser Tabelle.
+DATE_TABLE = "dim_date"
+DATE_COLUMN = "Date"
 
 # (Modell, Anzeigeordner, KPI-IDs): Measures aus dem Katalog, ans Ende von _Measures.tmdl.
 NEW_KPI_MEASURES = (
@@ -156,6 +170,40 @@ def add_value_column(text: str, spalte: dict, nach: str) -> str:
     block = (f"\tcolumn {_col_ref(spalte['name'])}\n\t\tdataType: {typ}\n"
              f"\t\tsourceColumn: {spalte['name']}\n\t\tsummarizeBy: none\n")
     return text[:anker.end()] + block + text[anker.end():]
+
+
+def mark_date_table(text: str, wo: str, spalte: str = DATE_COLUMN) -> str:
+    """Tabelle als Datumstabelle markieren: ``dataCategory: Time`` und ``isKey`` an ``spalte``.
+
+    Idempotent. Bricht ab, statt zu raten: ``spalte`` fehlt, ist kein ``DateTime``, oder die
+    Tabelle trägt schon einen anderen ``isKey`` (Power BI kennt je Datumstabelle genau einen)."""
+    m = _column_block(text, spalte)
+    if m is None:
+        raise ValueError(f"{wo}: Datumsspalte '{spalte}' fehlt")
+    if not re.search(r"^\t\tdataType: datetime$", m.group(0), re.M | re.I):  # Desktop schreibt dateTime
+        raise ValueError(f"{wo}: Datumsspalte '{spalte}' ist kein DateTime")
+    fremd = [k for k in re.finditer(r"^\tcolumn (.+)\n(?:\t\t.*\n)*", text, re.M)
+             if "\t\tisKey\n" in k.group(0) and k.start() != m.start()]
+    if fremd:
+        raise ValueError(f"{wo}: {fremd[0].group(1)} trägt schon isKey")
+    if "\t\tisKey\n" not in m.group(0):
+        kopf = m.group(0).split("\n", 1)[0] + "\n"
+        text = text[:m.start()] + kopf + "\t\tisKey\n" + text[m.start() + len(kopf):]
+    if not re.search(r"^\tdataCategory: Time$", text, re.M):
+        text = re.sub(r"^(table .+\n)", r"\1\tdataCategory: Time\n", text, count=1, flags=re.M)
+    return text
+
+
+def is_date_table_marked(text: str, spalte: str = DATE_COLUMN) -> bool:
+    """Trägt die Tabelle ``dataCategory: Time`` und ``isKey`` an ``spalte``? (Gegenstück zu ``mark_date_table``)"""
+    m = _column_block(text, spalte)
+    return bool(re.search(r"^\tdataCategory: Time$", text, re.M) and m and "\t\tisKey\n" in m.group(0))
+
+
+def date_table_models() -> list[str]:
+    """Modelle, die ``dim_date`` führen. Hier abgeleitet, nicht aufgezählt: ein neues Modell fällt auf."""
+    return sorted(m.name.removesuffix(".SemanticModel") for m in DIST.glob("*.SemanticModel")
+                  if (m / "definition" / "tables" / f"{DATE_TABLE}.tmdl").exists())
 
 
 def table_tmdl(modell: str, name: str, vertrag: dict, modus: str | None = None,
@@ -312,6 +360,10 @@ def soll(modus: str | None = None) -> dict[Path, str | None]:
         spalte = next(c for c in t["columns"] if c["name"] == name)
         p = _defn(modell) / "tables" / f"{tabelle}.tmdl"
         dateien[p] = add_value_column(lesen(p), spalte, nach)
+
+    for modell in date_table_models():
+        p = _defn(modell) / "tables" / f"{DATE_TABLE}.tmdl"
+        dateien[p] = mark_date_table(lesen(p), f"{modell}/{DATE_TABLE}")
 
     for modell, ordner, kpi_ids in NEW_KPI_MEASURES:
         p = _defn(modell) / "tables" / "_Measures.tmdl"

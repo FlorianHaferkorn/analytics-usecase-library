@@ -1,5 +1,6 @@
 /// Calendar dimension for supply chain time slicing
 table dim_date
+	dataCategory: Time
 	lineageTag: b31b938b-3416-5d00-94b5-2c54c86312c2
 	column DateKey
 		dataType: Int64
@@ -8,6 +9,7 @@ table dim_date
 		isHidden
 		isAvailableInMDX: false
 	column Date
+		isKey
 		dataType: DateTime
 		sourceColumn: Date
 		summarizeBy: none

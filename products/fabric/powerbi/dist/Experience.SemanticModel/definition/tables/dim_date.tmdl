@@ -1,5 +1,6 @@
 /// Calendar dimension for experience and service reporting
 table dim_date
+	dataCategory: Time
 	lineageTag: f5ec81a9-45d1-5ee9-9561-9217de6215a9
 	column DateKey
 		dataType: Int64
@@ -8,6 +9,7 @@ table dim_date
 		isHidden
 		isAvailableInMDX: false
 	column Date
+		isKey
 		dataType: DateTime
 		sourceColumn: Date
 		summarizeBy: none

@@ -1,5 +1,6 @@
 /// Calendar dimension with fiscal hierarchy for time slicing.
 table dim_date
+	dataCategory: Time
 	lineageTag: 3faf1daa-6e06-5485-a865-6163f64e15ea
 	column DateKey
 		dataType: Int64
@@ -8,6 +9,7 @@ table dim_date
 		isHidden
 		isAvailableInMDX: false
 	column Date
+		isKey
 		dataType: DateTime
 		sourceColumn: Date
 		summarizeBy: none

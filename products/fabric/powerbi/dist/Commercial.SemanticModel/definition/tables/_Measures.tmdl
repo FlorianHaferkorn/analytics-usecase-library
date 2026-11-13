@@ -34,8 +34,8 @@ table _Measures
 		formatString: @
 		displayFolder: 0_Summary
 
-	/// Purpose: Vorjahreswert von CLV (Customer Lifetime Value) (comparison: vs_py): die ausgewaehlten Monate um zwoelf verschoben, Monatsindex-Muster wie 'CCC Days PM' (dim_date ist keine markierte Datumstabelle, SAMEPERIODLASTYEAR liefe neben einem Monats-Slicer leer).
-	measure 'CLV (Customer Lifetime Value) PY' = VAR _idx = SELECTCOLUMNS ( SUMMARIZE ( 'dim_date', 'dim_date'[Year], 'dim_date'[MonthNumber] ), "i", 'dim_date'[Year] * 12 + 'dim_date'[MonthNumber] - 12 ) RETURN CALCULATE ( [CLV (Customer Lifetime Value)], REMOVEFILTERS ( 'dim_date' ), FILTER ( ALL ( 'dim_date' ), 'dim_date'[Year] * 12 + 'dim_date'[MonthNumber] IN _idx ) )
+	/// Purpose: Vorjahreswert von CLV (Customer Lifetime Value) (comparison: vs_py): derselbe Zeitraum ein Jahr früher per SAMEPERIODLASTYEAR auf der markierten Datumstabelle dim_date (Mark as date table, model_alignment.py); sie räumt beim Zeitfilter alle dim_date-Filter ab, daher auch neben einem Jahres- oder Monats-Slicer.
+	measure 'CLV (Customer Lifetime Value) PY' = CALCULATE ( [CLV (Customer Lifetime Value)], SAMEPERIODLASTYEAR ( 'dim_date'[Date] ) )
 		formatString: "#,0"
 		displayFolder: 8_Comparison
 		lineageTag: c9cbaa3f-8e54-560d-8d75-43624a3374a1

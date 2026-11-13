@@ -130,6 +130,7 @@ Policies:
 - Label columns must define `sortByColumn` if natural sort is not lexical (e.g., month names).
 - Geo and currency columns must set `dataCategory` appropriately (see 9).
 - Default summarization set consistently (keys = None, labels = None).
+- The date dimension (`dim_date`) is the model's marked date table: `dataCategory: Time` on the table and `isKey` on its unique, gap-free `Date` column (type `DateTime`, one row per day). Facts relate via `DateKey`; time comparisons against the prior year use `SAMEPERIODLASTYEAR ( 'dim_date'[Date] )`, never a hand-built month index. Written by `tooling/codegen/model_alignment.py`, held by `tooling/tests/test_date_table.py`.
 
 ---
 
