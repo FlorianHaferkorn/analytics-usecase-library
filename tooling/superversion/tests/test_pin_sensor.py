@@ -79,13 +79,15 @@ def test_build_report_levels():
 
 # ---- end-to-end against the real vendored pin ----------------------------- #
 
-def test_sensor_run_on_real_pin_advisory_exit0():
-    """The vendored pin is intact (so no hard drift) → exit 0 even under --strict.
-    Staleness alone is advisory and never fails the gate."""
+def test_sensor_run_on_real_pin_advisory_exit0(monkeypatch):
+    """The vendored pin is intact (no local drift) → advisory run exits 0. Under --strict
+    without a Meridian checkout the upstream slice did not run: 2, not 0 (until 13.11.2026
+    this test asserted 0 here and thereby pinned the blind gate, Freelancing matrix B2)."""
     if not sensor.PIN_PATH.exists():
         pytest.skip("vendored Meridian pin absent")
+    monkeypatch.setattr(sensor, "_meridian_root", lambda: None)
     assert sensor.main([]) == 0
-    assert sensor.main(["--strict"]) == 0  # advisory-only, no hard drift
+    assert sensor.main(["--strict"]) == sensor.EXIT_UNPRUEFBAR
 
 
 def test_sensor_json_output(tmp_path):
@@ -155,3 +157,67 @@ def test_real_pin_is_commit_pinned_without_backport():
     assert len(pin["source"]["commit"]) == 40
     assert "backport" not in json.dumps(pin)
     assert [e["path"] for e in pin["files"]] == list(sensor.VENDORED_FILES)
+
+
+# ---- strict gate: upstream drift is drift (13.11.2026, Matrix B2) ---------- #
+# Measured 13.11.2026: `--strict` returned 0 although all 3 vendored files differed from
+# Meridian origin/main ("upstream differs (ADVISORY)"). The upstream slice only produced
+# text; the exit code looked at local integrity alone. Three exits now: 0 equal, 1 drift,
+# 2 not compared.
+
+def _intact_vendor(tmp_path: Path, monkeypatch) -> dict:
+    """A vendor tree whose files match its PIN (no local drift), content 'old'."""
+    vendor = tmp_path / "vendor"
+    files = []
+    for rel in sensor.VENDORED_FILES:
+        f = vendor / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(f"# {rel} old\n", encoding="utf-8")
+        files.append({"path": rel, "sha256": hashlib.sha256(f.read_bytes()).hexdigest()})
+    pin = {"source": {"ref": "origin/main", "commit": "a" * 40, "synced_at": dt.date.today().isoformat()},
+           "files": files}
+    (vendor / "PIN.json").write_text(json.dumps(pin), encoding="utf-8")
+    monkeypatch.setattr(sensor, "VENDOR_DIR", vendor)
+    monkeypatch.setattr(sensor, "PIN_PATH", vendor / "PIN.json")
+    return pin
+
+
+def test_strict_exit1_when_upstream_differs(tmp_path, monkeypatch):
+    _intact_vendor(tmp_path, monkeypatch)
+    mer = tmp_path / "Freelancing"
+    _fake_meridian(mer)                       # upstream content differs from the vendored 'old'
+    monkeypatch.setattr(sensor, "_meridian_root", lambda: mer)
+    assert sensor.main(["--upstream-ref", "HEAD"]) == 0          # advisory stays advisory
+    assert sensor.main(["--strict", "--upstream-ref", "HEAD"]) == 1
+
+
+def test_strict_exit0_when_upstream_equal(tmp_path, monkeypatch):
+    mer = tmp_path / "Freelancing"
+    _fake_meridian(mer)
+    vendor = tmp_path / "vendor"
+    monkeypatch.setattr(sensor, "VENDOR_DIR", vendor)
+    monkeypatch.setattr(sensor, "PIN_PATH", vendor / "PIN.json")
+    sensor.write_vendor(mer, "HEAD")
+    monkeypatch.setattr(sensor, "_meridian_root", lambda: mer)
+    status, lines = sensor.upstream_status(json.loads((vendor / "PIN.json").read_text()), mer, "HEAD")
+    assert status == sensor.EXIT_OK and sum("equal" in ln for ln in lines) == len(sensor.VENDORED_FILES)
+    assert sensor.main(["--strict", "--upstream-ref", "HEAD"]) == 0
+
+
+def test_strict_exit2_when_not_compared(tmp_path, monkeypatch):
+    _intact_vendor(tmp_path, monkeypatch)
+    monkeypatch.setattr(sensor, "_meridian_root", lambda: None)
+    assert sensor.main([]) == 0
+    assert sensor.main(["--strict"]) == 2                         # no Meridian checkout
+    mer = tmp_path / "Freelancing"
+    _fake_meridian(mer)
+    monkeypatch.setattr(sensor, "_meridian_root", lambda: mer)
+    assert sensor.main(["--strict", "--upstream-ref", "no-such-ref"]) == 2
+
+
+def test_upstream_status_counts_every_file(tmp_path):
+    """The number of compared files is part of the promise: an empty PIN is not 'equal'."""
+    mer = tmp_path / "Freelancing"
+    _fake_meridian(mer)
+    status, lines = sensor.upstream_status({"files": []}, mer, "HEAD")
+    assert status == sensor.EXIT_UNPRUEFBAR, lines
