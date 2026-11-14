@@ -1,8 +1,8 @@
-# Evidence.dev configuration
-# Default: DuckDB for local development (zero cost)
-# Production: Switch to Postgres, Trino, or other SQL source
-data_sources:
-  - name: default
-    type: duckdb
-    options:
-      filename: sources/local.duckdb
+# Evidence.dev configuration (Evidence 40.x schema: plugins, not data_sources).
+# Data sources live in sources/<name>/connection.yaml; each *.sql file there
+# becomes the table <name>.<file> that page queries read (gold.metric_observations).
+plugins:
+  components:
+    "@evidence-dev/core-components": {}
+  datasources:
+    "@evidence-dev/duckdb": {}

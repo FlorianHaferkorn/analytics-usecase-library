@@ -203,7 +203,7 @@ ux_layout_rules:
             evidence_columns:
                 - entity
                 - period
-                - KPI-COM-013
+                - KPI-COM-001
 """
         uc_dir = tmp_path / "core" / "usecases" / "core" / "COM-001_Sales_Performance"
         uc_dir.mkdir(parents=True)
@@ -231,3 +231,71 @@ class TestRubricMinimumFromTheGenerator:
             assert rubric_findings(content) == [], page.name
             assert '""' not in content, f"{page.name}: doubly quoted prop"
             assert content.index("<DateRange") < content.index("<BigValue")
+
+
+DETAIL_BRACKET = """\
+schema_version: "2.0"
+use_case_id: COM-001
+ux_layout:
+  report_pages:
+    - page_id: overview
+      page_type: overview
+    - page_id: detail
+      page_type: detail
+  page_2_execution:
+    component_300s:
+      evidence_columns:
+{columns}
+"""
+
+
+def _detail_generator(sample_ir, tmp_path, columns):
+    root = tmp_path / "repo"
+    uc_dir = root / "core" / "usecases" / "core" / "COM-001_Sales_Performance"
+    uc_dir.mkdir(parents=True)
+    listed = "\n".join(f"      - {c}" for c in columns)
+    (uc_dir / "UseCase_Bracket.yaml").write_text(DETAIL_BRACKET.format(columns=listed), encoding="utf-8")
+    gen = EvidencePageGenerator(
+        use_case_id="COM-001", ir_path=sample_ir, repo_root=root, output_dir=tmp_path / "out"
+    )
+    gen.load()
+    return gen
+
+
+def _detail_sql(page: Path) -> str:
+    content = page.read_text(encoding="utf-8")
+    start = content.index("```sql detail_data\n")
+    return content[start:content.index("```", start + 5)]
+
+
+class TestDetailEvidenceColumns:
+    """Bracket evidence_columns against the long gold.metric_evidence contract (13.11.2026)."""
+
+    def test_kpi_ids_filter_and_dimensions_map_to_contract_columns(self, sample_ir, tmp_path):
+        gen = _detail_generator(
+            sample_ir, tmp_path, ["dim_org.Region", "dim_org.Country", "product_category", "KPI-COM-001", "KPI-COM-002"]
+        )
+        detail = [p for p in gen.generate() if p.name.endswith("_detail.md")][0]
+        sql = _detail_sql(detail)
+        assert "  region, country, product_category, kpi_id, period, metric_value\n" in sql
+        assert "WHERE kpi_id IN ('KPI-COM-001', 'KPI-COM-002')" in sql
+        assert "dim_org." not in sql
+        assert "KPI-COM-001," not in sql.split("FROM")[0]
+        as_of = detail.read_text(encoding="utf-8").split("```sql detail_data_as_of\n")[1]
+        assert "kpi_id IN ('KPI-COM-001', 'KPI-COM-002')" in as_of.split("```")[0]
+
+    def test_unknown_dimension_fails_loudly(self, sample_ir, tmp_path):
+        gen = _detail_generator(sample_ir, tmp_path, ["plant", "KPI-COM-001"])
+        with pytest.raises(ValueError, match=r"\['plant'\]"):
+            gen.generate()
+
+    def test_dimension_outside_long_contract_fails(self, sample_ir, tmp_path):
+        # dim_product.Brand is a governed Power BI column, but not a column of gold.metric_evidence.
+        gen = _detail_generator(sample_ir, tmp_path, ["dim_product.Brand", "KPI-COM-001"])
+        with pytest.raises(ValueError, match=r"dim_product\.Brand"):
+            gen.generate()
+
+    def test_kpi_id_outside_catalog_fails(self, sample_ir, tmp_path):
+        gen = _detail_generator(sample_ir, tmp_path, ["region", "KPI-COM-999"])
+        with pytest.raises(ValueError, match="KPI-COM-999"):
+            gen.generate()

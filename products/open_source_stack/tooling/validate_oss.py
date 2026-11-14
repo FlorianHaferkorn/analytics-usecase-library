@@ -296,14 +296,128 @@ def check_sql_style(root: Path) -> CheckResult:
     return result
 
 
-def run_all_checks(root: Path, selected_use_cases: List[str] | None = None) -> List[CheckResult]:
+_PAGE_TABLE_RE = re.compile(r"\bFROM\s+([A-Za-z_]\w*)\.([A-Za-z_]\w*)", re.IGNORECASE)
+
+
+def check_evidence_app(root: Path) -> CheckResult:
+    """Check that evidence_app/ is a buildable Evidence 40 project.
+
+    Statically covers the causes of the failed ``npm run build`` of 13.11.2026:
+    the config must use the ``plugins`` schema (not the pre-40 ``data_sources``),
+    every ``schema.table`` a page reads must exist as ``sources/<schema>/<table>.sql``
+    next to a ``connection.yaml``, and ``package-lock.json`` must exist with every
+    peer dependency of ``@evidence-dev/evidence`` declared in ``package.json``
+    at the version the lockfile records (otherwise npm resolves e.g. TypeScript 7).
+    """
+    result = CheckResult(check="validate_evidence_app", passed=True)
+    app = root / "products" / "open_source_stack" / "evidence_app"
+    if not app.exists():
+        result.errors.append(f"Evidence app not found: {app}")
+        result.passed = False
+        return result
+
+    config_path = app / "evidence.config.yaml"
+    if not config_path.exists():
+        result.errors.append("evidence.config.yaml missing")
+    elif yaml is None:
+        result.errors.append("PyYAML not installed, evidence.config.yaml not checked")
+    else:
+        config = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+        if "data_sources" in config:
+            result.errors.append(
+                "evidence.config.yaml uses the pre-40 key 'data_sources'; "
+                "Evidence 40 reads sources/<name>/connection.yaml"
+            )
+        plugins = config.get("plugins") or {}
+        if not plugins.get("components") or not plugins.get("datasources"):
+            result.errors.append("evidence.config.yaml needs plugins.components and plugins.datasources")
+
+    tables: Set[tuple[str, str]] = set()
+    pages_dir = app / "pages"
+    for md_file in sorted(pages_dir.glob("*.md")) if pages_dir.exists() else []:
+        content = md_file.read_text(encoding="utf-8")
+        for sql in re.findall(r"```sql\s+\w+\n(.*?)```", content, re.DOTALL):
+            tables.update((s.lower(), t.lower()) for s, t in _PAGE_TABLE_RE.findall(sql))
+    for schema, table in sorted(tables):
+        source_dir = app / "sources" / schema
+        if not (source_dir / "connection.yaml").exists():
+            result.errors.append(f"pages read {schema}.{table}, but sources/{schema}/connection.yaml is missing")
+        elif not (source_dir / f"{table}.sql").exists():
+            result.errors.append(f"pages read {schema}.{table}, but sources/{schema}/{table}.sql is missing")
+
+    package_path = app / "package.json"
+    lock_path = app / "package-lock.json"
+    if not package_path.exists() or not lock_path.exists():
+        result.errors.append("package.json and package-lock.json are both required (npm ci)")
+    else:
+        package = json.loads(package_path.read_text(encoding="utf-8"))
+        declared = {**package.get("dependencies", {}), **package.get("devDependencies", {})}
+        packages = json.loads(lock_path.read_text(encoding="utf-8")).get("packages", {})
+        evidence = packages.get("node_modules/@evidence-dev/evidence")
+        if not evidence:
+            result.errors.append("package-lock.json does not contain @evidence-dev/evidence")
+        else:
+            peers = evidence.get("peerDependencies", {})
+            if not peers:
+                result.errors.append("package-lock.json lists no peerDependencies for @evidence-dev/evidence")
+            for name, spec in sorted(peers.items()):
+                if name not in declared:
+                    result.errors.append(
+                        f"peer dependency {name}@{spec} of @evidence-dev/evidence not declared in package.json"
+                    )
+                elif declared[name] != spec:
+                    result.errors.append(
+                        f"{name}: package.json has {declared[name]}, @evidence-dev/evidence expects {spec}"
+                    )
+
+    result.passed = len(result.errors) == 0
+    return result
+
+
+_QUERY_ERROR_RE = re.compile(r"Error in Query!\s*(.*)")
+_BUILD_DONE_MARKER = "Build complete"
+
+
+def check_evidence_build_log(build_log: Path | None) -> CheckResult:
+    """Count page-query errors in an ``npm run build`` log.
+
+    ``evidence build`` exits 0 although page queries fail (``Error in Query! Binder
+    Error …``), and ``build:strict`` cannot serve as gate without data because it also
+    fails on empty datasets. So the log is the measurement: every ``Error in Query``
+    is an error; a log without ``Build complete`` means the build did not run to the end;
+    no log means the check did not run (a warning, never a silent pass).
+    """
+    result = CheckResult(check="validate_evidence_build_log", passed=True)
+    if build_log is None:
+        result.warnings.append("not run: no --build-log given (npm run build output)")
+        return result
+    if not build_log.exists():
+        result.errors.append(f"build log not found: {build_log}")
+        result.passed = False
+        return result
+    text = build_log.read_text(encoding="utf-8", errors="replace")
+    if _BUILD_DONE_MARKER not in text:
+        result.errors.append(f"build did not complete ('{_BUILD_DONE_MARKER}' missing in {build_log.name})")
+    errors = _QUERY_ERROR_RE.findall(text)
+    binder = sum(1 for e in errors if e.startswith("Binder Error"))
+    if errors:
+        result.errors.append(f"{len(errors)} page query error(s), {binder} Binder Error(s); first: {errors[0].strip()}")
+    result.passed = len(result.errors) == 0
+    return result
+
+
+def run_all_checks(
+    root: Path, selected_use_cases: List[str] | None = None, build_log: Path | None = None
+) -> List[CheckResult]:
     """Run all OSS validation checks."""
     return [
         check_adapter_manifest(root),
+        check_evidence_app(root),
         check_evidence_pages(root, selected_use_cases),
         check_theme_tokens(root),
         check_sql_style(root),
         check_metrics_vs_kpi(root, selected_use_cases),
+        check_evidence_build_log(build_log),
     ]
 
 
@@ -312,13 +426,14 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=Path("."), help="Repository root")
     parser.add_argument("--json", action="store_true", help="Output results as JSON")
     parser.add_argument("--use-cases", default="", help="Comma-separated use case IDs to scope validation")
+    parser.add_argument("--build-log", type=Path, default=None, help="Output of npm run build in evidence_app/")
     args = parser.parse_args()
 
     root = args.root.resolve()
     selected_use_cases = [item.strip() for item in args.use_cases.split(",") if item.strip()]
     if not selected_use_cases:
         selected_use_cases = _load_default_reference_use_cases(root)
-    results = run_all_checks(root, selected_use_cases or None)
+    results = run_all_checks(root, selected_use_cases or None, args.build_log)
 
     if args.json:
         output = {

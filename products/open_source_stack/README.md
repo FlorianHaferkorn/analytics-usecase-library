@@ -25,7 +25,8 @@ open_source_stack/
 
 ```bash
 # Generate Evidence pages for a use case
-python tooling/ir/build_ir.py --kpi-catalog
+python tooling/ontology/registry_builder.py
+python tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog
 python -m products.open_source_stack.tooling.page_generator.generator --use-case COM-001
 
 # Run OSS validation
@@ -53,7 +54,13 @@ When adding a new dashboard for a KPI or use case, use the page generator or the
 | **Small team** | PostgreSQL | Postgres-native | $0 (self-hosted) |
 | **Cloud** | S3/GCS/ADLS + Iceberg | Trino / Athena | Pay-per-query |
 
-- Local/dev: DuckDB in `evidence.config.yaml`
+- Local/dev: DuckDB source `gold` in `evidence_app/sources/gold/` (`connection.yaml` + one `<table>.sql`
+  per table the pages read). Without a dbt build the tables carry their column contract and one
+  all-NULL row, so the site builds and shows no values.
+- Build: `cd evidence_app && npm ci && npm run sources && npm run build` (Evidence 40; `evidence.config.yaml`
+  lists the plugins, `package.json` pins the peers Evidence declares, `validate_oss.py` checks both).
+  The exit code does not cover page queries: `npm run build > build.log 2>&1`, then
+  `python products/open_source_stack/tooling/validate_oss.py --root . --build-log build.log` (fails on any `Error in Query`)
 - Production: Postgres or warehouse; credentials outside repo (env or secrets)
 
 ## Security and DSGVO

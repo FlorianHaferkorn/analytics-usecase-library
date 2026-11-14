@@ -1,0 +1,8 @@
+# Gold layer for Evidence pages (DuckDB, zero cost).
+# Default: in-memory, contract-only tables (no rows), so the site builds
+# without a warehouse. Production: point filename at the dbt-built DuckDB file
+# (or switch the source type to Postgres/Trino) and keep the table names.
+name: gold
+type: duckdb
+options:
+  filename: ":memory:"

@@ -43,10 +43,10 @@ _Data as of <Value data={kpi_com_013} column="period" />_
 <Details title="Source and definition: KPI-COM-013">
 
 - Catalog id: KPI-COM-013
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4512
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4513
 - Owner: Head of Controlling; steward: Controlling Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
-- Lineage: core/data_contracts/domains/commercial_sales.yaml, core/data_contracts/domains/executive.yaml, core/data_contracts/domains/finance.yaml
+- Lineage: core/data_contracts/domains/commercial_sales.yaml, core/data_contracts/domains/executive.yaml
 
 Query as executed:
 
@@ -89,10 +89,10 @@ _Data as of <Value data={kpi_com_009} column="period" />_
 <Details title="Source and definition: KPI-COM-009">
 
 - Catalog id: KPI-COM-009
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3468
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3469
 - Owner: Head of Sales Controlling; steward: Sales Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
-- Lineage: core/data_contracts/domains/commercial_sales.yaml, core/data_contracts/domains/finance.yaml
+- Lineage: core/data_contracts/domains/commercial_sales.yaml
 
 Query as executed:
 
@@ -135,7 +135,7 @@ _Data as of <Value data={kpi_com_008} column="period" />_
 <Details title="Source and definition: KPI-COM-008">
 
 - Catalog id: KPI-COM-008
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3413
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3414
 - Owner: Head of Sales Controlling; steward: Sales Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml, core/data_contracts/domains/executive.yaml
@@ -227,7 +227,7 @@ _Data as of <Value data={kpi_com_010} column="period" />_
 <Details title="Source and definition: KPI-COM-010">
 
 - Catalog id: KPI-COM-010
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3523
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3524
 - Owner: Head of Sales Controlling; steward: Sales Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -273,7 +273,7 @@ _Data as of <Value data={kpi_com_011} column="period" />_
 <Details title="Source and definition: KPI-COM-011">
 
 - Catalog id: KPI-COM-011
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3577
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3578
 - Owner: Head of Sales Controlling; steward: Sales Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -365,7 +365,7 @@ _Data as of <Value data={kpi_fin_011} column="period" />_
 <Details title="Source and definition: KPI-FIN-011">
 
 - Catalog id: KPI-FIN-011
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4465
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4466
 - Owner: Head of Controlling; steward: Controlling Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml
@@ -411,7 +411,7 @@ _Data as of <Value data={kpi_com_006} column="period" />_
 <Details title="Source and definition: KPI-COM-006">
 
 - Catalog id: KPI-COM-006
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3322
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3323
 - Owner: Head of Sales Controlling; steward: Sales Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
 - Lineage: not set in the catalog
@@ -457,7 +457,7 @@ _Data as of <Value data={kpi_com_007} column="period" />_
 <Details title="Source and definition: KPI-COM-007">
 
 - Catalog id: KPI-COM-007
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3367
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3368
 - Owner: Head of Sales Controlling; steward: Sales Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
 - Lineage: not set in the catalog
@@ -601,10 +601,10 @@ _Data as of <Value data={kpi_com_013_trend_as_of} column="as_of" />_
 <Details title="Source and definition: KPI-COM-013">
 
 - Catalog id: KPI-COM-013
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4512
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4513
 - Owner: Head of Controlling; steward: Controlling Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
-- Lineage: core/data_contracts/domains/commercial_sales.yaml, core/data_contracts/domains/executive.yaml, core/data_contracts/domains/finance.yaml
+- Lineage: core/data_contracts/domains/commercial_sales.yaml, core/data_contracts/domains/executive.yaml
 
 Query as executed:
 
@@ -649,10 +649,10 @@ _Data as of <Value data={kpi_com_009_trend_as_of} column="as_of" />_
 <Details title="Source and definition: KPI-COM-009">
 
 - Catalog id: KPI-COM-009
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3468
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3469
 - Owner: Head of Sales Controlling; steward: Sales Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
-- Lineage: core/data_contracts/domains/commercial_sales.yaml, core/data_contracts/domains/finance.yaml
+- Lineage: core/data_contracts/domains/commercial_sales.yaml
 
 Query as executed:
 
@@ -697,7 +697,7 @@ _Data as of <Value data={kpi_com_008_trend_as_of} column="as_of" />_
 <Details title="Source and definition: KPI-COM-008">
 
 - Catalog id: KPI-COM-008
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3413
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 3414
 - Owner: Head of Sales Controlling; steward: Sales Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
 - Lineage: core/data_contracts/domains/commercial_sales.yaml, core/data_contracts/domains/executive.yaml
@@ -726,9 +726,9 @@ ORDER BY period
 
 ```sql detail_data
 SELECT
-  dim_org.Region, dim_product.Category, KPI-COM-005, KPI-COM-009, KPI-COM-010, KPI-COM-011, KPI-COM-004, KPI-COM-013
+  region, country, entity, kpi_id, period, metric_value
 FROM gold.metric_evidence
-WHERE kpi_id = 'KPI-COM-013'
+WHERE kpi_id IN ('KPI-COM-005', 'KPI-COM-009', 'KPI-COM-010', 'KPI-COM-011', 'KPI-COM-013')
   AND period BETWEEN '${inputs.period_range.start}' AND '${inputs.period_range.end}'
 ORDER BY period DESC
 LIMIT 500
@@ -740,7 +740,7 @@ LIMIT 500
 SELECT
   MAX(period) AS as_of
 FROM gold.metric_evidence
-WHERE kpi_id = 'KPI-COM-013'
+WHERE kpi_id IN ('KPI-COM-005', 'KPI-COM-009', 'KPI-COM-010', 'KPI-COM-011', 'KPI-COM-013')
   AND period BETWEEN '${inputs.period_range.start}' AND '${inputs.period_range.end}'
 ```
 
@@ -749,18 +749,18 @@ _Data as of <Value data={detail_data_as_of} column="as_of" />_
 <Details title="Source and definition: KPI-COM-013">
 
 - Catalog id: KPI-COM-013
-- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4512
+- Definition, target and threshold: core/kpi_catalog/KPI_Catalog.md, line 4513
 - Owner: Head of Controlling; steward: Controlling Analyst
 - Action codes: C-M2.1, C-S1.1, C-S1.2
-- Lineage: core/data_contracts/domains/commercial_sales.yaml, core/data_contracts/domains/executive.yaml, core/data_contracts/domains/finance.yaml
+- Lineage: core/data_contracts/domains/commercial_sales.yaml, core/data_contracts/domains/executive.yaml
 
 Query as executed:
 
 ```text
 SELECT
-  dim_org.Region, dim_product.Category, KPI-COM-005, KPI-COM-009, KPI-COM-010, KPI-COM-011, KPI-COM-004, KPI-COM-013
+  region, country, entity, kpi_id, period, metric_value
 FROM gold.metric_evidence
-WHERE kpi_id = 'KPI-COM-013'
+WHERE kpi_id IN ('KPI-COM-005', 'KPI-COM-009', 'KPI-COM-010', 'KPI-COM-011', 'KPI-COM-013')
   AND period BETWEEN '${inputs.period_range.start}' AND '${inputs.period_range.end}'
 ORDER BY period DESC
 LIMIT 500

@@ -22,7 +22,7 @@ from .component_builder import ComponentBuilder
 from .layout_calculator import LayoutCalculator
 from .markdown_writer import MarkdownWriter, PageSection
 from .page_validator import validate_page
-from .sql_builder import SqlBuilder
+from .sql_builder import SqlBuilder, resolve_evidence_columns
 
 
 # Filter row (BC-DV-08): every query on the page reads the same date-range input.
@@ -181,15 +181,17 @@ class EvidencePageGenerator:
             if visible_kpi_ids:
                 detail_config = self._get_detail_config()
                 qname = "detail_data"
-                columns = detail_config.get("evidence_columns") or ["entity", "period", "metric_value"]
+                dimensions, detail_kpi_ids = resolve_evidence_columns(
+                    detail_config.get("evidence_columns") or ["entity"], kpis_by_id)
+                detail_kpi_ids = detail_kpi_ids or visible_kpi_ids[:1]
                 sql = self.sql_builder.build_metric_detail_query(
-                    qname, visible_kpi_ids[0], columns, period_filter=pf)
+                    qname, detail_kpi_ids, dimensions, period_filter=pf)
                 detail_section.add_block(sql)
                 detail_section.add_block(
                     self.component_builder.build_data_table(qname, downloadable=True)
                 )
                 detail_section.add_block(self.sql_builder.build_as_of_query(
-                    f"{qname}_as_of", visible_kpi_ids[0], table="gold.metric_evidence", period_filter=pf))
+                    f"{qname}_as_of", detail_kpi_ids, table="gold.metric_evidence", period_filter=pf))
                 detail_section.add_block(self.component_builder.build_as_of_stamp(f"{qname}_as_of"))
                 detail_section.add_block(self._provenance(
                     visible_kpi_ids[0], kpis_by_id.get(visible_kpi_ids[0]) or {}, sql, action_code_ids))
