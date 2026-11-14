@@ -176,6 +176,10 @@ Note: `validation/schemas/` may still hold copies; prefer `generator/schemas/` a
   benennt Katalog/Presets um, `--check` meldet verbliebene alte IDs ausserhalb der Ausnahmeliste
   (historische Stellen, `AUSNAHMEN` im Werkzeug), `--neuzugaenge` schreibt die blockierten
   Neuzugaenge als vorbelegte Vorlage. Test: `tooling/tests/test_kpi_id_migration.py`.
+- `action_code_vertrag.py` — D-833 Schritt 1 (SOM-001): leitet `parameters`, `preconditions`,
+  `permitted_role`, `review` je Action Code aus dem Bestand ab (Leerstelle `nicht_belegt`, nie geschaetzt),
+  ueberschreibt nichts. `--report` zaehlt, `--apply` fuegt fehlende Felder ein, `--check` meldet Codes ohne
+  sie. Bezuege prueft `validation/check_action_contract.py` (Stage 1). Test: `tooling/tests/test_action_code_vertrag.py`.
 
 ---
 

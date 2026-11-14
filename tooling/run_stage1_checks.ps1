@@ -66,6 +66,9 @@ $pythonChecks = @(
   # gelaufen (keine Modelle, Parser hat Objekte verloren). Der offizielle Satz laeuft nur unter
   # Windows (.github/workflows/tabular-bpa.yml), Pin: tooling/linters/powerbi/bpa-official.pin.json.
   @{ Script = "tooling/validation/check_bpa.py"; Args = @("--repo-root", $rootPath, "--strict") },
+  # Action-Vertrag (D-833 Schritt 1, SOM-001, 14.11.2026): Bezuege von parameters/preconditions/
+  # permitted_role/review auf Katalog, Rollenregister und trigger.levels. Exit 2 = nicht geprueft.
+  @{ Script = "tooling/validation/check_action_contract.py"; Args = @("--repo-root", $rootPath) },
   @{ Script = "tooling/generator/validation/check_action_outcome_reconciliation.py"; Args = @("--strict") },
   @{ Script = "tooling/generator/validation/check_business_cases.py"; Args = @("--strict", "--repo-root", $rootPath) },
   # Layout-System-Boden (L4): jede analytische Absicht muss im Pflichtziel Power BI

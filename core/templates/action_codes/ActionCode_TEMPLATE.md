@@ -151,6 +151,25 @@ governance:
   rollback_plan: []
   documentation_links: []
 
+# Action contract (D-833 step 1, required since 14.11.2026). Derive from the fields above with
+# `python -m tooling.migration.action_code_vertrag --apply`; never estimate: unknown = nicht_belegt.
+parameters:
+  - { name: period, type: period, required: true, grain: "<scope.default_grain>", source_field: scope.default_grain }
+  - { name: trigger_level, type: trigger_level, required: true, allowed_values: [L1, L2, L3], source_field: trigger.levels }
+  - { name: "<snake_case>", label: "<scope.default_perspective entry>", type: dimension_member, required: true,
+      binding: nicht_belegt, source_field: scope.default_perspective }
+preconditions:
+  combine: guardrails_all_and_trigger_any
+  checks:
+    - { id: level_l1, role: trigger, kind: kpi_level, ref: trigger.levels.L1.condition, kpi_id: "<KPI-...>", pruefbar: true }
+permitted_role:
+  source_field: governance.approvals_required
+  roles:
+    - { approver: "<entry of approvals_required>", role_id: "<org_roles id or nicht_belegt>" }
+review:
+  required: true
+  state: vorgeschlagen
+
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."
   - "Trigger severity must be strictly increasing from L1 to L3."

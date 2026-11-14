@@ -185,6 +185,79 @@ governance:
   - Suspend orchestration if quality KPIs deteriorate
   documentation_links:
   - core/usecases/core/SCM-004_Procurement_Supplier_Performance/Business_Factsheet.md
+parameters:
+- name: period
+  type: period
+  required: true
+  grain: category_month
+  source_field: scope.default_grain
+- name: trigger_level
+  type: trigger_level
+  required: true
+  allowed_values:
+  - L1
+  - L2
+  - L3
+  source_field: trigger.levels
+- name: category
+  label: Category
+  type: dimension_member
+  required: true
+  binding: nicht_belegt
+  source_field: scope.default_perspective
+- name: supplier
+  label: Supplier
+  type: dimension_member
+  required: true
+  binding: nicht_belegt
+  source_field: scope.default_perspective
+- name: business_unit
+  label: Business Unit
+  type: dimension_member
+  required: false
+  binding: nicht_belegt
+  source_field: scope.supported_slices
+- name: region
+  label: Region
+  type: dimension_member
+  required: false
+  binding: nicht_belegt
+  source_field: scope.supported_slices
+preconditions:
+  combine: guardrails_all_and_trigger_any
+  checks:
+  - id: level_l1
+    role: trigger
+    kind: kpi_level
+    ref: trigger.levels.L1.condition
+    kpi_id: KPI-SCM-023
+    pruefbar: true
+  - id: level_l2
+    role: trigger
+    kind: kpi_level
+    ref: trigger.levels.L2.condition
+    kpi_id: KPI-SCM-023
+    pruefbar: true
+  - id: level_l3
+    role: trigger
+    kind: kpi_level
+    ref: trigger.levels.L3.condition
+    kpi_id: KPI-SCM-023
+    pruefbar: true
+  - id: volume_guardrail
+    role: guardrail
+    kind: volume_guardrail
+    ref: trigger.evaluation.minimum_data.volume_guardrail
+    kpi_id: KPI-SCM-027
+    pruefbar: true
+permitted_role:
+  source_field: governance.approvals_required
+  roles:
+  - approver: VP Customer Operations
+    role_id: nicht_belegt
+review:
+  required: true
+  state: vorgeschlagen
 quality_rules:
 - All kpi_id values must exist in KPI catalog.
 - Trigger severity must be strictly increasing from L1 to L3.

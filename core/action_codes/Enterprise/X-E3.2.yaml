@@ -187,6 +187,75 @@ governance:
   - Revert to single-domain routing if composite risk logic misleads
   documentation_links:
   - core/usecases/core/XD-003_Executive_KPI_Overview/Business_Factsheet.md
+parameters:
+- name: period
+  type: period
+  required: true
+  grain: entity_month
+  source_field: scope.default_grain
+- name: trigger_level
+  type: trigger_level
+  required: true
+  allowed_values:
+  - L1
+  - L2
+  - L3
+  source_field: trigger.levels
+- name: business_unit
+  label: Business Unit
+  type: dimension_member
+  required: true
+  binding: nicht_belegt
+  source_field: scope.default_perspective
+- name: region
+  label: Region
+  type: dimension_member
+  required: true
+  binding: nicht_belegt
+  source_field: scope.default_perspective
+- name: domain
+  label: Domain
+  type: dimension_member
+  required: false
+  binding: nicht_belegt
+  source_field: scope.supported_slices
+- name: risk_category
+  label: Risk Category
+  type: dimension_member
+  required: false
+  binding: nicht_belegt
+  source_field: scope.supported_slices
+preconditions:
+  combine: guardrails_all_and_trigger_any
+  checks:
+  - id: level_l1
+    role: trigger
+    kind: composite_rule
+    ref: trigger.levels.L1.condition
+    pruefbar: false
+    status: nicht_belegt
+  - id: level_l2
+    role: trigger
+    kind: composite_rule
+    ref: trigger.levels.L2.condition
+    pruefbar: false
+    status: nicht_belegt
+  - id: level_l3
+    role: trigger
+    kind: composite_rule
+    ref: trigger.levels.L3.condition
+    pruefbar: false
+    status: nicht_belegt
+permitted_role:
+  source_field: governance.approvals_required
+  roles:
+  - approver: CFO
+    role_id: nicht_belegt
+  - approver: Chief Strategy Officer
+    role_id: nicht_belegt
+review:
+  required: true
+  state: vorgeschlagen
 quality_rules:
 - XD-003 Action Codes must not introduce execution logic.
 - Risk prioritisation must be based on aggregated KPI signals.
