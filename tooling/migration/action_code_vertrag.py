@@ -167,7 +167,7 @@ def zaehlung(codes: dict[str, dict[str, Any]]) -> dict[str, Any]:
 
 
 def lade(dateien: list[Path]) -> dict[str, dict[str, Any]]:
-    return {str(p.relative_to(REPO)): yaml.safe_load(p.read_text(encoding="utf-8")) for p in dateien}
+    return {p.relative_to(REPO).as_posix(): yaml.safe_load(p.read_text(encoding="utf-8")) for p in dateien}
 
 
 def main(argv: list[str] | None = None) -> int:
