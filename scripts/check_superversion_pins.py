@@ -4,8 +4,15 @@
 ALUCA-side mirror of Meridian's `scripts/check_upstream_freshness.py` (D-238)
 DOCTRINE: **reports drift, never bumps** (a pin moves only via a deliberate,
 reviewed commit after re-validation). Advisory (exit 0) by default; `--strict`
-turns drift into an error (exit 1) for a release gate. Offline → soft-skip the
-network slice.
+is the release gate with three exits: **0** compared and equal, **1** drift
+(local divergence OR upstream differs), **2** not compared (no Meridian
+checkout, unknown ref, empty PIN). Offline → soft-skip the network slice, but
+under `--strict` a skipped comparison is 2, never 0.
+
+Why three exits (13.11.2026, Freelancing matrix B2): `--strict` returned 0 while
+all 3 vendored files differed from Meridian origin/main. The upstream slice only
+printed "upstream differs (ADVISORY)"; the exit code looked at local integrity
+alone, so the gate passed on exactly the drift it exists to catch.
 
 Tracks the pins ALUCA owns for the vendored Meridian canonical-core
 (`tooling/superversion/vendor/meridian/PIN.json`):
@@ -52,6 +59,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 VENDOR_DIR = REPO_ROOT / "tooling" / "superversion" / "vendor" / "meridian"
 PIN_PATH = VENDOR_DIR / "PIN.json"
 STALENESS_ADVISORY_DAYS = 60
+# Exit codes are part of the promise (same vocabulary as check_dataarch_mirror.py / D-341).
+EXIT_OK, EXIT_DRIFT, EXIT_UNPRUEFBAR = 0, 1, 2
 
 # The vendored contract surface, relative to Meridian's repo root and to VENDOR_DIR.
 # The list lives HERE, not in PIN.json: otherwise a file could only be added by
@@ -184,22 +193,40 @@ def _blob(root: Path, commit: str, rel: str) -> Optional[bytes]:
     return proc.stdout if proc.returncode == 0 else None
 
 
-def upstream_comparison(pin: dict, meridian_root: Path, ref: str) -> list[str]:
-    """Advisory: does each vendored file equal the blob at ``ref`` in Meridian?"""
+def upstream_status(pin: dict, meridian_root: Path, ref: str) -> tuple[int, list[str]]:
+    """Does each vendored file equal the blob at ``ref`` in Meridian? ``(exit, lines)``.
+
+    ``EXIT_OK`` every pinned file equal; ``EXIT_DRIFT`` at least one differs or is absent
+    upstream; ``EXIT_UNPRUEFBAR`` not compared (ref unknown, or a PIN without files — zero
+    compared objects is no success). The count of compared files is in the header line.
+    """
     commit = _git(meridian_root, "rev-parse", "--verify", f"{ref}^{{commit}}")
     if not commit:
-        return [f"  upstream-commit comparison: soft-skipped ({ref} unknown in {meridian_root})."]
-    lines = [f"  upstream-commit comparison against {ref} = {commit[:8]}:"]
-    for entry in pin.get("files", []):
+        return EXIT_UNPRUEFBAR, [f"  upstream-commit comparison: soft-skipped ({ref} unknown in {meridian_root})."]
+    entries = pin.get("files", [])
+    if not entries:
+        return EXIT_UNPRUEFBAR, ["  upstream-commit comparison: NOT COMPARED — PIN lists 0 files."]
+    lines: list[str] = []
+    differs = 0
+    for entry in entries:
         rel = entry.get("path", "")
         data = _blob(meridian_root, commit, rel)
         if data is None:
+            differs += 1
             lines.append(f"    [!! ] {rel} — absent upstream")
         elif hashlib.sha256(data).hexdigest() == entry.get("sha256"):
             lines.append(f"    [OK ] {rel} — equal")
         else:
-            lines.append(f"    [!! ] {rel} — upstream differs (ADVISORY: re-sync with --write)")
-    return lines
+            differs += 1
+            lines.append(f"    [!! ] {rel} — upstream differs (re-sync with --write; DRIFT under --strict)")
+    head = (f"  upstream-commit comparison against {ref} = {commit[:8]}: "
+            f"{len(entries)} compared, {differs} differ")
+    return (EXIT_DRIFT if differs else EXIT_OK), [head, *lines]
+
+
+def upstream_comparison(pin: dict, meridian_root: Path, ref: str) -> list[str]:
+    """Lines of :func:`upstream_status` (kept for callers that only print)."""
+    return upstream_status(pin, meridian_root, ref)[1]
 
 
 def write_vendor(meridian_root: Path, ref: str = "HEAD") -> dict:
@@ -261,7 +288,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         description="Superversion pin-drift sensor (reports drift, never bumps).",
     )
     parser.add_argument("--strict", action="store_true",
-                        help="exit 1 on hard drift (missing/diverged vendored file)")
+                        help="release gate: 0 equal, 1 drift (local or upstream), 2 not compared")
     parser.add_argument("--json", type=Path, default=None, help="write status JSON here")
     parser.add_argument("--upstream-ref", default="origin/main",
                         help="Meridian ref for the advisory upstream comparison")
@@ -292,8 +319,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     parity = _parity_active()
     osi = _osi_status()
     mer = _meridian_root()
-    upstream = upstream_comparison(pin, mer, args.upstream_ref) if mer is not None else None
+    if mer is not None:
+        up_status, upstream = upstream_status(pin, mer, args.upstream_ref)
+    else:
+        up_status, upstream = EXIT_UNPRUEFBAR, None
     level, lines = build_report(pin, integrity, provenance, parity, osi, upstream)
+    if level != "DRIFT" and up_status == EXIT_DRIFT:
+        level = "DRIFT"
 
     print(f"[superversion-pins] {level}")
     for ln in lines:
@@ -305,10 +337,19 @@ def main(argv: Optional[list[str]] = None) -> int:
             "parity_active": parity, "osi": osi,
         }, indent=2) + "\n", encoding="utf-8", newline="\n")
 
-    if args.strict and has_drift(integrity):
-        print("[superversion-pins] STRICT: hard drift → exit 1")
-        return 1
-    return 0
+    if not args.strict:
+        return EXIT_OK
+    if has_drift(integrity):
+        print("[superversion-pins] STRICT: local drift → exit 1")
+        return EXIT_DRIFT
+    if up_status == EXIT_DRIFT:
+        print("[superversion-pins] STRICT: upstream drift → exit 1 (re-sync deliberately with --write)")
+        return EXIT_DRIFT
+    if up_status == EXIT_UNPRUEFBAR:
+        print("[superversion-pins] STRICT: upstream NOT COMPARED → exit 2")
+        return EXIT_UNPRUEFBAR
+    print(f"[superversion-pins] STRICT: {len(integrity)} file(s) compared, equal → exit 0")
+    return EXIT_OK
 
 
 if __name__ == "__main__":  # pragma: no cover
