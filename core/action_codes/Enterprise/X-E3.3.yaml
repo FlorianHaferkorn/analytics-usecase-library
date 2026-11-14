@@ -189,6 +189,75 @@ governance:
   - Suspend executive escalation if governance noise outweighs decision value.
   documentation_links:
   - core/usecases/core/XD-004_Executive_Action_Governance/Business_Factsheet.md
+parameters:
+- name: period
+  type: period
+  required: true
+  grain: action_instance
+  source_field: scope.default_grain
+- name: trigger_level
+  type: trigger_level
+  required: true
+  allowed_values:
+  - L1
+  - L2
+  - L3
+  source_field: trigger.levels
+- name: domain
+  label: Domain
+  type: dimension_member
+  required: true
+  binding: nicht_belegt
+  source_field: scope.default_perspective
+- name: entity
+  label: Entity
+  type: dimension_member
+  required: true
+  binding: nicht_belegt
+  source_field: scope.default_perspective
+- name: severity_level
+  label: Severity Level
+  type: dimension_member
+  required: false
+  binding: nicht_belegt
+  source_field: scope.supported_slices
+- name: executive_priority
+  label: Executive Priority
+  type: dimension_member
+  required: false
+  binding: nicht_belegt
+  source_field: scope.supported_slices
+preconditions:
+  combine: guardrails_all_and_trigger_any
+  checks:
+  - id: level_l1
+    role: trigger
+    kind: lifecycle_rule
+    ref: trigger.levels.L1.condition
+    pruefbar: false
+    status: nicht_belegt
+  - id: level_l2
+    role: trigger
+    kind: lifecycle_rule
+    ref: trigger.levels.L2.condition
+    pruefbar: false
+    status: nicht_belegt
+  - id: level_l3
+    role: trigger
+    kind: lifecycle_rule
+    ref: trigger.levels.L3.condition
+    pruefbar: false
+    status: nicht_belegt
+permitted_role:
+  source_field: governance.approvals_required
+  roles:
+  - approver: CEO
+    role_id: nicht_belegt
+  - approver: Chief of Staff
+    role_id: nicht_belegt
+review:
+  required: true
+  state: vorgeschlagen
 quality_rules:
 - Executive governance must evaluate lifecycle quality, not domain remediation logic.
 - Outcome evaluation must reference domain-defined KPIs and windows.

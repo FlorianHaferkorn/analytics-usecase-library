@@ -320,13 +320,16 @@ machine-checkable today.
 
 | Action-type part | Action Code field | `verdict` | Gap |
 |---|---|---|---|
-| Parameters | `scope.default_grain`, `scope.supported_slices` | `gap` | Slices are names, not typed parameters with allowed values |
-| Submission criteria (preconditions) | `trigger.gating_rules`, `operational_execution.prerequisites` | `gap` | `prerequisites` is prose; only `gating_rules` is structured |
-| Permitted role | `owner_role`, `steward_role` | `gap` | Role names are not bound to an identity or row-level security role |
-| Review / approval | `governance.approvals_required` | `gap` | Approver list exists; no approval state (proposed → approved → executed) |
+| Parameters | `parameters` (derived from `scope`, `trigger.levels`; D-833 step 1, 14.11.2026) | `gap` | Typed (`period`, `trigger_level`, `dimension_member`); the column holding allowed members (`binding`) is `nicht_belegt` in 225 of 347 parameters |
+| Submission criteria (preconditions) | `preconditions.checks` (refs to `trigger.levels`, `volume_guardrail`; prose stays in `gating_rules`, `prerequisites`) | `equivalent` | 232 of 238 checks machine-checkable against a catalog KPI; 6 (composite/lifecycle rules in X-E3.2, X-E3.3) are `nicht_belegt` |
+| Permitted role | `permitted_role.roles` → `core/organization/org_roles.yaml` | `gap` | 28 of 81 approvers bound to a registry role; 53 `nicht_belegt` (no role of that title, e.g. CFO, COO); no binding to an identity or RLS role yet |
+| Review / approval | `review` (`required`, `state` from `definitions.review_state`) | `equivalent` | Start state `vorgeschlagen` in all 61 codes; the runtime moves it per attempt (Meridian DI, D-833 step 2) |
 | Writeback rules | `execution_bridge` (`endpoint_template`, `payload_definition`, `audit`) | `gap` | Declared, not executed: no runtime calls the bridge |
 | Action log | `tracking.execution_log` → `fact_action_execution` | `equivalent` | Design matches one record per execution; filled only where a tenant runs it |
 | Outcome valuation | `impact_valuation`, `tracking.outcome_evaluation` → `fact_action_outcome` | `equivalent` | ANNAHME, ungeprueft: outcome valuation is not part of the benchmark's action log |
+
+Counters: `python -m tooling.migration.action_code_vertrag --report`; references checked by
+`tooling/validation/check_action_contract.py` (Stage 1), tests in `tooling/tests/test_action_code_vertrag.py`.
 
 Consequence: the Action Code is the *definition* of an action type; what is missing is the
 *runtime* (typed parameters, evaluated preconditions, approval state, executed writeback). These

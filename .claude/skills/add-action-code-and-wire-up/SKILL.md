@@ -18,6 +18,7 @@ Create action code YAML files in the framework, validate all references, and wir
    - Template: `core/templates/action_codes/ActionCode_TEMPLATE.md`
    - Schema: `tooling/generator/schemas/action_code.schema.json`
    - Required fields: `schema_version`, `id`, `name`, `owner_domain`, `impact_dimension`, `status`, `kpis`, `trigger`, `impact`, `operational_execution`, `governance`.
+   - Action contract (D-833, required): `parameters`, `preconditions`, `permitted_role`, `review` — derive them with `python -m tooling.migration.action_code_vertrag --apply`; unknown values stay `nicht_belegt`.
 2. **Create action code file**:
    - Path: `core/action_codes/<Domain>/<ID>.yaml`
    - ID format: `<prefix>-<topic><index>` (e.g., `C-M2.1` for Commercial/Margin, `F-C1.1` for Finance/Cash, `O-A2.1` for Operations/Asset).
@@ -50,6 +51,7 @@ After creating action code, verify:
 - [ ] `check_action_codes_vs_kpi.ps1` passes
 - [ ] `check_factsheet_action_codes.ps1` passes
 - [ ] `check_schema_validation.ps1` passes (validates action code structure)
+- [ ] `python tooling/validation/check_action_contract.py` passes (preconditions reference catalog KPIs and `trigger.levels`, `role_id` exists in `org_roles.yaml`)
 
 ## Error Handling
 
