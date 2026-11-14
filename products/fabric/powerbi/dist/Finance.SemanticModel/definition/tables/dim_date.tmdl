@@ -1,5 +1,6 @@
 /// Calendar dimension for finance reporting
 table dim_date
+	dataCategory: Time
 	lineageTag: 99ecc014-eaec-5bbe-b43e-0a491155a662
 	column DateKey
 		dataType: Int64
@@ -8,6 +9,7 @@ table dim_date
 		isHidden
 		isAvailableInMDX: false
 	column Date
+		isKey
 		dataType: DateTime
 		sourceColumn: Date
 		summarizeBy: none

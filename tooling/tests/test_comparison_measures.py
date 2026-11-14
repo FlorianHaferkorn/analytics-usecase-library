@@ -57,10 +57,10 @@ def test_target_reads_the_customer_table_and_py_uses_time_intelligence():
     assert re.search(r"measure 'Overall Equipment Effectiveness \(OEE\) % Target' = CALCULATE \( AVERAGE \( "
                      r"fact_target\[Target Value\] \), fact_target\[kpi_id\] = \"KPI-OPS-011\"", ops)
     com = (cm.DIST / "Commercial.SemanticModel/definition/tables/_Measures.tmdl").read_text(encoding="utf-8")
-    # COM-003 CLV vs_py: Monatsindex-Shift um zwoelf, kein SAMEPERIODLASTYEAR (dim_date ist nicht
-    # als Datumstabelle markiert, ein Monats-Slicer liefe daneben leer).
+    # COM-003 CLV vs_py: SAMEPERIODLASTYEAR auf der markierten dim_date (seit 13.11.2026, vorher
+    # Monatsindex-Shift um zwoelf; Markierung und Schutz in tests/test_date_table.py).
     py = re.search(r"^\tmeasure 'CLV \(Customer Lifetime Value\) PY' = (.*)$", com, re.M).group(1)
-    assert "'dim_date'[MonthNumber] - 12" in py and "SAMEPERIODLASTYEAR" not in py
+    assert py == "CALCULATE ( [CLV (Customer Lifetime Value)], SAMEPERIODLASTYEAR ( 'dim_date'[Date] ) )"
 
 
 def test_a_governed_plan_wins_over_the_target_table():

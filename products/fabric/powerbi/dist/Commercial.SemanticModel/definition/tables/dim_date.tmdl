@@ -1,5 +1,6 @@
 /// Calendar dimension with fiscal hierarchy (Fiscal Year > Quarter > Month > Date).
 table dim_date
+	dataCategory: Time
 	lineageTag: 6a83a514-fef3-41fb-ba4a-6b94f905e53c
 
 	column DateKey
@@ -11,6 +12,7 @@ table dim_date
 		sourceColumn: DateKey
 
 	column Date
+		isKey
 		dataType: dateTime
 		lineageTag: 826ae2f1-c10a-4a6f-ad57-f237555b4217
 		summarizeBy: none

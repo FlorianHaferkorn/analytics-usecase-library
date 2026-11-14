@@ -161,4 +161,4 @@ In VS-Code-Tasks, `.claude/settings.json`, Skills und Workflows gab es keinen Au
   Stage 1 die eigenen Regeln unter Linux.
 - Vorjahresregeln (`SAMEPERIODLASTYEAR`/`DATEADD`): Florian will `dim_date` als Datumstabelle markieren und die
   Vorjahreslogik darauf umstellen. Die zwei Regeln bleiben; die Umstellung von Generator und Modellen ist eine eigene
-  Runde (offen).
+  Runde (umgesetzt 13.11.2026, Runde `runde/2026-11-13-dim-date`: `dim_date` markiert, `<M> PY` über `SAMEPERIODLASTYEAR`).

@@ -32,6 +32,13 @@ The `[1.0.0]` release marks the Lean Core v1.0 consolidation: a production-ready
 
 ### Changed
 
+- **`dim_date` is the marked date table; prior-year measures use `SAMEPERIODLASTYEAR` (13.11.2026).**
+  All five semantic models in `dist/` carry `dataCategory: Time` on `dim_date` and `isKey` on
+  `Date` (`tooling/codegen/model_alignment.py`, `mark_date_table`). `tooling/codegen/comparison_measures.py`
+  generates `<M> PY` as `CALCULATE ( [M], SAMEPERIODLASTYEAR ( 'dim_date'[Date] ) )` instead of a
+  month-index shift, and refuses to generate it for a model without a marked date table. Previous-month
+  logic (`PM`, action-trigger persistence) is unchanged. DAX runtime not measured against an engine.
+
 - **KPI de-duplication (physical removal).** Executing the KPI_DEDUP_MIGRATION_RUNBOOK
   one twin at a time — deleting each twin KPI, rewiring/deduping its references, and
   removing/renaming the duplicate domain measures so each identical-calculation family
