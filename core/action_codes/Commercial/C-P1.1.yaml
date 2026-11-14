@@ -221,7 +221,7 @@ parameters:
   label: Stage
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_sales_stage.Stage
   source_field: scope.supported_slices
 preconditions:
   combine: guardrails_all_and_trigger_any
@@ -254,7 +254,7 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: VP Customer Operations
-    role_id: nicht_belegt
+    role_id: vp_customer_service_operations
 review:
   required: true
   state: vorgeschlagen

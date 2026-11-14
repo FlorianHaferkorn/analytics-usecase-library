@@ -196,7 +196,7 @@ parameters:
   label: Product Category
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_product.Category
   source_field: scope.default_perspective
 - name: channel
   label: Channel
@@ -229,9 +229,9 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: Head of Category Management
-    role_id: nicht_belegt
+    role_id: category_manager
   - approver: Commercial Director
-    role_id: nicht_belegt
+    role_id: commercial_director
 review:
   required: true
   state: vorgeschlagen

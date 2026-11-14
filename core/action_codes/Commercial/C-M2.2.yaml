@@ -224,7 +224,7 @@ parameters:
   label: Product Category
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_product.Category
   source_field: scope.supported_slices
 - name: sku
   label: SKU
@@ -265,7 +265,7 @@ permitted_role:
   - approver: Commercial Controlling Lead
     role_id: commercial_controlling_lead
   - approver: Category Management Lead
-    role_id: nicht_belegt
+    role_id: category_manager
 review:
   required: true
   state: vorgeschlagen

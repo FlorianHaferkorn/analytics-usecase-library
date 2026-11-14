@@ -213,13 +213,13 @@ parameters:
   label: Agent Group
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Agent Group
   source_field: scope.default_perspective
 - name: shrinkage_category
   label: Shrinkage Category
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_shrinkage_category.Shrinkage Category
   source_field: scope.supported_slices
 - name: region
   label: Region
@@ -260,7 +260,7 @@ permitted_role:
   - approver: Head of Service Operations
     role_id: head_of_service_operations
   - approver: HR Business Partner
-    role_id: nicht_belegt
+    role_id: hr_business_partner
 review:
   required: true
   state: vorgeschlagen

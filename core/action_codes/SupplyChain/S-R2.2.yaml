@@ -207,13 +207,13 @@ parameters:
   label: Lane
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_carrier_lane.Lane
   source_field: scope.default_perspective
 - name: location
   label: Location
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Location
   source_field: scope.default_perspective
 - name: transport_mode
   label: Transport Mode
@@ -258,7 +258,7 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: Head of Logistics
-    role_id: nicht_belegt
+    role_id: logistics_manager
 review:
   required: true
   state: vorgeschlagen

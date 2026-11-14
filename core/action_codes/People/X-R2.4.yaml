@@ -218,7 +218,7 @@ parameters:
   label: Agent Group
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_org.Agent Group
   source_field: scope.supported_slices
 - name: channel
   label: Channel
@@ -257,9 +257,9 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: VP Service Operations
-    role_id: nicht_belegt
+    role_id: vp_customer_service_operations
   - approver: HR Business Partner
-    role_id: nicht_belegt
+    role_id: hr_business_partner
 review:
   required: true
   state: vorgeschlagen

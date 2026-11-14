@@ -182,7 +182,7 @@ parameters:
   label: Product Category
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_product.Category
   source_field: scope.supported_slices
 preconditions:
   combine: guardrails_all_and_trigger_any
@@ -209,9 +209,9 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: Head of E-Commerce
-    role_id: nicht_belegt
+    role_id: head_of_ecommerce
   - approver: Commercial Director
-    role_id: nicht_belegt
+    role_id: commercial_director
 review:
   required: true
   state: vorgeschlagen

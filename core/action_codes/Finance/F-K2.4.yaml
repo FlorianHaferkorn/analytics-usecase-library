@@ -202,7 +202,7 @@ parameters:
   label: Cost Center
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_cost_center.Cost Center
   source_field: scope.default_perspective
 - name: region
   label: Region
@@ -247,7 +247,7 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: CFO
-    role_id: nicht_belegt
+    role_id: cfo
 review:
   required: true
   state: vorgeschlagen

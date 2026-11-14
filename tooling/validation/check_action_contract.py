@@ -14,7 +14,9 @@ referenzieren, nicht kopieren):
   `review.required` passt dazu;
 - V5 `trigger_level.allowed_values` sind genau die Stufen in `trigger.levels`, `period.grain` ist
   `scope.default_grain`;
-- V6 jede Stufe hat genau eine Vorbedingung.
+- V6 jede Stufe hat genau eine Vorbedingung;
+- V7 jedes `binding` ausser `nicht_belegt` ist eine Spalte einer `dim_*`-Tabelle der Data Contracts
+  (`core/data_contracts/domains/*.yaml`).
 
 Exit 0 = geprueft, keine Befunde; 1 = Befunde; 2 = nicht geprueft (keine Action Codes gefunden,
 Katalog oder Rollenregister fehlt) — "nichts gefunden" ist nicht "nicht gelaufen".
@@ -24,6 +26,7 @@ Katalog oder Rollenregister fehlt) — "nichts gefunden" ist nicht "nicht gelauf
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import sys
 from pathlib import Path
@@ -57,7 +60,8 @@ def _hat_schwelle(cond: dict[str, Any]) -> bool:
     return th.get("value") is not None or (th.get("lower") is not None and th.get("upper") is not None)
 
 
-def pruefe_code(ac: dict[str, Any], katalog: set[str], rollen: dict[str, dict[str, Any]]) -> list[str]:
+def pruefe_code(ac: dict[str, Any], katalog: set[str], rollen: dict[str, dict[str, Any]],
+                spalten: set[str] | None = None) -> list[str]:
     """Befunde eines Action Codes (leer = in Ordnung)."""
     cid = ac.get("id", "?")
     befunde: list[str] = []
@@ -102,6 +106,10 @@ def pruefe_code(ac: dict[str, Any], katalog: set[str], rollen: dict[str, dict[st
         befunde.append(f"{cid} V5: trigger_level.allowed_values != trigger.levels {levels}")
     if (params.get("period") or {}).get("grain") != (ac.get("scope") or {}).get("default_grain"):
         befunde.append(f"{cid} V5: period.grain != scope.default_grain")
+    for p in ac.get("parameters") or []:
+        b = p.get("binding")
+        if spalten is not None and b and b != NICHT_BELEGT and b not in spalten:
+            befunde.append(f"{cid} V7 {p.get('name')}: binding {b} ist keine Spalte einer dim-Tabelle")
     refs = [c.get("ref") for c in checks if c.get("role") == "trigger"]
     for name in levels:
         n = refs.count(f"trigger.levels.{name}.condition")
@@ -114,6 +122,19 @@ def lade_katalog(root: Path) -> set[str]:
     return {p.stem for p in (root / "core" / "kpi_catalog" / "kpis").glob("KPI-*.yaml")}
 
 
+def lade_spalten(root: Path) -> set[str]:
+    """`tabelle.spalte` aller `dim_*`-Tabellen; Tabellensuche wie der Codemod (`_dim_tabellen`)."""
+    pfad = Path(__file__).resolve().parents[1] / "migration" / "action_code_vertrag.py"
+    spec = importlib.util.spec_from_file_location("action_code_vertrag", pfad)
+    mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
+    spec.loader.exec_module(mod)  # type: ignore[union-attr]
+    out: set[str] = set()
+    for f in sorted((root / "core" / "data_contracts" / "domains").glob("*.yaml")):
+        for t in mod._dim_tabellen(yaml.safe_load(f.read_text(encoding="utf-8"))):
+            out |= {f"{t['name']}.{c['name']}" for c in t["columns"] if isinstance(c, dict)}
+    return out
+
+
 def lade_rollen(root: Path) -> dict[str, dict[str, Any]]:
     doc = yaml.safe_load((root / "core" / "organization" / "org_roles.yaml").read_text(encoding="utf-8"))
     return {r["id"]: r for r in doc["roles"]}
@@ -121,11 +142,11 @@ def lade_rollen(root: Path) -> dict[str, dict[str, Any]]:
 
 def pruefe(root: Path) -> tuple[int, list[str]]:
     """(Zahl geprueften Codes, Befunde)."""
-    katalog, rollen = lade_katalog(root), lade_rollen(root)
+    katalog, rollen, spalten = lade_katalog(root), lade_rollen(root), lade_spalten(root)
     befunde: list[str] = []
     dateien = action_code_dateien(root)
     for p in dateien:
-        befunde += pruefe_code(yaml.safe_load(p.read_text(encoding="utf-8")), katalog, rollen)
+        befunde += pruefe_code(yaml.safe_load(p.read_text(encoding="utf-8")), katalog, rollen, spalten)
     return len(dateien), befunde
 
 

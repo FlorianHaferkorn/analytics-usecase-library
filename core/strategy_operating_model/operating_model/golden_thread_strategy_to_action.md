@@ -320,9 +320,9 @@ machine-checkable today.
 
 | Action-type part | Action Code field | `verdict` | Gap |
 |---|---|---|---|
-| Parameters | `parameters` (derived from `scope`, `trigger.levels`; D-833 step 1, 14.11.2026) | `gap` | Typed (`period`, `trigger_level`, `dimension_member`); the column holding allowed members (`binding`) is `nicht_belegt` in 225 of 347 parameters |
+| Parameters | `parameters` (derived from `scope`, `trigger.levels`; D-833 step 1, 14.11.2026) | `gap` | Typed (`period`, `trigger_level`, `dimension_member`); the column holding allowed members (`binding`, `table.column`) is bound for 101 of 225 dimension parameters to a `dim_*` column of the data contracts (exactly one match by name, declared synonym or `<entity> <column>`; checked by `check_action_contract.py` V7, 14.11.2026); 124 stay `nicht_belegt` (several candidate columns, e.g. `Region` in 8 tables, or none) |
 | Submission criteria (preconditions) | `preconditions.checks` (refs to `trigger.levels`, `volume_guardrail`; prose stays in `gating_rules`, `prerequisites`) | `equivalent` | 232 of 238 checks machine-checkable against a catalog KPI; 6 (composite/lifecycle rules in X-E3.2, X-E3.3) are `nicht_belegt` |
-| Permitted role | `permitted_role.roles` → `core/organization/org_roles.yaml` | `gap` | 28 of 81 approvers bound to a registry role; 53 `nicht_belegt` (no role of that title, e.g. CFO, COO); no binding to an identity or RLS role yet |
+| Permitted role | `permitted_role.roles` → `core/organization/org_roles.yaml` | `gap` | 81 of 81 approvers bound to a registry role (14.11.2026: 11 roles added, 9 titles as aliases of existing roles; before 28 of 81); no binding to an identity or RLS role yet |
 | Review / approval | `review` (`required`, `state` from `definitions.review_state`) | `equivalent` | Start state `vorgeschlagen` in all 61 codes; the runtime moves it per attempt (Meridian DI, D-833 step 2) |
 | Writeback rules | `execution_bridge` (`endpoint_template`, `payload_definition`, `audit`) | `gap` | Declared, not executed: no runtime calls the bridge |
 | Action log | `tracking.execution_log` → `fact_action_execution` | `equivalent` | Design matches one record per execution; filled only where a tenant runs it |

@@ -211,19 +211,19 @@ parameters:
   label: Plant
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Plant
   source_field: scope.default_perspective
 - name: production_line
   label: Production Line
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Line
   source_field: scope.default_perspective
 - name: shift
   label: Shift
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_org.Shift
   source_field: scope.supported_slices
 preconditions:
   combine: guardrails_all_and_trigger_any
@@ -256,7 +256,7 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: COO
-    role_id: nicht_belegt
+    role_id: coo
 review:
   required: true
   state: vorgeschlagen

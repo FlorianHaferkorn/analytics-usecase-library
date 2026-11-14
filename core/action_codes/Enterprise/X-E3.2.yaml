@@ -217,7 +217,7 @@ parameters:
   label: Domain
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_process.Domain
   source_field: scope.supported_slices
 - name: risk_category
   label: Risk Category
@@ -250,9 +250,9 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: CFO
-    role_id: nicht_belegt
+    role_id: cfo
   - approver: Chief Strategy Officer
-    role_id: nicht_belegt
+    role_id: chief_strategy_officer
 review:
   required: true
   state: vorgeschlagen

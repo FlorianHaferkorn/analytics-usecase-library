@@ -206,7 +206,7 @@ parameters:
   label: Customer Segment
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_customer.Segment
   source_field: scope.default_perspective
 - name: channel
   label: Channel
@@ -224,7 +224,7 @@ parameters:
   label: Customer
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_org.Customer
   source_field: scope.supported_slices
 preconditions:
   combine: guardrails_all_and_trigger_any

@@ -208,13 +208,13 @@ parameters:
   label: Customer
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Customer
   source_field: scope.default_perspective
 - name: legal_entity
   label: Legal Entity
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Entity
   source_field: scope.default_perspective
 - name: region
   label: Region

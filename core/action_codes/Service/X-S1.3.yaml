@@ -213,19 +213,19 @@ parameters:
   label: Agent Group
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Agent Group
   source_field: scope.default_perspective
 - name: issue_category
   label: Issue Category
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_issue_type.Issue Category
   source_field: scope.supported_slices
 - name: customer_segment
   label: Customer Segment
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_customer.Segment
   source_field: scope.supported_slices
 preconditions:
   combine: guardrails_all_and_trigger_any
@@ -258,7 +258,7 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: Head of CX / Quality
-    role_id: nicht_belegt
+    role_id: head_of_customer_experience
 review:
   required: true
   state: vorgeschlagen
