@@ -33,6 +33,8 @@ import math
 import re
 import sys
 from pathlib import Path
+from collections.abc import Callable
+from typing import Any
 
 import yaml
 
@@ -972,12 +974,48 @@ def with_status_breach(spec: dict, entry: dict, eff: dict) -> dict:
     return walk(spec)
 
 
+def _dim_opacity(opacity: dict, test: str) -> dict:
+    """Multiply value-defined opacity branches using native Vega-Lite predicates.
+
+    Conditional precedence, selection/empty semantics and expression evaluation
+    stay with the official compiler. Field/datum opacity mappings need their
+    own scale semantics and are deliberately not guessed as a constant one.
+    """
+    def scaled(value: Any) -> float | dict:
+        if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value):
+            return value * KEY_DIM
+        if isinstance(value, dict) and set(value) == {'expr'} and isinstance(value['expr'], str):
+            return {'expr': f"({value['expr']}) * {KEY_DIM}"}
+        raise ValueError('highlight opacity requires a numeric value or native ExprRef')
+
+    if not isinstance(opacity, dict) or 'value' not in opacity:
+        raise ValueError('highlight opacity requires value-defined branches, not a field/datum mapping')
+    conditions = opacity.get('condition', [])
+    conditions = conditions if isinstance(conditions, list) else [conditions]
+    composed = []
+    for condition in conditions:
+        if not isinstance(condition, dict) or 'value' not in condition:
+            raise ValueError('highlight opacity requires value-defined conditional branches')
+        if 'test' in condition:
+            predicate = condition['test']
+        elif 'param' in condition:
+            predicate = {key: condition[key] for key in ('param', 'empty') if key in condition}
+        else:
+            raise ValueError('highlight opacity requires a native test or selection predicate')
+        composed.extend([{'test': {'and': [predicate, test]}, 'value': scaled(condition['value'])},
+                         copy.deepcopy(condition)])
+    composed.append({'test': test, 'value': scaled(opacity['value'])})
+    return {**copy.deepcopy(opacity), 'condition': composed}
+
+
 def with_highlight(spec: dict, field: str, values: "list | None" = None, temporal: bool = False,
                    accent: "str | None" = None, *, style: str = "dim", ink: str = "#404040") -> dict:
     """Kernaussage hervorheben (D-638 Nachtrag, feat-109): zwei Vega-Parameter, `kernaussage` (an/aus,
     Standard aus) und `kernaussage_werte` (die Treffer). Gedämpft wird jede Marke, deren Zeile `field`
     trägt und nicht zu den Treffern gehört; Marken ohne das Feld (Referenzlinie, Zielwert) bleiben
-    unberührt, die Restzeile ist kein Treffer. Die Treffer sind ein Parameter, keine Konstante im Test:
+    unberührt, die Restzeile ist kein Treffer. Bestehende Sichtbarkeit wird multipliziert;
+    versteckte Marken bleiben auch während einer Auswahl unsichtbar. Die Treffer sind ein Parameter,
+    keine Konstante im Test:
     die Oberfläche rechnet die Aussage auf der gefilterten Tabelle neu (key_message.ts) und setzt nur die
     Werte — die Spec bleibt eine. Zeitwerte als Zeitpunkt (ms, UTC), weil Vega-Lite Zeitfelder zu Datum
     parst (`key_message.highlight_keys`).
@@ -995,7 +1033,6 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
     probe = f"time(datum[{json.dumps(field)}])" if temporal else f"datum[{json.dumps(field)}]"
     hit = f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && indexof({KEY_VALUES}, {probe}) >= 0"
     test = (f"{KEY_PARAM} && isValid(datum[{json.dumps(field)}]) && indexof({KEY_VALUES}, {probe}) < 0")
-    dim = {"test": test, "value": KEY_DIM}
 
     def accent_unit(node: dict) -> dict:
         # Nur diskrete Marken: eine Linie, Fläche oder Hilfslinie ist eine Marke über alle Zeilen und würde
@@ -1055,14 +1092,9 @@ def with_highlight(spec: dict, field: str, values: "list | None" = None, tempora
         if accent:
             return accent_unit(node)
         enc = dict(node.get("encoding") or {})
-        old = enc.get("opacity")
-        if isinstance(old, dict) and "condition" in old:
-            conds = old["condition"] if isinstance(old["condition"], list) else [old["condition"]]
-            enc["opacity"] = {**old, "condition": [dim, *conds]}
-        elif isinstance(old, dict):
-            enc["opacity"] = {"condition": dim, **old}
-        else:
-            enc["opacity"] = {"condition": dim, "value": 1}
+        mark = node["mark"] if isinstance(node.get("mark"), dict) else {}
+        old = enc.get("opacity", {"value": mark.get("opacity", 1)})
+        enc["opacity"] = _dim_opacity(old, test)
         return {**node, "encoding": enc}
 
     def walk(node):
@@ -1570,15 +1602,256 @@ def _dict_nodes(node):
             yield from _dict_nodes(value)
 
 
+def _svg_float(value: str | float) -> float:
+    """SVG transform operands use single precision; composition uses doubles.
+
+    Preserve each native export operand before composition, rather than rounding
+    a scenegraph coordinate or the sum (which can hide a real edge crossing).
+    """
+    import struct
+    try:
+        result = struct.unpack('f', struct.pack('f', float(value)))[0]
+    except (ValueError, OverflowError) as exc:
+        raise ValueError('invalid native SVG coordinate') from exc
+    if not math.isfinite(result):
+        raise ValueError('nonfinite native SVG coordinate')
+    return result
+
+
+def _svg_float_ceil(value: float) -> float:
+    """Smallest finite SVG float32 value >= the measured padding demand.
+
+    This is directed representation rounding, not an extra geometric reserve.
+    A nearest-rounded transform can remain below the exact demand. Advancing
+    that representation by one IEEE-754 value enforces the outward direction;
+    convergence is still measured on the following original render.
+    """
+    import struct
+    if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value):
+        raise ValueError('finite numeric SVG padding required')
+    rounded = _svg_float(value)
+    if rounded < value:
+        bits = struct.unpack('I', struct.pack('f', rounded))[0]
+        rounded = struct.unpack('f', struct.pack('I', bits + (1 if rounded >= 0 else -1)))[0]
+    if not math.isfinite(rounded):
+        raise ValueError('SVG padding has no finite float32 representation')
+    return rounded
+
+
+def _svg_plain_lines(node: Any, base_y: float) -> tuple[list[dict], bool]:
+    """Native same-style tspan blocks only; offsets come from the exported SVG.
+
+    y starts a new local baseline and dy advances it. Direct sibling tspans
+    inherit the text element's typeface. Nested spans, style changes and other
+    text-layout features are outside this contract and remain fail-closed.
+    """
+    if not list(node):
+        return [{'text': node.text or '', 'baseline_y': base_y}], False
+    typography = ('font-family', 'font-size', 'font-weight', 'font-style', 'fill')
+    coordinates = ('x', 'y', 'dx', 'dy')
+    lines, local_y = [], 0.0
+    invalid = bool((node.text or '').strip())
+    for span in node:
+        invalid = (invalid or span.tag.rsplit('}', 1)[-1] != 'tspan' or bool(list(span))
+                   or bool((span.tail or '').strip()))
+        for key, value in span.attrib.items():
+            if key in typography and value == node.get(key):
+                continue
+            if key not in coordinates:
+                invalid = True
+        for key in ('x', 'dx'):
+            if key in span.attrib:
+                _svg_float(span.get(key))
+        if 'y' in span.attrib:
+            local_y = _svg_float(span.get('y'))
+        if 'dy' in span.attrib:
+            local_y += _svg_float(span.get('dy'))
+        lines.append({'text': span.text or '', 'baseline_y': base_y + local_y})
+    return lines, invalid
+
+
+def _svg_text_positions(svg: str) -> list[dict]:
+    """Read native translations and same-style text lines; never draw geometry."""
+    import xml.etree.ElementTree as ET
+    number = r'[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?'
+    translate = re.compile(r'\s*translate\(\s*(' + number
+                           + r')(?:\s*[,\s]\s*(' + number + r'))?\s*\)\s*')
+    output = []
+
+    def walk(node: ET.Element, y: float, opacity: float, invalid: bool,
+             clipped: bool, filtered: bool, stroke: str | None) -> None:
+        invalid = invalid or bool(node.get('style'))
+        raw = node.get('transform')
+        if raw:
+            match = translate.fullmatch(raw)
+            if match:
+                _svg_float(match[1])  # Reject invalid x even though only y is fitted.
+                y += _svg_float(match[2] or 0)
+            else:
+                invalid = True
+        opacity *= float(node.get('opacity', '1'))
+        clipped = clipped or node.get('clip-path') not in (None, 'none')
+        filtered = filtered or node.get('filter') not in (None, 'none')
+        stroke = node.get('stroke', stroke)
+        if node.tag.rsplit('}', 1)[-1] == 'text' and opacity and ''.join(node.itertext()).strip():
+            lines, invalid_lines = _svg_plain_lines(node, y)
+            output.append(dict(text=''.join(node.itertext()), baseline_y=y, lines=lines,
+                font_size=float(node.get('font-size', '11').removesuffix('px')),
+                unsupported=invalid or invalid_lines or bool(node.get('style'))
+                    or any(float(node.get(k, '0')) != 0 for k in ('x', 'y', 'dx', 'dy')),
+                clipped=clipped, filtered=filtered, stroke=stroke))
+        for child in node:
+            walk(child, y, opacity, invalid, clipped, filtered, stroke)
+
+    walk(ET.fromstring(svg), 0, 1, False, False, False, None)
+    return output
+
+
+def native_font_line_metrics(item: dict) -> dict:
+    """Resolve the *actual* native font, not an alias for the requested family.
+
+    vl-convert's official PDF exporter embeds its resolved TrueType font. Read
+    its hhea line metrics; these are line boxes, not universal glyph bounds.
+    Multiple fallback fonts or missing TrueType metadata fail closed. This is
+    intentionally not globally cached: register_font_directory changes the
+    process-global native resolver, so a prior font choice must not survive it.
+    """
+    import io
+    from xml.sax.saxutils import escape, quoteattr
+    import vl_convert as vlc
+    from fontTools.ttLib import TTFont
+    from pypdf import PdfReader
+
+    attrs = {'font-family': item.get('font', 'sans-serif'),
+             'font-weight': item.get('fontWeight', 400),
+             'font-style': item.get('fontStyle', 'normal'),
+             'font-size': item.get('fontSize', 11)}
+    attributes = ' '.join(key + '=' + quoteattr(str(value)) for key, value in attrs.items())
+    svg = ('<svg xmlns="http://www.w3.org/2000/svg" width="4096" height="256">'
+           '<text x="16" y="128" ' + attributes + '>'
+           + escape(str(item['text'])) + '</text></svg>')
+    reader = PdfReader(io.BytesIO(vlc.svg_to_pdf(svg)))
+    fonts = reader.pages[0]['/Resources'].get('/Font', {})
+    if len(fonts) != 1:
+        raise ValueError('single resolved native font required for text line box')
+    font = next(iter(fonts.values())).get_object()
+    if '/DescendantFonts' in font:
+        font = font['/DescendantFonts'][0].get_object()
+    descriptor = font['/FontDescriptor'].get_object()
+    if '/FontFile2' not in descriptor:
+        raise ValueError('native text line box requires embedded TrueType metadata')
+    with TTFont(io.BytesIO(descriptor['/FontFile2'].get_object().get_data())) as face:
+        return {'ascent': face['hhea'].ascent, 'descent': -face['hhea'].descent,
+                'units_per_em': face['head'].unitsPerEm,
+                'font_name': str(descriptor['/FontName'])}
+
+
+def _native_text_items(graph: dict) -> list[dict]:
+    output = []
+
+    def walk(mark: dict, opacity: float) -> None:
+        for item in mark.get('items', []):
+            op = opacity * item.get('opacity', 1)
+            if mark.get('marktype') == 'group':
+                for child in item.get('items', []):
+                    walk(child, op)
+            elif mark.get('marktype') == 'text' and op and str(item.get('text', '')).strip():
+                output.append(item)
+
+    walk(graph['scenegraph'], 1)
+    return output
+
+
+def _vertical_plaintext_overflow(vlc: Any, spec: dict, width: int, height: int,
+                               provider: Callable[[dict], dict], svg: str) -> dict:
+    graph = vlc.vegalite_to_scenegraph(spec)
+    if graph['width'] != width or graph['height'] != height:
+        raise ValueError('native scenegraph changed canvas dimensions')
+    native, rendered = _native_text_items(graph), _svg_text_positions(svg)
+    if len(native) != len(rendered):
+        raise ValueError('native SVG/scenegraph text count mismatch')
+    result = {'top': 0, 'bottom': 0, 'measured': 0, 'skipped_rotated': 0}
+    for item, actual in zip(native, rendered):
+        angle = item.get('angle', 0)
+        if not isinstance(angle, (int, float)) or not math.isfinite(angle):
+            raise ValueError('invalid native text angle')
+        if angle != 0:
+            result['skipped_rotated'] += 1
+            continue
+        if actual['unsupported'] or actual['clipped'] or actual['filtered'] or actual['stroke'] not in (None, 'none'):
+            raise ValueError('unsupported transform/stroke/filter/clip on measured plain text')
+        text = item.get('text')
+        expected = text if isinstance(text, list) else [text]
+        if (not all(isinstance(line, (str, int, float)) for line in expected)
+                or item.get('radius', 0) or item.get('lineBreak')
+                or [str(line) for line in expected] != [line['text'] for line in actual['lines']]):
+            raise ValueError('native same-style plain text lines required')
+        for line in actual['lines']:
+            if '\n' in line['text'] or '\r' in line['text']:
+                raise ValueError('explicit native text lines required')
+            if not line['text'].strip():
+                continue
+            metrics = provider({**item, 'text': line['text']})
+            size, baseline = actual['font_size'], line['baseline_y']
+            if not isinstance(metrics, dict) or not all(k in metrics for k in ('ascent', 'descent', 'units_per_em')):
+                raise ValueError('known native font line metrics required')
+            values = (metrics['ascent'], metrics['descent'], metrics['units_per_em'], size, baseline)
+            if not all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in values):
+                raise ValueError('nonfinite font metrics')
+            if min(metrics['ascent'], metrics['units_per_em'], size) <= 0 or metrics['descent'] < 0:
+                raise ValueError('invalid font metrics')
+            top = baseline - math.ceil(metrics['ascent'] * size / metrics['units_per_em'])
+            bottom = baseline + math.ceil(metrics['descent'] * size / metrics['units_per_em'])
+            result['top'] = max(result['top'], -top)
+            result['bottom'] = max(result['bottom'], bottom - height)
+        result['measured'] += 1
+    return result
+
+
+def _vertical_fit_svg(vlc: Any, spec: dict, width: int, height: int,
+                      provider: Callable[[dict], dict]) -> str:
+    padding = spec.get('padding', 5)
+    edges = ('left', 'top', 'right', 'bottom')
+    padding = (dict.fromkeys(edges, padding) if isinstance(padding, (int, float))
+               else {edge: padding.get(edge, 0) for edge in edges})
+    trace = []
+    # Sixteen original renders bound resource use, not accepted overflow. The
+    # measured ordinal-line regression requires ten; eight exhausted before
+    # the serialized transforms advanced past their float32 cancellation.
+    # Every successful return still has exactly zero overflow; exhausted is red.
+    for _ in range(16):
+        svg = vlc.vegalite_to_svg(spec)
+        overflow = _vertical_plaintext_overflow(vlc, spec, width, height, provider, svg)
+        trace.append({'padding': dict(padding), 'overflow': overflow})
+        if not overflow['top'] and not overflow['bottom']:
+            return svg
+        padding = {**padding, **{edge: _svg_float_ceil(padding[edge] + overflow[edge])
+                                for edge in ('top', 'bottom') if overflow[edge]}}
+        if padding['top'] + padding['bottom'] >= height:
+            raise ValueError('vertical font line boxes consume the canvas: ' + json.dumps(trace))
+        spec['padding'] = padding
+    raise ValueError('vertical native text line-box fit did not converge: ' + json.dumps(trace))
+
+
 def render_svg(idiom: str, data: list[dict], profile: str = "house_default",
                bindings: "dict | None" = None, params: "dict | None" = None,
                width: int = 1000, height: int = 200, background: "str | None" = None,
                *, microvisual: "str | None" = None, micro_options: "dict | None" = None,
                background_bounds: "tuple[str, str] | list[str] | None" = None,
-               outline_forecast_band: bool = False) -> str:
+               outline_forecast_band: bool = False, fit_text_lines: bool = False,
+               font_metrics_provider: Callable[[dict], dict] | None = None) -> str:
     """Offline SVG from the original Vega-Lite target; no second geometry renderer.
 
-    Install requirements.txt (vl-convert-python) for static exports.
+    ``fit_text_lines`` fits native vertical line boxes for unrotated plain text
+    including direct same-style native tspan lines, by rerendering Vega within the
+    same canvas. Rotated text is unchanged and
+    carries no bounds promise. Text strokes, filters, inner clips and unknown
+    transforms on measured nodes fail closed; mixed-style/nested spans are also
+    unsupported. This is not a universal glyph, horizontal, or stroke-clipping
+    guarantee. An optional metrics provider must resolve the actual requested
+    native face and return ascent/descent/UPM.
+
+    Install requirements.txt for static exports and native font metadata.
     vl-convert is deliberately imported only for static export. Named datasets are
     resolved locally, with no remote data fetching. The input table remains owned
     by the consumer and must accompany the graphic for accessible exact values.
@@ -1620,7 +1893,14 @@ def render_svg(idiom: str, data: list[dict], profile: str = "house_default",
         # on_background remaps ink; an offline export also owns its real painted
         # surface (there is no host VegaVisual canvas to supply the dark ground).
         spec["background"] = background
-    svg = vlc.vegalite_to_svg(spec)
+    if not isinstance(fit_text_lines, bool):
+        raise ValueError("fit_text_lines must be boolean")
+    if font_metrics_provider is not None and not callable(font_metrics_provider):
+        raise ValueError("font_metrics_provider must be callable")
+    if font_metrics_provider is not None and not fit_text_lines:
+        raise ValueError("font_metrics_provider requires fit_text_lines=True")
+    svg = (_vertical_fit_svg(vlc, spec, width, height, font_metrics_provider or native_font_line_metrics)
+           if fit_text_lines else vlc.vegalite_to_svg(spec))
     root = ET.fromstring(svg)
     namespace = "http://www.w3.org/2000/svg"
     ET.register_namespace("", namespace)

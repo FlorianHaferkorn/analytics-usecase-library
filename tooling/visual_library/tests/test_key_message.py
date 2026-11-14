@@ -371,3 +371,122 @@ def test_outline_selection_rejects_unsupported_style_and_dynamic_fallback_ink():
         render.with_highlight(base, "Region", style="glow")
     with pytest.raises(ValueError, match="hex"):
         render.with_highlight(base, "Region", style="outline", ink="datum.colour")
+
+
+def _native_opacity_rows(spec):
+    import vl_convert as vlc
+    output = {}
+    def walk(mark):
+        for item in mark.get('items', []):
+            if mark.get('marktype') == 'group':
+                for child in item.get('items', []):
+                    walk(child)
+            elif mark.get('marktype') == 'rect':
+                output[item['description'].rsplit('category: ', 1)[1]] = item.get('opacity', 1)
+    walk(vlc.vegalite_to_scenegraph(spec)['scenegraph'])
+    return output
+
+
+def _opacity_bar_spec(opacity=None, mark_opacity=None):
+    mark = {'type': 'bar'}
+    if mark_opacity is not None:
+        mark['opacity'] = mark_opacity
+    encoding = {'x': {'field': 'value', 'type': 'quantitative'},
+                'y': {'field': 'category', 'type': 'nominal'}}
+    if opacity is not None:
+        encoding['opacity'] = opacity
+    return {'width': 400, 'height': 240, 'mark': mark, 'encoding': encoding,
+            'data': {'values': [
+                {'category': 'A', 'value': 4, 'hidden': True, 'half': False},
+                {'category': 'B', 'value': 3, 'hidden': False, 'half': True},
+                {'category': 'C', 'value': 2, 'hidden': False, 'half': False},
+                {'category': 'D', 'value': 1, 'hidden': True, 'half': True}]}}
+
+
+def _selection_state(spec, enabled, values):
+    import copy
+    result = copy.deepcopy(spec)
+    result['params'] = [{**p, 'value': enabled} if p['name'] == render.KEY_PARAM
+        else {**p, 'value': values} if p['name'] == render.KEY_VALUES else p for p in result['params']]
+    return result
+
+
+def test_dim_multiplies_native_conditions_in_original_order_without_waking_hidden_marks():
+    import copy
+    opacity = {'condition': [
+        {'test': {'field': 'hidden', 'equal': True}, 'value': 0},
+        {'test': 'datum.half', 'value': 0.4}], 'value': 1}
+    original = _opacity_bar_spec(opacity)
+    saved = copy.deepcopy(original)
+    highlighted = render.with_highlight(original, 'category', ['B'])
+    baseline = _native_opacity_rows(original)
+    assert baseline == {'A': 0, 'B': 0.4, 'C': 1, 'D': 0}
+    for enabled, selected in [(False, []), (True, ['B']), (True, ['B', 'C']),
+                              (True, ['A']), (False, [])]:
+        measured = _native_opacity_rows(_selection_state(highlighted, enabled, selected))
+        assert measured == {name: alpha * (render.KEY_DIM if enabled and name not in selected else 1)
+                            for name, alpha in baseline.items()}
+    assert original == saved
+
+
+@pytest.mark.parametrize('hover_values', [None, [{'category': 'B'}]])
+def test_dim_preserves_native_hover_param_empty_false_mask(hover_values):
+    opacity = {'condition': {'param': 'hover', 'empty': False, 'value': 0.5}, 'value': 0}
+    original = _opacity_bar_spec(opacity)
+    hover = {'name': 'hover', 'select': {'type': 'point', 'fields': ['category']}}
+    if hover_values is not None:
+        hover['value'] = hover_values
+    original['params'] = [hover]
+    baseline = _native_opacity_rows(original)
+    assert baseline == {'A': 0, 'B': 0.5 if hover_values else 0, 'C': 0, 'D': 0}
+    highlighted = render.with_highlight(original, 'category', ['A'])
+    for enabled, selected in [(False, []), (True, ['A']), (True, ['A', 'B']), (False, [])]:
+        assert _native_opacity_rows(_selection_state(highlighted, enabled, selected)) == {
+            name: alpha * (render.KEY_DIM if enabled and name not in selected else 1)
+            for name, alpha in baseline.items()}
+
+
+@pytest.mark.parametrize('alpha', [0, 0.4, 0.5, 0.7, 1])
+@pytest.mark.parametrize('source', ['channel', 'mark', 'expr'])
+def test_dim_preserves_literal_expr_and_mark_level_opacity(alpha, source):
+    opacity = {'value': {'expr': str(alpha)} if source == 'expr' else alpha} if source != 'mark' else None
+    original = _opacity_bar_spec(opacity, alpha if source == 'mark' else None)
+    baseline = _native_opacity_rows(original)
+    assert set(baseline.values()) == {alpha}
+    highlighted = render.with_highlight(original, 'category', ['B'])
+    for enabled, selected in [(False, []), (True, ['B']), (True, ['A', 'C']), (False, [])]:
+        assert _native_opacity_rows(_selection_state(highlighted, enabled, selected)) == {
+            name: value * (render.KEY_DIM if enabled and name not in selected else 1)
+            for name, value in baseline.items()}
+
+
+@pytest.mark.parametrize('opacity', [{'field': 'value', 'type': 'quantitative'},
+    {'datum': 0.4}, {'condition': {'test': 'datum.hidden', 'field': 'value'}, 'value': 1}])
+def test_dim_unrepresented_opacity_mapping_fails_closed_instead_of_assuming_one(opacity):
+    with pytest.raises(ValueError, match='value-defined'):
+        render.with_highlight(_opacity_bar_spec(opacity), 'category', ['A'])
+
+
+@pytest.mark.parametrize('background', [None, '#11242f'])
+def test_dim_keeps_null_hidden_and_literal_data_zero_visible_in_all_selection_states(background):
+    import vl_convert as vlc
+    import xml.etree.ElementTree as ET
+    rows = [{'category': 'North', 'value': 10}, {'category': 'Zero', 'value': 0},
+            {'category': 'Null', 'value': None}]
+    roles = {'category': 'category', 'value': 'value'}
+    params = {'label_position': 'above', 'highlight': {'field': 'category', 'values': ['North']}}
+    spec = json.loads(render.render_target('bar_ranking', 'html_vegalite', bindings=roles,
+        params=params, background=background)[0])
+    spec.update(width=400, height=240, datasets={'dataset': rows},
+                autosize={'type': 'fit', 'contains': 'padding'})
+    for enabled, selected in [(False, []), (True, ['North']), (True, ['North', 'Zero']),
+                              (True, ['Null']), (False, [])]:
+        current = _selection_state(spec, enabled, selected)
+        svg = render._vertical_fit_svg(vlc, current, 400, 240, render.native_font_line_metrics)
+        root = ET.fromstring(svg)
+        texts = [node for node in root.iter() if node.tag.endswith('text')]
+        nan = [node for node in texts if node.text == 'NaN']
+        assert nan and all(float(node.get('opacity', '1')) == 0 for node in nan)
+        zeros = [node for node in texts if node.text == '0']
+        assert zeros and all(float(node.get('opacity', '1')) > 0 for node in zeros)
+        assert root.get('width') == '400' and root.get('height') == '240'

@@ -29,3 +29,7 @@ pandas>=2.0.0
 
 # Offline HTML/Evidence exports from the governed Vega-Lite Visual Library.
 vl-convert-python>=1.9.0,<2
+
+# Native SVG text-line fit: resolved embedded TrueType metadata (no browser runtime).
+fonttools>=4.60,<5
+pypdf>=6,<7
