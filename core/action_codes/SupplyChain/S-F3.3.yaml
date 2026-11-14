@@ -212,7 +212,7 @@ parameters:
   label: Location
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Location
   source_field: scope.default_perspective
 - name: customer_priority
   label: Customer Priority
@@ -257,7 +257,7 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: Head of Supply Planning
-    role_id: nicht_belegt
+    role_id: supply_planning_manager
 review:
   required: true
   state: vorgeschlagen

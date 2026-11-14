@@ -270,7 +270,7 @@ parameters:
   label: Product Category
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_product.Category
   source_field: scope.supported_slices
 - name: sku
   label: SKU

@@ -205,19 +205,19 @@ parameters:
   label: Plant
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Plant
   source_field: scope.default_perspective
 - name: production_line
   label: Production Line
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Line
   source_field: scope.default_perspective
 - name: defect_category
   label: Defect Category
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_defect_mode.DefectCategory
   source_field: scope.supported_slices
 - name: product_variant
   label: Product Variant

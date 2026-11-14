@@ -225,7 +225,7 @@ parameters:
   label: Agent Group
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_org.Agent Group
   source_field: scope.supported_slices
 preconditions:
   combine: guardrails_all_and_trigger_any

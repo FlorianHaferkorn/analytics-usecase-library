@@ -63,12 +63,16 @@ roles:
 - id: head_of_supply_chain
   title: Head of Supply Chain
   domain: SupplyChain
+  aliases:
+  - VP Supply Chain
 - id: supply_chain_bi_lead
   title: Supply Chain BI Lead
   domain: SupplyChain
 - id: logistics_manager
   title: Logistics Manager
   domain: SupplyChain
+  aliases:
+  - Head of Logistics
 - id: supply_chain_controlling_inventory_mgmt_lead
   title: Supply Chain Controlling / Inventory Mgmt Lead
   domain: SupplyChain
@@ -108,9 +112,14 @@ roles:
 - id: category_manager
   title: Category Manager
   domain: Commercial
+  aliases:
+  - Head of Category Management
+  - Category Management Lead
 - id: trade_marketing_lead
   title: Trade Marketing Lead
   domain: Trade Marketing
+  aliases:
+  - Head of Trade Marketing
 - id: trade_marketing_bi_lead
   title: Trade Marketing BI Lead
   domain: Trade Marketing
@@ -123,6 +132,8 @@ roles:
 - id: chief_of_staff_pmo_lead
   title: Chief of Staff / PMO Lead
   domain: Executive Office / PMO
+  aliases:
+  - Chief of Staff
 - id: executive_office_pmo_bi_lead
   title: Executive Office / PMO BI Lead
   domain: Executive Office / PMO
@@ -135,6 +146,8 @@ roles:
 - id: inventory_manager
   title: Inventory Manager
   domain: Supply Chain / Inventory Management
+  aliases:
+  - Head of Inventory Control
 - id: supply_chain_inventory_management_bi_lead
   title: Supply Chain / Inventory Management BI Lead
   domain: Supply Chain / Inventory Management
@@ -147,6 +160,8 @@ roles:
 - id: head_of_procurement
   title: Head of Procurement
   domain: Procurement / Operations
+  aliases:
+  - Procurement Lead
 - id: head_of_controlling
   title: Head of Controlling
   domain: Finance / Ops Controlling
@@ -234,6 +249,8 @@ roles:
 - id: supply_planning_manager
   title: Supply Planning Manager
   domain: Supply Planning
+  aliases:
+  - Head of Supply Planning
 - id: supply_planning_bi_lead
   title: Supply Planning BI Lead
   domain: Supply Planning
@@ -273,3 +290,40 @@ roles:
 - id: s_and_op_supply_chain_planning_bi_lead
   title: S&OP / Supply Chain Planning BI Lead
   domain: S&OP / Supply Chain Planning
+- id: cfo
+  title: CFO
+  domain: Finance
+- id: coo
+  title: COO
+  domain: Operations
+- id: ceo
+  title: CEO
+  domain: Leadership
+- id: chief_strategy_officer
+  title: Chief Strategy Officer
+  domain: Leadership
+- id: commercial_director
+  title: Commercial Director
+  domain: Commercial
+- id: vp_customer_service_operations
+  title: VP Customer Operations
+  domain: CX
+  aliases:
+  - VP Service Operations
+- id: head_of_customer_experience
+  title: Head of Customer Experience
+  domain: CX
+  aliases:
+  - Head of CX / Quality
+- id: hr_business_partner
+  title: HR Business Partner
+  domain: HR
+- id: finance_business_partner
+  title: Finance Business Partner
+  domain: Finance
+- id: head_of_ecommerce
+  title: Head of E-Commerce
+  domain: Commercial
+- id: head_of_sustainability
+  title: Head of Sustainability
+  domain: ESG

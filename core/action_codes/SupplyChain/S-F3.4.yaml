@@ -247,7 +247,7 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: VP Supply Chain
-    role_id: nicht_belegt
+    role_id: head_of_supply_chain
 review:
   required: true
   state: vorgeschlagen

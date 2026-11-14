@@ -9,7 +9,11 @@ wird `nicht_belegt` (Leerstelle), nie geschaetzt:
 
 - `parameters`: `period` aus `scope.default_grain`, `trigger_level` aus `trigger.levels`, je
   Eintrag von `scope.default_perspective` (Pflicht) und `scope.supported_slices` (optional) ein
-  `dimension_member`. Die Spalte (`binding`) nennt der Bestand nirgends -> `nicht_belegt`.
+  `dimension_member`. Die Spalte (`binding`, `tabelle.spalte`) kommt aus den Data Contracts
+  (`core/data_contracts/domains/*.yaml`, nur `dim_*`-Tabellen): das Label trifft genau eine Spalte ueber
+  ihren Namen, ein dort deklariertes Synonym oder `<Entitaet> <Spalte>` (`Customer Segment` ->
+  `dim_customer.Segment`). Kein Treffer oder mehrere -> `nicht_belegt`. Die Use-Case-Brackets tragen kein
+  `scope`-Feld mit Spalten (gemessen 14.11.2026: 0 von allen `UseCase_Bracket.yaml`), deshalb die Contracts.
 - `preconditions`: je Stufe mit `metric_kpi_id` eine pruefbare `kpi_level`-Pruefung, die auf die
   Bedingung verweist (`ref`), statt Vergleich und Schwelle zu kopieren; eine aktive
   `volume_guardrail` als Leitplanke; Stufen mit `composite_rule`/`lifecycle_rule` (nur Prosa) als
@@ -19,10 +23,13 @@ wird `nicht_belegt` (Leerstelle), nie geschaetzt:
 - `review`: `required` = es gibt mindestens einen Freigeber; `state: vorgeschlagen`.
 
 Bestehende Felder werden nie ueberschrieben: ein Code, der ein Feld schon traegt, behaelt es
-(wer `nicht_belegt` von Hand fuellt, verliert nichts beim naechsten Lauf).
+(wer `nicht_belegt` von Hand fuellt, verliert nichts beim naechsten Lauf). `--nachtragen` fuellt nur
+Leerstellen (`role_id`, `binding` = `nicht_belegt`), deren Ableitung inzwischen eindeutig ist; jeder andere
+Wert bleibt Byte fuer Byte stehen.
 
     python -m tooling.migration.action_code_vertrag --report        # Zaehlung, schreibt nichts
     python -m tooling.migration.action_code_vertrag --apply         # fehlende Felder einfuegen
+    python -m tooling.migration.action_code_vertrag --nachtragen    # ableitbare Leerstellen fuellen
     python -m tooling.migration.action_code_vertrag --check         # Exit 1, wenn ein Code ein Feld nicht traegt
 """
 from __future__ import annotations
@@ -39,6 +46,7 @@ import yaml
 REPO = Path(__file__).resolve().parents[2]
 ACTION_CODES = REPO / "core" / "action_codes"
 ORG_ROLES = REPO / "core" / "organization" / "org_roles.yaml"
+DATA_CONTRACTS = REPO / "core" / "data_contracts" / "domains"
 NICHT_BELEGT = "nicht_belegt"
 FELDER = ("parameters", "preconditions", "permitted_role", "review")
 START_ZUSTAND = "vorgeschlagen"
@@ -63,12 +71,48 @@ def rollen_index(org_roles: Path = ORG_ROLES) -> dict[str, str]:
     return out
 
 
+def _norm(text: Any) -> str:
+    return re.sub(r"[^a-z0-9]", "", str(text).lower())
+
+
+def _dim_tabellen(o: Any) -> list[dict[str, Any]]:
+    """Alle Tabellen `dim_*` mit `columns` an beliebiger Stelle eines Data Contracts."""
+    if isinstance(o, list):
+        return [t for x in o for t in _dim_tabellen(x)]
+    if not isinstance(o, dict):
+        return []
+    eigen = [o] if str(o.get("name", "")).startswith("dim_") and isinstance(o.get("columns"), list) else []
+    return eigen + [t for v in o.values() for t in _dim_tabellen(v)]
+
+
+def spalten_index(root: Path = DATA_CONTRACTS) -> dict[str, set[str]]:
+    """Label (normalisiert) -> {`tabelle.spalte`} aus Spaltenname, Synonymen und `<Entitaet> <Spalte>`."""
+    out: dict[str, set[str]] = {}
+    for f in sorted(root.glob("*.yaml")):
+        for t in _dim_tabellen(yaml.safe_load(f.read_text(encoding="utf-8"))):
+            entitaet = _norm(str(t["name"])[4:])
+            for c in t["columns"]:
+                if not isinstance(c, dict) or c.get("role") == "key":
+                    continue
+                ziel = f"{t['name']}.{c['name']}"
+                for name in [c["name"], *(c.get("synonyms") or [])]:
+                    out.setdefault(_norm(name), set()).add(ziel)
+                    out.setdefault(entitaet + _norm(name), set()).add(ziel)
+    return out
+
+
+def bindung(label: str, spalten: dict[str, set[str]] | None) -> str:
+    """Genau ein Treffer -> `tabelle.spalte`, sonst `nicht_belegt`."""
+    treffer = (spalten or {}).get(_norm(label), set())
+    return next(iter(treffer)) if len(treffer) == 1 else NICHT_BELEGT
+
+
 def _snake(text: str) -> str:
     s = re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
     return s if s and s[0].isalpha() else f"p_{s}"
 
 
-def parameter(ac: dict[str, Any]) -> list[dict[str, Any]]:
+def parameter(ac: dict[str, Any], spalten: dict[str, set[str]] | None = None) -> list[dict[str, Any]]:
     scope = ac.get("scope") or {}
     levels = (ac.get("trigger") or {}).get("levels") or {}
     out: list[dict[str, Any]] = [
@@ -85,7 +129,7 @@ def parameter(ac: dict[str, Any]) -> list[dict[str, Any]]:
                 continue
             namen.add(name)
             out.append({"name": name, "label": str(label), "type": "dimension_member", "required": pflicht,
-                        "binding": NICHT_BELEGT, "source_field": f"scope.{feld}"})
+                        "binding": bindung(str(label), spalten), "source_field": f"scope.{feld}"})
     return out
 
 
@@ -121,9 +165,10 @@ def pruefung(ac: dict[str, Any]) -> dict[str, Any]:
     return {"required": bool((ac.get("governance") or {}).get("approvals_required")), "state": START_ZUSTAND}
 
 
-def ableiten(ac: dict[str, Any], rollen: dict[str, str]) -> dict[str, Any]:
+def ableiten(ac: dict[str, Any], rollen: dict[str, str],
+             spalten: dict[str, set[str]] | None = None) -> dict[str, Any]:
     """Die vier Felder, wie der Bestand sie hergibt."""
-    return {"parameters": parameter(ac), "preconditions": vorbedingungen(ac),
+    return {"parameters": parameter(ac, spalten), "preconditions": vorbedingungen(ac),
             "permitted_role": berechtigte_rolle(ac, rollen), "review": pruefung(ac)}
 
 
@@ -139,6 +184,38 @@ def einfuegen(text: str, felder: dict[str, Any]) -> str:
     if m:
         return text[: m.start()] + block + text[m.start():]
     return text.rstrip("\n") + "\n" + block
+
+
+def nachtragen(text: str, rollen: dict[str, str], spalten: dict[str, set[str]]) -> tuple[str, int]:
+    """Fuellt Leerstellen `role_id`/`binding`, deren Ableitung eindeutig ist; (neuer Text, Zahl gefuellter).
+
+    Ersetzt wird nur die eine Zeile `nicht_belegt` unter dem passenden `approver` bzw. Parameter; danach
+    muss der Code bis auf genau diese Werte gleich geblieben sein (sonst ValueError)."""
+    ac = yaml.safe_load(text)
+    neu, n = text, 0
+    for r in (ac.get("permitted_role") or {}).get("roles") or []:
+        rid = rollen.get(str(r.get("approver", "")).strip().lower())
+        if r.get("role_id") == NICHT_BELEGT and rid:
+            muster = re.compile(rf"(?m)^(  - approver: {re.escape(str(r['approver']))}\n    role_id: ){NICHT_BELEGT}$")
+            neu, k = muster.subn(rf"\g<1>{rid}", neu, count=1)
+            n += k
+    for p in ac.get("parameters") or []:
+        ziel = bindung(str(p.get("label", "")), spalten) if p.get("type") == "dimension_member" else NICHT_BELEGT
+        if p.get("binding") == NICHT_BELEGT and ziel != NICHT_BELEGT:
+            muster = re.compile(rf"(?m)^(- name: {re.escape(str(p['name']))}\n(?:  (?!binding:)[^\n]*\n)*?  binding: )"
+                                rf"{NICHT_BELEGT}$")
+            neu, k = muster.subn(lambda m, z=ziel: m.group(1) + z, neu, count=1)
+            n += k
+    vorher, nachher = ac, yaml.safe_load(neu)
+    for r in (vorher.get("permitted_role") or {}).get("roles") or []:
+        r["role_id"] = None
+    for r in (nachher.get("permitted_role") or {}).get("roles") or []:
+        r["role_id"] = None
+    for x in (vorher.get("parameters") or []) + (nachher.get("parameters") or []):
+        x.pop("binding", None)
+    if vorher != nachher:
+        raise ValueError("nachtragen hat mehr als role_id/binding veraendert")
+    return neu, n
 
 
 def zaehlung(codes: dict[str, dict[str, Any]]) -> dict[str, Any]:
@@ -176,16 +253,26 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--apply", action="store_true")
     g.add_argument("--check", action="store_true")
     g.add_argument("--report", action="store_true")
+    g.add_argument("--nachtragen", action="store_true")
     a = ap.parse_args(argv)
     dateien = action_code_dateien()
-    rollen = rollen_index()
+    rollen, spalten = rollen_index(), spalten_index()
     if a.apply:
         for p in dateien:
             text = p.read_text(encoding="utf-8")
             ac = yaml.safe_load(text)
-            fehlend = {k: v for k, v in ableiten(ac, rollen).items() if k not in ac}
+            fehlend = {k: v for k, v in ableiten(ac, rollen, spalten).items() if k not in ac}
             if fehlend:
                 p.write_text(einfuegen(text, fehlend), encoding="utf-8", newline="\n")
+    if a.nachtragen:
+        gesamt = 0
+        for p in dateien:
+            text = p.read_text(encoding="utf-8")
+            neu, n = nachtragen(text, rollen, spalten)
+            if n:
+                p.write_text(neu, encoding="utf-8", newline="\n")
+                gesamt += n
+        print(f"action_code_vertrag: {gesamt} Leerstellen gefuellt", file=sys.stderr)
     codes = lade(dateien)
     z = zaehlung(codes)
     if a.check:

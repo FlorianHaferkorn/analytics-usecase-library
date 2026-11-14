@@ -207,7 +207,7 @@ parameters:
   label: Plant
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Plant
   source_field: scope.default_perspective
 - name: asset
   label: Asset

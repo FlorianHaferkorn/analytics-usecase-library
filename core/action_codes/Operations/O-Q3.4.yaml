@@ -200,7 +200,7 @@ parameters:
   label: Plant
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Plant
   source_field: scope.default_perspective
 - name: copq_category
   label: COPQ Category
@@ -212,7 +212,7 @@ parameters:
   label: Cost Driver
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_cost_category.Activity
   source_field: scope.supported_slices
 preconditions:
   combine: guardrails_all_and_trigger_any
@@ -245,7 +245,7 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: CFO
-    role_id: nicht_belegt
+    role_id: cfo
   - approver: Head of Quality
     role_id: head_of_quality
 review:

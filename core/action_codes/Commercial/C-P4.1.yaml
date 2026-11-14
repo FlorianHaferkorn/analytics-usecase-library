@@ -219,13 +219,13 @@ parameters:
   label: Product Category
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_product.Category
   source_field: scope.supported_slices
 - name: promotype
   label: PromoType
   type: dimension_member
   required: false
-  binding: nicht_belegt
+  binding: dim_promo.Promo Type
   source_field: scope.supported_slices
 preconditions:
   combine: guardrails_all_and_trigger_any
@@ -258,7 +258,7 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: Head of Trade Marketing
-    role_id: nicht_belegt
+    role_id: trade_marketing_lead
 review:
   required: true
   state: vorgeschlagen

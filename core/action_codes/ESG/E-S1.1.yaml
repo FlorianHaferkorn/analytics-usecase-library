@@ -209,9 +209,9 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: Head of Sustainability
-    role_id: nicht_belegt
+    role_id: head_of_sustainability
   - approver: CFO
-    role_id: nicht_belegt
+    role_id: cfo
 review:
   required: true
   state: vorgeschlagen

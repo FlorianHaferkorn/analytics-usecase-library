@@ -214,7 +214,7 @@ parameters:
   label: Location
   type: dimension_member
   required: true
-  binding: nicht_belegt
+  binding: dim_org.Location
   source_field: scope.default_perspective
 - name: demand_pattern
   label: Demand Pattern

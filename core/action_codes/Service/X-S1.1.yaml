@@ -260,7 +260,7 @@ permitted_role:
   source_field: governance.approvals_required
   roles:
   - approver: VP Customer Operations
-    role_id: nicht_belegt
+    role_id: vp_customer_service_operations
 review:
   required: true
   state: vorgeschlagen
