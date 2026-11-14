@@ -63,3 +63,27 @@ def test_composite_still_scores_spec_heuristic_without_model(tmp_path, monkeypat
     comp = build_composite_judge(tmp_path)
     assert comp.evaluate("BC-NARR-03", JudgeContext()).method == "spec_heuristic"
     assert comp.evaluate("BC-COLOR-01", JudgeContext()).score is None   # render-only abstains
+
+
+def test_dir_render_provider_returns_images_with_relative_labels(tmp_path):
+    from tooling.report_quality.judge import Evidence
+    (tmp_path / "_report.html").write_text("<render>", encoding="utf-8")
+    d = tmp_path / "UC-FIN-002" / "desktop" / "hell"
+    d.mkdir(parents=True)
+    (d / "1.png").write_bytes(b"\x89PNG")
+    (d / "2.png").write_bytes(b"\x89PNG")
+    ev = dir_render_provider(tmp_path)("BC-COLOR-01")
+    assert isinstance(ev, Evidence) and ev.text == "<render>"
+    assert [i.label for i in ev.images] == ["UC-FIN-002/desktop/hell/1", "UC-FIN-002/desktop/hell/2"]
+
+
+def test_image_blocks_label_then_image(tmp_path):
+    import base64
+    from tooling.report_quality.judge import ImageEvidence
+    from tooling.report_quality.llm_backend import image_blocks
+    p = tmp_path / "a.png"
+    p.write_bytes(b"\x89PNGdata")
+    blocks = image_blocks([ImageEvidence(p, "UC-X/desktop/hell/1")])
+    assert blocks[0] == {"type": "text", "text": "[1] UC-X/desktop/hell/1"}
+    assert blocks[1]["source"]["media_type"] == "image/png"
+    assert base64.b64decode(blocks[1]["source"]["data"]) == b"\x89PNGdata"

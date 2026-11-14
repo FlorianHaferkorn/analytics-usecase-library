@@ -107,15 +107,101 @@ def test_llm_judge_abstains_without_model_or_render():
     assert LLMJudge(complete=lambda p: "SCORE: 1.0").evaluate("BC-COLOR-01", JudgeContext()).score is None
 
 
-def test_llm_judge_scores_with_mock_model_and_render():
-    v = LLMJudge(complete=lambda p: "SCORE: 0.5\nRATIONALE: partial",
-                 render_provider=lambda rid: "<a rendered page>").evaluate("BC-COLOR-01", JudgeContext())
+def _shot(tmp_path, label="UC-X/desktop/hell/1"):
+    from tooling.report_quality.judge import ImageEvidence
+    p = tmp_path / (label.replace("/", "_") + ".png")
+    p.write_bytes(b"\x89PNG\r\n\x1a\n")
+    return ImageEvidence(p, label)
+
+
+def _vision(answer):
+    """Mock-Modell, das sich merkt, ob es Bilder bekam."""
+    calls = []
+
+    def complete(prompt, images=()):
+        calls.append(list(images))
+        return answer
+    complete.calls = calls
+    return complete
+
+
+def test_llm_judge_scores_with_mock_model_and_image(tmp_path):
+    from tooling.report_quality.judge import Evidence
+    model = _vision("SCORE: 0.5\nRATIONALE: partial")
+    ev = Evidence(images=(_shot(tmp_path),))
+    v = LLMJudge(complete=model, render_provider=lambda rid: ev).evaluate("BC-COLOR-01", JudgeContext())
     assert v.score == 0.5 and v.method == "llm"
+    assert len(model.calls[0]) == 1, "das Bild muss beim Modell ankommen"
 
 
-def test_composite_prefers_spec_heuristic_then_llm():
+def test_text_only_positive_on_render_only_rule_abstains():
+    """D-826: HTML-Quelltext zeigt nicht, was der Leser sieht — kein Bestehen ohne Bild."""
+    v = LLMJudge(complete=lambda p: "SCORE: 1.0\nRATIONALE: looks fine",
+                 render_provider=lambda rid: "<a rendered page>").evaluate("BC-COLOR-01", JudgeContext())
+    assert v.score is None and "D-826" in v.rationale
+
+
+def test_text_only_defect_still_counts():
+    """Ein Mangel, den schon der Text zeigt, bleibt ein Mangel (0.0 ist kein positives Urteil)."""
+    v = LLMJudge(complete=lambda p: "SCORE: 0.0\nRATIONALE: rainbow palette",
+                 render_provider=lambda rid: "<render>").evaluate("BC-COLOR-01", JudgeContext())
+    assert v.score == 0.0 and v.method == "llm"
+
+
+def test_positive_needs_every_required_variant(tmp_path):
+    from tooling.report_quality.judge import Evidence
+    ev = Evidence(images=(_shot(tmp_path, "UC-X/desktop/hell/1"),))
+    need = frozenset({"desktop", "mobil", "hell", "dunkel"})
+    j = LLMJudge(complete=_vision("SCORE: 1.0\nRATIONALE: ok"), render_provider=lambda rid: ev,
+                 required_variants=need)
+    v = j.evaluate("BC-COLOR-01", JudgeContext())
+    assert v.score is None and "dunkel" in v.rationale and "mobil" in v.rationale
+    voll = Evidence(images=(_shot(tmp_path, "UC-X/desktop/hell/1"), _shot(tmp_path, "UC-X/mobil/dunkel/1")))
+    j2 = LLMJudge(complete=_vision("SCORE: 1.0\nRATIONALE: ok"), render_provider=lambda rid: voll,
+                  required_variants=need)
+    assert j2.evaluate("BC-COLOR-01", JudgeContext()).score == 1.0
+
+
+def test_prompt_lists_screenshots_in_order_and_carries_no_build_rationale(tmp_path):
+    from dataclasses import fields
+    from tooling.report_quality.judge import Evidence
+    ev = Evidence(images=(_shot(tmp_path, "UC-X/desktop/hell/1"), _shot(tmp_path, "UC-X/mobil/hell/1")))
+    p = build_judge_prompt(_rule_meta("BC-COLOR-01"), ev)
+    assert p.index("[1] UC-X/desktop/hell/1") < p.index("[2] UC-X/mobil/hell/1")
+    assert "RENDERED EVIDENCE" not in p   # kein leerer Textblock
+    # Die Evidenz hat kein Feld fuer eine Bau-Begruendung: der Judge sieht den Prüfling, nicht den Autor.
+    assert {f.name for f in fields(Evidence)} == {"text", "images"}
+
+
+def test_seed_check_finds_and_misses(tmp_path):
+    from tooling.report_quality.judge import Evidence, seed_check
+    clean = Evidence(images=(_shot(tmp_path, "UC-X/desktop/hell/1"),))
+    seeded = Evidence(images=(_shot(tmp_path, "UC-X/desktop/hell/1-seed"),))
+
+    def model(prompt, images=()):
+        return "SCORE: 0.0\nRATIONALE: seeded" if "seed" in images[0].label else "SCORE: 1.0\nRATIONALE: ok"
+    r = seed_check(LLMJudge(complete=model, render_provider=lambda rid: None), "BC-COLOR-01", clean, seeded)
+    assert r.found and (r.clean.score, r.seeded.score) == (1.0, 0.0)
+    # Ein Judge, der alles gleich bewertet, findet den Fehler nicht.
+    blind = seed_check(LLMJudge(complete=_vision("SCORE: 1.0\nRATIONALE: ok"), render_provider=lambda rid: None),
+                       "BC-COLOR-01", clean, seeded)
+    assert not blind.found
+    # Enthaltung auf dem Fehler ist nicht gefunden.
+    stumm = seed_check(LLMJudge(complete=_vision("kein Format"), render_provider=lambda rid: None),
+                       "BC-COLOR-01", clean, seeded)
+    assert not stumm.found and stumm.outcome == "nicht_messbar"   # sauberer Stand nicht entschieden
+    # Boden: besteht schon der saubere Stand nicht, belegt 0.0 auf dem Fehler nichts (28.10.2026).
+    boden = seed_check(LLMJudge(complete=_vision("SCORE: 0.0\nRATIONALE: bunt"), render_provider=lambda rid: None),
+                       "BC-COLOR-01", clean, seeded)
+    assert boden.outcome == "nicht_messbar" and not boden.found
+    assert blind.outcome == "nicht_gefunden"
+
+
+def test_composite_prefers_spec_heuristic_then_llm(tmp_path):
+    from tooling.report_quality.judge import Evidence
+    ev = Evidence(images=(_shot(tmp_path),))
     comp = CompositeJudge([SpecHeuristicJudge(),
-                           LLMJudge(complete=lambda p: "SCORE: 1.0\nRATIONALE: ok",
-                                    render_provider=lambda rid: "<render>")])
+                           LLMJudge(complete=_vision("SCORE: 1.0\nRATIONALE: ok"),
+                                    render_provider=lambda rid: ev)])
     assert comp.evaluate("BC-NARR-03", JudgeContext()).method == "spec_heuristic"  # cheap wins
     assert comp.evaluate("BC-COLOR-01", JudgeContext()).method == "llm"            # falls through

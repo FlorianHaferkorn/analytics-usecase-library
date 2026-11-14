@@ -111,6 +111,22 @@ Drop the evidence into `build/render_evidence/`:
 
 The judge reads per-rule first, then falls back to the shared file (see `llm_backend.py`).
 
+**Image evidence (D-826, 28.10.2026).** Text evidence can report a defect, but a render-only
+rule no longer *passes* without a screenshot: `LLMJudge` turns a positive score on text alone
+into an abstention. For HTML targets the screenshots come from one command (Playwright +
+Chromium; tiles of viewport height per width and mode):
+
+```bash
+python -m tooling.report_quality.render_evidence --html build/UC-FIN-002.html \
+    --label UC-FIN-002 --out build/render_evidence
+# seeded defect for the calibration check, same label, separate folder (blind to the judge):
+python -m tooling.report_quality.render_evidence --html build/UC-FIN-002.html \
+    --label UC-FIN-002 --out build/render_evidence_seed --seed regenbogen
+```
+
+`dir_render_provider` picks up every PNG below the folder (label = relative path,
+`UC-FIN-002/desktop/hell/1`). Power BI Desktop screenshots go into the same layout by hand.
+
 ---
 
 ## 5 · Wire the LLM judge over the rendered reports (the ~9 render-only rules)
@@ -134,6 +150,30 @@ python -m tooling.report_quality.boutique_scorecard \
 - Malformed model output → abstain (parsed by the unit-tested `parse_verdict`).
 - Review the JSON: each newly-scored rule carries `method: "llm"` and a one-line rationale.
   Spot-check the rationales before trusting the lift in coverage.
+- **Calibrate with a seeded defect before trusting a pass** (`judge.seed_check`): the same judge
+  scores the clean and the seeded evidence of one page. Outcomes: `gefunden` (seeded scored
+  lower), `nicht_gefunden`, `nicht_messbar` (the clean page already fails the rule — a seed
+  cannot score lower than 0.0, so it needs a reference that passes).
+
+**First measurement, 28.10.2026 (UC-FIN-002, Meridian Aurora HTML report, 22 tiles per set,
+desktop 1440 / mobile 390, light/dark).** Method: three blind sets with identical labels,
+assignment shuffled with a fixed seed and kept outside the evidence; one independent agent per
+set as the model, fed the prompts `build_judge_prompt` builds, answers parsed by
+`parse_verdict`. Measured:
+
+| Set | BC-COLOR-01 | BC-LAYOUT-03 | Outcome |
+|---|---|---|---|
+| clean | 0.0 | 0.5 | baseline: 1 × 1.0, 8 × 0.5, 5 × 0.0 over 14 judged rules |
+| seed `regenbogen` (BC-COLOR-01) | 0.0 | 0.5 | `nicht_messbar` — rationale names the rainbow markers, the score cannot drop |
+| seed `flach` (BC-LAYOUT-03) | 0.0 | 0.5 | `nicht_gefunden` — the clean page already reads as a flat KPI row |
+
+Neither seed is proven found yet: the clean Aurora page fails or half-fails both target
+rules. The detection proof needs a clean page that passes the rule (a reference from the
+gallery), not a weaker pilot. Defects the clean run named, each with tile labels in
+`ANSWERS.md` of the run: decorative green/orange bars (BC-COLOR-01, BC-DV-04 colour changes
+per chart), hero 40,4 barely larger than the peer KPIs (BC-LAYOUT-03), causal-story figures
+38.83 days / target 37 contradicting the header 40,4 / target 35,0 (BC-TRANS-03), footer
+overflow on mobile. Model judgement, not calibrated against Florian yet.
 
 ---
 
