@@ -9,7 +9,8 @@ Zufallsstrom -- ein Aufruf verschiebt also keine Werte, die ein Generator danach
 Aufrufer:
   * `generate_finance_gold.py` (fact_cost), `generate_supply_chain_gold.py` (fact_inventory),
     `generate_gapfill_gold.py` (fact_procurement) vor dem Schreiben;
-  * `generate_model_columns.py` fuer alle sieben Tabellen auf dem vorhandenen Gold -- auch fuer
+  * `generate_model_columns.py` fuer alle sieben Tabellen (dim_product mit ABC/XYZ und, seit
+    30.10.2026, `Private Label Flag`) auf dem vorhandenen Gold -- auch fuer
     die Tabellen des Backbone-Generators (`core/data_contracts/sources/synthetic/
     generate_gold_layer_contract_v2.py`: dim_customer, dim_product, fact_action_log,
     fact_inventory_snapshot), der das ganze Gold neu schreibt und deshalb nicht erneut laeuft.
@@ -132,6 +133,50 @@ def dim_product_spalten(df: pd.DataFrame, produkt_monat: pd.DataFrame, monate: l
     out["ABC_Class"] = out["ABC_Class"].fillna("C")
     out["XYZ_Class"] = out["XYZ_Class"].fillna("Z")
     return out
+
+
+# --- Commercial: Eigenmarke (KPI-COM-033, 30.10.2026) ------------------------------------------
+# Umsatzanteil der Eigenmarke je Kategorie im Bezugszeitraum Jan-Sep 2024. Aurora hat drei
+# Kategorien; die Werte folgen der Mock-Story im Meridian-Studio (dort Drogerie-Kategorien:
+# Beauty & Cosmetics 21,4 %, Health & Baby 32,3 %, Personal Care 36,4 %), zugeordnet nach
+# Plausibilitaet fuer einen Mehrsparten-Haendler: Mode traegt die hoechste Eigenmarkenquote,
+# Elektronik die niedrigste (markengetrieben). Elektronik startet bei 22,4 %;
+# `generate_eigenmarke_trend.py` laesst den Anteil dort in den letzten 12 Wochen auf rund
+# 21,4 % fallen. Der Bezugszeitraum endet vor dem Trendfenster, damit das Flag vom Trendschritt
+# unabhaengig bleibt. ANNAHME, ungeprueft -- kein Benchmark, synthetische Showdaten.
+EIGENMARKE_ANTEIL = {"Fashion": 0.364, "Home & Living": 0.323, "Consumer Electronics": 0.224}
+EIGENMARKE_BEZUG = (202401, 202409)      # Monate YYYYMM, inklusiv
+
+
+def dim_product_eigenmarke(df: pd.DataFrame, produkt_monat: pd.DataFrame) -> pd.DataFrame:
+    """`Private Label Flag`: das Produkt ist Eigenmarke (True) oder Fremdmarke (False).
+
+    Je Kategorie werden die Produkte in einer stabilen Reihenfolge aus der ProductKey (SHA-256,
+    unabhaengig von Seed und Zeilenfolge) durchlaufen; Eigenmarke ist jedes Produkt, vor dem der
+    kumulierte Nettoumsatz des Bezugszeitraums unter `EIGENMARKE_ANTEIL` der Kategorie liegt (die
+    Grenze wie bei ABC: das Produkt, das sie ueberschreitet, zaehlt noch dazu). Der Anteil ist
+    damit im Bezugszeitraum auf ein Produkt genau getroffen; ueber die Zeit schwankt er nur mit dem
+    Umsatz der gewaehlten Produkte -- einen Trend erzeugt die Auswahl nicht; den erzeugt
+    `generate_eigenmarke_trend.py` in fact_sales.
+
+    `df`: braucht ProductKey und Category. `produkt_monat`: Spalten ProductKey, Monat (YYYYMM),
+    Umsatz. Eine Kategorie ohne Anteil in `EIGENMARKE_ANTEIL` bricht ab, statt still Fremdmarke
+    zu setzen."""
+    kat = df.set_index("ProductKey")["Category"]
+    unbekannt = sorted(set(kat.dropna()) - set(EIGENMARKE_ANTEIL))
+    if unbekannt or kat.isna().any():
+        raise ValueError(f"Kategorie ohne Eigenmarkenanteil: {unbekannt or ['NULL']}")
+    von, bis = EIGENMARKE_BEZUG
+    jahr = produkt_monat[produkt_monat["Monat"].between(von, bis)]
+    umsatz = jahr.groupby("ProductKey")["Umsatz"].sum().reindex(kat.index, fill_value=0.0)
+    p = pd.DataFrame({"Category": kat, "Umsatz": umsatz})
+    p["u"] = [_einheit(f"dim_product.Private Label Flag|{int(k)}") for k in p.index]
+    p = p.rename_axis("ProductKey").reset_index().sort_values(["Category", "u", "ProductKey"])
+    summe = p.groupby("Category")["Umsatz"].transform("sum")
+    vorher = (p.groupby("Category")["Umsatz"].cumsum() - p["Umsatz"]) / summe
+    p["Private Label Flag"] = (vorher < p["Category"].map(EIGENMARKE_ANTEIL)).astype(bool)
+    out = df.drop(columns=["Private Label Flag"], errors="ignore")
+    return out.merge(p[["ProductKey", "Private Label Flag"]], on="ProductKey", how="left")
 
 
 def fact_procurement_spalten(df: pd.DataFrame) -> pd.DataFrame:

@@ -39,7 +39,7 @@ FACTS = GOLD / "facts"
 # Tabelle -> (Ordner, neue Spalten)
 TABELLEN = {
     "dim_customer": (DIMS / "dim_customer", ["Region"]),
-    "dim_product": (DIMS / "dim_product", ["ABC_Class", "XYZ_Class"]),
+    "dim_product": (DIMS / "dim_product", ["ABC_Class", "XYZ_Class", "Private Label Flag"]),
     "fact_cost": (FACTS / "fact_cost", ["Material Cost Amount", "Overhead Amount"]),
     "fact_inventory": (FACTS / "fact_inventory", ["COGS Amount"]),
     "fact_procurement": (FACTS / "fact_procurement", ["Contract Unit Price"]),
@@ -92,7 +92,8 @@ def ableiten(name: str, df: pd.DataFrame) -> pd.DataFrame:
     if name == "dim_customer":
         return mc.dim_customer_spalten(df, _kauf_region())
     if name == "dim_product":
-        return mc.dim_product_spalten(df, _produkt_monat(), _monate())
+        pm = _produkt_monat()
+        return mc.dim_product_eigenmarke(mc.dim_product_spalten(df, pm, _monate()), pm)
     if name == "fact_cost":
         return mc.fact_cost_spalten(df)
     if name == "fact_inventory":

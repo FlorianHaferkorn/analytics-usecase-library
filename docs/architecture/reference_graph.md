@@ -9,7 +9,7 @@
 - KPIs in catalog: **145**  — reachable: **143**, roadmap (planned.yaml): 31, orphan: **0**
 - Action codes: **61**  — reachable: **59**, orphan: **2**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
-- Semantic measures: **289**  — backing a catalog KPI: **121** (registry/drift gated by `test_measure_dictionary_files`)
+- Semantic measures: **290**  — backing a catalog KPI: **122** (registry/drift gated by `test_measure_dictionary_files`)
 
 ## Integrity (must be empty)
 

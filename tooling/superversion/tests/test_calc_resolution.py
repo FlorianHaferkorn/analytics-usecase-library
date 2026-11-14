@@ -317,3 +317,36 @@ def test_abs_resolves_nested_calc():
     assert hitl is None
     assert resolved == {"op": "abs", "value": {"kind": "expr", "op": "sum", "ref": {"kind": "column", "table": "fact_test", "column": "A"}}}
     assert dax_synth.synthesize_dax(resolved) == "ABS ( ( SUM ( fact_test[A] ) ) )"
+
+
+def test_sum_filtered_resolves_a_dimension_filter_from_the_lineage():
+    """sum_filtered (30.10.2026, KPI-COM-033): der Filter darf auf einer Dimension der Lineage
+    liegen; die Tabelle kommt aus der Lineage, nicht aus der Fakttabelle."""
+    kpi = _kpi(
+        {"op": "ratio",
+         "numerator": {"calc": {"op": "sum_filtered", "column": "Net Sales Amount",
+                                "filters": [{"column": "Private Label Flag", "equals": True}]}},
+         "denominator": {"column": "Net Sales Amount"}},
+        ["fact_sales.Net Sales Amount", "dim_product.Private Label Flag"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved["numerator"] == {
+        "kind": "expr", "op": "sum_filtered", "table": "fact_sales", "column": "Net Sales Amount",
+        "filters": [{"table": "dim_product", "column": "Private Label Flag", "equals": True}],
+    }
+    assert dax_synth.synthesize_dax(resolved) == (
+        "DIVIDE ( ( CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), "
+        "dim_product[Private Label Flag] = TRUE () ) ), SUM ( fact_sales[Net Sales Amount] ) )"
+    )
+
+
+def test_sum_filtered_filter_outside_the_lineage_becomes_hitl():
+    kpi = _kpi(
+        {"op": "sum_filtered", "column": "Net Sales Amount",
+         "filters": [{"column": "Private Label Flag", "equals": True}]},
+        ["fact_sales.Net Sales Amount"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert resolved is None
+    assert "HITL:" in hitl
