@@ -6,6 +6,7 @@ synonyms:
 - Selbstkosten je Stück
 example_question: How did unit cost change after the plant ramp-up?
 kpi_key: Unit Cost Amount
+label_short: Unit Cost
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Profitability

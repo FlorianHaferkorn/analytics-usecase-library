@@ -6,6 +6,7 @@ synonyms:
 - Bruttoergebnis vom Umsatz
 example_question: What drove the change in gross margin amount this month?
 kpi_key: Gross Margin Amount
+label_short: Gross Profit
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Profitability

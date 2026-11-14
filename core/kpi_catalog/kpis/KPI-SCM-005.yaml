@@ -6,6 +6,7 @@ synonyms:
 - Vorhersagegenauigkeit
 example_question: Where is forecast accuracy weakest this cycle?
 kpi_key: Forecast Accuracy %
+label_short: Forecast Accuracy
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Efficiency

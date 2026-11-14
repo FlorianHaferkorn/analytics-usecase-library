@@ -1,5 +1,6 @@
 kpi_id: KPI-COM-024
 kpi_key: Average Basket Value
+label_short: Average Basket Value
 kpi_type: diagnostic
 kpi_role: influencing
 impact_dimension: Growth

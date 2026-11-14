@@ -7,6 +7,7 @@ synonyms:
 - Forderungslaufzeit
 example_question: Why did DSO increase in the Nordics region last quarter?
 kpi_key: DSO Days
+label_short: Days Sales Outstanding (DSO)
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Liquidity

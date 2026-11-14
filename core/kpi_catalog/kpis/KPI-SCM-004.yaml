@@ -6,6 +6,7 @@ synonyms:
 - Ladenhüter-Anteil
 example_question: How much inventory value is obsolete by category?
 kpi_key: Obsolete Inventory %
+label_short: Obsolescence Rate
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Efficiency

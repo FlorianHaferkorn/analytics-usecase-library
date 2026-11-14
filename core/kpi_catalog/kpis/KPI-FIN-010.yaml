@@ -5,6 +5,7 @@ synonyms:
 - Liquiditätsplanabweichung
 example_question: How far is cash tracking from the liquidity plan this month?
 kpi_key: Cash vs Plan %
+label_short: Cash vs Plan
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Liquidity

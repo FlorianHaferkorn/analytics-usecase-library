@@ -6,6 +6,7 @@ synonyms:
 - Geldumschlagsdauer
 example_question: What pushed the cash conversion cycle higher this month?
 kpi_key: CCC Days
+label_short: Cash Conversion Cycle (CCC)
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Liquidity

@@ -1,5 +1,6 @@
 kpi_id: KPI-COM-013
 kpi_key: Gross Margin %
+label_short: Gross Margin Rate
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Profitability

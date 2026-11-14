@@ -6,6 +6,7 @@ synonyms:
 - Materialintensität
 example_question: Which products have the highest material cost ratio?
 kpi_key: Material Cost %
+label_short: Material Cost Ratio
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Profitability

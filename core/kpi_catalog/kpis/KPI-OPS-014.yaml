@@ -1,5 +1,6 @@
 kpi_id: KPI-OPS-014
 kpi_key: Preventive Maintenance Task Count
+label_short: Preventive Maintenance Tasks
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Efficiency

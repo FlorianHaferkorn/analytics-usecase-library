@@ -7,6 +7,7 @@ synonyms:
 - Leistungsfaktor
 example_question: Where are speed losses hurting performance this week?
 kpi_key: Performance %
+label_short: Performance Rate
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Efficiency

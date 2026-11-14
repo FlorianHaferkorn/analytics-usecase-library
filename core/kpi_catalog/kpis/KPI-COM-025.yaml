@@ -1,5 +1,6 @@
 kpi_id: KPI-COM-025
 kpi_key: Promotion Attachment Rate %
+label_short: Promotion Attachment Rate
 kpi_type: diagnostic
 kpi_role: influencing
 impact_dimension: Growth

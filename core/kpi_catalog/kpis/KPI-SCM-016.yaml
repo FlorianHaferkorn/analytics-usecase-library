@@ -6,6 +6,7 @@ synonyms:
 - Umschlagshäufigkeit
 example_question: Which categories have the slowest inventory turnover?
 kpi_key: Inventory Turnover
+label_short: Inventory Turnover
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Efficiency

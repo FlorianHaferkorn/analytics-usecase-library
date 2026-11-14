@@ -11,6 +11,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 ```yaml
 - kpi_id: KPI-CUS-001
   kpi_key: CLV (Customer Lifetime Value)
+  label_short: Customer Lifetime Value (CLV)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Customer
@@ -61,6 +62,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-001
   kpi_key: Revenue at Risk Amount
+  label_short: Revenue at Risk
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Customer
@@ -132,6 +134,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SVC-001
   kpi_key: Complaint Count
+  label_short: Complaints
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Customer
@@ -179,6 +182,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-CUS-002
   kpi_key: Customer Retention %
+  label_short: Customer Retention
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: customer
@@ -249,6 +253,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - NPS
   example_question: Which segments are driving the change in NPS this quarter?
   kpi_key: Net Promoter Score (NPS)
+  label_short: Net Promoter Score (NPS)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Customer
@@ -320,6 +325,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-CUS-004
   kpi_key: Churned Customers
+  label_short: Churned Customers
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Customer
@@ -369,6 +375,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-CUS-005
   kpi_key: Customer Lifetime Revenue Amount
+  label_short: Customer Lifetime Revenue
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Customer
@@ -417,6 +424,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-CUS-006
   kpi_key: Active Customers
+  label_short: Active Customers
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Customer
@@ -472,6 +480,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Leistungsfaktor
   example_question: Where are speed losses hurting performance this week?
   kpi_key: Performance %
+  label_short: Performance Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -539,6 +548,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Qualitätsfaktor
   example_question: Which lines are below the quality target this month?
   kpi_key: Quality %
+  label_short: Quality Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -595,6 +605,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-004
   kpi_key: Labor Productivity %
+  label_short: Labor Productivity
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -655,6 +666,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - mittlere Zeit zwischen Ausfällen
   example_question: Which assets have the worst MTBF this quarter?
   kpi_key: MTBF (hours)
+  label_short: Mean Time Between Failures (MTBF)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -720,6 +732,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - mittlere Wiederherstellungszeit
   example_question: Where is MTTR longest, and why?
   kpi_key: MTTR (hours)
+  label_short: Mean Time To Repair (MTTR)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -774,6 +787,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-007
   kpi_key: PM Compliance %
+  label_short: PM Compliance
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -839,6 +853,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-008
   kpi_key: Spare Parts Stockout %
+  label_short: Spare Parts Stockout Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -888,6 +903,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-009
   kpi_key: Throughput Units
+  label_short: Throughput Units
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -947,6 +963,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Gutausbeute im ersten Durchgang
   example_question: Which products have the lowest first pass yield?
   kpi_key: First Pass Yield %
+  label_short: First Pass Yield (FPY)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1014,6 +1031,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Ausschussrate
   example_question: What is driving the scrap rate up in Fashion?
   kpi_key: Scrap Rate %
+  label_short: Scrap Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Quality
@@ -1070,6 +1088,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-010
   kpi_key: Rework Rate %
+  label_short: Rework Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1125,6 +1144,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-QUA-003
   kpi_key: Cost of Poor Quality
+  label_short: Cost of Poor Quality (COPQ)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1174,6 +1194,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-QUA-004
   kpi_key: Complaint Rate %
+  label_short: Complaint Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1230,6 +1251,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-QUA-005
   kpi_key: Defect Density
+  label_short: Defect Density
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1290,6 +1312,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Bestandsreichweite
   example_question: Where is days-of-supply highest across the network?
   kpi_key: Days in Inventory
+  label_short: Days in Inventory
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1356,6 +1379,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Fehlbestandsquote
   example_question: Which SKUs stock out most often?
   kpi_key: Stockout Rate %
+  label_short: Stockout Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1408,6 +1432,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-003
   kpi_key: Excess Inventory Value
+  label_short: Excess Inventory Value
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Working Capital
@@ -1467,6 +1492,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Ladenhüter-Anteil
   example_question: How much inventory value is obsolete by category?
   kpi_key: Obsolete Inventory %
+  label_short: Obsolescence Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1526,6 +1552,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Vorhersagegenauigkeit
   example_question: Where is forecast accuracy weakest this cycle?
   kpi_key: Forecast Accuracy %
+  label_short: Forecast Accuracy
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1595,6 +1622,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-006
   kpi_key: Forecast Bias %
+  label_short: Forecast Bias
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1660,6 +1688,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Liefertreue
   example_question: Which lanes are missing the OTIF target this month?
   kpi_key: OTIF %
+  label_short: On Time In Full (OTIF)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1730,6 +1759,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Liefertermintreue
   example_question: What is driving late deliveries on the DACH lanes?
   kpi_key: On-Time %
+  label_short: On-Time Delivery (OTD)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1781,6 +1811,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-009
   kpi_key: Stockout Impact %
+  label_short: Stockout Impact
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1833,6 +1864,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-010
   kpi_key: Expedite Cost Amount
+  label_short: Expedite Cost
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1883,6 +1915,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-011
   kpi_key: Penalty Amount
+  label_short: Penalties
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1932,6 +1965,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-012
   kpi_key: Service Impact %
+  label_short: Service Impact
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -1993,6 +2027,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Anlageneffektivität
   example_question: Which production lines have the lowest OEE this month?
   kpi_key: Overall Equipment Effectiveness (OEE) %
+  label_short: Overall Equipment Effectiveness (OEE)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
@@ -2054,6 +2089,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-012
   kpi_key: Failure Count
+  label_short: Failures
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2103,6 +2139,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-013
   kpi_key: Planned Output Units
+  label_short: Planned Output Units
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2155,6 +2192,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-014
   kpi_key: Preventive Maintenance Task Count
+  label_short: Preventive Maintenance Tasks
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2200,6 +2238,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-QUA-006
   kpi_key: Quality Defect Rate %
+  label_short: Quality Defect Rate
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2251,6 +2290,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-015
   kpi_key: Safety Incident Count
+  label_short: Safety Incidents
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2298,6 +2338,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-013
   kpi_key: Order Lines Count
+  label_short: Order Lines
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2344,6 +2385,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-014
   kpi_key: Plans Count
+  label_short: Plan Count
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2395,6 +2437,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-015
   kpi_key: Shipments Count
+  label_short: Shipments
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2449,6 +2492,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Verfügbarkeitsgrad
   example_question: What is dragging availability down on Line B?
   kpi_key: Availability %
+  label_short: Availability
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2505,6 +2549,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-017
   kpi_key: Downtime %
+  label_short: Downtime Rate
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2563,6 +2608,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - ungeplanter Stillstand
   example_question: Which assets cause the most unplanned downtime?
   kpi_key: Unplanned Downtime %
+  label_short: Unplanned Downtime Rate
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2617,6 +2663,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-019
   kpi_key: Speed Loss Rate %
+  label_short: Speed Loss Rate
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2670,6 +2717,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-OPS-020
   kpi_key: Changeover Time (min)
+  label_short: Changeover Time
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2727,6 +2775,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Umschlagshäufigkeit
   example_question: Which categories have the slowest inventory turnover?
   kpi_key: Inventory Turnover
+  label_short: Inventory Turnover
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2788,6 +2837,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - mittlerer absoluter prozentualer Fehler
   example_question: Which product families have the highest MAPE?
   kpi_key: Forecast MAPE %
+  label_short: Mean Absolute Percentage Error (MAPE)
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2858,6 +2908,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Lieferbereitschaftsgrad
   example_question: Which products fall short on in-full delivery?
   kpi_key: In-Full %
+  label_short: Order Fill Rate
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -2909,6 +2960,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-GOV-001
   kpi_key: Action Outcome Rate %
+  label_short: Action Outcome Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Governance
@@ -2966,6 +3018,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-GOV-002
   kpi_key: Action Effectiveness Delta
+  label_short: Action Effectiveness Delta
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: governance
@@ -3018,6 +3071,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   deprecated: true
   deprecation_reason: No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)
   kpi_key: Actions Routed Count
+  label_short: Actions Routed
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Governance
@@ -3063,6 +3117,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-001
   kpi_key: List Price Amount
+  label_short: List Price
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Growth
@@ -3109,6 +3164,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-002
   kpi_key: Net Price Amount
+  label_short: Net Price
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Growth
@@ -3155,6 +3211,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-003
   kpi_key: Price Realization %
+  label_short: Price Realization
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Growth
@@ -3211,6 +3268,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-004
   kpi_key: Mix Effect Amount
+  label_short: Mix Effect
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Growth
@@ -3269,6 +3327,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-005
   kpi_key: Net Sales Amount
+  label_short: Net Sales
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Growth
@@ -3322,6 +3381,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-006
   kpi_key: Plan Net Sales Amount
+  label_short: Plan Net Sales
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Growth
@@ -3367,6 +3427,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-007
   kpi_key: Prior-Year Net Sales Amount
+  label_short: Prior-Year Net Sales
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Growth
@@ -3413,6 +3474,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-008
   kpi_key: Delta% Net Sales
+  label_short: Net Sales YoY Growth
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Growth
@@ -3468,6 +3530,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-009
   kpi_key: Net Sales % vs Plan
+  label_short: Net Sales vs Plan
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Growth
@@ -3523,6 +3586,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-010
   kpi_key: Price Effect Amount
+  label_short: Price Effect
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Growth
@@ -3577,6 +3641,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-011
   kpi_key: Volume Effect Amount
+  label_short: Volume Effect
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Growth
@@ -3627,6 +3692,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-012
   kpi_key: Sales Units
+  label_short: Sales Units
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Growth
@@ -3680,6 +3746,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SVC-002
   kpi_key: Digital Adoption Rate %
+  label_short: Digital Adoption Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Innovation & People
@@ -3727,6 +3794,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SVC-003
   kpi_key: Attrition Risk %
+  label_short: Attrition Risk
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: governance
@@ -3781,6 +3849,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Forderungslaufzeit
   example_question: Why did DSO increase in the Nordics region last quarter?
   kpi_key: DSO Days
+  label_short: Days Sales Outstanding (DSO)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Liquidity
@@ -3851,6 +3920,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-FIN-002
   kpi_key: Inventory Amount
+  label_short: Inventory
   kpi_type: supporting
   kpi_role: supporting
   impact_dimension: Liquidity
@@ -3902,6 +3972,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   deprecated: true
   deprecation_reason: No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)
   kpi_key: Payables Amount
+  label_short: Payables
   kpi_type: supporting
   kpi_role: supporting
   impact_dimension: Liquidity
@@ -3950,6 +4021,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   deprecated: true
   deprecation_reason: No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)
   kpi_key: Planned Hours
+  label_short: Planned Hours
   kpi_type: supporting
   kpi_role: supporting
   impact_dimension: Efficiency
@@ -4007,6 +4079,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Bestandsreichweite
   example_question: Which product categories are driving up DIO this quarter?
   kpi_key: DIO Days
+  label_short: Days Inventory Outstanding (DIO)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Liquidity
@@ -4083,6 +4156,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Kreditorenlaufzeit
   example_question: Are we extending DPO with our largest suppliers this year?
   kpi_key: DPO Days
+  label_short: Days Payable Outstanding (DPO)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Liquidity
@@ -4159,6 +4233,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Geldumschlagsdauer
   example_question: What pushed the cash conversion cycle higher this month?
   kpi_key: CCC Days
+  label_short: Cash Conversion Cycle (CCC)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Liquidity
@@ -4229,6 +4304,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Kassenbestand
   example_question: How has our cash balance tracked versus plan this year?
   kpi_key: Cash Balance
+  label_short: Cash Balance
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Liquidity
@@ -4288,6 +4364,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Forderungsüberfälligkeitsquote
   example_question: Which customers are driving the rise in overdue AR?
   kpi_key: Overdue AR %
+  label_short: Overdue Accounts Receivable (AR)
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Liquidity
@@ -4348,6 +4425,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Operativer Cashflow
   example_question: Why did operating cash flow fall short of plan in Q2?
   kpi_key: Operating Cash Flow
+  label_short: Operating Cash Flow (OCF)
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Liquidity
@@ -4406,6 +4484,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Liquiditätsplanabweichung
   example_question: How far is cash tracking from the liquidity plan this month?
   kpi_key: Cash vs Plan %
+  label_short: Cash vs Plan
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Liquidity
@@ -4465,6 +4544,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-FIN-011
   kpi_key: Cost of Goods Sold Amount
+  label_short: Cost of Goods Sold (COGS)
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -4512,6 +4592,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-013
   kpi_key: Gross Margin %
+  label_short: Gross Margin Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
@@ -4774,6 +4855,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-014
   kpi_key: Promo Cost
+  label_short: Promo Cost
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -4821,6 +4903,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-015
   kpi_key: Incremental Gross Margin Amount
+  label_short: Incremental Gross Margin
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -4886,6 +4969,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-016
   kpi_key: Promo ROI %
+  label_short: Promo ROI
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
@@ -4938,6 +5022,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-FIN-012
   kpi_key: GM % During Promo
+  label_short: Gross Margin During Promo
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
@@ -4992,6 +5077,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-FIN-013
   kpi_key: COGS per Unit
+  label_short: COGS per Unit
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
@@ -5044,6 +5130,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-017
   kpi_key: Cannibalized Sales Amount
+  label_short: Cannibalized Sales
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -5092,6 +5179,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-018
   kpi_key: Cannibalization %
+  label_short: Cannibalization Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
@@ -5151,6 +5239,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Materialintensität
   example_question: Which products have the highest material cost ratio?
   kpi_key: Material Cost %
+  label_short: Material Cost Ratio
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
@@ -5210,6 +5299,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Betriebskostenabweichung
   example_question: Where is OpEx running over plan this quarter?
   kpi_key: OpEx vs Plan %
+  label_short: OpEx vs Plan
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
@@ -5270,6 +5360,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Selbstkosten je Stück
   example_question: How did unit cost change after the plant ramp-up?
   kpi_key: Unit Cost Amount
+  label_short: Unit Cost
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
@@ -5339,6 +5430,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Bruttoergebnis vom Umsatz
   example_question: What drove the change in gross margin amount this month?
   kpi_key: Gross Margin Amount
+  label_short: Gross Profit
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -5399,6 +5491,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-020
   kpi_key: Baseline Sales Amount
+  label_short: Baseline Sales
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -5445,6 +5538,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-021
   kpi_key: Incremental Sales Amount
+  label_short: Incremental Sales
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -5504,6 +5598,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Materialaufwandsquote
   example_question: Why did COGS % of sales rise in Consumer Electronics?
   kpi_key: COGS % of Sales
+  label_short: COGS Ratio
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -5557,6 +5652,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-FIN-017
   kpi_key: Gross Margin % vs Plan
+  label_short: Gross Margin Rate vs Plan
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -5616,6 +5712,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-FIN-018
   kpi_key: EBITDA Margin
+  label_short: EBITDA Margin
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
@@ -5668,6 +5765,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   deprecated: true
   deprecation_reason: No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)
   kpi_key: Cost Base Volume Amount
+  label_short: Cost Base Volume
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -5717,6 +5815,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   deprecated: true
   deprecation_reason: No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)
   kpi_key: Opex Base Amount
+  label_short: Opex Base
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -5763,6 +5862,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-GOV-004
   kpi_key: Enterprise Value-at-Risk Index
+  label_short: Enterprise Value-at-Risk Index
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Risk
@@ -5871,6 +5971,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Lieferantenrisikobewertung
   example_question: Which suppliers carry the highest risk score?
   kpi_key: Supplier Risk Score
+  label_short: Supplier Risk Score
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Risk
@@ -5924,6 +6025,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Servicelevel
   example_question: Which queues are missing the SLA this week?
   kpi_key: SLA Attainment %
+  label_short: SLA Attainment
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Service
@@ -5983,6 +6085,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Erstkontaktlösung
   example_question: Where is first contact resolution lowest, and why?
   kpi_key: First Contact Resolution %
+  label_short: First Contact Resolution (FCR)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Service
@@ -6036,6 +6139,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - durchschnittliche Bearbeitungszeit
   example_question: What is pushing average handle time up on chat?
   kpi_key: Average Handling Time (minutes)
+  label_short: Average Handling Time (AHT)
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Service
@@ -6095,6 +6199,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - offene Tickets
   example_question: Which queues have the largest case backlog?
   kpi_key: Backlog Count
+  label_short: Backlog
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Service
@@ -6155,6 +6260,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Eskalationsrate
   example_question: Which issue types escalate most often?
   kpi_key: Escalation %
+  label_short: Escalation Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Service
@@ -6204,6 +6310,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SVC-009
   kpi_key: Utilization %
+  label_short: Utilization
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Workforce
@@ -6260,6 +6367,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SVC-010
   kpi_key: Occupancy %
+  label_short: Occupancy
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Workforce
@@ -6323,6 +6431,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SVC-011
   kpi_key: Overtime %
+  label_short: Overtime Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Workforce
@@ -6376,6 +6485,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SVC-012
   kpi_key: Shrinkage %
+  label_short: Shrinkage
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Workforce
@@ -6428,6 +6538,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SVC-013
   kpi_key: Tickets Created Count
+  label_short: Tickets Created
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Service
@@ -6479,6 +6590,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SVC-014
   kpi_key: Tickets Closed Count
+  label_short: Tickets Closed
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Service
@@ -6529,6 +6641,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-GOV-005
   kpi_key: Actions Executed Count
+  label_short: Actions Executed
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: governance
@@ -6576,6 +6689,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-GOV-006
   kpi_key: Avg Time-to-Outcome Days
+  label_short: Average Time to Outcome
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: governance
@@ -6621,6 +6735,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-GOV-007
   kpi_key: Action ROI %
+  label_short: Action ROI
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: governance
@@ -6675,6 +6790,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-022
   kpi_key: Category Cross-Sell Rate %
+  label_short: Category Cross-Sell Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Growth
@@ -6725,6 +6841,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-023
   kpi_key: Items per Transaction
+  label_short: Items per Transaction
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Growth
@@ -6780,6 +6897,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-024
   kpi_key: Average Basket Value
+  label_short: Average Basket Value
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Growth
@@ -6833,6 +6951,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-025
   kpi_key: Promotion Attachment Rate %
+  label_short: Promotion Attachment Rate
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Growth
@@ -6882,6 +7001,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-CUS-007
   kpi_key: RFM Frequency Score
+  label_short: RFM Frequency Score
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Customer
@@ -6930,6 +7050,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-PPL-001
   kpi_key: Attrition %
+  label_short: Attrition Rate
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: governance
@@ -6981,6 +7102,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-PPL-002
   kpi_key: Engagement Index
+  label_short: Engagement Index
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: governance
@@ -7026,6 +7148,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-PPL-003
   kpi_key: Time to Fill
+  label_short: Time to Fill
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: governance
@@ -7071,6 +7194,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-PPL-004
   kpi_key: Absence Rate %
+  label_short: Absence Rate
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: governance
@@ -7120,6 +7244,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-PPL-005
   kpi_key: Workforce Cost per FTE
+  label_short: Workforce Cost per FTE
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Cost
@@ -7168,6 +7293,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-PPL-006
   kpi_key: Headcount FTE
+  label_short: Headcount FTE
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: governance
@@ -7212,6 +7338,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-026
   kpi_key: Pipeline Coverage
+  label_short: Pipeline Coverage
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Growth
@@ -7263,6 +7390,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-027
   kpi_key: Win Rate %
+  label_short: Win Rate
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Growth
@@ -7313,6 +7441,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-028
   kpi_key: Stage Conversion %
+  label_short: Stage Conversion
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Growth
@@ -7362,6 +7491,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-029
   kpi_key: Sales Cycle Length
+  label_short: Sales Cycle Length
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Growth
@@ -7408,6 +7538,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-030
   kpi_key: Sales Velocity
+  label_short: Sales Velocity
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Growth
@@ -7482,6 +7613,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-COM-031
   kpi_key: Open Pipeline Value
+  label_short: Open Pipeline Value
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Growth
@@ -7527,6 +7659,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-FIN-020
   kpi_key: EBITDA
+  label_short: EBITDA
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
@@ -7572,6 +7705,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-FIN-021
   kpi_key: EBITDA Margin vs Plan
+  label_short: EBITDA Margin vs Plan
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Profitability
@@ -7634,6 +7768,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-023
   kpi_key: Realised Savings %
+  label_short: Realised Savings
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Cost
@@ -7685,6 +7820,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-024
   kpi_key: On-Contract Spend %
+  label_short: On-Contract Spend
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Cost
@@ -7735,6 +7871,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-025
   kpi_key: Purchase Price Variance %
+  label_short: Purchase Price Variance (PPV)
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Cost
@@ -7785,6 +7922,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-026
   kpi_key: Supplier On-Time Delivery %
+  label_short: Supplier On-Time Delivery
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Reliability
@@ -7833,6 +7971,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: KPI-SCM-027
   kpi_key: Managed Spend
+  label_short: Managed Spend
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Cost
@@ -7882,6 +8021,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Lines picked per hour
   - Pick rate
   kpi_key: Picks per Labor Hour
+  label_short: Picks per Labor Hour
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Efficiency
@@ -7938,6 +8078,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - E-Com share
   - Online revenue share
   kpi_key: E-Commerce Revenue Share
+  label_short: E-Commerce Revenue Share
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Growth
@@ -7992,6 +8133,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Private Label Anteil
   - Private label penetration
   kpi_key: Private Label Penetration %
+  label_short: Private Label Penetration
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
@@ -8045,6 +8187,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - E-Commerce Konversionsrate
   - Online conversion rate
   kpi_key: E-Commerce Conversion Rate
+  label_short: E-Commerce Conversion Rate
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: Growth
@@ -8096,6 +8239,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Scope 1+2 CO2 Emissionen
   - Scope 1 and 2 GHG emissions
   kpi_key: Scope 1+2 CO2 Emissions
+  label_short: Scope 1+2 CO2 Emissions
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: ESG
@@ -8158,6 +8302,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Lieferant-ESG-Compliance
   - Supplier ESG compliance
   kpi_key: Supplier ESG Compliance %
+  label_short: Supplier ESG Compliance
   kpi_type: diagnostic
   kpi_role: influencing
   impact_dimension: ESG

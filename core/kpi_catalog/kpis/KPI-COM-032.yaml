@@ -4,6 +4,7 @@ synonyms:
 - E-Com share
 - Online revenue share
 kpi_key: E-Commerce Revenue Share
+label_short: E-Commerce Revenue Share
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Growth

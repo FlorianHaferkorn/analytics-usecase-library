@@ -6,6 +6,7 @@ synonyms:
 - mittlere Zeit zwischen Ausfällen
 example_question: Which assets have the worst MTBF this quarter?
 kpi_key: MTBF (hours)
+label_short: Mean Time Between Failures (MTBF)
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Efficiency

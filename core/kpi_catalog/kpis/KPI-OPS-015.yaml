@@ -1,5 +1,6 @@
 kpi_id: KPI-OPS-015
 kpi_key: Safety Incident Count
+label_short: Safety Incidents
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Efficiency

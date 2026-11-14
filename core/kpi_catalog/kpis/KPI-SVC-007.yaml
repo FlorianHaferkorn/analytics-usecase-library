@@ -7,6 +7,7 @@ synonyms:
 - offene Tickets
 example_question: Which queues have the largest case backlog?
 kpi_key: Backlog Count
+label_short: Backlog
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Service

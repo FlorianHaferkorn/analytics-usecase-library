@@ -4,6 +4,7 @@ synonyms:
 - Private Label Anteil
 - Private label penetration
 kpi_key: Private Label Penetration %
+label_short: Private Label Penetration
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Profitability

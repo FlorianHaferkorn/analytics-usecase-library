@@ -6,6 +6,7 @@ synonyms:
 - Fehlbestandsquote
 example_question: Which SKUs stock out most often?
 kpi_key: Stockout Rate %
+label_short: Stockout Rate
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Efficiency

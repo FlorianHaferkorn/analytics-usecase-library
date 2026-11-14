@@ -3,6 +3,7 @@ synonyms:
 - Scope 1+2 CO2 Emissionen
 - Scope 1 and 2 GHG emissions
 kpi_key: Scope 1+2 CO2 Emissions
+label_short: Scope 1+2 CO2 Emissions
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: ESG

@@ -7,6 +7,7 @@ synonyms:
 - Verfügbarkeitsgrad
 example_question: What is dragging availability down on Line B?
 kpi_key: Availability %
+label_short: Availability
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Efficiency

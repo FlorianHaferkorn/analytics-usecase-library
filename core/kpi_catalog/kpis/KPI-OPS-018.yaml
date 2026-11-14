@@ -6,6 +6,7 @@ synonyms:
 - ungeplanter Stillstand
 example_question: Which assets cause the most unplanned downtime?
 kpi_key: Unplanned Downtime %
+label_short: Unplanned Downtime Rate
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Efficiency

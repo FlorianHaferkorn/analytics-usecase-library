@@ -1,5 +1,6 @@
 kpi_id: KPI-COM-012
 kpi_key: Sales Units
+label_short: Sales Units
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Growth

@@ -7,6 +7,7 @@ synonyms:
 - Servicelevel
 example_question: Which queues are missing the SLA this week?
 kpi_key: SLA Attainment %
+label_short: SLA Attainment
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Service

@@ -1,5 +1,6 @@
 kpi_id: KPI-PPL-003
 kpi_key: Time to Fill
+label_short: Time to Fill
 kpi_type: diagnostic
 kpi_role: influencing
 impact_dimension: governance

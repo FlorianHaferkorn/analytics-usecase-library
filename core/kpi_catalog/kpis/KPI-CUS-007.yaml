@@ -1,5 +1,6 @@
 kpi_id: KPI-CUS-007
 kpi_key: RFM Frequency Score
+label_short: RFM Frequency Score
 kpi_type: diagnostic
 kpi_role: influencing
 impact_dimension: Customer

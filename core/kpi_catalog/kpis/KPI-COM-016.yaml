@@ -1,5 +1,6 @@
 kpi_id: KPI-COM-016
 kpi_key: Promo ROI %
+label_short: Promo ROI
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Profitability

@@ -1,5 +1,6 @@
 kpi_id: KPI-COM-017
 kpi_key: Cannibalized Sales Amount
+label_short: Cannibalized Sales
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Profitability

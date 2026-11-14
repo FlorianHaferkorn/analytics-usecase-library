@@ -1,5 +1,6 @@
 kpi_id: KPI-OPS-013
 kpi_key: Planned Output Units
+label_short: Planned Output Units
 kpi_type: diagnostic
 kpi_role: supporting
 impact_dimension: Efficiency

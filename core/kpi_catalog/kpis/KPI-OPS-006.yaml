@@ -6,6 +6,7 @@ synonyms:
 - mittlere Wiederherstellungszeit
 example_question: Where is MTTR longest, and why?
 kpi_key: MTTR (hours)
+label_short: Mean Time To Repair (MTTR)
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Efficiency

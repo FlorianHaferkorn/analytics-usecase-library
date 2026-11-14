@@ -1,5 +1,6 @@
 kpi_id: KPI-COM-004
 kpi_key: Mix Effect Amount
+label_short: Mix Effect
 kpi_type: diagnostic
 kpi_role: strategic
 impact_dimension: Growth
