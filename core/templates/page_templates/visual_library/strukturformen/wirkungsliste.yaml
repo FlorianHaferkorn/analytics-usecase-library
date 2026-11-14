@@ -1,0 +1,45 @@
+# Strukturform wirkungsliste (ADR-0029). Schema: _schema.yaml
+id: wirkungsliste
+name: Wirkungsliste (transitive Abhängige mit Tiefe)
+version: 1.0.0
+status: experimental
+strukturtypen:
+- dag_geschichtet
+- netz
+- baum
+- fluss
+fragen:
+  primaer:
+  - wirkung
+  sekundaer:
+  - luecken
+menge:
+  min: 1
+  max: null
+voraussetzung: {}
+vorrang: 10
+vorrang_regel: graph_plus_tabelle_wirkung
+kantenklassen_max: 6
+reduktion:
+- detailstufen
+- filter_kantenklasse
+- sortierung
+interaktion:
+- suche
+- verknuepfte_ansicht
+- editor_sprung
+kanaele:
+  ordinal:
+  - position_reihenfolge
+  quantitativ:
+  - ziffer
+technik:
+- html
+textalternative: ist selbst Tabelle (Objekt | Tiefe | Kantenklasse | Owner)
+regeln:
+- graph_plus_tabelle_wirkung
+- kantenklasse_trennen
+- kanal_nach_bedeutungsart
+anti_patterns:
+- whole_graph_as_entry
+idiom_ref: null

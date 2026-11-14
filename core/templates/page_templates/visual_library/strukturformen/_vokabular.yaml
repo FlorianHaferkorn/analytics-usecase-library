@@ -1,0 +1,116 @@
+# Strukturformen — Vokabular (ADR-0029). Jede Formdatei nutzt nur diese Werte.
+schema_version: 1
+
+strukturtypen:
+  baum: "genau ein Elternteil je Knoten (Verantwortung, KPI-Kaskade, Kontenrahmen)"
+  dag_geschichtet: "gerichtet, azyklisch, mit Ebenen (Golden Thread, Lineage, Treiberbaum)"
+  netz: "beliebige Beziehungen, auch zyklisch (Ontologie, Referenzgraph)"
+  fluss: "gerichtete Stufenfolge mit Mengen oder Übergängen (Medallion, Datenfluss)"
+  enthaltensein: "Gruppen enthalten Elemente (Domäne enthält Objekte)"
+  raeumlich: "Lage trägt Bedeutung (physische Architektur, Achsenkarte)"
+
+fragetypen:
+  ueberblick: "Was gibt es, wie ist es gegliedert?"
+  weg: "Wie kommt man von A nach B, woher stammt X?"
+  nachbarschaft: "Woran hängt X unmittelbar?"
+  wirkung: "Was hängt transitiv an X, was ändert sich mit X?"
+  vergleich: "Welche Teile sind größer, dichter, ähnlicher?"
+  luecken: "Was fehlt, ist verwaist oder gebrochen?"
+  pflege: "Wo ist X definiert, wer ändert es?"
+
+# Kantenklassen: Bedeutung einer Kante, nicht ihr Datentyp. Jeder Kantentyp eines
+# Modells bekommt genau eine Klasse; die Darstellung hängt an der Klasse.
+kantenklassen:
+  rechnet:
+    bedeutung: "Formel oder Zerlegung; ausführbar"
+    darstellung: {strich: durchgezogen, richtung: verjuengt, glyphe: operator}
+    quelle: "DMN Information Requirement; SAP Value Driver Tree; Count (decompose)"
+  beeinflusst:
+    bedeutung: "Wirkung ohne Formel, mit Polarität"
+    darstellung: {strich: gestrichelt, richtung: verjuengt, glyphe: polaritaet}
+    quelle: "Causal Loop Diagram; Count (influences); Lightdash drivers; Nørreklit 2000"
+  erfordert:
+    bedeutung: "Herkunft oder Abhängigkeit (Lineage, Datenquelle)"
+    darstellung: {strich: durchgezogen, richtung: verjuengt, glyphe: keine}
+    quelle: "DMN Information Requirement; Lineage-Kataloge"
+  zugeordnet:
+    bedeutung: "Klassifikation ohne Ausführungssemantik (KPI zu Domäne, Objekt zu Tabelle)"
+    darstellung: {strich: gepunktet, richtung: keine, glyphe: keine}
+    quelle: "DMN Knowledge Source (keine Ausführungssemantik)"
+  verantwortet:
+    bedeutung: "Eigentum oder Eskalation"
+    darstellung: {strich: duenn, richtung: keine, glyphe: keine}
+    quelle: "DMN Authority Requirement"
+  beziehung:
+    bedeutung: "fachliche Beziehung mit Kardinalität (Ontologie, Semantikmodell)"
+    darstellung: {strich: durchgezogen, richtung: keine, glyphe: kardinalitaet}
+    quelle: "ER-Notation in Semantikmodellen (Power BI Modellansicht, LookML, Cube)"
+
+reduktion:
+  fokus_hops: "nur Knoten bis Tiefe n um den Fokus (1–2)"
+  expand_on_demand: "Nachbarn erst auf Abruf, mit Zähler der verborgenen"
+  zusammenklappen: "Gruppe als ein Knoten, Kanten als Meta-Kante mit Zähler"
+  buendelung_mit_zaehler: "parallele Kanten zwischen Gruppen als ein Band mit Zahl"
+  filter_kantenklasse: "nur gewählte Kantenklassen zeigen"
+  detailstufen: "Übersichts- und Detailstufe (z. B. fachlich vs. technisch)"
+  ebenen_filter: "Ebenen einer Schichtung aus- und einblenden"
+  ausduennen_doi: "Interessegrad = Wichtigkeit minus Abstand zum Fokus"
+  sortierung: "Ordnung statt Linie (Matrix-Reihenfolge, Einrückung)"
+
+interaktion:
+  suche: "Suche als Einstieg"
+  auswahl_detail: "Auswahl öffnet Details mit Herkunft"
+  hover_nachbarn: "Hover/Fokus hebt 1-Hop-Nachbarn hervor"
+  zoom: "Zoom und Einpassen"
+  einklappen: "Teilbaum ein- und ausklappen"
+  verknuepfte_ansicht: "Auswahl wirkt auf eine Tabelle/Liste daneben"
+  editor_sprung: "Sprung in die definierende Stelle"
+
+# Bedeutungsarten: WAS eine Information fachlich ist, bestimmt, welcher visuelle Kanal sie tragen darf.
+# `kanaele` je Art in der Rangfolge der Eignung (bester zuerst). Belegart wie in _regeln.yaml.
+bedeutungsarten:
+  quantitativ:
+    frage: "Wie viel? (Maß, Zähler)"
+    kanaele: [position_skala, laenge, winkel, flaeche, helligkeit, ziffer]
+    beleg: gemessen   # Cleveland & McGill 1984: Position auf gemeinsamer Skala vor Länge vor Winkel vor Fläche; die Ziffer ist exakt, aber nicht präattentiv
+  ordinal:
+    frage: "Was kommt vor was? (Rang, Ebene, Reihenfolge)"
+    kanaele: [position_reihenfolge, helligkeit, groesse]
+    beleg: faustregel   # Munzner 2014: Ordnung über Position und Helligkeit, nicht über Farbton
+  identitaet:
+    frage: "Was für ein Ding ist das? (Art, Typ)"
+    kanaele: [form, farbton, fuellmuster]
+    beleg: faustregel   # Munzner 2014; VOWL (Lohmann 2016): feste Notation je Objekttyp
+  gruppe:
+    frage: "Was gehört zusammen?"
+    kanaele: [umschliessung, naehe, farbton]
+    beleg: dokumentiert   # Compound-Layouts in KeyLines, Alation, Cytoscape (Recherche 12.11.2026)
+  zustand:
+    frage: "In welchem Zustand? (Ist, Plan, vorläufig)"
+    kanaele: [fuellung, strich]
+    beleg: dokumentiert   # IBCS UN 3.2: Plan umrandet, Ist gefüllt (ALUCA _notation_profiles.yaml)
+  beziehung:
+    frage: "Was hängt womit zusammen?"
+    kanaele: [linie, adjazenz]
+    beleg: dokumentiert   # Ghoniem 2004: Linie für Wege, Adjazenz für dichte Nachbarschaft
+  richtung:
+    frage: "Wohin wirkt es?"
+    kanaele: [verjuengung, position_reihenfolge, pfeil]
+    beleg: gemessen   # Holten & van Wijk 2009: verjüngte Kante vor Pfeilspitze
+  bewertung:
+    frage: "Ist es gut, schlecht, auffällig?"
+    kanaele: [marker, statusfarbe]
+    beleg: hergeleitet   # Farbe nur mit Aussage (Bewertung); Statusfarbe mit Zeichen, nie allein
+
+# Paare Struktur × Frage, für die bewusst KEINE Form im Katalog steht. Der Test hält die
+# Liste genau: ein Paar ohne Form muss hier stehen, ein Paar hier darf keine Form haben.
+ungedeckt:
+  - {struktur: dag_geschichtet, frage: vergleich, grund: "Vergleich von Teilketten verlangt Masse je Knoten; das ist eine Mengenfrage für die Idiome, keine Strukturform."}
+  - {struktur: enthaltensein, frage: weg, grund: "Enthaltensein kennt keine Wege; Wegfragen stellen sich erst über die Kanten zwischen den Elementen (netz)."}
+  - {struktur: enthaltensein, frage: wirkung, grund: "Wirkung entsteht über Kanten, nicht über Gruppen; Frage am Netz stellen."}
+  - {struktur: raeumlich, frage: weg, grund: "Räumliche Lage trägt Bedeutung, nicht Verbindung; Wegfragen gehören an das Netz."}
+  - {struktur: raeumlich, frage: nachbarschaft, grund: "Räumliche Nähe ist keine Beziehung; Nachbarschaft gehört an das Netz."}
+  - {struktur: raeumlich, frage: wirkung, grund: "Wirkung entsteht über Kanten; Frage am Netz stellen (wirkungsliste)."}
+  - {struktur: raeumlich, frage: vergleich, grund: "Vergleich über Lage verlangt eine Achsenkarte; keine belegte Form im Katalog."}
+  - {struktur: raeumlich, frage: luecken, grund: "Lücken einer physischen Architektur sind Listenbefunde, keine Raumfrage."}
+  - {struktur: raeumlich, frage: pflege, grund: "Pflege geschieht in der Liste mit Editor-Sprung (such_einstieg), nicht im Raum."}

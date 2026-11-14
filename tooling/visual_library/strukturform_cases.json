@@ -1,0 +1,25 @@
+{
+  "_comment": "Eingefrorene Auswahl der Strukturformen (ADR-0029). Fälle aus dem Meridian-Studio-Bestand (Messung 12.11.2026, Aurora) und Grenzfälle. erwartet = erste Form; folge = ganze Reihenfolge, wo angegeben.",
+  "faelle": [
+    {"name": "Golden Thread gesamt (37 Knoten)", "struktur": "dag_geschichtet", "frage": "ueberblick", "knoten": 37, "erwartet": "schichtgraph"},
+    {"name": "Lineage KPI bis Quelle (45 Knoten)", "struktur": "dag_geschichtet", "frage": "weg", "knoten": 45, "erwartet": "schichtgraph"},
+    {"name": "Lineage mit 4 Kantenklassen", "struktur": "dag_geschichtet", "frage": "weg", "knoten": 45, "daten": {"kantenklassen": 4}, "erwartet": "schichtgraph", "reduktion_noetig": ["filter_kantenklasse"]},
+    {"name": "KPI-Kaskade flacher Wald (15 KPIs, 13 Wurzeln)", "struktur": "baum", "frage": "ueberblick", "knoten": 15, "daten": {"wurzeln": 13}, "erwartet": "liste_eingerueckt"},
+    {"name": "Verantwortung CEO, Owner, Domäne (11 Knoten)", "struktur": "baum", "frage": "ueberblick", "knoten": 11, "erwartet": "baumdiagramm", "folge": ["baumdiagramm", "liste_eingerueckt"]},
+    {"name": "Kontenbaum mit Beträgen", "struktur": "baum", "frage": "vergleich", "knoten": 120, "daten": {"masse": true}, "erwartet": "icicle"},
+    {"name": "Ontologie Nachbarschaft (34 Objekte)", "struktur": "netz", "frage": "nachbarschaft", "knoten": 34, "folge": ["ego_graph", "adjazenzmatrix", "compound_graph"], "erwartet": "ego_graph"},
+    {"name": "Ontologie Überblick (34 Objekte)", "struktur": "netz", "frage": "ueberblick", "knoten": 34, "erwartet": "compound_graph"},
+    {"name": "Referenzgraph Überblick (143 Knoten)", "struktur": "netz", "frage": "ueberblick", "knoten": 143, "erwartet": "compound_graph"},
+    {"name": "Gesamtbestand Überblick (400 Knoten)", "struktur": "netz", "frage": "ueberblick", "knoten": 400, "erwartet": "such_einstieg"},
+    {"name": "Gesamtbestand Nachbarschaft (400 Knoten)", "struktur": "netz", "frage": "nachbarschaft", "knoten": 400, "folge": ["such_einstieg", "ego_graph", "adjazenzmatrix"], "erwartet": "such_einstieg"},
+    {"name": "Pfad A nach B", "struktur": "netz", "frage": "weg", "knoten": 143, "daten": {"start_ziel": true}, "erwartet": "pfadansicht"},
+    {"name": "Wegfrage im Netz ohne Start und Ziel", "struktur": "netz", "frage": "weg", "knoten": 34, "erwartet": "ego_graph"},
+    {"name": "Wirkung einer KPI-Änderung", "struktur": "dag_geschichtet", "frage": "wirkung", "knoten": 143, "erwartet": "wirkungsliste"},
+    {"name": "Rückgekoppelte Treiber", "struktur": "netz", "frage": "wirkung", "knoten": 12, "daten": {"zyklen": true}, "erwartet": "wirkungsdiagramm", "folge": ["wirkungsdiagramm", "wirkungsliste"]},
+    {"name": "Medallion ohne Mengen (20 Knoten)", "struktur": "fluss", "frage": "ueberblick", "knoten": 20, "erwartet": "schichtgraph"},
+    {"name": "Medallion mit Zeilenmengen", "struktur": "fluss", "frage": "ueberblick", "knoten": 20, "daten": {"masse": true}, "erwartet": "mengenfluss"},
+    {"name": "Bauwerk physisch (90 Knoten)", "struktur": "raeumlich", "frage": "ueberblick", "knoten": 90, "erwartet": "raum_3d"},
+    {"name": "Domäne enthält Objekte, Lücken", "struktur": "enthaltensein", "frage": "luecken", "knoten": 30, "erwartet": "liste_eingerueckt"},
+    {"name": "Räumliche Wegfrage ist ungedeckt", "struktur": "raeumlich", "frage": "weg", "knoten": 90, "erwartet": null}
+  ]
+}

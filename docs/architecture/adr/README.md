@@ -43,3 +43,4 @@ revisit a decision by adding a new ADR that supersedes the old one.
 | [0026](0026-reporting-achsen-notationsprofil-und-nutzungskonzept.md) | Reporting-Achsen: Notationsprofil × Nutzungskonzept (Visual Library) | Accepted (2026-10-09) |
 | [0027](0027-top-n-ausnahme-als-feld-bc-chart-10.md) | Top-N-Ausnahme als Feld (BC-CHART-10) | Accepted (2026-10-24) |
 | [0028](0028-forecast-als-ausloeser-typ.md) | Forecast als Auslöser-Typ der Action Codes | Accepted (2026-10-30) |
+| [0029](0029-strukturformen-als-zweite-familie-der-visual-library.md) | Strukturformen als zweite Familie der Visual Library | Proposed (2026-11-12) |

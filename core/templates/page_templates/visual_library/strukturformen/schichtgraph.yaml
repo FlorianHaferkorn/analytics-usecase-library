@@ -1,0 +1,56 @@
+# Strukturform schichtgraph (ADR-0029). Schema: _schema.yaml
+id: schichtgraph
+name: Schichtgraph (Sugiyama)
+version: 1.0.0
+status: active
+strukturtypen:
+- dag_geschichtet
+- fluss
+fragen:
+  primaer:
+  - weg
+  - ueberblick
+  sekundaer:
+  - luecken
+menge:
+  min: 5
+  max: 60
+voraussetzung:
+  zyklen: false
+vorrang: 10
+vorrang_regel: wegfrage_node_link
+kantenklassen_max: 3
+reduktion:
+- ebenen_filter
+- detailstufen
+- fokus_hops
+- filter_kantenklasse
+interaktion:
+- suche
+- hover_nachbarn
+- zoom
+- auswahl_detail
+kanaele:
+  ordinal:
+  - position_reihenfolge
+  beziehung:
+  - linie
+  richtung:
+  - verjuengung
+  identitaet:
+  - form
+technik:
+- svg
+textalternative: Tabelle je Ebene mit Vorgängern und Nachfolgern
+regeln:
+- wegfrage_node_link
+- schichtlayout_fuer_dag
+- kreuzungen_zuerst
+- richtung_verjuengt
+- eine_abstraktionsstufe_je_ansicht
+- kategorien_farbe_max
+- kanal_nach_bedeutungsart
+anti_patterns:
+- edge_types_by_colour_only
+- bundling_on_path_question
+idiom_ref: null

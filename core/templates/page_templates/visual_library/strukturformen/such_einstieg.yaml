@@ -1,0 +1,52 @@
+# Strukturform such_einstieg (ADR-0029). Schema: _schema.yaml
+id: such_einstieg
+name: Sucheinstieg (Suche, Kontext, Erweitern)
+version: 1.0.0
+status: active
+strukturtypen:
+- netz
+- dag_geschichtet
+- baum
+- enthaltensein
+- fluss
+fragen:
+  primaer:
+  - ueberblick
+  - nachbarschaft
+  - pflege
+  sekundaer:
+  - luecken
+menge:
+  min: 150
+  max: null
+voraussetzung: {}
+vorrang: 5
+vorrang_regel: suche_kontext_expand
+kantenklassen_max: 6
+reduktion:
+- expand_on_demand
+- fokus_hops
+- ausduennen_doi
+- filter_kantenklasse
+interaktion:
+- suche
+- auswahl_detail
+- verknuepfte_ansicht
+- editor_sprung
+kanaele:
+  ordinal:
+  - position_reihenfolge
+  gruppe:
+  - naehe
+technik:
+- html
+- svg
+textalternative: Trefferliste und Detail mit Nachbarliste
+regeln:
+- suche_kontext_expand
+- keine_gesamtkarte_als_einstieg
+- sichtgrenze_produkte
+- kanal_nach_bedeutungsart
+anti_patterns:
+- whole_graph_as_entry
+idiom_ref: null

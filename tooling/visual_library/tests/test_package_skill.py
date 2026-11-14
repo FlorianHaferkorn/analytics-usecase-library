@@ -26,6 +26,7 @@ def test_bundle_is_complete_and_portable(tmp_path):
     implemented = yaml.safe_load((REPO_ROOT / "core" / "templates" / "page_templates" / "visual_library"
                                   / "index.yaml").read_text(encoding="utf-8"))["implemented"]
     assert m["idiom_yaml"] == len(implemented) and m["golden_files"] > 90   # every idiom, no fixed count
+    assert m["strukturform_yaml"] == 13   # ADR-0029: zweite Familie, getrennt gezählt
     # portable: no ALUCA-core machinery leaked into the bundle
     assert not (b / "tooling" / "superversion").exists()
     assert not (b / "core" / "usecases").exists()

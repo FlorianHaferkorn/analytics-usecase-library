@@ -1,0 +1,50 @@
+# Strukturform ego_graph (ADR-0029). Schema: _schema.yaml
+id: ego_graph
+name: Ego-Graph (Fokus mit 1–2 Hops)
+version: 1.0.0
+status: active
+strukturtypen:
+- netz
+- dag_geschichtet
+fragen:
+  primaer:
+  - nachbarschaft
+  sekundaer:
+  - weg
+  - luecken
+menge:
+  min: 2
+  max: null
+voraussetzung: {}
+vorrang: 10
+vorrang_regel: node_link_default_laien
+kantenklassen_max: 6
+reduktion:
+- fokus_hops
+- expand_on_demand
+- ausduennen_doi
+interaktion:
+- suche
+- auswahl_detail
+- hover_nachbarn
+- editor_sprung
+kanaele:
+  beziehung:
+  - linie
+  identitaet:
+  - form
+  gruppe:
+  - naehe
+technik:
+- svg
+- html
+textalternative: Nachbarliste gruppiert nach Kantenklasse und Richtung
+regeln:
+- node_link_default_laien
+- doi_ausduennen
+- suche_kontext_expand
+- feste_notation_je_objekttyp
+- kanal_nach_bedeutungsart
+anti_patterns:
+- whole_graph_as_entry
+idiom_ref: null

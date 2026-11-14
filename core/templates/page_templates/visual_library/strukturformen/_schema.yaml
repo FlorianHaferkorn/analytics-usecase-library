@@ -1,0 +1,40 @@
+# Strukturformen — Schema der zweiten Familie der Visual Library (ADR-0029)
+# ------------------------------------------------------------------
+# Die Idiome eine Ebene höher beantworten Mengenfragen (Wert, Abweichung, Anteil) und
+# realisieren sich in vier Werkzeugspuren. Strukturformen beantworten Beziehungsfragen
+# (Weg, Nachbarschaft, Wirkung, Überblick) über Ontologie, Semantik, Business-Logik,
+# Lineage und Verantwortung. Sie haben keine vier Werkzeugspuren; ihr Vertrag ist die
+# Auswahl: zu Struktur, Frage und sichtbarer Knotenzahl die Form, die laut Beleg passt.
+#
+# Maschinenform: jede Aussage ist ein Feld; die Herleitung steht in `_regeln.yaml` mit
+# Belegart (gemessen | dokumentiert | faustregel | hergeleitet). Die Auswahl rechnet
+# `tooling/visual_library/strukturform.py`; die Fälle in
+# `tooling/visual_library/strukturform_cases.json` frieren sie ein
+# (`tooling/visual_library/tests/test_strukturformen.py`).
+
+schema_version: 1
+
+# Jede Formdatei (<id>.yaml) hat genau diese Schlüssel, in dieser Reihenfolge.
+required_keys:
+  - id               # snake_case, == Dateiname
+  - name             # Name für Menschen
+  - version          # semver wie bei den Idiomen
+  - status           # active | experimental | deprecated
+  - strukturtypen    # Teilmenge von _vokabular.yaml strukturtypen
+  - fragen           # {primaer: [...], sekundaer: [...]} aus _vokabular.yaml fragetypen
+  - menge            # {min, max}: Knoten im Bestand der Frage VOR Reduktion (max null = unbegrenzt)
+  - voraussetzung    # {} oder Bedingungen an die Daten: masse, zyklen, wurzeln_max, start_ziel
+  - vorrang          # int, kleiner = früher; Gleichstand bei gleicher Frage-Stufe
+  - vorrang_regel    # Regel-ID aus _regeln.yaml, die den Vorrang begründet
+  - kantenklassen_max  # wie viele Kantenklassen die Form gleichzeitig unterscheidbar zeigt
+  - reduktion        # Muster aus _vokabular.yaml reduktion (wie die Form Dichte beherrscht)
+  - interaktion      # Muster aus _vokabular.yaml interaktion
+  - kanaele          # {bedeutungsart: [kanal]}: welcher visuelle Kanal welche Bedeutung trägt (_vokabular.yaml bedeutungsarten); ein Kanal je Form nur für eine Bedeutungsart
+  - technik          # svg | html | canvas | webgl (bevorzugt zuerst)
+  - textalternative  # wie die Struktur ohne Bild zugänglich ist (Pflicht, nicht leer)
+  - regeln           # Regel-IDs aus _regeln.yaml, die die Form tragen
+  - anti_patterns    # IDs aus ../_anti_patterns.yaml (gemeinsamer Katalog mit den Idiomen)
+  - idiom_ref        # null oder ID eines Idioms der Visual Library, das die Form realisiert
+
+# Belegarten (Belegpflicht): gemessen verlangt `zahl`.
+belegarten: [gemessen, dokumentiert, faustregel, hergeleitet]

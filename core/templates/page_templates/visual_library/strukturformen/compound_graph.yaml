@@ -1,0 +1,53 @@
+# Strukturform compound_graph (ADR-0029). Schema: _schema.yaml
+id: compound_graph
+name: Gruppierter Graph (Container mit gebündelten Querkanten)
+version: 1.0.0
+status: experimental
+strukturtypen:
+- netz
+- enthaltensein
+fragen:
+  primaer:
+  - ueberblick
+  sekundaer:
+  - nachbarschaft
+  - vergleich
+menge:
+  min: 15
+  max: 200
+voraussetzung: {}
+vorrang: 10
+vorrang_regel: sichtgrenze_produkte
+kantenklassen_max: 2
+reduktion:
+- zusammenklappen
+- buendelung_mit_zaehler
+- filter_kantenklasse
+- expand_on_demand
+interaktion:
+- einklappen
+- hover_nachbarn
+- auswahl_detail
+- zoom
+kanaele:
+  gruppe:
+  - umschliessung
+  beziehung:
+  - linie
+  quantitativ:
+  - ziffer
+technik:
+- svg
+textalternative: Gruppenliste mit Zählern der Querbeziehungen je Gruppenpaar
+regeln:
+- sichtgrenze_produkte
+- buendelung_nur_ueberblick
+- node_link_default_laien
+- viele_kantentypen_filtern
+- kategorien_farbe_max
+- kanal_nach_bedeutungsart
+anti_patterns:
+- whole_graph_as_entry
+- bundling_on_path_question
+- edge_types_by_colour_only
+idiom_ref: null

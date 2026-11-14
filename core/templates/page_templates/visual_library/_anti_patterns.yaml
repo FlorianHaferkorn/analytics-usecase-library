@@ -285,3 +285,37 @@ patterns:
     message: "Dense scatter points drawn opaque hide the mass of the distribution."
     fix: "Add opacity/alpha, or bin (2-D histogram / hexbin)."
     source: "data-to-viz (scatter caveats)"
+
+  # --- Strukturformen (strukturformen/, ADR-0029) -----------------------------
+  whole_graph_as_entry:
+    message: "Showing the whole graph as the entry view produces a hairball; no product in the field starts there."
+    fix: "Start from search or a focus object (such_einstieg, ego_graph); collapse groups (compound_graph)."
+    source: "van Ham & Perer 2009; Palantir Vertex, Neo4j Bloom, Fabric Ontology docs"
+  flat_forest_as_strip:
+    message: "A forest with many roots and little depth drawn as a tree becomes a wide, unreadable strip."
+    fix: "Use liste_eingerueckt; keep baumdiagramm for at most 3 roots."
+    source: "Meridian Studio measurement 12.11.2026 (13 roots, 2 edges, 2480 x 176 px)"
+  treemap_for_structure:
+    message: "A treemap shows size, not structure; hierarchy and navigation tasks read worse than with an icicle."
+    fix: "Use icicle for structure with magnitude; treemap only for size comparison."
+    source: "Woodburn et al. 2019; Stasko et al. 2000"
+  edge_types_by_colour_only:
+    message: "Distinguishing many edge types by colour alone exceeds the 6-12 categories colour can carry."
+    fix: "Map edge types to edge classes, draw the class by stroke, filter or layer the rest."
+    source: "Munzner 2014 (rule of thumb); McGee et al. 2019; Nobre et al. 2019"
+  bundling_on_path_question:
+    message: "Edge bundling hides individual edges; a path can no longer be traced."
+    fix: "Switch bundling off for path questions (schichtgraph, pfadansicht)."
+    source: "Nunes et al. 2017; Holten & van Wijk 2009"
+  matrix_for_path_question:
+    message: "Path finding is the one task where node-link beats the matrix in every condition."
+    fix: "Use schichtgraph or pfadansicht for path questions; keep the matrix for neighbourhood."
+    source: "Ghoniem, Fekete & Castagliola 2004"
+  cycles_in_driver_tree:
+    message: "Feedback loops forced into a driver tree hide the cycle and suggest a calculation that is a causal claim."
+    fix: "Use wirkungsdiagramm with polarity per edge; keep driver trees acyclic."
+    source: "Nørreklit 2000; Booth Sweeney & Sterman 2000"
+  3d_without_depth_cues:
+    message: "3D on a flat screen without stereo or head-coupled motion adds occlusion without measured benefit."
+    fix: "Draw relational structure in 2D; keep 3D for spatial models with a 2D fallback."
+    source: "Ware & Franck 1996; Greffard et al. 2011; Kotlarek et al. 2020"
